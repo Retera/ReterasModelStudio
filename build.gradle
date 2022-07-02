@@ -17,8 +17,6 @@ repositories {
     mavenCentral()
 }
 
-
-
 allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
@@ -31,7 +29,7 @@ allprojects {
 		lwjglVersion = '2.9.3'
 		image4jVersion = '0.7'
 		rsyntaxtextareaVersion = '3.0.2'
-        nashornVersion = '15.2'
+        nashornVersion = '15.3'
     }
 
     repositories {

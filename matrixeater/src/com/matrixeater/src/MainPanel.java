@@ -462,7 +462,7 @@ public class MainPanel extends JPanel
 					if (index != -1) {
 						if (index < mpanel.getModel().getIdObjects().size()) {
 							final IdObject node = mpanel.getModel().getIdObject(index);
-							if (node instanceof Bone && !(node instanceof Helper)) {
+							if ((node instanceof Bone) && !(node instanceof Helper)) {
 								valid = true;
 							}
 						}
@@ -777,7 +777,7 @@ public class MainPanel extends JPanel
 			if (ret == JOptionPane.OK_OPTION) {
 				prefs.loadFrom(programPreferences);
 				final List<DataSourceDescriptor> dataSources = programPreferencesPanel.getDataSources();
-				final boolean changedDataSources = dataSources != null && !dataSources.equals(priorDataSources);
+				final boolean changedDataSources = (dataSources != null) && !dataSources.equals(priorDataSources);
 				if (changedDataSources) {
 					SaveProfile.get().setDataSources(dataSources);
 				}
@@ -996,7 +996,7 @@ public class MainPanel extends JPanel
 					if (modelPanel != null) {
 						boolean foundAnim = false;
 						for (final Animation animation : modelPanel.getModel().getAnims()) {
-							if (animation.getStart() == start && animation.getEnd() == end) {
+							if ((animation.getStart() == start) && (animation.getEnd() == end)) {
 								creatorPanel.setChosenAnimation(animation);
 								foundAnim = true;
 								break;
@@ -1732,7 +1732,7 @@ public class MainPanel extends JPanel
 		for (int i = 0; i < childWindowCount; i++) {
 			final DockingWindow childWindow = window.getChildWindow(i);
 			traverseAndFix(childWindow);
-			if (tabWindow && childWindowCount != 1 && childWindow instanceof View) {
+			if (tabWindow && (childWindowCount != 1) && (childWindow instanceof View)) {
 				final View view = (View) childWindow;
 				view.getViewProperties().getViewTitleBarProperties().setVisible(false);
 			}
@@ -1796,7 +1796,7 @@ public class MainPanel extends JPanel
 
 	@Override
 	public void changeActivity(final ActivityDescriptor newType) {
-		this.currentActivity = newType;
+		currentActivity = newType;
 		for (final ModelPanel modelPanel : modelPanels) {
 			modelPanel.changeActivity(newType);
 		}
@@ -1818,7 +1818,7 @@ public class MainPanel extends JPanel
 
 	public void refreshAnimationModeState() {
 		if (animationModeState) {
-			if (currentModelPanel() != null && currentModelPanel().getModel() != null) {
+			if ((currentModelPanel() != null) && (currentModelPanel().getModel() != null)) {
 				if (currentModelPanel().getModel().getAnimsSize() > 0) {
 					final Animation anim = currentModelPanel().getModel().getAnim(0);
 					animatedRenderEnvironment.setBounds(anim.getStart(), anim.getEnd());
@@ -1830,14 +1830,14 @@ public class MainPanel extends JPanel
 				timeSliderPanel.setNodeSelectionManager(
 						currentModelPanel().getModelEditorManager().getNodeAnimationSelectionManager());
 			}
-			if (actionTypeGroup.getActiveButtonType() == actionTypeGroup.getToolbarButtonTypes()[3]
-					|| actionTypeGroup.getActiveButtonType() == actionTypeGroup.getToolbarButtonTypes()[4]) {
+			if ((actionTypeGroup.getActiveButtonType() == actionTypeGroup.getToolbarButtonTypes()[3])
+					|| (actionTypeGroup.getActiveButtonType() == actionTypeGroup.getToolbarButtonTypes()[4])) {
 				actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
 			}
 		}
 		animatedRenderEnvironment.setStaticViewMode(!animationModeState);
 		if (!animationModeState) {
-			if (currentModelPanel() != null && currentModelPanel().getModel() != null) {
+			if ((currentModelPanel() != null) && (currentModelPanel().getModel() != null)) {
 				currentModelPanel().getEditorRenderModel().refreshFromEditor(animatedRenderEnvironment,
 						currentModelPanel().getPerspArea().getViewport().getViewerCamera(),
 						currentModelPanel().getPerspArea().getViewport());
@@ -2434,7 +2434,7 @@ public class MainPanel extends JPanel
 					if (window instanceof TabWindow) {
 						final TabWindow tabWindow = (TabWindow) window;
 						final int tabCount = tabWindow.getChildWindowCount();
-						if (index - 1 < tabCount) {
+						if ((index - 1) < tabCount) {
 							tabWindow.setSelectedTab(index - 1);
 						}
 					}
@@ -2510,7 +2510,7 @@ public class MainPanel extends JPanel
 				// prefs.setSelectionType(0);
 				// cheatShift = false;
 				// }
-				if (selectionModeGroup.getActiveButtonType() == SelectionMode.ADD && cheatShift) {
+				if ((selectionModeGroup.getActiveButtonType() == SelectionMode.ADD) && cheatShift) {
 					selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
 					cheatShift = false;
 				}
@@ -2528,7 +2528,7 @@ public class MainPanel extends JPanel
 				// prefs.setSelectionType(0);
 				// cheatAlt = false;
 				// }
-				if (selectionModeGroup.getActiveButtonType() == SelectionMode.DESELECT && cheatAlt) {
+				if ((selectionModeGroup.getActiveButtonType() == SelectionMode.DESELECT) && cheatAlt) {
 					selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
 					cheatAlt = false;
 				}
@@ -2581,11 +2581,11 @@ public class MainPanel extends JPanel
 		}
 		for (final ModelPanel mpanel : modelPanels) {
 			mpanel.getEditorRenderModel()
-					.setSpawnParticles(prefs.getRenderParticles() == null || prefs.getRenderParticles());
+					.setSpawnParticles((prefs.getRenderParticles() == null) || prefs.getRenderParticles());
 			mpanel.getEditorRenderModel().setAllowInanimateParticles(
-					prefs.getRenderStaticPoseParticles() == null || prefs.getRenderStaticPoseParticles());
+					(prefs.getRenderStaticPoseParticles() == null) || prefs.getRenderStaticPoseParticles());
 			mpanel.getAnimationViewer()
-					.setSpawnParticles(prefs.getRenderParticles() == null || prefs.getRenderParticles());
+					.setSpawnParticles((prefs.getRenderParticles() == null) || prefs.getRenderParticles());
 		}
 	}
 
@@ -3198,7 +3198,7 @@ public class MainPanel extends JPanel
 
 				if (exportTextureDialog.getCurrentDirectory() == null) {
 					final EditableModel current = currentMDL();
-					if (current != null && !current.isTemp() && current.getFile() != null) {
+					if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 						fc.setCurrentDirectory(current.getFile().getParentFile());
 					} else if (profile.getPath() != null) {
 						fc.setCurrentDirectory(new File(profile.getPath()));
@@ -3477,7 +3477,7 @@ public class MainPanel extends JPanel
 				final StringBuilder sb = new StringBuilder();
 				for (final File file : new File(
 						"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\CustomMapData\\LuaFpsMap\\Maps\\MultiplayerFun004")
-								.listFiles()) {
+						.listFiles()) {
 					if (!file.getName().toLowerCase().endsWith("_init.txt")) {
 						sb.setLength(0);
 						try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -3496,7 +3496,7 @@ public class MainPanel extends JPanel
 							e1.printStackTrace();
 						}
 						final String dataString = sb.toString();
-						for (int i = 0; i + 23 < dataString.length(); i += 24) {
+						for (int i = 0; (i + 23) < dataString.length(); i += 24) {
 							final Geoset geo = new Geoset();
 							currentMDL().addGeoset(geo);
 							geo.setParentModel(currentMDL());
@@ -3518,7 +3518,8 @@ public class MainPanel extends JPanel
 							System.out.println(x + "," + y + "," + z);
 
 							final Mesh mesh = ModelUtils.createBox(new Vertex(x * 10, y * 10, z * 10),
-									new Vertex(x * 10 + sX * 10, y * 10 + sY * 10, z * 10 + sZ * 10), 1, 1, 1, geo);
+									new Vertex((x * 10) + (sX * 10), (y * 10) + (sY * 10), (z * 10) + (sZ * 10)), 1, 1,
+									1, geo);
 							geo.getVertices().addAll(mesh.getVertices());
 							geo.getTriangles().addAll(mesh.getTriangles());
 						}
@@ -3918,9 +3919,9 @@ public class MainPanel extends JPanel
 					boolean alreadyRetained = false;
 					for (final Geoset retainedGeoset : retainedGeosets) {
 						if (retainedGeoset.getMaterial().equals(geoset.getMaterial())
-								&& retainedGeoset.getSelectionGroup() == geoset.getSelectionGroup()
-								&& retainedGeoset.getFlags().contains("Unselectable") == geoset.getFlags()
-										.contains("Unselectable")
+								&& (retainedGeoset.getSelectionGroup() == geoset.getSelectionGroup())
+								&& (retainedGeoset.getFlags().contains("Unselectable") == geoset.getFlags()
+										.contains("Unselectable"))
 								&& mergableGeosetAnims(retainedGeoset.getGeosetAnim(), geoset.getGeosetAnim())) {
 							alreadyRetained = true;
 							for (final GeosetVertex gv : geoset.getVertices()) {
@@ -3955,18 +3956,18 @@ public class MainPanel extends JPanel
 			}
 
 			private boolean mergableGeosetAnims(final GeosetAnim first, final GeosetAnim second) {
-				if (first == null && second == null) {
+				if ((first == null) && (second == null)) {
 					return true;
 				}
-				if (first == null || second == null) {
+				if ((first == null) || (second == null)) {
 					return false;
 				}
 				final AnimFlag firstVisibilityFlag = first.getVisibilityFlag();
 				final AnimFlag secondVisibilityFlag = second.getVisibilityFlag();
-				if (firstVisibilityFlag == null != (secondVisibilityFlag == null)) {
+				if ((firstVisibilityFlag == null) != (secondVisibilityFlag == null)) {
 					return false;
 				}
-				if (firstVisibilityFlag != null && !firstVisibilityFlag.equals(secondVisibilityFlag)) {
+				if ((firstVisibilityFlag != null) && !firstVisibilityFlag.equals(secondVisibilityFlag)) {
 					return false;
 				}
 				if (first.isDropShadow() != second.isDropShadow()) {
@@ -3975,18 +3976,18 @@ public class MainPanel extends JPanel
 				if (Math.abs(first.getStaticAlpha() - second.getStaticAlpha()) > 0.001) {
 					return false;
 				}
-				if (first.getStaticColor() == null != (second.getStaticColor() == null)) {
+				if ((first.getStaticColor() == null) != (second.getStaticColor() == null)) {
 					return false;
 				}
-				if (first.getStaticColor() != null && !first.getStaticColor().equalLocs(second.getStaticColor())) {
+				if ((first.getStaticColor() != null) && !first.getStaticColor().equalLocs(second.getStaticColor())) {
 					return false;
 				}
 				final AnimFlag firstAnimatedColor = AnimFlag.find(first.getAnimFlags(), "Color");
 				final AnimFlag secondAnimatedColor = AnimFlag.find(second.getAnimFlags(), "Color");
-				if (firstAnimatedColor == null != (secondAnimatedColor == null)) {
+				if ((firstAnimatedColor == null) != (secondAnimatedColor == null)) {
 					return false;
 				}
-				if (firstAnimatedColor != null && !firstAnimatedColor.equals(secondAnimatedColor)) {
+				if ((firstAnimatedColor != null) && !firstAnimatedColor.equals(secondAnimatedColor)) {
 					return false;
 				}
 				return true;
@@ -4150,7 +4151,7 @@ public class MainPanel extends JPanel
 						final String boneName = bone.getName();
 						Bone replacement = nameToNode.get(boneName);
 						int upwardDepth = 0;
-						while (replacement == null && bone != null) {
+						while ((replacement == null) && (bone != null)) {
 							bone = bone.getParent();
 							upwardDepth++;
 							if (bone != null) {
@@ -4164,8 +4165,8 @@ public class MainPanel extends JPanel
 							replacement = animationModel.getBone(0);
 //							throw new IllegalStateException("failed to replace: " + boneName);
 						} else {
-							while (upwardDepth > 0 && replacement.getChildrenNodes().size() == 1
-									&& replacement.getChildrenNodes().get(0) instanceof Bone) {
+							while ((upwardDepth > 0) && (replacement.getChildrenNodes().size() == 1)
+									&& (replacement.getChildrenNodes().get(0) instanceof Bone)) {
 								replacement = (Bone) replacement.getChildrenNodes().get(0);
 								upwardDepth--;
 							}
@@ -4302,7 +4303,7 @@ public class MainPanel extends JPanel
 			} else if (e.getSource() == importButton) {
 				fc.setDialogTitle("Import");
 				final EditableModel current = currentMDL();
-				if (current != null && !current.isTemp() && current.getFile() != null) {
+				if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 					fc.setCurrentDirectory(current.getFile().getParentFile());
 				} else if (profile.getPath() != null) {
 					fc.setCurrentDirectory(new File(profile.getPath()));
@@ -4422,7 +4423,7 @@ public class MainPanel extends JPanel
 			} else if (e.getSource() == mergeGeoset) {
 				fc.setDialogTitle("Merge Single Geoset (Oinker-based)");
 				final EditableModel current = currentMDL();
-				if (current != null && !current.isTemp() && current.getFile() != null) {
+				if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 					fc.setCurrentDirectory(current.getFile().getParentFile());
 				} else if (profile.getPath() != null) {
 					fc.setCurrentDirectory(new File(profile.getPath()));
@@ -4440,7 +4441,7 @@ public class MainPanel extends JPanel
 								"Geoset into which to Import: (1 to " + current.getGeosetsSize() + ")");
 						try {
 							final int x = Integer.parseInt(s);
-							if (x >= 1 && x <= current.getGeosetsSize()) {
+							if ((x >= 1) && (x <= current.getGeosetsSize())) {
 								host = current.getGeoset(x - 1);
 								going = false;
 							}
@@ -4493,7 +4494,7 @@ public class MainPanel extends JPanel
 			} else if (e.getSource() == nullmodelButton) {
 				nullmodelFile();
 				refreshController();
-			} else if (e.getSource() == save && currentMDL() != null && currentMDL().getFile() != null) {
+			} else if ((e.getSource() == save) && (currentMDL() != null) && (currentMDL().getFile() != null)) {
 				onClickSave();
 			} else if (e.getSource() == saveAs) {
 				if (!onClickSaveAs()) {
@@ -4505,9 +4506,9 @@ public class MainPanel extends JPanel
 				// tabbedPane.remove(contextClickedTab);
 				// }
 			} else if (e.getSource() == contextCloseAll) {
-				this.closeAll();
+				closeAll();
 			} else if (e.getSource() == contextCloseOthers) {
-				this.closeOthers(currentModelPanel);
+				closeOthers(currentModelPanel);
 			} else if (e.getSource() == showVertexModifyControls) {
 				final boolean selected = showVertexModifyControls.isSelected();
 				prefs.setShowVertexModifierControls(selected);
@@ -4533,14 +4534,14 @@ public class MainPanel extends JPanel
 
 					panel.initViewport();
 					final FloatingWindow floatingWindow = rootWindow.createFloatingWindow(
-							new Point(getX() + getWidth() / 2, getY() + getHeight() / 2), panel.getSize(),
+							new Point(getX() + (getWidth() / 2), getY() + (getHeight() / 2)), panel.getSize(),
 							panel.getView());
 					panel.init();
 					floatingWindow.getTopLevelAncestor().setVisible(true);
 					panel.packFrame();
 				} else if (!disp.getEditUVPanel().frameVisible()) {
 					final FloatingWindow floatingWindow = rootWindow.createFloatingWindow(
-							new Point(getX() + getWidth() / 2, getY() + getHeight() / 2),
+							new Point(getX() + (getWidth() / 2), getY() + (getHeight() / 2)),
 							disp.getEditUVPanel().getSize(), disp.getEditUVPanel().getView());
 					floatingWindow.getTopLevelAncestor().setVisible(true);
 				}
@@ -4562,7 +4563,7 @@ public class MainPanel extends JPanel
 
 				if (exportTextureDialog.getCurrentDirectory() == null) {
 					final EditableModel current = currentMDL();
-					if (current != null && !current.isTemp() && current.getFile() != null) {
+					if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 						fc.setCurrentDirectory(current.getFile().getParentFile());
 					} else if (profile.getPath() != null) {
 						fc.setCurrentDirectory(new File(profile.getPath()));
@@ -4785,7 +4786,7 @@ public class MainPanel extends JPanel
 			} else if (e.getSource() == animFromFile) {
 				fc.setDialogTitle("Animation Source");
 				final EditableModel current = currentMDL();
-				if (current != null && !current.isTemp() && current.getFile() != null) {
+				if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 					fc.setCurrentDirectory(current.getFile().getParentFile());
 				} else if (profile.getPath() != null) {
 					fc.setCurrentDirectory(new File(profile.getPath()));
@@ -4954,7 +4955,7 @@ public class MainPanel extends JPanel
 	private boolean onClickSaveAs(final EditableModel current, final Consumer<File> fileCallback) {
 		try {
 			fc.setDialogTitle("Save as");
-			if (current != null && !current.isTemp() && current.getFile() != null) {
+			if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 				fc.setCurrentDirectory(current.getFile().getParentFile());
 				fc.setSelectedFile(current.getFile());
 			} else if (profile.getPath() != null) {
@@ -5022,7 +5023,7 @@ public class MainPanel extends JPanel
 	private void onClickOpen() {
 		fc.setDialogTitle("Open");
 		final EditableModel current = currentMDL();
-		if (current != null && !current.isTemp() && current.getFile() != null) {
+		if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 			fc.setCurrentDirectory(current.getFile().getParentFile());
 		} else if (profile.getPath() != null) {
 			fc.setCurrentDirectory(new File(profile.getPath()));
@@ -5189,7 +5190,7 @@ public class MainPanel extends JPanel
 		final int x = JOptionPane.showConfirmDialog(this, selector, "Object Editor - Select Unit",
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		final MutableGameObject choice = selector.getSelection();
-		if (choice == null || x != JOptionPane.OK_OPTION) {
+		if ((choice == null) || (x != JOptionPane.OK_OPTION)) {
 			return null;
 		}
 
@@ -5247,7 +5248,7 @@ public class MainPanel extends JPanel
 		@Override
 		public void actionPerformed(final ActionEvent e) {
 			final View view = openViewGetter.getView();
-			if (view.getTopLevelAncestor() == null || !view.getTopLevelAncestor().isVisible()) {
+			if ((view.getTopLevelAncestor() == null) || !view.getTopLevelAncestor().isVisible()) {
 				final FloatingWindow createFloatingWindow = rootWindow.createFloatingWindow(rootWindow.getLocation(),
 						new Dimension(640, 480), view);
 				createFloatingWindow.getTopLevelAncestor().setVisible(true);
@@ -5267,7 +5268,7 @@ public class MainPanel extends JPanel
 		}
 
 		public ModelStructureChangeListenerImplementation(final EditableModel model) {
-			this.modelReference = new ModelReference() {
+			modelReference = new ModelReference() {
 				@Override
 				public EditableModel getModel() {
 					return model;
@@ -5543,7 +5544,7 @@ public class MainPanel extends JPanel
 		recentItems.clear();
 		for (int i = 0; i < recent.size(); i++) {
 			final String fp = recent.get(recent.size() - i - 1);
-			if (recentItems.size() <= i || recentItems.get(i).filepath != fp) {
+			if ((recentItems.size() <= i) || (recentItems.get(i).filepath != fp)) {
 				// String[] bits = recent.get(i).split("/");
 
 				final RecentItem item = new RecentItem(new File(fp).getName());
@@ -5742,8 +5743,9 @@ public class MainPanel extends JPanel
 		newGeoset.add(new Triangle(upperRight, lowerRight, lowerLeft));
 		blankTextureModel.add(newGeoset);
 		blankTextureModel.add(new Animation("Stand", 0, 1000));
-		final Camera blpCam = new Camera("Camera01", new Vertex(displayWidth * 2, 0, groundOffset + displayHeight / 2),
-				new Vertex(0, 0, groundOffset + displayHeight / 2), 0.75f, 1000f, 8f);
+		final Camera blpCam = new Camera("Camera01",
+				new Vertex(displayWidth * 2, 0, groundOffset + (displayHeight / 2)),
+				new Vertex(0, 0, groundOffset + (displayHeight / 2)), 0.75f, 1000f, 8f);
 		blankTextureModel.add(blpCam);
 		blankTextureModel.doSavePreps();
 
@@ -5804,7 +5806,7 @@ public class MainPanel extends JPanel
 		// }).start();
 		toolsMenu.setEnabled(true);
 
-		if (selectNewTab && prefs.getQuickBrowse() != null && prefs.getQuickBrowse()) {
+		if (selectNewTab && (prefs.getQuickBrowse() != null) && prefs.getQuickBrowse()) {
 			for (int i = modelPanels.size() - 2; i >= 0; i--) {
 				final ModelPanel openModelPanel = modelPanels.get(i);
 				if (openModelPanel.getUndoManager().isRedoListEmpty()
@@ -5875,7 +5877,7 @@ public class MainPanel extends JPanel
 			leftView.setComponent(modelContextManager.getSideArea());
 			perspectiveView.setComponent(modelContextManager.getPerspArea());
 			previewView.setComponent(modelContextManager.getAnimationViewer());
-			if (prefs.getAutoPopulateMdlTextEditor() == null || prefs.getAutoPopulateMdlTextEditor()) {
+			if ((prefs.getAutoPopulateMdlTextEditor() == null) || prefs.getAutoPopulateMdlTextEditor()) {
 				loadMDLText(modelContextManager);
 			} else {
 				mdlEditorTextArea.setText(
@@ -5970,23 +5972,23 @@ public class MainPanel extends JPanel
 				// c remains '0'
 				continueLoop = false;
 			}
-			for (char n = '0'; n < '9' && continueLoop; n++) {
+			for (char n = '0'; (n < '9') && continueLoop; n++) {
 				// JOptionPane.showMessageDialog(null,"checking "+c+" against
 				// "+n);
 				if (c == n) {
 					char x = c;
 					x++;
 					output = output.substring(0, output.length() - depth) + x
-							+ output.substring(output.length() - depth + 1);
+							+ output.substring((output.length() - depth) + 1);
 					continueLoop = false;
 				}
 			}
 			if (c == '9') {
 				output = output.substring(0, output.length() - depth) + 0
-						+ output.substring(output.length() - depth + 1);
+						+ output.substring((output.length() - depth) + 1);
 			} else if (continueLoop) {
-				output = output.substring(0, output.length() - depth + 1) + 1
-						+ output.substring(output.length() - depth + 1);
+				output = output.substring(0, (output.length() - depth) + 1) + 1
+						+ output.substring((output.length() - depth) + 1);
 				continueLoop = false;
 			}
 			depth++;
@@ -6070,7 +6072,7 @@ public class MainPanel extends JPanel
 		s[0] = s[0].substring(4, s[0].length());
 		final int s_size = countContainsString(input, ",");
 		s[s_size - 1] = s[s_size - 1].substring(0, s[s_size - 1].length() - 2);
-		for (int t = 0; t < s_size - 1; t += 3)// s[t+3].equals("")||
+		for (int t = 0; t < (s_size - 1); t += 3)// s[t+3].equals("")||
 		{
 			for (int i = 0; i < 3; i++) {
 				s[t + i] = s[t + i].substring(1);
@@ -6310,7 +6312,7 @@ public class MainPanel extends JPanel
 				final Component parent) {
 			if (exportTextureDialog.getCurrentDirectory() == null) {
 				final EditableModel current = currentMDL();
-				if (current != null && !current.isTemp() && current.getFile() != null) {
+				if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 					fc.setCurrentDirectory(current.getFile().getParentFile());
 				} else if (profile.getPath() != null) {
 					fc.setCurrentDirectory(new File(profile.getPath()));
@@ -6337,7 +6339,7 @@ public class MainPanel extends JPanel
 
 			if (exportTextureDialog.getCurrentDirectory() == null) {
 				final EditableModel current = currentMDL();
-				if (current != null && !current.isTemp() && current.getFile() != null) {
+				if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 					fc.setCurrentDirectory(current.getFile().getParentFile());
 				} else if (profile.getPath() != null) {
 					fc.setCurrentDirectory(new File(profile.getPath()));
@@ -6386,7 +6388,7 @@ public class MainPanel extends JPanel
 	}
 
 	private boolean focusedComponentNeedsTyping(final Component focusedComponent) {
-		return focusedComponent instanceof JTextArea || focusedComponent instanceof JTextField;
+		return (focusedComponent instanceof JTextArea) || (focusedComponent instanceof JTextField);
 	}
 
 	private void mdlEditorFindNext() {
@@ -6397,7 +6399,7 @@ public class MainPanel extends JPanel
 			final Document document = mdlEditorTextArea.getDocument();
 			final int documentLength = document.getLength();
 			final int textToFindLength = textToFind.length();
-			for (int i = selectionEnd; i < documentLength - textToFindLength && !foundMatch; i++) {
+			for (int i = selectionEnd; (i < (documentLength - textToFindLength)) && !foundMatch; i++) {
 				final String text = document.getText(i, textToFindLength);
 				if (textToFind.equals(text)) {
 					foundMatch = true;
@@ -6410,7 +6412,7 @@ public class MainPanel extends JPanel
 				final int result = JOptionPane.showConfirmDialog(MainPanel.this,
 						"Finished searching document, continue from top?", "Find", JOptionPane.YES_NO_OPTION);
 				if (result == JOptionPane.YES_OPTION) {
-					for (int i = 0; i < selectionEnd && !foundMatch; i++) {
+					for (int i = 0; (i < selectionEnd) && !foundMatch; i++) {
 						final String text = document.getText(i, textToFindLength);
 						if (textToFind.equals(text)) {
 							foundMatch = true;

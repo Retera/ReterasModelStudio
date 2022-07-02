@@ -2,6 +2,8 @@ plugins {
     id 'org.beryx.runtime' version '1.12.5'
 }
 
+sourceCompatibility = 1.17
+
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 sourceSets.main.java.srcDirs = [ "src/" ]

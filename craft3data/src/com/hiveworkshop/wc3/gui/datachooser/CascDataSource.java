@@ -27,7 +27,7 @@ public class CascDataSource implements DataSource {
 	private List<String> listFile;
 	private Map<String, String> fileAliases;
 
-	public CascDataSource(final String warcraft3InstallPath, final String[] prefixes) {
+	public CascDataSource(final String warcraft3InstallPath, final String[] prefixes, Product product) {
 		this.prefixes = prefixes;
 		for (int i = 0; i < (prefixes.length / 2); i++) {
 			final String temp = prefixes[i];
@@ -36,7 +36,7 @@ public class CascDataSource implements DataSource {
 		}
 
 		try {
-			warcraftIIICASC = new WarcraftIIICASC(Paths.get(warcraft3InstallPath), true);
+			warcraftIIICASC = new WarcraftIIICASC(Paths.get(warcraft3InstallPath), true, product.key);
 			rootFileSystem = warcraftIIICASC.getRootFileSystem();
 			listFile = rootFileSystem.enumerateFiles();
 			fileAliases = new HashMap<>();
@@ -221,4 +221,16 @@ public class CascDataSource implements DataSource {
 		warcraftIIICASC.close();
 	}
 
+	public static enum Product {
+		WARCRAFT_III("w3"), WARCRAFT_III_PUBLIC_TEST("w3t");
+		private String key;
+
+		private Product(String key) {
+			this.key = key;
+		}
+		
+		public String getKey() {
+			return key;
+		}
+	}
 }
