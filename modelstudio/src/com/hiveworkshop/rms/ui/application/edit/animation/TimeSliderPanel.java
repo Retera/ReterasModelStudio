@@ -82,7 +82,7 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 		playButton.setSize(PLAY_BUTTON_DIMENSION);
 		buttonPanel.add(playButton, "spany 2");
 		allKF = new JCheckBox("All KF");
-		allKF.addActionListener(e -> revalidateKeyframeDisplay());
+		allKF.addActionListener(e -> setShowAllKFs(allKF.isSelected()));
 
 
 		setKeyframe = createSetKeyframeButton();
@@ -418,6 +418,11 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 	@Override
 	public void onSelectionChanged(final AbstractSelectionManager newSelection) {
 		keyframeHandler.updateKeyframeDisplay();
+		repaint();
+	}
+
+	private void setShowAllKFs(boolean showAll){
+		keyframeHandler.setShowAllKFs(showAll);
 		repaint();
 	}
 

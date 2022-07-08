@@ -62,11 +62,11 @@ public class ModelHandler {
 	}
 
 	public TimeEnvironmentImpl getEditTimeEnv() {
-		return renderModel.getTimeEnvironment();
+		return getRenderModel().getTimeEnvironment();
 	}
 
 	public TimeEnvironmentImpl getPreviewTimeEnv() {
-		return previewRenderModel.getTimeEnvironment();
+		return getPreviewRenderModel().getTimeEnvironment();
 	}
 	public RenderModel getRenderModel(int type) {
 //		if(renderModelList.size()<type) {

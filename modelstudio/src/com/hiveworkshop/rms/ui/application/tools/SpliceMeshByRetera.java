@@ -93,7 +93,7 @@ public class SpliceMeshByRetera {
 				undoActions.add(new SetGeosetAnimAction(animationModel, geo, geosetAnim.deepCopy(),  null));
 			}
 		}
-		modelHandler.getUndoManager().pushAction(new CompoundAction("Splice Mesh", undoActions, ModelStructureChangeListener.changeListener::geosetsUpdated).redo());
+		modelHandler.getUndoManager().pushAction(new CompoundAction("Splice Mesh", undoActions, ModelStructureChangeListener.changeListener::nodesUpdated).redo());
 
 	}
 

@@ -13,7 +13,6 @@ public class UnitBrowserView extends View {
 
 	public UnitBrowserView() {
 		super("Unit Browser", imageIcon, new JScrollPane(createUnitEditorTree()));
-//		super("Unit Browser", imageIcon, getContentPanel());
 	}
 
 	static JPanel getContentPanel(){
@@ -27,23 +26,4 @@ public class UnitBrowserView extends View {
 		return new UnitEditorTreeBrowser(new UnitTabTreeBrowserBuilder(), new UnitEditorSettings());
 	}
 
-	/**
-	 * Right now this is a plug to the statics to load unit data.
-	 * However, it's a non-static method so that we can have it load from an opened map
-	 * in the future -- the MutableObjectData class can parse map unit data!
-	 */
-	public static MutableObjectData getUnitData() {
-//		War3ObjectDataChangeset editorData = new War3ObjectDataChangeset('u');
-//		try {
-//			CompoundDataSource fs = GameDataFileSystem.getDefault();
-//			if (fs.has("war3map.w3u")) {
-//				BlizzardDataInputStream stream = new BlizzardDataInputStream(fs.getResourceAsStream("war3map.w3u"));
-//				WTS wts = fs.has("war3map.wts") ? new WTSFile(fs.getResourceAsStream("war3map.wts")) : null;
-//				editorData.load(stream, wts, true);
-//			}
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-		return new MutableUnitData();
-	}
 }

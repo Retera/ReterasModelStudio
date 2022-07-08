@@ -9,7 +9,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 
 public class ZoomableImagePreviewPanel extends JPanel {
-	private final Image image;
+	private Image image;
 	private float scale = 1.0f;
 	private int offsetX = 0;
 	private int offsetY = 0;
@@ -34,6 +34,26 @@ public class ZoomableImagePreviewPanel extends JPanel {
 	public ZoomableImagePreviewPanel(final Image image, boolean alignTop) {
 		this(image);
 		this.alignTop = alignTop;
+	}
+
+	public ZoomableImagePreviewPanel setImage(Image image) {
+		this.image = image;
+		if (image != null) {
+			imageWidth = image.getWidth(null);
+			imageHeight = image.getHeight(null);
+		}
+		return this;
+	}
+
+	public ZoomableImagePreviewPanel resetZoom(){
+		scale = 1.0f;
+		offsetX = 0;
+		offsetY = 0;
+		return this;
+	}
+
+	public Image getImage() {
+		return image;
 	}
 
 	private MouseAdapter getMouseAdapter() {

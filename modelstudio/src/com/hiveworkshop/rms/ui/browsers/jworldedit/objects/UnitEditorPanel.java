@@ -57,7 +57,7 @@ public class UnitEditorPanel extends JSplitPane {
 		this.unitMetaData = unitData.getSourceSLKMetaData();
 		this.editorFieldBuilder = objectTabTreeBrowserBuilder.getEditorFieldBuilder();
 
-		System.out.println(unitData + ", " + objectTabTreeBrowserBuilder + ", " + settings + ", " + unitData.getWorldEditorDataType());
+//		System.out.println(unitData + ", " + objectTabTreeBrowserBuilder + ", " + settings + ", " + unitData.getWorldEditorDataType());
 		tree = new UnitEditorTree(objectTabTreeBrowserBuilder, settings);
 		root = tree.getRoot();
 		JScrollPane treeScrollPane = new JScrollPane(tree);

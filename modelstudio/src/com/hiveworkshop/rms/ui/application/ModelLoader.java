@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.*;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.parsers.mdlx.BinaryDecipherHelper;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
@@ -15,6 +16,8 @@ import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.ExtFilter;
 import com.hiveworkshop.rms.util.ImageCreator;
+import com.hiveworkshop.rms.util.SklViewer;
+import com.hiveworkshop.rms.util.TxtViewer;
 import com.hiveworkshop.rms.util.Vec2;
 import jassimp.AiPostProcessSteps;
 import jassimp.AiProgressHandler;
@@ -169,11 +172,12 @@ public class ModelLoader {
 	}
 
 	public static void loadFile(File f, boolean temporary, boolean showModel, final ImageIcon icon) {
+		String filepath = f.getPath();
 		System.out.println("loadFile: " + f.getName());
-		System.out.println("filePath: " + f.getPath());
+		System.out.println("filePath: " + filepath);
 		ExtFilter extFilter = new ExtFilter();
 		if (f.exists()) {
-			final String pathLow = f.getPath().toLowerCase();
+			final String pathLow = filepath.toLowerCase();
 			String ext = pathLow.replaceAll(".+\\.(?=.+)", "");
 			EditableModel model;
 			if (extFilter.isSupTexture(ext)) {
@@ -184,6 +188,17 @@ public class ModelLoader {
 				model = getMdxlModel(f);
 			} else if (Arrays.asList("obj", "fbx").contains(ext)) {
 				model = getAssImpModel(f);
+			} else if (Arrays.asList("pkb").contains(ext)){
+				BinaryDecipherHelper.load(f);
+				model = null;
+			} else if (Arrays.asList("slk").contains(ext)) {
+				String fileName = filepath.replaceAll(".*\\\\", "");
+				new SklViewer().createAndShowHTMLPanel(filepath, fileName);
+				model = null;
+			} else if (Arrays.asList("txt").contains(ext)) {
+				String fileName = filepath.replaceAll(".*\\\\", "");
+				new TxtViewer().createAndShowHTMLPanel(filepath, fileName);
+				model = null;
 			} else {
 				model = null;
 			}
@@ -195,12 +210,37 @@ public class ModelLoader {
 				ModelPanel tempModelPanel = new ModelPanel(new ModelHandler(model, icon));
 				loadModel(temporary, showModel, tempModelPanel);
 			}
-		} else if (SaveProfile.get().getRecent().contains(f.getPath())) {
+		} else if (SaveProfile.get().getRecent().contains(filepath)) {
 			int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), "Could not find the file.\nRemove from recent?", "File not found", JOptionPane.YES_NO_OPTION);
 			if (option == JOptionPane.YES_OPTION) {
-				SaveProfile.get().removeFromRecent(f.getPath());
+				SaveProfile.get().removeFromRecent(filepath);
 				ProgramGlobals.getMenuBar().updateRecent();
 			}
+		}
+	}
+
+
+	public static void loadFileNoGUI(File f) {
+		// For testing purposes
+		System.out.println("loadFile: " + f.getName());
+		System.out.println("filePath: " + f.getPath());
+		ExtFilter extFilter = new ExtFilter();
+		if (f.exists()) {
+			final String pathLow = f.getPath().toLowerCase();
+			String ext = pathLow.replaceAll(".+\\.(?=.+)", "");
+			if (extFilter.isSupTexture(ext)) {
+				getImageModel(f, ext);
+			} else if (Arrays.asList("mdx", "mdl").contains(ext)) {
+				BinaryDecipherHelper.load(f);
+//				getMdxlModel(f);
+			} else if (Arrays.asList("obj", "fbx", "dae").contains(ext)) {
+				getAssImpModel(f);
+			} else if (Arrays.asList("pkb").contains(ext)){
+				System.out.println("pkb!");
+			BinaryDecipherHelper.load(f);
+			}
+		} else {
+			System.out.println("could not find file");
 		}
 	}
 

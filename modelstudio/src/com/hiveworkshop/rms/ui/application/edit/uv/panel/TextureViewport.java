@@ -59,8 +59,8 @@ public class TextureViewport extends BetterAWTGLCanvas {
 	private final UVRenderer geosetRenderer;
 	private Bitmap currTexture;
 
-	ExtLog currentExt = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
-	ExtLog modelExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
+	ExtLog currentExt = new ExtLog(Vec3.ZERO, Vec3.ZERO, 0);
+	ExtLog modelExtent = new ExtLog(Vec3.ZERO, Vec3.ZERO, 0);
 
 	public TextureViewport() throws LWJGLException {
 		super();

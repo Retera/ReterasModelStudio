@@ -180,13 +180,20 @@ public class SklViewer {
 		}
 		return document;
 	}
+	private void scrollToTopLeft(JScrollPane scrollPane){
+		scrollPane.getVerticalScrollBar().setValue(0);
+		scrollPane.getHorizontalScrollBar().setValue(0);
+	}
 
 	private void showPanel(String title, JEditorPane jEditorPane) {
 		JFrame frame = new JFrame(title);
-		frame.setContentPane(new JScrollPane(jEditorPane));
+		JScrollPane scrollPane = new JScrollPane(jEditorPane);
+		frame.setContentPane(scrollPane);
 		frame.setSize(650, 500);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
+
+		SwingUtilities.invokeLater(() -> scrollToTopLeft(scrollPane));
 		System.out.println("showing panel \"" + title + "\"?");
 	}
 }

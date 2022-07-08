@@ -2,10 +2,16 @@ package com.hiveworkshop.rms.ui.browsers.mpq;
 
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.ui.application.ModelLoader;
+import com.hiveworkshop.rms.parsers.blp.ImageUtils;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
+import com.hiveworkshop.rms.util.FramePopup;
+import com.hiveworkshop.rms.util.GU;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.filechooser.FileSystemView;
@@ -22,34 +28,33 @@ import java.io.IOException;
 import java.util.List;
 import java.util.*;
 
-public class MPQBrowser extends JPanel {
+public class MPQImageBrowser extends JPanel {
 
 	private final JTree tree;
 	private final DefaultTreeModel treeModel;
 	private final Map<String, Icon> iconMap;
-	private final Map<String, Filter> extensionToFilter = new HashMap<>();
-	private final Map<String, Boolean> currentlyFiltered = new HashMap<>();
 	private String currentSearch = "";
 	private MPQTreeNode root;
 	private Set<String> mergedListFile;
-	private List<Filter> filters;
-	private Filter otherFilter;
-	private JCheckBoxMenuItem checkAll;
 	private final Set<TreePath> expandedPaths;
 	private final Set<TreePath> collapsedPaths;
 
-	public MPQBrowser() {
+	private String selectedPath;
+
+	private ZoomableImagePreviewPanel comp;
+
+	private ImageUtils.ColorMode colorMode = ImageUtils.ColorMode.RGBA;
+
+	public MPQImageBrowser() {
+		super(new MigLayout("fill", "[][grow]", "[grow]"));
 		iconMap = new HashMap<>();
 
 		mergedListFile = GameDataFileSystem.getDefault().getMergedListfile();
+		String imageRegexFilter = ".+(\\.bmp|\\.tga|\\.jpg|\\.jpeg|\\.pcx|\\.blp|\\.dds)";
+		mergedListFile.removeIf(o -> !o.matches(imageRegexFilter));
+		fetchImageIcons();
 
 		JMenuBar menuBar = new JMenuBar();
-
-		JMenu fileMenu = new JMenu("File");
-		fileMenu.setEnabled(false);
-		menuBar.add(fileMenu);
-
-		menuBar.add(createAndAddFilters());
 		menuBar.add(getSearchMenu());
 
 		root = createMPQTree();
@@ -63,13 +68,81 @@ public class MPQBrowser extends JPanel {
 		expandedPaths = new HashSet<>();
 		collapsedPaths = new HashSet<>();
 
-		setLayout(new BorderLayout());
-		add(menuBar, BorderLayout.BEFORE_FIRST_LINE);
-		add(new JScrollPane(tree), BorderLayout.CENTER);
+		JPanel leftPanel = new JPanel(new BorderLayout());
+//		setLayout(new BorderLayout());
+		leftPanel.add(menuBar, BorderLayout.BEFORE_FIRST_LINE);
+		leftPanel.add(new JScrollPane(tree), BorderLayout.CENTER);
+		add(leftPanel, "growy");
+
+
+		JPanel rightPanel = new JPanel(new MigLayout("fill", "[]", "[grow][]"));
+		rightPanel.add(getImageViewerPanel(), "growx, growy, wrap");
+
+		TwiComboBox<ImageUtils.ColorMode> colorModeBox = getColorModeBox();
+		rightPanel.add(colorModeBox);
+		add(rightPanel, "growx, growy");
 
 		//	private final JFileChooser exportFileChooser;
-		MPQMouseAdapter MPQMouseAdapter = new MPQMouseAdapter(this, tree);
-		tree.addMouseListener(MPQMouseAdapter);
+		MPQImageMouseAdapter mouseAdapterExtension = new MPQImageMouseAdapter(this, tree);
+		tree.addMouseListener(mouseAdapterExtension);
+	}
+
+
+	private JPanel getImageViewerPanel() {
+		JPanel imageViewerPanel = new JPanel();
+		imageViewerPanel.setBorder(new TitledBorder(null, "Image Viewer", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		imageViewerPanel.setLayout(new BorderLayout());
+		comp = new ZoomableImagePreviewPanel(null);
+		imageViewerPanel.add(comp);
+		return imageViewerPanel;
+	}
+
+
+	private TwiComboBox<ImageUtils.ColorMode> getColorModeBox() {
+		TwiComboBox<ImageUtils.ColorMode> colorModeGroup = new TwiComboBox<>(ImageUtils.ColorMode.values(), ImageUtils.ColorMode.GREEN_GREEN);
+		colorModeGroup.addOnSelectItemListener(this::setColorMode);
+		colorModeGroup.selectOrFirst(ImageUtils.ColorMode.RGBA);
+		return colorModeGroup;
+	}
+	private void setColorMode(ImageUtils.ColorMode colorMode){
+		this.colorMode = colorMode;
+		loadBitmap(selectedPath);
+	}
+
+	private void loadBitmap(String filepath) {
+		selectedPath = filepath;
+		if (filepath != null) {
+			BufferedImage image = getImage(filepath);
+			comp.setImage(image);
+			comp.resetZoom();
+			comp.revalidate();
+			comp.repaint();
+//			imageViewerPanel.revalidate();
+//			imageViewerPanel.repaint();
+		}
+	}
+
+	private BufferedImage getImage(String filepath){
+		BufferedImage texture = BLPHandler.getGameTex(filepath);
+		if(texture != null){
+			if(colorMode == ImageUtils.ColorMode.RGBA){
+				return texture;
+			} else {
+				return ImageUtils.getBufferedImageIsolateChannel(texture, colorMode);
+			}
+		} else {
+			int imageSize = 128;
+			final BufferedImage image = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_INT_ARGB);
+			final Graphics2D g2 = image.createGraphics();
+			g2.setColor(Color.BLACK);
+			int size = imageSize-6;
+			GU.drawCenteredSquare(g2, imageSize/2, imageSize/2, size);
+			int dist1 = (imageSize - size)/2;
+			int dist2 = imageSize-dist1;
+			GU.drawLines(g2, dist1, dist1, dist2, dist2, dist1, dist2, dist2, dist1);
+//			g2.drawString(exc.getClass().getSimpleName() + ": " + exc.getMessage(), 15, 15);
+			return image;
+		}
 	}
 
 	private static File getDummyFile(String extension) {
@@ -125,46 +198,18 @@ public class MPQBrowser extends JPanel {
 		return searchMenu;
 	}
 
-	private JMenu createAndAddFilters() {
-		filters = new ArrayList<>();
-		filters.add(new Filter("Text", new String[] {".txt"}));
-		filters.add(new Filter("Sylk", new String[] {".slk"}));
-		filters.add(new Filter("Script", new String[] {".ai", ".wai", ".j", ".js", ".pld"}));
-		filters.add(new Filter("Html", new String[] {".htm", ".html"}));
-		filters.add(new Filter("Models", new String[] {".mdl", ".mdx"}));
-		filters.add(new Filter("Images", new String[] {".bmp", ".tga", ".jpg", ".jpeg", ".pcx", ".blp", ".dds"}));
-		filters.add(new Filter("Maps", new String[] {".w3m", ".w3x", ".w3n"}));
-		filters.add(new Filter("Sounds", new String[] {".wav"}));
-		filters.add(new Filter("Music", new String[] {".mp3", ".mid"}));
-		otherFilter = new Filter("Other", true);
-		filters.add(otherFilter);
-
-		JMenu filtersMenu = new JMenu("Filters");
-		filtersMenu.putClientProperty("Menu.doNotCloseOnMouseExited", false);
-		for (Filter filter : filters) {
-			filtersMenu.add(filter.getFilterCheckBoxItem());
-			filter.addActionListener(e -> setFilteredExtensions(filter.getExtensions(), filter.getFilterState()));
-
-			filter.getFilterCheckBoxItem().putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
-
-			for (String ext : filter.getExtensions()) {
-				extensionToFilter.put(ext, filter);
-				currentlyFiltered.put(ext, true);
-			}
+	private void fetchImageIcons(){
+		String[] imageExtension = {".bmp", ".tga", ".jpg", ".jpeg", ".pcx", ".blp", ".dds"};
+		for(String extension : imageExtension){
+			getIcons(extension);
 		}
-
-		checkAll = new JCheckBoxMenuItem("All", true);
-		checkAll.addActionListener(e -> setFiltered(checkAll.getState()));
-		checkAll.putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
-		filtersMenu.add(checkAll);
-		return filtersMenu;
 	}
 
 	protected void openTreePath(TreePath treePath) {
 		if (treePath != null) {
 			MPQTreeNode lastPathComponent = (MPQTreeNode) treePath.getLastPathComponent();
 			if (lastPathComponent != null && lastPathComponent.isLeaf()) {
-				loadFileByType(lastPathComponent.getPath());
+				loadBitmap(lastPathComponent.getPath());
 			}
 		}
 	}
@@ -245,15 +290,6 @@ public class MPQBrowser extends JPanel {
 		}
 	}
 
-	// Set the all the filter checkboxes to the value of the "All" checkbox and updates the filter map
-	private void setFiltered(boolean b) {
-		for (Filter filter : filters) {
-			filter.getFilterCheckBoxItem().setSelected(b);
-			setFilteredExtensions(filter.getExtensions(), b);
-		}
-		refreshTree();
-	}
-
 	// Go through all nodes recursively and update the visible tag for all based on the current filter setting
 	private void checkChildren(MPQTreeNode node) {
 		if (node.getTotalChildCount() > 0) {
@@ -267,12 +303,11 @@ public class MPQBrowser extends JPanel {
 			node.updateChildrenVisibility();
 			node.setVisible(node.hasVisibleChildren());
 		} else {
-			Boolean filtered = currentlyFiltered.get(node.getExtension());
-			boolean fitsSearch = (currentSearch.equals("")
+			boolean fitsSearch = currentSearch.equals("")
 					|| (node.isLeaf()
-					&& node.getSubPathName().toLowerCase(Locale.ROOT).contains(currentSearch.toLowerCase(Locale.ROOT))));
-			node.setVisible(filtered != null && filtered && fitsSearch
-					|| filtered == null && otherFilter.getFilterCheckBoxItem().isSelected() && fitsSearch);
+						&& node.getSubPathName().toLowerCase(Locale.ROOT)
+							.contains(currentSearch.toLowerCase(Locale.ROOT)));
+			node.setVisible(fitsSearch);
 		}
 	}
 
@@ -288,6 +323,8 @@ public class MPQBrowser extends JPanel {
 
 	public void reloadFileSystem() {
 		mergedListFile = GameDataFileSystem.getDefault().getMergedListfile();
+		String imageRegexFilter = ".+(\\.bmp|\\.tga|\\.jpg|\\.jpeg|\\.pcx|\\.blp|\\.dds)";
+		mergedListFile.removeIf(o -> !o.matches(imageRegexFilter));
 		root = createMPQTree();
 		refreshTree();
 	}
@@ -301,17 +338,6 @@ public class MPQBrowser extends JPanel {
 		openTree();
 	}
 
-	// Updates the map used to look up filtered extensions,
-	// sets the "All" checkbox to match if all checkboxes
-	// and checked and refreshes the tree
-	public void setFilteredExtensions(String[] extensions, boolean filtered) {
-		for (String extension : extensions) {
-			currentlyFiltered.put(extension, filtered);
-		}
-		checkAll.setState(!currentlyFiltered.containsValue(false));
-		checkChildren(root);
-		refreshTree();
-	}
 	private void searchFilter(String searchText) {
 		currentSearch = searchText;
 		checkChildren(root);
@@ -328,11 +354,6 @@ public class MPQBrowser extends JPanel {
 			String extension = "";
 			if (string.indexOf('.') != -1) {
 				extension = string.substring(string.lastIndexOf('.'));
-				getIcons(extension);
-			}
-			if ((currentlyFiltered.get(extension) == null && !otherFilter.getFilterCheckBoxItem().isSelected()) ||
-					(currentlyFiltered.get(extension) != null && !currentlyFiltered.get(extension))) {
-				continue;
 			}
 			MPQTreeNode currentNode = root;
 
@@ -395,22 +416,9 @@ public class MPQBrowser extends JPanel {
 		}
 	}
 
-
-	public static void loadFileByType(String filepath) {
-		ModelLoader.loadFile(GameDataFileSystem.getDefault().getFile(filepath), true);
+	public static void showPanel(){
+		MPQImageBrowser mpqImageBrowser = new MPQImageBrowser();
+		mpqImageBrowser.setPreferredSize(new Dimension(800, 650));
+		FramePopup.show(mpqImageBrowser, ProgramGlobals.getMainPanel(), "Browse Textures");
 	}
-//	public static void loadFileByType(String filepath) {
-//		System.out.println("loading file");
-//		ModelLoader.loadFile(GameDataFileSystem.getDefault().getFile(filepath), true);
-//		System.out.println("File path: \"" + filepath + "\"");
-//		if (filepath.endsWith(".slk")){
-//			System.out.println("opening SLK frame?");
-//			String fileName = filepath.replaceAll(".*\\\\", "");
-//			new SklViewer().createAndShowHTMLPanel(filepath, fileName);
-//		} else if (filepath.endsWith(".txt")){
-//			System.out.println("opening TXT frame?");
-//			String fileName = filepath.replaceAll(".*\\\\", "");
-//			new TxtViewer().createAndShowHTMLPanel(filepath, fileName);
-//		}
-//	}
 }

@@ -58,10 +58,7 @@ public class TwilacStuff {
 				IdObject newParent = new IdObjectChooser(modelHandler.getModel(), true).chooseObject(childObject, ProgramGlobals.getMainPanel());
 				for (IdObject idObject : modelView.getSelectedIdObjects()) {
 					System.out.println("rebinding " + idObject.getName());
-//				UndoAction action = new BakeAndRebindAction(idObject, null, modelHandler);
 					if(newParent != idObject.getParent()){
-//						UndoAction action = new BakeAndRebindActionRenderM(idObject, newParent, modelHandler);
-//						UndoAction action = new BakeAndRebindActionTwi2(idObject, newParent, modelHandler);
 						UndoAction action = new BakeAndRebindAction(idObject, newParent, modelHandler);
 						rebindActions.add(action);
 					}

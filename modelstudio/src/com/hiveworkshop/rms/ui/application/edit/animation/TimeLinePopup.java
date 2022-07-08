@@ -1,6 +1,8 @@
 package com.hiveworkshop.rms.ui.application.edit.animation;
 
 import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.Named;
+import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 
 import javax.swing.*;
@@ -9,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class TimeLinePopup extends JPopupMenu {
 	private final KeyframeHandler keyframeHandler;
@@ -88,11 +91,17 @@ public class TimeLinePopup extends JPopupMenu {
 		menuItems = getComponentCount();
 		subMenus.clear();
 		if(objectMenus){
-			for (IdObject object : keyframeHandler.getKeyFrame(time).getObjects()) {
+			for (TimelineContainer object : keyframeHandler.getKeyFrame(time).getObjects()) {
 				if(!object.getAnimFlags().isEmpty()){
 					for (AnimFlag<?> flag : object.getAnimFlags()) {
 						if (flag.hasEntryAt(timeEnvironment.getCurrentSequence(), time)) {
-							JMenu subMenu = new JMenu(object.getName() + ": " + flag.getName());
+							String name;
+							if(object instanceof Named){
+								name = ((Named) object).getName();
+							} else {
+								name = object.getClass().getSimpleName();
+							}
+							JMenu subMenu = new JMenu(name + ": " + flag.getName());
 
 							subMenu.add(getMenuItem("Delete", e -> keyframeHandler.deleteKeyframe(flag, time)));
 							subMenu.addSeparator();
@@ -154,6 +163,9 @@ public class TimeLinePopup extends JPopupMenu {
 
 	private JMenu getObjectMenu(Integer time, IdObject object) {
 		JMenu objectMenu = new JMenu(object.getName());
+		objectMenu.add(getMenuItem("Delete", e -> keyframeHandler.deleteKeyframes("delete keyframe", time, Collections.singleton(object))));
+		objectMenu.add(getMenuItem("Copy Transforms", e -> keyframeHandler.copyObjectKeyframe(time, object)));
+		objectMenu.addSeparator();
 		for (AnimFlag<?> flag : object.getAnimFlags()) {
 			if (flag.hasEntryAt(timeEnvironment.getCurrentSequence(), time)) {
 				JMenu subMenu = new JMenu(flag.getName());
