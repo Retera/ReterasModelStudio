@@ -29,10 +29,6 @@ public class TTanQuat extends TTan<Quat> {
 		logNMN = new Quat();
 	}
 
-	public void calculateInterp(Entry<Quat> itStart, Entry<Quat> itEnd, float[] f) {
-		itEnd.value.scale(f[3]).addScaled(itStart.value, f[0]).addScaled(itStart.outTan, f[1]).addScaled(itEnd.inTan, f[2]);
-	}
-
 	public void calcDerivative() {
 		if (!isLogsReady) {
 
@@ -51,7 +47,7 @@ public class TTanQuat extends TTan<Quat> {
 			tang.outTan = new Quat(0, 0, 0, 0);
 		}
 
-		float[] g = getTCB(-1);
+		float[] g = getTCBTangentFactors(-1);
 
 		tang.inTan.set(logNNP).scale(g[0]).addScaled(logNMN, g[1]);
 		tang.outTan.set(logNNP).scale(g[2]).addScaled(logNMN, g[3]);
@@ -92,6 +88,12 @@ public class TTanQuat extends TTan<Quat> {
 		q.w = (float) Math.cos(t);
 		return q;
 	}
+
+	public Quat calculateInterp(Entry<Quat> itStart, Entry<Quat> itEnd, float[] f) {
+		itEnd.value.scale(f[3]).addScaled(itStart.value, f[0]).addScaled(itStart.outTan, f[1]).addScaled(itEnd.inTan, f[2]);
+		return itEnd.value;
+	}
+
 //	private Quat getQuat(float w, Quat quat1, Quat quat2, Quat qcur) {
 //		Quat q = new Quat(0, 0, 0, w);
 //
@@ -134,8 +136,6 @@ public class TTanQuat extends TTan<Quat> {
 		calcDerivative();
 		deltaOut.set(tang.outTan).sub(tang2.outTan);
 		deltaIn.set(tang.inTan).sub(tang2.inTan);
-//		Quat deltaOut = (Quat) Quat.getDiff(tang.outTan, tang2.outTan);
-//		Quat deltaIn = (Quat) Quat.getDiff(tang.inTan, tang2.inTan);
 		return Math.abs(deltaOut.x) + Math.abs(deltaOut.y) + Math.abs(deltaOut.z) + Math.abs(deltaOut.w)
 				+ Math.abs(deltaIn.x) + Math.abs(deltaIn.y) + Math.abs(deltaIn.z) + Math.abs(deltaIn.w);
 	}

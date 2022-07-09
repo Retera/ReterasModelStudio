@@ -1,7 +1,10 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
 
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 
 import java.awt.event.KeyAdapter;
@@ -122,6 +125,17 @@ public class KeylistenerThing extends KeyAdapter {
 		if (e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
 			cameraHandler.moveTargetDepth(10);
 			System.out.println("X +10");
+		}
+
+//		if(e.getKeyCode() == KeyEvent.VK_COMMA){
+		if(e.getKeyCode() == KeyEvent.VK_DECIMAL){
+			ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+			if(modelPanel != null){
+				ModelView modelView = modelPanel.getModelView();
+				if(!modelView.isEmpty()){
+					cameraHandler.setTargetPoint(modelView.getSelectionCenter());
+				}
+			}
 		}
 	}
 }

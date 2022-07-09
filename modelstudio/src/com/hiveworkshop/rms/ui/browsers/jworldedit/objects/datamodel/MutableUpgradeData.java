@@ -19,42 +19,11 @@ public final class MutableUpgradeData extends MutableObjectData {
 
 	public MutableUpgradeData() {
 		this(getStandardUpgrades(), getStandardUpgradeMeta(), getWar3ObjectDataChangeset('g', "war3map.w3q"));
-//		super(WorldEditorDataType.UPGRADES, getStandardUpgrades(), getStandardUpgradeMeta(), editorData);
-//		super(worldEditorDataType, sourceSLKData, sourceSLKMetaData, editorData);
-//		this.worldEditorDataType = WorldEditorDataType.UPGRADES;
-////		this.sourceSLKData = StandardObjectData.getStandardUpgrades();
-//		this.sourceSLKData = getStandardUpgrades();
-//		resolveStringReferencesInNames(this.sourceSLKData);
-////		this.sourceSLKMetaData = StandardObjectData.getStandardUpgradeMeta();
-//		this.sourceSLKMetaData = getStandardUpgradeMeta();
-//		this.editorData = getWar3ObjectDataChangeset('g', "war3map.w3q");
-//		metaNameToMetaId = new HashMap<>();
-//		for (String metaKeyString : this.sourceSLKMetaData.keySet()) {
-//			War3ID metaKey = War3ID.fromString(metaKeyString);
-//			metaNameToMetaId.put(this.sourceSLKMetaData.get(metaKeyString).getField("field"), metaKey);
-//		}
-//		cachedKeyToGameObject = new HashMap<>();
-//		changeNotifier = new MutableObjectDataChangeNotifier();
 	}
 
 	public MutableUpgradeData(WarcraftData sourceSLKData,
 	                          DataTable sourceSLKMetaData, War3ObjectDataChangeset editorData) {
 		super(WorldEditorDataType.UPGRADES, sourceSLKData, sourceSLKMetaData, editorData);
-//		super(worldEditorDataType, sourceSLKData, sourceSLKMetaData, editorData);
-//		this.worldEditorDataType = WorldEditorDataType.UPGRADES;
-////		this.sourceSLKData = StandardObjectData.getStandardUpgrades();
-//		this.sourceSLKData = getStandardUpgrades();
-//		resolveStringReferencesInNames(this.sourceSLKData);
-////		this.sourceSLKMetaData = StandardObjectData.getStandardUpgradeMeta();
-//		this.sourceSLKMetaData = getStandardUpgradeMeta();
-//		this.editorData = getWar3ObjectDataChangeset('g', "war3map.w3q");
-//		metaNameToMetaId = new HashMap<>();
-//		for (String metaKeyString : this.sourceSLKMetaData.keySet()) {
-//			War3ID metaKey = War3ID.fromString(metaKeyString);
-//			metaNameToMetaId.put(this.sourceSLKMetaData.get(metaKeyString).getField("field"), metaKey);
-//		}
-//		cachedKeyToGameObject = new HashMap<>();
-//		changeNotifier = new MutableObjectDataChangeNotifier();
 	}
 
 

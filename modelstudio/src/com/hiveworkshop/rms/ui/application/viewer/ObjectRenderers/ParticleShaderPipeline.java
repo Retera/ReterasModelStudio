@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
-import com.hiveworkshop.rms.ui.application.viewer.ReteraShaderStuff.OtherUtils;
+import com.hiveworkshop.rms.ui.application.viewer.OtherUtils;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;

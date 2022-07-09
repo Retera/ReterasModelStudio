@@ -43,6 +43,10 @@ public class GeometryModelEditor extends ModelEditor {
 		return new StaticMeshScaleAction(modelView, center, scale);
 	}
 
+	public UndoAction shrinkFatten(float amount) {
+		return new StaticMeshShrinkFattenAction(modelView, amount);
+	}
+
     @Override
     public UndoAction setPosition(Vec3 center, Vec3 v) {
         Vec3 delta = Vec3.getDiff(v, center);
@@ -90,5 +94,9 @@ public class GeometryModelEditor extends ModelEditor {
 	@Override
 	public GenericScaleAction beginScaling(Vec3 center) {
 		return new StaticMeshScaleAction(modelView, center);
+	}
+
+	public StaticMeshShrinkFattenAction beginShrinkFatten(float amount) {
+		return new StaticMeshShrinkFattenAction(modelView, amount);
 	}
 }

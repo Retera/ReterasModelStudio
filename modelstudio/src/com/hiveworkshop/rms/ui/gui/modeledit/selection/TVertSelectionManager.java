@@ -7,7 +7,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ViewBox;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.SelectionBoxHelper;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -38,7 +38,7 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 		return genericSelect(min, max, vertexSize, viewPortAntiRotMat);
 	}
 
-	public SelectionBundle getSelectionBundle(Vec2 min, Vec2 max, ViewBox viewBox, double sizeAdj) {
+	public SelectionBundle getSelectionBundle(Vec2 min, Vec2 max, SelectionBoxHelper viewBox, double sizeAdj) {
 		double vertexSize = sizeAdj * ProgramGlobals.getPrefs().getVertexSize() / 2.0;
 		return genericSelect(min, max, vertexSize, viewBox);
 	}
@@ -83,7 +83,7 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 		return new SelectionBundle(Collections.emptySet());
 	}
 
-	public SelectionBundle genericSelect(Vec2 min, Vec2 max, double vertexSize, ViewBox viewBox) {
+	public SelectionBundle genericSelect(Vec2 min, Vec2 max, double vertexSize, SelectionBoxHelper viewBox) {
 		if (selectionMode == SelectionItemTypes.VERTEX) {
 //			System.out.println("Tvert genericSelect, " + "min: " + min + ", max" + max);
 			Set<GeosetVertex> selectedItems = addVertsFromArea(min, max, vertexSize, 0, viewBox);
@@ -121,7 +121,7 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 		return newSelection;
 	}
 
-	private Set<GeosetVertex> addTrisFromArea(Vec2 min, Vec2 max, int uvLayerIndex, ViewBox viewBox) {
+	private Set<GeosetVertex> addTrisFromArea(Vec2 min, Vec2 max, int uvLayerIndex, SelectionBoxHelper viewBox) {
 		Set<GeosetVertex> newSelection = new HashSet<>();
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
@@ -164,7 +164,7 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 		return newSelection;
 	}
 
-	public Set<GeosetVertex> addVertsFromArea(Vec2 min, Vec2 max, double vertexSize, int uvLayerIndex, ViewBox viewBox) {
+	public Set<GeosetVertex> addVertsFromArea(Vec2 min, Vec2 max, double vertexSize, int uvLayerIndex, SelectionBoxHelper viewBox) {
 		Set<GeosetVertex> newSelection = new HashSet<>();
 		Vec3 vec3 = new Vec3();
 		for (Geoset geoset : modelView.getEditableGeosets()) {

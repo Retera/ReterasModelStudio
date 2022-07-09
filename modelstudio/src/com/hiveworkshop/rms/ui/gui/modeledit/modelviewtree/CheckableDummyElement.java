@@ -90,13 +90,15 @@ public class CheckableDummyElement extends CheckableDisplayElement<String> {
 		if (!checked) {
 			tempGeosetList.addAll(modelViewManager.getEditableGeosets());
 		}
-		for (Geoset geoset : tempGeosetList) {
-			if (checked) {
-				modelViewManager.makeGeosetEditable(geoset);
-			} else {
-				modelViewManager.makeGeosetNotEditable(geoset);
-			}
-		}
+		modelViewManager.makeGeosetEditable(checked, tempGeosetList);
+//		for (Geoset geoset : tempGeosetList) {
+//			modelViewManager.makeGeosetEditable(checked, geoset);
+////			if (checked) {
+////				modelViewManager.makeGeosetEditable(geoset);
+////			} else {
+////				modelViewManager.makeGeosetNotEditable(geoset);
+////			}
+//		}
 		if (checked) {
 			tempGeosetList.clear();
 		}

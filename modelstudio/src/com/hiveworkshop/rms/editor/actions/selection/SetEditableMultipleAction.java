@@ -7,12 +7,12 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import java.util.Collection;
 
 public class SetEditableMultipleAction implements UndoAction {
-	private Collection<Object> objects;
-	private boolean editable;
-	private ModelView modelView;
-	private ModelStructureChangeListener changeListener;
+	private final Collection<?> objects;
+	private final boolean editable;
+	private final ModelView modelView;
+	private final ModelStructureChangeListener changeListener;
 
-	public SetEditableMultipleAction(Collection<Object> objects, boolean editable, ModelView modelView, ModelStructureChangeListener changeListener) {
+	public SetEditableMultipleAction(Collection<?> objects, boolean editable, ModelView modelView, ModelStructureChangeListener changeListener) {
 		this.objects = objects;
 		this.editable = editable;
 		this.modelView = modelView;

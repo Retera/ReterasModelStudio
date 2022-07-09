@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.ui.application.viewer.PreviewViewCanv;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DoodadBrowserView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.ObjectEditorFrame;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitBrowserView;
+import com.hiveworkshop.rms.ui.browsers.mpq.MPQImageBrowser;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.ModelingCreatorToolsView;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree.ModelComponentsView;
@@ -53,6 +54,7 @@ public class WindowsMenu extends JMenu {
 		browsersMenu.add(createMenuItem("Data Browser", KeyEvent.VK_A, e -> openViewer(new MPQBrowserView())));
 		browsersMenu.add(createMenuItem("Unit Browser", KeyEvent.VK_U, e -> openViewer(new UnitBrowserView())));
 		browsersMenu.add(createMenuItem("Doodad Browser", KeyEvent.VK_D, e -> openViewer(new DoodadBrowserView())));
+		browsersMenu.add(createMenuItem("Image Browser", KeyEvent.VK_I, e -> MPQImageBrowser.showPanel()));
 
 		JMenuItem hiveViewer = new JMenuItem("Hive Browser");
 		hiveViewer.setMnemonic(KeyEvent.VK_H);

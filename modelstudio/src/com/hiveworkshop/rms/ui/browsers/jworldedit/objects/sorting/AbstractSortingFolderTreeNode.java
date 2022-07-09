@@ -32,9 +32,9 @@ public abstract class AbstractSortingFolderTreeNode extends SortingFolderTreeNod
 	}
 
 	@Override
-	public DefaultMutableTreeNode add(MutableGameObject mutableGameObject, TreeNodeLinker treeModel) {
+	public DefaultMutableTreeNode add(MutableGameObject mutableGameObject, TreeNodeLinker treeNodeLinker) {
 		DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(mutableGameObject);
-		treeModel.insertNodeInto(newChild, this, getChildCount());
+		treeNodeLinker.insertNodeInto(newChild, this, getChildCount());
 		return newChild;
 	}
 
@@ -42,21 +42,26 @@ public abstract class AbstractSortingFolderTreeNode extends SortingFolderTreeNod
 		SortingFolderTreeNode sortingFolderTreeNode = getNextNode(object);
 		if (sortingFolderTreeNode != null) {
 			if (!isNodeChild(sortingFolderTreeNode)) {
-				int sortedInsertionIndex = 0;
-				int childCount = getChildCount();
-				if(childCount >0){
-					int sortIndex = getSortIndex(sortingFolderTreeNode);
-
-					for (int childIndex = 0; childIndex < childCount; childIndex++) {
-						if (sortIndex >= getSortIndex(getChildAt(childIndex))) {
-							sortedInsertionIndex = childIndex + 1;
-						}
-					}
-				}
+				int sortedInsertionIndex = getInsertIndex(sortingFolderTreeNode);
 				treeModel.insertNodeInto(sortingFolderTreeNode, this, sortedInsertionIndex);
 			}
 		}
 		return sortingFolderTreeNode;
+	}
+
+	private int getInsertIndex(SortingFolderTreeNode sortingFolderTreeNode) {
+		int sortedInsertionIndex = 0;
+		int childCount = getChildCount();
+		if(childCount >0){
+			int sortIndex = getSortIndex(sortingFolderTreeNode);
+
+			for (int childIndex = 0; childIndex < childCount; childIndex++) {
+				if (sortIndex >= getSortIndex(getChildAt(childIndex))) {
+					sortedInsertionIndex = childIndex + 1;
+				}
+			}
+		}
+		return sortedInsertionIndex;
 	}
 
 //	@Override

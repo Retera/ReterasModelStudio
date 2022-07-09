@@ -16,18 +16,11 @@ import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
  * Is used for calculating the Tangential part of KK
  */
 public class TTanFloat extends TTan<Float> {
-	public boolean isLogsReady; // "true" if Logarithms are ready
-
 	public TTanFloat(AnimFlag<Float> timeline, Sequence anim) {
 		super(timeline, anim);
 		deltaOut = 0f;
 		deltaIn = 0f;
 	}
-
-	public float getSubValue(Float value, int i) {
-		return value;
-	}
-
 	public void calcDerivative() {
 		// Calculating the derivatives in point Cur (for count cells)
 		if (tang.inTan == null) {
@@ -35,7 +28,7 @@ public class TTanFloat extends TTan<Float> {
 			tang.outTan = 0f;
 		}
 
-		float[] g = getTCB(1);
+		float[] g = getTCBTangentFactors(1);
 
 		float currPrev = cur.value - prev.value;
 		float nextCurr = next.value - cur.value;
@@ -44,8 +37,9 @@ public class TTanFloat extends TTan<Float> {
 		tang.outTan = currPrev * g[2] + nextCurr * g[3];
 	}
 
-	public void calculateInterp(Entry<Float> itStart, Entry<Float> itEnd, float[] f) {
+	public Float calculateInterp(Entry<Float> itStart, Entry<Float> itEnd, float[] f) {
 		itEnd.value = itEnd.value * f[3] + itStart.value * f[0] + itStart.outTan * f[1] + itEnd.inTan * f[2];
+		return itEnd.value;
 	}
 
 	@Override

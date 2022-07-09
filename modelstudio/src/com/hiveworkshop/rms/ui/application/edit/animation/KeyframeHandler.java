@@ -5,9 +5,11 @@ import com.hiveworkshop.rms.editor.actions.animation.SetKeyframeAction_T;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.RemoveFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
+import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -43,6 +45,7 @@ public class KeyframeHandler {
 	private TimeSliderTimeListener notifier;
 
 	boolean useAllKFs = false;
+	boolean visKFs = true;
 
 	private boolean useAllCopiedKeyframes = false;
 
@@ -70,23 +73,50 @@ public class KeyframeHandler {
 //		repaint();
 	}
 
-	public Collection<IdObject> getSelectionToUse() {
+	Collection<TimelineContainer> collectionToUse = new HashSet<>();
+	public Collection<TimelineContainer> getSelectionToUse() {
+		collectionToUse.clear();
 		if ((modelHandler == null) || (modelHandler.getModel() == null)) {
-			return Collections.emptySet();
+			return collectionToUse;
 		}
-		return useAllKFs ? modelHandler.getModel().getIdObjects() : modelHandler.getModelView().getSelectedIdObjects();
+		if(useAllKFs){
+			collectionToUse.addAll(modelHandler.getModelView().getEditableIdObjects());
+		} else {
+			collectionToUse.addAll(modelHandler.getModelView().getSelectedIdObjects());
+		}
+		if(visKFs){
+			for(Geoset geoset: modelHandler.getModelView().getEditableGeosets()){
+				if(modelHandler.getModelView().isEditable(geoset) && geoset.getGeosetAnim() != null && !geoset.getGeosetAnim().getAnimFlags().isEmpty()){
+					collectionToUse.add(geoset.getGeosetAnim());
+				}
+			}
+		}
+		return collectionToUse;
+	}
+//	public Collection<TimelineContainer> getSelectionToUse() {
+//		if ((modelHandler == null) || (modelHandler.getModel() == null)) {
+//			return Collections.emptySet();
+//		}
+////		return useAllKFs ? modelHandler.getModel().getIdObjects() : modelHandler.getModelView().getSelectedIdObjects();
+//		return useAllKFs ? modelHandler.getModelView().getEditableIdObjects() : modelHandler.getModelView().getSelectedIdObjects();
+//	}
+
+	public KeyframeHandler setShowAllKFs(boolean useAllKFs){
+		this.useAllKFs = useAllKFs;
+		updateKeyframeDisplay();
+		return this;
 	}
 
 	public void updateKeyframeDisplay() {
 		timeToKey.clear();
 
-		Iterable<IdObject> selection = getSelectionToUse();
-		for (IdObject object : selection) {
+		Iterable<TimelineContainer> selection = getSelectionToUse();
+		for (TimelineContainer object : selection) {
 			for (AnimFlag<?> flag : object.getAnimFlags()) {
 				if (isCorrectSeq(flag)) {
 					TreeMap<Integer, ? extends Entry<?>> entryMap = flag.getEntryMap(timeEnvironment.getCurrentSequence());
 					if (entryMap != null) {
-						System.out.println(object.getName() + ": " + flag.getName());
+//						System.out.println(object.getName() + ": " + flag.getName());
 //						TreeMap<Integer, ? extends Entry<?>> entryMap = flag.getEntryMap(timeEnvironment.getCurrentSequence());
 						for (Integer time : entryMap.keySet()) {
 							KeyFrame keyFrame = timeToKey.computeIfAbsent(time, k -> new KeyFrame(this, time));
@@ -99,7 +129,7 @@ public class KeyframeHandler {
 		}
 	}
 
-	public void cutSpecificItem(Integer time, IdObject object, AnimFlag<?> flag) {
+	public void cutSpecificItem(Integer time, TimelineContainer object, AnimFlag<?> flag) {
 		copyKeyframes(object, flag, time);
 		deleteKeyframe(flag, time);
 	}
@@ -117,9 +147,9 @@ public class KeyframeHandler {
 		revalidateKeyframeDisplay();
 	}
 
-	public void deleteKeyframes(String actionName, int trackTime, Collection<IdObject> objects) {
+	public void deleteKeyframes(String actionName, int trackTime, Collection<TimelineContainer> objects) {
 		List<UndoAction> actions = new ArrayList<>();
-		for (IdObject object : objects) {
+		for (TimelineContainer object : objects) {
 			for (AnimFlag<?> flag : object.getAnimFlags()) {
 				Sequence currentSequence = timeEnvironment.getCurrentSequence();
 				if (flag.getEntryMap(currentSequence).containsKey(trackTime)) {
@@ -141,11 +171,15 @@ public class KeyframeHandler {
 	public void copyKeyframes(int trackTime) {
 		copiedKeyframes.clear();
 		useAllCopiedKeyframes = false;
-		for (IdObject object : getSelectionToUse()) {
-			for (AnimFlag<?> flag : object.getAnimFlags()) {
-				if (isCorrectSeq(flag)) {
-					copuKeyframes(object, flag, trackTime);
-				}
+		for (TimelineContainer object : getSelectionToUse()) {
+			copyObjectKeyframe(trackTime, object);
+		}
+	}
+
+	public void copyObjectKeyframe(int trackTime, TimelineContainer object) {
+		for (AnimFlag<?> flag : object.getAnimFlags()) {
+			if (isCorrectSeq(flag)) {
+				copuKeyframes(object, flag, trackTime);
 			}
 		}
 	}
@@ -155,14 +189,14 @@ public class KeyframeHandler {
 				|| (timeEnvironment.getGlobalSeq() != null && timeEnvironment.getGlobalSeq().equals(flag.getGlobalSeq()));
 	}
 
-	public void copyKeyframes(IdObject object, AnimFlag<?> flag, int trackTime) {
+	public void copyKeyframes(TimelineContainer object, AnimFlag<?> flag, int trackTime) {
 		copiedKeyframes.clear();
 		useAllCopiedKeyframes = false;
 		copuKeyframes(object, flag, trackTime);
 	}
 
-	private <Q> void copuKeyframes(IdObject object, AnimFlag<Q> flag, int trackTime) {
-		if (flag.getEntryMap(timeEnvironment.getCurrentSequence()).containsKey(trackTime)) {
+	private <Q> void copuKeyframes(TimelineContainer object, AnimFlag<Q> flag, int trackTime) {
+		if (flag.hasEntryAt(timeEnvironment.getCurrentSequence(), trackTime)) {
 			copiedKeyframes.add(new CopiedKeyFrame<>(object, flag, flag.getEntryAt(timeEnvironment.getCurrentSequence(), trackTime).deepCopy()));
 		} else {
 			Entry<Q> entry = new Entry<>(trackTime, flag.interpolateAt(timeEnvironment));
@@ -172,7 +206,12 @@ public class KeyframeHandler {
 				Entry<Q> entryOut = flag.getCeilEntry(trackTime, timeEnvironment.getCurrentSequence());
 				int animationLength = timeEnvironment.getCurrentSequence().getLength();
 //				float factor = getTimeFactor(trackTime, animationLength, entryIn.time, entryOut.time);
-				float[] tbcFactor = flag.getTbcFactor(0, 0.5f, 0);
+				float[] tcb = AnimFlagUtils.calculateTCB(flag, timeEnvironment.getCurrentSequence(), trackTime);
+				if(tcb == null){
+					tcb = new float[]{0, .5f, 0};
+				}
+//				float[] tbcFactor = flag.getTbcFactor(0, 0.5f, 0);
+				float[] tbcFactor = flag.getTbcFactor(tcb[2], tcb[0], tcb[1]);
 				flag.calcNewTans(tbcFactor, entryOut, entryIn, entry, animationLength);
 				System.out.println("calc tans! " + entryIn + entryOut + entry);
 			}

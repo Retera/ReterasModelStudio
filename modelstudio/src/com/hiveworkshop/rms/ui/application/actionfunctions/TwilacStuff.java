@@ -17,6 +17,7 @@ import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.CrudeSelectionUVMask;
 import com.hiveworkshop.rms.ui.application.tools.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -125,7 +126,7 @@ public class TwilacStuff {
 	private static class ImportModelPart extends TwiFunction{
 
 		public ImportModelPart() {
-			super("Import Model Part", ImportModelPart::doStuff);
+			super("Import Model Part By Bone Chain", ImportModelPart::doStuff);
 		}
 		private static void doStuff(ModelHandler modelHandler) {
 			FileDialog fileDialog = new FileDialog();
@@ -139,7 +140,7 @@ public class TwilacStuff {
 	private static class ImportModelSubAnim extends TwiFunction{
 
 		public ImportModelSubAnim() {
-			super("ImportModelSubAnim", ImportModelSubAnim::doStuff);
+			super("Import Bone Chain Animation", ImportModelSubAnim::doStuff);
 		}
 		private static void doStuff(ModelHandler modelHandler) {
 			FileDialog fileDialog = new FileDialog();
@@ -205,16 +206,79 @@ public class TwilacStuff {
 		}
 	}
 
-	private static class TestShaderStuff extends TwiFunction {
+	private static class MeshShaderEditor extends TwiFunction {
 
-		public TestShaderStuff() {
-			super("Shader Editor", TestShaderStuff::doStuff);
+		public MeshShaderEditor() {
+			super("Shader Editor", MeshShaderEditor::doStuff);
 		}
 
 		private static void doStuff(ModelHandler modelHandler) {
 			if(modelHandler != null && modelHandler.getPreviewRenderModel() != null){
 				ShaderEditPanel.show(ProgramGlobals.getMainPanel(), modelHandler.getPreviewRenderModel().getBufferFiller());
 			}
+		}
+	}
+
+	private static class NodeShaderEditor extends TwiFunction {
+
+		public NodeShaderEditor() {
+			super("Node Shader Editor", NodeShaderEditor::doStuff);
+		}
+
+		private static void doStuff(ModelHandler modelHandler) {
+			if(modelHandler != null && modelHandler.getRenderModel() != null){
+				BoneShaderEditPanel.show(ProgramGlobals.getMainPanel(), modelHandler.getRenderModel().getBufferFiller());
+			}
+		}
+	}
+
+	private static class DupeForAnimStuff extends TwiFunction {
+
+		public DupeForAnimStuff() {
+			super("Geoset Split Wizard", DupeForAnimStuff::doStuff);
+		}
+
+		private static void doStuff(ModelHandler modelHandler) {
+			if(modelHandler != null){
+				DuplicateForAnimation.show(ProgramGlobals.getMainPanel(), modelHandler);
+			}
+		}
+	}
+
+	private static class GlobalTransfStuff extends TwiFunction {
+
+		public GlobalTransfStuff() {
+			super("Global Transform Wizard", GlobalTransfStuff::doStuff);
+		}
+
+		private static void doStuff(ModelHandler modelHandler) {
+			if(modelHandler != null){
+				GlobalTransformPanel.show(ProgramGlobals.getMainPanel(), modelHandler);
+			}
+		}
+	}
+
+	private static class ExportUVMask extends TwiFunction {
+
+		public ExportUVMask() {
+			super("Export Selected As UV Mask", ExportUVMask::doStuff);
+		}
+
+		private static void doStuff(ModelHandler modelHandler) {
+			if(modelHandler != null){
+				CrudeSelectionUVMask.saveImage(modelHandler.getModelView(), 1024, 1024);
+			}
+		}
+	}
+
+	private static class TextureComposition extends TwiFunction {
+
+		public TextureComposition() {
+			super("Open Texture Composition Panel", TextureComposition::doStuff);
+		}
+
+		private static void doStuff(ModelHandler modelHandler) {
+			TextureCompositionPanel.showPanel(ProgramGlobals.getMainPanel());
 		}
 	}
 
@@ -461,9 +525,23 @@ public class TwilacStuff {
 		return new SelectEdgeStuff().getMenuItem();
 	}
 	public static JMenuItem getTestShaderStuffMenuItem() {
-		return new TestShaderStuff().getMenuItem();
+		return new MeshShaderEditor().getMenuItem();
 	}
-
+	public static JMenuItem getTestShaderStuff2MenuItem() {
+		return new NodeShaderEditor().getMenuItem();
+	}
+	public static JMenuItem getDupeForAnimStuffMenuItem() {
+		return new DupeForAnimStuff().getMenuItem();
+	}
+	public static JMenuItem getGlobalTransfStuffMenuItem() {
+		return new GlobalTransfStuff().getMenuItem();
+	}
+	public static JMenuItem getExportUVMaskMenuItem() {
+		return new ExportUVMask().getMenuItem();
+	}
+	public static JMenuItem getTextureCompositionMenuItem() {
+		return new TextureComposition().getMenuItem();
+	}
 	public static JMenuItem getMergeBoneHelpersMenuItem() {
 		return new MergeBoneHelpers().getMenuItem();
 	}

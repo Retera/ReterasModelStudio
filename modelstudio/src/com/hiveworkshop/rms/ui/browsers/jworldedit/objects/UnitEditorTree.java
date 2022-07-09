@@ -18,8 +18,10 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.*;
 
 public class UnitEditorTree extends JTree {
 	private TopLevelCategoryFolder root;
@@ -104,6 +106,8 @@ public class UnitEditorTree extends JTree {
 	private static UnitEditorTreeModel makeTreeModel(ObjectTabTreeBrowserBuilder browserBuilder) {
 		TopLevelCategoryFolder root = browserBuilder.build();
 		TreeNodeLinker linker = new PreModelCreationTreeNodeLinker();
+
+		MutableObjectData unitData = browserBuilder.getUnitData();
 		for (War3ID alias : unitData.keySet()) {
 			MutableGameObject unit = unitData.get(alias);
 			if (unitData.getWorldEditorDataType().equals(WorldEditorDataType.UPGRADES)) {

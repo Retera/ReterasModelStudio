@@ -10,7 +10,9 @@ public class ShaderManager {
 	private ShaderPipeline gridPipeline;
 	private ShaderPipeline selectionPipeline;
 	private ShaderPipeline customHDShaderPipeline;
+	private ShaderPipeline customBonePipeline;
 	private Runnable customShaderMaker;
+	private Runnable customBoneShaderMaker;
 
 	private Exception lastExeption;
 
@@ -61,6 +63,40 @@ public class ShaderManager {
 			customHDShaderPipeline.discard();
 			customHDShaderPipeline = null;
 			customShaderMaker = null;
+		}
+	}
+
+	public void createCustomBoneShader(String vertexShader, String fragmentShader, String geometryShader){
+		customBoneShaderMaker = () -> makeCustomBoneShader(vertexShader, fragmentShader, geometryShader);
+	}
+
+	public void makeCustomBoneShader(String vertexShader, String fragmentShader, String geometryShader){
+		try {
+			ShaderPipeline newCustomPipeline = new BoneMarkerShaderPipeline(vertexShader, fragmentShader, geometryShader);
+
+			if(customBonePipeline != null){
+				customBonePipeline.discard();
+			}
+			customBonePipeline = newCustomPipeline;
+
+		} catch (Exception e){
+			e.printStackTrace();
+			System.out.println("adding Exception!");
+			lastExeption = e;
+		}
+		customBoneShaderMaker = null;
+	}
+
+	public ShaderManager removeCustomBoneShader(){
+		customBoneShaderMaker = this::doRemoveCustomBoneShader;
+		return this;
+	}
+
+	private void doRemoveCustomBoneShader(){
+		if(customBonePipeline != null){
+			customBonePipeline.discard();
+			customBonePipeline = null;
+			customBoneShaderMaker = null;
 		}
 	}
 
@@ -146,6 +182,13 @@ public class ShaderManager {
 	}
 
 	public ShaderPipeline getOrCreateBoneMarkerShaderPipeline() {
+		if (customBoneShaderMaker != null) {
+			customBoneShaderMaker.run();
+		}
+		if(customBonePipeline != null){
+			return customBonePipeline;
+		}
+
 		if (bonePipeline == null) {
 			bonePipeline = new BoneMarkerShaderPipeline();
 		}
@@ -182,6 +225,9 @@ public class ShaderManager {
 
 		if (customHDShaderPipeline != null) customHDShaderPipeline.discard();
 		customHDShaderPipeline = null;
+
+		if (customBonePipeline != null) customBonePipeline.discard();
+		customBonePipeline = null;
 
 		return this;
 	}

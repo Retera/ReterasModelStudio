@@ -381,6 +381,10 @@ public abstract class ShaderPipeline {
 		viewPortSize.set(w, h);
 	}
 
+	public void setColor(Vec4 color){
+		this.color.set(color);
+	}
+
 	public void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres){};
 	public void addVert(Vec3 pos){};
 	public void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres, int selectionStatus) {};

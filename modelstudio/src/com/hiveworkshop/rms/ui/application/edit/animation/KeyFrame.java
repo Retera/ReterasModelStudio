@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.animation;
 
 import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
@@ -24,7 +25,7 @@ public final class KeyFrame {
 	private final KeyframeHandler keyframeHandler;
 	private boolean mouseOver = false;
 	private int time;
-	private final Set<IdObject> objects = new HashSet<>();
+	private final Set<TimelineContainer> objects = new HashSet<>();
 	private final List<AnimFlag<?>> timelines = new ArrayList<>();
 	private final Rectangle renderRect;
 	private int x = 0;
@@ -59,10 +60,17 @@ public final class KeyFrame {
 		objects.add(object);
 		return this;
 	}
+	public KeyFrame addObject(TimelineContainer object){
+		objects.add(object);
+		return this;
+	}
 
-	public Set<IdObject> getObjects() {
+	public Set<TimelineContainer> getObjects() {
 		return objects;
 	}
+//	public Set<IdObject> getObjects() {
+//		return objects;
+//	}
 
 	public KeyFrame addTimeline(AnimFlag<?> animFlag){
 		timelines.add(animFlag);

@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.types;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.editor.StaticMeshShrinkFattenAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericRotateAction;
@@ -124,5 +125,12 @@ public class TVertexEditor extends ModelEditor {
 	@Override
 	public boolean editorWantsAnimation() {
 		return false;
+	}
+
+	public UndoAction shrinkFatten(float amount) {
+		return null;
+	}
+	public StaticMeshShrinkFattenAction beginShrinkFatten(float amount) {
+		return null;
 	}
 }

@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.viewer.ReteraShaderStuff.OtherUtils;
+import com.hiveworkshop.rms.ui.application.viewer.OtherUtils;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -10,7 +10,9 @@ import org.lwjgl.opengl.*;
 
 
 public class BoneMarkerShaderPipeline extends ShaderPipeline {
-	private static final int STRIDE = POSITION + ROTATION + SELECTION_STATUS;
+//	private static final int STRIDE = POSITION + ROTATION + SELECTION_STATUS;
+//	private static final int STRIDE = POSITION + NORMAL + SELECTION_STATUS;
+	private static final int STRIDE = POSITION + POSITION + ROTATION + VEC3 + SELECTION_STATUS + SELECTION_STATUS;
 
 
 	public BoneMarkerShaderPipeline() {
@@ -22,13 +24,22 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 		setupUniforms();
 	}
 
+	public BoneMarkerShaderPipeline(String vertexShader, String fragmentShader, String geometryShader) {
+		currentMatrix.setIdentity();
+		this.geometryShader = geometryShader;
+		this.vertexShader = vertexShader;
+		this.fragmentShader = fragmentShader;
+		load();
+		setupUniforms();
+	}
+
 
 	protected void setupUniforms(){
-		createUniform("scale");
-//		createUniform("u_viewPos");
+//		createUniform("scale");
+		createUniform("u_viewPos");
 		createUniform("u_projection");
 		createUniform("u_view");
-		createUniform("a_selectionStatus");
+
 		createUniform("u_vertColors[0]");
 		createUniform("u_vertColors[1]");
 		createUniform("u_vertColors[2]");
@@ -36,7 +47,6 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 	}
 
 	public void doRender() {
-//		System.out.println("glEnd");
 		//https://github.com/flowtsohg/mdx-m3-viewer/tree/827d1bda1731934fb8e1a5cf68d39786f9cb857d/src/viewer/handlers/w3x/shaders
 		GL30.glBindVertexArray(glVertexArrayId);
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, glVertexBufferId);
@@ -47,7 +57,11 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, pipelineVertexBuffer, GL15.GL_DYNAMIC_DRAW);
 
 		enableAttribArray(POSITION, STRIDE);
+		enableAttribArray(POSITION, STRIDE);
 		enableAttribArray(ROTATION, STRIDE);
+		enableAttribArray(VEC3, STRIDE); // Scaling
+//		enableAttribArray(NORMAL, STRIDE);
+		enableAttribArray(SELECTION_STATUS, STRIDE);
 		enableAttribArray(SELECTION_STATUS, STRIDE);
 
 		GL11.glDisable(GL11.GL_CULL_FACE);
@@ -69,12 +83,12 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 
 
 		tempVec4.set(0,0,0,1).transform(currentMatrix);
-		glUniform("scale", tempVec4.w/ viewPortSize.x, tempVec4.w/ viewPortSize.y);
+//		glUniform("scale", tempVec4.w/ viewPortSize.x, tempVec4.w/ viewPortSize.y);
 
 
 
-//		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewPos"), 0, 0, -1);
-		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
+		glUniform("u_viewPos", Vec3.NEGATIVE_Z_AXIS);
+		fillMatrixBuffer(pipelineMatrixBuffer, projectionMat);
 		GL20.glUniformMatrix4(getUniformLocation("u_projection"), false, pipelineMatrixBuffer);
 		fillMatrixBuffer(pipelineViewMatrixBuffer, viewMat);
 		GL20.glUniformMatrix4(getUniformLocation("u_view"), false, pipelineViewMatrixBuffer);
@@ -118,14 +132,22 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 		currBufferOffset = 0;
 		ensureCapacity(baseOffset + STRIDE);
 		position.set(pos, 1);
-		normal.set(Vec3.Z_AXIS, 1).normalize();
-		normal.set(norm, 1).normalizeAsV3();
+//		normal.set(norm, 1).normalizeAsV3();
+		if(norm != null){
+			normal.set(norm, 1);
+		} else {
+			normal.set(pos, 1);
+		}
+
 		tempQuat.setFromAxisAngle(Vec3.Z_AXIS, (float) Math.toRadians(45)).normalize();
 //		color.set(col);
 
 		addToBuffer(baseOffset, position);
-		addToBuffer(baseOffset, tempQuat);
-		addToBuffer(baseOffset, selectionStatus);
+		addToBuffer(baseOffset, normal);
+		addToBuffer(baseOffset, tang);
+		addToBuffer(baseOffset, fres);
+		addToBuffer(baseOffset, uv.x);
+		addToBuffer(baseOffset, uv.y);
 
 		vertexCount++;
 	}

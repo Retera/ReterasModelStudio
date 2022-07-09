@@ -6,12 +6,10 @@ import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.render3d.RenderNode2;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.ui.application.edit.animation.TransformCalculator;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
@@ -52,67 +50,60 @@ public class BakeAndRebindAction implements UndoAction {
 		orgScalingFlag = objToRebind.getScalingFlag();
 		orgRotationFlag = objToRebind.getRotationFlag();
 
-		RenderModel renderModel = new RenderModel(modelHandler.getModel(), modelHandler.getModelView());
-		TimeEnvironmentImpl timeEnvironment = renderModel.getTimeEnvironment();
-
 		newScalingFlag = new Vec3AnimFlag(MdlUtils.TOKEN_SCALING, InterpolationType.LINEAR, null);
 		newTranslationFlag = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION, InterpolationType.LINEAR, null);
 		newRotationFlag = new QuatAnimFlag(MdlUtils.TOKEN_ROTATION, InterpolationType.LINEAR, null);
 
 
-		calculateNewTransforms(renderModel, timeEnvironment, anims);
+		calculateNewTransforms(anims);
 
 	}
 
-	private void calculateNewTransforms(RenderModel renderModel, TimeEnvironmentImpl timeEnvironment, List<Animation> anims) {
-		renderModel.refreshFromEditor();
+	private void calculateNewTransforms(List<Animation> anims) {
 
 		for (Animation animation : anims) {
 			System.out.println("Processing animation: " + animation.getName() + " (" + animation.getLength() + ")");
-			timeEnvironment.setSequence(animation);
 
 			diffRotKF.clear();
 			diffTransKF.clear();
 			diffScaleKF.clear();
 
-			calculateAnimValues(renderModel, timeEnvironment, animation);
+			calculateAnimValues(animation);
 			addKeyframes2(animation);
 
 		}
 	}
 
-	private void calculateAnimValues(RenderModel renderModel, TimeEnvironmentImpl timeEnvironment, Animation animation) {
+	private void calculateAnimValues(Animation animation) {
 		Mat4 tempMat = new Mat4();
 		Mat4 newLocMat = new Mat4();
 		Mat4 newWorldMat = new Mat4();
 
-		RenderNode2 orgRenderNode = renderModel.getRenderNode(objToRebind);
-		RenderNode2 newParentRenderNode = renderModel.getRenderNode(newParent);
 		Vec3 pivotPoint = objToRebind.getPivotPoint();
+		TransformCalculator transformCalculator = new TransformCalculator().setSequence(animation);
 
 		for (int i = 0; i <= animation.getLength(); i++) {
 			if (i != 0 && i % 1000 == 0) {
 				System.out.println("\tKF: " + i);
 			}
-			timeEnvironment.setAnimationTime(i);
-			renderModel.updateNodes(true, false, false);
+			transformCalculator.setTrackTime(i);
 
-			Mat4 newParentWorldMatrix = newParentRenderNode.getWorldMatrix();
-			Mat4 orgWorldMatrix = orgRenderNode.getWorldMatrix();
+			TransformCalculator.GlobTransContainer newParentTrans = transformCalculator.getGlobalTransform(newParent);
+			TransformCalculator.GlobTransContainer objTrans = transformCalculator.getGlobalTransform(objToRebind);
 
-			tempMat.set(newParentWorldMatrix).invert().mul(orgWorldMatrix);
+			tempMat.set(newParentTrans.getMat4()).invert().mul(objTrans.getMat4());
 			Vec3 trans = new Vec3().getLocationFromMat(tempMat, pivotPoint);
 			diffTransKF.put(i, trans);
 
-			Vec3 scale = new Vec3(orgRenderNode.getWorldScale());
+			Vec3 scale = new Vec3(objTrans.getScale());
 			if(!objToRebind.getDontInheritScaling()){
-				scale.divide(newParentRenderNode.getWorldScale());
+				scale.divide(newParentTrans.getScale());
 			}
 			diffScaleKF.put(i, scale);
 
 			newLocMat.fromRotationTranslationScaleOrigin(Quat.IDENTITY, trans, scale, pivotPoint);
-			newWorldMat.set(newParentWorldMatrix).mul(newLocMat);
-			tempMat.set(newWorldMat).invert().mul(orgWorldMatrix);
+			newWorldMat.set(newParentTrans.getMat4()).mul(newLocMat);
+			tempMat.set(newWorldMat).invert().mul(objTrans.getMat4());
 
 			Quat rot = new Quat().setFromUnnormalized(tempMat);
 			diffRotKF.put(i, rot);

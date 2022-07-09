@@ -17,12 +17,14 @@ public class TwilacsTools extends JMenu {
 
 		add(new WeldVerts().getMenuItem());
 		add(new SplitVertices().getMenuItem());
-		add(TwilacStuff.getBridgeEdgesMenuItem());
-		add(TwilacStuff.getTestShaderStuffMenuItem());
-//		add(TwilacStuff.getSelectEdgeMenuItem());
 		add(TwilacStuff.getSnapCloseVertsMenuItem());
 		add(ShowHideStuff.getHideVertsMenuItem());
 		add(ShowHideStuff.getShowVertsMenuItem());
+		add(TwilacStuff.getBridgeEdgesMenuItem());
+		add(TwilacStuff.getTestShaderStuffMenuItem());
+		add(TwilacStuff.getTestShaderStuff2MenuItem());
+
+//		add(TwilacStuff.getSelectEdgeMenuItem());
 //		add(new JSeparator());
 //
 //		add(Select.getSelectNodeGeometryMenuItem());
@@ -41,8 +43,12 @@ public class TwilacsTools extends JMenu {
 		add(TwilacStuff.getRenameBoneChainMenuItem());
 		add(TwilacStuff.getRenameNodesMenuItem());
 		add(new JSeparator());
+		add(TwilacStuff.getDupeForAnimStuffMenuItem());
+		add(TwilacStuff.getGlobalTransfStuffMenuItem());
 		add(TwilacStuff.getBakeAndRebindToNullMenuItem());
 		add(TwilacStuff.getMergeBoneHelpersMenuItem());
 		add(TwilacStuff.getAddNewAttatchment());
+		add(TwilacStuff.getExportUVMaskMenuItem());
+		add(TwilacStuff.getTextureCompositionMenuItem());
 	}
 }

@@ -87,9 +87,13 @@ public class EditabilityToggleHandler {
 //			objsToHide.forEach(modelView::makeIdObjectNotEditable);
 //			camsToHide.forEach(modelView::makeCameraNotEditable);
 
-			geosetsToHide.forEach(modelView::makeGeosetNotVisible);
-			objsToHide.forEach(modelView::makeIdObjectNotVisible);
-			camsToHide.forEach(modelView::makeCameraNotVisible);
+//			geosetsToHide.forEach(modelView::makeGeosetNotVisible);
+//			objsToHide.forEach(modelView::makeIdObjectNotVisible);
+//			camsToHide.forEach(modelView::makeCameraNotVisible);
+
+			geosetsToHide.forEach(o -> modelView.makeVisible(o, false));
+			objsToHide.forEach(o -> modelView.makeVisible(o, false));
+			camsToHide.forEach(o -> modelView.makeVisible(o, false));
 
 		};
 		Runnable unTruncateSelectionRunnable = () -> {
@@ -97,9 +101,12 @@ public class EditabilityToggleHandler {
 //			objsToHide.forEach(modelView::makeIdObjectEditable);
 //			camsToHide.forEach(modelView::makeCameraEditable);
 
-			geosetsToHide.forEach(modelView::makeGeosetVisible);
-			objsToHide.forEach(modelView::makeIdObjectVisible);
-			camsToHide.forEach(modelView::makeCameraVisible);
+//			geosetsToHide.forEach(modelView::makeGeosetVisible);
+//			objsToHide.forEach(modelView::makeIdObjectVisible);
+//			camsToHide.forEach(modelView::makeCameraVisible);
+			geosetsToHide.forEach(o -> modelView.makeVisible(o, true));
+			objsToHide.forEach(o -> modelView.makeVisible(o, true));
+			camsToHide.forEach(o -> modelView.makeVisible(o, true));
 
 //			geosetsToHide.forEach(modelView::makeGeosetEditable);
 //			objsToHide.forEach(modelView::makeIdObjectEditable);
@@ -145,18 +152,18 @@ public class EditabilityToggleHandler {
 //			objsToShow.forEach(modelView::makeIdObjectEditable);
 //			camsToShow.forEach(modelView::makeCameraEditable);
 
-			geosetsToShow.forEach(modelView::makeGeosetVisible);
-			objsToShow.forEach(modelView::makeIdObjectVisible);
-			camsToShow.forEach(modelView::makeCameraVisible);
+			geosetsToShow.forEach(o -> modelView.makeVisible(o, true));
+			objsToShow.forEach(o -> modelView.makeVisible(o, true));
+			camsToShow.forEach(o -> modelView.makeVisible(o, true));
 
 //			geosetsToShow.forEach(modelView::makeGeosetEditable);
 //			objsToShow.forEach(modelView::makeIdObjectEditable);
 //			camsToShow.forEach(modelView::makeCameraEditable);
 		};
 		Runnable unTruncateSelectionRunnable = () -> {
-			geosetsToShow.forEach(modelView::makeGeosetNotVisible);
-			objsToShow.forEach(modelView::makeIdObjectNotVisible);
-			camsToShow.forEach(modelView::makeCameraNotVisible);
+			geosetsToShow.forEach(o -> modelView.makeVisible(o, false));
+			objsToShow.forEach(o -> modelView.makeVisible(o, false));
+			camsToShow.forEach(o -> modelView.makeVisible(o, false));
 
 //			geosetsToShow.forEach(modelView::makeGeosetNotEditable);
 //			objsToShow.forEach(modelView::makeIdObjectNotEditable);

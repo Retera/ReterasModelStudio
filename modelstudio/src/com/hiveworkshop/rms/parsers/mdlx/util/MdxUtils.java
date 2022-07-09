@@ -39,12 +39,12 @@ public class MdxUtils {
 		return TempOpenModelStuff.createEditableModel(loadMdlx(new FileInputStream(in)));
 	}
 
-	public static void saveMdx(final EditableModel editableModel, final OutputStream outputStream) throws IOException {
-		saveMdx(TempSaveModelStuff.toMdlx(editableModel), outputStream);
+	public static void saveMdx(final MdlxModel model, final File file) throws IOException {
+		saveMdx(model, new FileOutputStream(file));
 	}
 
 	public static void saveMdx(final EditableModel editableModel, final File file) throws IOException {
-		saveMdx(editableModel, new FileOutputStream(file));
+		saveMdx(TempSaveModelStuff.toMdlx(editableModel), new FileOutputStream(file));
 	}
 
 	public static void saveMdx(final MdlxModel model, final OutputStream outputStream) throws IOException {

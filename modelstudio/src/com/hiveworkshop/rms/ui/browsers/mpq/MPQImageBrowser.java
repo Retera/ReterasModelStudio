@@ -46,7 +46,8 @@ public class MPQImageBrowser extends JPanel {
 	private ImageUtils.ColorMode colorMode = ImageUtils.ColorMode.RGBA;
 
 	public MPQImageBrowser() {
-		super(new MigLayout("fill", "[][grow]", "[grow]"));
+//		super(new MigLayout("fill", "[][grow]", "[grow]"));
+		super(new MigLayout("fill", "[grow]", "[grow]"));
 		iconMap = new HashMap<>();
 
 		mergedListFile = GameDataFileSystem.getDefault().getMergedListfile();
@@ -72,7 +73,8 @@ public class MPQImageBrowser extends JPanel {
 //		setLayout(new BorderLayout());
 		leftPanel.add(menuBar, BorderLayout.BEFORE_FIRST_LINE);
 		leftPanel.add(new JScrollPane(tree), BorderLayout.CENTER);
-		add(leftPanel, "growy");
+		leftPanel.setPreferredSize(new Dimension(350, 650));
+//		add(leftPanel, "growy");
 
 
 		JPanel rightPanel = new JPanel(new MigLayout("fill", "[]", "[grow][]"));
@@ -80,7 +82,10 @@ public class MPQImageBrowser extends JPanel {
 
 		TwiComboBox<ImageUtils.ColorMode> colorModeBox = getColorModeBox();
 		rightPanel.add(colorModeBox);
-		add(rightPanel, "growx, growy");
+//		add(rightPanel, "growx, growy");
+
+		JSplitPane jSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
+		add(jSplitPane, "growx, growy");
 
 		//	private final JFileChooser exportFileChooser;
 		MPQImageMouseAdapter mouseAdapterExtension = new MPQImageMouseAdapter(this, tree);
@@ -418,7 +423,7 @@ public class MPQImageBrowser extends JPanel {
 
 	public static void showPanel(){
 		MPQImageBrowser mpqImageBrowser = new MPQImageBrowser();
-		mpqImageBrowser.setPreferredSize(new Dimension(800, 650));
+		mpqImageBrowser.setPreferredSize(new Dimension(1000, 650));
 		FramePopup.show(mpqImageBrowser, ProgramGlobals.getMainPanel(), "Browse Textures");
 	}
 }

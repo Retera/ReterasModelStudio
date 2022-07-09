@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
+import com.hiveworkshop.rms.util.Mat4;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 public class Ray {
@@ -41,6 +43,13 @@ public class Ray {
 		return this;
 	}
 
+	public Ray setNearFar(Vec2 view, Mat4 invViewProjectionMat) {
+		this.point.set(view.x, view.y, -1f).transform(invViewProjectionMat, 1, true);
+		this.dir.set(view.x, view.y, 1).transform(invViewProjectionMat, 1, true).sub(point).normalize();
+
+		return this;
+	}
+
 	public Ray setDir(Vec3 dir) {
 		this.dir.set(dir);
 		return this;
@@ -54,5 +63,9 @@ public class Ray {
 	public Ray setPoint(Vec3 point) {
 		this.point.set(point);
 		return this;
+	}
+
+	public String toString(){
+		return point + ", " + dir;
 	}
 }

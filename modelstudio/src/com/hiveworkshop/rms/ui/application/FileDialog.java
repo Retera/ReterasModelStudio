@@ -181,6 +181,15 @@ public class FileDialog {
         }
     }
 
+    private String getExtensionOrNull(File file){
+        String name = file.getName();
+
+        if (name.lastIndexOf('.') != -1) {
+            return name.substring(name.lastIndexOf('.') + 1);
+        }
+        return null;
+    }
+
     public boolean onClickSaveAs(final EditableModel model, int operationType, boolean updateCurrent) {
         BufferedImage bufferedImage = null;
         if (operationType == SAVE_TEXTURE || operationType == SAVE) {
@@ -251,13 +260,35 @@ public class FileDialog {
             try {
                 CompoundDataSource dataSource = GameDataFileSystem.getDefault();
                 if(dataSource.has(internalPath)){
-                    System.out.println("internal path: " + dataSource.getFile(internalPath).getName());
-                    InputStream resourceAsStream = dataSource.getResourceAsStream(internalPath);
-                    if(resourceAsStream != null){
-                        Files.copy(resourceAsStream, selectedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    String expExt = getExtensionOrNull(tempFile);
+                    String saveExt = getExtensionOrNull(selectedFile);
+                    if(expExt != null && saveExt != null
+                            && (extFilter.isSupModel(expExt) || extFilter.isSupTexture(expExt))
+                            && (extFilter.isSavableModelExt(saveExt) || extFilter.isSavableTextureExt(saveExt))
+                            && !expExt.equalsIgnoreCase(saveExt)) {
+                        if(expExt.equalsIgnoreCase("mdl") || expExt.equalsIgnoreCase("mdx")){
+                            MdlxModel model = MdxUtils.loadMdlx(dataSource.getResourceAsStream(internalPath));
+                            if(saveExt.equalsIgnoreCase("mdl")){
+                                MdxUtils.saveMdl(model, selectedFile);
+                            } else if(saveExt.equalsIgnoreCase("mdx")){
+                                MdxUtils.saveMdx(model, selectedFile);
+                            }
+                        } else if(extFilter.isSavableTextureExt(saveExt)){
+                            BufferedImage gameTex = BLPHandler.getGameTex(internalPath);
+                            saveTexture(gameTex, selectedFile, saveExt);
+                        }
                     } else {
-                        System.err.println("Data source " + dataSource.getClass().getSimpleName() + " returned null instead of an input stream");
-                        new Exception().printStackTrace();
+                        System.out.println("internal path: " + dataSource.getFile(internalPath).getName());
+                        InputStream resourceAsStream = dataSource.getResourceAsStream(internalPath);
+                        if(resourceAsStream != null){
+                            if(saveExt == null && expExt != null){
+                                selectedFile = new File(selectedFile.getPath() + "." + expExt);
+                            }
+                            Files.copy(resourceAsStream, selectedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        } else {
+                            System.err.println("Data source " + dataSource.getClass().getSimpleName() + " returned null instead of an input stream");
+                            new Exception().printStackTrace();
+                        }
                     }
                 } else {
                     JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(), "Could not find \"" + internalPath + "\"", "File not found", JOptionPane.ERROR_MESSAGE);
@@ -308,6 +339,28 @@ public class FileDialog {
             }
             return new Bitmap(selectedFile.toPath().toString());
         }
+        return null;
+    }
+    public Bitmap[] importImages() {
+        setFilter(FileDialog.OPEN_TEXTURE);
+        setCurrentDirectory(getModel());
+        fileChooser.setMultiSelectionEnabled(true);
+        final int returnValue = fileChooser.showOpenDialog(getParent());
+        File[] selectedFiles = fileChooser.getSelectedFiles();
+        fileChooser.setMultiSelectionEnabled(false);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            Bitmap[] bitmaps = new Bitmap[selectedFiles.length];
+            for(int i = 0; i<selectedFiles.length; i++){
+                if (getModel().getFile() != null) {
+                    File modelDirectory = getModel().getFile().getParentFile();
+                    bitmaps[i] = new Bitmap(modelDirectory.toPath().relativize(selectedFiles[i].toPath()).toString());
+                } else {
+                    bitmaps[i] = new Bitmap(selectedFiles[i].toPath().toString());
+                }
+            }
+            return bitmaps;
+        }
+
         return null;
     }
 
@@ -472,6 +525,13 @@ public class FileDialog {
 
             updateRecent(getCurrentFile());
             ModelLoader.loadFile(getCurrentFile());
+        }
+    }
+
+    public void openFileNoGUI(final File file) {
+        if (file != null) {
+            System.out.println("  ~~~  Opening file: " + file + "  ~~~  ");
+            ModelLoader.loadFileNoGUI(file);
         }
     }
 

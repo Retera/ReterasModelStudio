@@ -47,23 +47,17 @@ public class ProgramGlobals {
 
 
 	static {
-		System.out.println("loading SaveProfile");
+		System.out.println("  ~~~  Initializing Globals  ~~~  ");
 		profile = SaveProfile.get();
-		System.out.println("loading Preferences");
 		prefs = profile.getPreferences();
-		System.out.println("loading Translator");
 		translator = new Translator();
-		System.out.println("loading KeyBindingPrefs");
 		keyBindingPrefs = prefs.getKeyBindingPrefs();
 		editorColorPrefs = prefs.getEditorColorPrefs();
 		modelPanels = new ArrayList<>();
 		undoHandler = new UndoHandler();
 
-
-		System.out.println("loading ToolBar");
 		toolbar = new ToolBar();
 
-		System.out.println("setting up ButtonGroups");
 		selectionItemTypeGroup = new ToolbarButtonGroup2<>(toolbar, SelectionItemTypes.values());
 		selectionItemTypeGroup.setActiveButton(SelectionItemTypes.VERTEX);
 		selectionModeGroup = new ToolbarButtonGroup2<>(toolbar, SelectionMode.values());
@@ -71,18 +65,66 @@ public class ProgramGlobals {
 		actionTypeGroup = new ToolbarButtonGroup2<>(toolbar, ModelEditorActionType3.values());
 		actionTypeGroup.setActiveButton(ModelEditorActionType3.TRANSLATION);
 
-		System.out.println("loading RootWindowUgg");
 		rootWindowUgg = new RootWindowUgg(prefs.getViewMap());
-		System.out.println("loading MainPanel");
 		mainPanel = new MainPanel(toolbar, rootWindowUgg);
-		System.out.println("loading SoundMappings");
 		soundMappings = new SoundMappings();
 
 		selectionItemTypeGroup.addToolbarButtonListener(ProgramGlobals::setSelectionItemType);
 		actionTypeGroup.addToolbarButtonListener(ProgramGlobals::setEditorActionType);
 
 		menuBar = new MenuBar();
+		System.out.println("  ~~~  Initializing Done  ~~~  ");
 	}
+
+//	static {
+//		System.out.println("  ~~~  Initializing Globals  ~~~  ");
+//		TimeLogger timeLogger = new TimeLogger().start();
+////		long startTime = System.currentTimeMillis();
+//		profile = SaveProfile.get();
+//		timeLogger.log("SaveProfile");
+//		prefs = profile.getPreferences();
+//		timeLogger.log("Preferences");
+//		translator = new Translator();
+//		timeLogger.log("Translator");
+//		keyBindingPrefs = prefs.getKeyBindingPrefs();
+//		timeLogger.log("keyBindingPrefs");
+//		editorColorPrefs = prefs.getEditorColorPrefs();
+//		timeLogger.log("editorColorPrefs");
+//		modelPanels = new ArrayList<>();
+//		undoHandler = new UndoHandler();
+//		timeLogger.log("UndoHandler");
+//
+//		toolbar = new ToolBar();
+//		timeLogger.log("ToolBar");
+//
+//		selectionItemTypeGroup = new ToolbarButtonGroup2<>(toolbar, SelectionItemTypes.values());
+//		selectionItemTypeGroup.setActiveButton(SelectionItemTypes.VERTEX);
+//		timeLogger.log("selectionItemTypeGroup");
+//		selectionModeGroup = new ToolbarButtonGroup2<>(toolbar, SelectionMode.values());
+//		selectionModeGroup.setActiveButton(SelectionMode.SELECT);
+//		timeLogger.log("selectionModeGroup");
+//		actionTypeGroup = new ToolbarButtonGroup2<>(toolbar, ModelEditorActionType3.values());
+//		actionTypeGroup.setActiveButton(ModelEditorActionType3.TRANSLATION);
+//		timeLogger.log("actionTypeGroup");
+//
+//		rootWindowUgg = new RootWindowUgg(prefs.getViewMap());
+//		timeLogger.log("RootWindowUgg");
+//		mainPanel = new MainPanel(toolbar, rootWindowUgg);
+//		timeLogger.log("MainPanel");
+//		soundMappings = new SoundMappings();
+//		timeLogger.log("SoundMappings");
+//
+//
+//		selectionItemTypeGroup.addToolbarButtonListener(ProgramGlobals::setSelectionItemType);
+//		actionTypeGroup.addToolbarButtonListener(ProgramGlobals::setEditorActionType);
+//		timeLogger.log("Listeners");
+//
+//		menuBar = new MenuBar();
+//		timeLogger.log("MenuBar");
+//		timeLogger.print();
+//
+//		System.out.println("  ~~~  Initializing Done  ~~~  ");
+//	}
 
 	public static MainPanel getMainPanel() {
 		return mainPanel;

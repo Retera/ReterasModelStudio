@@ -6,7 +6,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.transAct.*;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ViewBox;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.SelectionBoxHelper;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
@@ -146,7 +146,7 @@ public final class ViewportActivityManager implements SelectionListener {
 			activeActivity.mousePressed(e, viewProjectionMatrix, sizeAdj);
 		}
 	}
-	public void mousePressed(MouseEvent e, ViewBox viewBox, double sizeAdj) {
+	public void mousePressed(MouseEvent e, SelectionBoxHelper viewBox, double sizeAdj) {
 		if (isSelect(e)) {
 			activeActivity = selectActivity;
 			selectActivity.mousePressed(e, viewBox, sizeAdj);
@@ -160,7 +160,7 @@ public final class ViewportActivityManager implements SelectionListener {
 		activeActivity = null;
 	}
 
-	public void mouseReleased(MouseEvent e, ViewBox viewBox, double sizeAdj) {
+	public void mouseReleased(MouseEvent e, SelectionBoxHelper viewBox, double sizeAdj) {
 		selectActivity.mouseReleased(e, viewBox, sizeAdj);
 		activeActivity = null;
 	}

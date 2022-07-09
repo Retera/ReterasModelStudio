@@ -143,6 +143,14 @@ public final class RenderNode2 extends RenderNode<IdObject> {
 		return animatedNode.getPivotPoint();
 	}
 
+	public Vec3 getParentPivot() {
+		if (hasParent()) {
+			return renderModel.getRenderNode(animatedNode.getParent()).getPivot();
+		}
+//		return Vec3.ZERO;
+		return null;
+	}
+
 	public Vec3 getRenderPivot() {
 		return renderPivot;
 	}
@@ -151,6 +159,13 @@ public final class RenderNode2 extends RenderNode<IdObject> {
 		if (hasParent()) {
 			return renderModel.getRenderNode(animatedNode.getParent()).getRenderPivot();
 		}
-		return Vec3.ZERO;
+		return null;
+	}
+
+	public Vec3 getParentWorldScale() {
+		if (hasParent()) {
+			return renderModel.getRenderNode(animatedNode.getParent()).getWorldScale();
+		}
+		return Vec3.ONE;
 	}
 }

@@ -22,6 +22,7 @@ public class ExtFilter {
 			new ExtInfo("DDS Image", FileType.IMAGE, false, true, "dds"),
 			new ExtInfo("TGA Image", FileType.IMAGE, true, true, "tga"),
 			new ExtInfo("Autodesk FBX Model", FileType.MODEL, false, false, "fbx"),
+//			new ExtInfo("Collada", FileType.MODEL, false, false, "dae"),
 			new ExtInfo("Wavefront OBJ Model", FileType.MODEL, false, false, "obj"),
 			new ExtInfo("PNG Image", FileType.IMAGE, true, false, "png"),
 			new ExtInfo("JPG Image", FileType.IMAGE, true, false, "jpg", "jpeg"),

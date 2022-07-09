@@ -17,6 +17,7 @@ public class SplineTracker<T> {
 	private TTan<T> tTanDer;
 	private AnimFlag<T> timeline;
 	private int time;
+	private Sequence anim;
 	int interStartTime;
 	int interEndTime;
 
@@ -24,6 +25,7 @@ public class SplineTracker<T> {
 	public SplineTracker(AnimFlag<T> timeline, Sequence anim) {
 		this.timeline = timeline;
 		tTanDer = TTan.getNewTTan(timeline, anim);
+		this.anim = anim;
 		if (tTanDer != null) {
 			entryInEnd = tTanDer.cur.deepCopy();
 			entryInStart = tTanDer.cur.deepCopy();
@@ -45,6 +47,7 @@ public class SplineTracker<T> {
 
 	public void setTime(int time, Sequence anim) {
 		this.time = time;
+		this.anim = anim;
 		tTanDer.setFromKF(time, anim);
 	}
 
@@ -54,73 +57,32 @@ public class SplineTracker<T> {
 	}
 
 	public void prepareTTan() {
-//		setEntryValueX(tTanDer.prev, 0);
-//		setEntryValueX(tTanDer.cur, 100);
-//		setEntryValueX(tTanDer.next, 0);
 		tTanDer.calcDerivative();
 		entryInStart.setTime(0);
 		entryInEnd.setTime(100);
 		entryOutStart.setTime(100);
 		entryOutEnd.setTime(200);
-
-		System.out.println("tang: " + tTanDer.tang);
-//		System.out.println("orgEntry: " + timeline.getEntryAt(time));
 	}
 
 	public void resetEntriesOut(int time) {
-//		entryEnd.setTime(time);
-//		setEntryXsTo0(entryEnd);
-
-//		setEntrysTo0(entryOutStart);
-//		setEntryToTang(entryOutEnd);
-
 		setEntryToTang(entryOutStart);
 		setEntrysTo0(entryOutEnd);
 		entryOutStart.setTime(100);
 		entryOutEnd.setTime(time);
-
-//		setEntryToTang(entryOutStart);
 	}
 
 	public void resetEntriesIn(int time) {
-//		entryStart.setTime(time);
-//		setEntryXsTo0(entryStart);
 		setEntrysTo0(entryInStart);
 		setEntryToTang(entryInEnd);
 		entryInStart.setTime(time);
 		entryInEnd.setTime(100);
-//		setEntryToTang(entryInEnd);
 	}
 
 	public void setEntryToTang(Entry<T> entry) {
-//		entry.time = 100;
-//		System.out.println(tTanDer.tang);
 		entry.setValues(tTanDer.tang);
 		setEntryValues(entry, 100);
-//		setEntryValueX(entry, 100);
 	}
 
-	public void setEntryXsTo0(Entry<T> entry) {
-		if ((entry.value instanceof Float)) {
-			Float v = 0f;
-			entry.value = (T) v;
-			entry.inTan = (T) v;
-			entry.outTan = (T) v;
-		} else if ((entry.value instanceof Integer)) {
-			Integer v = 0;
-			entry.value = (T) v;
-			entry.inTan = (T) v;
-			entry.outTan = (T) v;
-		} else if (entry.value instanceof Vec3) {
-			((Vec3) entry.value).setCoord((byte) 0, 0);
-			((Vec3) entry.inTan).setCoord((byte) 0, 0);
-			((Vec3) entry.outTan).setCoord((byte) 0, 0);
-		} else if (entry.value instanceof Quat) {
-			((Quat) entry.value).setCoord((byte) 0, 0);
-			((Quat) entry.inTan).setCoord((byte) 0, 0);
-			((Quat) entry.outTan).setCoord((byte) 0, 0);
-		}
-	}
 	public void setEntrysTo0(Entry<T> entry) {
 		if ((entry.value instanceof Float)) {
 			Float v = 0f;
@@ -142,20 +104,6 @@ public class SplineTracker<T> {
 			((Quat) entry.outTan).set(0, 0, 0, 0);
 		}
 	}
-
-	public void setEntryValueX(Entry<T> entry, int value) {
-		if ((entry.value instanceof Float)) {
-			Float v = (float) value;
-			entry.value = (T) v;
-		} else if ((entry.value instanceof Integer)) {
-			Integer v = value;
-			entry.value = (T) v;
-		} else if (entry.value instanceof Vec3) {
-			((Vec3) entry.value).setCoord((byte) 0, value);
-		} else if (entry.value instanceof Quat) {
-			((Quat) entry.value).setCoord((byte) 0, value);
-		}
-	}
 	public void setEntryValues(Entry<T> entry, int value) {
 		if ((entry.value instanceof Float)) {
 			Float v = (float) value;
@@ -169,35 +117,30 @@ public class SplineTracker<T> {
 			((Quat) entry.value).set(value, value, value, 0);
 		}
 	}
-
-//	public void interpolate(int time) {
-//		switch (timeline.getInterpolationType()) {
-//			case HERMITE -> tTanDer.spline(time, entryStart, entryEnd);
-//			case BEZIER -> tTanDer.bezInterp(time, entryStart, entryEnd);
-//		}
-//	}
-	public void interpolate(int time) {
+	public float[] interpolate(int time) {
 		if (time<= 100) {
 			switch (timeline.getInterpolationType()) {
-				case HERMITE -> tTanDer.spline(time, entryInStart, entryInEnd);
+				case HERMITE -> tTanDer.hermiteInterp(time, entryInStart, entryInEnd);
 				case BEZIER -> tTanDer.bezInterp(time, entryInStart, entryInEnd);
 			}
+			return entryInEnd.getValueArr();
 		} else {
 			switch (timeline.getInterpolationType()) {
-				case HERMITE -> tTanDer.spline(time, entryOutStart, entryOutEnd);
+				case HERMITE -> tTanDer.hermiteInterp(time, entryOutStart, entryOutEnd);
 				case BEZIER -> tTanDer.bezInterp(time, entryOutStart, entryOutEnd);
 			}
+			return entryOutEnd.getValueArr();
 		}
 	}
 	public void interpolateIn(int time) {
 		switch (timeline.getInterpolationType()) {
-			case HERMITE -> tTanDer.spline(time, entryInStart, entryInEnd);
+			case HERMITE -> tTanDer.hermiteInterp(time, entryInStart, entryInEnd);
 			case BEZIER -> tTanDer.bezInterp(time, entryInStart, entryInEnd);
 		}
 	}
 	public void interpolateOut(int time) {
 		switch (timeline.getInterpolationType()) {
-			case HERMITE -> tTanDer.spline(time, entryOutStart, entryOutEnd);
+			case HERMITE -> tTanDer.hermiteInterp(time, entryOutStart, entryOutEnd);
 			case BEZIER -> tTanDer.bezInterp(time, entryOutStart, entryOutEnd);
 		}
 	}
@@ -268,8 +211,6 @@ public class SplineTracker<T> {
 		} else if (entryInEnd.value instanceof Vec3) {
 			return ((Vec3) entryInEnd.value).getCoord((byte) 0);
 		} else if (entryInEnd.value instanceof Quat) {
-//			System.out.println("endX quat: " +((Quat) entryInEnd.value).getCoord((byte) 0));
-//			return ((Quat) entryInEnd.inTan).getCoord((byte) 0);
 			return ((Quat) entryInEnd.value).getCoord((byte) 0);
 		}
 		throw new IllegalArgumentException("Unknown subscripting (get): " + entryInEnd.value + ", " + 0);
@@ -280,9 +221,6 @@ public class SplineTracker<T> {
 		} else if (entryOutEnd.value instanceof Vec3) {
 			return ((Vec3) entryOutEnd.value).getCoord((byte) 0);
 		} else if (entryOutEnd.value instanceof Quat) {
-//			System.out.println("endX quat: " +((Quat) entryOutEnd.value).getCoord((byte) 0));
-//			System.out.println("endX quat: " +((Quat) entryOutEnd.outTan).getCoord((byte) 0));
-//			return ((Quat) entryOutEnd.outTan).getCoord((byte) 0);
 			return ((Quat) entryOutEnd.value).getCoord((byte) 0);
 		}
 		throw new IllegalArgumentException("Unknown subscripting (get): " + entryOutEnd.value + ", " + 0);
@@ -322,6 +260,31 @@ public class SplineTracker<T> {
 				tTanDer.calcSplineParameters();
 			}
 
+		}
+	}
+
+
+	public void calculateTCB(Sequence anim, int time) {
+		if (timeline.tans()) {
+			TreeMap<Integer, Entry<T>> entryMap = timeline.getEntryMap(anim);
+
+			if (entryMap.ceilingKey(time) != null
+					&& (timeline.getInterpolationType() == InterpolationType.HERMITE)) {
+				tTanDer.calcSplineParameters();
+				tTanDer.printTCB();
+			}
+		}
+	}
+
+
+	public void calculateTCB() {
+		if (timeline.tans()) {
+			TreeMap<Integer, Entry<T>> entryMap = timeline.getEntryMap(anim);
+			if (entryMap.ceilingKey(time) != null
+					&& (timeline.getInterpolationType() == InterpolationType.HERMITE)) {
+				tTanDer.calcSplineParameters();
+				tTanDer.printTCB();
+			}
 		}
 	}
 }

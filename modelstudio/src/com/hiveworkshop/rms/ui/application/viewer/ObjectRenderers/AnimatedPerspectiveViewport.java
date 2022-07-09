@@ -647,23 +647,43 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 	private void setUpLights(ShaderPipeline pipeline) {
 		FloatBuffer ambientColor = BufferUtils.createFloatBuffer(4);
 		ambientColor.put(0.6f).put(0.6f).put(0.6f).put(1f).flip();
-		pipeline.glLightModel(GL11.GL_LIGHT_MODEL_AMBIENT, ambientColor);
+		GL11.glLightModel(GL11.GL_LIGHT_MODEL_AMBIENT, ambientColor);
 
 		FloatBuffer lightColor0 = BufferUtils.createFloatBuffer(4);
 		lightColor0.put(0.8f).put(0.8f).put(0.8f).put(1f).flip();
 		FloatBuffer lightPos0 = BufferUtils.createFloatBuffer(4);
 		lightPos0.put(40.0f).put(100.0f).put(80.0f).put(1f).flip();
-		pipeline.glLight(GL11.GL_LIGHT0, GL11.GL_DIFFUSE, lightColor0);
-		pipeline.glLight(GL11.GL_LIGHT0, GL11.GL_POSITION, lightPos0);
+		GL11.glLight(GL11.GL_LIGHT0, GL11.GL_DIFFUSE, lightColor0);
+		GL11.glLight(GL11.GL_LIGHT0, GL11.GL_POSITION, lightPos0);
 
 		FloatBuffer lightColor1 = BufferUtils.createFloatBuffer(4);
 		lightColor1.put(0.2f).put(0.2f).put(0.2f).put(1f).flip();
 		FloatBuffer lightPos1 = BufferUtils.createFloatBuffer(4);
 		lightPos1.put(-100.0f).put(100.5f).put(0.5f).put(1f).flip();
 
-		pipeline.glLight(GL11.GL_LIGHT1, GL11.GL_DIFFUSE, lightColor1);
-		pipeline.glLight(GL11.GL_LIGHT1, GL11.GL_POSITION, lightPos1);
+		GL11.glLight(GL11.GL_LIGHT1, GL11.GL_DIFFUSE, lightColor1);
+		GL11.glLight(GL11.GL_LIGHT1, GL11.GL_POSITION, lightPos1);
 	}
+//	private void setUpLights(ShaderPipeline pipeline) {
+//		FloatBuffer ambientColor = BufferUtils.createFloatBuffer(4);
+//		ambientColor.put(0.6f).put(0.6f).put(0.6f).put(1f).flip();
+//		pipeline.glLightModel(GL11.GL_LIGHT_MODEL_AMBIENT, ambientColor);
+//
+//		FloatBuffer lightColor0 = BufferUtils.createFloatBuffer(4);
+//		lightColor0.put(0.8f).put(0.8f).put(0.8f).put(1f).flip();
+//		FloatBuffer lightPos0 = BufferUtils.createFloatBuffer(4);
+//		lightPos0.put(40.0f).put(100.0f).put(80.0f).put(1f).flip();
+//		pipeline.glLight(GL11.GL_LIGHT0, GL11.GL_DIFFUSE, lightColor0);
+//		pipeline.glLight(GL11.GL_LIGHT0, GL11.GL_POSITION, lightPos0);
+//
+//		FloatBuffer lightColor1 = BufferUtils.createFloatBuffer(4);
+//		lightColor1.put(0.2f).put(0.2f).put(0.2f).put(1f).flip();
+//		FloatBuffer lightPos1 = BufferUtils.createFloatBuffer(4);
+//		lightPos1.put(-100.0f).put(100.5f).put(0.5f).put(1f).flip();
+//
+//		pipeline.glLight(GL11.GL_LIGHT1, GL11.GL_DIFFUSE, lightColor1);
+//		pipeline.glLight(GL11.GL_LIGHT1, GL11.GL_POSITION, lightPos1);
+//	}
 
 	private void renderParticles() {
 //		if (renderTextures()) {

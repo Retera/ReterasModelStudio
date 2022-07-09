@@ -52,6 +52,7 @@ public ModelingCreatorToolsView() {
 
 	public void setAnimationModeState(boolean animationModeState) {
 		creatorModelingPanel.setAnimationModeState(animationModeState);
+		transformPanel.setAnimationState(animationModeState);
 		if (animationModeState){
 			transformView.setComponent(null);
 			animationPanel.add(transformPanel);

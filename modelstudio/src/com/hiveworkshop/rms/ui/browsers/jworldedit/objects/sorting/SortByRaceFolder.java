@@ -43,10 +43,14 @@ public abstract class SortByRaceFolder extends AbstractSortingFolderTreeNode {
 
 		if (raceKey == null) {
 			if (raceFolders.containsKey(race)) {
+//				System.out.println("object " + object.getName() + " marked as " + race + " (" + raceFolders.get(race).toString() + ")");
 				return raceFolders.get(race);
 			} else {
+//				System.out.println("object " + object.getName() + " marked as other");
 				raceKey = DefaultAbilityRace.OTHER;
 			}
+		} else if (!raceFolders.containsKey(raceKey.getKeyString())){
+			return raceFolders.get(DefaultAbilityRace.OTHER.getKeyString());
 		}
 		return raceFolders.get(raceKey.getKeyString());
 	}

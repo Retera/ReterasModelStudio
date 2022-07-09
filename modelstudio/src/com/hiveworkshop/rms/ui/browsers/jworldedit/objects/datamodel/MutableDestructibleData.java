@@ -17,42 +17,11 @@ public final class MutableDestructibleData extends MutableObjectData {
 
 	public MutableDestructibleData() {
 		this(getStandardDestructables(), getStandardDestructableMeta(), getWar3ObjectDataChangeset('b', "war3map.w3b"));
-//		super(WorldEditorDataType.DESTRUCTIBLES, getStandardDestructables(), getStandardDestructableMeta(), editorData);
-//		super(worldEditorDataType, sourceSLKData, sourceSLKMetaData, editorData);
-//		this.worldEditorDataType = WorldEditorDataType.DESTRUCTIBLES;
-////		this.sourceSLKData = StandardObjectData.getStandardDestructables();
-//		this.sourceSLKData = getStandardDestructables();
-//		resolveStringReferencesInNames(this.sourceSLKData);
-////		this.sourceSLKMetaData = StandardObjectData.getStandardDestructableMeta();
-//		this.sourceSLKMetaData = getStandardDestructableMeta();
-//		this.editorData = getWar3ObjectDataChangeset('b', "war3map.w3b");
-//		metaNameToMetaId = new HashMap<>();
-//		for (String metaKeyString : this.sourceSLKMetaData.keySet()) {
-//			War3ID metaKey = War3ID.fromString(metaKeyString);
-//			metaNameToMetaId.put(this.sourceSLKMetaData.get(metaKeyString).getField("field"), metaKey);
-//		}
-//		cachedKeyToGameObject = new HashMap<>();
-//		changeNotifier = new MutableObjectDataChangeNotifier();
 	}
 
 	public MutableDestructibleData(WarcraftData sourceSLKData,
 	                               DataTable sourceSLKMetaData, War3ObjectDataChangeset editorData) {
 		super(WorldEditorDataType.DESTRUCTIBLES, sourceSLKData, sourceSLKMetaData, editorData);
-//		super(worldEditorDataType, sourceSLKData, sourceSLKMetaData, editorData);
-//		this.worldEditorDataType = WorldEditorDataType.DESTRUCTIBLES;
-////		this.sourceSLKData = StandardObjectData.getStandardDestructables();
-//		this.sourceSLKData = getStandardDestructables();
-//		resolveStringReferencesInNames(this.sourceSLKData);
-////		this.sourceSLKMetaData = StandardObjectData.getStandardDestructableMeta();
-//		this.sourceSLKMetaData = getStandardDestructableMeta();
-//		this.editorData = getWar3ObjectDataChangeset('b', "war3map.w3b");
-//		metaNameToMetaId = new HashMap<>();
-//		for (String metaKeyString : this.sourceSLKMetaData.keySet()) {
-//			War3ID metaKey = War3ID.fromString(metaKeyString);
-//			metaNameToMetaId.put(this.sourceSLKMetaData.get(metaKeyString).getField("field"), metaKey);
-//		}
-//		cachedKeyToGameObject = new HashMap<>();
-//		changeNotifier = new MutableObjectDataChangeNotifier();
 	}
 
 

@@ -139,6 +139,32 @@ public class CurveRenderer2 extends JPanel {
 		}
 	}
 
+	public void makeSplinesAt(int time) {
+		if (animFlag != null) {
+			int timeStart = time-50;
+			for (int i = 0; i <= 100; i++) {
+				Vec3 vec3 = animFlag.interpolateAt(sequence, (int) (timeStart + i * timeStep));
+				curveX[i].y = vec3.x;
+				curveY[i].y = vec3.y;
+				curveZ[i].y = vec3.z;
+				max.maximize(vec3);
+				min.minimize(vec3);
+				System.out.println(vec3);
+			}
+			float heightAdj = (getHeight() - 5) / (max.length() + min.length());
+			zeroHeight = min.length() * heightAdj;
+			System.out.println(zeroHeight + ", minLength: " + min.length() + ", heightAdj: " + heightAdj + ", height: " + getHeight());
+			for (int i = 0; i <= 100; i++) {
+				curveX[i].y *= heightAdj;
+				curveY[i].y *= heightAdj;
+				curveZ[i].y *= heightAdj;
+				curveX[i].y += zeroHeight;
+				curveY[i].y += zeroHeight;
+				curveZ[i].y += zeroHeight;
+			}
+		}
+	}
+
 	public void clearCurve() {
 		for (int i = 0; i < curve.length; i++) {
 			curve[i].set(i, -1);

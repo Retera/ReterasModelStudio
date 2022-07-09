@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff.TSpline;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -19,6 +20,7 @@ public class ManualTransformPanel extends JPanel {
 	//	private JPanel moveToPanel;
 	private JPanel scalePanel;
 	private JPanel rotatePanel;
+	private ShrinkFattenPanel shrinkFattenPanel;
 
 	public ManualTransformPanel() {
 		super(new MigLayout("hidemode 2, ins 0, gap 0"));
@@ -36,6 +38,13 @@ public class ManualTransformPanel extends JPanel {
 //		moveToPanel.setVisible(false);
 		scalePanel.setVisible(false);
 		rotatePanel.setVisible(false);
+
+		boolean temp = false;
+//		boolean temp = true;
+		if (temp) {
+			TSpline tSpline = new TSpline();
+			add(tSpline, "newline, spanx, growy");
+		}
 
 		ProgramGlobals.getActionTypeGroup().addToolbarButtonListener(this::showCorrectPanel);
 	}
@@ -67,6 +76,7 @@ public class ManualTransformPanel extends JPanel {
 	public ManualTransformPanel setModel(ModelHandler modelHandler, ModelEditorManager modelEditorManager) {
 		this.modelHandler = modelHandler;
 		this.modelEditorManager = modelEditorManager;
+		shrinkFattenPanel.setModel(modelHandler);
 		return this;
 	}
 
@@ -79,6 +89,12 @@ public class ManualTransformPanel extends JPanel {
 			this.modelHandler = null;
 			this.modelEditorManager = null;
 		}
+		shrinkFattenPanel.setModel(modelHandler);
+		return this;
+	}
+
+	public ManualTransformPanel setAnimationState(boolean isAnimating){
+		shrinkFattenPanel.setVisible(!isAnimating);
 		return this;
 	}
 
@@ -169,7 +185,7 @@ public class ManualTransformPanel extends JPanel {
 	}
 
 	JPanel getScalePanel() {
-		JPanel inputPanel = new JPanel(new MigLayout("gap 0"));
+		JPanel inputPanel = new JPanel(new MigLayout("gap 0, hidemode 1"));
 		Vec3SpinnerArray spinners = new Vec3SpinnerArray(new Vec3(1, 1, 1), "Scale X:", "Scale Y:", "Scale Z:");
 		inputPanel.add(spinners.setSpinnerWrap(true).spinnerPanel(), "wrap");
 
@@ -181,7 +197,10 @@ public class ManualTransformPanel extends JPanel {
 
 		JButton button = new JButton("Scale");
 		button.addActionListener(e -> scale(spinners, customOrigin, centerSpinners));
-		inputPanel.add(button);
+		inputPanel.add(button, "wrap");
+
+		shrinkFattenPanel = new ShrinkFattenPanel();
+		inputPanel.add(shrinkFattenPanel);
 		return inputPanel;
 	}
 

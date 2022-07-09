@@ -1,37 +1,25 @@
 package com.hiveworkshop.rms.editor.wrapper.v2;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class ModelView {
 	private final EditableModel model;
+	private final GeosetTracker geosetTracker;
 
-	private final Set<GeosetVertex> selectedTVertices = new HashSet<>();
-	private final Set<GeosetVertex> selectedVertices = new HashSet<>();
 	private final Set<IdObject> selectedIdObjects = new HashSet<>();
 	private final Set<CameraNode> selectedCameraNodes = new HashSet<>();
 
-	private final Set<GeosetVertex> selEdTVertices = new HashSet<>();
-	private final Set<GeosetVertex> selEdVertices = new HashSet<>();
 	private final Set<IdObject> selEdIdObjects = new HashSet<>();
 	private final Set<Camera> selEdCameras = new HashSet<>();
 	private final Set<CameraNode> selEdCameraNodes = new HashSet<>();
-
-	private final Set<GeosetVertex> hiddenVertices = new HashSet<>();
-	private final Set<GeosetVertex> editableVertices = new HashSet<>();
-	private final Set<GeosetVertex> notEditableVertices = new HashSet<>();
-
-	private final Set<Geoset> editableGeosets = new HashSet<>();
-	private final Set<Geoset> notEditableGeosets = new HashSet<>();
-	private final Set<Geoset> visibleGeosets = new HashSet<>();
-	private final Set<Geoset> hiddenGeosets = new HashSet<>();
 
 	private final Set<IdObject> editableIdObjects = new HashSet<>();
 	private final Set<IdObject> notEditableIdObjects = new HashSet<>();
@@ -48,15 +36,12 @@ public final class ModelView {
 	private final Set<CameraNode> visibleCameraNodes = new HashSet<>();
 	private final Set<CameraNode> hiddenCameraNodes = new HashSet<>();
 
-	private Geoset highlightedGeoset;
 	private IdObject highlightedNode;
 	private Camera highlightedCamera;
 	private boolean vetoParticles = false;
 
-	private boolean geosetsVisible = true;
 	private boolean idObjectsVisible = true;
 	private boolean camerasVisible = true;
-	private boolean geosetsEditable = true;
 	private boolean idObjectsEditable = true;
 	private boolean camerasEditable = true;
 
@@ -65,15 +50,8 @@ public final class ModelView {
 	public ModelView(EditableModel model) {
 		this.model = model;
 
-		for (Geoset geoset : model.getGeosets()) {
-			if (!ModelUtils.isLevelOfDetailSupported(model.getFormatVersion()) || (geoset.getLevelOfDetail() == 0)) {
-				editableGeosets.add(geoset);
-				visibleGeosets.add(geoset);
-				editableVertices.addAll(geoset.getVertices());
-			} else {
-				hiddenGeosets.add(geoset);
-			}
-		}
+		geosetTracker = new GeosetTracker(model.getGeosets(), model.getFormatVersion());
+
 		editableIdObjects.addAll(model.getIdObjects());
 		visibleIdObjects.addAll(model.getIdObjects());
 		editableCameras.addAll(model.getCameras());
@@ -90,15 +68,11 @@ public final class ModelView {
 	}
 
 	public Set<Geoset> getVisibleGeosets() {
-//		return visibleGeosets;
-		if (geosetsVisible) return visibleGeosets;
-		return Collections.emptySet();
+		return geosetTracker.getVisibleGeosets();
 	}
 
 	public Set<Geoset> getEditableGeosets() {
-//		return editableGeosets;
-		if (geosetsVisible && geosetsEditable) return editableGeosets;
-		return Collections.emptySet();
+		return geosetTracker.getEditableGeosets();
 	}
 
 	public Set<IdObject> getVisibleIdObjects() {
@@ -142,7 +116,7 @@ public final class ModelView {
 	}
 
 	public Geoset getHighlightedGeoset() {
-		return highlightedGeoset;
+		return geosetTracker.getHighlightedGeoset();
 	}
 
 	public IdObject getHighlightedNode() {
@@ -154,40 +128,27 @@ public final class ModelView {
 	}
 
 	public Set<GeosetVertex> getHiddenVertices(){
-		return hiddenVertices;
+		return geosetTracker.getHiddenVertices();
 	}
 
-	public void makeGeosetEditable(Geoset geoset) {
-		editableGeosets.add(geoset);
-		notEditableGeosets.remove(geoset);
-//		visibleGeosets.add(geoset);
-//		hiddenGeosets.remove(geoset);
-//		hiddenVertices.removeAll(geoset.getVertices());
-		editableVertices.addAll(geoset.getVertices());
-		notEditableVertices.removeAll(geoset.getVertices());
+
+	public void makeGeosetEditable(boolean editable, Geoset... geosets){
+		geosetTracker.makeGeosetEditable(editable, geosets);
 		ProgramGlobals.getMainPanel().repaint();
 	}
 
-	public void makeGeosetNotEditable(Geoset geoset) {
-		editableGeosets.remove(geoset);
-		notEditableGeosets.add(geoset);
-		editableVertices.removeAll(geoset.getVertices());
-		notEditableVertices.addAll(geoset.getVertices());
+	public void makeGeosetVisible(boolean visible, Geoset... geosets){
+		geosetTracker.makeGeosetVisible(visible, geosets);
 		ProgramGlobals.getMainPanel().repaint();
 	}
 
-	public void makeGeosetVisible(Geoset geoset) {
-		visibleGeosets.add(geoset);
-		hiddenGeosets.remove(geoset);
-		hiddenVertices.removeAll(geoset.getVertices());
+	public void makeGeosetEditable(boolean editable, Collection<Geoset> geosets){
+		geosetTracker.makeGeosetEditable(editable, geosets);
 		ProgramGlobals.getMainPanel().repaint();
 	}
 
-	public void makeGeosetNotVisible(Geoset geoset) {
-		visibleGeosets.remove(geoset);
-//		editableGeosets.remove(geoset);
-		hiddenGeosets.add(geoset);
-		hiddenVertices.addAll(geoset.getVertices());
+	public void makeGeosetVisible(boolean visible, Collection<Geoset> geosets){
+		geosetTracker.makeGeosetVisible(visible, geosets);
 		ProgramGlobals.getMainPanel().repaint();
 	}
 
@@ -262,14 +223,12 @@ public final class ModelView {
 	}
 
 	public void highlightGeoset(Geoset geoset) {
-		highlightedGeoset = geoset;
+		geosetTracker.setHighlightedGeoset(geoset);
 		ProgramGlobals.getMainPanel().repaint();
 	}
 
 	public void unhighlightGeoset(Geoset geoset) {
-		if (highlightedGeoset == geoset) {
-			highlightedGeoset = null;
-		}
+		geosetTracker.unhighlightGeoset(geoset);
 		ProgramGlobals.getMainPanel().repaint();
 	}
 
@@ -300,54 +259,7 @@ public final class ModelView {
 	public void updateElements() {
 		Set<Geoset> modelGeosets = new HashSet<>(model.getGeosets());
 
-		Set<Geoset> geosetsToRemove = Stream.of(visibleGeosets, hiddenGeosets, notEditableGeosets, editableGeosets)
-				.flatMap(Collection::stream)
-				.filter(g -> !modelGeosets.contains(g))
-				.collect(Collectors.toSet());
-		visibleGeosets.removeAll(geosetsToRemove);
-		hiddenGeosets.removeAll(geosetsToRemove);
-		notEditableGeosets.removeAll(geosetsToRemove);
-		editableGeosets.removeAll(geosetsToRemove);
-
-		for (Geoset geoset : geosetsToRemove) {
-			hiddenVertices.removeAll(geoset.getVertices());
-			editableVertices.removeAll(geoset.getVertices());
-			notEditableVertices.removeAll(geoset.getVertices());
-			selectedVertices.removeAll(geoset.getVertices());
-		}
-
-		for (Geoset geoset : modelGeosets) {
-			if (!visibleGeosets.contains(geoset) && !hiddenGeosets.contains(geoset) && !notEditableGeosets.contains(geoset) && !editableGeosets.contains(geoset)){
-				visibleGeosets.add(geoset);
-				editableGeosets.add(geoset);
-				editableVertices.addAll(geoset.getVertices());
-			} else {
-				geoset.getVertices().stream()
-						.filter(v -> !editableVertices.contains(v) || !notEditableVertices.contains(v))
-						.forEach(editableVertices::add);
-			}
-		}
-
-		hiddenVertices.removeIf(g -> !g.getGeoset().contains(g));
-		editableVertices.removeIf(g -> !g.getGeoset().contains(g));
-		notEditableVertices.removeIf(g -> !g.getGeoset().contains(g));
-		selectedVertices.removeIf(g -> !g.getGeoset().contains(g));
-
-
-//		editableVertices.clear();
-//		hiddenVertices.clear();
-//		notEditableVertices.clear();
-//		for (Geoset geoset : editableGeosets) {
-//			editableVertices.addAll(geoset.getVertices());
-//		}
-//		for (Geoset geoset : hiddenGeosets) {
-//			hiddenVertices.addAll(geoset.getVertices());
-//		}
-//		for (Geoset geoset : notEditableGeosets) {
-//			notEditableVertices.addAll(geoset.getVertices());
-//		}
-//
-//		selectedVertices.removeIf(v -> !editableVertices.contains(v) && !notEditableVertices.contains(v));
+		geosetTracker.updateElements(modelGeosets);
 
 		Set<IdObject> modelIdObjects = new HashSet<>(model.getIdObjects());
 		visibleIdObjects.removeIf(object -> !modelIdObjects.contains(object));
@@ -414,19 +326,19 @@ public final class ModelView {
 	}
 
 	public void setGeosetsVisible(boolean visible) {
-		geosetsVisible = visible;
+		geosetTracker.setGeosetsVisible(visible);
 	}
 
 	public boolean isGeosetsVisible() {
-		return geosetsVisible;
+		return geosetTracker.isGeosetsVisible();
 	}
 
 	public void setGeosetsEditable(boolean editable) {
-		geosetsEditable = editable;
+		geosetTracker.setGeosetsEditable(editable);
 	}
 
 	public boolean isGeosetsEditable() {
-		return geosetsEditable;
+		return geosetTracker.isGeosetsEditable();
 	}
 
 	public void setIdObjectsVisible(boolean visible) {
@@ -462,7 +374,7 @@ public final class ModelView {
 	}
 
 	public boolean isVisible(Geoset ob) {
-		return visibleGeosets.contains(ob) && geosetsVisible;
+		return geosetTracker.isVisible(ob);
 	}
 
 	public boolean isVisible(IdObject ob) {
@@ -474,15 +386,15 @@ public final class ModelView {
 	}
 
 	public boolean isEditable(Geoset ob) {
-		return geosetsEditable && geosetsVisible && editableGeosets.contains(ob) && visibleGeosets.contains(ob);
+		return geosetTracker.isEditable(ob);
 	}
 
 	public boolean isEditable(GeosetVertex ob) {
-		return geosetsEditable && geosetsVisible && editableVertices.contains(ob) && !hiddenVertices.contains(ob);
+		return geosetTracker.isEditable(ob);
 	}
 
 	public boolean isEditable(Triangle ob) {
-		return geosetsEditable && geosetsVisible && editableVertices.containsAll(Arrays.asList(ob.getVerts())) && !hiddenVertices.contains(ob.get(0)) && !hiddenVertices.contains(ob.get(1)) && !hiddenVertices.contains(ob.get(2));
+		return geosetTracker.isEditable(ob);
 	}
 
 	public boolean isEditable(IdObject ob) {
@@ -498,7 +410,7 @@ public final class ModelView {
 	}
 
 	public boolean shouldRender(Geoset ob) {
-		return visibleGeosets.contains(ob) && geosetsVisible;
+		return geosetTracker.shouldRender(ob);
 	}
 
 	public boolean shouldRender(IdObject ob) {
@@ -510,7 +422,7 @@ public final class ModelView {
 	}
 
 	public boolean canSelect(Geoset ob) {
-		return editableGeosets.contains(ob) && geosetsVisible && geosetsEditable;
+		return geosetTracker.canSelect(ob);
 	}
 
 	public boolean canSelect(IdObject ob) {
@@ -527,7 +439,7 @@ public final class ModelView {
 
 	public Vec3 getSelectionCenter() {
 		Set<Vec3> selectedPoints = new HashSet<>();
-		selectedVertices.stream().filter(editableVertices::contains).filter(v -> !hiddenVertices.contains(v)).forEach(selectedPoints::add);
+		geosetTracker.collectSelectionCenter(selectedPoints);
 //		selectedVertices.stream().forEach(selectedPoints::add);
 		selectedIdObjects.stream().filter(editableIdObjects::contains).filter(visibleIdObjects::contains).forEach(o -> selectedPoints.add(o.getPivotPoint()));
 		selectedCameraNodes.stream().filter(editableCameraNodes::contains).filter(visibleCameraNodes::contains).forEach(n -> selectedPoints.add(n.getPosition()));
@@ -536,19 +448,11 @@ public final class ModelView {
 	}
 
 	public Set<GeosetVertex> getSelectedVertices() {
-		// ToDo not editable stuff should not be in the selection (but maybe be added back once editable again)
-//		return selectedVertices;
-		if (!geosetsEditable || !geosetsVisible) return Collections.emptySet();
-		selEdVertices.clear();
-		selEdVertices.addAll(selectedVertices);
-		selEdVertices.removeAll(hiddenVertices);
-		selEdVertices.removeAll(notEditableVertices);
-		return selEdVertices;
+		return geosetTracker.getSelectedVertices();
 	}
 
 	public void setSelectedVertices(Collection<GeosetVertex> geosetVertices) {
-		selectedVertices.clear();
-		selectedVertices.addAll(geosetVertices);
+		geosetTracker.setSelectedVertices(geosetVertices);
 	}
 
 	public Set<IdObject> getSelectedIdObjects() {
@@ -603,54 +507,39 @@ public final class ModelView {
 	}
 
 	public Set<Triangle> getSelectedTriangles() {
-		Set<Triangle> selTris = new HashSet<>();
-		for (GeosetVertex vertex : selectedVertices) {
-			for (Triangle triangle : vertex.getTriangles()) {
-				if (selectedVertices.containsAll(Arrays.asList(triangle.getVerts()))) {
-					selTris.add(triangle);
-				}
-			}
-		}
-		return selTris;
+		return geosetTracker.getSelectedTriangles();
 	}
 
 	public void addSelectedTris(Collection<Triangle> triangles) {
-		for (Triangle triangle : triangles) {
-			selectedVertices.addAll(Arrays.asList(triangle.getVerts()));
-		}
+		geosetTracker.addSelectedTris(triangles);
 	}
 
 	public void setSelectedTris(Collection<Triangle> triangles) {
-		selectedVertices.clear();
-		for (Triangle triangle : triangles) {
-			selectedVertices.addAll(Arrays.asList(triangle.getVerts()));
-		}
+		geosetTracker.setSelectedTris(triangles);
 	}
 
 	public void removeSelectedTris(Collection<Triangle> triangles) {
-		for (Triangle triangle : triangles) {
-			selectedVertices.removeAll(Arrays.asList(triangle.getVerts()));
-		}
+		geosetTracker.removeSelectedTris(triangles);
 	}
 
 	public void addSelectedVertex(GeosetVertex geosetVertex) {
-		selectedVertices.add(geosetVertex);
+		geosetTracker.addSelectedVertex(geosetVertex);
 	}
 
 	public void addSelectedVertices(Collection<GeosetVertex> geosetVertices) {
-		selectedVertices.addAll(geosetVertices);
+		geosetTracker.addSelectedVertices(geosetVertices);
 	}
 
 	public void clearSelectedVertices() {
-		selectedVertices.clear();
+		geosetTracker.clearSelectedVertices();
 	}
 
 	public void removeSelectedVertices(Collection<GeosetVertex> geosetVertices) {
-		selectedVertices.removeAll(geosetVertices);
+		geosetTracker.removeSelectedVertices(geosetVertices);
 	}
 
 	public void removeSelectedVertex(GeosetVertex geosetVertex) {
-		selectedVertices.remove(geosetVertex);
+		geosetTracker.removeSelectedVertex(geosetVertex);
 	}
 
 	public void addSelectedIdObject(IdObject idObject) {
@@ -674,7 +563,7 @@ public final class ModelView {
 	}
 
 	public boolean isHidden(GeosetVertex vertex) {
-		return hiddenVertices.contains(vertex) || hiddenGeosets.contains(vertex.getGeoset());
+		return geosetTracker.isHidden(vertex);
 	}
 
 	public void addSelectedCamera(Camera camera) {
@@ -726,7 +615,7 @@ public final class ModelView {
 	}
 
 	public boolean isSelected(GeosetVertex geosetVertex) {
-		return selectedVertices.contains(geosetVertex);
+		return geosetTracker.isSelected(geosetVertex);
 	}
 
 	public boolean isSelected(IdObject idObject) {
@@ -742,12 +631,7 @@ public final class ModelView {
 	}
 
 	public void invertVertSelection() {
-		Set<GeosetVertex> tempVerts = new HashSet<>();
-		for (Geoset geoset : editableGeosets) {
-			tempVerts.addAll(geoset.getVertices());
-		}
-		tempVerts.removeAll(selectedVertices);
-		setSelectedVertices(tempVerts);
+		geosetTracker.invertVertSelection();
 	}
 
 	public void invertIdObjSelection() {
@@ -769,9 +653,7 @@ public final class ModelView {
 	}
 
 	public void selectAllVerts() {
-		for (Geoset geoset : editableGeosets) {
-			selectedVertices.addAll(geoset.getVertices());
-		}
+		geosetTracker.selectAllVerts();
 	}
 
 	public void selectAllIdObjs() {
@@ -786,14 +668,7 @@ public final class ModelView {
 	}
 
 	public void selectAll() {
-		if (geosetsVisible && geosetsEditable) {
-			for (Geoset geoset : editableGeosets) {
-				if (isEditable(geoset)) {
-					selectedVertices.addAll(geoset.getVertices());
-					selectedVertices.removeIf(this::isHidden);
-				}
-			}
-		}
+		geosetTracker.selectAll();
 		if (idObjectsVisible && idObjectsEditable) {
 			selectedIdObjects.addAll(editableIdObjects);
 		}
@@ -803,67 +678,56 @@ public final class ModelView {
 	}
 
 	public void addSelectedTVertex(GeosetVertex geosetVertex) {
-		selectedTVertices.add(geosetVertex);
+		geosetTracker.addSelectedTVertex(geosetVertex);
 	}
 
 	public void addSelectedTVertices(Collection<GeosetVertex> geosetVertices) {
-		selectedTVertices.addAll(geosetVertices);
+		geosetTracker.addSelectedTVertices(geosetVertices);
 	}
 
 	public void hideVertices(Collection<GeosetVertex> geosetVertices) {
-		hiddenVertices.addAll(geosetVertices);
+		geosetTracker.hideVertices(geosetVertices);
 	}
 	public void showVertices(Collection<GeosetVertex> geosetVertices) {
-		hiddenVertices.removeAll(geosetVertices);
+		geosetTracker.showVertices(geosetVertices);
 	}
 
 	public void unHideAllVertices() {
-		hiddenVertices.clear();
-		for (Geoset geoset : hiddenGeosets) {
-			hiddenVertices.addAll(geoset.getVertices());
-		}
+		geosetTracker.unHideAllVertices();
 	}
 
 	public void clearSelectedTVertices() {
-		selectedTVertices.clear();
+		geosetTracker.clearSelectedTVertices();
 	}
 
 	public void removeSelectedTVertices(Collection<GeosetVertex> geosetVertices) {
-		selectedTVertices.removeAll(geosetVertices);
+		geosetTracker.removeSelectedTVertices(geosetVertices);
 	}
 
 	public boolean isTSelected(GeosetVertex geosetVertex) {
-		return selectedTVertices.contains(geosetVertex);
+		return geosetTracker.isTSelected(geosetVertex);
 	}
 
 	public void selectAllTVerts() {
-		for (Geoset geoset : editableGeosets) {
-			selectedTVertices.addAll(geoset.getVertices());
-		}
+		geosetTracker.selectAllTVerts();
 	}
 
 	public Vec2 getTSelectionCenter(){
-		Set<Vec2> selectedPoints = new HashSet<>();
-		selectedTVertices.stream().filter(editableVertices::contains).forEach(v -> selectedPoints.add(v.getTVertex(0)));
-
-		return Vec2.centerOfGroup(selectedPoints);
+		return geosetTracker.getTSelectionCenter();
 	}
 
 	public Set<GeosetVertex> getSelectedTVertices() {
 		// ToDo not editable stuff should not be in the selection (but maybe be added back once editable again)
-		return selectedTVertices;
+		return geosetTracker.getSelectedTVertices();
 	}
 
 	public void setSelectedTVertices(Collection<GeosetVertex> geosetVertices) {
-		selectedTVertices.clear();
-		selectedTVertices.addAll(geosetVertices);
+		geosetTracker.setSelectedTVertices(geosetVertices);
 	}
 
 	public <T> boolean isInEditable(T obj) {
-		if (obj instanceof GeosetVertex) {
-			return editableVertices.contains(obj);
-		} else if (obj instanceof Geoset) {
-			return editableGeosets.contains(obj);
+		if (obj instanceof GeosetVertex || obj instanceof Geoset) {
+			return geosetTracker.isInEditable(obj);
 		} else if (obj instanceof IdObject) {
 			return editableIdObjects.contains(obj);
 		} else if (obj instanceof Camera) {
@@ -875,12 +739,9 @@ public final class ModelView {
 	}
 
 	public <T> boolean isInVisible(T obj) {
-		if (obj instanceof GeosetVertex) {
-//			System.out.println("GeosetVertex inVissible:" + hiddenVertices.contains(obj));
-			return !hiddenVertices.contains(obj);
-		} else if (obj instanceof Geoset) {
+		if (obj instanceof GeosetVertex || obj instanceof Geoset) {
 //			System.out.println("Geoset inVissible:" + visibleGeosets.contains(obj));
-			return visibleGeosets.contains(obj);
+			return geosetTracker.isInVisible(obj);
 		} else if (obj instanceof IdObject) {
 //			System.out.println("IdObject inVissible:" + visibleIdObjects.contains(obj));
 			return visibleIdObjects.contains(obj);
@@ -899,7 +760,7 @@ public final class ModelView {
 		if (b) {
 			if (obj instanceof Geoset) {
 				System.out.println("Geoset Visible!");
-				makeGeosetVisible((Geoset) obj);
+				makeGeosetVisible(b, (Geoset) obj);
 			} else if (obj instanceof IdObject) {
 				System.out.println("IdObject Visible!");
 				makeIdObjectVisible((IdObject) obj);
@@ -910,7 +771,40 @@ public final class ModelView {
 		} else {
 			if (obj instanceof Geoset) {
 				System.out.println("Geoset NotVisible!");
-				makeGeosetNotVisible((Geoset) obj);
+//				makeGeosetNotVisible((Geoset) obj);
+				makeGeosetVisible(b, (Geoset) obj);
+			} else if (obj instanceof IdObject) {
+				System.out.println("IdObject NotVisible!");
+				makeIdObjectNotVisible((IdObject) obj);
+			} else if (obj instanceof Camera) {
+				System.out.println("Camera NotVisible!");
+				makeCameraNotVisible((Camera) obj);
+			}
+		}
+		return this;
+	}
+
+	public <T> ModelView makeVisible(Collection<T> obj, boolean b) {
+		System.out.println("ModelView#makeVisible: " + b);
+		if(!obj.isEmpty()){
+			T t = obj.stream().findAny().get();
+		}
+		if (b) {
+			if (obj instanceof Geoset) {
+				System.out.println("Geoset Visible!");
+				makeGeosetVisible(b, (Geoset) obj);
+			} else if (obj instanceof IdObject) {
+				System.out.println("IdObject Visible!");
+				makeIdObjectVisible((IdObject) obj);
+			} else if (obj instanceof Camera) {
+				System.out.println("Camera Visible!");
+				makeCameraVisible((Camera) obj);
+			}
+		} else {
+			if (obj instanceof Geoset) {
+				System.out.println("Geoset NotVisible!");
+				makeGeosetVisible(b, (Geoset) obj);
+//				makeGeosetNotVisible((Geoset) obj);
 			} else if (obj instanceof IdObject) {
 				System.out.println("IdObject NotVisible!");
 				makeIdObjectNotVisible((IdObject) obj);
@@ -926,7 +820,7 @@ public final class ModelView {
 		if (b) {
 			if (obj instanceof Geoset) {
 				System.out.println("Geoset Editable!");
-				makeGeosetEditable((Geoset) obj);
+				makeGeosetEditable(b, (Geoset) obj);
 			} else if (obj instanceof IdObject) {
 				System.out.println("IdObject Editable!");
 				makeIdObjectEditable((IdObject) obj);
@@ -937,7 +831,8 @@ public final class ModelView {
 		} else {
 			if (obj instanceof Geoset) {
 				System.out.println("Geoset NotEditable!");
-				makeGeosetNotEditable((Geoset) obj);
+				makeGeosetEditable(b, (Geoset) obj);
+//				makeGeosetNotEditable((Geoset) obj);
 			} else if (obj instanceof IdObject) {
 				System.out.println("IdObject NotEditable!");
 				makeIdObjectNotEditable((IdObject) obj);
@@ -952,21 +847,21 @@ public final class ModelView {
 	public <T> ModelView higthlight(T obj) {
 		if (obj instanceof Geoset) {
 //			System.out.println("Geoset Higlighted!");
-			highlightedGeoset = (Geoset) obj;
+			geosetTracker.setHighlightedGeoset((Geoset) obj);
 			highlightedNode = null;
 			highlightedCamera = null;
 		} else if (obj instanceof IdObject) {
 //			System.out.println("IdObject Higlighted!");
-			highlightedGeoset = null;
+			geosetTracker.setHighlightedGeoset(null);
 			highlightedNode = (IdObject) obj;
 			highlightedCamera = null;
 		} else if (obj instanceof Camera) {
 //			System.out.println("Camera (not) Higlighted!");
-			highlightedGeoset = null;
+			geosetTracker.setHighlightedGeoset(null);
 			highlightedNode = null;
 			highlightedCamera = (Camera) obj;
 		} else {
-			highlightedGeoset = null;
+			geosetTracker.setHighlightedGeoset(null);
 			highlightedNode = null;
 			highlightedCamera = null;
 		}
@@ -975,12 +870,12 @@ public final class ModelView {
 	}
 
 	public boolean sameSelection(Collection<GeosetVertex> verts, Collection<IdObject> objs, Collection<CameraNode> cams) {
-		return (selectedVertices.size() == verts.size() && selectedVertices.containsAll(verts)
+		return (geosetTracker.getSelectedVertices().size() == verts.size() && geosetTracker.getSelectedVertices().containsAll(verts)
 				&& selectedIdObjects.size() == objs.size() && selectedIdObjects.containsAll(objs)
 				&& selectedCameraNodes.size() == cams.size() && selectedCameraNodes.containsAll(cams));
 	}
 
 	public boolean isEmpty() {
-		return selectedVertices.isEmpty() && selectedIdObjects.isEmpty() && selectedCameraNodes.isEmpty();
+		return geosetTracker.getSelectedVertices().isEmpty() && selectedIdObjects.isEmpty() && selectedCameraNodes.isEmpty();
 	}
 }

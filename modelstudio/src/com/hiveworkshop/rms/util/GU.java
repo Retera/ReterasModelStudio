@@ -141,6 +141,12 @@ public class GU {
 		}
 	}
 
+	public static void drawLines(Graphics graphics, int... x_y) {
+		for (int i = 0; i < x_y.length - 3; i += 4) {
+			graphics.drawLine(x_y[i], x_y[i + 1], x_y[i + 2], x_y[i + 3]);
+		}
+	}
+
 	public static void drawLines(Graphics graphics, Vec2[] starts, Vec2[] ends) {
 		for (int i = 0; i < starts.length - 1; i++) {
 			graphics.drawLine((int) starts[i].x, (int) starts[i].y, (int) ends[i].x, (int) ends[i].y);

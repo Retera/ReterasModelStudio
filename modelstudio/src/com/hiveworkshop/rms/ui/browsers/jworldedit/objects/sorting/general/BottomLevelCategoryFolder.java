@@ -24,17 +24,25 @@ public final class BottomLevelCategoryFolder extends SortingFolderTreeNode {
 	@Override
 	public DefaultMutableTreeNode add(MutableGameObject unitToAdd, TreeNodeLinker treeNodeLinker) {
 		DefaultMutableTreeNode unitNode = new DefaultMutableTreeNode(unitToAdd);
+		int insertIndex = getInsertIndex(unitToAdd);
+		treeNodeLinker.insertNodeInto(unitNode, this, insertIndex);
+		return unitNode;
+	}
+
+	private int getInsertIndex(MutableGameObject unitToAdd) {
 		int insertIndex = 0;
 		for (int childIndex = 0; childIndex < getChildCount(); childIndex++) {
-			TreeNode child = getChildAt(childIndex);
-			MutableGameObject unitInTree = ((MutableGameObject) ((DefaultMutableTreeNode) child).getUserObject());
+			MutableGameObject unitInTree = getGameObjectAt(childIndex);
 			int comparison = objectComparator.compare(unitToAdd, unitInTree);
 			if (comparison >= 0) {
 				insertIndex = childIndex + 1;
 			}
 		}
-		treeNodeLinker.insertNodeInto(unitNode, this, insertIndex);
-		return unitNode;
+		return insertIndex;
+	}
+
+	private MutableGameObject getGameObjectAt(int childIndex) {
+		return ((MutableGameObject) ((DefaultMutableTreeNode) getChildAt(childIndex)).getUserObject());
 	}
 
 	public SortingFolderTreeNode getNextNode(MutableGameObject object, TreeNodeLinker defaultTreeModel) {

@@ -11,7 +11,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.MoverWidget;
 import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.Widget;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.Plane;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.Ray;
-import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ViewBox;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.SelectionBoxHelper;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
@@ -133,7 +133,7 @@ public class SelectActivity extends ViewportActivity {
 		}
 
 	}
-	public void mousePressed(MouseEvent e, ViewBox viewBox, double sizeAdj) {
+	public void mousePressed(MouseEvent e, SelectionBoxHelper viewBox, double sizeAdj) {
 		if (isActing) {
 			finnishAction(e, viewBox, sizeAdj, true);
 		}
@@ -152,7 +152,7 @@ public class SelectActivity extends ViewportActivity {
 	public void mouseReleased(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 		finnishAction(e, viewProjectionMatrix, sizeAdj, false);
 	}
-	public void mouseReleased(MouseEvent e, ViewBox viewBox, double sizeAdj) {
+	public void mouseReleased(MouseEvent e, SelectionBoxHelper viewBox, double sizeAdj) {
 		finnishAction(e, viewBox, sizeAdj, false);
 	}
 
@@ -175,7 +175,7 @@ public class SelectActivity extends ViewportActivity {
 			isActing = false;
 		}
 	}
-	private void finnishAction(MouseEvent e, ViewBox viewBox, double sizeAdj, boolean wasCanceled) {
+	private void finnishAction(MouseEvent e, SelectionBoxHelper viewBox, double sizeAdj, boolean wasCanceled) {
 		if (isActing) {
 			Vec2 mouseEnd = getPoint(e);
 			Vec2 min = new Vec2(mouseStartPoint).minimize(mouseEnd);
@@ -310,7 +310,7 @@ public class SelectActivity extends ViewportActivity {
 		return selectionManager.selectStuff(min, max, tempSelectMode, viewPortAntiRotMat, sizeAdj);
 	}
 
-	public UndoAction selectRegion(MouseEvent e, Vec2 min, Vec2 max, ViewBox viewBox, double sizeAdj) {
+	public UndoAction selectRegion(MouseEvent e, Vec2 min, Vec2 max, SelectionBoxHelper viewBox, double sizeAdj) {
 		SelectionMode tempSelectMode;
 
 		Integer selectMouseButton = ProgramGlobals.getPrefs().getSelectMouseButton();

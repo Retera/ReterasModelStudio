@@ -23,33 +23,34 @@ public final class DestructibleSortByCategoryFolder extends AbstractSortingFolde
 	private static final long serialVersionUID = 1L;
 	private static final String TAG_NAME = "doodClass";
 	private static final War3ID DEST_CATEGORY = War3ID.fromString("bcat");
-	private final Map<String, BottomLevelCategoryFolder> itemClassToTreeNode = new LinkedHashMap<>();
-	private final List<BottomLevelCategoryFolder> itemClassesList = new ArrayList<>();
+	private final Map<String, BottomLevelCategoryFolder> objectClassToTreeNode = new LinkedHashMap<>();
+	private final List<BottomLevelCategoryFolder> objectClassesList = new ArrayList<>();
 
 	public DestructibleSortByCategoryFolder(String displayName) {
 		super(displayName);
 		DataTable unitEditorData = DataTableHolder.getWorldEditorData();
-		Element itemClasses = unitEditorData.get("DestructibleCategories");
-		for (String key : itemClasses.keySet()) {
-			BottomLevelCategoryFolder classFolder = new BottomLevelCategoryFolder(WEString.getString(itemClasses.getField(key).split(",")[0]), this::compare);
-			itemClassToTreeNode.put(key, classFolder);
-			itemClassesList.add(classFolder);
+		Element dataEntries = unitEditorData.get("DestructibleCategories");
+//		System.out.println(displayName + " classes: " + dataEntries.keySet().size());
+		for (String key : dataEntries.keySet()) {
+			BottomLevelCategoryFolder classFolder = new BottomLevelCategoryFolder(WEString.getString(dataEntries.getField(key).split(",")[0]), this::compare);
+			objectClassToTreeNode.put(key, classFolder);
+			objectClassesList.add(classFolder);
 		}
 	}
 
 	@Override
 	public SortingFolderTreeNode getNextNode(MutableGameObject object) {
 		String itemClass = object.getFieldAsString(DEST_CATEGORY, 0);
-		if (!itemClassToTreeNode.containsKey(itemClass)) {
-			return itemClassesList.get(itemClassesList.size() - 1);
+		if (!objectClassToTreeNode.containsKey(itemClass)) {
+			return objectClassesList.get(objectClassesList.size() - 1);
 		}
-		return itemClassToTreeNode.get(itemClass);
+		return objectClassToTreeNode.get(itemClass);
 	}
 
 	//	@Override
 	public int getSortIndex(SortingFolderTreeNode childNode) {
 		if (childNode != null) {
-			return itemClassesList.indexOf(childNode);
+			return objectClassesList.indexOf(childNode);
 		}
 		return -1;
 	}
@@ -59,9 +60,13 @@ public final class DestructibleSortByCategoryFolder extends AbstractSortingFolde
 //		return itemClassesList.indexOf(childNode);
 
 		if (childNode != null) {
-			return itemClassesList.indexOf(childNode);
+			return objectClassesList.indexOf(childNode);
 		}
 		return -1;
+	}
+
+	protected War3ID getWar3ID() {
+		return DEST_CATEGORY;
 	}
 
 	public int compare(final MutableGameObject a, final MutableGameObject b) {

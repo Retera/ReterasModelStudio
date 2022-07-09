@@ -8,14 +8,19 @@ import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
+import com.hiveworkshop.rms.parsers.blp.ImageUtils;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelTextureThings;
+import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
+import com.hiveworkshop.rms.ui.util.TwiList;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import com.hiveworkshop.rms.util.FramePopup;
-import com.hiveworkshop.rms.util.IterableListModel;
+import com.hiveworkshop.rms.util.GU;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -23,6 +28,7 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.util.function.Supplier;
 
 
 public class EditTexturesPanel extends JPanel {
@@ -32,9 +38,13 @@ public class EditTexturesPanel extends JPanel {
 	private final JTextField pathField = new JTextField(24);
 	private final JPanel imageViewerPanel;
 	private final FileDialog fileDialog;
-	private final IterableListModel<Bitmap> bitmapListModel = new IterableListModel<>();
-	private final JList<Bitmap> bitmapJList = new JList<>(bitmapListModel);
+	private final TwiList<Bitmap> bitmapJList;
 	private final ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
+
+	private ZoomableImagePreviewPanel comp;
+
+	private ImageUtils.ColorMode colorMode = ImageUtils.ColorMode.RGBA;
+	private Bitmap selectedImage;
 
 	public EditTexturesPanel(ModelHandler modelHandler) {
 		super(new MigLayout("fill", "[][grow]", "[grow][]"));
@@ -42,26 +52,48 @@ public class EditTexturesPanel extends JPanel {
 		this.undoManager = modelHandler.getUndoManager();
 		this.model = modelHandler.getModel();
 		fileDialog = new FileDialog(this);
+		bitmapJList = new TwiList<>(modelHandler.getModel().getTextures());
 
 		add(getTexturesListPanel(), "growy, growx 90");
 
 		imageViewerPanel = getImageViewerPanel();
 		add(imageViewerPanel, "growy, growx, wrap");
 
-		updateBitmapList();
+//		updateBitmapList();
 
 		add(getLowerButtonPanel(), "");
-		add(getPathFieldPanel(), "");
+		add(getPathFieldPanel(), "split");
 
-		if(!bitmapListModel.isEmpty()){
+		TwiComboBox<ImageUtils.ColorMode> colorModeBox = getColorModeBox();
+		add(colorModeBox);
+
+		if(!bitmapJList.isEmpty()){
+			System.out.println("select 0");
 			bitmapJList.setSelectedIndex(0);
+			selectedImage = bitmapJList.getSelectedValue();
+			loadBitmap(selectedImage);
 		}
 	}
+
+	private TwiComboBox<ImageUtils.ColorMode> getColorModeBox() {
+		TwiComboBox<ImageUtils.ColorMode> colorModeGroup = new TwiComboBox<>(ImageUtils.ColorMode.values(), ImageUtils.ColorMode.GREEN_GREEN);
+		colorModeGroup.addOnSelectItemListener(this::setColorMode);
+		colorModeGroup.selectOrFirst(ImageUtils.ColorMode.RGBA);
+		return colorModeGroup;
+	}
+
+	private void setColorMode(ImageUtils.ColorMode colorMode){
+		this.colorMode = colorMode;
+		loadBitmap(selectedImage);
+	}
+
 
 	private JPanel getImageViewerPanel() {
 		JPanel imageViewerPanel = new JPanel();
 		imageViewerPanel.setBorder(new TitledBorder(null, "Image Viewer", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		imageViewerPanel.setLayout(new BorderLayout());
+		comp = new ZoomableImagePreviewPanel(null);
+		imageViewerPanel.add(comp);
 //		add(imageViewerPanel, "w 50%:95%:95%, growy, wrap");
 		return imageViewerPanel;
 	}
@@ -88,15 +120,23 @@ public class EditTexturesPanel extends JPanel {
 	private JPanel getTexturesListPanel() {
 		JPanel texturesListPanel = new JPanel(new MigLayout("fill, ins 0", "[grow]", "[grow][]"));
 		texturesListPanel.setBorder(BorderFactory.createTitledBorder("Textures"));
+		texturesListPanel.setPreferredSize(this.getSize());
 
-		JCheckBox chckbxDisplayPath = new JCheckBox("Display Path");
-		chckbxDisplayPath.addActionListener(e -> bitmapJList.repaint());
+		TextureListRenderer textureListRenderer = ModelTextureThings.getTextureListRenderer();
+		textureListRenderer.setTextSize(12);
+		textureListRenderer.setImageSize(16);
+		JCheckBox displayPath = new JCheckBox("Display Path");
+		displayPath.addActionListener(e -> {
+			textureListRenderer.setShowPath(displayPath.isSelected());
+			bitmapJList.repaint();
+		});
 
-		bitmapJList.setCellRenderer(getCellRenderer(chckbxDisplayPath));
-		bitmapJList.addListSelectionListener(e -> ListListener(bitmapJList));
+		bitmapJList.setCellRenderer(textureListRenderer);
+//		bitmapJList.setCellRenderer(getCellRenderer(displayPath::isSelected));
+		bitmapJList.addSelectionListener1(this::onListSelection);
 		texturesListPanel.add(new JScrollPane(bitmapJList), "growx, growy, wrap");
 
-		texturesListPanel.add(chckbxDisplayPath, "");
+		texturesListPanel.add(displayPath, "");
 		return texturesListPanel;
 	}
 
@@ -106,15 +146,16 @@ public class EditTexturesPanel extends JPanel {
 		return btnAdd;
 	}
 
-	private void ListListener(JList<Bitmap> list) {
-		Bitmap selectedValue = list.getSelectedValue();
-		if (selectedValue != null) {
-			pathField.setText(selectedValue.getPath());
-			loadBitmap(list.getSelectedValue());
+	private void onListSelection(Bitmap bitmap) {
+		selectedImage = bitmap;
+		System.out.println("onListSelection");
+		if (bitmap != null) {
+			pathField.setText(bitmap.getPath());
+			loadBitmap(bitmap);
 		}
 	}
 
-	private DefaultListCellRenderer getCellRenderer(JCheckBox chckbxDisplayPath) {
+	private DefaultListCellRenderer getCellRenderer(Supplier<Boolean> displayPaths) {
 		return new DefaultListCellRenderer() {
 			@Override
 			public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index,
@@ -122,12 +163,12 @@ public class EditTexturesPanel extends JPanel {
 				if (value instanceof Bitmap) {
 					String path = ((Bitmap) value).getRenderableTexturePath();
 
-					if (!chckbxDisplayPath.isSelected()) {
+					if (displayPaths.get()) {
+						return super.getListCellRendererComponent(list, path, index, isSelected, cellHasFocus);
+					} else {
 						String[] bits = path.split("[\\\\/]");
 						String displayName = bits[bits.length - 1];
 						return super.getListCellRendererComponent(list, displayName, index, isSelected, cellHasFocus);
-					} else {
-						return super.getListCellRendererComponent(list, path, index, isSelected, cellHasFocus);
 					}
 				}
 				return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
@@ -135,20 +176,14 @@ public class EditTexturesPanel extends JPanel {
 		};
 	}
 
-	private void updateBitmapList() {
-		Bitmap selectedValue = bitmapJList.getSelectedValue();
-		bitmapListModel.clear();
-		bitmapListModel.addAll(model.getTextures());
-		bitmapJList.setSelectedValue(selectedValue, true);
-	}
 
 	private void importTexturePopup() {
 		Bitmap newBitmap = fileDialog.importImage();
 		if (newBitmap != null) {
 			UndoAction action = new AddBitmapAction(newBitmap, model, changeListener);
 			undoManager.pushAction(action.redo());
-			updateBitmapList();
-			bitmapJList.setSelectedIndex(bitmapListModel.size() - 1);
+			bitmapJList.setSelectedIndex(bitmapJList.listSize() - 1);
+//			SwingUtilities.invokeLater(() -> bitmapJList.setSelectedIndex(bitmapJList.listSize() - 1));
 		}
 	}
 
@@ -167,36 +202,32 @@ public class EditTexturesPanel extends JPanel {
 				JOptionPane.PLAIN_MESSAGE);
 		if (path != null) {
 			undoManager.pushAction(new AddBitmapAction(new Bitmap(path), model, changeListener).redo());
-			updateBitmapList();
-			bitmapJList.setSelectedIndex(bitmapListModel.size() - 1);
+			bitmapJList.setSelectedIndex(bitmapJList.listSize() - 1);
 		}
 	}
 
 	private void btnEditTexture() {
-		Bitmap selectedValue = bitmapJList.getSelectedValue();
-		if (selectedValue != null && !selectedValue.getPath().equals(pathField.getText())) {
-			undoManager.pushAction(new SetBitmapPathAction(selectedValue, pathField.getText(), changeListener).redo());
-			loadBitmap(selectedValue);
+		if (selectedImage != null && !selectedImage.getPath().equals(pathField.getText())) {
+			undoManager.pushAction(new SetBitmapPathAction(selectedImage, pathField.getText(), changeListener).redo());
+			loadBitmap(selectedImage);
 		}
 	}
 
 	private void btnRemoveTexture() {
-		Bitmap selectedValue = bitmapJList.getSelectedValue();
 		int selectedIndex = bitmapJList.getSelectedIndex()-1;
-		if (selectedValue != null) {
-			undoManager.pushAction(new RemoveBitmapAction(selectedValue, model, changeListener).redo());
-			updateBitmapList();
-			bitmapJList.setSelectedIndex(selectedIndex);
+		if (selectedImage != null) {
+			undoManager.pushAction(new RemoveBitmapAction(selectedImage, model, changeListener).redo());
+//			updateBitmapList();
+			bitmapJList.setSelectedIndex(Math.max(0, selectedIndex));
 		}
 	}
 
 	private void btnReplaceTexture() {
-		final Bitmap selectedValue = bitmapJList.getSelectedValue();
-		if (selectedValue != null) {
+		if (selectedImage != null) {
 			Bitmap newBitmap = fileDialog.importImage();
-			if (newBitmap != null && !newBitmap.getPath().equals(selectedValue.getPath())) {
-				undoManager.pushAction(new SetBitmapPathAction(selectedValue, newBitmap.getPath(), changeListener).redo());
-				loadBitmap(selectedValue);
+			if (newBitmap != null && !newBitmap.getPath().equals(selectedImage.getPath())) {
+				undoManager.pushAction(new SetBitmapPathAction(selectedImage, newBitmap.getPath(), changeListener).redo());
+				loadBitmap(selectedImage);
 			}
 		}
 	}
@@ -204,26 +235,33 @@ public class EditTexturesPanel extends JPanel {
 	private void loadBitmap(Bitmap bitmap) {
 		if (bitmap != null) {
 			final DataSource workingDirectory = model.getWrappedDataSource();
-			imageViewerPanel.removeAll();
-			ZoomableImagePreviewPanel comp = getZoomableImagePreviewPanel(bitmap, workingDirectory);
-			imageViewerPanel.add(comp);
+			comp.setImage(getImage(bitmap, workingDirectory));
+			comp.resetZoom();
 			imageViewerPanel.revalidate();
-		}
-		if(bitmapListModel.size() != model.getTextures().size()){
-			updateBitmapList();
+			imageViewerPanel.repaint();
 		}
 	}
 
-	private ZoomableImagePreviewPanel getZoomableImagePreviewPanel(Bitmap bitmap, DataSource workingDirectory) {
-		try {
-			BufferedImage texture = BLPHandler.getImage(bitmap, workingDirectory);
-			return new ZoomableImagePreviewPanel(texture);
-		} catch (final Exception exc) {
-			final BufferedImage image = new BufferedImage(512, 512, BufferedImage.TYPE_INT_ARGB);
+	private BufferedImage getImage(Bitmap bitmap, DataSource workingDirectory){
+		BufferedImage texture = BLPHandler.getImage(bitmap, workingDirectory);
+		if(texture != null){
+			if(colorMode == ImageUtils.ColorMode.RGBA){
+				return texture;
+			} else {
+				return ImageUtils.getBufferedImageIsolateChannel(texture, colorMode);
+			}
+		} else {
+			int imageSize = 128;
+			final BufferedImage image = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_INT_ARGB);
 			final Graphics2D g2 = image.createGraphics();
-			g2.setColor(Color.RED);
-			g2.drawString(exc.getClass().getSimpleName() + ": " + exc.getMessage(), 15, 15);
-			return new ZoomableImagePreviewPanel(image);
+			g2.setColor(Color.BLACK);
+			int size = imageSize-6;
+			GU.drawCenteredSquare(g2, imageSize/2, imageSize/2, size);
+			int dist1 = (imageSize - size)/2;
+			int dist2 = imageSize-dist1;
+			GU.drawLines(g2, dist1, dist1, dist2, dist2, dist1, dist2, dist2, dist1);
+//			g2.drawString(exc.getClass().getSimpleName() + ": " + exc.getMessage(), 15, 15);
+			return image;
 		}
 	}
 

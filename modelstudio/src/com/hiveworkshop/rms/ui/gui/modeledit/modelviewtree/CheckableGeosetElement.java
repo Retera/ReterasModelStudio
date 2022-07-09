@@ -10,27 +10,30 @@ public class CheckableGeosetElement extends CheckableDisplayElement<Geoset> {
 
 	@Override
 	protected void setChecked(Geoset item, ModelView modelView, boolean checked) {
-		if (checked) {
-			modelView.makeGeosetEditable(item);
-		} else {
-			modelView.makeGeosetNotEditable(item);
-		}
+		modelView.makeGeosetEditable(checked, item);
+//		if (checked) {
+//			modelView.makeGeosetEditable(item);
+//		} else {
+//			modelView.makeGeosetNotEditable(item);
+//		}
 	}
 	@Override
 	public void setEditable(boolean editable){
-		if(editable){
-			modelView.makeGeosetEditable(item);
-		} else {
-			modelView.makeGeosetNotEditable(item);
-		}
+		modelView.makeGeosetEditable(editable, item);
+//		if(editable){
+//			modelView.makeGeosetEditable(item);
+//		} else {
+//			modelView.makeGeosetNotEditable(item);
+//		}
 	}
 	@Override
 	public void setVisible(boolean visible){
-		if(visible){
-			modelView.makeGeosetVisible(item);
-		} else {
-			modelView.makeGeosetNotVisible(item);
-		}
+		modelView.makeVisible(item, visible);
+//		if(visible){
+//			modelView.makeGeosetVisible(item);
+//		} else {
+//			modelView.makeGeosetNotVisible(item);
+//		}
 	}
 //	@Override
 //	public boolean isEditable(){

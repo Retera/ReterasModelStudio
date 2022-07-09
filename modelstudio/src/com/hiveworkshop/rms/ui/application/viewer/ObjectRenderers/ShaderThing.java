@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
-import com.hiveworkshop.rms.ui.application.viewer.ReteraShaderStuff.OtherUtils;
+import com.hiveworkshop.rms.ui.application.viewer.OtherUtils;
 import com.hiveworkshop.rms.ui.application.viewer.viewportcanvas.ShaderProgram;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;

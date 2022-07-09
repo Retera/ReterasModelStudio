@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.*;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.editor.StaticMeshMoveAction;
+import com.hiveworkshop.rms.editor.actions.editor.StaticMeshShrinkFattenAction;
 import com.hiveworkshop.rms.editor.actions.util.*;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.CameraNode;
@@ -340,5 +341,12 @@ public class NodeAnimationModelEditor extends ModelEditor {
 			}
 			return timeline;
 		}
+	}
+
+	public UndoAction shrinkFatten(float amount) {
+		return null;
+	}
+	public StaticMeshShrinkFattenAction beginShrinkFatten(float amount) {
+		return null;
 	}
 }

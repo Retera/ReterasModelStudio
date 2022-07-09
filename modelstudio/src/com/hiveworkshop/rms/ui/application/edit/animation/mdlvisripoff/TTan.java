@@ -69,7 +69,7 @@ public abstract class TTan<T> {
 		return timeline;
 	}
 
-	public void setFromKF(int time, Sequence anim) {
+	public void setFromKF11(int time, Sequence anim) {
 		TreeMap<Integer, Entry<T>> entryMap = timeline.getEntryMap(anim);
 		if (timeline.getEntryAt(anim, time) != null && entryMap.lowerKey(time) != null && entryMap.higherKey(time) != null) {
 			tang.setValues(timeline.getEntryAt(anim, time));
@@ -77,13 +77,114 @@ public abstract class TTan<T> {
 			prev.setValues(timeline.getEntryAt(anim, entryMap.lowerKey(time)));
 			next.setValues(timeline.getEntryAt(anim, entryMap.higherKey(time)));
 		}
-	}
+		else if (entryMap.lowerKey(time) != null && entryMap.higherKey(time) != null) {
 
-	public void bezInterp(int currTime, Entry<T> itStart, Entry<T> itEnd) {
+			tang.setTime(time);
+			tang.setValue(timeline.interpolateAt(anim, time));
+			tang.linearize();
+			cur.setTime(time);
+			cur.setValue(timeline.interpolateAt(anim, time));
+			prev.setValues(timeline.getEntryAt(anim, entryMap.lowerKey(time)));
+			next.setValues(timeline.getEntryAt(anim, entryMap.higherKey(time)));
+		}
+		else if (timeline.getEntryAt(anim, time) != null || entryMap.lowerKey(time) != null || entryMap.higherKey(time) != null) {
+
+			tang.setTime(time);
+			tang.setValue(timeline.interpolateAt(anim, time));
+			tang.linearize();
+			cur.setTime(time);
+			cur.setValue(timeline.interpolateAt(anim, time));
+			prev.setValues(timeline.getEntryAt(anim, entryMap.lowerKey(time)));
+			next.setValues(timeline.getEntryAt(anim, entryMap.higherKey(time)));
+		}
+	}
+	public void setFromKF(int time, Sequence anim) {
+		TreeMap<Integer, Entry<T>> entryMap = timeline.getEntryMap(anim);
+		Integer prevTime = entryMap.lowerKey(time);
+		Integer nextTime = entryMap.higherKey(time);
+		if(timeline.getEntryAt(anim, time) != null){
+			if(prevTime == null){
+				prevTime = entryMap.lastKey();
+			}
+			if (nextTime == null){
+				nextTime = entryMap.firstKey();
+			}
+			if (prevTime != null && nextTime != null) {
+				tang.setValues(timeline.getEntryAt(anim, time));
+				cur.setValues(timeline.getEntryAt(anim, time));
+				prev.setValues(timeline.getEntryAt(anim, prevTime));
+				next.setValues(timeline.getEntryAt(anim, nextTime));
+			}
+		} else if (prevTime != null || nextTime != null) {
+			tang.setTime(time);
+			tang.setValue(timeline.interpolateAt(anim, time));
+			tang.linearize();
+			cur.setTime(time);
+			cur.setValue(timeline.interpolateAt(anim, time));
+			prev.setValue(timeline.interpolateAt(anim, (time-1 + anim.getLength())%anim.getLength()));
+			next.setValue(timeline.interpolateAt(anim, (time+1 + anim.getLength())%anim.getLength()));
+
+
+//			if(prevTime == null){
+//				prevTime = entryMap.lastKey();
+//			}
+//			if (nextTime == null){
+//				nextTime = entryMap.firstKey();
+//			}
+//
+//			tang.setTime(time);
+//			tang.setValue(timeline.interpolateAt(anim, time));
+//			tang.linearize();
+//			cur.setTime(time);
+//			cur.setValue(timeline.interpolateAt(anim, time));
+//			prev.setValues(timeline.getEntryAt(anim, prevTime));
+//			next.setValues(timeline.getEntryAt(anim, nextTime));
+		}
+	}
+//	public void setFromKF1(int time, Sequence anim) {
+//		TreeMap<Integer, Entry<T>> entryMap = timeline.getEntryMap(anim);
+//		Integer prevTime = entryMap.lowerKey(time);
+//		Integer nextTime = entryMap.higherKey(time);
+//		if(timeline.getEntryAt(anim, time) != null){
+//			if(prevTime == null){
+//				prevTime = entryMap.lastKey();
+//			}
+//			if (nextTime == null){
+//				nextTime = entryMap.firstKey();
+//			}
+//			if (prevTime != null && nextTime != null) {
+//				tang.setValues(timeline.getEntryAt(anim, time));
+//				cur.setValues(timeline.getEntryAt(anim, time));
+//				prev.setValues(timeline.getEntryAt(anim, prevTime));
+//				next.setValues(timeline.getEntryAt(anim, nextTime));
+//			}
+//		}
+//		if (timeline.getEntryAt(anim, time) != null && prevTime != null && nextTime != null) {
+//			tang.setValues(timeline.getEntryAt(anim, time));
+//			cur.setValues(timeline.getEntryAt(anim, time));
+//			prev.setValues(timeline.getEntryAt(anim, prevTime));
+//			next.setValues(timeline.getEntryAt(anim, nextTime));
+//		}
+//		else if (timeline.getEntryAt(anim, time) != null && nextTime != null && entryMap.lastKey() != null) {
+//
+//		}
+//		else if (prevTime != null && nextTime != null) {
+//
+//			tang.setTime(time);
+//			tang.setValue(timeline.interpolateAt(anim, time));
+//			tang.linearize();
+//			cur.setTime(time);
+//			cur.setValue(timeline.interpolateAt(anim, time));
+//			prev.setValues(timeline.getEntryAt(anim, prevTime));
+//			next.setValues(timeline.getEntryAt(anim, nextTime));
+//		}
+//	}
+
+	public T bezInterp(int currTime, Entry<T> itStart, Entry<T> itEnd) {
 		float t = getTimeFactor(currTime, itStart.time, itEnd.time);
 		float[] f = getBezF(t);
 
-		calculateInterp(itStart, itEnd, f);
+		return calculateInterp(itStart, itEnd, f);
 	}
 
 	protected float[] getBezF(float t) {
@@ -96,12 +197,17 @@ public abstract class TTan<T> {
 		return f;
 	}
 
-	public void spline(int currTime, Entry<T> itStart, Entry<T> itEnd) {
+	public T hermiteInterp(int currTime, Entry<T> itStart, Entry<T> itEnd) {
 		float t = getTimeFactor(currTime, itStart.time, itEnd.time);
 		float[] f = getSplineF(t);
 
-		calculateInterp(itStart, itEnd, f);
+		return calculateInterp(itStart, itEnd, f);
+
 //		itEnd.value.scale(f[3]).addScaled(itStart.value, f[0]).addScaled(itStart.outTan, f[1]).addScaled(itEnd.inTan, f[2]);
+	}
+
+	public void printTCB(){
+		System.out.println("t: " + tension + ", c: " + continuity + ", b: " + bias);
 	}
 
 	protected float[] getSplineF(float t) {
@@ -130,7 +236,7 @@ public abstract class TTan<T> {
 		this.bias = bias;
 	}
 
-	public float[] getTCB(int i) {
+	public float[] getTCBTangentFactors(int i) {
 		float[] g = new float[4];
 
 		float contP = i * continuity;
@@ -176,47 +282,47 @@ public abstract class TTan<T> {
 
 
 	public float calcWithConstBias() {
-		float cMin = 0;
-		float tMin = 0;
-		float cCur;
-		float tCur;
+		float continuityMin = 0;
+		float tensionMin = 0;
+		float continuityCur;
+		float tensionCur;
 		float delta;
-		float cCurBeg = -1;
-		float cCurEnd = 1;
-		float tCurBeg = -1;
-		float tCurEnd = 1;
+		float continuityCurBeg = -1;
+		float continuityCurEnd = 1;
+		float tensionCurBeg = -1;
+		float tensionCurEnd = 1;
 
 		float ds = 1e6f;
 
 		tang2.setValues(tang);
 
 		for(float step = 0.1f; step>0.001; step *=0.1f){
-			cCur = cCurBeg;
+			continuityCur = continuityCurBeg;
 			do {
-				tCur = tCurBeg;
+				tensionCur = tensionCurBeg;
 				do {
-					continuity = cCur;
-					tension = tCur;
+					continuity = continuityCur;
+					tension = tensionCur;
 					delta = getDelta(tang2);
 					if (delta < ds) {
 						ds = delta;
-						cMin = cCur;
-						tMin = tCur;
+						continuityMin = continuityCur;
+						tensionMin = tensionCur;
 					}
-					tCur += step;
-				} while (tCur <= tCurEnd);
-				cCur += step;
-			} while (cCur <= cCurEnd);
+					tensionCur += step;
+				} while (tensionCur <= tensionCurEnd);
+				continuityCur += step;
+			} while (continuityCur <= continuityCurEnd);
 
-			cCurBeg = Math.max(cMin - step, -1);
-			cCurEnd = Math.min(cMin + step, 1);
+			continuityCurBeg = Math.max(continuityMin - step, -1);
+			continuityCurEnd = Math.min(continuityMin + step, 1);
 
-			tCurBeg = Math.max(tMin - step, -1);
-			tCurEnd = Math.min(tMin + step, 1);
+			tensionCurBeg = Math.max(tensionMin - step, -1);
+			tensionCurEnd = Math.min(tensionMin + step, 1);
 		}
 
-		continuity = cMin;
-		tension = tMin;
+		continuity = continuityMin;
+		tension = tensionMin;
 		tang.setValues(tang2);
 		return ds;
 	}
@@ -261,6 +367,10 @@ public abstract class TTan<T> {
 
 	protected abstract float getDelta(Entry<T> tang2);
 
-	public abstract void calculateInterp(Entry<T> itStart, Entry<T> itEnd, float[] f);
+	public abstract T calculateInterp(Entry<T> itStart, Entry<T> itEnd, float[] f);
+
+	public float[] getTCB(){
+		return new float[] {tension, continuity, bias};
+	}
 
 }

@@ -7,11 +7,14 @@ import com.hiveworkshop.rms.editor.actions.model.bitmap.SetBitmapWrapWidthAction
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
+import com.hiveworkshop.rms.parsers.blp.ImageUtils;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
+import com.hiveworkshop.rms.util.GU;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -24,11 +27,13 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 	private Bitmap bitmap;
 	private final ComponentEditorTextField texturePathField;
 	private final IntEditorJSpinner replaceableIdSpinner;
-	private final JLabel sizeLable;
+	private final JLabel sizeLabel;
 	private final JCheckBox wrapWidthBox;
 	private final JCheckBox wrapHeightBox;
 	private final JPanel previewPanel;
+	private final ZoomableImagePreviewPanel imagePreviewPanel;
 	private final FileDialog fileDialog;
+	private ImageUtils.ColorMode colorMode = ImageUtils.ColorMode.RGBA;
 
 	public ComponentBitmapPanel(ModelHandler modelHandler) {
 		super(modelHandler);
@@ -37,7 +42,7 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 
 		replaceableIdSpinner = new IntEditorJSpinner(-1, -1, this::replaceableIdSpinner);
 
-		sizeLable = new JLabel();
+		sizeLabel = new JLabel();
 
 		wrapWidthBox = new JCheckBox("Wrap Width");
 		wrapWidthBox.addActionListener(e -> wrapWidthBox(wrapWidthBox.isSelected()));
@@ -45,23 +50,42 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 		wrapHeightBox = new JCheckBox("Wrap Height");
 		wrapHeightBox.addActionListener(e -> wrapHeightBox(wrapHeightBox.isSelected()));
 
+		imagePreviewPanel = new ZoomableImagePreviewPanel(null);
 		previewPanel = new JPanel();
-		previewPanel.setBorder(new TitledBorder(null, "Previewer", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		previewPanel.setBorder(new TitledBorder(null, "Preview", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		previewPanel.setLayout(new BorderLayout());
+		previewPanel.add(imagePreviewPanel);
 
-		setLayout(new MigLayout("fillx", "[][grow][]", "[][][][][grow]"));
-		add(new JLabel("Path: "), "cell 0 0");
-		add(texturePathField, "cell 1 0 2, growx");
-		add(new JLabel("ReplaceableId: "), "cell 0 1");
-//		add(replaceableIdSpinner, "cell 1 1 2");
-		add(replaceableIdSpinner, "cell 1 1 1");
-		add(sizeLable, "cell 2 1");
-		add(wrapWidthBox, "cell 0 2 3");
-		add(wrapHeightBox, "cell 0 3");
+		JLabel pathLab = new JLabel("Path: ");
+		JLabel replaceableIdLab = new JLabel("ReplaceableId: ");
+		JButton exportButton = getButton("Export", e -> exportTextureImageFile());
+
+		setLayout(new MigLayout("fillx", "[][grow][][]", "[][][][][grow]"));
+//		add(pathLab,                "cell 0 0");
+//		add(texturePathField,       "cell 1 0 3, growx");
+//		add(replaceableIdLab,        "cell 0 1");
+//		add(replaceableIdSpinner,   "cell 1 1");
+//		add(sizeLabel,              "cell 3 1");
+//		add(wrapWidthBox,           "cell 0 2");
+//		add(wrapHeightBox,          "cell 0 3");
+//		add(getColorModeBox(),      "cell 2 3, pushx");
+//		add(exportButton,           "cell 3 3");
+//
+//
+//		add(previewPanel, "cell 0 4 4, growx, growy");
+
+		add(pathLab,                "");
+		add(texturePathField,       "spanx, growx, wrap");
+		add(replaceableIdLab,       "");
+		add(replaceableIdSpinner,   "spanx 2");
+		add(sizeLabel,              "wrap");
+		add(wrapWidthBox,           "wrap");
+		add(wrapHeightBox,          "");
+		add(getColorModeBox(),      "spanx 2, right");
+		add(exportButton,           "right, wrap");
 
 
-		add(getButton("Export Texture Image File", e -> exportTextureImageFile()), "cell 2 3, pushx");
-		add(previewPanel, "cell 0 4 3, growx, growy");
+		add(previewPanel, "spanx, growx, growy");
 	}
 
 	private void exportTextureImageFile() {
@@ -100,7 +124,7 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 	@Override
 	public ComponentPanel<Bitmap> setSelectedItem(Bitmap bitmap) {
 		this.bitmap = bitmap;
-		sizeLable.setText("");
+		sizeLabel.setText("");
 		texturePathField.reloadNewValue(bitmap.getPath());
 		replaceableIdSpinner.reloadNewValue(bitmap.getReplaceableId());
 		wrapWidthBox.setSelected(bitmap.isWrapWidth());
@@ -110,30 +134,47 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 		return this;
 	}
 
-	private void loadBitmapPreview(Bitmap defaultTexture) {
-		if (defaultTexture != null) {
+	private void loadBitmapPreview(Bitmap bitmap) {
+		if (bitmap != null) {
 			DataSource workingDirectory = modelHandler.getModel().getWrappedDataSource();
-			previewPanel.removeAll();
-			previewPanel.add(getZoomableImagePreviewPanel(defaultTexture, workingDirectory));
-			previewPanel.revalidate();
+			imagePreviewPanel.setImage(getImage(bitmap, workingDirectory));
+			previewPanel.repaint();
 		}
 	}
 
-	private ZoomableImagePreviewPanel getZoomableImagePreviewPanel(Bitmap defaultTexture, DataSource workingDirectory) {
-		ZoomableImagePreviewPanel comp;
-		try {
-			BufferedImage image = BLPHandler.getImage(defaultTexture, workingDirectory);
-			if(image != null){
-				sizeLable.setText(image.getWidth() + " px * " + image.getHeight() + " px");
+	private TwiComboBox<ImageUtils.ColorMode> getColorModeBox() {
+		TwiComboBox<ImageUtils.ColorMode> colorModeGroup = new TwiComboBox<>(ImageUtils.ColorMode.values(), ImageUtils.ColorMode.GREEN_GREEN);
+		colorModeGroup.addOnSelectItemListener(this::setColorMode);
+		colorModeGroup.selectOrFirst(ImageUtils.ColorMode.RGBA);
+		return colorModeGroup;
+	}
+
+	private void setColorMode(ImageUtils.ColorMode colorMode){
+		this.colorMode = colorMode;
+		loadBitmapPreview(bitmap);
+	}
+
+	private BufferedImage getImage(Bitmap bitmap, DataSource workingDirectory){
+		BufferedImage texture = BLPHandler.getImage(bitmap, workingDirectory);
+		if(texture != null){
+			sizeLabel.setText(texture.getWidth() + " px * " + texture.getHeight() + " px");
+			if(colorMode == ImageUtils.ColorMode.RGBA){
+				return texture;
+			} else {
+				return ImageUtils.getBufferedImageIsolateChannel(texture, colorMode);
 			}
-			comp = new ZoomableImagePreviewPanel(image);
-		} catch (final Exception exc) {
-			BufferedImage image = new BufferedImage(512, 512, BufferedImage.TYPE_INT_ARGB);
-			Graphics2D g2 = image.createGraphics();
+		} else {
+			int imageSize = 256;
+			final BufferedImage image = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_INT_ARGB);
+			final Graphics2D g2 = image.createGraphics();
 			g2.setColor(Color.RED);
-			g2.drawString(exc.getClass().getSimpleName() + ": " + exc.getMessage(), 15, 15);
-			comp = new ZoomableImagePreviewPanel(image);
+			int size = 220;
+			GU.drawCenteredSquare(g2, imageSize/2, imageSize/2, size);
+			int dist1 = (imageSize - size)/2;
+			int dist2 = imageSize-dist1;
+			GU.drawLines(g2, dist1, dist1, dist2, dist2, dist1, dist2, dist2, dist1);
+//			g2.drawString(exc.getClass().getSimpleName() + ": " + exc.getMessage(), 15, 15);
+			return image;
 		}
-		return comp;
 	}
 }

@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.util;
 import com.hiveworkshop.rms.util.IterableListModel;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.util.Collection;
 import java.util.function.BiFunction;
@@ -50,9 +51,30 @@ public class SearchableList<T> extends JList<T> {
 		return this;
 	}
 
+	public boolean isEmpty(){
+		return fullListModel.isEmpty();
+	}
+
+	public int listSize(){
+		return fullListModel.size();
+	}
+
 	public SearchableList<T> addSelectionListener(ListSelectionListener listener) {
 		addListSelectionListener(listener);
 		return this;
+	}
+
+	public SearchableList<T> addSelectionListener1(Consumer<T> selectionConsumer) {
+		if(selectionConsumer != null){
+			addListSelectionListener(e -> onSelection(e, selectionConsumer));
+		}
+		return this;
+	}
+
+	private void onSelection(ListSelectionEvent e, Consumer<T> selectionConsumer){
+		if(e.getValueIsAdjusting()){
+			selectionConsumer.accept(getSelectedValue());
+		}
 	}
 
 	public SearchableList<T> setRenderer(ListCellRenderer<Object> cellRenderer) {

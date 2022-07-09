@@ -17,58 +17,13 @@ import java.util.Map;
 
 public final class MutableUnitData extends MutableObjectData {
 
-//	public MutableUnitData() {
-//		super(worldEditorDataType, sourceSLKData, sourceSLKMetaData, editorData);
-////		this.worldEditorDataType = WorldEditorDataType.UNITS;
-//////		this.sourceSLKData = StandardObjectData.getStandardUnits();
-////		this.sourceSLKData = getStandardUnits();
-////		resolveStringReferencesInNames(this.sourceSLKData);
-//////		this.sourceSLKMetaData = StandardObjectData.getStandardUnitMeta();
-////		this.sourceSLKMetaData = getStandardUnitMeta();
-////		this.editorData = getWar3ObjectDataChangeset('u', "war3map.w3u");
-////		metaNameToMetaId = new HashMap<>();
-////		for (String metaKeyString : this.sourceSLKMetaData.keySet()) {
-////			War3ID metaKey = War3ID.fromString(metaKeyString);
-////			metaNameToMetaId.put(this.sourceSLKMetaData.get(metaKeyString).getField("field"), metaKey);
-////		}
-////		cachedKeyToGameObject = new HashMap<>();
-////		changeNotifier = new MutableObjectDataChangeNotifier();
-//	}
-
 	public MutableUnitData() {
 		this(getStandardUnits(), getStandardUnitMeta(), getWar3ObjectDataChangeset('u', "war3map.w3u"));
-//		super(WorldEditorDataType.UNITS, getStandardUnits(), getStandardUnitMeta(), editorData);
-//		super(worldEditorDataType, sourceSLKData, sourceSLKMetaData, editorData);
-//		this.worldEditorDataType = WorldEditorDataType.UNITS;
-//		this.sourceSLKData = sourceSLKData;
-//		resolveStringReferencesInNames(this.sourceSLKData);
-//		this.sourceSLKMetaData = sourceSLKMetaData;
-//		this.editorData = editorData;
-//		metaNameToMetaId = new HashMap<>();
-//		for (String metaKeyString : this.sourceSLKMetaData.keySet()) {
-//			War3ID metaKey = War3ID.fromString(metaKeyString);
-//			metaNameToMetaId.put(this.sourceSLKMetaData.get(metaKeyString).getField("field"), metaKey);
-//		}
-//		cachedKeyToGameObject = new HashMap<>();
-//		changeNotifier = new MutableObjectDataChangeNotifier();
 	}
 
 	public MutableUnitData(WarcraftData sourceSLKData,
 	                       DataTable sourceSLKMetaData, War3ObjectDataChangeset editorData) {
 		super(WorldEditorDataType.UNITS, sourceSLKData, sourceSLKMetaData, editorData);
-//		super(worldEditorDataType, sourceSLKData, sourceSLKMetaData, editorData);
-//		this.worldEditorDataType = WorldEditorDataType.UNITS;
-//		this.sourceSLKData = sourceSLKData;
-//		resolveStringReferencesInNames(this.sourceSLKData);
-//		this.sourceSLKMetaData = sourceSLKMetaData;
-//		this.editorData = editorData;
-//		metaNameToMetaId = new HashMap<>();
-//		for (String metaKeyString : this.sourceSLKMetaData.keySet()) {
-//			War3ID metaKey = War3ID.fromString(metaKeyString);
-//			metaNameToMetaId.put(this.sourceSLKMetaData.get(metaKeyString).getField("field"), metaKey);
-//		}
-//		cachedKeyToGameObject = new HashMap<>();
-//		changeNotifier = new MutableObjectDataChangeNotifier();
 	}
 
 	public static DataTable getStandardUnitMeta() {

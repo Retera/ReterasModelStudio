@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderNodeCamera;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ViewBox;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.SelectionBoxHelper;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -137,7 +137,7 @@ public class SelectionManager extends AbstractSelectionManager {
 	}
 
 
-	public SelectionBundle getSelectionBundle(Vec2 min, Vec2 max, ViewBox viewBox, double sizeAdj) {
+	public SelectionBundle getSelectionBundle(Vec2 min, Vec2 max, SelectionBoxHelper viewBox, double sizeAdj) {
 		if (selectionMode == SelectionItemTypes.VERTEX) {
 			Set<GeosetVertex> selectedVerts = addVertsFromArea(min, max, viewBox, sizeAdj);
 			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, viewBox, sizeAdj);
@@ -516,7 +516,7 @@ public class SelectionManager extends AbstractSelectionManager {
 	}
 // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓  ViewBox  ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 
-	private Set<CameraNode> getCameraNodesFromArea(Vec2 min, Vec2 max, ViewBox viewBox, double sizeAdj) {
+	private Set<CameraNode> getCameraNodesFromArea(Vec2 min, Vec2 max, SelectionBoxHelper viewBox, double sizeAdj) {
 		Set<CameraNode> selectedCamNodes = new HashSet<>();
 //		Vec2 vertexV2 = new Vec2();
 //		double vertexSize = sizeAdj * ProgramGlobals.getPrefs().getVertexSize() / 2.0;
@@ -531,7 +531,7 @@ public class SelectionManager extends AbstractSelectionManager {
 		return selectedCamNodes;
 	}
 
-	private Set<IdObject> getIdObjectsFromArea(Vec2 min, Vec2 max, ViewBox viewBox, double sizeAdj) {
+	private Set<IdObject> getIdObjectsFromArea(Vec2 min, Vec2 max, SelectionBoxHelper viewBox, double sizeAdj) {
 		Set<IdObject> selectedItems = new HashSet<>();
 //		Vec2 vertexV2 = new Vec2();
 		for (IdObject object : modelView.getEditableIdObjects()) {
@@ -554,20 +554,22 @@ public class SelectionManager extends AbstractSelectionManager {
 		return selectedItems;
 	}
 
-	private Set<GeosetVertex> addTrisFromArea(Vec2 min, Vec2 max, ViewBox viewBox) {
+	private Set<GeosetVertex> addTrisFromArea(Vec2 min, Vec2 max, SelectionBoxHelper viewBox) {
 		// ToDo fix!
 		Set<GeosetVertex> newSelection = new HashSet<>();
-		Vec2[] triPoints = new Vec2[] {new Vec2(), new Vec2(), new Vec2()};
 		for (Geoset geoset : modelView.getEditableGeosets()) {
+			RenderGeoset renderGeoset = editorRenderModel.getRenderGeoset(geoset);
 			for (Triangle triangle : geoset.getTriangles()) {
 				if (modelView.isEditable(triangle)){
-//					triPoints[0].setAsProjection(triangle.get(0), viewBox);
-//					triPoints[1].setAsProjection(triangle.get(1), viewBox);
-//					triPoints[2].setAsProjection(triangle.get(2), viewBox);
-////					if (HitTestStuff.triHitTest(triangle, min, max, viewBox)) {
-//					if (HitTestStuff.triangleOverlapArea(min, max, triPoints)) {
-//						newSelection.addAll(Arrays.asList(triangle.getAll()));
-//					}
+					Vec3 renderPos0 = renderGeoset.getRenderVert(triangle.get(0)).getRenderPos();
+					Vec3 renderPos1 = renderGeoset.getRenderVert(triangle.get(1)).getRenderPos();
+					Vec3 renderPos2 = renderGeoset.getRenderVert(triangle.get(2)).getRenderPos();
+					if(viewBox.anyPointInBox(renderPos0, renderPos1, renderPos2) || viewBox.triIntersectBox(renderPos0, renderPos1, renderPos2)){
+						System.out.println("point in box!");
+						newSelection.add(triangle.get(0));
+						newSelection.add(triangle.get(1));
+						newSelection.add(triangle.get(2));
+					}
 				}
 			}
 		}
@@ -575,9 +577,9 @@ public class SelectionManager extends AbstractSelectionManager {
 		return newSelection;
 	}
 
-	public Set<GeosetVertex> addVertsFromArea(Vec2 min, Vec2 max, ViewBox viewBox, double sizeAdj) {
+	public Set<GeosetVertex> addVertsFromArea(Vec2 min, Vec2 max, SelectionBoxHelper viewBox, double sizeAdj) {
 		Set<GeosetVertex> newSelection = new HashSet<>();
-		Vec2 vertexV2 = new Vec2();
+//		Vec2 vertexV2 = new Vec2();
 
 		double vertSize = sizeAdj * ProgramGlobals.getPrefs().getVertexSize() / 2.0;
 

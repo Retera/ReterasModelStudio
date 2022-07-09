@@ -579,12 +579,19 @@ public class CameraManager {
 
 		Vec3 botLeftPoint = getWorldScreenSpaceRay(bottomLeft).negate();
 		Ray botLeftRay = getRayFromScreenSpace(bottomLeft);
+
 		vecHeap.set(botLeftRay.getDir()).cross(camRight).negate();
 		viewBox.setBot(botLeftPoint, vecHeap);
+
 		vecHeap.set(botLeftRay.getDir()).cross(camUp);
-//		vecHeap.set(botLeftRay.getDir()).cross(camUp).negate();
 		viewBox.setLeft(botLeftPoint, vecHeap);
 		return viewBox;
+	}
+
+	SelectionBoxHelper selectionBoxHelper = new SelectionBoxHelper();
+	public SelectionBoxHelper getSelectionBoxHelper(Vec2 topRight, Vec2 bottomLeft){
+		planeHeap.set(camBackward, target);
+		return selectionBoxHelper.setFrom(topRight, bottomLeft, camRight, camUp, planeHeap, getInvViewProjectionMat());
 	}
 
 	public ViewBox getViewBox1(Vec2 topRight, Vec2 bottomLeft){

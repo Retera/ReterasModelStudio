@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -30,9 +31,9 @@ public class TSpline extends JPanel {
 //		super(new MigLayout("fill, debug", "[][]", "[][grow][][][]"));
 		super(new MigLayout("fill", "[][]", "[][grow][][][]"));
 		add(new JLabel("Curve properties"), "growx, spanx, wrap");
-//		JButton loadButton = new JButton("-");
-//		loadButton.addActionListener(e -> load());
-//		add(loadButton, "");
+		JButton loadButton = new JButton("load");
+		loadButton.addActionListener(e -> load());
+		add(loadButton, "");
 //		JButton loadButton2 = new JButton(":");
 //		loadButton2.addActionListener(e -> loadTime());
 //		add(loadButton2, "wrap");
@@ -73,16 +74,68 @@ public class TSpline extends JPanel {
 
 	private void load() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		System.out.println("load TSpline");
 		if (modelPanel != null) {
+			System.out.println("found modelPanel!");
 			ModelHandler modelHandler = modelPanel.getModelHandler();
 			TimeEnvironmentImpl timeEnvironment = modelHandler.getRenderModel().getTimeEnvironment();
 			int animationTime = timeEnvironment.getEnvTrackTime();
 			Set<IdObject> selectedIdObjects = modelHandler.getModelView().getSelectedIdObjects();
-			if (selectedIdObjects.size() == 1) {
+//			if (selectedIdObjects.size() == 1) {
+			if (selectedIdObjects.size() >= 1) {
+				System.out.println("found object!");
 				IdObject idObject = selectedIdObjects.stream().findFirst().get();
-				AnimFlag<?> rotation = idObject.find("Rotation");
-				if (rotation != null && rotation.tans()) {
-					setTimeline(animationTime, rotation, timeEnvironment.getCurrentSequence());
+				ModelEditorActionType3 editorActionType = ProgramGlobals.getEditorActionType();
+
+				AnimFlag<?> animFlag = switch (editorActionType){
+					case ROTATION, SQUAT -> idObject.find("Rotation");
+					case SCALING -> idObject.find("Scaling");
+					case TRANSLATION, EXTRUDE, EXTEND -> idObject.find("Translation");
+				};
+//				AnimFlag<?> animFlag = idObject.find("Rotation");
+				if (animFlag != null && animFlag.tans()) {
+					System.out.println("setting timeline!");
+					setTimeline(animationTime, animFlag, timeEnvironment.getCurrentSequence());
+				}
+			}
+		}
+	}
+	private void calculateTCB() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		System.out.println("load TSpline");
+		if (modelPanel != null) {
+			System.out.println("found modelPanel!");
+			ModelHandler modelHandler = modelPanel.getModelHandler();
+			TimeEnvironmentImpl timeEnvironment = modelHandler.getRenderModel().getTimeEnvironment();
+			int animationTime = timeEnvironment.getEnvTrackTime();
+			Sequence anim = timeEnvironment.getCurrentSequence();
+			Set<IdObject> selectedIdObjects = modelHandler.getModelView().getSelectedIdObjects();
+//			if (selectedIdObjects.size() == 1) {
+			if (selectedIdObjects.size() >= 1) {
+				System.out.println("found object!");
+				IdObject idObject = selectedIdObjects.stream().findFirst().get();
+				ModelEditorActionType3 editorActionType = ProgramGlobals.getEditorActionType();
+
+				AnimFlag<?> animFlag = switch (editorActionType){
+					case ROTATION, SQUAT -> idObject.find("Rotation");
+					case SCALING -> idObject.find("Scaling");
+					case TRANSLATION, EXTRUDE, EXTEND -> idObject.find("Translation");
+				};
+
+				if (animFlag != null && animFlag.tans()) {
+					System.out.println("setting timeline!");
+
+					splineTracker = new SplineTracker<>(animFlag, anim);
+					splineTracker.setTime(animationTime, anim);
+
+					splineTracker.calculateTCB();
+
+					tensionSpinner.setValue(Math.round(splineTracker.getTension() * 100));
+					continuitySpinner.setValue(Math.round(splineTracker.getContinuity() * 100));
+					biasSpinner.setValue(Math.round(splineTracker.getBias() * 100));
+
+					revalidate();
+					repaint();
 				}
 			}
 		}
@@ -104,11 +157,18 @@ public class TSpline extends JPanel {
 			TimeEnvironmentImpl timeEnvironment = modelHandler.getRenderModel().getTimeEnvironment();
 			if (!modelView.getSelectedIdObjects().isEmpty() && timeEnvironment.getCurrentSequence() != null) {
 				curveRenderer2.setSequence(timeEnvironment.getCurrentSequence());
-				curveRenderer2.setAnimFlag((Vec3AnimFlag) modelView.getEditableIdObjects().stream().findFirst().get().getTranslationFlag(null));
+				modelView.getSelectedIdObjects()
+						.stream()
+						.findFirst()
+						.ifPresent(
+								idObject -> curveRenderer2.setAnimFlag((Vec3AnimFlag) idObject.getTranslationFlag(null)));
 			}
+			curveRenderer2.makeSplinesAt(timeEnvironment.getEnvTrackTime());
+		} else {
+
+			curveRenderer2.makeSplines();
 		}
 
-		curveRenderer2.makeSplines();
 		curveRenderer2.repaint();
 		revalidate();
 		repaint();
@@ -127,19 +187,19 @@ public class TSpline extends JPanel {
 	public void initFromKF(Sequence anim) {
 		if (timeline == null) {
 //			setVisible(false);
-			curveRenderer.clearCurve();
+//			curveRenderer.clearCurve();
 			return;
 		}
 
 		if (timeline.valueAt(anim, currentFrame) == null
 				|| (timeline.getInterpolationType() != InterpolationType.HERMITE)) {
 //			setVisible(false);
-			curveRenderer.clearCurve();
+//			curveRenderer.clearCurve();
 			return;
 		}
 
-		splineTracker.initFromKF();
-		curveRenderer.makeSplines();
+		splineTracker.calculateTCB();
+//		curveRenderer.makeSplines();
 
 		tensionSpinner.setValue(Math.round(splineTracker.getTension() * 100));
 		continuitySpinner.setValue(Math.round(splineTracker.getContinuity() * 100));
@@ -147,15 +207,14 @@ public class TSpline extends JPanel {
 
 		setVisible(true);
 
-		curveRenderer.repaint();
+//		curveRenderer.repaint();
 	}
 
 	public void setTimeline(int currentTime, AnimFlag<?> timeline, Sequence anim) {
 		this.timeline = timeline;
 
-//		splineTracker = new SplineTracker<>(TTan.getNewTTan2(timeline));
 		splineTracker = new SplineTracker<>(timeline, anim);
-		curveRenderer.setSplineTracker(splineTracker);
+//		curveRenderer.setSplineTracker(splineTracker);
 		splineTracker.setTime(currentTime, anim);
 		initFromKF(anim);
 

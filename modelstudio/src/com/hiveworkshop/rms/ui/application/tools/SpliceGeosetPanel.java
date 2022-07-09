@@ -5,9 +5,11 @@ import com.hiveworkshop.rms.editor.actions.addactions.AddGeosetAction;
 import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
+import com.hiveworkshop.rms.util.FramePopup;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -19,6 +21,7 @@ public class SpliceGeosetPanel extends TwiImportPanel {
 	List<Geoset> chosenDonGeos = new ArrayList<>();
 	String donGeosetButtonText = "Choose Geoset";
 	GeosetChooser geosetChooser;
+	private final ModelIconHandler iconHandler = new ModelIconHandler();
 
 	public SpliceGeosetPanel(EditableModel donModel, ModelHandler recModelHandler) {
 		super(donModel, recModelHandler);
@@ -29,9 +32,7 @@ public class SpliceGeosetPanel extends TwiImportPanel {
 		add(new JLabel(""), "");
 		geosetChooser = new GeosetChooser(donModel);
 
-//		add(getButton(donGeosetButtonText, this::chooseDonGeoset, donModel), "wrap");
 		add(getButton(donGeosetButtonText, this::chooseDonGeosets, donModel), "wrap");
-//		add(getButton(recBoneButtonText, this::chooseRecBone, recModel), "");
 
 //		add(getBoneOptionPanel(), "spanx, wrap");
 		add(new JPanel(), "spanx, wrap");
@@ -40,6 +41,50 @@ public class SpliceGeosetPanel extends TwiImportPanel {
 //		importButton.addActionListener(e -> doImport(chosenDonGeo));
 		importButton.addActionListener(e -> doImport(chosenDonGeos));
 		add(importButton, "");
+
+
+		BoneReplacementWizard wizard2 = new BoneReplacementWizard(this, recModel, donModel)
+				.setClassSet(Collections.singleton(Bone.class))
+				.setIsGeometryMode(true)
+				.setCheckHelperBones(true);
+		JPanel editMappingPanel = wizard2.getEditMappingPanel(-1, true, true);
+
+
+		JButton anImport = new JButton("Import");
+		anImport.addActionListener(e -> importGeosets(chosenDonGeos, wizard2.fillAndGetChainMap()));
+
+		JPanel geosetsPanel = new JPanel(new MigLayout("fill", "[]", "[grow][]"));
+		geosetsPanel.add(getGeosetTogglePanel(), "wrap");
+		geosetsPanel.add(anImport, "");
+
+		JTabbedPane tabbedPane = new JTabbedPane();
+		tabbedPane.addTab("Choose Geosets", geosetsPanel);
+		tabbedPane.addTab("Map Nodes", editMappingPanel);
+		FramePopup.show(tabbedPane, ProgramGlobals.getMainPanel(), "Splice Geoset(s)");
+	}
+
+	private JPanel getGeosetTogglePanel(){
+		JPanel geosetPanel = new JPanel(new MigLayout("fill"));
+		for(Geoset geoset : donModel.getGeosets()){
+			geosetPanel.add(new JLabel(iconHandler.getImageIcon(geoset, donModel)));
+//			JCheckBox checkBox = new JCheckBox(geoset.getName(), iconHandler.getImageIcon(geoset, donModel), true);
+			JCheckBox checkBox = new JCheckBox(geoset.getName(), true);
+			chosenDonGeos.add(geoset);
+//			checkBox.addActionListener(e -> {boolean b = checkBox.isSelected() ? chosenDonGeos.add(geoset) : chosenDonGeos.remove(geoset);});
+			checkBox.addActionListener(e -> checkboxAction(checkBox, geoset));
+			geosetPanel.add(checkBox, "growx, wrap");
+		}
+		return geosetPanel;
+	}
+
+	private void checkboxAction(JCheckBox checkBox, Geoset geoset){
+		if(checkBox.isSelected()){
+			System.out.println("added Geoset: " + geoset.getName());
+			chosenDonGeos.add(geoset);
+		} else {
+			System.out.println("removed Geoset: " + geoset.getName());
+			chosenDonGeos.remove(geoset);
+		}
 	}
 
 
@@ -130,45 +175,49 @@ public class SpliceGeosetPanel extends TwiImportPanel {
 				newGeosets.add(geoset.deepCopy());
 			}
 
-			System.out.println("total bones: " + geosetsBoneSets.size());
-			Set<Bone> topLevelBones = getTopLevelBones(geosetsBoneSets);
-			System.out.println("top level bones: " + topLevelBones.size());
-
-			List<IdObject> bones = new ArrayList<>(recModel.getBones());
-
-			Map<IdObject, IdObject> chainMap = new HashMap<>();
-			fillBoneChainMap(chainMap, bones, recModel, new ArrayList<>(topLevelBones), donModel, true);
-//			for (Bone bone : topLevelBones){
-////				Bone recBone = recBoneChooser.chooseBone(null, this);
-//				Bone recBone = getABone(bone);
-//				chainMap.putAll(getChainMap(recBone, recModel, bone, donModel, boneChainDepth, true));
-//			}
-//			Map<IdObject, IdObject> chainMap = getChainMap(recBone, recModel, donGeoset, donModel, boneChainDepth, true); // donating bones to receiving bones
-
-			Set<Bone> selectedBones = new HashSet<>();
-			chainMap.keySet().stream().filter(idObject -> idObject instanceof Bone).forEach(idObject -> selectedBones.add((Bone) idObject));
+			Map<IdObject, IdObject> chainMap = getIdObjectMap(geosetsBoneSets);
 
 
 			//todo imported stuff needs to get new Animations applied!
-			List<UndoAction> undoActions = new ArrayList<>();
-			Set<GeosetVertex> addedVertexes = new HashSet<>();
-
-			for(Geoset newGeoset : newGeosets){
-				for (GeosetVertex vertex : newGeoset.getVertices()) {
-					vertex.replaceBones(chainMap);
-				}
-				newGeoset.getMatrices().clear();
-				addedVertexes.addAll(newGeoset.getVertices());
-				AddGeosetAction addGeosetAction = new AddGeosetAction(newGeoset, recModel, ModelStructureChangeListener.changeListener);
-				undoActions.add(addGeosetAction);
-			}
-
-			CompoundAction addedModelPart = new CompoundAction("added model part", undoActions, ModelStructureChangeListener.changeListener::nodesUpdated);
-
-			SetSelectionUggAction selectionAction = new SetSelectionUggAction(new SelectionBundle(addedVertexes), recModelHandler.getModelView(), "", null);
-			recModelHandler.getUndoManager().pushAction(new CompoundAction("added model part", ModelStructureChangeListener.changeListener::nodesUpdated, addedModelPart, selectionAction).redo());
+			importGeosets(newGeosets, chainMap);
 		}
 
+	}
+
+	private void importGeosets(List<Geoset> newGeosets, Map<IdObject, IdObject> chainMap) {
+		List<UndoAction> undoActions = new ArrayList<>();
+		Set<GeosetVertex> addedVertexes = new HashSet<>();
+
+		for(Geoset newGeoset : newGeosets){
+			for (GeosetVertex vertex : newGeoset.getVertices()) {
+				vertex.replaceBones(chainMap);
+			}
+			newGeoset.getMatrices().clear();
+			addedVertexes.addAll(newGeoset.getVertices());
+			AddGeosetAction addGeosetAction = new AddGeosetAction(newGeoset, recModel, ModelStructureChangeListener.changeListener);
+			undoActions.add(addGeosetAction);
+		}
+
+		CompoundAction addedModelPart = new CompoundAction("added model part", undoActions, ModelStructureChangeListener.changeListener::nodesUpdated);
+
+		SetSelectionUggAction selectionAction = new SetSelectionUggAction(new SelectionBundle(addedVertexes), recModelHandler.getModelView(), "", null);
+		recModelHandler.getUndoManager().pushAction(new CompoundAction("added model part", ModelStructureChangeListener.changeListener::nodesUpdated, addedModelPart, selectionAction).redo());
+	}
+
+	private Map<IdObject, IdObject> getIdObjectMap(Set<Bone> geosetsBoneSets) {
+		System.out.println("total bones: " + geosetsBoneSets.size());
+		Set<Bone> topLevelBones = getTopLevelBones(geosetsBoneSets);
+		System.out.println("top level bones: " + topLevelBones.size());
+
+		List<IdObject> bones = new ArrayList<>(recModel.getBones());
+
+		Map<IdObject, IdObject> chainMap = new HashMap<>();
+		fillBoneChainMap(chainMap, bones, recModel, new ArrayList<>(topLevelBones), donModel, true);
+
+
+		Set<Bone> selectedBones = new HashSet<>();
+		chainMap.keySet().stream().filter(idObject -> idObject instanceof Bone).forEach(idObject -> selectedBones.add((Bone) idObject));
+		return chainMap;
 	}
 
 

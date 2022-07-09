@@ -24,6 +24,23 @@ public class TimeSliderView extends ModelDependentView {
 		super("Timeline", null, new JPanel());
 		timeSliderPanel = createTimeSliderPanel();
 		setComponent(timeSliderPanel);
+
+//		JMenu filtersMenu = new JMenu("Options");
+//		filtersMenu.add(new JCheckBoxMenuItem("All Transform Keyframes", true));
+//		filtersMenu.add(new JCheckBoxMenuItem("Geoset Alpha Keyframes", true));
+//		filtersMenu.add(new JCheckBoxMenuItem("Geoset Color Keyframes", true));
+//		filtersMenu.add(new JCheckBoxMenuItem("Layer Alpha Keyframes", true));
+//		filtersMenu.add(new JCheckBoxMenuItem("Layer TextureId Keyframes", true));
+//		filtersMenu.add(new JCheckBoxMenuItem("Event Keyframes", true));
+//		filtersMenu.add(new JCheckBoxMenuItem("Camera Keyframes", true));
+//		JButton button = new JButton("Options!");
+//		System.out.println("popupMenu: " + filtersMenu.getPopupMenu());
+//		button.addActionListener(e -> filtersMenu.getPopupMenu().show(button, 0, 0));
+////		button.addActionListener(e -> filtersMenu.doClick());
+////		getCustomTitleBarComponents().add(filtersMenu);
+//		getCustomTitleBarComponents().add(button);
+
+
 //		timeLineHolder = createTimeLineHolder();
 //		setComponent(timeLineHolder);
 	}

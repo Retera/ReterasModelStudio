@@ -1,97 +1,59 @@
 package com.hiveworkshop.rms.ui.gui.modeledit;
 
 import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.SkinBone;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.IdObjectShell;
-import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
-import com.hiveworkshop.rms.util.IterableListModel;
+import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
+import com.hiveworkshop.rms.ui.application.tools.IdObjectChooserButton;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.util.Collections;
+import java.util.Set;
 
 public class SkinPopup extends JPanel {
     private static final int BONE_COUNT = 4;
     private Bone[] bones = new Bone[BONE_COUNT];
-    private JButton[] boneButtons = new JButton[BONE_COUNT];
-    private JSpinner[] weightSpinners = new JSpinner[BONE_COUNT];
-
-    IterableListModel<IdObjectShell<Bone>> filteredBones = new IterableListModel<>();
-    IterableListModel<IdObjectShell<Bone>> boneList;
-    JList<IdObjectShell<Bone>> bonesJList;
-    JTextField boneSearch;
+    private short[] weights = new short[BONE_COUNT];
 
     JLabel missingWeightsLabel;
 
     public SkinPopup(ModelView modelView) {
+        this(modelView, null);
+    }
+    public SkinPopup(ModelView modelView, SkinBone[] skinBones) {
         setLayout(new MigLayout("", "[][][]", "[][][][]"));
 
-        JPanel boneChooserPanel = boneChooserPanel(modelView);
+        Set<Class<?>> filterClasses = Collections.singleton(Bone.class);
 
         for (int i = 0; i < BONE_COUNT; i++) {
             final int index = i;
-            JButton boneButton = new JButton("Choose a Bone");
-            add(boneButton, "growx");
-            boneButton.addActionListener(e -> boneChooserPopup(index, boneButton, boneChooserPanel));
+            IdObjectChooserButton idObjectChooserButton = new IdObjectChooserButton(modelView.getModel(), filterClasses, this);
+            idObjectChooserButton.setButtonText("Choose a Bone").setIdObjectConsumer(o -> bones[index]= (Bone) o);
+            add(idObjectChooserButton, "growx");
 
-            JSpinner boneWeightSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 255, 1));
-            boneWeightSpinner.addChangeListener(e -> updateWeightLabel());
-            add(boneWeightSpinner, "wrap");
+            IntEditorJSpinner intEditorJSpinner = new IntEditorJSpinner(0, 0, 255, weight -> setWeight(index, weight));
+            add(intEditorJSpinner, "wrap");
+            if(skinBones != null && skinBones.length>i){
+                idObjectChooserButton.setChosenIdObject(skinBones[i].getBone());
+                intEditorJSpinner.reloadNewValue(skinBones[i].getWeight());
+            }
 
-            boneButtons[i] = boneButton;
-            weightSpinners[i] = boneWeightSpinner;
         }
+
         missingWeightsLabel = new JLabel("( +255 )");
         add(missingWeightsLabel, "cell 2 0");
     }
 
-    private void boneChooserPopup(int index, JButton boneButton, JPanel panel) {
 
-
-//        JOptionPane.showOptionDialog(this, panel, "Choose Bone", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[] {"Ok", "Cancle"}, 1);
-        int option = JOptionPane.showConfirmDialog(this, panel, "Choose Bone", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null);
-        if (option == JOptionPane.OK_OPTION) {
-            onBoneChosen(index, boneButton);
+    private void setWeight(int index, int weight) {
+        weights[index] = (short) weight;
+        int totMissingWeight = 255;
+        for (int i = 0; i < BONE_COUNT; i++) {
+            totMissingWeight -= weights[i];
         }
-//        JOptionPane.showMessageDialog(this, panel);
-    }
-
-    private JPanel boneChooserPanel(ModelView modelView) {
-	    JPanel panel = new JPanel(new MigLayout("fill, gap 0", "[grow]", "[][][grow]"));
-
-	    EditableModel model = modelView.getModel();
-	    BoneShellListCellRenderer renderer = new BoneShellListCellRenderer(model, null).setShowClass(false);
-	    JCheckBox showParents = new JCheckBox("Show Parents");
-	    showParents.addActionListener(e -> showParents(renderer, showParents, panel));
-	    panel.add(showParents, "wrap");
-
-	    boneSearch = new JTextField();
-	    boneSearch.addCaretListener(e -> filterBones());
-	    panel.add(boneSearch, "growx, wrap");
-
-	    boneList = new IterableListModel<>();
-	    for (Bone bone : model.getBones()) {
-            IdObjectShell<Bone> boneShell = new IdObjectShell<>(bone);
-		    boneList.addElement(boneShell);
-	    }
-
-        bonesJList = new JList<>(boneList);
-        bonesJList.setCellRenderer(renderer);
-
-        panel.add(new JScrollPane(bonesJList), "growx, growy, wrap");
-        return panel;
-    }
-
-    private void showParents(BoneShellListCellRenderer renderer, JCheckBox checkBox, JPanel panel) {
-        renderer.setShowParent(checkBox.isSelected());
-        panel.repaint();
-    }
-
-    private void onBoneChosen(int index, JButton boneButton) {
-        IdObjectShell<Bone> selectedValue = bonesJList.getSelectedValue();
-
-        bones[index] = selectedValue.getIdObject();
-        boneButton.setText(selectedValue.getIdObject().getName());
+        String token = totMissingWeight >= 0 ? "+" : "";
+        missingWeightsLabel.setText("( " + token + totMissingWeight + " )");
     }
 
     public Bone[] getBones() {
@@ -99,37 +61,11 @@ public class SkinPopup extends JPanel {
     }
 
     public short[] getSkinWeights() {
-        short[] weights = new short[BONE_COUNT];
         int totMissingWeight = 255;
         for (int i = 0; i < BONE_COUNT; i++) {
-            weights[i] = ((Number) weightSpinners[i].getValue()).shortValue();
             totMissingWeight -= weights[i];
         }
         weights[0] += totMissingWeight;
         return weights;
-    }
-
-    private void updateWeightLabel() {
-        int totMissingWeight = 255;
-        for (int i = 0; i < BONE_COUNT; i++) {
-            totMissingWeight -= ((Number) weightSpinners[i].getValue()).intValue();
-        }
-        String token = totMissingWeight >= 0 ? "+" : "";
-        missingWeightsLabel.setText("( " + token + totMissingWeight + " )");
-    }
-
-    private void filterBones() {
-        String filterText = boneSearch.getText();
-        if (!filterText.equals("")) {
-            filteredBones.clear();
-            for (IdObjectShell<Bone> boneShell : boneList) {
-                if (boneShell.getName().toLowerCase().contains(filterText.toLowerCase())) {
-                    filteredBones.addElement(boneShell);
-                }
-            }
-            bonesJList.setModel(filteredBones);
-        } else {
-            bonesJList.setModel(boneList);
-        }
     }
 }

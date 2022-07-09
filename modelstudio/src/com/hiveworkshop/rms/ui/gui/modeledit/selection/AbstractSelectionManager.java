@@ -9,7 +9,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ViewBox;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.SelectionBoxHelper;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
@@ -41,7 +41,7 @@ public abstract class AbstractSelectionManager {
 
 	public abstract SelectionBundle getSelectionBundle(Vec2 min, Vec2 max, Mat4 viewPortAntiRotMat, double sizeAdj);
 
-	public abstract SelectionBundle getSelectionBundle(Vec2 min, Vec2 max, ViewBox viewBox, double sizeAdj);
+	public abstract SelectionBundle getSelectionBundle(Vec2 min, Vec2 max, SelectionBoxHelper viewBox, double sizeAdj);
 
 //	public abstract SelectionBundle getSelectionBundle(Vec3 min, Vec3 max, Mat4 viewPortAntiRotMat, double sizeAdj);
 
@@ -55,7 +55,7 @@ public abstract class AbstractSelectionManager {
 		return getUndoAction(selectionMode, newSelection);
 	}
 
-	public UndoAction selectStuff(Vec2 min, Vec2 max, SelectionMode selectionMode, ViewBox viewBox, double sizeAdj) {
+	public UndoAction selectStuff(Vec2 min, Vec2 max, SelectionMode selectionMode, SelectionBoxHelper viewBox, double sizeAdj) {
 		SelectionBundle newSelection = getSelectionBundle(min, max, viewBox, sizeAdj);
 		return getUndoAction(selectionMode, newSelection);
 	}

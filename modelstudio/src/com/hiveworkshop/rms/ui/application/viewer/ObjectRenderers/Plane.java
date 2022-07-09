@@ -56,7 +56,13 @@ public class Plane {
 		this.norm.set(norm).normalize();
 		return this;
 	}
-
+	public Plane setFrom(Vec3... tri) {
+		norm.set(tri[1]).sub(tri[0]);
+		tempVec.set(tri[2]).sub(tri[1]);
+		norm.cross(tempVec).normalize();
+		setPoint(tri[0]);
+		return this;
+	}
 	public Plane setPoint(Vec3 point) {
 		this.dist = -point.dot(norm);
 		return this;
@@ -68,11 +74,37 @@ public class Plane {
 		return -(numeratorP / denominatorP);
 	}
 
+	public float getIntersect3(Ray ray) {
+
+		float ugg1 = (getPoint().sub(ray.getPoint())).dot(norm);
+
+		float denominatorP = norm.dot(ray.getDir());
+		float numeratorP = norm.dot(ray.getPoint()) + dist;
+//		return -(numeratorP / denominatorP);
+		return ugg1/(ray.getDir().dot(norm));
+	}
+	public Vec3 getIntersectP(Ray ray) {
+
+		float ugg1 = (getPoint().sub(ray.getPoint())).dot(norm);
+
+		float rayDist = ugg1 / (ray.getDir().dot(norm));
+		return tempVec.set(ray.getPoint()).addScaled(ray.getDir(), rayDist);
+	}
+
 
 	private final Vec3 tempVec = new Vec3();
 	public boolean inFrontOf(Vec3 point){
 		tempVec.set(point).addScaled(norm, -dist);
-		return tempVec.dot(norm)>0;
+		float dot = tempVec.dot(norm);
+//		System.out.println("dot: " + dot);
+//		return dot >= -1E-6;
+		return dot > 0;
+	}
+
+	public boolean pointOnPlane(Vec3 v) {
+		tempVec.set(v).addScaled(norm, -dist);
+		float dot = tempVec.dot(norm);
+		return dot == 0;
 	}
 
 	public Vec3 getPoint(){

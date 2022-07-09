@@ -18,42 +18,11 @@ public final class MutableDoodadData extends MutableObjectData {
 
 	public MutableDoodadData() {
 		this(getStandardDoodads(), getStandardDoodadMeta(), getWar3ObjectDataChangeset('d', "war3map.w3d"));
-//		super(WorldEditorDataType.DOODADS, getStandardDoodads(), getStandardDoodadMeta(), editorData);
-//		super(worldEditorDataType, sourceSLKData, sourceSLKMetaData, editorData);
-//		this.worldEditorDataType = WorldEditorDataType.DOODADS;
-////		this.sourceSLKData = StandardObjectData.getStandardDoodads();
-//		this.sourceSLKData = getStandardDoodads();
-//		resolveStringReferencesInNames(this.sourceSLKData);
-////		this.sourceSLKMetaData = StandardObjectData.getStandardDoodadMeta();
-//		this.sourceSLKMetaData = getStandardDoodadMeta();
-//		this.editorData = getWar3ObjectDataChangeset('g', "war3map.w3q");
-//		metaNameToMetaId = new HashMap<>();
-//		for (String metaKeyString : this.sourceSLKMetaData.keySet()) {
-//			War3ID metaKey = War3ID.fromString(metaKeyString);
-//			metaNameToMetaId.put(this.sourceSLKMetaData.get(metaKeyString).getField("field"), metaKey);
-//		}
-//		cachedKeyToGameObject = new HashMap<>();
-//		changeNotifier = new MutableObjectDataChangeNotifier();
 	}
 
 	public MutableDoodadData(WarcraftData sourceSLKData,
 	                         DataTable sourceSLKMetaData, War3ObjectDataChangeset editorData) {
 		super(WorldEditorDataType.DOODADS, sourceSLKData, sourceSLKMetaData, editorData);
-//		super(worldEditorDataType, sourceSLKData, sourceSLKMetaData, editorData);
-//		this.worldEditorDataType = WorldEditorDataType.DOODADS;
-////		this.sourceSLKData = StandardObjectData.getStandardDoodads();
-//		this.sourceSLKData = getStandardDoodads();
-//		resolveStringReferencesInNames(this.sourceSLKData);
-////		this.sourceSLKMetaData = StandardObjectData.getStandardDoodadMeta();
-//		this.sourceSLKMetaData = getStandardDoodadMeta();
-//		this.editorData = getWar3ObjectDataChangeset('g', "war3map.w3q");
-//		metaNameToMetaId = new HashMap<>();
-//		for (String metaKeyString : this.sourceSLKMetaData.keySet()) {
-//			War3ID metaKey = War3ID.fromString(metaKeyString);
-//			metaNameToMetaId.put(this.sourceSLKMetaData.get(metaKeyString).getField("field"), metaKey);
-//		}
-//		cachedKeyToGameObject = new HashMap<>();
-//		changeNotifier = new MutableObjectDataChangeNotifier();
 	}
 
 	public static WarcraftData getStandardDoodads() {

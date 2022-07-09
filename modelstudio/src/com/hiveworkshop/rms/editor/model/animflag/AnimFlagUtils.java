@@ -1,6 +1,8 @@
 package com.hiveworkshop.rms.editor.model.animflag;
 
+import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
+import com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff.TTan;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.TreeMap;
@@ -195,6 +197,22 @@ public class AnimFlagUtils {
 			return (AnimFlag<Q>) new QuatAnimFlag(title);
 		}
 
+		return null;
+	}
+
+	public static <Q> float[] calculateTCB(AnimFlag<Q> animFlag, Sequence sequence, int time){
+		if (animFlag.tans()) {
+			TTan<Q> tTanDer = TTan.getNewTTan(animFlag, sequence);
+			TreeMap<Integer, Entry<Q>> entryMap = animFlag.getEntryMap(sequence);
+
+			if (tTanDer != null && entryMap.ceilingKey(time) != null
+					&& (animFlag.getInterpolationType() == InterpolationType.HERMITE
+					|| animFlag.getInterpolationType() == InterpolationType.BEZIER)) {
+				tTanDer.setFromKF(time, sequence);
+				tTanDer.calcSplineParameters();
+				return tTanDer.getTCB();
+			}
+		}
 		return null;
 	}
 }

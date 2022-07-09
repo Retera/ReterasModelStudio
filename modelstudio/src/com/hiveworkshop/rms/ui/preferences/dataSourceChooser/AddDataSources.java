@@ -28,17 +28,33 @@ public class AddDataSources {
 			List<String> prefixes = CascPrefixChooser.addDefaultCASCPrefixes(installPathPath, allowPopup);
 			dataSourceDesc.addPrefixes(prefixes);
 		} else {
-			dataSourceDescriptors.add(getFromMPQ(installPathPath, "War3.mpq"));
-			dataSourceDescriptors.add(getFromMPQ(installPathPath, "War3Local.mpq"));
-			dataSourceDescriptors.add(getFromMPQ(installPathPath, "War3x.mpq"));
-			dataSourceDescriptors.add(getFromMPQ(installPathPath, "War3xlocal.mpq"));
-			dataSourceDescriptors.add(getFromMPQ(installPathPath, "war3patch.mpq"));
-			dataSourceDescriptors.add(getFromMPQ(installPathPath, "Deprecated.mpq"));
-			dataSourceDescriptors.add(getFromFolder(installPathPath, "war3.w3mod"));
-			dataSourceDescriptors.add(getFromFolder(installPathPath, "war3.w3mod/_locales/enus.w3mod"));
-			dataSourceDescriptors.add(getFromFolder(installPathPath, "war3.w3mod/_deprecated.w3mod"));
-			dataSourceDescriptors.add(getFromFolder(installPathPath, "war3.w3mod/_hd.w3mod"));
-			dataSourceDescriptors.add(getFromFolder(installPathPath, "war3.w3mod/_hd.w3mod/_locales/enus.w3mod"));
+			String[] mpqSubPaths = {"War3.mpq", "War3Local.mpq", "War3x.mpq", "War3xlocal.mpq", "war3patch.mpq", "Deprecated.mpq"};
+			String[] folderSubPaths = {"war3.w3mod", "war3.w3mod/_locales/enus.w3mod", "war3.w3mod/_deprecated.w3mod", "war3.w3mod/_hd.w3mod", "war3.w3mod/_hd.w3mod/_locales/enus.w3mod"};
+
+			for (String s : mpqSubPaths){
+				MpqDataSourceDescriptor descriptor = getFromMPQ(installPathPath, s);
+				if(descriptor != null){
+					dataSourceDescriptors.add(descriptor);
+				}
+			}
+
+			for (String s : folderSubPaths){
+				FolderDataSourceDescriptor descriptor = getFromFolder(installPathPath, s);
+				if(descriptor != null){
+					dataSourceDescriptors.add(descriptor);
+				}
+			}
+//			dataSourceDescriptors.add(getFromMPQ(installPathPath, "War3.mpq"));
+//			dataSourceDescriptors.add(getFromMPQ(installPathPath, "War3Local.mpq"));
+//			dataSourceDescriptors.add(getFromMPQ(installPathPath, "War3x.mpq"));
+//			dataSourceDescriptors.add(getFromMPQ(installPathPath, "War3xlocal.mpq"));
+//			dataSourceDescriptors.add(getFromMPQ(installPathPath, "war3patch.mpq"));
+//			dataSourceDescriptors.add(getFromMPQ(installPathPath, "Deprecated.mpq"));
+//			dataSourceDescriptors.add(getFromFolder(installPathPath, "war3.w3mod"));
+//			dataSourceDescriptors.add(getFromFolder(installPathPath, "war3.w3mod/_locales/enus.w3mod"));
+//			dataSourceDescriptors.add(getFromFolder(installPathPath, "war3.w3mod/_deprecated.w3mod"));
+//			dataSourceDescriptors.add(getFromFolder(installPathPath, "war3.w3mod/_hd.w3mod"));
+//			dataSourceDescriptors.add(getFromFolder(installPathPath, "war3.w3mod/_hd.w3mod/_locales/enus.w3mod"));
 		}
 		return dataSourceDescriptors;
 	}

@@ -258,12 +258,22 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 
 		Vec3 currPrev = new Vec3(cur.value);
 		Vec3 nextCurr = new Vec3(0, 0, 0).sub(cur.value);
-		if (prev != null) {
+		if (prev == null) {
+			currPrev.sub(cur.value);
+		} else {
 			currPrev.sub(prev.value);
 		}
-		if (next != null) {
+		if (next == null) {
+			nextCurr.add(cur.value);
+		} else {
 			nextCurr.add(next.value);
 		}
+//		if (prev != null) {
+//			currPrev.sub(prev.value);
+//		}
+//		if (next != null) {
+//			nextCurr.add(next.value);
+//		}
 
 		cur.inTan.set(currPrev).scale(factor[0]).addScaled(nextCurr, factor[1]);
 		cur.outTan.set(currPrev).scale(factor[2]).addScaled(nextCurr, factor[3]);

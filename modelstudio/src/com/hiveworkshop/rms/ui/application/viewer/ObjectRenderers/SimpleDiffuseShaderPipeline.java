@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.viewer.ReteraShaderStuff.OtherUtils;
+import com.hiveworkshop.rms.ui.application.viewer.OtherUtils;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -39,7 +39,6 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 		createUniform("u_uvTransform");
 		createUniform("u_geosetColor");
 
-		createUniform("a_selectionStatus");
 		createUniform("u_vertColors[0]");
 		createUniform("u_vertColors[1]");
 		createUniform("u_vertColors[2]");

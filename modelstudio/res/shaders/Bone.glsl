@@ -1,7 +1,8 @@
 #version 330 core
+#define PI 3.1415926538
 //layout (lines) in;
 layout (points) in;
-layout (triangle_strip, max_vertices = 24) out;
+layout (triangle_strip, max_vertices = 48) out;
 
 
 const float MAGNITUDE = 10;
@@ -16,34 +17,6 @@ struct quad {
     vec3 p3;
     vec3 norm;
 };
-struct cube {
-    vec3 frntRghtUppp;
-    vec3 frntRghtDown;
-    vec3 backRghtUppp;
-    vec3 backRghtDown;
-    vec3 frntLeftUppp;
-    vec3 frntLeftDown;
-    vec3 backLeftUppp;
-    vec3 backLeftDown;
-};
-//struct cube2 {
-//    quad uppp;
-//    quad down;
-//    quad frnt;
-//    quad back;
-//    quad rght;
-//    quad left;
-//};
-
-cube boneMarker = cube(
-    vec3( 1, -1,  1),
-    vec3( 1, -1, -1),
-    vec3(-1, -1,  1),
-    vec3(-1, -1, -1),
-    vec3( 1,  1,  1),
-    vec3( 1,  1, -1),
-    vec3(-1,  1,  1),
-    vec3(-1,  1, -1));
 
 quad backQuad = quad(
     vec3( 1,  1, -1),
@@ -82,29 +55,19 @@ quad rightQuad = quad(
     vec3( 1,  1,  1),
     vec3( 1,  0,  0));
 
-//vec3[4] pointsStemTop = {
-//    vec3( 1, -1, 1).scale(stemTopSize),
-//    vec3(-1, -1, 1).scale(stemTopSize),
-//    vec3( 1,  1, 1).scale(stemTopSize),
-//    vec3(-1,  1, 1).scale(stemTopSize)};
-//
-//vec3[4] pointsStemBot = {
-//    vec3( 1, -1, -1).scale(stemBotSize),
-//    vec3(-1, -1, -1).scale(stemBotSize),
-//    vec3( 1,  1, -1).scale(stemBotSize),
-//    vec3(-1,  1, -1).scale(stemBotSize)};
-
+uniform vec3 u_viewPos;
 uniform mat4 u_projection;
 uniform mat4 u_view;
 uniform vec2 scale;
 
-//uniform vec2 start;
-//uniform vec2 end;
 
 in VS_OUT {
     vec4 pos;
+    vec4 end;
     vec4 rot;
+    vec3 scale;
     vec4 color;
+    vec4 color2;
 } gs_in[];
 
 out vec4 v_color;
@@ -130,102 +93,93 @@ vec3 transform(vec4 quat, vec3 v) {
     return vec3(newX, newY, newZ);
 }
 
-//quat GetRot(vec4 pos, vec4 parent){
-//    vec4 diff = vec4(parent).sub(pos);
-//    if (diff.x == 0 && diff.y == 0 && diff.z == 0) {
-//        diff.set(0, 0, 0.01, 0);
-//    }
-//    vec4 tempVec = vec4(0, 0, 1, 0).cross(diffVec).normalize();
-//
-//
-//    difRotR.setFromAxisAngle(tempVec, (float) (diffVec.getAngleToZaxis())).normalize();
-//rot90.setFromAxisAngle(tempVec, (float) (Math.PI / 2)).normalize();
-//difRotR.mul(rot90).normalize();
-//
-//}
-//
-//BoneRenderThingBuf transform2(Vec3 p1, Vec3 p2, float nodeSize) {
-//    diffVec.set(p2).sub(p1);
-//    //		System.out.println("dist to par: " + diffVec.length());
-//    if (diffVec.x == 0 && diffVec.y == 0 && diffVec.z == 0) {
-//        diffVec.set(Vec3.Z_AXIS).scale(0.01f);
-//    }
-//    //		else {
-//    //			nodeSize = diffVec.length() / 10;
-//    //		}
-//    tempVec.set(Vec3.Z_AXIS).cross(diffVec).normalize();
-//
-//    difRotR.setFromAxisAngle(tempVec, (float) (diffVec.getAngleToZaxis())).normalize();
-//rot90.setFromAxisAngle(tempVec, (float) (Math.PI / 2)).normalize();
-//difRotR.mul(rot90).normalize();
-//
-//transform1(difRotR, p1, p2, nodeSize);
-////		transform(difRotR, p1, p2);
-//return this;
-//}
-//
-//BoneRenderThingBuf transform1(Quat rot, Vec3 p1, Vec3 p2, float scale) {
-//    for (int i = 0; i < pointsJoint.length; i++) {
-//        renderPointsJoint[i].set(pointsJoint[i]).scale(scale).transform(rot).add(p1);
-//    }
-//    for (int i = 0; i < pointsStemTop.length; i++) {
-//        renderPointsStemTop[i].set(pointsStemTop[i]).scale(scale).transform(rot).add(p2);
-//    }
-//    for (int i = 0; i < pointsStemBot.length; i++) {
-//        renderPointsStemBot[i].set(pointsStemBot[i]).scale(scale).transform(rot).add(p1);
-//    }
-//
-//    for (int i = 0; i < normals.length; i++) {
-//        renderNormals[i].set(normals[i]).transform(rot);
-//    }
-//
-//    return this;
-//}
+vec4 getFromAxisAngle(vec3 a, float angle) {
+    float halfAngle = angle / 2.0;
+    float sinOfHalfAngle = sin(halfAngle);
+    vec4 quat = vec4(0);
+    quat.x = a.x * sinOfHalfAngle;
+    quat.y = a.y * sinOfHalfAngle;
+    quat.z = a.z * sinOfHalfAngle;
+    quat.w = cos(halfAngle);
+    return quat;
+}
+vec4 mul(vec4 a, vec4 b) {
+    float newX = (b.x * a.w) + (b.w * a.x) + (b.y * a.z) - (b.z * a.y);
+    float newY = (b.y * a.w) + (b.w * a.y) + (b.z * a.x) - (b.x * a.z);
+    float newZ = (b.z * a.w) + (b.w * a.z) + (b.x * a.y) - (b.y * a.x);
+    float newW = (b.w * a.w) - (b.x * a.x) - (b.y * a.y) - (b.z * a.z);
+    return vec4(newX, newY, newZ, newW);
+}
 
-//void GenerateLine(vec4 pos, vec4 parent) {
-//    EmVert(vec4(pos.x, pos.y, -1.0, 1.0));    // 1:bottom-left
-////    EmVert(vec4(parent.x, pos.y, -1.0, 1.0));    // 2:bottom-right
-//    EmVert(vec4(parent.x, parent.y, -1.0, 1.0));    // 4:top-right
-////    EmVert(vec4(pos.x, parent.y, -1.0, 1.0));    // 3:top-left
-////    EmVert(vec4(pos.x, pos.y, -1.0, 1.0));    // 1:bottom-left
-//
-//    EndPrimitive();
-//}
+vec4 getRot(vec4 pos, vec4 parent){
+    vec4 diff = vec4(parent) - pos;
+    if (diff.x == 0 && diff.y == 0 && diff.z == 0) {
+        diff.xyzw = vec4(0, 0, 0.01, 0);
+    }
+    vec3 tempVec = normalize(cross(vec3(0, 0, 1), diff.xyz));
 
-void DrawQuadAt(vec4 p1, quad q, vec4 rot) {
-//    vec2 mag = vec2(MAGNITUDE, MAGNITUDE)*scale;
+    float angleToZ = acos(diff.z / length(diff)) - PI / 2.0;;
+    vec4 difRotR = normalize(getFromAxisAngle(tempVec, angleToZ));
+    vec4 rot90 = normalize(getFromAxisAngle(tempVec, PI / 2.0));
+    return normalize(mul(difRotR,rot90));
 
-    EmVert(u_projection * (p1 + vec4(transform(rot, q.p0), 0.0)));    // 1:bottom-left
-    EmVert(u_projection * (p1 + vec4(transform(rot, q.p1), 0.0)));    // 2:bottom-right
-    EmVert(u_projection * (p1 + vec4(transform(rot, q.p2), 0.0)));    // 3:top-left
-    EmVert(u_projection * (p1 + vec4(transform(rot, q.p3), 0.0)));    // 4:top-right
+}
+
+void DrawQuadAt(vec4 p1, quad q, vec4 rot, vec3 scale, vec4 color) {
+    mat4 ugg = u_projection * u_view;
+    vec4 quadNormal = u_view * vec4(transform(rot, q.norm.xyz), 0);
+    float shadowThing = (3 + dot(quadNormal,vec4(0,0,1,0)))/4.0;
+
+    v_color.xyz = color.xyz * shadowThing;
+
+    EmVert(ugg * (p1 + vec4(transform(rot, q.p0*scale), 0.0)));    // 1:bottom-left
+    EmVert(ugg * (p1 + vec4(transform(rot, q.p1*scale), 0.0)));    // 2:bottom-right
+    EmVert(ugg * (p1 + vec4(transform(rot, q.p2*scale), 0.0)));    // 3:top-left
+    EmVert(ugg * (p1 + vec4(transform(rot, q.p3*scale), 0.0)));    // 4:top-right
 
     EndPrimitive();
 }
 
-void DrawPoint(vec4 p1) {
-    vec2 mag = vec2(MAGNITUDE, MAGNITUDE)*scale;
+void DrawLongQuadBetween(vec4 p1, vec4 p2, quad q, vec4 rot, vec3 scale1, vec3 scale2, vec4 color) {
+    mat4 ugg = u_projection * u_view;
+    vec4 quadNormal = u_view * vec4(transform(rot, q.norm.xyz), 0);
+    float shadowThing = (3 + dot(quadNormal,vec4(0,0,1,0)))/4.0;
 
-    EmVert(p1 + vec4(-mag.x, -mag.y, 0.0, 0.0));    // 1:bottom-left
-    EmVert(p1 + vec4( mag.x, -mag.y, 0.0, 0.0));    // 2:bottom-right
-    EmVert(p1 + vec4(-mag.x,  mag.y, 0.0, 0.0));    // 3:top-left
-    EmVert(p1 + vec4( mag.x,  mag.y, 0.0, 0.0));    // 4:top-right
+    v_color.xyz = color.xyz * shadowThing;
+
+    EmVert(ugg * (p2 + vec4(transform(rot, q.p0*scale2), 0.0)));    // 1:bottom-left
+    EmVert(ugg * (p2 + vec4(transform(rot, q.p1*scale2), 0.0)));    // 2:bottom-right
+    EmVert(ugg * (p1 + vec4(transform(rot, q.p2*scale1), 0.0)));    // 3:top-left
+    EmVert(ugg * (p1 + vec4(transform(rot, q.p3*scale1), 0.0)));    // 4:top-right
 
     EndPrimitive();
 }
-void DrawCube(vec4 p1, vec4 rot) {
-    DrawQuadAt(p1, frontQuad, rot);
-    DrawQuadAt(p1, backQuad, rot);
-    DrawQuadAt(p1, topQuad, rot);
-    DrawQuadAt(p1, botQuad, rot);
-    DrawQuadAt(p1, rightQuad, rot);
-    DrawQuadAt(p1, leftQuad, rot);
+
+void DrawCube(vec4 p1, vec4 rot, vec3 scale, vec4 color) {
+    DrawQuadAt(p1, frontQuad, rot, scale, color);
+    DrawQuadAt(p1, backQuad, rot, scale, color);
+    DrawQuadAt(p1, topQuad, rot, scale, color);
+    DrawQuadAt(p1, botQuad, rot, scale, color);
+    DrawQuadAt(p1, rightQuad, rot, scale, color);
+    DrawQuadAt(p1, leftQuad, rot, scale, color);
+}
+
+void DrawStick(vec4 p1, vec4 p2, vec4 rot1, vec3 scale, vec4 color) {
+    vec4 rot = getRot(p1, p2);
+    vec3 scale1 = scale * .2;
+    vec3 scale2 = scale * .4;
+    DrawQuadAt(p1, topQuad, rot, scale1, color);
+    DrawQuadAt(p2, botQuad, rot, scale2, color);
+    DrawLongQuadBetween(p1, p2, frontQuad, rot, scale1, scale2, color);
+    DrawLongQuadBetween(p1, p2, backQuad, rot, scale1, scale2, color);
+    DrawLongQuadBetween(p1, p2, rightQuad, rot, scale1, scale2, color);
+    DrawLongQuadBetween(p1, p2, leftQuad, rot, scale1, scale2, color);
 }
 
 void main() {
     v_color = gs_in[0].color;
-//    GenerateLine(gl_in[0].gl_Position, gl_in[1].gl_Position);
-//    DrawPoint(u_projection * gl_Position);
-//    DrawPoint(u_projection * gs_in[0].pos);
-    DrawCube(gs_in[0].pos, gs_in[0].rot);
+    DrawCube(gs_in[0].pos, gs_in[0].rot, gs_in[0].scale, gs_in[0].color);
+
+    v_color = gs_in[0].color2;
+    DrawStick(gs_in[0].pos, gs_in[0].end, gs_in[0].rot, gs_in[0].scale, gs_in[0].color2);
 }

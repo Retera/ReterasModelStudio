@@ -148,6 +148,12 @@ public class ParticleEditPanel extends JPanel {
 		headPanel.add(new JLabel("Life Span"));
 		headPanel.add(new Vec3SpinnerArray(copy.getHeadUVAnim(), "start", "end", "repeat").setVec3Consumer((v) -> copy.setHeadUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
 		headPanel.add(new JLabel("Decay"));
+//		headPanel.add(new JLabel("Life Texture Index"));
+//		headPanel.add(
+//				new Vec3SpinnerArray(copy.getHeadUVAnim(), "start", "end", "repeat", 0, 1)
+//				.setVec3Consumer((v) -> copy.setHeadUVAnim(v))
+//				.spinnerPanel(), SPINNER_CONSTRAINTS);
+//		headPanel.add(new JLabel("Decay Texture Index"));
 		headPanel.add(new Vec3SpinnerArray(copy.getHeadDecayUVAnim(), "start", "end", "repeat").setVec3Consumer((v) -> copy.setHeadDecayUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
 		spinnerPanel.add(headPanel, SPINNER_CONSTRAINTS);
 

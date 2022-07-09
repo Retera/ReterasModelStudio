@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.application.viewer;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
-import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ViewBox;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.SelectionBoxHelper;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
@@ -57,8 +57,8 @@ public class MouseListenerThing extends MouseAdapter {
 			isSelecting = true;
 			if (activityManager != null) {
 				Vec2 topLeft = new Vec2(startP).maximize(endP);
-				Vec2 botRight = new Vec2(endP).minimize(startP);
-				ViewBox viewBox = cameraHandler.getViewBox(topLeft, botRight);
+				Vec2 botRight = new Vec2(endP).minimize(startP);;
+				SelectionBoxHelper viewBox = cameraHandler.getSelectionBoxHelper(topLeft, botRight);
 				activityManager.mousePressed(e, viewBox, sizeAdj);
 			}
 		} else if ((ProgramGlobals.getPrefs().getModifyMouseButton() & modifiersEx) > 0) {
@@ -93,7 +93,7 @@ public class MouseListenerThing extends MouseAdapter {
 			} else if (isSelecting && endP != null){
 				Vec2 topLeft = new Vec2(startP).maximize(endP);
 				Vec2 botRight = new Vec2(endP).minimize(startP);
-				ViewBox viewBox = cameraHandler.getViewBox(topLeft, botRight);
+				SelectionBoxHelper viewBox = cameraHandler.getSelectionBoxHelper(topLeft, botRight);
 
 				double sizeAdj = cameraHandler.sizeAdj();
 				activityManager.mouseReleased(e, viewBox, sizeAdj);

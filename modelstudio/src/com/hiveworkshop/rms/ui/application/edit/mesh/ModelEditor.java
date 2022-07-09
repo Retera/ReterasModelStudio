@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.editor.StaticMeshShrinkFattenAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericScaleAction;
@@ -31,6 +32,8 @@ public abstract class ModelEditor {
 
 	public abstract UndoAction rotate(Vec3 center, Vec3 rotate);
 
+	public abstract UndoAction shrinkFatten(float amount);
+
 	public abstract GenericMoveAction beginTranslation();
 
 	public abstract GenericScaleAction beginScaling(Vec3 center);
@@ -42,6 +45,8 @@ public abstract class ModelEditor {
 	public abstract GenericRotateAction beginRotation(Vec3 center, Vec3 axis);
 
 	public abstract GenericRotateAction beginSquatTool(Vec3 center, Vec3 axis);
+
+	public abstract StaticMeshShrinkFattenAction beginShrinkFatten(float amount);
 
 	// true if we conceptually are editing/operating on top of an animated model,
 	// instead of a static one

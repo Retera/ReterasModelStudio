@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
-import com.hiveworkshop.rms.ui.application.viewer.ReteraShaderStuff.OtherUtils;
+import com.hiveworkshop.rms.ui.application.viewer.OtherUtils;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
@@ -101,5 +101,14 @@ public class SelectionBoxShaderPipeline extends ShaderPipeline {
 
 		vertexCount++;
 
+	}
+	public void addVert(Vec3 pos){
+		int baseOffset = vertexCount * STRIDE;
+		currBufferOffset = 0;
+		ensureCapacity(baseOffset + STRIDE);
+		position.set(pos, 1);
+		addToBuffer(baseOffset, position);
+
+		vertexCount++;
 	}
 }

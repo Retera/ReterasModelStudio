@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ShaderManager;
-import com.hiveworkshop.rms.ui.application.viewer.ReteraShaderStuff.OtherUtils;
+import com.hiveworkshop.rms.ui.application.viewer.OtherUtils;
 import com.hiveworkshop.rms.ui.application.viewer.twiTestRenderMaster.BufferFiller;
 import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.ScreenInfo;
@@ -167,10 +167,10 @@ public class ShaderEditPanel extends JPanel {
 		return orgFragmentShader;
 	}
 	private String getLastVertexShader(){
-		if(lastFragmentShader != null){
-			return lastFragmentShader;
+		if(lastVertexShader != null){
+			return lastVertexShader;
 		}
-		return orgFragmentShader;
+		return orgVertexShader;
 	}
 
 	public View getAsView(String title, RSyntaxTextArea textArea, String text, Supplier<String> lastText) {

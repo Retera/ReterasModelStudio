@@ -194,22 +194,25 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 	public void calcNewTans(float[] factor, Entry<Quat> next, Entry<Quat> prev, Entry<Quat> cur, int animationLength) {
 
 		if (cur.inTan == null) {
-			cur.inTan = new Quat();
+			cur.inTan = new Quat(cur.value);
 		}
 		if (cur.outTan == null) {
-			cur.outTan = new Quat();
+			cur.outTan = new Quat(cur.value);
 		}
 
-		if(prev != null){
-			cur.inTan.set(prev.value).slerp(cur.value, .75f);
-		}
-		if (next != null){
-			cur.outTan.set(cur.value).slerp(next.value, .25f);
+		if(prev == null){
+			prev = cur;
 		}
 
+		if(next == null){
+			next = cur;
+		}
 
-////		cur.inTan.set(logCurToNext).scale(factor[0]).addScaled(logPrevToCurr, factor[1]);
-////		cur.outTan.set(logCurToNext).scale(factor[2]).addScaled(logPrevToCurr, factor[3]);
+//		cur.inTan.set(logCurToNext).scale(factor[0]).addScaled(logPrevToCurr, factor[1]);
+//		cur.outTan.set(logCurToNext).scale(factor[2]).addScaled(logPrevToCurr, factor[3]);
+		cur.inTan.set(prev.value).slerp(cur.value, factor[1]).slerp(next.value, 1-factor[0]);
+		cur.outTan.set(cur.value).slerp(next.value, factor[2]).slerp(prev.value, 1-factor[3]);
+
 //		if(prev != null){
 //			cur.inTan.set(prev.value).slerp(cur.value, factor[1]).slerp(next.value, 1-factor[0]);
 //		}

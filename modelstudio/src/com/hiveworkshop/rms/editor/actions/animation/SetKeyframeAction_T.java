@@ -24,13 +24,17 @@ public class SetKeyframeAction_T<T> implements UndoAction {
 
 	@Override
 	public UndoAction undo() {
-		if (timeline.tans()) {
-			if (orgEntry.inTan == null) {
-				throw new IllegalStateException(
-						"Cannot add interpolation information (inTan/outTan) for keyframe, animation data was \"Linear\" or \"DontInterp\" during previous user action");
+		if(orgEntry != null){
+			if (timeline.tans()) {
+				if (orgEntry.inTan == null) {
+					throw new IllegalStateException(
+							"Cannot add interpolation information (inTan/outTan) for keyframe, animation data was \"Linear\" or \"DontInterp\" during previous user action");
+				}
 			}
+			timeline.setOrAddEntry(time, orgEntry, animation);
+		} else {
+			timeline.removeKeyframe(time, animation);
 		}
-		timeline.setOrAddEntry(time, orgEntry, animation);
 		if (structureChangeListener != null) {
 			structureChangeListener.run();
 		}

@@ -49,7 +49,7 @@ public class DisplayPanelCanvas extends JPanel {
 			viewportSettings = vp2.getViewportSettings();
 			viewportSettings.setShowNodes(true);
 
-			viewHolderPanel.add(vp2, "spany, growy, growx");
+			viewHolderPanel.add(vp2, "spany, spanx, growy, growx");
 			add(viewHolderPanel, "spany, growy, growx");
 		} catch (LWJGLException e) {
 			e.printStackTrace();
@@ -78,8 +78,8 @@ public class DisplayPanelCanvas extends JPanel {
 	private JPanel getButtonPanel() {
 		JPanel buttonPanel = new JPanel(new MigLayout("gap 0, ins 0, fill", "[][][]", "[][][][][]"));
 		JPanel arrowPanel = new JPanel(new MigLayout("gap 0, ins 0, fill", "[][][]", "[][][]"));
-		JButton plusZoom = getButton(20, 20, "Plus.png", e -> zoom(.15));
-		JButton minusZoom = getButton(20, 20, "Minus.png", e -> zoom(-.15));
+		JButton plusZoom = getButton(20, 20, "Plus.png", e -> zoom(1.15));
+		JButton minusZoom = getButton(20, 20, "Minus.png", e -> zoom(1/1.15));
 		JButton up = getButton(32, 16, "ArrowUp.png", e -> pan(0, -20));
 		JButton left = getButton(16, 32, "ArrowLeft.png", e -> pan(20, 0));
 		JButton right = getButton(16, 32, "ArrowRight.png", e -> pan(-20, 0));
@@ -140,7 +140,7 @@ public class DisplayPanelCanvas extends JPanel {
 
 	public void pan(int x, int y) {
 		double zoom = vp2.getCameraHandler().getZoom();
-		vp2.getCameraHandler().translate(x * zoom,y * zoom);
+		vp2.getCameraHandler().translate(x/100.0 * zoom,y/100.0 * zoom);
 	}
 
 	private void setupCopyPaste(ViewportTransferHandler viewportTransferHandler) {
