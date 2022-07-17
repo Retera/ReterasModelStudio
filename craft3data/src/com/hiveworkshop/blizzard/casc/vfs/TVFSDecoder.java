@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.hiveworkshop.ReteraCASCUtils;
 import com.hiveworkshop.blizzard.casc.Key;
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
 
@@ -155,7 +156,9 @@ public class TVFSDecoder {
 					storageBuffer.get(encodingKeyDecoder);
 
 					final int physicalSize = storageBuffer.getInt();
-					storageBuffer.get();
+					if (!ReteraCASCUtils.LOAD_OLD_131_FORMAT) {
+						storageBuffer.get();
+					}
 					final int actualSize = storageBuffer.getInt();
 
 					final StorageReference reference = new StorageReference(offset, size, new Key(encodingKeyDecoder),
@@ -177,7 +180,7 @@ public class TVFSDecoder {
 
 		// check identifier
 
-		if ((localBuffer.remaining() < IDENTIFIER.remaining())
+		if (localBuffer.remaining() < IDENTIFIER.remaining()
 				|| !localBuffer.limit(IDENTIFIER.remaining()).equals(IDENTIFIER)) {
 			throw new MalformedCASCStructureException("missing TVFS identifier");
 		}
@@ -204,20 +207,20 @@ public class TVFSDecoder {
 
 			pathOffset = localBuffer.getInt();
 			pathSize = localBuffer.getInt();
-			if ((Integer.toUnsignedLong(pathOffset) + Integer.toUnsignedLong(pathSize)) > localBuffer.capacity()) {
+			if (Integer.toUnsignedLong(pathOffset) + Integer.toUnsignedLong(pathSize) > localBuffer.capacity()) {
 				throw new MalformedCASCStructureException("path stream extends past end of file");
 			}
 
 			fileReferenceOffset = localBuffer.getInt();
 			fileReferenceSize = localBuffer.getInt();
-			if ((Integer.toUnsignedLong(fileReferenceOffset) + Integer.toUnsignedLong(fileReferenceSize)) > localBuffer
+			if (Integer.toUnsignedLong(fileReferenceOffset) + Integer.toUnsignedLong(fileReferenceSize) > localBuffer
 					.capacity()) {
 				throw new MalformedCASCStructureException("logical data extends past end of file");
 			}
 
 			cascReferenceOffset = localBuffer.getInt();
 			cascReferenceSize = localBuffer.getInt();
-			if ((Integer.toUnsignedLong(cascReferenceOffset) + Integer.toUnsignedLong(cascReferenceSize)) > localBuffer
+			if (Integer.toUnsignedLong(cascReferenceOffset) + Integer.toUnsignedLong(cascReferenceSize) > localBuffer
 					.capacity()) {
 				throw new MalformedCASCStructureException("storage data extends past end of file");
 			}
@@ -227,7 +230,7 @@ public class TVFSDecoder {
 			throw new MalformedCASCStructureException("header goes out of bounds");
 		}
 
-		contentsOffsetSize = Math.max(1, Integer.BYTES - (Integer.numberOfLeadingZeros(cascReferenceSize) / Byte.SIZE));
+		contentsOffsetSize = Math.max(1, Integer.BYTES - Integer.numberOfLeadingZeros(cascReferenceSize) / Byte.SIZE);
 		contentsOffsetDecoder.putInt(0, 0);
 
 		localBuffer.limit(pathOffset + pathSize);

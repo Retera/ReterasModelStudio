@@ -90,7 +90,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 				setModel(buildTreeModel(modelViewManager));
 				final TreePath newRootPath = new TreePath(getModel().getRoot());
 				final List<TreePath> pathsToExpand = new ArrayList<>();
-				while ((expandedDescendants != null) && expandedDescendants.hasMoreElements()) {
+				while (expandedDescendants != null && expandedDescendants.hasMoreElements()) {
 					final TreePath nextPathToExpand = expandedDescendants.nextElement();
 					TreePath newPathWithNewObjects = newRootPath;
 					JCheckBoxTreeNode currentNode = (JCheckBoxTreeNode) getModel().getRoot();
@@ -98,7 +98,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 						final JCheckBoxTreeNode pathComponent = (JCheckBoxTreeNode) nextPathToExpand
 								.getPathComponent(i);
 						boolean foundMatchingChild = false;
-						for (int j = 0; (j < currentNode.getChildCount()) && !foundMatchingChild; j++) {
+						for (int j = 0; j < currentNode.getChildCount() && !foundMatchingChild; j++) {
 							final JCheckBoxTreeNode childAt = (JCheckBoxTreeNode) currentNode.getChildAt(j);
 							if (asElement(childAt.getUserObject())
 									.hasSameItem(asElement(pathComponent.getUserObject()))) {
@@ -163,7 +163,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 				parentTreeNode.add(treeNode);
 			}
 			final List<JCheckBoxTreeNode> childrenNeedingLinkToCurrentNode = nodeToChildrenAwaitingLink.get(object);
-			if ((childrenNeedingLinkToCurrentNode != null)
+			if (childrenNeedingLinkToCurrentNode != null
 					&& !Collection.Util.isEmpty(childrenNeedingLinkToCurrentNode)) {
 				for (final JCheckBoxTreeNode child : childrenNeedingLinkToCurrentNode) {
 					treeNode.add(child);
@@ -268,7 +268,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		protected abstract String getName(T item, ModelViewManager modelViewManager);
 
 		public boolean hasSameItem(final CheckableDisplayElement<?> other) {
-			return (other.item == item) || ((item != null) && item.equals(other.item));
+			return other.item == item || item != null && item.equals(other.item);
 		}
 	}
 
@@ -288,10 +288,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 
 		@Override
 		protected String getName(final Geoset item, final ModelViewManager modelViewManager) {
-			if ((item.getLevelOfDetailName() != null) && (item.getLevelOfDetailName().length() > 0)) {
-				return item.getLevelOfDetailName();
-			}
-			return "Geoset " + (modelViewManager.getModel().getGeosetId(item) + 1);
+			return item.getUIName(modelViewManager.getModel());
 		}
 
 		@Override

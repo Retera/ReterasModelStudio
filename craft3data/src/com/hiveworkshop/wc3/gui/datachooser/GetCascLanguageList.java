@@ -15,7 +15,7 @@ import com.hiveworkshop.nio.ByteBufferInputStream;
 public class GetCascLanguageList {
 	public static void main(final String[] args) {
 		try {
-			final WarcraftIIICASC casc = new WarcraftIIICASC(Paths.get("C:/Program Files/Warcraft III"), true);
+			final WarcraftIIICASC casc = new WarcraftIIICASC(Paths.get("C:/Program Files/Warcraft III"), true, CascDataSource.Product.WARCRAFT_III.getKey());
 			final FileSystem rootFileSystem = casc.getRootFileSystem();
 			if (rootFileSystem.isFile("index") && rootFileSystem.isFileAvailable("index")) {
 				final ByteBuffer buffer = rootFileSystem.readFileData("index");

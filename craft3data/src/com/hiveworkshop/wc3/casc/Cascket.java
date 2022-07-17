@@ -19,6 +19,7 @@ import com.hiveworkshop.blizzard.casc.vfs.VirtualFileSystem.PathResult;
 import com.hiveworkshop.json.JSONArray;
 import com.hiveworkshop.json.JSONObject;
 import com.hiveworkshop.json.JSONTokener;
+import com.hiveworkshop.wc3.gui.datachooser.CascDataSource;
 import com.hiveworkshop.wc3.mpq.Codebase;
 import com.hiveworkshop.wc3.user.WindowsRegistry;
 
@@ -73,7 +74,7 @@ public class Cascket implements Codebase {
 		// final var localIndexFile = Paths.get("C:\\Program Files (x86)\\StarCraft
 		// II\\SC2Data\\data\\0000000139.idx");
 		try {
-			warcraftIIICASC = new WarcraftIIICASC(Paths.get(warcraft3InstallPath), true);
+			warcraftIIICASC = new WarcraftIIICASC(Paths.get(warcraft3InstallPath), true, CascDataSource.Product.WARCRAFT_III.getKey());
 			rootFileSystem = warcraftIIICASC.getRootFileSystem();
 			listFile = rootFileSystem.enumerateFiles();
 			final String locale = predictLocalization();

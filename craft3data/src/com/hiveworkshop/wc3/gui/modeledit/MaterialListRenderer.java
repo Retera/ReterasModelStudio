@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
 import javax.swing.DefaultListCellRenderer;
@@ -27,9 +28,11 @@ public class MaterialListRenderer extends DefaultListCellRenderer {
 		final String name = ((Material) value).getName();
 		ImageIcon myIcon = map.get(value);
 		if (myIcon == null) {
-			myIcon = new ImageIcon(((Material) value).getBufferedImage(model.getWrappedDataSource())
-					.getScaledInstance(64, 64, Image.SCALE_SMOOTH));
-			map.put((Material) value, myIcon);
+			final BufferedImage bufferedImage = ((Material) value).getBufferedImage(model.getWrappedDataSource());
+			if (bufferedImage != null) {
+				myIcon = new ImageIcon(bufferedImage.getScaledInstance(64, 64, Image.SCALE_SMOOTH));
+				map.put((Material) value, myIcon);
+			}
 		}
 		super.getListCellRendererComponent(list, name, index, iss, chf);
 		setIcon(myIcon);

@@ -16,7 +16,7 @@ import com.hiveworkshop.wc3.mdx.GeosetAnimationChunk;
  *
  * Eric Theller 11/10/2011
  */
-public class GeosetAnim implements VisibilitySource, Named {
+public class GeosetAnim implements VisibilitySource, Named, TimelineContainer {
 	ArrayList<AnimFlag> animFlags = new ArrayList<>();
 	double staticAlpha = -1;
 	Vertex staticColor = null;
@@ -68,7 +68,7 @@ public class GeosetAnim implements VisibilitySource, Named {
 		if ((geosetAnim.flags & 2) == 2) {
 			if (geosetAnim.geosetColor == null) {
 				final Vertex coloring = new Vertex(MdlxUtils.flipRGBtoBGR(geosetAnim.color));
-				if ((coloring.x != 1.0) || (coloring.y != 1.0) || (coloring.z != 1.0)) {
+				if (coloring.x != 1.0 || coloring.y != 1.0 || coloring.z != 1.0) {
 					setStaticColor(coloring);
 				}
 			} else {
@@ -185,7 +185,7 @@ public class GeosetAnim implements VisibilitySource, Named {
 	}
 
 	public GeosetAnim getMostVisible(final GeosetAnim partner) {
-		if ((getVisibilityFlag() != null) && (partner != null)) {
+		if (getVisibilityFlag() != null && partner != null) {
 			final AnimFlag thisFlag = getVisibilityFlag();
 			final AnimFlag thatFlag = partner.getVisibilityFlag();
 			if (thatFlag != null) {
@@ -339,5 +339,15 @@ public class GeosetAnim implements VisibilitySource, Named {
 			newVisFlag.copyFrom(flagNew);
 		}
 		setVisibilityFlag(newVisFlag);
+	}
+
+	@Override
+	public void add(final AnimFlag timeline) {
+		animFlags.add(timeline);
+	}
+
+	@Override
+	public void remove(final AnimFlag timeline) {
+		animFlags.remove(timeline);
 	}
 }

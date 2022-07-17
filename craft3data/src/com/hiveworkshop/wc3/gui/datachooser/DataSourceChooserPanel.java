@@ -59,6 +59,7 @@ import com.hiveworkshop.blizzard.casc.io.WarcraftIIICASC;
 import com.hiveworkshop.blizzard.casc.io.WarcraftIIICASC.FileSystem;
 import com.hiveworkshop.nio.ByteBufferInputStream;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
+import com.hiveworkshop.wc3.gui.datachooser.CascDataSource.Product;
 import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.user.WindowsRegistry;
 import com.jtattoo.plaf.acryl.AcrylLookAndFeel;
@@ -322,8 +323,17 @@ public class DataSourceChooserPanel extends JPanel {
 				if (result == JFileChooser.APPROVE_OPTION) {
 					final File selectedFile = fileChooser.getSelectedFile();
 					if (selectedFile != null) {
+						CascDataSource.Product product = Product.WARCRAFT_III;
+						int optionChoice = JOptionPane.showOptionDialog(DataSourceChooserPanel.this, "Choose version", "Version", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, new Object[] {"Warcraft III", "Warcraft III Public Test"},  "Warcraft III Public Test");
+						if(optionChoice < 0 || optionChoice > 1) {
+							return;
+						}
+						if(optionChoice == 1) {
+							product = Product.WARCRAFT_III_PUBLIC_TEST;
+						}
+						
 						dataSourceDescriptors
-								.add(new CascDataSourceDescriptor(selectedFile.getPath(), new ArrayList<String>()));
+								.add(new CascDataSourceDescriptor(selectedFile.getPath(), new ArrayList<String>(), product));
 						reloadTree();
 					}
 				}
@@ -530,8 +540,18 @@ public class DataSourceChooserPanel extends JPanel {
 
 	private void addWarcraft3Installation(final Path installPathPath, final boolean allowPopup) {
 		if (Files.exists(installPathPath.resolve("Data/indices"))) {
+			CascDataSource.Product product = Product.WARCRAFT_III;
+			if(allowPopup) {
+				int optionChoice = JOptionPane.showOptionDialog(this, "Choose version", "Version", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, new Object[] {"Warcraft III", "Warcraft III Public Test"},  "Warcraft III Public Test");
+				if(optionChoice < 0 || optionChoice > 1) {
+					return;
+				}
+				if(optionChoice == 1) {
+					product = Product.WARCRAFT_III_PUBLIC_TEST;
+				}
+			}
 			final CascDataSourceDescriptor dataSourceDesc = new CascDataSourceDescriptor(installPathPath.toString(),
-					new ArrayList<String>());
+					new ArrayList<String>(), product);
 			dataSourceDescriptors.add(dataSourceDesc);
 			addDefaultCASCPrefixes(installPathPath, dataSourceDesc, allowPopup);
 		} else {
@@ -660,7 +680,7 @@ public class DataSourceChooserPanel extends JPanel {
 	private void addSpecificCASCPrefix(final Path installPathPath, final CascDataSourceDescriptor dataSourceDesc) {
 		// It's CASC. Now the question: what prefixes do we use?
 		try {
-			final WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true);
+			final WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true, dataSourceDesc.getProduct().getKey());
 			final DefaultComboBoxModel<String> prefixes = new DefaultComboBoxModel<String>();
 			try {
 				final FileSystem rootFileSystem = tempCascReader.getRootFileSystem();
@@ -712,7 +732,7 @@ public class DataSourceChooserPanel extends JPanel {
 			}
 		}
 		try {
-			final WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true);
+			final WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true, dataSourceDesc.getProduct().getKey());
 			try {
 				final String tags = tempCascReader.getBuildInfo().getField(tempCascReader.getActiveRecordIndex(),
 						"Tags");

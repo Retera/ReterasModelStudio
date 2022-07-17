@@ -3,6 +3,9 @@ package com.hiveworkshop.wc3.gui.datachooser;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+
+import com.hiveworkshop.wc3.gui.datachooser.CascDataSource.Product;
 
 public class CascDataSourceDescriptor implements DataSourceDescriptor {
 	/**
@@ -11,20 +14,26 @@ public class CascDataSourceDescriptor implements DataSourceDescriptor {
 	private static final long serialVersionUID = 832549098549298820L;
 	private final String gameInstallPath;
 	private final List<String> prefixes;
+	private final CascDataSource.Product product;
 
-	public CascDataSourceDescriptor(final String gameInstallPath, final List<String> prefixes) {
+	public CascDataSourceDescriptor(final String gameInstallPath, final List<String> prefixes, CascDataSource.Product product) {
 		this.gameInstallPath = gameInstallPath;
 		this.prefixes = prefixes;
+		this.product = product;
 	}
 
 	@Override
 	public DataSource createDataSource() {
-		return new CascDataSource(gameInstallPath, prefixes.toArray(new String[prefixes.size()]));
+		CascDataSource.Product product = this.product;
+		if(product == null) {
+			product = Product.WARCRAFT_III;
+		}
+		return new CascDataSource(gameInstallPath, prefixes.toArray(new String[prefixes.size()]), product);
 	}
 
 	@Override
 	public String getDisplayName() {
-		return "CASC: " + gameInstallPath;
+		return "CASC: " + gameInstallPath + " ("+ product+")";
 	}
 
 	public void addPrefix(final String prefix) {
@@ -57,44 +66,28 @@ public class CascDataSourceDescriptor implements DataSourceDescriptor {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = (prime * result) + ((gameInstallPath == null) ? 0 : gameInstallPath.hashCode());
-		result = (prime * result) + ((prefixes == null) ? 0 : prefixes.hashCode());
-		return result;
+		return Objects.hash(gameInstallPath, prefixes, product);
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj) {
+	public boolean equals(Object obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
+		if (obj == null)
 			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
-		final CascDataSourceDescriptor other = (CascDataSourceDescriptor) obj;
-		if (gameInstallPath == null) {
-			if (other.gameInstallPath != null) {
-				return false;
-			}
-		} else if (!gameInstallPath.equals(other.gameInstallPath)) {
-			return false;
-		}
-		if (prefixes == null) {
-			if (other.prefixes != null) {
-				return false;
-			}
-		} else if (!prefixes.equals(other.prefixes)) {
-			return false;
-		}
-		return true;
+		CascDataSourceDescriptor other = (CascDataSourceDescriptor) obj;
+		return Objects.equals(gameInstallPath, other.gameInstallPath) && Objects.equals(prefixes, other.prefixes)
+				&& product == other.product;
 	}
 
 	@Override
 	public DataSourceDescriptor duplicate() {
-		return new CascDataSourceDescriptor(gameInstallPath, new ArrayList<>(prefixes));
+		return new CascDataSourceDescriptor(gameInstallPath, new ArrayList<>(prefixes), product);
+	}
+	
+	public CascDataSource.Product getProduct() {
+		return product;
 	}
 }

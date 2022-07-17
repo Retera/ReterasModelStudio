@@ -170,7 +170,7 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 						setForeground(null);
 						setBackground(settings.getSelectedUnfocusedValueColor());
 					}
-				} else if ((dataModel != null) && dataModel.hasEditedValue(row)) {
+				} else if (dataModel != null && dataModel.hasEditedValue(row)) {
 					setForeground(settings.getEditedValueColor());
 				} else {
 					setForeground(null);
@@ -362,10 +362,10 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 		for (int i = 0; i < behaviorTree.getRowCount(); i++) {
 			behaviorTree.expandRow(i);
 		}
-//		splitWithBehaviorEditor.addTab("Stats", new JScrollPane(table));
-//		splitWithBehaviorEditor.addTab("Behavior", new JScrollPane(behaviorTree));
-//		setRightComponent((splitWithBehaviorEditor));
-		setRightComponent(new JScrollPane(table));
+		splitWithBehaviorEditor.addTab("Stats", new JScrollPane(table));
+		splitWithBehaviorEditor.addTab("Behavior", new JScrollPane(behaviorTree));
+		setRightComponent(splitWithBehaviorEditor);
+//		setRightComponent(new JScrollPane(table));
 
 		tree.addTreeSelectionListener(this);
 		tree.selectFirstUnit();

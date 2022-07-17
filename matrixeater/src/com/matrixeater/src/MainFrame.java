@@ -1,7 +1,6 @@
 package com.matrixeater.src;
 
 import java.awt.Color;
-import java.awt.Image;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -10,7 +9,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
@@ -27,7 +25,6 @@ import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceChooserPanel;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
-import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.resources.Resources;
@@ -50,8 +47,6 @@ import net.infonode.gui.laf.InfoNodeLookAndFeelThemes;
  * @version (a version number or a date)
  */
 public class MainFrame extends JFrame {
-	public static final Image MAIN_PROGRAM_ICON = new ImageIcon(RMSIcons.loadProgramImage("BTNFlyingSheep.png"))
-			.getImage();
 	static MainFrame frame;
 	static MainPanel panel;
 	static JMenuBar menuBar;
@@ -64,7 +59,7 @@ public class MainFrame extends JFrame {
 		final boolean hasArgs = args.length >= 1;
 		final List<String> startupModelPaths = new ArrayList<>();
 		if (hasArgs) {
-			if ((args.length > 1) && args[0].equals("-convert")) {
+			if (args.length > 1 && args[0].equals("-convert")) {
 				final String path = args[1];
 				final EditableModel model = EditableModel.read(new File(path));
 				if (path.toLowerCase().endsWith(".mdx")) {
@@ -145,9 +140,9 @@ public class MainFrame extends JFrame {
 				break;
 			case DEMONIC_MEME:
 				try {
-					final InfoNodeLookAndFeelTheme theme = new InfoNodeLookAndFeelTheme("DRMS",
-							new Color(46, 20, 20), new Color(126, 50, 36), new Color(46, 20, 20),
-							new Color(220, 172, 52), new Color(126, 56, 36), new Color(220, 172, 52));
+					final InfoNodeLookAndFeelTheme theme = new InfoNodeLookAndFeelTheme("DRMS", new Color(46, 20, 20),
+							new Color(126, 50, 36), new Color(46, 20, 20), new Color(220, 172, 52),
+							new Color(126, 56, 36), new Color(220, 172, 52));
 					theme.setShadingFactor(-0.8);
 					theme.setDesktopColor(new Color(82, 60, 44));
 
@@ -283,7 +278,7 @@ public class MainFrame extends JFrame {
 				public void run() {
 					try {
 						final List<DataSourceDescriptor> dataSources = SaveProfile.get().getDataSources();
-						if ((dataSources == null) || dataPromptForced) {
+						if (dataSources == null || dataPromptForced) {
 							final DataSourceChooserPanel dataSourceChooserPanel = new DataSourceChooserPanel(
 									dataSources);
 //							JF
@@ -293,7 +288,7 @@ public class MainFrame extends JFrame {
 							jFrame.pack();
 							jFrame.setSize(0, 0);
 							jFrame.setLocationRelativeTo(null);
-							jFrame.setIconImage(MAIN_PROGRAM_ICON);
+							jFrame.setIconImage(MainPanel.MAIN_PROGRAM_ICON);
 							jFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 							jFrame.setVisible(true);
 							try {
@@ -377,7 +372,7 @@ public class MainFrame extends JFrame {
 		setContentPane(panel);
 		menuBar = panel.createMenuBar();
 		setJMenuBar(menuBar);// MainFrame.class.getResource("ImageBin/DDChicken2.png")
-		setIconImage(MAIN_PROGRAM_ICON);
+		setIconImage(MainPanel.MAIN_PROGRAM_ICON);
 
 		addWindowListener(new WindowAdapter() {
 			@Override

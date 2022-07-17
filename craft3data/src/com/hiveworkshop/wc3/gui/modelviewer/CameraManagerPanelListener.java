@@ -6,4 +6,6 @@ public interface CameraManagerPanelListener {
 	void setCamera(Camera camera);
 
 	void setDefaultCamera();
+
+	Camera createCameraFromCurrentView();
 }
