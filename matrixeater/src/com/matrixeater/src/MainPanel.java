@@ -3521,6 +3521,20 @@ public class MainPanel extends JPanel
 		forDarkfang.add(removeAll3D);
 		scriptsMenu.add(forDarkfang);
 
+		final JMenuItem selectHDUnused = new JMenuItem("Select HD Unused Bones");
+		selectHDUnused.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final ModelPanel mpanel = currentModelPanel();
+				if (mpanel != null) {
+					mpanel.getUndoManager()
+							.pushAction(mpanel.getModelEditorManager().getModelEditor().selectHDUnusedNodes());
+				}
+				repaint();
+			}
+		});
+		scriptsMenu.add(selectHDUnused);
+
 		final JMenuItem jokebutton = new JMenuItem("Load Retera Land");
 		jokebutton.setMnemonic(KeyEvent.VK_A);
 		jokebutton.addActionListener(new ActionListener() {

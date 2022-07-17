@@ -110,6 +110,15 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
+	public UndoAction selectHDUnusedNodes() {
+		final List<UndoAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			actions.add(handler.selectHDUnusedNodes());
+		}
+		return mergeActions(actions);
+	}
+
+	@Override
 	public UndoAction hideComponent(final ListView<? extends SelectableComponent> selectableComponents,
 			final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
 		final List<UndoAction> actions = new ArrayList<>();
@@ -134,7 +143,8 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 		for (final ModelEditor handler : set) {
 			try {
 				actions.add(handler.autoCenterSelectedBones());
-			} catch (final UnsupportedOperationException e) {
+			}
+			catch (final UnsupportedOperationException e) {
 				// don't add actions for unsupported operations
 			}
 		}
@@ -147,7 +157,8 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 		for (final ModelEditor handler : set) {
 			try {
 				actions.add(handler.setSelectedBoneName(name));
-			} catch (final UnsupportedOperationException e) {
+			}
+			catch (final UnsupportedOperationException e) {
 				// don't add actions for unsupported operations
 			}
 		}
@@ -160,7 +171,8 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 		for (final ModelEditor handler : set) {
 			try {
 				actions.add(handler.addSelectedBoneSuffix(name));
-			} catch (final UnsupportedOperationException e) {
+			}
+			catch (final UnsupportedOperationException e) {
 				// don't add actions for unsupported operations
 			}
 		}
@@ -173,7 +185,8 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 		for (final ModelEditor handler : set) {
 			try {
 				actions.add(handler.setParent(parent));
-			} catch (final UnsupportedOperationException e) {
+			}
+			catch (final UnsupportedOperationException e) {
 				// don't add actions for unsupported operations
 			}
 		}
@@ -534,7 +547,8 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 		for (final ModelEditor handler : set) {
 			try {
 				actions.add(handler.addBone(x, y, z));
-			} catch (final WrongModeException e) {
+			}
+			catch (final WrongModeException e) {
 				// don't add actions for unsupported operations
 			}
 		}

@@ -197,7 +197,8 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	private void toggleSelection(final Set<IdObject> selection, final IdObject position) {
 		if (selection.contains(position)) {
 			selection.remove(position);
-		} else {
+		}
+		else {
 			selection.add(position);
 		}
 	}
@@ -211,6 +212,14 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		}
 		selectionManager.setSelection(allSelection);
 		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all");
+	}
+
+	@Override
+	public UndoAction selectHDUnusedNodes() {
+		final ArrayList<IdObject> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		final Set<IdObject> allSelection = new HashSet<>();
+		selectionManager.setSelection(allSelection);
+		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select HD unused");
 	}
 
 	@Override
@@ -688,10 +697,11 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public UndoAction rotate(final Vertex center, final double rotateX, final double rotateY, final double rotateZ) {
-		return new CompoundAction("rotate", CollectionUtils.asList(Arrays.asList(
-				beginRotation(center.x, center.y, center.z, (byte) 2, (byte) 1).updateRotation(rotateX),
-				beginRotation(center.x, center.y, center.z, (byte) 0, (byte) 2).updateRotation(rotateY),
-				beginRotation(center.x, center.y, center.z, (byte) 1, (byte) 0).updateRotation(rotateZ))));
+		return new CompoundAction("rotate",
+				CollectionUtils.asList(Arrays.asList(
+						beginRotation(center.x, center.y, center.z, (byte) 2, (byte) 1).updateRotation(rotateX),
+						beginRotation(center.x, center.y, center.z, (byte) 0, (byte) 2).updateRotation(rotateY),
+						beginRotation(center.x, center.y, center.z, (byte) 1, (byte) 0).updateRotation(rotateZ))));
 	}
 
 	@Override

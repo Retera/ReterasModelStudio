@@ -132,7 +132,8 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 			for (final Triangle triangle : geoset.getTriangles()) {
 				if (invertedSelection.contains(triangle)) {
 					invertedSelection.remove(triangle);
-				} else {
+				}
+				else {
 					invertedSelection.add(triangle);
 				}
 			}
@@ -152,6 +153,14 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 		}
 		selectionManager.setSelection(allSelection);
 		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all");
+	}
+
+	@Override
+	public UndoAction selectHDUnusedNodes() {
+		final Set<Triangle> oldSelection = new HashSet<>(selectionManager.getSelection());
+		final Set<Triangle> allSelection = new HashSet<>();
+		selectionManager.setSelection(allSelection);
+		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select HD unused");
 	}
 
 	@Override

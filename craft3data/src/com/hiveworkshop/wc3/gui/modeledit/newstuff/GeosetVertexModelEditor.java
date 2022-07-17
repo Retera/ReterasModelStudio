@@ -138,7 +138,8 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	private void toggleSelection(final Set<GeosetVertex> selection, final GeosetVertex position) {
 		if (selection.contains(position)) {
 			selection.remove(position);
-		} else {
+		}
+		else {
 			selection.add(position);
 		}
 	}
@@ -154,6 +155,14 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 		}
 		selectionManager.setSelection(allSelection);
 		return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all"));
+	}
+
+	@Override
+	public UndoAction selectHDUnusedNodes() {
+		final ArrayList<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		final Set<GeosetVertex> allSelection = new HashSet<>();
+		selectionManager.setSelection(allSelection);
+		return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select HD unused"));
 	}
 
 	@Override
@@ -281,7 +290,8 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 						newGeosetVertex.getTriangles().clear();
 						copiedVertices.add(newGeosetVertex);
 						triangleVertices.add(newGeosetVertex);
-					} else {
+					}
+					else {
 						triangleIsFullySelected = false;
 					}
 				}
@@ -333,7 +343,8 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 			final NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, model.getModel(),
 					structureChangeListener);
 			action = new CompoundAction("add vertex", ListView.Util.of(newGeosetAction, drawVertexAction));
-		} else {
+		}
+		else {
 			action = drawVertexAction;
 		}
 		action.redo();
@@ -354,7 +365,8 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 			verticesArray[index++] = vertex;
 			if (geoset == null) {
 				geoset = vertex.getGeoset();
-			} else if (geoset != vertex.getGeoset()) {
+			}
+			else if (geoset != vertex.getGeoset()) {
 				throw new FaceCreationException(
 						"All three vertices to create a face must be a part of the same Geoset");
 			}
