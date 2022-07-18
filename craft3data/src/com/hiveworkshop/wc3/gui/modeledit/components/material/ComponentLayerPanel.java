@@ -3,6 +3,9 @@ package com.hiveworkshop.wc3.gui.modeledit.components.material;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -15,13 +18,18 @@ import javax.swing.SpinnerNumberModel;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.material.SetLayerFilterModeAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.material.SetLayerShaderAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ColorValuePanel;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorJSpinner;
+import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorTextField;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.FloatValuePanel;
+import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Layer;
 import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
+import com.hiveworkshop.wc3.mdl.LayerShader;
+import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
 import com.hiveworkshop.wc3.util.IconUtils;
 import com.hiveworkshop.wc3.util.ModelUtils;
 
@@ -29,7 +37,10 @@ import net.miginfocom.swing.MigLayout;
 
 public class ComponentLayerPanel extends JPanel {
 	private final JComboBox<FilterMode> filterModeDropdown;
-	private final JButton textureButton;
+	private final JComboBox<LayerShader> shaderOptionComboBox;
+	private ComponentEditorTextField comboBoxEditor;
+	private final EnumMap<ShaderTextureTypeHD, JButton> textureTypeToButton;
+	private final List<JLabel> nonDiffuseTextureLabels = new ArrayList<>();
 	private final LayerFlagsPanel layerFlagsPanel;
 	private final JButton tVertexAnimButton;
 	private final ComponentEditorJSpinner coordIdSpinner;
@@ -66,15 +77,42 @@ public class ComponentLayerPanel extends JPanel {
 			}
 		});
 		leftHandSettingsPanel.add(filterModeDropdown, "wrap, growx");
-		leftHandSettingsPanel.add(new JLabel("Texture:"));
-		textureButton = new JButton("Choose Texture");
-		textureButton.addActionListener(new ActionListener() {
+
+		shaderOptionComboBox = new JComboBox<LayerShader>(LayerShader.values());
+		shaderOptionComboBox.setEditable(false);
+
+		shaderOptionComboBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-
+				if (listenersEnabled) {
+					final SetLayerShaderAction setMaterialShaderStringAction = new SetLayerShaderAction(layer,
+							layer.getLayerShader(), (LayerShader) shaderOptionComboBox.getSelectedItem(),
+							modelStructureChangeListener);
+					setMaterialShaderStringAction.redo();
+					undoActionListener.pushAction(setMaterialShaderStringAction);
+				}
 			}
 		});
-		leftHandSettingsPanel.add(textureButton, "wrap, growx");
+		leftHandSettingsPanel.add(new JLabel("Shader:"));
+		leftHandSettingsPanel.add(shaderOptionComboBox, "wrap, growx, span 2");
+
+		textureTypeToButton = new EnumMap<>(ShaderTextureTypeHD.class);
+		for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
+			final JLabel shaderTextureLabel = new JLabel(shaderTextureTypeHD.name() + " Texture:");
+			if (shaderTextureTypeHD != ShaderTextureTypeHD.Diffuse) {
+				nonDiffuseTextureLabels.add(shaderTextureLabel);
+			}
+			leftHandSettingsPanel.add(shaderTextureLabel);
+			final JButton textureButton = new JButton("Choose Texture");
+			textureButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(final ActionEvent e) {
+
+				}
+			});
+			leftHandSettingsPanel.add(textureButton, "wrap, growx");
+			textureTypeToButton.put(shaderTextureTypeHD, textureButton);
+		}
 		coordIdSpinner = new ComponentEditorJSpinner(
 				new SpinnerNumberModel(0, Integer.MIN_VALUE, Integer.MAX_VALUE, 1));
 		leftHandSettingsPanel.add(new JLabel("TVertex Anim:"));
@@ -97,21 +135,33 @@ public class ComponentLayerPanel extends JPanel {
 	}
 
 	public void setLayer(final DataSource workingDirectory, final Layer layer, final int formatVersion,
-			final boolean hdShader, final UndoActionListener undoActionListener,
+			final UndoActionListener undoActionListener,
 			final ModelStructureChangeListener modelStructureChangeListener) {
+		final boolean hdShader = layer.getLayerShader() == LayerShader.HD;
 		listenersEnabled = false;
 		this.layer = layer;
 		this.undoActionListener = undoActionListener;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		layerFlagsPanel.setLayer(layer);
 		filterModeDropdown.setSelectedItem(layer.getFilterMode());
-		if (layer.getTextureBitmap() != null) {
-			final BufferedImage image = BLPHandler.getImage(layer.getTextureBitmap(), workingDirectory);
-			if (image != null) {
-				textureButton.setIcon(new ImageIcon(IconUtils.worldEditStyleIcon(image)));
+		for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
+			final JButton textureButton = textureTypeToButton.get(shaderTextureTypeHD);
+
+			final Bitmap textureBitmap = layer.getShaderTextures().get(shaderTextureTypeHD);
+			if (textureBitmap != null) {
+				final BufferedImage image = BLPHandler.getImage(textureBitmap, workingDirectory);
+				if (image != null) {
+					textureButton.setIcon(new ImageIcon(IconUtils.worldEditStyleIcon(image)));
+				}
+			}
+			textureButton.setText(layer.getTextureName(textureBitmap));
+			if (shaderTextureTypeHD != ShaderTextureTypeHD.Diffuse) {
+				textureButton.setVisible(hdShader);
 			}
 		}
-		textureButton.setText(layer.getName());
+		for (final JLabel label : nonDiffuseTextureLabels) {
+			label.setVisible(hdShader);
+		}
 		coordIdSpinner.reloadNewValue(layer.getCoordId());
 		tVertexAnimButton.setText(layer.getTextureAnim() == null ? "None" : layer.getTextureAnim().toString());
 		alphaPanel.reloadNewValue((float) layer.getStaticAlpha(), layer.getFlag("Alpha"));
@@ -124,6 +174,7 @@ public class ComponentLayerPanel extends JPanel {
 		fresnelOpacityPanel.reloadNewValue((float) layer.getFresnelOpacity(), layer.getFlag("FresnelOpacity"));
 		fresnelTeamColor.setVisible(fresnelColorLayerSupported);
 		fresnelTeamColor.reloadNewValue((float) layer.getFresnelTeamColor(), layer.getFlag("FresnelTeamColor"));
+		shaderOptionComboBox.setSelectedIndex(layer.getLayerShader().ordinal());
 		listenersEnabled = true;
 	}
 }

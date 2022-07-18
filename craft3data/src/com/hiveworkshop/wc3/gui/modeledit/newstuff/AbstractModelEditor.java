@@ -55,6 +55,7 @@ import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.Matrix;
 import com.hiveworkshop.wc3.mdl.Normal;
+import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -104,7 +105,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 							gv.getSkinBoneWeights()[i] += offset;
 						}
 					}
-				} else {
+				}
+				else {
 					vertexToOldBoneReferences.put(gv, new ArrayList<>(gv.getBoneAttachments()));
 					gv.clearBoneAttachments();
 					gv.addBoneAttachments(mx.getBones());
@@ -160,7 +162,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 			for (final Geoset geoset : model.getEditableGeosets()) {
 				geosetsToIncorporate.add(geoset);
 			}
-		} else {
+		}
+		else {
 			for (final Geoset geoset : model.getModel().getGeosets()) {
 				geosetsToIncorporate.add(geoset);
 			}
@@ -210,7 +213,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		if (remGeosets.size() <= 0) {
 			final DeleteAction temp = new DeleteAction(selection, deletedTris, vertexSelectionHelper);
 			return temp;
-		} else {
+		}
+		else {
 			final SpecialDeleteAction temp = new SpecialDeleteAction(selection, deletedTris, vertexSelectionHelper,
 					remGeosets, model.getModel(), structureChangeListener);
 			structureChangeListener.geosetsRemoved(remGeosets);
@@ -286,7 +290,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 						selTris.add(temptr);
 					}
 				}
-			} else {
+			}
+			else {
 				copies.add(null);
 				// System.out.println("GeosetVertex " + i + " was not found.");
 			}
@@ -497,7 +502,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 						selTris.add(temptr);
 					}
 				}
-			} else {
+			}
+			else {
 				// copies.add(null);
 				// System.out.println("GeosetVertex " + i + " was not found.");
 			}
@@ -524,7 +530,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 						if (gv == null) {
 							gv = a;
 							gvCopy = b;
-						} else if (gvTemp == null) {
+						}
+						else if (gvTemp == null) {
 							gvTemp = a;
 							gvTempCopy = b;
 						}
@@ -628,7 +635,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				newVertices.add(new GeosetVertex(gv));
-			} else {
+			}
+			else {
 				newVertices.add(null);
 			}
 		}
@@ -819,8 +827,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		for (final Geoset geoset : geosets) {
 			final Layer firstLayer = geoset.getMaterial().firstLayer();
 			if ((geoset.getMaterial() != null) && (firstLayer != null)
-					&& (firstLayer.getFilterMode() == FilterMode.NONE)
-					&& "Textures\\white.blp".equalsIgnoreCase(firstLayer.getTextureBitmap().getPath())) {
+					&& (firstLayer.getFilterMode() == FilterMode.NONE) && "Textures\\white.blp".equalsIgnoreCase(
+							firstLayer.getShaderTextures().get(ShaderTextureTypeHD.Diffuse).getPath())) {
 				solidWhiteGeoset = geoset;
 			}
 		}
@@ -838,7 +846,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 					structureChangeListener);
 			action = new CompoundMoveAction("create plane",
 					ListView.Util.of(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
-		} else {
+		}
+		else {
 			action = drawVertexAction;
 		}
 		action.redo();
@@ -855,8 +864,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		for (final Geoset geoset : geosets) {
 			final Layer firstLayer = geoset.getMaterial().firstLayer();
 			if ((geoset.getMaterial() != null) && (firstLayer != null)
-					&& (firstLayer.getFilterMode() == FilterMode.NONE)
-					&& "Textures\\white.blp".equalsIgnoreCase(firstLayer.getTextureBitmap().getPath())) {
+					&& (firstLayer.getFilterMode() == FilterMode.NONE) && "Textures\\white.blp".equalsIgnoreCase(
+							firstLayer.getShaderTextures().get(ShaderTextureTypeHD.Diffuse).getPath())) {
 				solidWhiteGeoset = geoset;
 			}
 		}
@@ -874,7 +883,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 					structureChangeListener);
 			action = new CompoundMoveAction("create plane",
 					ListView.Util.of(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
-		} else {
+		}
+		else {
 			action = drawVertexAction;
 		}
 		action.redo();

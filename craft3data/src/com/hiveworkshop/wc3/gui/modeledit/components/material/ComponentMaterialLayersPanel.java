@@ -44,7 +44,7 @@ public class ComponentMaterialLayersPanel extends JPanel {
 		this.material = material;
 		this.undoActionListener = undoActionListener;
 		this.modelStructureChangeListener = modelStructureChangeListener;
-		final boolean hdShader = Material.SHADER_HD_DEFAULT_UNIT.equals(material.getShaderString());
+		final boolean hdShader = false;// Material.SHADER_HD_DEFAULT_UNIT.equals(material.getShaderString());
 
 		if (currentlyDisplayedLayerCount != material.getLayers().size()) {
 			removeAll();
@@ -57,7 +57,8 @@ public class ComponentMaterialLayersPanel extends JPanel {
 					panel = cachedLayerPanels.get(i);
 					layerLabel = cachedLayerLabels.get(i);
 					layerDeleteButton = cachedLayerDeleteButtons.get(i);
-				} else {
+				}
+				else {
 					panel = new ComponentLayerPanel();
 					layerLabel = new JLabel("Layer");
 					layerDeleteButton = new JButton("Delete");
@@ -71,17 +72,19 @@ public class ComponentMaterialLayersPanel extends JPanel {
 					String reforgedDefintion;
 					if (i < REFORGED_LAYER_DEFINITIONS.length) {
 						reforgedDefintion = REFORGED_LAYER_DEFINITIONS[i];
-					} else {
+					}
+					else {
 						reforgedDefintion = "Unknown";
 					}
 					layerLabel.setText(reforgedDefintion + " Layer");
 					layerLabel.setFont(layerLabel.getFont().deriveFont(Font.BOLD));
-				} else {
+				}
+				else {
 					layerLabel.setText("Layer " + (i + 1));
 					layerLabel.setFont(layerLabel.getFont().deriveFont(Font.PLAIN));
 				}
 				panel.setLayer(modelViewManager.getModel().getWrappedDataSource(), layer,
-						modelViewManager.getModel().getFormatVersion(), hdShader, undoActionListener,
+						modelViewManager.getModel().getFormatVersion(), undoActionListener,
 						modelStructureChangeListener);
 				add(layerLabel);
 				add(layerDeleteButton, "wrap");
@@ -91,12 +94,13 @@ public class ComponentMaterialLayersPanel extends JPanel {
 			revalidate();
 			repaint();
 			currentlyDisplayedLayerCount = material.getLayers().size();
-		} else {
+		}
+		else {
 			for (int i = 0; i < material.getLayers().size(); i++) {
 				final Layer layer = material.getLayers().get(i);
 				final ComponentLayerPanel panel = cachedLayerPanels.get(i);
 				panel.setLayer(modelViewManager.getModel().getWrappedDataSource(), layer,
-						modelViewManager.getModel().getFormatVersion(), hdShader, undoActionListener,
+						modelViewManager.getModel().getFormatVersion(), undoActionListener,
 						modelStructureChangeListener);
 			}
 

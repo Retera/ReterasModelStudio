@@ -9,10 +9,10 @@ import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Bone;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Layer;
-import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
@@ -113,7 +113,6 @@ public class GenModels3 {
 		int geosetId = 0;
 		for (final Geoset geoset : geosets) {
 			final Material material = new Material(new Layer("Blend", cloudsTexture));
-			material.setShaderString("Shader_SD_FixedFunction");
 			geoset.setMaterial(material);
 			System.out.println(geoset.getVertices().size());
 			final ArrayList<GeosetVertex> vertices = geoset.getVertices();
@@ -137,7 +136,8 @@ public class GenModels3 {
 			for (final Animation anim : model.getAnims()) {
 				if (anim == existingMorph) {
 					alphaData.addEntry(anim.getStart(), 1);
-				} else {
+				}
+				else {
 					alphaData.addEntry(anim.getStart(), 0);
 				}
 			}

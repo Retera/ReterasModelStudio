@@ -7,12 +7,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.hiveworkshop.wc3.mdl.Bitmap;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Layer;
-import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.Normal;
+import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.owens.oobjloader.parser.BuilderInterface;
@@ -23,7 +24,7 @@ public class MDLOBJBuilderInterface implements BuilderInterface {
 	private final List<Vertex> verticesGeometric = new ArrayList<Vertex>();
 	private final List<TVertex> tvertices = new ArrayList<TVertex>();
 	private final List<Normal> normals = new ArrayList<Normal>();
-	private final Map<String,Material> nameToMaterial = new HashMap<String,Material>();
+	private final Map<String, Material> nameToMaterial = new HashMap<String, Material>();
 	private final Geoset currentGeoset = new Geoset();
 
 	public MDLOBJBuilderInterface() {
@@ -110,7 +111,7 @@ public class MDLOBJBuilderInterface implements BuilderInterface {
 		System.out.println("setCurrentUseMaterial(" + name + ")");
 		final Layer lay = new Layer("None", -1);
 		currentGeoset.setMaterial(new Material(lay));
-		lay.setTexture(new Bitmap(name, -1));
+		lay.getShaderTextures().put(ShaderTextureTypeHD.Diffuse, new Bitmap(name, -1));
 	}
 
 	@Override

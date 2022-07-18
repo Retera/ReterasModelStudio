@@ -39,6 +39,7 @@ import com.hiveworkshop.wc3.mdl.Layer;
 import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.Normal;
+import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
@@ -322,8 +323,8 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 		for (final Geoset geoset : geosets) {
 			final Layer firstLayer = geoset.getMaterial().firstLayer();
 			if ((geoset.getMaterial() != null) && (firstLayer != null)
-					&& (firstLayer.getFilterMode() == FilterMode.NONE)
-					&& "Textures\\white.blp".equalsIgnoreCase(firstLayer.getTextureBitmap().getPath())) {
+					&& (firstLayer.getFilterMode() == FilterMode.NONE) && "Textures\\white.blp".equalsIgnoreCase(
+							firstLayer.getShaderTextures().get(ShaderTextureTypeHD.Diffuse).getPath())) {
 				solidWhiteGeoset = geoset;
 			}
 		}
