@@ -10,39 +10,25 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
-import com.hiveworkshop.rms.util.WindowsRegistry;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 public class DataSourceChooserPanel extends JPanel {
 
-	private final List<DataSourceDescriptor> dataSourceDescriptors;
-	private final JFileChooser fileChooser;
 	private final DataSourceTree dataSourceTree;
-	private String wcDirectory;
-	private final AddDataSources addDataSources = new AddDataSources();
+	private final DataSourceTracker dataSourceTracker;
 
 	public DataSourceChooserPanel(final List<DataSourceDescriptor> dataSourceDescriptorDefaults) {
 		setLayout(new MigLayout("fill, gap 0", "[sg group1][grow][sg group1]", "[][]"));
-		dataSourceDescriptors = new ArrayList<>();
-		fileChooser = new JFileChooser();
-
-		getWindowsRegistryDirectory();
-
-		dataSourceTree = new DataSourceTree(dataSourceDescriptors);
+		dataSourceTracker = new DataSourceTracker(dataSourceDescriptorDefaults, this);
+		dataSourceTree = new DataSourceTree(dataSourceTracker.getDataSourceDescriptors(), this);
 
 		JPanel leftPanel = getLeftPanel();
-
 		JPanel rightPanel = getRightPanel();
-
 
 		JScrollPane dstScrollpane = new JScrollPane(dataSourceTree);
 		dstScrollpane.setPreferredSize(new Dimension(500, 400));
@@ -55,14 +41,14 @@ public class DataSourceChooserPanel extends JPanel {
 		add(bottomPanel, "spanx");
 
 		dataSourceTree.setCellRenderer(new DataTreeRenderer());
-
-		loadDefaults(dataSourceDescriptorDefaults);
+		dataSourceTree.reloadTree();
 	}
 
 	private JPanel getBottomPanel() {
 		JLabel warcraft3InstallLocated = new JLabel("'Path' Registry Key: ");
 		warcraft3InstallLocated.setFont(new Font("Consolas", Font.BOLD, getFont().getSize()));
 
+		String wcDirectory = dataSourceTracker.getWcDirectory();
 		JLabel warcraft3InstallPath = new JLabel(wcDirectory == null ? "Not found" : wcDirectory);
 		warcraft3InstallPath.setFont(new Font("Consolas", Font.PLAIN, getFont().getSize()));
 		if (wcDirectory == null) {
@@ -77,8 +63,8 @@ public class DataSourceChooserPanel extends JPanel {
 
 	private JPanel getLeftPanel() {
 		JButton clearList = getButton("Clear All", e -> clearAll(), true);
-		JButton addWarcraft3Installation = getButton("Add War3 Install Directory", e -> addSource(addDataSources.addWar3InstallDirectory()), true);
-		JButton resetAllToDefaults = getButton("Reset to Defaults", e -> loadDefaults(null), true);
+		JButton addWarcraft3Installation = getButton("Add War3 Install Directory", e -> dataSourceTracker.addWar3InstallDirectory(dataSourceTree::reloadTree), true);
+		JButton resetAllToDefaults = getButton("Reset to Defaults", e -> loadDefaults(), true);
 
 		JButton enterHDMode = getButton("Reforged Graphics Mode", e -> enterHDMode(), true);
 		JButton enterSDMode = getButton("Classic Graphics Mode", e -> enterSDMode(), true);
@@ -94,30 +80,22 @@ public class DataSourceChooserPanel extends JPanel {
 	}
 
 	private JPanel getRightPanel() {
-		JButton addCASCButton = getButton("Add CASC", e -> addSource(addDataSources.addCASC()), true);
-		JButton addMPQButton = getButton("Add MPQ", e -> addSource(addDataSources.addMPQ()), true);
-		JButton addFolderButton = getButton("Add Folder", e -> addSource(addDataSources.addFolder()), true);
-
-		JButton addDefaultCascPrefixes = getButton("Add Default CASC Mod", e -> dataSourceTree.addDefaultCASCMod(), false);
-		JButton addSpecificCascPrefix = getButton("Add Specific CASC Mod", e -> dataSourceTree.addSpecificCASCMod(), false);
-
-		JButton deleteSelection = getButton("Delete Selection", e -> dataSourceTree.deleteSelection(), false);
-		JButton moveSelectionUp = getButton("Move Up", e -> dataSourceTree.move(true), false);
-		JButton moveSelectionDown = getButton("Move Down", e -> dataSourceTree.move(false), false);
+		JButton addCASCButton = getButton("Add CASC", e -> dataSourceTracker.addCASC(dataSourceTree::reloadTree), true);
+		JButton addMPQButton = getButton("Add MPQ", e -> dataSourceTracker.addMPQ(dataSourceTree::reloadTree), true);
+		JButton addFolderButton = getButton("Add Folder", e -> dataSourceTracker.addFolder(dataSourceTree::reloadTree), true);
 
 		JPanel rightPanel = new JPanel(new MigLayout("gap 0, ins 0"));
 		rightPanel.add(addCASCButton, "growx, wrap");
 		rightPanel.add(addMPQButton, "growx, wrap");
 		rightPanel.add(addFolderButton, "growx, wrap");
 		rightPanel.add(new JLabel("-----"), "alignx center, wrap");
-		rightPanel.add(addDefaultCascPrefixes, "growx, wrap");
-		rightPanel.add(addSpecificCascPrefix, "growx, wrap");
+		rightPanel.add(dataSourceTree.getAddDefaultCascButton(), "growx, wrap");
+		rightPanel.add(dataSourceTree.getAddSpecificCascButton(), "growx, wrap");
 		rightPanel.add(new JLabel("-----"), "alignx center, wrap");
-		rightPanel.add(deleteSelection, "growx, wrap");
-		rightPanel.add(moveSelectionUp, "growx, wrap");
-		rightPanel.add(moveSelectionDown, "growx, wrap");
+		rightPanel.add(dataSourceTree.getDeleteButton(), "growx, wrap");
+		rightPanel.add(dataSourceTree.getMoveUpButton(), "growx, wrap");
+		rightPanel.add(dataSourceTree.getMoveDownButton(), "growx, wrap");
 
-		dataSourceTree.addTreeSelectionListener(e -> dataSourceTreeListener(addDefaultCascPrefixes, addSpecificCascPrefix, deleteSelection, moveSelectionUp, moveSelectionDown, e));
 		return rightPanel;
 	}
 
@@ -129,64 +107,13 @@ public class DataSourceChooserPanel extends JPanel {
 	}
 
 	private void clearAll() {
-		dataSourceDescriptors.clear();
+		dataSourceTracker.clear();
 		dataSourceTree.reloadTree();
 	}
 
-	private void dataSourceTreeListener(JButton addDefaultCascPrefixes,
-	                                    JButton addSpecificCascPrefix,
-	                                    JButton deleteSelection,
-	                                    JButton moveSelectionUp,
-	                                    JButton moveSelectionDown,
-	                                    javax.swing.event.TreeSelectionEvent e) {
-
-		TreePath selectionPath = e.getNewLeadSelectionPath();
-
-		boolean cascSelected = dataSourceTree.isCascSelected(selectionPath);
-		addDefaultCascPrefixes.setEnabled(cascSelected);
-		addSpecificCascPrefix.setEnabled(cascSelected);
-
-		deleteSelection.setEnabled(selectionPath != null);
-
-		moveSelectionUp.setEnabled(dataSourceTree.canMoveUp(selectionPath));
-		moveSelectionDown.setEnabled(dataSourceTree.canMoveDown(selectionPath));
-	}
-
-
-	private void getWindowsRegistryDirectory() {
-		String usrSw = "HKEY_CURRENT_USER\\Software\\";
-		String beW3 = "Blizzard Entertainment\\Warcraft III";
-		wcDirectory = WindowsRegistry.readRegistry(usrSw + beW3, "InstallPathX");
-		if (wcDirectory == null) {
-			wcDirectory = WindowsRegistry.readRegistry(usrSw + beW3, "InstallPathX");
-		}
-		if (wcDirectory == null) {
-			wcDirectory = WindowsRegistry.readRegistry(
-					usrSw + "Classes\\VirtualStore\\MACHINE\\SOFTWARE\\Wow6432Node\\" + beW3,
-					"InstallPath");
-		}
-		if (wcDirectory != null) {
-			wcDirectory = wcDirectory.trim();
-			fileChooser.setCurrentDirectory(new File(wcDirectory));
-		}
-	}
-
-	private void addSource(DataSourceDescriptor sourceDescriptor){
-		if(sourceDescriptor != null){
-			dataSourceDescriptors.add(sourceDescriptor);
-			dataSourceTree.reloadTree();
-		}
-	}
-	private void addSource(List<DataSourceDescriptor> sourceDescriptors){
-		if(sourceDescriptors != null){
-			dataSourceDescriptors.addAll(sourceDescriptors);
-			dataSourceTree.reloadTree();
-		}
-	}
-
 	private void enterSDMode() {
-		if ((dataSourceDescriptors.size() == 1) && (dataSourceDescriptors.get(0) instanceof CascDataSourceDescriptor)) {
-			CascDataSourceDescriptor casc = (CascDataSourceDescriptor) dataSourceDescriptors.get(0);
+		CascDataSourceDescriptor casc = dataSourceTracker.getCascDataSourceDescriptor();
+		if (casc != null) {
 			if (casc.getPrefixes().size() == 5) {
 				casc.deletePrefix(4);
 				casc.deletePrefix(3);
@@ -204,8 +131,8 @@ public class DataSourceChooserPanel extends JPanel {
 	}
 
 	private void enterHDMode() {
-		if ((dataSourceDescriptors.size() == 1) && (dataSourceDescriptors.get(0) instanceof CascDataSourceDescriptor)) {
-			final CascDataSourceDescriptor casc = (CascDataSourceDescriptor) dataSourceDescriptors.get(0);
+		CascDataSourceDescriptor casc  = dataSourceTracker.getCascDataSourceDescriptor();
+		if (casc != null) {
 			if (casc.getPrefixes().size() == 3) {
 				String localesMod = getLocalesMod(casc);
 				if (localesMod != null) {
@@ -241,22 +168,13 @@ public class DataSourceChooserPanel extends JPanel {
 		return localesMod;
 	}
 
-	protected void loadDefaults(final List<DataSourceDescriptor> dataSourceDescriptorDefaults) {
-		dataSourceDescriptors.clear();
-		if (dataSourceDescriptorDefaults == null) {
-			if (wcDirectory != null) {
-				dataSourceDescriptors.addAll(addDataSources.addWarcraft3Installation(Paths.get(wcDirectory), false));
-			}
-		} else {
-			for (final DataSourceDescriptor dataSourceDescriptor : dataSourceDescriptorDefaults) {
-				dataSourceDescriptors.add(dataSourceDescriptor.duplicate());
-			}
-		}
+	protected void loadDefaults() {
+		dataSourceTracker.loadDefaults(null);
 		dataSourceTree.reloadTree();
 	}
 
 	public List<DataSourceDescriptor> getDataSourceDescriptors() {
-		return dataSourceDescriptors;
+		return dataSourceTracker.getDataSourceDescriptors();
 	}
 
 

@@ -17,8 +17,12 @@ import java.util.*;
 
 public class LocaleChooser {
 
-	public static String getLocale(boolean allowPopup, String launcherDbLocale, String originalInstallLocale, WarcraftIIICASC tempCascReader,
-	                         SupportedCascPatchFormat patchFormat, WC3CascFileSystem rootFileSystem) throws IOException {
+	public static String getLocale(boolean allowPopup, Component parent,
+	                               String launcherDbLocale,
+	                               String originalInstallLocale,
+	                               WarcraftIIICASC tempCascReader,
+	                               SupportedCascPatchFormat patchFormat,
+	                               WC3CascFileSystem rootFileSystem) throws IOException {
 		// gather list of locales from CASC
 		Set<String> localeOptions = getLocaleOptions(rootFileSystem);
 		JPanel chooseLocPanel = new JPanel();
@@ -31,7 +35,7 @@ public class LocaleChooser {
 
 		SmartButtonGroup buttonGroup = getLocaleGroup(tempCascReader, patchFormat, localeOptions);
 		chooseLocPanel.add(buttonGroup.getButtonPanel());
-		int confirmationResult = allowPopup ? showConf(chooseLocPanel, "Choose Locale") : JOptionPane.OK_OPTION;
+		int confirmationResult = allowPopup ? showConf(chooseLocPanel, "Choose Locale", parent) : JOptionPane.OK_OPTION;
 
 		if (confirmationResult == JOptionPane.OK_OPTION) {
 			int selectedIndex = buttonGroup.getSelectedIndex();
@@ -148,13 +152,17 @@ public class LocaleChooser {
 
 
 
-	public static int showConf(JPanel messagePanel, String title) {
+	public static int showConf(JPanel messagePanel, String title, Component parent) {
 		int option = JOptionPane.OK_CANCEL_OPTION;
 		int type = JOptionPane.PLAIN_MESSAGE;
-		return JOptionPane.showConfirmDialog(null, messagePanel, title, option, type);
+		return JOptionPane.showConfirmDialog(parent, messagePanel, title, option, type);
 	}
 
 	public static void showMessage(String message) {
 		JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
+	}
+
+	public static void showMessage(String message, Component parent) {
+		JOptionPane.showMessageDialog(parent, message, "Error", JOptionPane.ERROR_MESSAGE);
 	}
 }

@@ -103,7 +103,7 @@ vec4 getFromAxisAngle(vec3 a, float angle) {
     quat.w = cos(halfAngle);
     return quat;
 }
-vec4 mul(vec4 a, vec4 b) {
+vec4 mulQuat(vec4 a, vec4 b) {
     float newX = (b.x * a.w) + (b.w * a.x) + (b.y * a.z) - (b.z * a.y);
     float newY = (b.y * a.w) + (b.w * a.y) + (b.z * a.x) - (b.x * a.z);
     float newZ = (b.z * a.w) + (b.w * a.z) + (b.x * a.y) - (b.y * a.x);
@@ -121,7 +121,7 @@ vec4 getRot(vec4 pos, vec4 parent){
     float angleToZ = acos(diff.z / length(diff)) - PI / 2.0;;
     vec4 difRotR = normalize(getFromAxisAngle(tempVec, angleToZ));
     vec4 rot90 = normalize(getFromAxisAngle(tempVec, PI / 2.0));
-    return normalize(mul(difRotR,rot90));
+    return normalize(mulQuat(difRotR,rot90));
 
 }
 

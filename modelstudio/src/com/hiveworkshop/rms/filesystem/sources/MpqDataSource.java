@@ -32,8 +32,10 @@ public class MpqDataSource implements DataSource {
 	@Override
 	public ByteBuffer read(final String path) throws IOException {
 		MpqFile file = getMpqFile(path);
-
-		return ByteBuffer.wrap(file.extractToBytes());
+		if(file != null){
+			return ByteBuffer.wrap(file.extractToBytes());
+		}
+		return null;
 	}
 
 	@Override
@@ -56,10 +58,9 @@ public class MpqDataSource implements DataSource {
 		return tempProduct;
 	}
 
-	private MpqFile getMpqFile(String filepath) throws IOException {
-		MpqFile file;
+	private MpqFile getMpqFile1(String filepath) throws IOException {
 		try {
-			file = archive.getMpqFile(filepath);
+			return archive.getMpqFile(filepath);
 		} catch (final Exception exc) {
 			if (exc.getMessage().startsWith("File Not Found")) {
 				exc.printStackTrace();
@@ -68,7 +69,22 @@ public class MpqDataSource implements DataSource {
 				throw new IOException(exc);
 			}
 		}
-		return file;
+	}
+
+	private MpqFile getMpqFile(String filepath) throws IOException {
+		try {
+			if(archive.hasFile(filepath)){
+				return archive.getMpqFile(filepath);
+			}
+		} catch (final Exception exc) {
+			if (exc.getMessage().startsWith("File Not Found")) {
+				exc.printStackTrace();
+				return null;
+			} else {
+				throw new IOException(exc);
+			}
+		}
+		return null;
 	}
 
 	@Override

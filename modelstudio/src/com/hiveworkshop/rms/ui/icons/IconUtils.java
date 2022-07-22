@@ -95,14 +95,19 @@ public final class IconUtils {
 			case UPGRADES -> gameObject.getFieldAsString(War3ID.fromString("gar1"), 1);
 			case UNITS -> gameObject.getFieldAsString(War3ID.fromString("uico"), 0);
 		};
-		return BLPHandler.getGameTex(iconPath);
+		BufferedImage gameTex = BLPHandler.getGameTex(iconPath);
+		if(gameTex == null){
+			System.out.println("could not load texture from \"" + iconPath + "\"");
+			gameTex = BLPHandler.getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp");
+		}
+		return gameTex;
 	}
 
-	private static String getOddIconPath(MutableGameObject gameObject, String cat, String doodadCategories) {
+	private static String getOddIconPath(MutableGameObject gameObject, String cat, String typeCategories) {
 		String iconPath;
 		final DataTable unitEditorData = DataTableHolder.getWorldEditorData();
 		final String category = gameObject.getFieldAsString(War3ID.fromString(cat), 0);
-		final Element categories = unitEditorData.get(doodadCategories);
+		final Element categories = unitEditorData.get(typeCategories);
 		if (categories.hasField(category)) {
 			iconPath = categories.getField(category, 1);
 		} else {

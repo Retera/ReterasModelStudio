@@ -4,23 +4,37 @@ import com.hiveworkshop.rms.filesystem.sources.CascDataSourceDescriptor;
 import com.hiveworkshop.rms.filesystem.sources.DataSourceDescriptor;
 
 import javax.swing.*;
+import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.*;
+import java.awt.*;
+import java.awt.event.ActionListener;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.*;
 
 public class DataSourceTree extends JTree {
 	private final DefaultMutableTreeNode root;
 	private final DefaultTreeModel model;
 	private final List<DataSourceDescriptor> dataSourceDescriptors;
+	private final Component popupParent;
 
-	public DataSourceTree(List<DataSourceDescriptor> dataSourceDescriptors){
+	private JButton addDefaultCascPrefixes;
+	private JButton addSpecificCascPrefix;
+	private JButton deleteButton;
+	private JButton moveUpButton;
+	private JButton moveDownButton;
+
+	public DataSourceTree(List<DataSourceDescriptor> dataSourceDescriptors, Component popupParent){
 		this.dataSourceDescriptors = dataSourceDescriptors;
 		this.root = new DefaultMutableTreeNode();
 		this.model = new DefaultTreeModel(this.root);
+		this.popupParent = popupParent;
 		setModel(this.model);
 
 		getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		setRootVisible(false);
+		createButtons();
+		addTreeSelectionListener(this::updateButtons);
 	}
 
 	public void move(boolean up) {
@@ -48,6 +62,48 @@ public class DataSourceTree extends JTree {
 			}
 		}
 	}
+
+	private void createButtons(){
+		addDefaultCascPrefixes = getButton("Add Default CASC Mod", e -> addDefaultCASCMod());
+		addSpecificCascPrefix = getButton("Add Specific CASC Mod", e -> addSpecificCASCMod());
+		deleteButton = getButton("Delete Selection", e -> deleteSelection());
+		moveUpButton = getButton("Move Up", e -> move(true));
+		moveDownButton = getButton("Move Down", e -> move(false));
+	}
+
+	private void updateButtons(TreeSelectionEvent e){
+		TreePath selectionPath = e.getNewLeadSelectionPath();
+		boolean cascSelected = isCascSelected(selectionPath);
+		addDefaultCascPrefixes.setEnabled(cascSelected);
+		addSpecificCascPrefix.setEnabled(cascSelected);
+
+		deleteButton.setEnabled(selectionPath != null);
+
+		moveUpButton.setEnabled(canMoveUp(selectionPath));
+		moveDownButton.setEnabled(canMoveDown(selectionPath));
+	}
+	public JButton getAddDefaultCascButton(){
+		return addDefaultCascPrefixes;
+	}
+	public JButton getAddSpecificCascButton(){
+		return addSpecificCascPrefix;
+	}
+	public JButton getDeleteButton(){
+		return deleteButton;
+	}
+	public JButton getMoveUpButton(){
+		return moveUpButton;
+	}
+	public JButton getMoveDownButton(){
+		return moveDownButton;
+	}
+	private JButton getButton(String buttonText, ActionListener actionListener) {
+		JButton button = new JButton(buttonText);
+		button.addActionListener(actionListener);
+		button.setEnabled(false);
+		return button;
+	}
+
 
 
 	public void deleteSelection() {
@@ -80,7 +136,7 @@ public class DataSourceTree extends JTree {
 			DataSourceDescriptor descriptor = ((DataSourceDescTreeNode) lastComp).getDescriptor();
 			if (descriptor instanceof CascDataSourceDescriptor) {
 				CascDataSourceDescriptor casc = (CascDataSourceDescriptor) descriptor;
-				casc.addPrefixes(CascPrefixChooser.addDefaultCASCPrefixes(Paths.get(casc.getGameInstallPath()), true));
+				casc.addPrefixes(CascPrefixChooser.addDefaultCASCPrefixes(Paths.get(casc.getGameInstallPath()), true, popupParent));
 				reloadTree();
 			}
 		}
@@ -98,7 +154,7 @@ public class DataSourceTree extends JTree {
 			DataSourceDescriptor descriptor = ((DataSourceDescTreeNode) lastComp).getDescriptor();
 			if (descriptor instanceof CascDataSourceDescriptor) {
 				CascDataSourceDescriptor casc = (CascDataSourceDescriptor) descriptor;
-				String prefix = CascPrefixChooser.getSpecificPrefix(Paths.get(casc.getGameInstallPath()));
+				String prefix = CascPrefixChooser.getSpecificPrefix(Paths.get(casc.getGameInstallPath()), popupParent);
 				if(prefix != null){
 					casc.addPrefix(prefix);
 				}

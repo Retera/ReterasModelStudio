@@ -12,27 +12,27 @@ public class DataSrcChooserTestPanel {
 
 
 	public static void main(final String[] args) {
-//		setupLookAndFeel("Aluminium");
-//		showFrame();
+		setupLookAndFeel("Aluminium");
+		showFrame();
 
-		// range: [-10,10]
-		modToRange( -5);
-		modToRange(-20);
-		modToRange(-10);
-		modToRange( 10);
-		modToRange(-11);
-		modToRange( 11);
-		modToRange(  1);
-		modToRange(  90);
-		modToRange( -90);
-		modToRange(-180);
-		modToRange( 180);
-		modToRange( 270);
-		modToRange(-270);
-		modToRange( 360);
-		modToRange(-360);
-		modToRange( 450);
-		modToRange(-450);
+//		// range: [-10,10]
+//		modToRange( -5);
+//		modToRange(-20);
+//		modToRange(-10);
+//		modToRange( 10);
+//		modToRange(-11);
+//		modToRange( 11);
+//		modToRange(  1);
+//		modToRange(  90);
+//		modToRange( -90);
+//		modToRange(-180);
+//		modToRange( 180);
+//		modToRange( 270);
+//		modToRange(-270);
+//		modToRange( 360);
+//		modToRange(-360);
+//		modToRange( 450);
+//		modToRange(-450);
 	}
 
 	private static void modToRange(int input){

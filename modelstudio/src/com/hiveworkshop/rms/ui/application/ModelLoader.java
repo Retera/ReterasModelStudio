@@ -16,9 +16,9 @@ import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.ExtFilter;
 import com.hiveworkshop.rms.util.ImageCreator;
-import com.hiveworkshop.rms.util.SklViewer;
-import com.hiveworkshop.rms.util.TxtViewer;
 import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.fileviewers.SklViewer;
+import com.hiveworkshop.rms.util.fileviewers.TxtViewer;
 import jassimp.AiPostProcessSteps;
 import jassimp.AiProgressHandler;
 import jassimp.AiScene;
@@ -193,11 +193,11 @@ public class ModelLoader {
 				model = null;
 			} else if (Arrays.asList("slk").contains(ext)) {
 				String fileName = filepath.replaceAll(".*\\\\", "");
-				new SklViewer().createAndShowHTMLPanel(filepath, fileName);
+				new SklViewer().createAndShowHTMLPanel(f, fileName);
 				model = null;
 			} else if (Arrays.asList("txt").contains(ext)) {
 				String fileName = filepath.replaceAll(".*\\\\", "");
-				new TxtViewer().createAndShowHTMLPanel(filepath, fileName);
+				new TxtViewer().createAndShowHTMLPanel(f, fileName);
 				model = null;
 			} else {
 				model = null;

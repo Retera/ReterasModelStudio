@@ -22,7 +22,8 @@ public class TwilacsTools extends JMenu {
 		add(ShowHideStuff.getShowVertsMenuItem());
 		add(TwilacStuff.getBridgeEdgesMenuItem());
 		add(TwilacStuff.getTestShaderStuffMenuItem());
-		add(TwilacStuff.getTestShaderStuff2MenuItem());
+		add(TwilacStuff.getTextShaderStuffNodeMenuItem());
+		add(TwilacStuff.getTextShaderStuffGridMenuItem());
 
 //		add(TwilacStuff.getSelectEdgeMenuItem());
 //		add(new JSeparator());

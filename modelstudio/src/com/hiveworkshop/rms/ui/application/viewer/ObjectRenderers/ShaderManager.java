@@ -11,15 +11,17 @@ public class ShaderManager {
 	private ShaderPipeline selectionPipeline;
 	private ShaderPipeline customHDShaderPipeline;
 	private ShaderPipeline customBonePipeline;
+	private ShaderPipeline customGridPipeline;
 	private Runnable customShaderMaker;
 	private Runnable customBoneShaderMaker;
+	private Runnable customGridShaderMaker;
 
 	private Exception lastExeption;
 
 	public ShaderPipeline getCustomHDShaderPipeline() {
 		return customHDShaderPipeline;
 	}
-	public Exception getCustomHDShaderException() {
+	public Exception getCustomShaderException() {
 		return lastExeption;
 	}
 
@@ -101,6 +103,43 @@ public class ShaderManager {
 	}
 
 
+
+	public void createCustomGridShader(String vertexShader, String fragmentShader, String geometryShader){
+		customGridShaderMaker = () -> makeCustomGridShader(vertexShader, fragmentShader, geometryShader);
+	}
+
+
+	public void makeCustomGridShader(String vertexShader, String fragmentShader, String geometryShader){
+		try {
+			ShaderPipeline newCustomPipeline = new GridShaderPipeline(vertexShader, fragmentShader, geometryShader);
+
+			if(customGridPipeline != null){
+				customGridPipeline.discard();
+			}
+			customGridPipeline = newCustomPipeline;
+
+		} catch (Exception e){
+			e.printStackTrace();
+			System.out.println("adding Exception!");
+			lastExeption = e;
+		}
+		customGridShaderMaker = null;
+	}
+
+	public ShaderManager removeCustomGridShader(){
+		customGridShaderMaker = this::doRemoveCustomGridShader;
+		return this;
+	}
+
+	private void doRemoveCustomGridShader(){
+		if(customGridPipeline != null){
+			customGridPipeline.discard();
+			customGridPipeline = null;
+			customGridShaderMaker = null;
+		}
+	}
+
+
 	public ShaderPipeline getOrCreatePipeline() {
 		if (customShaderMaker != null) {
 			customShaderMaker.run();
@@ -175,6 +214,13 @@ public class ShaderManager {
 	}
 
 	public ShaderPipeline getOrCreateGridPipeline() {
+		if (customGridShaderMaker != null) {
+			customGridShaderMaker.run();
+		}
+		if(customGridPipeline != null){
+			return customGridPipeline;
+		}
+
 		if (gridPipeline == null) {
 			gridPipeline = new GridShaderPipeline();
 		}
@@ -228,6 +274,9 @@ public class ShaderManager {
 
 		if (customBonePipeline != null) customBonePipeline.discard();
 		customBonePipeline = null;
+
+		if (customGridPipeline != null) customGridPipeline.discard();
+		customGridPipeline = null;
 
 		return this;
 	}

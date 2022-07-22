@@ -15,7 +15,7 @@ import java.util.List;
 public class CascPrefixChooser {
 
 
-	public static String getSpecificPrefix(Path installPathPath) {
+	public static String getSpecificPrefix(Path installPathPath, Component parent) {
 		// It's CASC. Now the question: what prefixes do we use?
 		try {
 			WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true);
@@ -38,7 +38,7 @@ public class CascPrefixChooser {
 			comboBoxPanel.add(prefixChoiceComboBox, BorderLayout.CENTER);
 			comboBoxPanel.add(new JLabel("Choose a .w3mod:"), BorderLayout.BEFORE_FIRST_LINE);
 
-			if (showConf(comboBoxPanel, "Choose Mod") == JOptionPane.OK_OPTION) {
+			if (showConf(comboBoxPanel, "Choose Mod", parent) == JOptionPane.OK_OPTION) {
 				Object selectedItem = prefixChoiceComboBox.getSelectedItem();
 				if (selectedItem != null) {
 					return selectedItem.toString();
@@ -51,7 +51,7 @@ public class CascPrefixChooser {
 		return null;
 	}
 
-	public static List<String> addDefaultCASCPrefixes(Path installPathPath, boolean allowPopup) {
+	public static List<String> addDefaultCASCPrefixes(Path installPathPath, boolean allowPopup, Component parent) {
 		// It's CASC. Now the question: what prefixes do we use?
 		try {
 			try (WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true)) {
@@ -62,14 +62,14 @@ public class CascPrefixChooser {
 				WC3CascFileSystem rootFileSystem = tempCascReader.getRootFileSystem();
 				SupportedCascPatchFormat patchFormat = getPatchFormat(tempCascReader, rootFileSystem);
 				// Now, we really want to know the locale.
-				String locale = LocaleChooser.getLocale(allowPopup, launcherDbLocale, originalInstallLocale, tempCascReader, patchFormat, rootFileSystem);
+				String locale = LocaleChooser.getLocale(allowPopup, parent, launcherDbLocale, originalInstallLocale, tempCascReader, patchFormat, rootFileSystem);
 
 				if (locale != null){
 					if (patchFormat == SupportedCascPatchFormat.UNKNOWN_FUTURE_PATCH){
 						showMessage(
 								"The Warcraft III Installation you have selected seems to be too new, " +
 										"or is not a supported version. The suggested prefix list from Patch 1.31 will be used." +
-										"\nThis will probably fail, and you will need more advanced configuration.");
+										"\nThis will probably fail, and you will need more advanced configuration.", parent);
 					}
 					return patchFormat.getPrefixes(locale);
 				}
@@ -125,14 +125,13 @@ public class CascPrefixChooser {
 		}
 		return null;
 	}
-
-	public static int showConf(JPanel messagePanel, String title) {
+	public static int showConf(JPanel messagePanel, String title, Component parent) {
 		int option = JOptionPane.OK_CANCEL_OPTION;
 		int type = JOptionPane.PLAIN_MESSAGE;
-		return JOptionPane.showConfirmDialog(null, messagePanel, title, option, type);
+		return JOptionPane.showConfirmDialog(parent, messagePanel, title, option, type);
 	}
 
-	public static void showMessage(String message) {
-		JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
+	public static void showMessage(String message, Component parent) {
+		JOptionPane.showMessageDialog(parent, message, "Error", JOptionPane.ERROR_MESSAGE);
 	}
 }

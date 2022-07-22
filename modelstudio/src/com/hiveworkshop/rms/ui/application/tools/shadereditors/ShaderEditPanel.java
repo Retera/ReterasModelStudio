@@ -1,12 +1,9 @@
-package com.hiveworkshop.rms.ui.application.tools;
+package com.hiveworkshop.rms.ui.application.tools.shadereditors;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ShaderManager;
 import com.hiveworkshop.rms.ui.application.viewer.OtherUtils;
-import com.hiveworkshop.rms.ui.application.viewer.twiTestRenderMaster.BufferFiller;
-import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.ScreenInfo;
-import net.infonode.docking.DockingWindow;
 import net.infonode.docking.TabWindow;
 import net.infonode.docking.View;
 import net.miginfocom.swing.MigLayout;
@@ -21,57 +18,30 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.function.Supplier;
 
-public class BoneShaderEditPanel extends JPanel {
-
-	private RSyntaxTextArea vertEditorPane;
-	private RSyntaxTextArea fragEditorPane;
-	private RSyntaxTextArea geoEditorPane;
+public abstract class ShaderEditPanel extends JPanel {
 
 	AttributeSet redText;
 	AttributeSet whiteText;
 
-	String orgVertexShader;
-	String lastVertexShader;
-	String currVertexShader;
-	String orgFragmentShader;
-	String lastFragmentShader;
-	String currFragmentShader;
-	String orgGeometryShader;
-	String lastGeometryShader;
-	String currGeometryShader;
+	ShaderTracker[] shaderTrackers;
+
 
 	ShaderManager shaderManager;
 	JLabel loadedLabel = new JLabel();
 	JTextPane logPane;
 
-	public BoneShaderEditPanel(ShaderManager shaderManager) {
+	public ShaderEditPanel(ShaderManager shaderManager, String... shaderFiles) {
 		super(new MigLayout("gap 0, ins 0, fill, wrap 1", "[grow]", "[50%][50%][]"));
 		this.shaderManager = shaderManager;
-		loadShaderStrings();
+		shaderTrackers = loadShaderStrings(shaderFiles);
 
 		StyleContext sc = StyleContext.getDefaultStyleContext();
 		redText = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, Color.RED.brighter().brighter());
 		whiteText = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, Color.WHITE.darker());
 
-		geoEditorPane = getRSEditorPane(orgGeometryShader);
-		View geo_view = getAsView("Geometry Shader", geoEditorPane, orgGeometryShader, this::getLastGeometryShader);
-		geo_view.getWindowProperties().setDragEnabled(!ProgramGlobals.isLockLayout());
-		geo_view.getWindowProperties().setDragEnabled(false);
 
-		vertEditorPane = getRSEditorPane(orgVertexShader);
-		View vertex_view = getAsView("Vertex Shader", vertEditorPane, orgVertexShader, this::getLastVertexShader);
-		vertex_view.getWindowProperties().setDragEnabled(!ProgramGlobals.isLockLayout());
-		vertex_view.getWindowProperties().setDragEnabled(false);
-
-		fragEditorPane = getRSEditorPane(orgFragmentShader);
-		View fragment_view = getAsView("Fragment Shader", fragEditorPane, orgFragmentShader, this::getLastFragmentShader);
-		fragment_view.getWindowProperties().setDragEnabled(false);
-
-		View errorView = getErrorView();
-		TabWindow tabs = new TabWindow(new DockingWindow[] {vertex_view, geo_view, fragment_view, errorView});
+		TabWindow tabs = new TabWindow(getAsViews(shaderTrackers));
 		tabs.setSelectedTab(1);
-//		add(vertex_view, "growx, growy");
-//		add(fragment_view, "growx, growy");
 		add(tabs, "growx, growy, spany 2");
 
 		JButton applyButton = new JButton("Use Shader");
@@ -84,32 +54,24 @@ public class BoneShaderEditPanel extends JPanel {
 	}
 
 	private void apply(){
-		String newGeometryShader = geoEditorPane.getText();
-		if(currGeometryShader != null && !currGeometryShader.equals(newGeometryShader)){
-			lastGeometryShader = currGeometryShader;
+		for(ShaderTracker shaderTracker : shaderTrackers){
+			shaderTracker.applyNew();
 		}
-		currGeometryShader = newGeometryShader;
 
-		String newVertShader = vertEditorPane.getText();
-		if(currVertexShader != null && !currVertexShader.equals(newVertShader)){
-			lastVertexShader = currVertexShader;
-		}
-		currVertexShader = newVertShader;
-
-		String newFragShader = fragEditorPane.getText();
-		if(currFragmentShader != null && !currFragmentShader.equals(newFragShader)){
-			lastFragmentShader = currFragmentShader;
-		}
-		currFragmentShader = newFragShader;
-
-		shaderManager.createCustomBoneShader(currVertexShader, currFragmentShader, currGeometryShader);
+//		shaderManager.createCustomShader(currVertexShader, currFragmentShader, isHD);
+		createCustomShader();
 
 		Timer timer = new Timer(50, e -> checkShader());
 		timer.setRepeats(false);
 		timer.start();
 	}
+
+	protected abstract void createCustomShader();
+	protected abstract void removeCustomShader();
+
 	private void useInternalShader(){
-		shaderManager.removeCustomBoneShader();
+//		shaderManager.removeCustomShader();
+		removeCustomShader();
 
 		try {
 			LocalTime time = LocalTime.now().truncatedTo(ChronoUnit.SECONDS);
@@ -127,7 +89,7 @@ public class BoneShaderEditPanel extends JPanel {
 	}
 
 	private void checkShader() {
-		Exception shaderException = shaderManager.getCustomHDShaderException();
+		Exception shaderException = shaderManager.getCustomShaderException();
 //		System.out.println("time: " + LocalTime.now().format(DateTimeFormatter.ISO_TIME));
 		LocalTime time = LocalTime.now().truncatedTo(ChronoUnit.SECONDS);
 		String text;
@@ -138,9 +100,9 @@ public class BoneShaderEditPanel extends JPanel {
 			text = "Failed to load " + makePrettyMessage(shaderException);
 
 			shaderManager.clearLastException();
-			currGeometryShader = null;
-			currVertexShader = null;
-			currFragmentShader = null;
+			for(ShaderTracker shaderTracker : shaderTrackers){
+				shaderTracker.setCurrShader(null);
+			}
 		} else {
 			aset = whiteText;
 			loadedLabel.setForeground(null);
@@ -168,36 +130,28 @@ public class BoneShaderEditPanel extends JPanel {
 				return localizedMessage.replaceFirst("0: 0\\(", "(GeometryShader:");
 			} else if(element.getMethodName().contains("FragmentShader")){
 				return localizedMessage.replaceFirst("0: 0\\(", "(FragmentShader:");
-
 			}
 		}
 		return localizedMessage;
 	}
 
-	private String getLastFragmentShader(){
-		if(lastFragmentShader != null){
-			return lastFragmentShader;
+	public View[] getAsViews(ShaderTracker[] shaderTrackers) {
+		View[] view = new View[shaderTrackers.length + 1];
+		for(int i = 0; i<shaderTrackers.length; i++){
+			view[i] = getAsView(shaderTrackers[i]);
 		}
-		return orgFragmentShader;
-	}
-	private String getLastVertexShader(){
-		if(lastVertexShader != null){
-			return lastVertexShader;
-		}
-		return orgVertexShader;
-	}
-	private String getLastGeometryShader(){
-		if(lastGeometryShader != null){
-			return lastGeometryShader;
-		}
-		return orgGeometryShader;
+		view[shaderTrackers.length] = getErrorView();
+		return view;
 	}
 
-	public View getAsView(String title, RSyntaxTextArea textArea, String text, Supplier<String> lastText) {
-		JPanel rsButtonPanel = getRSButtonPanel(textArea, text, lastText);
-		JPanel rsEditorPanel = getRSEditorPanel(textArea, rsButtonPanel);
+	public View getAsView(ShaderTracker shaderTracker) {
+		JPanel rsButtonPanel = getRSButtonPanel(shaderTracker.getEditorPane(), shaderTracker.getOrgShader(), shaderTracker::getLastShader);
+		JPanel rsEditorPanel = getRSEditorPanel(shaderTracker.getEditorPane(), rsButtonPanel);
 
-		return new View(title, null, rsEditorPanel);
+		View view = new View(shaderTracker.getName(), null, rsEditorPanel);
+		view.getWindowProperties().setDragEnabled(!ProgramGlobals.isLockLayout());
+		view.getWindowProperties().setDragEnabled(false);
+		return view;
 	}
 
 	private RSyntaxTextArea getRSEditorPane(String text) {
@@ -254,19 +208,100 @@ public class BoneShaderEditPanel extends JPanel {
 		return new View("log", null, jScrollPane);
 	}
 
-	private void loadShaderStrings(){
-		orgGeometryShader = OtherUtils.loadShader("Bone.glsl");
-		orgVertexShader = OtherUtils.loadShader("Bone.vert");
-		orgFragmentShader = OtherUtils.loadShader("Bone.frag");
-
+	private ShaderTracker[] loadShaderStrings(String... shaderFiles){
+		ShaderTracker[] shaderTrackers = new ShaderTracker[shaderFiles.length];
+		for(int i = 0; i< shaderFiles.length; i++){
+			String name;
+			if(shaderFiles[i].matches(".+\\.g.*")){
+				name = "Geometry Shader";
+			} else if(shaderFiles[i].matches(".+\\.f.*")){
+				name = "Fragment Shader";
+			} else if(shaderFiles[i].matches(".+\\.v.*")){
+				name = "Vertex Shader";
+			} else {
+				name = shaderFiles[i].replaceAll(".+\\.", "");
+			}
+			shaderTrackers[i] = new ShaderTracker(name, OtherUtils.loadShader(shaderFiles[i]));
+		}
+		return shaderTrackers;
 	}
 
-	public static void show(JComponent parent, BufferFiller bufferFiller) {
-		BoneShaderEditPanel shaderEditPanel = new BoneShaderEditPanel(bufferFiller.getShaderManager());
-//		shaderEditPanel.setSize(1600, 900);
-		shaderEditPanel.setPreferredSize(ScreenInfo.getSmallWindow());
-		FramePopup.show(shaderEditPanel, parent, "Node Shader Editor");
+//	public static void show(JComponent parent, BufferFiller bufferFiller) {
+//		ShaderEditPanel shaderEditPanel = new ShaderEditPanel(bufferFiller.getShaderManager(), bufferFiller.isHD());
+////		shaderEditPanel.setSize(1600, 900);
+//		shaderEditPanel.setPreferredSize(ScreenInfo.getSmallWindow());
+//		FramePopup.show(shaderEditPanel, parent, "Shader Editor");
+//	}
 
+
+	protected static class ShaderTracker{
+		String orgShader;
+		String currShader;
+		String lastShader;
+		RSyntaxTextArea editorPane;
+		String name;
+
+		ShaderTracker(String name, String orgShader){
+			this.name = name;
+			this.orgShader = orgShader;
+			this.editorPane = getRSEditorPane(orgShader);
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public ShaderTracker applyNew(){
+			String newShader = editorPane.getText();
+			if(currShader != null && !currShader.equals(newShader)){
+				lastShader = currShader;
+			}
+			currShader = newShader;
+			return this;
+		}
+
+		public RSyntaxTextArea getEditorPane() {
+			return editorPane;
+		}
+
+		public String getCurrShader() {
+			return currShader;
+		}
+
+		public String getLastShader() {
+			if(lastShader != null){
+				return lastShader;
+			}
+			return orgShader;
+		}
+
+		public String getOrgShader() {
+			return orgShader;
+		}
+
+		public ShaderTracker setCurrShader(String currShader) {
+			this.currShader = currShader;
+			return this;
+		}
+
+		public ShaderTracker setLastShader(String lastShader) {
+			this.lastShader = lastShader;
+			return this;
+		}
+
+		private RSyntaxTextArea getRSEditorPane(String text) {
+			RSyntaxTextArea textArea = new RSyntaxTextArea(20, 60);
+			textArea.setCodeFoldingEnabled(true);
+			textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_CSHARP);
+			textArea.setCodeFoldingEnabled(true);
+//		textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+			textArea.setText(text);
+
+			InputMap inputMap = textArea.getInputMap();
+			Object toggleCommentKey = inputMap.get(KeyStroke.getKeyStroke("ctrl pressed SLASH"));
+			inputMap.put(KeyStroke.getKeyStroke("ctrl pressed DIVIDE"), toggleCommentKey);
+
+			return textArea;
+		}
 	}
-
 }

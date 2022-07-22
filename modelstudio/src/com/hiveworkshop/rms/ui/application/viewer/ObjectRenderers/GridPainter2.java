@@ -31,6 +31,59 @@ public class GridPainter2 {
 	Vec3 gridStart = new Vec3();
 	Vec3 gridEnd = new Vec3();
 
+//	Vec3[] lineStarts  = new Vec3[]{new Vec3(-100, -100, 0), new Vec3(-100, -100, 0)};
+//	Vec3[] lineEnds    = new Vec3[]{new Vec3( 100, -100, 0), new Vec3(-100,  100, 0)};
+//	Vec3[] lineSpreads = new Vec3[]{new Vec3( 0, 1, 0), new Vec3( 1, 0, 0)};
+//	Vec4[] lineColors = new Vec4[]{new Vec4(1f, .5f, .5f, 1), new Vec4(.5f, 1f, .5f, 1)};
+
+	Vec3[] lineStarts  = new Vec3[]{new Vec3(-100, -100, 0), new Vec3(-100, -100, 0)};
+	Vec3[] lineEnds    = new Vec3[]{new Vec3( 100, -100, 0), new Vec3(-100,  100, 0)};
+	Vec3[] lineSpreads = new Vec3[]{new Vec3( 0, 1, 0), new Vec3( 1, 0, 0)};
+	Vec4[] lineColors = new Vec4[]{new Vec4(1f, .5f, .5f, 1), new Vec4(.5f, 1f, .5f, 1)};
+
+
+	HalfGrid[] halfGrids = new HalfGrid[]{
+
+			new HalfGrid(new Vec3(-500, -500, 0), new Vec3( 500, -500, 0),new Vec3( 0, 10, 0), new Vec4(.5f, .5f, .5f, 1)), // X_XY
+			new HalfGrid(new Vec3(-500, -500, 0), new Vec3(-500,  500, 0),new Vec3( 10, 0, 0), new Vec4(.5f, .5f, .5f, 1)), // Y_XY
+//			new HalfGrid(new Vec3(-100, -100, 0), new Vec3( 100, -100, 0),new Vec3( 0, 1, 0), new Vec4(1f, .5f, .5f, 1)), // X_XY
+//			new HalfGrid(new Vec3(-100, -100, 0), new Vec3(-100,  100, 0),new Vec3( 1, 0, 0), new Vec4(.5f, 1f, .5f, 1)), // Y_XY
+
+//			new HalfGrid(new Vec3(-100, 0, -100), new Vec3( 100, 0, -100),new Vec3( 0, 0, 1), new Vec4(1f, .5f, .5f, 1)), // X_XZ
+//			new HalfGrid(new Vec3(-100, 0, -100), new Vec3(-100, 0,  100),new Vec3( 1, 0, 0), new Vec4(.5f, .5f, 1f, 1)), // Z_XZ
+//
+//			new HalfGrid(new Vec3(0, -100, -100), new Vec3(0,  100, -100),new Vec3( 0, 0, 1), new Vec4(.5f, 1f, .5f, 1)), // Y_YZ
+//			new HalfGrid(new Vec3(0, -100, -100), new Vec3(0, -100,  100),new Vec3( 0, 1, 0), new Vec4(.5f, .5f, 1f, 1)), // Z_YZ
+	};
+
+//	Vec3[] lineStarts  = new Vec3[]{new Vec3(-100, 0, 0), new Vec3(-100, 0, 0), new Vec3(0, -100, 0), new Vec3(0, -100, 0)};
+//	Vec3[] lineEnds    = new Vec3[]{new Vec3( 100, 0, 0), new Vec3( 100, 0, 0), new Vec3(0,  100, 0), new Vec3(0,  100, 0)};
+//	Vec3[] lineSpreads = new Vec3[]{new Vec3( 0, 1, 0), new Vec3( 0, -1, 0), new Vec3( 1, 0, 0), new Vec3( -1, 0, 0)};
+//	Vec4[] lineColors = new Vec4[]{new Vec4(1f, .5f, .5f, 1), new Vec4(1f, .5f, .5f, 1), new Vec4(.5f, 1f, .5f, 1), new Vec4(.5f, 1f, .5f, 1)};
+
+//		colorHeap.set(1f, .5f, .5f, 1);
+//
+//		startHeap.set(-100, -100, 0);
+//		endHeap.set(100, -100, 0);
+//		pipeline.addVert(startHeap, Vec3.Y_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+//		pipeline.addVert(endHeap, Vec3.Y_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+////		pipeline.addVert(startHeap, vec3Heap, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+////		pipeline.addVert(endHeap, vec3Heap, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+//
+////		addLinePoints(pipeline, startHeap, endHeap, gridDir1, gridDist, spread1);
+//
+//
+//		colorHeap.set(.5f, 1f, .5f, 1);
+//		vec3Heap.set(gridDir1).scale(spread1);
+//		endHeap.set(startHeap).add(vec3Heap);
+//		vec3Heap.set(gridDir2).scale(spread2);
+//
+//
+//		startHeap.set(-100, -100, 0);
+//		endHeap.set(-100, 100, 0);
+//		pipeline.addVert(startHeap, Vec3.X_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+//		pipeline.addVert(endHeap, Vec3.X_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+
 	public GridPainter2(CameraManager cameraHandler) {
 		this.cameraHandler = cameraHandler;
 	}
@@ -55,8 +108,47 @@ public class GridPainter2 {
 		float lineScaleMul = (float) Math.pow(10, v);
 
 //		findGridPoints();
-		gridStart.set(-10, -10, 0);
-		gridEnd.set(10, 10, 0);
+		gridStart.set(-200, -200, 0);
+		gridEnd.set(200, 200, 0);
+
+
+		if(time < System.currentTimeMillis()){
+			time = System.currentTimeMillis() + 5000;
+		}
+
+		colorHeap.set(1f, .5f, .5f, 1);
+
+		if(gridStart.isValid() && gridEnd.isValid()){
+//			for(int i = 0; i< lineStarts.length; i++){
+//				makeLineSpread(pipeline, lineStarts[i], lineEnds[i], lineSpreads[i], lineColors[i]);
+//			}
+//			makeGridPoints(pipeline, gridStart, gridEnd, Vec3.X_AXIS, Vec3.Y_AXIS, gridLog);
+//			makeGridPoints(pipeline, gridStart, gridEnd, Vec3.X_AXIS, Vec3.Y_AXIS, 1);
+			for(HalfGrid hg : halfGrids){
+				makeLineSpread(pipeline, hg.lineStart, hg.lineEnd, hg.lineSpread, hg.lineColor);
+			}
+
+		}
+	}
+	public void fillGridBuffer1(ShaderPipeline pipeline) {
+		GL11.glDepthMask(false);
+		GL11.glEnable(GL11.GL_BLEND);
+		pipeline.glEnableIfNeeded(GL11.GL_BLEND);
+		pipeline.glDisableIfNeeded(GL_ALPHA_TEST);
+		pipeline.glDisableIfNeeded(GL_TEXTURE_2D);
+		pipeline.glDisableIfNeeded(GL_CULL_FACE);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		pipeline.prepare();
+
+//		float cameraPxSize1 = (float) (cameraHandler.sizeAdj()); // 1px
+		float cameraPxSize1 = (float) (1); // 1px
+		int gridLog = (int)Math.log10(cameraPxSize1*120);
+		double v = (int)Math.log10(cameraPxSize1);
+		float lineScaleMul = (float) Math.pow(10, v);
+
+//		findGridPoints();
+		gridStart.set(-200, -200, 0);
+		gridEnd.set(200, 200, 0);
 
 
 //		gridStart
@@ -90,7 +182,8 @@ public class GridPainter2 {
 //			}
 //		}
 		if(gridStart.isValid() && gridEnd.isValid()){
-			makeGridPoints(pipeline, gridStart, gridEnd, Vec3.X_AXIS, Vec3.Y_AXIS, gridLog);
+//			makeGridPoints(pipeline, gridStart, gridEnd, Vec3.X_AXIS, Vec3.Y_AXIS, gridLog);
+			makeGridPoints(pipeline, gridStart, gridEnd, Vec3.X_AXIS, Vec3.Y_AXIS, 1);
 		}
 
 
@@ -196,138 +289,6 @@ public class GridPainter2 {
 
 	}
 
-	public void paintGrid1(ShaderPipeline pipeline) {
-		GL11.glDepthMask(false);
-		GL11.glEnable(GL11.GL_BLEND);
-		pipeline.glEnableIfNeeded(GL11.GL_BLEND);
-		pipeline.glDisableIfNeeded(GL_ALPHA_TEST);
-		pipeline.glDisableIfNeeded(GL_TEXTURE_2D);
-		pipeline.glDisableIfNeeded(GL_CULL_FACE);
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		pipeline.prepare();
-
-		float cameraPxSize1 = (float) (cameraHandler.sizeAdj() * 2f); // 1px
-		double v = (int)Math.log10(cameraPxSize1);
-		float lineScaleMul = (float) Math.pow(10, v);
-//		float lineScaleMul = (float) 1;
-
-//		float[] lineSpacingArr = new float[] {10*lineScaleMul, 50*lineScaleMul, 100*lineScaleMul};
-		float[] lineSpacingArr = new float[] {100*lineScaleMul};
-		colorHeap.set(1f, 1f, 1f, .3f);
-
-
-		float upAngle = cameraHandler.getYAngle() % 180;
-		float spinAngle = cameraHandler.getZAngle() % 180;
-		boolean isSide = upAngle == 0 && spinAngle == 90;
-		boolean isFront = upAngle == 0 && spinAngle == 0;
-
-
-		if (cameraHandler.isOrtho() && isSide) {
-			fillLineHeap(X, Y, Z);
-			//Side Horizontal Lines
-			zeroLineHeap(Y);
-			setLineHeapDir(Z, lineSpacingArr[0]);
-			drawDuoLine(pipeline, lineSpacingArr, 0, Z);
-			//Side Vertical Lines
-			fillLineHeap(Z, X, Y);
-			setLineHeapDir(X, lineSpacingArr[0]);
-			drawDuoLine(pipeline, lineSpacingArr, 0, X);
-		} else if(cameraHandler.isOrtho() && isFront){
-			fillLineHeap(Y, X, Z);
-			//Front Horizontal Lines
-			zeroLineHeap(X);
-			setLineHeapDir(Z, lineSpacingArr[0]);
-			drawDuoLine(pipeline, lineSpacingArr, 0, Z);
-
-			//Front Vertical Lines
-			fillLineHeap(Z, X, Y);
-			setLineHeapDir(Y, lineSpacingArr[0]);
-			drawDuoLine(pipeline, lineSpacingArr, 0, Y);
-		} else {
-			//Grid floor X
-			fillLineHeap(X, Y, Z);
-			setLineHeapDir(Y, lineSpacingArr[0]);
-			drawDuoLine(pipeline, lineSpacingArr, 0, Y);
-			//Grid floor Y
-			fillLineHeap(Y, X, Z);
-			setLineHeapDir(X, lineSpacingArr[0]);
-			drawDuoLine(pipeline, lineSpacingArr, 0, X);
-		}
-
-		// X
-		colorHeap.set(1f, .5f, .5f, .7f);
-		pipeline.addVert(vec3Heap.set(-lineLength, 0, 0), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
-		pipeline.addVert(vec3Heap.set(lineLength, 0, 0), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
-		pipeline.addVert(vec3Heap.set(0, 0, 0), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
-
-		// Y
-		colorHeap.set(.5f, 1f, .5f, .7f);
-		pipeline.addVert(vec3Heap.set(0, -lineLength, 0), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
-		pipeline.addVert(vec3Heap.set(0, lineLength, 0), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
-		pipeline.addVert(vec3Heap.set(0, 0, 0), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
-
-		// Z
-		colorHeap.set(.5f, .5f, 1f, .7f);
-		pipeline.addVert(vec3Heap.set(0, 0, -lineLength), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
-		pipeline.addVert(vec3Heap.set(0, 0, lineLength), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
-		pipeline.addVert(vec3Heap.set(0, 0, 0), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
-
-	}
-
-	private void fillLineHeap(int pos) {
-		lineHeapPos[0] = 0;
-		lineHeapPos[1] = 0;
-		lineHeapPos[2] = 0;
-		lineHeapNeg[0] = 0;
-		lineHeapNeg[1] = 0;
-		lineHeapNeg[2] = 0;
-
-		lineHeapPos[pos] = lineLength;
-		lineHeapNeg[pos] = -lineLength;
-	}
-	private void fillLineHeap2(int pos) {
-		lineHeapPos[(pos+1)%3] = 0;
-		lineHeapNeg[(pos+1)%3] = 0;
-		lineHeapPos[(pos+2)%3] = 0;
-		lineHeapNeg[(pos+2)%3] = 0;
-
-		lineHeapPos[pos] = lineLength;
-		lineHeapNeg[pos] = -lineLength;
-	}
-	private void fillLineHeap(int mainPos, int zero1, int zero2) {
-		lineHeapPos[mainPos] = lineLength;
-		lineHeapNeg[mainPos] = -lineLength;
-
-		lineHeapPos[zero1] = 0;
-		lineHeapNeg[zero1] = 0;
-
-		lineHeapPos[zero2] = 0;
-		lineHeapNeg[zero2] = 0;
-	}
-	private void setLineHeap(int pos, float value) {
-		lineHeapPos[pos] = value;
-		lineHeapNeg[pos] = -value;
-	}
-	private void setLineHeap(int pos) {
-		lineHeapPos[pos] = lineLength;
-		lineHeapNeg[pos] = -lineLength;
-	}
-	private void setLineHeapDir(int pos, float value) {
-		lineHeapDir[0] = 0;
-		lineHeapDir[1] = 0;
-		lineHeapDir[2] = 0;
-		lineHeapDir[pos] = value;
-	}
-	private void zeroLineHeap(int pos) {
-		lineHeapPos[pos] = 0;
-		lineHeapNeg[pos] = 0;
-	}
-	private void zeroLineHeap(int pos1, int pos2) {
-		lineHeapPos[pos1] = 0;
-		lineHeapNeg[pos1] = 0;
-		lineHeapPos[pos2] = 0;
-		lineHeapNeg[pos2] = 0;
-	}
 
 	private void drawDuoLine(ShaderPipeline pipeline, float[] lineSpacing, int index, int lhi){
 		float lS = lineSpacing[index];//1
@@ -346,35 +307,6 @@ public class GridPainter2 {
 //		}
 	}
 
-
-	private void drawLines(){
-		float alpha = 1.0f;
-		float minPixelGridSize = 5.0f;
-
-		float gridStart = 0;
-		float gridEnd = 10000;
-
-		float gridMin = 5.0f;
-		float gridMid = gridMin*10;
-		float gridMax = gridMin*10*10;
-
-
-
-		for(int i = 0; i<10; i++) {
-			drawLine(i*gridMax);
-			for(int j = 1; j<10; j++) {
-				drawLine(i*gridMax+j*gridMid);
-				for(int k = 1; k<10; k++) {
-					drawLine(i*gridMax+j*gridMid + k*gridMin);
-				}
-			}
-		}
-
-	}
-
-	private void drawLine(float point){
-
-	}
 
 
 	Vec3 startHeap = new Vec3();
@@ -415,14 +347,46 @@ public class GridPainter2 {
 		// Line end
 		vec3Heap.set(gridDir2).scale(spread2);
 		endHeap.set(startHeap).add(vec3Heap);
+		vec3Heap.set(gridDir1).scale(spread1);
 
-		addLinePoints(pipeline, startHeap, endHeap, gridDir1, gridDist, spread1);
+
+		colorHeap.set(1f, .5f, .5f, 1);
+
+		startHeap.set(-100, -100, 0);
+		endHeap.set(100, -100, 0);
+		pipeline.addVert(startHeap, Vec3.Y_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+		pipeline.addVert(endHeap, Vec3.Y_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+//		pipeline.addVert(startHeap, vec3Heap, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+//		pipeline.addVert(endHeap, vec3Heap, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+
+//		addLinePoints(pipeline, startHeap, endHeap, gridDir1, gridDist, spread1);
 
 
+		colorHeap.set(.5f, 1f, .5f, 1);
 		vec3Heap.set(gridDir1).scale(spread1);
 		endHeap.set(startHeap).add(vec3Heap);
+		vec3Heap.set(gridDir2).scale(spread2);
 
-		addLinePoints(pipeline, startHeap, endHeap, gridDir2, gridDist, spread2);
+
+		startHeap.set(-100, -100, 0);
+		endHeap.set(-100, 100, 0);
+		pipeline.addVert(startHeap, Vec3.X_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+		pipeline.addVert(endHeap, Vec3.X_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+
+//		pipeline.addVert(startHeap, vec3Heap, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+//		pipeline.addVert(endHeap, vec3Heap, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+
+//		addLinePoints(pipeline, startHeap, endHeap, gridDir2, gridDist, spread2);
+
+	}
+
+
+	private void makeLineSpread(ShaderPipeline pipeline, Vec3 lineStart, Vec3 lineEnd, Vec3 spreadDir, Vec4 color){
+		GridBufferSubInstance instance = new GridBufferSubInstance(null, null);
+		pipeline.startInstance(instance);
+		pipeline.addVert(lineStart, spreadDir, color, vec2Heap, color, Vec3.ZERO);
+		pipeline.addVert(lineEnd, spreadDir, color, vec2Heap, color, Vec3.ZERO);
+		pipeline.endInstance();
 
 	}
 
@@ -434,6 +398,36 @@ public class GridPainter2 {
 		vec3.z = Math.round(vec3.z) + adj.z;
 
 		vec3.scale(prec);
+	}
+
+
+	private static class HalfGrid {
+		Vec3 lineStart  = new Vec3();
+		Vec3 lineEnd    = new Vec3();
+		Vec3 lineSpread = new Vec3();
+		Vec3 lineNorm = new Vec3();
+		Vec4 lineColor  = new Vec4();
+
+		HalfGrid(Vec3 lineStart,
+		         Vec3 lineEnd,
+		         Vec3 lineSpread,
+		         Vec4 lineColor){
+			this.lineStart = lineStart;
+			this.lineEnd = lineEnd;
+			this.lineSpread = lineSpread;
+			this.lineColor = lineColor;
+		}
+		HalfGrid(Vec3 lineStart,
+		         Vec3 lineEnd,
+		         Vec3 lineSpread,
+		         Vec3 lineNorm,
+		         Vec4 lineColor){
+			this.lineStart = lineStart;
+			this.lineEnd = lineEnd;
+			this.lineSpread = lineSpread;
+			this.lineNorm = lineNorm;
+			this.lineColor = lineColor;
+		}
 	}
 
 }

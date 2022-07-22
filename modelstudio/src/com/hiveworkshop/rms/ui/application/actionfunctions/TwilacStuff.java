@@ -19,6 +19,9 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.CrudeSelectionUVMask;
 import com.hiveworkshop.rms.ui.application.tools.*;
+import com.hiveworkshop.rms.ui.application.tools.shadereditors.BoneShaderEditPanel;
+import com.hiveworkshop.rms.ui.application.tools.shadereditors.GridShaderEditPanel;
+import com.hiveworkshop.rms.ui.application.tools.shadereditors.MeshShaderEditPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
@@ -214,7 +217,7 @@ public class TwilacStuff {
 
 		private static void doStuff(ModelHandler modelHandler) {
 			if(modelHandler != null && modelHandler.getPreviewRenderModel() != null){
-				ShaderEditPanel.show(ProgramGlobals.getMainPanel(), modelHandler.getPreviewRenderModel().getBufferFiller());
+				MeshShaderEditPanel.show(ProgramGlobals.getMainPanel(), modelHandler.getPreviewRenderModel().getBufferFiller());
 			}
 		}
 	}
@@ -228,6 +231,19 @@ public class TwilacStuff {
 		private static void doStuff(ModelHandler modelHandler) {
 			if(modelHandler != null && modelHandler.getRenderModel() != null){
 				BoneShaderEditPanel.show(ProgramGlobals.getMainPanel(), modelHandler.getRenderModel().getBufferFiller());
+			}
+		}
+	}
+
+	private static class GridShaderEditor extends TwiFunction {
+
+		public GridShaderEditor() {
+			super("Grid Shader Editor", GridShaderEditor::doStuff);
+		}
+
+		private static void doStuff(ModelHandler modelHandler) {
+			if(modelHandler != null && modelHandler.getRenderModel() != null){
+				GridShaderEditPanel.show(ProgramGlobals.getMainPanel(), modelHandler.getRenderModel().getBufferFiller());
 			}
 		}
 	}
@@ -277,7 +293,7 @@ public class TwilacStuff {
 			super("Open Texture Composition Panel", TextureComposition::doStuff);
 		}
 
-		private static void doStuff(ModelHandler modelHandler) {
+		private static void doStuff() {
 			TextureCompositionPanel.showPanel(ProgramGlobals.getMainPanel());
 		}
 	}
@@ -527,8 +543,11 @@ public class TwilacStuff {
 	public static JMenuItem getTestShaderStuffMenuItem() {
 		return new MeshShaderEditor().getMenuItem();
 	}
-	public static JMenuItem getTestShaderStuff2MenuItem() {
+	public static JMenuItem getTextShaderStuffNodeMenuItem() {
 		return new NodeShaderEditor().getMenuItem();
+	}
+	public static JMenuItem getTextShaderStuffGridMenuItem() {
+		return new GridShaderEditor().getMenuItem();
 	}
 	public static JMenuItem getDupeForAnimStuffMenuItem() {
 		return new DupeForAnimStuff().getMenuItem();
@@ -565,6 +584,10 @@ public class TwilacStuff {
 			this.name = name;
 			menuItem = new JMenuItem(getAsAction(consumer));
 		}
+		public TwiFunction(String name, Runnable runnable) {
+			this.name = name;
+			menuItem = new JMenuItem(getAsAction(runnable));
+		}
 
 		public JMenuItem getMenuItem() {
 			return menuItem;
@@ -578,6 +601,14 @@ public class TwilacStuff {
 					if(modelPanel != null){
 						consumer.accept(modelPanel.getModelHandler());
 					}
+				}
+			};
+		}
+		private AbstractAction getAsAction(Runnable runnable) {
+			return new AbstractAction(name) {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					runnable.run();
 				}
 			};
 		}
