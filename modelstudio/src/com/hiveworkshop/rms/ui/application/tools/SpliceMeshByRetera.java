@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.addactions.AddGeosetAction;
-import com.hiveworkshop.rms.editor.actions.model.SetGeosetAnimAction;
+import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.ui.application.FileDialog;
@@ -15,10 +15,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.Pair;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SpliceMeshByRetera {
@@ -78,8 +75,23 @@ public class SpliceMeshByRetera {
 
 		List<UndoAction> undoActions = new ArrayList<>();
 		List<String> warnings = new ArrayList<>();
+		List<Geoset> geosets = meshModel.getGeosets();
 
-		for (final Geoset geo : meshModel.getGeosets()) {
+		GeosetAnim geosetAnim = animationModel.getGeosetAnim(0);
+		if(geosetAnim != null){
+			geosets.forEach(geoset -> geoset.setGeosetAnim(geosetAnim.deepCopy().setGeoset(geoset)));
+		}
+
+
+		Set<Material> materials = geosets.stream().map(Geoset::getMaterial).collect(Collectors.toSet());
+		for(Material material : materials){
+			if(!animationModel.contains(material)){
+				undoActions.add(new AddMaterialAction(material, animationModel, null));
+			}
+		}
+
+
+		for (final Geoset geo : geosets) {
 			for (final GeosetVertex gv : geo.getVertices()) {
 				if(gv.getSkinBones() != null){
 					replaceHDBones(animationModel, nameToNode, warnings, gv);
@@ -88,11 +100,9 @@ public class SpliceMeshByRetera {
 				}
 			}
 			undoActions.add(new AddGeosetAction(geo, animationModel, null));
-			GeosetAnim geosetAnim = animationModel.getGeosetAnim(0);
-			if(geosetAnim != null){
-				undoActions.add(new SetGeosetAnimAction(animationModel, geo, geosetAnim.deepCopy(),  null));
-			}
 		}
+
+
 		modelHandler.getUndoManager().pushAction(new CompoundAction("Splice Mesh", undoActions, ModelStructureChangeListener.changeListener::nodesUpdated).redo());
 
 	}

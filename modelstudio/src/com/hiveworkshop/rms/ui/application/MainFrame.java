@@ -32,12 +32,29 @@ public class MainFrame extends JFrame {
 				if (CloseModel.closeAll()) {
 					System.exit(0);
 				}
+				getShutdownTimer().start();
 			}
 		});
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
 		setLocationRelativeTo(null);
 		setVisible(true);
+	}
+
+	private Timer getShutdownTimer() {
+		Timer timer = new Timer(10000, a -> {
+			// This is meant to shut down the program process if the Frame has crashed.
+			// Not sure if it will work, but it's a bit of an insurance...maybe?
+//					System.out.println("isValid: " + MainFrame.this.isValid());
+//					System.out.println("isVisible: " + MainFrame.this.isVisible());
+//					System.out.println("getGraphics: " + MainFrame.this.getGraphics());
+//					System.out.println("getRootPane: " + MainFrame.this.getRootPane());
+			if(!MainFrame.this.isVisible()){
+				System.exit(0);
+			}
+		});
+		timer.setRepeats(false);
+		return timer;
 	}
 
 	public static void create(final List<String> startupModelPaths) {
@@ -47,6 +64,16 @@ public class MainFrame extends JFrame {
 		if (!startupModelPaths.isEmpty()) {
 			for (final String path : startupModelPaths) {
 				fileDialog.openFile(new File(path));
+			}
+		}
+	}
+
+	// For testing without opening any GUI.
+	public static void justTestFiles(final List<String> startupModelPaths) {
+		FileDialog fileDialog = new FileDialog();
+		if (!startupModelPaths.isEmpty()) {
+			for (final String path : startupModelPaths) {
+				fileDialog.openFileNoGUI(new File(path));
 			}
 		}
 	}

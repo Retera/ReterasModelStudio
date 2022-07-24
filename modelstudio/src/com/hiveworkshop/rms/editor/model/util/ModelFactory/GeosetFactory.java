@@ -33,8 +33,13 @@ public class GeosetFactory {
 		for (long size : mdlxGeoset.matrixGroups) {
 			Matrix m = new Matrix();
 			for (int i = 0; i < size; i++) {
-				m.add((Bone) infoHolder.idObjMap.get((int) mdlxGeoset.matrixIndices[index]));
-//				m.addId((int) mdlxGeoset.matrixIndices[index]);
+				int matrixIndex = (int) mdlxGeoset.matrixIndices[index];
+				IdObject idObject = infoHolder.idObjMap.get(matrixIndex);
+				if(idObject instanceof Bone){
+					m.add((Bone) idObject);
+				} else {
+					System.out.println("Node " + matrixIndex + " is not of type Bone, but of type " + idObject.getClass().getSimpleName() + "");
+				}
 				index++;
 			}
 			geoset.addMatrix(m);

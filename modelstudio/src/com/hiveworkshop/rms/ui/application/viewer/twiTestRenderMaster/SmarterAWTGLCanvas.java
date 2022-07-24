@@ -55,7 +55,7 @@ public class SmarterAWTGLCanvas extends AWTGLCanvas {
 	private static GraphicsDevice defaultScreenDevice = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 	static {
 		try {
-			pbuffer = new Pbuffer(200, 200, pixelFormat, null);
+			pbuffer = new Pbuffer(256, 256, pixelFormat, null);
 			sharedDrawable = new SharedDrawable(pbuffer);
 		} catch (LWJGLException e) {
 			throw new RuntimeException(e);
