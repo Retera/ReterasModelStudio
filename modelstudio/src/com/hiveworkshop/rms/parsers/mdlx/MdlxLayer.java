@@ -17,25 +17,185 @@ public class MdlxLayer extends MdlxAnimatedObject {
 	public int textureAnimationId = -1;
 	public long coordId = 0;
 	public float alpha = 1;
-	/** 
-	 * @since 900
-	 */
+
+	// since 900
 	public float emissiveGain = 1;
-	/** 
-	 * @since 1000
-	 */
+	// since 1000
 	public float[] fresnelColor = new float[] { 1, 1, 1 };
-	/** 
-	 * @since 1000
-	 */
 	public float fresnelOpacity = 0;
-	/** 
-	 * @since 1000
-	 */
 	public float fresnelTeamColor = 0;
+	// since 1100
+	public int[] hdTextureIds;
+	public int[] hdTextureSlots;
 
 	@Override
 	public void readMdx(final BinaryReader reader, final int version) {
+		final int position = reader.position();
+		final long size = reader.readUInt32();
+		System.out.println("layer size: " + size);
+//		if(version == 1100){
+//			System.out.println("v" + 1100 + ", number: " + reader.readInt32());
+//			filterMode = FilterMode.fromId(1);
+//		} else {
+//		}
+		if(version != 1100){
+			filterMode = FilterMode.fromId(reader.readInt32());
+
+			flags = reader.readInt32(); // UInt32 in JS
+			textureId = reader.readInt32();
+			textureAnimationId = reader.readInt32();
+			coordId = reader.readInt32();
+			alpha = reader.readFloat32();
+
+			if (version > 800) {
+				emissiveGain = reader.readFloat32();
+
+				if (version > 900) {
+					reader.readFloat32Array(fresnelColor);
+					fresnelOpacity = reader.readFloat32();
+					fresnelTeamColor = reader.readFloat32();
+				}
+			}
+
+			readTimelines(reader, size - (reader.position() - position));
+		} else {
+			int sizeTracker = 4;
+			filterMode = FilterMode.fromId(reader.readInt32());
+			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): fMode " + filterMode);
+			sizeTracker+=4;
+
+			flags = reader.readInt32(); // UInt32 in JS
+			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): flag  " + flags);
+			sizeTracker+=4;
+
+			textureId = reader.readInt32();
+			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): not-texId? " + textureId);
+			sizeTracker+=4;
+
+			textureAnimationId = reader.readInt32();
+			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): tAnim " + textureAnimationId);
+			sizeTracker+=4;
+
+			coordId = reader.readInt32();
+			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): coord " + coordId);
+			sizeTracker+=4;
+
+			alpha = reader.readFloat32();
+			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): alpha " + alpha);
+			sizeTracker+=4;
+
+			emissiveGain = reader.readFloat32();
+			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): emGain " + emissiveGain);
+			sizeTracker+=4;
+
+			reader.readFloat32Array(fresnelColor);
+			sizeTracker+=4;
+			sizeTracker+=4;
+			sizeTracker+=4;
+
+			fresnelOpacity = reader.readFloat32();
+			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): frsOp " + fresnelOpacity);
+			sizeTracker+=4;
+
+			fresnelTeamColor = reader.readFloat32();
+			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): fresTC " + fresnelTeamColor);
+			sizeTracker+=4;
+
+			int isHD = reader.readInt32();
+			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): hdFlag(?) " + isHD);
+			sizeTracker+=4;
+
+			int numTextures = reader.readInt32();
+			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): num-texs? " + numTextures);
+			sizeTracker+=4;
+
+			textureId = reader.readInt32();
+			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): texId " + textureId);
+			sizeTracker+=4;
+
+			int temp;
+			temp = reader.readInt32();
+			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): temp " + temp);
+			sizeTracker+=4;
+
+
+//			System.out.println("sizeTracker: " + sizeTracker);
+
+			if(isHD == 1){
+				System.out.println("HD vars");
+//				for(int i = 0; i<10; i++){
+//					temp = reader.readInt32();
+//					System.out.println(sizeTracker/4 + " (" + sizeTracker + "): " + i + "? " + temp);
+//					sizeTracker+=4;
+//				}
+				hdTextureIds = new int[5];
+				hdTextureSlots = new int[5];
+
+
+				hdTextureIds[0] = reader.readInt32();
+				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): 0 Normal? " + hdTextureIds[0]);
+				sizeTracker+=4;
+
+
+				hdTextureSlots[0] = reader.readInt32();
+				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): 1? " + hdTextureSlots[0]);
+				sizeTracker+=4;
+
+
+				hdTextureIds[1] = reader.readInt32();
+				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): 2 ORM? " + hdTextureIds[1]);
+				sizeTracker+=4;
+
+
+				hdTextureSlots[1] = reader.readInt32();
+				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): 3? " + hdTextureSlots[1]);
+				sizeTracker+=4;
+
+
+				hdTextureIds[2] = reader.readInt32();
+				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): 4 Emissive? " + hdTextureIds[2]);
+				sizeTracker+=4;
+
+
+				hdTextureSlots[2] = reader.readInt32();
+				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): 5 Black?? " + hdTextureSlots[2]);
+				sizeTracker+=4;
+
+
+				hdTextureIds[3] = reader.readInt32();
+				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): 6 TC1? " + hdTextureIds[3]);
+				sizeTracker+=4;
+
+
+				hdTextureSlots[3] = reader.readInt32();
+				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): 7 TC2? " + hdTextureSlots[3]);
+				sizeTracker+=4;
+
+
+				hdTextureIds[4] = reader.readInt32();
+				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): 8 env1? " + hdTextureIds[4]);
+				sizeTracker+=4;
+
+
+				hdTextureSlots[4] = reader.readInt32();
+				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): 9 env2? " + hdTextureSlots[4]);
+				sizeTracker+=4;
+
+			}
+			System.out.println("flags: " + Integer.toBinaryString(flags) + " ("  + flags + ")");
+			System.out.println(sizeTracker + "/" + size + " layer bytes read");
+
+			readTimelines(reader, size - (reader.position() - position));
+
+//			for(; sizeTracker< size; sizeTracker+=4){
+//				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): " + reader.readInt32());
+////				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): " + reader.read(4));
+//			}
+		}
+	}
+
+
+	public void readMdxORG(final BinaryReader reader, final int version) {
 		final int position = reader.position();
 		final long size = reader.readUInt32();
 

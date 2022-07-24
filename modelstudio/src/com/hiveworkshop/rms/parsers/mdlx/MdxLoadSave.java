@@ -40,7 +40,7 @@ public class MdxLoadSave {
 	private static final int FAFX = ('F' << 24) | ('A' << 16) | ('F' << 8) | ('X');// War3ID.fromString("FAFX").getValue();
 	private static final int BPOS = ('B' << 24) | ('P' << 16) | ('O' << 8) | ('S');// War3ID.fromString("BPOS").getValue();
 
-	public static void loadMdx(MdlxModel mdlxModel, final ByteBuffer buffer) {
+	public static void loadMdxORG(MdlxModel mdlxModel, final ByteBuffer buffer) {
 		final BinaryReader reader = new BinaryReader(buffer);
 
 		if (reader.readTag() != MDLX) {
@@ -84,6 +84,131 @@ public class MdxLoadSave {
 //			throw new RuntimeException(e);
 		}
 	}
+	public static void loadMdx(MdlxModel mdlxModel, final ByteBuffer buffer) {
+		final BinaryReader reader = new BinaryReader(buffer);
+//		int LAYS = ('L' << 24) | ('A' << 16) | ('Y' << 8) | ('S');
+//		System.out.println("LAYS = " + LAYS);
+//		System.out.println("VERS = " + VERS
+//				+ "\nMODL = " + MODL
+//				+ "\nSEQS = " + SEQS
+//				+ "\nGLBS = " + GLBS
+//				+ "\nMTLS = " + MTLS
+//				+ "\nTEXS = " + TEXS
+//				+ "\nTXAN = " + TXAN
+//				+ "\nGEOS = " + GEOS
+//				+ "\nGEOA = " + GEOA
+//				+ "\nBONE = " + BONE
+//				+ "\nLITE = " + LITE
+//				+ "\nHELP = " + HELP
+//				+ "\nATCH = " + ATCH
+//				+ "\nPIVT = " + PIVT
+//				+ "\nPREM = " + PREM
+//				+ "\nPRE2 = " + PRE2
+//				+ "\nCORN = " + CORN
+//				+ "\nRIBB = " + RIBB
+//				+ "\nCAMS = " + CAMS
+//				+ "\nEVTS = " + EVTS
+//				+ "\nCLID = " + CLID
+//				+ "\nFAFX = " + FAFX
+//				+ "\nBPOS = " + BPOS);
+
+		if (reader.readTag() != MDLX) {
+			throw new IllegalStateException("WrongMagicNumber");
+		}
+		try {
+			System.out.println("bufferSize: " + reader.remaining());
+			while (reader.remaining() > 0) {
+				int tag = 0;
+				int size = 0;
+				int mode = 0;
+				try {
+					mode = 0;
+					tag = reader.readTag();
+					mode = 1;
+					size = reader.readInt32();
+					mode = 2;
+					System.out.println("tag: " + new War3ID(tag));
+
+					lodByTag(mdlxModel, reader, tag, size);
+				} catch (Exception e) {
+					e.printStackTrace();
+					tryToRecover(mdlxModel, reader, tag, size, mode);
+
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			ExceptionPopup.display(e);
+//			throw new RuntimeException(e);
+		}
+
+		for(int i = 0; i<mdlxModel.textures.size(); i++){
+			System.out.println("#" + i + ": " + mdlxModel.textures.get(i).path + ", " + mdlxModel.textures.get(i).replaceableId);
+		}
+	}
+
+	private static void tryToRecover(MdlxModel mdlxModel, BinaryReader reader, int tag, int size, int mode) {
+		boolean hasFound = false;
+		int tempTag = 0;
+		int testTag = 0;
+		int i = 0;
+		int j = 0;
+		System.out.println("remaining: " + reader.remaining() + "(tag: " + tag + ", size: " + size + ", mode: " + mode + ")");
+		while (reader.remaining() > 0 && !hasFound) {
+			i++;
+//						tempTag = (tempTag<<8) + reader.readInt8();
+			tempTag = (tempTag<<16) + reader.readInt16();
+			testTag = Integer.reverseBytes(tempTag);
+			hasFound = switch (testTag) {
+				case VERS, MODL, SEQS, GLBS, MTLS, TEXS, TXAN, GEOS, GEOA, BONE, LITE, HELP, ATCH, PIVT, PREM, PRE2, CORN, RIBB, CAMS, EVTS, CLID, FAFX, BPOS -> true;
+				default -> false;
+			};
+			if(testTag == 1195724627){
+				System.out.println("WOOOP!");
+			}
+			if(0<= j && j<300 && testTag != 0){
+				j++;
+				System.out.println(testTag + " (" + tempTag + ") ");
+			}
+		}
+		System.out.println("Geos: " + GEOS);
+		System.out.println("tried " + i + "times! testtag: " + testTag + ", temptag:" + tempTag + ", has found: " + hasFound);
+		if(reader.remaining() > 32 && hasFound){
+//						int size = reader.readInt32();
+			size = reader.readInt32();
+			System.out.println("loading tag: " + testTag + " with size: " + size);
+			lodByTag(mdlxModel, reader, testTag, size);
+		}
+	}
+
+	private static void lodByTag(MdlxModel mdlxModel, BinaryReader reader, int tag, int size) {
+		switch (tag) {
+			case VERS -> loadVersionChunk(mdlxModel, reader);
+			case MODL -> loadModelChunk(mdlxModel, reader);
+			case SEQS -> loadStaticObjects(mdlxModel.version, mdlxModel.sequences, MdlxSequence::new, reader, size / 132);
+			case GLBS -> loadGlobalSequenceChunk(mdlxModel.globalSequences, reader, size);
+			case MTLS -> loadDynamicObjects(mdlxModel.version, mdlxModel.materials, MdlxMaterial::new, reader, size);
+			case TEXS -> loadStaticObjects(mdlxModel.version, mdlxModel.textures, MdlxTexture::new, reader, size / 268);
+			case TXAN -> loadDynamicObjects(mdlxModel.version, mdlxModel.textureAnimations, MdlxTextureAnimation::new, reader, size);
+			case GEOS -> loadDynamicObjects(mdlxModel.version, mdlxModel.geosets, MdlxGeoset::new, reader, size);
+			case GEOA -> loadDynamicObjects(mdlxModel.version, mdlxModel.geosetAnimations, MdlxGeosetAnimation::new, reader, size);
+			case BONE -> loadDynamicObjects(mdlxModel.version, mdlxModel.bones, MdlxBone::new, reader, size);
+			case LITE -> loadDynamicObjects(mdlxModel.version, mdlxModel.lights, MdlxLight::new, reader, size);
+			case HELP -> loadDynamicObjects(mdlxModel.version, mdlxModel.helpers, MdlxHelper::new, reader, size);
+			case ATCH -> loadDynamicObjects(mdlxModel.version, mdlxModel.attachments, MdlxAttachment::new, reader, size);
+			case PIVT -> loadPivotPointChunk(mdlxModel.pivotPoints, reader, size);
+			case PREM -> loadDynamicObjects(mdlxModel.version, mdlxModel.particleEmitters, MdlxParticleEmitter::new, reader, size);
+			case PRE2 -> loadDynamicObjects(mdlxModel.version, mdlxModel.particleEmitters2, MdlxParticleEmitter2::new, reader, size);
+			case CORN -> loadDynamicObjects(mdlxModel.version, mdlxModel.particleEmittersPopcorn, MdlxParticleEmitterPopcorn::new, reader, size);
+			case RIBB -> loadDynamicObjects(mdlxModel.version, mdlxModel.ribbonEmitters, MdlxRibbonEmitter::new, reader, size);
+			case CAMS -> loadDynamicObjects(mdlxModel.version, mdlxModel.cameras, MdlxCamera::new, reader, size);
+			case EVTS -> loadDynamicObjects(mdlxModel.version, mdlxModel.eventObjects, MdlxEventObject::new, reader, size);
+			case CLID -> loadDynamicObjects(mdlxModel.version, mdlxModel.collisionShapes, MdlxCollisionShape::new, reader, size);
+			case FAFX -> loadStaticObjects(mdlxModel.version, mdlxModel.faceEffects, MdlxFaceEffect::new, reader, size / 340);
+			case BPOS -> loadBindPoseChunk(mdlxModel.bindPose, reader, size);
+			default -> mdlxModel.unknownChunks.add(new MdlxUnknownChunk(reader, size, new War3ID(tag)));
+		}
+	}
 
 	private static void loadVersionChunk(MdlxModel mdlxModel, final BinaryReader reader) {
 		mdlxModel.version = reader.readInt32();
@@ -114,6 +239,60 @@ public class MdxLoadSave {
 	}
 
 	private static <E extends MdlxBlock & MdlxChunk> void loadDynamicObjects(int version, List<E> out,
+	                                                                         Supplier<E> constructor,
+	                                                                         BinaryReader reader, long size) {
+		long totalSize1 = 0;
+		long totalSize = 0;
+//		System.out.println("size: " + size);
+		int readerStartPos = reader.position();
+		if(version == 1101){
+			readAndPrintChunk(version, out, constructor, reader, size);
+		} else {
+
+			while (totalSize < size) {
+				final E object = constructor.get();
+
+				object.readMdx(reader, version);
+
+				totalSize1 += object.getByteLength(version);
+//				System.out.println("totalSize1: " + totalSize1);
+
+				out.add(object);
+
+				int readerCurrPos = reader.position();
+				totalSize = readerCurrPos - readerStartPos;
+//				System.out.println("totalSize: " + totalSize);
+			}
+		}
+	}
+
+	private static <E extends MdlxBlock & MdlxChunk> void readAndPrintChunk(int version, List<E> out, Supplier<E> constructor, BinaryReader reader, long size) {
+		int matStartPos = reader.position();
+		int sizeTracker = 0;
+		final E object = constructor.get();
+
+		object.readMdx(reader, version);
+		out.add(object);
+		int oneObjPos = reader.position();
+		sizeTracker = oneObjPos - matStartPos;
+		System.out.println("first obj size: " + sizeTracker);
+		if(sizeTracker< size){
+			final E object2 = constructor.get();
+
+			object2.readMdx(reader, version);
+			out.add(object2);
+			int twoObjPos = reader.position();
+			sizeTracker = twoObjPos - oneObjPos;
+			System.out.println("second obj size: " + sizeTracker);
+		}
+		for (int i = sizeTracker; i < size; i+=4) {
+			System.out.println(i/4 + " (" + i + "): " + reader.read(4));
+		}
+
+		int matEndPos = reader.position();
+		System.out.println("read " + (matEndPos - matStartPos) + " bytes");
+	}
+	private static <E extends MdlxBlock & MdlxChunk> void loadDynamicObjectsORG(int version, List<E> out,
 	                                                                         Supplier<E> constructor,
 	                                                                         BinaryReader reader, long size) {
 		long totalSize = 0;
