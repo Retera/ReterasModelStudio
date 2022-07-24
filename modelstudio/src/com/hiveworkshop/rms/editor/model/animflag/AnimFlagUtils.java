@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.editor.model.animflag;
 
+import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff.TTan;
@@ -156,6 +157,7 @@ public class AnimFlagUtils {
 
 	private static <T> AnimFlag<T> getAsTypedOrNull(AnimFlag<T> animFlag, AnimFlag<?> source) {
 		if (animFlag instanceof IntAnimFlag && source instanceof IntAnimFlag
+				|| animFlag instanceof BitmapAnimFlag && source instanceof BitmapAnimFlag
 				|| animFlag instanceof FloatAnimFlag && source instanceof FloatAnimFlag
 				|| animFlag instanceof Vec3AnimFlag && source instanceof Vec3AnimFlag
 				|| animFlag instanceof QuatAnimFlag && source instanceof QuatAnimFlag) {
@@ -189,6 +191,8 @@ public class AnimFlagUtils {
 	public static <Q> AnimFlag<Q> createNewAnimFlag(Q defaultValue, String title){
 		if(defaultValue instanceof Integer){
 			return (AnimFlag<Q>) new IntAnimFlag(title);
+		} else if(defaultValue instanceof Bitmap){
+			return (AnimFlag<Q>) new BitmapAnimFlag(title);
 		} else if(defaultValue instanceof Float){
 			return (AnimFlag<Q>) new FloatAnimFlag(title);
 		} else if(defaultValue instanceof Vec3){

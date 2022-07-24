@@ -8,8 +8,8 @@ import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.TextureAnim;
+import com.hiveworkshop.rms.editor.model.animflag.BitmapAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.editor.model.util.HD_Material_Layer;
@@ -21,7 +21,7 @@ import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
-import com.hiveworkshop.rms.ui.application.model.editors.TextureValuePanel;
+import com.hiveworkshop.rms.ui.application.model.editors.TextureValuePanel2;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import com.hiveworkshop.rms.util.TwiComboBox;
@@ -37,7 +37,7 @@ import java.util.List;
 
 public class ComponentHDLayer extends ComponentPanel<Layer> {
 	private String valuePanelConstraints = "wrap, growx, hidemode 2";
-	private TextureValuePanel texturePanel;
+	private TextureValuePanel2 texturePanel;
 	private FloatValuePanel alphaPanel;
 	private FloatValuePanel emissiveGainPanel;
 	private ColorValuePanel fresnelColorPanel;
@@ -68,7 +68,7 @@ public class ComponentHDLayer extends ComponentPanel<Layer> {
 	public ComponentPanel<Layer> setSelectedItem(Layer itemToSelect) {
 		selectedItem = itemToSelect;
 //		System.out.println("Reloading panel values");
-		texturePanel.reloadNewValue(itemToSelect.getTextureId(), (IntAnimFlag) itemToSelect.find(MdlUtils.TOKEN_TEXTURE_ID), itemToSelect, MdlUtils.TOKEN_TEXTURE_ID, this::setTextureId);
+		texturePanel.reloadNewValue(itemToSelect.getTextureBitmap(), (BitmapAnimFlag) itemToSelect.find(MdlUtils.TOKEN_TEXTURE_ID), itemToSelect, MdlUtils.TOKEN_TEXTURE_ID, this::setTexture);
 		alphaPanel.reloadNewValue((float) itemToSelect.getStaticAlpha(), (FloatAnimFlag) itemToSelect.find(MdlUtils.TOKEN_ALPHA), itemToSelect, MdlUtils.TOKEN_ALPHA, this::setStaticAlpha);
 		fresnelTeamColor.reloadNewValue((float) itemToSelect.getFresnelTeamColor(), (FloatAnimFlag) itemToSelect.find(MdlUtils.TOKEN_FRESNEL_TEAM_COLOR), itemToSelect, MdlUtils.TOKEN_FRESNEL_TEAM_COLOR, this::setFresnelTeamColor);
 		fresnelOpacityPanel.reloadNewValue((float) itemToSelect.getFresnelOpacity(), (FloatAnimFlag) itemToSelect.find(MdlUtils.TOKEN_FRESNEL_OPACITY), itemToSelect, MdlUtils.TOKEN_FRESNEL_OPACITY, this::setFresnelOpacity);
@@ -133,7 +133,7 @@ public class ComponentHDLayer extends ComponentPanel<Layer> {
 		leftHandSettingsPanel.add(getTopSettingsPanel(), "wrap, growx");
 
 //		System.out.println("ComponentHDLayer: creating texturePanel");
-		texturePanel = new TextureValuePanel(modelHandler, "Texture");
+		texturePanel = new TextureValuePanel2(modelHandler, "Texture");
 //		System.out.println("ComponentHDLayer: creating alphaPanel");
 		alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA);
 		;
@@ -219,6 +219,12 @@ public class ComponentHDLayer extends ComponentPanel<Layer> {
 
 	private void setTextureId(int value){
 		Bitmap texture = model.getTexture(value);
+		if(texture != null && selectedItem.getTextureBitmap() != texture) {
+			undoManager.pushAction(new SetLayerTextureAction(texture, selectedItem, changeListener).redo());
+		}
+	}
+
+	private void setTexture(Bitmap texture){
 		if(texture != null && selectedItem.getTextureBitmap() != texture) {
 			undoManager.pushAction(new SetLayerTextureAction(texture, selectedItem, changeListener).redo());
 		}

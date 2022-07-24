@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.editor.actions.tools;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
@@ -15,8 +14,8 @@ public final class SetHdSkinAction implements UndoAction {
 	private short[] skinWeights;
 
 
-	public SetHdSkinAction(Collection<? extends Vec3> vertices, Bone[] bones, short[] skinWeights) {
-		vertices.forEach(vert -> selectedVertices.add((GeosetVertex) vert));
+	public SetHdSkinAction(Collection<GeosetVertex> vertices, Bone[] bones, short[] skinWeights) {
+		selectedVertices.addAll(vertices);
 		this.bones = bones;
 		this.skinWeights = skinWeights;
 

@@ -22,7 +22,7 @@ public enum AnimationMap {
 	/**
 	 * Layer texture ID
 	 */
-	KMTF(MdlUtils.TOKEN_TEXTURE_ID, MdlxTimelineType.UINT32_TIMELINE),
+	KMTF(MdlUtils.TOKEN_TEXTURE_ID, MdlxTimelineType.BITMAP_TIMELINE),
 	/**
 	 * Layer alpha
 	 */
@@ -206,7 +206,7 @@ public enum AnimationMap {
 	/**
 	 * Ribbon emitter texture slot
 	 */
-	KRTX(MdlUtils.TOKEN_TEXTURE_SLOT, MdlxTimelineType.UINT32_TIMELINE),
+	KRTX(MdlUtils.TOKEN_TEXTURE_SLOT, MdlxTimelineType.BITMAP_TIMELINE),
 	/**
 	 * Ribbon emitter visibility
 	 */
@@ -260,6 +260,7 @@ public enum AnimationMap {
 
 	public MdlxTimeline<?> getNewTimeline() {
 		return switch (implementation) {
+			case BITMAP_TIMELINE -> new MdlxUInt32Timeline(war3id);
 			case UINT32_TIMELINE -> new MdlxUInt32Timeline(war3id);
 			case FLOAT_TIMELINE -> new MdlxFloatTimeline(war3id);
 			case VECTOR3_TIMELINE -> new MdlxFloatArrayTimeline(3, war3id);

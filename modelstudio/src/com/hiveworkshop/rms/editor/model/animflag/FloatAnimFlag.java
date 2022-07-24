@@ -85,7 +85,13 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 		if ((typeId == ROTATION) && !sequenceMap.isEmpty()) {//&& sequenceMap.firstEntry() != null && sequenceMap.firstEntry().getValue().firstEntry().getValue().getValue() != null) {
 			return (float) 0; // magic Camera rotation!
 		}
-		return (float) identity(typeId);
+		Object identity = identity(typeId);
+		if(identity instanceof Float || identity instanceof Integer){
+
+			return (float) identity;
+		} else {
+			return (float) 0;
+		}
 	}
 
 	@Override

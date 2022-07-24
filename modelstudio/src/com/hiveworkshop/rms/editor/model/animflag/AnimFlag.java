@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.editor.model.animflag;
 
+import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
@@ -66,6 +67,7 @@ public abstract class AnimFlag<T> {
 
 	public static AnimFlag<?> createFromTimeline(MdlxTimeline<?> timeline, EditableModel model) {
 		return switch (AnimationMap.valueOf(timeline.name.asStringValue()).getImplementation()) {
+			case BITMAP_TIMELINE -> new BitmapAnimFlag((MdlxUInt32Timeline) timeline, model);
 			case UINT32_TIMELINE -> new IntAnimFlag((MdlxUInt32Timeline) timeline, model);
 			case FLOAT_TIMELINE -> new FloatAnimFlag((MdlxFloatTimeline) timeline, model);
 			case VECTOR3_TIMELINE -> new Vec3AnimFlag((MdlxFloatArrayTimeline) timeline, model);
@@ -190,7 +192,7 @@ public abstract class AnimFlag<T> {
 
 		for (int i = 0; i < size; i++) {
 			Entry<T> entry = tempEntries.get(i);
-			Q[] array = getArray(entry, mdlxTimeline);
+			Q[] array = getArray(entry, mdlxTimeline, model);
 			if(i == 0){
 				System.out.println("(Q): " + (Q) entry.getValueArr() + ", org: " + entry.getValueArr());
 				System.out.println("(Q): " + ", org: " + Arrays.toString(entry.getValueArr()));
@@ -204,8 +206,11 @@ public abstract class AnimFlag<T> {
 		return mdlxTimeline;
 	}
 
-	private <Q, W> Q[] getArray(Entry<W> entry, MdlxTimeline<Q> mdlxTimeline){
-		if(entry.getValue() instanceof Integer && mdlxTimeline instanceof MdlxUInt32Timeline){
+	private <Q, W> Q[] getArray(Entry<W> entry, MdlxTimeline<Q> mdlxTimeline, EditableModel model){
+		if(entry.getValue() instanceof Bitmap && mdlxTimeline instanceof MdlxUInt32Timeline) {
+			return (Q[]) getArray((Entry<Bitmap>) entry, (MdlxUInt32Timeline) mdlxTimeline, (Bitmap) entry.getValue(), model);
+//			return new Q[][]{new int[]{(int) entry.getValue()}, new int[]{(int) entry.getInTan()}, new int[]{(int) entry.getOutTan()}};
+		} else if(entry.getValue() instanceof Integer && mdlxTimeline instanceof MdlxUInt32Timeline){
 			return (Q[]) getArray((Entry<Integer>)entry, (MdlxUInt32Timeline) mdlxTimeline, (int)entry.getValue());
 //			return new Q[][]{new int[]{(int) entry.getValue()}, new int[]{(int) entry.getInTan()}, new int[]{(int) entry.getOutTan()}};
 		} else if(entry.getValue() instanceof Float) {
@@ -222,6 +227,10 @@ public abstract class AnimFlag<T> {
 //		return getArray(entry, mdlxTimeline);
 	}
 
+	private long[][] getArray(Entry<Bitmap> entry, MdlxUInt32Timeline line, Bitmap i, EditableModel model){
+//		return new int[][]{new int[]{entry.getValue()}, new int[]{entry.getInTan()}, new int[]{entry.getOutTan()}};
+		return new long[][]{new long[]{model.getTextureId(entry.getValue())}, new long[]{0}, new long[]{0}};
+	}
 	private long[][] getArray(Entry<Integer> entry, MdlxUInt32Timeline line, int i){
 //		return new int[][]{new int[]{entry.getValue()}, new int[]{entry.getInTan()}, new int[]{entry.getOutTan()}};
 		return new long[][]{new long[]{entry.getValue()}, new long[]{0}, new long[]{0}};
@@ -386,6 +395,7 @@ public abstract class AnimFlag<T> {
 	 */
 	public void setOrAddEntryT(Integer time, Entry<?> entry, Sequence animation) {
 		if (entry.getValue() instanceof Integer && this instanceof IntAnimFlag
+				|| entry.getValue() instanceof Bitmap && this instanceof BitmapAnimFlag
 				|| entry.getValue() instanceof Float && this instanceof FloatAnimFlag
 				|| entry.getValue() instanceof Vec3 && this instanceof Vec3AnimFlag
 				|| entry.getValue() instanceof Quat && this instanceof QuatAnimFlag) {
@@ -401,6 +411,7 @@ public abstract class AnimFlag<T> {
 
 	public void setOrAddEntry(Integer time, Entry<T> entry, Sequence animation) {
 		if (entry.getValue() instanceof Integer && this instanceof IntAnimFlag
+				|| entry.getValue() instanceof Bitmap && this instanceof BitmapAnimFlag
 				|| entry.getValue() instanceof Float && this instanceof FloatAnimFlag
 				|| entry.getValue() instanceof Vec3 && this instanceof Vec3AnimFlag
 				|| entry.getValue() instanceof Quat && this instanceof QuatAnimFlag) {

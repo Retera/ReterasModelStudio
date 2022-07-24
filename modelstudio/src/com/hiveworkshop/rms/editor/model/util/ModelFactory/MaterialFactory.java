@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.BitmapAnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxMaterial;
@@ -165,21 +165,20 @@ public class MaterialFactory {
 		if ((layer.getTVertexAnimId() >= 0) && (layer.getTVertexAnimId() < model.getTexAnims().size())) {
 			layer.setTextureAnim(model.getTexAnims().get(layer.getTVertexAnimId()));
 		}
-		IntAnimFlag txFlag = (IntAnimFlag) layer.find(MdlUtils.TOKEN_TEXTURE_ID);
+		BitmapAnimFlag txFlag = (BitmapAnimFlag) layer.find(MdlUtils.TOKEN_TEXTURE_ID);
 		if (txFlag != null) {
 			buildTextureList(model, layer);
 		}
 	}
 
 	public static void buildTextureList(EditableModel model, Layer layer) {
-		IntAnimFlag txFlag = (IntAnimFlag) layer.find(MdlUtils.TOKEN_TEXTURE_ID);
+		BitmapAnimFlag txFlag = (BitmapAnimFlag) layer.find(MdlUtils.TOKEN_TEXTURE_ID);
 
 		for (Sequence anim : txFlag.getAnimMap().keySet()){
 			for (int i = 0; i < txFlag.size(); i++) {
-				int txId = txFlag.getValueFromIndex(anim, i);
-				Bitmap texture = model.getTexture(txId);
+				Bitmap texture = txFlag.getValueFromIndex(anim, i);
 				layer.getTextures().add(texture);
-				layer.putTexture(txId, texture);
+				layer.putTexture(model.getTextureId(texture), texture);
 			}
 		}
 	}

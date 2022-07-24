@@ -77,6 +77,19 @@ public class SearchableList<T> extends JList<T> {
 		}
 	}
 
+	public SearchableList<T> addMultiSelectionListener(Consumer<Collection<T>> selectionConsumer) {
+		if(selectionConsumer != null){
+			addListSelectionListener(e -> onMultiSelection(e, selectionConsumer));
+		}
+		return this;
+	}
+
+	private void onMultiSelection(ListSelectionEvent e, Consumer<Collection<T>> selectionConsumer){
+		if(e.getValueIsAdjusting()){
+			selectionConsumer.accept(getSelectedValuesList());
+		}
+	}
+
 	public SearchableList<T> setRenderer(ListCellRenderer<Object> cellRenderer) {
 		setCellRenderer(cellRenderer);
 		return this;

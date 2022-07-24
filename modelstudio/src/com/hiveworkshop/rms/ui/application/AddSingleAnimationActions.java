@@ -288,6 +288,8 @@ public class AddSingleAnimationActions {
 
 				if (recAnimFlag instanceof IntAnimFlag && donAnimFlag instanceof IntAnimFlag){
 					addUndoActions(recToDonSequenceMap, undoActions, (IntAnimFlag) recAnimFlag, (IntAnimFlag) donAnimFlag);
+				} else if (recAnimFlag instanceof BitmapAnimFlag && donAnimFlag instanceof BitmapAnimFlag){
+					addUndoActions(recToDonSequenceMap, undoActions, (BitmapAnimFlag) recAnimFlag, (BitmapAnimFlag) donAnimFlag);
 				} else if (recAnimFlag instanceof FloatAnimFlag && donAnimFlag instanceof FloatAnimFlag){
 					addUndoActions(recToDonSequenceMap, undoActions, (FloatAnimFlag) recAnimFlag, (FloatAnimFlag) donAnimFlag);
 				} else if (recAnimFlag instanceof Vec3AnimFlag && donAnimFlag instanceof Vec3AnimFlag){

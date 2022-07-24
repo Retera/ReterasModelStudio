@@ -31,7 +31,7 @@ public class TextureTableCellRenderer extends DefaultTableCellRenderer {
 	@Override
 //	public Component getTableCellRendererComponent(final JList list, final Object value, final int index, final boolean iss, final boolean chf) {
 	public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean iss, final boolean chf, final int row, final int column) {
-		System.out.println("painting bitmap: " + value);
+//		System.out.println("painting bitmap: " + value);
 		Bitmap bitmap = null;
 		if(value instanceof Bitmap){
 			bitmap = (Bitmap) value;
@@ -56,7 +56,7 @@ public class TextureTableCellRenderer extends DefaultTableCellRenderer {
 	}
 
 	public Component getPaintedRect(Component component, Rectangle rectangle, Object value) {
-		System.out.println("painting bitmap: " + value);
+//		System.out.println("painting bitmap: " + value);
 		Bitmap bitmap = null;
 		if(value instanceof Bitmap){
 			bitmap = (Bitmap) value;

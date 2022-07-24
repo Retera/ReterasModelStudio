@@ -329,8 +329,10 @@ public abstract class ValuePanel<T> extends JPanel {
 	}
 
 	protected void changeEntry(Sequence sequence, Integer orgTime, Entry<T> newEntry) {
-		UndoAction undoAction = new ChangeFlagEntryAction<>(animFlag, newEntry, orgTime, sequence, changeListener);
-		undoManager.pushAction(undoAction.redo());
+		if(!newEntry.equals(animFlag.getEntryAt(sequence, orgTime))) {
+			UndoAction undoAction = new ChangeFlagEntryAction<>(animFlag, newEntry, orgTime, sequence, changeListener);
+			undoManager.pushAction(undoAction.redo());
+		}
 	}
 
 	private int parseTime(String val) {

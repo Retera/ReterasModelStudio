@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.BitmapAnimFlag;
 import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
@@ -226,7 +226,7 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public Bitmap getRenderTexture(TimeEnvironmentImpl animatedRenderEnvironment, EditableModel model) {
-		IntAnimFlag textureFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
+		BitmapAnimFlag textureFlag = (BitmapAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
 		if ((textureFlag != null) && (animatedRenderEnvironment != null)) {
 			if (animatedRenderEnvironment.getCurrentSequence() == null) {
 				if (textures.size() > 0) {
@@ -235,12 +235,7 @@ public class Layer extends TimelineContainer implements Named {
 					return texture;
 				}
 			}
-			Integer textureIdAtTime = textureFlag.interpolateAt(animatedRenderEnvironment);
-//			System.out.println("layer texId: " + textureIdAtTime);
-			if (textureIdAtTime >= model.getTextures().size()) {
-				return texture;
-			}
-			return model.getTextures().get(textureIdAtTime);
+			return textureFlag.interpolateAt(animatedRenderEnvironment);
 		} else {
 			return texture;
 		}

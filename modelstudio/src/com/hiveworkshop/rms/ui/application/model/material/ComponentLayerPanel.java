@@ -5,8 +5,8 @@ import com.hiveworkshop.rms.editor.actions.model.material.RemoveLayerAction;
 import com.hiveworkshop.rms.editor.actions.model.material.RemoveMaterialAction;
 import com.hiveworkshop.rms.editor.actions.model.material.SetLayerFilterModeAction;
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.animflag.BitmapAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
@@ -18,7 +18,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
-import com.hiveworkshop.rms.ui.application.model.editors.TextureValuePanel;
+import com.hiveworkshop.rms.ui.application.model.editors.TextureValuePanel2;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import com.hiveworkshop.rms.util.TwiComboBox;
@@ -128,8 +128,8 @@ public class ComponentLayerPanel extends JPanel {
 
 		leftHandSettingsPanel.add(topSettingsPanel, "wrap, growx");
 
-		TextureValuePanel texturePanel = new TextureValuePanel(modelHandler, "Texture");
-		texturePanel.reloadNewValue(layer.getTextureId(), (IntAnimFlag) layer.find(MdlUtils.TOKEN_TEXTURE_ID), layer, MdlUtils.TOKEN_TEXTURE_ID, layer::setTextureId);
+		TextureValuePanel2 texturePanel = new TextureValuePanel2(modelHandler, "Texture");
+		texturePanel.reloadNewValue(layer.getTextureBitmap(), (BitmapAnimFlag) layer.find(MdlUtils.TOKEN_TEXTURE_ID), layer, MdlUtils.TOKEN_TEXTURE_ID, layer::setTexture);
 		leftHandSettingsPanel.add(texturePanel, "wrap, growx");
 
 		FloatValuePanel alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA);

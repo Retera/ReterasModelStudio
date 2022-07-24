@@ -178,7 +178,8 @@ public class FloatTrackTableModel<T> extends AbstractTableModel {
 		} else if (lastButtons[i] != null && lastButtons[i].getClass() == Bitmap[].class) {
 			Bitmap[] bv = (Bitmap[]) lastButtons[i];
 			if (bv.length > index) {
-				return bv[(int)getValueAt(index, 1)];
+//				return bv[(int)getValueAt(index, 1)];
+				return getValueAt(index, 1);
 			}
 		}
 		return "";

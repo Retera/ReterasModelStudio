@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.editor.model.animflag;
 
+import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -53,6 +54,8 @@ public class Entry<T> {
 			return (T) new Vec3((Vec3) value);
 		} else if (value instanceof Quat) {
 			return (T) new Quat((Quat) value);
+		} else if (value instanceof Bitmap) {
+			return value;
 		} else {
 			throw new IllegalStateException(value.getClass().getName());
 		}
@@ -243,6 +246,8 @@ public class Entry<T> {
 			return ((Vec3)o2).toFloatArray();
 		} else if (o2 instanceof Quat) {
 			return ((Quat) o2).toFloatArray();
+		} else if (o2 instanceof Bitmap) {
+			return null;
 		} else {
 			throw new IllegalStateException(value.getClass().getName());
 		}

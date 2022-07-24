@@ -2,8 +2,8 @@ package com.hiveworkshop.rms.ui.application.model.material;
 
 import com.hiveworkshop.rms.editor.actions.model.material.*;
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.animflag.BitmapAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
 import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
@@ -11,7 +11,7 @@ import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
-import com.hiveworkshop.rms.ui.application.model.editors.TextureValuePanel;
+import com.hiveworkshop.rms.ui.application.model.editors.TextureValuePanel2;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import com.hiveworkshop.rms.util.TwiComboBox;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ComponentSDLayer extends ComponentPanel<Layer> {
-	private TextureValuePanel texturePanel;
+	private TextureValuePanel2 texturePanel;
 	private FloatValuePanel alphaPanel;
 	private final JPanel texturePreviewPanel;
 	private final JPanel layerFlagsPanel;
@@ -59,7 +59,7 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 	@Override
 	public ComponentPanel<Layer> setSelectedItem(Layer itemToSelect) {
 		selectedItem = itemToSelect;
-		texturePanel.reloadNewValue(itemToSelect.getTextureId(), (IntAnimFlag) itemToSelect.find(MdlUtils.TOKEN_TEXTURE_ID), itemToSelect, MdlUtils.TOKEN_TEXTURE_ID, this::setTextureId);
+		texturePanel.reloadNewValue(itemToSelect.getTextureBitmap(), (BitmapAnimFlag) itemToSelect.find(MdlUtils.TOKEN_TEXTURE_ID), itemToSelect, MdlUtils.TOKEN_TEXTURE_ID, this::setTexture);
 		alphaPanel.reloadNewValue((float) itemToSelect.getStaticAlpha(), (FloatAnimFlag) itemToSelect.find(MdlUtils.TOKEN_ALPHA), itemToSelect, MdlUtils.TOKEN_ALPHA, this::setStaticAlpha);
 
 		layerFlagsPanel.removeAll();
@@ -135,7 +135,7 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 
 		leftHandSettingsPanel.add(topSettingsPanel, "wrap, growx");
 
-		texturePanel = new TextureValuePanel(modelHandler, "Texture");
+		texturePanel = new TextureValuePanel2(modelHandler, "Texture");
 		alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA);
 
 		leftHandSettingsPanel.add(texturePanel, "wrap, growx");
@@ -194,6 +194,11 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 
 	private void setTextureId(int value){
 		Bitmap texture = model.getTexture(value);
+		if(texture != null && selectedItem.getTextureBitmap() != texture) {
+			undoManager.pushAction(new SetLayerTextureAction(texture, selectedItem, changeListener).redo());
+		}
+	}
+	private void setTexture(Bitmap texture){
 		if(texture != null && selectedItem.getTextureBitmap() != texture) {
 			undoManager.pushAction(new SetLayerTextureAction(texture, selectedItem, changeListener).redo());
 		}

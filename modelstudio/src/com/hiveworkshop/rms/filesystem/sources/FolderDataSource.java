@@ -74,10 +74,14 @@ public class FolderDataSource implements DataSource {
 	private Set<String> getListFile(){
 		if(listfile == null){
 			listfile = new HashSet<>();
-			try {
-				Files.walk(folderPath).filter(Files::isRegularFile).forEach(t -> listfile.add(folderPath.relativize(t).toString()));
-			} catch (final IOException e) {
-				throw new RuntimeException(e);
+			if(folderPath.toFile().exists()){
+				try {
+					Files.walk(folderPath).filter(Files::isRegularFile).forEach(t -> listfile.add(folderPath.relativize(t).toString()));
+				} catch (final IOException e) {
+					throw new RuntimeException(e);
+				}
+			} else {
+				System.err.println("Could not access \"" + folderPath + "\"");
 			}
 		}
 		return listfile;

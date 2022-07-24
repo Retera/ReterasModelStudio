@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.editor.model.util;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.BitmapAnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelSaving.AnimToMdlx;
 import com.hiveworkshop.rms.editor.model.util.ModelSaving.GeosetToMdlx;
 import com.hiveworkshop.rms.editor.model.util.ModelSaving.IdObjectToMdlx;
@@ -252,14 +252,13 @@ public class TempSaveModelStuff {
 //		layer.setTextureId(model.getTextureId(layer.getTextureBitmap()));
 		layer.setTextureId(model.getTextureId(layer.firstTexture()));
 		layer.setTVertexAnimId(model.getTextureAnimId(layer.getTextureAnim()));
-		IntAnimFlag txFlag = (IntAnimFlag) layer.find(MdlUtils.TOKEN_TEXTURE_ID);
+		BitmapAnimFlag txFlag = (BitmapAnimFlag) layer.find(MdlUtils.TOKEN_TEXTURE_ID);
 		if(txFlag != null){
 			for (Sequence anim : txFlag.getAnimMap().keySet()){
 				for (int i = 0; i < txFlag.size(); i++) {
-					Bitmap tempBitmap = layer.getTexture(txFlag.getValueFromIndex(anim, i));
+					Bitmap tempBitmap = txFlag.getValueFromIndex(anim, i);
 					int newerTextureId = model.getTextureId(tempBitmap);
 
-					txFlag.getEntryAt(anim, txFlag.getTimeFromIndex(anim, i)).setValue(newerTextureId);
 					layer.putTexture(newerTextureId, tempBitmap);
 				}
 			}

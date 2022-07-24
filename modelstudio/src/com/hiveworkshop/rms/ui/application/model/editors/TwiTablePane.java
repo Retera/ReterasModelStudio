@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.util.TwiComboBox;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import java.awt.*;
@@ -84,37 +85,67 @@ public class TwiTablePane<T> extends JScrollPane {
 	}
 
 	private void propertyChanged(PropertyChangeEvent evt) {
-//		System.out.println("table property changed: " + evt);
+//		if(evt.getNewValue() == null){
+//		}
 		Object oldValue = evt.getOldValue();
+//			System.out.println("table property changed: " + evt);
 		if(oldValue instanceof TableTextEditor){
+//			System.out.println("table property changed: " + evt);
 			int row = ((JTable)(evt.getSource())).getEditingRow();
 			int col = ((JTable)(evt.getSource())).getEditingColumn();
-			System.out.println("should save: " + ((TableTextEditor) evt.getOldValue()).getCellEditorValue());
 			changeEntry(row, floatTrackTableModel.getColumnName(col), ((TableTextEditor) oldValue).getEditorValue());
 		} else if(oldValue instanceof DefaultCellEditor && ((DefaultCellEditor) oldValue).getComponent() instanceof TwiComboBox){
+//			System.out.println("table property changed: " + evt);
 			int row = ((JTable)(evt.getSource())).getEditingRow();
 			int col = ((JTable)(evt.getSource())).getEditingColumn();
-			int selectedIndex = ((TwiComboBox<?>) ((DefaultCellEditor) oldValue).getComponent()).getSelectedIndex();
+			T selected = ((TwiComboBox<T>) ((DefaultCellEditor) oldValue).getComponent()).getSelected();
 
-//			changeEntry(row, floatTrackTableModel.getColumnName(col), "" + selectedIndex);
+//			if(animFlag != null && sequence != null && animFlag.hasEntryAt(sequence, (int) floatTrackTableModel.getValueAt(row, 0))){
+//				changeEntry(row, floatTrackTableModel.getColumnName(col), selected);
+//			}
+			changeEntry(row, floatTrackTableModel.getColumnName(col), selected);
 
 		}
 	}
 
 	protected void changeEntry(int row, String field, String val) {
 		if (parseFunction != null && changeAction != null && animFlag != null && sequence != null) {
-			int orgTime = (int) floatTrackTableModel.getValueAt(row, 0);
-			Entry<T> newEntry = animFlag.getEntryAt(sequence, orgTime).deepCopy();
+			Object time = floatTrackTableModel.getValueAt(row, 0);
+			if (time instanceof Integer && animFlag.hasEntryAt(sequence, (int) time)) {
+				int orgTime = (int) time;
+				Entry<T> newEntry = animFlag.getEntryAt(sequence, orgTime).deepCopy();
 
-			switch (field) {
-				case "Keyframe" -> newEntry.setTime(parseTime(val));
-				case "Value" -> newEntry.setValue(parseFunction.apply(val));
-				case "InTan" -> newEntry.setInTan(parseFunction.apply(val));
-				case "OutTan" -> newEntry.setOutTan(parseFunction.apply(val));
+				switch (field) {
+					case "Keyframe" -> newEntry.setTime(parseTime(val));
+					case "Value" -> newEntry.setValue(parseFunction.apply(val));
+					case "InTan" -> newEntry.setInTan(parseFunction.apply(val));
+					case "OutTan" -> newEntry.setOutTan(parseFunction.apply(val));
+	//				case "Texture" -> newEntry.setValue((T) floatTrackTableModel.getValueAt(row, 2));
+				}
+
+				changeAction.accept(orgTime, newEntry);
+				setSelectNew(animFlag.getIndexOfTime(sequence, newEntry.time));
 			}
+		}
+	}
+	protected void changeEntry(int row, String field, T val) {
+		if (parseFunction != null && changeAction != null && animFlag != null && sequence != null) {
+			Object time = floatTrackTableModel.getValueAt(row, 0);
+			if (time instanceof Integer && animFlag.hasEntryAt(sequence, (int) time)) {
+				int orgTime = (int) time;
+				Entry<T> newEntry = animFlag.getEntryAt(sequence, orgTime).deepCopy();
 
-			changeAction.accept(orgTime, newEntry);
-			setSelectNew(animFlag.getIndexOfTime(sequence, newEntry.time));
+				switch (field) {
+	//				case "Keyframe" -> newEntry.setTime(parseTime(val));
+					case "Value" -> newEntry.setValue(val);
+					case "InTan" -> newEntry.setInTan(val);
+					case "OutTan" -> newEntry.setOutTan(val);
+					case "Texture" -> newEntry.setValue(val);
+				}
+
+				changeAction.accept(orgTime, newEntry);
+				setSelectNew(animFlag.getIndexOfTime(sequence, newEntry.time));
+			}
 		}
 	}
 
@@ -219,6 +250,10 @@ public class TwiTablePane<T> extends JScrollPane {
 	}
 	public TwiTablePane<T> setRenderer(Class<?> clazz, TableCellRenderer renderer){
 		keyframeTable.setDefaultRenderer(clazz, renderer);
+		return this;
+	}
+	public TwiTablePane<T> setEditor(Class<?> clazz, TableCellEditor editor){
+		keyframeTable.setDefaultEditor(clazz, editor);
 		return this;
 	}
 
