@@ -61,7 +61,7 @@ public class TwiTableDefaultRenderer extends DefaultTableCellRenderer {
 //
 //		};
 //	}
-	private void timeCell(int value, boolean isSelected, Component tableCellRendererComponent) {
+	protected void timeCell(int value, boolean isSelected, Component tableCellRendererComponent) {
 		Color bgColor = Color.WHITE;
 		setForeground(null);
 		int time = value;
@@ -78,7 +78,7 @@ public class TwiTableDefaultRenderer extends DefaultTableCellRenderer {
 			tableCellRendererComponent.setBackground(bgColor);
 		}
 	}
-	private void deleteButton(Component tableCellRendererComponent) {
+	protected void deleteButton(Component tableCellRendererComponent) {
 		this.setHorizontalAlignment(SwingConstants.CENTER);
 		tableCellRendererComponent.setBackground(Color.RED);
 		tableCellRendererComponent.setForeground(Color.WHITE);

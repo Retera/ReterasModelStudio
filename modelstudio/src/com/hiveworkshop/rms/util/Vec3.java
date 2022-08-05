@@ -813,6 +813,15 @@ public class Vec3 {
 		return set(roll, pitch, yaw);
 	}
 
+
+	public Vec3 clamp(Float min, Float max){
+		float minf = min == null ? -Float.MAX_VALUE : min;
+		float maxf = max == null ? -Float.MAX_VALUE : max;
+		x = Math.max(minf, Math.min(maxf, x));
+		y = Math.max(minf, Math.min(maxf, y));
+		z = Math.max(minf, Math.min(maxf, z));
+		return this;
+	}
 	public Vec4 getVec4() {
 		return new Vec4(x, y, z, 0);
 	}

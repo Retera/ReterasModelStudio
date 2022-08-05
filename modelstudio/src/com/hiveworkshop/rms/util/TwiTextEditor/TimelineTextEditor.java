@@ -1,7 +1,8 @@
 package com.hiveworkshop.rms.util.TwiTextEditor;
 
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.SetFlagEntryMapAction;
-import com.hiveworkshop.rms.editor.model.AnimatedNode;
+import com.hiveworkshop.rms.editor.model.Named;
+import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -24,13 +25,13 @@ public class TimelineTextEditor<T> {
 	private final AnimFlag<T> animFlag;
 	private final Sequence sequence;
 	private final ModelHandler modelHandler;
-	private final AnimatedNode node;
+	private final TimelineContainer node;
 	private final JEditorPane editorPane;
 	private final Function<String, T> parseFunction;
 	private final DocumentUndoManager undoManager;
 	private final ModelStructureChangeListener changeListener;
 
-	public TimelineTextEditor(AnimFlag<T> animFlag, Sequence sequence, Function<String, T> parseFunction, AnimatedNode node, ModelHandler modelHandler){
+	public TimelineTextEditor(AnimFlag<T> animFlag, Sequence sequence, Function<String, T> parseFunction, TimelineContainer node, ModelHandler modelHandler){
 		this.animFlag = animFlag;
 		this.sequence = sequence;
 		this.modelHandler = modelHandler;
@@ -89,7 +90,8 @@ public class TimelineTextEditor<T> {
 		JPanel mainPanel = getEditorPanel();
 
 		mainPanel.setPreferredSize(ScreenInfo.getSmallWindow());
-		JFrame ugg = FramePopup.show(mainPanel, null, node.getName() + " - [" + animFlag.getName() + "] " + sequence + " (" + sequence.getLength() + ")");
+		String nameString = node instanceof Named ? ((Named) node).getName() : node.getClass().getSimpleName();
+		JFrame ugg = FramePopup.show(mainPanel, null, nameString + " - [" + animFlag.getName() + "] " + sequence + " (" + sequence.getLength() + ")");
 
 		ActionMap actionMap = new ActionMap();
 		actionMap.put(undoManager.getRedoAction().toString(), undoManager.getRedoAction());

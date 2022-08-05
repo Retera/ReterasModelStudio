@@ -1,25 +1,25 @@
 package com.hiveworkshop.rms.ui.application.model.nodepanels;
 
+import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter;
-import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ImportFileActions;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
-import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.util.TwiTextEditor.EditorHelpers;
 
 import javax.swing.*;
 
 public class ComponentParticlePanel extends ComponentIdObjectPanel<ParticleEmitter> {
 	private final ComponentEditorTextField pathField;
 
-	private final FloatValuePanel longitudePanel;
-	private final FloatValuePanel latitudePanel;
-	private final FloatValuePanel speedPanel;
-	private final FloatValuePanel gravityPanel;
-	private final FloatValuePanel emissionPanel;
-	private final FloatValuePanel visibilityPanel;
+	private final EditorHelpers.FloatEditor longitudePanel;
+	private final EditorHelpers.FloatEditor latitudePanel;
+	private final EditorHelpers.FloatEditor speedPanel;
+	private final EditorHelpers.FloatEditor gravityPanel;
+	private final EditorHelpers.FloatEditor emissionPanel;
+	private final EditorHelpers.FloatEditor visibilityPanel;
 
 	public ComponentParticlePanel(ModelHandler modelHandler) {
 		super(modelHandler);
@@ -30,63 +30,60 @@ public class ComponentParticlePanel extends ComponentIdObjectPanel<ParticleEmitt
 		exportButton.addActionListener(e -> export());
 		topPanel.add(exportButton, "wrap");
 
-		longitudePanel = new FloatValuePanel(modelHandler, "Longitude");
-		latitudePanel = new FloatValuePanel(modelHandler, "Latitude");
-		speedPanel = new FloatValuePanel(modelHandler, "Speed");
-		gravityPanel = new FloatValuePanel(modelHandler, "Gravity");
-		emissionPanel = new FloatValuePanel(modelHandler, "EmissionRate");
-		visibilityPanel = new FloatValuePanel(modelHandler, "Visibility");
-		topPanel.add(longitudePanel, "spanx, growx, wrap");
-		topPanel.add(latitudePanel, "spanx, growx, wrap");
-		topPanel.add(speedPanel, "spanx, growx, wrap");
-		topPanel.add(gravityPanel, "spanx, growx, wrap");
-		topPanel.add(emissionPanel, "spanx, growx, wrap");
-		topPanel.add(visibilityPanel, "spanx, growx, wrap");
+		longitudePanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_LONGITUDE, this::setLongitude);
+		latitudePanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_LATITUDE, this::setLatitude);
+		speedPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_SPEED, this::setInitVelocity);
+		gravityPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_GRAVITY, this::setGravity);
+		emissionPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_EMISSION_RATE, this::setEmissionRate);
+		visibilityPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_VISIBILITY, null);
+		topPanel.add(longitudePanel.getFlagPanel(), "spanx, growx, wrap");
+		topPanel.add(latitudePanel.getFlagPanel(), "spanx, growx, wrap");
+		topPanel.add(speedPanel.getFlagPanel(), "spanx, growx, wrap");
+		topPanel.add(gravityPanel.getFlagPanel(), "spanx, growx, wrap");
+		topPanel.add(emissionPanel.getFlagPanel(), "spanx, growx, wrap");
+		topPanel.add(visibilityPanel.getFlagPanel(), "spanx, growx, wrap");
 	}
 
 	@Override
 	public void updatePanels() {
 		pathField.reloadNewValue(idObject.getPath());
-		longitudePanel.reloadNewValue((float) idObject.getLongitude(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_LONGITUDE), idObject, MdlUtils.TOKEN_LONGITUDE, this::setLongitude);
-		latitudePanel.reloadNewValue((float) idObject.getLatitude(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_LATITUDE), idObject, MdlUtils.TOKEN_LATITUDE, this::setLatitude);
-		speedPanel.reloadNewValue((float) idObject.getInitVelocity(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_SPEED), idObject, MdlUtils.TOKEN_SPEED, this::setInitVelocity);
-		gravityPanel.reloadNewValue((float) idObject.getGravity(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_GRAVITY), idObject, MdlUtils.TOKEN_GRAVITY, this::setGravity);
-		emissionPanel.reloadNewValue((float) idObject.getEmissionRate(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_EMISSION_RATE), idObject, MdlUtils.TOKEN_EMISSION_RATE, this::setEmissionRate);
-		visibilityPanel.reloadNewValue(1f, (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_VISIBILITY), idObject, MdlUtils.TOKEN_VISIBILITY, null);
+		longitudePanel.update(idObject, (float) idObject.getLongitude());
+		latitudePanel.update(idObject, (float) idObject.getLatitude());
+		speedPanel.update(idObject, (float) idObject.getInitVelocity());
+		gravityPanel.update(idObject, (float) idObject.getGravity());
+		emissionPanel.update(idObject, (float) idObject.getEmissionRate());
+		visibilityPanel.update(idObject, 1f);
 	}
 
 	private void texturePathField(String newPath) {
 		idObject.setPath(newPath);
 	}
 
+
 	private void setLongitude(float value){
-		if(idObject.getLongitude() != value) {
-//			undoManager.pushAction(new xx().redo);
-			idObject.setLongitude(value);
+		if(value != idObject.getLongitude()){
+			undoManager.pushAction(new ConsumerAction<>(idObject::setLongitude, (double) value, idObject.getLongitude(), "Longitude").redo());
 		}
 	}
 	private void setLatitude(float value){
-		if(idObject.getLatitude() != value) {
-//			undoManager.pushAction(new xx().redo);
-			idObject.setLatitude(value);
+		if(value != idObject.getLatitude()){
+			undoManager.pushAction(new ConsumerAction<>(idObject::setLatitude, (double) value, idObject.getLatitude(), "Latitude").redo());
 		}
 	}
 	private void setInitVelocity(float value){
-		if(idObject.getInitVelocity() != value) {
-//			undoManager.pushAction(new xx().redo);
-			idObject.setInitVelocity(value);
+		if(value != idObject.getInitVelocity()){
+			undoManager.pushAction(new ConsumerAction<>(idObject::setInitVelocity, (double) value, idObject.getInitVelocity(), "InitVelocity").redo());
 		}
 	}
 	private void setGravity(float value){
-		if(idObject.getGravity() != value) {
-//			undoManager.pushAction(new xx().redo);
-			idObject.setGravity(value);
+		if(value != idObject.getGravity()){
+			undoManager.pushAction(new ConsumerAction<>(idObject::setGravity, (double) value, idObject.getGravity(), "Gravity").redo());
 		}
 	}
+
 	private void setEmissionRate(float value){
-		if(idObject.getEmissionRate() != value) {
-//			undoManager.pushAction(new xx().redo);
-			idObject.setEmissionRate(value);
+		if(value != idObject.getEmissionRate()){
+			undoManager.pushAction(new ConsumerAction<>(idObject::setEmissionRate, (double) value, idObject.getEmissionRate(), "EmissionRate").redo());
 		}
 	}
 

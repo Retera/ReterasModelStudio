@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.util.Vec3;
 
+import javax.swing.*;
 import java.util.List;
 
 /**
@@ -16,7 +17,7 @@ public class RibbonEmitter extends IdObject {
 	double heightAbove = 0;
 	double heightBelow = 0;
 	double alpha = 0;
-	double textureSlot = 0;
+	int textureSlot = 0; // which slot int rows*cols
 	double lifeSpan = 0;
 	double gravity = 0;
 	int emissionRate = 0;
@@ -26,6 +27,7 @@ public class RibbonEmitter extends IdObject {
 	Material material;
 	Vec3 staticColor = new Vec3(1, 1, 1);
 
+	//https://www.hiveworkshop.com/threads/ribbon-emitters-from-a-mesh-perspective.239816/
 	public RibbonEmitter() {
 
 	}
@@ -69,6 +71,7 @@ public class RibbonEmitter extends IdObject {
 	}
 
 	public void setMaterialId(final int materialID) {
+		System.out.println("RE, material ID: " + materialID);
 		this.materialID = materialID;
 	}
 
@@ -96,11 +99,15 @@ public class RibbonEmitter extends IdObject {
 		this.alpha = alpha;
 	}
 
-	public double getTextureSlot() {
+	public int getTextureSlot() {
 		return textureSlot;
 	}
 
-	public void setTextureSlot(final double textureSlot) {
+	public void setTextureSlot(final int textureSlot) {
+		System.out.println("RE, textureSlot: " + textureSlot);
+		if(textureSlot != 0){
+			JOptionPane.showMessageDialog(null, "RE TextureSlot: " + textureSlot + "!!!");
+		}
 		this.textureSlot = textureSlot;
 	}
 

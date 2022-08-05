@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.RemoveFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.RemoveFlagEntryMapAction;
-import com.hiveworkshop.rms.editor.model.AnimatedNode;
+import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -33,7 +33,7 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 	private AnimFlag<T> animFlag;
 	private final Sequence sequence;
 	private final ModelHandler modelHandler;
-	private AnimatedNode node;
+	private TimelineContainer node;
 	private final JTable keyframeTable;
 	private TwiTableModel<T> dataModel;
 	private final Function<String, T> parseFunction;
@@ -41,9 +41,10 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 	private final Map<Integer, Integer> columnSizes = new HashMap<>();
 //	private final ModelStructureChangeListener changeListener = null;
 	private final ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
+	private Runnable updateStuff;
 
 	public TimelineTableEditor(Sequence sequence, Function<String, T> parseFunction, T defaultValue, ModelHandler modelHandler){
-		super(sequence + " (" + sequence.getLength() + ") ", new JPanel(new MigLayout("fill, gap 0, ins 0", "[grow]", "[][]")));
+		super(sequence + " (" + sequence.getLength() + ") ", new JPanel(new MigLayout("fill, gap 0, ins 0", "[grow]", "[grow][]")));
 		this.sequence = sequence;
 		this.modelHandler = modelHandler;
 		this.parseFunction = parseFunction;
@@ -67,10 +68,14 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 		fillEditorPanel();
 	}
 
-	public TimelineTableEditor<T> setNode(AnimatedNode node, AnimFlag<T> animFlag) {
+	public TimelineTableEditor<T> setNode(TimelineContainer node, AnimFlag<T> animFlag) {
 		this.animFlag = animFlag;
 		this.node = node;
-		dataModel = new TwiTableModel<>(animFlag, sequence, defaultValue, modelHandler.getUndoManager());
+		if(modelHandler != null){
+			dataModel = new TwiTableModel<>(animFlag, sequence, defaultValue, modelHandler.getUndoManager());
+		} else {
+			dataModel = new TwiTableModel<>(animFlag, sequence, defaultValue, null);
+		}
 		keyframeTable.setModel(dataModel);
 		setColumnSizes();
 		setTitle(sequence + " (" + sequence.getLength() + ") " + animFlag.size(sequence) + " keyframes");
@@ -204,6 +209,7 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 	public JPanel fillEditorPanel(){
 		JScrollPane scrollPane = new JScrollPane(keyframeTable);
 		Dimension suitableSize = ScreenInfo.getSuitableSize(700, 300, 0.6);
+		Dimension suitableSize2 = ScreenInfo.getSuitableSize(750, 450, 0.6);
 		scrollPane.setPreferredSize(suitableSize);
 		JPanel mainPanel = getCollapsableContentPanel();
 		mainPanel.add(scrollPane, "spanx, growx, growy, wrap");
@@ -224,20 +230,59 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 
 		mainPanel.add(buttonPanel, "growx");
 
+		updateStuff = () -> {
+			System.out.println("\nupdateStuff");
+			mainPanel.setPreferredSize(suitableSize2);
+//			int height1 = getHeight();
+//			int spH1 = scrollPane.getHeight();
+			SwingUtilities.invokeLater(() -> setPrefSize(suitableSize, scrollPane, mainPanel));
+//			int height2 = getHeight();
+//			int spH2 = scrollPane.getHeight();
+//			System.out.println("Resized! us, height: " + height1 + " -> " + height2);
+//			System.out.println("Resized! us, height: " + spH1 + " -> " + spH2);
+//			mainPanel.setPreferredSize(suitableSize);
+		};
 		addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				super.componentResized(e);
-//				System.out.println("Resized! height: " + getHeight());
-				setPrefSize(suitableSize, scrollPane);
+//				updateStuff.run();
+				System.out.println("\nself listener");
+//
+////				int height1 = getHeight();
+////				int spH1 = scrollPane.getHeight();
+//				setPrefSize(suitableSize, scrollPane, mainPanel);
+////				int height2 = getHeight();
+////				int spH2 = scrollPane.getHeight();
+////				System.out.println("Resized! height: " + height1 + " -> " + height2);
+////				System.out.println("Resized! height: " + spH1 + " -> " + spH2);
 			}
 		});
 		keyframeTable.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				super.componentResized(e);
-//				System.out.println("Resized! KF, height: " + getHeight());
-				setPrefSize(suitableSize, scrollPane);
+				System.out.println("\nKF listener");
+////				updateStuff.run();
+				System.out.println("height: " + getHeight());
+				System.out.println("SP-height: " + scrollPane.getHeight());
+				System.out.println("RowHeight: " + keyframeTable.getRowHeight());
+//				int height1 = getHeight();
+//				int spH1 = scrollPane.getHeight();
+				if(scrollPane.getHeight() < keyframeTable.getRowHeight()*2){
+//					mainPanel.setPreferredSize(suitableSize2);
+					updateStuff.run();
+					SwingUtilities.invokeLater(() -> {revalidate();repaint();});
+
+				}
+
+				setPrefSize(suitableSize, scrollPane, mainPanel);
+//				SwingUtilities.invokeLater(() -> setPrefSize(suitableSize, scrollPane, mainPanel));
+
+//				int height2 = getHeight();
+//				int spH2 = scrollPane.getHeight();
+//				System.out.println("Resized! KF, height: " + height1 + " -> " + height2);
+//				System.out.println("Resized! KF, height: " + spH1 + " -> " + spH2);
 			}
 		});
 //		keyframeTable.addContainerListener(new ContainerAdapter() {
@@ -258,7 +303,21 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 
 		return this;
 	}
-	public void setPrefSize(Dimension suitableSize, JScrollPane scrollPane) {
+
+	public void setPrefSize(Dimension suitableSize, JScrollPane scrollPane, JPanel panel) {
+		System.out.println("KF heignt: " + keyframeTable.getHeight());
+		System.out.println("Header heignt: " + keyframeTable.getTableHeader().getHeight());
+		int totTableHeight = keyframeTable.getHeight() + keyframeTable.getTableHeader().getHeight() + 2;
+		Dimension size = new Dimension(suitableSize);
+		size.height = Math.min(totTableHeight, suitableSize.height);
+		int sizeDiff = panel.getHeight() - scrollPane.getHeight();
+		scrollPane.setPreferredSize(size);
+		Dimension size2 = new Dimension(size.width, size.height + sizeDiff);
+		panel.setPreferredSize(size2);
+	}
+	public void setPrefSize1(Dimension suitableSize, JScrollPane scrollPane) {
+		System.out.println("\nKF heignt: " + keyframeTable.getHeight());
+		System.out.println("Header heignt: " + keyframeTable.getTableHeader().getHeight());
 		int totTableHeight = keyframeTable.getHeight() + keyframeTable.getTableHeader().getHeight() + 2;
 		Dimension size = new Dimension(suitableSize);
 		size.height = Math.min(totTableHeight, suitableSize.height);

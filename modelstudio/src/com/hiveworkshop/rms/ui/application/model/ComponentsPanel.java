@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.ui.application.model;
 
+import com.hiveworkshop.rms.ui.application.model.geoset.ComponentGeosetAnimPanel;
+import com.hiveworkshop.rms.ui.application.model.geoset.ComponentGeosetPanel;
 import com.hiveworkshop.rms.ui.application.model.material.ComponentTextureAnimPanel;
 import com.hiveworkshop.rms.ui.application.model.nodepanels.*;
 import com.hiveworkshop.rms.ui.application.tools.EditTexturesPanel;

@@ -1,30 +1,29 @@
 package com.hiveworkshop.rms.ui.application.model.nodepanels;
 
 import com.hiveworkshop.rms.editor.actions.nodes.ChangeParticleTextureAction;
+import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
-import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.application.tools.ParticleEditPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelTextureThings;
 import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.TwiComboBox;
+import com.hiveworkshop.rms.util.TwiTextEditor.EditorHelpers;
 
 import javax.swing.*;
 
 public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmitter2> {
 
-	private final FloatValuePanel widthPanel;
-	private final FloatValuePanel lengthPanel;
-	private final FloatValuePanel latitudePanel;
-	private final FloatValuePanel variationPanel;
-	private final FloatValuePanel speedPanel;
-	private final FloatValuePanel gravityPanel;
-	private final FloatValuePanel emissionPanel;
-	private final FloatValuePanel visibilityPanel;
+	private final EditorHelpers.FloatEditor widthPanel;
+	private final EditorHelpers.FloatEditor lengthPanel;
+	private final EditorHelpers.FloatEditor latitudePanel;
+	private final EditorHelpers.FloatEditor variationPanel;
+	private final EditorHelpers.FloatEditor speedPanel;
+	private final EditorHelpers.FloatEditor gravityPanel;
+	private final EditorHelpers.FloatEditor emissionPanel;
+	private final EditorHelpers.FloatEditor visibilityPanel;
 
 	private final TwiComboBox<Bitmap> textureChooser;
 
@@ -40,34 +39,34 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 		editParticle.addActionListener(e -> viewParticlePanel());
 		topPanel.add(editParticle, "spanx, growx, wrap");
 
-		widthPanel = new FloatValuePanel(modelHandler, "Width");
-		lengthPanel = new FloatValuePanel(modelHandler, "Length");
-		latitudePanel = new FloatValuePanel(modelHandler, "Latitude");
-		variationPanel = new FloatValuePanel(modelHandler, "Variation");
-		speedPanel = new FloatValuePanel(modelHandler, "Speed");
-		gravityPanel = new FloatValuePanel(modelHandler, "Gravity");
-		emissionPanel = new FloatValuePanel(modelHandler, "EmissionRate");
-		visibilityPanel = new FloatValuePanel(modelHandler, "Visibility");
-		topPanel.add(emissionPanel, "spanx, growx, wrap");
-		topPanel.add(speedPanel, "spanx, growx, wrap");
-		topPanel.add(gravityPanel, "spanx, growx, wrap");
-		topPanel.add(variationPanel, "spanx, growx, wrap");
-		topPanel.add(widthPanel, "spanx, growx, wrap");
-		topPanel.add(lengthPanel, "spanx, growx, wrap");
-		topPanel.add(latitudePanel, "spanx, growx, wrap");
-		add(visibilityPanel, "spanx, growx, wrap");
+		widthPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_WIDTH, this::setWidth);
+		lengthPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_LENGTH, this::setLength);
+		latitudePanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_LATITUDE, this::setLatitude);
+		variationPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_VARIATION, this::setVariation);
+		speedPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_SPEED, this::setSpeed);
+		gravityPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_GRAVITY, this::setGravity);
+		emissionPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_EMISSION_RATE, this::setEmissionRate);
+		visibilityPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_VISIBILITY, null);
+		topPanel.add(emissionPanel.getFlagPanel(), "spanx, growx, wrap");
+		topPanel.add(speedPanel.getFlagPanel(), "spanx, growx, wrap");
+		topPanel.add(gravityPanel.getFlagPanel(), "spanx, growx, wrap");
+		topPanel.add(variationPanel.getFlagPanel(), "spanx, growx, wrap");
+		topPanel.add(widthPanel.getFlagPanel(), "spanx, growx, wrap");
+		topPanel.add(lengthPanel.getFlagPanel(), "spanx, growx, wrap");
+		topPanel.add(latitudePanel.getFlagPanel(), "spanx, growx, wrap");
+		add(visibilityPanel.getFlagPanel(), "spanx, growx, wrap");
 	}
 
 	@Override
 	public void updatePanels() {
-		widthPanel.reloadNewValue((float) idObject.getWidth(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_WIDTH), idObject, MdlUtils.TOKEN_WIDTH, idObject::setWidth);
-		lengthPanel.reloadNewValue((float) idObject.getLength(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_LENGTH), idObject, MdlUtils.TOKEN_LENGTH, idObject::setLength);
-		latitudePanel.reloadNewValue((float) idObject.getLatitude(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_LATITUDE), idObject, MdlUtils.TOKEN_LATITUDE, idObject::setLatitude);
-		variationPanel.reloadNewValue((float) idObject.getVariation(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_VARIATION), idObject, MdlUtils.TOKEN_VARIATION, idObject::setVariation);
-		speedPanel.reloadNewValue((float) idObject.getSpeed(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_SPEED), idObject, MdlUtils.TOKEN_SPEED, idObject::setSpeed);
-		gravityPanel.reloadNewValue((float) idObject.getGravity(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_GRAVITY), idObject, MdlUtils.TOKEN_GRAVITY, idObject::setGravity);
-		emissionPanel.reloadNewValue((float) idObject.getEmissionRate(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_EMISSION_RATE), idObject, MdlUtils.TOKEN_EMISSION_RATE, idObject::setEmissionRate);
-		visibilityPanel.reloadNewValue(1f, idObject.getVisibilityFlag(), idObject, MdlUtils.TOKEN_VISIBILITY, null);
+		widthPanel.update(idObject, (float) idObject.getWidth());
+		lengthPanel.update(idObject, (float) idObject.getLength());
+		latitudePanel.update(idObject, (float) idObject.getLatitude());
+		variationPanel.update(idObject, (float) idObject.getVariation());
+		speedPanel.update(idObject, (float) idObject.getSpeed());
+		gravityPanel.update(idObject, (float) idObject.getGravity());
+		emissionPanel.update(idObject, (float) idObject.getEmissionRate());
+		visibilityPanel.update(idObject, 1f);
 		textureChooser.setSelectedItem(idObject.getTexture());
 	}
 
@@ -79,7 +78,49 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 	private void changeTexture(Bitmap selected) {
 		if (selected != idObject.getTexture()) {
 			System.out.println("Chose texture!");
-			undoManager.pushAction(new ChangeParticleTextureAction(idObject, selected, ModelStructureChangeListener.changeListener).redo());
+			undoManager.pushAction(new ChangeParticleTextureAction(idObject, selected, changeListener).redo());
+		}
+	}
+
+	private void setWidth(float value){
+		if(value != idObject.getWidth()){
+			undoManager.pushAction(new ConsumerAction<>(idObject::setWidth, (double) value, idObject.getWidth(), "Width").redo());
+		}
+	}
+
+	private void setLength(float value){
+		if(value != idObject.getLength()){
+			undoManager.pushAction(new ConsumerAction<>(idObject::setLength, (double) value, idObject.getLength(), "Length").redo());
+		}
+	}
+
+	private void setLatitude(float value){
+		if(value != idObject.getLatitude()){
+			undoManager.pushAction(new ConsumerAction<>(idObject::setLatitude, (double) value, idObject.getLatitude(), "Latitude").redo());
+		}
+	}
+
+	private void setVariation(float value){
+		if(value != idObject.getVariation()){
+			undoManager.pushAction(new ConsumerAction<>(idObject::setVariation, (double) value, idObject.getVariation(), "Variation").redo());
+		}
+	}
+
+	private void setSpeed(float value){
+		if(value != idObject.getSpeed()){
+			undoManager.pushAction(new ConsumerAction<>(idObject::setSpeed, (double) value, idObject.getSpeed(), "Speed").redo());
+		}
+	}
+
+	private void setGravity(float value){
+		if(value != idObject.getGravity()){
+			undoManager.pushAction(new ConsumerAction<>(idObject::setGravity, (double) value, idObject.getGravity(), "Gravity").redo());
+		}
+	}
+
+	private void setEmissionRate(float value){
+		if(value != idObject.getEmissionRate()){
+			undoManager.pushAction(new ConsumerAction<>(idObject::setEmissionRate, (double) value, idObject.getEmissionRate(), "EmissionRate").redo());
 		}
 	}
 }

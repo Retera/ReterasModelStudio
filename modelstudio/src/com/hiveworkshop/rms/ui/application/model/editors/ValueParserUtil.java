@@ -71,7 +71,7 @@ public class ValueParserUtil {
 				if(i < 3 || i == 3 && vecSize>3){
 					newS.append(getSubString(split[Math.min(i, vecSize - 1)]));
 				} else {
-					newS.append("0.99");
+					newS.append("1.0");
 				}
 			} else {
 				newS.append("0");

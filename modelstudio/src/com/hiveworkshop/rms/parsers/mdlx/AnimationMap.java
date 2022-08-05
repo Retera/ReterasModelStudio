@@ -206,7 +206,7 @@ public enum AnimationMap {
 	/**
 	 * Ribbon emitter texture slot
 	 */
-	KRTX(MdlUtils.TOKEN_TEXTURE_SLOT, MdlxTimelineType.BITMAP_TIMELINE),
+	KRTX(MdlUtils.TOKEN_TEXTURE_SLOT, MdlxTimelineType.UINT32_TIMELINE),
 	/**
 	 * Ribbon emitter visibility
 	 */

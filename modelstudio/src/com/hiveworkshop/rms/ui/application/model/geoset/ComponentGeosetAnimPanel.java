@@ -1,13 +1,12 @@
-package com.hiveworkshop.rms.ui.application.model;
+package com.hiveworkshop.rms.ui.application.model.geoset;
 
+import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.mesh.SetGeosetAnimStaticAlphaAction;
 import com.hiveworkshop.rms.editor.model.GeosetAnim;
-import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
-import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
-import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
-import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
+import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
 import com.hiveworkshop.rms.ui.application.tools.GeosetAnimCopyPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.util.TwiTextEditor.EditorHelpers;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -16,10 +15,9 @@ import javax.swing.*;
 public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
 	private GeosetAnim geosetAnim;
 	private final JPanel animsPanelHolder;
-	private final FloatValuePanel alphaPanel;
-	private final ColorValuePanel colorPanel;
+	private final EditorHelpers.AlphaEditor alphaEditor;
+	private final EditorHelpers.ColorEditor colorEditor;
 	private final JLabel geosetLabel;
-
 
 	public ComponentGeosetAnimPanel(ModelHandler modelHandler) {
 		super(modelHandler);
@@ -40,12 +38,11 @@ public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
 		button.addActionListener(e -> copyFromOther());
 		animsPanelHolder.add(button, "wrap");
 
-		alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA);
-		animsPanelHolder.add(alphaPanel, "wrap, span 2");
+		alphaEditor = new EditorHelpers.AlphaEditor(modelHandler, this::setStaticAlpha);
+		animsPanelHolder.add(alphaEditor.getFlagPanel(), "wrap, span 2");
 
-		colorPanel = new ColorValuePanel(modelHandler, MdlUtils.TOKEN_COLOR);
-		animsPanelHolder.add(colorPanel, "wrap, span 2");
-
+		colorEditor = new EditorHelpers.ColorEditor(modelHandler);
+		animsPanelHolder.add(colorEditor.getFlagPanel(), "wrap, span 2");
 
 	}
 
@@ -55,8 +52,8 @@ public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
 		geosetLabel.setText(geosetAnim.getGeoset().getName());
 		animsPanelHolder.revalidate();
 		animsPanelHolder.repaint();
-		alphaPanel.reloadNewValue((float) geosetAnim.getStaticAlpha(), (FloatAnimFlag) geosetAnim.find(MdlUtils.TOKEN_ALPHA), geosetAnim, MdlUtils.TOKEN_ALPHA, geosetAnim::setStaticAlpha);
-		colorPanel.reloadNewValue(geosetAnim.getStaticColor(), (Vec3AnimFlag) geosetAnim.find(MdlUtils.TOKEN_COLOR), geosetAnim, MdlUtils.TOKEN_COLOR, geosetAnim::setStaticColor);
+		alphaEditor.update(geosetAnim, (float) geosetAnim.getStaticAlpha());
+		colorEditor.update(geosetAnim);
 
 		revalidate();
 		repaint();
@@ -66,6 +63,13 @@ public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
 	private void copyFromOther() {
 		GeosetAnimCopyPanel.show(this, model, geosetAnim, undoManager);
 		repaint();
+	}
+
+	private void setStaticAlpha(float newAlpha) {
+		if(geosetAnim.getStaticAlpha() != newAlpha){
+			UndoAction action = new SetGeosetAnimStaticAlphaAction(geosetAnim, newAlpha, changeListener);
+			undoManager.pushAction(action.redo());
+		}
 	}
 
 }

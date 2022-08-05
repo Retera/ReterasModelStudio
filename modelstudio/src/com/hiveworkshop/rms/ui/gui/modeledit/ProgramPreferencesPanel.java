@@ -138,7 +138,7 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		return wrapPanel;
 	}
 
-	public void addAtRow(JPanel modelEditorPanel, ColorChooserIcon colorIcon, String s) {
+	public void addAtRow(JPanel modelEditorPanel, ColorChooserIconLabel colorIcon, String s) {
 		modelEditorPanel.add(new JLabel(s));
 		modelEditorPanel.add(colorIcon, "wrap");
 	}

@@ -32,9 +32,9 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	protected IdObjectChooser parentChooser;
 	protected T idObject;
 	protected JPanel topPanel;
-	protected FlagPanel<Vec3> transPanel2;
-	protected FlagPanel<Quat> rotPanel2;
-	protected FlagPanel<Vec3> scalePanel2;
+	protected FlagPanel<Vec3> transPanel;
+	protected FlagPanel<Quat> rotPanel;
+	protected FlagPanel<Vec3> scalePanel;
 	protected JLabel pivot;
 	protected Vec3SpinnerArray pivotSpinner;
 
@@ -75,13 +75,13 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 		topPanel = new JPanel(new MigLayout("fill, ins 0", "[]5[]5[grow]"));
 		add(topPanel, "spanx, wrap");
 
-		transPanel2 = new FlagPanel<>(MdlUtils.TOKEN_TRANSLATION, this::parseVec3, new Vec3(0,0,0), modelHandler);
-		scalePanel2 = new FlagPanel<>(MdlUtils.TOKEN_SCALING, this::parseVec3, new Vec3(1,1,1), modelHandler);
-		rotPanel2 = new FlagPanel<>(MdlUtils.TOKEN_ROTATION, this::parseQuat, new Quat(0,0,0, 1), modelHandler);
+		transPanel = new FlagPanel<>(MdlUtils.TOKEN_TRANSLATION, this::parseVec3, new Vec3(0,0,0), modelHandler);
+		scalePanel = new FlagPanel<>(MdlUtils.TOKEN_SCALING, this::parseVec3, new Vec3(1,1,1), modelHandler);
+		rotPanel = new FlagPanel<>(MdlUtils.TOKEN_ROTATION, this::parseQuat, new Quat(0,0,0, 1), modelHandler);
 
-		add(transPanel2, "spanx, growx, wrap");
-		add(scalePanel2, "spanx, growx, wrap");
-		add(rotPanel2, "spanx, growx, wrap");
+		add(transPanel, "spanx, growx, wrap");
+		add(scalePanel, "spanx, growx, wrap");
+		add(rotPanel, "spanx, growx, wrap");
 	}
 
 	@Override
@@ -97,9 +97,9 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 			parentName.setText("no parent");
 		}
 
-		transPanel2.update(idObject, (Vec3AnimFlag) idObject.find(MdlUtils.TOKEN_TRANSLATION), new Vec3(0, 0, 0));
-		scalePanel2.update(idObject, (Vec3AnimFlag) idObject.find(MdlUtils.TOKEN_SCALING), new Vec3(1, 1, 1));
-		rotPanel2.update(idObject, (QuatAnimFlag) idObject.find(MdlUtils.TOKEN_ROTATION), new Quat(0, 0, 0, 1));
+		transPanel.update(idObject, (Vec3AnimFlag) idObject.find(MdlUtils.TOKEN_TRANSLATION), new Vec3(0, 0, 0));
+		scalePanel.update(idObject, (Vec3AnimFlag) idObject.find(MdlUtils.TOKEN_SCALING), new Vec3(1, 1, 1));
+		rotPanel.update(idObject, (QuatAnimFlag) idObject.find(MdlUtils.TOKEN_ROTATION), new Quat(0, 0, 0, 1));
 
 		billboardedBox.setSelected(idObject.getBillboarded());
 		billboardLockXBox.setSelected(idObject.getBillboardLockX());

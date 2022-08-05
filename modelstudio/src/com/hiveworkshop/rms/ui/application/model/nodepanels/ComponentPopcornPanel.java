@@ -1,15 +1,13 @@
 package com.hiveworkshop.rms.ui.application.model.nodepanels;
 
+import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
-import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.FileDialog;
-import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
-import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.util.TwiTextEditor.EditorHelpers;
 import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
 
@@ -18,12 +16,12 @@ import javax.swing.*;
 public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitterPopcorn> {
 	private final ComponentEditorTextField popcornPathField;
 	JPanel visGuidPanel;
-	private FloatValuePanel alphaPanel;
-	private FloatValuePanel lifeSpanPanel;
-	private FloatValuePanel emissionRatePanel;
-	private FloatValuePanel speedPanel;
-	private FloatValuePanel visPanel;
-	private ColorValuePanel colorPanel;
+	private EditorHelpers.FloatEditor alphaPanel;
+	private EditorHelpers.FloatEditor lifeSpanPanel;
+	private EditorHelpers.FloatEditor emissionRatePanel;
+	private EditorHelpers.FloatEditor speedPanel;
+	private EditorHelpers.FloatEditor visPanel;
+	private EditorHelpers.ColorEditor colorPanel;
 
 
 	public ComponentPopcornPanel(ModelHandler modelHandler) {
@@ -42,13 +40,20 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 
 	private JPanel valuePanelsPanel() {
 		JPanel panel = new JPanel(new MigLayout("gap 0, ins 0, fill"));
-		lifeSpanPanel = new FloatValuePanel(modelHandler, "LifeSpan");
-		emissionRatePanel = new FloatValuePanel(modelHandler, "EmissionRate");
-		speedPanel = new FloatValuePanel(modelHandler, "Speed");
-		alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA);
-		visPanel = new FloatValuePanel(modelHandler, "Visibility");
+		lifeSpanPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_LIFE_SPAN, this::setLifeSpan);
+		emissionRatePanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_EMISSION_RATE, this::setEmissionRate);
+		speedPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_SPEED, this::setInitVelocity);
+		alphaPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_ALPHA, this::setAlpha);
+		visPanel = new EditorHelpers.FloatEditor(modelHandler, "Visibility", null);
 
-		colorPanel = new ColorValuePanel(modelHandler, MdlUtils.TOKEN_COLOR);
+		colorPanel = new EditorHelpers.ColorEditor(modelHandler, MdlUtils.TOKEN_COLOR, this::setColor);
+
+
+		panel.add(lifeSpanPanel.getFlagPanel(), "wrap");
+		panel.add(emissionRatePanel.getFlagPanel(), "wrap");
+		panel.add(speedPanel.getFlagPanel(), "wrap");
+		panel.add(alphaPanel.getFlagPanel(), "wrap");
+		panel.add(colorPanel.getFlagPanel(), "wrap");
 
 		return panel;
 	}
@@ -63,12 +68,12 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 		idObject.updateAnimsVisMap(modelHandler.getModel().getAnims());
 		updateAnimVisGuidPanel();
 
-		lifeSpanPanel.reloadNewValue(idObject.getLifeSpan(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_LIFE_SPAN), idObject, MdlUtils.TOKEN_LIFE_SPAN, this::setLifeSpan);
-		emissionRatePanel.reloadNewValue(idObject.getEmissionRate(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_EMISSION_RATE), idObject, MdlUtils.TOKEN_EMISSION_RATE, this::setEmissionRate);
-		speedPanel.reloadNewValue(idObject.getInitVelocity(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_SPEED), idObject, MdlUtils.TOKEN_SPEED, this::setInitVelocity);
-		alphaPanel.reloadNewValue(idObject.getAlpha(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_ALPHA), idObject, MdlUtils.TOKEN_ALPHA, this::setAlpha);
-		visPanel.reloadNewValue(1f, (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_VISIBILITY), idObject, MdlUtils.TOKEN_VISIBILITY, null);
-		colorPanel.reloadNewValue(idObject.getColor(), (Vec3AnimFlag) idObject.find(MdlUtils.TOKEN_COLOR), idObject, MdlUtils.TOKEN_COLOR, this::setColor);
+		lifeSpanPanel.update(idObject, idObject.getLifeSpan());
+		emissionRatePanel.update(idObject, idObject.getEmissionRate());
+		speedPanel.update(idObject, idObject.getInitVelocity());
+		alphaPanel.update(idObject, idObject.getAlpha());
+		visPanel.update(idObject, 1f);
+		colorPanel.update(idObject, idObject.getColor());
 	}
 
 	private JPanel updateAnimVisGuidPanel() {
@@ -98,32 +103,27 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 
 	private void setLifeSpan(float value){
 		if(idObject.getLifeSpan() != value){
-//			undoManager.pushAction(new UndoAction().redo);
-			idObject.setLifeSpan(value);
+			undoManager.pushAction(new ConsumerAction<>(idObject::setLifeSpan, value, idObject.getLifeSpan(), "LifeSpan").redo());
 		}
 	}
 	private void setEmissionRate(float value){
 		if(idObject.getEmissionRate() != value){
-//			undoManager.pushAction(new UndoAction().redo);
-			idObject.setEmissionRate(value);
+			undoManager.pushAction(new ConsumerAction<>(idObject::setEmissionRate, value, idObject.getEmissionRate(), "EmissionRate").redo());
 		}
 	}
 	private void setInitVelocity(float value){
 		if(idObject.getInitVelocity() != value){
-//			undoManager.pushAction(new UndoAction().redo);
-			idObject.setInitVelocity(value);
+			undoManager.pushAction(new ConsumerAction<>(idObject::setInitVelocity, value, idObject.getInitVelocity(), "InitVelocity").redo());
 		}
 	}
 	private void setAlpha(float value){
 		if(idObject.getAlpha() != value){
-//			undoManager.pushAction(new UndoAction().redo);
-			idObject.setAlpha(value);
+			undoManager.pushAction(new ConsumerAction<>(idObject::setAlpha, value, idObject.getAlpha(), "Alpha").redo());
 		}
 	}
 	private void setColor(Vec3 color){
 		if(!idObject.getColor().equalLocs(color)){
-//			undoManager.pushAction(new UndoAction().redo);
-			idObject.setColor(color);
+			undoManager.pushAction(new ConsumerAction<>(idObject::setColor, color, idObject.getColor(), "Color").redo());
 		}
 	}
 

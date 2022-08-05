@@ -396,6 +396,9 @@ public class EditableModel implements Named {
 	public void remove(final GeosetAnim g) {
 		geosetAnims.remove(g);
 	}
+	public void remove(final TextureAnim o) {
+		texAnims.remove(o);
+	}
 
 	public void remove(final GlobalSeq g) {
 		globalSeqs.remove(g);
