@@ -467,6 +467,14 @@ public class EditableModel implements Named {
 	public GlobalSeq getGlobalSeq(final int i) {
 		return (okIndex(i, globalSeqs)) ? globalSeqs.get(i) : null;
 	}
+	public GlobalSeq getGlobalSeqByLength(final int length) {
+		for(GlobalSeq globalSeq : globalSeqs){
+			if(globalSeq.getLength() == length){
+				return globalSeq;
+			}
+		}
+		return null;
+	}
 
 	public Bitmap getTexture(final int i) {
 		return (okIndex(i, textures)) ? textures.get(i) : null;

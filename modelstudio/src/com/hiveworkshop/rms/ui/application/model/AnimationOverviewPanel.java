@@ -6,32 +6,43 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
-public class AnimationOverviewPanel extends JPanel {
-
+public class AnimationOverviewPanel extends OverviewPanel {
+	private final JPanel animInfoTable;
 	public AnimationOverviewPanel(ModelHandler modelHandler) {
-		super(new MigLayout("fill, ins 0", "[grow]", "[grow]"));
-		JPanel panel = new JPanel(new MigLayout("wrap 7", "[]10[Right]10[Right]10[Right]10[Right]10[Right]10[Right]", ""));
-
-		panel.add(new JLabel("Animation"));
-		panel.add(new JLabel("Start"));
-		panel.add(new JLabel("End"));
-		panel.add(new JLabel("Length"));
-		panel.add(new JLabel("Rarity"));
-		panel.add(new JLabel("MoveSpeed"));
-		panel.add(new JLabel("NonLooping"));
-
-		for (Animation animation : modelHandler.getModel().getAnims()) {
-			panel.add(new JLabel(animation.getName()));
-			panel.add(new JLabel("" + animation.getStart()));
-			panel.add(new JLabel("" + animation.getEnd()));
-			panel.add(new JLabel("" + animation.getLength()));
-			panel.add(new JLabel("" + animation.getRarity()));
-			panel.add(new JLabel("" + animation.getMoveSpeed()));
-			panel.add(new JLabel("" + animation.isNonLooping()));
-		}
-		JScrollPane scrollPane = new JScrollPane(panel);
+		super(modelHandler, new MigLayout("fill, ins 0", "[grow]", "[grow]"));
+		animInfoTable = new JPanel(new MigLayout("wrap 7", "[]10[Right]10[Right]10[Right]10[Right]10[Right]10[Right]", ""));
+		fillAnimTable();
+		JScrollPane scrollPane = new JScrollPane(animInfoTable);
 		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		add(scrollPane, "growx, growy");
+	}
+
+	@Override
+	public void update() {
+		animInfoTable.removeAll();
+		fillAnimTable();
+		revalidate();
+		repaint();
+	}
+
+	private void fillAnimTable(){
+		animInfoTable.add(new JLabel("Animation"));
+		animInfoTable.add(new JLabel("Start"));
+		animInfoTable.add(new JLabel("End"));
+		animInfoTable.add(new JLabel("Length"));
+		animInfoTable.add(new JLabel("Rarity"));
+		animInfoTable.add(new JLabel("MoveSpeed"));
+		animInfoTable.add(new JLabel("NonLooping"));
+
+		for (Animation animation : modelHandler.getModel().getAnims()) {
+			animInfoTable.add(new JLabel(animation.getName()));
+			animInfoTable.add(new JLabel("" + animation.getStart()));
+			animInfoTable.add(new JLabel("" + animation.getEnd()));
+			animInfoTable.add(new JLabel("" + animation.getLength()));
+			animInfoTable.add(new JLabel("" + animation.getRarity()));
+			animInfoTable.add(new JLabel("" + animation.getMoveSpeed()));
+			animInfoTable.add(new JLabel("" + animation.isNonLooping()));
+		}
 	}
 
 //		panel.add(new TwiSpinner());

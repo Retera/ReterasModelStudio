@@ -36,7 +36,7 @@ public class AnimFlagUtils {
 		}
 	}
 
-	protected static <T> void scaleMapEntries(double ratio, TreeMap<Integer, Entry<T>> entryMap) {
+	public static <T> void scaleMapEntries(double ratio, TreeMap<Integer, Entry<T>> entryMap) {
 		TreeMap<Integer, Entry<T>> scaledMap = new TreeMap<>();
 		for (Integer time : entryMap.keySet()) {
 			int newTime = (int) (time * ratio);

@@ -211,7 +211,7 @@ public class IdObjectFactory {
 
 		loadObject(ribbonEmitter, mdlxEmitter, model);
 
-		ribbonEmitter.setTextureSlot(mdlxEmitter.textureSlot);
+		ribbonEmitter.setTextureSlot((int) mdlxEmitter.textureSlot);
 		ribbonEmitter.setHeightAbove(mdlxEmitter.heightAbove);
 		ribbonEmitter.setHeightBelow(mdlxEmitter.heightBelow);
 		ribbonEmitter.setAlpha(mdlxEmitter.alpha);

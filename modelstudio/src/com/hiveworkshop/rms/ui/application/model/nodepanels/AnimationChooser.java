@@ -54,7 +54,6 @@ public class AnimationChooser extends TwiComboBox<Sequence>{
 		selectOrFirst(selectedItem);
 	}
 	private void setSequence(Sequence selectedItem) {
-		System.out.println("setting sequence: " + selectedItem);
 		if (renderModel != null) {
 			renderModel.getTimeEnvironment().setSequence(selectedItem);
 			if(playOnSelect){
@@ -93,7 +92,7 @@ public class AnimationChooser extends TwiComboBox<Sequence>{
 
 	public AnimationChooser updateAnimationList() {
 		Sequence selectedItem = (Sequence) getSelectedItem();
-		removeAllItems();
+		getComboBoxModel().removeAllElements();
 		if (model != null) {
 			if (anims)          addAll(model.getAnims());
 			if (globalSeqs)     addAll(model.getGlobalSeqs());

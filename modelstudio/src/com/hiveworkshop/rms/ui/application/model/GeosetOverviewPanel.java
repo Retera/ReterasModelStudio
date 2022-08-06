@@ -8,18 +8,24 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
-public class GeosetOverviewPanel extends JPanel {
-
+public class GeosetOverviewPanel extends OverviewPanel {
+	private final JPanel infoPanel;
 	public GeosetOverviewPanel(ModelHandler modelHandler) {
-		super(new MigLayout("fill, ins 0", "[grow]", "[grow]"));
-		JPanel panel = new JPanel(new MigLayout("wrap 6", "[]10[Right]10[Right]10[Right]20[Left]10[Right]", ""));
+		super(modelHandler, new MigLayout("fill, ins 0", "[grow]", "[grow]"));
+		infoPanel = new JPanel(new MigLayout("wrap 6", "[]10[Right]10[Right]10[Right]20[Left]10[Right]", ""));
 
-		panel.add(new JLabel("Geoset"));
-		panel.add(new JLabel("Vertices"));
-		panel.add(new JLabel("Triangles"));
-		panel.add(new JLabel("LoD"));
-		panel.add(new JLabel("Material"));
-		panel.add(new JLabel("GeosetAnim"));
+		fillInfoPanel();
+
+		add(infoPanel, "growx, growy");
+	}
+
+	private void fillInfoPanel() {
+		infoPanel.add(new JLabel("Geoset"));
+		infoPanel.add(new JLabel("Vertices"));
+		infoPanel.add(new JLabel("Triangles"));
+		infoPanel.add(new JLabel("LoD"));
+		infoPanel.add(new JLabel("Material"));
+		infoPanel.add(new JLabel("GeosetAnim"));
 		int verts = 0;
 		int tris = 0;
 		EditableModel model = modelHandler.getModel();
@@ -28,20 +34,18 @@ public class GeosetOverviewPanel extends JPanel {
 			verts += vSize;
 			int tSize = geoset.getTriangles().size();
 			tris += tSize;
-			panel.add(new JLabel(geoset.getName()));
-			panel.add(new JLabel("" + vSize));
-			panel.add(new JLabel("" + tSize));
-			panel.add(new JLabel("" + geoset.getLevelOfDetail()));
+			infoPanel.add(new JLabel(geoset.getName()));
+			infoPanel.add(new JLabel("" + vSize));
+			infoPanel.add(new JLabel("" + tSize));
+			infoPanel.add(new JLabel("" + geoset.getLevelOfDetail()));
 
-			panel.add(getMaterialLabel(model, geoset));
-			panel.add(new JLabel("" + (geoset.getGeosetAnim() == null ? "no" : "yes")));
+			infoPanel.add(getMaterialLabel(model, geoset));
+			infoPanel.add(new JLabel("" + (geoset.getGeosetAnim() == null ? "no" : "yes")));
 		}
 
-		panel.add(new JLabel("Total"), "gapy 10");
-		panel.add(new JLabel("" + verts));
-		panel.add(new JLabel("" + tris));
-
-		add(panel, "growx, growy");
+		infoPanel.add(new JLabel("Total"), "gapy 10");
+		infoPanel.add(new JLabel("" + verts));
+		infoPanel.add(new JLabel("" + tris));
 	}
 
 	private JLabel getMaterialLabel(EditableModel model, Geoset geoset) {
@@ -51,5 +55,13 @@ public class GeosetOverviewPanel extends JPanel {
 		} else {
 			return new JLabel("# -1 null");
 		}
+	}
+
+	@Override
+	public void update() {
+		infoPanel.removeAll();
+		fillInfoPanel();
+		revalidate();
+		repaint();
 	}
 }

@@ -6,9 +6,11 @@ import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.model.editors.ValueParserUtil;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.ScreenInfo;
 import com.hiveworkshop.rms.util.Vec3;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
@@ -16,24 +18,40 @@ public class EditorTester {
 
 
 	public static void main(String[] args){
-		testTextEditor();
-//		testTableEditor();
+//		testTextEditor();
+		testTableEditor();
 	}
 
 	private static void testTableEditor() {
 		Vec3AnimFlag animFlag = new Vec3AnimFlag("Translation");
 		Sequence sequence = new Animation("Stand", 0, 2000);
+		Sequence sequence2 = new Animation("Stand 2", 2033, 4033);
 		animFlag.setEntryMap(sequence, TimelineTextEditor.stringToEntryMap(getText(), false, Vec3::parseVec3));
+		animFlag.setEntryMap(sequence2, TimelineTextEditor.stringToEntryMap(getText(), false, Vec3::parseVec3));
 		animFlag.setInterpType(InterpolationType.HERMITE);
 
 		Helper helper = new Helper("Mesh03");
 
-//		TimelineTableEditor<Vec3> textEditor = new TimelineTableEditor<>(animFlag, sequence, s -> Vec3.parseVec3(ValueParserUtil.getString(3,s)), new Vec3(0,0,0), helper, null);
-		TimelineTableEditor<Vec3> textEditor = new TimelineTableEditor<>(sequence, s -> Vec3.parseVec3(ValueParserUtil.getString(3,s)), new Vec3(0,0,0), null);
-		textEditor.setNode(helper, animFlag);
+//		EditableModel model = new EditableModel("Test");
+//		model.add((Animation) sequence);
+//		model.add((Animation) sequence2);
+//		model.add(helper);
+//		helper.add(animFlag);
+//
+//		ModelHandler modelHandler = new ModelHandler(model);
 
+		JPanel tempPanel = new JPanel(new MigLayout());
+		tempPanel.add(getVec3TimelineTableEditor(animFlag, sequence, helper, null), "growx, growy, wrap");
+		tempPanel.add(getVec3TimelineTableEditor(animFlag, sequence2, helper, null), "growx, growy, wrap");
+
+		JFrame ugg = FramePopup.show(tempPanel, null, helper.getName() + " - [" + animFlag.getName() + "] " + sequence + " (" + sequence.getLength() + ")");
+	}
+
+	private static TimelineTableEditor<Vec3> getVec3TimelineTableEditor(Vec3AnimFlag animFlag, Sequence sequence, Helper helper, ModelHandler modelHandler) {
+		TimelineTableEditor<Vec3> textEditor = new TimelineTableEditor<>(sequence, s -> Vec3.parseVec3(ValueParserUtil.getString(3,s)), new Vec3(0,0,0), modelHandler);
+		textEditor.setNode(helper, animFlag);
 		textEditor.getCollapsableContentPanel().setPreferredSize(ScreenInfo.getSmallWindow());
-		JFrame ugg = FramePopup.show(textEditor, null, helper.getName() + " - [" + animFlag.getName() + "] " + sequence + " (" + sequence.getLength() + ")");
+		return textEditor;
 	}
 
 	private static void testTextEditor() {

@@ -15,6 +15,7 @@ import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
+import com.hiveworkshop.rms.ui.application.tools.GlobalSeqWizard;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.CollapsablePanel;
 import com.hiveworkshop.rms.util.TwiComboBox;
@@ -127,9 +128,16 @@ public class FlagPanel<T> extends CollapsablePanel {
 		comboBox.addOnSelectItemListener(this::setInterpolationType);
 		panel.add(comboBox);
 
-		JButton button2 = new JButton("Make GlobalSeq");
-		button2.addActionListener(e -> turnIntoGlobalSeq());
-		panel.add(button2, "right, wrap");
+		if(!animFlag.hasGlobalSeq()){
+			JButton button2 = new JButton("To GlobalSeq");
+//		    button2.addActionListener(e -> turnIntoGlobalSeq());
+			button2.addActionListener(e -> GlobalSeqWizard.showPopup(modelHandler, animFlag, title + " to GlobalSeq", this));
+			panel.add(button2, "right, wrap");
+		} else {
+			JButton button2 = new JButton("Edit GlobalSeq");
+			button2.addActionListener(e -> GlobalSeqWizard.showPopup(modelHandler, animFlag, "Edit " + title, this));
+			panel.add(button2, "right, wrap");
+		}
 		return panel;
 	}
 

@@ -13,6 +13,7 @@ import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
+import com.hiveworkshop.rms.ui.application.model.OverviewPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelTextureThings;
 import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
@@ -31,8 +32,7 @@ import java.awt.image.BufferedImage;
 import java.util.function.Supplier;
 
 
-public class EditTexturesPanel extends JPanel {
-	private final ModelHandler modelHandler;
+public class EditTexturesPanel extends OverviewPanel {
 	private final UndoManager undoManager;
 	private final EditableModel model;
 	private final JTextField pathField = new JTextField(24);
@@ -47,8 +47,7 @@ public class EditTexturesPanel extends JPanel {
 	private Bitmap selectedImage;
 
 	public EditTexturesPanel(ModelHandler modelHandler) {
-		super(new MigLayout("fill", "[][grow]", "[grow][]"));
-		this.modelHandler = modelHandler;
+		super(modelHandler, new MigLayout("fill", "[][grow]", "[grow][]"));
 		this.undoManager = modelHandler.getUndoManager();
 		this.model = modelHandler.getModel();
 		fileDialog = new FileDialog(this);
@@ -275,5 +274,10 @@ public class EditTexturesPanel extends JPanel {
 //		frame.setLocationRelativeTo(null);
 //		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 //		frame.setVisible(true);
+	}
+
+	@Override
+	public void update() {
+
 	}
 }

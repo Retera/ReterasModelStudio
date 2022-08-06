@@ -1,16 +1,20 @@
 package com.hiveworkshop.rms.ui.application.model.nodepanels;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.ui.application.model.OverviewPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
-public class NodesOverviewPanel extends JPanel {
+public class NodesOverviewPanel extends OverviewPanel {
 
 	public NodesOverviewPanel(ModelHandler modelHandler) {
-		super(new MigLayout("wrap 2", "[]20[Right]", ""));
-//		JPanel panel = new JPanel(new MigLayout("", "", ""));
+		super(modelHandler, new MigLayout("wrap 2", "[]20[Right]", ""));
+		fillPanel();
+	}
+
+	private void fillPanel() {
 		EditableModel model = modelHandler.getModel();
 
 		add(new JLabel("Node type"));
@@ -37,5 +41,13 @@ public class NodesOverviewPanel extends JPanel {
 			add(new JLabel(type));
 			add(new JLabel("" + size));
 		}
+	}
+
+	@Override
+	public void update() {
+		removeAll();
+		fillPanel();
+		revalidate();
+		repaint();
 	}
 }

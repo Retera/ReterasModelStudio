@@ -19,7 +19,7 @@ public class ValueParserUtil {
 		return Vec3.parseVec3(getString(vectorSize, valueString));
 	}
 
-	Float parseValueFloat(String valueString) {
+	public static Float parseValueFloat(String valueString) {
 		valueString = valueString.toLowerCase(Locale.ROOT).replaceAll("[^-\\.e\\d]", "");
 		valueString = valueString.replaceAll("(\\.+)", ".");
 		if (valueString.matches("(-?\\d+\\.+)")) {

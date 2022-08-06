@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.RemoveSequenceAction;
 import com.hiveworkshop.rms.editor.actions.animation.SetSequenceLengthAction;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
+import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
@@ -11,15 +12,14 @@ import javax.swing.*;
 
 public class ComponentGlobalSequencePanel extends ComponentPanel<GlobalSeq> {
 	private final JLabel indexLabel;
-	private final JSpinner lengthSpinner;
+	private final IntEditorJSpinner lengthSpinner;
 	private GlobalSeq globalSeq;
 
 	public ComponentGlobalSequencePanel(ModelHandler modelHandler) {
 		super(modelHandler);
 
 		setLayout(new MigLayout());
-		lengthSpinner = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
-		lengthSpinner.addChangeListener(e -> setLength());
+		lengthSpinner = new IntEditorJSpinner(0, 1, this::setLength);
 		add(new JLabel("GlobalSequence "), "cell 0 0");
 
 		indexLabel = new JLabel();
@@ -31,16 +31,18 @@ public class ComponentGlobalSequencePanel extends ComponentPanel<GlobalSeq> {
 		add(lengthSpinner, "cell 1 1");
 	}
 
-	private void setLength() {
-		UndoAction action = new SetSequenceLengthAction(globalSeq, (Integer) lengthSpinner.getValue(), changeListener);
-		undoManager.pushAction(action.redo());
+	private void setLength(int newLength) {
+		if(newLength != globalSeq.getLength()){
+			UndoAction action = new SetSequenceLengthAction(globalSeq, newLength, changeListener);
+			undoManager.pushAction(action.redo());
+		}
 	}
 
 	@Override
 	public ComponentPanel<GlobalSeq> setSelectedItem(GlobalSeq itemToSelect) {
 		this.globalSeq = itemToSelect;
 		indexLabel.setText(Integer.toString(modelHandler.getModel().getGlobalSeqId(itemToSelect)));
-		lengthSpinner.setValue(itemToSelect.getLength());
+		lengthSpinner.reloadNewValue(itemToSelect.getLength());
 		return this;
 	}
 

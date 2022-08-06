@@ -21,6 +21,11 @@ public class GlobalSeq extends Sequence {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof GlobalSeq && ((GlobalSeq) obj).length == length;
+	}
+
+	@Override
 	public String toString() {
 		return "Global Sequence " + length;
 	}

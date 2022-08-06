@@ -110,7 +110,7 @@ public class TwiComboBox<E> extends JComboBox<E> {
 		return allowLastToFirst;
 	}
 
-	public ComboBoxModel<E> getComboBoxModel() {
+	public TwiComboBoxModel<E> getComboBoxModel() {
 		return comboBoxModel;
 	}
 

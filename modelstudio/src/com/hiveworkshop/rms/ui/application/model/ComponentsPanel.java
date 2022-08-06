@@ -17,7 +17,7 @@ public class ComponentsPanel extends JPanel {
 	private static final String BLANK = "BLANK";
 	private final CardLayout cardLayout;
 	private final Map<DisplayElementType, ComponentPanel<?>> componentPanelMap;
-	private final Map<DisplayElementType, JPanel> overviewPanelMap;
+	private final Map<DisplayElementType, OverviewPanel> overviewPanelMap;
 	private final ModelHandler modelHandler;
 
 	public ComponentsPanel(ModelHandler modelHandler) {
@@ -40,7 +40,7 @@ public class ComponentsPanel extends JPanel {
 		cardLayout.show(this, BLANK);
 	}
 
-	public void addOverviewPanel(DisplayElementType type, JPanel panel) {
+	public void addOverviewPanel(DisplayElementType type, OverviewPanel panel) {
 		JScrollPane scrollPane = new JScrollPane(panel);
 		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		add(scrollPane, type.getName());
@@ -58,6 +58,7 @@ public class ComponentsPanel extends JPanel {
 				selectedBlank();
 			}
 		} else if (selectedItem instanceof String && overviewPanelMap.containsKey(type)) {
+			overviewPanelMap.get(type).update();
 			cardLayout.show(this, type.getName());
 		} else {
 			selectedBlank();
