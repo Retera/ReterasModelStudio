@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit;
 
 import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.SkinBone;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
@@ -19,16 +20,16 @@ public class SkinPopup extends JPanel {
     JLabel missingWeightsLabel;
 
     public SkinPopup(ModelView modelView) {
-        this(modelView, null);
+        this(modelView.getModel(), null);
     }
-    public SkinPopup(ModelView modelView, SkinBone[] skinBones) {
+    public SkinPopup(EditableModel model, SkinBone[] skinBones) {
         setLayout(new MigLayout("", "[][][]", "[][][][]"));
 
         Set<Class<?>> filterClasses = Collections.singleton(Bone.class);
 
         for (int i = 0; i < BONE_COUNT; i++) {
             final int index = i;
-            IdObjectChooserButton idObjectChooserButton = new IdObjectChooserButton(modelView.getModel(), filterClasses, this);
+            IdObjectChooserButton idObjectChooserButton = new IdObjectChooserButton(model, filterClasses, this);
             idObjectChooserButton.setButtonText("Choose a Bone").setIdObjectConsumer(o -> bones[index]= (Bone) o);
             add(idObjectChooserButton, "growx");
 

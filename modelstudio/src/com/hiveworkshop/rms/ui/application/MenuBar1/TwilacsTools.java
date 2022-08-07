@@ -1,9 +1,11 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.ShowHideStuff;
 import com.hiveworkshop.rms.ui.application.actionfunctions.SplitVertices;
 import com.hiveworkshop.rms.ui.application.actionfunctions.TwilacStuff;
 import com.hiveworkshop.rms.ui.application.actionfunctions.WeldVerts;
+import com.hiveworkshop.rms.ui.application.tools.SkinningOptionPanel;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -14,6 +16,7 @@ public class TwilacsTools extends JMenu {
 		super("Twilac's Beta Tools");
 		setMnemonic(KeyEvent.VK_I);
 		getAccessibleContext().setAccessibleDescription("Where Twilac puts new features during development before they find a permanent home.");
+//		add(getSkinningMenu());
 
 		add(new WeldVerts().getMenuItem());
 		add(new SplitVertices().getMenuItem());
@@ -51,5 +54,11 @@ public class TwilacsTools extends JMenu {
 		add(TwilacStuff.getAddNewAttatchment());
 		add(TwilacStuff.getExportUVMaskMenuItem());
 		add(TwilacStuff.getTextureCompositionMenuItem());
+	}
+
+	private JMenuItem getSkinningMenu(){
+		JMenuItem menuItem = new JMenuItem("Skinning options");
+		menuItem.addActionListener(e -> SkinningOptionPanel.showPanel(null, ProgramGlobals.getCurrentModelPanel().getModelHandler()));
+		return menuItem;
 	}
 }

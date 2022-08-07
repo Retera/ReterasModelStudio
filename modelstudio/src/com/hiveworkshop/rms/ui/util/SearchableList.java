@@ -51,6 +51,19 @@ public class SearchableList<T> extends JList<T> {
 		return this;
 	}
 
+	public SearchableList<T> removeAll(Collection<T> t) {
+		fullListModel.removeAll(t);
+		return this;
+	}
+
+	public T get(int i){
+		return fullListModel.get(i);
+	}
+
+	public boolean contains(T t){
+		return fullListModel.contains(t);
+	}
+
 	public boolean isEmpty(){
 		return fullListModel.isEmpty();
 	}

@@ -80,7 +80,7 @@ public class KeyframeHandler {
 		} else {
 			collectionToUse.addAll(modelHandler.getModelView().getSelectedIdObjects());
 		}
-		if(visKFs){
+		if(useAllKFs && visKFs){
 			for(Geoset geoset: modelHandler.getModelView().getEditableGeosets()){
 				if(modelHandler.getModelView().isEditable(geoset) && geoset.getGeosetAnim() != null && !geoset.getGeosetAnim().getAnimFlags().isEmpty()){
 					collectionToUse.add(geoset.getGeosetAnim());

@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.AddKeyframeAction3;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.TimeSliderView;
 import com.hiveworkshop.rms.ui.application.actionfunctions.TimeSkip;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -74,7 +73,7 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 
 		setKeyframe = createSetKeyframeButton();
 		buttonPanel.add(setKeyframe, "wrap");
-		setTimeBounds = TimeSliderView.createSetTimeBoundsButton();
+		setTimeBounds = createSetTimeBoundsButton();
 		buttonPanel.add(setTimeBounds, "wrap");
 
 		buttonPanel.add(allKF, "wrap");
@@ -142,6 +141,7 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 		setTimeBounds.addActionListener(e -> timeBoundsChooserPanel());
 		return setTimeBounds;
 	}
+
 
 	private void timeBoundsChooserPanel() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();

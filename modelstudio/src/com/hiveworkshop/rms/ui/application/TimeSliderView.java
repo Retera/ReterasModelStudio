@@ -1,13 +1,9 @@
 package com.hiveworkshop.rms.ui.application;
 
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundChooserPanel;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
-import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.util.ModelDependentView;
 import net.infonode.docking.View;
 
@@ -87,32 +83,6 @@ public class TimeSliderView extends ModelDependentView {
 			mouseCoordDisplay[i].setMaximumSize(new Dimension(80, 18));
 			mouseCoordDisplay[i].setMinimumSize(new Dimension(50, 15));
 			mouseCoordDisplay[i].setEditable(false);
-		}
-	}
-
-	public static JButton createSetTimeBoundsButton() {
-		final JButton setTimeBounds;
-		setTimeBounds = new JButton(RMSIcons.setTimeBoundsIcon);
-		setTimeBounds.setMargin(new Insets(0, 0, 0, 0));
-		setTimeBounds.setToolTipText("Choose Time Bounds");
-		setTimeBounds.addActionListener(e -> timeBoundsChooserPanel());
-		return setTimeBounds;
-	}
-
-	private static void timeBoundsChooserPanel() {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-
-		if (modelPanel != null) {
-			TimeBoundChooserPanel tbcPanel = new TimeBoundChooserPanel(modelPanel.getModelHandler());
-			int confirmDialogResult = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), tbcPanel, "Set Time Bounds", JOptionPane.OK_CANCEL_OPTION);
-
-			if (confirmDialogResult == JOptionPane.OK_OPTION) {
-				//			tbcPanel.applyTo(mainPanel.animatedRenderEnvironment);
-				RenderModel editorRenderModel = modelPanel.getModelHandler().getRenderModel();
-				tbcPanel.applyTo(editorRenderModel.getTimeEnvironment());
-				ModelStructureChangeListener.refreshFromEditor(modelPanel);
-				editorRenderModel.updateNodes(false);
-			}
 		}
 	}
 
