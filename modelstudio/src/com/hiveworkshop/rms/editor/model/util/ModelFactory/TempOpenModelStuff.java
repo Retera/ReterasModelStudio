@@ -29,7 +29,9 @@ public class TempOpenModelStuff {
 
 		// Step 5: Convert Texture refs
 		for (final MdlxTexture mdlxTexture : mdlxModel.textures) {
-			model.add(MaterialFactory.createBitmap(mdlxTexture));
+			Bitmap bitmap = MaterialFactory.createBitmap(mdlxTexture);
+			model.add(bitmap);
+			infoHolder.add(bitmap);
 		}
 
 		// Step 4: Convert any global sequences
@@ -49,6 +51,18 @@ public class TempOpenModelStuff {
 
 		if (mdlxModel.bindPose.size() > 0) {
 			infoHolder.setBindPose(mdlxModel.bindPose);
+		}
+
+		// Step 6: Convert TVertexAnims
+		for (final MdlxTextureAnimation mdlxTextureAnimation : mdlxModel.textureAnimations) {
+			model.add(new TextureAnim(mdlxTextureAnimation, model));
+		}
+
+		// Step 7: Convert Material refs
+		for (final MdlxMaterial mdlxMaterial : mdlxModel.materials) {
+			Material x = MaterialFactory.createMaterial(mdlxMaterial, model);
+			infoHolder.add(x);
+			model.add(x);
 		}
 
 
@@ -106,8 +120,12 @@ public class TempOpenModelStuff {
 		}
 
 		// RibbonEmitter
+//		if(!mdlxModel.ribbonEmitters.isEmpty()){
+//			JOptionPane.showMessageDialog(null, mdlxModel.ribbonEmitters.size() + " RIBBON EMITTER(S)!!!");
+//		}
+
 		for (final MdlxRibbonEmitter mdlxEmitter : mdlxModel.ribbonEmitters) {
-			RibbonEmitter x = IdObjectFactory.createRibbonEmitter(mdlxEmitter, model);
+			RibbonEmitter x = IdObjectFactory.createRibbonEmitter(mdlxEmitter, infoHolder, model);
 			infoHolder.add(mdlxEmitter, x);
 			model.add(x);
 		}
@@ -124,18 +142,6 @@ public class TempOpenModelStuff {
 		for (final MdlxCollisionShape mdlxShape : mdlxModel.collisionShapes) {
 			CollisionShape x = IdObjectFactory.createCollisionShape(mdlxShape, model);
 			infoHolder.add(mdlxShape, x);
-			model.add(x);
-		}
-
-		// Step 6: Convert TVertexAnims
-		for (final MdlxTextureAnimation mdlxTextureAnimation : mdlxModel.textureAnimations) {
-			model.add(new TextureAnim(mdlxTextureAnimation, model));
-		}
-
-		// Step 7: Convert Material refs
-		for (final MdlxMaterial mdlxMaterial : mdlxModel.materials) {
-			Material x = MaterialFactory.createMaterial(mdlxMaterial, model);
-			infoHolder.add(x);
 			model.add(x);
 		}
 
@@ -198,10 +204,6 @@ public class TempOpenModelStuff {
 
 		for (final ParticleEmitter2 temp : model.getParticleEmitter2s()) {
 			temp.updateTextureRef(model.getTextures());
-		}
-
-		for (final RibbonEmitter emitter : model.getRibbonEmitters()) {
-			emitter.updateMaterialRef(model.getMaterials());
 		}
 		for (ParticleEmitterPopcorn popcorn : model.getPopcornEmitters()) {
 			popcorn.initAnimsVisStates(model.getAnims());

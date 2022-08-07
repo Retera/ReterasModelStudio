@@ -40,6 +40,10 @@ public class ModelInfoHolder {
 		materials.add(material);
 		return this;
 	}
+	public ModelInfoHolder add(Bitmap bitmap) {
+		textures.add(bitmap);
+		return this;
+	}
 
 	public ModelInfoHolder addPivot(Vec3 vec3) {
 		pivots.add(vec3);

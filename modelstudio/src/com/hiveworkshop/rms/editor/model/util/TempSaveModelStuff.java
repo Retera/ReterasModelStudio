@@ -205,7 +205,6 @@ public class TempSaveModelStuff {
 				// JOptionPane.showMessageDialog(null,"Null material found for
 				// ribbon at temporary object id: "+m_idobjects.indexOf(r));
 			}
-			r.setMaterialId(model.computeMaterialID(r.getMaterial())); // -1 if null
 		}
 	}
 

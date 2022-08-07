@@ -202,7 +202,7 @@ public class IdObjectFactory {
 		return particleEmitterPopcorn;
 	}
 
-	public static RibbonEmitter createRibbonEmitter(MdlxRibbonEmitter mdlxEmitter, EditableModel model) {
+	public static RibbonEmitter createRibbonEmitter(MdlxRibbonEmitter mdlxEmitter, ModelInfoHolder infoHolder, EditableModel model) {
 		RibbonEmitter ribbonEmitter = new RibbonEmitter();
 		if ((mdlxEmitter.flags & 16384) != 16384) {
 			System.err.println("MDX -> MDL error: A ribbon emitter '" + mdlxEmitter.name
@@ -221,7 +221,7 @@ public class IdObjectFactory {
 		ribbonEmitter.setEmissionRate((int) mdlxEmitter.emissionRate);
 		ribbonEmitter.setRows((int) mdlxEmitter.rows);
 		ribbonEmitter.setColumns((int) mdlxEmitter.columns);
-		ribbonEmitter.setMaterialId(mdlxEmitter.materialId);
+		ribbonEmitter.setMaterial(infoHolder.materials.get(mdlxEmitter.materialId));
 		ribbonEmitter.setGravity(mdlxEmitter.gravity);
 
 

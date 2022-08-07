@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.editor.model;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
-import java.util.List;
 
 /**
  * RibbonEmitter class, these are the things most people would think of as a
@@ -23,7 +22,6 @@ public class RibbonEmitter extends IdObject {
 	int emissionRate = 0;
 	int rows = 0;
 	int columns = 0;
-	int materialID = 0;
 	Material material;
 	Vec3 staticColor = new Vec3(1, 1, 1);
 
@@ -48,7 +46,6 @@ public class RibbonEmitter extends IdObject {
 		emissionRate = emitter.emissionRate;
 		rows = emitter.rows;
 		columns = emitter.columns;
-		materialID = emitter.materialID;
 		material = emitter.material;
 		staticColor = new Vec3(emitter.staticColor);
 	}
@@ -56,23 +53,6 @@ public class RibbonEmitter extends IdObject {
 	@Override
 	public RibbonEmitter copy() {
 		return new RibbonEmitter(this);
-	}
-
-	public void updateMaterialRef(final List<Material> mats) {
-		if (getMaterialId() == -1) {
-			material = null;
-			return;
-		}
-		material = mats.get(getMaterialId());
-	}
-
-	public int getMaterialId() {
-		return materialID;
-	}
-
-	public void setMaterialId(final int materialID) {
-		System.out.println("RE, material ID: " + materialID);
-		this.materialID = materialID;
 	}
 
 	public double getHeightAbove() {

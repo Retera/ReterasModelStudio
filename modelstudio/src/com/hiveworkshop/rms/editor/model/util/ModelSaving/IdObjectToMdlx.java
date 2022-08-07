@@ -239,7 +239,7 @@ public class IdObjectToMdlx {
 		mdlxEmitter.emissionRate = ribbonEmitter.getEmissionRate();
 		mdlxEmitter.rows = ribbonEmitter.getRows();
 		mdlxEmitter.columns = ribbonEmitter.getColumns();
-		mdlxEmitter.materialId = ribbonEmitter.getMaterialId();
+		mdlxEmitter.materialId = model.computeMaterialID(ribbonEmitter.getMaterial());
 		mdlxEmitter.gravity = (float) ribbonEmitter.getGravity();
 
 		return mdlxEmitter;
