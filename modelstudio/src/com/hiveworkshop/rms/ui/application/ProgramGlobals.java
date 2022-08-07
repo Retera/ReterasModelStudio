@@ -143,6 +143,7 @@ public class ProgramGlobals {
 	}
 
 	public static void setCurrentModelPanel(ModelPanel currentModelPanel) {
+		if(ProgramGlobals.currentModelPanel != null) ProgramGlobals.currentModelPanel.deFocus();
 		ProgramGlobals.currentModelPanel = currentModelPanel;
 		rootWindowUgg.getWindowHandler2().setModelPanel(currentModelPanel);
 		if (!modelPanels.contains(currentModelPanel) && currentModelPanel != null) {
@@ -161,6 +162,7 @@ public class ProgramGlobals {
 
 	public static void removeModelPanel(ModelPanel modelPanel) {
 		if (currentModelPanel == modelPanel) {
+			currentModelPanel.deFocus();
 			currentModelPanel = null;
 		}
 		modelPanels.remove(modelPanel);

@@ -13,6 +13,12 @@ public class GPUReadyTexture {
 		this.height = height;
 	}
 
+	public GPUReadyTexture(final ByteBuffer buffer, final int width, final int height, final boolean wrapW, final boolean wrapH) {
+		this.buffer = buffer;
+		this.width = width;
+		this.height = height;
+	}
+
 	public ByteBuffer getBuffer() {
 		return buffer;
 	}

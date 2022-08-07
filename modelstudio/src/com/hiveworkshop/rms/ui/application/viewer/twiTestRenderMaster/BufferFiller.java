@@ -128,6 +128,7 @@ public class BufferFiller {
 				System.err.println("AnimatedPerspectiveViewport omitting frames due to avoid Exception log spam");
 				return;
 			}
+			textureThing.clearQued();
 			reloadIfNeeded();
 			updateRenderModel();
 			fillBuffers();
@@ -390,6 +391,7 @@ public class BufferFiller {
 			}
 		} else if (!texLoaded && ((programPreferences == null) || programPreferences.textureModels())) {
 			forceReloadTextures();
+//			doReloadTextures();
 			texLoaded = true;
 		}
 	}
@@ -411,8 +413,22 @@ public class BufferFiller {
 		}
 
 	}
+	public void doReloadTextures() {
+		texLoaded = true;
+		if (textureThing != null) {
+			textureThing.clearTextureMap();
+		}
+
+	}
 
 	public void setLevelOfDetail(final int levelOfDetail) {
 		this.levelOfDetail = levelOfDetail;
+	}
+
+	public void clearTextureMap(){
+		System.out.println("clearing textureMap for " + modelView.getModel().getName());
+		texLoaded = false;
+		textureThing.queClear();
+//		textureThing.clearTextureMap();
 	}
 }

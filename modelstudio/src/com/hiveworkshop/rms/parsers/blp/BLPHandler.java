@@ -29,8 +29,7 @@ public class BLPHandler {
 	 * Caching here is dangerous, only works if you're not changing the underlying
 	 * images.
 	 */
-	Map<String, ImageThingiHelper> cache = new HashMap<>();
-	Map<String, ImageThingiHelper> nonCache = new HashMap<>();
+	Map<String, TextureHelper> cache = new HashMap<>();
 	private static final BufferedImage blankImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
 	static {
 		((DataBufferInt) blankImage.getRaster().getDataBuffer()).getData()[0] = 16777215;
@@ -51,7 +50,6 @@ public class BLPHandler {
 
 	public void dropCache() {
 		cache.clear();
-		nonCache.clear();
 	}
 
 	public static BufferedImage getGameTex(String iconTexturePath) {
@@ -59,21 +57,26 @@ public class BLPHandler {
 	}
 
 	public static BufferedImage getImage(Bitmap bitmap, DataSource workingDirectory) {
-		return BLPHandler.get().getTexture(workingDirectory, bitmap.getRenderableTexturePath());
+		return BLPHandler.get().getTexture(workingDirectory, bitmap);
+//		return BLPHandler.get().getTexture(workingDirectory, bitmap.getRenderableTexturePath());
 	}
 	public static BufferedImage getBlankImage() {
 		return BLPHandler.blankImage;
 	}
 
-
-	public GPUReadyTexture loadTexture2(DataSource dataSource, String filepath) {
-		String lowerFilePath = filepath.toLowerCase(Locale.US);
-		GPUReadyTexture gpuReadyTexture = getCachedGpuReadyTexture(lowerFilePath);
-		if (gpuReadyTexture != null) {
-			return gpuReadyTexture;
+	public TextureHelper getTextureHelper(DataSource dataSource, Bitmap bitmap) {
+		String lowerFilePath = bitmap.getRenderableTexturePath().toLowerCase(Locale.US);
+		TextureHelper textureHelper = cache.get(lowerFilePath);
+		if (textureHelper != null) {
+			return textureHelper;
 		} else {
-			getTexture(dataSource, filepath);
-			return getCachedGpuReadyTexture(lowerFilePath);
+			try {
+//				cacheBufferedImage(dataSource, bitmap.getRenderableTexturePath());
+				return getNewTextureHelper(dataSource, bitmap);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+//			return getCachedGpuReadyTexture(lowerFilePath);
 		}
 	}
 
@@ -82,71 +85,139 @@ public class BLPHandler {
 		return colorTextureMap.computeIfAbsent(color, k -> ImageUtils.getGPUColorTexture(color));
 	}
 
-	private GPUReadyTexture getCachedGpuReadyTexture(String lowerFilePath) {
-		if (cache.get(lowerFilePath) != null && cache.get(lowerFilePath).getGpuReadyTexture() != null) {
-			return cache.get(lowerFilePath).getGpuReadyTexture();
-		} else if (nonCache.get(lowerFilePath) != null && nonCache.get(lowerFilePath).getGpuReadyTexture() != null) {
-			return nonCache.get(lowerFilePath).getGpuReadyTexture();
+
+	private BufferedImage getTexture(DataSource dataSource, String filepath) {
+		BufferedImage cachedBufferedImage = getCachedBufferedImage(filepath);
+		if (cachedBufferedImage != null) {
+			return cachedBufferedImage;
+		} else if (dataSource != null) {
+			try {
+				return cacheAndGetBufferedImage(dataSource, filepath);
+			} catch (IOException exc) {
+				throw new RuntimeException(exc);
+			}
 		}
 		return null;
 	}
 
-	private BufferedImage getTexture(DataSource dataSource, String filepath) {
-		try {
-			String key = filepath.toLowerCase(Locale.US);
-			BufferedImage cachedBufferedImage = getCachedBufferedImage(key);
-			if (cachedBufferedImage != null) {
-				return cachedBufferedImage;
-			} else if (dataSource != null) {
-				ImageThingiHelper imageThingi = getNewImageThingiHelper(dataSource, filepath);
-
-				if (imageThingi != null) {
-					if (dataSource.allowDownstreamCaching(filepath)) {
-						cache.put(key, imageThingi);
-					} else {
-						nonCache.put(key, imageThingi);
-					}
-					return imageThingi.getBufferedImage();
-				}
+	private BufferedImage getTexture(DataSource dataSource, Bitmap bitmap) {
+		BufferedImage cachedBufferedImage = getCachedBufferedImage(bitmap.getRenderableTexturePath());
+		if (cachedBufferedImage != null) {
+			return cachedBufferedImage;
+		} else if (dataSource != null) {
+			try {
+				return cacheAndGetBufferedImage(dataSource, bitmap);
+			} catch (IOException exc) {
+				throw new RuntimeException(exc);
 			}
-			return null;
-
-		} catch (IOException exc) {
-			throw new RuntimeException(exc);
 		}
+		return null;
+	}
+
+	private GPUReadyTexture getCachedGpuReadyTexture(String lowerFilePath) {
+		if (cache.get(lowerFilePath) != null) {
+			return cache.get(lowerFilePath).getCashedGpuReadyTexture();
+		}
+		return null;
 	}
 
 	private BufferedImage getCachedBufferedImage(String filepath) {
 		String key = filepath.toLowerCase(Locale.US);
-		if (cache.get(key) != null && cache.get(key).getBufferedImage() != null) {
+		if (cache.get(key) != null) {
 			return cache.get(key).getBufferedImage();
-		} else if (nonCache.get(key) != null && nonCache.get(key).getBufferedImage() != null) {
-			return nonCache.get(key).getBufferedImage();
 		}
 		return null;
 	}
 
-	private ImageThingiHelper getNewImageThingiHelper(DataSource dataSource, String filepath) throws IOException {
+	private BufferedImage cacheAndGetBufferedImage(DataSource dataSource, String filepath) throws IOException {
+		TextureHelper imageThingi = getNewTextureHelper(dataSource, filepath);
+
+		if (imageThingi != null) {
+			return imageThingi.getBufferedImage();
+		}
+		return null;
+	}
+
+	private BufferedImage cacheAndGetBufferedImage(DataSource dataSource, Bitmap bitmap) throws IOException {
+		TextureHelper imageThingi = getNewTextureHelper(dataSource, bitmap);
+
+		if (imageThingi != null) {
+			return imageThingi.getBufferedImage();
+		}
+		return null;
+	}
+	private GPUReadyTexture cacheAndGetBPUReadyImage(DataSource dataSource, String filepath) throws IOException {
+		TextureHelper imageThingi = getNewTextureHelper(dataSource, filepath);
+
+		if (imageThingi != null) {
+			return imageThingi.getCashedGpuReadyTexture();
+		}
+		return null;
+	}
+	private GPUReadyTexture cacheAndGetBPUReadyImage(DataSource dataSource, Bitmap bitmap) throws IOException {
+		TextureHelper textureHelper = getNewTextureHelper(dataSource, bitmap);
+
+		if (textureHelper != null) {
+			return textureHelper.getCashedGpuReadyTexture();
+		}
+		return null;
+	}
+
+
+	private TextureHelper getNewTextureHelper(DataSource dataSource, String filepath) throws IOException {
 		String ddsFilepath = filepath.replaceAll("(\\.blp$)|(\\.tif$)", ".dds");
 		String nameOnly = filepath.replaceAll(".*[/\\\\]", "");
 
 		String[] filePaths = new String[] {ddsFilepath, nameOnly, filepath};
 
 		for (String path : filePaths) {
-			BufferedImage resultImage = loadTextureDirectly(dataSource, path);
+			BufferedImage resultImage = loadTextureFromSource(dataSource, path);
 			if (resultImage != null) {
-				return new ImageThingiHelper(dataSource.getFile(path), resultImage);
+				TextureHelper textureHelper = new TextureHelper(dataSource.getFile(path), resultImage, dataSource.allowDownstreamCaching(filepath));
+				cache.put(filepath.toLowerCase(Locale.US), textureHelper);
+				return textureHelper;
 			}
 		}
 		if(filepath.toLowerCase().matches("\\w:.+")){
 			File textureFile = getTextureFile(filepath);
 			BufferedImage bufferedImage = loadTextureFromFile(textureFile);
-			return new ImageThingiHelper(textureFile, bufferedImage);
+			TextureHelper textureHelper = new TextureHelper(textureFile, bufferedImage, true);
+			cache.put(filepath.toLowerCase(Locale.US), textureHelper);
+			return textureHelper;
 		}
 		return null;
 	}
 
-	private BufferedImage loadTextureDirectly(DataSource dataSource, String filepath) throws IOException {
+	private TextureHelper getNewTextureHelper(DataSource dataSource, Bitmap bitmap) throws IOException {
+		String filepath = bitmap.getRenderableTexturePath();
+		String ddsFilepath = filepath.replaceAll("(\\.blp$)|(\\.tif$)", ".dds");
+		String nameOnly = filepath.replaceAll(".*[/\\\\]", "");
+
+		String[] filePaths = new String[] {ddsFilepath, nameOnly, filepath};
+
+		for (String path : filePaths) {
+			BufferedImage resultImage = loadTextureFromSource(dataSource, path);
+			if (resultImage != null) {
+				TextureHelper textureHelper = new TextureHelper(dataSource.getFile(path), resultImage, dataSource.allowDownstreamCaching(filepath), bitmap);
+				cache.put(filepath.toLowerCase(Locale.US), textureHelper);
+				return textureHelper;
+			}
+		}
+		if(filepath.toLowerCase().matches("\\w:.+")){
+			File textureFile = getTextureFile(filepath);
+			BufferedImage bufferedImage = loadTextureFromFile(textureFile);
+			TextureHelper textureHelper = new TextureHelper(textureFile, bufferedImage, true, bitmap);
+			cache.put(filepath.toLowerCase(Locale.US), textureHelper);
+
+			return textureHelper;
+		}
+		return null;
+	}
+
+
+
+
+	private BufferedImage loadTextureFromSource(DataSource dataSource, String filepath) throws IOException {
 		if (dataSource.has(filepath)) {
 			try (final InputStream imageDataStream = dataSource.getResourceAsStream(filepath)) {
 				if (imageDataStream != null) {
@@ -160,16 +231,6 @@ public class BLPHandler {
 				}
 			}
 		}
-//		else if(filepath.toLowerCase().matches("\\w:.+")){
-//			Path path = Paths.get(filepath);
-//			System.out.println("systemPath! " + filepath + ", path: " + path + " (" + path.getFileName() + ")");
-//			if(!path.getFileName().toString().equals("")){
-//
-//				try (final InputStream imageDataStream = Files.newInputStream(path, StandardOpenOption.READ)) {
-//					return ImageIO.read(imageDataStream);
-//				}
-//			}
-//		}
 		return null;
 	}
 

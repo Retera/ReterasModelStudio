@@ -159,4 +159,9 @@ public class ModelPanel {
 	public ModelEditorActionType3 getEditorActionType() {
 		return editorActionType;
 	}
+
+	public void deFocus(){
+		modelHandler.getRenderModel().getBufferFiller().clearTextureMap();
+		modelHandler.getPreviewRenderModel().getBufferFiller().clearTextureMap();
+	}
 }
