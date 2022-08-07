@@ -11,21 +11,18 @@ import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode2;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 public class AddKeyframeAction3 implements UndoAction {
-	private final ModelView modelView;
 	private final RenderModel renderModel ;
 	private final int trackTime;
 	private final TimeEnvironmentImpl timeEnvironmentImpl;
@@ -33,20 +30,18 @@ public class AddKeyframeAction3 implements UndoAction {
 
 	private final UndoAction createKeyframeCompoundAction;
 
-	public AddKeyframeAction3(ModelHandler modelHandler,
+	public AddKeyframeAction3(Collection<IdObject> selection, RenderModel renderModel,
 	                          ModelEditorActionType3 actionType) {
 		this.actionType = actionType;
-		this.modelView = modelHandler.getModelView();
-		this.renderModel = modelHandler.getRenderModel();
+		this.renderModel = renderModel;
 
 		timeEnvironmentImpl = renderModel.getTimeEnvironment();
 		trackTime = timeEnvironmentImpl.getEnvTrackTime();
 
-		createKeyframeCompoundAction = createKeyframe();
+		createKeyframeCompoundAction = createKeyframe(selection);
 	}
 
-	public UndoAction createKeyframe() {
-		Set<IdObject> selection = modelView.getSelectedIdObjects();
+	public UndoAction createKeyframe(Collection<IdObject> selection) {
 		List<UndoAction> actions = new ArrayList<>();
 
 		GlobalSeq globalSeq = timeEnvironmentImpl.getGlobalSeq();

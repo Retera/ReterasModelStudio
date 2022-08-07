@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.addactions.AddTextureAnimAction;
 import com.hiveworkshop.rms.editor.actions.animation.AddSequenceAction;
 import com.hiveworkshop.rms.editor.actions.animation.ReplaceSequenceTransformations;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddAnimFlagAction;
@@ -18,6 +19,7 @@ import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.ui.application.actionfunctions.ImportFromObjectEditor;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.animation.GlobalSeqHelper;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.tools.BoneChainMapWizard;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
@@ -136,6 +138,23 @@ public class AddSingleAnimationActions {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null && modelPanel.getModelHandler() != null) {
 			addEmptyAnimation(modelPanel.getModelHandler());
+		}
+	}
+	public static void addTextureAnim() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null && modelPanel.getModelHandler() != null) {
+			ModelHandler modelHandler = modelPanel.getModelHandler();
+			UndoAction action = new AddTextureAnimAction(modelHandler.getModel(), null, ModelStructureChangeListener.getModelStructureChangeListener());
+			modelHandler.getUndoManager().pushAction(action.redo());
+		}
+	}
+	public static void addGlobalSeq() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null && modelPanel.getModelHandler() != null) {
+			ModelHandler modelHandler = modelPanel.getModelHandler();
+			GlobalSeqHelper.showNewGlobSeqPopup(ProgramGlobals.getMainPanel(), "Enter Length", modelHandler);
+//			UndoAction action = new AddSequenceAction(modelHandler.getModel(), new GlobalSeq(1000 + modelHandler.getModel().getGlobalSeqs().size()), ModelStructureChangeListener.getModelStructureChangeListener());
+//			modelHandler.getUndoManager().pushAction(action.redo());
 		}
 	}
 

@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.animation;
 
+import com.hiveworkshop.rms.editor.actions.animation.SlideKeyframesAction;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
@@ -24,7 +25,7 @@ public final class KeyFrame {
 
 	private final KeyframeHandler keyframeHandler;
 	private boolean mouseOver = false;
-	private int time;
+	private int time = -1;
 	private final Set<TimelineContainer> objects = new HashSet<>();
 	private final List<AnimFlag<?>> timelines = new ArrayList<>();
 	private final Rectangle renderRect;
@@ -97,9 +98,32 @@ public final class KeyFrame {
 		return this;
 	}
 
+	private SlideKeyframesAction slideKeyframesAction;
+	public KeyFrame dragTime(int time){
+		if(time != this.time && slideKeyframesAction != null){
+			slideKeyframesAction.update(time);
+			this.time = Math.max(time, 0);
+			this.time = Math.min(this.time, timeEnvironment.getLength());
+			x = computeXFromTime(this.time);
+			renderRect.x = x + SIDE_OFFSETS - width/2;
+		}
+		return this;
+	}
+	public KeyFrame initDrag(Sequence sequence, Runnable keyframeChangeCallback){
+		slideKeyframesAction = new SlideKeyframesAction(time, timelines, sequence, keyframeChangeCallback);
+		return this;
+	}
+	public SlideKeyframesAction finnishDrag(){
+		SlideKeyframesAction action = slideKeyframesAction;
+		slideKeyframesAction = null;
+		return action;
+	}
+
+
 	public double getLocationFraction(){
 		return x / (double) getMaxX();
 	}
+
 
 	public KeyFrame setTime(int time) {
 		this.time = Math.max(time, 0);

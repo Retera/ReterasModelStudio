@@ -2,30 +2,37 @@ package com.hiveworkshop.rms.editor.actions.animation;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 
-import java.util.List;
-
-public class SlideKeyframeAction implements UndoAction {
+public class SlideKeyframeAction<T> implements UndoAction {
 	private final int startTrackTime;
-	private final int endTrackTime;
+	private int endTime;
 	private final Sequence sequence;
-	private final List<AnimFlag<?>> timelines;
+	private final AnimFlag<T> timeline;
+	private Entry<T> tempEntry;
 	private final Runnable keyframeChangeCallback;
 
-	public SlideKeyframeAction(int startTrackTime, int endTrackTime, List<AnimFlag<?>> timelines, Sequence sequence, Runnable keyframeChangeCallback) {
+	public SlideKeyframeAction(int startTrackTime, int endTrackTime, AnimFlag<T> timeline, Sequence sequence, Runnable keyframeChangeCallback) {
 		this.startTrackTime = startTrackTime;
-		this.endTrackTime = endTrackTime;
+		this.endTime = endTrackTime;
 		this.sequence = sequence;
-		this.timelines = timelines;
+		this.timeline = timeline;
+		this.keyframeChangeCallback = keyframeChangeCallback;
+	}
+
+	public SlideKeyframeAction(int startTrackTime, AnimFlag<T> timeline, Sequence sequence, Runnable keyframeChangeCallback) {
+		this.startTrackTime = startTrackTime;
+		this.endTime = startTrackTime;
+		this.sequence = sequence;
+		this.timeline = timeline;
 		this.keyframeChangeCallback = keyframeChangeCallback;
 	}
 
 	@Override
 	public UndoAction undo() {
-		for (final AnimFlag<?> timeline : timelines) {
-			timeline.slideKeyframe(endTrackTime, startTrackTime, sequence);
-		}
+		slideKeyframe(endTime, startTrackTime);
+
 		if (keyframeChangeCallback != null) {
 			keyframeChangeCallback.run();
 		}
@@ -34,18 +41,39 @@ public class SlideKeyframeAction implements UndoAction {
 
 	@Override
 	public UndoAction redo() {
-		for (final AnimFlag<?> timeline : timelines) {
-			timeline.slideKeyframe(startTrackTime, endTrackTime, sequence);
-		}
+		slideKeyframe(startTrackTime, endTime);
+
 		if (keyframeChangeCallback != null) {
 			keyframeChangeCallback.run();
 		}
 		return this;
 	}
 
-	@Override
-	public String actionName() {
-		return "slide keyframe";
+	public SlideKeyframeAction<T> update(int newTime) {
+		int lastTime = endTime;
+		endTime = newTime;
+
+		slideKeyframe(lastTime, endTime);
+		return this;
 	}
 
+	@Override
+	public String actionName() {
+		return "Slide Keyframe";
+	}
+
+
+	private void slideKeyframe(int slideStart, int slideEnd) {
+		if(slideStart != slideEnd){
+			Entry<T> entryToSlide = timeline.getEntryAt(sequence, slideStart);
+			if (entryToSlide != null) {
+				Entry<T> entryAt = timeline.getEntryAt(sequence, slideEnd);
+				timeline.slideKeyframe(slideStart, slideEnd, sequence);
+				if(tempEntry != null){
+					timeline.addEntry(tempEntry, sequence);
+				}
+				tempEntry = entryAt;
+			}
+		}
+	}
 }

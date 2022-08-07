@@ -9,16 +9,14 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.util.ModelDependentView;
-import com.hiveworkshop.rms.util.TestTimeline.TimeLineHolder;
 import net.infonode.docking.View;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.function.Consumer;
 
 public class TimeSliderView extends ModelDependentView {
 	private TimeSliderPanel timeSliderPanel;
-	private TimeLineHolder timeLineHolder;
+//	private TimeLineHolder timeLineHolder;
 
 	public TimeSliderView() {
 		super("Timeline", null, new JPanel());
@@ -149,16 +147,16 @@ public class TimeSliderView extends ModelDependentView {
 		return timeSliderPanel;
 	}
 
-	private TimeLineHolder createTimeLineHolder() {
-		timeLineHolder = new TimeLineHolder(null);
-//		timeLineHolder.setDrawing(false);
-		Consumer<Integer> timeSliderTimeListener = currentTime -> {
-			if (ProgramGlobals.getCurrentModelPanel() != null) {
-				ProgramGlobals.getCurrentModelPanel().getEditorRenderModel().updateNodes(false);
-				ProgramGlobals.getCurrentModelPanel().repaintSelfAndRelatedChildren();
-			}
-		};
-		timeLineHolder.addListener(timeSliderTimeListener);
-		return timeLineHolder;
-	}
+//	private TimeLineHolder createTimeLineHolder() {
+//		timeLineHolder = new TimeLineHolder(null);
+////		timeLineHolder.setDrawing(false);
+//		Consumer<Integer> timeSliderTimeListener = currentTime -> {
+//			if (ProgramGlobals.getCurrentModelPanel() != null) {
+//				ProgramGlobals.getCurrentModelPanel().getEditorRenderModel().updateNodes(false);
+//				ProgramGlobals.getCurrentModelPanel().repaintSelfAndRelatedChildren();
+//			}
+//		};
+//		timeLineHolder.addListener(timeSliderTimeListener);
+//		return timeLineHolder;
+//	}
 }

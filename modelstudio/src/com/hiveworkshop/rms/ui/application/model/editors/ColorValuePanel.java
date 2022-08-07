@@ -150,74 +150,7 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 
 	@Override
 	Vec3 parseValue(String valueString) {
-		Vec3 vecValue;
-		String polishedString;
-		if (valueString != null && valueString.matches("\\{? ?(\\d*\\.?\\d+)( ?, ?(\\d*\\.?\\d+))* ?}?")) {
-//			System.out.println("match");
-			polishedString = valueString.replaceAll("[\\{} ]", "");
-//			System.out.println("polishedString pre: " + polishedString);
-			String[] split = polishedString.split(",");
-			int vecSize = split.length;
-			if (vecSize < 3) {
-				String addString = ",0";
-				if (!split[vecSize - 1].equals("")) {
-					addString = "," + split[vecSize - 1];
-				}
-				polishedString += addString;
-				if (vecSize < 2) {
-					polishedString += addString;
-				}
-			} else {
-				if (split[2].equals("")) {
-					polishedString += split[1];
-				}
-			}
-		} else {
-//			System.out.println("nja");
-			polishedString = valueString.replaceAll("[\\{} ]", "");
-//			System.out.println("polishedString pre: " + polishedString);
-			String[] split = polishedString.split(",");
-			if (split.length < 3) {
-				polishedString = polishedString.replaceAll("\\.\\.", ".0,.");
-				split = polishedString.split(",");
-			}
-			StringBuilder newS = new StringBuilder();
-			for (int i = 0; i < 3; i++) {
-				if (i < split.length) {
-					String s = split[i];
-					if (s.equals("") || s.equals(".")) {
-						split[i] = "0";
-					} else if (s.matches("\\d+\\.")) {
-						split[i] += "0";
-					} else if (s.matches("\\d*\\.\\d+\\..*")) {
-						split[i] = s.substring(0, s.indexOf(".", s.indexOf(".") + 1));
-					}
-					newS.append(split[i]);
-				} else if (split.length != 0) {
-					newS.append(split[split.length - 1]);
-				} else {
-					newS.append("0");
-				}
-				if (i < 2) {
-					newS.append(",");
-				}
-			}
-			polishedString = newS.toString();
-
-		}
-//		System.out.println("polishedString: " + polishedString);
-		vecValue = Vec3.parseVec3(polishedString);
-
-		clamp(vecValue, 0.0f, 1.0f);
-		return vecValue;
-	}
-
-	private void clamp(Vec3 vec3, float min, float max) {
-		float[] vecFloats = vec3.toFloatArray();
-		for (int i = 0; i < 3; i++) {
-			vecFloats[i] = Math.max(min, Math.min(max, vecFloats[i]));
-		}
-		vec3.set(vecFloats);
+		return Vec3.parseVec3(ValueParserUtil.getString(3, valueString)).clamp(0.0f, 1.0f);
 	}
 
 	protected KeyframePanel<Vec3> addListeners(KeyframePanel<Vec3> keyframePanel) {

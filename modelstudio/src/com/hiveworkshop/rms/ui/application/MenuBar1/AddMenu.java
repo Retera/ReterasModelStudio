@@ -38,6 +38,8 @@ public class AddMenu extends JMenu {
 		add(animationMenu);
 
 		animationMenu.add(createMenuItem("Empty", KeyEvent.VK_F, e -> AddSingleAnimationActions.addEmptyAnimation()));
+		animationMenu.add(createMenuItem("GlobalSeq", KeyEvent.VK_F, e -> AddSingleAnimationActions.addGlobalSeq()));
+		animationMenu.add(createMenuItem("TextureAnim", KeyEvent.VK_F, e -> AddSingleAnimationActions.addTextureAnim()));
 		animationMenu.add(createMenuItem("Rising/Falling Birth/Death", KeyEvent.VK_R, e -> AddBirthDeathSequences.riseFallBirthActionRes()));
 //		createAndAddMenuItem("Empty", animationMenu, KeyEvent.VK_F, e -> AddSingleAnimationActions.addEmptyAnimation());
 //		createAndAddMenuItem("Rising/Falling Birth/Death", animationMenu, KeyEvent.VK_R, e -> AddBirthDeathSequences.riseFallBirthActionRes());

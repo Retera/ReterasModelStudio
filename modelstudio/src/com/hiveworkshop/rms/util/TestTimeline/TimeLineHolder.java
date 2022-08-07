@@ -9,7 +9,6 @@ import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderTimeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
@@ -21,7 +20,6 @@ import javax.swing.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.*;
-import java.util.function.Consumer;
 
 public class TimeLineHolder extends JPanel {
 	private final Map<Integer, KeyFrame> timeToKey = new LinkedHashMap<>();
@@ -35,7 +33,6 @@ public class TimeLineHolder extends JPanel {
 	private boolean showAllKeyframes;
 	private SelectionManager nodeSelectionManager;
 	private SelectionListener selectionListener = this::updateKeyframeDisplay;
-	private TimeSliderTimeListener notifier;
 	private Sequence sequence;
 
 	//	public TimeLineHolder(ComPerspRenderEnv renderEnv, ModelView modelView){
@@ -49,7 +46,6 @@ public class TimeLineHolder extends JPanel {
 		liveAnimationTimer = new Timer(16, e -> liveAnimationTimerListener());
 		timeLinePanel = new TimeLinePanel();
 
-		notifier = new TimeSliderTimeListener();
 		this.renderEnv = renderEnv;
 		addTestingStuff();
 
@@ -258,20 +254,6 @@ public class TimeLineHolder extends JPanel {
 		}
 	}
 
-	public TimeLineHolder addTimeListener(TimeLinePanel.TimeListener timeListener) {
-		timeListeners.add(timeListener);
-		return this;
-	}
-
-	public void addListener(Consumer<Integer> listener) {
-		notifier.subscribe(listener);
-	}
-
-	public TimeLineHolder removeTimeListener(TimeLinePanel.TimeListener timeListener) {
-		timeListeners.remove(timeListener);
-		return this;
-	}
-
 	private void updateTime(int time) {
 		System.out.println("time changed?! time: " + time);
 		timeLinePanel.setCurrentTime(time);
@@ -279,7 +261,6 @@ public class TimeLineHolder extends JPanel {
 		for (TimeLinePanel.TimeListener timeListener : timeListeners) {
 			timeListener.timeChanged(time);
 		}
-		notifier.timeChanged(time);
 	}
 
 
