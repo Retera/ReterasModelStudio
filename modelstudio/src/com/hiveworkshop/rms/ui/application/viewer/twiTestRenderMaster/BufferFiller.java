@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderParticleEmitter2;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.viewer.MouseListenerThing;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
@@ -95,7 +96,7 @@ public class BufferFiller {
 		this.modelView = modelView;
 		if(renderModel != null){
 			renderModel.getTimeEnvironment().setSequence(null);
-			EditableModel model = modelView.getModel();
+			EditableModel model = renderModel.getModel();
 			textureThing = new TextureThing(programPreferences);
 			renderEnv = renderModel.getTimeEnvironment();
 

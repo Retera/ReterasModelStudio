@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.browsers.mpq;
 
 import com.hiveworkshop.rms.editor.actions.model.bitmap.AddBitmapAction;
 import com.hiveworkshop.rms.editor.model.Bitmap;
-import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.ExportInternal;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -53,7 +53,7 @@ public final class MPQMouseAdapter extends MouseAdapter {
 		JPopupMenu contextMenu = new JPopupMenu();
 
 		contextMenu.add(getMenuItem("Open", e -> MPQBrowser.loadFileByType(getClickedPath())));
-		contextMenu.add(getMenuItem("Export", e -> new FileDialog(mpqBrowser).exportInternalFile(getClickedPath())));
+		contextMenu.add(getMenuItem("Export", e -> ExportInternal.exportInternalFile3(getClickedPath(), "Internal File", mpqBrowser)));
 		contextMenu.addSeparator();
 		contextMenu.add(getMenuItem("Copy Path to Clipboard", e -> copyItemPathToClipboard(getClickedPath())));
 		contextMenu.add(getMenuItem("Use as Texture", e -> addTextureToCurrentModel(getClickedPath())));

@@ -66,11 +66,11 @@ public class DisplayPanelCanvas extends JPanel {
 	public DisplayPanelCanvas setModel(ModelHandler modelHandler, ViewportActivityManager activityListener) {
 		this.activityListener = activityListener;
 		if(modelHandler != null){
-			vp2.setModel(modelHandler.getModelView(), modelHandler.getRenderModel(), true);
+			vp2.setModel(modelHandler.getRenderModel());
 //			vp2.getCameraHandler().setOrtho(true);
 			vp2.getMouseAdapter().setActivityManager(activityListener);
 		} else {
-			vp2.setModel(null, null, false);
+			vp2.setModel(null);
 		}
 		return this;
 	}
@@ -189,7 +189,7 @@ public class DisplayPanelCanvas extends JPanel {
 	}
 
 	public DisplayPanelCanvas setOrtho(boolean ortho){
-		vp2.getCameraManager().setOrtho(ortho);
+		vp2.getCameraHandler().setOrtho(ortho);
 		return this;
 	}
 

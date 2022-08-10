@@ -9,7 +9,9 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.blp.ImageUtils;
+import com.hiveworkshop.rms.ui.application.ExportInternal;
 import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.OpenImages;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
@@ -177,7 +179,7 @@ public class EditTexturesPanel extends OverviewPanel {
 
 
 	private void importTexturePopup() {
-		Bitmap newBitmap = fileDialog.importImage();
+		Bitmap newBitmap = OpenImages.importImage(model, this);
 		if (newBitmap != null) {
 			UndoAction action = new AddBitmapAction(newBitmap, model, changeListener);
 			undoManager.pushAction(action.redo());
@@ -189,7 +191,7 @@ public class EditTexturesPanel extends OverviewPanel {
 	private void exportTexture() {
 		Bitmap selectedValue = bitmapJList.getSelectedValue();
 		if (selectedValue != null) {
-			fileDialog.exportImage(selectedValue);
+			ExportInternal.exportInternalFile3(selectedValue.getRenderableTexturePath(), "Texture", this);
 		}
 	}
 
@@ -223,7 +225,7 @@ public class EditTexturesPanel extends OverviewPanel {
 
 	private void btnReplaceTexture() {
 		if (selectedImage != null) {
-			Bitmap newBitmap = fileDialog.importImage();
+			Bitmap newBitmap = OpenImages.importImage(model, this);
 			if (newBitmap != null && !newBitmap.getPath().equals(selectedImage.getPath())) {
 				undoManager.pushAction(new SetBitmapPathAction(selectedImage, newBitmap.getPath(), changeListener).redo());
 				loadBitmap(selectedImage);

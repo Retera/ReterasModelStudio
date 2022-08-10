@@ -19,11 +19,11 @@ public class IdObjectChooserButton extends JButton {
 	private Runnable updateFunction;
 	private Consumer<IdObject> idObjectConsumer;
 
-	public IdObjectChooserButton(EditableModel model, JComponent parent){
+	public IdObjectChooserButton(EditableModel model, boolean parentChooser, JComponent parent){
 		super();
 		setText(buttonText);
 		this.parent = parent;
-		idObjectChooser = new IdObjectChooser(model);
+		idObjectChooser = new IdObjectChooser(model, parentChooser);
 		if(model != null){
 			iconFunction = o -> iconHandler.getImageIcon(o, model);
 			setIcon(iconHandler.getImageIcon(model));
@@ -32,8 +32,11 @@ public class IdObjectChooserButton extends JButton {
 	}
 
 	public IdObjectChooserButton(EditableModel model, Set<Class<?>> classSet, JComponent parent){
-		this(model, parent);
+		this(model, false, parent);
 		idObjectChooser.setClassSet(classSet);
+	}
+	public IdObjectChooserButton(EditableModel model, JComponent parent){
+		this(model, false, parent);
 	}
 
 

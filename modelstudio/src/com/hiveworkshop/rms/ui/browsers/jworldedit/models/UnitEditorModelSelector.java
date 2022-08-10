@@ -1,14 +1,11 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.models;
 
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.util.ModelFactory.TempOpenModelStuff;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.WarcraftData;
 import com.hiveworkshop.rms.parsers.slk.WarcraftObject;
+import com.hiveworkshop.rms.ui.application.ImportFileActions;
 import com.hiveworkshop.rms.ui.application.viewer.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
@@ -26,7 +23,6 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.*;
 
@@ -42,10 +38,6 @@ public class UnitEditorModelSelector extends JSplitPane {
 
 	JLabel debugLabel = new JLabel("debug");
 
-	EditableModel mdl = new EditableModel();
-	ModelHandler modelHandler = new ModelHandler(mdl);
-	// MDL mdl;
-//	ModelView modelDisp = new ModelView(mdl);
 	PerspDisplayPanel perspDisplayPanel;
 	//	DefaultTableModel tableModel;
 	DefaultMutableTreeNode defaultSelection = null;
@@ -133,20 +125,10 @@ public class UnitEditorModelSelector extends JSplitPane {
 			currentUnit = unitData.get("hpea");
 		}
 		if (currentUnit != null) {
-			String filepath = currentUnit.getField("file");
+			String filepath = ImportFileActions.convertPathToMDX(currentUnit.getField("file"));
 
-			ModelView modelDisp = null;
-
-			if (filepath.endsWith(".mdl")) {
-				filepath = filepath.replace(".mdl", ".mdx");
-			} else if (!filepath.endsWith(".mdx")) {
-				filepath = filepath.concat(".mdx");
-			}
-
-			try (InputStream reader = GameDataFileSystem.getDefault().getResourceAsStream(filepath)) {
-				mdl = TempOpenModelStuff.createEditableModel(MdxUtils.loadMdlx(reader));
-				modelHandler = new ModelHandler(mdl);
-//				modelDisp = new ModelView(mdl);
+			try {
+				ModelHandler modelHandler = new ModelHandler(MdxUtils.loadEditable(filepath, null));
 				perspDisplayPanel.setModel(modelHandler);
 				perspDisplayPanel.setTitle(currentUnit.getName());
 			} catch (final IOException e) {

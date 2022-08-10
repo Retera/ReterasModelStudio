@@ -7,10 +7,10 @@ import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.editor.actions.model.material.SetMaterialShaderStringAction;
 import com.hiveworkshop.rms.editor.actions.nodes.AddNodeAction;
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.ui.application.AddBirthDeathSequences;
-import com.hiveworkshop.rms.ui.application.AddParticlePanel;
-import com.hiveworkshop.rms.ui.application.AddSingleAnimationActions;
-import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.*;
+import com.hiveworkshop.rms.ui.application.actionfunctions.ImportFromObjectEditor;
+import com.hiveworkshop.rms.ui.application.actionfunctions.ImportFromUnit;
+import com.hiveworkshop.rms.ui.application.actionfunctions.ImportWC3Model;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.Vec3;
@@ -47,10 +47,15 @@ public class AddMenu extends JMenu {
 		JMenu singleAnimationMenu = createMenu("Single", KeyEvent.VK_S);
 		animationMenu.add(singleAnimationMenu);
 
-		singleAnimationMenu.add(createMenuItem("From File", KeyEvent.VK_F, e -> AddSingleAnimationActions.addAnimationFromFile()));
-		singleAnimationMenu.add(createMenuItem("From Unit", KeyEvent.VK_U, e -> AddSingleAnimationActions.addAnimationFromUnit()));
-		singleAnimationMenu.add(createMenuItem("From Model", KeyEvent.VK_M, e -> AddSingleAnimationActions.addAnimFromModel()));
-		singleAnimationMenu.add(createMenuItem("From Object", KeyEvent.VK_O, e -> AddSingleAnimationActions.addAnimationFromObject()));
+//		singleAnimationMenu.add(createMenuItem("From File", KeyEvent.VK_F, e -> AddSingleAnimationActions.addAnimationFromFile()));
+//		singleAnimationMenu.add(createMenuItem("From Unit", KeyEvent.VK_U, e -> AddSingleAnimationActions.addAnimationFromUnit()));
+//		singleAnimationMenu.add(createMenuItem("From Model", KeyEvent.VK_M, e -> AddSingleAnimationActions.addAnimFromModel()));
+//		singleAnimationMenu.add(createMenuItem("From Object", KeyEvent.VK_O, e -> AddSingleAnimationActions.addAnimationFromObject()));
+
+		singleAnimationMenu.add(createMenuItem("From File", KeyEvent.VK_F, e -> AddSingleAnimationActions.addAnimationFrom(() -> ModelFromFile.chooseModelFile(FileDialog.OPEN_WC_MODEL, null))));
+		singleAnimationMenu.add(createMenuItem("From Unit", KeyEvent.VK_U, e -> AddSingleAnimationActions.addAnimationFrom(ImportFromUnit::getFileModel)));
+		singleAnimationMenu.add(createMenuItem("From Model", KeyEvent.VK_M, e -> AddSingleAnimationActions.addAnimationFrom(ImportWC3Model::fetchModel)));
+		singleAnimationMenu.add(createMenuItem("From Object", KeyEvent.VK_O, e -> AddSingleAnimationActions.addAnimationFrom(ImportFromObjectEditor::fetchObjectModel)));
 
 		add(createMenuItem("Material", KeyEvent.VK_M, e -> addNewMaterial()));
 		add(createMenuItem("Attachment", KeyEvent.VK_C, e -> addIdObject(new Attachment("New Attachment"))));

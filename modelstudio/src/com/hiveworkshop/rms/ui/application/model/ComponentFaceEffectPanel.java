@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.application.model;
 import com.hiveworkshop.rms.editor.model.FaceEffect;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
-import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.ExportInternal;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
@@ -80,8 +80,7 @@ public class ComponentFaceEffectPanel extends ComponentPanel<FaceEffect> {
 	private void export(Supplier<String> pathSupplier){
 		String faceEffect = pathSupplier.get();
 		if(!faceEffect.isEmpty()){
-			FileDialog fileDialog = new FileDialog(this);
-			fileDialog.exportInternalFile(faceEffect);
+			ExportInternal.exportInternalFile3(faceEffect, "FaceEffect", this);
 		}
 	}
 }

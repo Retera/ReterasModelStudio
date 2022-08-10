@@ -6,12 +6,12 @@ import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.ModelFromFile;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.ImportFromUnit;
 import com.hiveworkshop.rms.ui.application.actionfunctions.OpenFromInternal;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.Pair;
 
 import javax.swing.*;
@@ -23,7 +23,7 @@ public class SpliceMeshByRetera {
 
 	public SpliceMeshByRetera(){
 		JMenuItem skinSpliceFromFile = new JMenuItem("From File");
-		skinSpliceFromFile.addActionListener(e -> spliceModel(new FileDialog().chooseModelFile(FileDialog.OPEN_WC_MODEL)));
+		skinSpliceFromFile.addActionListener(e -> spliceModel(ModelFromFile.chooseModelFile(FileDialog.OPEN_WC_MODEL, null)));
 
 		JMenuItem skinSpliceFromWorkspace = new JMenuItem("From Workspace");
 		skinSpliceFromWorkspace.addActionListener(e -> spliceModel(getWorkspaceModel()));
@@ -46,17 +46,10 @@ public class SpliceMeshByRetera {
 	}
 
 	private EditableModel getWorkspaceModel() {
-		List<EditableModel> optionNames = ProgramGlobals.getModelPanels().stream()
-				.map(ModelPanel::getModel)
-				.collect(Collectors.toList());
-
-		EditableModel choice = (EditableModel) JOptionPane.showInputDialog(ProgramGlobals.getMainPanel(),
-				"Choose a workspace item to import data from:", "Import from Workspace",
-				JOptionPane.PLAIN_MESSAGE, null, optionNames.toArray(), optionNames.get(0));
-		if (choice != null) {
-			return TempStuffFromEditableModel.deepClone(choice, choice.getHeaderName());
-		}
-		return null;
+		return ModelFromFile.getWorkspaceModelCopy(
+				"Import from Workspace",
+				"Choose a workspace item to import data from:",
+				ProgramGlobals.getMainPanel());
 	}
 
 	private void spliceModel(EditableModel model) {

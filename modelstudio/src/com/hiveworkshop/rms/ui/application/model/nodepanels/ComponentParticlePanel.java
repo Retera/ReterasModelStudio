@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.application.model.nodepanels;
 import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
-import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.ExportInternal;
 import com.hiveworkshop.rms.ui.application.ImportFileActions;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -90,8 +90,7 @@ public class ComponentParticlePanel extends ComponentIdObjectPanel<ParticleEmitt
 	private void export(){
 		String particlePath = ImportFileActions.convertPathToMDX(idObject.getPath());
 		if(!particlePath.isEmpty()){
-			FileDialog fileDialog = new FileDialog();
-			fileDialog.exportInternalFile(particlePath);
+			ExportInternal.exportInternalFile3(particlePath, "Particle", this);
 		}
 	}
 }

@@ -3,6 +3,8 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.actionfunctions.ExportTexture;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -55,7 +57,9 @@ public class CrudeSelectionUVMask {
 		System.out.println("save Image?");
 		if(!modelView.getSelectedVertices().isEmpty()){
 			System.out.println("should show dialog!");
-			new FileDialog().exportTexture(getBufferedImage(modelView, width, height, null), modelView.getModel().getName() + "_uvMask");
+			BufferedImage maskImage = getBufferedImage(modelView, width, height, null);
+			String fileName = modelView.getModel().getName() + "_uvMask";
+			ExportTexture.onClickSaveAs(maskImage, fileName, FileDialog.SAVE_TEXTURE, new FileDialog(), ProgramGlobals.getMainPanel());
 		}
 	}
 }

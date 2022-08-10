@@ -1,30 +1,30 @@
 package com.hiveworkshop.rms.ui.application;
 
+import com.hiveworkshop.rms.editor.actions.model.bitmap.AddBitmapAction;
+import com.hiveworkshop.rms.editor.actions.nodes.AddNodeAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
+import com.hiveworkshop.rms.ui.application.tools.IdObjectChooserButton;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
-import com.hiveworkshop.rms.ui.icons.IconUtils;
-import com.hiveworkshop.rms.util.TwiComboBox;
+import com.hiveworkshop.rms.ui.util.colorchooser.ColorChooserButton;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec3SpinnerArray;
 import net.miginfocom.swing.MigLayout;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class AddParticlePanel {
+public class AddParticlePanel extends JPanel{
 
 	static String[][] sdParticleFilePairs = {
 			{"DustEmitter.mdx", "DustEmitter.png"},
@@ -38,14 +38,6 @@ public class AddParticlePanel {
 			{"WeaponMagicEmitter.mdx", "WeaponMagicEmitter.png"},
 			{"WeaponMagicFlatEmitter.mdx", "WeaponMagicFlatEmitter.png"}
 	};
-
-	public static void addParticleButtons(JMenu addParticle) {
-		List<ParticleInformation> particleInformationList = fetchIncludedParticles();
-		for (ParticleInformation particleInformation : particleInformationList) {
-			makeAndAddParticleButtons(addParticle, particleInformation);
-		}
-
-	}
 
 	static String[] particleStockFiles = {
 			"DustEmitter.mdx",
@@ -71,22 +63,96 @@ public class AddParticlePanel {
 			"MagicFireBurn.png",
 			"FireSmallOrange.png",
 	};
+	final ParticleEmitter2 particle;
+	public AddParticlePanel(ParticleInformation particleInformation, EditableModel model){
+		super(new MigLayout());
+		particle = getParticleEmitter2(particleInformation);
+		if (particle == null) return;
+		String name = particleInformation.getName();
 
-	public static void addEmptyPopcorn() {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null && modelPanel.getModel() != null) {
-			System.out.println("added popcorn!");
-			ParticleEmitterPopcorn new_popcornEmitter = new ParticleEmitterPopcorn("New PopcornEmitter");
-			new_popcornEmitter.setPivotPoint(new Vec3(0, 0, 0));
-			modelPanel.getModel().add(new_popcornEmitter);
-			ModelStructureChangeListener.changeListener.nodesUpdated();
+		add(new JLabel(new ImageIcon(particleInformation.getImage().getScaledInstance(128, 128, Image.SCALE_SMOOTH))));
+
+		JPanel optionsPanel = new JPanel(new MigLayout("ins 0, fill"));
+
+		final JLabel titleLabel = new JLabel("Add " + name);
+		titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
+		optionsPanel.add(titleLabel, "growx, spanx, wrap");
+
+		optionsPanel.add(new JLabel("Particle Name:"), "spanx, split 2");
+		optionsPanel.add(new TwiTextField( "My" + name + "Particle", 24, particle::setName), "growx, wrap");
+
+
+		optionsPanel.add(new JLabel("Parent:"), "spanx, split 2");
+
+		Vec3SpinnerArray pivotSpinners = new Vec3SpinnerArray("X:", "Y:", "Z:").setLabelWrap(false).setLabelConstrains("gapx 10");
+		pivotSpinners.setVec3Consumer(particle::setPivotPoint);
+
+		IdObjectChooserButton idObjectChooserButton = new IdObjectChooserButton(model, true, this);
+		idObjectChooserButton.setIdObjectConsumer(idObject -> {
+			particle.setParent(idObject);
+			if(idObject != null){
+				particle.setPivotPoint(idObject.getPivotPoint());
+				pivotSpinners.setValues(particle.getPivotPoint());
+			}
+		});
+		optionsPanel.add(idObjectChooserButton, "growx, wrap");
+		optionsPanel.add(pivotSpinners.spinnerPanel(), "spanx, wrap");
+
+		JPanel animVisPanel = animVisPanel2(model.getAnims(), particle);
+		final JButton chooseAnimations = new JButton("Choose when to show!");
+		chooseAnimations.addActionListener(e -> JOptionPane.showMessageDialog(this, animVisPanel));
+		optionsPanel.add(chooseAnimations, "spanx, align center, wrap");
+
+		optionsPanel.add(colorPanel(particle), "spanx, align center, wrap");
+
+		add(optionsPanel);
+	}
+
+	private ParticleEmitter2 getParticleEmitter2(ParticleInformation particleInformation) {
+		try {
+			return MdxUtils.loadEditable(particleInformation.filePath, null).getParticleEmitter2s().get(0);
+		} catch (final IOException e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 
-	private static void makeAndAddParticleButtons(JMenu addParticle, ParticleInformation particleInformation) {
-		final JMenuItem particleItem = new JMenuItem(particleInformation.getName(), new ImageIcon(particleInformation.getImage().getScaledInstance(28, 28, Image.SCALE_DEFAULT)));
-		particleItem.addActionListener(e -> makeAddParticlePanel(particleInformation));
-		addParticle.add(particleItem);
+	private static JPanel animVisPanel2(List<Animation> animations, ParticleEmitter2 particle) {
+		final JPanel animPanel = new JPanel(new MigLayout(""));
+
+		FloatAnimFlag flag = (FloatAnimFlag) particle.getVisibilityFlag();
+		if (flag == null) {
+			flag = new FloatAnimFlag(MdlUtils.TOKEN_VISIBILITY);
+			particle.add(flag);
+		}
+
+
+		FloatAnimFlag visFlag = (FloatAnimFlag) particle.getVisibilityFlag();
+		for (Animation animation : animations) {
+			JCheckBox checkBox = new JCheckBox(animation.getName());
+			checkBox.setSelected(true);
+			visFlag.addEntry(0, 1f, animation);
+			checkBox.addActionListener(e -> visFlag.addEntry(0, checkBox.isSelected() ? 1f: 0f, animation));
+			animPanel.add(checkBox, "wrap");
+		}
+
+		return animPanel;
+	}
+	private JPanel colorPanel(ParticleEmitter2 particle){
+		JPanel colorPanel = new JPanel(new MigLayout("ins 0, fill", "[][][]", "[]"));
+		Vec3[] segmentColors = particle.getSegmentColors();
+		for(int i = 0; i < 3; i++){
+			int finalI = i;
+			Vec3 color = segmentColors[i];
+			colorPanel.add(new ColorChooserButton("Color " + (i + 1), new Color(color.x, color.y, color.z), c -> particle.setSegmentColor(finalI, c.getColorComponents(null))));
+		}
+		return colorPanel;
+	}
+	public static void addParticleButtons(JMenu addParticle) {
+		List<ParticleInformation> particleInformationList = fetchIncludedParticles();
+		for (ParticleInformation particleInformation : particleInformationList) {
+			makeAndAddParticleButtons(addParticle, particleInformation);
+		}
 	}
 
 	private static List<ParticleInformation> fetchIncludedParticles() {
@@ -100,6 +166,24 @@ public class AddParticlePanel {
 		return particleInformations;
 	}
 
+	private static void makeAndAddParticleButtons(JMenu addParticle, ParticleInformation particleInformation) {
+		final JMenuItem particleItem = new JMenuItem(particleInformation.getName(), new ImageIcon(particleInformation.getImage().getScaledInstance(28, 28, Image.SCALE_DEFAULT)));
+//		particleItem.addActionListener(e -> makeAddParticlePanel(particleInformation));
+		particleItem.addActionListener(e -> addParticleEmitter2(particleInformation, ProgramGlobals.getCurrentModelPanel().getModelHandler()));
+		addParticle.add(particleItem);
+	}
+
+	public static void addEmptyPopcorn() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null && modelPanel.getModel() != null) {
+			System.out.println("added popcorn!");
+			ParticleEmitterPopcorn new_popcornEmitter = new ParticleEmitterPopcorn("New PopcornEmitter");
+			new_popcornEmitter.setPivotPoint(new Vec3(0, 0, 0));
+			AddNodeAction action = new AddNodeAction(modelPanel.getModel(), new_popcornEmitter, ModelStructureChangeListener.changeListener);
+			modelPanel.getModelHandler().getUndoManager().pushAction(action.redo());
+		}
+	}
+
 	public static Image loadImage(final String path) {
 		try {
 //            System.out.println(path);
@@ -109,155 +193,23 @@ public class AddParticlePanel {
 		}
 	}
 
-	private static void makeAddParticlePanel(ParticleInformation particleInformation) {
-		final ParticleEmitter2 particle;
-		try {
-			InputStream is = GameDataFileSystem.getDefault().getResourceAsStream(particleInformation.filePath);
-			particle = MdxUtils.loadEditable(is).getParticleEmitter2s().get(0);
-		} catch (final IOException e1) {
-			e1.printStackTrace();
-			return;
-		}
-
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null && modelPanel.getModel() != null) {
-			final JPanel particlePanel = new JPanel(new MigLayout());
-
-			final JLabel imageLabel = new JLabel(new ImageIcon(particleInformation.getImage().getScaledInstance(128, 128, Image.SCALE_SMOOTH)));
-			particlePanel.add(imageLabel);
-
-			JPanel optionsPanel = new JPanel(new MigLayout("ins 0, fill"));
-
-			final JLabel titleLabel = new JLabel("Add " + particleInformation.getName());
-			titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
-			optionsPanel.add(titleLabel, "spanx, wrap");
-
-			optionsPanel.add(new JLabel("Particle Name:"), "spanx, split 2");
-			JTextField nameField = new JTextField("My" + particleInformation.getName() + "Particle");
-			optionsPanel.add(nameField, "growx, wrap");
-
-
-			optionsPanel.add(new JLabel("Parent:"), "spanx, split 2");
-
-			java.util.List<IdObject> idObjects = new ArrayList<>(modelPanel.getModel().getIdObjects());
-			Bone nullBone = new Bone("No parent");
-			idObjects.add(0, nullBone);
-
-			TwiComboBox<IdObject> parentBone = new TwiComboBox<>(idObjects.toArray(new IdObject[0]), new Helper("PrototypePrototype"));
-			parentBone.setRenderer(createParticleParentComboBox(nullBone));
-			optionsPanel.add(parentBone, "growx, wrap");
-
-			Vec3SpinnerArray spinnerArray = new Vec3SpinnerArray("X:", "Y:", "Z:").setLabelWrap(false).setLabelConstrains("gapx 10");
-			optionsPanel.add(spinnerArray.spinnerPanel(), "spanx, wrap");
-
-			parentBone.addActionListener(e14 -> spinnerArray.setValues(((IdObject) parentBone.getSelectedItem()).getPivotPoint()));
-
-			Map<Animation, Boolean> animVisStatus = new HashMap<>();
-			modelPanel.getModel().getAnims().forEach(a -> animVisStatus.put(a, true));
-
-			final JPanel animPanel = animVisPanel(animVisStatus);
-
-			final JButton chooseAnimations = new JButton("Choose when to show!");
-			chooseAnimations.addActionListener(e13 -> JOptionPane.showMessageDialog(particlePanel, animPanel));
-			optionsPanel.add(chooseAnimations, "spanx, align center, wrap");
-
-			final JButton[] colorButtons = new JButton[3];
-			final Color[] colors = new Color[colorButtons.length];
-			makeColorButtons(particlePanel, particle, colorButtons, colors);
-			JPanel colorPanel = new JPanel(new MigLayout("ins 0, fill", "[][][]", "[]"));
-			for (JButton button : colorButtons) {
-				colorPanel.add(button);
-			}
-			optionsPanel.add(colorPanel, "spanx, wrap");
-
-			particlePanel.add(optionsPanel);
+	private static void addParticleEmitter2(ParticleInformation particleInformation, ModelHandler modelHandler) {
+		if(modelHandler != null){
+			EditableModel model = modelHandler.getModel();
+			AddParticlePanel particlePanel = new AddParticlePanel(particleInformation, model);
 			final int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), particlePanel, "Add " + particleInformation.getName(), JOptionPane.OK_CANCEL_OPTION);
 			if (x == JOptionPane.OK_OPTION) {
-				IdObject parent = (IdObject) parentBone.getSelectedItem();
-				if (parent == nullBone) {
-					parent = null;
+				ParticleEmitter2 particle1 = particlePanel.particle;
+				Bitmap texture = particle1.getTexture();
+				System.out.println("particle texture: " + texture);
+				if(texture != null && !model.contains(texture)){
+					System.out.println("particle texture: " + texture.getPath());
+					modelHandler.getUndoManager().pushAction(new AddBitmapAction(texture, model, ModelStructureChangeListener.changeListener).redo());
 				}
-				addParticleEmitter2(particle, parent, nameField.getText(), spinnerArray.getValue(), animVisStatus, colors);
+				modelHandler.getUndoManager().pushAction(new AddNodeAction(model, particle1, ModelStructureChangeListener.changeListener).redo());
+
 			}
 		}
-	}
-
-	private static void addParticleEmitter2(ParticleEmitter2 particle, IdObject parent, String name, Vec3 pivot, Map<Animation, Boolean> animVisMap, Color[] colors) {
-		particle.setPivotPoint(pivot);
-		for (int i = 0; i < colors.length; i++) {
-			particle.setSegmentColor(i, new Vec3(
-					colors[i].getRed() / 255.00,
-					colors[i].getGreen() / 255.00,
-					colors[i].getBlue() / 255.00));
-		}
-
-		particle.setParent(parent);
-
-		FloatAnimFlag oldFlag = (FloatAnimFlag) particle.getVisibilityFlag();
-		if (oldFlag == null) {
-			oldFlag = new FloatAnimFlag(MdlUtils.TOKEN_VISIBILITY);
-		}
-
-		FloatAnimFlag visFlag = (FloatAnimFlag) oldFlag.getEmptyCopy();
-
-		for (Animation anim : animVisMap.keySet()) {
-			if (!animVisMap.get(anim)) {
-				visFlag.addEntry(0, 0f, anim);
-			}
-		}
-		if (!visFlag.getAnimMap().isEmpty()) {
-			particle.setVisibilityFlag(visFlag);
-		}
-		particle.setName(name);
-		ProgramGlobals.getCurrentModelPanel().getModel().add(particle);
-		ModelStructureChangeListener.changeListener.nodesUpdated();
-	}
-
-
-	private static JPanel animVisPanel(Map<Animation, Boolean> animVisStatus) {
-		final JPanel animPanel = new JPanel(new MigLayout(""));
-
-		for (Animation animation : animVisStatus.keySet()) {
-			JCheckBox checkBox = new JCheckBox(animation.getName());
-			checkBox.setSelected(animVisStatus.get(animation));
-			checkBox.addActionListener(e -> animVisStatus.put(animation, checkBox.isSelected()));
-			animPanel.add(checkBox, "wrap");
-		}
-
-		return animPanel;
-	}
-
-
-	private static void makeColorButtons(JPanel parentPanel, ParticleEmitter2 particle, JButton[] colorButtons, Color[] colors) {
-		for (int i = 0; i < colorButtons.length; i++) {
-			final Vec3 colorValues = particle.getSegmentColor(i);
-			final Color color = new Color((int) (colorValues.x * 255), (int) (colorValues.y * 255), (int) (colorValues.z * 255));
-
-			final JButton button = new JButton("Color " + (i + 1), new ImageIcon(IconUtils.createBlank(color, 32, 32)));
-			colors[i] = color;
-			final int index = i;
-			button.addActionListener(e12 -> {
-				final Color colorChoice = JColorChooser.showDialog(parentPanel, "Chooser Color", colors[index]);
-				if (colorChoice != null) {
-					colors[index] = colorChoice;
-					button.setIcon(new ImageIcon(IconUtils.createBlank(colors[index], 32, 32)));
-				}
-			});
-			colorButtons[i] = button;
-		}
-	}
-
-	private static BasicComboBoxRenderer createParticleParentComboBox(Bone nullBone) {
-		return new BasicComboBoxRenderer() {
-			@Override
-			public Component getListCellRendererComponent(final JList list, final Object value, final int index, final boolean isSelected, final boolean cellHasFocus) {
-				final IdObject idObject = (IdObject) value;
-				if (idObject == nullBone) {
-					return super.getListCellRendererComponent(list, "No parent", index, isSelected, cellHasFocus);
-				}
-				return super.getListCellRendererComponent(list, value.getClass().getSimpleName() + " \"" + idObject.getName() + "\"", index, isSelected, cellHasFocus);
-			}
-		};
 	}
 
 	private static class ParticleInformation {

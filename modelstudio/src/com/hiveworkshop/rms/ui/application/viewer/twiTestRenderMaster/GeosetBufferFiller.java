@@ -51,11 +51,10 @@ public class GeosetBufferFiller {
 	public GeosetBufferFiller setModel(RenderModel renderModel, ModelView modelView, TextureThing textureThing){
 		this.renderModel = renderModel;
 		this.textureThing = textureThing;
-		if(modelView != null){
-			this.modelView = modelView;
-			this.model = modelView.getModel();
+		this.modelView = modelView;
+		if(renderModel != null){
+			this.model = renderModel.getModel();
 		} else {
-			this.modelView = null;
 			this.model = null;
 		}
 		return this;

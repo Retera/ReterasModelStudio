@@ -1,8 +1,6 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.models;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.util.ModelFactory.TempOpenModelStuff;
-import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.viewer.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.ObjectTabTreeBrowserBuilder;
@@ -18,8 +16,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,16 +75,10 @@ public abstract class BetterSelector extends JSplitPane {
 	protected void openModel(String filepath, String gameObjectName) {
 		try {
 			filepath = setEndWithMdx(filepath);
-			try (InputStream reader = GameDataFileSystem.getDefault().getResourceAsStream(filepath)) {
-				mdl = TempOpenModelStuff.createEditableModel(MdxUtils.loadMdlx(reader));
-				ModelHandler modelHandler = new ModelHandler(mdl);
-				perspDisplayPanel.setModel(modelHandler);
-				perspDisplayPanel.setTitle(gameObjectName);
-				System.out.println("Opened \"" + filepath + "\"");
-			} catch (final IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			mdl = MdxUtils.loadEditable(filepath, null);
+			perspDisplayPanel.setModel(new ModelHandler(mdl));
+			perspDisplayPanel.setTitle(gameObjectName);
+			System.out.println("Opened \"" + filepath + "\"");
 		} catch (final Exception exc) {
 			exc.printStackTrace();
 			System.err.println("Could not open \"" + filepath + "\"");

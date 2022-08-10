@@ -6,11 +6,10 @@ import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.FileDialog;
-import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.language.TextKey;
 import com.hiveworkshop.rms.util.Mat4;
@@ -19,43 +18,33 @@ import com.hiveworkshop.rms.util.Vec4;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ExportStaticMesh extends ActionFunction {
 	public ExportStaticMesh(){
-		super(TextKey.EXPORT_STATIC_MESH, () -> exportAnimatedToStaticMesh());
+		super(TextKey.EXPORT_STATIC_MESH, ExportStaticMesh::exportAnimatedToStaticMesh);
 		setMenuItemMnemonic(KeyEvent.VK_X);
 	}
 
-	public static void exportAnimatedToStaticMesh() {
-		MainPanel mainPanel = ProgramGlobals.getMainPanel();
+	public static void exportAnimatedToStaticMesh(ModelHandler modelHandler) {
 		if (!(ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE)) {
-			JOptionPane.showMessageDialog(mainPanel, "You must be in the Animation Editor to use that!",
+			JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(),
+					"You must be in the Animation Editor to use that!",
 					"Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
-		ModelPanel modelContext = ProgramGlobals.getCurrentModelPanel();
-		RenderModel editorRenderModel = modelContext.getEditorRenderModel();
-		EditableModel model = modelContext.getModel();
+		RenderModel editorRenderModel = modelHandler.getRenderModel();
+		EditableModel model = modelHandler.getModel();
 
 		TimeEnvironmentImpl renderEnv = editorRenderModel.getTimeEnvironment();
 		Sequence currentAnimation = renderEnv.getCurrentSequence();
 
-		String s = "At" + renderEnv.getAnimationTime();
-		System.out.println(currentAnimation);
-		if (currentAnimation != null) {
-			if(currentAnimation instanceof Animation){
-				s = ((Animation) currentAnimation).getName() + s;
-			} else {
-				s = "GlobalSeq" + model.getGlobalSeqId((GlobalSeq) currentAnimation) + s;
-			}
-		}
+		String s = getAnimationName(model, renderEnv, currentAnimation);
 		EditableModel frozenModel = TempStuffFromEditableModel.deepClone(model, model.getHeaderName() + s);
 		if (frozenModel.getFileRef() != null) {
-			frozenModel.setFileRef(new File(frozenModel.getFileRef().getPath().replaceFirst("(?<=\\w)\\.(?=md[lx])", s + ".")));
+			frozenModel.setFileRef(new java.io.File(frozenModel.getFileRef().getPath().replaceFirst("(?<=\\w)\\.(?=md[lx])", s + ".")));
 		}
 
 		for (int geosetIndex = 0; geosetIndex < frozenModel.getGeosets().size(); geosetIndex++) {
@@ -123,8 +112,20 @@ public class ExportStaticMesh extends ActionFunction {
 			}
 		}
 
-		FileDialog fileDialog = new FileDialog();
-		fileDialog.onClickSaveAs(frozenModel, FileDialog.SAVE_MODEL, false);
+		File.onClickSaveAs(null, FileDialog.SAVE_MODEL, frozenModel);
+	}
+
+	private static String getAnimationName(EditableModel model, TimeEnvironmentImpl renderEnv, Sequence currentAnimation) {
+		System.out.println(currentAnimation);
+		String s = "";
+		if (currentAnimation != null) {
+			if(currentAnimation instanceof Animation){
+				s = ((Animation) currentAnimation).getName();
+			} else {
+				s = "GlobalSeq" + model.getGlobalSeqId((GlobalSeq) currentAnimation);
+			}
+		}
+		return s + "At" + renderEnv.getEnvTrackTime();
 	}
 
 	private static <T> void addFlagEntry(TimeEnvironmentImpl renderEnv, Animation stand, AnimFlag<T> flag) {

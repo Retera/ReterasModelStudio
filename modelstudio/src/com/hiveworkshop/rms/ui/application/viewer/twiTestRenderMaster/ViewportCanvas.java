@@ -46,10 +46,6 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 		});
 		paintTimer.start();
 	}
-
-	public CameraManager getCameraManager() {
-		return cameraManager;
-	}
 	public CameraManager getCameraHandler() {
 		return cameraManager;
 	}
@@ -59,9 +55,10 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 		return this;
 	}
 
-	public ViewportCanvas setModel(ModelView modelView, RenderModel renderModel, boolean autoRepainting) {
+	public ViewportCanvas setModel(RenderModel renderModel) {
 		if(renderModel != null){
-			cameraManager.loadDefaultCameraFor(ViewportHelpers.getBoundsRadius(renderModel.getTimeEnvironment(), modelView.getModel().getExtents()));
+			ExtLog extents = renderModel.getModel().getExtents();
+			cameraManager.loadDefaultCameraFor(ViewportHelpers.getBoundsRadius(renderModel.getTimeEnvironment(), extents));
 			bufferFiller = renderModel.getBufferFiller();
 		}
 		return this;

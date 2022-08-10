@@ -546,8 +546,10 @@ public class ImportPanel extends JTabbedPane {
 						if (animShell.getImportType() == AnimShell.ImportType.CHANGE_NAME) {
 							anim1.setName(animShell.getName());
 						}
-						mht.receivingModel.add(anim1);
-						newAnims.add(anim1);
+						if(!mht.receivingModel.contains(anim1)){
+							mht.receivingModel.add(anim1);
+							newAnims.add(anim1);
+						}
 						break;
 					case TIMESCALE_INTO:
 						if (!mht.clearRecModAnims.isSelected()) {
@@ -825,7 +827,8 @@ public class ImportPanel extends JTabbedPane {
 //}
 
 	private void prepareModelHolderThing(IdObjectShell.ImportType importType, boolean singleAnim) {
-		mht.setImportAllGeos(false);
+//		mht.setImportAllGeos(false);
+		mht.setImportAllDonGeos(false);
 		mht.setImportStatusForAllDonBones(importType);
 		mht.setImportAllDonObjs(false);
 		mht.visibilityList();
@@ -837,10 +840,12 @@ public class ImportPanel extends JTabbedPane {
 
 	private boolean isGutz(VisibilityShell donVis) {
 		boolean isGeoset = donVis.getSource() instanceof Geoset;
-		boolean hasGeoAnim = ((Geoset) donVis.getSource()).getGeosetAnim() != null;
-		if(isGeoset && hasGeoAnim){
-			Bitmap bitmap = ((Geoset) donVis.getSource()).getMaterial().firstLayer().firstTexture();
-			return bitmap.getPath().equalsIgnoreCase("textures\\gutz.blp");
+		if(isGeoset){
+			boolean hasGeoAnim = ((Geoset) donVis.getSource()).getGeosetAnim() != null;
+			if(hasGeoAnim){
+				Bitmap bitmap = ((Geoset) donVis.getSource()).getMaterial().firstLayer().firstTexture();
+				return bitmap.getPath().equalsIgnoreCase("textures\\gutz.blp");
+			}
 		}
 		return false;
 	}

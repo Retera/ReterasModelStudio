@@ -7,7 +7,7 @@ import com.hiveworkshop.rms.editor.actions.uv.UVRemapAction;
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.OpenImages;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.WindowHandler2;
 import com.hiveworkshop.rms.ui.application.actionfunctions.Select;
@@ -348,8 +348,8 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	}
 
 	private void loadExternalImage() {
-		FileDialog fileDialog = new FileDialog(this);
-		setBitmapAsBackground(fileDialog.importImage());
+		Bitmap bitmap = OpenImages.importImage(modelHandler.getModel(), this);
+		setBitmapAsBackground(bitmap);
 	}
 
 	private void setBitmapAsBackground(Bitmap bitmap) {

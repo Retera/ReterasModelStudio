@@ -9,6 +9,8 @@ import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.blp.ImageUtils;
 import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.actionfunctions.ExportTexture;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -94,7 +96,7 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 		String suggestedName = texturePathField.getText();
 		suggestedName = suggestedName.substring(suggestedName.lastIndexOf("\\") + 1);
 		suggestedName = suggestedName.substring(suggestedName.lastIndexOf("/") + 1);
-		fileDialog.exportTexture(texture, suggestedName);
+		ExportTexture.onClickSaveAs(texture, suggestedName, FileDialog.SAVE_TEXTURE, fileDialog, ProgramGlobals.getMainPanel());
 	}
 
 	private void wrapHeightBox(boolean b) {

@@ -11,10 +11,11 @@ import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
+import com.hiveworkshop.rms.editor.model.util.ModelFactory.TempOpenModelStuff;
 import com.hiveworkshop.rms.editor.model.util.TempSaveModelStuff;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.parsers.mdlx.MdlLoadSave;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
-import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
@@ -37,9 +38,8 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.*;
 
@@ -82,9 +82,8 @@ public class ViewportTransferHandler extends TransferHandler {
 		// Fetch the data -- bail if this fails
 		try {
 			data = (String) info.getTransferable().getTransferData(DataFlavor.stringFlavor);
-			ByteArrayInputStream inputStream = new ByteArrayInputStream(data.getBytes());
-			pastedModel = MdxUtils.loadEditable(inputStream);
-			inputStream.close();
+			MdlxModel mdlxModel = new MdlxModel(ByteBuffer.wrap(data.getBytes()));
+			pastedModel = TempOpenModelStuff.createEditableModel(mdlxModel);
 //			System.out.println("done reading model_______________________________________________________");
 		} catch (final UnsupportedFlavorException ufe) {
 			System.out.println("importData: unsupported data flavor");
@@ -208,7 +207,6 @@ public class ViewportTransferHandler extends TransferHandler {
 
 		UndoAction pasteAction = new CompoundAction("Paste", undoActions, ModelStructureChangeListener.changeListener::geosetsUpdated);
 
-//		SelectionBundle pastedSelection = new SelectionBundle(pastedVerts, validIdObjects, pastedModel.getCameras());
 		SelectionBundle pastedSelection = new SelectionBundle(pastedVerts, validIdObjects, cameraNodes);
 
 		ModelView currentModelView = currModelHandler.getModelView();
@@ -287,6 +285,16 @@ public class ViewportTransferHandler extends TransferHandler {
 		stringableModel.setFormatVersion(currentModel.getFormatVersion());
 		stringableModel.setExtents(currentModel.getExtents());
 
+
+		for (Sequence sequence : currentModel.getAllSequences()) {
+			// Need to be original instances to not mess timeline saving
+			if (sequence instanceof Animation){
+				stringableModel.add((Animation) sequence);
+			} else if (sequence instanceof GlobalSeq){
+				stringableModel.add((GlobalSeq) sequence);
+			}
+		}
+
 		CopiedModelData copySelection = copySelection(currentModelView);
 
 		Bone dummyBone = new Bone("CopiedModelDummy");
@@ -313,12 +321,12 @@ public class ViewportTransferHandler extends TransferHandler {
 			dummyBone.getPivotPoint().add(fixVertBones(stringableModel, dummyBone, geoset));
 			applyVerticesToMatrices(geoset, stringableModel);
 		}
-		for (Sequence sequence : currentModel.getAllSequences()){
-			// Need to be original instances to not mess timeline saving
-			if (sequence instanceof Animation){
-				stringableModel.add((Animation) sequence);
-			} else if (sequence instanceof GlobalSeq){
-				stringableModel.add((GlobalSeq) sequence);
+
+		for (Material material : stringableModel.getMaterials()) {
+			for (Layer layer : material.getLayers()) {
+				if (layer.getTextureAnim() != null){
+					stringableModel.add(layer.getTextureAnim());
+				}
 			}
 		}
 
@@ -330,15 +338,10 @@ public class ViewportTransferHandler extends TransferHandler {
 			dummyBone.setBindPose(mat4.getBindPose());
 		}
 
-		String value = "";
-		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-			final MdlxModel mdlx = TempSaveModelStuff.toMdlx(stringableModel);
-			MdxUtils.saveMdl(mdlx, outputStream);
-			value = outputStream.toString();
-		} catch (final IOException e) {
-			System.out.println("failed to create output stream from copied model");
-			e.printStackTrace();
-		}
+		final MdlxModel mdlx = TempSaveModelStuff.toMdlx(stringableModel);
+		byte[] array = MdlLoadSave.saveMdl(mdlx).array();
+		String value = new String(array);
+
 		return new StringSelection(value);
 	}
 

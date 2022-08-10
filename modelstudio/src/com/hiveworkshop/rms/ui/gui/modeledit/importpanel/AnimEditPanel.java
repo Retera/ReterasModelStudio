@@ -39,7 +39,7 @@ public class AnimEditPanel extends JPanel {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				super.componentResized(e);
-				if(AnimEditPanel.this.getTopLevelAncestor().getWidth()<topPanel.getComponent(0).getWidth()*2){
+				if(AnimEditPanel.this.getTopLevelAncestor() != null && AnimEditPanel.this.getTopLevelAncestor().getWidth()<topPanel.getComponent(0).getWidth()*2){
 					((MigLayout)topPanel.getLayout()).setLayoutConstraints("gap 0, ins 0 n n n, wrap 1");
 					((MigLayout)AnimEditPanel.this.getLayout()).setComponentConstraints(topPanel, "align left, wrap");
 				} else {

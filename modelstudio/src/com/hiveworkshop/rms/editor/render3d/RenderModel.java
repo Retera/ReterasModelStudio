@@ -97,6 +97,10 @@ public final class RenderModel {
 		return model;
 	}
 
+	public TimeEnvironmentImpl getTimeEnvironment() {
+		return timeEnvironment;
+	}
+
 	public RenderModel updateGeosets() {
 		bufferFiller.setHD(ModelUtils.isShaderStringSupported(model.getFormatVersion()));
 		if (renderGeosetMap.size() != model.getGeosets().size()) {
@@ -186,10 +190,6 @@ public final class RenderModel {
 			}
 		}
 		return renderGeosetMap.get(geoset);
-	}
-
-	public TimeEnvironmentImpl getTimeEnvironment() {
-		return timeEnvironment;
 	}
 
 	public void refreshFromEditor() {

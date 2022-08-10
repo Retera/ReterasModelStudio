@@ -6,11 +6,11 @@ import com.hiveworkshop.rms.editor.actions.model.SetGeosetAnimAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.ModelFromFile;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.OpenFromInternal;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -98,23 +98,18 @@ public class SpliceHandsByTwilac {
 	}
 
 	private void spliceFromWorkspace() {
-		List<EditableModel> optionNames = new ArrayList<>();
-		for ( ModelPanel modelPanel : ProgramGlobals.getModelPanels()) {
-			EditableModel model = modelPanel.getModel();
-			optionNames.add(model);
-		}
-		EditableModel choice = (EditableModel) JOptionPane.showInputDialog(ProgramGlobals.getMainPanel(),
-				"Choose a workspace item to import data from:", "Import from Workspace",
-				JOptionPane.OK_CANCEL_OPTION, null, optionNames.toArray(), optionNames.get(0));
-		if (choice != null) {
-			EditableModel mdl = TempStuffFromEditableModel.deepClone(choice, choice.getHeaderName());
+		EditableModel mdl = ModelFromFile.getWorkspaceModelCopy(
+				"Import from Workspace",
+				"Choose a workspace item to import data from:",
+				ProgramGlobals.getMainPanel());
+		if (mdl != null) {
 //			doSkinSpliceUI(mdl);
 			new TwilacsHandWizard(mdl, ProgramGlobals.getCurrentModelPanel().getModelHandler());
 		}
 	}
 
 	private void spliceFileModel() {
-		EditableModel mdl = new FileDialog().chooseModelFile(FileDialog.OPEN_WC_MODEL);
+		EditableModel mdl = ModelFromFile.chooseModelFile(FileDialog.OPEN_WC_MODEL, null);
 		if (mdl != null) {
 			new TwilacsHandWizard(mdl, ProgramGlobals.getCurrentModelPanel().getModelHandler());
 //			doSkinSpliceUI(mdl);

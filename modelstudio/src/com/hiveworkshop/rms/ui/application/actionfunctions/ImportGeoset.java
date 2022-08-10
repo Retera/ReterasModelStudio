@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.actionfunctions;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.ModelFromFile;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.language.TextKey;
 
@@ -16,10 +17,9 @@ public class ImportGeoset extends ActionFunction {
 	}
 
 	public static void mergeGeosetActionRes() {
-		FileDialog fileDialog = new FileDialog();
 //
 		EditableModel current = ProgramGlobals.getCurrentModelPanel().getModel();
-		EditableModel geoSource = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
+		EditableModel geoSource = ModelFromFile.chooseModelFile(FileDialog.OPEN_WC_MODEL, null);
 
 		if (geoSource != null) {
 			Geoset host = getGeoset(current, "Geoset into which to Import: (1 to " + current.getGeosetsSize() + ")");

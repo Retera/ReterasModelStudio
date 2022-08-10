@@ -15,6 +15,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.ModelFromFile;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.CrudeSelectionUVMask;
@@ -132,8 +133,7 @@ public class TwilacStuff {
 			super("Import Model Part By Bone Chain", ImportModelPart::doStuff);
 		}
 		private static void doStuff(ModelHandler modelHandler) {
-			FileDialog fileDialog = new FileDialog();
-			EditableModel donModel = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
+			EditableModel donModel = ModelFromFile.chooseModelFile(FileDialog.OPEN_WC_MODEL, null);
 			if (donModel != null) {
 				ImportModelPartPanel panel = new ImportModelPartPanel(donModel, modelHandler);
 				FramePopup.show(panel, ProgramGlobals.getMainPanel(), "Import Model Part");
@@ -146,8 +146,7 @@ public class TwilacStuff {
 			super("Import Bone Chain Animation", ImportModelSubAnim::doStuff);
 		}
 		private static void doStuff(ModelHandler modelHandler) {
-			FileDialog fileDialog = new FileDialog();
-			EditableModel donModel = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
+			EditableModel donModel = ModelFromFile.chooseModelFile(FileDialog.OPEN_WC_MODEL, null);
 			if (donModel != null) {
 				ImportBoneChainAnimationPanel panel = new ImportBoneChainAnimationPanel(donModel, modelHandler);
 				FramePopup.show(panel, ProgramGlobals.getMainPanel(), "Import bone chain animation");
@@ -161,8 +160,7 @@ public class TwilacStuff {
 		}
 
 		private static void doStuff(ModelHandler modelHandler) {
-			FileDialog fileDialog = new FileDialog();
-			EditableModel donModel = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
+			EditableModel donModel = ModelFromFile.chooseModelFile(FileDialog.OPEN_WC_MODEL, null);
 			if (donModel != null) {
 				SpliceModelPartPanel panel = new SpliceModelPartPanel(donModel, modelHandler);
 				FramePopup.show(panel, ProgramGlobals.getMainPanel(), "Splice mesh");
@@ -177,8 +175,7 @@ public class TwilacStuff {
 		}
 
 		private static void doStuff(ModelHandler modelHandler) {
-			FileDialog fileDialog = new FileDialog();
-			EditableModel donModel = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
+			EditableModel donModel = ModelFromFile.chooseModelFile(FileDialog.OPEN_WC_MODEL, null);
 			if (donModel != null) {
 				SpliceGeosetPanel panel = new SpliceGeosetPanel(donModel, modelHandler);
 				FramePopup.show(panel, ProgramGlobals.getMainPanel(), "Splice Geoset");

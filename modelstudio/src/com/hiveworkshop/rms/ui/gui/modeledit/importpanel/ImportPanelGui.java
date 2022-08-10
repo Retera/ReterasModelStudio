@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ModelLoader;
+import com.hiveworkshop.rms.ui.application.actionfunctions.File;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
@@ -149,9 +150,7 @@ public class ImportPanelGui extends JTabbedPane {
 
 
 	private void saveModel(EditableModel model) {
-//		trySave(model, outFileInput.getText());
-		FileDialog fileDialog = new FileDialog();
-		fileDialog.onClickSaveAs(model, FileDialog.SAVE_MODEL, false);
+		File.onClickSaveAs(null, FileDialog.SAVE_MODEL, model);
 		JOptionPane.showMessageDialog(null, "Animation transfer done!");
 	}
 }

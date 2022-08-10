@@ -96,10 +96,7 @@ public class CloseModel extends ActionFunction {
 					"Warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
 					options[2]);
 			return switch (n) {
-				case JOptionPane.YES_OPTION -> {
-					FileDialog fileDialog = new FileDialog(modelPanel);
-					yield fileDialog.onClickSaveAs();
-				}
+				case JOptionPane.YES_OPTION -> File.onClickSaveAs(modelPanel, FileDialog.SAVE);
 				case JOptionPane.NO_OPTION -> true;
 				default -> false;
 			};

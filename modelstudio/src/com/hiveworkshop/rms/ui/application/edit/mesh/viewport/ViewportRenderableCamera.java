@@ -4,8 +4,6 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.editor.model.util.ModelFactory.TempOpenModelStuff;
-import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
@@ -25,7 +23,8 @@ public class ViewportRenderableCamera {
 	public ViewportRenderableCamera() {
 		EditableModel camera;
 		try {
-			camera = TempOpenModelStuff.createEditableModel(MdxUtils.loadMdlx(GameDataFileSystem.getDefault().getResourceAsStream("Objects\\CameraHelper\\CameraHelper.mdx")));
+			String filepath = "Objects\\CameraHelper\\CameraHelper.mdx";
+			camera = MdxUtils.loadEditable(filepath, null);
 			cameraLength = Math.abs(camera.getIdObject(0).getPivotPoint().x);
 		} catch (final IOException e) {
 			camera = null;

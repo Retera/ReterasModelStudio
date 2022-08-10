@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ModelLoader;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.actionfunctions.File;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
@@ -68,6 +69,11 @@ public class ModelPanel {
 	public JMenuItem getMenuItem() {
 		return menuItem;
 	}
+	public JMenuItem updateMenuItem(java.io.File file) {
+		menuItem.setName(file.getName().split("\\.")[0]);
+		menuItem.setToolTipText(file.getPath());
+		return menuItem;
+	}
 
 	public Icon getIcon() {
 		return modelHandler.getIcon();
@@ -99,10 +105,7 @@ public class ModelPanel {
 					"Warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
 					options[2]);
 			return switch (n) {
-				case JOptionPane.YES_OPTION -> {
-					FileDialog fileDialog = new FileDialog(this);
-					yield fileDialog.onClickSaveAs();
-				}
+				case JOptionPane.YES_OPTION -> File.onClickSaveAs(this, FileDialog.SAVE);
 				case JOptionPane.NO_OPTION -> true;
 				default -> false;
 			};

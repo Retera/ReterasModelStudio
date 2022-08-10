@@ -70,10 +70,13 @@ public class MainFrame extends JFrame {
 
 	// For testing without opening any GUI.
 	public static void justTestFiles(final List<String> startupModelPaths) {
-		FileDialog fileDialog = new FileDialog();
 		if (!startupModelPaths.isEmpty()) {
 			for (final String path : startupModelPaths) {
-				fileDialog.openFileNoGUI(new File(path));
+				File file = new File(path);
+				if (file.exists()) {
+					System.out.println("  ~~~  Opening file: " + file + "  ~~~  ");
+					ModelLoader.loadFileNoGUI(file);
+				}
 			}
 		}
 	}

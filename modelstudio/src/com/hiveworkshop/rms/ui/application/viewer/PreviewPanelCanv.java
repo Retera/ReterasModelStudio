@@ -43,14 +43,13 @@ public class PreviewPanelCanv extends JPanel {
 			renderEnv.setAnimationTime(0);
 			renderEnv.setLive(true);
 
-//			perspectiveViewport.setModel(modelHandler.getModelView(), previewRenderModel, doDefaultCamera);
-			perspectiveViewport.setModel(modelHandler.getModelView(), previewRenderModel, true);
+			perspectiveViewport.setModel(previewRenderModel);
 			perspectiveViewport.getMouseAdapter().setActivityManager(activityManager);
 
 			animationController.setModel(modelHandler, true, renderEnv.getCurrentAnimation());
 		} else {
 			animationController.setModel(null, true, null);
-			perspectiveViewport.setModel(null, null, doDefaultCamera);
+			perspectiveViewport.setModel(null);
 			renderEnv = null;
 		}
 		return this;
@@ -126,7 +125,7 @@ public class PreviewPanelCanv extends JPanel {
 	}
 
 	public PreviewPanelCanv setOrtho(boolean ortho){
-		perspectiveViewport.getCameraManager().setOrtho(ortho);
+		perspectiveViewport.getCameraHandler().setOrtho(ortho);
 		return this;
 	}
 

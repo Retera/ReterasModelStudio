@@ -5,13 +5,14 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.TwiComboBox;
 
 import java.awt.*;
 
 public class AnimationChooser extends TwiComboBox<Sequence>{
 	private EditableModel model;
-	private RenderModel renderModel;
+	private TimeEnvironmentImpl timeEnvironment;
 	private boolean anims;
 	private boolean globalSeqs;
 	private boolean playOnSelect;
@@ -32,7 +33,22 @@ public class AnimationChooser extends TwiComboBox<Sequence>{
 
 	public AnimationChooser setModel(EditableModel model, RenderModel renderModel) {
 		this.model = model;
-		this.renderModel = renderModel;
+		if(renderModel != null){
+			timeEnvironment = renderModel.getTimeEnvironment();
+		} else {
+			timeEnvironment = null;
+		}
+		updateAnimationList();
+		return this;
+	}
+	public AnimationChooser setModel(RenderModel renderModel) {
+		if(renderModel != null){
+			this.model = renderModel.getModel();
+			timeEnvironment = renderModel.getTimeEnvironment();
+		} else {
+			this.model = null;
+			timeEnvironment = null;
+		}
 		updateAnimationList();
 		return this;
 	}
@@ -54,8 +70,8 @@ public class AnimationChooser extends TwiComboBox<Sequence>{
 		selectOrFirst(selectedItem);
 	}
 	private void setSequence(Sequence selectedItem) {
-		if (renderModel != null) {
-			renderModel.getTimeEnvironment().setSequence(selectedItem);
+		if (timeEnvironment != null) {
+			timeEnvironment.setSequence(selectedItem);
 			if(playOnSelect){
 				playAnimation();
 			}
@@ -64,9 +80,9 @@ public class AnimationChooser extends TwiComboBox<Sequence>{
 
 
 	public void playAnimation() {
-		if (renderModel != null) {
-			renderModel.getTimeEnvironment().setRelativeAnimationTime(0);
-			renderModel.getTimeEnvironment().setLive(true);
+		if (timeEnvironment != null) {
+			timeEnvironment.setRelativeAnimationTime(0);
+			timeEnvironment.setLive(true);
 		}
 	}
 

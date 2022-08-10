@@ -9,13 +9,19 @@ import com.hiveworkshop.rms.ui.gui.modeledit.MaterialListRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
 import com.hiveworkshop.rms.ui.language.TextKey;
+import com.hiveworkshop.rms.ui.preferences.SaveProfile;
+import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.ImageCreator;
+import com.hiveworkshop.rms.util.ImageUtils;
 import com.hiveworkshop.rms.util.IterableListModel;
+import de.wc3data.image.TgaFile;
 import net.miginfocom.swing.MigLayout;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 public class ExportTexture extends ActionFunction {
 	public ExportTexture(){
@@ -40,18 +46,6 @@ public class ExportTexture extends ActionFunction {
 	}
 
     //ToDo figure out why these throw errors sometimes (might have to do with non-existing texture files)
-    public static void exportMaterialAsTextures() {
-	    ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-	    if (modelPanel != null && modelPanel.getModel() != null) {
-		    exportMaterialAsTextures(modelPanel.getModel());
-	    }
-    }
-
-	static void exportMaterialAsTextures(EditableModel model) {
-		JPanel panel = getExportMaterialPanel(model);
-
-		showDialog(panel, "Export Material as Texture");
-    }
 
 	private static JPanel getExportMaterialPanel(EditableModel model) {
 		IterableListModel<Material> materials = new IterableListModel<>();
@@ -83,22 +77,9 @@ public class ExportTexture extends ActionFunction {
 	        String name = materialsList.getSelectedValue().getName().replaceAll("[^\\w\\[\\]()#\\. ]", "").replaceAll(" +", "_");
             System.out.println("ExportTexture, material name: " + name);
 
-            fileDialog.exportTexture(bufferedImage, name);
+            onClickSaveAs(bufferedImage, name, FileDialog.SAVE_TEXTURE, fileDialog, ProgramGlobals.getMainPanel());
         }
     }
-
-	public static void exportTextures() {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null && modelPanel.getModel() != null) {
-			exportTextures(modelPanel.getModel());
-		}
-	}
-
-	static void exportTextures(EditableModel model) {
-		JPanel panel = getExportTexturePanel(model);
-
-		showDialog(panel, "Export Texture");
-	}
 
 	private static void showDialog(JComponent panel, String title) {
 		JOptionPane.showOptionDialog(
@@ -137,7 +118,49 @@ public class ExportTexture extends ActionFunction {
             String name = bitmapJList.getSelectedValue().getName().replaceAll("[^\\w\\[\\]()#\\. ]", "").replaceAll(" +", "_");
 	        System.out.println("ExportTexture, texture name: " + name);
 //
-            fileDialog.exportTexture(texture, name);
+	        onClickSaveAs(texture, name, FileDialog.SAVE_TEXTURE, fileDialog, ProgramGlobals.getMainPanel());
         }
     }
+
+	public static boolean onClickSaveAs(BufferedImage bufferedImage, String suggestedName, int operationType, FileDialog fileDialog, Component parent) {
+		File file = fileDialog.getSaveFile(operationType, suggestedName);
+		if (file != null) {
+			if (fileDialog.isSavableTextureExt(file) && bufferedImage != null) {
+				try {
+					return saveTexture(bufferedImage, file, fileDialog.getExtension(file), parent);
+				} catch (final Exception exc) {
+					ExceptionPopup.display(exc);
+					exc.printStackTrace();
+				}
+			}
+		}
+		return false;
+	}
+	public static boolean saveTexture(BufferedImage bufferedImage, File modelFile, String ext, Component parent) {
+		String fileExtension = ext.toLowerCase();
+		if (fileExtension.equals("bmp") || fileExtension.equals("jpg") || fileExtension.equals("jpeg")) {
+			JOptionPane.showMessageDialog(parent,
+					"Warning: Alpha channel was converted to black. Some data will be lost" +
+							"\nif you convert this texture back to Warcraft BLP.");
+			bufferedImage = ImageUtils.removeAlphaChannel(bufferedImage);
+		}
+
+		try {
+			if(fileExtension.equals("tga")){
+				TgaFile.writeTGA(bufferedImage, modelFile);
+				return true;
+			} else {
+				final boolean write = ImageIO.write(bufferedImage, fileExtension, modelFile);
+				SaveProfile.get().addRecent(modelFile.getPath());
+				if (!write) {
+					JOptionPane.showMessageDialog(parent, "Could not write file.\nFile type unknown or unavailable");
+				}
+				return write;
+			}
+		} catch (final Exception exc) {
+			ExceptionPopup.display(exc);
+			exc.printStackTrace();
+		}
+		return false;
+	}
 }

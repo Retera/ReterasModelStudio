@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.actionfunctions;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.ModelFromFile;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanelGui;
 import com.hiveworkshop.rms.ui.language.TextKey;
@@ -14,7 +15,7 @@ public class ImportFromFile extends ActionFunction {
 	}
 
 	public static void importButtonActionRes(ModelHandler modelHandler) {
-		EditableModel model = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
+		EditableModel model = ModelFromFile.chooseModelFile(FileDialog.OPEN_WC_MODEL, null);
 		if (model != null) {
 //			ImportPanel importPanel = new ImportPanel(modelHandler.getModel(), model, true);
 			ImportPanelGui importPanel = new ImportPanelGui(modelHandler.getModel(), model);

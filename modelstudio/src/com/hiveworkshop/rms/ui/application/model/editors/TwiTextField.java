@@ -27,6 +27,12 @@ public class TwiTextField extends JTextField {
 		super.setText(text);
 		this.text = text;
 	}
+	public TwiTextField setTextAndRun(String text) {
+		super.setText(text);
+		this.text = text;
+		applyNewText();
+		return this;
+	}
 
 	public TwiTextField setTextConsumer(Consumer<String> textConsumer) {
 		this.textConsumer = textConsumer;

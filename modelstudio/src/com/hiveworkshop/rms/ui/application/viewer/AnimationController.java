@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
 import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.model.nodepanels.AnimationChooser;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -12,7 +13,6 @@ import java.awt.*;
 import java.util.function.Consumer;
 
 public class AnimationController extends JPanel {
-	private ModelHandler modelHandler;
 	private TimeEnvironmentImpl renderEnv;
 	private final AnimationChooser animationChooser;
 	private final JSlider speedSlider;
@@ -40,11 +40,24 @@ public class AnimationController extends JPanel {
 	}
 
 	public AnimationController setModel(ModelHandler modelHandler, boolean allowUnanimated, Animation defaultAnimation) {
-		this.modelHandler = modelHandler;
 		this.allowUnanimated = allowUnanimated;
 		if (modelHandler != null) {
 			animationChooser.setModel(modelHandler.getModel(), modelHandler.getPreviewRenderModel());
 			renderEnv = modelHandler.getPreviewRenderModel().getTimeEnvironment();
+			renderEnv.setAnimationSpeed(speedSlider.getValue() / 50f);
+			loopTypePanel.setSelectedIndex(loopTypePanel.getSelectedIndex());
+		} else {
+			animationChooser.setModel(null, null);
+		}
+		System.out.println("defaultAnimation: " + defaultAnimation);
+		animationChooser.chooseSequence(defaultAnimation);
+		return this;
+	}
+	public AnimationController setModel(RenderModel renderModel, Animation defaultAnimation, boolean allowUnanimated) {
+		this.allowUnanimated = allowUnanimated;
+		if (renderModel != null) {
+			animationChooser.setModel(renderModel);
+			renderEnv = renderModel.getTimeEnvironment();
 			renderEnv.setAnimationSpeed(speedSlider.getValue() / 50f);
 			loopTypePanel.setSelectedIndex(loopTypePanel.getSelectedIndex());
 		} else {

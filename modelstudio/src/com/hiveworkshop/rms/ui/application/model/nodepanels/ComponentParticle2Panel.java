@@ -7,7 +7,7 @@ import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.tools.ParticleEditPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelTextureThings;
+import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
 import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.TwiComboBox;
 import com.hiveworkshop.rms.util.TwiTextEditor.EditorHelpers;
@@ -30,8 +30,8 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 	public ComponentParticle2Panel(ModelHandler modelHandler) {
 		super(modelHandler);
 
-		textureChooser = new TwiComboBox<>(modelHandler.getModel().getTextures(), new Bitmap("", 0));
-		textureChooser.setRenderer(ModelTextureThings.getTextureListRenderer());
+		textureChooser = new TwiComboBox<>(modelHandler.getModel().getTextures(), new Bitmap("", 1));
+		textureChooser.setRenderer(new TextureListRenderer(model).setImageSize(64));
 		textureChooser.addOnSelectItemListener(this::changeTexture);
 		topPanel.add(textureChooser);
 

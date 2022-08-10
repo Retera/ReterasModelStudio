@@ -14,16 +14,13 @@ import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.VisibilitySource;
 import com.hiveworkshop.rms.editor.model.animflag.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
-import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
-import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.ui.application.actionfunctions.ImportFromObjectEditor;
+import com.hiveworkshop.rms.ui.application.actionfunctions.ImportFromUnit;
+import com.hiveworkshop.rms.ui.application.actionfunctions.ImportWC3Model;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.GlobalSeqHelper;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.tools.BoneChainMapWizard;
-import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
-import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.util.SearchableList;
@@ -34,112 +31,78 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.io.IOException;
 import java.util.List;
 import java.util.*;
+import java.util.function.Supplier;
 
 public class AddSingleAnimationActions {
 
-	public static void addAnimationFromFile() {
-		FileDialog fileDialog = new FileDialog();
-
-		EditableModel animationSourceModel = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
-		if (animationSourceModel != null) {
-			ModelHandler modelHandler = new ModelHandler(fileDialog.getModel());
-			addSingleAnimation(modelHandler, animationSourceModel);
-		}
-
-		if (ProgramGlobals.getCurrentModelPanel() != null) {
+	public static void addAnimationFrom(Supplier<EditableModel> sourceSupplier) {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null && sourceSupplier != null) {
+			EditableModel animationSourceModel = sourceSupplier.get();
+			if (animationSourceModel != null) {
+				addSingleAnimation(modelPanel.getModelHandler(), animationSourceModel);
+			}
 			ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 		}
 	}
-
-	public static void addSingleAnimation(ModelHandler modelHandler, EditableModel animationSourceModel) {
-		MainPanel mainPanel = ProgramGlobals.getMainPanel();
-
-		EditableModel currModel = modelHandler.getModel();
-		BoneChainMapWizard wizard2 = new BoneChainMapWizard(mainPanel, animationSourceModel, currModel);
-		JPanel editMappingPanel = wizard2.getEditMappingPanel(-1, false, true);
-
-		SearchableList<Animation> animationsList = new SearchableList<>(AddSingleAnimationActions::filterAnims);
-		animationsList.addAll(animationSourceModel.getAnims());
-		SearchableList<Animation> visibilityList = new SearchableList<>(AddSingleAnimationActions::filterAnims);
-		visibilityList.addAll(currModel.getAnims());
-
-		JPanel animPanel = new JPanel(new MigLayout("ins 0"));
-		animPanel.add(new JLabel("Choose animation to be added from " + animationSourceModel.getName()), "spanx, wrap");
-		animPanel.add(animationsList.getScrollableList(), "growx, wrap");
-
-		JPanel visPanel = new JPanel(new MigLayout("ins 0"));
-		visPanel.add(new JLabel("Which animation from " + currModel.getName() + "(THIS) model to copy visibility from?"), "spanx, wrap");
-		visPanel.add(visibilityList.getScrollableList(), "growx, wrap");
-
-
-		JPanel panel = new JPanel(new MigLayout("fill"));
-		panel.add(animPanel, "growx, wrap");
-		panel.add(visPanel, "growx, wrap");
-		JButton doAdd = new JButton("Do Add");
-		doAdd.addActionListener(e -> doAddAnimation(modelHandler, animationSourceModel.getName(), panel, animationsList.getSelectedValue(), visibilityList.getSelectedValue(), wizard2.fillAndGetChainMap()));
-		panel.add(doAdd);
-
-		JTabbedPane tabbedPane = new JTabbedPane();
-		tabbedPane.addTab("Choose Animation", panel);
-		tabbedPane.addTab("Map Nodes", editMappingPanel);
-		FramePopup.show(tabbedPane, ProgramGlobals.getMainPanel(), "Add Animation");
-	}
-
-	private static boolean filterAnims(Animation animation, String text){
-		return animation.getName().toLowerCase().contains(text.toLowerCase());
-	}
-
-	private static void doAddAnimation(ModelHandler modelHandler, String animSrcName, Component parent, Animation animation, Animation vis, Map<IdObject, IdObject> nodeMap) {
-		HashMap<Sequence, Sequence> animMap = new HashMap<>();
-		animMap.put(animation, animation);
-
-		UndoAction importAction = getImportAction(modelHandler.getModel(), animMap, nodeMap);
-		UndoAction setVisibilityAction = getSetVisibilityAction(modelHandler.getModel(), vis, animation);
-
-		modelHandler.getUndoManager().pushAction(
-				new CompoundAction("Add Single Animation", ModelStructureChangeListener.changeListener::animationParamsChanged,
-						importAction,
-						setVisibilityAction)
-						.redo());
-
-
-		JOptionPane.showMessageDialog(parent, "Added " + animSrcName + "'s " + animation.getName()
-				+ " with " + vis.getName() + "'s visibility  OK!");
-	}
-
-	public static void addAnimationFromObject() {
-		fetchAndAddSingleAnimation(ImportFromObjectEditor.fetchObjectModel());
-	}
-
-	public static void addAnimFromModel() {
-		EditableModel animationSource = null;
-
-		ModelOptionPanel uop = ModelOptionPanel.getModelOptionPanel(ProgramGlobals.getMainPanel());
-		if (uop != null) {
-			animationSource = uop.getSelectedModel();
-		}
-		fetchAndAddSingleAnimation(animationSource);
+	public static void addAnimationFromFile() {
+		addAnimationFrom(() -> ModelFromFile.chooseModelFile(FileDialog.OPEN_WC_MODEL, null));
 	}
 
 	public static void addAnimationFromUnit() {
-		String path = null;
-		GameObject choice = UnitOptionPanel.getGameObject(ProgramGlobals.getMainPanel());
-		if (choice != null) {
-			path = choice.getField("file");
-		}
-		fetchAndAddSingleAnimation(path);
-
+		addAnimationFrom(ImportFromUnit::getFileModel);
 	}
 
-	public static void addEmptyAnimation() {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null && modelPanel.getModelHandler() != null) {
-			addEmptyAnimation(modelPanel.getModelHandler());
-		}
+	public static void addAnimFromModel() {
+		addAnimationFrom(ImportWC3Model::fetchModel);
 	}
+
+	public static void addAnimationFromObject() {
+		addAnimationFrom(ImportFromObjectEditor::fetchObjectModel);
+	}
+//	public static void addAnimationFromFile() {
+//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+//		if (modelPanel != null) {
+//			EditableModel animationSourceModel = ModelFromFile.chooseModelFile(FileDialog.OPEN_WC_MODEL, null);
+//			if (animationSourceModel != null) {
+//				addSingleAnimation(modelPanel.getModelHandler(), animationSourceModel);
+//			}
+//			ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+//		}
+//	}
+//
+//	public static void addAnimationFromObject() {
+//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+//		if (modelPanel != null) {
+//			EditableModel animationSource = ImportFromObjectEditor.fetchObjectModel();
+//			if (animationSource != null) {
+//				addSingleAnimation(modelPanel.getModelHandler(), animationSource);
+//			}
+//		}
+//	}
+//
+//	public static void addAnimFromModel() {
+//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+//		if (modelPanel != null) {
+//			EditableModel animationSource = ImportWC3Model.fetchModel();
+//			if (animationSource != null) {
+//				addSingleAnimation(modelPanel.getModelHandler(), animationSource);
+//			}
+//		}
+//	}
+//
+//	public static void addAnimationFromUnit() {
+//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+//		if (modelPanel != null) {
+//			EditableModel animationSource = ImportFromUnit.getFileModel();
+//			if (animationSource != null) {
+//				addSingleAnimation(modelPanel.getModelHandler(), animationSource);
+//			}
+//		}
+//	}
+
 	public static void addTextureAnim() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null && modelPanel.getModelHandler() != null) {
@@ -158,6 +121,13 @@ public class AddSingleAnimationActions {
 		}
 	}
 
+
+	public static void addEmptyAnimation() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null && modelPanel.getModelHandler() != null) {
+			addEmptyAnimation(modelPanel.getModelHandler());
+		}
+	}
 	public static void addEmptyAnimation(ModelHandler modelHandler) {
 		JPanel creationPanel = new JPanel(new MigLayout());
 
@@ -234,30 +204,60 @@ public class AddSingleAnimationActions {
 		}
 	}
 
-	private static void fetchAndAddSingleAnimation(String path) {
-		if(path != null){
-			String filepath = ImportFileActions.convertPathToMDX(path);
+	public static void addSingleAnimation(ModelHandler modelHandler, EditableModel animationSourceModel) {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 
-			ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-			if (modelPanel != null && modelPanel.getModel() != null && filepath != null) {
-				try {
-					EditableModel animationSource = MdxUtils.loadEditable(GameDataFileSystem.getDefault().getFile(filepath));
-					addSingleAnimation(modelPanel.getModelHandler(), animationSource);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+		EditableModel currModel = modelHandler.getModel();
+		BoneChainMapWizard wizard2 = new BoneChainMapWizard(mainPanel, animationSourceModel, currModel);
+		JPanel editMappingPanel = wizard2.getEditMappingPanel(-1, false, true);
+
+		SearchableList<Animation> animationsList = new SearchableList<>(AddSingleAnimationActions::filterAnims);
+		animationsList.addAll(animationSourceModel.getAnims());
+		SearchableList<Animation> visibilityList = new SearchableList<>(AddSingleAnimationActions::filterAnims);
+		visibilityList.addAll(currModel.getAnims());
+
+		JPanel animPanel = new JPanel(new MigLayout("ins 0"));
+		animPanel.add(new JLabel("Choose animation to be added from " + animationSourceModel.getName()), "spanx, wrap");
+		animPanel.add(animationsList.getScrollableList(), "growx, wrap");
+
+		JPanel visPanel = new JPanel(new MigLayout("ins 0"));
+		visPanel.add(new JLabel("Which animation from " + currModel.getName() + "(THIS) model to copy visibility from?"), "spanx, wrap");
+		visPanel.add(visibilityList.getScrollableList(), "growx, wrap");
+
+
+		JPanel panel = new JPanel(new MigLayout("fill"));
+		panel.add(animPanel, "growx, wrap");
+		panel.add(visPanel, "growx, wrap");
+		JButton doAdd = new JButton("Do Add");
+		doAdd.addActionListener(e -> doAddAnimation(modelHandler, animationSourceModel.getName(), panel, animationsList.getSelectedValue(), visibilityList.getSelectedValue(), wizard2.fillAndGetChainMap()));
+		panel.add(doAdd);
+
+		JTabbedPane tabbedPane = new JTabbedPane();
+		tabbedPane.addTab("Choose Animation", panel);
+		tabbedPane.addTab("Map Nodes", editMappingPanel);
+		FramePopup.show(tabbedPane, ProgramGlobals.getMainPanel(), "Add Animation");
 	}
 
-	private static void fetchAndAddSingleAnimation(EditableModel animationSource) {
-		if (animationSource != null) {
+	private static boolean filterAnims(Animation animation, String text){
+		return animation.getName().toLowerCase().contains(text.toLowerCase());
+	}
 
-			ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-			if (modelPanel != null && modelPanel.getModel() != null) {
-				addSingleAnimation(modelPanel.getModelHandler(), animationSource);
-			}
-		}
+	private static void doAddAnimation(ModelHandler modelHandler, String animSrcName, Component parent, Animation animation, Animation vis, Map<IdObject, IdObject> nodeMap) {
+		HashMap<Sequence, Sequence> animMap = new HashMap<>();
+		animMap.put(animation, animation);
+
+		UndoAction importAction = getImportAction(modelHandler.getModel(), animMap, nodeMap);
+		UndoAction setVisibilityAction = getSetVisibilityAction(modelHandler.getModel(), vis, animation);
+
+		modelHandler.getUndoManager().pushAction(
+				new CompoundAction("Add Single Animation", ModelStructureChangeListener.changeListener::animationParamsChanged,
+						importAction,
+						setVisibilityAction)
+						.redo());
+
+
+		JOptionPane.showMessageDialog(parent, "Added " + animSrcName + "'s " + animation.getName()
+				+ " with " + vis.getName() + "'s visibility  OK!");
 	}
 
 	public static UndoAction getSetVisibilityAction(EditableModel model, Animation visibilitySource, Animation target) {

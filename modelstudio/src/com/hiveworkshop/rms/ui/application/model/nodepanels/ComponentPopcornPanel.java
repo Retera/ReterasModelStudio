@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
-import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.ExportInternal;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.TwiTextEditor.EditorHelpers;
@@ -130,8 +130,7 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 	private void export(){
 		String particlePath = idObject.getPath();
 		if(!particlePath.isEmpty()){
-			FileDialog fileDialog = new FileDialog(this);
-			fileDialog.exportInternalFile(particlePath);
+			ExportInternal.exportInternalFile3(particlePath, "Popcorn", this);
 		}
 	}
 }

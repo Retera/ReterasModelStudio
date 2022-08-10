@@ -1,10 +1,7 @@
 package com.hiveworkshop.rms.ui.browsers.model;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.util.ModelFactory.TempOpenModelStuff;
-import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.ImportFileActions;
 import com.hiveworkshop.rms.ui.application.MainFrame;
@@ -18,7 +15,6 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -164,13 +160,10 @@ public class ModelOptionPanel extends JPanel {
 	private void showModel(String filepath) {
 		try {
 			filepath = ImportFileActions.convertPathToMDX(filepath);
-			InputStream modelStream = GameDataFileSystem.getDefault().getResourceAsStream(filepath);
-			if (modelStream != null) {
-				MdlxModel mdlxModel = MdxUtils.loadMdlx(modelStream);
-				setModel(TempOpenModelStuff.createEditableModel(mdlxModel));
-			} else {
+			EditableModel editableModel = MdxUtils.loadEditable(filepath, null);
+			setModel(editableModel);
+			if (editableModel == null) {
 				System.err.println("failed to load file: \"" + filepath + "\"");
-				setModel(null);
 			}
 
 			if (modelBox.getParent() !=null){

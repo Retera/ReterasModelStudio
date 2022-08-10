@@ -12,4 +12,13 @@ public class ImageUtils {
 
 		return combined;
 	}
+
+	public static BufferedImage removeAlphaChannel(Image source) {
+		BufferedImage combined = new BufferedImage(source.getWidth(null), source.getHeight(null), BufferedImage.TYPE_INT_RGB);
+
+		Graphics g = combined.getGraphics();
+		g.drawImage(source, 0, 0, source.getWidth(null), source.getHeight(null), null);
+
+		return combined;
+	}
 }

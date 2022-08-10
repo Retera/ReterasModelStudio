@@ -13,7 +13,6 @@ import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class InternalFileLoader {
 
@@ -34,11 +33,6 @@ public class InternalFileLoader {
 				loadModelPanel(true, false, icon, getEditableModel(portrait, true));
 			}
 		}
-	}
-
-	public static void loadStreamMdx(InputStream f, boolean temporary, boolean showModel, ImageIcon icon) {
-		EditableModel model = getEditableModel(f);
-		loadModelPanel(temporary, showModel, icon, model);
 	}
 
 	public static void loadStreamMdx(String filepath, boolean temporary, boolean showModel, ImageIcon icon) {
@@ -62,24 +56,18 @@ public class InternalFileLoader {
 
 	public static EditableModel getEditableModel(String filepath, boolean doCheckExist) {
 		String path = ImportFileActions.convertPathToMDX(filepath);
-//		if (!doCheckExist || GameDataFileSystem.getDefault().has(filepath)) {
 		if (!doCheckExist || GameDataFileSystem.getDefault().has(path)) {
 			System.err.println("loading: " + path);
-			InputStream resourceAsStream = GameDataFileSystem.getDefault().getResourceAsStream(path);
-			return getEditableModel(resourceAsStream);
+			try {
+				EditableModel model = MdxUtils.loadEditable(path, null);
+				model.setFileRef(null);
+				return model;
+			} catch (final IOException e) {
+				e.printStackTrace();
+				ExceptionPopup.display("Reading mdx failed", e);
+				throw new RuntimeException("Reading mdx failed");
+			}
 		}
 		return null;
-	}
-
-	public static EditableModel getEditableModel(InputStream f) {
-		try {
-			EditableModel model = MdxUtils.loadEditable(f);
-			model.setFileRef(null);
-			return model;
-		} catch (final IOException e) {
-			e.printStackTrace();
-			ExceptionPopup.display("Reading mdx failed", e);
-			throw new RuntimeException("Reading mdx failed");
-		}
 	}
 }

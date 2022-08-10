@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
-import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.ExportInternal;
 import com.hiveworkshop.rms.ui.application.ImportFileActions;
 import com.hiveworkshop.rms.ui.application.InternalFileLoader;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
@@ -107,9 +107,7 @@ public class UnitBrowserPopupMenu extends JPopupMenu {
 		MutableGameObject obj = objectSupplier.get();
 		if (obj != null) {
 			String filepath = getFilePath(id, portrait, obj);
-
-			FileDialog fileDialog = new FileDialog(this);
-			fileDialog.exportInternalFile(ImportFileActions.convertPathToMDX(filepath));
+			ExportInternal.exportInternalFile3(filepath, "Unit", this);
 		}
 	}
 
