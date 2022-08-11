@@ -92,7 +92,8 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexCl
 				if (other.geoset != null) {
 					return false;
 				}
-			} else if (!geoset.equals(other.geoset)) {
+			}
+			else if (!geoset.equals(other.geoset)) {
 				return false;
 			}
 			if (vertexGroupId != other.vertexGroupId) {
@@ -151,7 +152,8 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexCl
 				final VertexGroupBundle bundle = new VertexGroupBundle(geoset, vertexGroupId);
 				if (invertedSelection.contains(bundle)) {
 					invertedSelection.remove(bundle);
-				} else {
+				}
+				else {
 					invertedSelection.add(bundle);
 				}
 			}
@@ -173,6 +175,14 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexCl
 		}
 		selectionManager.setSelection(allSelection);
 		return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all"));
+	}
+
+	@Override
+	public UndoAction selectHDUnusedNodes() {
+		final Set<VertexGroupBundle> oldSelection = new HashSet<>(selectionManager.getSelection());
+		final Set<VertexGroupBundle> allSelection = new HashSet<>();
+		selectionManager.setSelection(allSelection);
+		return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select HD unused"));
 	}
 
 	@Override
@@ -312,7 +322,8 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexCl
 						newGeosetVertex.getTriangles().clear();
 						copiedVertices.add(newGeosetVertex);
 						triangleVertices.add(newGeosetVertex);
-					} else {
+					}
+					else {
 						triangleIsFullySelected = false;
 					}
 				}

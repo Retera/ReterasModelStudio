@@ -335,7 +335,8 @@ public class MainPanel extends JPanel
 	public int viewMode() {
 		if (wireframe.isSelected()) {
 			return 0;
-		} else if (solid.isSelected()) {
+		}
+		else if (solid.isSelected()) {
 			return 1;
 		}
 		return -1;
@@ -355,7 +356,8 @@ public class MainPanel extends JPanel
 				try {
 					mpanel.getUndoManager().pushAction(
 							mpanel.getModelEditorManager().getModelEditor().cloneSelectedComponents(namePicker));
-				} catch (final Exception exc) {
+				}
+				catch (final Exception exc) {
 					ExceptionPopup.display(exc);
 				}
 			}
@@ -370,7 +372,8 @@ public class MainPanel extends JPanel
 			if (mpanel != null) {
 				if (animationModeState) {
 					timeSliderPanel.deleteSelectedKeyframes();
-				} else {
+				}
+				else {
 					// NOTE delete was here
 				}
 			}
@@ -387,7 +390,8 @@ public class MainPanel extends JPanel
 													// something
 													// to
 													// clipboard
-				} catch (final Exception exc) {
+				}
+				catch (final Exception exc) {
 					ExceptionPopup.display(exc);
 				}
 			}
@@ -405,7 +409,8 @@ public class MainPanel extends JPanel
 													// something
 													// to
 													// clipboard
-				} catch (final Exception exc) {
+				}
+				catch (final Exception exc) {
 					ExceptionPopup.display(exc);
 				}
 			}
@@ -423,7 +428,8 @@ public class MainPanel extends JPanel
 													// something
 													// from
 													// clipboard
-				} catch (final Exception exc) {
+				}
+				catch (final Exception exc) {
 					ExceptionPopup.display(exc);
 				}
 			}
@@ -470,7 +476,8 @@ public class MainPanel extends JPanel
 				}
 				if (valid) {
 					mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().rig());
-				} else {
+				}
+				else {
 					System.err.println("NOT RIGGING, NOT VALID");
 				}
 			}
@@ -544,7 +551,8 @@ public class MainPanel extends JPanel
 								.recalcExtents(considerCurrentBtn.isSelected()));
 					}
 				}
-			} catch (final Exception exc) {
+			}
+			catch (final Exception exc) {
 				exc.printStackTrace();
 				ExceptionPopup.display(exc);
 			}
@@ -732,10 +740,16 @@ public class MainPanel extends JPanel
 			return toolView;
 		}
 	});
-	AbstractAction openModelDataContentsViewAction = new OpenViewAction("Model", new OpenViewGetter() {
+	AbstractAction openModelDataContentsViewAction = new OpenViewAction("Contents", new OpenViewGetter() {
 		@Override
 		public View getView() {
 			return modelDataView;
+		}
+	});
+	AbstractAction openModelDataComponentsViewAction = new OpenViewAction("Component", new OpenViewGetter() {
+		@Override
+		public View getView() {
+			return modelComponentView;
 		}
 	});
 	AbstractAction openTracksViewAction = new OpenViewAction("Tracks", new OpenViewGetter() {
@@ -849,7 +863,8 @@ public class MainPanel extends JPanel
 														false, icon);
 											}
 										}
-									} else {
+									}
+									else {
 										final String path = convertPathToMDX(
 												obj.getFieldAsString(War3ID.fromString("dfil"), 0));
 										final String portrait = ModelUtils.getPortrait(path);
@@ -869,7 +884,8 @@ public class MainPanel extends JPanel
 								}
 							}
 						}
-					} catch (final Exception exc) {
+					}
+					catch (final Exception exc) {
 						exc.printStackTrace();
 						ExceptionPopup.display(exc);
 					}
@@ -991,7 +1007,8 @@ public class MainPanel extends JPanel
 				final Integer globalSeq = animatedRenderEnvironment.getGlobalSeq();
 				if (globalSeq != null) {
 					creatorPanel.setChosenGlobalSeq(globalSeq);
-				} else {
+				}
+				else {
 					final ModelPanel modelPanel = currentModelPanel();
 					if (modelPanel != null) {
 						boolean foundAnim = false;
@@ -1215,7 +1232,8 @@ public class MainPanel extends JPanel
 						System.out.println(
 								view.getTitle() + ": (windowUndocking removedWindow as view) title bar visible now");
 					}
-				} else {
+				}
+				else {
 					SwingUtilities.invokeLater(fixit);
 				}
 			}
@@ -1262,13 +1280,15 @@ public class MainPanel extends JPanel
 										+ ": (singleChildView, windowRemoved()) title bar visible now");
 								singleChildView.getViewProperties().getViewTitleBarProperties().setVisible(true);
 							}
-						} else if (tabWindow.getChildWindowCount() == 0) {
+						}
+						else if (tabWindow.getChildWindowCount() == 0) {
 							System.out.println(
 									tabWindow.getTitle() + ": force close because 0 child windows in windowRemoved()");
 //						tabWindow.close();
 						}
 					}
-				} else {
+				}
+				else {
 					SwingUtilities.invokeLater(fixit);
 				}
 			}
@@ -1333,13 +1353,15 @@ public class MainPanel extends JPanel
 								System.out.println(singleChildView.getTitle()
 										+ ": (singleChildView, windowClosing()) title bar visible now");
 							}
-						} else if (tabWindow.getChildWindowCount() == 0) {
+						}
+						else if (tabWindow.getChildWindowCount() == 0) {
 							System.out.println(
 									tabWindow.getTitle() + ": force close because 0 child windows in windowClosing()");
 							tabWindow.close();
 						}
 					}
-				} else {
+				}
+				else {
 					SwingUtilities.invokeLater(fixit);
 				}
 			}
@@ -1370,7 +1392,8 @@ public class MainPanel extends JPanel
 							System.out.println(view.getTitle() + ": (addedWindow as view) title bar NOT visible now");
 						}
 					}
-				} else {
+				}
+				else {
 					SwingUtilities.invokeLater(fixit);
 				}
 			}
@@ -1394,13 +1417,16 @@ public class MainPanel extends JPanel
 		final RTFEditorKit rtfk = new RTFEditorKit();
 		try {
 			rtfk.read(MpqCodebase.get().getResourceAsStream("docs/welcome.rtf"), panel, 0);
-		} catch (final MalformedURLException e1) {
+		}
+		catch (final MalformedURLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		} catch (final IOException e1) {
+		}
+		catch (final IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		} catch (final BadLocationException e1) {
+		}
+		catch (final BadLocationException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
@@ -1445,12 +1471,14 @@ public class MainPanel extends JPanel
 					engine.put("world", MainPanel.this);
 					try {
 						engine.eval(text);
-					} catch (final ScriptException e1) {
+					}
+					catch (final ScriptException e1) {
 						e1.printStackTrace();
 						JOptionPane.showMessageDialog(MainPanel.this, e1.getMessage(), "Error",
 								JOptionPane.ERROR_MESSAGE);
 					}
-				} else {
+				}
+				else {
 					JOptionPane.showMessageDialog(MainPanel.this, "Must open a file!", "Error",
 							JOptionPane.ERROR_MESSAGE);
 				}
@@ -1688,11 +1716,14 @@ public class MainPanel extends JPanel
 			public void run(final String filepath) {
 				if (filepath.toLowerCase().endsWith(".mdx")) {
 					loadFile(MpqCodebase.get().getFile(filepath), true);
-				} else if (filepath.toLowerCase().endsWith(".blp")) {
+				}
+				else if (filepath.toLowerCase().endsWith(".blp")) {
 					loadBLPPathAsModel(filepath);
-				} else if (filepath.toLowerCase().endsWith(".png")) {
+				}
+				else if (filepath.toLowerCase().endsWith(".png")) {
 					loadBLPPathAsModel(filepath);
-				} else if (filepath.toLowerCase().endsWith(".dds")) {
+				}
+				else if (filepath.toLowerCase().endsWith(".dds")) {
 					loadBLPPathAsModel(filepath, null, 1000);
 				}
 			}
@@ -1703,7 +1734,8 @@ public class MainPanel extends JPanel
 				String finalPath;
 				if (modIndex == -1) {
 					finalPath = path;
-				} else {
+				}
+				else {
 					finalPath = path.substring(modIndex + ".w3mod/".length());
 				}
 				final ModelPanel modelPanel = currentModelPanel();
@@ -1768,12 +1800,14 @@ public class MainPanel extends JPanel
 						if (dataType == WorldEditorDataType.UNITS) {
 							System.out.println("saw unit tree");
 							unitEditorTree.setUnitDataAndReloadVerySlowly(getUnitData());
-						} else if (dataType == WorldEditorDataType.DOODADS) {
+						}
+						else if (dataType == WorldEditorDataType.DOODADS) {
 							System.out.println("saw doodad tree");
 							unitEditorTree.setUnitDataAndReloadVerySlowly(getDoodadData());
 						}
 					}
-				} else if (component instanceof MPQBrowser) {
+				}
+				else if (component instanceof MPQBrowser) {
 					System.out.println("saw mpq tree");
 					final MPQBrowser comp = (MPQBrowser) component;
 					comp.refreshTree();
@@ -1857,7 +1891,8 @@ public class MainPanel extends JPanel
 		timeSliderPanel.setKeyframeModeActive(animationModeState);
 		if (animationModeState) {
 			animationModeButton.setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
-		} else {
+		}
+		else {
 			animationModeButton.resetColors();
 		}
 		timeSliderPanel.repaint();
@@ -1912,7 +1947,8 @@ public class MainPanel extends JPanel
 								: null,
 						true);
 			}
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			e.printStackTrace();
 		}
 		return new MutableObjectData(WorldEditorDataType.UNITS, StandardObjectData.getStandardUnits(),
@@ -1929,7 +1965,8 @@ public class MainPanel extends JPanel
 								: null,
 						true);
 			}
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			e.printStackTrace();
 		}
 		return new MutableObjectData(WorldEditorDataType.DOODADS, StandardObjectData.getStandardDoodads(),
@@ -1948,7 +1985,8 @@ public class MainPanel extends JPanel
 			public void actionPerformed(final ActionEvent e) {
 				try {
 					newModel();
-				} catch (final Exception exc) {
+				}
+				catch (final Exception exc) {
 					exc.printStackTrace();
 					ExceptionPopup.display(exc);
 				}
@@ -1959,7 +1997,8 @@ public class MainPanel extends JPanel
 			public void actionPerformed(final ActionEvent e) {
 				try {
 					onClickOpen();
-				} catch (final Exception exc) {
+				}
+				catch (final Exception exc) {
 					exc.printStackTrace();
 					ExceptionPopup.display(exc);
 				}
@@ -1970,7 +2009,8 @@ public class MainPanel extends JPanel
 			public void actionPerformed(final ActionEvent e) {
 				try {
 					onClickSave();
-				} catch (final Exception exc) {
+				}
+				catch (final Exception exc) {
 					exc.printStackTrace();
 					ExceptionPopup.display(exc);
 				}
@@ -1982,9 +2022,11 @@ public class MainPanel extends JPanel
 			public void actionPerformed(final ActionEvent e) {
 				try {
 					currentModelPanel().getUndoManager().undo();
-				} catch (final NoSuchElementException exc) {
+				}
+				catch (final NoSuchElementException exc) {
 					JOptionPane.showMessageDialog(MainPanel.this, "Nothing to undo!");
-				} catch (final Exception exc) {
+				}
+				catch (final Exception exc) {
 					ExceptionPopup.display(exc);
 					// exc.printStackTrace();
 				}
@@ -1996,9 +2038,11 @@ public class MainPanel extends JPanel
 			public void actionPerformed(final ActionEvent e) {
 				try {
 					currentModelPanel().getUndoManager().redo();
-				} catch (final NoSuchElementException exc) {
+				}
+				catch (final NoSuchElementException exc) {
 					JOptionPane.showMessageDialog(MainPanel.this, "Nothing to redo!");
-				} catch (final Exception exc) {
+				}
+				catch (final Exception exc) {
 					ExceptionPopup.display(exc);
 					// exc.printStackTrace();
 				}
@@ -2084,9 +2128,11 @@ public class MainPanel extends JPanel
 						currentModelPanel.getUndoManager().pushAction(
 								currentModelPanel.getModelEditorManager().getModelEditor().snapSelectedVertices());
 					}
-				} catch (final NoSuchElementException exc) {
+				}
+				catch (final NoSuchElementException exc) {
 					JOptionPane.showMessageDialog(MainPanel.this, "Nothing to undo!");
-				} catch (final Exception exc) {
+				}
+				catch (final Exception exc) {
 					ExceptionPopup.display(exc);
 				}
 			}
@@ -2139,7 +2185,8 @@ public class MainPanel extends JPanel
 				if (focusedView != null) {
 					if (focusedView.isMaximized()) {
 						rootWindow.setMaximizedWindow(null);
-					} else {
+					}
+					else {
 						focusedView.maximize();
 					}
 				}
@@ -2406,10 +2453,12 @@ public class MainPanel extends JPanel
 									.getModelEditor().createFaceFromSelection(facingVector);
 							modelPanel.getUndoManager().pushAction(createFaceFromSelection);
 						}
-					} catch (final FaceCreationException exc) {
+					}
+					catch (final FaceCreationException exc) {
 						JOptionPane.showMessageDialog(MainPanel.this, exc.getMessage(), "Error",
 								JOptionPane.ERROR_MESSAGE);
-					} catch (final Exception exc) {
+					}
+					catch (final Exception exc) {
 						ExceptionPopup.display(exc);
 					}
 				}
@@ -2708,6 +2757,8 @@ public class MainPanel extends JPanel
 		cameraController.addActionListener(openCameraControllerAction);
 		viewsMenu.add(cameraController);
 
+		viewsMenu.addSeparator();
+
 		modelingTab = new JMenuItem("Modeling");
 		modelingTab.setMnemonic(KeyEvent.VK_M);
 		modelingTab.addActionListener(openModelingTabAction);
@@ -2743,14 +2794,29 @@ public class MainPanel extends JPanel
 		toolsItem.addActionListener(openToolsAction);
 		viewsMenu.add(toolsItem);
 
-		final JMenuItem contentsItem = new JMenuItem("Contents");
-		contentsItem.setMnemonic(KeyEvent.VK_C);
-		contentsItem.addActionListener(openModelDataContentsViewAction);
-		viewsMenu.add(contentsItem);
-
 		final JMenuItem timeItem = new JMenuItem("Footer");
 		timeItem.addActionListener(openTimeSliderAction);
 		viewsMenu.add(timeItem);
+
+		viewsMenu.addSeparator();
+
+		final JMenuItem tracksItem = new JMenuItem("Tracks");
+		tracksItem.addActionListener(openTracksViewAction);
+		viewsMenu.add(tracksItem);
+
+		viewsMenu.addSeparator();
+
+		final JMenuItem contentsItem = new JMenuItem("Contents");
+		contentsItem.setMnemonic(KeyEvent.VK_M);
+		contentsItem.addActionListener(openModelDataContentsViewAction);
+		viewsMenu.add(contentsItem);
+
+		final JMenuItem componentItem = new JMenuItem("Component");
+		componentItem.setMnemonic(KeyEvent.VK_C);
+		componentItem.addActionListener(openModelDataComponentsViewAction);
+		viewsMenu.add(componentItem);
+
+		viewsMenu.addSeparator();
 
 		final JMenuItem textItem = new JMenuItem("Text");
 		textItem.addActionListener(openTextViewAction);
@@ -2962,7 +3028,8 @@ public class MainPanel extends JPanel
 									final IdObject parentChoice = parent.getItemAt(parent.getSelectedIndex());
 									if (parentChoice == nullBone) {
 										particle.setParent(null);
-									} else {
+									}
+									else {
 										particle.setParent(parentChoice);
 									}
 									AnimFlag oldFlag = particle.getVisibilityFlag();
@@ -2986,7 +3053,8 @@ public class MainPanel extends JPanel
 							}
 						});
 						addParticle.add(particleItem);
-					} catch (final IOException e1) {
+					}
+					catch (final IOException e1) {
 						e1.printStackTrace();
 					}
 				}
@@ -3095,9 +3163,11 @@ public class MainPanel extends JPanel
 							vertexSumHeap.y /= boneCount;
 							vertexSumHeap.z /= boneCount;
 							vertexSumHeap.w /= boneCount;
-						} else if (vertex.getSkinBones() != null) {
+						}
+						else if (vertex.getSkinBones() != null) {
 
-						} else {
+						}
+						else {
 							vertexSumHeap.set(vertexHeap);
 						}
 						snapshotVertex.x = vertexSumHeap.x;
@@ -3118,10 +3188,12 @@ public class MainPanel extends JPanel
 
 							if (normalSumHeap.length() > 0) {
 								normalSumHeap.normalise();
-							} else {
+							}
+							else {
 								normalSumHeap.set(0, 1, 0, 0);
 							}
-						} else {
+						}
+						else {
 							normalSumHeap.set(normalHeap);
 						}
 						snapshotVertex.getNormal().x = normalSumHeap.x;
@@ -3200,7 +3272,8 @@ public class MainPanel extends JPanel
 					final EditableModel current = currentMDL();
 					if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 						fc.setCurrentDirectory(current.getFile().getParentFile());
-					} else if (profile.getPath() != null) {
+					}
+					else if (profile.getPath() != null) {
 						fc.setCurrentDirectory(new File(profile.getPath()));
 					}
 				}
@@ -3231,17 +3304,21 @@ public class MainPanel extends JPanel
 								if (!write) {
 									JOptionPane.showMessageDialog(MainPanel.this, "File type unknown or unavailable");
 								}
-							} else {
+							}
+							else {
 								JOptionPane.showMessageDialog(MainPanel.this, "No file type was specified");
 							}
-						} catch (final IOException e1) {
+						}
+						catch (final IOException e1) {
 							ExceptionPopup.display(e1);
 							e1.printStackTrace();
-						} catch (final Exception e2) {
+						}
+						catch (final Exception e2) {
 							ExceptionPopup.display(e2);
 							e2.printStackTrace();
 						}
-					} else {
+					}
+					else {
 						JOptionPane.showMessageDialog(MainPanel.this, "No output file was specified");
 					}
 				}
@@ -3412,11 +3489,13 @@ public class MainPanel extends JPanel
 							final EditableModel mdl = new EditableModel(MdxUtils.loadModel(in));
 							mdl.setFileRef(null);
 							doSkinSpliceUI(mdl);
-						} catch (final FileNotFoundException e) {
+						}
+						catch (final FileNotFoundException e) {
 							e.printStackTrace();
 							ExceptionPopup.display(e);
 							throw new RuntimeException("Reading mdx failed");
-						} catch (final IOException e) {
+						}
+						catch (final IOException e) {
 							e.printStackTrace();
 							ExceptionPopup.display(e);
 							throw new RuntimeException("Reading mdx failed");
@@ -3438,11 +3517,13 @@ public class MainPanel extends JPanel
 							final EditableModel mdl = new EditableModel(MdxUtils.loadModel(in));
 							mdl.setFileRef(null);
 							doSkinSpliceUI(mdl);
-						} catch (final FileNotFoundException e) {
+						}
+						catch (final FileNotFoundException e) {
 							e.printStackTrace();
 							ExceptionPopup.display(e);
 							throw new RuntimeException("Reading mdx failed");
-						} catch (final IOException e) {
+						}
+						catch (final IOException e) {
 							e.printStackTrace();
 							ExceptionPopup.display(e);
 							throw new RuntimeException("Reading mdx failed");
@@ -3469,6 +3550,20 @@ public class MainPanel extends JPanel
 		forDarkfang.add(removeAll3D);
 		scriptsMenu.add(forDarkfang);
 
+		final JMenuItem selectHDUnused = new JMenuItem("Select HD Unused Bones");
+		selectHDUnused.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final ModelPanel mpanel = currentModelPanel();
+				if (mpanel != null) {
+					mpanel.getUndoManager()
+							.pushAction(mpanel.getModelEditorManager().getModelEditor().selectHDUnusedNodes());
+				}
+				repaint();
+			}
+		});
+		scriptsMenu.add(selectHDUnused);
+
 		final JMenuItem jokebutton = new JMenuItem("Load Retera Land");
 		jokebutton.setMnemonic(KeyEvent.VK_A);
 		jokebutton.addActionListener(new ActionListener() {
@@ -3490,9 +3585,11 @@ public class MainPanel extends JPanel
 									sb.append(dataString);
 								}
 							}
-						} catch (final FileNotFoundException e1) {
+						}
+						catch (final FileNotFoundException e1) {
 							e1.printStackTrace();
-						} catch (final IOException e1) {
+						}
+						catch (final IOException e1) {
 							e1.printStackTrace();
 						}
 						final String dataString = sb.toString();
@@ -3698,9 +3795,11 @@ public class MainPanel extends JPanel
 			public void actionPerformed(final ActionEvent e) {
 				if (wireframe.isSelected()) {
 					prefs.setViewMode(0);
-				} else if (solid.isSelected()) {
+				}
+				else if (solid.isSelected()) {
 					prefs.setViewMode(1);
-				} else {
+				}
+				else {
 					prefs.setViewMode(-1);
 				}
 				repaint();
@@ -3837,7 +3936,8 @@ public class MainPanel extends JPanel
 						if (modelPanels.size() > 0) {
 							final int newIndex = Math.min(modelPanels.size() - 1, oldIndex);
 							setCurrentModel(modelPanels.get(newIndex));
-						} else {
+						}
+						else {
 							// TODO remove from notifiers to fix leaks
 							setCurrentModel(null);
 						}
@@ -4050,11 +4150,14 @@ public class MainPanel extends JPanel
 			public void actionPerformed(final ActionEvent e) {
 				if (!animationModeState) {
 					transferActionListener.actionPerformed(e);
-				} else if (e.getActionCommand().equals(TransferHandler.getCutAction().getValue(Action.NAME))) {
+				}
+				else if (e.getActionCommand().equals(TransferHandler.getCutAction().getValue(Action.NAME))) {
 					timeSliderPanel.cut();
-				} else if (e.getActionCommand().equals(TransferHandler.getCopyAction().getValue(Action.NAME))) {
+				}
+				else if (e.getActionCommand().equals(TransferHandler.getCopyAction().getValue(Action.NAME))) {
 					timeSliderPanel.copy();
-				} else if (e.getActionCommand().equals(TransferHandler.getPasteAction().getValue(Action.NAME))) {
+				}
+				else if (e.getActionCommand().equals(TransferHandler.getPasteAction().getValue(Action.NAME))) {
 					timeSliderPanel.paste();
 				}
 			}
@@ -4156,7 +4259,8 @@ public class MainPanel extends JPanel
 							upwardDepth++;
 							if (bone != null) {
 								replacement = nameToNode.get(bone.getName());
-							} else {
+							}
+							else {
 								replacement = null;
 							}
 						}
@@ -4164,7 +4268,8 @@ public class MainPanel extends JPanel
 							warnings.add("Failed to replace: " + boneName);
 							replacement = animationModel.getBone(0);
 //							throw new IllegalStateException("failed to replace: " + boneName);
-						} else {
+						}
+						else {
 							while ((upwardDepth > 0) && (replacement.getChildrenNodes().size() == 1)
 									&& (replacement.getChildrenNodes().get(0) instanceof Bone)) {
 								replacement = (Bone) replacement.getChildrenNodes().get(0);
@@ -4208,7 +4313,8 @@ public class MainPanel extends JPanel
 						profile.getPreferences().setTeamColor(teamColorValueNumber);
 					}
 				});
-			} catch (final Exception ex) {
+			}
+			catch (final Exception ex) {
 				// load failed
 				break;
 			}
@@ -4222,9 +4328,11 @@ public class MainPanel extends JPanel
 		try {
 			if (e.getSource() == newModel) {
 				newModel();
-			} else if (e.getSource() == open) {
+			}
+			else if (e.getSource() == open) {
 				onClickOpen();
-			} else if (e.getSource() == close) {
+			}
+			else if (e.getSource() == close) {
 				final ModelPanel modelPanel = currentModelPanel();
 				final int oldIndex = modelPanels.indexOf(modelPanel);
 				if (modelPanel != null) {
@@ -4234,13 +4342,15 @@ public class MainPanel extends JPanel
 						if (modelPanels.size() > 0) {
 							final int newIndex = Math.min(modelPanels.size() - 1, oldIndex);
 							setCurrentModel(modelPanels.get(newIndex));
-						} else {
+						}
+						else {
 							// TODO remove from notifiers to fix leaks
 							setCurrentModel(null);
 						}
 					}
 				}
-			} else if (e.getSource() == fetchUnit) {
+			}
+			else if (e.getSource() == fetchUnit) {
 				final GameObject unitFetched = fetchUnit();
 				if (unitFetched != null) {
 					final String filepath = convertPathToMDX(unitFetched.getField("file"));
@@ -4258,7 +4368,8 @@ public class MainPanel extends JPanel
 						toolsMenu.setEnabled(true);
 					}
 				}
-			} else if (e.getSource() == fetchModel) {
+			}
+			else if (e.getSource() == fetchModel) {
 				final ModelElement model = fetchModel();
 				if (model != null) {
 					final String filepath = convertPathToMDX(model.getFilepath());
@@ -4278,7 +4389,8 @@ public class MainPanel extends JPanel
 						toolsMenu.setEnabled(true);
 					}
 				}
-			} else if (e.getSource() == fetchObject) {
+			}
+			else if (e.getSource() == fetchObject) {
 				final MutableGameObject objectFetched = fetchObject();
 				if (objectFetched != null) {
 					final String filepath = convertPathToMDX(objectFetched.getFieldAsString(UnitFields.MODEL_FILE, 0));
@@ -4300,12 +4412,14 @@ public class MainPanel extends JPanel
 						toolsMenu.setEnabled(true);
 					}
 				}
-			} else if (e.getSource() == importButton) {
+			}
+			else if (e.getSource() == importButton) {
 				fc.setDialogTitle("Import");
 				final EditableModel current = currentMDL();
 				if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 					fc.setCurrentDirectory(current.getFile().getParentFile());
-				} else if (profile.getPath() != null) {
+				}
+				else if (profile.getPath() != null) {
 					fc.setCurrentDirectory(new File(profile.getPath()));
 				}
 				final int returnValue = fc.showOpenDialog(this);
@@ -4363,7 +4477,8 @@ public class MainPanel extends JPanel
 				// }
 				// }
 				refreshController();
-			} else if (e.getSource() == importUnit) {
+			}
+			else if (e.getSource() == importUnit) {
 				final GameObject fetchUnitResult = fetchUnit();
 				if (fetchUnitResult == null) {
 					return;
@@ -4375,7 +4490,8 @@ public class MainPanel extends JPanel
 					importFile(animationSource);
 				}
 				refreshController();
-			} else if (e.getSource() == importGameModel) {
+			}
+			else if (e.getSource() == importGameModel) {
 				final ModelElement fetchModelResult = fetchModel();
 				if (fetchModelResult == null) {
 					return;
@@ -4387,7 +4503,8 @@ public class MainPanel extends JPanel
 					importFile(animationSource);
 				}
 				refreshController();
-			} else if (e.getSource() == importGameObject) {
+			}
+			else if (e.getSource() == importGameObject) {
 				final MutableGameObject fetchObjectResult = fetchObject();
 				if (fetchObjectResult == null) {
 					return;
@@ -4399,7 +4516,8 @@ public class MainPanel extends JPanel
 					importFile(animationSource);
 				}
 				refreshController();
-			} else if (e.getSource() == importFromWorkspace) {
+			}
+			else if (e.getSource() == importFromWorkspace) {
 				final List<EditableModel> optionNames = new ArrayList<>();
 				for (final ModelPanel modelPanel : modelPanels) {
 					final EditableModel model = modelPanel.getModel();
@@ -4412,7 +4530,8 @@ public class MainPanel extends JPanel
 					importFile(EditableModel.deepClone(choice, choice.getHeaderName()));
 				}
 				refreshController();
-			} else if (e.getSource() == importButtonS) {
+			}
+			else if (e.getSource() == importButtonS) {
 				final JFrame frame = new JFrame("Animation Transferer");
 				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 				frame.setContentPane(new AnimationTransfer(frame));
@@ -4420,12 +4539,14 @@ public class MainPanel extends JPanel
 				frame.pack();
 				frame.setLocationRelativeTo(null);
 				frame.setVisible(true);
-			} else if (e.getSource() == mergeGeoset) {
+			}
+			else if (e.getSource() == mergeGeoset) {
 				fc.setDialogTitle("Merge Single Geoset (Oinker-based)");
 				final EditableModel current = currentMDL();
 				if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 					fc.setCurrentDirectory(current.getFile().getParentFile());
-				} else if (profile.getPath() != null) {
+				}
+				else if (profile.getPath() != null) {
 					fc.setCurrentDirectory(new File(profile.getPath()));
 				}
 				final int returnValue = fc.showOpenDialog(this);
@@ -4445,7 +4566,8 @@ public class MainPanel extends JPanel
 								host = current.getGeoset(x - 1);
 								going = false;
 							}
-						} catch (final NumberFormatException exc) {
+						}
+						catch (final NumberFormatException exc) {
 
 						}
 					}
@@ -4460,7 +4582,8 @@ public class MainPanel extends JPanel
 								newGeoset = geoSource.getGeoset(x - 1);
 								going = false;
 							}
-						} catch (final NumberFormatException exc) {
+						}
+						catch (final NumberFormatException exc) {
 
 						}
 					}
@@ -4483,7 +4606,8 @@ public class MainPanel extends JPanel
 				}
 
 				fc.setSelectedFile(null);
-			} else if (e.getSource() == clearRecent) {
+			}
+			else if (e.getSource() == clearRecent) {
 				final int dialogResult = JOptionPane.showConfirmDialog(this,
 						"Are you sure you want to clear the Recent history?", "Confirm Clear",
 						JOptionPane.YES_NO_OPTION);
@@ -4491,12 +4615,15 @@ public class MainPanel extends JPanel
 					SaveProfile.get().clearRecent();
 					updateRecent();
 				}
-			} else if (e.getSource() == nullmodelButton) {
+			}
+			else if (e.getSource() == nullmodelButton) {
 				nullmodelFile();
 				refreshController();
-			} else if ((e.getSource() == save) && (currentMDL() != null) && (currentMDL().getFile() != null)) {
+			}
+			else if ((e.getSource() == save) && (currentMDL() != null) && (currentMDL().getFile() != null)) {
 				onClickSave();
-			} else if (e.getSource() == saveAs) {
+			}
+			else if (e.getSource() == saveAs) {
 				if (!onClickSaveAs()) {
 					return;
 				}
@@ -4505,11 +4632,14 @@ public class MainPanel extends JPanel
 				// this);
 				// tabbedPane.remove(contextClickedTab);
 				// }
-			} else if (e.getSource() == contextCloseAll) {
+			}
+			else if (e.getSource() == contextCloseAll) {
 				closeAll();
-			} else if (e.getSource() == contextCloseOthers) {
+			}
+			else if (e.getSource() == contextCloseOthers) {
 				closeOthers(currentModelPanel);
-			} else if (e.getSource() == showVertexModifyControls) {
+			}
+			else if (e.getSource() == showVertexModifyControls) {
 				final boolean selected = showVertexModifyControls.isSelected();
 				prefs.setShowVertexModifierControls(selected);
 				// SaveProfile.get().setShowViewportButtons(selected);
@@ -4522,11 +4652,14 @@ public class MainPanel extends JPanel
 						uvPanel.setControlsVisible(selected);
 					}
 				}
-			} else if (e.getSource() == textureModels) {
+			}
+			else if (e.getSource() == textureModels) {
 				prefs.setTextureModels(textureModels.isSelected());
-			} else if (e.getSource() == showNormals) {
+			}
+			else if (e.getSource() == showNormals) {
 				prefs.setShowNormals(showNormals.isSelected());
-			} else if (e.getSource() == editUVs) {
+			}
+			else if (e.getSource() == editUVs) {
 				final ModelPanel disp = currentModelPanel();
 				if (disp.getEditUVPanel() == null) {
 					final UVPanel panel = new UVPanel(disp, prefs, modelStructureChangeListener);
@@ -4539,13 +4672,15 @@ public class MainPanel extends JPanel
 					panel.init();
 					floatingWindow.getTopLevelAncestor().setVisible(true);
 					panel.packFrame();
-				} else if (!disp.getEditUVPanel().frameVisible()) {
+				}
+				else if (!disp.getEditUVPanel().frameVisible()) {
 					final FloatingWindow floatingWindow = rootWindow.createFloatingWindow(
 							new Point(getX() + (getWidth() / 2), getY() + (getHeight() / 2)),
 							disp.getEditUVPanel().getSize(), disp.getEditUVPanel().getView());
 					floatingWindow.getTopLevelAncestor().setVisible(true);
 				}
-			} else if (e.getSource() == exportTextures) {
+			}
+			else if (e.getSource() == exportTextures) {
 				final DefaultListModel<Material> materials = new DefaultListModel<>();
 				for (int i = 0; i < currentMDL().getMaterials().size(); i++) {
 					final Material mat = currentMDL().getMaterials().get(i);
@@ -4565,7 +4700,8 @@ public class MainPanel extends JPanel
 					final EditableModel current = currentMDL();
 					if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 						fc.setCurrentDirectory(current.getFile().getParentFile());
-					} else if (profile.getPath() != null) {
+					}
+					else if (profile.getPath() != null) {
 						fc.setCurrentDirectory(new File(profile.getPath()));
 					}
 				}
@@ -4597,21 +4733,26 @@ public class MainPanel extends JPanel
 								if (!write) {
 									JOptionPane.showMessageDialog(this, "File type unknown or unavailable");
 								}
-							} else {
+							}
+							else {
 								JOptionPane.showMessageDialog(this, "No file type was specified");
 							}
-						} catch (final IOException e1) {
+						}
+						catch (final IOException e1) {
 							ExceptionPopup.display(e1);
 							e1.printStackTrace();
-						} catch (final Exception e2) {
+						}
+						catch (final Exception e2) {
 							ExceptionPopup.display(e2);
 							e2.printStackTrace();
 						}
-					} else {
+					}
+					else {
 						JOptionPane.showMessageDialog(this, "No output file was specified");
 					}
 				}
-			} else if (e.getSource() == scaleAnimations) {
+			}
+			else if (e.getSource() == scaleAnimations) {
 				// if( disp.animpanel == null )
 				// {
 				// AnimationPanel panel = new UVPanel(disp);
@@ -4629,7 +4770,8 @@ public class MainPanel extends JPanel
 					}
 				});
 				aFrame.setVisible(true);
-			} else if (e.getSource() == linearizeAnimations) {
+			}
+			else if (e.getSource() == linearizeAnimations) {
 				final int x = JOptionPane.showConfirmDialog(this,
 						"This is an irreversible process that will lose some of your model data,\nin exchange for making it a smaller storage size.\n\nContinue and simplify animations?",
 						"Warning: Linearize Animations", JOptionPane.OK_CANCEL_OPTION);
@@ -4639,7 +4781,8 @@ public class MainPanel extends JPanel
 						flag.linearize();
 					}
 				}
-			} else if (e.getSource() == duplicateSelection) {
+			}
+			else if (e.getSource() == duplicateSelection) {
 				// final int x = JOptionPane.showConfirmDialog(this,
 				// "This is an irreversible process that will split selected
 				// vertices into many copies of themself, one for each face, so
@@ -4654,14 +4797,16 @@ public class MainPanel extends JPanel
 							.getModelEditor().cloneSelectedComponents(namePicker));
 				}
 				// }
-			} else if (e.getSource() == simplifyKeyframes) {
+			}
+			else if (e.getSource() == simplifyKeyframes) {
 				final int x = JOptionPane.showConfirmDialog(this,
 						"This is an irreversible process that will lose some of your model data,\nin exchange for making it a smaller storage size.\n\nContinue and simplify keyframes?",
 						"Warning: Simplify Keyframes", JOptionPane.OK_CANCEL_OPTION);
 				if (x == JOptionPane.OK_OPTION) {
 					simplifyKeyframes();
 				}
-			} else if (e.getSource() == riseFallBirth) {
+			}
+			else if (e.getSource() == riseFallBirth) {
 				final ModelView disp = currentModelPanel().getModelViewManager();
 				final EditableModel model = disp.getModel();
 				final Animation lastAnim = model.getAnim(model.getAnimsSize() - 1);
@@ -4688,9 +4833,11 @@ public class MainPanel extends JPanel
 							JOptionPane.PLAIN_MESSAGE, null, choices, choices[0]);
 					if (x == choices[1]) {
 						wipeoutOldBirth = true;
-					} else if (x == choices[2]) {
+					}
+					else if (x == choices[2]) {
 						birth = oldBirth;
-					} else {
+					}
+					else {
 						return;
 					}
 				}
@@ -4702,9 +4849,11 @@ public class MainPanel extends JPanel
 							JOptionPane.PLAIN_MESSAGE, null, choices, choices[0]);
 					if (x == choices[1]) {
 						wipeoutOldDeath = true;
-					} else if (x == choices[2]) {
+					}
+					else if (x == choices[2]) {
 						death = oldDeath;
-					} else {
+					}
+					else {
 						return;
 					}
 				}
@@ -4734,7 +4883,8 @@ public class MainPanel extends JPanel
 							if (af.getTypeId() == AnimFlag.TRANSLATION) {
 								if (af.hasGlobalSeq()) {
 									globalSeq = true;
-								} else {
+								}
+								else {
 									trans = af;
 								}
 							}
@@ -4783,12 +4933,14 @@ public class MainPanel extends JPanel
 				}
 
 				JOptionPane.showMessageDialog(this, "Done!");
-			} else if (e.getSource() == animFromFile) {
+			}
+			else if (e.getSource() == animFromFile) {
 				fc.setDialogTitle("Animation Source");
 				final EditableModel current = currentMDL();
 				if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 					fc.setCurrentDirectory(current.getFile().getParentFile());
-				} else if (profile.getPath() != null) {
+				}
+				else if (profile.getPath() != null) {
 					fc.setCurrentDirectory(new File(profile.getPath()));
 				}
 				final int returnValue = fc.showOpenDialog(this);
@@ -4803,7 +4955,8 @@ public class MainPanel extends JPanel
 				fc.setSelectedFile(null);
 
 				refreshController();
-			} else if (e.getSource() == animFromUnit) {
+			}
+			else if (e.getSource() == animFromUnit) {
 				fc.setDialogTitle("Animation Source");
 				final GameObject fetchResult = fetchUnit();
 				if (fetchResult == null) {
@@ -4815,7 +4968,8 @@ public class MainPanel extends JPanel
 					final EditableModel animationSource = EditableModel.read(MpqCodebase.get().getFile(filepath));
 					addSingleAnimation(current, animationSource);
 				}
-			} else if (e.getSource() == animFromModel) {
+			}
+			else if (e.getSource() == animFromModel) {
 				fc.setDialogTitle("Animation Source");
 				final ModelElement fetchResult = fetchModel();
 				if (fetchResult == null) {
@@ -4827,7 +4981,8 @@ public class MainPanel extends JPanel
 					final EditableModel animationSource = EditableModel.read(MpqCodebase.get().getFile(filepath));
 					addSingleAnimation(current, animationSource);
 				}
-			} else if (e.getSource() == animFromObject) {
+			}
+			else if (e.getSource() == animFromObject) {
 				fc.setDialogTitle("Animation Source");
 				final MutableGameObject fetchResult = fetchObject();
 				if (fetchResult == null) {
@@ -4839,7 +4994,8 @@ public class MainPanel extends JPanel
 					final EditableModel animationSource = EditableModel.read(MpqCodebase.get().getFile(filepath));
 					addSingleAnimation(current, animationSource);
 				}
-			} else if (e.getSource() == creditsButton) {
+			}
+			else if (e.getSource() == creditsButton) {
 				final DefaultStyledDocument panel = new DefaultStyledDocument();
 				final JTextPane epane = new JTextPane();
 				epane.setForeground(Color.BLACK);
@@ -4847,13 +5003,16 @@ public class MainPanel extends JPanel
 				final RTFEditorKit rtfk = new RTFEditorKit();
 				try {
 					rtfk.read(MpqCodebase.get().getResourceAsStream("docs/credits.rtf"), panel, 0);
-				} catch (final MalformedURLException e1) {
+				}
+				catch (final MalformedURLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
-				} catch (final IOException e1) {
+				}
+				catch (final IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
-				} catch (final BadLocationException e1) {
+				}
+				catch (final BadLocationException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
@@ -4864,7 +5023,8 @@ public class MainPanel extends JPanel
 				frame.setLocationRelativeTo(null);
 				frame.setVisible(true);
 				// JOptionPane.showMessageDialog(this,new JScrollPane(epane));
-			} else if (e.getSource() == changelogButton) {
+			}
+			else if (e.getSource() == changelogButton) {
 				final DefaultStyledDocument panel = new DefaultStyledDocument();
 				final JTextPane epane = new JTextPane();
 				epane.setForeground(Color.BLACK);
@@ -4872,13 +5032,16 @@ public class MainPanel extends JPanel
 				final RTFEditorKit rtfk = new RTFEditorKit();
 				try {
 					rtfk.read(MpqCodebase.get().getResourceAsStream("docs/changelist.rtf"), panel, 0);
-				} catch (final MalformedURLException e1) {
+				}
+				catch (final MalformedURLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
-				} catch (final IOException e1) {
+				}
+				catch (final IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
-				} catch (final BadLocationException e1) {
+				}
+				catch (final BadLocationException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
@@ -4900,7 +5063,8 @@ public class MainPanel extends JPanel
 			// }
 			// repaint();
 			// }
-		} catch (
+		}
+		catch (
 
 		final Exception exc) {
 			ExceptionPopup.display(exc);
@@ -4934,13 +5098,16 @@ public class MainPanel extends JPanel
 			currentMDL().printTo(currentFile);
 			if (ext.equals(".mdl")) {
 				currentMDL().printTo(currentFile);
-			} else {
+			}
+			else {
 				final MdxModel model = new MdxModel(currentMDL());
 				try (BlizzardDataOutputStream writer = new BlizzardDataOutputStream(currentFile)) {
 					model.save(writer);
-				} catch (final FileNotFoundException e1) {
+				}
+				catch (final FileNotFoundException e1) {
 					e1.printStackTrace();
-				} catch (final IOException e1) {
+				}
+				catch (final IOException e1) {
 					e1.printStackTrace();
 				}
 			}
@@ -4958,7 +5125,8 @@ public class MainPanel extends JPanel
 			if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 				fc.setCurrentDirectory(current.getFile().getParentFile());
 				fc.setSelectedFile(current.getFile());
-			} else if (profile.getPath() != null) {
+			}
+			else if (profile.getPath() != null) {
 				fc.setCurrentDirectory(new File(profile.getPath()));
 			}
 			final int returnValue = fc.showSaveDialog(this);
@@ -4976,7 +5144,8 @@ public class MainPanel extends JPanel
 							temp = new File(
 									temp.getAbsolutePath().substring(0, temp.getAbsolutePath().lastIndexOf('.')) + ext);
 						}
-					} else {
+					}
+					else {
 						temp = new File(temp.getAbsolutePath() + ext);
 					}
 					currentFile = temp;
@@ -4992,14 +5161,16 @@ public class MainPanel extends JPanel
 					}
 					profile.setPath(currentFile.getParent());
 					fileCallback.accept(currentFile);
-				} else {
+				}
+				else {
 					JOptionPane.showMessageDialog(this,
 							"You tried to save, but you somehow didn't select a file.\nThat is bad.");
 				}
 			}
 			fc.setSelectedFile(null);
 			return true;
-		} catch (final Exception exc) {
+		}
+		catch (final Exception exc) {
 			ExceptionPopup.display(exc);
 		}
 		refreshController();
@@ -5014,7 +5185,8 @@ public class MainPanel extends JPanel
 				// currentMDLDisp().resetBeenSaved();
 				// TODO reset been saved
 			}
-		} catch (final Exception exc) {
+		}
+		catch (final Exception exc) {
 			ExceptionPopup.display(exc);
 		}
 		refreshController();
@@ -5025,7 +5197,8 @@ public class MainPanel extends JPanel
 		final EditableModel current = currentMDL();
 		if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 			fc.setCurrentDirectory(current.getFile().getParentFile());
-		} else if (profile.getPath() != null) {
+		}
+		else if (profile.getPath() != null) {
 			fc.setCurrentDirectory(new File(profile.getPath()));
 		}
 
@@ -5110,7 +5283,8 @@ public class MainPanel extends JPanel
 				}
 				ModelUtils.createBox(mdl, new Vertex(64, 64, 128), new Vertex(-64, -64, 0),
 						((Number) spinner.getValue()).intValue());
-			} else if (createPlaneButton.isSelected()) {
+			}
+			else if (createPlaneButton.isSelected()) {
 				final SpinnerNumberModel sModel = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
 				final JSpinner spinner = new JSpinner(sModel);
 				final int userChoice = JOptionPane.showConfirmDialog(this, spinner, "Plane: Choose Segments",
@@ -5133,7 +5307,8 @@ public class MainPanel extends JPanel
 		final GameObject choice = UnitOptionPane.show(this);
 		if (choice != null) {
 
-		} else {
+		}
+		else {
 			return null;
 		}
 
@@ -5142,7 +5317,8 @@ public class MainPanel extends JPanel
 		try {
 			filepath = convertPathToMDX(filepath);
 			// modelDisp = new MDLDisplay(toLoad, null);
-		} catch (final Exception exc) {
+		}
+		catch (final Exception exc) {
 			exc.printStackTrace();
 			// bad model!
 			JOptionPane.showMessageDialog(MainFrame.frame, "The chosen model could not be used.", "Program Error",
@@ -5155,7 +5331,8 @@ public class MainPanel extends JPanel
 	private String convertPathToMDX(String filepath) {
 		if (filepath.endsWith(".mdl")) {
 			filepath = filepath.replace(".mdl", ".mdx");
-		} else if (!filepath.endsWith(".mdx")) {
+		}
+		else if (!filepath.endsWith(".mdx")) {
 			filepath = filepath.concat(".mdx");
 		}
 		return filepath;
@@ -5169,12 +5346,14 @@ public class MainPanel extends JPanel
 		String filepath = model.getFilepath();
 		if (filepath != null) {
 
-		} else {
+		}
+		else {
 			return null;
 		}
 		try {
 			filepath = convertPathToMDX(filepath);
-		} catch (final Exception exc) {
+		}
+		catch (final Exception exc) {
 			exc.printStackTrace();
 			// bad model!
 			JOptionPane.showMessageDialog(MainFrame.frame, "The chosen model could not be used.", "Program Error",
@@ -5198,7 +5377,8 @@ public class MainPanel extends JPanel
 
 		try {
 			filepath = convertPathToMDX(filepath);
-		} catch (final Exception exc) {
+		}
+		catch (final Exception exc) {
 			exc.printStackTrace();
 			// bad model!
 			JOptionPane.showMessageDialog(MainFrame.frame, "The chosen model could not be used.", "Program Error",
@@ -5575,7 +5755,8 @@ public class MainPanel extends JPanel
 	public EditableModel currentMDL() {
 		if (currentModelPanel != null) {
 			return currentModelPanel.getModel();
-		} else {
+		}
+		else {
 			return null;
 		}
 	}
@@ -5583,7 +5764,8 @@ public class MainPanel extends JPanel
 	public ModelEditorManager currentMDLDisp() {
 		if (currentModelPanel != null) {
 			return currentModelPanel.getModelEditorManager();
-		} else {
+		}
+		else {
 			return null;
 		}
 	}
@@ -5629,16 +5811,19 @@ public class MainPanel extends JPanel
 				temp = new ModelPanel(this, model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
 						modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
 						activeViewportWatcher, icon, false, textureExporter);
-			} catch (final FileNotFoundException e) {
-				e.printStackTrace();
-				ExceptionPopup.display(e);
-				throw new RuntimeException("Reading mdx failed");
-			} catch (final IOException e) {
+			}
+			catch (final FileNotFoundException e) {
 				e.printStackTrace();
 				ExceptionPopup.display(e);
 				throw new RuntimeException("Reading mdx failed");
 			}
-		} else if (f.getPath().toLowerCase().endsWith("obj")) {
+			catch (final IOException e) {
+				e.printStackTrace();
+				ExceptionPopup.display(e);
+				throw new RuntimeException("Reading mdx failed");
+			}
+		}
+		else if (f.getPath().toLowerCase().endsWith("obj")) {
 			// final Build builder = new Build();
 			// final MDLOBJBuilderInterface builder = new
 			// MDLOBJBuilderInterface();
@@ -5648,14 +5833,17 @@ public class MainPanel extends JPanel
 				temp = new ModelPanel(this, builder.createMDL(), prefs, MainPanel.this, selectionItemTypeGroup,
 						selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
 						activeViewportWatcher, icon, false, textureExporter);
-			} catch (final FileNotFoundException e) {
-				ExceptionPopup.display(e);
-				e.printStackTrace();
-			} catch (final IOException e) {
+			}
+			catch (final FileNotFoundException e) {
 				ExceptionPopup.display(e);
 				e.printStackTrace();
 			}
-		} else {
+			catch (final IOException e) {
+				ExceptionPopup.display(e);
+				e.printStackTrace();
+			}
+		}
+		else {
 			temp = new ModelPanel(this, EditableModel.read(f), prefs, MainPanel.this, selectionItemTypeGroup,
 					selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
 					activeViewportWatcher, icon, false, textureExporter);
@@ -5673,11 +5861,13 @@ public class MainPanel extends JPanel
 			temp = new ModelPanel(this, model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
 					modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, activeViewportWatcher,
 					icon, false, textureExporter);
-		} catch (final FileNotFoundException e) {
+		}
+		catch (final FileNotFoundException e) {
 			e.printStackTrace();
 			ExceptionPopup.display(e);
 			throw new RuntimeException("Reading mdx failed");
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			e.printStackTrace();
 			ExceptionPopup.display(e);
 			throw new RuntimeException("Reading mdx failed");
@@ -5868,7 +6058,8 @@ public class MainPanel extends JPanel
 			modelComponentView.setComponent(new JPanel());
 			geoControlModelData = null;
 			tracksView.setComponent(new JPanel());
-		} else {
+		}
+		else {
 			geoControl.setViewportView(currentModelPanel.getModelViewManagingTree());
 			geoControl.repaint();
 
@@ -5879,7 +6070,8 @@ public class MainPanel extends JPanel
 			previewView.setComponent(modelContextManager.getAnimationViewer());
 			if ((prefs.getAutoPopulateMdlTextEditor() == null) || prefs.getAutoPopulateMdlTextEditor()) {
 				loadMDLText(modelContextManager);
-			} else {
+			}
+			else {
 				mdlEditorTextArea.setText(
 						"// click on \"Refresh\" to populate this UI.\n// If you want to populate this view automatically, you can do so in the preferences window\n// (but it may degrade performance).");
 
@@ -5968,7 +6160,8 @@ public class MainPanel extends JPanel
 			char c = '0';
 			try {
 				c = output.charAt(output.length() - depth);
-			} catch (final IndexOutOfBoundsException e) {
+			}
+			catch (final IndexOutOfBoundsException e) {
 				// c remains '0'
 				continueLoop = false;
 			}
@@ -5986,7 +6179,8 @@ public class MainPanel extends JPanel
 			if (c == '9') {
 				output = output.substring(0, output.length() - depth) + 0
 						+ output.substring((output.length() - depth) + 1);
-			} else if (continueLoop) {
+			}
+			else if (continueLoop) {
 				output = output.substring(0, (output.length() - depth) + 1) + 1
 						+ output.substring((output.length() - depth) + 1);
 				continueLoop = false;
@@ -5995,7 +6189,8 @@ public class MainPanel extends JPanel
 		}
 		if (output == null) {
 			output = "name error";
-		} else if (output.equals(name)) {
+		}
+		else if (output.equals(name)) {
 			output = output + "_edit";
 		}
 
@@ -6026,7 +6221,8 @@ public class MainPanel extends JPanel
 							&& (!importPanel.importStarted() || importPanel.importEnded())) {
 						try {
 							Thread.sleep(1);
-						} catch (final Exception e) {
+						}
+						catch (final Exception e) {
 							ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
 						}
 					}
@@ -6047,7 +6243,8 @@ public class MainPanel extends JPanel
 						while (!importPanel.importEnded()) {
 							try {
 								Thread.sleep(1);
-							} catch (final Exception e) {
+							}
+							catch (final Exception e) {
 								ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
 							}
 						}
@@ -6080,7 +6277,8 @@ public class MainPanel extends JPanel
 			try {
 				g.addTriangle(new Triangle(Integer.parseInt(s[t]), Integer.parseInt(s[t + 1]),
 						Integer.parseInt(s[t + 2]), g));
-			} catch (final NumberFormatException e) {
+			}
+			catch (final NumberFormatException e) {
 				JOptionPane.showMessageDialog(this, "Error: Unable to interpret information in Triangles: " + s[t]
 						+ ", " + s[t + 1] + ", or " + s[t + 2]);
 			}
@@ -6201,7 +6399,8 @@ public class MainPanel extends JPanel
 			if (funcEnabled()) {
 				return "Undo " + currentModelPanel().getUndoManager().getUndoText();// +"
 																					// Ctrl+Z";
-			} else {
+			}
+			else {
 				return "Can't undo";// +" Ctrl+Z";
 			}
 		}
@@ -6209,7 +6408,8 @@ public class MainPanel extends JPanel
 		public boolean funcEnabled() {
 			try {
 				return !currentModelPanel().getUndoManager().isUndoListEmpty();
-			} catch (final NullPointerException e) {
+			}
+			catch (final NullPointerException e) {
 				return false;
 			}
 		}
@@ -6225,7 +6425,8 @@ public class MainPanel extends JPanel
 			if (funcEnabled()) {
 				return "Redo " + currentModelPanel().getUndoManager().getRedoText();// +"
 																					// Ctrl+Y";
-			} else {
+			}
+			else {
 				return "Can't redo";// +" Ctrl+Y";
 			}
 		}
@@ -6233,7 +6434,8 @@ public class MainPanel extends JPanel
 		public boolean funcEnabled() {
 			try {
 				return !currentModelPanel().getUndoManager().isRedoListEmpty();
-			} catch (final NullPointerException e) {
+			}
+			catch (final NullPointerException e) {
 				return false;
 			}
 		}
@@ -6252,7 +6454,8 @@ public class MainPanel extends JPanel
 				if (panel == currentModelPanel) {
 					closedCurrentPanel = true;
 				}
-			} else {
+			}
+			else {
 				lastUnclosedModelPanel = panel;
 				break;
 			}
@@ -6280,7 +6483,8 @@ public class MainPanel extends JPanel
 				if (panel == currentModelPanel) {
 					closedCurrentPanel = true;
 				}
-			} else {
+			}
+			else {
 				lastUnclosedModelPanel = panel;
 				break;
 			}
@@ -6314,7 +6518,8 @@ public class MainPanel extends JPanel
 				final EditableModel current = currentMDL();
 				if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 					fc.setCurrentDirectory(current.getFile().getParentFile());
-				} else if (profile.getPath() != null) {
+				}
+				else if (profile.getPath() != null) {
 					fc.setCurrentDirectory(new File(profile.getPath()));
 				}
 			}
@@ -6327,7 +6532,8 @@ public class MainPanel extends JPanel
 				final File file = exportTextureDialog.getSelectedFile();
 				if (file != null) {
 					fileHandler.onClickOK(file, exportTextureDialog.getFileFilter());
-				} else {
+				}
+				else {
 					JOptionPane.showMessageDialog(parent, "No import file was specified");
 				}
 			}
@@ -6341,7 +6547,8 @@ public class MainPanel extends JPanel
 				final EditableModel current = currentMDL();
 				if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 					fc.setCurrentDirectory(current.getFile().getParentFile());
-				} else if (profile.getPath() != null) {
+				}
+				else if (profile.getPath() != null) {
 					fc.setCurrentDirectory(new File(profile.getPath()));
 				}
 			}
@@ -6357,14 +6564,17 @@ public class MainPanel extends JPanel
 					try {
 						if (file.getName().lastIndexOf('.') >= 0) {
 							fileHandler.onClickOK(file, exportTextureDialog.getFileFilter());
-						} else {
+						}
+						else {
 							JOptionPane.showMessageDialog(parent, "No file type was specified");
 						}
-					} catch (final Exception e2) {
+					}
+					catch (final Exception e2) {
 						ExceptionPopup.display(e2);
 						e2.printStackTrace();
 					}
-				} else {
+				}
+				else {
 					JOptionPane.showMessageDialog(parent, "No output file was specified");
 				}
 			}
@@ -6376,7 +6586,8 @@ public class MainPanel extends JPanel
 	public void save(final EditableModel model) {
 		if (model.getFile() != null) {
 			model.saveFile();
-		} else {
+		}
+		else {
 			onClickSaveAs(model, defaultFileSaveAsCallback);
 		}
 	}
@@ -6423,7 +6634,8 @@ public class MainPanel extends JPanel
 					}
 				}
 			}
-		} catch (final Exception exc) {
+		}
+		catch (final Exception exc) {
 			exc.printStackTrace();
 			ExceptionPopup.display(exc);
 		}

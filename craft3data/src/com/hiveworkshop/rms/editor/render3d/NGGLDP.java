@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.editor.render3d;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -35,6 +36,221 @@ public class NGGLDP {
 
 	public static void fixedFunction() {
 		pipeline = fixedFunctionPipeline;
+	}
+
+	public static final class ShaderSwitchingPipeline implements Pipeline {
+		private final List<Pipeline> allShaderPipelines;
+		private Pipeline currentPipeline;
+
+		public ShaderSwitchingPipeline(final List<Pipeline> allShaderPipelines) {
+			this.allShaderPipelines = allShaderPipelines;
+		}
+
+		public void setCurrentPipeline(final int index) {
+			currentPipeline = allShaderPipelines.get(index);
+			currentPipeline.onGlobalPipelineSet();
+		}
+
+		public int getCurrentPipelineIndex() {
+			return allShaderPipelines.indexOf(currentPipeline);
+		}
+
+		@Override
+		public void glBegin(final int type) {
+			currentPipeline.glBegin(type);
+		}
+
+		@Override
+		public void onGlobalPipelineSet() {
+			if (currentPipeline != null) {
+				currentPipeline.onGlobalPipelineSet();
+			}
+		}
+
+		@Override
+		public void glVertex3f(final float x, final float y, final float z) {
+			currentPipeline.glVertex3f(x, y, z);
+		}
+
+		@Override
+		public void glEnd() {
+			currentPipeline.glEnd();
+		}
+
+		@Override
+		public void glPolygonMode(final int face, final int mode) {
+			for (final Pipeline pipeline : allShaderPipelines) {
+				pipeline.glPolygonMode(face, mode);
+			}
+		}
+
+		@Override
+		public void glColor4f(final float r, final float g, final float b, final float a) {
+			currentPipeline.glColor4f(r, g, b, a);
+		}
+
+		@Override
+		public void glFresnelTeamColor1f(final float v) {
+			currentPipeline.glFresnelTeamColor1f(v);
+		}
+
+		@Override
+		public void glFresnelOpacity1f(final float v) {
+			currentPipeline.glFresnelOpacity1f(v);
+		}
+
+		@Override
+		public void glFresnelColor3f(final float r, final float g, final float b) {
+			currentPipeline.glFresnelColor3f(r, g, b);
+		}
+
+		@Override
+		public void glNormal3f(final float x, final float y, final float z) {
+			currentPipeline.glNormal3f(x, y, z);
+		}
+
+		@Override
+		public void glTexCoord2f(final float u, final float v) {
+			currentPipeline.glTexCoord2f(u, v);
+		}
+
+		@Override
+		public void glColor3f(final float r, final float g, final float b) {
+			currentPipeline.glColor3f(r, g, b);
+		}
+
+		@Override
+		public void glColor4ub(final byte r, final byte g, final byte b, final byte a) {
+			currentPipeline.glColor4ub(r, g, b, a);
+		}
+
+		@Override
+		public void glLight(final int light, final int pname, final FloatBuffer params) {
+			for (final Pipeline pipeline : allShaderPipelines) {
+				pipeline.glLight(light, pname, params);
+			}
+		}
+
+		@Override
+		public void glRotatef(final float angle, final float axisX, final float axisY, final float axisZ) {
+			for (final Pipeline pipeline : allShaderPipelines) {
+				pipeline.glRotatef(angle, axisX, axisY, axisZ);
+			}
+		}
+
+		@Override
+		public void glScalef(final float x, final float y, final float z) {
+			for (final Pipeline pipeline : allShaderPipelines) {
+				pipeline.glScalef(x, y, z);
+			}
+		}
+
+		@Override
+		public void glTranslatef(final float x, final float y, final float z) {
+			for (final Pipeline pipeline : allShaderPipelines) {
+				pipeline.glTranslatef(x, y, z);
+			}
+		}
+
+		@Override
+		public void glOrtho(final float xMin, final float xMax, final float yMin, final float yMax, final float zMin,
+				final float zMax) {
+			for (final Pipeline pipeline : allShaderPipelines) {
+				pipeline.glOrtho(xMin, xMax, yMin, yMax, zMin, zMax);
+			}
+		}
+
+		@Override
+		public void gluPerspective(final float fovY, final float aspect, final float nearClip, final float farClip) {
+			for (final Pipeline pipeline : allShaderPipelines) {
+				pipeline.gluPerspective(fovY, aspect, nearClip, farClip);
+			}
+		}
+
+		@Override
+		public void glLightModel(final int lightModel, final FloatBuffer ambientColor) {
+			for (final Pipeline pipeline : allShaderPipelines) {
+				pipeline.glLightModel(lightModel, ambientColor);
+			}
+		}
+
+		@Override
+		public void glMatrixMode(final int mode) {
+			for (final Pipeline pipeline : allShaderPipelines) {
+				pipeline.glMatrixMode(mode);
+			}
+		}
+
+		@Override
+		public void glLoadIdentity() {
+			for (final Pipeline pipeline : allShaderPipelines) {
+				pipeline.glLoadIdentity();
+			}
+		}
+
+		@Override
+		public void glEnableIfNeeded(final int glEnum) {
+//			for (final Pipeline pipeline : allShaderPipelines) {
+//				pipeline.onGlobalPipelineSet();
+//				pipeline.glEnableIfNeeded(glEnum);
+//			}
+//			currentPipeline.onGlobalPipelineSet();
+			currentPipeline.glEnableIfNeeded(glEnum);
+		}
+
+		@Override
+		public void glShadeModel(final int glFlat) {
+			for (final Pipeline pipeline : allShaderPipelines) {
+				pipeline.glShadeModel(glFlat);
+			}
+		}
+
+		@Override
+		public void glDisableIfNeeded(final int glEnum) {
+//			for (final Pipeline pipeline : allShaderPipelines) {
+//				pipeline.onGlobalPipelineSet();
+//				pipeline.glDisableIfNeeded(glEnum);
+//			}
+//			currentPipeline.onGlobalPipelineSet();
+			currentPipeline.glDisableIfNeeded(glEnum);
+		}
+
+		@Override
+		public void prepareToBindTexture() {
+			currentPipeline.prepareToBindTexture();
+		}
+
+		@Override
+		public void glTangent4f(final float x, final float y, final float z, final float w) {
+			currentPipeline.glTangent4f(x, y, z, w);
+		}
+
+		@Override
+		public void glActiveHDTexture(final int textureUnit) {
+			currentPipeline.glActiveHDTexture(textureUnit);
+		}
+
+		@Override
+		public void glViewport(final int x, final int y, final int w, final int h) {
+			// NOTE maybe feels like this should apply to all, but currently as an
+			// implementation detail we don't need the loop
+			currentPipeline.glViewport(x, y, w, h);
+		}
+
+		@Override
+		public void glCamera(final ViewerCamera viewerCamera) {
+			for (final Pipeline pipeline : allShaderPipelines) {
+				pipeline.glCamera(viewerCamera);
+			}
+		}
+
+		@Override
+		public void discard() {
+			for (final Pipeline pipeline : allShaderPipelines) {
+				pipeline.discard();
+			}
+		}
+
 	}
 
 	/**

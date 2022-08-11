@@ -2,17 +2,18 @@ package com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.material;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
-import com.hiveworkshop.wc3.mdl.Material;
+import com.hiveworkshop.wc3.mdl.Layer;
+import com.hiveworkshop.wc3.mdl.LayerShader;
 
-public class SetMaterialShaderStringAction implements UndoAction {
-	private final Material material;
-	private final String prevShader;
-	private final String newShader;
+public class SetLayerShaderAction implements UndoAction {
+	private final Layer layer;
+	private final LayerShader prevShader;
+	private final LayerShader newShader;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 
-	public SetMaterialShaderStringAction(final Material material, final String prevShader, final String newShader,
+	public SetLayerShaderAction(final Layer layer, final LayerShader prevShader, final LayerShader newShader,
 			final ModelStructureChangeListener modelStructureChangeListener) {
-		this.material = material;
+		this.layer = layer;
 		this.prevShader = prevShader;
 		this.newShader = newShader;
 		this.modelStructureChangeListener = modelStructureChangeListener;
@@ -20,19 +21,19 @@ public class SetMaterialShaderStringAction implements UndoAction {
 
 	@Override
 	public void undo() {
-		material.setShaderString(prevShader);
+		layer.setLayerShader(prevShader);
 		modelStructureChangeListener.texturesChanged();
 	}
 
 	@Override
 	public void redo() {
-		material.setShaderString(newShader);
+		layer.setLayerShader(newShader);
 		modelStructureChangeListener.texturesChanged();
 	}
 
 	@Override
 	public String actionName() {
-		return "set material Shader";
+		return "set layer Shader";
 	}
 
 }

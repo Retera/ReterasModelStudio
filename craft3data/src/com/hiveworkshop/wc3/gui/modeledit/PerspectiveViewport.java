@@ -31,6 +31,7 @@ import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -67,6 +68,7 @@ import com.hiveworkshop.wc3.gui.modelviewer.AnimatedPerspectiveViewport;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.gui.modelviewer.ViewerCamera;
 import com.hiveworkshop.wc3.gui.modelviewer.camera.PortraitCameraManager;
+import com.hiveworkshop.wc3.gui.util.GlTextureRef;
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Geoset;
@@ -74,9 +76,11 @@ import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Layer;
 import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
+import com.hiveworkshop.wc3.mdl.LayerShader;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
+import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.render3d.InternalInstance;
@@ -107,8 +111,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 	boolean texLoaded = false;
 
 	JCheckBox wireframe;
-	private NGGLDP.Pipeline pipeline;
-	HashMap<Bitmap, Integer> textureMap = new HashMap<>();
+	private NGGLDP.ShaderSwitchingPipeline pipeline;
+	HashMap<Bitmap, GlTextureRef> textureMap = new HashMap<>();
 
 	Class<? extends Throwable> lastThrownErrorClass;
 	private final ProgramPreferences programPreferences;
@@ -138,7 +142,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		//
 		// Viewport border
 		// setBorder(BorderFactory.createBevelBorder(1));
-		setBackground(programPreferences == null || programPreferences.getPerspectiveBackgroundColor() == null
+		setBackground((programPreferences == null) || (programPreferences.getPerspectiveBackgroundColor() == null)
 				? new Color(80, 80, 80)
 				: programPreferences.getPerspectiveBackgroundColor());
 		setMinimumSize(new Dimension(200, 200));
@@ -174,7 +178,6 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		}
 		loadBackgroundColors();
 		paintTimer = new Timer(16, new ActionListener() {
-
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				repaint();
@@ -226,12 +229,15 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
 			for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 				final Layer layer = geo.getMaterial().getLayers().get(i);
-				if (layer.getTextureBitmap() != null) {
-					loadToTexMap(layer.getTextureBitmap());
+				for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
+					final Bitmap shaderTexture = layer.getShaderTextures().get(shaderTextureTypeHD);
+					if (shaderTexture != null) {
+						loadToTexMap(layer, shaderTexture);
+					}
 				}
 				if (layer.getTextures() != null) {
 					for (final Bitmap tex : layer.getTextures()) {
-						loadToTexMap(tex);
+						loadToTexMap(layer, tex);
 					}
 				}
 			}
@@ -239,10 +245,16 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 	}
 
 	private void deleteAllTextures() {
-		for (final Integer textureId : textureMap.values()) {
-			GL11.glDeleteTextures(textureId);
+		for (final GlTextureRef textureRef : textureMap.values()) {
+			pipeline.setCurrentPipeline(textureRef.pipelineId);
+			GL11.glDeleteTextures(textureRef.textureId);
 		}
 		textureMap.clear();
+	}
+
+	public void loadToTexMap(final Layer layer, final Bitmap tex) {
+		pipeline.setCurrentPipeline(layer.getLayerShader().ordinal());
+		loadToTexMap(tex);
 	}
 
 	public void loadToTexMap(final Bitmap tex) {
@@ -251,44 +263,52 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			if (path.length() == 0) {
 				if (tex.getReplaceableId() == 1) {
 					path = "ReplaceableTextures\\TeamColor\\TeamColor" + Material.getTeamColorNumberString();
-				} else if (tex.getReplaceableId() == 2) {
+				}
+				else if (tex.getReplaceableId() == 2) {
 					path = "ReplaceableTextures\\TeamGlow\\TeamGlow" + Material.getTeamColorNumberString();
-				} else if (tex.getReplaceableId() == 11) {
+				}
+				else if (tex.getReplaceableId() == 11) {
 					path = "ReplaceableTextures\\Cliff\\Cliff0";
-				} else if (tex.getReplaceableId() != 0) {
+				}
+				else if (tex.getReplaceableId() != 0) {
 					path = "replaceabletextures\\lordaerontree\\lordaeronsummertree";
 				}
-				if (programPreferences.getAllowLoadingNonBlpTextures() != null
+				if ((programPreferences.getAllowLoadingNonBlpTextures() != null)
 						&& programPreferences.getAllowLoadingNonBlpTextures()) {
 					path += ".blp";
 				}
-			} else if (programPreferences.getAllowLoadingNonBlpTextures() != null
+			}
+			else if ((programPreferences.getAllowLoadingNonBlpTextures() != null)
 					&& programPreferences.getAllowLoadingNonBlpTextures()) {
-			} else {
+			}
+			else {
 				path = path.substring(0, path.length() - 4);
 			}
 			Integer texture = null;
 			try {
 				final DataSource workingDirectory = modelView.getModel().getWrappedDataSource();
-				if (programPreferences.getAllowLoadingNonBlpTextures() != null
+				if ((programPreferences.getAllowLoadingNonBlpTextures() != null)
 						&& programPreferences.getAllowLoadingNonBlpTextures()) {
 					texture = loadTexture(BLPHandler.get().loadTexture(workingDirectory, path), tex);
-				} else {
+				}
+				else {
 					texture = loadTexture(BLPHandler.get().loadTexture(workingDirectory, path + ".blp"), tex);
 				}
-			} catch (final Exception exc) {
+			}
+			catch (final Exception exc) {
 				if (LOG_EXCEPTIONS) {
 					exc.printStackTrace();
 				}
 				try {
-				} catch (final Exception exc2) {
+				}
+				catch (final Exception exc2) {
 					if (LOG_EXCEPTIONS) {
 						exc2.printStackTrace();
 					}
 				}
 			}
 			if (texture != null) {
-				textureMap.put(tex, texture);
+				textureMap.put(tex, new GlTextureRef(texture, pipeline.getCurrentPipelineIndex()));
 			}
 		}
 	}
@@ -297,12 +317,15 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		for (final Geoset geo : geosets) {// .getMDL().getGeosets()
 			for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 				final Layer layer = geo.getMaterial().getLayers().get(i);
-				if (layer.getTextureBitmap() != null) {
-					loadToTexMap(layer.getTextureBitmap());
+				for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
+					final Bitmap shaderTexture = layer.getShaderTextures().get(shaderTextureTypeHD);
+					if (shaderTexture != null) {
+						loadToTexMap(layer, shaderTexture);
+					}
 				}
 				if (layer.getTextures() != null) {
 					for (final Bitmap tex : layer.getTextures()) {
-						loadToTexMap(tex);
+						loadToTexMap(layer, tex);
 					}
 				}
 			}
@@ -311,12 +334,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 
 	private Pipeline getOrCreatePipeline() {
 		if (pipeline == null) {
-			if (modelView != null && ModelUtils.isShaderStringSupported(modelView.getModel().getFormatVersion())
-					&& !modelView.getModel().getGeosets().isEmpty() && modelView.getModel().getGeoset(0).isHD()) {
-				pipeline = new NGGLDP.HDDiffuseShaderPipeline();
-			} else {
-				pipeline = new NGGLDP.SimpleDiffuseShaderPipeline();
-			}
+			pipeline = new NGGLDP.ShaderSwitchingPipeline(
+					Arrays.asList(new NGGLDP.SimpleDiffuseShaderPipeline(), new NGGLDP.HDDiffuseShaderPipeline()));
+			pipeline.setCurrentPipeline(0);
 		}
 		return pipeline;
 	}
@@ -325,24 +345,28 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 	public void initGL() {
 		NGGLDP.setPipeline(getOrCreatePipeline());
 		try {
-			if (programPreferences == null || programPreferences.textureModels()) {
+			if ((programPreferences == null) || programPreferences.textureModels()) {
 				texLoaded = true;
 				deleteAllTextures();
 				for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
 					for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 						final Layer layer = geo.getMaterial().getLayers().get(i);
-						if (layer.getTextureBitmap() != null) {
-							loadToTexMap(layer.getTextureBitmap());
+						for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
+							final Bitmap shaderTexture = layer.getShaderTextures().get(shaderTextureTypeHD);
+							if (shaderTexture != null) {
+								loadToTexMap(layer, shaderTexture);
+							}
 						}
 						if (layer.getTextures() != null) {
 							for (final Bitmap tex : layer.getTextures()) {
-								loadToTexMap(tex);
+								loadToTexMap(layer, tex);
 							}
 						}
 					}
 				}
 			}
-		} catch (final Throwable e) {
+		}
+		catch (final Throwable e) {
 			JOptionPane.showMessageDialog(null, "initGL failed because of this exact reason:\n"
 					+ e.getClass().getSimpleName() + ": " + e.getMessage());
 			throw new RuntimeException(e);
@@ -381,7 +405,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			GL11.glReadPixels(0, 0, getWidth(), getHeight(), 1, GL11.GL_4_BYTES, pixels);
 			image.getRaster().setDataElements(0, 0, getWidth(), getHeight(), pixels);
 			return image;
-		} catch (final Exception e) {
+		}
+		catch (final Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -391,7 +416,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 	int current_width;
 
 	public boolean renderTextures() {
-		return texLoaded && (programPreferences == null || programPreferences.textureModels());
+		return texLoaded && ((programPreferences == null) || programPreferences.textureModels());
 	}
 
 	private final Vector4f vertexHeap = new Vector4f();
@@ -427,34 +452,39 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			pipeline = null;
 			try {
 				initGL();// Re-overwrite textures
-			} catch (final Exception e) {
+			}
+			catch (final Exception e) {
 				e.printStackTrace();
 				ExceptionPopup.display("Error loading textures:", e);
 			}
-		} else if (wantReload) {
+		}
+		else if (wantReload) {
 			wantReload = false;
 			try {
 				forceReloadTextures();
-			} catch (final Exception e) {
+			}
+			catch (final Exception e) {
 				e.printStackTrace();
 				ExceptionPopup.display("Error loading new texture:", e);
 			}
-		} else if (!texLoaded && (programPreferences == null || programPreferences.textureModels())) {
+		}
+		else if (!texLoaded && ((programPreferences == null) || programPreferences.textureModels())) {
 			forceReloadTextures();
 			texLoaded = true;
 		}
 		try {
 			final int formatVersion = modelView.getModel().getFormatVersion();
 			initContext(0, 0, 0);
-			if (getWidth() != current_width || getHeight() != current_height) {
+			if ((getWidth() != current_width) || (getHeight() != current_height)) {
 				current_width = getWidth();
 				current_height = getHeight();
 				NGGLDP.pipeline.glViewport(0, 0, (int) (current_width * xRatio), (int) (current_height * yRatio));
 				viewerCamera.viewport(0, 0, (int) (current_width * xRatio), (int) (current_height * yRatio));
 			}
-			if (programPreferences != null && programPreferences.viewMode() == 0) {
+			if ((programPreferences != null) && (programPreferences.viewMode() == 0)) {
 				NGGLDP.pipeline.glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			} else if (programPreferences == null || programPreferences.viewMode() == 1) {
+			}
+			else if ((programPreferences == null) || (programPreferences.viewMode() == 1)) {
 				NGGLDP.pipeline.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
 			NGGLDP.pipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
@@ -510,12 +540,12 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			// glRotatef(2*angle, 0f, 0f, -1.0f);
 			// glRectf(-50.0f, -50.0f, 50.0f, 50.0f);
 			for (final Geoset geo : modelView.getVisibleGeosets()) {// .getMDL().getGeosets()
-				if (!modelView.getEditableGeosets().contains(geo) && modelView.getHighlightedGeoset() != geo) {
+				if (!modelView.getEditableGeosets().contains(geo) && (modelView.getHighlightedGeoset() != geo)) {
 					render(geo, true, false, true, formatVersion);
 				}
 			}
 			for (final Geoset geo : modelView.getVisibleGeosets()) {// .getMDL().getGeosets()
-				if (!modelView.getEditableGeosets().contains(geo) && modelView.getHighlightedGeoset() != geo) {
+				if (!modelView.getEditableGeosets().contains(geo) && (modelView.getHighlightedGeoset() != geo)) {
 					render(geo, false, false, true, formatVersion);
 				}
 			}
@@ -527,11 +557,12 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			if (modelView.getHighlightedGeoset() != null) {
 				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 				NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
-				if (programPreferences != null && programPreferences.getHighlighTriangleColor() != null) {
+				if ((programPreferences != null) && (programPreferences.getHighlighTriangleColor() != null)) {
 					final Color highlighTriangleColor = programPreferences.getHighlighTriangleColor();
 					NGGLDP.pipeline.glColor3f(highlighTriangleColor.getRed() / 255f,
 							highlighTriangleColor.getGreen() / 255f, highlighTriangleColor.getBlue() / 255f);
-				} else {
+				}
+				else {
 					NGGLDP.pipeline.glColor3f(1f, 3f, 1f);
 				}
 				render(modelView.getHighlightedGeoset(), true, true, true, formatVersion);
@@ -541,7 +572,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
 			NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
-			if (programPreferences != null && programPreferences.showNormals()) {
+			if ((programPreferences != null) && programPreferences.showNormals()) {
 				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
 				NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
@@ -550,8 +581,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 				NGGLDP.pipeline.glColor3f(1f, 1f, 3f);
 				// if( wireframe.isSelected() )
 				for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
-					if (ModelUtils.isTangentAndSkinSupported(formatVersion) && geo.getVertices().size() > 0
-							&& geo.getVertex(0).getSkinBones() != null) {
+					if (ModelUtils.isTangentAndSkinSupported(formatVersion) && (geo.getVertices().size() > 0)
+							&& (geo.getVertex(0).getSkinBones() != null)) {
 						for (final Triangle tri : geo.getTriangles()) {
 							for (final GeosetVertex v : tri.getVerts()) {
 								vertexHeap.x = (float) v.x;
@@ -572,37 +603,37 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 											.getWorldMatrix();
 									skinBonesMatrixHeap.load(worldMatrix);
 
-									skinBonesMatrixSumHeap.m00 += skinBonesMatrixHeap.m00 * skinBoneWeights[boneIndex]
+									skinBonesMatrixSumHeap.m00 += (skinBonesMatrixHeap.m00 * skinBoneWeights[boneIndex])
 											/ 255f;
-									skinBonesMatrixSumHeap.m01 += skinBonesMatrixHeap.m01 * skinBoneWeights[boneIndex]
+									skinBonesMatrixSumHeap.m01 += (skinBonesMatrixHeap.m01 * skinBoneWeights[boneIndex])
 											/ 255f;
-									skinBonesMatrixSumHeap.m02 += skinBonesMatrixHeap.m02 * skinBoneWeights[boneIndex]
+									skinBonesMatrixSumHeap.m02 += (skinBonesMatrixHeap.m02 * skinBoneWeights[boneIndex])
 											/ 255f;
-									skinBonesMatrixSumHeap.m03 += skinBonesMatrixHeap.m03 * skinBoneWeights[boneIndex]
+									skinBonesMatrixSumHeap.m03 += (skinBonesMatrixHeap.m03 * skinBoneWeights[boneIndex])
 											/ 255f;
-									skinBonesMatrixSumHeap.m10 += skinBonesMatrixHeap.m10 * skinBoneWeights[boneIndex]
+									skinBonesMatrixSumHeap.m10 += (skinBonesMatrixHeap.m10 * skinBoneWeights[boneIndex])
 											/ 255f;
-									skinBonesMatrixSumHeap.m11 += skinBonesMatrixHeap.m11 * skinBoneWeights[boneIndex]
+									skinBonesMatrixSumHeap.m11 += (skinBonesMatrixHeap.m11 * skinBoneWeights[boneIndex])
 											/ 255f;
-									skinBonesMatrixSumHeap.m12 += skinBonesMatrixHeap.m12 * skinBoneWeights[boneIndex]
+									skinBonesMatrixSumHeap.m12 += (skinBonesMatrixHeap.m12 * skinBoneWeights[boneIndex])
 											/ 255f;
-									skinBonesMatrixSumHeap.m13 += skinBonesMatrixHeap.m13 * skinBoneWeights[boneIndex]
+									skinBonesMatrixSumHeap.m13 += (skinBonesMatrixHeap.m13 * skinBoneWeights[boneIndex])
 											/ 255f;
-									skinBonesMatrixSumHeap.m20 += skinBonesMatrixHeap.m20 * skinBoneWeights[boneIndex]
+									skinBonesMatrixSumHeap.m20 += (skinBonesMatrixHeap.m20 * skinBoneWeights[boneIndex])
 											/ 255f;
-									skinBonesMatrixSumHeap.m21 += skinBonesMatrixHeap.m21 * skinBoneWeights[boneIndex]
+									skinBonesMatrixSumHeap.m21 += (skinBonesMatrixHeap.m21 * skinBoneWeights[boneIndex])
 											/ 255f;
-									skinBonesMatrixSumHeap.m22 += skinBonesMatrixHeap.m22 * skinBoneWeights[boneIndex]
+									skinBonesMatrixSumHeap.m22 += (skinBonesMatrixHeap.m22 * skinBoneWeights[boneIndex])
 											/ 255f;
-									skinBonesMatrixSumHeap.m23 += skinBonesMatrixHeap.m23 * skinBoneWeights[boneIndex]
+									skinBonesMatrixSumHeap.m23 += (skinBonesMatrixHeap.m23 * skinBoneWeights[boneIndex])
 											/ 255f;
-									skinBonesMatrixSumHeap.m30 += skinBonesMatrixHeap.m30 * skinBoneWeights[boneIndex]
+									skinBonesMatrixSumHeap.m30 += (skinBonesMatrixHeap.m30 * skinBoneWeights[boneIndex])
 											/ 255f;
-									skinBonesMatrixSumHeap.m31 += skinBonesMatrixHeap.m31 * skinBoneWeights[boneIndex]
+									skinBonesMatrixSumHeap.m31 += (skinBonesMatrixHeap.m31 * skinBoneWeights[boneIndex])
 											/ 255f;
-									skinBonesMatrixSumHeap.m32 += skinBonesMatrixHeap.m32 * skinBoneWeights[boneIndex]
+									skinBonesMatrixSumHeap.m32 += (skinBonesMatrixHeap.m32 * skinBoneWeights[boneIndex])
 											/ 255f;
-									skinBonesMatrixSumHeap.m33 += skinBonesMatrixHeap.m33 * skinBoneWeights[boneIndex]
+									skinBonesMatrixSumHeap.m33 += (skinBonesMatrixHeap.m33 * skinBoneWeights[boneIndex])
 											/ 255f;
 								}
 								if (!processedBones) {
@@ -618,7 +649,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 
 									if (normalSumHeap.length() > 0) {
 										normalSumHeap.normalise();
-									} else {
+									}
+									else {
 										normalSumHeap.set(0, 1, 0, 0);
 									}
 									if (Float.isNaN(normalSumHeap.x) || Float.isNaN(normalSumHeap.y)
@@ -634,15 +666,16 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 									NGGLDP.pipeline.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
 									NGGLDP.pipeline.glVertex3f(
 											vertexSumHeap.x
-													+ normalSumHeap.x * NORMAL_RENDER_LENGTH * cameraManager.distance,
+													+ (normalSumHeap.x * NORMAL_RENDER_LENGTH * cameraManager.distance),
 											vertexSumHeap.y
-													+ normalSumHeap.y * NORMAL_RENDER_LENGTH * cameraManager.distance,
-											vertexSumHeap.z
-													+ normalSumHeap.z * NORMAL_RENDER_LENGTH * cameraManager.distance);
+													+ (normalSumHeap.y * NORMAL_RENDER_LENGTH * cameraManager.distance),
+											vertexSumHeap.z + (normalSumHeap.z * NORMAL_RENDER_LENGTH
+													* cameraManager.distance));
 								}
 							}
 						}
-					} else {
+					}
+					else {
 						for (final Triangle tri : geo.getTriangles()) {
 							for (final GeosetVertex v : tri.getVerts()) {
 
@@ -662,7 +695,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 									vertexSumHeap.y /= boneCount;
 									vertexSumHeap.z /= boneCount;
 									vertexSumHeap.w /= boneCount;
-								} else {
+								}
+								else {
 									vertexSumHeap.set(vertexHeap);
 								}
 								if (v.getNormal() != null) {
@@ -677,13 +711,15 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 													normalHeap, appliedNormalHeap);
 											Vector4f.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
 										}
-									} else {
+									}
+									else {
 										normalSumHeap.set(normalHeap);
 									}
 
 									if (normalSumHeap.length() > 0) {
 										normalSumHeap.normalise();
-									} else {
+									}
+									else {
 										normalSumHeap.set(0, 1, 0, 0);
 									}
 
@@ -693,11 +729,11 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 									NGGLDP.pipeline.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
 									NGGLDP.pipeline.glVertex3f(
 											vertexSumHeap.x
-													+ normalSumHeap.x * NORMAL_RENDER_LENGTH * cameraManager.distance,
+													+ (normalSumHeap.x * NORMAL_RENDER_LENGTH * cameraManager.distance),
 											vertexSumHeap.y
-													+ normalSumHeap.y * NORMAL_RENDER_LENGTH * cameraManager.distance,
-											vertexSumHeap.z
-													+ normalSumHeap.z * NORMAL_RENDER_LENGTH * cameraManager.distance);
+													+ (normalSumHeap.y * NORMAL_RENDER_LENGTH * cameraManager.distance),
+											vertexSumHeap.z + (normalSumHeap.z * NORMAL_RENDER_LENGTH
+													* cameraManager.distance));
 								}
 							}
 						}
@@ -728,11 +764,13 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			final boolean running = paintTimer.isRunning();
 			if (showing && !running) {
 				paintTimer.restart();
-			} else if (!showing && running) {
+			}
+			else if (!showing && running) {
 				paintTimer.stop();
 			}
-		} catch (final Throwable e) {
-			if (lastThrownErrorClass == null || lastThrownErrorClass != e.getClass()) {
+		}
+		catch (final Throwable e) {
+			if ((lastThrownErrorClass == null) || (lastThrownErrorClass != e.getClass())) {
 				lastThrownErrorClass = e.getClass();
 				popupCount++;
 				if (popupCount < 10) {
@@ -745,7 +783,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 
 	int popupCount = 0;
 
-	public void bindLayer(final Layer layer, final Bitmap tex, final Integer texture) {
+	public void bindLayer(final Layer layer, final Bitmap tex, final GlTextureRef texture) {
 		bindTexture(tex, texture);
 		boolean depthMask = false;
 		switch (layer.getFilterMode()) {
@@ -784,36 +822,41 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		}
 		if (layer.isTwoSided()) {
 			GL11.glDisable(GL11.GL_CULL_FACE);
-		} else {
+		}
+		else {
 			GL11.glEnable(GL11.GL_CULL_FACE);
 		}
 		if (layer.isNoDepthTest()) {
 			GL11.glDisable(GL11.GL_DEPTH_TEST);
-		} else {
+		}
+		else {
 			GL11.glEnable(GL11.GL_DEPTH_TEST);
 		}
 		if (layer.isNoDepthSet()) {
 			GL11.glDepthMask(false);
-		} else {
+		}
+		else {
 			GL11.glDepthMask(depthMask);
 		}
 		if (layer.isUnshaded()) {
 			NGGLDP.pipeline.glDisableIfNeeded(GL_LIGHTING);
-		} else {
+		}
+		else {
 			NGGLDP.pipeline.glEnableIfNeeded(GL_LIGHTING);
 		}
 	}
 
-	private void bindTexture(final Bitmap tex, final Integer texture) {
+	private void bindTexture(final Bitmap tex, final GlTextureRef texture) {
 		NGGLDP.pipeline.prepareToBindTexture();
 		if (texture != null) {
 			// texture.bind();
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.textureId);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
 					tex.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
 					tex.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
-		} else if (textureMap.size() > 0) {
+		}
+		else if (textureMap.size() > 0) {
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
 					tex.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
@@ -822,7 +865,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		}
 	}
 
-	public void bindLayer(final ParticleEmitter2 particle2, final Bitmap tex, final Integer texture) {
+	public void bindLayer(final ParticleEmitter2 particle2, final Bitmap tex, final GlTextureRef texture) {
 		bindTexture(tex, texture);
 		switch (particle2.getFilterModeReallyBadReallySlow()) {
 		case Blend:
@@ -853,7 +896,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		}
 		if (particle2.isUnshaded()) {
 			NGGLDP.pipeline.glDisableIfNeeded(GL_LIGHTING);
-		} else {
+		}
+		else {
 			NGGLDP.pipeline.glEnableIfNeeded(GL_LIGHTING);
 		}
 	}
@@ -873,29 +917,48 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		float geosetAnimVisibility = 1;
 		final AnimatedRenderEnvironment timeEnvironment = editorRenderModel.getAnimatedRenderEnvironment();
 		final BasicTimeBoundProvider animation = timeEnvironment == null ? null : timeEnvironment.getCurrentAnimation();
-		if (animation != null && geosetAnim != null) {
+		if ((animation != null) && (geosetAnim != null)) {
 			geosetAnimVisibility = geosetAnim.getRenderVisibility(timeEnvironment);
 			if (geosetAnimVisibility < RenderModel.MAGIC_RENDER_SHOW_CONSTANT) {
 				return;
 			}
 		}
 		for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
-			boolean hdTextureOnlyLayer = false;
-			boolean hdNoMetaDataLayer = false;
-			if (ModelUtils.isShaderStringSupported(modelView.getModel().getFormatVersion())) {
-				if (geo.getMaterial().getShaderString() != null && geo.getMaterial().getShaderString().length() > 0) {
-					NGGLDP.pipeline.glActiveHDTexture(i);
-					if (i != geo.getMaterial().getLayers().size() - 1) {
-						hdTextureOnlyLayer = true;
+			final Layer layer = geo.getMaterial().getLayers().get(i);
+			final boolean isHD = layer.getLayerShader() == LayerShader.HD;
+
+			final FilterMode filterMode = layer.getFilterMode();
+			final boolean opaqueLayer = (filterMode == FilterMode.NONE) || (filterMode == FilterMode.TRANSPARENT);
+
+			if ((renderOpaque && opaqueLayer) || (!renderOpaque && !opaqueLayer)) {
+				pipeline.setCurrentPipeline(layer.getLayerShader().ordinal());
+				if (!overriddenMaterials) {
+					if (isHD) {
+						boolean first = true;
+						for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
+							final Bitmap shaderTexture = layer.getShaderTextures().get(shaderTextureTypeHD);
+							if (shaderTexture != null) {
+								NGGLDP.pipeline.glActiveHDTexture(shaderTextureTypeHD.ordinal());
+
+								if (first) {
+									first = false;
+									bindLayer(layer, shaderTexture, textureMap.get(shaderTexture));
+								}
+								else {
+									bindTexture(shaderTexture, textureMap.get(shaderTexture));
+								}
+							}
+						}
 					}
-					if (i != 0) {
-						hdNoMetaDataLayer = true;
+					else {
+						final Bitmap tex = layer.getRenderTexture(timeEnvironment, modelView.getModel());
+						final GlTextureRef texture = textureMap.get(tex);
+						bindLayer(layer, tex, texture);
 					}
 				}
 			}
-			final Layer layer = geo.getMaterial().getLayers().get(i);
 
-			if (!overriddenColors && !hdNoMetaDataLayer) {
+			if (!overriddenColors) {
 				if (animation != null) {
 					final float layerVisibility = layer.getRenderVisibility(timeEnvironment);
 					if (/* geo.getMaterial().isConstantColor() && */ geosetAnim != null) {
@@ -903,23 +966,25 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 						if (renderColor != null) {
 							NGGLDP.pipeline.glColor4f(renderColor.z * 1f, renderColor.y * 1f, renderColor.x * 1f,
 									geosetAnimVisibility * layerVisibility);
-						} else {
+						}
+						else {
 							NGGLDP.pipeline.glColor4f(1f, 1f, 1f, geosetAnimVisibility * layerVisibility);
 						}
-					} else {
+					}
+					else {
 						NGGLDP.pipeline.glColor4f(1f, 1f, 1f, geosetAnimVisibility * layerVisibility);
 					}
-				} else {
+				}
+				else {
 					NGGLDP.pipeline.glColor4f(1f, 1f, 1f, 1f);
 				}
-				if (hdTextureOnlyLayer) {
-					// (this branch assures it's HD, if you hate this code paradigm change it to
-					// "isHD()" for the check)
+				if (isHD) {
 					final Vertex fresnelColor = layer.getRenderFresnelColor(timeEnvironment);
 					if (fresnelColor != null) {
 						NGGLDP.pipeline.glFresnelColor3f((float) fresnelColor.z, (float) fresnelColor.y,
 								(float) fresnelColor.x);
-					} else {
+					}
+					else {
 						NGGLDP.pipeline.glFresnelColor3f(0f, 0f, 0f);
 					}
 					NGGLDP.pipeline.glFresnelTeamColor1f(layer.getRenderFresnelTeamColor(timeEnvironment));
@@ -927,27 +992,13 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 				}
 			}
 
-			final FilterMode filterMode = layer.getFilterMode();
-			final boolean opaqueLayer = filterMode == FilterMode.NONE || filterMode == FilterMode.TRANSPARENT;
-			if (renderOpaque && opaqueLayer || !renderOpaque && !opaqueLayer) {
-				if (!overriddenMaterials) {
-					final Bitmap tex = layer.getRenderTexture(timeEnvironment, modelView.getModel());
-					final Integer texture = textureMap.get(tex);
-					if (hdNoMetaDataLayer) {
-						bindTexture(tex, texture);
-					} else {
-						bindLayer(layer, tex, texture);
-					}
-				}
-				if (hdTextureOnlyLayer) {
-					continue;
-				}
+			if ((renderOpaque && opaqueLayer) || (!renderOpaque && !opaqueLayer)) {
 				if (overriddenColors) {
 					NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
 				}
 				NGGLDP.pipeline.glBegin(GL11.GL_TRIANGLES);
-				if (ModelUtils.isTangentAndSkinSupported(formatVersion) && geo.getVertices().size() > 0
-						&& geo.getVertex(0).getSkinBones() != null) {
+				if (ModelUtils.isTangentAndSkinSupported(formatVersion) && (geo.getVertices().size() > 0)
+						&& (geo.getVertex(0).getSkinBones() != null)) {
 					for (final Triangle tri : geo.getTriangles()) {
 						for (final GeosetVertex v : tri.getVerts()) {
 							vertexHeap.x = (float) v.x;
@@ -968,37 +1019,37 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 								final Matrix4f worldMatrix = editorRenderModel.getRenderNode(skinBone).getWorldMatrix();
 								skinBonesMatrixHeap.load(worldMatrix);
 
-								skinBonesMatrixSumHeap.m00 += skinBonesMatrixHeap.m00 * skinBoneWeights[boneIndex]
+								skinBonesMatrixSumHeap.m00 += (skinBonesMatrixHeap.m00 * skinBoneWeights[boneIndex])
 										/ 255f;
-								skinBonesMatrixSumHeap.m01 += skinBonesMatrixHeap.m01 * skinBoneWeights[boneIndex]
+								skinBonesMatrixSumHeap.m01 += (skinBonesMatrixHeap.m01 * skinBoneWeights[boneIndex])
 										/ 255f;
-								skinBonesMatrixSumHeap.m02 += skinBonesMatrixHeap.m02 * skinBoneWeights[boneIndex]
+								skinBonesMatrixSumHeap.m02 += (skinBonesMatrixHeap.m02 * skinBoneWeights[boneIndex])
 										/ 255f;
-								skinBonesMatrixSumHeap.m03 += skinBonesMatrixHeap.m03 * skinBoneWeights[boneIndex]
+								skinBonesMatrixSumHeap.m03 += (skinBonesMatrixHeap.m03 * skinBoneWeights[boneIndex])
 										/ 255f;
-								skinBonesMatrixSumHeap.m10 += skinBonesMatrixHeap.m10 * skinBoneWeights[boneIndex]
+								skinBonesMatrixSumHeap.m10 += (skinBonesMatrixHeap.m10 * skinBoneWeights[boneIndex])
 										/ 255f;
-								skinBonesMatrixSumHeap.m11 += skinBonesMatrixHeap.m11 * skinBoneWeights[boneIndex]
+								skinBonesMatrixSumHeap.m11 += (skinBonesMatrixHeap.m11 * skinBoneWeights[boneIndex])
 										/ 255f;
-								skinBonesMatrixSumHeap.m12 += skinBonesMatrixHeap.m12 * skinBoneWeights[boneIndex]
+								skinBonesMatrixSumHeap.m12 += (skinBonesMatrixHeap.m12 * skinBoneWeights[boneIndex])
 										/ 255f;
-								skinBonesMatrixSumHeap.m13 += skinBonesMatrixHeap.m13 * skinBoneWeights[boneIndex]
+								skinBonesMatrixSumHeap.m13 += (skinBonesMatrixHeap.m13 * skinBoneWeights[boneIndex])
 										/ 255f;
-								skinBonesMatrixSumHeap.m20 += skinBonesMatrixHeap.m20 * skinBoneWeights[boneIndex]
+								skinBonesMatrixSumHeap.m20 += (skinBonesMatrixHeap.m20 * skinBoneWeights[boneIndex])
 										/ 255f;
-								skinBonesMatrixSumHeap.m21 += skinBonesMatrixHeap.m21 * skinBoneWeights[boneIndex]
+								skinBonesMatrixSumHeap.m21 += (skinBonesMatrixHeap.m21 * skinBoneWeights[boneIndex])
 										/ 255f;
-								skinBonesMatrixSumHeap.m22 += skinBonesMatrixHeap.m22 * skinBoneWeights[boneIndex]
+								skinBonesMatrixSumHeap.m22 += (skinBonesMatrixHeap.m22 * skinBoneWeights[boneIndex])
 										/ 255f;
-								skinBonesMatrixSumHeap.m23 += skinBonesMatrixHeap.m23 * skinBoneWeights[boneIndex]
+								skinBonesMatrixSumHeap.m23 += (skinBonesMatrixHeap.m23 * skinBoneWeights[boneIndex])
 										/ 255f;
-								skinBonesMatrixSumHeap.m30 += skinBonesMatrixHeap.m30 * skinBoneWeights[boneIndex]
+								skinBonesMatrixSumHeap.m30 += (skinBonesMatrixHeap.m30 * skinBoneWeights[boneIndex])
 										/ 255f;
-								skinBonesMatrixSumHeap.m31 += skinBonesMatrixHeap.m31 * skinBoneWeights[boneIndex]
+								skinBonesMatrixSumHeap.m31 += (skinBonesMatrixHeap.m31 * skinBoneWeights[boneIndex])
 										/ 255f;
-								skinBonesMatrixSumHeap.m32 += skinBonesMatrixHeap.m32 * skinBoneWeights[boneIndex]
+								skinBonesMatrixSumHeap.m32 += (skinBonesMatrixHeap.m32 * skinBoneWeights[boneIndex])
 										/ 255f;
-								skinBonesMatrixSumHeap.m33 += skinBonesMatrixHeap.m33 * skinBoneWeights[boneIndex]
+								skinBonesMatrixSumHeap.m33 += (skinBonesMatrixHeap.m33 * skinBoneWeights[boneIndex])
 										/ 255f;
 							}
 							if (!processedBones) {
@@ -1038,7 +1089,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 							NGGLDP.pipeline.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
 						}
 					}
-				} else {
+				}
+				else {
 					for (final Triangle tri : geo.getTriangles()) {
 						for (final GeosetVertex v : tri.getVerts()) {
 
@@ -1058,7 +1110,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 								vertexSumHeap.y /= boneCount;
 								vertexSumHeap.z /= boneCount;
 								vertexSumHeap.w /= boneCount;
-							} else {
+							}
+							else {
 								vertexSumHeap.set(vertexHeap);
 							}
 							if (v.getNormal() != null) {
@@ -1073,13 +1126,15 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 												normalHeap, appliedNormalHeap);
 										Vector4f.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
 									}
-								} else {
+								}
+								else {
 									normalSumHeap.set(normalHeap);
 								}
 
 								if (normalSumHeap.length() > 0) {
 									normalSumHeap.normalise();
-								} else {
+								}
+								else {
 									normalSumHeap.set(0, 1, 0, 0);
 								}
 
@@ -1159,7 +1214,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			}
 			// MainFrame.panel.setMouseCoordDisplay(m_d1,m_d2,((mx-getWidth()/2)/m_zoom)-m_a,-(((my-getHeight()/2)/m_zoom)-m_b));
 
-		} else if (e.getSource() == reAssignMatrix) {
+		}
+		else if (e.getSource() == reAssignMatrix) {
 			// MatrixPopup matrixPopup = new MatrixPopup(dispMDL.getMDL());
 			// String[] words = { "Accept", "Cancel" };
 			// int i = JOptionPane.showOptionDialog(MainFrame.panel,
@@ -1170,7 +1226,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			// // JOptionPane.showMessageDialog(null,"action approved");
 			// dispMDL.setMatrix(matrixPopup.newRefs);
 			// }
-		} else if (e.getSource() == cogBone) {
+		}
+		else if (e.getSource() == cogBone) {
 			// modelView.cogBones();
 			JOptionPane.showMessageDialog(this,
 					"Please use other viewport, this action is not implemented for this viewport.");
@@ -1186,7 +1243,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 
 	@Override
 	public void mouseExited(final MouseEvent e) {
-		if (leftClickStart == null && lastClick == null) {
+		if ((leftClickStart == null) && (lastClick == null)) {
 			clickTimer.stop();
 		}
 		mouseInBounds = false;
@@ -1196,25 +1253,27 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 	public void mousePressed(final MouseEvent e) {
 		if (programPreferences.getThreeDCameraPanButton().isButton(e)) {
 			lastClick = new Point(e.getXOnScreen(), e.getYOnScreen());
-		} else if (programPreferences.getThreeDCameraSpinButton().isButton(e)) {
+		}
+		else if (programPreferences.getThreeDCameraSpinButton().isButton(e)) {
 			leftClickStart = new Point(e.getXOnScreen(), e.getYOnScreen());
 		}
 	}
 
 	@Override
 	public void mouseReleased(final MouseEvent e) {
-		if (programPreferences.getThreeDCameraPanButton().isButton(e) && lastClick != null) {
+		if (programPreferences.getThreeDCameraPanButton().isButton(e) && (lastClick != null)) {
 			final double dx = e.getXOnScreen() - lastClick.x;
 			final double dy = e.getYOnScreen() - lastClick.y;
 			applyPan(dx, dy);
 			lastClick = null;
-		} else if (programPreferences.getThreeDCameraSpinButton().isButton(e) && leftClickStart != null) {
+		}
+		else if (programPreferences.getThreeDCameraSpinButton().isButton(e) && (leftClickStart != null)) {
 			final Point selectEnd = new Point(e.getX(), e.getY());
 			// System.out.println(area);
 			// dispMDL.selectVerteces(area,m_d1,m_d2,MainFrame.panel.currentSelectionType());
 			leftClickStart = null;
 		}
-		if (!mouseInBounds && leftClickStart == null && lastClick == null) {
+		if (!mouseInBounds && (leftClickStart == null) && (lastClick == null)) {
 			clickTimer.stop();
 		}
 		/*
@@ -1254,7 +1313,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 				// cameraPos.z -= (getHeight() / 2)
 				// * (1 / m_zoom - 1 / (m_zoom * 1.15));
 				cameraManager.distance *= 1.15;
-			} else {
+			}
+			else {
 				cameraManager.distance /= 1.15;
 				// cameraPos.x -= (mx - getWidth() / 2)
 				// * (1 / (m_zoom * 1.15) - 1 / m_zoom);
@@ -1340,11 +1400,12 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 
 		@Override
 		public void bind() {
+			pipeline.setCurrentPipeline(0);
 			if (!loaded) {
 				loadToTexMap(bitmap);
 				loaded = true;
 			}
-			final Integer texture = textureMap.get(bitmap);
+			final GlTextureRef texture = textureMap.get(bitmap);
 			bindLayer(particle, bitmap, texture);
 		}
 
@@ -1395,11 +1456,15 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 
 		@Override
 		public void bind() {
+			pipeline.setCurrentPipeline(0);
 			if (!loaded) {
 				for (int i = 0; i < material.getLayers().size(); i++) {
 					final Layer layer = material.getLayers().get(i);
-					if (layer.getTextureBitmap() != null) {
-						loadToTexMap(layer.getTextureBitmap());
+					for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
+						final Bitmap shaderTexture = layer.getShaderTextures().get(shaderTextureTypeHD);
+						if (shaderTexture != null) {
+							loadToTexMap(shaderTexture);
+						}
 					}
 					if (layer.getTextures() != null) {
 						for (final Bitmap tex : layer.getTextures()) {
@@ -1414,7 +1479,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			final Layer layer = material.getLayers().get(0);
 			final Bitmap tex = layer.getRenderTexture(editorRenderModel.getAnimatedRenderEnvironment(),
 					modelView.getModel());
-			final Integer texture = textureMap.get(tex);
+			final GlTextureRef texture = textureMap.get(tex);
 			bindLayer(layer, tex, texture);
 		}
 
@@ -1432,8 +1497,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 
 	@Override
 	public InternalResource allocateMaterial(final Material material, final RibbonEmitter ribbonEmitter) {
-		// TODO Auto-generated method stub
-		return null;
+		return new RibbonEmitterMaterialInstance(material, ribbonEmitter);
 	}
 
 	public void setViewportBackground(final Color background) {

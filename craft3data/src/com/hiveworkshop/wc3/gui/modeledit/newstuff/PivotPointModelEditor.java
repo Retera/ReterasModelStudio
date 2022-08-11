@@ -396,7 +396,8 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 	private void toggleSelection(final Set<Vertex> selection, final Vertex position) {
 		if (selection.contains(position)) {
 			selection.remove(position);
-		} else {
+		}
+		else {
 			selection.add(position);
 		}
 	}
@@ -473,6 +474,38 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		}
 		selectionManager.setSelection(allSelection);
 		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all");
+	}
+
+	@Override
+	public UndoAction selectHDUnusedNodes() {
+		final ArrayList<Vertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		final Set<Bone> usedBones = new HashSet<>();
+		for (final Geoset geoset : model.getEditableGeosets()) {
+			for (final GeosetVertex vertex : geoset.getVertices()) {
+				final Bone[] skinBones = vertex.getSkinBones();
+				if (skinBones != null) {
+					for (int i = 0; i < skinBones.length; i++) {
+						final Bone bone = skinBones[i];
+						if (bone != null) {
+							usedBones.add(bone);
+						}
+					}
+				}
+				else {
+					for (final Bone bone : vertex.getBoneAttachments()) {
+						usedBones.add(bone);
+					}
+				}
+			}
+		}
+		final Set<Vertex> allSelection = new HashSet<>();
+		for (final IdObject node : model.getEditableIdObjects()) {
+			if ((node instanceof Bone) && !usedBones.contains(node)) {
+				allSelection.add(node.getPivotPoint());
+			}
+		}
+		selectionManager.setSelection(allSelection);
+		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select HD unused");
 	}
 
 	@Override

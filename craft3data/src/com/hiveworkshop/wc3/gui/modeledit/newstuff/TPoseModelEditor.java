@@ -290,7 +290,8 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	private void toggleSelection(final Set<Vertex> selection, final Vertex position) {
 		if (selection.contains(position)) {
 			selection.remove(position);
-		} else {
+		}
+		else {
 			selection.add(position);
 		}
 	}
@@ -365,6 +366,11 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		// selectionManager.setSelection(allSelection);
 		// return (new SetSelectionAction<>(allSelection, oldSelection,
 		// selectionManager, "select all"));
+	}
+
+	@Override
+	public UndoAction selectHDUnusedNodes() {
+		throw new WrongModeException("Not supported in T-Pose mode");
 	}
 
 	@Override

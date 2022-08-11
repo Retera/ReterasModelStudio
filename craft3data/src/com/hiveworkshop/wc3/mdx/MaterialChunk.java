@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
+import com.hiveworkshop.wc3.mdl.LayerShader;
+import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
 import com.hiveworkshop.wc3.util.ModelUtils;
 
 import de.wc3data.stream.BlizzardDataInputStream;
@@ -107,9 +110,43 @@ public class MaterialChunk {
 
 		public Material(final com.hiveworkshop.wc3.mdl.Material mat, final int version) {
 			layerChunk = new LayerChunk();
-			layerChunk.layer = new LayerChunk.Layer[mat.getLayers().size()];
+			int layerSize = 0;
 			for (int i = 0; i < mat.getLayers().size(); i++) {
-				layerChunk.layer[i] = layerChunk.new Layer(mat.getLayers().get(i));
+				final com.hiveworkshop.wc3.mdl.Layer layer = mat.getLayers().get(i);
+				if (ModelUtils.isShaderStringSupported(version) && (layer.getLayerShader() == LayerShader.HD)) {
+					layerSize += ShaderTextureTypeHD.VALUES.length;
+				}
+				else {
+					layerSize++;
+				}
+			}
+			layerChunk.layer = new LayerChunk.Layer[layerSize];
+			shader = com.hiveworkshop.wc3.mdl.Material.SHADER_SD_FIXED_FUNCTION;
+			for (int i = 0; i < mat.getLayers().size(); i++) {
+				final com.hiveworkshop.wc3.mdl.Layer layer = mat.getLayers().get(i);
+				if (ModelUtils.isShaderStringSupported(version) && (layer.getLayerShader() == LayerShader.HD)) {
+					shader = com.hiveworkshop.wc3.mdl.Material.SHADER_HD_DEFAULT_UNIT;
+					for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
+						if (shaderTextureTypeHD == ShaderTextureTypeHD.Diffuse) {
+							layerChunk.layer[i] = layerChunk.new Layer(layer, LayerShader.SD);
+						}
+						else {
+							final Integer shaderTextureId = layer.getShaderTextureIds().get(shaderTextureTypeHD);
+							if (shaderTextureId != null) {
+								layerChunk.layer[i] = layerChunk.new Layer(new com.hiveworkshop.wc3.mdl.Layer(
+										FilterMode.NONE.getMdlText(), shaderTextureId), LayerShader.SD);
+							}
+							else {
+								layerChunk.layer[i] = layerChunk.new Layer(
+										new com.hiveworkshop.wc3.mdl.Layer(FilterMode.NONE.getMdlText(), -1),
+										LayerShader.SD);
+							}
+						}
+					}
+				}
+				else {
+					layerChunk.layer[i] = layerChunk.new Layer(layer, layer.getLayerShader());
+				}
 			}
 			priorityPlane = mat.getPriorityPlane();
 			for (final String flag : mat.getFlags()) {
@@ -128,7 +165,6 @@ public class MaterialChunk {
 					}
 				}
 			}
-			shader = mat.getShaderString();
 		}
 	}
 }

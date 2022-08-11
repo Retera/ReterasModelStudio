@@ -102,6 +102,8 @@ public interface ModelEditor extends ComponentVisibilityListener {
 
 	UndoAction selectAll();
 
+	UndoAction selectHDUnusedNodes();
+
 	@Override
 	UndoAction hideComponent(ListView<? extends SelectableComponent> selectableComponents,
 			EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable);
