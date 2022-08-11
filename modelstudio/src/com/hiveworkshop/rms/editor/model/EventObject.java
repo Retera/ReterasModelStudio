@@ -189,7 +189,11 @@ public class EventObject extends IdObject {
 
 	@Override
 	public float getRenderVisibility(final TimeEnvironmentImpl animatedRenderEnvironment) {
-		return 1;
+		TreeSet<Integer> tracks = eventTrackAnimMap.get(animatedRenderEnvironment.getCurrentSequence());
+		if(tracks != null && !tracks.isEmpty()){
+			return 1;
+		}
+		return 0;
 	}
 
 	public static String getEventName(String code) {

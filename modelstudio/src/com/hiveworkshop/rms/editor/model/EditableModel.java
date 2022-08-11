@@ -119,6 +119,13 @@ public class EditableModel implements Named {
 		return fileRef;
 	}
 
+	public void setFilePath(final String path) {
+		if(path == null){
+			setFileRef(null);
+		} else {
+			setFileRef(new File(path));
+		}
+	}
 	public void setFileRef(final File file) {
 		fileRef = file;
 		if (fileRef != null) {

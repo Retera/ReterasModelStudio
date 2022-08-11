@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application;
 
+import com.hiveworkshop.rms.editor.model.CloneEditableModel;
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.TempStuffFromEditableModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -56,7 +56,7 @@ public class ModelFromFile {
 
 		if (modelPanel != null) {
 			EditableModel model = modelPanel.getModel();
-			return TempStuffFromEditableModel.deepClone(model, model.getHeaderName());
+			return CloneEditableModel.deepClone(model, model.getHeaderName());
 		}
 		return null;
 	}
@@ -69,7 +69,7 @@ public class ModelFromFile {
 				"Choose a workspace item to import data from:", "Import from Workspace",
 				JOptionPane.PLAIN_MESSAGE, null, optionNames.toArray(), optionNames.get(0));
 		if (choice != null) {
-			return TempStuffFromEditableModel.deepClone(choice, choice.getHeaderName());
+			return CloneEditableModel.deepClone(choice, choice.getHeaderName());
 		}
 		return null;
 	}

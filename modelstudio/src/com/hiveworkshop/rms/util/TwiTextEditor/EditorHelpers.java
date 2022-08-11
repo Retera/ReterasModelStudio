@@ -241,7 +241,7 @@ public class EditorHelpers {
 		}
 		public ColorEditor update(TimelineContainer node, Vec3 color){
 			flagPanel.update(node, (Vec3AnimFlag) node.find(flagToken), color);
-			button.setCurrentColor(color.asIntColor());
+			button.setCurrentColor(color.asFloatColor());
 			return this;
 		}
 

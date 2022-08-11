@@ -167,7 +167,6 @@ public class FileDialog {
     public File openFile(int operationType) {
         fileChooser.setDialogTitle("Open");
         setFilter(operationType);
-//        setCurrentDirectory(getModel());
         fileChooser.setCurrentDirectory(getCurrentDirectory());
 
         final int returnValue = fileChooser.showOpenDialog(getParent());

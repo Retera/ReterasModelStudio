@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.actionfunctions;
 
+import com.hiveworkshop.rms.editor.model.CloneEditableModel;
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.TempStuffFromEditableModel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -21,7 +21,7 @@ public class ImportFromWorkspace extends ActionFunction {
 	public static void importFromWorkspaceActionRes(ModelHandler modelHandler) {
 		EditableModel choice = getWorkspaceModel();
 		if (choice != null) {
-			EditableModel donatingModel = TempStuffFromEditableModel.deepClone(choice, choice.getHeaderName());
+			EditableModel donatingModel = CloneEditableModel.deepClone(choice, choice.getHeaderName());
 			ImportPanelGui importPanel = new ImportPanelGui(modelHandler.getModel(), donatingModel);
 		}
 	}

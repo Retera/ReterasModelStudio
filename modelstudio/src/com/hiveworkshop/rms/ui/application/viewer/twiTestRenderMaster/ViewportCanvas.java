@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.application.viewer.twiTestRenderMaster;
 
 import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.ExtLog;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.viewer.KeylistenerThing;
 import com.hiveworkshop.rms.ui.application.viewer.MouseListenerThing;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;

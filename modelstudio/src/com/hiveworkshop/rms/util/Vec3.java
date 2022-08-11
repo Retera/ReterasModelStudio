@@ -879,6 +879,12 @@ public class Vec3 {
 		int blue = (int) (z * scale);
 		return new Color(red, green, blue);
 	}
+	public Color asFloatColor() {
+		return new Color(x, y, z);
+	}
+	public Vec3 setFromColor(Color color) {
+		return this.set(color.getColorComponents(null));
+	}
 
 	public int getPositionHash() {
 		int prime = 31;
