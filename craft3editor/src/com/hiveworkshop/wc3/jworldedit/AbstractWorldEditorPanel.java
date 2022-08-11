@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
@@ -65,6 +66,7 @@ public abstract class AbstractWorldEditorPanel extends JPanel {
 		if (!iconTexturePath.toString().endsWith(".blp")) {
 			iconTexturePath += ".blp";
 		}
-		return new ImageIcon(BLPHandler.get().getGameTex(iconTexturePath));
+		BufferedImage gameTex = BLPHandler.get().getGameTex(iconTexturePath);
+		return gameTex == null ? null : new ImageIcon(gameTex);
 	}
 }

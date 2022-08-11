@@ -130,7 +130,7 @@ public class NGGLDP {
 		@Override
 		public void glBegin(final int type) {
 			pipelineVertexBuffer.clear();
-			this.glBeginType = type;
+			glBeginType = type;
 			vertexCount = 0;
 			uvCount = 0;
 			normalCount = 0;
@@ -374,7 +374,7 @@ public class NGGLDP {
 
 		@Override
 		public void glMatrixMode(final int mode) {
-			this.matrixMode = mode;
+			matrixMode = mode;
 
 		}
 
@@ -391,9 +391,11 @@ public class NGGLDP {
 			if (glEnum == GL11.GL_TEXTURE_2D) {
 				textureUsed = 1;
 				GL13.glActiveTexture(GL13.GL_TEXTURE0);
-			} else if (glEnum == GL11.GL_ALPHA_TEST) {
+			}
+			else if (glEnum == GL11.GL_ALPHA_TEST) {
 				alphaTest = 1;
-			} else if (glEnum == GL11.GL_LIGHTING) {
+			}
+			else if (glEnum == GL11.GL_LIGHTING) {
 				lightingEnabled = 1;
 			}
 		}
@@ -407,9 +409,11 @@ public class NGGLDP {
 			if (glEnum == GL11.GL_TEXTURE_2D) {
 				textureUsed = 0;
 				GL13.glActiveTexture(0);
-			} else if (glEnum == GL11.GL_ALPHA_TEST) {
+			}
+			else if (glEnum == GL11.GL_ALPHA_TEST) {
 				alphaTest = 0;
-			} else if (glEnum == GL11.GL_LIGHTING) {
+			}
+			else if (glEnum == GL11.GL_LIGHTING) {
 				lightingEnabled = 0;
 			}
 		}
@@ -500,7 +504,7 @@ public class NGGLDP {
 				"		mat3 mv = mat3(u_projection);\r\n" + //
 				"		mat3 TBN = transpose(mat3(normalize(mv*tangent), normalize(mv*binormal), normalize(mv*a_normal.xyz)));\r\n"
 				+ //
-				"		v_tangentLightPos = TBN * (mv * u_lightDirection).xyz;\r\n" + //
+				"		v_tangentLightPos = TBN * normalize(u_lightDirection - gl_Position.xyz).xyz;\r\n" + //
 				"		v_tangentViewPos = TBN * u_viewPos;\r\n" + //
 				"		v_tangentFragPos = TBN * (u_projection * a_position).xyz;\r\n" + //
 				"}\r\n\0";
@@ -582,15 +586,15 @@ public class NGGLDP {
 				"			vec4 emissiveTexel = texture2D(u_textureEmissive, v_uv);\r\n" + //
 				"			vec4 reflectionsTexel = clamp(0.2+2.0*texture2D(u_textureReflections, vec2(gl_FragCoord.x/u_viewportSize.x, -gl_FragCoord.y/u_viewportSize.y)), 0.0, 1.0);\r\n"
 				+ //
-				"			vec3 lightDir = normalize(v_tangentViewPos);\r\n" + //
+				"			vec3 lightDir = v_tangentLightPos;\r\n" + //
 				"			float cosTheta = dot(lightDir, normal);\r\n" + //
-				"			float lambertFactor = clamp(cosTheta, 0.0, 1.0);\r\n" + //
-				"			vec3 diffuse = (clamp(lambertFactor * (ormTexel.r) + 0.1, 0.0, 1.0)) * color.xyz;\r\n" + //
+				"			float lambertFactor = abs(cosTheta);\r\n" + //
+				"			vec3 diffuse = (clamp(lambertFactor, 0.0, 1.0)) * color.xyz;\r\n" + //
 				"			vec3 viewDir = normalize(v_tangentViewPos - v_tangentFragPos);\r\n" + //
 				"			vec3 reflectDir = reflect(-lightDir, normal);\r\n" + //
 				"			vec3 halfwayDir = normalize(lightDir + viewDir);\r\n" + //
 				"			float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);\r\n" + //
-				"			vec3 specular = vec3(max(ormTexel.b-0.5, 0.0)) * spec /* * reflectionsTexel.xyz*/;\r\n" + //
+				"			vec3 specular = vec3(max(ormTexel.b-0.5, 0.0)) * spec * reflectionsTexel.xyz;\r\n" + //
 				"			vec3 fresnelColor = vec3(u_fresnelColor.rgb * (1.0 - u_fresnelTeamColor) + teamColorTexel.rgb *  u_fresnelTeamColor) * v_color.rgb;\r\n"
 				+ //
 				"			vec3 fresnel = fresnelColor*pow(1.0 - cosTheta, 1.0)*u_fresnelColor.a;\r\n" + //
@@ -645,7 +649,7 @@ public class NGGLDP {
 		@Override
 		public void glBegin(final int type) {
 			pipelineVertexBuffer.clear();
-			this.glBeginType = type;
+			glBeginType = type;
 			vertexCount = 0;
 			uvCount = 0;
 			normalCount = 0;
@@ -760,8 +764,9 @@ public class NGGLDP {
 			textureUsed = 0;
 			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_alphaTest"), alphaTest);
 			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_lightingEnabled"), lightingEnabled);
-			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), -24.1937f, 444.411f,
-					30.4879f);
+//			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), -24.1937f, 444.411f,
+//					30.4879f);
+			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), 0.0f, 0.0f, -10000f);
 			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewPos"), 0, 0, -1);
 			GL20.glUniform2f(GL20.glGetUniformLocation(shaderProgram, "u_viewportSize"), viewportWidth, viewportHeight);
 			GL20.glUniform1f(GL20.glGetUniformLocation(shaderProgram, "u_fresnelTeamColor"), fresnelTeamColor);
@@ -863,12 +868,12 @@ public class NGGLDP {
 
 		@Override
 		public void glFresnelTeamColor1f(final float v) {
-			this.fresnelTeamColor = v;
+			fresnelTeamColor = v;
 		}
 
 		@Override
 		public void glFresnelOpacity1f(final float v) {
-			this.fresnelOpacity = v;
+			fresnelOpacity = v;
 		}
 
 		@Override
@@ -962,7 +967,7 @@ public class NGGLDP {
 
 		@Override
 		public void glMatrixMode(final int mode) {
-			this.matrixMode = mode;
+			matrixMode = mode;
 
 		}
 
@@ -979,9 +984,11 @@ public class NGGLDP {
 			if (glEnum == GL11.GL_TEXTURE_2D) {
 				textureUsed = 1;
 				GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureUnit);
-			} else if (glEnum == GL11.GL_ALPHA_TEST && textureUnit == 0) {
+			}
+			else if ((glEnum == GL11.GL_ALPHA_TEST) && (textureUnit == 0)) {
 				alphaTest = 1;
-			} else if (glEnum == GL11.GL_LIGHTING) {
+			}
+			else if (glEnum == GL11.GL_LIGHTING) {
 				lightingEnabled = 1;
 			}
 		}
@@ -995,9 +1002,11 @@ public class NGGLDP {
 			if (glEnum == GL11.GL_TEXTURE_2D) {
 				textureUsed = 0;
 				GL13.glActiveTexture(0);
-			} else if (glEnum == GL11.GL_ALPHA_TEST && textureUnit == 0) {
+			}
+			else if ((glEnum == GL11.GL_ALPHA_TEST) && (textureUnit == 0)) {
 				alphaTest = 0;
-			} else if (glEnum == GL11.GL_LIGHTING) {
+			}
+			else if (glEnum == GL11.GL_LIGHTING) {
 				lightingEnabled = 0;
 			}
 		}
@@ -1033,8 +1042,8 @@ public class NGGLDP {
 
 		@Override
 		public void glViewport(final int x, final int y, final int w, final int h) {
-			this.viewportWidth = w;
-			this.viewportHeight = h;
+			viewportWidth = w;
+			viewportHeight = h;
 			GL11.glViewport(x, y, w, h);
 		}
 
