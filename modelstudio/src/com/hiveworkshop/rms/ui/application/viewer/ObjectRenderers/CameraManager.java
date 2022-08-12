@@ -157,17 +157,6 @@ public class CameraManager {
 		viewMatrix.mul(tempMat4);
 	}
 
-	public void setUpCamera() {
-		updateCamera();
-//		gluPerspective((float) Math.toDegrees(renderNode.getFoV()), 1, (float) renderNode.getNearClip(), (float) renderNode.getFarClip());
-//
-//		cameraPos.set(renderNode.getPivot());
-//		Vec3 cameraLookAt = renderNode.getTarget();
-//		Vec3 up = renderNode.getCameraUp();
-//		GLU.gluLookAt(cameraPos.x, cameraPos.y, cameraPos.z, cameraLookAt.x, cameraLookAt.y, cameraLookAt.z, up.x, up.y, up.z);
-
-	}
-
 	public CameraManager setCamera(RenderNodeCamera cameraNode) {
 		return this;
 	}
@@ -626,25 +615,25 @@ public class CameraManager {
 		return rayHeap;
 	}
 
-	public Vec2 getPoint_ifYZplane(double viewX, double viewY) {
-//		double x_real = (viewX - (camera.rect.getWidth() / 2.0)) + target.y;
-//		double y_real = -(viewY - (camera.rect.getHeight() / 2.0)) + target.z;
-		double x_real = (viewX - (viewport.getWidth() / 2.0)) + target.y;
-		double y_real = -(viewY - (viewport.getHeight() / 2.0)) + target.z;
-		float xRatio = 2.0f * (float) viewX / (float) viewport.getWidth() - 1.0f;
-		float yRatio = 1.0f - 2.0f * (float) viewX / (float) viewport.getHeight();
-
-		Vec2 vec2 = new Vec2(x_real, y_real);
-//		vec2.scale((float) (1f / distance));
-//		vec2.transform(getViewPortAntiRotMat2());
-
-//		System.out.println("CamSpaceMouse: [" + viewX + ", " + viewY + "], " + "zoom: " + m_zoom + ", CamP: " + vec2 + ", camPos: " + cameraPos);
-//		Vec2 vec22 = new Vec2(viewX - (viewport.getWidth() / 2.0), -(viewY - (viewport.getHeight() / 2.0)));
-//		Vec2 vec22 = new Vec2(viewX*(float)viewport.getWidth(), viewY*(float)viewport.getHeight());
-		Vec2 vec22 = new Vec2(xRatio, yRatio);
-
-		return vec22;
-	}
+//	public Vec2 getPoint_ifYZplane(double viewX, double viewY) {
+////		double x_real = (viewX - (camera.rect.getWidth() / 2.0)) + target.y;
+////		double y_real = -(viewY - (camera.rect.getHeight() / 2.0)) + target.z;
+//		double x_real = (viewX - (viewport.getWidth() / 2.0)) + target.y;
+//		double y_real = -(viewY - (viewport.getHeight() / 2.0)) + target.z;
+//		float xRatio = 2.0f * (float) viewX / (float) viewport.getWidth() - 1.0f;
+//		float yRatio = 1.0f - 2.0f * (float) viewX / (float) viewport.getHeight();
+//
+//		Vec2 vec2 = new Vec2(x_real, y_real);
+////		vec2.scale((float) (1f / distance));
+////		vec2.transform(getViewPortAntiRotMat2());
+//
+////		System.out.println("CamSpaceMouse: [" + viewX + ", " + viewY + "], " + "zoom: " + m_zoom + ", CamP: " + vec2 + ", camPos: " + cameraPos);
+////		Vec2 vec22 = new Vec2(viewX - (viewport.getWidth() / 2.0), -(viewY - (viewport.getHeight() / 2.0)));
+////		Vec2 vec22 = new Vec2(viewX*(float)viewport.getWidth(), viewY*(float)viewport.getHeight());
+//		Vec2 vec22 = new Vec2(xRatio, yRatio);
+//
+//		return vec22;
+//	}
 
 	public void setViewportCamera(int dist, int side, int height, int rX, int rY, int rZ) {
 		setRotation(rY, rZ, rX);

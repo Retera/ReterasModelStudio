@@ -198,7 +198,7 @@ public class TextureViewport extends BetterAWTGLCanvas {
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
 
-			cameraHandler.setUpCamera();
+			cameraHandler.updateCamera();
 
 			FloatBuffer ambientColor = BufferUtils.createFloatBuffer(4);
 			ambientColor.put(0.6f).put(0.6f).put(0.6f).put(1f).flip();

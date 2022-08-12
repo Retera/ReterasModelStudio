@@ -45,13 +45,13 @@ public class CameraPreviewView extends ModelDependentView {
 		if (modelPanel == null || modelPanel.getModelHandler().getModel().getCameras().isEmpty()) {
 			scrollPane.setViewportView(new JPanel());
 			previewPanel.setModel(null, false, null);
-			animationController.setModel(null, true, null);
+			animationController.setModel(null, null, true);
 			renderModel = null;
 		} else {
 			ModelHandler modelHandler = modelPanel.getModelHandler();
 			renderModel = modelHandler.getPreviewRenderModel();
 			previewPanel.setModel(modelHandler, true, modelPanel.getViewportActivityManager());
-			animationController.setModel(modelHandler, true, previewPanel.getCurrentAnimation());
+			animationController.setModel(renderModel, previewPanel.getCurrentAnimation(), true);
 			topLeftPanel.add(previewPanel, "wrap");
 			topLeftPanel.add(getCameraChooserPanel(modelHandler.getModel()), "spanx, growx, wrap");
 			cameraPanel = new ComponentCameraPanel(modelHandler);

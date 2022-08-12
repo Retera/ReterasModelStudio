@@ -3,8 +3,8 @@ package com.hiveworkshop.rms.ui.application.viewer;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.nodepanels.AnimationChooser;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.SmartButtonGroup;
 import net.miginfocom.swing.MigLayout;
 
@@ -39,20 +39,6 @@ public class AnimationController extends JPanel {
 		add(getLodSpinner(lodListener), "wrap, w 90%:90%:90%");
 	}
 
-	public AnimationController setModel(ModelHandler modelHandler, boolean allowUnanimated, Animation defaultAnimation) {
-		this.allowUnanimated = allowUnanimated;
-		if (modelHandler != null) {
-			animationChooser.setModel(modelHandler.getModel(), modelHandler.getPreviewRenderModel());
-			renderEnv = modelHandler.getPreviewRenderModel().getTimeEnvironment();
-			renderEnv.setAnimationSpeed(speedSlider.getValue() / 50f);
-			loopTypePanel.setSelectedIndex(loopTypePanel.getSelectedIndex());
-		} else {
-			animationChooser.setModel(null, null);
-		}
-		System.out.println("defaultAnimation: " + defaultAnimation);
-		animationChooser.chooseSequence(defaultAnimation);
-		return this;
-	}
 	public AnimationController setModel(RenderModel renderModel, Animation defaultAnimation, boolean allowUnanimated) {
 		this.allowUnanimated = allowUnanimated;
 		if (renderModel != null) {
@@ -68,11 +54,14 @@ public class AnimationController extends JPanel {
 		return this;
 	}
 
-	private JSpinner getLodSpinner(Consumer<Integer> lodListener) {
+	private JSpinner getLodSpinner1(Consumer<Integer> lodListener) {
 		JSpinner levelOfDetailSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 5, 1));
 		levelOfDetailSpinner.addChangeListener(e -> lodListener.accept(((Number) levelOfDetailSpinner.getValue()).intValue()));
 		levelOfDetailSpinner.setMaximumSize(new Dimension(99999, 25));
 		return levelOfDetailSpinner;
+	}
+	private IntEditorJSpinner getLodSpinner(Consumer<Integer> lodListener) {
+		return new IntEditorJSpinner(0, 0, 5, lodListener);
 	}
 
 	private JSlider getSpeedSlider() {

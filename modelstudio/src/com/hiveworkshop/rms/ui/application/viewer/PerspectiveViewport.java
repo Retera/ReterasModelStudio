@@ -291,7 +291,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 				fillMatrixBuffer(pipelineMatrixBuffer, cameraHandler.getViewProjectionMatrix());
 				glLoadMatrix(pipelineMatrixBuffer);
 
-				cameraHandler.setUpCamera();
+				cameraHandler.updateCamera();
 
 				setUpLights();
 

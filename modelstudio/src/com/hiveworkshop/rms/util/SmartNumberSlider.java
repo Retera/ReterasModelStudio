@@ -71,7 +71,7 @@ public class SmartNumberSlider extends JPanel {
 //		textField.setAllowedCharacters("-1234567890.eE");
 		textField.setAllowedCharacters("-1234567890");
 		textField.addOnCaretEventFunction((st) -> setValueFromText(st));
-		add(textField);
+		add(textField, "wmin 25");
 	}
 
 	public int getValue() {

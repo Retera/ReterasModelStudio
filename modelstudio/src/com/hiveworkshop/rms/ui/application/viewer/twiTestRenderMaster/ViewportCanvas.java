@@ -138,4 +138,9 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 	public MouseListenerThing getMouseAdapter() {
 		return mouseAdapter;
 	}
+
+	public ViewportCanvas setLevelOfDetail(int levelOfDetail){
+		bufferFiller.setLevelOfDetail(levelOfDetail);
+		return this;
+	}
 }

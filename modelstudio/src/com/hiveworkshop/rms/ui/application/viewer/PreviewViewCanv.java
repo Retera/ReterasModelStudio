@@ -1,6 +1,11 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportPanel;
 import com.hiveworkshop.rms.ui.application.viewer.twiTestRenderMaster.ViewportCanvas;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.ModelDependentView;
 import com.hiveworkshop.rms.util.TinyToggleButton;
@@ -11,8 +16,9 @@ import java.util.function.Consumer;
 
 public class PreviewViewCanv extends ModelDependentView {
 	private final JSplitPane splitPane;
-	private final PreviewPanelCanv previewPanel;
+	private final ViewportPanel viewportPanel;
 	private final JScrollPane scrollingPane;
+	private final AnimationController animationController;
 
 	TinyToggleButton renderTextures;
 	TinyToggleButton wireFrame;
@@ -21,16 +27,17 @@ public class PreviewViewCanv extends ModelDependentView {
 
 	public PreviewViewCanv() {
 		super("Preview", null, new JPanel());
-		previewPanel = new PreviewPanelCanv();
-		scrollingPane = new JScrollPane(previewPanel.getAnimationController());
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, previewPanel, scrollingPane);
+		viewportPanel = new ViewportPanel(false, false);
+		animationController = new AnimationController(viewportPanel.getViewport()::setLevelOfDetail);
+		scrollingPane = new JScrollPane(animationController);
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, viewportPanel, scrollingPane);
 		this.setComponent(splitPane);
 		splitPane.setDividerLocation(0.8);
 
-		renderTextures =    getButton("\u26FE", true, b -> previewPanel.setRenderTextures(b));
-		wireFrame =         getButton("\u2342", false, b -> previewPanel.setWireFrame(b));
-		show3dVerts =       getButton("\u26DA", false, b -> previewPanel.setShow3dVerts(b));
-		showNormals =       getButton("\u23CA", false, b -> previewPanel.setShowNormals(b));
+		renderTextures =    getButton("\u26FE", true, b -> viewportPanel.setRenderTextures(b));
+		wireFrame =         getButton("\u2342", false, b -> viewportPanel.setWireFrame(b));
+		show3dVerts =       getButton("\u26DA", false, b -> viewportPanel.setShow3dVerts(b));
+		showNormals =       getButton("\u23CA", false, b -> viewportPanel.setShowNormals(b));
 //		renderTextures =    getButton("texture", true, b -> displayPanel.setRenderTextures(b));
 //		wireFrame =         getButton("wireframe", false, b -> displayPanel.setWireFrame(b));
 //		show3dVerts =       getButton("verts", true, b -> displayPanel.setShow3dVerts(b));
@@ -45,31 +52,40 @@ public class PreviewViewCanv extends ModelDependentView {
 	@Override
 	public PreviewViewCanv setModelPanel(ModelPanel modelPanel) {
 		if (modelPanel == null) {
-			previewPanel.setModel(null, false, null);
+			viewportPanel.setModel(null, null);
+			animationController.setModel(null, null, true);
 		} else {
 //			previewPanel.setModel(modelPanel.getModelHandler(), true, modelPanel.getViewportActivityManager());
-			previewPanel.setModel(modelPanel.getModelHandler(), true, null);
+			ModelHandler modelHandler = modelPanel.getModelHandler();
+			RenderModel previewRenderModel = modelHandler.getPreviewRenderModel();
+			previewRenderModel.setVetoOverrideParticles(true);
+			TimeEnvironmentImpl renderEnv = previewRenderModel.getTimeEnvironment();
+			renderEnv.setAnimationTime(0);
+			renderEnv.setLive(true);
+			viewportPanel.setModel(previewRenderModel, null);
+			animationController.setModel(previewRenderModel, renderEnv.getCurrentAnimation(), true);
 		}
 		splitPane.setDividerLocation(0.8);
 		reload();
 		return this;
 	}
 
-	public ViewportCanvas getPerspectiveViewport() {
-		if (previewPanel != null){
-			return previewPanel.getPerspectiveViewport();
-		}
-		return null;
-	}
-
 	@Override
-	public PreviewViewCanv reload() {
-		if (previewPanel != null) {
-			previewPanel.reloadRepaint();
+	public PreviewViewCanv preferencesUpdated(){
+		if(viewportPanel != null){
+			viewportPanel.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
 		}
 		return this;
 	}
 
+	@Override
+	public PreviewViewCanv reload() {
+		if (viewportPanel != null) {
+			animationController.reload().repaint();
+			viewportPanel.reload().repaint();
+		}
+		return this;
+	}
 
 	Color onC = new Color(255, 255, 255);
 	Color offC = new Color(100, 100, 100);
@@ -79,5 +95,12 @@ public class PreviewViewCanv extends ModelDependentView {
 		boolConsumer.accept(initial);
 		return button;
 
+	}
+
+	public ViewportCanvas getPerspectiveViewport() {
+		if (viewportPanel != null){
+			return viewportPanel.getViewport();
+		}
+		return null;
 	}
 }

@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderParticleEmitter2;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.viewer.MouseListenerThing;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
@@ -134,6 +133,15 @@ public class BufferFiller {
 			updateRenderModel();
 			fillBuffers();
 		}
+	}
+	public void forceUpdate(){
+		long millis = System.currentTimeMillis();
+		nextUpdate = millis + updateInterval*3L;
+		renderModel.updateAnimationTime().updateNodes2(programPreferences.getRenderParticles());
+		if (modelView.isGeosetsVisible()) {
+			renderModel.updateGeosets();
+		}
+		fillBuffers();
 	}
 
 
@@ -424,6 +432,7 @@ public class BufferFiller {
 
 	public void setLevelOfDetail(final int levelOfDetail) {
 		this.levelOfDetail = levelOfDetail;
+		geosetBufferFiller.setLod(levelOfDetail);
 	}
 
 	public void clearTextureMap(){

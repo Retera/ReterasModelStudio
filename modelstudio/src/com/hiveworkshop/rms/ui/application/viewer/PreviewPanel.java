@@ -41,9 +41,9 @@ public class PreviewPanel extends JPanel {
 //			perspectiveViewport.getCameraHandler().setActivityManager(activityManager);
 			perspectiveViewport.getMouseListenerThing().setActivityManager(activityManager);
 
-			animationController.setModel(modelHandler, true, renderEnv.getCurrentAnimation());
+			animationController.setModel(previewRenderModel, renderEnv.getCurrentAnimation(), true);
 		} else {
-			animationController.setModel(null, true, null);
+			animationController.setModel(null, null, true);
 			perspectiveViewport.setModel(null, null, doDefaultCamera);
 			renderEnv = null;
 		}

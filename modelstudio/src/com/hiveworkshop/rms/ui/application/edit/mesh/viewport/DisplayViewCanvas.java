@@ -12,7 +12,7 @@ import java.awt.*;
 import java.util.function.Consumer;
 
 public class DisplayViewCanvas extends ModelDependentView {
-	DisplayPanelCanvas displayPanel;
+	ViewportPanel viewportPanel;
 	ModelPanel modelPanel;
 	String name;
 	JPanel dudPanel;
@@ -27,8 +27,8 @@ public class DisplayViewCanvas extends ModelDependentView {
 		super(s, null, new JPanel());
 		this.name = s;
 		dudPanel = new JPanel(new MigLayout());
-		displayPanel = new DisplayPanelCanvas(allowButtonPanel);
-		displayPanel.setOrtho(initOrtho);
+		viewportPanel = new ViewportPanel(allowButtonPanel, true);
+		viewportPanel.getViewport().getCameraHandler().setOrtho(initOrtho);
 		this.setComponent(dudPanel);
 		setUpViewAngle();
 
@@ -44,10 +44,10 @@ public class DisplayViewCanvas extends ModelDependentView {
 				+ "\u2BE2"
 				+ "\u2360";
 
-		renderTextures =    getButton("\u26FE", true, b -> displayPanel.setRenderTextures(b));
-		wireFrame =         getButton("\u2342", false, b -> displayPanel.setWireFrame(b));
-		show3dVerts =       getButton("\u26DA", true, b -> displayPanel.setShow3dVerts(b));
-		showNormals =       getButton("\u23CA", false, b -> displayPanel.setShowNormals(b));
+		renderTextures =    getButton("\u26FE", true, b -> viewportPanel.setRenderTextures(b));
+		wireFrame =         getButton("\u2342", false, b -> viewportPanel.setWireFrame(b));
+		show3dVerts =       getButton("\u26DA", true, b -> viewportPanel.setShow3dVerts(b));
+		showNormals =       getButton("\u23CA", false, b -> viewportPanel.setShowNormals(b));
 //		renderTextures =    getButton("texture", true, b -> displayPanel.setRenderTextures(b));
 //		wireFrame =         getButton("wireframe", false, b -> displayPanel.setWireFrame(b));
 //		show3dVerts =       getButton("verts", true, b -> displayPanel.setShow3dVerts(b));
@@ -61,9 +61,12 @@ public class DisplayViewCanvas extends ModelDependentView {
 
 	private void setUpViewAngle() {
 		switch (name) {
-			case "Front" -> displayPanel.setFrontView();
-			case "Side" -> displayPanel.setLeftView();
-			case "Top" -> displayPanel.setTopView();
+			case "Front" -> viewportPanel.getViewport().getCameraHandler().setCameraRotation(0, 0);
+			case "Side" -> viewportPanel.getViewport().getCameraHandler().setCameraRotation(90, 0);
+			case "Top" -> viewportPanel.getViewport().getCameraHandler().setCameraRotation(0, 90);
+//			case "Front" -> displayPanel.setFrontView();
+//			case "Side" -> displayPanel.setLeftView();
+//			case "Top" -> displayPanel.setTopView();
 		}
 	}
 
@@ -72,12 +75,12 @@ public class DisplayViewCanvas extends ModelDependentView {
 		this.modelPanel = modelPanel;
 		if (modelPanel == null) {
 			this.setComponent(dudPanel);
-			displayPanel.setModel(null, null);
+			viewportPanel.setModel(null, null);
 		} else {
-			displayPanel.setModel(modelPanel.getModelHandler(), modelPanel.getViewportActivityManager());
-			displayPanel.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
+			viewportPanel.setModel(modelPanel.getModelHandler().getRenderModel(), modelPanel.getViewportActivityManager());
+			viewportPanel.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
 			setUpViewAngle();
-			this.setComponent(displayPanel);
+			this.setComponent(viewportPanel);
 		}
 		System.out.println("name: " + name + ", panel: " + modelPanel);
 		return this;
@@ -85,8 +88,8 @@ public class DisplayViewCanvas extends ModelDependentView {
 
 	@Override
 	public DisplayViewCanvas preferencesUpdated(){
-		if(displayPanel != null){
-			displayPanel.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
+		if(viewportPanel != null){
+			viewportPanel.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
 		}
 		return this;
 	}
@@ -94,7 +97,7 @@ public class DisplayViewCanvas extends ModelDependentView {
 	@Override
 	public DisplayViewCanvas reload() {
 		if (modelPanel != null) {
-			displayPanel.reload().repaint();
+			viewportPanel.reload().repaint();
 		}
 		return this;
 	}
@@ -110,6 +113,9 @@ public class DisplayViewCanvas extends ModelDependentView {
 	}
 
 	public ViewportCanvas getPerspectiveViewport(){
-		return displayPanel.getVp2();
+		if (viewportPanel != null){
+			return viewportPanel.getViewport();
+		}
+		return null;
 	}
 }
