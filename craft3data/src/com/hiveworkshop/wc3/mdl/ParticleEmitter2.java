@@ -162,58 +162,65 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		if (emitter.particleEmitter2Visibility != null) {
 			add(new AnimFlag(emitter.particleEmitter2Visibility));
 		}
-		if ((node.flags >> 15 & 1) == 1) {
+		if (((node.flags >> 15) & 1) == 1) {
 			add("Unshaded");
 		}
-		if ((node.flags >> 16 & 1) == 1) {
+		if (((node.flags >> 16) & 1) == 1) {
 			add("SortPrimsFarZ");
 		}
-		if ((node.flags >> 17 & 1) == 1) {
+		if (((node.flags >> 17) & 1) == 1) {
 			add("LineEmitter");
 		}
-		if ((node.flags >> 18 & 1) == 1) {
+		if (((node.flags >> 18) & 1) == 1) {
 			add("Unfogged");
 		}
-		if ((node.flags >> 19 & 1) == 1) {
+		if (((node.flags >> 19) & 1) == 1) {
 			add("ModelSpace");
 		}
-		if ((node.flags >> 20 & 1) == 1) {
+		if (((node.flags >> 20) & 1) == 1) {
 			add("XYQuad");
 		}
 		if (emitter.particleEmitter2Speed != null) {
 			add(new AnimFlag(emitter.particleEmitter2Speed));
-		} else {
+		}
+		else {
 			setSpeed(emitter.speed);
 		}
 		if (emitter.particleEmitter2Variation != null) {
 			add(new AnimFlag(emitter.particleEmitter2Variation));
-		} else {
+		}
+		else {
 			setVariation(emitter.variation);
 		}
 		if (emitter.particleEmitter2Latitude != null) {
 			add(new AnimFlag(emitter.particleEmitter2Latitude));
-		} else {
+		}
+		else {
 			setLatitude(emitter.latitude);
 		}
 		if (emitter.particleEmitter2Gravity != null) {
 			add(new AnimFlag(emitter.particleEmitter2Gravity));
-		} else {
+		}
+		else {
 			setGravity(emitter.gravity);
 		}
 		setLifeSpan(emitter.lifespan);
 		if (emitter.particleEmitter2EmissionRate != null) {
 			add(new AnimFlag(emitter.particleEmitter2EmissionRate));
-		} else {
+		}
+		else {
 			setEmissionRate(emitter.emissionRate);
 		}
 		if (emitter.particleEmitter2Length != null) {
 			add(new AnimFlag(emitter.particleEmitter2Length));
-		} else {
+		}
+		else {
 			setLength(emitter.length);
 		}
 		if (emitter.particleEmitter2Width != null) {
 			add(new AnimFlag(emitter.particleEmitter2Width));
-		} else {
+		}
+		else {
 			setWidth(emitter.width);
 		}
 		switch (emitter.filterMode) {
@@ -258,8 +265,8 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		setTime(emitter.time);
 		// SegmentColor - Inverse order for MDL!
 		for (int i = 0; i < 3; i++) {
-			setSegmentColor(i, new Vertex(emitter.segmentColor[i * 3 + 2], emitter.segmentColor[i * 3 + 1],
-					emitter.segmentColor[i * 3 + 0]));
+			setSegmentColor(i, new Vertex(emitter.segmentColor[(i * 3) + 2], emitter.segmentColor[(i * 3) + 1],
+					emitter.segmentColor[(i * 3) + 0]));
 		}
 		setAlpha(new Vertex((256 + emitter.segmentAlpha[0]) % 256, (256 + emitter.segmentAlpha[1]) % 256,
 				(256 + emitter.segmentAlpha[2]) % 256));
@@ -306,7 +313,10 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 	}
 
 	public void updateTextureRef(final ArrayList<Bitmap> textures) {
-		texture = textures.get(getTextureId());
+		int textureId = getTextureId();
+		if ((textureId >= 0) && (textureId < textures.size())) {
+			texture = textures.get(textureId);
+		}
 	}
 
 	public int getTextureId() {
@@ -333,22 +343,25 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 					foundType = true;
 					// JOptionPane.showMessageDialog(null,"ObjectId from line:
 					// "+line);
-				} else if (line.contains("Parent")) {
+				}
+				else if (line.contains("Parent")) {
 					pe.parentId = MDLReader.splitToInts(line)[0];
 					foundType = true;
 					// JOptionPane.showMessageDialog(null,"Parent from line:
 					// "+line);
 					// lit.parent = mdlr.getIdObject(lit.parentId);
-				} else if (line.contains("SegmentColor")) {
+				}
+				else if (line.contains("SegmentColor")) {
 					boolean reading = true;
 					foundType = true;
 					// JOptionPane.showMessageDialog(null,"SegmentColor from
 					// line: "+line);
-					for (int i = 0; reading && i < 3; i++) {
+					for (int i = 0; reading && (i < 3); i++) {
 						line = MDLReader.nextLine(mdl);
 						if (line.contains("Color")) {
 							pe.segmentColor[i] = Vertex.parseText(line);
-						} else {
+						}
+						else {
 							reading = false;
 							MDLReader.reset(mdl);
 							line = MDLReader.nextLine(mdl);
@@ -356,7 +369,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 					}
 					line = MDLReader.nextLine(mdl);
 				}
-				for (int i = 0; i < vertexDataNames.length && !foundType; i++) {
+				for (int i = 0; (i < vertexDataNames.length) && !foundType; i++) {
 					if (line.contains("\t" + vertexDataNames[i] + " ")) {
 						foundType = true;
 						pe.vertexData[i] = Vertex.parseText(line);
@@ -364,7 +377,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 						// from line: "+line);
 					}
 				}
-				for (int i = 0; i < loneDoubleNames.length && !foundType; i++) {
+				for (int i = 0; (i < loneDoubleNames.length) && !foundType; i++) {
 					if (line.contains(loneDoubleNames[i])) {
 						foundType = true;
 						pe.loneDoubleData[i] = MDLReader.readDouble(line);
@@ -372,7 +385,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 						// from line: "+line);
 					}
 				}
-				for (int i = 0; i < loneIntNames.length && !foundType; i++) {
+				for (int i = 0; (i < loneIntNames.length) && !foundType; i++) {
 					if (line.contains(loneIntNames[i])) {
 						foundType = true;
 						pe.loneIntData[i] = MDLReader.readInt(line);
@@ -380,7 +393,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 						// from line: "+line);
 					}
 				}
-				for (int i = 0; i < knownFlagNames.length && !foundType; i++) {
+				for (int i = 0; (i < knownFlagNames.length) && !foundType; i++) {
 					if (line.contains(knownFlagNames[i])) {
 						foundType = true;
 						pe.knownFlags[i] = true;
@@ -388,14 +401,15 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 						// from line: "+line);
 					}
 				}
-				for (int i = 0; i < timeDoubleNames.length && !foundType; i++) {
+				for (int i = 0; (i < timeDoubleNames.length) && !foundType; i++) {
 					if (line.contains(timeDoubleNames[i])) {
 						foundType = true;
 						// JOptionPane.showMessageDialog(null,timeDoubleNames[i]+"
 						// from line: "+line);
 						if (line.contains("static")) {
 							pe.timeDoubleData[i] = MDLReader.readDouble(line);
-						} else {
+						}
+						else {
 							MDLReader.reset(mdl);
 							pe.animFlags.add(AnimFlag.read(mdl));
 						}
@@ -419,7 +433,8 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 				line = MDLReader.nextLine(mdl);
 			}
 			return pe;
-		} else {
+		}
+		else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Unable to parse ParticleEmitter2: Missing or unrecognized open statement.");
 		}
@@ -433,7 +448,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		// -- uses parentId value of idObject superclass
 		// -- uses the parent (java Object reference) of idObject superclass
 		// -- uses the TextureID value
-		final ArrayList<AnimFlag> pAnimFlags = new ArrayList<>(this.animFlags);
+		final ArrayList<AnimFlag> pAnimFlags = new ArrayList<>(animFlags);
 		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
 		if (objectId != -1) {
 			writer.println("\tObjectId " + objectId + ",");
@@ -451,9 +466,10 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 			currentFlag = timeDoubleNames[i];
 			if (timeDoubleData[i] != 0) {
 				writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
-			} else {
+			}
+			else {
 				boolean set = false;
-				for (int a = 0; a < pAnimFlags.size() && !set; a++) {
+				for (int a = 0; (a < pAnimFlags.size()) && !set; a++) {
 					if (pAnimFlags.get(a).getName().equals(currentFlag)) {
 						pAnimFlags.get(a).printTo(writer, 1);
 						pAnimFlags.remove(a);
@@ -484,9 +500,10 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 			currentFlag = timeDoubleNames[i];
 			if (timeDoubleData[i] != 0) {
 				writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
-			} else {
+			}
+			else {
 				boolean set = false;
-				for (int a = 0; a < pAnimFlags.size() && !set; a++) {
+				for (int a = 0; (a < pAnimFlags.size()) && !set; a++) {
 					if (pAnimFlags.get(a).getName().equals(currentFlag)) {
 						pAnimFlags.get(a).printTo(writer, 1);
 						pAnimFlags.remove(a);
@@ -827,7 +844,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 	@Override
 	public void add(final String flag) {
 		boolean isKnownFlag = false;
-		for (int i = 0; i < knownFlagNames.length && !isKnownFlag; i++) {
+		for (int i = 0; (i < knownFlagNames.length) && !isKnownFlag; i++) {
 			if (knownFlagNames[i].equals(flag)) {
 				knownFlags[i] = true;
 				isKnownFlag = true;
