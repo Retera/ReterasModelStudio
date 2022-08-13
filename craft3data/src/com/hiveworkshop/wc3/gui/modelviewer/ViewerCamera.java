@@ -334,4 +334,8 @@ public class ViewerCamera {
 	public float getFov() {
 		return fov;
 	}
+
+	public void setFarClipPlane(final float farClipPlane) {
+		this.farClipPlane = farClipPlane;
+	}
 }

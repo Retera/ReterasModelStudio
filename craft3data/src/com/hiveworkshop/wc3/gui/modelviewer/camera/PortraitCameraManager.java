@@ -4,6 +4,7 @@ import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 
 import com.hiveworkshop.wc3.mdl.Camera;
+import com.hiveworkshop.wc3.mdl.Camera.SourceNode;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.util.MathUtils;
@@ -38,8 +39,8 @@ public final class PortraitCameraManager extends CameraManager {
 		this.position.scale(this.distance);
 		Vector3f.add(this.position, this.target, this.position);
 		if (this.modelCamera != null) {
-			Vertex sourceTranslation = modelCamera.getSourceNode()
-					.getRenderTranslation(modelInstance.getAnimatedRenderEnvironment());
+			final SourceNode sourceNode = modelCamera.getSourceNode();
+			Vertex sourceTranslation = sourceNode.getRenderTranslation(modelInstance.getAnimatedRenderEnvironment());
 			if (sourceTranslation == null) {
 				sourceTranslation = Vertex.ORIGIN;
 			}
@@ -73,6 +74,14 @@ public final class PortraitCameraManager extends CameraManager {
 			nearClip = (float) this.modelCamera.getNearClip();
 			farClip = (float) this.modelCamera.getFarClip();
 		}
+	}
+
+	public void setFarClip(final float farClip) {
+		this.farClip = farClip;
+	}
+
+	public float getFarClip() {
+		return farClip;
 	}
 
 }

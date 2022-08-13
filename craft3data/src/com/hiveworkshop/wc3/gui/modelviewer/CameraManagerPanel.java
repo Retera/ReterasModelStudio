@@ -49,7 +49,7 @@ public class CameraManagerPanel extends JPanel {
 			@Override
 			public Component getListCellRendererComponent(final JList list, final Object value, final int index,
 					final boolean isSelected, final boolean cellHasFocus) {
-				Object display = value == null ? "(Default)" : value;
+				Object display = value == null ? "(Free)" : value;
 				if (value != null) {
 					String displayToString;
 					if (display instanceof Camera) {

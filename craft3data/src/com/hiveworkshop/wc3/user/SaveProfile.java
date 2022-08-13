@@ -26,6 +26,7 @@ public class SaveProfile implements Serializable {
 	static SaveProfile currentProfile;
 
 	List<String> recent = null;
+	List<RecentFetch> recentFetches = null;
 	ProgramPreferences preferences;
 	private List<DataSourceDescriptor> dataSources;
 
@@ -37,11 +38,23 @@ public class SaveProfile implements Serializable {
 		save();
 	}
 
+	public void clearRecentFetches() {
+		getRecentFetches().clear();
+		save();
+	}
+
 	public List<String> getRecent() {
 		if (recent == null) {
 			recent = new ArrayList<>();
 		}
 		return recent;
+	}
+
+	public List<RecentFetch> getRecentFetches() {
+		if (recentFetches == null) {
+			recentFetches = new ArrayList<>();
+		}
+		return recentFetches;
 	}
 
 	public void addRecent(final String fp) {
@@ -53,6 +66,19 @@ public class SaveProfile implements Serializable {
 		}
 		if (recent.size() > 15) {
 			recent.remove(0);
+		}
+		save();
+	}
+
+	public void addRecentFetch(final RecentFetch fp) {
+		if (!getRecentFetches().contains(fp)) {
+			getRecentFetches().add(fp);
+		} else {
+			getRecentFetches().remove(fp);
+			getRecentFetches().add(fp);
+		}
+		if (recentFetches.size() > 15) {
+			recentFetches.remove(0);
 		}
 		save();
 	}

@@ -46,11 +46,13 @@ public class NGGLDP {
 			this.allShaderPipelines = allShaderPipelines;
 		}
 
+		@Override
 		public void setCurrentPipeline(final int index) {
 			currentPipeline = allShaderPipelines.get(index);
 			currentPipeline.onGlobalPipelineSet();
 		}
 
+		@Override
 		public int getCurrentPipelineIndex() {
 			return allShaderPipelines.indexOf(currentPipeline);
 		}
@@ -238,9 +240,9 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glCamera(final ViewerCamera viewerCamera) {
+		public void glCamera(final ViewerCamera viewerCamera, final boolean usingModelCamera) {
 			for (final Pipeline pipeline : allShaderPipelines) {
-				pipeline.glCamera(viewerCamera);
+				pipeline.glCamera(viewerCamera, usingModelCamera);
 			}
 		}
 
@@ -271,6 +273,7 @@ public class NGGLDP {
 				"\r\n" + //
 				"uniform vec3 u_lightDirection;\r\n" + //
 				"uniform int u_lightingEnabled;\r\n" + //
+				"uniform int u_usingModelCamera;\r\n" + //
 				"\r\n" + //
 				"void main() {\r\n" + //
 				"		gl_Position = a_position;\r\n" + //
@@ -279,8 +282,12 @@ public class NGGLDP {
 				"		if(u_lightingEnabled != 0) {\r\n" + //
 				"			vec3 lightFactorContribution = vec3(clamp(dot(a_normal.xyz, u_lightDirection), 0.0, 1.0));\r\n"
 				+ //
-				"			v_color.rgb = v_color.rgb * clamp(lightFactorContribution * 1.3 + vec3(0.5f, 0.5f, 0.5f), 0.0, 1.0);\r\n"
+				"		    if(u_usingModelCamera != 0) {\r\n" + //
+				"			    v_color.rgb = v_color.rgb * clamp(lightFactorContribution + 0.3f, 0.0, 1.0);\r\n" + //
+				"		    } else {\r\n" + //
+				"			    v_color.rgb = v_color.rgb * clamp(lightFactorContribution * 1.3 + vec3(0.5f, 0.5f, 0.5f), 0.0, 1.0);\r\n"
 				+ //
+				"		    }\r\n" + //
 				"		}\r\n" + //
 				"}\r\n\0";
 		private static final String fragmentShader = "#version 330 core\r\n" + //
@@ -449,8 +456,18 @@ public class NGGLDP {
 			textureUsed = 0;
 			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_alphaTest"), alphaTest);
 			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_lightingEnabled"), lightingEnabled);
-			tempVec4.set(30.4879f, -24.1937f, 444.411f, 1.0f);
-			Matrix4f.transform(currentMatrix, tempVec4, tempVec4);
+			if (usingModelCamera) {
+				// this one emulates UI\MiscData.txt light
+				// (used in WC3 portraits, so it'll be wrong on "main menu" background models)
+				tempVec4.set(0.3f, -0.3f, 0.25f, 0.0f);
+				GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_usingModelCamera"), 1);
+			} else {
+				// this one emulates DNC model light
+				// (used in WC3 game world view)
+				tempVec4.set(-24.1937f, 30.4879f, 444.411f, 0.0f);
+				GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_usingModelCamera"), 0);
+			}
+//			Matrix4f.transform(currentMatrix, tempVec4, tempVec4);
 			tempVec4.normalise();
 			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), tempVec4.x, tempVec4.y,
 					tempVec4.z);
@@ -482,10 +499,9 @@ public class NGGLDP {
 		@Override
 		public void glNormal3f(final float x, final float y, final float z) {
 			final int baseOffset = normalCount * STRIDE;
-			tempVec4.set(x, y, z, 0);
-			Matrix4f.transform(currentMatrix, tempVec4, tempVec4);
-			tempVec4.normalise();
 			ensureCapacity(baseOffset + STRIDE);
+			tempVec4.set(x, y, z, 0);
+			tempVec4.normalise();
 			pushFloat(baseOffset + 4, tempVec4.x);
 			pushFloat(baseOffset + 5, tempVec4.y);
 			pushFloat(baseOffset + 6, tempVec4.z);
@@ -532,6 +548,7 @@ public class NGGLDP {
 
 		private final Quaternion tempQuat = new Quaternion();
 		private final Matrix4f tempMat4 = new Matrix4f();
+		private boolean usingModelCamera;
 
 		@Override
 		public void glRotatef(final float angle, final float axisX, final float axisY, final float axisZ) {
@@ -545,7 +562,8 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glCamera(final ViewerCamera viewerCamera) {
+		public void glCamera(final ViewerCamera viewerCamera, final boolean usingModelCamera) {
+			this.usingModelCamera = usingModelCamera;
 			Matrix4f.mul(viewerCamera.viewProjectionMatrix, currentMatrix, currentMatrix);
 		}
 
@@ -607,11 +625,9 @@ public class NGGLDP {
 			if (glEnum == GL11.GL_TEXTURE_2D) {
 				textureUsed = 1;
 				GL13.glActiveTexture(GL13.GL_TEXTURE0);
-			}
-			else if (glEnum == GL11.GL_ALPHA_TEST) {
+			} else if (glEnum == GL11.GL_ALPHA_TEST) {
 				alphaTest = 1;
-			}
-			else if (glEnum == GL11.GL_LIGHTING) {
+			} else if (glEnum == GL11.GL_LIGHTING) {
 				lightingEnabled = 1;
 			}
 		}
@@ -625,11 +641,9 @@ public class NGGLDP {
 			if (glEnum == GL11.GL_TEXTURE_2D) {
 				textureUsed = 0;
 				GL13.glActiveTexture(0);
-			}
-			else if (glEnum == GL11.GL_ALPHA_TEST) {
+			} else if (glEnum == GL11.GL_ALPHA_TEST) {
 				alphaTest = 0;
-			}
-			else if (glEnum == GL11.GL_LIGHTING) {
+			} else if (glEnum == GL11.GL_LIGHTING) {
 				lightingEnabled = 0;
 			}
 		}
@@ -679,6 +693,15 @@ public class NGGLDP {
 			GL20.glDeleteProgram(shaderProgram);
 		}
 
+		@Override
+		public void setCurrentPipeline(final int pipelineId) {
+		}
+
+		@Override
+		public int getCurrentPipelineIndex() {
+			return 0;
+		}
+
 	}
 
 	/**
@@ -711,18 +734,18 @@ public class NGGLDP {
 				"		gl_Position = u_projection * a_position;\r\n" + //
 				"		v_uv = a_uv;\r\n" + //
 				"		v_color = a_color;\r\n" + //
-				"		vec3 tangent = a_tangent.xyz;\r\n" + //
+				"		vec3 tangent = normalize(a_tangent.xyz);\r\n" + //
+				"		vec3 mormal = normalize(a_normal.xyz);\r\n" + //
 				// this is supposed to re-orthogonalize per
 				// https://learnopengl.com/Advanced-Lighting/Normal-Mapping although I'm
 				// undecided if wc3 needs it
-				"		tangent = normalize(tangent - dot(tangent, a_normal.xyz) * a_normal.xyz);\r\n" + //
-				"		vec3 binormal = normalize(cross(a_normal.xyz, tangent) * a_tangent.w);\r\n" + //
-				"		mat3 mv = mat3(u_projection);\r\n" + //
-				"		mat3 TBN = transpose(mat3(normalize(mv*tangent), normalize(mv*binormal), normalize(mv*a_normal.xyz)));\r\n"
-				+ //
-				"		v_tangentLightPos = TBN * normalize(u_lightDirection - gl_Position.xyz).xyz;\r\n" + //
+				"		tangent = normalize(tangent - dot(tangent, mormal.xyz) * mormal.xyz);\r\n" + //
+				"		vec3 binormal = normalize(cross(mormal.xyz, tangent) * -1);\r\n" + //
+//				"		mat3 mv = mat3(u_projection);\r\n" + //
+				"		mat3 TBN = transpose(mat3(tangent, binormal, mormal.xyz));\r\n" + //
+				"		v_tangentLightPos = TBN * normalize(u_lightDirection).xyz;\r\n" + //
 				"		v_tangentViewPos = TBN * u_viewPos;\r\n" + //
-				"		v_tangentFragPos = TBN * (u_projection * a_position).xyz;\r\n" + //
+				"		v_tangentFragPos = TBN * (a_position).xyz;\r\n" + //
 				"}\r\n\0";
 		private static final String fragmentShader = "#version 330 core\r\n" + //
 				"\r\n" + //
@@ -797,23 +820,26 @@ public class NGGLDP {
 				"			discard;\r\n" + //
 				"		}\r\n" + //
 				"		if(u_lightingEnabled != 0) {\r\n" + //
-				"			vec2 normalXY = texture2D(u_textureNormal, v_uv).xy * 2.0 - 1.0;\r\n" + //
+				"			vec3 normalXYZ = texture2D(u_textureNormal, v_uv).xyz;\r\n" + //
+				"			vec2 normalXY = normalXYZ.xy * 2.0 - 1.0;\r\n" + //
 				"			vec3 normal = vec3(normalXY, sqrt(1.0 - dot(normalXY,normalXY)));\r\n" + //
 				"			vec4 emissiveTexel = texture2D(u_textureEmissive, v_uv);\r\n" + //
 				"			vec4 reflectionsTexel = clamp(0.2+2.0*texture2D(u_textureReflections, vec2(gl_FragCoord.x/u_viewportSize.x, -gl_FragCoord.y/u_viewportSize.y)), 0.0, 1.0);\r\n"
 				+ //
 				"			vec3 lightDir = v_tangentLightPos;\r\n" + //
-				"			float cosTheta = dot(lightDir, normal);\r\n" + //
-				"			float lambertFactor = abs(cosTheta);\r\n" + //
+				"			float cosTheta = dot(lightDir, normal)*0.5 + 0.5;\r\n" + //
+				"			float lambertFactor = clamp(cosTheta, 0.0, 1.0);\r\n" + //
 				"			vec3 diffuse = (clamp(lambertFactor, 0.0, 1.0)) * color.xyz;\r\n" + //
 				"			vec3 viewDir = normalize(v_tangentViewPos - v_tangentFragPos);\r\n" + //
 				"			vec3 reflectDir = reflect(-lightDir, normal);\r\n" + //
 				"			vec3 halfwayDir = normalize(lightDir + viewDir);\r\n" + //
 				"			float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);\r\n" + //
-				"			vec3 specular = vec3(max(ormTexel.b-0.5, 0.0)) * spec * reflectionsTexel.xyz;\r\n" + //
+				"			vec3 specular = vec3(max(-ormTexel.g+0.5, 0.0)+ormTexel.b) * spec * reflectionsTexel.xyz;\r\n"
+				+ //
 				"			vec3 fresnelColor = vec3(u_fresnelColor.rgb * (1.0 - u_fresnelTeamColor) + teamColorTexel.rgb *  u_fresnelTeamColor) * v_color.rgb;\r\n"
 				+ //
-				"			vec3 fresnel = fresnelColor*pow(1.0 - cosTheta, 1.0)*u_fresnelColor.a;\r\n" + //
+				"			vec3 fresnel = fresnelColor*pow(1.0 - dot(normalize(v_tangentViewPos), normal), 1.0)*u_fresnelColor.a;\r\n"
+				+ //
 				"			FragColor = vec4(emissiveTexel.xyz + specular + diffuse + fresnel, color.a);\r\n" + //
 				"		} else {\r\n" + //
 				"			FragColor = color;\r\n" + //
@@ -980,10 +1006,22 @@ public class NGGLDP {
 			textureUsed = 0;
 			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_alphaTest"), alphaTest);
 			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_lightingEnabled"), lightingEnabled);
-//			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), -24.1937f, 444.411f,
-//					30.4879f);
-			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), 0.0f, 0.0f, -10000f);
-			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewPos"), 0, 0, -1);
+
+			if (usingModelCamera) {
+				// this one emulates UI\MiscData.txt light
+				// (used in WC3 portraits, so it'll be wrong on "main menu" background models)
+				GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), 0.3f, -0.3f, 0.25f);
+			} else {
+				// this one emulates DNC model light
+				// (used in WC3 game world view)
+				GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), -24.1937f, 30.4879f,
+						444.411f);
+			}
+
+//			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), 0.0f, 0.0f, -10000f);
+
+			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewPos"), cameraLocation.x, cameraLocation.y,
+					cameraLocation.z);
 			GL20.glUniform2f(GL20.glGetUniformLocation(shaderProgram, "u_viewportSize"), viewportWidth, viewportHeight);
 			GL20.glUniform1f(GL20.glGetUniformLocation(shaderProgram, "u_fresnelTeamColor"), fresnelTeamColor);
 			GL20.glUniform4f(GL20.glGetUniformLocation(shaderProgram, "u_fresnelColor"), fresnelColor.x, fresnelColor.y,
@@ -1058,7 +1096,7 @@ public class NGGLDP {
 			pushFloat(baseOffset + 4, x);
 			pushFloat(baseOffset + 5, y);
 			pushFloat(baseOffset + 6, z);
-			pushFloat(baseOffset + 7, 1);
+			pushFloat(baseOffset + 7, 0);
 			normalCount++;
 		}
 
@@ -1122,6 +1160,7 @@ public class NGGLDP {
 
 		private final Quaternion tempQuat = new Quaternion();
 		private final Matrix4f tempMat4 = new Matrix4f();
+		private boolean usingModelCamera;
 
 		@Override
 		public void glRotatef(final float angle, final float axisX, final float axisY, final float axisZ) {
@@ -1135,7 +1174,9 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glCamera(final ViewerCamera viewerCamera) {
+		public void glCamera(final ViewerCamera viewerCamera, final boolean usingModelCamera) {
+			this.usingModelCamera = usingModelCamera;
+			cameraLocation.set(viewerCamera.location);
 			Matrix4f.mul(viewerCamera.viewProjectionMatrix, currentMatrix, currentMatrix);
 		}
 
@@ -1145,6 +1186,7 @@ public class NGGLDP {
 		private int matrixMode;
 		private int viewportWidth;
 		private int viewportHeight;
+		private final Vector3f cameraLocation = new Vector3f();
 
 		@Override
 		public void glScalef(final float x, final float y, final float z) {
@@ -1200,11 +1242,9 @@ public class NGGLDP {
 			if (glEnum == GL11.GL_TEXTURE_2D) {
 				textureUsed = 1;
 				GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureUnit);
-			}
-			else if ((glEnum == GL11.GL_ALPHA_TEST) && (textureUnit == 0)) {
+			} else if (glEnum == GL11.GL_ALPHA_TEST && textureUnit == 0) {
 				alphaTest = 1;
-			}
-			else if (glEnum == GL11.GL_LIGHTING) {
+			} else if (glEnum == GL11.GL_LIGHTING) {
 				lightingEnabled = 1;
 			}
 		}
@@ -1218,11 +1258,9 @@ public class NGGLDP {
 			if (glEnum == GL11.GL_TEXTURE_2D) {
 				textureUsed = 0;
 				GL13.glActiveTexture(0);
-			}
-			else if ((glEnum == GL11.GL_ALPHA_TEST) && (textureUnit == 0)) {
+			} else if (glEnum == GL11.GL_ALPHA_TEST && textureUnit == 0) {
 				alphaTest = 0;
-			}
-			else if (glEnum == GL11.GL_LIGHTING) {
+			} else if (glEnum == GL11.GL_LIGHTING) {
 				lightingEnabled = 0;
 			}
 		}
@@ -1266,6 +1304,15 @@ public class NGGLDP {
 		@Override
 		public void discard() {
 			GL20.glDeleteProgram(shaderProgram);
+		}
+
+		@Override
+		public void setCurrentPipeline(final int pipelineId) {
+		}
+
+		@Override
+		public int getCurrentPipelineIndex() {
+			return 1;
 		}
 
 	}
@@ -1414,12 +1461,21 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glCamera(final ViewerCamera viewerCamera) {
+		public void glCamera(final ViewerCamera viewerCamera, final boolean usingModelCamera) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public void discard() {
+		}
+
+		@Override
+		public void setCurrentPipeline(final int pipelineId) {
+		}
+
+		@Override
+		public int getCurrentPipelineIndex() {
+			return 0;
 		}
 
 	}
@@ -1483,8 +1539,12 @@ public class NGGLDP {
 
 		void glViewport(int x, int y, int w, int h);
 
-		void glCamera(ViewerCamera viewerCamera);
+		void glCamera(ViewerCamera viewerCamera, boolean usingModelCamera);
 
 		void discard();
+
+		void setCurrentPipeline(int pipelineId);
+
+		int getCurrentPipelineIndex();
 	}
 }
