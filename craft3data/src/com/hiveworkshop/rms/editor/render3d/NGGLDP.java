@@ -740,7 +740,7 @@ public class NGGLDP {
 				// https://learnopengl.com/Advanced-Lighting/Normal-Mapping although I'm
 				// undecided if wc3 needs it
 				"		tangent = normalize(tangent - dot(tangent, mormal.xyz) * mormal.xyz);\r\n" + //
-				"		vec3 binormal = normalize(cross(mormal.xyz, tangent) * -1);\r\n" + //
+				"		vec3 binormal = normalize(cross(mormal.xyz, tangent) * -1 * a_tangent.w);\r\n" + //
 //				"		mat3 mv = mat3(u_projection);\r\n" + //
 				"		mat3 TBN = transpose(mat3(tangent, binormal, mormal.xyz));\r\n" + //
 				"		v_tangentLightPos = TBN * normalize(u_lightDirection).xyz;\r\n" + //
@@ -827,14 +827,14 @@ public class NGGLDP {
 				"			vec4 reflectionsTexel = clamp(0.2+2.0*texture2D(u_textureReflections, vec2(gl_FragCoord.x/u_viewportSize.x, -gl_FragCoord.y/u_viewportSize.y)), 0.0, 1.0);\r\n"
 				+ //
 				"			vec3 lightDir = v_tangentLightPos;\r\n" + //
-				"			float cosTheta = dot(lightDir, normal)*0.5 + 0.5;\r\n" + //
+				"			float cosTheta = dot(lightDir, normal);\r\n" + //
 				"			float lambertFactor = clamp(cosTheta, 0.0, 1.0);\r\n" + //
 				"			vec3 diffuse = (clamp(lambertFactor, 0.0, 1.0)) * color.xyz;\r\n" + //
 				"			vec3 viewDir = normalize(v_tangentViewPos - v_tangentFragPos);\r\n" + //
 				"			vec3 reflectDir = reflect(-lightDir, normal);\r\n" + //
 				"			vec3 halfwayDir = normalize(lightDir + viewDir);\r\n" + //
-				"			float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);\r\n" + //
-				"			vec3 specular = vec3(max(-ormTexel.g+0.5, 0.0)+ormTexel.b) * spec * reflectionsTexel.xyz;\r\n"
+				"			float spec = pow(max(dot(normal, halfwayDir)*0.5 + 0.5, 0.0), 4.0);\r\n" + //
+				"			vec3 specular = vec3(max(-ormTexel.g+0.5, 0.0)+ormTexel.b) * spec * (reflectionsTexel.xyz * (1.0 - ormTexel.g) + ormTexel.g * color.xyz);\r\n"
 				+ //
 				"			vec3 fresnelColor = vec3(u_fresnelColor.rgb * (1.0 - u_fresnelTeamColor) + teamColorTexel.rgb *  u_fresnelTeamColor) * v_color.rgb;\r\n"
 				+ //
