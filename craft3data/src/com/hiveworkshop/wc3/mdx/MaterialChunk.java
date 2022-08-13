@@ -114,7 +114,12 @@ public class MaterialChunk {
 			for (int i = 0; i < mat.getLayers().size(); i++) {
 				final com.hiveworkshop.wc3.mdl.Layer layer = mat.getLayers().get(i);
 				if (ModelUtils.isShaderStringSupported(version) && (layer.getLayerShader() == LayerShader.HD)) {
-					layerSize += ShaderTextureTypeHD.VALUES.length;
+					if (layer.getShaderTextureIds().get(ShaderTextureTypeHD.Reflections) == null) {
+						layerSize += ShaderTextureTypeHD.VALUES.length - 1;
+					}
+					else {
+						layerSize += ShaderTextureTypeHD.VALUES.length;
+					}
 				}
 				else {
 					layerSize++;
@@ -122,22 +127,25 @@ public class MaterialChunk {
 			}
 			layerChunk.layer = new LayerChunk.Layer[layerSize];
 			shader = com.hiveworkshop.wc3.mdl.Material.SHADER_SD_FIXED_FUNCTION;
+			int layersIndex = 0;
 			for (int i = 0; i < mat.getLayers().size(); i++) {
 				final com.hiveworkshop.wc3.mdl.Layer layer = mat.getLayers().get(i);
 				if (ModelUtils.isShaderStringSupported(version) && (layer.getLayerShader() == LayerShader.HD)) {
 					shader = com.hiveworkshop.wc3.mdl.Material.SHADER_HD_DEFAULT_UNIT;
 					for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
 						if (shaderTextureTypeHD == ShaderTextureTypeHD.Diffuse) {
-							layerChunk.layer[i] = layerChunk.new Layer(layer, LayerShader.SD);
+							layerChunk.layer[layersIndex++] = layerChunk.new Layer(layer, LayerShader.SD);
 						}
 						else {
 							final Integer shaderTextureId = layer.getShaderTextureIds().get(shaderTextureTypeHD);
 							if (shaderTextureId != null) {
-								layerChunk.layer[i] = layerChunk.new Layer(new com.hiveworkshop.wc3.mdl.Layer(
-										FilterMode.NONE.getMdlText(), shaderTextureId), LayerShader.SD);
+								layerChunk.layer[layersIndex++] = layerChunk.new Layer(
+										new com.hiveworkshop.wc3.mdl.Layer(FilterMode.NONE.getMdlText(),
+												shaderTextureId),
+										LayerShader.SD);
 							}
-							else {
-								layerChunk.layer[i] = layerChunk.new Layer(
+							else if (shaderTextureTypeHD != ShaderTextureTypeHD.Reflections) {
+								layerChunk.layer[layersIndex++] = layerChunk.new Layer(
 										new com.hiveworkshop.wc3.mdl.Layer(FilterMode.NONE.getMdlText(), -1),
 										LayerShader.SD);
 							}
@@ -145,7 +153,7 @@ public class MaterialChunk {
 					}
 				}
 				else {
-					layerChunk.layer[i] = layerChunk.new Layer(layer, layer.getLayerShader());
+					layerChunk.layer[layersIndex++] = layerChunk.new Layer(layer, layer.getLayerShader());
 				}
 			}
 			priorityPlane = mat.getPriorityPlane();

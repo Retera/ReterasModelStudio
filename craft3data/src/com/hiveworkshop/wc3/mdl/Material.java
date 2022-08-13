@@ -159,6 +159,11 @@ public class Material implements MaterialView {
 				layers.add(layer);
 			}
 		}
+		for (final Layer layer : layers) {
+			if (layer.getLayerShader() == null) {
+				throw new IllegalStateException("Null layer shader");
+			}
+		}
 		setPriorityPlane(mat.priorityPlane);
 		if (EditableModel.hasFlag(mat.flags, 0x1)) {
 			add("ConstantColor");
@@ -391,15 +396,8 @@ public class Material implements MaterialView {
 		for (int i = 0; i < layers.size(); i++) {
 			final Layer lay = layers.get(i);
 			final Bitmap tex = lay.firstTexture();
-			final String path = getRenderableTexturePath(tex);
-			BufferedImage newImage;
-			try {
-				newImage = BLPHandler.get().getTexture(workingDirectory, path);
-			}
-			catch (final Exception exc) {
-				// newImage = null;
-				newImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
-			}
+
+			final BufferedImage newImage = tex.getBufferedImage(workingDirectory);
 			if (theImage == null) {
 				theImage = newImage;
 			}
@@ -772,7 +770,7 @@ public class Material implements MaterialView {
 	 * @param tex
 	 * @return
 	 */
-	private String getRenderableTexturePath(final Bitmap tex) {
+	public static String getRenderableTexturePath(final Bitmap tex) {
 		if (tex == null) {
 			return "Textures\\white.blp";
 		}

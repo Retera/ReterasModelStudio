@@ -1,11 +1,14 @@
 package com.hiveworkshop.wc3.mdl;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
+import com.hiveworkshop.wc3.gui.BLPHandler;
+import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.mdx.TextureChunk;
 
 /**
@@ -28,17 +31,19 @@ public class Bitmap {
 			try {
 				final String[] bits = imagePath.split("\\\\");
 				return bits[bits.length - 1].split("\\.")[0];
-			} catch (final Exception e) {
+			}
+			catch (final Exception e) {
 				return "bad blp path";
 			}
-		} else {
-			if (replaceableId == 1) {
-				return "Team Color";
-			} else if (replaceableId == 2) {
-				return "Team Glow";
-			} else {
-				return "Replaceable" + replaceableId;
-			}
+		}
+		else if (replaceableId == 1) {
+			return "Team Color";
+		}
+		else if (replaceableId == 2) {
+			return "Team Glow";
+		}
+		else {
+			return "Replaceable" + replaceableId;
 		}
 	}
 
@@ -103,7 +108,8 @@ public class Bitmap {
 			if (other.imagePath != null) {
 				return false;
 			}
-		} else if (!imagePath.equals(other.imagePath)) {
+		}
+		else if (!imagePath.equals(other.imagePath)) {
 			return false;
 		}
 		if (replaceableId != other.replaceableId) {
@@ -136,15 +142,16 @@ public class Bitmap {
 		if (flag) {
 			if (wrapStyle == 1) {
 				wrapStyle = 3;
-			} else if (wrapStyle == 0) {
+			}
+			else if (wrapStyle == 0) {
 				wrapStyle = 2;
 			}
-		} else {
-			if (wrapStyle == 3) {
-				wrapStyle = 1;
-			} else if (wrapStyle == 2) {
-				wrapStyle = 0;
-			}
+		}
+		else if (wrapStyle == 3) {
+			wrapStyle = 1;
+		}
+		else if (wrapStyle == 2) {
+			wrapStyle = 0;
 		}
 	}
 
@@ -156,15 +163,16 @@ public class Bitmap {
 		if (flag) {
 			if (wrapStyle == 2) {
 				wrapStyle = 3;
-			} else if (wrapStyle == 0) {
+			}
+			else if (wrapStyle == 0) {
 				wrapStyle = 1;
 			}
-		} else {
-			if (wrapStyle == 3) {
-				wrapStyle = 2;
-			} else if (wrapStyle == 1) {
-				wrapStyle = 0;
-			}
+		}
+		else if (wrapStyle == 3) {
+			wrapStyle = 2;
+		}
+		else if (wrapStyle == 1) {
+			wrapStyle = 0;
 		}
 	}
 
@@ -183,19 +191,24 @@ public class Bitmap {
 			while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
 				if (line.contains("Image")) {
 					tex.imagePath = line.split("\"")[1];
-				} else if (line.contains("ReplaceableId ")) {
+				}
+				else if (line.contains("ReplaceableId ")) {
 					tex.replaceableId = MDLReader.readInt(line);
-				} else if (line.contains("WrapWidth")) {
+				}
+				else if (line.contains("WrapWidth")) {
 					tex.setWrapWidth(true);
-				} else if (line.contains("WrapHeight")) {
+				}
+				else if (line.contains("WrapHeight")) {
 					tex.setWrapHeight(true);
-				} else {
+				}
+				else {
 					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 							"Error parsing Bitmap: Unrecognized statement '" + line + "'.");
 				}
 			}
 			return tex;
-		} else {
+		}
+		else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Unable to parse Bitmap: Missing or unrecognized open statement.");
 		}
@@ -214,7 +227,8 @@ public class Bitmap {
 				MDLReader.mark(mdl);
 			}
 			return outputs;
-		} else {
+		}
+		else {
 			MDLReader.reset(mdl);
 			// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Unable
 			// to parse Textures: Missing or unrecognized open statement.");
@@ -251,5 +265,18 @@ public class Bitmap {
 
 	public void setPath(final String imagePath) {
 		this.imagePath = imagePath;
+	}
+
+	public BufferedImage getBufferedImage(final DataSource workingDirectory) {
+		final String path = Material.getRenderableTexturePath(this);
+		BufferedImage newImage;
+		try {
+			newImage = BLPHandler.get().getTexture(workingDirectory, path);
+		}
+		catch (final Exception exc) {
+			// newImage = null;
+			newImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+		}
+		return newImage;
 	}
 }

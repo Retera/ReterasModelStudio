@@ -115,7 +115,6 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	public void reloadFromModelView() {
-		System.out.println("Reloading ModelComponentBrowserTree");
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {

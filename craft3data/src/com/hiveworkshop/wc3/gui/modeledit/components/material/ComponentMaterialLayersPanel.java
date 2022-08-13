@@ -40,7 +40,6 @@ public class ComponentMaterialLayersPanel extends JPanel {
 	public void setMaterial(final Material material, final ModelViewManager modelViewManager,
 			final UndoActionListener undoActionListener,
 			final ModelStructureChangeListener modelStructureChangeListener) {
-		System.out.println("Reloading ComponentMaterialLayersPanel");
 		this.material = material;
 		this.undoActionListener = undoActionListener;
 		this.modelStructureChangeListener = modelStructureChangeListener;
@@ -85,7 +84,7 @@ public class ComponentMaterialLayersPanel extends JPanel {
 				}
 				panel.setLayer(modelViewManager.getModel().getWrappedDataSource(), layer,
 						modelViewManager.getModel().getFormatVersion(), undoActionListener,
-						modelStructureChangeListener);
+						modelStructureChangeListener, modelViewManager);
 				add(layerLabel);
 				add(layerDeleteButton, "wrap");
 				add(panel, "growx, growy, span 2, wrap");
@@ -101,7 +100,7 @@ public class ComponentMaterialLayersPanel extends JPanel {
 				final ComponentLayerPanel panel = cachedLayerPanels.get(i);
 				panel.setLayer(modelViewManager.getModel().getWrappedDataSource(), layer,
 						modelViewManager.getModel().getFormatVersion(), undoActionListener,
-						modelStructureChangeListener);
+						modelStructureChangeListener, modelViewManager);
 			}
 
 		}

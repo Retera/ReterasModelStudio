@@ -400,13 +400,14 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 			layerShader = LayerShader.fromId(lay.shaderTypeId);
 		}
 		else {
-			layerShader = null; // TODO determine this later on, probably from MDLX1000 parser
+			layerShader = LayerShader.SD; // TODO determine this later on, probably from MDLX1000 parser
 		}
 	}
 
 	private Layer() {
 		flags = new ArrayList<>();
 		anims = new ArrayList<>();
+		layerShader = LayerShader.SD;
 	}
 
 	public Bitmap firstTexture() {
@@ -588,10 +589,10 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 				else if (line.contains("ShaderTypeId")) {
 					lay.layerShader = LayerShader.fromId(MDLReader.readInt(line));
 				}
-				else if (line.contains("static Emissive")) {
+				else if (line.contains("static Emissive") && !line.contains("TextureID")) {
 					lay.emissiveGain = MDLReader.readDouble(line);
 				}
-				else if (line.contains("Emissive")) {
+				else if (line.contains("Emissive") && !line.contains("TextureID")) {
 					MDLReader.reset(mdl);
 					final AnimFlag emissiveGainAnimFlag = AnimFlag.read(mdl);
 					if (emissiveGainAnimFlag.getName().equals("Emissive")) {
@@ -798,14 +799,14 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 	@Override
 	public String getName() {
 		final Bitmap texture = shaderTextures.get(ShaderTextureTypeHD.Diffuse);
-		return getTextureName(texture);
+		return getTextureName(texture, "multi-textured layer (mode " + filterMode + ") ");
 	}
 
-	public String getTextureName(final Bitmap texture) {
+	public String getTextureName(final Bitmap texture, final String nullText) {
 		if (texture != null) {
 			return texture.getName() + " layer (mode " + filterMode + ") ";
 		}
-		return "multi-textured layer (mode " + filterMode + ") ";
+		return nullText;
 	}
 
 	public AnimFlag getFlag(final String what) {

@@ -4356,12 +4356,12 @@ public class MainPanel extends JPanel
 					final String filepath = convertPathToMDX(unitFetched.getField("file"));
 					if (filepath != null) {
 						loadStreamMdx(MpqCodebase.get().getResourceAsStream(filepath), true, true,
-								unitFetched.getScaledIcon(0.25f));
+								new ImageIcon(unitFetched.getImage().getScaledInstance(16, 16, Image.SCALE_DEFAULT)));
 						final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
 								+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
 						if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
-							loadStreamMdx(MpqCodebase.get().getResourceAsStream(portrait), true, false,
-									unitFetched.getScaledIcon(0.25f));
+							loadStreamMdx(MpqCodebase.get().getResourceAsStream(portrait), true, false, new ImageIcon(
+									unitFetched.getImage().getScaledInstance(16, 16, Image.SCALE_DEFAULT)));
 						}
 						toolsMenu.getAccessibleContext().setAccessibleDescription(
 								"Allows the user to control which parts of the model are displayed for editing.");
@@ -4896,13 +4896,29 @@ public class MainPanel extends JPanel
 							final ArrayList<Integer> times = new ArrayList<>();
 							final ArrayList<Integer> values = new ArrayList<>();
 							trans = new AnimFlag("Translation", times, values);
+							trans.generateTypeId();
 							trans.addTag("Linear");
 							b.getAnimFlags().add(trans);
 						}
-						trans.addEntry(birth.getStart(), new Vertex(0, 0, -300));
-						trans.addEntry(birth.getEnd(), new Vertex(0, 0, 0));
-						trans.addEntry(death.getStart(), new Vertex(0, 0, 0));
-						trans.addEntry(death.getEnd(), new Vertex(0, 0, -300));
+						if (trans.getValues().size() > 0) {
+							System.out.println(trans.getValues().get(0));
+						}
+						if (trans.tans()) {
+							trans.addEntry(birth.getStart(), new Vertex(0, 0, -300), new Vertex(0, 0, 0),
+									new Vertex(0, 0, 0));
+							trans.addEntry(birth.getEnd(), new Vertex(0, 0, 0), new Vertex(0, 0, 0),
+									new Vertex(0, 0, 0));
+							trans.addEntry(death.getStart(), new Vertex(0, 0, 0), new Vertex(0, 0, 0),
+									new Vertex(0, 0, 0));
+							trans.addEntry(death.getEnd(), new Vertex(0, 0, -300), new Vertex(0, 0, 0),
+									new Vertex(0, 0, 0));
+						}
+						else {
+							trans.addEntry(birth.getStart(), new Vertex(0, 0, -300));
+							trans.addEntry(birth.getEnd(), new Vertex(0, 0, 0));
+							trans.addEntry(death.getStart(), new Vertex(0, 0, 0));
+							trans.addEntry(death.getEnd(), new Vertex(0, 0, -300));
+						}
 					}
 				}
 
