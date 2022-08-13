@@ -1001,7 +1001,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 					NGGLDP.pipeline.glFresnelColor3f((float) fresnelColor.z, (float) fresnelColor.y,
 							(float) fresnelColor.x);
 				} else {
-					NGGLDP.pipeline.glFresnelColor3f(0f, 0f, 0f);
+					NGGLDP.pipeline.glFresnelColor3f(1f, 1f, 1f);
 				}
 				NGGLDP.pipeline.glFresnelTeamColor1f(layer.getRenderFresnelTeamColor(this));
 				NGGLDP.pipeline.glFresnelOpacity1f(layer.getRenderFresnelOpacity(this));

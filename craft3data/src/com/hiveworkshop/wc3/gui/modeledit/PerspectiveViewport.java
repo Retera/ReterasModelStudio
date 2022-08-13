@@ -950,7 +950,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 						NGGLDP.pipeline.glFresnelColor3f((float) fresnelColor.z, (float) fresnelColor.y,
 								(float) fresnelColor.x);
 					} else {
-						NGGLDP.pipeline.glFresnelColor3f(0f, 0f, 0f);
+						NGGLDP.pipeline.glFresnelColor3f(1f, 1f, 1f);
 					}
 					NGGLDP.pipeline.glFresnelTeamColor1f(layer.getRenderFresnelTeamColor(timeEnvironment));
 					NGGLDP.pipeline.glFresnelOpacity1f(layer.getRenderFresnelOpacity(timeEnvironment));

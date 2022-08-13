@@ -41,7 +41,9 @@ import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
 import com.hiveworkshop.wc3.mdl.LayerShader;
 import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
 import com.hiveworkshop.wc3.mdl.TextureAnim;
+import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
+import com.hiveworkshop.wc3.util.Callback;
 import com.hiveworkshop.wc3.util.IconUtils;
 import com.hiveworkshop.wc3.util.ModelUtils;
 
@@ -82,7 +84,7 @@ public class ComponentLayerPanel extends JPanel {
 			public void actionPerformed(final ActionEvent e) {
 				if (listenersEnabled) {
 					final SetLayerFilterModeAction setLayerFilterModeAction = new SetLayerFilterModeAction(layer,
-							layer.getFilterMode(), ((FilterMode) filterModeDropdown.getSelectedItem()),
+							layer.getFilterMode(), (FilterMode) filterModeDropdown.getSelectedItem(),
 							modelStructureChangeListener);
 					setLayerFilterModeAction.redo();
 					undoActionListener.pushAction(setLayerFilterModeAction);
@@ -233,17 +235,47 @@ public class ComponentLayerPanel extends JPanel {
 		}
 		coordIdSpinner.reloadNewValue(layer.getCoordId());
 		tVertexAnimButton.setText(layer.getTextureAnim() == null ? "None"
-				: ("TextureAnim " + modelViewManager.getModel().getTextureAnimId(layer.getTextureAnim())));
-		alphaPanel.reloadNewValue((float) layer.getStaticAlpha(), layer.getFlag("Alpha"));
+				: "TextureAnim " + modelViewManager.getModel().getTextureAnimId(layer.getTextureAnim()));
+		alphaPanel.reloadNewValue((float) layer.getStaticAlpha(), new Callback<Float>() {
+			@Override
+			public void run(final Float value) {
+				layer.setStaticAlpha(value);
+				modelStructureChangeListener.texturesChanged();
+			}
+		}, layer.getFlag("Alpha"), undoActionListener, modelStructureChangeListener);
 		emissiveGainPanel.setVisible(ModelUtils.isEmissiveLayerSupported(formatVersion) && hdShader);
-		emissiveGainPanel.reloadNewValue((float) layer.getEmissive(), layer.getFlag("EmissiveGain"));
+		emissiveGainPanel.reloadNewValue((float) layer.getEmissive(), new Callback<Float>() {
+			@Override
+			public void run(final Float value) {
+				layer.setEmissive(value);
+				modelStructureChangeListener.texturesChanged();
+			}
+		}, layer.getFlag("EmissiveGain"), undoActionListener, modelStructureChangeListener);
 		final boolean fresnelColorLayerSupported = ModelUtils.isFresnelColorLayerSupported(formatVersion) && hdShader;
 		fresnelColorPanel.setVisible(fresnelColorLayerSupported);
-		fresnelColorPanel.reloadNewValue(layer.getFresnelColor(), layer.getFlag("FresnelColor"));
+		fresnelColorPanel.reloadNewValue(layer.getFresnelColor(), new Callback<Vertex>() {
+			@Override
+			public void run(final Vertex value) {
+				layer.setFresnelColor(value);
+				modelStructureChangeListener.texturesChanged();
+			}
+		}, layer.getFlag("FresnelColor"), undoActionListener, modelStructureChangeListener);
 		fresnelOpacityPanel.setVisible(fresnelColorLayerSupported);
-		fresnelOpacityPanel.reloadNewValue((float) layer.getFresnelOpacity(), layer.getFlag("FresnelOpacity"));
+		fresnelOpacityPanel.reloadNewValue((float) layer.getFresnelOpacity(), new Callback<Float>() {
+			@Override
+			public void run(final Float value) {
+				layer.setFresnelOpacity(value);
+				modelStructureChangeListener.texturesChanged();
+			}
+		}, layer.getFlag("FresnelOpacity"), undoActionListener, modelStructureChangeListener);
 		fresnelTeamColor.setVisible(fresnelColorLayerSupported);
-		fresnelTeamColor.reloadNewValue((float) layer.getFresnelTeamColor(), layer.getFlag("FresnelTeamColor"));
+		fresnelTeamColor.reloadNewValue((float) layer.getFresnelTeamColor(), new Callback<Float>() {
+			@Override
+			public void run(final Float value) {
+				layer.setFresnelTeamColor(value);
+				modelStructureChangeListener.texturesChanged();
+			}
+		}, layer.getFlag("FresnelTeamColor"), undoActionListener, modelStructureChangeListener);
 		shaderOptionComboBox.setSelectedIndex(layer.getLayerShader().ordinal());
 		listenersEnabled = true;
 	}

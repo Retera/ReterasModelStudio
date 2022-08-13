@@ -15,9 +15,13 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.timeline.SetFloatStaticValueAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.components.material.FloatTrackTableModel;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
+import com.hiveworkshop.wc3.util.Callback;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -27,6 +31,11 @@ public class FloatValuePanel extends JPanel {
 	private final ComponentEditorJSpinner staticSpinner;
 	private final JComboBox<InterpolationType> interpTypeBox;
 	private final FloatTrackTableModel floatTrackTableModel;
+	private UndoActionListener undoActionListener;
+	private ModelStructureChangeListener modelStructureChangeListener;
+	private AnimFlag valueTrack;
+	private Callback<Float> valueSetter;
+	private float lastLoadedValue;
 
 	public FloatValuePanel(final String title) {
 		setBorder(BorderFactory.createTitledBorder(title));
@@ -46,6 +55,17 @@ public class FloatValuePanel extends JPanel {
 		staticSpinner.setPreferredSize(standinGuiSpinner.getPreferredSize());
 		staticSpinner.setMaximumSize(standinGuiSpinner.getMaximumSize());
 		staticSpinner.setMinimumSize(standinGuiSpinner.getMinimumSize());
+		staticSpinner.addActionListener(new Runnable() {
+			@Override
+			public void run() {
+				if (staticSpinner.isEnabled()) {
+					final SetFloatStaticValueAction setFloatStaticValueAction = new SetFloatStaticValueAction(title,
+							lastLoadedValue, ((Number) staticSpinner.getValue()).floatValue(), valueSetter);
+					setFloatStaticValueAction.redo();
+					undoActionListener.pushAction(setFloatStaticValueAction);
+				}
+			}
+		});
 		add(staticSpinner, "wrap");
 		add(dynamicButton);
 		interpTypeBox = new JComboBox<InterpolationType>(InterpolationType.values());
@@ -81,12 +101,18 @@ public class FloatValuePanel extends JPanel {
 		dynamicButton.addChangeListener(l);
 	}
 
-	public void reloadNewValue(final float value, final AnimFlag valueTrack) {
+	public void reloadNewValue(final float value, final Callback<Float> valueSetter, final AnimFlag valueTrack,
+			final UndoActionListener undoActionListener,
+			final ModelStructureChangeListener modelStructureChangeListener) {
+		this.lastLoadedValue = value;
+		this.valueTrack = valueTrack;
+		this.valueSetter = valueSetter;
+		this.undoActionListener = undoActionListener;
+		this.modelStructureChangeListener = modelStructureChangeListener;
 		if (valueTrack == null) {
 			staticButton.setSelected(true);
 			interpTypeBox.setSelectedItem(InterpolationType.DONT_INTERP);
-		}
-		else {
+		} else {
 			dynamicButton.setSelected(true);
 			interpTypeBox.setSelectedItem(valueTrack.getInterpTypeAsEnum());
 		}
