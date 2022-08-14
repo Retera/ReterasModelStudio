@@ -18,14 +18,14 @@ import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 public class ViewportCanvas extends SmarterAWTGLCanvas {
-	private final CameraManager cameraManager;
-	private final ViewportSettings viewportSettings = new ViewportSettings();
-	private final MouseListenerThing mouseAdapter;
-	private final KeylistenerThing keyAdapter;
-	private BufferFiller bufferFiller;
-	private Timer paintTimer;
-	private long exceptionTimeout = 0;
-	private boolean doPaint = true;
+	protected final CameraManager cameraManager;
+	protected final ViewportSettings viewportSettings = new ViewportSettings();
+	protected final MouseListenerThing mouseAdapter;
+	protected final KeylistenerThing keyAdapter;
+	protected BufferFiller bufferFiller;
+	protected Timer paintTimer;
+	protected long exceptionTimeout = 0;
+	protected boolean doPaint = true;
 
 	public ViewportCanvas(ProgramPreferences programPreferences) throws LWJGLException {
 		this(programPreferences, false);
@@ -47,7 +47,6 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 		addKeyListener(keyAdapter);
 
 		paintTimer = new Timer(16, e -> {
-//		paintTimer = new Timer(200, e -> {
 			repaint();
 			if (!isShowing()) {
 				paintTimer.stop();
@@ -88,7 +87,6 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 
 	@Override
 	public void initGL() {
-//		System.out.println("initGL");
 		if(bufferFiller != null){
 			bufferFiller.initGL();
 		}

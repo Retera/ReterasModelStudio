@@ -16,10 +16,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class ViewportPanel extends JPanel {
-	private final ViewportCanvas viewport;
-	private final ViewportSettings viewportSettings;
-	private final JPanel buttonPanel;
-	private ViewportActivityManager activityListener;
+	protected final ViewportCanvas viewport;
+	protected final ViewportSettings viewportSettings;
+	protected final JPanel buttonPanel;
+	protected ViewportActivityManager activityListener;
 
 	public ViewportPanel(boolean allowButtonPanel, boolean showNodes) {
 		this(allowButtonPanel, showNodes, false);
@@ -32,8 +32,7 @@ public class ViewportPanel extends JPanel {
 		setOpaque(true);
 
 		try {
-			viewport = new ViewportCanvas(ProgramGlobals.getPrefs(), potrait);
-			viewport.setMinimumSize(new Dimension(200, 200));
+			viewport = getViewport(potrait);
 			viewportSettings = viewport.getViewportSettings();
 			viewportSettings.setShowNodes(showNodes);
 
@@ -50,6 +49,13 @@ public class ViewportPanel extends JPanel {
 			buttonPanel = null;
 		}
 	}
+
+	protected ViewportCanvas getViewport(boolean potrait) throws LWJGLException {
+		final ViewportCanvas viewport = new ViewportCanvas(ProgramGlobals.getPrefs(), potrait);
+		viewport.setMinimumSize(new Dimension(200, 200));
+		return viewport;
+	}
+
 	public ViewportPanel setModel(RenderModel renderModel, ViewportActivityManager activityListener) {
 		this.activityListener = activityListener;
 		if (renderModel != null) {
