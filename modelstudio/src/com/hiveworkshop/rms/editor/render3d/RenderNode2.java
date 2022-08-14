@@ -83,10 +83,6 @@ public final class RenderNode2 extends RenderNode<IdObject> {
 			wasDirty = false;
 		}
 
-		updateChildren();
-	}
-
-	public void updateChildren() {
 		for (IdObject childNode : animatedNode.getChildrenNodes()) {
 			if (renderModel.getRenderNode(childNode) == null) {
 				throw new NullPointerException(

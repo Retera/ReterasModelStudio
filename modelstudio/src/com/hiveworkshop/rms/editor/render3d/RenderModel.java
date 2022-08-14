@@ -198,9 +198,10 @@ public final class RenderModel {
 
 		sortedNodes.clear();
 		idObjectToRenderNode.clear();
+		cameraToRenderNode.clear();
 		fetchCameraSourceNodes();
 		setupHierarchy();
-		fetchCameraTargetNodes();
+//		fetchCameraTargetNodes();
 
 		updateParticleStuff();
 
@@ -233,6 +234,7 @@ public final class RenderModel {
 	}
 
 	private void fetchCameraSourceNodes() {
+//		cameraToRenderNode.keySet().removeIf(c -> c instanceof CameraNode && !model.contains(((CameraNode) c).getParent()));
 		for (Camera camera : model.getCameras()) {
 			SourceNode object = camera.getSourceNode();
 			sortedNodes.add(object);
@@ -295,7 +297,7 @@ public final class RenderModel {
 					getRenderNode((IdObject) idObject).resetTransformation();
 				} else if(idObject instanceof CameraNode.SourceNode){
 					getRenderNode((CameraNode.SourceNode) idObject).resetTransformation();
-				} else {
+				} else if (idObject != null && getRenderNode(idObject) != null){
 					getRenderNode(idObject).resetTransformation();
 				}
 			}

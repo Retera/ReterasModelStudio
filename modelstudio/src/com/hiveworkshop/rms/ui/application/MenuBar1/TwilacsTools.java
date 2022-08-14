@@ -1,14 +1,13 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.actionfunctions.ShowHideStuff;
-import com.hiveworkshop.rms.ui.application.actionfunctions.SplitVertices;
-import com.hiveworkshop.rms.ui.application.actionfunctions.TwilacStuff;
-import com.hiveworkshop.rms.ui.application.actionfunctions.WeldVerts;
+import com.hiveworkshop.rms.ui.application.actionfunctions.*;
 import com.hiveworkshop.rms.ui.application.tools.SkinningOptionPanel;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
+
+import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenu;
 
 public class TwilacsTools extends JMenu {
 
@@ -16,7 +15,7 @@ public class TwilacsTools extends JMenu {
 		super("Twilac's Beta Tools");
 		setMnemonic(KeyEvent.VK_I);
 		getAccessibleContext().setAccessibleDescription("Where Twilac puts new features during development before they find a permanent home.");
-//		add(getSkinningMenu());
+		add(getSkinningMenu());
 
 		add(new WeldVerts().getMenuItem());
 		add(new SplitVertices().getMenuItem());
@@ -24,9 +23,12 @@ public class TwilacsTools extends JMenu {
 		add(ShowHideStuff.getHideVertsMenuItem());
 		add(ShowHideStuff.getShowVertsMenuItem());
 		add(TwilacStuff.getBridgeEdgesMenuItem());
-		add(TwilacStuff.getTestShaderStuffMenuItem());
-		add(TwilacStuff.getTextShaderStuffNodeMenuItem());
-		add(TwilacStuff.getTextShaderStuffGridMenuItem());
+
+		JMenu shaderEditorMenu = createMenu("Shader Editors", KeyEvent.VK_S);
+		add(shaderEditorMenu);
+		shaderEditorMenu.add(TwilacStuff.getTestShaderStuffMenuItem());
+		shaderEditorMenu.add(TwilacStuff.getTextShaderStuffNodeMenuItem());
+		shaderEditorMenu.add(TwilacStuff.getTextShaderStuffGridMenuItem());
 
 //		add(TwilacStuff.getSelectEdgeMenuItem());
 //		add(new JSeparator());
@@ -41,7 +43,7 @@ public class TwilacsTools extends JMenu {
 		add(TwilacStuff.getSpliceSubMeshMenuItem());
 		add(TwilacStuff.getSpliceGeosetMenuItem());
 		add(new JSeparator());
-		add(TwilacStuff.getReorderAnimationsMenuItem());
+		add(new ReorderAnimations().getMenuItem());
 		add(new JSeparator());
 		add(TwilacStuff.getLinearizeSelectedMenuItem());
 		add(TwilacStuff.getRenameBoneChainMenuItem());
@@ -50,7 +52,7 @@ public class TwilacsTools extends JMenu {
 		add(TwilacStuff.getDupeForAnimStuffMenuItem());
 		add(TwilacStuff.getGlobalTransfStuffMenuItem());
 		add(TwilacStuff.getBakeAndRebindToNullMenuItem());
-		add(TwilacStuff.getMergeBoneHelpersMenuItem());
+		add(new MergeBonesWithHelpers().getMenuItem());
 		add(TwilacStuff.getAddNewAttatchment());
 		add(TwilacStuff.getExportUVMaskMenuItem());
 		add(TwilacStuff.getTextureCompositionMenuItem());

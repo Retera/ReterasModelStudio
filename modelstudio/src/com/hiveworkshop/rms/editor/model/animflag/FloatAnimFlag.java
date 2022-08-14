@@ -308,4 +308,10 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 			cur.outTan *= outAdj;
 		}
 	}
+	public FloatAnimFlag getAsTypedOrNull(AnimFlag<?> animFlag){
+		if(animFlag instanceof FloatAnimFlag){
+			return (FloatAnimFlag) animFlag;
+		}
+		return null;
+	}
 }

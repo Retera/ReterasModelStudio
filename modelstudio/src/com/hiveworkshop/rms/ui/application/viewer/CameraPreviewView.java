@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.viewer;
 import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportPanel;
 import com.hiveworkshop.rms.ui.application.model.ComponentCameraPanel;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -18,7 +19,7 @@ import java.awt.event.ComponentEvent;
 public class CameraPreviewView extends ModelDependentView {
 	private final AnimationController animationController;
 	private JScrollPane scrollPane;
-	private final PreviewPanel previewPanel;
+	private final ViewportPanel viewportPanel;;
 	private final JPanel smartPanel;
 	private final JPanel topLeftPanel;
 	private final JPanel viewMainPanel;
@@ -32,9 +33,9 @@ public class CameraPreviewView extends ModelDependentView {
 		smartPanel = getSpecialPane();
 		topLeftPanel = new JPanel(new MigLayout("fill", "", ""));
 		viewMainPanel = new JPanel(new MigLayout("fill, ins 0, gap 0","[][]", "[grow][]"));
-		previewPanel = new PreviewPanel();
-		cameraHandler = previewPanel.getPerspectiveViewport().getCameraHandler();
-		animationController = new AnimationController(previewPanel::setLevelOfDetail);
+		viewportPanel = new ViewportPanel(false, false, true);
+		cameraHandler = viewportPanel.getViewport().getCameraHandler();
+		animationController = new AnimationController(viewportPanel.getViewport()::setLevelOfDetail);
 		this.setComponent(viewMainPanel);
 	}
 
@@ -44,22 +45,23 @@ public class CameraPreviewView extends ModelDependentView {
 		topLeftPanel.removeAll();
 		if (modelPanel == null || modelPanel.getModelHandler().getModel().getCameras().isEmpty()) {
 			scrollPane.setViewportView(new JPanel());
-			previewPanel.setModel(null, false, null);
+			viewportPanel.setModel(null, null);
 			animationController.setModel(null, null, true);
 			renderModel = null;
 		} else {
 			ModelHandler modelHandler = modelPanel.getModelHandler();
 			renderModel = modelHandler.getPreviewRenderModel();
-			previewPanel.setModel(modelHandler, true, modelPanel.getViewportActivityManager());
-			animationController.setModel(renderModel, previewPanel.getCurrentAnimation(), true);
-			topLeftPanel.add(previewPanel, "wrap");
+			viewportPanel.setModel(renderModel, modelPanel.getViewportActivityManager());
+			animationController.setModel(renderModel, renderModel.getTimeEnvironment().getCurrentAnimation(), true);
+			topLeftPanel.add(viewportPanel, "wrap");
 			topLeftPanel.add(getCameraChooserPanel(modelHandler.getModel()), "spanx, growx, wrap");
 			cameraPanel = new ComponentCameraPanel(modelHandler);
 
 			chosenCamera = modelHandler.getModel().getCameras().get(0);
 			if(chosenCamera != null) {
 				cameraPanel.setSelectedItem(chosenCamera);
-				cameraHandler.setCamera(renderModel.getRenderNode(chosenCamera.getSourceNode()));
+//				cameraHandler.setCamera(renderModel.getRenderNode(chosenCamera.getSourceNode()));
+				cameraHandler.setCamera(renderModel, chosenCamera.getSourceNode());
 			}
 
 			viewMainPanel.add(topLeftPanel, "");
@@ -89,7 +91,8 @@ public class CameraPreviewView extends ModelDependentView {
 
 	private void setChoosenCamera(Camera chosenCamera) {
 		this.chosenCamera = chosenCamera;
-		cameraHandler.setCamera(renderModel.getRenderNode(chosenCamera.getSourceNode()));
+//		cameraHandler.setCamera(renderModel.getRenderNode(chosenCamera.getSourceNode()));
+		cameraHandler.setCamera(renderModel, chosenCamera.getSourceNode());
 		if (cameraPanel != null){
 			cameraPanel.setSelectedItem(chosenCamera);
 		}
@@ -117,8 +120,8 @@ public class CameraPreviewView extends ModelDependentView {
 		if (animationController != null) {
 			animationController.reload().repaint();
 		}
-		if (previewPanel != null) {
-			previewPanel.reload().repaint();
+		if (viewportPanel != null) {
+			viewportPanel.reload().repaint();
 		}
 		if (cameraPanel != null && chosenCamera != null){
 			cameraPanel.setSelectedItem(chosenCamera);

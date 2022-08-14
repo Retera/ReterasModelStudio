@@ -48,6 +48,12 @@ public class ViewBox {
 				&& top.inFrontOf(point)
 				&& left.inFrontOf(point);
 	}
+	public boolean pointInBox(Vec3 point, float margin) {
+		return     bottom.inFrontOf(point, margin)
+				&& right.inFrontOf(point, margin)
+				&& top.inFrontOf(point, margin)
+				&& left.inFrontOf(point, margin);
+	}
 
 	public boolean pointInBoxPrint(Vec3 point) {
 		boolean b_bottom = bottom.inFrontOf(point);

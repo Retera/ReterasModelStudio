@@ -552,6 +552,6 @@ public class SkinningOptionPanel extends JPanel {
 		skinningOptionPanel.setPreferredSize(new Dimension(800, 650));
 		skinningOptionPanel.revalidate();
 //		FramePopup.show(skinningOptionPanel, ProgramGlobals.getMainPanel(), "Edit Textures");
-		FramePopup.show(skinningOptionPanel, parent, "Edit Textures");
+		FramePopup.show(skinningOptionPanel, parent, "Edit Skinning");
 	}
 }

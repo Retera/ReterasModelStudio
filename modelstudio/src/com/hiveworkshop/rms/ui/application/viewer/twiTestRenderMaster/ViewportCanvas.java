@@ -24,10 +24,20 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 	private final KeylistenerThing keyAdapter;
 	private BufferFiller bufferFiller;
 	private Timer paintTimer;
+	private long exceptionTimeout = 0;
+	private boolean doPaint = true;
 
 	public ViewportCanvas(ProgramPreferences programPreferences) throws LWJGLException {
+		this(programPreferences, false);
+	}
+	public ViewportCanvas(ProgramPreferences programPreferences, boolean portrait) throws LWJGLException {
 		super();
-		cameraManager = new CameraManager(this);
+		if(portrait){
+			cameraManager = new PortraitCameraManager(this);
+		} else {
+
+			cameraManager = new CameraManager(this);
+		}
 		mouseAdapter = new MouseListenerThing(cameraManager, programPreferences);
 		addMouseListener(mouseAdapter);
 		addMouseMotionListener(mouseAdapter);
@@ -86,13 +96,8 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 
 	@Override
 	public void paintGL() {
-//		try {
-//			System.out.println("painting canvas, is current: " + isCurrent());
-//		} catch (LWJGLException e) {
-//			throw new RuntimeException(e);
-//		}
 		setSize(getParent().getSize());
-		if(bufferFiller != null){
+		if(doPaint && bufferFiller != null){
 			if(bufferConsumer != null){
 				final Consumer<ByteBuffer> bc = bufferConsumer;
 				ByteBuffer pixels = bufferFiller.paintGL2(cameraManager, viewportSettings, getWidth(), getHeight());
@@ -106,11 +111,17 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 				swapBuffers();
 			} catch (LWJGLException e) {
 				e.printStackTrace();
+				paintTimer.stop();
+				doPaint = false;
+				exceptionTimeout = System.currentTimeMillis() + 2000L;
 			}
 		}
 
 		if (isShowing() && !paintTimer.isRunning()) {
-			paintTimer.restart();
+			if(exceptionTimeout < System.currentTimeMillis()){
+				doPaint = true;
+				paintTimer.restart();
+			}
 		} else if (!isShowing() && paintTimer.isRunning()) {
 			paintTimer.stop();
 		}

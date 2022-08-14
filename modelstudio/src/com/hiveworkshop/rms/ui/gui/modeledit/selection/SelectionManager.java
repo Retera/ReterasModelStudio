@@ -146,21 +146,21 @@ public class SelectionManager extends AbstractSelectionManager {
 		}
 
 		if (selectionMode == SelectionItemTypes.FACE) {
-			Set<GeosetVertex> selectedVerts = addTrisFromArea(min, max, viewBox);
+			Set<GeosetVertex> selectedVerts = addTrisFromArea(min, max, viewBox, sizeAdj);
 			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, viewBox, sizeAdj);
 			Set<CameraNode> selectedCamNodes = getCameraNodesFromArea(min, max, viewBox, sizeAdj);
 			return new SelectionBundle(selectedVerts, selectedObjs, selectedCamNodes);
 		}
 
 		if (selectionMode == SelectionItemTypes.CLUSTER) {
-			Set<GeosetVertex> selectedVerts = getClusterBundle(vertexClusterDefinitions, addTrisFromArea(min, max, viewBox));
+			Set<GeosetVertex> selectedVerts = getClusterBundle(vertexClusterDefinitions, addTrisFromArea(min, max, viewBox, sizeAdj));
 			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, viewBox, sizeAdj);
 			Set<CameraNode> selectedCamNodes = getCameraNodesFromArea(min, max, viewBox, sizeAdj);
 			return new SelectionBundle(selectedVerts, selectedObjs, selectedCamNodes);
 		}
 
 		if (selectionMode == SelectionItemTypes.GROUP) {
-			Set<GeosetVertex> selectedVerts = getGroupBundle(addTrisFromArea(min, max, viewBox));
+			Set<GeosetVertex> selectedVerts = getGroupBundle(addTrisFromArea(min, max, viewBox, sizeAdj));
 			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, viewBox, sizeAdj);
 			Set<CameraNode> selectedCamNodes = getCameraNodesFromArea(min, max, viewBox, sizeAdj);
 			return new SelectionBundle(selectedVerts, selectedObjs, selectedCamNodes);
@@ -426,10 +426,12 @@ public class SelectionManager extends AbstractSelectionManager {
 
 	public Set<GeosetVertex> addVertsFromArea(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		Set<GeosetVertex> newSelection = new HashSet<>();
+		int vertexSize = ProgramGlobals.getPrefs().getVertexSize();
 		for (Geoset geoset : modelView.getEditableGeosets()) {
-			for (GeosetVertex geosetVertex : geoset.getVertices()) {
-				if (modelView.isEditable(geosetVertex) && HitTestStuff.hitTest(min, max, geosetVertex, coordinateSystem, ProgramGlobals.getPrefs().getVertexSize()))
-					newSelection.add(geosetVertex);
+			for (GeosetVertex vertex : geoset.getVertices()) {
+				if (modelView.isEditable(vertex)
+						&& HitTestStuff.hitTest(min, max, vertex, coordinateSystem, vertexSize))
+					newSelection.add(vertex);
 			}
 		}
 		return newSelection;
@@ -519,11 +521,11 @@ public class SelectionManager extends AbstractSelectionManager {
 	private Set<CameraNode> getCameraNodesFromArea(Vec2 min, Vec2 max, SelectionBoxHelper viewBox, double sizeAdj) {
 		Set<CameraNode> selectedCamNodes = new HashSet<>();
 //		Vec2 vertexV2 = new Vec2();
-//		double vertexSize = sizeAdj * ProgramGlobals.getPrefs().getVertexSize() / 2.0;
+		float vertexSize = (float) (sizeAdj * ProgramGlobals.getPrefs().getVertexSize() / 2.0);
 		for (CameraNode node : modelView.getEditableCameraNodes()) {
 			if (modelView.isEditable(node)) {
 
-				if(viewBox.pointInBox(node.getPosition())) {
+				if(viewBox.pointInBox(node.getPosition(), vertexSize)) {
 					selectedCamNodes.add(node);
 				}
 			}
@@ -536,8 +538,8 @@ public class SelectionManager extends AbstractSelectionManager {
 //		Vec2 vertexV2 = new Vec2();
 		for (IdObject object : modelView.getEditableIdObjects()) {
 			if (modelView.isEditable(object)) {
-//				double vertSize = sizeAdj * object.getClickRadius() / 2.0;
-				if(viewBox.pointInBox(object.getPivotPoint())) {
+				float vertSize = (float) (sizeAdj * object.getClickRadius() / 2.0);
+				if(viewBox.pointInBox(object.getPivotPoint(), vertSize)) {
 					selectedItems.add(object);
 				}
 			}
@@ -554,9 +556,11 @@ public class SelectionManager extends AbstractSelectionManager {
 		return selectedItems;
 	}
 
-	private Set<GeosetVertex> addTrisFromArea(Vec2 min, Vec2 max, SelectionBoxHelper viewBox) {
+	private Set<GeosetVertex> addTrisFromArea(Vec2 min, Vec2 max, SelectionBoxHelper viewBox, double sizeAdj) {
 		// ToDo fix!
 		Set<GeosetVertex> newSelection = new HashSet<>();
+
+		float vertSize = (float) (sizeAdj * ProgramGlobals.getPrefs().getVertexSize() / 2.0);
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			RenderGeoset renderGeoset = editorRenderModel.getRenderGeoset(geoset);
 			for (Triangle triangle : geoset.getTriangles()) {
@@ -564,7 +568,7 @@ public class SelectionManager extends AbstractSelectionManager {
 					Vec3 renderPos0 = renderGeoset.getRenderVert(triangle.get(0)).getRenderPos();
 					Vec3 renderPos1 = renderGeoset.getRenderVert(triangle.get(1)).getRenderPos();
 					Vec3 renderPos2 = renderGeoset.getRenderVert(triangle.get(2)).getRenderPos();
-					if(viewBox.anyPointInBox(renderPos0, renderPos1, renderPos2) || viewBox.triIntersectBox(renderPos0, renderPos1, renderPos2)){
+					if(viewBox.anyPointInBox(vertSize, renderPos0, renderPos1, renderPos2) || viewBox.triIntersectBox(renderPos0, renderPos1, renderPos2)){
 						System.out.println("point in box!");
 						newSelection.add(triangle.get(0));
 						newSelection.add(triangle.get(1));
@@ -581,13 +585,13 @@ public class SelectionManager extends AbstractSelectionManager {
 		Set<GeosetVertex> newSelection = new HashSet<>();
 //		Vec2 vertexV2 = new Vec2();
 
-		double vertSize = sizeAdj * ProgramGlobals.getPrefs().getVertexSize() / 2.0;
+		float vertSize = (float) (sizeAdj * ProgramGlobals.getPrefs().getVertexSize() / 2.0);
 
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			RenderGeoset renderGeoset = editorRenderModel.getRenderGeoset(geoset);
 			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
 				if (modelView.isEditable(renderVert.getVertex())){
-					if(viewBox.pointInBox(renderVert.getRenderPos())) {
+					if(viewBox.pointInBox(renderVert.getRenderPos(), vertSize)) {
 						newSelection.add(renderVert.getVertex());
 					}
 				}

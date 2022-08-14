@@ -57,7 +57,8 @@ public class VertMarkerShaderPipeline extends ShaderPipeline {
 		lightingEnabled = 0;
 
 		tempVec4.set(0,0,0,1).transform(currentMatrix);
-		glUniform("scale", tempVec4.w/ viewPortSize.x, tempVec4.w/ viewPortSize.y);
+		float vertexSize = ProgramGlobals.getPrefs().getVertexSize()/2f;
+		glUniform("scale", vertexSize*tempVec4.w/ viewPortSize.x, vertexSize*tempVec4.w/ viewPortSize.y);
 
 		glUniform("u_viewPos", Vec3.NEGATIVE_Z_AXIS);
 		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);

@@ -12,7 +12,9 @@ import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.VisibilitySource;
-import com.hiveworkshop.rms.editor.model.animflag.*;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.actionfunctions.ImportFromObjectEditor;
 import com.hiveworkshop.rms.ui.application.actionfunctions.ImportFromUnit;
@@ -37,20 +39,9 @@ import java.util.function.Supplier;
 
 public class AddSingleAnimationActions {
 
-	public static void addAnimationFrom(Supplier<EditableModel> sourceSupplier) {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null && sourceSupplier != null) {
-			EditableModel animationSourceModel = sourceSupplier.get();
-			if (animationSourceModel != null) {
-				addSingleAnimation(modelPanel.getModelHandler(), animationSourceModel);
-			}
-			ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
-		}
-	}
 	public static void addAnimationFromFile() {
 		addAnimationFrom(() -> ModelFromFile.chooseModelFile(FileDialog.OPEN_WC_MODEL, null));
 	}
-
 	public static void addAnimationFromUnit() {
 		addAnimationFrom(ImportFromUnit::getFileModel);
 	}
@@ -62,46 +53,18 @@ public class AddSingleAnimationActions {
 	public static void addAnimationFromObject() {
 		addAnimationFrom(ImportFromObjectEditor::fetchObjectModel);
 	}
-//	public static void addAnimationFromFile() {
-//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-//		if (modelPanel != null) {
-//			EditableModel animationSourceModel = ModelFromFile.chooseModelFile(FileDialog.OPEN_WC_MODEL, null);
-//			if (animationSourceModel != null) {
-//				addSingleAnimation(modelPanel.getModelHandler(), animationSourceModel);
-//			}
-//			ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
-//		}
-//	}
-//
-//	public static void addAnimationFromObject() {
-//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-//		if (modelPanel != null) {
-//			EditableModel animationSource = ImportFromObjectEditor.fetchObjectModel();
-//			if (animationSource != null) {
-//				addSingleAnimation(modelPanel.getModelHandler(), animationSource);
-//			}
-//		}
-//	}
-//
-//	public static void addAnimFromModel() {
-//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-//		if (modelPanel != null) {
-//			EditableModel animationSource = ImportWC3Model.fetchModel();
-//			if (animationSource != null) {
-//				addSingleAnimation(modelPanel.getModelHandler(), animationSource);
-//			}
-//		}
-//	}
-//
-//	public static void addAnimationFromUnit() {
-//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-//		if (modelPanel != null) {
-//			EditableModel animationSource = ImportFromUnit.getFileModel();
-//			if (animationSource != null) {
-//				addSingleAnimation(modelPanel.getModelHandler(), animationSource);
-//			}
-//		}
-//	}
+
+	public static void addAnimationFrom(Supplier<EditableModel> sourceSupplier) {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null && sourceSupplier != null) {
+			EditableModel animationSourceModel = sourceSupplier.get();
+			if (animationSourceModel != null) {
+				addSingleAnimation(modelPanel.getModelHandler(), animationSourceModel);
+			}
+			ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+		}
+	}
+
 
 	public static void addTextureAnim() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
@@ -194,10 +157,8 @@ public class AddSingleAnimationActions {
 //        optionPane.setOptions();
 		int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), creationPanel, "Create Empty Animation", JOptionPane.OK_CANCEL_OPTION);
 		System.out.println("option \"" + option + "\"");
-//		int start = (Integer) startSpinner.getValue();
 		int length = (Integer) lengthSpinner.getValue();
 		if (option == 0) {
-//			Animation animation = new Animation(nameField.getText(), start, length);
 			Animation animation = new Animation(nameField.getText(), 0, length);
 			UndoAction action = new AddSequenceAction(modelHandler.getModel(), animation, ModelStructureChangeListener.getModelStructureChangeListener());
 			modelHandler.getUndoManager().pushAction(action.redo());
@@ -212,12 +173,13 @@ public class AddSingleAnimationActions {
 		JPanel editMappingPanel = wizard2.getEditMappingPanel(-1, false, true);
 
 		SearchableList<Animation> animationsList = new SearchableList<>(AddSingleAnimationActions::filterAnims);
+		animationsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		animationsList.addAll(animationSourceModel.getAnims());
 		SearchableList<Animation> visibilityList = new SearchableList<>(AddSingleAnimationActions::filterAnims);
 		visibilityList.addAll(currModel.getAnims());
 
 		JPanel animPanel = new JPanel(new MigLayout("ins 0"));
-		animPanel.add(new JLabel("Choose animation to be added from " + animationSourceModel.getName()), "spanx, wrap");
+		animPanel.add(new JLabel("Choose animation(s) to be added from " + animationSourceModel.getName()), "spanx, wrap");
 		animPanel.add(animationsList.getScrollableList(), "growx, wrap");
 
 		JPanel visPanel = new JPanel(new MigLayout("ins 0"));
@@ -229,7 +191,7 @@ public class AddSingleAnimationActions {
 		panel.add(animPanel, "growx, wrap");
 		panel.add(visPanel, "growx, wrap");
 		JButton doAdd = new JButton("Do Add");
-		doAdd.addActionListener(e -> doAddAnimation(modelHandler, animationSourceModel.getName(), panel, animationsList.getSelectedValue(), visibilityList.getSelectedValue(), wizard2.fillAndGetChainMap()));
+		doAdd.addActionListener(e -> doAddAnimations(modelHandler, animationSourceModel.getName(), panel, animationsList.getSelectedValuesList(), visibilityList.getSelectedValue(), wizard2.fillAndGetChainMap()));
 		panel.add(doAdd);
 
 		JTabbedPane tabbedPane = new JTabbedPane();
@@ -242,25 +204,38 @@ public class AddSingleAnimationActions {
 		return animation.getName().toLowerCase().contains(text.toLowerCase());
 	}
 
-	private static void doAddAnimation(ModelHandler modelHandler, String animSrcName, Component parent, Animation animation, Animation vis, Map<IdObject, IdObject> nodeMap) {
+	private static void doAddAnimations(ModelHandler modelHandler, String animSrcName, Component parent, Collection<Animation> animations, Animation vis, Map<IdObject, IdObject> nodeMap) {
 		HashMap<Sequence, Sequence> animMap = new HashMap<>();
-		animMap.put(animation, animation);
+		for (Animation animation : animations){
+			animMap.put(animation, animation);
+		}
 
+		List<UndoAction> actions = new ArrayList<>();
 		UndoAction importAction = getImportAction(modelHandler.getModel(), animMap, nodeMap);
-		UndoAction setVisibilityAction = getSetVisibilityAction(modelHandler.getModel(), vis, animation);
+		actions.add(importAction);
+
+		for (Animation animation : animations){
+			animMap.put(animation, animation);
+			actions.addAll(getSetVisibilityActions(modelHandler.getModel(), vis, animation));
+		}
 
 		modelHandler.getUndoManager().pushAction(
-				new CompoundAction("Add Single Animation", ModelStructureChangeListener.changeListener::animationParamsChanged,
-						importAction,
-						setVisibilityAction)
+				new CompoundAction("Add Single Animation", actions, ModelStructureChangeListener.changeListener::animationParamsChanged)
 						.redo());
 
 
-		JOptionPane.showMessageDialog(parent, "Added " + animSrcName + "'s " + animation.getName()
-				+ " with " + vis.getName() + "'s visibility  OK!");
+		String visString = vis == null ? "everything visible" : vis.getName() + "'s visibility!";
+		String animString;
+		if(animations.size() == 1){
+			String name = animations.stream().findFirst().get().getName();
+			animString = animSrcName + "'s " + name;
+		} else {
+			animString = animations.size() + " animations from " + animSrcName;
+		}
+		JOptionPane.showMessageDialog(parent, "Added " + animString + " with " + visString);
 	}
 
-	public static UndoAction getSetVisibilityAction(EditableModel model, Animation visibilitySource, Animation target) {
+	public static List<UndoAction> getSetVisibilityActions(EditableModel model, Animation visibilitySource, Animation target) {
 		List<UndoAction> undoActions = new ArrayList<>();
 		List<VisibilitySource> allVisibilitySources = ModelUtils.getAllVis(model);
 		for (VisibilitySource source : allVisibilitySources) {
@@ -270,14 +245,13 @@ public class AddSingleAnimationActions {
 				undoActions.add(new SetFlagEntryMapAction<>(visibilityFlag, target, entryMapCopy, null));
 			}
 		}
-		return new CompoundAction("Copy Visibility", undoActions, null);
+		return undoActions;
 	}
 
 	private static UndoAction getImportAction(EditableModel recModel, Map<Sequence, Sequence> recToDonSequenceMap, Map<IdObject, IdObject> chainMap){
 		List<UndoAction> undoActions = new ArrayList<>();
 		undoActions.add(getAddSequencesAction(recModel, recToDonSequenceMap));
 		undoActions.add(getImportIdObjectsAction(recToDonSequenceMap, chainMap));
-
 
 		return new CompoundAction("import sub animation", undoActions, ModelStructureChangeListener.changeListener::nodesUpdated);
 	}
@@ -295,8 +269,6 @@ public class AddSingleAnimationActions {
 	private static UndoAction getImportIdObjectsAction(Map<Sequence, Sequence> recToDonSequenceMap, Map<IdObject, IdObject> chainMap) {
 		List<UndoAction> undoActions = new ArrayList<>();
 
-		System.out.println(chainMap.size());
-
 		for (IdObject recIdObject : chainMap.keySet()) {
 			IdObject donIdObject = chainMap.get(recIdObject);
 			List<Pair<AnimFlag<?>, AnimFlag<?>>> flagPairs = getFlagPairs(recIdObject, donIdObject);
@@ -305,34 +277,40 @@ public class AddSingleAnimationActions {
 				AnimFlag<?> recAnimFlag = flagPair.getFirst();
 				AnimFlag<?> donAnimFlag = flagPair.getSecond();
 
-				if (recAnimFlag instanceof IntAnimFlag && donAnimFlag instanceof IntAnimFlag){
-					addUndoActions(recToDonSequenceMap, undoActions, (IntAnimFlag) recAnimFlag, (IntAnimFlag) donAnimFlag);
-				} else if (recAnimFlag instanceof BitmapAnimFlag && donAnimFlag instanceof BitmapAnimFlag){
-					addUndoActions(recToDonSequenceMap, undoActions, (BitmapAnimFlag) recAnimFlag, (BitmapAnimFlag) donAnimFlag);
-				} else if (recAnimFlag instanceof FloatAnimFlag && donAnimFlag instanceof FloatAnimFlag){
-					addUndoActions(recToDonSequenceMap, undoActions, (FloatAnimFlag) recAnimFlag, (FloatAnimFlag) donAnimFlag);
-				} else if (recAnimFlag instanceof Vec3AnimFlag && donAnimFlag instanceof Vec3AnimFlag){
-					addUndoActions(recToDonSequenceMap, undoActions, (Vec3AnimFlag) recAnimFlag, (Vec3AnimFlag) donAnimFlag);
-				} else if (recAnimFlag instanceof QuatAnimFlag && donAnimFlag instanceof QuatAnimFlag){
-					addUndoActions(recToDonSequenceMap, undoActions, (QuatAnimFlag) recAnimFlag, (QuatAnimFlag) donAnimFlag);
-				} else if (recAnimFlag == null){
-					AnimFlag<?> newAnimFlag = donAnimFlag.getEmptyCopy();
-					for (Sequence sequence : recToDonSequenceMap.keySet()) {
-						AnimFlagUtils.copyFrom(newAnimFlag, donAnimFlag, recToDonSequenceMap.get(sequence), sequence);
-					}
-					undoActions.add(new AddAnimFlagAction<>(recIdObject, newAnimFlag, null));
-				} else if (donAnimFlag == null){
+				if (recAnimFlag != null && donAnimFlag != null){
+					undoActions.addAll(getReplaceTransfActions(recToDonSequenceMap, recAnimFlag, donAnimFlag));
+				} else if (recAnimFlag != null){
 					for (Sequence sequence : recToDonSequenceMap.keySet()) {
 						undoActions.add(new RemoveFlagEntryMapAction<>(recAnimFlag, sequence, null));
 					}
+				} else {
+					undoActions.add(getAddNewAnimFlagAction(recToDonSequenceMap, undoActions, recIdObject, donAnimFlag));
 				}
 			}
 		}
 
-		System.out.println("Done Importing! :O");
 		return new CompoundAction("import sub animation", undoActions, null);
 	}
 
+	private static AddAnimFlagAction<?> getAddNewAnimFlagAction(Map<Sequence, Sequence> recToDonSequenceMap, List<UndoAction> undoActions, IdObject recIdObject, AnimFlag<?> donAnimFlag) {
+		AnimFlag<?> newAnimFlag = donAnimFlag.getEmptyCopy();
+		for (Sequence sequence : recToDonSequenceMap.keySet()) {
+			AnimFlagUtils.copyFrom(newAnimFlag, donAnimFlag, recToDonSequenceMap.get(sequence), sequence);
+		}
+		return new AddAnimFlagAction<>(recIdObject, newAnimFlag, null);
+	}
+
+	private static <Q> List<UndoAction> getReplaceTransfActions(Map<Sequence, Sequence> recToDonSequenceMap, AnimFlag<Q> recAnimFlag, AnimFlag<?> donAnimFlag) {
+		List<UndoAction> undoActions = new ArrayList<>();
+		AnimFlag<Q> donTyped = recAnimFlag.getAsTypedOrNull(donAnimFlag);
+		if (donTyped != null){
+			for (Sequence recSequence : recToDonSequenceMap.keySet()) {
+				Sequence donSequence = recToDonSequenceMap.get(recSequence);
+				undoActions.add(new ReplaceSequenceTransformations<>(donTyped, recAnimFlag, donSequence, recSequence, null));
+			}
+		}
+		return undoActions;
+	}
 
 	private static List<Pair<AnimFlag<?>, AnimFlag<?>>> getFlagPairs(IdObject recIdObject, IdObject donIdObject){
 		List<Pair<AnimFlag<?>, AnimFlag<?>>> pairList = new ArrayList<>();
@@ -343,12 +321,14 @@ public class AddSingleAnimationActions {
 			Set<AnimFlag<?>> matchedFlags = new HashSet<>();
 			for (AnimFlag<?> recAnimFlag : recAnimFlags){
 				AnimFlag<?> donAnimFlag = donIdObject.find(recAnimFlag.getName());
+				// donAnimFlag == null means the animation should be cleared
 				pairList.add(new Pair<>(recAnimFlag, donAnimFlag));
 				matchedFlags.add(donAnimFlag);
 			}
 
 			for (AnimFlag<?> donAnimFlag : donAnimFlags){
 				if(!matchedFlags.contains(donAnimFlag)){
+					// Add a pair if receiving IdObject doesn't have transformation of this type
 					pairList.add(new Pair<>(null, donAnimFlag));
 				}
 			}

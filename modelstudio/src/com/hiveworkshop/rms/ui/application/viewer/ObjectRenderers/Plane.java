@@ -95,10 +95,15 @@ public class Plane {
 	private final Vec3 tempVec = new Vec3();
 	public boolean inFrontOf(Vec3 point){
 		tempVec.set(point).addScaled(norm, -dist);
-		float dot = tempVec.dot(norm);
-//		System.out.println("dot: " + dot);
-//		return dot >= -1E-6;
-		return dot > 0;
+		return tempVec.dot(norm) > 0;
+	}
+	public boolean inFrontOf(Vec3 point, float margin){
+		tempVec.set(point).addScaled(norm, -dist);
+		return (tempVec.dot(norm)+margin) > 0;
+	}
+	public float normDistTo(Vec3 point){
+		tempVec.set(point).addScaled(norm, -dist);
+		return tempVec.dot(norm);
 	}
 
 	public boolean pointOnPlane(Vec3 v) {

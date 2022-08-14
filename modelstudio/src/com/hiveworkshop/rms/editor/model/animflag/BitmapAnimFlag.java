@@ -240,4 +240,12 @@ public class BitmapAnimFlag extends AnimFlag<Bitmap> {
 //			cur.outTan *= (int) outAdj;
 //		}
 	}
+
+
+	public BitmapAnimFlag getAsTypedOrNull(AnimFlag<?> animFlag){
+		if(animFlag instanceof BitmapAnimFlag){
+			return (BitmapAnimFlag) animFlag;
+		}
+		return null;
+	}
 }

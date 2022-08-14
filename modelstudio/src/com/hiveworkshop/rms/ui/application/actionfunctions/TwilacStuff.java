@@ -2,14 +2,16 @@ package com.hiveworkshop.rms.ui.application.actionfunctions;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.ChangeInterpTypeAction;
-import com.hiveworkshop.rms.editor.actions.animation.animFlag.ReplaceAnimFlagsAction;
 import com.hiveworkshop.rms.editor.actions.mesh.BridgeEdgeAction;
 import com.hiveworkshop.rms.editor.actions.mesh.SnapCloseVertsAction;
-import com.hiveworkshop.rms.editor.actions.nodes.*;
-import com.hiveworkshop.rms.editor.actions.selection.RemoveSelectionUggAction;
+import com.hiveworkshop.rms.editor.actions.nodes.BakeAndRebindAction;
+import com.hiveworkshop.rms.editor.actions.nodes.BakeAndRebindActionTwi2;
 import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
-import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.Helper;
+import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
@@ -28,12 +30,14 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.SmartButtonGroup;
-import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public class TwilacStuff {
@@ -117,16 +121,6 @@ public class TwilacStuff {
 			RenameNodesPanel.show(ProgramGlobals.getMainPanel());
 		}
 	}
-	private static class ReorderAnimations extends TwiFunction{
-
-		public ReorderAnimations() {
-			super("Reorder Animations", ReorderAnimations::doStuff);
-		}
-		private static void doStuff(ModelHandler modelHandler) {
-			ReorderAnimationsPanel panel = new ReorderAnimationsPanel(modelHandler);
-			FramePopup.show(panel, null, "Re-order Animations");
-		}
-	}
 	private static class ImportModelPart extends TwiFunction{
 
 		public ImportModelPart() {
@@ -178,7 +172,7 @@ public class TwilacStuff {
 			EditableModel donModel = ModelFromFile.chooseModelFile(FileDialog.OPEN_WC_MODEL, null);
 			if (donModel != null) {
 				SpliceGeosetPanel panel = new SpliceGeosetPanel(donModel, modelHandler);
-				FramePopup.show(panel, ProgramGlobals.getMainPanel(), "Splice Geoset");
+				FramePopup.show(panel, ProgramGlobals.getMainPanel(), "Splice Geoset(s)");
 			}
 		}
 	}
@@ -294,147 +288,10 @@ public class TwilacStuff {
 			TextureCompositionPanel.showPanel(ProgramGlobals.getMainPanel());
 		}
 	}
-
-	private static class MergeBoneHelpers extends TwiFunction {
-
-		public MergeBoneHelpers() {
-			super("Merge unnecessary Helpers with Child Bones", MergeBoneHelpers::doStuff);
-		}
-
-		private static void doStuff(ModelHandler modelHandler) {
-			EditableModel model = modelHandler.getModel();
-			ModelView modelView = modelHandler.getModelView();
-			Set<Bone> bonesWOMotion = new HashSet<>();
-			model.getBones().stream()
-					.filter(b -> b.getAnimFlags().isEmpty() && modelView.isSelected(b) && b.getChildrenNodes().isEmpty() && b.getParent() instanceof Helper)
-					.forEach(bonesWOMotion::add);
-
-			List<UndoAction> undoActions = new ArrayList<>();
-			List<IdObject> nodesToRemove = new ArrayList<>();
-			Map<IdObject, IdObject> nodeToReplacement = new HashMap<>();
-			Map<Bone, List<IdObject>> boneToChildren = new HashMap<>();
-
-			for (Bone bone : bonesWOMotion){
-				IdObject parent = bone.getParent();
-				long count = parent.getChildrenNodes().stream().filter(idObject -> idObject instanceof Bone && bonesWOMotion.contains(idObject)).count();
-				if(count == 1){
-					nodesToRemove.add(parent);
-					nodeToReplacement.put(parent, bone);
-					System.out.println("moving " + bone.getName() + " to parent position");
-					undoActions.add(new SetPivotAction(bone, new Vec3(parent.getPivotPoint()), null));
-
-
-					ArrayList<AnimFlag<?>> animFlags = parent.getAnimFlags();
-					ArrayList<AnimFlag<?>> animFlagCopies = new ArrayList<>();
-					for(AnimFlag<?> animFlag : animFlags){
-						animFlagCopies.add(animFlag.deepCopy());
-					}
-					undoActions.add(new ReplaceAnimFlagsAction(bone, animFlagCopies, null));
-
-					List<IdObject> childList = new ArrayList<>(parent.getChildrenNodes());
-					childList.remove(bone);
-					boneToChildren.put(bone, childList);
-				}
-//				bone.setParent(parent.getParent());
-			}
-			System.out.println("\nfound " + bonesWOMotion.size() + " bones to merge and " + nodesToRemove.size() + " nodes to remove");
-
-			undoActions.add(new RemoveSelectionUggAction(new SelectionBundle(nodesToRemove), modelView, null));
-			undoActions.add(new DeleteNodesAction(nodesToRemove, null, model));
-
-			for (Bone bone : bonesWOMotion){
-				IdObject parent = bone.getParent();
-				if(nodesToRemove.contains(parent)){
-					IdObject newParent = parent.getParent();
-					while (nodeToReplacement.containsKey(newParent)){
-						newParent = nodeToReplacement.get(newParent);
-					}
-					String newParentName = newParent == null ? "NULL" : newParent.getName();
-					System.out.println("setting parent of " + bone.getName() + " to " + newParentName);
-					undoActions.add(new SetParentAction(bone, newParent, null));
-				}
-//				bone.setParent(parent.getParent());
-			}
-			for (Bone bone : boneToChildren.keySet()){
-				System.out.println(bone.getClass().getSimpleName() + ": " + bone.getName() + ": stealing parents (" + bone.getParent().getClass().getSimpleName() + ": " + bone.getParent().getName() + ") children");
-				List<IdObject> childList = boneToChildren.get(bone);
-				for(IdObject child : childList){
-					undoActions.add(new SetParentAction(child, bone, null));
-				}
-			}
-			modelHandler.getUndoManager().pushAction(
-					new CompoundAction("Merge unnecessary Helpers", undoActions,
-							ModelStructureChangeListener.changeListener::nodesUpdated)
-//							ModelStructureChangeListener.changeListener::geosetsUpdated)
-							.redo());
-		}
-		private static void doStuff1(ModelHandler modelHandler) {
-			EditableModel model = modelHandler.getModel();
-			ModelView modelView = modelHandler.getModelView();
-			Set<Bone> bonesWOMotion = new HashSet<>();
-			model.getBones().stream()
-					.filter(b -> b.getAnimFlags().isEmpty() && modelView.isSelected(b) && b.getChildrenNodes().isEmpty() && b.getParent() instanceof Helper)
-					.forEach(bonesWOMotion::add);
-
-			List<UndoAction> undoActions = new ArrayList<>();
-			List<IdObject> nodesToRemove = new ArrayList<>();
-			Map<IdObject, IdObject> nodeToReplacement = new HashMap<>();
-
-			for (Bone bone : bonesWOMotion){
-				IdObject parent = bone.getParent();
-				long count = parent.getChildrenNodes().stream().filter(idObject -> idObject instanceof Bone && bonesWOMotion.contains(idObject)).count();
-				if(count == 1){
-//					System.out.println(bone.getName() + ", parent: " + parent.getName() + ", has " + parent.getChildrenNodes().size() + " siblings");
-					nodesToRemove.add(parent);
-//					nodeToReplacement.put(parent, nodeToReplacement.getOrDefault(bone, bone));
-					nodeToReplacement.put(parent, bone);
-				}
-//				bone.setParent(parent.getParent());
-			}
-			System.out.println("\nfound " + bonesWOMotion.size() + " bones to merge and " + nodesToRemove.size() + " nodes to remove");
-			for (Bone bone : bonesWOMotion){
-				IdObject parent = bone.getParent();
-				if(nodesToRemove.contains(parent)){
-					IdObject newParent = nodeToReplacement.getOrDefault(parent.getParent(), parent.getParent());
-					Vec3 newPivot = new Vec3(parent.getPivotPoint());
-					System.out.println(bone.getName() + ", \tparent: " + parent.getName() + ", \thas " + parent.getChildrenNodes().size() + " siblings");
-
-					undoActions.add(new SetPivotAction(bone, newPivot, null));
-//				bone.setPivotPoint(parent.getPivotPoint());
-
-					ArrayList<AnimFlag<?>> animFlags = parent.getAnimFlags();
-//				bone.setAnimFlags(animFlags);
-					ArrayList<AnimFlag<?>> animFlagCopies = new ArrayList<>();
-					for(AnimFlag<?> animFlag : animFlags){
-						animFlagCopies.add(animFlag.deepCopy());
-					}
-					undoActions.add(new ReplaceAnimFlagsAction(bone, animFlagCopies, null));
-
-					List<IdObject> childList = new ArrayList<>(parent.getChildrenNodes());
-					for(IdObject child : childList){
-						if(child != bone){
-							undoActions.add(new SetParentAction(child, bone, null));
-						}
-					}
-					undoActions.add(new SetParentAction(bone, newParent, null));
-				}
-//				bone.setParent(parent.getParent());
-			}
-			undoActions.add(new RemoveSelectionUggAction(new SelectionBundle(nodesToRemove), modelView, null));
-			undoActions.add(new DeleteNodesAction(nodesToRemove, null, model));
-			modelHandler.getUndoManager().pushAction(
-					new CompoundAction("Merge unnececary Helpers", undoActions,
-							ModelStructureChangeListener.changeListener::nodesUpdated)
-//							ModelStructureChangeListener.changeListener::geosetsUpdated)
-							.redo());
-		}
-	}
 	private static class LinearizeSelected extends TwiFunction{
 
 		public LinearizeSelected() {
-			super("Linearize Animations For Selected Nodes", LinearizeSelected::linearizeAnimations);
-		}
-		private static void doStuff(ModelHandler modelHandler) {
+			super("Change Transform Interpolation For Selected Nodes", LinearizeSelected::linearizeAnimations);
 		}
 		public static void linearizeAnimations(ModelHandler modelHandler) {
 			JPanel panel = new JPanel(new MigLayout());
@@ -459,7 +316,7 @@ public class TwilacStuff {
 
 			final int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(),
 					panel,
-					"Linearize Animations For Selected", JOptionPane.OK_CANCEL_OPTION);
+					"Change Transform Interpolation For Selected Nodes", JOptionPane.OK_CANCEL_OPTION);
 			if (x == JOptionPane.OK_OPTION) {
 				InterpolationType interpolationType =
 						switch (buttonGroup.getSelectedIndex()){
@@ -485,7 +342,7 @@ public class TwilacStuff {
 					}
 				}
 
-				UndoAction action = new CompoundAction("Liniarize Animations", interpTypActions, ModelStructureChangeListener.changeListener::materialsListChanged);
+				UndoAction action = new CompoundAction("Set Interpolation To " + interpolationType, interpTypActions, ModelStructureChangeListener.changeListener::materialsListChanged);
 				modelHandler.getUndoManager().pushAction(action.redo());
 			}
 		}
@@ -510,9 +367,6 @@ public class TwilacStuff {
 	}
 	public static JMenuItem getRenameNodesMenuItem(){
 		return new RenameNodes().getMenuItem();
-	}
-	public static JMenuItem getReorderAnimationsMenuItem(){
-		return new ReorderAnimations().getMenuItem();
 	}
 
 	public static JMenuItem getImportModelPartMenuItem() {
@@ -557,9 +411,6 @@ public class TwilacStuff {
 	}
 	public static JMenuItem getTextureCompositionMenuItem() {
 		return new TextureComposition().getMenuItem();
-	}
-	public static JMenuItem getMergeBoneHelpersMenuItem() {
-		return new MergeBoneHelpers().getMenuItem();
 	}
 
 	public static JMenuItem getLinearizeSelectedMenuItem() {

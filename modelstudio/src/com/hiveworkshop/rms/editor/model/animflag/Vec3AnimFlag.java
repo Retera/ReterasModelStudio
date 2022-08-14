@@ -295,4 +295,11 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 		}
 
 	}
+
+	public Vec3AnimFlag getAsTypedOrNull(AnimFlag<?> animFlag){
+		if(animFlag instanceof Vec3AnimFlag){
+			return (Vec3AnimFlag) animFlag;
+		}
+		return null;
+	}
 }

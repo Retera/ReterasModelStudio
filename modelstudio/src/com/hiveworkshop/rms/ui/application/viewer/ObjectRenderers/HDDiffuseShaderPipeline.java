@@ -100,10 +100,22 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 		glUniform("u_textureReflections", 5);
 		glUniform("u_textureUsed", textureUsed);
 
-		float[] colorHig = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.VERTEX_HIGHLIGHTED);
-		float[] colorSel = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.VERTEX_SELECTED);
-		float[] colorEdi = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.VERTEX);
-		float[] colorVis = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.VERTEX_UNEDITABLE);
+		float[] colorHig;
+		float[] colorSel;
+		float[] colorEdi;
+		float[] colorVis;
+		if(polygonMode == GL11.GL_FILL){
+			colorHig = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.TRIANGLE_AREA_HIGHLIGHTED);
+			colorSel = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.TRIANGLE_AREA_SELECTED);
+			colorEdi = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.TRIANGLE_AREA);
+			colorVis = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.TRIANGLE_AREA_UNEDITABLE);
+		} else {
+			colorHig = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.TRIANGLE_LINE_HIGHLIGHTED);
+			colorSel = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.TRIANGLE_LINE_SELECTED);
+			colorEdi = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.TRIANGLE_LINE);
+			colorVis = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.TRIANGLE_LINE_UNEDITABLE);
+		}
+
 		glUniform("u_vertColors[0]", colorHig[0], colorHig[1], colorHig[2], colorHig[3]);
 		glUniform("u_vertColors[1]", colorSel[0], colorSel[1], colorSel[2], colorSel[3]);
 		glUniform("u_vertColors[2]", colorEdi[0], colorEdi[1], colorEdi[2], colorEdi[3]);

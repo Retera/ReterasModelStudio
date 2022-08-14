@@ -15,18 +15,21 @@ public final class ColorChooserIcon extends ImageIcon {
 	private final int[] pixels;
 	private RoundRectangle2D.Float roundRect;
 	private Rectangle rectangle;
+	private Color borderColor = Color.BLACK;
+	private Color color;
 
 	public ColorChooserIcon(final Color color, int width, int height) {
+		this.color = color;
 		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		checkerImage = getCheckerImage(width, height);
 		pixels = new int[width*height];
 		Arrays.fill(pixels, 0);
-
-		paintImage(color);
+		setArc(0);
+//		paintImage(color);
+//		roundRect = new RoundRectangle2D.Float(0, 0, width-1, height-1, arc+1, arc+1);
+//		rectangle = new Rectangle(0, 0, width, height);
 		setImage(image);
 
-		roundRect = new RoundRectangle2D.Float(0, 0, width-1, height-1, arc+1, arc+1);
-		rectangle = new Rectangle(0, 0, width, height);
 	}
 
 	public BufferedImage getCheckerImage(int width, int height){
@@ -49,7 +52,13 @@ public final class ColorChooserIcon extends ImageIcon {
 	}
 
 	public void setCurrentColor(final Color currentColor) {
+		color = currentColor;
 		paintImage(currentColor);
+	}
+
+	public ColorChooserIcon setBorderColor(Color borderColor) {
+		this.borderColor = borderColor;
+		return this;
 	}
 
 	public ColorChooserIcon setArc(int arc) {
@@ -59,6 +68,7 @@ public final class ColorChooserIcon extends ImageIcon {
 		int height = image.getHeight();
 		roundRect = new RoundRectangle2D.Float(0, 0, width-1, height-1, arc+1, arc+1);
 		rectangle = new Rectangle(0, 0, width, height);
+		paintImage(color);
 		return this;
 	}
 
@@ -78,7 +88,7 @@ public final class ColorChooserIcon extends ImageIcon {
 
 		g.setColor(color);
 		g.fillRoundRect(0, 0, width-1, height-1, arc+1, arc+1);
-		g.setColor(Color.BLACK);
+		g.setColor(borderColor);
 		g.drawRoundRect(0, 0, width-1, height-1, arc, arc);
 		g.dispose();
 	}

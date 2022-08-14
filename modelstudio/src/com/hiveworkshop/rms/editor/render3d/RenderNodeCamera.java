@@ -36,6 +36,7 @@ public final class RenderNodeCamera extends RenderNode<CameraNode.SourceNode> {
 		super(renderModel, sourceNode);
 		this.camera = sourceNode.getParent();
 		renderPivot.set(sourceNode.getPosition());
+		renderTarget.set(camera.getTargetPosition());
 	}
 
 	public void refreshFromEditor() {
@@ -61,7 +62,7 @@ public final class RenderNodeCamera extends RenderNode<CameraNode.SourceNode> {
 
 			worldMatrix.setIdentity().mul(localMatrix);
 
-			worldRotation.setIdentity();
+//			worldRotation.setIdentity();
 
 			// Inverse world rotation
 			inverseWorldRotation.set(worldRotation).invertRotation();
@@ -155,10 +156,12 @@ public final class RenderNodeCamera extends RenderNode<CameraNode.SourceNode> {
 		AnimFlag<?> rotationFlag = camera.getSourceNode().find(MdlUtils.TOKEN_ROTATION);
 		if (rotationFlag instanceof IntAnimFlag) {
 			localRotationInt = (Integer) rotationFlag.interpolateAt(timeEnvironment);
+			localRotationFloat = Float.valueOf(localRotationInt);
 			axisHeap.set(camera.getTargetPosition()).add(targetLocalLocation).sub(camera.getPosition()).sub(localLocation).normalize();
 			localRotation.setFromAxisAngle(axisHeap, localRotationInt);
 		} else if (rotationFlag instanceof FloatAnimFlag) {
 			localRotationFloat = (Float) rotationFlag.interpolateAt(timeEnvironment);
+			localRotationInt = localRotationFloat.intValue();
 			axisHeap.set(camera.getTargetPosition()).add(targetLocalLocation).sub(camera.getPosition()).sub(localLocation).normalize();
 			localRotation.setFromAxisAngle(axisHeap, localRotationFloat);
 		} else if (rotationFlag instanceof QuatAnimFlag) {

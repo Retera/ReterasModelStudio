@@ -42,6 +42,7 @@ public abstract class ShaderPipeline {
 	protected int currBufferOffset = 0;
 
 	protected int glBeginType;
+	protected int polygonMode;
 	protected int shaderProgram;
 	protected int glVertexBufferId;
 	protected int glVertexArrayId;
@@ -211,6 +212,12 @@ public abstract class ShaderPipeline {
 			doRender();
 		}
 	}
+
+	public ShaderPipeline setPolygonMode(int polygonMode) {
+		this.polygonMode = polygonMode;
+		return this;
+	}
+
 	public abstract void doRender();
 
 	// Prepare setup

@@ -233,4 +233,12 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 			cur.outTan *= (int) outAdj;
 		}
 	}
+
+
+	public IntAnimFlag getAsTypedOrNull(AnimFlag<?> animFlag){
+		if(animFlag instanceof IntAnimFlag){
+			return (IntAnimFlag) animFlag;
+		}
+		return null;
+	}
 }

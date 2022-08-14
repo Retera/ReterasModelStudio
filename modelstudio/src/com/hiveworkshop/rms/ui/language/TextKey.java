@@ -118,6 +118,9 @@ public enum TextKey {
 	MIRROR_SELECTED_UVS_X_SELECTION_CENTER("Mirror Selected UVs X (selection center)"),
 	MIRROR_SELECTED_UVS_Y_SELECTION_CENTER("Mirror Selected UVs Y (selection center)"),
 
+	MERGE_BONES_WITH_HELPERS("Merge unnecessary Helpers with Child Bones"),
+	REORDER_ANIMATIONS("Reorder Animations"),
+
 	;
 	String defaultTranslation;
 

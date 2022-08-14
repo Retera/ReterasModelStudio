@@ -893,4 +893,6 @@ public abstract class AnimFlag<T> {
 		factor[3] = (1 - tension) * (1 + contN) * (1 + biasN) * 0.5f;
 		return factor;
 	}
+
+	public abstract AnimFlag<T> getAsTypedOrNull(AnimFlag<?> animFlag);
 }

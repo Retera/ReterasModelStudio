@@ -694,4 +694,11 @@ public void calcNewTans111(float[] factor, Entry<Quat> next, Entry<Quat> prev, E
 		q.w = (float) Math.cos(t);
 		return q;
 	}
+
+	public QuatAnimFlag getAsTypedOrNull(AnimFlag<?> animFlag){
+		if(animFlag instanceof QuatAnimFlag){
+			return (QuatAnimFlag) animFlag;
+		}
+		return null;
+	}
 }

@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 public final class ColorChooserIconLabel extends JLabel {
 	private Color currentColor;
+	private Color orgColor;
 	private final Consumer<Color> colorListener;
 	private static final ColorChooserPopup COLOR_CHOOSER_POPUP = new ColorChooserPopup();
 	private ColorChooserIcon icon;
@@ -18,9 +19,10 @@ public final class ColorChooserIconLabel extends JLabel {
 	}
 	public ColorChooserIconLabel(final String text, final Color color, final Consumer<Color> colorListener) {
 		currentColor = color;
+		orgColor = color;
 		this.colorListener = colorListener;
 		this.setBackground(Color.red);
-		icon = new ColorChooserIcon(color, 24, 24).setArc(20);
+		icon = new ColorChooserIcon(color, 24, 24);
 		setIcon(icon);
 		setText(text);
 		addMouseListener(getMouseAdapter());
@@ -44,6 +46,11 @@ public final class ColorChooserIconLabel extends JLabel {
 
 	public void setCurrentColor(final Color currentColor) {
 		this.currentColor = currentColor;
+		if(currentColor != orgColor){
+			icon.setBorderColor(Color.GRAY);
+		} else {
+			icon.setBorderColor(Color.BLACK);
+		}
 		icon.setCurrentColor(currentColor);
 		colorListener.accept(currentColor);
 		repaint();

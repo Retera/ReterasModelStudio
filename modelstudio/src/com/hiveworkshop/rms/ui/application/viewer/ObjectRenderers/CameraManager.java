@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
+import com.hiveworkshop.rms.editor.model.CameraNode;
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNodeCamera;
 import com.hiveworkshop.rms.util.*;
 
@@ -24,6 +26,11 @@ public class CameraManager {
 	protected float sideAngle;  // yaw
 	protected float tiltAngle;  // roll
 	protected float distance;
+
+	protected float fieldOfView = 70;
+	protected float farClip = 20000f;
+	protected float nearClip = 1f;
+
 	protected Vec3 camPosition = new Vec3();
 	protected Vec3 camRight = new Vec3();
 	protected Vec3 camUp = new Vec3();
@@ -124,7 +131,7 @@ public class CameraManager {
 			projectionMatrix.setOrtho(-aspect*distance/2.0f, aspect*distance/2.0f, -distance/2.0f, distance/2.0f, -4000, 4000);
 		} else {
 //			projectionMatrix.setPerspective((float) Math.toRadians(70), aspect, 0.0001f, 200000f);
-			projectionMatrix.setPerspective((float) Math.toRadians(70), aspect, 1f, 20000f);
+			projectionMatrix.setPerspective((float) Math.toRadians(fieldOfView), aspect, nearClip, farClip);
 		}
 		viewProjectionMatrix.set(projectionMatrix).mul(viewMatrix);
 	}
@@ -158,6 +165,9 @@ public class CameraManager {
 	}
 
 	public CameraManager setCamera(RenderNodeCamera cameraNode) {
+		return this;
+	}
+	public CameraManager setCamera(RenderModel renderModel, CameraNode cameraNode) {
 		return this;
 	}
 
@@ -644,14 +654,15 @@ public class CameraManager {
 	}
 
 
-	private void calculateCameraRotation() {
+	protected void calculateCameraRotation() {
 		upRot.setFromAxisAngle(Vec3.Y_AXIS, upAngle);
 //		upRot.setFromAxisAngle(Vec3.X_AXIS, verticalAngle);
 		sideRot.setFromAxisAngle(Vec3.Z_AXIS, sideAngle);
 //		totRot.set(sideRot).mul(upRot);
 //		totRot.set(sideRot).mulLeft(upRot);
-		tilt.set(Vec3.X_AXIS, tiltAngle);
-		totRot.set(upRot).mulLeft(sideRot);
+		tilt.setFromAxisAngle(Vec3.X_AXIS, tiltAngle);
+//		totRot.set(upRot).mulLeft(tilt).mulLeft(sideRot);
+		totRot.set(tilt).mulLeft(upRot).mulLeft(sideRot);
 		inverseCameraRotXSpinY.setFromAxisAngle(Vec3.X_AXIS, sideAngle).normalize();
 		inverseCameraRotXSpinY.invertRotation();
 		inverseCameraRotYSpinY.setFromAxisAngle(Vec3.Y_AXIS, sideAngle).normalize();

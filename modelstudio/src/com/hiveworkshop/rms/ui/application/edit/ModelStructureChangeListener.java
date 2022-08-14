@@ -68,6 +68,15 @@ public class ModelStructureChangeListener {
 		updateRenderModel(modelHandler.getPreviewRenderModel());
 
 	}
+	public static void refreshRenderGeosets() {
+		System.out.println("refreshRenderGeosets");
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			ModelHandler modelHandler = modelPanel.getModelHandler();
+			modelHandler.getRenderModel().updateGeosets();
+			modelHandler.getPreviewRenderModel().updateGeosets();
+		}
+	}
 
 	public static void updateRenderModel(RenderModel renderModel) {
 		renderModel.refreshFromEditor();
@@ -80,6 +89,7 @@ public class ModelStructureChangeListener {
 
 	public void geosetsUpdated() {
 		// Tell program to set visibility after import
+		refreshRenderGeosets();
 		updateElementsAndRefreshFromEditor();
 		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 	}

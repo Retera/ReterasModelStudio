@@ -49,9 +49,20 @@ public class SelectionBoxHelper {
 	public boolean pointInBox(Vec3 point) {
 		return viewBox.pointInBox(point);
 	}
+	public boolean pointInBox(Vec3 point, float margin) {
+		return viewBox.pointInBox(point, margin);
+	}
 	public boolean anyPointInBox(Vec3... points) {
 		for(Vec3 point : points){
 			if(viewBox.pointInBox(point)){
+				return true;
+			}
+		}
+		return false;
+	}
+	public boolean anyPointInBox(float margin, Vec3... points) {
+		for(Vec3 point : points){
+			if(viewBox.pointInBox(point, margin)){
 				return true;
 			}
 		}

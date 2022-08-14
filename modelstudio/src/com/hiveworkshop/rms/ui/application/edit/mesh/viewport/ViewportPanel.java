@@ -22,6 +22,9 @@ public class ViewportPanel extends JPanel {
 	private ViewportActivityManager activityListener;
 
 	public ViewportPanel(boolean allowButtonPanel, boolean showNodes) {
+		this(allowButtonPanel, showNodes, false);
+	}
+	public ViewportPanel(boolean allowButtonPanel, boolean showNodes, boolean potrait) {
 		super(new MigLayout("gap 0, ins 0, hidemode 2", "[grow][]", "[grow]"));
 		setupCopyPaste(ProgramGlobals.getViewportTransferHandler());
 
@@ -29,7 +32,7 @@ public class ViewportPanel extends JPanel {
 		setOpaque(true);
 
 		try {
-			viewport = new ViewportCanvas(ProgramGlobals.getPrefs());
+			viewport = new ViewportCanvas(ProgramGlobals.getPrefs(), potrait);
 			viewport.setMinimumSize(new Dimension(200, 200));
 			viewportSettings = viewport.getViewportSettings();
 			viewportSettings.setShowNodes(showNodes);

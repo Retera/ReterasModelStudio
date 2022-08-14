@@ -33,8 +33,10 @@ public class RendererThing1 {
 		}
 		if (wireFrame) {
 			GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
+			pipeline.setPolygonMode(GL11.GL_LINE);
 		} else {
 			GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
+			pipeline.setPolygonMode(GL11.GL_FILL);
 		}
 
 		pipeline.glViewport(width, height);
@@ -75,6 +77,10 @@ public class RendererThing1 {
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		pipeline.glViewport(width, height);
 		pipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
+
+
+		GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
+		pipeline.setPolygonMode(GL11.GL_FILL);
 
 		pipeline.glMatrixMode(GL11.GL_PROJECTION);
 		pipeline.glLoadIdentity();
