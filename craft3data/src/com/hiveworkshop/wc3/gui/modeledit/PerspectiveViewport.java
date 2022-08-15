@@ -907,7 +907,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 					if (isHD) {
 						boolean first = true;
 						for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
-							final Bitmap shaderTexture = layer.getShaderTextures().get(shaderTextureTypeHD);
+							final Bitmap shaderTexture = layer.getRenderTexture(timeEnvironment, modelView.getModel(),
+									shaderTextureTypeHD);
 							if (shaderTexture != null) {
 								NGGLDP.pipeline.glActiveHDTexture(shaderTextureTypeHD.ordinal());
 
@@ -920,7 +921,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 							}
 						}
 					} else {
-						final Bitmap tex = layer.getRenderTexture(timeEnvironment, modelView.getModel());
+						final Bitmap tex = layer.getRenderTexture(timeEnvironment, modelView.getModel(),
+								ShaderTextureTypeHD.Diffuse);
 						final GlTextureRef texture = textureMap.get(tex);
 						bindLayer(layer, tex, texture);
 					}
@@ -954,6 +956,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 					}
 					NGGLDP.pipeline.glFresnelTeamColor1f(layer.getRenderFresnelTeamColor(timeEnvironment));
 					NGGLDP.pipeline.glFresnelOpacity1f(layer.getRenderFresnelOpacity(timeEnvironment));
+					NGGLDP.pipeline.glEmissiveGain1f(layer.getRenderEmissiveGain(timeEnvironment));
 				}
 			}
 
@@ -1444,7 +1447,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			// TODO support multi layer ribbon
 			final Layer layer = material.getLayers().get(0);
 			final Bitmap tex = layer.getRenderTexture(editorRenderModel.getAnimatedRenderEnvironment(),
-					modelView.getModel());
+					modelView.getModel(), ShaderTextureTypeHD.Diffuse);
 			final GlTextureRef texture = textureMap.get(tex);
 			bindLayer(layer, tex, texture);
 		}

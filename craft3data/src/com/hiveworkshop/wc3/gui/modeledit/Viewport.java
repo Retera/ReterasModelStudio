@@ -131,7 +131,8 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			final ModelStructureChangeListener modelStructureChangeListener, final UndoActionListener undoListener,
 			final CoordDisplayListener coordDisplayListener, final UndoHandler undoHandler,
 			final ModelEditor modelEditor, final ViewportTransferHandler viewportTransferHandler,
-			final RenderModel renderModel, final ViewportListener viewportListener) {
+			final RenderModel renderModel, final ViewportListener viewportListener,
+			final Runnable animationModeDeleteListener) {
 		// Dimension 1 and Dimension 2, these specify which dimensions to
 		// display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z
@@ -155,7 +156,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 				Viewport.this.setCursor(cursor);
 			}
 		};
-		setupCopyPaste(viewportTransferHandler);
+		setupCopyPaste(viewportTransferHandler, animationModeDeleteListener);
 		// Viewport border
 		setBorder(BorderFactory.createBevelBorder(1));
 		setupViewportBackground(programPreferences);
@@ -243,7 +244,8 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		setBackground(programPreferences.getBackgroundColor());
 	}
 
-	private void setupCopyPaste(final ViewportTransferHandler viewportTransferHandler) {
+	private void setupCopyPaste(final ViewportTransferHandler viewportTransferHandler,
+			final Runnable animationModeDeleteListener) {
 		setTransferHandler(viewportTransferHandler);
 		final ActionMap map = getActionMap();
 		map.put(TransferHandler.getCutAction().getValue(Action.NAME), TransferHandler.getCutAction());
@@ -252,7 +254,11 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		map.put("Delete", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				undoListener.pushAction(modelEditor.deleteSelectedComponents());
+				if (modelEditor.editorWantsAnimation()) {
+					animationModeDeleteListener.run();
+				} else {
+					undoListener.pushAction(modelEditor.deleteSelectedComponents());
+				}
 			}
 		});
 		getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("DELETE"), "Delete");

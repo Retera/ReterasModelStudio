@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
+import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdx.TextureAnimationChunk;
 
 /**
@@ -122,5 +123,29 @@ public class TextureAnim implements TimelineContainer {
 	@Override
 	public void remove(final AnimFlag timeline) {
 		this.animFlags.add(timeline);
+	}
+
+	public Vertex getRenderTranslation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Translation");
+		if (translationFlag != null) {
+			return (Vertex) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return AnimFlag.TRANSLATE_IDENTITY;
+	}
+
+	public QuaternionRotation getRenderRotation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Rotation");
+		if (translationFlag != null) {
+			return (QuaternionRotation) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return AnimFlag.ROTATE_IDENTITY;
+	}
+
+	public Vertex getRenderScale(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Scaling");
+		if (translationFlag != null) {
+			return (Vertex) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return AnimFlag.SCALE_IDENTITY;
 	}
 }

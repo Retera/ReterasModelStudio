@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
 import com.hiveworkshop.wc3.mdl.LayerShader;
 import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
@@ -113,15 +114,13 @@ public class MaterialChunk {
 			int layerSize = 0;
 			for (int i = 0; i < mat.getLayers().size(); i++) {
 				final com.hiveworkshop.wc3.mdl.Layer layer = mat.getLayers().get(i);
-				if (ModelUtils.isShaderStringSupported(version) && (layer.getLayerShader() == LayerShader.HD)) {
+				if (ModelUtils.isShaderStringSupported(version) && layer.getLayerShader() == LayerShader.HD) {
 					if (layer.getShaderTextureIds().get(ShaderTextureTypeHD.Reflections) == null) {
 						layerSize += ShaderTextureTypeHD.VALUES.length - 1;
-					}
-					else {
+					} else {
 						layerSize += ShaderTextureTypeHD.VALUES.length;
 					}
-				}
-				else {
+				} else {
 					layerSize++;
 				}
 			}
@@ -130,29 +129,34 @@ public class MaterialChunk {
 			int layersIndex = 0;
 			for (int i = 0; i < mat.getLayers().size(); i++) {
 				final com.hiveworkshop.wc3.mdl.Layer layer = mat.getLayers().get(i);
-				if (ModelUtils.isShaderStringSupported(version) && (layer.getLayerShader() == LayerShader.HD)) {
+				if (ModelUtils.isShaderStringSupported(version) && layer.getLayerShader() == LayerShader.HD) {
 					shader = com.hiveworkshop.wc3.mdl.Material.SHADER_HD_DEFAULT_UNIT;
 					for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
 						if (shaderTextureTypeHD == ShaderTextureTypeHD.Diffuse) {
 							layerChunk.layer[layersIndex++] = layerChunk.new Layer(layer, LayerShader.SD);
-						}
-						else {
+						} else {
 							final Integer shaderTextureId = layer.getShaderTextureIds().get(shaderTextureTypeHD);
 							if (shaderTextureId != null) {
-								layerChunk.layer[layersIndex++] = layerChunk.new Layer(
-										new com.hiveworkshop.wc3.mdl.Layer(FilterMode.NONE.getMdlText(),
-												shaderTextureId),
-										LayerShader.SD);
-							}
-							else if (shaderTextureTypeHD != ShaderTextureTypeHD.Reflections) {
+								final com.hiveworkshop.wc3.mdl.Layer outputLayer = new com.hiveworkshop.wc3.mdl.Layer(
+										FilterMode.NONE.getMdlText(), shaderTextureId);
+
+								final AnimFlag specialTextureIDFlag = layer
+										.getFlag(shaderTextureTypeHD.name() + "TextureID");
+								if (specialTextureIDFlag != null) {
+									final AnimFlag genericTextureIDFlag = new AnimFlag(specialTextureIDFlag);
+									genericTextureIDFlag.setName("TextureID");
+									outputLayer.add(genericTextureIDFlag);
+								}
+
+								layerChunk.layer[layersIndex++] = layerChunk.new Layer(outputLayer, LayerShader.SD);
+							} else if (shaderTextureTypeHD != ShaderTextureTypeHD.Reflections) {
 								layerChunk.layer[layersIndex++] = layerChunk.new Layer(
 										new com.hiveworkshop.wc3.mdl.Layer(FilterMode.NONE.getMdlText(), -1),
 										LayerShader.SD);
 							}
 						}
 					}
-				}
-				else {
+				} else {
 					layerChunk.layer[layersIndex++] = layerChunk.new Layer(layer, layer.getLayerShader());
 				}
 			}

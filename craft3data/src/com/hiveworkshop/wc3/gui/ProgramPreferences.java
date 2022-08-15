@@ -25,7 +25,7 @@ public class ProgramPreferences implements Serializable {
 	private Boolean allowLoadingNonBlpTextures = true;
 	private Boolean renderParticles = true;
 	private Boolean renderStaticPoseParticles = true;
-	private Boolean autoPopulateMdlTextEditor = true;
+	private Boolean autoPopulateMdlTextEditor = false;
 	Color activeRColor1 = new Color(200, 255, 200);
 	Color activeRColor2 = new Color(60, 170, 0);
 	Color activeColor1 = new Color(255, 200, 200);
@@ -79,7 +79,7 @@ public class ProgramPreferences implements Serializable {
 		if (autoPopulateMdlTextEditor == null) {
 			autoPopulateMdlTextEditor = false;
 		}
-		if ((vertexColor == null) || (normalsColor == null) || (pivotPointsColor == null)) {
+		if (vertexColor == null || normalsColor == null || pivotPointsColor == null) {
 			vertexColor = new Color(0, 0, 255);// new Color(0, 0, 0)
 			triangleColor = new Color(255, 255, 255);// new Color(190, 190, 190)
 			visibleUneditableColor = new Color(150, 150, 255);

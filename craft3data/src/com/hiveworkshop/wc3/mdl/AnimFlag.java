@@ -224,7 +224,7 @@ public class AnimFlag {
 	}
 
 	public AnimFlag(final MaterialEmissiveGain source) {
-		title = "Emissive";
+		title = "EmissiveGain";
 		generateTypeId();
 		addTag(AnimFlag.getInterpType(source.interpolationType));
 		if (source.globalSequenceId >= 0) {
@@ -1402,7 +1402,7 @@ public class AnimFlag {
 			typeid = 2;
 		} else if (title.equals("Translation")) {
 			typeid = 3;
-		} else if (title.equals("TextureID"))// aflg.title.equals("Visibility")
+		} else if (title.endsWith("TextureID"))// aflg.title.equals("Visibility")
 												// || -- 100.088% visible in
 												// UndeadCampaign3D OutTans! Go
 												// look!
@@ -1735,7 +1735,7 @@ public class AnimFlag {
 			typeid = 2;
 		} else if (aflg.title.equals("Translation")) {
 			typeid = 3;
-		} else if (aflg.title.equals("TextureID"))// aflg.title.equals("Visibility")
+		} else if (aflg.title.endsWith("TextureID"))// aflg.title.equals("Visibility")
 													// || -- 100.088% visible in
 													// UndeadCampaign3D OutTans!
 													// Go look!

@@ -64,6 +64,7 @@ public class LayerChunk {
 		public int shadingFlags;
 		public int textureId;
 		public int[] textureIdsMDLX1100;
+		public MaterialTextureId[] animatedTextureIdsMDLX1100;
 		public int textureAnimationId;
 		public int coordID;
 		public float alpha = 1;
@@ -88,6 +89,9 @@ public class LayerChunk {
 			alpha = in.readFloat();
 			if (ModelUtils.isEmissiveLayerSupported(version)) {
 				emissiveGain = in.readFloat();
+				if (Float.isNaN(emissiveGain)) {
+					emissiveGain = 1.0f;
+				}
 			}
 			if (ModelUtils.isFresnelColorLayerSupported(version)) {
 				fresnelColor = MdxUtils.loadFloatArray(in, 3);
@@ -96,47 +100,52 @@ public class LayerChunk {
 			}
 			if (ModelUtils.isCombinedHDLayerSupported(version)) {
 				shaderTypeId = in.readInt();
+				if (shaderTypeId != 0 && shaderTypeId != 1) {
+					System.err.println("Whoa!" + shaderTypeId);
+				}
 				final int textureIdCount = in.readInt();
 				textureIdsMDLX1100 = new int[TEXTURE_TYPE_INDICES];
+				animatedTextureIdsMDLX1100 = new MaterialTextureId[TEXTURE_TYPE_INDICES];
 				Arrays.fill(textureIdsMDLX1100, NO_TEXTURE_ID);
 				for (int i = 0; i < textureIdCount; i++) {
 					final int singleTextureId = in.readInt();
-					final int textureTypeIndex = in.readInt();
+					int textureTypeIndex = in.readInt();
 					if (textureTypeIndex < textureIdsMDLX1100.length) {
+						if (MdxUtils.checkOptionalId(in, MaterialTextureId.key)) {
+							textureTypeIndex = i; // TODO this is blizztarded
+							if (animatedTextureIdsMDLX1100[textureTypeIndex] != null) {
+								throw new IllegalStateException("what?");
+							}
+							animatedTextureIdsMDLX1100[textureTypeIndex] = new MaterialTextureId();
+							animatedTextureIdsMDLX1100[textureTypeIndex].load(in);
+						}
 						textureIdsMDLX1100[textureTypeIndex] = singleTextureId;
-					}
-					else {
+					} else {
 						throw new IllegalStateException("Invalid texture type index: " + textureTypeIndex
 								+ ": you may be loading a model from a future version of War3 this was not built to handle."
 								+ "\n Editing the model editor's sourcecode can work around this if you really want to open this file.");
 					}
 				}
-			}
-			else {
+			} else {
 				shaderTypeId = NO_SHADER_TYPE_ID;
 			}
 			for (int i = 0; i < 6; i++) {
 				if (MdxUtils.checkOptionalId(in, MaterialAlpha.key)) {
 					materialAlpha = new MaterialAlpha();
 					materialAlpha.load(in);
-				}
-				else if (MdxUtils.checkOptionalId(in, MaterialTextureId.key)) {
+				} else if (MdxUtils.checkOptionalId(in, MaterialTextureId.key)) {
 					materialTextureId = new MaterialTextureId();
 					materialTextureId.load(in);
-				}
-				else if (MdxUtils.checkOptionalId(in, MaterialEmissiveGain.key)) {
+				} else if (MdxUtils.checkOptionalId(in, MaterialEmissiveGain.key)) {
 					materialEmissions = new MaterialEmissiveGain();
 					materialEmissions.load(in);
-				}
-				else if (MdxUtils.checkOptionalId(in, MaterialFresnelColor.key)) {
+				} else if (MdxUtils.checkOptionalId(in, MaterialFresnelColor.key)) {
 					materialFresnelColor = new MaterialFresnelColor();
 					materialFresnelColor.load(in);
-				}
-				else if (MdxUtils.checkOptionalId(in, MaterialFresnelOpacity.key)) {
+				} else if (MdxUtils.checkOptionalId(in, MaterialFresnelOpacity.key)) {
 					materialFresnelOpacity = new MaterialFresnelOpacity();
 					materialFresnelOpacity.load(in);
-				}
-				else if (MdxUtils.checkOptionalId(in, MaterialFresnelTeamColor.key)) {
+				} else if (MdxUtils.checkOptionalId(in, MaterialFresnelTeamColor.key)) {
 					materialFresnelTeamColor = new MaterialFresnelTeamColor();
 					materialFresnelTeamColor.load(in);
 				}
@@ -157,8 +166,7 @@ public class LayerChunk {
 			if (ModelUtils.isFresnelColorLayerSupported(version)) {
 				if (fresnelColor != null) {
 					MdxUtils.saveFloatArray(out, fresnelColor);
-				}
-				else {
+				} else {
 					out.writeFloat(1f);
 					out.writeFloat(1f);
 					out.writeFloat(1f);
@@ -175,6 +183,9 @@ public class LayerChunk {
 					if (singleTextureId != NO_TEXTURE_ID) {
 						out.writeInt(singleTextureId);
 						out.writeInt(i);
+						if (animatedTextureIdsMDLX1100[i] != null) {
+							animatedTextureIdsMDLX1100[i].save(out);
+						}
 					}
 				}
 			}
@@ -210,7 +221,7 @@ public class LayerChunk {
 		}
 
 		public int getSDSingleTextureId() {
-			if ((textureIdsMDLX1100 != null) && (textureIdsMDLX1100.length > 0)) {
+			if (textureIdsMDLX1100 != null && textureIdsMDLX1100.length > 0) {
 				return textureIdsMDLX1100[0];// diffuse
 			}
 			return textureId;
@@ -232,7 +243,12 @@ public class LayerChunk {
 				a += 20;
 			}
 			if (ModelUtils.isCombinedHDLayerSupported(version)) {
-				a += 8 + (computeTextureIdCount() * 8);
+				a += 8 + computeTextureIdCount() * 8;
+				for (int i = 0; i < animatedTextureIdsMDLX1100.length; i++) {
+					if (animatedTextureIdsMDLX1100[i] != null) {
+						a += animatedTextureIdsMDLX1100[i].getSize();
+					}
+				}
 			}
 			if (materialAlpha != null) {
 				a += materialAlpha.getSize();
@@ -288,6 +304,9 @@ public class LayerChunk {
 					break;
 				}
 			}
+			if (layerShader == LayerShader.HD) {
+				animatedTextureIdsMDLX1100 = new MaterialTextureId[TEXTURE_TYPE_INDICES];
+			}
 			textureAnimationId = layer.getTVertexAnimId();
 			coordID = layer.getCoordId();
 			boolean alphaFound = false;
@@ -314,8 +333,7 @@ public class LayerChunk {
 						}
 					}
 					alphaFound = true;
-				}
-				else if (af.getName().startsWith("Emissive")) {
+				} else if (af.getName().startsWith("Emissive")) {
 					materialEmissions = new MaterialEmissiveGain();
 					materialEmissions.globalSequenceId = af.getGlobalSeqId();
 					materialEmissions.interpolationType = af.getInterpType();
@@ -333,8 +351,7 @@ public class LayerChunk {
 						}
 					}
 					emissiveFound = true;
-				}
-				else if (af.getName().equals("TextureID")) {
+				} else if (af.getName().equals("TextureID") && layerShader != LayerShader.HD) {
 					materialTextureId = new MaterialTextureId();
 					materialTextureId.globalSequenceId = af.getGlobalSeqId();
 					materialTextureId.interpolationType = af.getInterpType();
@@ -351,8 +368,7 @@ public class LayerChunk {
 							mdxEntry.outTan = ((Number) mdlEntry.outTan).intValue();
 						}
 					}
-				}
-				else if (af.getName().equals("FresnelColor") && (af.size() > 0)) {
+				} else if (af.getName().equals("FresnelColor") && af.size() > 0) {
 					materialFresnelColor = new MaterialFresnelColor();
 					materialFresnelColor.globalSequenceId = af.getGlobalSeqId();
 					materialFresnelColor.interpolationType = af.getInterpType();
@@ -377,8 +393,7 @@ public class LayerChunk {
 						}
 					}
 					fresnelColorFound = true;
-				}
-				else if (af.getName().equals("FresnelOpacity")) {
+				} else if (af.getName().equals("FresnelOpacity")) {
 					materialFresnelOpacity = new MaterialFresnelOpacity();
 					materialFresnelOpacity.globalSequenceId = af.getGlobalSeqId();
 					materialFresnelOpacity.interpolationType = af.getInterpType();
@@ -396,8 +411,7 @@ public class LayerChunk {
 						}
 					}
 					fresnelOpacityFound = true;
-				}
-				else if (af.getName().equals("FresnelTeamColor")) {
+				} else if (af.getName().equals("FresnelTeamColor")) {
 					materialFresnelTeamColor = new MaterialFresnelTeamColor();
 					materialFresnelTeamColor.globalSequenceId = af.getGlobalSeqId();
 					materialFresnelTeamColor.interpolationType = af.getInterpType();
@@ -415,22 +429,56 @@ public class LayerChunk {
 						}
 					}
 					fresnelTeamColorFound = true;
-				}
-				else if (Node.LOG_DISCARDED_FLAGS) {
-					System.err.println("discarded flag " + af.getName());
+				} else {
+					boolean found = false;
+					if (layerShader == LayerShader.HD) {
+						for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
+							if (af.getName().equals((shaderTextureTypeHD == ShaderTextureTypeHD.Diffuse ? ""
+									: shaderTextureTypeHD.name()) + "TextureID")) {
+								animatedTextureIdsMDLX1100[shaderTextureTypeHD.ordinal()] = new MaterialTextureId();
+								animatedTextureIdsMDLX1100[shaderTextureTypeHD.ordinal()].globalSequenceId = af
+										.getGlobalSeqId();
+								animatedTextureIdsMDLX1100[shaderTextureTypeHD.ordinal()].interpolationType = af
+										.getInterpType();
+								animatedTextureIdsMDLX1100[shaderTextureTypeHD
+										.ordinal()].scalingTrack = new MaterialTextureId.ScalingTrack[af.size()];
+								final boolean hasTans = af.tans();
+								for (int i = 0; i < af.size(); i++) {
+									final MaterialTextureId.ScalingTrack mdxEntry = animatedTextureIdsMDLX1100[shaderTextureTypeHD
+											.ordinal()].new ScalingTrack();
+									animatedTextureIdsMDLX1100[shaderTextureTypeHD
+											.ordinal()].scalingTrack[i] = mdxEntry;
+									final AnimFlag.Entry mdlEntry = af.getEntry(i);
+									mdxEntry.textureId = ((Number) mdlEntry.value).intValue();
+									mdxEntry.time = mdlEntry.time.intValue();
+									if (hasTans) {
+										mdxEntry.inTan = ((Number) mdlEntry.inTan).intValue();
+										mdxEntry.outTan = ((Number) mdlEntry.outTan).intValue();
+									}
+								}
+								found = true;
+							}
+						}
+					}
+					if (!found && Node.LOG_DISCARDED_FLAGS) {
+						System.err.println("discarded flag " + af.getName());
+					}
 				}
 			}
-			if (alphaFound || (Math.abs(layer.getStaticAlpha() - (-1)) <= 0.001)) {
+			if (alphaFound || Math.abs(layer.getStaticAlpha() - (-1)) <= 0.001) {
 				alpha = 1.0f;
-			}
-			else {
+			} else {
 				alpha = (float) layer.getStaticAlpha();
 			}
 			final double mdlEmissive = layer.getEmissive();
-			if (!Double.isNaN(mdlEmissive) && !emissiveFound) {
-				emissiveGain = (float) mdlEmissive;
+			if (!emissiveFound) {
+				if (!Double.isNaN(mdlEmissive)) {
+					emissiveGain = (float) mdlEmissive;
+				} else {
+					emissiveGain = 1.0f;
+				}
 			}
-			if ((layer.getFresnelColor() != null)) {
+			if (layer.getFresnelColor() != null) {
 				if (!fresnelColorFound) {
 					fresnelColor = layer.getFresnelColor().toFloatArray();
 					final float blue = fresnelColor[0];
@@ -438,8 +486,7 @@ public class LayerChunk {
 					fresnelColor[2] = blue;
 					// TODO: COPIED FROM ELSEWHERE, HOPING IT MATCHES REFORGED: this chunk is RGB,
 					// mdl is BGR
-				}
-				else {
+				} else {
 					// encode blank data, but keep it valid, for MDX1000
 					fresnelColor = new float[] { 1.0f, 1.0f, 1.0f };
 				}
@@ -455,10 +502,9 @@ public class LayerChunk {
 						textureIdsMDLX1100[shaderTextureTypeHD.ordinal()] = shaderTextureId;
 					}
 				}
-			}
-			else {
+			} else {
 				final Integer diffuseTextureId = layer.getShaderTextureIds().get(ShaderTextureTypeHD.Diffuse);
-				textureId = ((diffuseTextureId == null) || (diffuseTextureId == -1)) ? 0 : diffuseTextureId;
+				textureId = diffuseTextureId == null || diffuseTextureId == -1 ? 0 : diffuseTextureId;
 			}
 		}
 	}

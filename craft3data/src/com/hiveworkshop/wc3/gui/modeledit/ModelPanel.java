@@ -80,26 +80,13 @@ public class ModelPanel implements ActionListener, MouseListener {
 	private final ComponentsPanel componentsPanel;
 	private final TracksEditorPanel tracksEditorPanel;
 
-	public ModelPanel(final JComponent parent, final File input, final ProgramPreferences prefs,
-			final UndoHandler undoHandler, final ToolbarButtonGroup<SelectionItemTypes> notifier,
-			final ToolbarButtonGroup<SelectionMode> modeNotifier,
-			final ModelStructureChangeListener modelStructureChangeListener,
-			final CoordDisplayListener coordDisplayListener, final ViewportTransferHandler viewportTransferHandler,
-			final ViewportListener viewportListener, final Icon icon, final boolean specialBLPModel,
-			final TextureExporter textureExporter) {
-		this(parent, EditableModel.read(input), prefs, undoHandler, notifier, modeNotifier,
-				modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener, icon,
-				specialBLPModel, textureExporter);
-		file = input;
-	}
-
 	public ModelPanel(final JComponent parent, final EditableModel input, final ProgramPreferences prefs,
 			final UndoHandler undoHandler, final ToolbarButtonGroup<SelectionItemTypes> notifier,
 			final ToolbarButtonGroup<SelectionMode> modeNotifier,
 			final ModelStructureChangeListener modelStructureChangeListener,
 			final CoordDisplayListener coordDisplayListener, final ViewportTransferHandler viewportTransferHandler,
 			final ViewportListener viewportListener, final Icon icon, final boolean specialBLPModel,
-			final TextureExporter textureExporter) {
+			final TextureExporter textureExporter, final Runnable animationModeDeleteListener) {
 		this.parent = parent;
 		this.prefs = prefs;
 		this.undoHandler = undoHandler;
@@ -137,15 +124,18 @@ public class ModelPanel implements ActionListener, MouseListener {
 
 		frontArea = new DisplayPanel("Front", (byte) 1, (byte) 2, modelView, modelEditorManager.getModelEditor(),
 				modelStructureChangeListener, viewportActivityManager, prefs, undoManager, coordDisplayListener,
-				undoHandler, modelEditorChangeNotifier, viewportTransferHandler, editorRenderModel, viewportListener);
+				undoHandler, modelEditorChangeNotifier, viewportTransferHandler, editorRenderModel, viewportListener,
+				animationModeDeleteListener);
 		// frontArea.setViewport(1,2);
 		botArea = new DisplayPanel("Bottom", (byte) 1, (byte) 0, modelView, modelEditorManager.getModelEditor(),
 				modelStructureChangeListener, viewportActivityManager, prefs, undoManager, coordDisplayListener,
-				undoHandler, modelEditorChangeNotifier, viewportTransferHandler, editorRenderModel, viewportListener);
+				undoHandler, modelEditorChangeNotifier, viewportTransferHandler, editorRenderModel, viewportListener,
+				animationModeDeleteListener);
 		// botArea.setViewport(0,1);
 		sideArea = new DisplayPanel("Side", (byte) 0, (byte) 2, modelView, modelEditorManager.getModelEditor(),
 				modelStructureChangeListener, viewportActivityManager, prefs, undoManager, coordDisplayListener,
-				undoHandler, modelEditorChangeNotifier, viewportTransferHandler, editorRenderModel, viewportListener);
+				undoHandler, modelEditorChangeNotifier, viewportTransferHandler, editorRenderModel, viewportListener,
+				animationModeDeleteListener);
 		// sideArea.setViewport(0,2);
 
 		animationViewer = new ControlledAnimationViewer(modelView, prefs, !specialBLPModel);

@@ -102,6 +102,11 @@ public class NGGLDP {
 		}
 
 		@Override
+		public void glEmissiveGain1f(final float renderEmissiveGain) {
+			currentPipeline.glEmissiveGain1f(renderEmissiveGain);
+		}
+
+		@Override
 		public void glFresnelColor3f(final float r, final float g, final float b) {
 			currentPipeline.glFresnelColor3f(r, g, b);
 		}
@@ -702,6 +707,10 @@ public class NGGLDP {
 			return 0;
 		}
 
+		@Override
+		public void glEmissiveGain1f(final float renderEmissiveGain) {
+		}
+
 	}
 
 	/**
@@ -740,7 +749,7 @@ public class NGGLDP {
 				// https://learnopengl.com/Advanced-Lighting/Normal-Mapping although I'm
 				// undecided if wc3 needs it
 				"		tangent = normalize(tangent - dot(tangent, mormal.xyz) * mormal.xyz);\r\n" + //
-				"		vec3 binormal = normalize(cross(mormal.xyz, tangent) * -1 * a_tangent.w);\r\n" + //
+				"		vec3 binormal = normalize(cross(mormal.xyz, tangent) * a_tangent.w);\r\n" + //
 //				"		mat3 mv = mat3(u_projection);\r\n" + //
 				"		mat3 TBN = transpose(mat3(tangent, binormal, mormal.xyz));\r\n" + //
 				"		v_tangentLightPos = TBN * normalize(u_lightDirection).xyz;\r\n" + //
@@ -759,6 +768,7 @@ public class NGGLDP {
 				"uniform int u_alphaTest;\r\n" + //
 				"uniform int u_lightingEnabled;\r\n" + //
 				"uniform float u_fresnelTeamColor;\r\n" + //
+				"uniform float u_emissiveGain;\r\n" + //
 				"uniform vec4 u_fresnelColor;\r\n" + //
 				"uniform vec2 u_viewportSize;\r\n" //
 				+ "" //
@@ -821,26 +831,27 @@ public class NGGLDP {
 				"		}\r\n" + //
 				"		if(u_lightingEnabled != 0) {\r\n" + //
 				"			vec3 normalXYZ = texture2D(u_textureNormal, v_uv).xyz;\r\n" + //
-				"			vec2 normalXY = normalXYZ.xy * 2.0 - 1.0;\r\n" + //
+				"			vec2 normalXY = normalXYZ.yx * 2.0 - 1.0;\r\n" + //
 				"			vec3 normal = vec3(normalXY, sqrt(1.0 - dot(normalXY,normalXY)));\r\n" + //
 				"			vec4 emissiveTexel = texture2D(u_textureEmissive, v_uv);\r\n" + //
 				"			vec4 reflectionsTexel = clamp(0.2+2.0*texture2D(u_textureReflections, vec2(gl_FragCoord.x/u_viewportSize.x, -gl_FragCoord.y/u_viewportSize.y)), 0.0, 1.0);\r\n"
 				+ //
-				"			vec3 lightDir = v_tangentLightPos;\r\n" + //
-				"			float cosTheta = dot(lightDir, normal);\r\n" + //
+				"			vec3 lightDir = normalize(v_tangentLightPos);\r\n" + //
+				"			float cosTheta = dot(lightDir, normal) * 0.5 + 0.5;\r\n" + //
 				"			float lambertFactor = clamp(cosTheta, 0.0, 1.0);\r\n" + //
 				"			vec3 diffuse = (clamp(lambertFactor, 0.0, 1.0)) * color.xyz;\r\n" + //
 				"			vec3 viewDir = normalize(v_tangentViewPos - v_tangentFragPos);\r\n" + //
 				"			vec3 reflectDir = reflect(-lightDir, normal);\r\n" + //
 				"			vec3 halfwayDir = normalize(lightDir + viewDir);\r\n" + //
-				"			float spec = pow(max(dot(normal, halfwayDir)*0.5 + 0.5, 0.0), 4.0);\r\n" + //
+				"			float spec = pow(max(dot(normal, halfwayDir)*0.5 + 0.5, 0.0), 32.0);\r\n" + //
 				"			vec3 specular = vec3(max(-ormTexel.g+0.5, 0.0)+ormTexel.b) * spec * (reflectionsTexel.xyz * (1.0 - ormTexel.g) + ormTexel.g * color.xyz);\r\n"
 				+ //
 				"			vec3 fresnelColor = vec3(u_fresnelColor.rgb * (1.0 - u_fresnelTeamColor) + teamColorTexel.rgb *  u_fresnelTeamColor) * v_color.rgb;\r\n"
 				+ //
 				"			vec3 fresnel = fresnelColor*pow(1.0 - dot(normalize(v_tangentViewPos), normal), 1.0)*u_fresnelColor.a;\r\n"
 				+ //
-				"			FragColor = vec4(emissiveTexel.xyz + specular + diffuse + fresnel, color.a);\r\n" + //
+				"			FragColor = vec4(emissiveTexel.xyz * sqrt(u_emissiveGain) + specular + diffuse + fresnel, color.a);\r\n"
+				+ //
 				"		} else {\r\n" + //
 				"			FragColor = color;\r\n" + //
 				"		}\r\n" + //
@@ -870,6 +881,7 @@ public class NGGLDP {
 		private int lightingEnabled = 1;
 		private float fresnelTeamColor;
 		private float fresnelOpacity;
+		private float renderEmissiveGain;
 
 		public HDDiffuseShaderPipeline() {
 			load();
@@ -1026,6 +1038,7 @@ public class NGGLDP {
 			GL20.glUniform1f(GL20.glGetUniformLocation(shaderProgram, "u_fresnelTeamColor"), fresnelTeamColor);
 			GL20.glUniform4f(GL20.glGetUniformLocation(shaderProgram, "u_fresnelColor"), fresnelColor.x, fresnelColor.y,
 					fresnelColor.z, fresnelOpacity);
+			GL20.glUniform1f(GL20.glGetUniformLocation(shaderProgram, "u_emissiveGain"), renderEmissiveGain);
 			pipelineMatrixBuffer.clear();
 			pipelineMatrixBuffer.put(currentMatrix.m00);
 			pipelineMatrixBuffer.put(currentMatrix.m01);
@@ -1128,6 +1141,11 @@ public class NGGLDP {
 		@Override
 		public void glFresnelOpacity1f(final float v) {
 			fresnelOpacity = v;
+		}
+
+		@Override
+		public void glEmissiveGain1f(final float renderEmissiveGain) {
+			this.renderEmissiveGain = renderEmissiveGain;
 		}
 
 		@Override
@@ -1478,6 +1496,10 @@ public class NGGLDP {
 			return 0;
 		}
 
+		@Override
+		public void glEmissiveGain1f(final float renderEmissiveGain) {
+		}
+
 	}
 
 	public static interface Pipeline {
@@ -1496,6 +1518,8 @@ public class NGGLDP {
 		void glFresnelTeamColor1f(float v);
 
 		void glFresnelOpacity1f(float v);
+
+		void glEmissiveGain1f(float renderEmissiveGain);
 
 		void glFresnelColor3f(float r, float g, float b);
 

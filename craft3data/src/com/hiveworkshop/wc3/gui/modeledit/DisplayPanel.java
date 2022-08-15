@@ -46,18 +46,19 @@ public class DisplayPanel extends JPanel implements ActionListener {
 			final UndoActionListener undoListener, final CoordDisplayListener coordDisplayListener,
 			final UndoHandler undoHandler, final ModelEditorChangeNotifier modelEditorChangeNotifier,
 			final ViewportTransferHandler viewportTransferHandler, final RenderModel renderModel,
-			final ViewportListener viewportListener) {
+			final ViewportListener viewportListener, final Runnable animationModeDeleteListener) {
 		super();
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		this.activityListener = activityListener;
 		this.modelEditorChangeNotifier = modelEditorChangeNotifier;
 		this.viewportListener = viewportListener;
-		// setBorder(BorderFactory.createTitledBorder(title));// BorderFactory.createCompoundBorder(
+		// setBorder(BorderFactory.createTitledBorder(title));//
+		// BorderFactory.createCompoundBorder(
 		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)
 		// ));
 		setOpaque(true);
 		setViewport(a, b, modelView, preferences, undoListener, coordDisplayListener, undoHandler, modelEditor,
-				viewportTransferHandler, renderModel);
+				viewportTransferHandler, renderModel, animationModeDeleteListener);
 		this.title = title;
 
 		plusZoom = new JButton("");
@@ -145,10 +146,10 @@ public class DisplayPanel extends JPanel implements ActionListener {
 			final ProgramPreferences programPreferences, final UndoActionListener undoListener,
 			final CoordDisplayListener coordDisplayListener, final UndoHandler undoHandler,
 			final ModelEditor modelEditor, final ViewportTransferHandler viewportTransferHandler,
-			final RenderModel renderModel) {
+			final RenderModel renderModel, final Runnable animationModeDeleteListener) {
 		vp = new Viewport(a, b, modelView, programPreferences, activityListener, modelStructureChangeListener,
 				undoListener, coordDisplayListener, undoHandler, modelEditor, viewportTransferHandler, renderModel,
-				viewportListener);
+				viewportListener, animationModeDeleteListener);
 		modelEditorChangeNotifier.subscribe(vp);
 		add(vp);
 	}
@@ -185,19 +186,19 @@ public class DisplayPanel extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(final ActionEvent e) {
 		if (e.getSource() == up) {
-			vp.translate(0, (20 * (1 / vp.getZoomAmount())));
+			vp.translate(0, 20 * (1 / vp.getZoomAmount()));
 			vp.repaint();
 		}
 		if (e.getSource() == down) {
-			vp.translate(0, (-20 * (1 / vp.getZoomAmount())));
+			vp.translate(0, -20 * (1 / vp.getZoomAmount()));
 			vp.repaint();
 		}
 		if (e.getSource() == left) {
-			vp.translate((20 * (1 / vp.getZoomAmount())), 0);
+			vp.translate(20 * (1 / vp.getZoomAmount()), 0);
 			vp.repaint();
 		}
 		if (e.getSource() == right) {
-			vp.translate((-20 * (1 / vp.getZoomAmount())), 0);// *vp.getZoomAmount()
+			vp.translate(-20 * (1 / vp.getZoomAmount()), 0);// *vp.getZoomAmount()
 			vp.repaint();
 		}
 		if (e.getSource() == plusZoom) {

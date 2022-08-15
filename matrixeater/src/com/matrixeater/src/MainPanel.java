@@ -914,6 +914,12 @@ public class MainPanel extends JPanel
 					new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)), panel)));
 		}
 	};
+	private final Runnable animationModeDeleteListener = new Runnable() {
+		@Override
+		public void run() {
+			timeSliderPanel.deleteSelectedKeyframes();
+		}
+	};
 	private ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeGroup;
 	private ToolbarButtonGroup<SelectionMode> selectionModeGroup;
 	private ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup;
@@ -5244,7 +5250,7 @@ public class MainPanel extends JPanel
 			}
 			final ModelPanel temp = new ModelPanel(this, mdl, prefs, MainPanel.this, selectionItemTypeGroup,
 					selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
-					activeViewportWatcher, RMSIcons.MDLIcon, false, textureExporter);
+					activeViewportWatcher, RMSIcons.MDLIcon, false, textureExporter, animationModeDeleteListener);
 			loadModel(true, true, temp);
 		}
 
@@ -5864,7 +5870,7 @@ public class MainPanel extends JPanel
 				model.setFileRef(f);
 				temp = new ModelPanel(this, model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
 						modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
-						activeViewportWatcher, icon, false, textureExporter);
+						activeViewportWatcher, icon, false, textureExporter, animationModeDeleteListener);
 			} catch (final FileNotFoundException e) {
 				e.printStackTrace();
 				ExceptionPopup.display(e);
@@ -5883,7 +5889,7 @@ public class MainPanel extends JPanel
 				final Parse obj = new Parse(builder, f.getPath());
 				temp = new ModelPanel(this, builder.createMDL(), prefs, MainPanel.this, selectionItemTypeGroup,
 						selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
-						activeViewportWatcher, icon, false, textureExporter);
+						activeViewportWatcher, icon, false, textureExporter, animationModeDeleteListener);
 			} catch (final FileNotFoundException e) {
 				ExceptionPopup.display(e);
 				e.printStackTrace();
@@ -5894,7 +5900,7 @@ public class MainPanel extends JPanel
 		} else {
 			temp = new ModelPanel(this, EditableModel.read(f), prefs, MainPanel.this, selectionItemTypeGroup,
 					selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
-					activeViewportWatcher, icon, false, textureExporter);
+					activeViewportWatcher, icon, false, textureExporter, animationModeDeleteListener);
 			temp.setFile(f);
 		}
 		loadModel(temporary, selectNewTab, temp);
@@ -5908,7 +5914,7 @@ public class MainPanel extends JPanel
 			model.setFileRef(null);
 			temp = new ModelPanel(this, model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
 					modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, activeViewportWatcher,
-					icon, false, textureExporter);
+					icon, false, textureExporter, animationModeDeleteListener);
 		} catch (final FileNotFoundException e) {
 			e.printStackTrace();
 			ExceptionPopup.display(e);
@@ -5986,7 +5992,8 @@ public class MainPanel extends JPanel
 
 		final ModelPanel modelPanel = new ModelPanel(MainPanel.this, blankTextureModel, prefs, MainPanel.this,
 				selectionItemTypeGroup, selectionModeGroup, modelStructureChangeListener, coordDisplayListener,
-				viewportTransferHandler, activeViewportWatcher, RMSIcons.orangeIcon, true, textureExporter);
+				viewportTransferHandler, activeViewportWatcher, RMSIcons.orangeIcon, true, textureExporter,
+				animationModeDeleteListener);
 		loadModel(workingDirectory == null, true, modelPanel);
 		modelPanel.getCameraController().setCurrentCamera(blpCam);
 	}

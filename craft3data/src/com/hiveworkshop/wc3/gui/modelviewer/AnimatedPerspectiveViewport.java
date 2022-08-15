@@ -83,8 +83,10 @@ import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
 import com.hiveworkshop.wc3.mdl.LayerShader;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
+import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
+import com.hiveworkshop.wc3.mdl.TextureAnim;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.render3d.InternalInstance;
@@ -539,6 +541,10 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	private final Matrix3f skinBonesMatrixSumHeap3 = new Matrix3f();
 	private final Vector3f screenDimension = new Vector3f();
 	private final Matrix3f screenDimensionMat3Heap = new Matrix3f();
+	private final Quaternion quatHeap = new Quaternion();
+	private final Vector3f vertexHeap3 = new Vector3f();
+	private final Vector3f uvTranslationHeap3 = new Vector3f();
+	private final Vector3f uvScaleHeap3 = new Vector3f();
 
 	@Override
 	protected void exceptionOccurred(final LWJGLException exception) {
@@ -953,7 +959,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 				if (isHD) {
 					boolean first = true;
 					for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
-						final Bitmap shaderTexture = layer.getShaderTextures().get(shaderTextureTypeHD);
+						final Bitmap shaderTexture = layer.getRenderTexture(this, modelView.getModel(),
+								shaderTextureTypeHD);
 						if (shaderTexture != null) {
 							NGGLDP.pipeline.glActiveHDTexture(shaderTextureTypeHD.ordinal());
 
@@ -966,7 +973,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 						}
 					}
 				} else {
-					final Bitmap tex = layer.getRenderTexture(this, modelView.getModel());
+					final Bitmap tex = layer.getRenderTexture(this, modelView.getModel(), ShaderTextureTypeHD.Diffuse);
 					final GlTextureRef texture = textureMap.get(tex);
 					bindLayer(layer, tex, texture, formatVersion, material);
 				}
@@ -1005,6 +1012,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 				}
 				NGGLDP.pipeline.glFresnelTeamColor1f(layer.getRenderFresnelTeamColor(this));
 				NGGLDP.pipeline.glFresnelOpacity1f(layer.getRenderFresnelOpacity(this));
+				NGGLDP.pipeline.glEmissiveGain1f(layer.getRenderEmissiveGain(this));
 			}
 //			if (renderOpaque && (filterMode == FilterMode.ADDITIVE)) {
 //				GL11.glColorMask(true, true, true, true);
@@ -1100,8 +1108,26 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 							if (coordId >= v.getTverts().size()) {
 								coordId = v.getTverts().size() - 1;
 							}
-							NGGLDP.pipeline.glTexCoord2f((float) v.getTverts().get(coordId).x,
-									(float) v.getTverts().get(coordId).y);
+							final TextureAnim textureAnim = layer.getTextureAnim();
+							if (textureAnim != null) {
+								vertexHeap.set((float) v.getTverts().get(coordId).x,
+										(float) v.getTverts().get(coordId).y, 0, 1);
+								final QuaternionRotation renderRotation = textureAnim.getRenderRotation(this);
+								quatHeap.set((float) renderRotation.a, (float) renderRotation.b,
+										(float) renderRotation.c, (float) renderRotation.d);
+								final Vertex renderTranslation = textureAnim.getRenderTranslation(this);
+								uvTranslationHeap3.set((float) renderTranslation.x, (float) renderTranslation.y,
+										(float) renderTranslation.z);
+								final Vertex renderScale = textureAnim.getRenderScale(this);
+								uvScaleHeap3.set((float) renderScale.x, (float) renderScale.y, (float) renderScale.z);
+								MathUtils.fromRotationTranslationScale(quatHeap, uvTranslationHeap3, uvScaleHeap3,
+										skinBonesMatrixSumHeap);
+								Matrix4f.transform(skinBonesMatrixSumHeap, vertexHeap, vertexHeap);
+								NGGLDP.pipeline.glTexCoord2f(vertexHeap.x, vertexHeap.y);
+							} else {
+								NGGLDP.pipeline.glTexCoord2f((float) v.getTverts().get(coordId).x,
+										(float) v.getTverts().get(coordId).y);
+							}
 							NGGLDP.pipeline.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
 						}
 					}
@@ -1156,8 +1182,26 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 							if (coordId >= v.getTverts().size()) {
 								coordId = v.getTverts().size() - 1;
 							}
-							NGGLDP.pipeline.glTexCoord2f((float) v.getTverts().get(coordId).x,
-									(float) v.getTverts().get(coordId).y);
+							final TextureAnim textureAnim = layer.getTextureAnim();
+							if (textureAnim != null) {
+								vertexHeap.set((float) v.getTverts().get(coordId).x,
+										(float) v.getTverts().get(coordId).y, 0, 1);
+								final QuaternionRotation renderRotation = textureAnim.getRenderRotation(this);
+								quatHeap.set((float) renderRotation.a, (float) renderRotation.b,
+										(float) renderRotation.c, (float) renderRotation.d);
+								final Vertex renderTranslation = textureAnim.getRenderTranslation(this);
+								uvTranslationHeap3.set((float) renderTranslation.x, (float) renderTranslation.y,
+										(float) renderTranslation.z);
+								final Vertex renderScale = textureAnim.getRenderScale(this);
+								uvScaleHeap3.set((float) renderScale.x, (float) renderScale.y, (float) renderScale.z);
+								MathUtils.fromRotationTranslationScale(quatHeap, uvTranslationHeap3, uvScaleHeap3,
+										skinBonesMatrixSumHeap);
+								Matrix4f.transform(skinBonesMatrixSumHeap, vertexHeap, vertexHeap);
+								NGGLDP.pipeline.glTexCoord2f(vertexHeap.x, vertexHeap.y);
+							} else {
+								NGGLDP.pipeline.glTexCoord2f((float) v.getTverts().get(coordId).x,
+										(float) v.getTverts().get(coordId).y);
+							}
 							NGGLDP.pipeline.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
 						}
 					}
@@ -1705,7 +1749,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 
 			// TODO support multi layer ribbon
 			final Layer layer = material.getLayers().get(0);
-			final Bitmap tex = layer.getRenderTexture(AnimatedPerspectiveViewport.this, modelView.getModel());
+			final Bitmap tex = layer.getRenderTexture(AnimatedPerspectiveViewport.this, modelView.getModel(),
+					ShaderTextureTypeHD.Diffuse);
 			final GlTextureRef texture = textureMap.get(tex);
 			bindLayer(layer, tex, texture, 800, material);
 		}
