@@ -107,6 +107,10 @@ public class ControlledAnimationViewer extends JPanel
 		perspectiveViewport.loadDefaultCamera();
 	}
 
+	public AnimatedPerspectiveViewport getPerspectiveViewport() {
+		return perspectiveViewport;
+	}
+
 	@Override
 	public Camera createCameraFromCurrentView() {
 		return perspectiveViewport.createCameraFromCurrentView();
