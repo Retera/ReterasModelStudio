@@ -125,7 +125,7 @@ public class MaterialChunk {
 				}
 			}
 			layerChunk.layer = new LayerChunk.Layer[layerSize];
-			shader = com.hiveworkshop.wc3.mdl.Material.SHADER_SD_FIXED_FUNCTION;
+			shader = "";// com.hiveworkshop.wc3.mdl.Material.SHADER_SD_FIXED_FUNCTION;
 			int layersIndex = 0;
 			for (int i = 0; i < mat.getLayers().size(); i++) {
 				final com.hiveworkshop.wc3.mdl.Layer layer = mat.getLayers().get(i);
@@ -133,7 +133,7 @@ public class MaterialChunk {
 					shader = com.hiveworkshop.wc3.mdl.Material.SHADER_HD_DEFAULT_UNIT;
 					for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
 						if (shaderTextureTypeHD == ShaderTextureTypeHD.Diffuse) {
-							layerChunk.layer[layersIndex++] = layerChunk.new Layer(layer, LayerShader.SD);
+							layerChunk.layer[layersIndex++] = layerChunk.new Layer(layer, LayerShader.SD, version);
 						} else {
 							final Integer shaderTextureId = layer.getShaderTextureIds().get(shaderTextureTypeHD);
 							if (shaderTextureId != null) {
@@ -148,16 +148,17 @@ public class MaterialChunk {
 									outputLayer.add(genericTextureIDFlag);
 								}
 
-								layerChunk.layer[layersIndex++] = layerChunk.new Layer(outputLayer, LayerShader.SD);
+								layerChunk.layer[layersIndex++] = layerChunk.new Layer(outputLayer, LayerShader.SD,
+										version);
 							} else if (shaderTextureTypeHD != ShaderTextureTypeHD.Reflections) {
 								layerChunk.layer[layersIndex++] = layerChunk.new Layer(
 										new com.hiveworkshop.wc3.mdl.Layer(FilterMode.NONE.getMdlText(), -1),
-										LayerShader.SD);
+										LayerShader.SD, version);
 							}
 						}
 					}
 				} else {
-					layerChunk.layer[layersIndex++] = layerChunk.new Layer(layer, layer.getLayerShader());
+					layerChunk.layer[layersIndex++] = layerChunk.new Layer(layer, layer.getLayerShader(), version);
 				}
 			}
 			priorityPlane = mat.getPriorityPlane();

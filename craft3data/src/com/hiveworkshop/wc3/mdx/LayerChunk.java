@@ -183,9 +183,9 @@ public class LayerChunk {
 					if (singleTextureId != NO_TEXTURE_ID) {
 						out.writeInt(singleTextureId);
 						out.writeInt(i);
-						if (animatedTextureIdsMDLX1100[i] != null) {
-							animatedTextureIdsMDLX1100[i].save(out);
-						}
+					}
+					if (animatedTextureIdsMDLX1100[i] != null) {
+						animatedTextureIdsMDLX1100[i].save(out);
 					}
 				}
 			}
@@ -276,7 +276,7 @@ public class LayerChunk {
 
 		}
 
-		public Layer(final com.hiveworkshop.wc3.mdl.Layer layer, final LayerShader layerShader) {
+		public Layer(final com.hiveworkshop.wc3.mdl.Layer layer, final LayerShader layerShader, final int version) {
 			filterMode = com.hiveworkshop.wc3.mdl.Layer.FilterMode.nameToId(layer.getFilterModeString());
 			for (final String flag : layer.getFlags()) {
 				switch (flag) {
@@ -304,7 +304,7 @@ public class LayerChunk {
 					break;
 				}
 			}
-			if (layerShader == LayerShader.HD) {
+			if (ModelUtils.isCombinedHDLayerSupported(version)) {
 				animatedTextureIdsMDLX1100 = new MaterialTextureId[TEXTURE_TYPE_INDICES];
 			}
 			textureAnimationId = layer.getTVertexAnimId();
@@ -351,7 +351,7 @@ public class LayerChunk {
 						}
 					}
 					emissiveFound = true;
-				} else if (af.getName().equals("TextureID") && layerShader != LayerShader.HD) {
+				} else if (af.getName().equals("TextureID") && !ModelUtils.isCombinedHDLayerSupported(version)) {
 					materialTextureId = new MaterialTextureId();
 					materialTextureId.globalSequenceId = af.getGlobalSeqId();
 					materialTextureId.interpolationType = af.getInterpType();
@@ -431,7 +431,7 @@ public class LayerChunk {
 					fresnelTeamColorFound = true;
 				} else {
 					boolean found = false;
-					if (layerShader == LayerShader.HD) {
+					if (ModelUtils.isCombinedHDLayerSupported(version)) {
 						for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
 							if (af.getName().equals((shaderTextureTypeHD == ShaderTextureTypeHD.Diffuse ? ""
 									: shaderTextureTypeHD.name()) + "TextureID")) {
@@ -494,8 +494,9 @@ public class LayerChunk {
 			fresnelOpacity = fresnelOpacityFound ? 0 : (float) layer.getFresnelOpacity();
 			fresnelTeamColor = fresnelTeamColorFound ? 0 : (float) layer.getFresnelTeamColor();
 			shaderTypeId = layerShader.ordinal();
-			if (layerShader == LayerShader.HD) {
+			if (ModelUtils.isCombinedHDLayerSupported(version)) {
 				textureIdsMDLX1100 = new int[TEXTURE_TYPE_INDICES];
+				Arrays.fill(textureIdsMDLX1100, NO_TEXTURE_ID);
 				for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
 					final Integer shaderTextureId = layer.getShaderTextureIds().get(shaderTextureTypeHD);
 					if (shaderTextureId != null) {

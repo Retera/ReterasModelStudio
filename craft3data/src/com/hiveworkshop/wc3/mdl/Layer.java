@@ -740,7 +740,9 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 			for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
 				final Integer textureId = shaderTextureIds.get(shaderTextureTypeHD);
 				if (textureId != null && textureId != -1) {
-					writer.println(tabs + "\tstatic " + shaderTextureTypeHD.name() + "TextureID " + textureId + ",");
+					final String name = shaderTextureTypeHD == ShaderTextureTypeHD.Diffuse ? ""
+							: shaderTextureTypeHD.name();
+					writer.println(tabs + "\tstatic " + name + "TextureID " + textureId + ",");
 				}
 			}
 		} else {
