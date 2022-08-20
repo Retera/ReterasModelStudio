@@ -129,7 +129,7 @@ public class ExportInternal {
 	}
 
 	private static void exportExact(String internalPath, File selectedFile, CompoundDataSource dataSource) {
-		System.out.println("internal path: " + dataSource.getFile(internalPath).getName());
+		System.out.println("Exporting from internal path: " + dataSource.getFile(internalPath).getName());
 		InputStream resourceAsStream = dataSource.getResourceAsStream(internalPath);
 		if(resourceAsStream != null){
 			try {

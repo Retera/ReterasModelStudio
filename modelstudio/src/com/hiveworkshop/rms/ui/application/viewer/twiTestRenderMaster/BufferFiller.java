@@ -49,6 +49,7 @@ public class BufferFiller {
 	NodeBufferFiller nodeBufferFiller;
 	GridPainter2 gridPainter2;
 	ParticleBufferFiller particleBufferFiller;
+	CameraBufferFiller cameraBufferFiller;
 
 	private TextureThing textureThing;
 
@@ -74,6 +75,7 @@ public class BufferFiller {
 		nodeBufferFiller = new NodeBufferFiller();
 		gridPainter2 = new GridPainter2();
 		particleBufferFiller = new ParticleBufferFiller();
+		cameraBufferFiller = new CameraBufferFiller();
 		setModel(modelView, renderModel, loadDefaultSequence);
 	}
 
@@ -113,6 +115,7 @@ public class BufferFiller {
 		geosetBufferFiller.setModel(renderModel, modelView, textureThing);
 		nodeBufferFiller.setModel(renderModel, modelView);
 		particleBufferFiller.setModel(textureThing, renderModel);
+		cameraBufferFiller.setModel(renderModel, modelView);
 	}
 
 	long nextUpdate = 0;
@@ -211,6 +214,8 @@ public class BufferFiller {
 				gridPainter2.fillGridBuffer(shaderManager.getOrCreateGridPipeline());
 			}
 
+			cameraBufferFiller.fillBuffer(shaderManager.getOrCreateCameraShaderPipeline());
+
 //			if (programPreferences != null && programPreferences.getRenderParticles()) {
 //				particleBufferFiller.fillParticleHeap();
 //			}
@@ -245,6 +250,8 @@ public class BufferFiller {
 				ShaderPipeline boneMarkerShaderPipeline = shaderManager.getOrCreateBoneMarkerShaderPipeline();
 				RendererThing1.renderNodes(cameraManager, boneMarkerShaderPipeline, width, height);
 			}
+
+			RendererThing1.renderCameras(cameraManager, shaderManager.getOrCreateCameraShaderPipeline(), width, height);
 
 
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);

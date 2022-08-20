@@ -45,7 +45,7 @@ public class MultiAnimPanel<T> extends JPanel {
 
 	private void update(){
 //		new Exception().printStackTrace();
-		sequencePanelMap.keySet().removeIf(s -> !model.contains(s) || animFlag.hasGlobalSeq() && !animFlag.hasSequence(s));
+		sequencePanelMap.keySet().removeIf(s -> !model.contains(s));
 		for(int i = getComponentCount()-1; i>=0; i--){
 			Component component = getComponent(i);
 			if(component instanceof TimelineTableEditor){
@@ -53,6 +53,8 @@ public class MultiAnimPanel<T> extends JPanel {
 				if (!model.contains(sequence) || !sequencePanelMap.containsKey(sequence)){
 					remove(i);
 					System.out.println("removed table for " + sequence);
+				} else {
+					component.setVisible(false);
 				}
 			}
 		}
@@ -63,6 +65,7 @@ public class MultiAnimPanel<T> extends JPanel {
 		for (Sequence sequence : allSequences) {
 			if (animFlag.hasSequence(sequence) || !animFlag.hasGlobalSeq() && sequence instanceof Animation) {
 				TimelineTableEditor<T> tableEditor = sequencePanelMap.computeIfAbsent(sequence, k -> new TimelineTableEditor<>(sequence, parseFunction, defaultValue, modelHandler));
+				tableEditor.setVisible(true);
 				if(renderer != null){
 					tableEditor.setDefaultRenderer(defaultValue.getClass(), renderer);
 				}

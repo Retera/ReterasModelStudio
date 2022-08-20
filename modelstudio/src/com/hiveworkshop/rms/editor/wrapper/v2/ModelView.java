@@ -860,10 +860,31 @@ public final class ModelView {
 			geosetTracker.setHighlightedGeoset(null);
 			highlightedNode = null;
 			highlightedCamera = (Camera) obj;
+		} else if (obj instanceof CameraNode) {
+//			System.out.println("Camera (not) Higlighted!");
+			geosetTracker.setHighlightedGeoset(null);
+			highlightedNode = null;
+			highlightedCamera = ((CameraNode) obj).getParent();
 		} else {
 			geosetTracker.setHighlightedGeoset(null);
 			highlightedNode = null;
 			highlightedCamera = null;
+		}
+		ProgramGlobals.getMainPanel().repaint();
+		return this;
+	}
+
+	public <T> ModelView unHigthlight(T obj) {
+		if (obj instanceof Geoset) {
+			geosetTracker.unhighlightGeoset((Geoset) obj);
+		} else if (obj instanceof IdObject) {
+			if (highlightedNode == obj) {
+				highlightedNode = null;
+			}
+		} else if (obj instanceof Camera) {
+			if (highlightedCamera == obj) {
+				highlightedCamera = null;
+			}
 		}
 		ProgramGlobals.getMainPanel().repaint();
 		return this;

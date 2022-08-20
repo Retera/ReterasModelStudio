@@ -46,7 +46,7 @@ public class ExportFrameViewportCanvas extends ViewportCanvas {
 		if(bufferFiller != null){
 			if(doExp){
 				if(currFrame<renderTimes.size()){
-					timeEnvironment.setAnimationTime(renderTimes.get(currFrame));
+					timeEnvironment.setAnimationTime(renderTimes.get(currFrame), true);
 					bufferFiller.forceUpdate();
 					ByteBuffer pixels = bufferFiller.paintGL2(cameraManager, viewportSettings, this.getWidth(), this.getHeight());
 					SwingUtilities.invokeLater(() -> byteBuffers.add(pixels));
@@ -87,7 +87,7 @@ public class ExportFrameViewportCanvas extends ViewportCanvas {
 		this.currFrame = 0;
 		paintTimer.stop();
 
-		timeEnvironment.setAnimationTime(0);
+		timeEnvironment.setAnimationTime(0, true);
 		timeEnvironment.setLive(false);
 
 		repaint();

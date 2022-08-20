@@ -16,6 +16,7 @@ uniform vec4 u_geosetColor;
 uniform int u_lightingEnabled;
 
 uniform vec4 u_vertColors[4];
+// holds the vertex colors for [0:highlighted, 1:selected, 2:editable, 3:vissible (not editable)]
 
 out vec2 v_uv;
 out vec4 v_color;

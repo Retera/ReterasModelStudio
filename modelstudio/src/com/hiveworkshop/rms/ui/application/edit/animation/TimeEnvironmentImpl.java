@@ -152,6 +152,22 @@ public class TimeEnvironmentImpl {
 		return 0;
 	}
 
+
+	public int setAnimationTime(int newTime, boolean globalSeq) {
+		if(globalSeq){
+//			globalSeqTime = newTime;
+			globalSeqTime += (newTime-animationTime);
+		}
+		animationTime = newTime;
+		updateLastMillis();
+		return animationTime;
+	}
+
+	public TimeEnvironmentImpl setGlobalSeqTime(int globalSeqTime) {
+		this.globalSeqTime = globalSeqTime;
+		return this;
+	}
+
 	public int setAnimationTime(int newTime) {
 		animationTime = newTime;
 		updateLastMillis();
@@ -165,8 +181,8 @@ public class TimeEnvironmentImpl {
 	}
 
 	public int stepAnimationTime(int timeStep) {
-//		animationTime = animationTime + timeStep;
 		animationTime = (animationTime + timeStep + length + 1) % (length + 1);
+//		globalSeqTime += timeStep;
 		return animationTime;
 	}
 

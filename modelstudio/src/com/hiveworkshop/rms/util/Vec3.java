@@ -446,7 +446,7 @@ public class Vec3 {
 //		}
 		if (cos > 1) {
 			cos = 1 - cos;
-		}else if (cos < -1) {
+		} else if (cos < -1) {
 			cos = cos % (1.0);
 			return (Math.acos(cos) + 2 * Math.PI); //ToDo check if stuff behaves correct when this is made positive by rotating 360 degrees
 		}

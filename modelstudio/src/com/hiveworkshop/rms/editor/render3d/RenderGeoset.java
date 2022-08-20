@@ -67,12 +67,13 @@ public class RenderGeoset {
 		if(renderVerts.size() != geoset.getVertices().size()){
 			rebuildVertexMap();
 		}
+		boolean animate = renderModel.getTimeEnvironment().isLive() || forceAnimated;
 		for(RenderVert renderVert : renderVerts){
-			renderVert.update(getTransform(renderVert.vertex, forceAnimated));
+			renderVert.update(getTransform(renderVert.vertex, animate));
 		}
 
 		if (geoset.getGeosetAnim() != null) {
-			if (renderModel.getTimeEnvironment().isLive() || forceAnimated) {
+			if (animate) {
 				renderColor.set(geoset.getGeosetAnim().getRenderColor(renderModel.getTimeEnvironment()), geoset.getGeosetAnim().getRenderVisibility(renderModel.getTimeEnvironment()));
 			} else {
 				renderColor.set(geoset.getGeosetAnim().getStaticColor(), (float) geoset.getGeosetAnim().getStaticAlpha());
@@ -113,8 +114,8 @@ public class RenderGeoset {
 		return renderVertexMap.get(vertex);
 	}
 
-	private Mat4 getTransform(GeosetVertex vertex, boolean forceAnimated) {
-		if (renderModel.getTimeEnvironment().isLive() || forceAnimated) {
+	private Mat4 getTransform(GeosetVertex vertex, boolean animate) {
+		if (animate) {
 			if (isHD) {
 //				System.out.println("Vertex is HD");
 				return processHdBones(renderModel, vertex.getSkinBones());
@@ -125,7 +126,6 @@ public class RenderGeoset {
 		}
 		return null;
 	}
-
 
 
 	private void checkHD() {

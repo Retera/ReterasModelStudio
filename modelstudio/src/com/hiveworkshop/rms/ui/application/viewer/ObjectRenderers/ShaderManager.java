@@ -9,6 +9,7 @@ public class ShaderManager {
 	private ShaderPipeline normPipeline;
 	private ShaderPipeline gridPipeline;
 	private ShaderPipeline selectionPipeline;
+	private ShaderPipeline cameraPipeline;
 	private ShaderPipeline customHDShaderPipeline;
 	private ShaderPipeline customBonePipeline;
 	private ShaderPipeline customGridPipeline;
@@ -248,6 +249,13 @@ public class ShaderManager {
 		return particlePipeline;
 	}
 
+	public ShaderPipeline getOrCreateCameraShaderPipeline() {
+		if (cameraPipeline == null) {
+			cameraPipeline = new CameraShaderPipeline();
+		}
+		return cameraPipeline;
+	}
+
 	public ShaderManager discardPipelines(){
 		System.out.println("discarding pipelines");
 		if (hdPipeline        != null) hdPipeline.discard();
@@ -258,6 +266,7 @@ public class ShaderManager {
 		if (selectionPipeline != null) selectionPipeline.discard();
 		if (gridPipeline      != null) gridPipeline.discard();
 		if (particlePipeline  != null) particlePipeline.discard();
+		if (cameraPipeline    != null) cameraPipeline.discard();
 
 
 		hdPipeline          = null;
@@ -268,6 +277,7 @@ public class ShaderManager {
 		selectionPipeline   = null;
 		gridPipeline        = null;
 		particlePipeline    = null;
+		cameraPipeline      = null;
 
 		if (customHDShaderPipeline != null) customHDShaderPipeline.discard();
 		customHDShaderPipeline = null;
