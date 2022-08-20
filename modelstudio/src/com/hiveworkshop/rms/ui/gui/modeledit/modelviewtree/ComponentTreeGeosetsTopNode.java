@@ -9,7 +9,6 @@ import com.hiveworkshop.rms.editor.actions.selection.ShowHideMultipleAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -20,48 +19,31 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ComponentTreeGeosetsTopNode extends NodeThing<String> {
-	String sgCompName = "sg CompName";
 
 	public ComponentTreeGeosetsTopNode(ModelHandler modelHandler) {
 		super(modelHandler, "Geosets");
-		this.editable = modelView.isGeosetsEditable();
-		this.visible = modelView.isGeosetsVisible();
-
-		makeRenderComponent("Geosets");
+		setEditable1(modelView.isGeosetsEditable());
+		setVisible1(modelView.isGeosetsVisible());
 	}
 
-	protected void makeRenderComponent(String title) {
-		treeRenderComponent = new JPanel(new MigLayout("ins 0, gap 0", "[" + sgCompName + "][right][right]"));
-//		treeRenderComponent.setOpaque(true);
-		treeRenderComponent.setBackground(color1);
-//		treeRenderComponent.setFocusable(true);
-
-		itemLabel = new JLabel(title);
-		itemLabel.addMouseListener(getMouseListener());
-
-		editableButton = new JButton("E");
-		editableButton.setBackground(getButtonBGColor(editable));
-		editableButton.addActionListener(e -> setEditable(e, !editable));
-
-		visibleButton = new JButton("V");
-		visibleButton.setBackground(getButtonBGColor(visible));
-		visibleButton.addActionListener(e -> setVisible(e, !visible));
-
-		treeRenderComponent.add(editableButton);
-		treeRenderComponent.add(visibleButton);
-		treeRenderComponent.add(itemLabel);
+	protected JLabel getItemLabel(String title) {
+		JLabel itemLabel = new JLabel(title);
+		MouseListener mouseListener = getMouseListener();
+		itemLabel.addMouseListener(mouseListener);
+		return itemLabel;
 	}
-
-
-//	public boolean isVisible() {
-//		return visible;
-//	}
 
 	public ComponentTreeGeosetsTopNode setVisible(ActionEvent e, boolean visible) {
-		System.out.println("set visible! " + visible);
+//		UndoAction visAction = isModUsed(e, ActionEvent.SHIFT_MASK) ? setMultipleVisible(visible) : setSingleVisible(visible);
+//
+//		if(visAction != null){
+//			undoManager.pushAction(visAction.redo());
+//		}
 		if (isModUsed(e, ActionEvent.SHIFT_MASK)) {
+			System.out.println("[geosetTopNode] setMultipleVisible, " + e);
 			undoManager.pushAction(setMultipleVisible(visible).redo());
 		} else {
+			System.out.println("[geosetTopNode] setVisible, " + e);
 			undoManager.pushAction(setSingleVisible(visible).redo());
 		}
 		return this;
@@ -87,23 +69,20 @@ public class ComponentTreeGeosetsTopNode extends NodeThing<String> {
 				new ShowHideMultipleAction(itemSet, visible, modelView, null));
 	}
 
-
-//	public String setVisible1(boolean visible) {
-//		this.visible = visible;
-//		visibleButton.setBackground(getButtonBGColor(visible));
-//		return item;
-//	}
-
-//	public boolean isEditable() {
-//		return editable;
-//	}
-
 	public ComponentTreeGeosetsTopNode setEditable(ActionEvent e, boolean editable) {
-		System.out.println("setEd1");
+//		UndoAction edAction = isModUsed(e, ActionEvent.SHIFT_MASK) ? setMultipleEditable(visible) : setSingleEditable(visible);
+//
+//		if(edAction != null){
+//			undoManager.pushAction(edAction.redo());
+//		}
 
 		if (isModUsed(e, ActionEvent.SHIFT_MASK)) {
+			System.out.println("[geosetTopNode] setMultipleEditable, " + e);
+			System.out.println(e.getModifiers());
 			undoManager.pushAction(setMultipleEditable(editable).redo());
 		} else {
+			System.out.println("[geosetTopNode] setEditable, " + e);
+			System.out.println(e.getModifiers());
 			undoManager.pushAction(setSingleEditable(editable).redo());
 		}
 		return this;
@@ -130,61 +109,48 @@ public class ComponentTreeGeosetsTopNode extends NodeThing<String> {
 				new SetEditableMultipleAction(itemSet, editable, modelView, null));
 	}
 
-
-//	public String setEditable1(boolean editable) {
-//		this.editable = editable;
-//		editableButton.setBackground(getButtonBGColor(editable));
-//		return item;
-//	}
-
 	public JPanel getTreeRenderComponent() {
 		treeRenderComponent.setOpaque(true);
+		treeRenderComponent.revalidate();
 
 		itemLabel.setText("Geosets");
 		treeRenderComponent.setBackground(color1);
+
 		return treeRenderComponent;
 	}
 
-	private boolean isModUsed(ActionEvent e, int mask) {
-		return ((e.getModifiers() & mask) == mask);
-	}
 
-	private boolean isModUsed(MouseEvent e, int mask) {
-		return ((e.getModifiersEx() & mask) == mask);
-	}
-
-
-	private MouseListener getMouseListener() {
+	protected MouseAdapter getMouseListener() {
 		// Calling checking mechanism on mouse click
 		return new MouseAdapter() {
 			@Override
 			public void mouseClicked(final MouseEvent e) {
-				System.out.println("mouseClicked");
+				System.out.println("[GeosetComp] mouseClicked");
 				super.mouseClicked(e);
 			}
 
 			@Override
 			public void mouseEntered(final MouseEvent e) {
-				System.out.println("mouseEntered");
+				System.out.println("[GeosetComp] mouseEntered");
 				super.mouseEntered(e);
 			}
 
 			@Override
 			public void mouseExited(final MouseEvent e) {
-				System.out.println("mouseExited");
+				System.out.println("[GeosetComp] mouseExited");
 				super.mouseExited(e);
 			}
 
 			@Override
 			public void mousePressed(final MouseEvent e) {
-				System.out.println("mousePressed: " + e);
+				System.out.println("[GeosetComp] mousePressed: " + e);
 				doSelection(e);
 				super.mousePressed(e);
 			}
 
 			@Override
 			public void mouseReleased(final MouseEvent e) {
-				System.out.println("mouseReleased: " + e);
+				System.out.println("[GeosetComp] mouseReleased: " + e);
 //				doSelection(e);
 				super.mouseReleased(e);
 			}

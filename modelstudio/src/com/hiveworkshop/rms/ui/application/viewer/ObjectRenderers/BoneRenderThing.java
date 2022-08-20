@@ -85,7 +85,7 @@ public class BoneRenderThing {
 		tempVec.set(Vec3.Z_AXIS).cross(diffVec).normalize();
 
 		difRotR.setFromAxisAngle(tempVec, (float) (diffVec.getAngleToZaxis())).normalize();
-		rot90.setFromAxisAngle(tempVec, (float) (Math.PI / 2)).normalize();
+		rot90.setFromAxisAngle(tempVec, (float) (Math.PI / 2.0)).normalize();
 		difRotR.mul(rot90).normalize();
 
 		transform(difRotR, p1, p2);
@@ -100,7 +100,7 @@ public class BoneRenderThing {
 		tempVec.set(Vec3.Z_AXIS).cross(diffVec).normalize();
 
 		difRotR.setFromAxisAngle(tempVec, (float) (diffVec.getAngleToZaxis())).normalize();
-		rot90.setFromAxisAngle(tempVec, (float) (Math.PI / 2)).normalize();
+		rot90.setFromAxisAngle(tempVec, (float) (Math.PI / 2.0)).normalize();
 		difRotR.mul(rot90).normalize();
 
 		transform(difRotR, p1, p2);

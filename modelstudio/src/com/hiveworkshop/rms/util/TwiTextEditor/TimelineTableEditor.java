@@ -141,7 +141,9 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 			if(newSelectedRow >= keyframeTable.getRowCount()){
 				newSelectedRow -= 1;
 			}
-			keyframeTable.setRowSelectionInterval(newSelectedRow, newSelectedRow);
+			if(0 <= newSelectedRow && newSelectedRow < keyframeTable.getRowCount()){
+				keyframeTable.setRowSelectionInterval(newSelectedRow, newSelectedRow);
+			}
 		}
 
 	}

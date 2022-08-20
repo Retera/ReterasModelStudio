@@ -9,60 +9,34 @@ import com.hiveworkshop.rms.editor.actions.selection.ShowHideMultipleAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.HashSet;
 import java.util.Set;
 
 public class ComponentTreeCamerasTopNode extends NodeThing<String> {
-	String sgCompName = "sg CompName";
 
 	public ComponentTreeCamerasTopNode(ModelHandler modelHandler) {
 		super(modelHandler, "Cameras");
-		this.editable = modelView.isCamerasEditable();
-		this.visible = modelView.isCamerasVisible();
-
-		makeRenderComponent("Cameras");
+		setEditable1(modelView.isCamerasEditable());
+		setVisible1(modelView.isCamerasVisible());
 	}
 
-	protected void makeRenderComponent(String title) {
-		treeRenderComponent = new JPanel(new MigLayout("ins 0, gap 0", "[" + sgCompName + "][right][right]"));
-//		treeRenderComponent.setOpaque(true);
-		treeRenderComponent.setBackground(color1);
-//		treeRenderComponent.setFocusable(true);
-
-		itemLabel = new JLabel(title);
+	protected JLabel getItemLabel(String title) {
+		JLabel itemLabel = new JLabel(title);
 		itemLabel.addMouseListener(getMouseListener());
-
-		editableButton = new JButton("E");
-		editableButton.setBackground(getButtonBGColor(editable));
-		editableButton.addActionListener(e -> setEditable(e, !editable));
-
-		visibleButton = new JButton("V");
-		visibleButton.setBackground(getButtonBGColor(visible));
-		visibleButton.addActionListener(e -> setVisible(e, !visible));
-
-		treeRenderComponent.add(editableButton);
-		treeRenderComponent.add(visibleButton);
-		treeRenderComponent.add(itemLabel);
+		return itemLabel;
 	}
-
-
-//	public boolean isVisible() {
-//		return visible;
-//	}
-
 	public ComponentTreeCamerasTopNode setVisible(ActionEvent e, boolean visible) {
 		System.out.println("set visible! " + visible);
-		if (isModUsed(e, ActionEvent.SHIFT_MASK)) {
-			undoManager.pushAction(setMultipleVisible(visible).redo());
-		} else {
-			undoManager.pushAction(setSingleVisible(visible).redo());
+
+		UndoAction visAction = isModUsed(e, ActionEvent.SHIFT_MASK) ? setMultipleVisible(visible) : setSingleVisible(visible);
+
+		if(visAction != null){
+			undoManager.pushAction(visAction.redo());
 		}
 		return this;
 	}
@@ -88,23 +62,12 @@ public class ComponentTreeCamerasTopNode extends NodeThing<String> {
 	}
 
 
-//	public String setVisible1(boolean visible) {
-//		this.visible = visible;
-//		visibleButton.setBackground(getButtonBGColor(visible));
-//		return item;
-//	}
-
-//	public boolean isEditable() {
-//		return editable;
-//	}
-
 	public ComponentTreeCamerasTopNode setEditable(ActionEvent e, boolean editable) {
 		System.out.println("setEd1");
+		UndoAction edAction = isModUsed(e, ActionEvent.SHIFT_MASK) ? setMultipleEditable(editable) : setSingleEditable(editable);
 
-		if (isModUsed(e, ActionEvent.SHIFT_MASK)) {
-			undoManager.pushAction(setMultipleEditable(editable).redo());
-		} else {
-			undoManager.pushAction(setSingleEditable(editable).redo());
+		if(edAction != null){
+			undoManager.pushAction(edAction.redo());
 		}
 		return this;
 	}
@@ -131,12 +94,6 @@ public class ComponentTreeCamerasTopNode extends NodeThing<String> {
 	}
 
 
-//	public String setEditable1(boolean editable) {
-//		this.editable = editable;
-//		editableButton.setBackground(getButtonBGColor(editable));
-//		return item;
-//	}
-
 	public JPanel getTreeRenderComponent() {
 		treeRenderComponent.setOpaque(true);
 
@@ -145,16 +102,7 @@ public class ComponentTreeCamerasTopNode extends NodeThing<String> {
 		return treeRenderComponent;
 	}
 
-	private boolean isModUsed(ActionEvent e, int mask) {
-		return ((e.getModifiers() & mask) == mask);
-	}
-
-	private boolean isModUsed(MouseEvent e, int mask) {
-		return ((e.getModifiersEx() & mask) == mask);
-	}
-
-
-	private MouseListener getMouseListener() {
+	protected MouseAdapter getMouseListener() {
 		// Calling checking mechanism on mouse click
 		return new MouseAdapter() {
 			@Override

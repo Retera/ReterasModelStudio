@@ -29,32 +29,34 @@ public class MaterialListRenderer extends DefaultListCellRenderer {
 
 	@Override
 	public Component getListCellRendererComponent(final JList list, final Object value, final int index, final boolean iss, final boolean chf) {
-		String name = ((Material) value).getName();
-		if (model.contains((Material) value)) {
-			name = "#" + model.computeMaterialID((Material) value) + " " + name;
-		}
-		Color fgColor = orgFgColor;
-		ImageIcon myIcon = map.get(value);
-
-		if (myIcon == null) {
-			BufferedImage bufferedImage = ImageCreator.getBufferedImage(((Material) value), model.getWrappedDataSource());
-			if (bufferedImage == null) {
-				System.out.println("could not load icon for \"" + name + "\"");
-				bufferedImage = noImage;
-				validImageMap.put((Material) value, false);
-			} else {
-				validImageMap.put((Material) value, true);
+		if(value != null){
+			String name = ((Material) value).getName();
+			if (model.contains((Material) value)) {
+				name = "#" + model.computeMaterialID((Material) value) + " " + name;
 			}
-			myIcon = new ImageIcon(bufferedImage.getScaledInstance(imageSize, imageSize, Image.SCALE_SMOOTH));
-			map.put((Material) value, myIcon);
+			Color fgColor = orgFgColor;
+			ImageIcon myIcon = map.get(value);
+
+			if (myIcon == null) {
+				BufferedImage bufferedImage = ImageCreator.getBufferedImage(((Material) value), model.getWrappedDataSource());
+				if (bufferedImage == null) {
+					System.out.println("could not load icon for \"" + name + "\"");
+					bufferedImage = noImage;
+					validImageMap.put((Material) value, false);
+				} else {
+					validImageMap.put((Material) value, true);
+				}
+				myIcon = new ImageIcon(bufferedImage.getScaledInstance(imageSize, imageSize, Image.SCALE_SMOOTH));
+				map.put((Material) value, myIcon);
+			}
+			if (!validImageMap.get(value)) {
+				fgColor = Color.gray;
+			}
+			super.getListCellRendererComponent(list, name, index, iss, chf);
+			setIcon(myIcon);
+			setFont(theFont);
+			setForeground(fgColor);
 		}
-		if (!validImageMap.get(value)) {
-			fgColor = Color.gray;
-		}
-		super.getListCellRendererComponent(list, name, index, iss, chf);
-		setIcon(myIcon);
-		setFont(theFont);
-		setForeground(fgColor);
 
 		return this;
 	}

@@ -1,19 +1,11 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.selection.AddSelectionUggAction;
-import com.hiveworkshop.rms.editor.actions.selection.RemoveSelectionUggAction;
-import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
-import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.model.CameraNode;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.Named;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -22,12 +14,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 public abstract class NodeThing<T> extends DefaultMutableTreeNode {
+	protected static final String sgCompName = "sg CompName";
 	protected Color color1 = new Color(255, 255, 255, 0);
 	protected Color color2 = new Color(55, 200, 55, 20);
 	protected Color buttonBGOn = new Color(120, 120, 120, 255);
@@ -53,7 +43,35 @@ public abstract class NodeThing<T> extends DefaultMutableTreeNode {
 		makeRenderComponent(item);
 	}
 
-	protected abstract void makeRenderComponent(T item);
+	@Override
+	public String toString() {
+		if(item instanceof Named){
+			return ((Named) item).getName();
+		}
+		return item.toString();
+	}
+
+	protected void makeRenderComponent(T item) {
+		treeRenderComponent = new JPanel(new MigLayout("ins 0, gap 0", "[" + sgCompName + "][right][right]"));
+		treeRenderComponent.setBackground(color1);
+
+		itemLabel = getItemLabel(item);
+
+		editableButton = new JButton("E");
+		editableButton.setBackground(getButtonBGColor(editable));
+		editableButton.addActionListener(e -> setEditable(e, !editable));
+
+		visibleButton = new JButton("V");
+		visibleButton.setBackground(getButtonBGColor(visible));
+		visibleButton.addActionListener(e -> setVisible(e, !visible));
+
+		treeRenderComponent.add(editableButton);
+		treeRenderComponent.add(visibleButton);
+		treeRenderComponent.add(itemLabel);
+	}
+
+	protected abstract JLabel getItemLabel(T item);
+//	protected abstract void makeRenderComponent(T item);
 
 	public T getItem() {
 		return item;
@@ -66,10 +84,10 @@ public abstract class NodeThing<T> extends DefaultMutableTreeNode {
 
 	public NodeThing<T> setVisible(ActionEvent e, boolean visible) {
 		System.out.println("set visible! " + visible);
-		if (isModUsed(e, ActionEvent.SHIFT_MASK)) {
-			undoManager.pushAction(setMultipleVisible(visible).redo());
-		} else {
-			undoManager.pushAction(setSingleVisible(visible).redo());
+		UndoAction visAction = isModUsed(e, ActionEvent.SHIFT_MASK) ? setMultipleVisible(visible) : setSingleVisible(visible);
+
+		if(visAction != null){
+			undoManager.pushAction(visAction.redo());
 		}
 		return this;
 	}
@@ -90,11 +108,10 @@ public abstract class NodeThing<T> extends DefaultMutableTreeNode {
 
 	public NodeThing<T> setEditable(ActionEvent e, boolean editable) {
 		System.out.println("setEd1");
+		UndoAction edAction = isModUsed(e, ActionEvent.SHIFT_MASK) ? setMultipleEditable(editable) : setSingleEditable(editable);
 
-		if (isModUsed(e, ActionEvent.SHIFT_MASK)) {
-			undoManager.pushAction(setMultipleEditable(editable).redo());
-		} else {
-			undoManager.pushAction(setSingleEditable(editable).redo());
+		if(edAction != null){
+			undoManager.pushAction(edAction.redo());
 		}
 		return this;
 	}
@@ -102,6 +119,14 @@ public abstract class NodeThing<T> extends DefaultMutableTreeNode {
 	protected abstract UndoAction setSingleEditable(boolean editable);
 
 	protected abstract UndoAction setMultipleEditable(boolean editable);
+
+	public ModelView highlight() {
+		return modelHandler.getModelView().higthlight(item);
+	}
+
+	public void unHigthlight() {
+		modelHandler.getModelView().unHigthlight(item);
+	}
 
 	public T setEditable1(boolean editable) {
 		this.editable = editable;
@@ -125,16 +150,16 @@ public abstract class NodeThing<T> extends DefaultMutableTreeNode {
 
 	public abstract JPanel getTreeRenderComponent();
 
-	private boolean isModUsed(ActionEvent e, int mask) {
+	protected boolean isModUsed(ActionEvent e, int mask) {
 		return ((e.getModifiers() & mask) == mask);
 	}
 
-	private boolean isModUsed(MouseEvent e, int mask) {
+	protected boolean isModUsed(MouseEvent e, int mask) {
 		return ((e.getModifiersEx() & mask) == mask);
 	}
 
 
-	private MouseListener getMouseListener() {
+	protected MouseAdapter getMouseListener() {
 		// Calling checking mechanism on mouse click
 		return new MouseAdapter() {
 			@Override
@@ -158,7 +183,7 @@ public abstract class NodeThing<T> extends DefaultMutableTreeNode {
 			@Override
 			public void mousePressed(final MouseEvent e) {
 				System.out.println("mousePressed: " + e);
-				doSelection(e);
+//				doSelection(e);
 				super.mousePressed(e);
 			}
 
@@ -171,48 +196,48 @@ public abstract class NodeThing<T> extends DefaultMutableTreeNode {
 		};
 	}
 
-	private void doSelection(MouseEvent e) {
-		Integer selectMouseButton = ProgramGlobals.getPrefs().getSelectMouseButton();
-//		System.out.println("mouse released: " + item.getName() + ", " + selectMouseButton + ", " + MouseEvent.getMaskForButton(e.getButton()) +  ", " + e.getModifiersEx() + ", " + (selectMouseButton & e.getModifiersEx()) + ", sameButton: " + (e.getButton() == selectMouseButton) + ", " + e);
-
-		SelectionBundle newSelection = null;
-		System.out.println("selecting? " + (MouseEvent.getMaskForButton(e.getButton()) == selectMouseButton));
-		if (item instanceof IdObject) {
-			System.out.println("IdObject!");
-			newSelection = new SelectionBundle(Collections.singleton((IdObject) item));
-		} else if (item instanceof Geoset) {
-			System.out.println("Geoset!");
-			newSelection = new SelectionBundle(((Geoset) item).getVertices());
-		} else if (item instanceof Camera) {
-//			newSelection = new SelectionBundle(Collections.singleton((Camera) item));
-			Set<CameraNode> cameraNodes = new HashSet<>();
-			cameraNodes.add(((Camera) item).getSourceNode());
-			cameraNodes.add(((Camera) item).getTargetNode());
-			newSelection = new SelectionBundle(cameraNodes);
-		} else {
-			System.out.println("not viable item :O");
-		}
-
-		if (MouseEvent.getMaskForButton(e.getButton()) == selectMouseButton && newSelection != null) {
-			Integer addSelectModifier = ProgramGlobals.getPrefs().getAddSelectModifier();
-			Integer removeSelectModifier = ProgramGlobals.getPrefs().getRemoveSelectModifier();
-
-			if (isModUsed(e, addSelectModifier)) {
-//						SelectionMode.ADD;
-				if (!modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameraNodes())) {
-					undoManager.pushAction(new AddSelectionUggAction(newSelection, modelView, ModelStructureChangeListener.changeListener).redo());
-				}
-			} else if (isModUsed(e, removeSelectModifier)) {
-//						SelectionMode.DESELECT;
-				if (!modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameraNodes())) {
-					undoManager.pushAction(new RemoveSelectionUggAction(newSelection, modelView, ModelStructureChangeListener.changeListener).redo());
-				}
-			} else {
-//						SelectionMode.SELECT;
-				if (!modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameraNodes())) {
-					undoManager.pushAction(new SetSelectionUggAction(newSelection, modelView, ModelStructureChangeListener.changeListener).redo());
-				}
-			}
-		}
-	}
+//	private void doSelection(MouseEvent e) {
+//		Integer selectMouseButton = ProgramGlobals.getPrefs().getSelectMouseButton();
+////		System.out.println("mouse released: " + item.getName() + ", " + selectMouseButton + ", " + MouseEvent.getMaskForButton(e.getButton()) +  ", " + e.getModifiersEx() + ", " + (selectMouseButton & e.getModifiersEx()) + ", sameButton: " + (e.getButton() == selectMouseButton) + ", " + e);
+//
+//		SelectionBundle newSelection = null;
+//		System.out.println("selecting? " + (MouseEvent.getMaskForButton(e.getButton()) == selectMouseButton));
+//		if (item instanceof IdObject) {
+//			System.out.println("IdObject!");
+//			newSelection = new SelectionBundle(Collections.singleton((IdObject) item));
+//		} else if (item instanceof Geoset) {
+//			System.out.println("Geoset!");
+//			newSelection = new SelectionBundle(((Geoset) item).getVertices());
+//		} else if (item instanceof Camera) {
+////			newSelection = new SelectionBundle(Collections.singleton((Camera) item));
+//			Set<CameraNode> cameraNodes = new HashSet<>();
+//			cameraNodes.add(((Camera) item).getSourceNode());
+//			cameraNodes.add(((Camera) item).getTargetNode());
+//			newSelection = new SelectionBundle(cameraNodes);
+//		} else {
+//			System.out.println("not viable item :O");
+//		}
+//
+//		if (MouseEvent.getMaskForButton(e.getButton()) == selectMouseButton && newSelection != null) {
+//			Integer addSelectModifier = ProgramGlobals.getPrefs().getAddSelectModifier();
+//			Integer removeSelectModifier = ProgramGlobals.getPrefs().getRemoveSelectModifier();
+//
+//			if (isModUsed(e, addSelectModifier)) {
+////						SelectionMode.ADD;
+//				if (!modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameraNodes())) {
+//					undoManager.pushAction(new AddSelectionUggAction(newSelection, modelView, ModelStructureChangeListener.changeListener).redo());
+//				}
+//			} else if (isModUsed(e, removeSelectModifier)) {
+////						SelectionMode.DESELECT;
+//				if (!modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameraNodes())) {
+//					undoManager.pushAction(new RemoveSelectionUggAction(newSelection, modelView, ModelStructureChangeListener.changeListener).redo());
+//				}
+//			} else {
+////						SelectionMode.SELECT;
+//				if (!modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameraNodes())) {
+//					undoManager.pushAction(new SetSelectionUggAction(newSelection, modelView, ModelStructureChangeListener.changeListener).redo());
+//				}
+//			}
+//		}
+//	}
 }

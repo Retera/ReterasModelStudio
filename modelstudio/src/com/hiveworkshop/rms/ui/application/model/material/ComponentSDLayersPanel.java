@@ -89,6 +89,6 @@ public class ComponentSDLayersPanel extends ComponentLayersPanel {
 	}
 
 	private void addLayer() {
-		undoManager.pushAction(new AddLayerAction(new Layer(0), material, changeListener).redo());
+		undoManager.pushAction(new AddLayerAction(new Layer(model.getTexture(0)), material, changeListener).redo());
 	}
 }

@@ -896,6 +896,18 @@ public final class ModelView {
 				&& selectedCameraNodes.size() == cams.size() && selectedCameraNodes.containsAll(cams));
 	}
 
+	public boolean anySelected(Collection<GeosetVertex> verts, Collection<IdObject> objs, Collection<CameraNode> cams) {
+		Set<GeosetVertex> selectedVertices = geosetTracker.getSelectedVertices();
+		return !selectedVertices.isEmpty() && !verts.isEmpty() && verts.stream().anyMatch(selectedVertices::contains)
+				|| !selectedIdObjects.isEmpty() && !objs.isEmpty() && objs.stream().anyMatch(selectedIdObjects::contains)
+				|| !selectedCameraNodes.isEmpty() && !cams.isEmpty() && cams.stream().anyMatch(selectedCameraNodes::contains);
+	}
+	public boolean allSelected(Collection<GeosetVertex> verts, Collection<IdObject> objs, Collection<CameraNode> cams) {
+		return (geosetTracker.getSelectedVertices().size() >= verts.size() && geosetTracker.getSelectedVertices().containsAll(verts)
+				&& selectedIdObjects.size() >= objs.size() && selectedIdObjects.containsAll(objs)
+				&& selectedCameraNodes.size() >= cams.size() && selectedCameraNodes.containsAll(cams));
+	}
+
 	public boolean isEmpty() {
 		return geosetTracker.getSelectedVertices().isEmpty() && selectedIdObjects.isEmpty() && selectedCameraNodes.isEmpty();
 	}

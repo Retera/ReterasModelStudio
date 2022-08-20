@@ -71,7 +71,7 @@ public class MaterialToMdlx {
 			mdlxLayer.flags |= 0x100;
 		}
 
-		mdlxLayer.textureId = layer.getTextureId();
+		mdlxLayer.textureId = model.getTextureId(layer.getTextureBitmap());
 		mdlxLayer.textureAnimationId = layer.getTVertexAnimId();
 		mdlxLayer.coordId = layer.getCoordId();
 		mdlxLayer.alpha = (float) layer.getStaticAlpha();

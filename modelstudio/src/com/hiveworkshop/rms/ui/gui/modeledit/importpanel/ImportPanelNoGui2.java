@@ -580,7 +580,18 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 	private void copyMotionFromBones() {
 		for (IdObjectShell<?> bs : mht.recModBoneShells) {
 			if (bs.getMotionSrcShell() != null && bs.getMotionSrcShell().getImportStatus() == IdObjectShell.ImportType.MOTION_FROM) {
-				bs.getIdObject().copyMotionFrom(bs.getMotionSrcShell().getIdObject());
+				copyMotionFrom3(bs.getIdObject(), bs.getMotionSrcShell().getIdObject());
+			}
+		}
+	}
+	public void copyMotionFrom3(IdObject receiving, IdObject donating) {
+		for (AnimFlag<?> donFlag : donating.getAnimFlags()) {
+			AnimFlag<?> recFlag = receiving.find(donFlag.getName());
+			if(recFlag != null && (!donFlag.hasGlobalSeq() && !recFlag.hasGlobalSeq()
+					|| donFlag.hasGlobalSeq() && donFlag.getGlobalSeq().equals(recFlag.getGlobalSeq()))){
+				AnimFlagUtils.copyFrom(recFlag, donFlag);
+			} else {
+				receiving.add(donFlag.deepCopy());
 			}
 		}
 	}

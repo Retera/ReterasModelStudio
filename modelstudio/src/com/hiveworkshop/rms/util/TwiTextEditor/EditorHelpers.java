@@ -227,7 +227,7 @@ public class EditorHelpers {
 		private void colorSelected(Color color){
 			selectedColor.set(color.getColorComponents(null));
 			if(staticConsumer != null) {
-				staticConsumer.accept(selectedColor);
+				staticConsumer.accept(new Vec3(selectedColor));
 			}
 		}
 

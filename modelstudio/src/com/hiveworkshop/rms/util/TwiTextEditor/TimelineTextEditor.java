@@ -108,13 +108,15 @@ public class TimelineTextEditor<T> {
 
 	private static <Q> String entryMapToString(TreeMap<Integer, Entry<Q>> entryMap, boolean tans){
 		StringBuilder stringBuilder = new StringBuilder();
-		int timeStringL = ("" + entryMap.lastKey()).length();
-		for(Entry<Q> entry : entryMap.values()){
-			stringBuilder.append(StringPadder.padStringStart("" + entry.getTime(), " ", timeStringL)).append(": ");
-			stringBuilder.append(entry.getValue()).append(",\n");
-			if (tans) {
-				stringBuilder.append("\tInTan  ").append(entry.getInTan()).append(",\n");
-				stringBuilder.append("\tOutTan ").append(entry.getOutTan()).append(",\n");
+		if(entryMap != null && !entryMap.isEmpty()){
+			int timeStringL = ("" + entryMap.lastKey()).length();
+			for(Entry<Q> entry : entryMap.values()){
+				stringBuilder.append(StringPadder.padStringStart("" + entry.getTime(), " ", timeStringL)).append(": ");
+				stringBuilder.append(entry.getValue()).append(",\n");
+				if (tans) {
+					stringBuilder.append("\tInTan  ").append(entry.getInTan()).append(",\n");
+					stringBuilder.append("\tOutTan ").append(entry.getOutTan()).append(",\n");
+				}
 			}
 		}
 		return stringBuilder.toString();

@@ -2,11 +2,13 @@ package com.hiveworkshop.rms.ui.application.model.geoset;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.mesh.SetGeosetAnimStaticAlphaAction;
+import com.hiveworkshop.rms.editor.actions.mesh.SetGeosetAnimStaticColorAction;
 import com.hiveworkshop.rms.editor.model.GeosetAnim;
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
 import com.hiveworkshop.rms.ui.application.tools.GeosetAnimCopyPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.TwiTextEditor.EditorHelpers;
+import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -41,7 +43,7 @@ public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
 		alphaEditor = new EditorHelpers.AlphaEditor(modelHandler, this::setStaticAlpha);
 		animsPanelHolder.add(alphaEditor.getFlagPanel(), "wrap, span 2");
 
-		colorEditor = new EditorHelpers.ColorEditor(modelHandler);
+		colorEditor = new EditorHelpers.ColorEditor(modelHandler, this::setStaticColor);
 		animsPanelHolder.add(colorEditor.getFlagPanel(), "wrap, span 2");
 
 	}
@@ -68,6 +70,13 @@ public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
 	private void setStaticAlpha(float newAlpha) {
 		if(geosetAnim.getStaticAlpha() != newAlpha){
 			UndoAction action = new SetGeosetAnimStaticAlphaAction(geosetAnim, newAlpha, changeListener);
+			undoManager.pushAction(action.redo());
+		}
+	}
+
+	private void setStaticColor(Vec3 newColor) {
+		if(!geosetAnim.getStaticColor().equalLocs(newColor)){
+			UndoAction action = new SetGeosetAnimStaticColorAction(geosetAnim, newColor, changeListener);
 			undoManager.pushAction(action.redo());
 		}
 	}

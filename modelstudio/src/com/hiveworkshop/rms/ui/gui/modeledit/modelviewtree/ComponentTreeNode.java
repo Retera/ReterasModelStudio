@@ -8,63 +8,32 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
-import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.MouseWheelEvent;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 public class ComponentTreeNode<T extends Named> extends NodeThing<T> {
-	String sgCompName = "sg CompName";
 	ModelStructureChangeListener changeListener = null;
 
 	public ComponentTreeNode(ModelHandler modelHandler, T item) {
 		super(modelHandler, item);
-		this.editable = modelView.isInEditable(item);
-		this.visible = modelView.isInVisible(item);
-
-		makeRenderComponent(item);
+		setEditable1(modelView.isInEditable(item));
+		setVisible1(modelView.isInVisible(item));
 	}
 
-	protected void makeRenderComponent(T item) {
-		treeRenderComponent = new JPanel(new MigLayout("ins 0, gap 0", "[" + sgCompName + "][right][right]"));
-//		treeRenderComponent.setOpaque(true);
-		treeRenderComponent.setBackground(color1);
-//		treeRenderComponent.setFocusable(true);
-
-		itemLabel = new JLabel(item.getClass().getSimpleName() + ": " + item.getName());
-		itemLabel.addMouseListener(getMouseListener());
-
-		editableButton = new JButton("E");
-		editableButton.setBackground(getButtonBGColor(editable));
-		editableButton.addActionListener(e -> setEditable(e, !editable));
-
-		visibleButton = new JButton("V");
-		visibleButton.setBackground(getButtonBGColor(visible));
-		visibleButton.addActionListener(e -> setVisible(e, !visible));
-
-		treeRenderComponent.add(editableButton);
-		treeRenderComponent.add(visibleButton);
-		treeRenderComponent.add(itemLabel);
+	protected JLabel getItemLabel(T item) {
+		JLabel itemLabel = new JLabel(item.getClass().getSimpleName() + ": " + item.getName());
+		MouseAdapter mouseListener = getMouseListener();
+		itemLabel.addMouseListener(mouseListener);
+		itemLabel.addMouseMotionListener(mouseListener);
+		return itemLabel;
 	}
-
-//	public T getItem() {
-//		return item;
-//	}
-
-//	public ComponentTreeNode(final Object userObject) {
-//		super(userObject);
-//	}
-
-
-//	public boolean isVisible() {
-//		return visible;
-//	}
 
 	public ComponentTreeNode<T> setVisible(ActionEvent e, boolean visible) {
 		System.out.println("set visible! " + visible);
@@ -94,24 +63,13 @@ public class ComponentTreeNode<T extends Named> extends NodeThing<T> {
 		return new ShowHideMultipleAction(itemSet, visible, modelView, changeListener);
 	}
 
-//	public T setVisible1(boolean visible) {
-//		this.visible = visible;
-//		visibleButton.setBackground(getButtonBGColor(visible));
-//		return item;
-//	}
-
-//	public boolean isEditable() {
-//		return editable;
-//	}
-
 	public ComponentTreeNode<T> setEditable(ActionEvent e, boolean editable) {
 		System.out.println("setEd1, mods: " + e.getModifiers());
 
+		UndoAction visAction = isModUsed(e, ActionEvent.SHIFT_MASK) ? setMultipleVisible(visible) : setSingleVisible(visible);
 
-		if (isModUsed(e, ActionEvent.SHIFT_MASK)) {
-			undoManager.pushAction(setMultipleEditable(editable).redo());
-		} else {
-			undoManager.pushAction(setSingleEditable(editable).redo());
+		if(visAction != null){
+			undoManager.pushAction(visAction.redo());
 		}
 		return this;
 	}
@@ -135,26 +93,6 @@ public class ComponentTreeNode<T extends Named> extends NodeThing<T> {
 		return new SetEditableMultipleAction(itemSet, editable, modelView, changeListener);
 	}
 
-//	public T setEditable1(boolean editable) {
-//		this.editable = editable;
-//		editableButton.setBackground(getButtonBGColor(editable));
-//		return item;
-//	}
-
-//	protected void getChildComponents(Set<ComponentTreeNode<?>> thingsToAffect) {
-//		thingsToAffect.add(this);
-//		for (int i = 0; i < getChildCount(); i++) {
-//			TreeNode childAt = getChildAt(i);
-//			if (childAt instanceof ComponentTreeNode) {
-//				((ComponentTreeNode<?>) childAt).getChildComponents(thingsToAffect);
-//			}
-//		}
-//	}
-//
-//	private Color getButtonBGColor(boolean isOn) {
-//		return isOn ? buttonBGOn : buttonBGOff;
-//	}
-
 	public JPanel getTreeRenderComponent() {
 		treeRenderComponent.setOpaque(true);
 
@@ -168,49 +106,55 @@ public class ComponentTreeNode<T extends Named> extends NodeThing<T> {
 		return treeRenderComponent;
 	}
 
-	private boolean isModUsed(ActionEvent e, int mask) {
-		return ((e.getModifiers() & mask) == mask);
-	}
 
-	private boolean isModUsed(MouseEvent e, int mask) {
-		return ((e.getModifiersEx() & mask) == mask);
-	}
-
-
-	private MouseListener getMouseListener() {
+	protected MouseAdapter getMouseListener() {
 		// Calling checking mechanism on mouse click
 		return new MouseAdapter() {
 			@Override
 			public void mouseClicked(final MouseEvent e) {
-				System.out.println("mouseClicked");
+				System.out.println("[CompTreeNode] mouseClicked");
 				super.mouseClicked(e);
 			}
 
 			@Override
 			public void mouseEntered(final MouseEvent e) {
-				System.out.println("mouseEntered");
+				System.out.println("[CompTreeNode] mouseEntered");
+				highlight();
 				super.mouseEntered(e);
 			}
 
 			@Override
 			public void mouseExited(final MouseEvent e) {
-				System.out.println("mouseExited");
+				System.out.println("[CompTreeNode] mouseExited");
+				unHigthlight();
 				super.mouseExited(e);
 			}
 
 			@Override
 			public void mousePressed(final MouseEvent e) {
-				System.out.println("mousePressed: " + e);
+				System.out.println("[CompTreeNode] mousePressed: " + e);
 				doSelection(e);
 				super.mousePressed(e);
 			}
 
 			@Override
 			public void mouseReleased(final MouseEvent e) {
-				System.out.println("mouseReleased: " + e);
+				System.out.println("[CompTreeNode] mouseReleased: " + e);
 //				doSelection(e);
 				super.mouseReleased(e);
 			}
+			public void mouseWheelMoved(MouseWheelEvent e){
+				System.out.println("[CompTreeNode] mouseWheelMoved: " + e);
+				super.mouseWheelMoved(e);
+			}
+			public void mouseDragged(MouseEvent e){
+				System.out.println("[CompTreeNode] mouseDragged: " + e);
+				super.mouseDragged(e);
+			}
+//			public void mouseMoved(MouseEvent e){
+//				System.out.println("mouseMoved: " + e);
+//				super.mouseMoved(e);
+//			}
 		};
 	}
 

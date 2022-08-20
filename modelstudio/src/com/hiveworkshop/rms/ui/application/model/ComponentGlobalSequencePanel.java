@@ -19,7 +19,7 @@ public class ComponentGlobalSequencePanel extends ComponentPanel<GlobalSeq> {
 		super(modelHandler);
 
 		setLayout(new MigLayout());
-		lengthSpinner = new IntEditorJSpinner(0, 1, this::setLength);
+		lengthSpinner = new IntEditorJSpinner(0, 0, this::setLength);
 		add(new JLabel("GlobalSequence "), "cell 0 0");
 
 		indexLabel = new JLabel();

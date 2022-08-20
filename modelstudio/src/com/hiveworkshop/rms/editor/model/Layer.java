@@ -7,7 +7,8 @@ import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Layers for MDLToolkit/MatrixEater.
@@ -16,7 +17,6 @@ import java.util.*;
  */
 public class Layer extends TimelineContainer implements Named {
 	private FilterMode filterMode = FilterMode.NONE;
-	private int textureId = -1;
 	private int TVertexAnimId = -1;
 	private int coordId = 0;
 	private Bitmap texture;
@@ -26,7 +26,7 @@ public class Layer extends TimelineContainer implements Named {
 	private double fresnelOpacity = 0;
 	private double fresnelTeamColor = 0;
 	private double staticAlpha = 1;// Amount of static alpha (opacity)
-	private List<Bitmap> textures = new ArrayList<>();
+	private final List<Bitmap> textures = new ArrayList<>();
 	private boolean unshaded = false;
 	private boolean sphereEnvMap = false;
 	private boolean twoSided = false;
@@ -35,19 +35,7 @@ public class Layer extends TimelineContainer implements Named {
 	private boolean noDepthSet = false;
 	private boolean unlit = false;
 
-	private transient Map<Integer, Bitmap> ridiculouslyWrongTextureIDToTexture = new HashMap<>();
-
-	public Layer(int textureId) {
-		this(FilterMode.NONE, textureId);
-	}
-
-	public Layer(FilterMode filterMode, int textureId) {
-		this.filterMode = filterMode;
-		this.textureId = textureId;
-	}
-
 	public Layer() {
-
 	}
 
 	public Layer(Bitmap texture) {
@@ -61,7 +49,6 @@ public class Layer extends TimelineContainer implements Named {
 
 	private Layer(Layer other) {
 		filterMode = other.filterMode;
-		textureId = other.textureId;
 		TVertexAnimId = other.TVertexAnimId;
 		coordId = other.coordId;
 		texture = other.texture;
@@ -87,9 +74,7 @@ public class Layer extends TimelineContainer implements Named {
 			add(animFlag.deepCopy());
 		}
 
-		if (other.textures != null) {
-			textures.addAll(other.textures);
-		}
+		textures.addAll(other.textures);
 	}
 
 	@Override
@@ -112,7 +97,6 @@ public class Layer extends TimelineContainer implements Named {
 		result = (prime * result) + (int) (temp ^ (temp >>> 32));
 		result = (prime * result) + ((texture == null) ? 0 : texture.hashCode());
 		result = (prime * result) + ((textureAnim == null) ? 0 : textureAnim.hashCode());
-		result = (prime * result) + textureId;
 		result = (prime * result) + ((textures == null) ? 0 : textures.hashCode());
 		if (fresnelColor != null) {
 			temp = Double.doubleToLongBits(fresnelColor.x);
@@ -206,9 +190,6 @@ public class Layer extends TimelineContainer implements Named {
 		} else if (!textureAnim.equals(other.textureAnim)) {
 			return false;
 		}
-		if (textureId != other.textureId) {
-			return false;
-		}
 		if (textures == null) {
 			return other.textures == null;
 		} else {
@@ -241,6 +222,21 @@ public class Layer extends TimelineContainer implements Named {
 		}
 	}
 
+	public Bitmap getTexture(int id){
+		if (0 <= id && id < textures.size()){
+			return textures.get(id);
+		}
+		return null;
+	}
+
+	public List<Bitmap> getTextures() {
+		return textures;
+	}
+
+	public void setTexture(int i, Bitmap texture) {
+		this.textures.set(i, texture);
+	}
+
 	@Override
 	public float getRenderVisibility(TimeEnvironmentImpl animatedRenderEnvironment) {
 		return getRenderVisibility(animatedRenderEnvironment, (float) staticAlpha);
@@ -248,19 +244,6 @@ public class Layer extends TimelineContainer implements Named {
 
 	public void setTextureAnim(TextureAnim texa) {
 		textureAnim = texa;
-	}
-
-	public void putTexture(int textureId, Bitmap texture){
-		ridiculouslyWrongTextureIDToTexture.put(textureId, texture);
-	}
-	public Bitmap getTextureFromIdMap(int id){
-		return ridiculouslyWrongTextureIDToTexture.get(id);
-	}
-	public Bitmap getTexture(int id){
-		if (0 <= id && id < textures.size()){
-			return textures.get(id);
-		}
-		return null;
 	}
 
 	public boolean hasCoordId() {
@@ -288,28 +271,6 @@ public class Layer extends TimelineContainer implements Named {
 		return MdlUtils.TOKEN_ALPHA;
 	}
 
-	public int getTextureId() {
-		return textureId;
-	}
-
-	public void setTextureId(int textureId) {
-		this.textureId = textureId;
-//		System.out.println("setting texture to " + textureId);
-		Bitmap bitmap = ridiculouslyWrongTextureIDToTexture.get(textureId);
-		if(bitmap != null){
-//			System.out.println("setting texture from Map " + bitmap.getName());
-			this.texture = bitmap;
-		} else
-			if (0 <= textureId && textureId < textures.size()){
-			this.texture = textures.get(textureId);
-//			System.out.println("setting texture from List " + this.texture.getName());
-		} else if (this.texture != null){
-//			System.out.println("no new texture " + this.texture.getName());
-		} else {
-//			System.out.println("no new texture " + null);
-		}
-	}
-
 	public int getTVertexAnimId() {
 		return TVertexAnimId;
 	}
@@ -332,32 +293,6 @@ public class Layer extends TimelineContainer implements Named {
 
 	public void setStaticAlpha(double staticAlpha) {
 		this.staticAlpha = staticAlpha;
-	}
-
-	public List<Bitmap> getTextures() {
-		return textures;
-	}
-
-	public void setTextures(List<Bitmap> textures) {
-		this.textures = textures;
-	}
-	public void setTexture(int i, Bitmap texture) {
-		this.textures.set(i, texture);
-	}
-
-	public void replaceTexture(Bitmap textureToReplace, Bitmap newTexture){
-		if(texture.equals(textureToReplace)){
-			texture = newTexture;
-		}
-		for (int i = 0; i < textures.size(); i++) {
-			if (textures.get(i).equals(textureToReplace)) {
-				textures.set(i, newTexture);
-			}
-		}
-	}
-
-	public void addTextures(Collection<Bitmap> textures){
-		this.textures.addAll(textures);
 	}
 
 	public TextureAnim getTextureAnim() {

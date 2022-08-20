@@ -182,11 +182,9 @@ public class TextureValuePanel2 extends ValuePanel<Bitmap> {
 				&& (((Layer) timelineContainer).getTextureBitmap() != null
 				&& !((Layer) timelineContainer).getTextureBitmap().equals(e.getItem())
 				|| ((Layer) timelineContainer).getTextureBitmap() == null && e.getItem() != null)) {
-			int bitmapId = staticTextureChooser.getSelectedIndex();
-//			Bitmap bitmap = bitmapListModel.get(staticTextureChooser.getSelectedIndex());
 			Bitmap bitmap = (Bitmap) staticTextureChooser.getSelectedItem();
 
-			ChangeLayerStaticTextureAction changeLayerStaticTextureAction = new ChangeLayerStaticTextureAction(bitmap, bitmapId, (Layer) timelineContainer, changeListener);
+			ChangeLayerStaticTextureAction changeLayerStaticTextureAction = new ChangeLayerStaticTextureAction(bitmap, (Layer) timelineContainer, changeListener);
 			undoManager.pushAction(changeLayerStaticTextureAction.redo());
 		}
 	}

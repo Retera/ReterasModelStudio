@@ -48,6 +48,7 @@ public class TwilacsTools extends JMenu {
 		add(TwilacStuff.getLinearizeSelectedMenuItem());
 		add(TwilacStuff.getRenameBoneChainMenuItem());
 		add(TwilacStuff.getRenameNodesMenuItem());
+		add(TwilacStuff.getRenameAnimationsMenuItem());
 		add(new JSeparator());
 		add(TwilacStuff.getDupeForAnimStuffMenuItem());
 		add(TwilacStuff.getGlobalTransfStuffMenuItem());

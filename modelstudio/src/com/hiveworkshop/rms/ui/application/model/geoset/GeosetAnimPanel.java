@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.model.geoset;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.mesh.SetGeosetAnimStaticAlphaAction;
+import com.hiveworkshop.rms.editor.actions.mesh.SetGeosetAnimStaticColorAction;
 import com.hiveworkshop.rms.editor.actions.model.SetGeosetAnimAction;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
@@ -12,6 +13,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.tools.GeosetAnimEditPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.TwiTextEditor.EditorHelpers;
+import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -40,7 +42,7 @@ public class GeosetAnimPanel extends JPanel {
 		button.addActionListener(e -> copyFromOther());
 		animatedPanel.add(button, "wrap");
 
-		colorEditor = new EditorHelpers.ColorEditor(modelHandler);
+		colorEditor = new EditorHelpers.ColorEditor(modelHandler, this::setStaticColor);
 		animatedPanel.add(colorEditor.getFlagPanel(), "wrap");
 
 		alphaEditor = new EditorHelpers.AlphaEditor(modelHandler, this::setStaticAlpha);
@@ -81,6 +83,13 @@ public class GeosetAnimPanel extends JPanel {
 	private void setStaticAlpha(float newAlpha) {
 		if(geosetAnim.getStaticAlpha() != newAlpha){
 			UndoAction action = new SetGeosetAnimStaticAlphaAction(geosetAnim, newAlpha, changeListener);
+			undoManager.pushAction(action.redo());
+		}
+	}
+
+	private void setStaticColor(Vec3 color) {
+		if(!geosetAnim.getStaticColor().equalLocs(color)){
+			UndoAction action = new SetGeosetAnimStaticColorAction(geosetAnim, color, changeListener);
 			undoManager.pushAction(action.redo());
 		}
 	}

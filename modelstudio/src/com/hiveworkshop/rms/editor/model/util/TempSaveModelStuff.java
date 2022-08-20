@@ -248,8 +248,6 @@ public class TempSaveModelStuff {
 	}
 
 	public static void updateLayerTextureIds(EditableModel model, Layer layer) {
-//		layer.setTextureId(model.getTextureId(layer.getTextureBitmap()));
-		layer.setTextureId(model.getTextureId(layer.firstTexture()));
 		layer.setTVertexAnimId(model.getTextureAnimId(layer.getTextureAnim()));
 		BitmapAnimFlag txFlag = (BitmapAnimFlag) layer.find(MdlUtils.TOKEN_TEXTURE_ID);
 		if(txFlag != null){
@@ -257,8 +255,6 @@ public class TempSaveModelStuff {
 				for (int i = 0; i < txFlag.size(); i++) {
 					Bitmap tempBitmap = txFlag.getValueFromIndex(anim, i);
 					int newerTextureId = model.getTextureId(tempBitmap);
-
-					layer.putTexture(newerTextureId, tempBitmap);
 				}
 			}
 		}

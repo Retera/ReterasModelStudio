@@ -121,6 +121,15 @@ public class TwilacStuff {
 			RenameNodesPanel.show(ProgramGlobals.getMainPanel());
 		}
 	}
+	private static class RenameAnimations extends TwiFunction{
+		public RenameAnimations() {
+			super("Rename Animations", RenameAnimations::doStuff);
+		}
+
+		private static void doStuff(ModelHandler modelHandler) {
+			RenameAnimationsPanel.show(ProgramGlobals.getMainPanel());
+		}
+	}
 	private static class ImportModelPart extends TwiFunction{
 
 		public ImportModelPart() {
@@ -367,6 +376,9 @@ public class TwilacStuff {
 	}
 	public static JMenuItem getRenameNodesMenuItem(){
 		return new RenameNodes().getMenuItem();
+	}
+	public static JMenuItem getRenameAnimationsMenuItem(){
+		return new RenameAnimations().getMenuItem();
 	}
 
 	public static JMenuItem getImportModelPartMenuItem() {

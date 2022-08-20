@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff.TTan;
+import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.TreeMap;
@@ -197,7 +198,7 @@ public class AnimFlagUtils {
 			return (AnimFlag<Q>) new FloatAnimFlag(title);
 		} else if(defaultValue instanceof Vec3){
 			return (AnimFlag<Q>) new Vec3AnimFlag(title);
-		} else if(defaultValue instanceof QuatAnimFlag){
+		} else if(defaultValue instanceof Quat){
 			return (AnimFlag<Q>) new QuatAnimFlag(title);
 		}
 

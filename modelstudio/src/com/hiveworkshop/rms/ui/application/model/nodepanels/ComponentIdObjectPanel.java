@@ -1,9 +1,6 @@
 package com.hiveworkshop.rms.ui.application.model.nodepanels;
 
-import com.hiveworkshop.rms.editor.actions.nodes.DeleteNodesAction;
-import com.hiveworkshop.rms.editor.actions.nodes.NameChangeAction;
-import com.hiveworkshop.rms.editor.actions.nodes.ParentChangeAction;
-import com.hiveworkshop.rms.editor.actions.nodes.SetPivotAction;
+import com.hiveworkshop.rms.editor.actions.nodes.*;
 import com.hiveworkshop.rms.editor.actions.util.BoolAction;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
@@ -13,6 +10,7 @@ import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
 import com.hiveworkshop.rms.ui.application.model.editors.ValueParserUtil;
 import com.hiveworkshop.rms.ui.application.tools.IdObjectChooser;
+import com.hiveworkshop.rms.ui.application.tools.IdObjectTypeChanger;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.TwiTextEditor.FlagPanel;
@@ -58,7 +56,10 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 		nameField.setFont(new Font("Arial", Font.BOLD, 18));
 		add(nameField, "");
 
-		add(getDeleteButton(e -> removeNode()), "skip 1, wrap");
+//		add(getDeleteButton(e -> removeNode()), "skip 1, wrap");
+		add(getDeleteButton(e -> removeNode()), "skip 1");
+		add(getButton("Duplicate", e -> duplicateNode()), "split");
+		add(getButton("Change Type", e -> IdObjectTypeChanger.changeNodeType(idObject, modelHandler)), "wrap");
 
 		add(new JLabel("Parent: "), "split, spanx 2");
 		parentName = new JLabel("Parent");
@@ -189,5 +190,8 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 
 	private void removeNode() {
 		undoManager.pushAction(new DeleteNodesAction(idObject, changeListener, model).redo());
+	}
+	private void duplicateNode() {
+		undoManager.pushAction(new AddNodeAction(model, idObject.copy(), changeListener).redo());
 	}
 }
