@@ -59,33 +59,28 @@ public class MainFrame extends JFrame {
 		final boolean hasArgs = args.length >= 1;
 		final List<String> startupModelPaths = new ArrayList<>();
 		if (hasArgs) {
-			if ((args.length > 1) && args[0].equals("-convert")) {
+			if (args.length > 1 && args[0].equals("-convert")) {
 				final String path = args[1];
 				final EditableModel model = EditableModel.read(new File(path));
 				if (path.toLowerCase().endsWith(".mdx")) {
 					model.printTo(new File(path.substring(0, path.lastIndexOf('.')) + ".mdl"));
-				}
-				else if (path.toLowerCase().endsWith(".mdl")) {
+				} else if (path.toLowerCase().endsWith(".mdl")) {
 					model.printTo(new File(path.substring(0, path.lastIndexOf('.')) + ".mdx"));
-				}
-				else {
+				} else {
 					// Unfortunately obj convert does popups right now
 					final Build builder = new Build();
 					try {
 						final Parse obj = new Parse(builder, path);
 						final EditableModel mdl = builder.createMDL();
-					}
-					catch (final FileNotFoundException e) {
+					} catch (final FileNotFoundException e) {
 						ExceptionPopup.display(e);
 						e.printStackTrace();
-					}
-					catch (final IOException e) {
+					} catch (final IOException e) {
 						ExceptionPopup.display(e);
 						e.printStackTrace();
 					}
 				}
-			}
-			else if (args[0].endsWith(".mdx") || args[0].endsWith(".mdl") || args[0].endsWith(".blp")
+			} else if (args[0].endsWith(".mdx") || args[0].endsWith(".mdl") || args[0].endsWith(".blp")
 					|| args[0].endsWith(".dds") || args[0].endsWith(".obj")) {
 				for (final String arg : args) {
 					startupModelPaths.add(arg);
@@ -94,6 +89,11 @@ public class MainFrame extends JFrame {
 		}
 		final boolean dataPromptForced = hasArgs && args[0].equals("-forcedataprompt");
 		try {
+			final ProgramPreferences preferences = SaveProfile.get().getPreferences();
+			if (preferences.getDisableDirectXToSolveVisualArtifacts() != null
+					&& preferences.getDisableDirectXToSolveVisualArtifacts()) {
+				System.setProperty("sun.java2d.opengl", "True");
+			}
 			LwjglNativesLoader.load();
 //		try {
 //			MpqCodebase.get().loadMPQ(Paths.get("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Maps\\Altered Melee\\(6)HFNeonCity.w3x"));
@@ -114,7 +114,6 @@ public class MainFrame extends JFrame {
 			// IIORegistry registry = IIORegistry.getDefaultInstance();
 			// registry.registerServiceProvider(
 			// new com.realityinteractive.imageio.tga.TGAImageReaderSpi());
-			final ProgramPreferences preferences = SaveProfile.get().getPreferences();
 			switch (preferences.getTheme()) {
 			case DARK:
 				EditorDisplayManager.setupLookAndFeel();
@@ -137,8 +136,7 @@ public class MainFrame extends JFrame {
 					theme.setDesktopColor(new Color(60, 82, 44));
 
 					UIManager.setLookAndFeel(new InfoNodeLookAndFeel(theme));
-				}
-				catch (final UnsupportedLookAndFeelException e) {
+				} catch (final UnsupportedLookAndFeelException e) {
 					e.printStackTrace();
 				}
 				break;
@@ -151,8 +149,7 @@ public class MainFrame extends JFrame {
 					theme.setDesktopColor(new Color(82, 60, 44));
 
 					UIManager.setLookAndFeel(new InfoNodeLookAndFeel(theme));
-				}
-				catch (final UnsupportedLookAndFeelException e) {
+				} catch (final UnsupportedLookAndFeelException e) {
 					e.printStackTrace();
 				}
 				break;
@@ -161,38 +158,29 @@ public class MainFrame extends JFrame {
 					UIManager.put("desktop", new ColorUIResource(Color.WHITE));
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					System.out.println(UIManager.getLookAndFeel());
-				}
-				catch (final UnsupportedLookAndFeelException e) {
+				} catch (final UnsupportedLookAndFeelException e) {
 					// handle exception
-				}
-				catch (final ClassNotFoundException e) {
+				} catch (final ClassNotFoundException e) {
 					// handle exception
-				}
-				catch (final InstantiationException e) {
+				} catch (final InstantiationException e) {
 					// handle exception
-				}
-				catch (final IllegalAccessException e) {
+				} catch (final IllegalAccessException e) {
 					// handle exception
 				}
 				break;
 			case WINDOWS_CLASSIC:
 				try {
 					UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
-				}
-				catch (final Exception exc) {
+				} catch (final Exception exc) {
 					try {
 						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					}
-					catch (final ClassNotFoundException e) {
+					} catch (final ClassNotFoundException e) {
 						e.printStackTrace();
-					}
-					catch (final InstantiationException e) {
+					} catch (final InstantiationException e) {
 						e.printStackTrace();
-					}
-					catch (final IllegalAccessException e) {
+					} catch (final IllegalAccessException e) {
 						e.printStackTrace();
-					}
-					catch (final UnsupportedLookAndFeelException e) {
+					} catch (final UnsupportedLookAndFeelException e) {
 						e.printStackTrace();
 					}
 				}
@@ -213,21 +201,16 @@ public class MainFrame extends JFrame {
 				try {
 					final InfoNodeLookAndFeelTheme softGrayTheme = InfoNodeLookAndFeelThemes.getSoftGrayTheme();
 					UIManager.setLookAndFeel(new InfoNodeLookAndFeel(softGrayTheme));
-				}
-				catch (final Exception exc) {
+				} catch (final Exception exc) {
 					try {
 						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					}
-					catch (final ClassNotFoundException e) {
+					} catch (final ClassNotFoundException e) {
 						e.printStackTrace();
-					}
-					catch (final InstantiationException e) {
+					} catch (final InstantiationException e) {
 						e.printStackTrace();
-					}
-					catch (final IllegalAccessException e) {
+					} catch (final IllegalAccessException e) {
 						e.printStackTrace();
-					}
-					catch (final UnsupportedLookAndFeelException e) {
+					} catch (final UnsupportedLookAndFeelException e) {
 						e.printStackTrace();
 					}
 				}
@@ -237,21 +220,16 @@ public class MainFrame extends JFrame {
 				try {
 					final InfoNodeLookAndFeelTheme blueIceTheme = InfoNodeLookAndFeelThemes.getBlueIceTheme();
 					UIManager.setLookAndFeel(new InfoNodeLookAndFeel(blueIceTheme));
-				}
-				catch (final Exception exc) {
+				} catch (final Exception exc) {
 					try {
 						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					}
-					catch (final ClassNotFoundException e) {
+					} catch (final ClassNotFoundException e) {
 						e.printStackTrace();
-					}
-					catch (final InstantiationException e) {
+					} catch (final InstantiationException e) {
 						e.printStackTrace();
-					}
-					catch (final IllegalAccessException e) {
+					} catch (final IllegalAccessException e) {
 						e.printStackTrace();
-					}
-					catch (final UnsupportedLookAndFeelException e) {
+					} catch (final UnsupportedLookAndFeelException e) {
 						e.printStackTrace();
 					}
 				}
@@ -262,21 +240,16 @@ public class MainFrame extends JFrame {
 					final InfoNodeLookAndFeelTheme darkBlueGreenTheme = InfoNodeLookAndFeelThemes
 							.getDarkBlueGreenTheme();
 					UIManager.setLookAndFeel(new InfoNodeLookAndFeel(darkBlueGreenTheme));
-				}
-				catch (final Exception exc) {
+				} catch (final Exception exc) {
 					try {
 						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					}
-					catch (final ClassNotFoundException e) {
+					} catch (final ClassNotFoundException e) {
 						e.printStackTrace();
-					}
-					catch (final InstantiationException e) {
+					} catch (final InstantiationException e) {
 						e.printStackTrace();
-					}
-					catch (final IllegalAccessException e) {
+					} catch (final IllegalAccessException e) {
 						e.printStackTrace();
-					}
-					catch (final UnsupportedLookAndFeelException e) {
+					} catch (final UnsupportedLookAndFeelException e) {
 						e.printStackTrace();
 					}
 				}
@@ -286,21 +259,16 @@ public class MainFrame extends JFrame {
 				try {
 					final InfoNodeLookAndFeelTheme grayTheme = InfoNodeLookAndFeelThemes.getGrayTheme();
 					UIManager.setLookAndFeel(new InfoNodeLookAndFeel(grayTheme));
-				}
-				catch (final Exception exc) {
+				} catch (final Exception exc) {
 					try {
 						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					}
-					catch (final ClassNotFoundException e) {
+					} catch (final ClassNotFoundException e) {
 						e.printStackTrace();
-					}
-					catch (final InstantiationException e) {
+					} catch (final InstantiationException e) {
 						e.printStackTrace();
-					}
-					catch (final IllegalAccessException e) {
+					} catch (final IllegalAccessException e) {
 						e.printStackTrace();
-					}
-					catch (final UnsupportedLookAndFeelException e) {
+					} catch (final UnsupportedLookAndFeelException e) {
 						e.printStackTrace();
 					}
 				}
@@ -312,7 +280,7 @@ public class MainFrame extends JFrame {
 				public void run() {
 					try {
 						final List<DataSourceDescriptor> dataSources = SaveProfile.get().getDataSources();
-						if ((dataSources == null) || dataPromptForced) {
+						if (dataSources == null || dataPromptForced) {
 							final DataSourceChooserPanel dataSourceChooserPanel = new DataSourceChooserPanel(
 									dataSources);
 //							JF
@@ -331,8 +299,7 @@ public class MainFrame extends JFrame {
 										JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION) {
 									return;
 								}
-							}
-							finally {
+							} finally {
 								jFrame.setVisible(false);
 							}
 							SaveProfile.get().setDataSources(dataSourceChooserPanel.getDataSourceDescriptors());
@@ -348,15 +315,14 @@ public class MainFrame extends JFrame {
 						}
 
 						JPopupMenu.setDefaultLightWeightPopupEnabled(false);
-						frame = new MainFrame("Demon Retera Model Studio v0.04.4");
+						frame = new MainFrame("Retera Model Studio v0.04.4b");
 						panel.init();
 						if (!startupModelPaths.isEmpty()) {
 							for (final String path : startupModelPaths) {
 								panel.openFile(new File(path));
 							}
 						}
-					}
-					catch (final Throwable th) {
+					} catch (final Throwable th) {
 						th.printStackTrace();
 						ExceptionPopup.display(th);
 						if (!dataPromptForced) {
@@ -366,8 +332,7 @@ public class MainFrame extends JFrame {
 									main(new String[] { "-forcedataprompt" });
 								}
 							}).start();
-						}
-						else {
+						} else {
 							JOptionPane.showMessageDialog(null,
 									"Retera Model Studio startup sequence has failed for two attempts. The program will now exit.",
 									"Error", JOptionPane.ERROR_MESSAGE);
@@ -376,8 +341,7 @@ public class MainFrame extends JFrame {
 					}
 				}
 			});
-		}
-		catch (final Throwable th) {
+		} catch (final Throwable th) {
 			th.printStackTrace();
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
@@ -387,8 +351,7 @@ public class MainFrame extends JFrame {
 			});
 			if (!dataPromptForced) {
 				main(new String[] { "-forcedataprompt" });
-			}
-			else {
+			} else {
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {

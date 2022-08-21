@@ -26,6 +26,7 @@ public class ProgramPreferences implements Serializable {
 	private Boolean renderParticles = true;
 	private Boolean renderStaticPoseParticles = true;
 	private Boolean autoPopulateMdlTextEditor = false;
+	private Boolean disableDirectXToSolveVisualArtifacts = false;
 	Color activeRColor1 = new Color(200, 255, 200);
 	Color activeRColor2 = new Color(60, 170, 0);
 	Color activeColor1 = new Color(255, 200, 200);
@@ -78,6 +79,9 @@ public class ProgramPreferences implements Serializable {
 		}
 		if (autoPopulateMdlTextEditor == null) {
 			autoPopulateMdlTextEditor = false;
+		}
+		if (disableDirectXToSolveVisualArtifacts == null) {
+			disableDirectXToSolveVisualArtifacts = false;
 		}
 		if (vertexColor == null || normalsColor == null || pivotPointsColor == null) {
 			vertexColor = new Color(0, 0, 255);// new Color(0, 0, 0)
@@ -164,6 +168,7 @@ public class ProgramPreferences implements Serializable {
 		this.renderParticles = other.renderParticles;
 		this.renderStaticPoseParticles = other.renderStaticPoseParticles;
 		this.autoPopulateMdlTextEditor = other.autoPopulateMdlTextEditor;
+		this.disableDirectXToSolveVisualArtifacts = other.disableDirectXToSolveVisualArtifacts;
 		SaveProfile.save();
 		firePrefsChanged();
 
@@ -536,6 +541,10 @@ public class ProgramPreferences implements Serializable {
 		return autoPopulateMdlTextEditor;
 	}
 
+	public Boolean getDisableDirectXToSolveVisualArtifacts() {
+		return disableDirectXToSolveVisualArtifacts;
+	}
+
 	public void setAllowLoadingNonBlpTextures(final Boolean allowLoadingNonBlpTextures) {
 		this.allowLoadingNonBlpTextures = allowLoadingNonBlpTextures;
 		SaveProfile.save();
@@ -556,6 +565,12 @@ public class ProgramPreferences implements Serializable {
 
 	public void setAutoPopulateMdlTextEditor(final Boolean autoPopulateMdlTextEditor) {
 		this.autoPopulateMdlTextEditor = autoPopulateMdlTextEditor;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	public void setDisableDirectXToSolveVisualArtifacts(final Boolean disableDirectXToSolveVisualArtifacts) {
+		this.disableDirectXToSolveVisualArtifacts = disableDirectXToSolveVisualArtifacts;
 		SaveProfile.save();
 		firePrefsChanged();
 	}
