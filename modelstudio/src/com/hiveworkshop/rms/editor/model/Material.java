@@ -10,6 +10,9 @@ import java.util.List;
  */
 public class Material {
 	public static final String SHADER_HD_DEFAULT_UNIT = "Shader_HD_DefaultUnit";
+	public static final String SHADER_HD_CRYSTAL = "Shader_HD_Crystal";
+	public static final String SHADER_SD_FIXEDFUNCTION = "Shader_SD_FixedFunction";
+	public static final String SHADER_SD_LEGACY = "Shader_SD_Legacy";
 	public static int teamColor = 0;
 	List<Layer> layers = new ArrayList<>();
 	int priorityPlane = 0;

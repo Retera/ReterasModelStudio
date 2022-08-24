@@ -1,8 +1,10 @@
 package com.hiveworkshop.rms.editor.model.util;
 
+import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.BitmapAnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.util.ModelSaving.AnimToMdlx;
 import com.hiveworkshop.rms.editor.model.util.ModelSaving.GeosetToMdlx;
 import com.hiveworkshop.rms.editor.model.util.ModelSaving.IdObjectToMdlx;
@@ -11,12 +13,9 @@ import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTexture;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTextureAnimation;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
-import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public class TempSaveModelStuff {
 	public static boolean DISABLE_BONE_GEO_ID_VALIDATOR = false;
@@ -217,24 +216,26 @@ public class TempSaveModelStuff {
 	public static void rebuildTextureList(EditableModel model) {
 		rebuildTextureAnimList(model);
 		model.clearTextures();
+		Set<Bitmap> bitmapSet = new LinkedHashSet<>();
 		for (final Material m : model.getMaterials()) {
 			for (final Layer layer : m.getLayers()) {
-				if ((layer.getTextureBitmap() != null)
-						&& !model.contains(layer.getTextureBitmap())
-						&& (layer.find(MdlUtils.TOKEN_TEXTURE_ID) == null
-						|| layer.find(MdlUtils.TOKEN_TEXTURE_ID).size() == 0)) {
-					model.add(layer.getTextureBitmap());
-				} else {
-					if (layer.find("TextureID") != null) {
-						for (final Bitmap bitmap : layer.getTextures()) {
-							if (!model.contains(bitmap)) {
-								model.add(bitmap);
+				bitmapSet.add(layer.getTextureBitmap());
+				AnimFlag<?> animFlag = layer.find(MdlUtils.TOKEN_TEXTURE_ID);
+				if (animFlag instanceof BitmapAnimFlag) {
+					for (TreeMap<Integer, Entry<Bitmap>> entryMap : ((BitmapAnimFlag)animFlag).getAnimMap().values()){
+						for(Entry<Bitmap> entry : entryMap.values()){
+							if(entry != null){
+								bitmapSet.add(entry.getValue());
 							}
 						}
 					}
 				}
-				updateLayerTextureIds(model, layer);
-				// keep those Ids straight, will be -1 if null
+			}
+		}
+		bitmapSet.remove(null);
+		for (final Bitmap bitmap : bitmapSet) {
+			if (!model.contains(bitmap)) {
+				model.add(bitmap);
 			}
 		}
 		final List<ParticleEmitter2> particles = model.getParticleEmitter2s();
@@ -247,24 +248,11 @@ public class TempSaveModelStuff {
 		}
 	}
 
-	public static void updateLayerTextureIds(EditableModel model, Layer layer) {
-		layer.setTVertexAnimId(model.getTextureAnimId(layer.getTextureAnim()));
-		BitmapAnimFlag txFlag = (BitmapAnimFlag) layer.find(MdlUtils.TOKEN_TEXTURE_ID);
-		if(txFlag != null){
-			for (Sequence anim : txFlag.getAnimMap().keySet()){
-				for (int i = 0; i < txFlag.size(); i++) {
-					Bitmap tempBitmap = txFlag.getValueFromIndex(anim, i);
-					int newerTextureId = model.getTextureId(tempBitmap);
-				}
-			}
-		}
-	}
-
 	public static void rebuildTextureAnimList(EditableModel model) {
 		model.clearTexAnims();
 		for (final Material m : model.getMaterials()) {
 			for (final Layer lay : m.getLayers()) {
-				if ((lay.getTextureAnim() != null) && !model.contains(lay.getTextureAnim())) {
+				if (lay.getTextureAnim() != null && !model.contains(lay.getTextureAnim())) {
 					model.add(lay.getTextureAnim());
 				}
 			}

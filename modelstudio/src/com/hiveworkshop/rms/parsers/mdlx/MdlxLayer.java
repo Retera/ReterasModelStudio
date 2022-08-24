@@ -4,11 +4,13 @@ import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
+import com.hiveworkshop.rms.util.War3ID;
 
-import java.util.Iterator;
+import java.util.*;
 
 public class MdlxLayer extends MdlxAnimatedObject {
 	public FilterMode filterMode = FilterMode.NONE;
@@ -17,6 +19,7 @@ public class MdlxLayer extends MdlxAnimatedObject {
 	public int textureAnimationId = -1;
 	public long coordId = 0;
 	public float alpha = 1;
+	public int hdFlag = 0;
 
 	// since 900
 	public float emissiveGain = 1;
@@ -25,173 +28,189 @@ public class MdlxLayer extends MdlxAnimatedObject {
 	public float fresnelOpacity = 0;
 	public float fresnelTeamColor = 0;
 	// since 1100
-	public int[] hdTextureIds;
-	public int[] hdTextureSlots;
+	public List<Integer> hdTextureIds = new ArrayList<>();
+	public List<Integer> hdTextureSlots = new ArrayList<>();
+	public Map<Integer, MdlxTimeline<?>> textureIdTimelineMap = new HashMap<>();
+
+
+	String[] textureSlots = {
+			"Diffuse",
+			"Normal",
+			"ORM",
+			"Emissive",
+			"TeamColor",
+			"Env",
+			"unknown",
+	};
 
 	@Override
 	public void readMdx(final BinaryReader reader, final int version) {
 		final int position = reader.position();
 		final long size = reader.readUInt32();
-		System.out.println("layer size: " + size);
-//		if(version == 1100){
-//			System.out.println("v" + 1100 + ", number: " + reader.readInt32());
-//			filterMode = FilterMode.fromId(1);
-//		} else {
-//		}
-		if(version != 1100){
-			filterMode = FilterMode.fromId(reader.readInt32());
+		System.out.println("\nLAYER size: " + size);
 
-			flags = reader.readInt32(); // UInt32 in JS
-			textureId = reader.readInt32();
-			textureAnimationId = reader.readInt32();
-			coordId = reader.readInt32();
-			alpha = reader.readFloat32();
+		int sizeTracker = 4;
+		filterMode = FilterMode.fromId(reader.readInt32());
+//		System.out.println(sizeTracker/4 + " (" + sizeTracker + "): fMode " + filterMode);
+		sizeTracker+=4;
 
-			if (version > 800) {
-				emissiveGain = reader.readFloat32();
+		flags = reader.readInt32(); // UInt32 in JS
+////		System.out.println(sizeTracker/4 + " (" + sizeTracker + "): flag  " + flags);
+//		System.out.println(sizeTracker/4 + " (" + sizeTracker + "): flag  " + Integer.toBinaryString(flags) + " ("  + flags + ")");
+		sizeTracker+=4;
 
-				if (version > 900) {
-					reader.readFloat32Array(fresnelColor);
-					fresnelOpacity = reader.readFloat32();
-					fresnelTeamColor = reader.readFloat32();
-				}
-			}
+		textureId = reader.readInt32();
+//		System.out.println(sizeTracker/4 + " (" + sizeTracker + "): old-texId " + textureId);
+		sizeTracker+=4;
 
-			readTimelines(reader, size - (reader.position() - position));
-		} else {
-			int sizeTracker = 4;
-			filterMode = FilterMode.fromId(reader.readInt32());
-			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): fMode " + filterMode);
-			sizeTracker+=4;
+		textureAnimationId = reader.readInt32();
+//		System.out.println(sizeTracker/4 + " (" + sizeTracker + "): tAnim " + textureAnimationId);
+		sizeTracker+=4;
 
-			flags = reader.readInt32(); // UInt32 in JS
-			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): flag  " + flags);
-			sizeTracker+=4;
+		coordId = reader.readInt32();
+//		System.out.println(sizeTracker/4 + " (" + sizeTracker + "): coord " + coordId);
+		sizeTracker+=4;
 
-			textureId = reader.readInt32();
-			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): not-texId? " + textureId);
-			sizeTracker+=4;
+		alpha = reader.readFloat32();
+//		System.out.println(sizeTracker/4 + " (" + sizeTracker + "): alpha " + alpha);
+		sizeTracker+=4;
 
-			textureAnimationId = reader.readInt32();
-			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): tAnim " + textureAnimationId);
-			sizeTracker+=4;
-
-			coordId = reader.readInt32();
-			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): coord " + coordId);
-			sizeTracker+=4;
-
-			alpha = reader.readFloat32();
-			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): alpha " + alpha);
-			sizeTracker+=4;
+		if (800 < version) {
 
 			emissiveGain = reader.readFloat32();
-			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): emGain " + emissiveGain);
+//			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): emGain " + emissiveGain);
 			sizeTracker+=4;
 
+		}
+		if (900 < version) {
 			reader.readFloat32Array(fresnelColor);
 			sizeTracker+=4;
 			sizeTracker+=4;
 			sizeTracker+=4;
 
 			fresnelOpacity = reader.readFloat32();
-			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): frsOp " + fresnelOpacity);
+//			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): frsOp " + fresnelOpacity);
 			sizeTracker+=4;
 
 			fresnelTeamColor = reader.readFloat32();
-			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): fresTC " + fresnelTeamColor);
+//			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): fresTC " + fresnelTeamColor);
 			sizeTracker+=4;
+		}
+		if(1000 < version){
 
-			int isHD = reader.readInt32();
-			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): hdFlag(?) " + isHD);
+			hdFlag = reader.readInt32();
+//			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): hdFlag(?) " + hdFlag);
 			sizeTracker+=4;
 
 			int numTextures = reader.readInt32();
-			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): num-texs? " + numTextures);
-			sizeTracker+=4;
-
-			textureId = reader.readInt32();
-			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): texId " + textureId);
-			sizeTracker+=4;
-
-			int temp;
-			temp = reader.readInt32();
-			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): temp " + temp);
+//			System.out.println(sizeTracker/4 + " (" + sizeTracker + "): num-texs? " + numTextures);
 			sizeTracker+=4;
 
 
-//			System.out.println("sizeTracker: " + sizeTracker);
+			sizeTracker = readAndDoStuff(reader, sizeTracker, numTextures);
 
-			if(isHD == 1){
-				System.out.println("HD vars");
-//				for(int i = 0; i<10; i++){
-//					temp = reader.readInt32();
-//					System.out.println(sizeTracker/4 + " (" + sizeTracker + "): " + i + "? " + temp);
-//					sizeTracker+=4;
-//				}
-				hdTextureIds = new int[5];
-				hdTextureSlots = new int[5];
-
-
-				hdTextureIds[0] = reader.readInt32();
-				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): 0 Normal? " + hdTextureIds[0]);
-				sizeTracker+=4;
-
-
-				hdTextureSlots[0] = reader.readInt32();
-				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): 1? " + hdTextureSlots[0]);
-				sizeTracker+=4;
-
-
-				hdTextureIds[1] = reader.readInt32();
-				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): 2 ORM? " + hdTextureIds[1]);
-				sizeTracker+=4;
-
-
-				hdTextureSlots[1] = reader.readInt32();
-				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): 3? " + hdTextureSlots[1]);
-				sizeTracker+=4;
-
-
-				hdTextureIds[2] = reader.readInt32();
-				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): 4 Emissive? " + hdTextureIds[2]);
-				sizeTracker+=4;
-
-
-				hdTextureSlots[2] = reader.readInt32();
-				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): 5 Black?? " + hdTextureSlots[2]);
-				sizeTracker+=4;
-
-
-				hdTextureIds[3] = reader.readInt32();
-				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): 6 TC1? " + hdTextureIds[3]);
-				sizeTracker+=4;
-
-
-				hdTextureSlots[3] = reader.readInt32();
-				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): 7 TC2? " + hdTextureSlots[3]);
-				sizeTracker+=4;
-
-
-				hdTextureIds[4] = reader.readInt32();
-				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): 8 env1? " + hdTextureIds[4]);
-				sizeTracker+=4;
-
-
-				hdTextureSlots[4] = reader.readInt32();
-				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): 9 env2? " + hdTextureSlots[4]);
-				sizeTracker+=4;
-
-			}
-			System.out.println("flags: " + Integer.toBinaryString(flags) + " ("  + flags + ")");
-			System.out.println(sizeTracker + "/" + size + " layer bytes read");
-
-			readTimelines(reader, size - (reader.position() - position));
-
-//			for(; sizeTracker< size; sizeTracker+=4){
-//				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): " + reader.readInt32());
-////				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): " + reader.read(4));
-//			}
+		} else {
+			hdTextureIds.add(textureId);
+			hdTextureSlots.add(0);
 		}
+//		System.out.println(sizeTracker + "/" + size + " layer bytes read");
+
+		int pos = reader.position();
+		readTimelines(reader, size - (reader.position() - position));
+		sizeTracker += (reader.position() - pos);
+//		System.out.println(sizeTracker + "/" + size + " layer bytes read");
+		for(; sizeTracker< size; sizeTracker+=4){
+				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): " + reader.readInt32());
+//				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): " + reader.read(4));
+		}
+	}
+
+	private int readAndDoStuff(BinaryReader reader, int sizeTracker, int numTextures){
+
+		for(int i = 0; i<numTextures; i++){
+			int nameSlot = Math.min(textureSlots.length-1, i);
+			int animOrTextureId = reader.readInt32();
+			sizeTracker+=4;
+			if(1024<animOrTextureId){
+				int pos = reader.position();
+				i--;
+//				readTimeline(animOrTextureId, reader);
+				MdlxTimeline<?> timeline = getTimeline(animOrTextureId, reader);
+//				textureTimelines[i] = timeline;
+				textureIdTimelineMap.put(i, timeline);
+				sizeTracker += (reader.position() - pos);
+			} else {
+				int textureSlot = reader.readInt32();
+//				hdTextureIds[i] = animOrTextureId;
+//				hdTextureSlots[i] = textureSlot;
+
+				hdTextureIds.add(animOrTextureId);
+				hdTextureSlots.add(textureSlot);
+//				System.out.println("~~~~ " + sizeTracker/4 + " (" + sizeTracker + "): " + i + " " + textureSlots[nameSlot] + " - id: " + hdTextureIds2.get(i) + ", slot: " + hdTextureSlots2.get(i));
+////				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): " + i*2 + " " + textureSlots[nameSlot] + "_id  : " + hdTextureIds[i]);
+////				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): " + (i*2+1) + " " + textureSlots[nameSlot] + "_slot: " + hdTextureSlots[i]);
+				sizeTracker+=4;
+			}
+		}
+//		textureId = numTextures == 0 ? 0 : hdTextureIds[0];
+		textureId = numTextures == 0 ? 0 : hdTextureIds.get(0);
+		return sizeTracker;
+	}
+
+	private int readAndPrintChunk(BinaryReader reader, int sizeTracker, long size) {
+//		sizeTracker +=4;
+		System.out.println("skipping \"texture\"(?): " + reader.readInt32());
+		sizeTracker +=4;
+		System.out.println("skipping \"slot\"(?): " + reader.readInt32());
+		sizeTracker +=4;
+//		System.out.println("layer " + sizeTracker/4 + " (" + sizeTracker + "): " + reader.read(4));
+		int animOrSlot = reader.readInt32();
+		System.out.println("layer " + sizeTracker/4 + " (" + sizeTracker + "): " + animOrSlot);
+		sizeTracker +=4;
+		if(1024<animOrSlot){
+			int pos = reader.position();
+			readTimeline(animOrSlot, reader);
+			sizeTracker += (reader.position() - pos);
+		}
+
+
+		for (int i = sizeTracker; i < size; i+=4) {
+				System.out.println(i/4 + " (" + i + "): " + reader.readInt32());
+//			System.out.println("layer " + i/4 + " (" + i + "): " + reader.read(4));
+		}
+		return sizeTracker;
+	}
+
+
+	public void readTimeline(int revTag, final BinaryReader reader) {
+		final War3ID name = new War3ID(Integer.reverseBytes(revTag));
+		AnimationMap animationMap = AnimationMap.ID_TO_TAG.get(name);
+//			if(animationMap != AnimationMap.KGTR && animationMap != AnimationMap.KGRT && animationMap != AnimationMap.KGSC)
+//				System.out.println("reading timeline for: " + name);
+		if(animationMap != null){
+			final MdlxTimeline<?> timeline = animationMap.getNewTimeline();
+
+			timeline.readMdx(reader);
+
+			timelines.add(timeline);
+//			System.out.println("~~~~ " + name + " (" + animationMap.getMdlToken() + ", " + timeline.frames.length + " frames)");
+//			System.out.println("\t" + name + " (" + animationMap.getMdlToken() + ", " + timeline.frames.length + " frames)");
+		} else {
+			System.out.println("couldn't find tag for: " + name);
+		}
+	}
+	public MdlxTimeline<?> getTimeline(int revTag, final BinaryReader reader) {
+		final War3ID name = new War3ID(Integer.reverseBytes(revTag));
+		AnimationMap animationMap = AnimationMap.ID_TO_TAG.get(name);
+//			if(animationMap != AnimationMap.KGTR && animationMap != AnimationMap.KGRT && animationMap != AnimationMap.KGSC)
+//				System.out.println("reading timeline for: " + name);
+		if(animationMap != null){
+			final MdlxTimeline<?> timeline = animationMap.getNewTimeline();
+
+			timeline.readMdx(reader);
+			return timeline;
+		}
+		return null;
 	}
 
 
@@ -221,29 +240,73 @@ public class MdlxLayer extends MdlxAnimatedObject {
 
 	@Override
 	public void writeMdx(final BinaryWriter writer, final int version) {
-		writer.writeUInt32(getByteLength(version));
+//		int sizeTracker = 0;
+		long byteLength = getByteLength(version);
+//		System.out.println("writing layer of size: " + byteLength);
+//		int position = writer.position();
+		writer.writeUInt32(byteLength);
 		writer.writeUInt32(filterMode.ordinal());
 		writer.writeUInt32(flags);
-		writer.writeInt32(textureId);
+//		sizeTracker += 4;
+//		sizeTracker += 4;
+//		sizeTracker += 4;
+
+		if(version < 1100){
+			writer.writeInt32(textureId);
+		} else {
+			writer.writeInt32(0);
+		}
+//		sizeTracker += 4;
+
 		writer.writeInt32(textureAnimationId);
 		writer.writeUInt32(coordId);
 		writer.writeFloat32(alpha);
+//		sizeTracker += 4;
+//		sizeTracker += 4;
+//		sizeTracker += 4;
 
 		if (version > 800) {
 			writer.writeFloat32(emissiveGain);
+//			sizeTracker += 4;
 
 			if (version > 900) {
 				writer.writeFloat32Array(fresnelColor);
 				writer.writeFloat32(fresnelOpacity);
 				writer.writeFloat32(fresnelTeamColor);
+//				sizeTracker += 4 * fresnelColor.length;
+//				sizeTracker += 4;
+//				sizeTracker += 4;
+			}
+		}
+
+		if(1000 < version){
+			writer.writeInt32(hdFlag);
+			writer.writeInt32(hdTextureIds.size());
+//			sizeTracker += 4;
+//			sizeTracker += 4;
+			for(int i = 0; i < hdTextureIds.size(); i++){
+				writer.writeInt32(hdTextureIds.get(i));
+				writer.writeInt32(hdTextureSlots.get(i));
+//				sizeTracker += 4;
+//				sizeTracker += 4;
+				if(textureIdTimelineMap.get(i) != null){
+					textureIdTimelineMap.get(i).writeMdx(writer);
+//					sizeTracker += integerMdlxTimelineMap.get(i).size();
+				}
 			}
 		}
 
 		writeTimelines(writer);
+//		for (final MdlxTimeline<?> timeline : timelines) {
+//			sizeTracker += timeline.getByteLength();
+//		}
+//		System.out.println("wrote " + sizeTracker + " bytes for LAYER (" + (writer.position()-position) + ")");
 	}
+
 
 	@Override
 	public void readMdl(final MdlTokenInputStream stream, final int version) {
+//		System.out.println("mdl layer, version: " + version);
 		final Iterator<String> iterator = readAnimatedBlock(stream);
 		while (iterator.hasNext()) {
 			final String token = iterator.next();
@@ -274,9 +337,21 @@ public class MdlxLayer extends MdlxAnimatedObject {
 					break;
 				case MdlUtils.TOKEN_STATIC_TEXTURE_ID:
 					textureId = stream.readInt();
+					System.out.println(MdlUtils.TOKEN_STATIC_TEXTURE_ID + ": " + hdTextureIds.size());
+					hdTextureIds.add(textureId);
+					hdTextureSlots.add(hdTextureSlots.size());
 					break;
 				case MdlUtils.TOKEN_TEXTURE_ID:
-					readTimeline(stream, AnimationMap.KMTF);
+					System.out.println(MdlUtils.TOKEN_TEXTURE_ID + ": " + hdTextureIds.size());
+					if(1000 < version){
+						final MdlxTimeline<?> timeline = AnimationMap.KMTF.getNewTimeline();
+						timeline.readMdl(stream);
+						textureIdTimelineMap.put(hdTextureIds.size(), timeline);
+					} else {
+						readTimeline(stream, AnimationMap.KMTF);
+					}
+					hdTextureIds.add(0);
+					hdTextureSlots.add(0);
 					break;
 				case MdlUtils.TOKEN_TVERTEX_ANIM_ID:
 					textureAnimationId = stream.readInt();
@@ -360,7 +435,15 @@ public class MdlxLayer extends MdlxAnimatedObject {
 			stream.writeFlag(MdlUtils.TOKEN_UNLIT);
 		}
 
-		if (!writeTimeline(stream, AnimationMap.KMTF)) {
+		if(1000 < version) {
+			for(int i = 0; i < hdTextureIds.size(); i++){
+				if(textureIdTimelineMap.get(i) != null){
+					textureIdTimelineMap.get(i).writeMdl(stream);
+				} else {
+					stream.writeAttrib(MdlUtils.TOKEN_STATIC_TEXTURE_ID, hdTextureIds.get(i));
+				}
+			}
+		} else if (!writeTimeline(stream, AnimationMap.KMTF)) {
 			stream.writeAttrib(MdlUtils.TOKEN_STATIC_TEXTURE_ID, textureId);
 		}
 
@@ -406,9 +489,21 @@ public class MdlxLayer extends MdlxAnimatedObject {
 
 			if (version > 900) {
 				byteLength += 20;
+				if(1000 < version){
+					byteLength += 8;
+					if(!hdTextureSlots.isEmpty()){
+						byteLength += 8L * hdTextureSlots.size();
+					}
+
+					for(MdlxTimeline<?> timeline : textureIdTimelineMap.values()){
+						if(timeline != null){
+							byteLength += timeline.getByteLength();
+						}
+					}
+				}
 			}
 		}
-		
+
 		return byteLength;
 	}
 }

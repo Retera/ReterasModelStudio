@@ -196,6 +196,8 @@ public class MdlUtils {
 
 	// > 800
 
+	public static final String TOKEN_SHADER = "Shader";
+
 	public static final String TOKEN_FACE_FX = "FaceFX";
 	public static final String TOKEN_BIND_POSE = "BindPose";
 	public static final String TOKEN_EMISSIVE = "Emissive"; //think this is needed to read some models saved with an older version

@@ -34,7 +34,7 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 		flags = reader.readInt32();
 		sizeTracker +=4;
 
-		if (version > 800 && version < 1100) {
+		if (800 < version && version < 1100) {
 			shader = reader.read(80);
 			sizeTracker +=80;
 //				System.out.println("shader: " + shader);
@@ -63,9 +63,9 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 		sizeTracker += laysersSize;
 //		System.out.println("sizeTracker: " + sizeTracker);
 		int matReadBytes = matEndPos - matStartPos;
-		System.out.println("read material bytes: " + matReadBytes);
+//		System.out.println("read material bytes: " + matReadBytes);
 		for (int i = sizeTracker; i < size; i+=4) {
-			System.out.println(i/4 + " (" + i + "): " + reader.readInt32());
+			System.out.println("left over in material: " + i/4 + " (" + i + "): " + reader.readInt32());
 		}
 	}
 
@@ -109,7 +109,7 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 		writer.writeInt32(priorityPlane);
 		writer.writeInt32(flags);
 
-		if (version > 800) {
+		if (800 < version && version < 1100) {
 			writer.writeWithNulls(shader, 80);
 		}
 
@@ -131,7 +131,7 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 				case MdlUtils.TOKEN_SORT_PRIMS_FAR_Z -> flags |= 0x10;
 				case MdlUtils.TOKEN_FULL_RESOLUTION -> flags |= 0x20;
 				case MdlUtils.TOKEN_PRIORITY_PLANE -> priorityPlane = stream.readInt();
-				case "Shader" -> shader = stream.read();
+				case MdlUtils.TOKEN_SHADER -> shader = stream.read();
 				case MdlUtils.TOKEN_LAYER -> {
 					final MdlxLayer layer = new MdlxLayer();
 					layer.readMdl(stream, version);
@@ -172,7 +172,7 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 		}
 
 		if (version > 800) {
-			stream.writeStringAttrib("Shader", shader);
+			stream.writeStringAttrib(MdlUtils.TOKEN_SHADER, shader);
 		}
 
 		for (final MdlxLayer layer : layers) {
@@ -186,7 +186,7 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 	public long getByteLength(final int version) {
 		long size = 20;
 
-		if (version > 800) {
+		if (800 < version && version < 1100) {
 			size += 80;
 		}
 

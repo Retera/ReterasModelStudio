@@ -105,6 +105,11 @@ public class ModelInfoHolder {
 	}
 
 	public boolean isTangentAndSkinSupported() {
-		return (formatVersion == 900) || (formatVersion == 1000);
+		return is900orAbove();
+	}
+
+	private boolean is900orAbove() {
+//		return (formatVersion == 900) || (formatVersion == 1000);
+		return 900 <= formatVersion;
 	}
 }

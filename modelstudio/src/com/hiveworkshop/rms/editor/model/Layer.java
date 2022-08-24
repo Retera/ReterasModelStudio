@@ -17,7 +17,6 @@ import java.util.List;
  */
 public class Layer extends TimelineContainer implements Named {
 	private FilterMode filterMode = FilterMode.NONE;
-	private int TVertexAnimId = -1;
 	private int coordId = 0;
 	private Bitmap texture;
 	private TextureAnim textureAnim;
@@ -49,11 +48,11 @@ public class Layer extends TimelineContainer implements Named {
 
 	private Layer(Layer other) {
 		filterMode = other.filterMode;
-		TVertexAnimId = other.TVertexAnimId;
 		coordId = other.coordId;
 		texture = other.texture;
 		if (other.textureAnim != null) {
 			textureAnim = new TextureAnim(other.textureAnim);
+//			textureAnim = other.textureAnim;
 		} else {
 			textureAnim = null;
 		}
@@ -82,7 +81,6 @@ public class Layer extends TimelineContainer implements Named {
 		int prime = 31;
 		int result = 1;
 		result = (prime * result) + coordId;
-		result = (prime * result) + TVertexAnimId;
 		result = (prime * result) + ((animFlags == null) ? 0 : animFlags.hashCode());
 		long temp;
 		temp = Double.doubleToLongBits(emissiveGain);
@@ -122,9 +120,6 @@ public class Layer extends TimelineContainer implements Named {
 		}
 		Layer other = (Layer) obj;
 		if (coordId != other.coordId) {
-			return false;
-		}
-		if (TVertexAnimId != other.TVertexAnimId) {
 			return false;
 		}
 		if (animFlags == null) {
@@ -251,7 +246,7 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public boolean hasTexAnim() {
-		return TVertexAnimId != -1;
+		return textureAnim != null;
 	}
 
 	@Override
@@ -269,14 +264,6 @@ public class Layer extends TimelineContainer implements Named {
 	@Override
 	public String visFlagName() {
 		return MdlUtils.TOKEN_ALPHA;
-	}
-
-	public int getTVertexAnimId() {
-		return TVertexAnimId;
-	}
-
-	public void setTVertexAnimId(int tVertexAnimId) {
-		TVertexAnimId = tVertexAnimId;
 	}
 
 	public Bitmap getTextureBitmap() {

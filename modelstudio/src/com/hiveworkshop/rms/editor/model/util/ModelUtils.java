@@ -405,36 +405,40 @@ public final class ModelUtils {
 	}
 
 	public static boolean isLevelOfDetailSupported(int formatVersion) {
-		return (formatVersion == 900) || (formatVersion == 1000);
+		return is900OrAbove(formatVersion);
 	}
 
 	public static boolean isShaderStringSupported(int formatVersion) {
-		return (formatVersion == 900) || (formatVersion == 1000);
+		return is900OrAbove(formatVersion);
 	}
 
 	public static boolean isTangentAndSkinSupported(int formatVersion) {
-		return (formatVersion == 900) || (formatVersion == 1000);
+		return is900OrAbove(formatVersion);
 	}
 
 	public static boolean isTangentAndSkinSupported(EditableModel model) {
-		int formatVersion = model.getFormatVersion();
-		return (formatVersion == 900) || (formatVersion == 1000);
+		return is900OrAbove(model.getFormatVersion());
 	}
 
 	public static boolean isBindPoseSupported(int formatVersion) {
-		return (formatVersion == 900) || (formatVersion == 1000);
+		return is900OrAbove(formatVersion);
 	}
 
 	public static boolean isEmissiveLayerSupported(int formatVersion) {
-		return (formatVersion == 900) || (formatVersion == 1000);
+		return is900OrAbove(formatVersion);
 	}
 
 	public static boolean isFresnelColorLayerSupported(int formatVersion) {
-		return formatVersion == 1000;
+		return 1000 <= formatVersion;
 	}
 
 	public static boolean isCornSupported(int formatVersion) {
-		return (formatVersion == 900) || (formatVersion == 1000);
+		return is900OrAbove(formatVersion);
+	}
+
+	private static boolean is900OrAbove(int formatVersion) {
+//		return (formatVersion == 900) || (formatVersion == 1000);
+		return 900 <= formatVersion;
 	}
 
 	public static List<VisibilitySource> getAllVis(EditableModel model) {

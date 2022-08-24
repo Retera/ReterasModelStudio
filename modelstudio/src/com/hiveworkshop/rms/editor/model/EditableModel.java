@@ -486,6 +486,9 @@ public class EditableModel implements Named {
 	public Bitmap getTexture(final int i) {
 		return (okIndex(i, textures)) ? textures.get(i) : null;
 	}
+	public TextureAnim getTexAnim(final int i) {
+		return (okIndex(i, texAnims)) ? texAnims.get(i) : null;
+	}
 
 	public Material getMaterial(final int i) {
 		return (okIndex(i, materials)) ? materials.get(i) : null;

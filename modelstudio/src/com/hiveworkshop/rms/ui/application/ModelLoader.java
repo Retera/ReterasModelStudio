@@ -231,8 +231,8 @@ public class ModelLoader {
 			if (extFilter.isSupTexture(ext)) {
 				getImageModel(f, ext);
 			} else if (Arrays.asList("mdx", "mdl").contains(ext)) {
-				BinaryDecipherHelper.load(f);
-//				getMdxlModel(f);
+//				BinaryDecipherHelper.load(f);
+				getMdxlModel(f);
 			} else if (Arrays.asList("obj", "fbx", "dae").contains(ext)) {
 				getAssImpModel(f);
 			} else if (Arrays.asList("pkb").contains(ext)){
