@@ -5,9 +5,11 @@ import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.MainFrame;
+import com.hiveworkshop.rms.ui.application.ModelLoader;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
+import com.hiveworkshop.rms.util.ProgramVersion;
 import com.hiveworkshop.rms.util.ThemeLoadingUtils;
 
 import javax.swing.*;
@@ -37,26 +39,35 @@ public class Main {
 		startRealRMS(startupModelPaths, dataPromptForced);
 	}
 
-	private static void startRealRMS(List<String> startupModelPaths, boolean dataPromptForced) throws IOException {
+	private static void startRealRMS(List<String> startupModelPaths, boolean dataPromptForced){
 		try {
 			LwjglNativesLoader.load();
-
-			// Load the jassimp natives.
-			tryLoadJAssImp();
-
-			final ProgramPreferences preferences = SaveProfile.get().getPreferences();
-			ThemeLoadingUtils.setTheme(preferences);
-			SwingUtilities.invokeLater(() -> tryStartup(startupModelPaths, dataPromptForced));
-			SwingUtilities.invokeLater(() -> Thread.currentThread().setUncaughtExceptionHandler(Main::exceptionCatcher));
 		} catch (final Throwable th) {
 			th.printStackTrace();
-			SwingUtilities.invokeLater(() -> ExceptionPopup.display(th));
-//			if (!dataPromptForced) {
-//				startRealRMS(null, true);
-////                main(new String[] {"-forcedataprompt"});
-//			} else {
-//				SwingUtilities.invokeLater(() -> startupFailDialog());
-//			}
+			SwingUtilities.invokeLater(() -> ExceptionPopup.display(th, "Could not load the LWJGL natives:"));
+		}
+
+		// Load the JAssetImporter natives.
+		tryLoadJAssImp();
+
+		try {
+			final ProgramPreferences preferences = SaveProfile.get().getPreferences();
+			ThemeLoadingUtils.setTheme(preferences);
+		} catch (final Throwable th) {
+			th.printStackTrace();
+			SwingUtilities.invokeLater(() -> ExceptionPopup.display(th, "Could not set theme:"));
+		}
+
+		SwingUtilities.invokeLater(() -> tryStartup(startupModelPaths, dataPromptForced));
+		SwingUtilities.invokeLater(Main::setExceptionHandler);
+	}
+
+	private static void setExceptionHandler() {
+		try {
+			Thread.currentThread().setUncaughtExceptionHandler(Main::exceptionCatcher);
+		} catch (final Throwable th) {
+			th.printStackTrace();
+			SwingUtilities.invokeLater(() -> ExceptionPopup.display(th, "Error setting exception handler"));
 		}
 	}
 
@@ -67,7 +78,6 @@ public class Main {
 			hasOpenPopup = true;
 			exception.printStackTrace();
 			SwingUtilities.invokeLater(() -> ExceptionPopup.display(exception));
-//			ExceptionPopup.display(exception);
 			hasOpenPopup = false;
 		}
 	}
@@ -75,22 +85,24 @@ public class Main {
 	private static void tryStartup(List<String> startupModelPaths, boolean dataPromptForced) {
 		try {
 			MainFrame.create(startupModelPaths, dataPromptForced);
+//			justTestFiles(startupModelPaths);
 		} catch (final Throwable th) {
 			System.err.println("Failed to start");
 			th.printStackTrace();
-			ExceptionPopup.display(th);
-//			if (!dataPromptForced) {
-//				new Thread(() -> {
-//					try {
-//						startRealRMS(null, true);
-////                        main(new String[]{"-forcedataprompt"});
-//					} catch (final IOException e) {
-//						e.printStackTrace();
-//					}
-//				}).start();
-//			} else {
-//				startupFailDialog();
-//			}
+			ExceptionPopup.display(th, "Failed to start RMS:");
+		}
+	}
+
+	// For testing without opening any GUI.
+	public static void justTestFiles(final List<String> startupModelPaths) {
+		if (!startupModelPaths.isEmpty()) {
+			for (final String path : startupModelPaths) {
+				File file = new File(path);
+				if (file.exists()) {
+					System.out.println("  ~~~  Opening file: " + file + "  ~~~  ");
+					ModelLoader.loadFileNoGUI(file);
+				}
+			}
 		}
 	}
 
@@ -110,16 +122,8 @@ public class Main {
 							"\nin case you want to copy them and ask for help. " +
 							"Once you press OK on that error popup, you can probably still use" +
 							"\nRetera Model Studio just fine for everything else.";
-			JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
-//			ExceptionPopup.display(e);
+			JOptionPane.showMessageDialog(null, message, "Error " + ProgramVersion.getSurrounded(), JOptionPane.ERROR_MESSAGE);
 		}
-	}
-
-	private static void startupFailDialog() {
-		JOptionPane.showMessageDialog(null,
-				"Retera Model Studio startup sequence has failed for two attempts. The program will now exit.",
-				"Error", JOptionPane.ERROR_MESSAGE);
-		System.exit(-1);
 	}
 
 	private static void runAsConverter(final String path) throws IOException {

@@ -1,12 +1,12 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.CameraShellListCellRenderer;
+import com.hiveworkshop.rms.util.uiFactories.Button;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -59,16 +59,10 @@ public class CameraEditPanel extends JPanel {
 		panel.setOpaque(true);
 		panel.setBorder(BorderFactory.createTitledBorder(modelName));
 
-		panel.add(getButton("Import All", e -> importTypeConsumer.accept(true)), "");
-		panel.add(getButton("Leave All", e -> importTypeConsumer.accept(false)), "");
+		panel.add(Button.create("Import All", e -> importTypeConsumer.accept(true)), "");
+		panel.add(Button.create("Leave All", e -> importTypeConsumer.accept(false)), "");
 
 		return panel;
-	}
-
-	private JButton getButton(String text, ActionListener actionListener) {
-		JButton button = new JButton(text);
-		button.addActionListener(actionListener);
-		return button;
 	}
 
 	private void objectTabsValueChanged(ModelHolderThing mht, ListSelectionEvent e) {

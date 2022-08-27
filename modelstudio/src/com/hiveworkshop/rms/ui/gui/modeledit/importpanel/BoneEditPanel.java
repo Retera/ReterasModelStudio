@@ -1,12 +1,12 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
+import com.hiveworkshop.rms.util.uiFactories.Button;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -62,7 +62,7 @@ public class BoneEditPanel extends JPanel {
 
 		topPanel.add(getSetImpTypePanel(mht.receivingModel.getName(), (i) -> mht.setImportStatusForAllRecBones(i)), "");
 		topPanel.add(getSetImpTypePanel(mht.donatingModel.getName(), (i) -> mht.setImportStatusForAllDonBones(i)), "wrap");
-		topPanel.add(getButton("Uncheck Unused", e -> uncheckUnusedBones(mht)), "spanx 4, align center");
+		topPanel.add(Button.create("Uncheck Unused", e -> uncheckUnusedBones(mht)), "spanx 4, align center");
 
 		mht.clearExistingBones = new JCheckBox("Clear pre-existing bones and helpers");
 //		topPanel.add(mht.clearExistingBones, "spanx 4, align center");
@@ -74,17 +74,11 @@ public class BoneEditPanel extends JPanel {
 		panel.setOpaque(true);
 		panel.setBorder(BorderFactory.createTitledBorder(modelName));
 
-		panel.add(getButton("Import All", e -> importTypeConsumer.accept(IdObjectShell.ImportType.IMPORT)), "");
-		panel.add(getButton("Motion From All", e -> importTypeConsumer.accept(IdObjectShell.ImportType.MOTION_FROM)), "");
-		panel.add(getButton("Leave All", e -> importTypeConsumer.accept(IdObjectShell.ImportType.DONT_IMPORT)), "");
+		panel.add(Button.create("Import All", e -> importTypeConsumer.accept(IdObjectShell.ImportType.IMPORT)), "");
+		panel.add(Button.create("Motion From All", e -> importTypeConsumer.accept(IdObjectShell.ImportType.MOTION_FROM)), "");
+		panel.add(Button.create("Leave All", e -> importTypeConsumer.accept(IdObjectShell.ImportType.DONT_IMPORT)), "");
 
 		return panel;
-	}
-
-	public JButton getButton(String text, ActionListener actionListener) {
-		JButton jButton = new JButton(text);
-		jButton.addActionListener(actionListener);
-		return jButton;
 	}
 
 	private void showBoneCard(ModelHolderThing mht, ListSelectionEvent e) {

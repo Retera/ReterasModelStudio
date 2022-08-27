@@ -2,18 +2,25 @@ package com.hiveworkshop.rms.ui.preferences.dataSourceChooser;
 
 import com.hiveworkshop.rms.filesystem.sources.DataSourceDescriptor;
 
-import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
 
-public class DataSourceDescTreeNode extends DefaultMutableTreeNode {
+public class DataSourceDescTreeNode<T extends DataSourceDescriptor> extends DataSourceTreeNode<T> {
 
-	private final DataSourceDescriptor descriptor;
 
-	public DataSourceDescTreeNode(final DataSourceDescriptor descriptor) {
-		super(descriptor.getDisplayName());
-		this.descriptor = descriptor;
+	public DataSourceDescTreeNode(final T descriptor) {
+		super(descriptor);
 	}
 
-	public DataSourceDescriptor getDescriptor() {
-		return descriptor;
+	public void move(DefaultTreeModel model, int dir){
+		MutableTreeNode parent = (MutableTreeNode) getParent();
+		int newIndex = parent.getIndex(this) + dir;
+		if (newIndex >= 0 && newIndex < parent.getChildCount()){
+			model.removeNodeFromParent(this);
+			model.insertNodeInto(this, parent, newIndex);
+		}
+	}
+	public void remove(DefaultTreeModel model){
+		model.removeNodeFromParent(this);
 	}
 }

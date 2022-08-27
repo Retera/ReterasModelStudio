@@ -5,16 +5,16 @@ import com.hiveworkshop.rms.filesystem.sources.CascDataSourceDescriptor;
 import com.hiveworkshop.rms.filesystem.sources.DataSourceDescriptor;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
-import com.hiveworkshop.rms.ui.application.MainFrame;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
+import com.hiveworkshop.rms.util.ProgramVersion;
+import com.hiveworkshop.rms.util.uiFactories.Button;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.util.List;
 
 public class DataSourceChooserPanel extends JPanel {
@@ -24,8 +24,8 @@ public class DataSourceChooserPanel extends JPanel {
 
 	public DataSourceChooserPanel(final List<DataSourceDescriptor> dataSourceDescriptorDefaults) {
 		setLayout(new MigLayout("fill, gap 0", "[sg group1][grow][sg group1]", "[][]"));
-		dataSourceTracker = new DataSourceTracker(dataSourceDescriptorDefaults, this);
-		dataSourceTree = new DataSourceTree(dataSourceTracker.getDataSourceDescriptors(), this);
+		dataSourceTracker = new DataSourceTracker(this);
+		dataSourceTree = new DataSourceTree(dataSourceTracker.getDefaults(dataSourceDescriptorDefaults), this);
 
 		JPanel leftPanel = getLeftPanel();
 		JPanel rightPanel = getRightPanel();
@@ -39,9 +39,6 @@ public class DataSourceChooserPanel extends JPanel {
 		add(dstScrollpane, "growx, growy");
 		add(rightPanel, "growy, wrap");
 		add(bottomPanel, "spanx");
-
-		dataSourceTree.setCellRenderer(new DataTreeRenderer());
-		dataSourceTree.reloadTree();
 	}
 
 	private JPanel getBottomPanel() {
@@ -62,12 +59,12 @@ public class DataSourceChooserPanel extends JPanel {
 	}
 
 	private JPanel getLeftPanel() {
-		JButton clearList = getButton("Clear All", e -> clearAll(), true);
-		JButton addWarcraft3Installation = getButton("Add War3 Install Directory", e -> dataSourceTracker.addWar3InstallDirectory(dataSourceTree::reloadTree), true);
-		JButton resetAllToDefaults = getButton("Reset to Defaults", e -> loadDefaults(), true);
+		JButton clearList = Button.create("Clear All", e -> clearAll());
+		JButton addWarcraft3Installation = Button.create("Add War3 Install Directory", e -> dataSourceTree.addDataSources(dataSourceTracker.getWar3InstallDirectory()));
+		JButton resetAllToDefaults = Button.create("Reset to Defaults", e -> loadDefaults());
 
-		JButton enterHDMode = getButton("Reforged Graphics Mode", e -> enterHDMode(), true);
-		JButton enterSDMode = getButton("Classic Graphics Mode", e -> enterSDMode(), true);
+		JButton enterHDMode = Button.create("Reforged Graphics Mode", e -> enterHDMode());
+		JButton enterSDMode = Button.create("Classic Graphics Mode", e -> enterSDMode());
 
 		JPanel leftPanel = new JPanel(new MigLayout("gap 0, ins 0"));
 		leftPanel.add(clearList, "growx, wrap");
@@ -80,9 +77,9 @@ public class DataSourceChooserPanel extends JPanel {
 	}
 
 	private JPanel getRightPanel() {
-		JButton addCASCButton = getButton("Add CASC", e -> dataSourceTracker.addCASC(dataSourceTree::reloadTree), true);
-		JButton addMPQButton = getButton("Add MPQ", e -> dataSourceTracker.addMPQ(dataSourceTree::reloadTree), true);
-		JButton addFolderButton = getButton("Add Folder", e -> dataSourceTracker.addFolder(dataSourceTree::reloadTree), true);
+		JButton addCASCButton = Button.create("Add CASC", e -> dataSourceTree.addDataSources(dataSourceTracker.getCASC()));
+		JButton addMPQButton = Button.create("Add MPQ", e -> dataSourceTree.addDataSources(dataSourceTracker.getMPQ()));
+		JButton addFolderButton = Button.create("Add Folder", e -> dataSourceTree.addDataSources(dataSourceTracker.getFolder()));
 
 		JPanel rightPanel = new JPanel(new MigLayout("gap 0, ins 0"));
 		rightPanel.add(addCASCButton, "growx, wrap");
@@ -99,25 +96,17 @@ public class DataSourceChooserPanel extends JPanel {
 		return rightPanel;
 	}
 
-	private JButton getButton(String buttonText, ActionListener actionListener, boolean setEnabled) {
-		JButton button = new JButton(buttonText);
-		button.addActionListener(actionListener);
-		button.setEnabled(setEnabled);
-		return button;
-	}
-
 	private void clearAll() {
-		dataSourceTracker.clear();
-		dataSourceTree.reloadTree();
+		dataSourceTree.clearAll();
 	}
 
 	private void enterSDMode() {
-		CascDataSourceDescriptor casc = dataSourceTracker.getCascDataSourceDescriptor();
+		CascDataSourceDescriptor casc = dataSourceTree.getCascDataSourceDescriptor();
 		if (casc != null) {
 			if (casc.getPrefixes().size() == 5) {
 				casc.deletePrefix(4);
 				casc.deletePrefix(3);
-				dataSourceTree.reloadTree();
+				dataSourceTree.rebuildTree();
 			} else {
 				showMessage("Your Warcraft III data CASC configuration is not in the HD mode.");
 			}
@@ -131,14 +120,14 @@ public class DataSourceChooserPanel extends JPanel {
 	}
 
 	private void enterHDMode() {
-		CascDataSourceDescriptor casc  = dataSourceTracker.getCascDataSourceDescriptor();
+		CascDataSourceDescriptor casc  = dataSourceTree.getCascDataSourceDescriptor();
 		if (casc != null) {
 			if (casc.getPrefixes().size() == 3) {
 				String localesMod = getLocalesMod(casc);
 				if (localesMod != null) {
 					casc.addPrefix("war3.w3mod\\_hd.w3mod");
 					casc.addPrefix(localesMod.replace("_locales", "_hd.w3mod\\_locales"));
-					dataSourceTree.reloadTree();
+					dataSourceTree.rebuildTree();
 				} else {
 					showMessage(
 							"Your Warcraft III data CASC configuration is not in the SD mode or " +
@@ -169,12 +158,12 @@ public class DataSourceChooserPanel extends JPanel {
 	}
 
 	protected void loadDefaults() {
-		dataSourceTracker.loadDefaults(null);
-		dataSourceTree.reloadTree();
+		dataSourceTree.clearAll();
+		dataSourceTree.addDataSources(dataSourceTracker.getDefaults(null));
 	}
 
 	public List<DataSourceDescriptor> getDataSourceDescriptors() {
-		return dataSourceTracker.getDataSourceDescriptors();
+		return dataSourceTree.getDataSourceDescriptors();
 	}
 
 
@@ -186,7 +175,7 @@ public class DataSourceChooserPanel extends JPanel {
 		final DataSourceChooserPanel dataSourceChooserPanel = new DataSourceChooserPanel(dataSources);
 
 		int opt = JOptionPane.showConfirmDialog(null, dataSourceChooserPanel,
-				"Retera Model Studio " + MainFrame.getVersion() + ": Setup", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+				"Retera Model Studio " + ProgramVersion.get() + ": Setup", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
 		if (opt == JOptionPane.OK_OPTION) {
 			SaveProfile.get().setDataSources(dataSourceChooserPanel.getDataSourceDescriptors());

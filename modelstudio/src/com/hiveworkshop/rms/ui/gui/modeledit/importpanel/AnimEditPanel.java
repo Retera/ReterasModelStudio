@@ -3,12 +3,12 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 import com.hiveworkshop.rms.ui.application.tools.TwiRenamingPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.AnimListCellRenderer;
 import com.hiveworkshop.rms.util.IterableListModel;
+import com.hiveworkshop.rms.util.uiFactories.Button;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.List;
@@ -102,8 +102,8 @@ public class AnimEditPanel extends JPanel {
 		JPanel topPanel = new JPanel(new MigLayout("gap 0"));
 		topPanel.add(getSetImpTypePanel(mht.receivingModel.getName(), (i) -> mht.setImportTypeForAllRecAnims(i)), "");
 		topPanel.add(getSetImpTypePanel(mht.donatingModel.getName(), (i) -> mht.setImportTypeForAllDonAnims(i)), "wrap");
-		topPanel.add(getButton("bulk rename animations", e -> doSomeRenaming(mht)), "");
-		topPanel.add(getButton("auto match animations", e -> matchAnimsByName()), "wrap");
+		topPanel.add(Button.create("bulk rename animations", e -> doSomeRenaming(mht)), "");
+		topPanel.add(Button.create("auto match animations", e -> matchAnimsByName()), "wrap");
 		return topPanel;
 	}
 
@@ -112,18 +112,12 @@ public class AnimEditPanel extends JPanel {
 		panel.setOpaque(true);
 		panel.setBorder(BorderFactory.createTitledBorder(modelName));
 
-		panel.add(getButton("Import All", e -> importTypeConsumer.accept(AnimShell.ImportType.IMPORT_BASIC)), "");
-		panel.add(getButton("Time-scale All", e -> importTypeConsumer.accept(AnimShell.ImportType.TIMESCALE_INTO)), "");
-		panel.add(getButton("Import and Rename All", e -> importTypeConsumer.accept(AnimShell.ImportType.CHANGE_NAME)), "");
-		panel.add(getButton("Leave All", e -> importTypeConsumer.accept(AnimShell.ImportType.DONT_IMPORT)), "");
+		panel.add(Button.create("Import All", e -> importTypeConsumer.accept(AnimShell.ImportType.IMPORT_BASIC)), "");
+		panel.add(Button.create("Time-scale All", e -> importTypeConsumer.accept(AnimShell.ImportType.TIMESCALE_INTO)), "");
+		panel.add(Button.create("Import and Rename All", e -> importTypeConsumer.accept(AnimShell.ImportType.CHANGE_NAME)), "");
+		panel.add(Button.create("Leave All", e -> importTypeConsumer.accept(AnimShell.ImportType.DONT_IMPORT)), "");
 
 		return panel;
-	}
-
-	public JButton getButton(String text, ActionListener actionListener) {
-		JButton button = new JButton(text);
-		button.addActionListener(actionListener);
-		return button;
 	}
 
 	private void renameAllAnims(ModelHolderThing mht) {

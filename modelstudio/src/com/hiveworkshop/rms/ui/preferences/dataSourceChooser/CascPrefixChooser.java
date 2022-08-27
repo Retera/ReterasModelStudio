@@ -50,6 +50,41 @@ public class CascPrefixChooser {
 		}
 		return null;
 	}
+	public static List<String> getSpecificPrefixs(Path installPathPath, Component parent) {
+		// It's CASC. Now the question: what prefixes do we use?
+		try {
+			WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true);
+			DefaultComboBoxModel<String> prefixes = new DefaultComboBoxModel<>();
+			try {
+				WC3CascFileSystem rootFileSystem = tempCascReader.getRootFileSystem();
+				List<String> allFiles = rootFileSystem.enumerateFiles();
+				for (String file : allFiles) {
+					if (rootFileSystem.isNestedFileSystem(file)) {
+						prefixes.addElement(file);
+					}
+				}
+			} finally {
+				tempCascReader.close();
+			}
+			JComboBox<String> prefixChoiceComboBox = new JComboBox<>(prefixes);
+			prefixChoiceComboBox.setEditable(true);
+
+			JPanel comboBoxPanel = new JPanel(new BorderLayout());
+			comboBoxPanel.add(prefixChoiceComboBox, BorderLayout.CENTER);
+			comboBoxPanel.add(new JLabel("Choose a .w3mod:"), BorderLayout.BEFORE_FIRST_LINE);
+
+			if (showConf(comboBoxPanel, "Choose Mod", parent) == JOptionPane.OK_OPTION) {
+				Object selectedItem = prefixChoiceComboBox.getSelectedItem();
+				if (selectedItem != null) {
+					return Collections.singletonList(selectedItem.toString());
+				}
+			}
+		} catch (final Exception e1) {
+			e1.printStackTrace();
+			ExceptionPopup.display(e1);
+		}
+		return Collections.emptyList();
+	}
 
 	public static List<String> addDefaultCASCPrefixes(Path installPathPath, boolean allowPopup, Component parent) {
 		// It's CASC. Now the question: what prefixes do we use?

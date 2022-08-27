@@ -13,18 +13,18 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MdlxGeoset implements MdlxBlock, MdlxChunk {
-	private static final War3ID VRTX = War3ID.fromString("VRTX");
-	private static final War3ID NRMS = War3ID.fromString("NRMS");
-	private static final War3ID PTYP = War3ID.fromString("PTYP");
-	private static final War3ID PCNT = War3ID.fromString("PCNT");
-	private static final War3ID PVTX = War3ID.fromString("PVTX");
-	private static final War3ID GNDX = War3ID.fromString("GNDX");
-	private static final War3ID MTGC = War3ID.fromString("MTGC");
-	private static final War3ID MATS = War3ID.fromString("MATS");
-	private static final War3ID TANG = War3ID.fromString("TANG");
-	private static final War3ID SKIN = War3ID.fromString("SKIN");
-	private static final War3ID UVAS = War3ID.fromString("UVAS");
-	private static final War3ID UVBS = War3ID.fromString("UVBS");
+	private static final War3ID VRTX = War3ID.fromString("VRTX"); // vertex position
+	private static final War3ID NRMS = War3ID.fromString("NRMS"); // vertex normal
+	private static final War3ID PTYP = War3ID.fromString("PTYP"); // face type group
+	private static final War3ID PCNT = War3ID.fromString("PCNT"); // face group
+	private static final War3ID PVTX = War3ID.fromString("PVTX"); // face
+	private static final War3ID GNDX = War3ID.fromString("GNDX"); // vertex groups
+	private static final War3ID MTGC = War3ID.fromString("MTGC"); // matrix groups
+	private static final War3ID MATS = War3ID.fromString("MATS"); // matrix indices
+	private static final War3ID TANG = War3ID.fromString("TANG"); // tangents
+	private static final War3ID SKIN = War3ID.fromString("SKIN"); // skin
+	private static final War3ID UVAS = War3ID.fromString("UVAS"); // UV group
+	private static final War3ID UVBS = War3ID.fromString("UVBS"); // vertex UV position
 	
 	public float[] vertices;
 	public float[] normals;

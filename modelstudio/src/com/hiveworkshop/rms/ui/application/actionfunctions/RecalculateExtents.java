@@ -32,7 +32,9 @@ public class RecalculateExtents extends ActionFunction{
 
 			messagePanel.add(buttonGroup2.getButtonPanel(), "wrap");
 
-			int userChoice = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), messagePanel, "Message",
+			int userChoice = JOptionPane.showConfirmDialog(
+					ProgramGlobals.getMainPanel(), messagePanel,
+					"Recalculate Extents",
 					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 			if (userChoice == JOptionPane.YES_OPTION) {
 				ModelView modelView = modelPanel.getModelView();

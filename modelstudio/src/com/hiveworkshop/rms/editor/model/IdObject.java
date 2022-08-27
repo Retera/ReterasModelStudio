@@ -68,10 +68,10 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	}
 
 	public void setParent(final IdObject p) {
-		if (parent != null) {
-			parent.childrenNodes.remove(this);
-		}
-		if (parent != this) {
+		if (p != this) {
+			if (parent != null) {
+				parent.childrenNodes.remove(this);
+			}
 			parent = p;
 			if (parent != null) {
 				parent.childrenNodes.add(this);

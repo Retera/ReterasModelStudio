@@ -2,20 +2,19 @@ package com.hiveworkshop.rms.ui.preferences.dataSourceChooser;
 
 import com.hiveworkshop.rms.filesystem.sources.CascDataSourceDescriptor;
 import com.hiveworkshop.rms.filesystem.sources.DataSourceDescriptor;
+import com.hiveworkshop.rms.util.uiFactories.Button;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.*;
 
 public class DataSourceTree extends JTree {
 	private final DefaultMutableTreeNode root;
 	private final DefaultTreeModel model;
-	private final List<DataSourceDescriptor> dataSourceDescriptors;
+	private final List<DataSourceDescriptor> dataSourceDescriptors = new ArrayList<>();
 	private final Component popupParent;
 
 	private JButton addDefaultCascPrefixes;
@@ -25,7 +24,7 @@ public class DataSourceTree extends JTree {
 	private JButton moveDownButton;
 
 	public DataSourceTree(List<DataSourceDescriptor> dataSourceDescriptors, Component popupParent){
-		this.dataSourceDescriptors = dataSourceDescriptors;
+		this.dataSourceDescriptors.addAll(dataSourceDescriptors);
 		this.root = new DefaultMutableTreeNode();
 		this.model = new DefaultTreeModel(this.root);
 		this.popupParent = popupParent;
@@ -35,40 +34,39 @@ public class DataSourceTree extends JTree {
 		setRootVisible(false);
 		createButtons();
 		addTreeSelectionListener(this::updateButtons);
+		setCellRenderer(new DataTreeRenderer());
+		buildTree();
 	}
 
 	public void move(boolean up) {
 		TreePath[] selectionPaths = getSelectionPaths();
 		int dir = up ? -1 : 1;
-		for (TreePath selectionPath : selectionPaths) {
-			DefaultMutableTreeNode lastComp = getNode(selectionPath);
-			if (lastComp != null) {
-				if (lastComp instanceof DataSourceDescTreeNode) {
-					DataSourceDescriptor descriptor = ((DataSourceDescTreeNode) lastComp).getDescriptor();
-					int indexOf = dataSourceDescriptors.indexOf(descriptor);
-					if (indexOf + dir >= 0 && indexOf + dir < dataSourceDescriptors.size()) {
-						Collections.swap(dataSourceDescriptors, indexOf, indexOf + dir);
-					}
-				} else {
-					TreeNode parent = lastComp.getParent();
-					if (parent instanceof DataSourceDescTreeNode) {
-						DataSourceDescriptor parentDescriptor = ((DataSourceDescTreeNode) parent).getDescriptor();
-						if (parentDescriptor instanceof CascDataSourceDescriptor) {
-							((CascDataSourceDescriptor) parentDescriptor).movePrefix(parent.getIndex(lastComp), dir);
+		if(selectionPaths != null && 0 < selectionPaths.length){
+			for (TreePath selectionPath : selectionPaths) {
+				DataSourceTreeNode<?> node = getNode(selectionPath);
+				if(node != null){
+					DataSourceDescriptor descriptor = node.descriptor;
+					if(descriptor != null){
+						int indexOf = dataSourceDescriptors.indexOf(descriptor);
+						if (indexOf + dir >= 0 && indexOf + dir < dataSourceDescriptors.size()) {
+							Collections.swap(dataSourceDescriptors, indexOf, indexOf + dir);
 						}
 					}
+					node.move(model, dir);
+					TreePath path = new TreePath(model.getPathToRoot(node));
+					expandPath(path);
+					setSelectionPath(path);
 				}
-				reloadTree();
 			}
 		}
 	}
 
 	private void createButtons(){
-		addDefaultCascPrefixes = getButton("Add Default CASC Mod", e -> addDefaultCASCMod());
-		addSpecificCascPrefix = getButton("Add Specific CASC Mod", e -> addSpecificCASCMod());
-		deleteButton = getButton("Delete Selection", e -> deleteSelection());
-		moveUpButton = getButton("Move Up", e -> move(true));
-		moveDownButton = getButton("Move Down", e -> move(false));
+		addDefaultCascPrefixes = Button.create("Add Default CASC Mod", e -> addDefaultCASCMod());
+		addSpecificCascPrefix = Button.create("Add Specific CASC Mod", e -> addSpecificCASCMod());
+		deleteButton = Button.create("Delete Selection", e -> deleteSelection());
+		moveUpButton = Button.create("Move Up", e -> move(true));
+		moveDownButton = Button.create("Move Down", e -> move(false));
 	}
 
 	private void updateButtons(TreeSelectionEvent e){
@@ -97,164 +95,137 @@ public class DataSourceTree extends JTree {
 	public JButton getMoveDownButton(){
 		return moveDownButton;
 	}
-	private JButton getButton(String buttonText, ActionListener actionListener) {
-		JButton button = new JButton(buttonText);
-		button.addActionListener(actionListener);
-		button.setEnabled(false);
-		return button;
-	}
-
 
 
 	public void deleteSelection() {
 		TreePath[] selectionPaths = getSelectionPaths();
 		for (TreePath selectionPath : selectionPaths) {
-			DefaultMutableTreeNode lastComp = getNode(selectionPath);
-			if (lastComp != null) {
-				if (lastComp instanceof DataSourceDescTreeNode) {
-					DataSourceDescriptor descriptor = ((DataSourceDescTreeNode) lastComp).getDescriptor();
+			DataSourceTreeNode<?> node = getNode(selectionPath);
+			if (node != null) {
+				DataSourceDescriptor descriptor = node.getDescriptor();
+				if(descriptor != null){
 					dataSourceDescriptors.remove(descriptor);
-				} else {
-					TreeNode parent = lastComp.getParent();
-					if (parent instanceof DataSourceDescTreeNode) {
-						final DataSourceDescriptor parentDescriptor = ((DataSourceDescTreeNode) parent).getDescriptor();
-						if (parentDescriptor instanceof CascDataSourceDescriptor) {
-							((CascDataSourceDescriptor) parentDescriptor).deletePrefix(parent.getIndex(lastComp));
-						}
-					}
 				}
-				reloadTree();
+				node.remove(model);
 			}
 		}
 	}
-
 
 	public void addDefaultCASCMod() {
-		TreePath selectionPath = getSelectionPath();
-		DefaultMutableTreeNode lastComp = getNode(selectionPath);
-		if (lastComp instanceof DataSourceDescTreeNode) {
-			DataSourceDescriptor descriptor = ((DataSourceDescTreeNode) lastComp).getDescriptor();
-			if (descriptor instanceof CascDataSourceDescriptor) {
-				CascDataSourceDescriptor casc = (CascDataSourceDescriptor) descriptor;
-				casc.addPrefixes(CascPrefixChooser.addDefaultCASCPrefixes(Paths.get(casc.getGameInstallPath()), true, popupParent));
-				reloadTree();
-			}
+		final TreePath selectionPath = getSelectionPath();
+		DataSourceTreeNode<?> node = getNode(selectionPath);
+		if(node != null){
+			node.addDefaultCASCMod(model, popupParent);
 		}
 	}
-
 
 	public void addSpecificCASCMod() {
-		//JOptionPane.showInputDialog(DataSourceChooserPanel.this, "Enter the name of a CASC Mod:");
 		final TreePath selectionPath = getSelectionPath();
-		DefaultMutableTreeNode lastComp = getNode(selectionPath);
-		if (lastComp != null && lastComp.getParent() instanceof DataSourceDescTreeNode) {
-			lastComp = (DefaultMutableTreeNode) lastComp.getParent();
-		}
-		if (lastComp instanceof DataSourceDescTreeNode) {
-			DataSourceDescriptor descriptor = ((DataSourceDescTreeNode) lastComp).getDescriptor();
-			if (descriptor instanceof CascDataSourceDescriptor) {
-				CascDataSourceDescriptor casc = (CascDataSourceDescriptor) descriptor;
-				String prefix = CascPrefixChooser.getSpecificPrefix(Paths.get(casc.getGameInstallPath()), popupParent);
-				if(prefix != null){
-					casc.addPrefix(prefix);
-				}
-				reloadTree();
-			}
+		DataSourceTreeNode<?> node = getNode(selectionPath);
+		if(node != null){
+			node.addSpecificCASCMod(model, popupParent);
 		}
 	}
 
-	public void reloadTree() {
+	public void rebuildTree() {
 		Set<String> selectionSet = new HashSet<>();
 		TreePath[] selectionPaths = getSelectionPaths();
 		int rowCount = getRowCount();
 
 		if (selectionPaths != null) {
+			// collect selection paths
 			Arrays.stream(selectionPaths).forEach(sp -> selectionSet.add(sp.toString()));
 		}
 		for (int i = root.getChildCount() - 1; i >= 0; i--) {
 			model.removeNodeFromParent((MutableTreeNode) root.getChildAt(i));
 		}
-		for (DataSourceDescriptor descriptor : dataSourceDescriptors) {
-			DataSourceDescTreeNode newChild = new DataSourceDescTreeNode(descriptor);
-			if (descriptor instanceof CascDataSourceDescriptor) {
-				final CascDataSourceDescriptor cascDescriptor = (CascDataSourceDescriptor) descriptor;
-				if (cascDescriptor.getPrefixes().isEmpty()) {
-					newChild.setUserObject(newChild.getUserObject() + " (WARNING: No Mods Selected)");
-				}
-				for (final String prefix : cascDescriptor.getPrefixes()) {
-					DefaultMutableTreeNode cascChild = new DefaultMutableTreeNode(prefix);
-					model.insertNodeInto(cascChild, newChild, newChild.getChildCount());
-					if(selectionSet.contains(new TreePath(model.getPathToRoot(cascChild)).toString())){
-						addSelectionPath(new TreePath(model.getPathToRoot(cascChild)));
-					}
-				}
-			}
-			model.insertNodeInto(newChild, root, root.getChildCount());
+		buildTree();
 
-			if(selectionSet.contains(new TreePath(model.getPathToRoot(newChild)).toString())){
-				addSelectionPath(new TreePath(model.getPathToRoot(newChild)));
+		expandPath(new TreePath(root));
+		for(int i = 0; i < root.getChildCount(); i++){
+			TreePath treePath = new TreePath(model.getPathToRoot(root.getChildAt(i)));
+			expandPath(treePath);
+			String path = treePath.toString();
+			if(selectionSet.contains(path)){
+				addSelectionPath(treePath);
 			}
+		}
+		if (selectionPaths != null && rowCount < getRowCount()){
+			setSelectionRow(getRowCount()-1);
+		}
+	}
+
+	public void buildTree() {
+		for (DataSourceDescriptor descriptor : dataSourceDescriptors) {
+			DataSourceDescTreeNode<?> newChild = getNewChild(descriptor);
+			model.insertNodeInto(newChild, root, root.getChildCount());
 		}
 		expandPath(new TreePath(root));
 		for (int i = 0; i < getRowCount(); i++) {
 			expandRow(i);
 		}
-		if (rowCount < getRowCount()){
-			setSelectionRow(getRowCount()-1);
+	}
+
+	public void addDataSources(List<DataSourceDescriptor> descriptors) {
+		dataSourceDescriptors.addAll(descriptors);
+		for(DataSourceDescriptor descriptor : descriptors){
+			DataSourceDescTreeNode<?> newChild = getNewChild(descriptor);
+			model.insertNodeInto(newChild, root, root.getChildCount());
+			TreePath treePath = new TreePath(model.getPathToRoot(newChild));
+			expandPath(treePath);
+			setSelectionPath(treePath);
+		}
+	}
+	private DataSourceDescTreeNode<?> getNewChild(DataSourceDescriptor descriptor) {
+		if (descriptor instanceof CascDataSourceDescriptor) {
+			return new CascDataSourceDescTreeNode((CascDataSourceDescriptor) descriptor);
+
+		} else {
+			return new DataSourceDescTreeNode<>(descriptor);
 		}
 	}
 
 	public boolean isCascSelected(TreePath selectionPath) {
-		DefaultMutableTreeNode lastComp = getNode(selectionPath);
-		if (lastComp != null && lastComp.getParent() instanceof DataSourceDescTreeNode) {
-			lastComp = (DefaultMutableTreeNode) lastComp.getParent();
-		}
-		return lastComp instanceof DataSourceDescTreeNode
-				&& ((DataSourceDescTreeNode) lastComp).getDescriptor() instanceof CascDataSourceDescriptor;
+		DataSourceTreeNode<?> node = getNode(selectionPath);
+		return node instanceof CascDataSourceDescTreeNode || node instanceof CascDataSourceSubNode;
 	}
 
 	public boolean canMoveUp(TreePath selectionPath) {
-		DefaultMutableTreeNode lastComp = getNode(selectionPath);
-		if (lastComp != null && lastComp.getParent() instanceof DataSourceDescTreeNode) {
-			DataSourceDescTreeNode parent = (DataSourceDescTreeNode) lastComp.getParent();
-			DataSourceDescriptor descriptor = parent.getDescriptor();
-
-			if (descriptor instanceof CascDataSourceDescriptor) {
-				return 0 < parent.getIndex(lastComp);
-			}
-		} else if (lastComp instanceof DataSourceDescTreeNode){
-			return 0 < dataSourceDescriptors.indexOf(((DataSourceDescTreeNode)lastComp).getDescriptor());
-		}
-		return false;
+		DataSourceTreeNode<?> node = getNode(selectionPath);
+		return node != null && node.canMoveUp();
 	}
 
 	public boolean canMoveDown(TreePath selectionPath) {
-		DefaultMutableTreeNode lastComp = getNode(selectionPath);
-		if (lastComp != null && lastComp.getParent() instanceof DataSourceDescTreeNode) {
-			DataSourceDescTreeNode parent = (DataSourceDescTreeNode) lastComp.getParent();
-			DataSourceDescriptor descriptor = parent.getDescriptor();
-
-			if (descriptor instanceof CascDataSourceDescriptor) {
-				return parent.getIndex(lastComp) < parent.getChildCount()-1;
-			}
-		} else if (lastComp instanceof DataSourceDescTreeNode){
-			return dataSourceDescriptors.indexOf(((DataSourceDescTreeNode)lastComp).getDescriptor()) < dataSourceDescriptors.size()-1;
-		}
-		return false;
+		DataSourceTreeNode<?> node = getNode(selectionPath);
+		return node != null && node.canMoveDown();
 	}
 
-
-	public void showMessage(String message) {
-		JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
-	}
-
-	public DefaultMutableTreeNode getNode(TreePath selectionPath) {
+	public DataSourceTreeNode<?> getNode(TreePath selectionPath) {
 		if (selectionPath != null) {
 			Object lastPathComponent = selectionPath.getLastPathComponent();
-			if (lastPathComponent instanceof DefaultMutableTreeNode) {
-				return  (DefaultMutableTreeNode) lastPathComponent;
+			if (lastPathComponent instanceof DataSourceTreeNode) {
+				return  (DataSourceTreeNode<?>) lastPathComponent;
 			}
 		}
 		return null;
+	}
+
+	public CascDataSourceDescriptor getCascDataSourceDescriptor() {
+		if ((dataSourceDescriptors.size() == 1) && (dataSourceDescriptors.get(0) instanceof CascDataSourceDescriptor)) {
+			return  (CascDataSourceDescriptor) dataSourceDescriptors.get(0);
+		}
+		return null;
+	}
+
+	public void clearAll(){
+		dataSourceDescriptors.clear();
+		for (int i = root.getChildCount() - 1; i >= 0; i--) {
+			model.removeNodeFromParent((MutableTreeNode) root.getChildAt(i));
+		}
+		expandPath(new TreePath(root));
+	}
+
+	public List<DataSourceDescriptor> getDataSourceDescriptors() {
+		return dataSourceDescriptors;
 	}
 }

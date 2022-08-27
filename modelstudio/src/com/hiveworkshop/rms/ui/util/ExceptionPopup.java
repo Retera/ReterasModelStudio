@@ -1,9 +1,10 @@
 package com.hiveworkshop.rms.ui.util;
 
-import com.hiveworkshop.rms.ui.application.MainFrame;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.CloseModel;
+import com.hiveworkshop.rms.util.ProgramVersion;
 import com.hiveworkshop.rms.util.ScreenInfo;
+import com.hiveworkshop.rms.util.uiFactories.Button;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -53,38 +54,36 @@ public class ExceptionPopup {
 		// Some QoL buttons:
 		// Undo so that users that get stuck in a error-loop has a
 		// chance to get out of it without loosing their progress
-		JButton tryToUndo = new JButton("try to undo");
-		tryToUndo.addActionListener(ProgramGlobals.getUndoHandler().getUndoAction());
-		panel.add(tryToUndo);
+		panel.add(Button.create("try to undo", ProgramGlobals.getUndoHandler().getUndoAction()));
 		// And a way close the current model
 		// This will also trigger the save-prompt
-		JButton closeModel = new JButton("close model");
-		closeModel.addActionListener(a -> {
-			ProgramGlobals.getMainPanel().setVisible(false);
-			CloseModel.closeModelPanel();
-			ProgramGlobals.getMainPanel().setVisible(true);
-		});
-		panel.add(closeModel);
+		panel.add(Button.create("close model", a -> closeCurrentModel()));
 		// And a way to exit RMS without going through the Task Manager
 		// This will also trigger the save-prompt
-		JButton exitRms = new JButton("exit RMS");
-		exitRms.addActionListener(a -> {
-			ProgramGlobals.getMainPanel().setVisible(false);
-			if (CloseModel.closeAll()) {
-				System.exit(-1);
-			}
-			ProgramGlobals.getMainPanel().setVisible(true);
-		});
-		panel.add(exitRms);
-		JButton forceExitRms = new JButton("force exit RMS");
-		forceExitRms.addActionListener(a -> {
-			ProgramGlobals.getMainPanel().setVisible(false);
+		panel.add(Button.create("exit RMS", a -> exitRMS()));
+		panel.add(Button.create("force exit RMS", a -> forceExit()));
+
+
+		JOptionPane.showMessageDialog(null, panel, "Warning (" + ProgramVersion.get() + ")", JOptionPane.WARNING_MESSAGE, null);
+	}
+
+	private static void closeCurrentModel() {
+		ProgramGlobals.getMainPanel().setVisible(false);
+		CloseModel.closeModelPanel();
+		ProgramGlobals.getMainPanel().setVisible(true);
+	}
+
+	private static void exitRMS() {
+		ProgramGlobals.getMainPanel().setVisible(false);
+		if (CloseModel.closeAll()) {
 			System.exit(-1);
-		});
-		panel.add(forceExitRms);
+		}
+		ProgramGlobals.getMainPanel().setVisible(true);
+	}
 
-
-		JOptionPane.showMessageDialog(null, panel, "Warning (" + MainFrame.getVersion() + ")", JOptionPane.WARNING_MESSAGE, null);
+	private static void forceExit() {
+		ProgramGlobals.getMainPanel().setVisible(false);
+		System.exit(-1);
 	}
 
 
@@ -113,8 +112,7 @@ public class ExceptionPopup {
 			infoPanel.add(new JLabel("To get more information run RMS from a terminal."), "cell 0 1");
 
 			if (firstException != null) {
-				JButton exceptionButton = new JButton("Show first Exeption");
-				exceptionButton.addActionListener(e -> display(firstException, "First exception to occur:"));
+				JButton exceptionButton = Button.create("Show first Exeption", e -> display(firstException, "First exception to occur:"));
 				infoPanel.add(exceptionButton, "cell 1 0, spany 2, al 100% 50%, wrap");
 			}
 
@@ -133,7 +131,7 @@ public class ExceptionPopup {
 			jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
 			clearStringsToShow();
-			JOptionPane.showMessageDialog(null, infoPanel, "Warning (" + MainFrame.getVersion() + ")", JOptionPane.WARNING_MESSAGE, null);
+			JOptionPane.showMessageDialog(null, infoPanel, "Warning (" + ProgramVersion.get() + ")", JOptionPane.WARNING_MESSAGE, null);
 
 			clearFirstException();
 		}
