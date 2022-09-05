@@ -42,6 +42,11 @@ If all is well, this should launch a locally compiled build of Retera Model Stud
  
 ## seanrowens (https://github.com/seanrowens)
  - OBJ parser for java
+
+## twilac
+ - Feature improvements
+ - Some code reorganization on 0.05.
+ - Maintaining a newer and very different fork of Retera Model Studio, which is now available at https://github.com/tw1lac/ReterasModelStudio/releases (Very cool!)
  
 ## BogdanW3
  - Some bugfixes (see GitHub Contributors)
