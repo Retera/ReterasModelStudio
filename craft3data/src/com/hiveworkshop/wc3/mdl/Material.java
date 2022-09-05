@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.swing.JOptionPane;
@@ -448,48 +449,58 @@ public class Material implements MaterialView {
 				public int outputARGB;
 			}
 
+			final String diffuseTextureDataRenderableFilePath = getRenderableTexturePath(
+					zeroLayer.getShaderTextures().get(ShaderTextureTypeHD.Diffuse));
 			final BufferedImage diffuseTextureData = BLPHandler.get().getTexture(workingDirectory,
-					getRenderableTexturePath(zeroLayer.getShaderTextures().get(ShaderTextureTypeHD.Diffuse)));
+					diffuseTextureDataRenderableFilePath);
 			final BufferedImage normalTextureData = BLPHandler.get().getTexture(workingDirectory,
 					getRenderableTexturePath(zeroLayer.getShaderTextures().get(ShaderTextureTypeHD.Normal)));
 			final BufferedImage ormTextureData = BLPHandler.get().getTexture(workingDirectory,
 					getRenderableTexturePath(zeroLayer.getShaderTextures().get(ShaderTextureTypeHD.ORM)));
 			final BufferedImage reflectionsTextureData = BLPHandler.get().getTexture(workingDirectory,
 					getRenderableTexturePath(zeroLayer.getShaderTextures().get(ShaderTextureTypeHD.Reflections)));
-			System.out.println("Diffuse: " + diffuseTextureData.getWidth() + " x " + diffuseTextureData.getHeight());
-			System.out.println("Normal: " + normalTextureData.getWidth() + " x " + normalTextureData.getHeight());
-			System.out.println("Orm: " + ormTextureData.getWidth() + " x " + ormTextureData.getHeight());
+			final int diffuseTextureDataWidth = diffuseTextureData.getWidth();
+			final int diffuseTextureDataHeight = diffuseTextureData.getHeight();
+			System.out.println("Diffuse: " + diffuseTextureDataWidth + " x " + diffuseTextureDataHeight);
+			final int normalTextureDataWidth = normalTextureData.getWidth();
+			final int normalTextureDataHeight = normalTextureData.getHeight();
+			System.out.println("Normal: " + normalTextureDataWidth + " x " + normalTextureDataHeight);
+			final int ormTextureDataWidth = ormTextureData.getWidth();
+			final int ormTextureDataHeight = ormTextureData.getHeight();
+			System.out.println("Orm: " + ormTextureDataWidth + " x " + ormTextureDataHeight);
 			System.out.println(
 					"Reflections: " + reflectionsTextureData.getWidth() + " x " + reflectionsTextureData.getHeight());
-			if (diffuseTextureData.getWidth() != normalTextureData.getWidth()
-					|| normalTextureData.getWidth() != ormTextureData.getWidth()) {
-				new IllegalStateException(
-						"Baking failed because of differing texture widths; maybe we should update the algorithm?")
-								.printStackTrace();
-				return null;
-			}
-			if (diffuseTextureData.getHeight() != normalTextureData.getHeight()
-					|| normalTextureData.getHeight() != ormTextureData.getHeight()) {
-				new IllegalStateException(
-						"Baking failed because of differing texture heights; maybe we should update the algorithm?")
-								.printStackTrace();
-				return null;
-			}
-			final BakingCell[][] bakingCells = new BakingCell[diffuseTextureData.getHeight()][diffuseTextureData
-					.getWidth()];
+//			if (diffuseTextureDataWidth != normalTextureDataWidth || normalTextureDataWidth != ormTextureDataWidth) {
+//				new IllegalStateException(
+//						"Baking failed because of differing texture widths; maybe we should update the algorithm?")
+//								.printStackTrace();
+//				return null;
+//			}
+//			if (diffuseTextureDataHeight != normalTextureDataHeight
+//					|| normalTextureDataHeight != ormTextureDataHeight) {
+//				new IllegalStateException(
+//						"Baking failed because of differing texture heights; maybe we should update the algorithm?")
+//								.printStackTrace();
+//				return null;
+//			}
+			final BakingCell[][] bakingCells = new BakingCell[diffuseTextureDataHeight][diffuseTextureDataWidth];
 			for (int i = 0; i < bakingCells.length; i++) {
 				for (int j = 0; j < bakingCells[i].length; j++) {
 					bakingCells[i][j] = new BakingCell();
-					bakingCells[i][j].diffuseRGB = diffuseTextureData.getRGB(j, i);
-					bakingCells[i][j].normalRGB = normalTextureData.getRGB(j, i);
-					bakingCells[i][j].ormRGB = ormTextureData.getRGB(j, i);
+					bakingCells[i][j].diffuseRGB = diffuseTextureData.getRGB(j % diffuseTextureDataWidth,
+							i % diffuseTextureDataHeight);
+					bakingCells[i][j].normalRGB = normalTextureData.getRGB(j % normalTextureDataWidth,
+							i % normalTextureDataHeight);
+					bakingCells[i][j].ormRGB = ormTextureData.getRGB(j % ormTextureDataWidth, i % ormTextureDataHeight);
 				}
 			}
-			final Vector3f lightDirection = new Vector3f(128f, 0, 128f);
-//			if (model.getCameras().size() > 0) {
-//				final Vertex position = model.getCameras().get(0).getPosition();
-//				lightDirection.set((float) position.x, (float) position.y, (float) position.z);
-//			}
+			final Vector3f viewDirection = new Vector3f(32f, 0, 128f);
+			final Vector3f lightDirection = new Vector3f(-24.1937f, 30.4879f, 444.411f);
+			if (model.getCameras().size() > 0
+					&& diffuseTextureDataRenderableFilePath.toLowerCase(Locale.US).contains("portrait")) {
+				final Vertex position = model.getCameras().get(0).getPosition();
+				viewDirection.set((float) position.x, (float) position.y, (float) position.z);
+			}
 			class VertexData {
 
 				private final Vector3f tangentLightPos;
@@ -543,9 +554,9 @@ public class Material implements MaterialView {
 						final Vector3f tangentLightPos = new Vector3f();
 						Matrix3f.transform(tbn, lightDirection, tangentLightPos);
 
-						// view position in transformed TBN space, for now matching light pos because we
-						// have no viewer when baking
-						final Vector3f tangentViewPos = new Vector3f(tangentLightPos);
+						// view position in transformed TBN space
+						final Vector3f tangentViewPos = new Vector3f();
+						Matrix3f.transform(tbn, viewDirection, tangentViewPos);
 
 						// frag pos in transformed tbn space
 						final Vector3f tangentFragPos = new Vector3f((float) vertex.x, (float) vertex.y,
@@ -687,28 +698,23 @@ public class Material implements MaterialView {
 					final float nonTeamColorNess = 1.0f - teamColorNess;
 
 					final float baseRed = (bakingCell.diffuseRGB >> 16 & 0xFF) / 255.0f;
-					final Vector3f diffuse = new Vector3f(baseRed, (bakingCell.diffuseRGB >> 8 & 0xFF) / 255.0f,
-							(bakingCell.diffuseRGB >> 0 & 0xFF) / 255.0f);
+					final float baseGreen = (bakingCell.diffuseRGB >> 8 & 0xFF) / 255.0f;
+					final float baseBlue = (bakingCell.diffuseRGB >> 0 & 0xFF) / 255.0f;
+					final Vector3f diffuse = new Vector3f(baseRed, baseGreen, baseBlue);
 					diffuse.scale(nonTeamColorNess);
 					if (bakingCell.tangentFragPos != null) {
 						final float normalX = (bakingCell.normalRGB >> 16 & 0xFF) / 255.0f * 2.0f - 1.0f;
 						final float normalY = (bakingCell.normalRGB >> 8 & 0xFF) / 255.0f * 2.0f - 1.0f;
-						final Vector3f normal = new Vector3f(normalX, normalY,
+						final Vector3f normal = new Vector3f(normalY, normalX,
 								(float) Math.sqrt(1.0 - (normalX * normalX + normalY * normalY)));
-						bakingCell.tangentViewPos.normalise();
 						final Vector3f lightDir = new Vector3f(0, 0, 1);// bakingCell.tangentViewPos;
+						lightDir.set(bakingCell.tangentLightPos);
 						lightDir.normalise();
 						{
-							final float cosTheta = Vector3f.dot(lightDir, normal);
-							lightDir.set(bakingCell.tangentViewPos);
-							lightDir.normalise();
+							final float cosTheta = Vector3f.dot(lightDir, normal) * 0.5f + 0.5f;
 							final float lambertFactor = (float) Math.max(0.0, Math.min(1.0, cosTheta));
-							final float occlusion = (bakingCell.ormRGB >> 16 & 0xFF) / 255.0f;
 
-							final float cosTheta2 = Vector3f.dot(lightDir, normal);
-							final float lambertFactor2 = (float) Math.max(0.0, Math.min(1.0, cosTheta2));
-							diffuse.scale((float) Math.max(0.0,
-									Math.min(1.0, lambertFactor * occlusion * 0.7f + lambertFactor2 * 0.3f)));
+							diffuse.scale((float) Math.max(0.0, Math.min(1.0, lambertFactor)));
 						}
 						final Vector3f viewDir = new Vector3f();
 						Vector3f.sub(bakingCell.tangentViewPos, bakingCell.tangentFragPos, viewDir);
@@ -722,7 +728,9 @@ public class Material implements MaterialView {
 						halfwayDir.normalise();
 						final float spec = (float) Math.pow(Math.max(Vector3f.dot(normal, halfwayDir), 0.0f), 32.0f);
 						final float metalness = (bakingCell.ormRGB >> 0 & 0xFF) / 255.0f;
-						final float specularX = (float) (Math.max(metalness - 0.5, 0.0) * spec);
+						final float roughness = (bakingCell.ormRGB >> 8 & 0xFF) / 255.0f;
+//						"			vec3 specular = vec3(max(-ormTexel.g+0.5, 0.0)+ormTexel.b) * spec * (reflectionsTexel.xyz * (1.0 - ormTexel.g) + ormTexel.g * color.xyz);\r\n"
+						final float specularX = (float) ((Math.max(-roughness + 0.5, 0.0) + metalness) * spec);
 						final Vector3f specular = new Vector3f(specularX, specularX, specularX);
 						// TODO maybe fresnel here
 						Vector3f.add(specular, diffuse, fragColorRGB);
@@ -732,12 +740,12 @@ public class Material implements MaterialView {
 						nDiffusePixels++;
 					}
 
-					final int red = Math.round(fragColorRGB.x * 255f) & 0xFF;
-					final int green = Math.round(fragColorRGB.y * 255f) & 0xFF;
-					final int blue = Math.round(fragColorRGB.z * 255f) & 0xFF;
+					final int red = Math.round(Math.min(255, fragColorRGB.x * 255f)) & 0xFF;
+					final int green = Math.round(Math.min(255, fragColorRGB.y * 255f)) & 0xFF;
+					final int blue = Math.round(Math.min(255, fragColorRGB.z * 255f)) & 0xFF;
 
 					float alpha = (bakingCell.diffuseRGB >> 24 & 0xFF) / 255.0f;
-					alpha *= 1.0f - teamColorNess * baseRed;
+					alpha *= 1.0f - teamColorNess * Math.max(baseRed, Math.max(baseGreen, baseBlue));
 					final int alphaI = Math.round(alpha * 255f) & 0xFF;
 
 					bakingCell.outputARGB = alphaI << 24 | red << 16 | green << 8 | blue << 0;

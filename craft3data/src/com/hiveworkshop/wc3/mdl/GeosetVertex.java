@@ -56,17 +56,19 @@ public class GeosetVertex extends Vertex {
 			for (final Bone bone : skinBones) {
 				if (bone != null) {
 					fallback = true;
-					if (skinBoneWeights[index] > 110) {
+					if (skinBoneWeights[index] > 60) {
 						bones.add(bone);
 					}
 				}
 				index++;
 			}
 			if (bones.isEmpty() && fallback) {
+				index = 0;
 				for (final Bone bone : skinBones) {
-					if (bone != null) {
+					if (bone != null && skinBoneWeights[index] > 0) {
 						bones.add(bone);
 					}
+					index++;
 				}
 			}
 			skinBones = null;
@@ -305,20 +307,20 @@ public class GeosetVertex extends Vertex {
 			break;
 		}
 		final double dy = y1 - cy;
-		final double r = Math.sqrt((dx * dx) + (dy * dy));
+		final double r = Math.sqrt(dx * dx + dy * dy);
 		double verAng = Math.acos(dx / r);
 		if (dy < 0) {
 			verAng = -verAng;
 		}
 		// if( getDimEditable(dim1) )
-		double nextDim = (Math.cos(verAng + radians) * r) + cx;
+		double nextDim = Math.cos(verAng + radians) * r + cx;
 		if (!Double.isNaN(nextDim)) {
-			vertex[firstXYZ] = (float) ((Math.cos(verAng + radians) * r) + cx);
+			vertex[firstXYZ] = (float) (Math.cos(verAng + radians) * r + cx);
 		}
 		// if( getDimEditable(dim2) )
-		nextDim = (Math.sin(verAng + radians) * r) + cy;
+		nextDim = Math.sin(verAng + radians) * r + cy;
 		if (!Double.isNaN(nextDim)) {
-			vertex[secondXYZ] = (float) ((Math.sin(verAng + radians) * r) + cy);
+			vertex[secondXYZ] = (float) (Math.sin(verAng + radians) * r + cy);
 		}
 	}
 

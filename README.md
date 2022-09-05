@@ -1,6 +1,7 @@
 # Reteras Model Studio
 This repository contains the sourcecode for the Reteras Model Studio application, which is available for download on the Hive Workshop.
 ![Image of ReterasModelStudio](https://www.hiveworkshop.com/data/ratory-images/159/159964-e1b13fddb241fe69a198f443b00b1637.png)
+[![GAMEPLAY VIDEO](http://img.youtube.com/vi/kerN0cRhSAo/0.jpg)](http://www.youtube.com/watch?v=kerN0cRhSAo)
 
 Reteras Model Studio is a Java-based Warcraft III model file editor that supports both the legacy 2003 MDX model format and game as well as the new Warcraft III Reforged MDX model files.
 

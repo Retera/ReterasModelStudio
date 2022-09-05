@@ -1103,6 +1103,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 
 								NGGLDP.pipeline.glTangent4f(normalSumHeap3.x, normalSumHeap3.y, normalSumHeap3.z,
 										v.getTangent()[3]);
+							} else {
+								NGGLDP.pipeline.glTangent4f(0, 0, 1, 1);
 							}
 							int coordId = layer.getCoordId();
 							if (coordId >= v.getTverts().size()) {
@@ -1177,6 +1179,17 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 								}
 
 								NGGLDP.pipeline.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
+							}
+							if (pipeline.getCurrentPipelineIndex() != 0) {
+								if (v.getTangent() != null) {
+									normalHeap3.set(v.getTangent()[0], v.getTangent()[1], v.getTangent()[2]);
+									Matrix3f.transform(skinBonesMatrixSumHeap3, normalHeap3, normalSumHeap3);
+
+									NGGLDP.pipeline.glTangent4f(normalSumHeap3.x, normalSumHeap3.y, normalSumHeap3.z,
+											v.getTangent()[3]);
+								} else {
+									NGGLDP.pipeline.glTangent4f(0, 0, 1, 1);
+								}
 							}
 							int coordId = layer.getCoordId();
 							if (coordId >= v.getTverts().size()) {

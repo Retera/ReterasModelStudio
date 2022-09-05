@@ -301,9 +301,15 @@ public class Camera implements Named {
 				final Object interpolated = translationFlag.interpolateAt(animatedRenderEnvironment);
 				if (interpolated instanceof Double) {
 					final Double angle = (Double) interpolated;
-					final Vertex targetTranslation = parent.targetNode.getRenderTranslation(animatedRenderEnvironment);
+					Vertex targetTranslation = parent.targetNode.getRenderTranslation(animatedRenderEnvironment);
+					if (targetTranslation == null) {
+						targetTranslation = AnimFlag.TRANSLATE_IDENTITY;
+					}
 					final Vertex targetPosition = parent.targetPosition;
-					final Vertex sourceTranslation = getRenderTranslation(animatedRenderEnvironment);
+					Vertex sourceTranslation = getRenderTranslation(animatedRenderEnvironment);
+					if (sourceTranslation == null) {
+						sourceTranslation = AnimFlag.TRANSLATE_IDENTITY;
+					}
 					final Vertex sourcePosition = parent.Position;
 					axisHeap.x = targetPosition.x + targetTranslation.x - (sourcePosition.x + sourceTranslation.x);
 					axisHeap.y = targetPosition.y + targetTranslation.y - (sourcePosition.y + sourceTranslation.y);

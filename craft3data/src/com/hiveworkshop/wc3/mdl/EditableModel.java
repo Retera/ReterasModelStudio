@@ -16,6 +16,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -3084,7 +3085,7 @@ public class EditableModel implements Named {
 				if (!Double.isNaN(layer.getEmissive())) {
 					layer.setEmissive(Double.NaN);
 				}
-				final AnimFlag flag = layer.getFlag("Emissive");
+				final AnimFlag flag = layer.getFlag("EmissiveGain");
 				if (flag != null) {
 					layer.getAnims().remove(flag);
 				}
@@ -3183,6 +3184,19 @@ public class EditableModel implements Named {
 
 	public static void convertToV800BakingTextures(final int targetLevelOfDetail, final EditableModel model,
 			final File outputDirectory) {
+		convertToV800BakingTextures(targetLevelOfDetail, model, outputDirectory, null);
+	}
+
+	public static void convertToV800BakingTextures(final int targetLevelOfDetail, final EditableModel model,
+			final File outputDirectorySetting, final String assetDirectoryRelativePath) {
+		File outputDirectory;
+		if (assetDirectoryRelativePath != null) {
+			outputDirectory = new File(
+					outputDirectorySetting.getPath() + File.separatorChar + assetDirectoryRelativePath);
+			outputDirectory.mkdirs();
+		} else {
+			outputDirectory = outputDirectorySetting;
+		}
 		// Things to fix:
 		// 1.) format version
 		model.setFormatVersion(800);
@@ -3193,7 +3207,7 @@ public class EditableModel implements Named {
 		}
 		final Map<Triangle, Integer> triangleToTeamColorPixelCount = new HashMap<>();
 		final Map<Layer, BakingInfo> layerToBakingInfo = new HashMap<>();
-		for (final Material material : new HashSet<>(model.getMaterials())) {
+		for (final Material material : model.getMaterials()) {
 			for (final Layer layer : material.getLayers()) {
 				if (layer.getLayerShader() == LayerShader.HD) {
 					final BakingInfo bakingInfo = new BakingInfo();
@@ -3208,27 +3222,36 @@ public class EditableModel implements Named {
 			final com.etheller.collections.List<Layer> additionalLayers = new com.etheller.collections.ArrayList<>();
 			for (final Layer layer : material.getLayers()) {
 				final BakingInfo bakingInfo = layerToBakingInfo.get(layer);
-				bakingInfo.alphaFlag = layer.getFlag("Alpha");
-				if (layer.getLayerShader() == LayerShader.HD) {
+				if (layer.getLayerShader() == LayerShader.HD && bakingInfo != null) {
+					bakingInfo.alphaFlag = layer.getFlag("Alpha");
 					layer.getAnims().remove(bakingInfo.alphaFlag);
 					layer.setLayerShader(LayerShader.SD);
 					final EnumMap<ShaderTextureTypeHD, Bitmap> shaderTextures = layer.getShaderTextures();
 					final Bitmap diffuseBitmap = shaderTextures.get(ShaderTextureTypeHD.Diffuse);
 
 					final Bitmap emissive = shaderTextures.get(ShaderTextureTypeHD.Emissive);
-					if (emissive != null && emissive.getPath().toLowerCase().contains("black32")) {
+					if (emissive != null && !emissive.getPath().toLowerCase().contains("black32")) {
 						final Layer layerThree = new Layer(FilterMode.ADDITIVE, LayerShader.SD);
 						layerThree.getShaderTextures().put(ShaderTextureTypeHD.Diffuse, emissive);
 						layerThree.setFilterMode(FilterMode.ADDITIVE);
 						layerThree.add("Unshaded");
 						layerThree.add("Unfogged");
-						additionalLayers.add(layer);
+						additionalLayers.add(layerThree);
 					}
 					if (bakingInfo.bakedTexturePath != null) {
 						shaderTextures.clear();
 						final Bitmap newBitmap = new Bitmap(diffuseBitmap);
 						shaderTextures.put(ShaderTextureTypeHD.Diffuse, newBitmap);
-						newBitmap.setPath(bakingInfo.bakedTexturePath);
+						if (assetDirectoryRelativePath != null) {
+							String usedPath = assetDirectoryRelativePath + "\\" + bakingInfo.bakedTexturePath;
+							final int lastIndexOfMod = usedPath.lastIndexOf(".w3mod");
+							if (lastIndexOfMod != -1) {
+								usedPath = usedPath.substring(lastIndexOfMod + ".w3mod/".length());
+							}
+							newBitmap.setPath(usedPath);
+						} else {
+							newBitmap.setPath(bakingInfo.bakedTexturePath);
+						}
 						if (material.getFlags().contains("TwoSided")) {
 							material.getFlags().remove("TwoSided");
 							layer.add("TwoSided");
@@ -3238,7 +3261,7 @@ public class EditableModel implements Named {
 				if (!Double.isNaN(layer.getEmissive())) {
 					layer.setEmissive(Double.NaN);
 				}
-				final AnimFlag flag = layer.getFlag("Emissive");
+				final AnimFlag flag = layer.getFlag("EmissiveGain");
 				if (flag != null) {
 					layer.getAnims().remove(flag);
 				}
@@ -3247,16 +3270,22 @@ public class EditableModel implements Named {
 		}
 		for (final Bitmap tex : model.getTextures()) {
 			String path = tex.getPath();
-			if (path != null && !path.isEmpty() && !path.toLowerCase().contains("_bake")) {
-				final int dotIndex = path.lastIndexOf('.');
-				if (dotIndex != -1 && !path.endsWith(".blp")) {
-					path = path.substring(0, dotIndex);
+			if (path != null && !path.isEmpty()) {
+				if (!path.toLowerCase().contains("_bake")) {
+					final int dotIndex = path.lastIndexOf('.');
+					if (dotIndex != -1 && !path.endsWith(".blp")) {
+						path = path.substring(0, dotIndex);
+					}
+					if (!path.endsWith(".blp")) {
+						if (assetDirectoryRelativePath == null) {
+							path = "_HD.w3mod:" + path;
+							path += ".blp";
+						} else {
+							path += ".tga";
+						}
+					}
+					tex.setPath(path);
 				}
-				if (!path.endsWith(".blp")) {
-					path = "_HD.w3mod:" + path;
-					path += ".blp";
-				}
-				tex.setPath(path);
 			}
 		}
 		// 3.) geosets:
@@ -3312,15 +3341,25 @@ public class EditableModel implements Named {
 					final Bone dummyHeroGlowNode = new Bone("hero_reforged");
 					// this model needs hero glow
 					final Geoset heroGlow = new Geoset();
-					final Mesh heroGlowPlane = ModelUtils.createPlane((byte) 0, (byte) 1, new Vertex(0, 0, 1), 0, -64,
-							-64, 64, 64, 1);
+					final Mesh heroGlowPlane = ModelUtils.createPlane((byte) 0, (byte) 1, new Vertex(0, 0, 1), 0, -128,
+							-128, 128, 128, 1);
+					final Mesh heroGlowPlane2 = ModelUtils.createPlane((byte) 0, (byte) 1, new Vertex(0, 0, 1), 0, -100,
+							-100, 100, 100, 1);
+					for (final Vertex v : heroGlowPlane.getVertices()) {
+						v.z = 10;
+					}
+					for (final Vertex v : heroGlowPlane2.getVertices()) {
+						v.z = 8;
+					}
 					heroGlow.getVertices().addAll(heroGlowPlane.getVertices());
+					heroGlow.getVertices().addAll(heroGlowPlane2.getVertices());
 					for (final GeosetVertex gv : heroGlow.getVertices()) {
 						gv.setGeoset(heroGlow);
 						gv.getBones().clear();
 						gv.getBones().add(dummyHeroGlowNode);
 					}
 					heroGlow.getTriangles().addAll(heroGlowPlane.getTriangles());
+					heroGlow.getTriangles().addAll(heroGlowPlane2.getTriangles());
 					heroGlow.addFlag("Unselectable");
 					final Bitmap heroGlowBitmap = new Bitmap("");
 					heroGlowBitmap.setReplaceableId(2);
@@ -3421,6 +3460,64 @@ public class EditableModel implements Named {
 			// get us < 256 matrices chunks hopefully
 			faceSelectionManager.setSelection(selectedTriangles);
 			faceModelEditor.splitGeoset();
+		}
+
+//		final List<Animation> removedAnimations = new ArrayList<>();
+		final List<Animation> dupAnimations = new ArrayList<>();
+		final ArrayList<EventObject> allEventObjects = model.sortedIdObjects(EventObject.class);
+		final List<AnimFlag> allAnimFlags = model.getAllAnimFlags();
+		final Set<Integer> firstOfDups = new HashSet<>();
+		int greatestTime = 0;
+		for (final Animation anim : model.getAnims()) {
+//			if (anim.getName().toLowerCase(Locale.US).contains("cinematic")) {
+//				removedAnimations.add(anim);
+//			}
+			boolean dup = false;
+			for (final Animation otherAnim : model.getAnims()) {
+				if (otherAnim != anim) {
+					if (anim.getIntervalStart() == otherAnim.getIntervalStart()
+							&& anim.getIntervalEnd() == otherAnim.getIntervalEnd()) {
+						dup = true;
+					}
+				}
+			}
+			if (dup) {
+				if (!firstOfDups.add(anim.getIntervalStart())) {
+					// i need to copy & clone and stuff
+					dupAnimations.add(anim);
+				}
+			}
+			greatestTime = Math.max(greatestTime, Math.max(anim.getIntervalStart(), anim.getIntervalEnd()));
+		}
+		int nextTime = greatestTime + 1000;
+		for (final Animation dupAnimation : dupAnimations) {
+			final int newStart = nextTime;
+			final int newEnd = nextTime + dupAnimation.length();
+			dupAnimation.copyToInterval(newStart, newEnd, allAnimFlags, allEventObjects);
+			dupAnimation.setInterval(newStart, newEnd);
+			nextTime = newEnd + 1000;
+		}
+		Collections.sort(model.getAnims(), new Comparator<Animation>() {
+			@Override
+			public int compare(final Animation o1, final Animation o2) {
+				return Integer.compare(o1.getStart(), o2.getStart());
+			}
+		});
+
+		model.doSavePreps();
+		if (assetDirectoryRelativePath != null) {
+			for (final Bitmap tex : model.getTextures()) {
+				String path = tex.getPath();
+				if (path != null && !path.isEmpty()) {
+					int lastIndexOfMod = path.lastIndexOf(".w3mod");
+					if (lastIndexOfMod != -1) {
+						lastIndexOfMod += ".w3mod/".length();
+						path = path.substring(lastIndexOfMod);
+						tex.setPath(path);
+					}
+
+				}
+			}
 		}
 	}
 

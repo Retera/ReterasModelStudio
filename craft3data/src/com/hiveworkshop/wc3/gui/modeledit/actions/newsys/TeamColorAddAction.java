@@ -2,6 +2,7 @@ package com.hiveworkshop.wc3.gui.modeledit.actions.newsys;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -13,14 +14,16 @@ import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Bitmap;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Layer;
 import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
-import com.hiveworkshop.wc3.mdl.EditableModel;
+import com.hiveworkshop.wc3.mdl.LayerShader;
 import com.hiveworkshop.wc3.mdl.Material;
+import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
@@ -74,6 +77,15 @@ public final class TeamColorAddAction<T> implements UndoAction {
 			}
 			geosetCreated.setParentModel(model);
 			final Material newMaterial = new Material(geoset.getMaterial());
+			if (newMaterial.getLayers().size() == 1 && newMaterial.firstLayer().getLayerShader() == LayerShader.HD) {
+				newMaterial.firstLayer().setLayerShader(LayerShader.SD);
+				final EnumMap<ShaderTextureTypeHD, Bitmap> shaderTextures = newMaterial.firstLayer()
+						.getShaderTextures();
+				final Bitmap diffuseTexture = shaderTextures.get(ShaderTextureTypeHD.Diffuse);
+				shaderTextures.clear();
+				shaderTextures.put(ShaderTextureTypeHD.Diffuse, diffuseTexture);
+			}
+
 			if (newMaterial.getLayers().get(0).getFilterMode() == FilterMode.NONE) {
 				newMaterial.getLayers().get(0).setFilterMode(FilterMode.BLEND);
 			}
