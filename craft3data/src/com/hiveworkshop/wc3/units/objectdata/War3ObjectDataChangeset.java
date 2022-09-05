@@ -2,7 +2,9 @@ package com.hiveworkshop.wc3.units.objectdata;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -252,10 +254,10 @@ public final class War3ObjectDataChangeset {
 			final Entry<War3ID, ObjectDataChangeEntry> entry = iterator.next();
 			final ObjectDataChangeEntry current = entry.getValue();
 			final ListView<Change> nameEntry = current.getChanges().get(nameId);
-			if ((nameEntry != null) && !CollectionView.Util.isEmpty(nameEntry)) {
+			if (nameEntry != null && !CollectionView.Util.isEmpty(nameEntry)) {
 				final Change firstNameChange = nameEntry.get(0);
 				int pos = firstNameChange.getStrval().lastIndexOf("::");
-				if ((pos != -1) && (firstNameChange.getStrval().length() > (pos + 2))) {
+				if (pos != -1 && firstNameChange.getStrval().length() > pos + 2) {
 					String rest = firstNameChange.getStrval().substring(pos + 2);
 					if (rest.length() == 4) {
 						final War3ID newId = War3ID.fromString(rest);
@@ -293,9 +295,9 @@ public final class War3ObjectDataChangeset {
 											// obj.cpp: carry over further
 											// references
 											pos = changeToOverwrite.getStrval().lastIndexOf("::");
-											if ((pos != -1) && (changeToOverwrite.getStrval().length() > (pos + 2))) {
+											if (pos != -1 && changeToOverwrite.getStrval().length() > pos + 2) {
 												rest = changeToOverwrite.getStrval().substring(pos + 2);
-												if ((rest.length() == 4) || "REMOVE".equals(rest)) {
+												if (rest.length() == 4 || "REMOVE".equals(rest)) {
 													changeToCopy.setStrval(changeToCopy.getStrval() + "::" + rest);
 													// so if this is a peasant, whose name was "Peasant::hfoo"
 													// and when we copied his data onto the footman, we found
@@ -404,12 +406,12 @@ public final class War3ObjectDataChangeset {
 					// obj.cpp: get new id until we finally have one that isn't used yet, or we're
 					// out of ids
 					replacementId = getunusedid(oldId);
-					while (!((oldId.charAt(1) == '~') && (oldId.charAt(2) == '~') && (oldId.charAt(3) == '~'))
+					while (!(oldId.charAt(1) == '~' && oldId.charAt(2) == '~' && oldId.charAt(3) == '~')
 							&& targetCustom.containsKey(replacementId)) {
 						oldId = replacementId;
 						replacementId = getunusedid(oldId);
 					}
-					if (!((oldId.charAt(1) == '~') && (oldId.charAt(2) == '~') && (oldId.charAt(3) == '~'))) {
+					if (!(oldId.charAt(1) == '~' && oldId.charAt(2) == '~' && oldId.charAt(3) == '~')) {
 						sourceObject.getValue().setNewId(replacementId);
 						targetCustom.put(replacementId, sourceObject.getValue().clone());
 					}
@@ -506,7 +508,7 @@ public final class War3ObjectDataChangeset {
 				}
 			}
 			final int ccount = stream.readInt();// Retera: I assume this is change count?
-			if ((ccount == 0) && isOriginal) {
+			if (ccount == 0 && isOriginal) {
 				// throw new IOException("we seem to have reached the end of the stream and get
 				// zeroes");
 				System.err.println("we seem to have reached the end of the stream and get zeroes");
@@ -551,12 +553,11 @@ public final class War3ObjectDataChangeset {
 					}
 					stringByteBuffer.flip();
 					newlyReadChange.setStrval(decoder.decode(stringByteBuffer).toString());
-					if (inlineWTS && (newlyReadChange.getStrval().length() > 8)
+					if (inlineWTS && newlyReadChange.getStrval().length() > 8
 							&& "TRIGSTR_".equals(newlyReadChange.getStrval().substring(0, 8))) {
 						final int key = getWTSValue(newlyReadChange);
 						newlyReadChange.setStrval(wts.get(key));
-						if ((newlyReadChange.getStrval() != null)
-								&& (newlyReadChange.getStrval().length() > MAX_STR_LEN)) {
+						if (newlyReadChange.getStrval() != null && newlyReadChange.getStrval().length() > MAX_STR_LEN) {
 							newlyReadChange.setStrval(newlyReadChange.getStrval().substring(0, MAX_STR_LEN - 1));
 						}
 					}
@@ -586,7 +587,9 @@ public final class War3ObjectDataChangeset {
 					}
 				}
 				if (bestTargetChange != null) {
-					bestTargetChange.copyFrom(newlyReadChange);
+					if (bestTargetChange.getLevel() != 0) {
+						bestTargetChange.copyFrom(newlyReadChange);
+					}
 				} else {
 					existingChanges.add(newlyReadChange.clone());
 					if (existingChanges.size() == 1) {
@@ -596,7 +599,7 @@ public final class War3ObjectDataChangeset {
 				if (!crap.equals(existingObject.getOldId()) && !crap.equals(existingObject.getNewId())
 						&& !crap.equals(noid)) {
 					for (int charIndex = 0; charIndex < 4; charIndex++) {
-						if ((crap.charAt(charIndex) < 32) || (crap.charAt(charIndex) > 126)) {
+						if (crap.charAt(charIndex) < 32 || crap.charAt(charIndex) > 126) {
 							return false;
 						}
 					}
@@ -604,7 +607,7 @@ public final class War3ObjectDataChangeset {
 				debugprint("\t}");
 			}
 			debugprint("}");
-			if ((newid == null) && !isOriginal) {
+			if (newid == null && !isOriginal) {
 				throw new IllegalStateException("custom unit has no ID!");
 			}
 			map.put(isOriginal ? origid : newid, existingObject);
@@ -620,7 +623,7 @@ public final class War3ObjectDataChangeset {
 
 	private static int getWTSValue(final Change change) {
 		String numberAsText = change.getStrval().substring(8);
-		while ((numberAsText.length() > 0) && (numberAsText.charAt(0) == '0')) {
+		while (numberAsText.length() > 0 && numberAsText.charAt(0) == '0') {
 			numberAsText = numberAsText.substring(1);
 		}
 		if (numberAsText.length() == 0) {
@@ -636,7 +639,7 @@ public final class War3ObjectDataChangeset {
 			throws IOException {
 		detected = false;
 		version = stream.readInt();
-		if ((version != 1) && (version != 2)) {
+		if (version != 1 && version != 2) {
 			return false;
 		}
 		ObjectMap backup = original.clone();
@@ -663,7 +666,7 @@ public final class War3ObjectDataChangeset {
 		for (final MapView.Entry<War3ID, ObjectDataChangeEntry> entry : map) {
 			for (final MapView.Entry<War3ID, List<Change>> changes : entry.getValue().getChanges()) {
 				for (final Change change : changes.getValue()) {
-					if ((change.getStrval().length() > 8) && "TRIGSTR_".equals(change.getStrval().substring(0, 8))) {
+					if (change.getStrval().length() > 8 && "TRIGSTR_".equals(change.getStrval().substring(0, 8))) {
 						final int key = getWTSValue(change);
 						change.setStrval(wts.get(key));
 						if (change.getStrval().length() > MAX_STR_LEN) {
@@ -709,7 +712,7 @@ public final class War3ObjectDataChangeset {
 			for (final MapView.Entry<War3ID, List<Change>> changeEntry : cl.getChanges()) {
 				totalSize += changeEntry.getValue().size();
 			}
-			if ((totalSize > 0) || !isOriginal) {
+			if (totalSize > 0 || !isOriginal) {
 				saveWriteChars(outputStream, cl.getOldId().asStringValue().toCharArray());
 				saveWriteChars(outputStream, cl.getNewId().asStringValue().toCharArray());
 				count = totalSize;// cl.getChanges().size();
@@ -795,7 +798,17 @@ public final class War3ObjectDataChangeset {
 		return custom;
 	}
 
-	private static void debugprint(final String s) {
+	static PrintWriter writer;
+	static {
+		try {
+			writer = new PrintWriter(new File("C:/Temp/dumpunits.txt"));
+		} catch (final FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
+	private static void debugprint(final String s) {
+		writer.println(s);
+		writer.flush();
 	}
 }
