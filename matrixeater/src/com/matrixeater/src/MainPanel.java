@@ -3390,7 +3390,7 @@ public class MainPanel extends JPanel
 		});
 		scriptsMenu.add(version800BakingToggle);
 
-		final JMenuItem recalculateTangents = new JMenuItem("Recalculate Tangents (requires 900 or 1000)");
+		final JMenuItem recalculateTangents = new JMenuItem("Recalculate Tangents (requires 900 or 1000 or 1100)");
 		recalculateTangents.setMnemonic(KeyEvent.VK_A);
 		recalculateTangents.addActionListener(new ActionListener() {
 			@Override

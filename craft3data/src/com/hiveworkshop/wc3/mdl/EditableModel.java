@@ -3585,6 +3585,31 @@ public class EditableModel implements Named {
 		// copied from
 		// https://github.com/TaylorMouse/MaxScripts/blob/master/Warcraft%203%20Reforged/GriffonStudios/GriffonStudios_Warcraft_3_Reforged_Export.ms#L169
 		currentMDL.doSavePreps(); // I wanted to use VertexId on the triangle
+		final Vertex up = new Vertex(0, 0, 1);
+		if (true) {
+			for (final Geoset theMesh : currentMDL.getGeosets()) {
+				for (final GeosetVertex gv : theMesh.getVertices()) {
+					if (gv.getSkinBones() == null) {
+						gv.initV900();
+					}
+//					if (up.dotProduct(gv.getNormal()) < 0.99) {
+//						final Vertex tangent = gv.getNormal().crossProduct(up);
+//						gv.setTangent(new float[] { (float) tangent.x, (float) tangent.y, (float) tangent.z, -1 });
+//					} else {
+//						gv.setTangent(new float[] { 0, 1, 0, 1 });
+//					}
+					gv.setTangent(new float[] { 0, 0, 1, 1 });
+					if (gv.getBones() != null && !gv.getBones().isEmpty()) {
+						final int nBones = Math.min(4, gv.getBones().size());
+						for (int i = 0; i < nBones; i++) {
+							gv.getSkinBones()[i] = gv.getBones().get(i);
+							gv.getSkinBoneWeights()[i] = (short) (255 / nBones);
+						}
+					}
+				}
+			}
+			return;
+		}
 		for (final Geoset theMesh : currentMDL.getGeosets()) {
 			final double[][] tan1 = new double[theMesh.getVertices().size()][];
 			final double[][] tan2 = new double[theMesh.getVertices().size()][];
