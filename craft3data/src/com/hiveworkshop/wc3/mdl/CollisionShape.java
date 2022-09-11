@@ -254,10 +254,16 @@ public class CollisionShape extends IdObject {
 				return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
 			}
 		}
-		if (extents == null) {
-			return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
+		return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
+	}
+
+	public double getSphereClickRadius(final CoordinateSystem coordinateSystem) {
+		if (extents != null) {
+			if (extents.hasBoundsRadius()) {
+				return extents.getBoundsRadius();
+			}
 		}
-		return extents.getBoundsRadius();
+		return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
 	}
 
 	@Override

@@ -69,8 +69,8 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 		// vertexSize * 3, yCoord);
 		// graphics.drawLine(xCoord, yCoord - vertexSize * 3, xCoord, yCoord +
 		// vertexSize * 3);
-		graphics.drawImage(lightImage, xCoord - (lightImage.getWidth(null) / 2),
-				yCoord - (lightImage.getHeight(null) / 2), lightImage.getWidth(null), lightImage.getHeight(null), null);
+		graphics.drawImage(lightImage, xCoord - lightImage.getWidth(null) / 2, yCoord - lightImage.getHeight(null) / 2,
+				lightImage.getWidth(null), lightImage.getHeight(null), null);
 
 		final int attenuationStart = (int) (light.getAttenuationStart() * zoom);
 		if (attenuationStart > 0) {
@@ -141,7 +141,7 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 	@Override
 	public void camera(final Camera camera) {
 		graphics.setColor(Color.GREEN.darker());
-		final Graphics2D g2 = ((Graphics2D) graphics.create());
+		final Graphics2D g2 = (Graphics2D) graphics.create();
 		final Vertex ver = camera.getPosition();
 		final Vertex targ = camera.getTargetPosition();
 		// final boolean verSel = selection.contains(ver);
@@ -178,7 +178,7 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 		// }
 
 		g2.translate(end.x, end.y);
-		g2.rotate(-((Math.PI / 2) + Math.atan2(end.x - start.x, end.y - start.y)));
+		g2.rotate(-(Math.PI / 2 + Math.atan2(end.x - start.x, end.y - start.y)));
 		final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
 		final int size = (int) (20 * zoom);
 		final double dist = start.distance(end);
@@ -187,7 +187,7 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 		// g2.setColor(Color.orange.darker());
 		// }
 		// Cam
-		g2.fillRect((int) dist - vertexSize, 0 - vertexSize, 1 + (vertexSize * 2), 1 + (vertexSize * 2));
+		g2.fillRect((int) dist - vertexSize, 0 - vertexSize, 1 + vertexSize * 2, 1 + vertexSize * 2);
 		g2.drawRect((int) dist - size, -size, size * 2, size * 2);
 
 		// if (tarSel) {
@@ -196,7 +196,7 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 		// g2.setColor(Color.green.darker());
 		// }
 		// Target
-		g2.fillRect(0 - vertexSize, 0 - vertexSize, 1 + (vertexSize * 2), 1 + (vertexSize * 2));
+		g2.fillRect(0 - vertexSize, 0 - vertexSize, 1 + vertexSize * 2, 1 + vertexSize * 2);
 		g2.drawLine(0, 0, size, size);// (int)Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ())+5)),
 										// (int)Math.round(vp.convertY(targ.getCoord(vp.getPortSecondXYZ())+5)));
 		g2.drawLine(0, 0, size, -size);// (int)Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ())-5)),
@@ -217,7 +217,7 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 			final CoordinateSystem coordinateSystem, final IdObject attachment, final Image nodeImage) {
 		final int xCoord = (int) coordinateSystem.convertX(attachment.getPivotPoint().getCoord(xDimension));
 		final int yCoord = (int) coordinateSystem.convertY(attachment.getPivotPoint().getCoord(yDimension));
-		graphics.drawImage(nodeImage, xCoord - (nodeImage.getWidth(null) / 2), yCoord - (nodeImage.getHeight(null) / 2),
+		graphics.drawImage(nodeImage, xCoord - nodeImage.getWidth(null) / 2, yCoord - nodeImage.getHeight(null) / 2,
 				nodeImage.getWidth(null), nodeImage.getHeight(null), null);
 	}
 
@@ -245,8 +245,8 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 		final Vertex pivotPoint = collisionShape.getPivotPoint();
 		final ArrayList<Vertex> vertices = collisionShape.getVertices();
 		graphics.setColor(color);
-		final int xCoord = (int) coordinateSystem.convertX(pivotPoint.getCoord(xDimension));
-		final int yCoord = (int) coordinateSystem.convertY(pivotPoint.getCoord(yDimension));
+		int xCoord = (int) coordinateSystem.convertX(pivotPoint.getCoord(xDimension));
+		int yCoord = (int) coordinateSystem.convertY(pivotPoint.getCoord(yDimension));
 		if (collisionShape.getFlags().contains("Box")) {
 			if (vertices.size() > 1) {
 				final Vertex vertex = vertices.get(0);
@@ -270,6 +270,11 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 			if (collisionShape.getExtents() != null) {
 				final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
 				final double boundsRadius = collisionShape.getExtents().getBoundsRadius() * zoom;
+				if (vertices.size() > 0) {
+					final Vertex firstVertex = vertices.get(0);
+					xCoord = (int) coordinateSystem.convertX(firstVertex.getCoord(xDimension));
+					yCoord = (int) coordinateSystem.convertY(firstVertex.getCoord(yDimension));
+				}
 				graphics.drawOval((int) (xCoord - boundsRadius), (int) (yCoord - boundsRadius),
 						(int) (boundsRadius * 2), (int) (boundsRadius * 2));
 				drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage);

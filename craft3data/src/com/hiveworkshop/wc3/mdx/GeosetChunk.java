@@ -179,7 +179,7 @@ public class GeosetChunk {
 			out.writeInt(getSize(version));// InclusiveSize
 			out.writeNByteString("VRTX", 4);
 			out.writeInt(nrOfVertexPositions);
-			if ((vertexPositions.length % 3) != 0) {
+			if (vertexPositions.length % 3 != 0) {
 				throw new IllegalArgumentException(
 						"The array vertexPositions needs either the length 3 or a multiple of this number. (got "
 								+ vertexPositions.length + ")");
@@ -187,7 +187,7 @@ public class GeosetChunk {
 			MdxUtils.saveFloatArray(out, vertexPositions);
 			out.writeNByteString("NRMS", 4);
 			out.writeInt(nrOfVertexNormals);
-			if ((vertexNormals.length % 3) != 0) {
+			if (vertexNormals.length % 3 != 0) {
 				throw new IllegalArgumentException(
 						"The array vertexNormals needs either the length 3 or a multiple of this number. (got "
 								+ vertexNormals.length + ")");
@@ -221,13 +221,13 @@ public class GeosetChunk {
 			}
 
 			out.writeFloat(boundsRadius);
-			if ((minimumExtent.length % 3) != 0) {
+			if (minimumExtent.length % 3 != 0) {
 				throw new IllegalArgumentException(
 						"The array minimumExtent needs either the length 3 or a multiple of this number. (got "
 								+ minimumExtent.length + ")");
 			}
 			MdxUtils.saveFloatArray(out, minimumExtent);
-			if ((maximumExtent.length % 3) != 0) {
+			if (maximumExtent.length % 3 != 0) {
 				throw new IllegalArgumentException(
 						"The array maximumExtent needs either the length 3 or a multiple of this number. (got "
 								+ maximumExtent.length + ")");
@@ -238,7 +238,7 @@ public class GeosetChunk {
 				extent[i].save(out);
 			}
 
-			if (ModelUtils.isTangentAndSkinSupported(version) && (this.tangents.length > 0)) {
+			if (ModelUtils.isTangentAndSkinSupported(version) && this.tangents.length > 0) {
 				out.writeNByteString("TANG", 4);
 				out.writeInt(this.tangents.length / 4);
 				MdxUtils.saveFloatArray(out, this.tangents);
@@ -253,7 +253,7 @@ public class GeosetChunk {
 				out.writeNByteString("UVBS", 4);
 				nrOfVertexTexturePositions = vertexTexturePositions[i].length / 2;
 				out.writeInt(nrOfVertexTexturePositions);
-				if ((vertexTexturePositions[i].length % 2) != 0) {
+				if (vertexTexturePositions[i].length % 2 != 0) {
 					throw new IllegalArgumentException(
 							"The array vertexTexturePositions needs either the length 2 or a multiple of this number. (got "
 									+ vertexTexturePositions[i].length + ")");
@@ -314,7 +314,7 @@ public class GeosetChunk {
 				// this.skin.length
 				a += 84;
 				if (this.tangents.length > 0) {
-					a += 8 + (this.tangents.length * 4);
+					a += 8 + this.tangents.length * 4;
 				}
 				if (this.skin.length > 0) {
 					a += 8 + this.skin.length;
@@ -342,14 +342,14 @@ public class GeosetChunk {
 			}
 
 			public void save(final BlizzardDataOutputStream out) throws IOException {
-				if ((minimumExtent.length % 3) != 0) {
+				if (minimumExtent.length % 3 != 0) {
 					throw new IllegalArgumentException(
 							"The array minimumExtent needs either the length 3 or a multiple of this number. (got "
 									+ minimumExtent.length + ")");
 				}
 				out.writeFloat(bounds);
 				MdxUtils.saveFloatArray(out, minimumExtent);
-				if ((maximumExtent.length % 3) != 0) {
+				if (maximumExtent.length % 3 != 0) {
 					throw new IllegalArgumentException(
 							"The array maximumExtent needs either the length 3 or a multiple of this number. (got "
 									+ maximumExtent.length + ")");
@@ -398,6 +398,7 @@ public class GeosetChunk {
 			}
 			materialId = mdlGeo.getMaterialID();
 			final int numVertices = mdlGeo.getVertices().size();
+			final boolean useSkin = numVertices > 0 && mdlGeo.getVertex(0).getSkinBones() != null;
 			nrOfTextureVertexGroups = mdlGeo.getUVLayers().size();
 			vertexPositions = new float[numVertices * 3];
 			final boolean hasNormals = mdlGeo.getNormals().size() > 0;
@@ -406,25 +407,29 @@ public class GeosetChunk {
 			} else {
 				vertexNormals = new float[0];
 			}
-			vertexGroups = new byte[numVertices];
+			if (useSkin) {
+				vertexGroups = new byte[0];
+			} else {
+				vertexGroups = new byte[numVertices];
+			}
 			vertexTexturePositions = new float[nrOfTextureVertexGroups][numVertices * 2];
 			for (int vId = 0; vId < numVertices; vId++) {
 				final GeosetVertex vertex = mdlGeo.getVertex(vId);
-				vertexPositions[(vId * 3) + 0] = (float) vertex.getX();
-				vertexPositions[(vId * 3) + 1] = (float) vertex.getY();
-				vertexPositions[(vId * 3) + 2] = (float) vertex.getZ();
+				vertexPositions[vId * 3 + 0] = (float) vertex.getX();
+				vertexPositions[vId * 3 + 1] = (float) vertex.getY();
+				vertexPositions[vId * 3 + 2] = (float) vertex.getZ();
 				if (hasNormals) {
-					vertexNormals[(vId * 3) + 0] = (float) vertex.getNormal().getX();
-					vertexNormals[(vId * 3) + 1] = (float) vertex.getNormal().getY();
-					vertexNormals[(vId * 3) + 2] = (float) vertex.getNormal().getZ();
+					vertexNormals[vId * 3 + 0] = (float) vertex.getNormal().getX();
+					vertexNormals[vId * 3 + 1] = (float) vertex.getNormal().getY();
+					vertexNormals[vId * 3 + 2] = (float) vertex.getNormal().getZ();
 				}
 				for (int uvLayerIndex = 0; uvLayerIndex < nrOfTextureVertexGroups; uvLayerIndex++) {
-					vertexTexturePositions[uvLayerIndex][(vId * 2) + 0] = (float) vertex.getTVertex(uvLayerIndex)
-							.getX();
-					vertexTexturePositions[uvLayerIndex][(vId * 2) + 1] = (float) vertex.getTVertex(uvLayerIndex)
-							.getY();
+					vertexTexturePositions[uvLayerIndex][vId * 2 + 0] = (float) vertex.getTVertex(uvLayerIndex).getX();
+					vertexTexturePositions[uvLayerIndex][vId * 2 + 1] = (float) vertex.getTVertex(uvLayerIndex).getY();
 				}
-				vertexGroups[vId] = (byte) vertex.getVertexGroup();
+				if (!useSkin) {
+					vertexGroups[vId] = (byte) vertex.getVertexGroup();
+				}
 			}
 
 			// Again, the current implementation of my mdl code is that it only
@@ -474,16 +479,16 @@ public class GeosetChunk {
 			}
 			lod = mdlGeo.getLevelOfDetail();
 			lodName = mdlGeo.getLevelOfDetailName();
-			if ((numVertices > 0) && (mdlGeo.getVertex(0).getSkinBones() != null)) {
+			if (useSkin) {
 				// v900
 				skin = new byte[8 * numVertices];
 				tangents = new float[4 * numVertices];
 				for (i = 0; i < numVertices; i++) {
 					for (int j = 0; j < 4; j++) {
 						final GeosetVertex vertex = mdlGeo.getVertex(i);
-						skin[(i * 8) + j] = vertex.getSkinBoneIndexes()[j];
-						skin[(i * 8) + j + 4] = (byte) (vertex.getSkinBoneWeights()[j]);
-						tangents[(i * 4) + j] = vertex.getTangent()[j];
+						skin[i * 8 + j] = vertex.getSkinBoneIndexes()[j];
+						skin[i * 8 + j + 4] = (byte) vertex.getSkinBoneWeights()[j];
+						tangents[i * 4 + j] = vertex.getTangent()[j];
 					}
 				}
 			}

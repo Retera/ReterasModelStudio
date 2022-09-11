@@ -396,8 +396,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 	private void toggleSelection(final Set<Vertex> selection, final Vertex position) {
 		if (selection.contains(position)) {
 			selection.remove(position);
-		}
-		else {
+		} else {
 			selection.add(position);
 		}
 	}
@@ -490,8 +489,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 							usedBones.add(bone);
 						}
 					}
-				}
-				else {
+				} else {
 					for (final Bone bone : vertex.getBoneAttachments()) {
 						usedBones.add(bone);
 					}
@@ -500,7 +498,10 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		}
 		final Set<Vertex> allSelection = new HashSet<>();
 		for (final IdObject node : model.getEditableIdObjects()) {
-			if ((node instanceof Bone) && !usedBones.contains(node)) {
+			if (node instanceof Bone && !usedBones.contains(node) && !(node instanceof Helper)) {
+				if (node.getChildrenNodes() != null && !node.getChildrenNodes().isEmpty()) {
+					System.out.println("note: should maybe be helper: " + node.getName());
+				}
 				allSelection.add(node.getPivotPoint());
 			}
 		}
@@ -555,7 +556,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		final double x = coordinateSystem.convertX(vertexX);
 		final double vertexY = geosetVertex.getCoord(dim2);
 		final double y = coordinateSystem.convertY(vertexY);
-		if ((distance(x, y, minX, minY) <= (vertexSize / 2.0)) || (distance(x, y, maxX, maxY) <= (vertexSize / 2.0))
+		if (distance(x, y, minX, minY) <= vertexSize / 2.0 || distance(x, y, maxX, maxY) <= vertexSize / 2.0
 				|| area.contains(vertexX, vertexY)) {
 			selectedItems.add(geosetVertex);
 		}
@@ -567,13 +568,13 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		final double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
 		final double px = coordinateSystem.convertX(point.getX());
 		final double py = coordinateSystem.convertY(point.getY());
-		return Point2D.distance(px, py, x, y) <= (vertexSize / 2.0);
+		return Point2D.distance(px, py, x, y) <= vertexSize / 2.0;
 	}
 
 	public static double distance(final double vertexX, final double vertexY, final double x, final double y) {
 		final double dx = x - vertexX;
 		final double dy = y - vertexY;
-		return Math.sqrt((dx * dx) + (dy * dy));
+		return Math.sqrt(dx * dx + dy * dy);
 	}
 
 	@Override
@@ -731,10 +732,21 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		@Override
 		public void collisionShape(final CollisionShape collisionShape) {
 			handleDefaultNode(point, axes, collisionShape);
+			int vertexIndex = 0;
+			// TODO probably doesnt work in obscure case of pyramid or cylinder collision
+			// shape or whatever:
+			final boolean collisionSphere = !collisionShape.getFlags().contains("Box");
+
 			for (final Vertex vertex : collisionShape.getVertices()) {
-				if (hitTest(vertex, CoordinateSystem.Util.geom(axes, point), axes, IdObject.DEFAULT_CLICK_RADIUS)) {
+				double objectClickRadius = IdObject.DEFAULT_CLICK_RADIUS;
+				if (collisionSphere && vertexIndex == 0 && collisionShape.getExtents() != null
+						&& collisionShape.getExtents().hasBoundsRadius()) {
+					objectClickRadius = collisionShape.getExtents().getBoundsRadius() * 2;
+				}
+				if (hitTest(vertex, CoordinateSystem.Util.geom(axes, point), axes, objectClickRadius)) {
 					mouseOverVertex = true;
 				}
+				vertexIndex++;
 			}
 		}
 
@@ -832,8 +844,19 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			hitTest(selectedItems, area, collisionShape.getPivotPoint(), coordinateSystem,
 					collisionShape.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
 							* 2);
+			int vertexIndex = 0;
+			// TODO probably doesnt work in obscure case of pyramid or cylinder collision
+			// shape or whatever:
+			final boolean collisionSphere = !collisionShape.getFlags().contains("Box");
+
 			for (final Vertex vertex : collisionShape.getVertices()) {
-				hitTest(selectedItems, area, vertex, coordinateSystem, IdObject.DEFAULT_CLICK_RADIUS);
+				double objectClickRadius = IdObject.DEFAULT_CLICK_RADIUS;
+				if (collisionSphere && vertexIndex == 0 && collisionShape.getExtents() != null
+						&& collisionShape.getExtents().hasBoundsRadius()) {
+					objectClickRadius = collisionShape.getExtents().getBoundsRadius() * 2;
+				}
+				hitTest(selectedItems, area, vertex, coordinateSystem, objectClickRadius);
+				vertexIndex++;
 			}
 		}
 
@@ -885,7 +908,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			final double scaleY, final double scaleZ) {
 		super.rawScale(centerX, centerY, centerZ, scaleX, scaleY, scaleZ);
 		for (final IdObject b : model.getEditableIdObjects()) {
-			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
+			if (selectionManager.getSelection().contains(b.getPivotPoint()) || collisionShapeSelected(b)) {
 				b.apply(new IdObjectVisitor() {
 					@Override
 					public void ribbonEmitter(final RibbonEmitter particleEmitter) {
@@ -931,7 +954,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 					@Override
 					public void collisionShape(final CollisionShape collisionShape) {
 						final ExtLog extents = collisionShape.getExtents();
-						if ((extents != null) && (scaleX == scaleY) && (scaleY == scaleZ)) {
+						if (extents != null && scaleX == scaleY && scaleY == scaleZ) {
 							extents.setBoundsRadius(extents.getBoundsRadius() * scaleX);
 						}
 					}
@@ -963,6 +986,11 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 				});
 			}
 		}
+	}
+
+	private boolean collisionShapeSelected(final IdObject b) {
+		return b instanceof CollisionShape && ((CollisionShape) b).getVertices().size() > 0
+				&& selectionManager.getSelection().contains(((CollisionShape) b).getVertices().get(0));
 	}
 
 	@Override
