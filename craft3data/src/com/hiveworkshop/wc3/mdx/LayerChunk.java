@@ -101,7 +101,7 @@ public class LayerChunk {
 			if (ModelUtils.isCombinedHDLayerSupported(version)) {
 				shaderTypeId = in.readInt();
 				if (shaderTypeId != 0 && shaderTypeId != 1) {
-					System.err.println("Whoa!" + shaderTypeId);
+					System.err.println("MDX1100 parser reached unexpected shader type ID: " + shaderTypeId);
 				}
 				final int textureIdCount = in.readInt();
 				textureIdsMDLX1100 = new int[TEXTURE_TYPE_INDICES];
