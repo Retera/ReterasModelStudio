@@ -33,7 +33,7 @@ public abstract class GameObject implements Comparable<GameObject> {
 		return id;
 	}
 
-	public abstract ObjectData getTable();
+	public abstract GameObject getSiblingObjectFromCode(String fieldCode);
 
 	public abstract Set<String> keySet();
 
@@ -45,11 +45,9 @@ public abstract class GameObject implements Comparable<GameObject> {
 		}
 
 		if (name == null) {
-			String codeField = getField("code");
-			if (!codeField.equals(getId())
-					&& codeField.length() >= 4
-					&& getTable().get(codeField.substring(0, 4)) != null) {
-				name = getTable().get(codeField.substring(0, 4)).getName();
+			GameObject codeObject = getSiblingObjectFromCode(getField("code"));
+			if (codeObject != null) {
+				name = codeObject.getName();
 			} else if (getField("EditorName").length() > 1) {
 				name = getField("EditorName");
 			} else if (getField("Editorname").length() > 1) {
@@ -74,11 +72,11 @@ public abstract class GameObject implements Comparable<GameObject> {
 
 			setField("Name", name);
 		} else if (name == null) {
-			name = WEString.getString("WESTRING_UNKNOWN") + " '" + getId() + "'";
+			name = WEString.getString("WESTRING_UNKNOWN") + " '" + id + "'";
 		}
 
 		if (getField("campaign").startsWith("1")
-				&& Character.isUpperCase(getId().charAt(0))) {
+				&& Character.isUpperCase(id.charAt(0))) {
 			String propernames = getField("Propernames");
 			name = propernames.split(",")[0];
 		}
@@ -149,8 +147,7 @@ public abstract class GameObject implements Comparable<GameObject> {
 		if (img == null) {
 			return BLPHandler.getGameTex("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
 		}
-		BufferedImage out = new BufferedImage(img.getWidth(null), img.getHeight(null),
-				BufferedImage.TYPE_4BYTE_ABGR);
+		BufferedImage out = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_4BYTE_ABGR);
 		Graphics2D g2 = (Graphics2D) out.getGraphics();
 		g2.drawImage(img, 0, 0, null);
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f));

@@ -46,6 +46,9 @@ public class DataTable extends ObjectData {
 	}
 	public Element getElementWithField(final String id, final String field) {
 		final Element element = get(id);
+//		if ((element != null)){
+//			System.out.println("Found element for ID '" + id + "' in table '" + this + "', had field '" + field + "':" + (element.hasField(field)));
+//		}
 		if ((element != null) && element.hasField(field)) {
 			return element;
 		}

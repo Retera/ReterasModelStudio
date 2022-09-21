@@ -18,85 +18,60 @@ public class WarcraftObject extends GameObject {
 
 	@Override
 	public void setField(final String field, final String value, final int index) {
-		for (final DataTable table : dataSource.getTables()) {
-			final Element element = table.get(id);
-			if ((element != null)){
-				System.out.println("1 Found element for ID '" + id + "' in table '" + table + "', had field '" + field + "':" + (element.hasField(field)));
-			}
-			if ((element != null) && element.hasField(field)) {
-				element.setField(field, value, index);
-				return;
-			}
+//		final Element element = getElementWithField(field);
+		final Element element = dataSource.getElementWithField(id, field);
+		if (element != null) {
+			element.setField(field, value, index);
 		}
 	}
 
 	@Override
 	public void setField(final String field, final String value) {
-		for (final DataTable table : dataSource.getTables()) {
-			final Element element = table.get(id);
-			if ((element != null)){
-				System.out.println("2 Found element for ID '" + id + "' in table '" + table + "', had field '" + field + "':" + (element.hasField(field)));
-			}
-			if ((element != null) && element.hasField(field)) {
-				element.setField(field, value);
-				return;
-			}
+//		final Element element = getElementWithField(field);
+		final Element element = dataSource.getElementWithField(id, field);
+		if (element != null) {
+			element.setField(field, value);
+		} else {
+			throw new IllegalArgumentException("no field");
 		}
-		throw new IllegalArgumentException("no field");
 	}
 
 	@Override
 	public String getField(final String field, final int index) {
-		for (final DataTable table : dataSource.getTables()) {
-			final Element element = table.get(id);
-			if ((element != null)){
-				System.out.println("3 Found element for ID '" + id + "' in table '" + table + "', had field '" + field + "':" + (element.hasField(field)));
-			}
-			if ((element != null) && element.hasField(field)) {
-				return element.getField(field, index);
-			}
+//		final Element element = getElementWithField(field);
+		final Element element = dataSource.getElementWithField(id, field);
+		if (element != null) {
+			return element.getField(field, index);
 		}
 		return "";
 	}
 
 	@Override
 	public int getFieldValue(final String field, final int index) {
-		for (final DataTable table : dataSource.getTables()) {
-			final Element element = table.get(id);
-			if ((element != null)){
-				System.out.println("4 Found element for ID '" + id + "' in table '" + table + "', had field '" + field + "':" + (element.hasField(field)));
-			}
-			if ((element != null) && element.hasField(field)) {
-				return element.getFieldValue(field, index);
-			}
+//		final Element element = getElementWithField(field);
+		final Element element = dataSource.getElementWithField(id, field);
+		if (element != null) {
+			return element.getFieldValue(field, index);
 		}
 		return 0;
 	}
 
 	@Override
 	public String getField(final String field) {
-		for (final DataTable table : dataSource.getTables()) {
-			final Element element = table.get(id);
-			if ((element != null)){
-				System.out.println("5 Found element for ID '" + id + "' in table '" + table + "', had field '" + field + "':" + (element.hasField(field)));
-			}
-			if ((element != null) && element.hasField(field)) {
-				return element.getField(field);
-			}
+//		final Element element = getElementWithField(field);
+		final Element element = dataSource.getElementWithField(id, field);
+		if (element != null) {
+			return element.getField(field);
 		}
 		return "";
 	}
 
 	@Override
 	public int getFieldValue(final String field) {
-		for (final DataTable table : dataSource.getTables()) {
-			final Element element = table.get(id);
-			if ((element != null)){
-				System.out.println("6 Found element for ID '" + id + "' in table '" + table + "', had field '" + field + "':" + (element.hasField(field)));
-			}
-			if ((element != null) && element.hasField(field)) {
-				return element.getFieldValue(field);
-			}
+//		final Element element = getElementWithField(field);
+		final Element element = dataSource.getElementWithField(id, field);
+		if (element != null) {
+			return element.getFieldValue(field);
 		}
 		return 0;
 	}
@@ -108,21 +83,29 @@ public class WarcraftObject extends GameObject {
 	 */
 	@Override
 	public List<? extends GameObject> getFieldAsList(final String field, final ObjectData objectData) {
-		for (final DataTable table : dataSource.getTables()) {
-			final Element element = table.get(id);
-			if ((element != null)){
-				System.out.println("7 Found element for ID '" + id + "' in table '" + table + "', had field '" + field + "':" + (element.hasField(field)));
-			}
-			if ((element != null) && element.hasField(field)) {
-				return element.getFieldAsList(field, objectData);
-			}
+//		final Element element = getElementWithField(field);
+		final Element element = dataSource.getElementWithField(id, field);
+		if (element != null) {
+			return element.getFieldAsList(field, objectData);
 		}
 		return new ArrayList<>();// empty list if not found
 	}
 
-	@Override
-	public ObjectData getTable() {
-		return dataSource;
+	public Element getElementWithField(final String field){
+		for (final DataTable table : dataSource.getTables()) {
+			final Element element = table.getElementWithField(id, field);
+			if (element != null) {
+				return element;
+			}
+		}
+		return null;
+	}
+
+	public GameObject getSiblingObjectFromCode(String fieldCode) {
+		if (!fieldCode.equals(id) && 4 <= fieldCode.length()) {
+			return dataSource.get(fieldCode.substring(0, 4));
+		}
+		return null;
 	}
 
 	@Override

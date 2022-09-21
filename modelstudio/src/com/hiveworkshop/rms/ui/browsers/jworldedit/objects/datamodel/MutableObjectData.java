@@ -74,7 +74,7 @@ public class MutableObjectData {
 			String[] names = nameField.split(" ");
 			StringBuilder nameBuilder = new StringBuilder();
 			for (String subName : names) {
-				if (nameBuilder.length() > 0) {
+				if (0 < nameBuilder.length()) {
 					nameBuilder.append(" ");
 				}
 				if (subName.startsWith("WESTRING")) {
@@ -122,7 +122,7 @@ public class MutableObjectData {
 			List<String> resultingTechList = getTechList(previousAliasToNewAlias, techTreeString);
 			StringBuilder sb = new StringBuilder();
 			for (String tech : resultingTechList) {
-				if (sb.length() > 0) {
+				if (0 < sb.length()) {
 					sb.append(",");
 				}
 				sb.append(tech);

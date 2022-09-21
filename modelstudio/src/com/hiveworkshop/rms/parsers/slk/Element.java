@@ -117,11 +117,12 @@ public class Element extends GameObject {
 		}
 	}
 
-	@Override
-	public ObjectData getTable() {
-		return parentTable;
+	public GameObject getSiblingObjectFromCode(String fieldCode) {
+		if (!fieldCode.equals(id) && 4 <= fieldCode.length()) {
+			return parentTable.get(fieldCode.substring(0, 4));
+		}
+		return null;
 	}
-
 
 	public List<GameObject> requires() {
 		List<GameObject> requirements = getFieldAsList("Requires", parentTable);

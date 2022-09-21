@@ -15,9 +15,7 @@ public class WarcraftData extends ObjectData {
 		tables.add(data);
 		if (canMake) {
 			for (String id : data.keySet()) {
-				if (!units.containsKey(new StringKey(id))) {
-					units.put(new StringKey(id), new WarcraftObject(data.get(id).getId(), this));
-				}
+				units.computeIfAbsent(new StringKey(id), k -> new WarcraftObject(data.get(id).getId(), this));
 			}
 		}
 		return this;
@@ -25,6 +23,16 @@ public class WarcraftData extends ObjectData {
 
 	public List<DataTable> getTables() {
 		return tables;
+	}
+
+	public Element getElementWithField(final String id, final String field){
+		for (final DataTable table : tables) {
+			final Element element = table.getElementWithField(id, field);
+			if (element != null) {
+				return element;
+			}
+		}
+		return null;
 	}
 
 	public void setTables(final List<DataTable> tables) {
@@ -36,7 +44,7 @@ public class WarcraftData extends ObjectData {
 	}
 
 	@Override
-	public GameObject get(final String id) {
+	public WarcraftObject get(final String id) {
 		return units.get(new StringKey(id));
 	}
 
