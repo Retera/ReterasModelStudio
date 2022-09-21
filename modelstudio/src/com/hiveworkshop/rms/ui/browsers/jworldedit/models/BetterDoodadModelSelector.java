@@ -2,8 +2,8 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.models;
 
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DoodadTabTreeBrowserBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
 import com.hiveworkshop.rms.util.TwiComboBoxModel;
-import com.hiveworkshop.rms.util.War3ID;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -16,7 +16,7 @@ public class BetterDoodadModelSelector extends BetterSelector {
 	private ArrayList<Integer> variants;
 
 	public BetterDoodadModelSelector(UnitEditorSettings unitEditorSettings) {
-		super(new DoodadTabTreeBrowserBuilder(), unitEditorSettings, "dfil", "dvar");
+		super(new DoodadTabTreeBrowserBuilder(), unitEditorSettings, WE_Field.DOODAD_FILE.getId(), WE_Field.DOODAD_VARIATIONS_FIELD.getId());
 	}
 
 	protected JPanel getRightPanel() {
@@ -33,7 +33,7 @@ public class BetterDoodadModelSelector extends BetterSelector {
 
 	protected void loadUnitPreview() {
 		variants.clear();
-		int numberOfVariations = currentUnit.getFieldAsInteger(War3ID.fromString("dvar"), 0);
+		int numberOfVariations = currentUnit.getFieldAsInteger(WE_Field.DOODAD_VARIATIONS_FIELD.getId(), 0);
 		for (int i = 0; i < numberOfVariations; i++) {
 			variants.add(i + 1);
 		}

@@ -17,7 +17,6 @@ public abstract class SortByRaceFolder extends AbstractSortingFolderTreeNode {
 	 * default generated id to stop warnings, not going to serialize these folders
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final War3ID UPGR_RACE_FIELD = War3ID.fromString("grac");
 
 	protected final Map<String, SortingFolderTreeNode> raceFolders = new HashMap<>();
 	protected final List<SortingFolderTreeNode> raceNodes = new ArrayList<>();

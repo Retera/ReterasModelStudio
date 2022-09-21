@@ -81,16 +81,30 @@ public final class SplitGeosetAction implements UndoAction {
 			GeosetVertex newVertex = oldToNew.get(geosetVertex);
 			List<Triangle> trisToRemove = new ArrayList<>();
 			for (Triangle triangle : geosetVertex.getTriangles()) {
-				if (selectedEdgeTriangles.contains(triangle)) {
-					newVertex.removeTriangle(triangle);
-				} else if (notSelectedEdgeTriangles.contains(triangle)) {
+				if (notSelectedEdgeTriangles.contains(triangle)) {
 					trisToRemove.add(triangle);
 					triangle.replace(geosetVertex, newVertex);
+					newVertex.addTriangle(triangle);
 				}
 			}
 			trisToRemove.forEach(t -> geosetVertex.removeTriangle(t));
 		}
 	}
+//	private void splitEdge() {
+//		for (GeosetVertex geosetVertex : orgEdgeVertices) {
+//			GeosetVertex newVertex = oldToNew.get(geosetVertex);
+//			List<Triangle> trisToRemove = new ArrayList<>();
+//			for (Triangle triangle : geosetVertex.getTriangles()) {
+//				if (selectedEdgeTriangles.contains(triangle)) {
+//					newVertex.removeTriangle(triangle);
+//				} else if (notSelectedEdgeTriangles.contains(triangle)) {
+//					trisToRemove.add(triangle);
+//					triangle.replace(geosetVertex, newVertex);
+//				}
+//			}
+//			trisToRemove.forEach(t -> geosetVertex.removeTriangle(t));
+//		}
+//	}
 
 	private void unSplitEdge() {
 		for (GeosetVertex geosetVertex : orgEdgeVertices) {

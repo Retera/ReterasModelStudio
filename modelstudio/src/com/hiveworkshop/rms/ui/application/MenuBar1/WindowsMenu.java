@@ -102,9 +102,9 @@ public class WindowsMenu extends JMenu {
 		viewsMenu.add(createMenuItem("Side", KeyEvent.VK_S, e -> openModelDependentView(new DisplayViewCanvas("Side", true, true))));
 		viewsMenu.add(createMenuItem("Bottom", KeyEvent.VK_B, e -> openModelDependentView(new DisplayViewCanvas("Bottom", true, true))));
 
-		viewsMenu.add(createMenuItem("Edit UV's", KeyEvent.VK_U, e -> openEditUVsView(rootWindow, windowHandler2)));
+		viewsMenu.add(createMenuItem("Edit UV's", KeyEvent.VK_U, e -> openEditUVsView(rootWindow)));
 
-		viewsMenu.add(createMenuItem("Contents", KeyEvent.VK_T, e -> windowHandler2.openNewWindowWithKB(new ModelComponentsView().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
+		viewsMenu.add(createMenuItem("Contents", KeyEvent.VK_T, e -> rootWindow.newWindow(new ModelComponentsView().setModelPanel(ProgramGlobals.getCurrentModelPanel()))));
 		viewsMenu.add(createMenuItem("Footer", KeyEvent.VK_F, e -> FloatingWindowFactory.openNewWindowWithKB(windowHandler2.getTimeSliderView(), rootWindow)));
 
 		viewsMenu.add(createMenuItem("Matrix Eater Script", KeyEvent.VK_H, KeyStroke.getKeyStroke("control P"), e -> ScriptView.openScriptView()));
@@ -113,16 +113,15 @@ public class WindowsMenu extends JMenu {
 
 	private void openModelDependentView(ModelDependentView mdv){
 		RootWindowUgg rootWindow = ProgramGlobals.getRootWindowUgg();
-		WindowHandler2 windowHandler2 = rootWindow.getWindowHandler2();
 
-		windowHandler2.openNewWindowWithKB(mdv.setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow);
+		rootWindow.newWindow(mdv.setModelPanel(ProgramGlobals.getCurrentModelPanel()));
 	}
 
 
-	private void openEditUVsView(RootWindowUgg rootWindow, WindowHandler2 windowHandler2) {
+	private void openEditUVsView(RootWindowUgg rootWindow) {
 		ModelDependentView view = new EditUVsView();
 		System.out.println("sat model panel, opening window");
-		windowHandler2.openNewWindowWithKB(view, rootWindow);
+		rootWindow.newWindow(view);
 		view.setModelPanel(ProgramGlobals.getCurrentModelPanel());
 		System.out.println("done opening window");
 	}

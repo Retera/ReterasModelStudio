@@ -13,65 +13,89 @@ public class ExtrudeAction implements UndoAction {
 	MoveAction baseMovement;
 	List<Vec3> selection;
 	List<Triangle> addedTriangles = new ArrayList<>();
-	Set<Triangle> selectedEdgeTriangles = new HashSet<>();
 	Set<Triangle> notSelectedEdgeTriangles = new HashSet<>();
-	List<GeosetVertex> affectedVertices = new ArrayList<>();
-	Set<GeosetVertex> orgEdgeVertices = new HashSet<>();
+	Set<GeosetVertex> affectedVertices = new HashSet<>();
+//	Set<GeosetVertex> orgEdgeVertices1;
+	Set<GeosetVertex> orgEdgeVertices;
+//	Set<GeosetVertex> internalEdgeVertices;
 	Map<GeosetVertex, GeosetVertex> oldToNew = new HashMap<>();
 	Set<Pair<GeosetVertex, GeosetVertex>> edges;
+	Set<Pair<GeosetVertex, GeosetVertex>> edges2;
 
-	public ExtrudeAction(Collection<? extends Vec3> selection, Vec3 moveVector) {
-		selection.forEach(vert -> affectedVertices.add((GeosetVertex) vert));
+	public ExtrudeAction(Collection<GeosetVertex> selection, Vec3 moveVector) {
+		affectedVertices.addAll(selection);
 		this.selection = new ArrayList<>(selection);
 
 		baseMovement = new MoveAction(this.selection, moveVector, VertexActionType.UNKNOWN);
-		findInternalEdgeVerts();
 		edges = ModelUtils.getEdges(affectedVertices);
-		findEdgeTris();
-		makeVertCopies();
-	}
+		orgEdgeVertices = collectEdgeVerts(edges);
+		notSelectedEdgeTriangles = getNotSelectedEdgeTris(getAllEdgeTris(orgEdgeVertices), affectedVertices);
 
-	private void findInternalEdgeVerts() {
-		for (GeosetVertex geosetVertex : affectedVertices) {
-			for (Triangle triangle : geosetVertex.getTriangles()) {
-				if (!affectedVertices.containsAll(Arrays.asList(triangle.getVerts()))) {
-					orgEdgeVertices.add(geosetVertex);
-				}
-			}
-		}
-	}
+		orgEdgeVertices.removeIf(geosetVertex
+				-> geosetVertex.getTriangles().stream()
+				.noneMatch(triangle
+						-> notSelectedEdgeTriangles.contains(triangle)));
 
-	private void findEdgeTris() {
-		for (GeosetVertex geosetVertex : orgEdgeVertices) {
-			for (Triangle triangle : geosetVertex.getTriangles()) {
-				if (!affectedVertices.containsAll(Arrays.asList(triangle.getVerts()))) {
-					notSelectedEdgeTriangles.add(triangle);
-				} else {
-					selectedEdgeTriangles.add(triangle);
-				}
-			}
-		}
-	}
-
-	private void makeVertCopies() {
+//		orgEdgeVertices = findInternalEdgeVerts1(orgEdgeVertices1, notSelectedEdgeTriangles);
 		for (GeosetVertex geosetVertex : orgEdgeVertices) {
 			oldToNew.put(geosetVertex, geosetVertex.deepCopy());
 		}
+		edges2 = new HashSet<>();
+		for (Pair<GeosetVertex, GeosetVertex> edge : edges) {
+			if(orgEdgeVertices.contains(edge.getFirst()) && orgEdgeVertices.contains(edge.getSecond())){
+				edges2.add(edge);
+			}
+		}
 	}
+	private Set<GeosetVertex> collectEdgeVerts(Set<Pair<GeosetVertex, GeosetVertex>> edges) {
+		Set<GeosetVertex> orgEdgeVertices = new HashSet<>();
+		for (Pair<GeosetVertex, GeosetVertex> edge : edges) {
+			orgEdgeVertices.add(edge.getFirst());
+			orgEdgeVertices.add(edge.getSecond());
+		}
+		return orgEdgeVertices;
+	}
+
+	private Set<Triangle> getAllEdgeTris(Set<GeosetVertex> orgEdgeVertices) {
+		Set<Triangle> edgeTriangles = new HashSet<>();
+		for (GeosetVertex geosetVertex : orgEdgeVertices) {
+			edgeTriangles.addAll(geosetVertex.getTriangles());
+		}
+		return edgeTriangles;
+	}
+	private Set<Triangle> getNotSelectedEdgeTris(Set<Triangle> edgeTriangles, Set<GeosetVertex> affectedVertices) {
+		Set<Triangle> notSelectedEdgeTriangles = new HashSet<>();
+		for (Triangle triangle : edgeTriangles) {
+			if (!affectedVertices.containsAll(Arrays.asList(triangle.getVerts()))) {
+				notSelectedEdgeTriangles.add(triangle);
+			}
+		}
+		return notSelectedEdgeTriangles;
+	}
+
+	private Set<GeosetVertex> findInternalEdgeVerts1(Set<GeosetVertex> orgEdgeVertices, Set<Triangle> notSelectedEdgeTriangles) {
+		Set<GeosetVertex> internalEdgeVertices = new HashSet<>();
+		for (GeosetVertex geosetVertex : orgEdgeVertices) {
+			if(!notSelectedEdgeTriangles.containsAll(geosetVertex.getTriangles())){
+				internalEdgeVertices.add(geosetVertex);
+			}
+		}
+		return internalEdgeVertices;
+	}
+
 
 	private void splitEdge() {
 		for (GeosetVertex geosetVertex : orgEdgeVertices) {
 			GeosetVertex newVertex = oldToNew.get(geosetVertex);
 			List<Triangle> trisToRemove = new ArrayList<>();
 			for (Triangle triangle : geosetVertex.getTriangles()) {
-				if (selectedEdgeTriangles.contains(triangle)) {
-					newVertex.removeTriangle(triangle);
-				} else if (notSelectedEdgeTriangles.contains(triangle)) {
+				if (notSelectedEdgeTriangles.contains(triangle)) {
 					trisToRemove.add(triangle);
 					triangle.replace(geosetVertex, newVertex);
+					newVertex.addTriangle(triangle);
 				}
 			}
-			trisToRemove.forEach(t -> geosetVertex.removeTriangle(t));
+			trisToRemove.forEach(geosetVertex::removeTriangle);
 		}
 	}
 

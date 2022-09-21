@@ -35,7 +35,7 @@ public enum WorldEditorDataType {
 		return editString;
 	}
 
-	//			case ABILITIES -> "WESTRING_AE_DLG_EDITVALUE";
+//			case ABILITIES -> "WESTRING_AE_DLG_EDITVALUE";
 //			case BUFFS_EFFECTS -> "WESTRING_FE_DLG_EDITVALUE";
 //			case DESTRUCTIBLES -> "WESTRING_BE_DLG_EDITVALUE";
 //			case DOODADS -> "WESTRING_DE_DLG_EDITVALUE";

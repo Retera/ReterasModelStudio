@@ -40,45 +40,29 @@ public abstract class AbstractSortingFolderTreeNode extends SortingFolderTreeNod
 
 	public SortingFolderTreeNode getNextNode(MutableGameObject object, TreeNodeLinker treeModel) {
 		SortingFolderTreeNode sortingFolderTreeNode = getNextNode(object);
-		if (sortingFolderTreeNode != null) {
-			if (!isNodeChild(sortingFolderTreeNode)) {
-				int sortedInsertionIndex = getInsertIndex(sortingFolderTreeNode);
-				treeModel.insertNodeInto(sortingFolderTreeNode, this, sortedInsertionIndex);
-			}
+		if (sortingFolderTreeNode != null && !isNodeChild(sortingFolderTreeNode)) {
+			int sortedInsertionIndex = getInsertIndex(sortingFolderTreeNode);
+			treeModel.insertNodeInto(sortingFolderTreeNode, this, sortedInsertionIndex);
 		}
 		return sortingFolderTreeNode;
 	}
 
 	private int getInsertIndex(SortingFolderTreeNode sortingFolderTreeNode) {
-		int sortedInsertionIndex = 0;
 		int childCount = getChildCount();
-		if(childCount >0){
+		if(0 < childCount){
 			int sortIndex = getSortIndex(sortingFolderTreeNode);
 
-			for (int childIndex = 0; childIndex < childCount; childIndex++) {
-				if (sortIndex >= getSortIndex(getChildAt(childIndex))) {
-					sortedInsertionIndex = childIndex + 1;
+			int sortedInsertionIndex = childCount;
+			for (int i = 0; i < childCount; i++) {
+				if(sortIndex < getSortIndex(getChildAt(i))){
+					sortedInsertionIndex = i;
+					break;
 				}
 			}
+			return sortedInsertionIndex;
 		}
-		return sortedInsertionIndex;
+		return 0;
 	}
-
-//	@Override
-//	public SortingFolderTreeNode getChildAt(int index){
-//		TreeNode childAt = super.getChildAt(index);
-//		if(childAt instanceof  SortingFolderTreeNode){
-//			return (SortingFolderTreeNode) childAt;
-//		} else {
-//			if(childAt != null && childAt.toString().equals("com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject@15a902e7")){
-//				System.out.println("index: " + index);
-//				System.out.println("childAt: " + childAt);
-//				System.out.println("childClass: " + childAt.getClass());
-//				new Exception().printStackTrace();
-//			}
-//		}
-//		return null;
-//	}
 
 	protected abstract SortingFolderTreeNode getNextNode(MutableGameObject object);
 

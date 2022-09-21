@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableAbil
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableUnitData;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
 import com.hiveworkshop.rms.util.War3ID;
 import net.miginfocom.swing.MigLayout;
@@ -14,7 +15,6 @@ import javax.swing.*;
 import java.awt.*;
 
 public final class NewCustomUnitDialogRunner implements Runnable {
-	private static final War3ID UNIT_NAME = War3ID.fromString("unam");
 	private final Component popupParent;
 	private final MutableObjectData unitData;
 
@@ -55,7 +55,7 @@ public final class NewCustomUnitDialogRunner implements Runnable {
 			War3ID sourceId = War3ID.fromString(selection.getId());
 			War3ID objectId = unitData.getNextDefaultEditorId(War3ID.fromString(sourceId.charAt(0) + "000"));
 			MutableGameObject newObject = unitData.createNew(objectId, sourceId);
-			newObject.setField(UNIT_NAME, 0, nameField.getText());
+			newObject.setField(WE_Field.UNIT_NAME.getId(), 0, nameField.getText());
 		}
 	}
 }

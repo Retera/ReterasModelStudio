@@ -2,8 +2,8 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
 import com.hiveworkshop.rms.ui.application.InternalFileLoader;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import com.hiveworkshop.rms.util.War3ID;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -66,7 +66,7 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 	private void openUnit() {
 		MutableGameObject obj = getMutableGameObject();
 		if (obj != null) {
-			String filepath = obj.getFieldAsString(War3ID.fromString("umdl"), 0);
+			String filepath = obj.getFieldAsString(WE_Field.MODEL_FILE.getId(), 0);
 			InternalFileLoader.loadMdxStream(obj, filepath, true);
 		}
 	}

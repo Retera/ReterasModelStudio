@@ -36,6 +36,7 @@ public class MainFrame extends JFrame {
 
 		setLocationRelativeTo(null);
 		setVisible(true);
+		ProgramGlobals.linkActions(mainPanel.getRootPane());
 	}
 
 	private void exitAction() {
@@ -63,7 +64,6 @@ public class MainFrame extends JFrame {
 
 	public static void create(final List<String> startupModelPaths) {
 		frame = new MainFrame("Retera Model Studio " + ProgramVersion.get());
-		mainPanel.init();
 		FileDialog fileDialog = new FileDialog();
 		if (!startupModelPaths.isEmpty()) {
 			for (final String path : startupModelPaths) {

@@ -10,7 +10,7 @@ import com.hiveworkshop.rms.util.War3ID;
 import java.util.List;
 
 public abstract class AbstractLevelsFieldBuilder extends AbstractFieldBuilder {
-	private final War3ID levelField;
+	protected final War3ID levelField;
 
 	public AbstractLevelsFieldBuilder(WorldEditorDataType worldEditorDataType, War3ID levelField) {
 		super(worldEditorDataType);
@@ -18,7 +18,7 @@ public abstract class AbstractLevelsFieldBuilder extends AbstractFieldBuilder {
 	}
 
 	@Override
-	protected final void makeAndAddFields(List<AbstractObjectField> fields, War3ID metaKey,
+	protected void makeAndAddFields(List<AbstractObjectField> fields, War3ID metaKey,
 	                                      GameObject metaDataField, MutableGameObject gameObject, ObjectData metaData) {
 		int repeatCount = metaDataField.getFieldValue("repeat");
 		int actualRepeatCount = gameObject.getFieldAsInteger(levelField, 0);

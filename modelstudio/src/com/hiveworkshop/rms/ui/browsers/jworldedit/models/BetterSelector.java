@@ -28,16 +28,44 @@ public abstract class BetterSelector extends JSplitPane {
 	protected DefaultMutableTreeNode defaultSelection = null;
 	protected final UnitEditorTree tree;
 
-	protected String fileString;
-	protected String variationString;
+	protected War3ID field;
+	protected War3ID variationField;
 
 	public BetterSelector(ObjectTabTreeBrowserBuilder treeBuilder,
 	                      UnitEditorSettings unitEditorSettings,
 	                      String fileString,
 	                      String variationString) {
 		tree = new UnitEditorTree(treeBuilder, unitEditorSettings);
-		this.fileString = fileString;
-		this.variationString = variationString;
+		if (variationString == null) {
+			variationField = null;
+		} else {
+			variationField = War3ID.fromString(variationString);
+		}
+
+		field = War3ID.fromString(fileString);
+		JScrollPane treePane;
+		setLeftComponent(treePane = new JScrollPane(tree));
+		perspDisplayPanel = new PerspDisplayPanel("blank");
+		JPanel rightPanel = getRightPanel();
+		setCurrentGameObject(null);
+
+		setRightComponent(rightPanel);
+
+		tree.addTreeSelectionListener(this::valueChanged);
+		treePane.setPreferredSize(new Dimension(350, 600));
+		perspDisplayPanel.setPreferredSize(new Dimension(800, 600));
+		if (defaultSelection != null) {
+			tree.getSelectionModel().setSelectionPath(getPath(defaultSelection));
+		}
+	}
+	public BetterSelector(ObjectTabTreeBrowserBuilder treeBuilder,
+	                      UnitEditorSettings unitEditorSettings,
+	                      War3ID field,
+	                      War3ID variationField) {
+		tree = new UnitEditorTree(treeBuilder, unitEditorSettings);
+
+		this.variationField = variationField;
+		this.field = field;
 
 		JScrollPane treePane;
 		setLeftComponent(treePane = new JScrollPane(tree));
@@ -135,12 +163,18 @@ public abstract class BetterSelector extends JSplitPane {
 	public abstract String getCurrentFilePath();
 
 	protected String getFilePath(MutableGameObject obj, int variant) {
-		int numberOfVariations = variationString == null ? 0 : obj.getFieldAsInteger(War3ID.fromString(variationString), 0);
+		int numberOfVariations;
+		if (variationField == null) {
+			numberOfVariations = 0;
+		} else {
+			numberOfVariations = obj.getFieldAsInteger(variationField, 0);
+		}
+
 
 		if (numberOfVariations > 1) {
-			return obj.getFieldAsString(War3ID.fromString(fileString), 0) + variant + ".mdl";
+			return obj.getFieldAsString(field, 0) + variant + ".mdl";
 		} else {
-			return obj.getFieldAsString(War3ID.fromString(fileString), 0);
+			return obj.getFieldAsString(field, 0);
 		}
 	}
 }

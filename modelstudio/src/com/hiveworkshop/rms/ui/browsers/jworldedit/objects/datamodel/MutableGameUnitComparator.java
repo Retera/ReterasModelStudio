@@ -1,11 +1,10 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel;
 
-import com.hiveworkshop.rms.util.War3ID;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
 
 import java.util.Comparator;
 
 public class MutableGameUnitComparator implements Comparator<MutableGameObject> {
-	private static final War3ID UNIT_LEVEL = War3ID.fromString("ulev");
 	private static final String TAG_NAME = "unitClass";
 
 	@Override
@@ -19,7 +18,7 @@ public class MutableGameUnitComparator implements Comparator<MutableGameObject> 
 		}
 		final int comp1 = a_slkTag.compareTo(b_slkTag);
 		if (comp1 == 0) {
-			final int comp2 = Integer.compare(a.getFieldAsInteger(UNIT_LEVEL, 0), b.getFieldAsInteger(UNIT_LEVEL, 0));
+			final int comp2 = Integer.compare(a.getFieldAsInteger(WE_Field.UNIT_LEVEL.getId(), 0), b.getFieldAsInteger(WE_Field.UNIT_LEVEL.getId(), 0));
 			if (comp2 == 0) {
 				return a.getName().compareTo(b.getName());
 			}

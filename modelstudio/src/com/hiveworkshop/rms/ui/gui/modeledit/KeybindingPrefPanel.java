@@ -144,7 +144,7 @@ public class KeybindingPrefPanel extends JPanel {
 	private void saveKeybindings(KeyBindingPrefs keyBindingPrefs) {
 		ProgramGlobals.getKeyBindingPrefs().parseString(keyBindingPrefs.toString());
 		ProgramGlobals.getPrefs().setKeyBindings(ProgramGlobals.getKeyBindingPrefs());
-		ProgramGlobals.getMainPanel().linkActions(ProgramGlobals.getMainPanel().getRootPane());
+		ProgramGlobals.linkActions(ProgramGlobals.getMainPanel().getRootPane());
 		ProgramGlobals.getUndoHandler().refreshUndo();
 	}
 

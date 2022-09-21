@@ -28,7 +28,7 @@ public final class MutableUpgradeData extends MutableObjectData {
 
 
 	public static DataTable getStandardUpgradeMeta() {
-		return DataTableUtils.getDataTable("Units\\UpgradeMetaData.slk");
+		return DataTableUtils.fillDataTable(new DataTable(), "Units\\UpgradeMetaData.slk");
 	}
 
 	public static WarcraftData getStandardUpgrades() {
@@ -51,7 +51,7 @@ public final class MutableUpgradeData extends MutableObjectData {
 			ExceptionPopup.display(e);
 		}
 
-		DataTable upgradeData = DataTableUtils.getDataTable("Units\\UpgradeData.slk");
+		DataTable upgradeData = DataTableUtils.fillDataTable(new DataTable(), "Units\\UpgradeData.slk");
 
 		return new WarcraftData()
 				.add(profile, "Profile", false)

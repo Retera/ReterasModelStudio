@@ -161,8 +161,11 @@ public class BufferFiller {
 			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 			xRatio = (float) (displayMode.getWidth() / screenSize.getWidth());
 			yRatio = (float) (displayMode.getHeight() / screenSize.getHeight());
-//			System.out.println("Display.getDisplayMode(): " + displayMode.getWidth() + "x" + displayMode.getHeight());
-//			System.out.println("Toolkit.getDefaultToolkit(): " + screenSize.getWidth() + "x" + screenSize.getHeight());
+			float dpi = Toolkit.getDefaultToolkit().getScreenResolution();
+//			xRatio = (float) (Toolkit.getDefaultToolkit().getScreenResolution()/96.0);
+			System.out.println("Display.getDisplayMode(): " + displayMode.getWidth() + "x" + displayMode.getHeight());
+			System.out.println("Toolkit.getDefaultToolkit(): " + screenSize.getWidth() + "x" + screenSize.getHeight());
+			System.out.println("xRatio: " + xRatio + ", yRatio: " + yRatio + ", dpi/96.0 = " + (dpi/96.0));
 
 			// These ratios will be wrong and users will see corrupted visuals (bad scale, only fits part of window,
 			// etc) if they are using Windows 10 differing UI scale per monitor. I don't think I have an API
@@ -223,7 +226,7 @@ public class BufferFiller {
 	}
 
 	public void paintCanvas(CameraManager cameraManager, ViewportSettings viewportSettings, MouseListenerThing mouseAdapter, Component viewportCanvas) {
-		paintCanvas(cameraManager, viewportSettings, mouseAdapter, viewportCanvas.getWidth(), viewportCanvas.getHeight());
+		paintCanvas(cameraManager, viewportSettings, mouseAdapter, (int) (viewportCanvas.getWidth()*xRatio), (int) (viewportCanvas.getHeight()*yRatio));
 	}
 	public void paintCanvas(CameraManager cameraManager, ViewportSettings viewportSettings, MouseListenerThing mouseAdapter, int width, int height) {
 

@@ -13,10 +13,9 @@ public class ExtendAction implements UndoAction {
 	MoveAction baseMovement;
 	List<Vec3> selection;
 	List<Triangle> addedTriangles = new ArrayList<>();
-	Set<Triangle> selectedEdgeTriangles = new HashSet<>();
-	Set<Triangle> notSelectedEdgeTriangles = new HashSet<>();
-	List<GeosetVertex> affectedVertices = new ArrayList<>();
-	Set<GeosetVertex> orgEdgeVertices = new HashSet<>();
+	Set<Triangle> notSelectedEdgeTriangles;
+	Set<GeosetVertex> affectedVertices = new HashSet<>();
+	Set<GeosetVertex> orgEdgeVertices;
 	Map<GeosetVertex, GeosetVertex> oldToNew = new HashMap<>();
 	Set<Pair<GeosetVertex, GeosetVertex>> edges;
 
@@ -26,34 +25,37 @@ public class ExtendAction implements UndoAction {
 
 		baseMovement = new MoveAction(this.selection, moveVector, VertexActionType.UNKNOWN);
 		edges = ModelUtils.getEdges(affectedVertices);
-		collectEdgeVerts();
-		findEdgeTris();
-		makeVertCopies();
+		orgEdgeVertices = collectEdgeVerts(edges);
+		notSelectedEdgeTriangles = getNotSelectedEdgeTris(getAllEdgeTris(orgEdgeVertices), affectedVertices);
+		for (GeosetVertex geosetVertex : orgEdgeVertices) {
+			oldToNew.put(geosetVertex, geosetVertex.deepCopy());
+		}
 	}
 
-	private void collectEdgeVerts() {
+	private Set<GeosetVertex> collectEdgeVerts(Set<Pair<GeosetVertex, GeosetVertex>> edges) {
+		Set<GeosetVertex> orgEdgeVertices = new HashSet<>();
 		for (Pair<GeosetVertex, GeosetVertex> edge : edges) {
 			orgEdgeVertices.add(edge.getFirst());
 			orgEdgeVertices.add(edge.getSecond());
 		}
+		return orgEdgeVertices;
 	}
 
-	private void findEdgeTris() {
+	private Set<Triangle> getAllEdgeTris(Set<GeosetVertex> orgEdgeVertices) {
+		Set<Triangle> edgeTriangles = new HashSet<>();
 		for (GeosetVertex geosetVertex : orgEdgeVertices) {
-			for (Triangle triangle : geosetVertex.getTriangles()) {
-				if (!affectedVertices.containsAll(Arrays.asList(triangle.getVerts()))) {
-					notSelectedEdgeTriangles.add(triangle);
-				} else {
-					selectedEdgeTriangles.add(triangle);
-				}
+			edgeTriangles.addAll(geosetVertex.getTriangles());
+		}
+		return edgeTriangles;
+	}
+	private Set<Triangle> getNotSelectedEdgeTris(Set<Triangle> edgeTriangles, Set<GeosetVertex> affectedVertices) {
+		Set<Triangle> notSelectedEdgeTriangles = new HashSet<>();
+		for (Triangle triangle : edgeTriangles) {
+			if (!affectedVertices.containsAll(Arrays.asList(triangle.getVerts()))) {
+				notSelectedEdgeTriangles.add(triangle);
 			}
 		}
-	}
-
-	private void makeVertCopies() {
-		for (GeosetVertex geosetVertex : orgEdgeVertices) {
-			oldToNew.put(geosetVertex, geosetVertex.deepCopy());
-		}
+		return notSelectedEdgeTriangles;
 	}
 
 	private void splitEdge() {
@@ -61,11 +63,10 @@ public class ExtendAction implements UndoAction {
 			GeosetVertex newVertex = oldToNew.get(geosetVertex);
 			List<Triangle> trisToRemove = new ArrayList<>();
 			for (Triangle triangle : geosetVertex.getTriangles()) {
-				if (selectedEdgeTriangles.contains(triangle)) {
-					newVertex.removeTriangle(triangle);
-				} else if (notSelectedEdgeTriangles.contains(triangle)) {
+				if (notSelectedEdgeTriangles.contains(triangle)) {
 					trisToRemove.add(triangle);
 					triangle.replace(geosetVertex, newVertex);
+					newVertex.addTriangle(triangle);
 				}
 			}
 			trisToRemove.forEach(geosetVertex::removeTriangle);

@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.ui.application.MenuBar1;
 import com.hiveworkshop.rms.ui.application.EditUVsPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.RootWindowUgg;
-import com.hiveworkshop.rms.ui.application.WindowHandler2;
 import com.hiveworkshop.rms.ui.application.actionfunctions.*;
 import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVView;
 import com.hiveworkshop.rms.ui.application.tools.EditTexturesPanel;
@@ -33,8 +32,7 @@ public class ToolsMenu extends JMenu {
 		add(createMenuItem("Edit UV Mapping", KeyEvent.VK_U, e -> EditUVsPanel.showEditUVs()));
 
 		RootWindowUgg rootWindow = ProgramGlobals.getRootWindowUgg();
-		WindowHandler2 windowHandler2 = rootWindow.getWindowHandler2();
-		add(createMenuItem("Edit UV Mapping2", KeyEvent.VK_A, e -> windowHandler2.openNewWindowWithKB(new UVView("Edit UV Mapping").setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
+		add(createMenuItem("Edit UV Mapping2", KeyEvent.VK_A, e -> rootWindow.newWindow(new UVView("Edit UV Mapping").setModelPanel(ProgramGlobals.getCurrentModelPanel()))));
 
 		JMenuItem editTextures = new JMenuItem("Edit Textures");
 		editTextures.setMnemonic(KeyEvent.VK_T);

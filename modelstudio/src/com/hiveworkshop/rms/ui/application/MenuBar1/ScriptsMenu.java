@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.ui.application.MenuBar1;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.RootWindowUgg;
-import com.hiveworkshop.rms.ui.application.WindowHandler2;
 import com.hiveworkshop.rms.ui.application.actionfunctions.*;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ExportFrameViewCanvas;
 import com.hiveworkshop.rms.ui.application.tools.AnimationTransfer;
@@ -62,9 +61,7 @@ public class ScriptsMenu extends JMenu {
 
 	private void openModelDependentView(ModelDependentView mdv){
 		RootWindowUgg rootWindow = ProgramGlobals.getRootWindowUgg();
-		WindowHandler2 windowHandler2 = rootWindow.getWindowHandler2();
-
-		windowHandler2.openNewWindowWithKB(mdv.setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow);
+		rootWindow.newWindow(mdv.setModelPanel(ProgramGlobals.getCurrentModelPanel()));
 	}
 
 //	public ScriptsMenu() {

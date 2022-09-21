@@ -2,24 +2,25 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.builde
 
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.ObjectData;
-import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.AbstractObjectField;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WE_STRING;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
 import com.hiveworkshop.rms.util.War3ID;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class UpgradesFieldBuilder extends AbstractLevelsFieldBuilder {
-	private static final War3ID UPGRADE_MAX_LEVEL_FIELD = War3ID.fromString("glvl");
-	private final ObjectData upgradeEffectMetaData = StandardObjectData.getStandardUpgradeEffectMeta();
+public class UpgradesFieldBuilder extends AbstractFieldBuilder {
+	protected final War3ID levelField;
 	private final Map<String, GameObject> effectIDToUpgradeEffect = new HashMap<>();
 
 	public UpgradesFieldBuilder(ObjectData upgradeEffectMetaData) {
-//		super(new UpgradeSingleFieldFactory(upgradeEffectMetaData, WorldEditorDataType.UPGRADES), UPGRADE_MAX_LEVEL_FIELD);
-		super(WorldEditorDataType.UPGRADES, UPGRADE_MAX_LEVEL_FIELD);
-//		this.upgradeEffectMetaData = upgradeEffectMetaData;
+		super(WorldEditorDataType.UPGRADES);
+		this.levelField = WE_Field.UPGRADE_MAX_LEVEL.getId();
 		for (String notEffectId : upgradeEffectMetaData.keySet()) {
 			GameObject upgradeEffect = upgradeEffectMetaData.get(notEffectId);
 			String key = upgradeEffect.getField("effectID") + upgradeEffect.getField("dataType");
@@ -41,8 +42,21 @@ public class UpgradesFieldBuilder extends AbstractLevelsFieldBuilder {
 	}
 
 	@Override
+	protected void makeAndAddFields(List<AbstractObjectField> fields, War3ID metaKey,
+	                                      GameObject metaDataField, MutableGameObject gameObject, ObjectData metaData) {
+		int repeatCount = metaDataField.getFieldValue("repeat");
+		int actualRepeatCount = gameObject.getFieldAsInteger(levelField, 0);
+		if (repeatCount >= 1 && actualRepeatCount > 1) {
+			for (int level = 1; level <= actualRepeatCount; level++) {
+				fields.add(create(gameObject, metaData, metaKey, level, true));
+			}
+		} else {
+			fields.add(create(gameObject, metaData, metaKey, repeatCount >= 1 ? 1 : 0, false));
+		}
+	}
+
+	@Override
 	protected String getDisplayName(ObjectData metaData, War3ID metaKey, int level, MutableGameObject gameObject) {
-//		String defaultDisplayName = LevelsSingleFieldFactory.INSTANCE.getDisplayName(metaData, metaKey, level, gameObject);
 		String defaultDisplayName = getDisplayName2(metaData, metaKey, level, gameObject);
 		GameObject metaDataField = metaData.get(metaKey.toString());
 		String effectType = metaDataField.getField("effectType");
@@ -52,7 +66,7 @@ public class UpgradesFieldBuilder extends AbstractLevelsFieldBuilder {
 			War3ID gefField = War3ID.fromString("gef" + metaDataField.getId().charAt(3));
 			String fieldAsString = gameObject.getFieldAsString(gefField, 0);
 			GameObject upgradeEffect = effectIDToUpgradeEffect.get(fieldAsString + metaDataField.getField("effectType"));
-			String displayNameOfSubMetaField = upgradeEffect == null ? "WESTRING_ERROR_BADTRIGVAL" : upgradeEffect.getField("displayName");
+			String displayNameOfSubMetaField = upgradeEffect == null ? WE_STRING.WESTRING_ERROR_BADTRIGVAL : upgradeEffect.getField("displayName");
 			return String.format(defaultDisplayName, WEString.getString(displayNameOfSubMetaField));
 		}
 		return defaultDisplayName;
@@ -62,7 +76,7 @@ public class UpgradesFieldBuilder extends AbstractLevelsFieldBuilder {
 	protected String getDisplayPrefix(ObjectData metaData, War3ID metaKey, int level, MutableGameObject gameObject) {
 		String prefix = "";
 		if (level > 0) {
-			String westring = WEString.getString("WESTRING_AEVAL_LVL");
+			String westring = WEString.getString(WE_STRING.WESTRING_AEVAL_LVL);
 			prefix = String.format(westring, level) + " - " + prefix;
 		}
 		return prefix;

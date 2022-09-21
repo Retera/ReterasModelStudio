@@ -28,7 +28,7 @@ public final class MutableItemData extends MutableObjectData {
 
 
 	public static DataTable getStandardUnitMeta() {
-		return DataTableUtils.getDataTable("Units\\UnitMetaData.slk");
+		return DataTableUtils.fillDataTable(new DataTable(), "Units\\UnitMetaData.slk");
 	}
 
 	public static WarcraftData getStandardItems() {
@@ -40,7 +40,7 @@ public final class MutableItemData extends MutableObjectData {
 			ExceptionPopup.display(e);
 		}
 
-		DataTable itemData = DataTableUtils.getDataTable("Units\\ItemData.slk");
+		DataTable itemData = DataTableUtils.fillDataTable(new DataTable(), "Units\\ItemData.slk");
 
 		return new WarcraftData()
 				.add(profile, "Profile", false)

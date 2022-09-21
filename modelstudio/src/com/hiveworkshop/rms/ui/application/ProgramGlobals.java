@@ -262,6 +262,10 @@ public class ProgramGlobals {
 	public static KeyBindingPrefs getKeyBindingPrefs() {
 		return keyBindingPrefs;
 	}
+	public static void linkActions(JRootPane rootPane) {
+		rootPane.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
+		rootPane.setActionMap(keyBindingPrefs.getActionMap());
+	}
 
 	public static EditorColorPrefs getEditorColorPrefs() {
 		return editorColorPrefs;

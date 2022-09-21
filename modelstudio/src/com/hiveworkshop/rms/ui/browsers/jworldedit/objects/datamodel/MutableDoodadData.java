@@ -26,7 +26,7 @@ public final class MutableDoodadData extends MutableObjectData {
 	}
 
 	public static WarcraftData getStandardDoodads() {
-		DataTable doodadData = DataTableUtils.getDataTable("Doodads\\Doodads.slk");
+		DataTable doodadData = DataTableUtils.fillDataTable(new DataTable(), "Doodads\\Doodads.slk");
 		final DataTable profile = new DataTable();
 		try {
 			DataTableUtils.readTXT(profile, "Doodads\\DoodadSkins.txt", true);
@@ -40,7 +40,7 @@ public final class MutableDoodadData extends MutableObjectData {
 	}
 
 	public static DataTable getStandardDoodadMeta() {
-		return DataTableUtils.getDataTable("Doodads\\DoodadMetaData.slk");
+		return DataTableUtils.fillDataTable(new DataTable(), "Doodads\\DoodadMetaData.slk");
 	}
 
 	// TODO remove this hack

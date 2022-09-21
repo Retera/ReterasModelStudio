@@ -21,7 +21,7 @@ public class CheckSpinner extends JPanel {
 		checkBox.setSelected(initialState);
 		checkBox.addActionListener(e -> setSpinnerState(checkBox.isSelected()));
 		label = new JLabel(spinnerLabel);
-		spinnerModel = new SpinnerNumberModel(0.0, 0.0, 10000.0, 1.0);
+		spinnerModel = new SpinnerNumberModel(0.0, 0.0, 10000.0, 0.1);
 		spinner = new JSpinner(spinnerModel);
 
 		add(checkBox, "wrap");

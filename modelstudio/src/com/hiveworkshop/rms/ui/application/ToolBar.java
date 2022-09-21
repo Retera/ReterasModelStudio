@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.ui.application.actionfunctions.CreateNewModel;
 import com.hiveworkshop.rms.ui.application.actionfunctions.File;
+import com.hiveworkshop.rms.ui.application.windowStuff.RootWindowListener;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 
 import javax.swing.*;
@@ -40,7 +41,8 @@ public class ToolBar extends JToolBar {
 
 	private void toggleLockLayout() {
 		ProgramGlobals.setLockLayout(!ProgramGlobals.isLockLayout());
-		WindowHandler2.traverseAndFix(ProgramGlobals.getRootWindowUgg());
+//		RootWindowListener.traverseAndFix(ProgramGlobals.getRootWindowUgg());
+		RootWindowListener.traverseAndSetLock(ProgramGlobals.getRootWindowUgg());
 	}
 
 }

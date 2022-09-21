@@ -27,14 +27,12 @@ public class UnitEditorTree extends JTree {
 	private TopLevelCategoryFolder root;
 	private MutableObjectData unitData;
 	private final ObjectTabTreeBrowserBuilder browserBuilder;
-	private WorldEditorDataType dataType;
 
 	public UnitEditorTree(ObjectTabTreeBrowserBuilder browserBuilder,
 	                      UnitEditorSettings settings) {
 		super(makeTreeModel(browserBuilder));
 		this.browserBuilder = browserBuilder;
 		this.unitData = browserBuilder.getUnitData();
-		this.dataType = unitData.getWorldEditorDataType();
 		root = (TopLevelCategoryFolder) getModel().getRoot();
 		setCellRenderer(new WarcraftObjectTreeCellRenderer(settings, unitData.getWorldEditorDataType()));
 		addTreeExpansionListener(getTreeExpansionListener());
@@ -110,9 +108,9 @@ public class UnitEditorTree extends JTree {
 		MutableObjectData unitData = browserBuilder.getUnitData();
 		for (War3ID alias : unitData.keySet()) {
 			MutableGameObject unit = unitData.get(alias);
-			if (unitData.getWorldEditorDataType().equals(WorldEditorDataType.UPGRADES)) {
-				System.out.println("alias: " + alias + ", unit: " + unit);
-			}
+//			if (unitData.getWorldEditorDataType().equals(WorldEditorDataType.UPGRADES)) {
+//				System.out.println("alias: " + alias + ", unit: " + unit);
+//			}
 			root.insertObjectInto(unit, linker);
 		}
 		return new UnitEditorTreeModel(root);

@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.mesh.SplitGeosetAction;
+import com.hiveworkshop.rms.editor.actions.mesh.SplitGeosetAction2;
 import com.hiveworkshop.rms.editor.actions.mesh.TeamColorAddAction;
 import com.hiveworkshop.rms.editor.actions.nodes.NameChangeAction;
 import com.hiveworkshop.rms.editor.actions.nodes.SetParentAction;
@@ -154,9 +154,13 @@ public class ViewportPopupMenu extends JPopupMenu {
 	}
 
 	public void splitGeoset(ModelHandler modelHandler) {
-		SplitGeosetAction splitGeosetAction = new SplitGeosetAction(modelHandler.getModel(), ModelStructureChangeListener.changeListener, modelHandler.getModelView());
+		UndoAction splitGeosetAction = new SplitGeosetAction2(modelHandler.getModel(), ModelStructureChangeListener.changeListener, modelHandler.getModelView());
 		modelHandler.getUndoManager().pushAction(splitGeosetAction.redo());
 	}
+//	public void splitGeoset(ModelHandler modelHandler) {
+//		SplitGeosetAction splitGeosetAction = new SplitGeosetAction(modelHandler.getModel(), ModelStructureChangeListener.changeListener, modelHandler.getModelView());
+//		modelHandler.getUndoManager().pushAction(splitGeosetAction.redo());
+//	}
 
 
 	public void addTeamColor(ModelHandler modelHandler) {

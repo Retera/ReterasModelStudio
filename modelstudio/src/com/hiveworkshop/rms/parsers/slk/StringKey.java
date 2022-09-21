@@ -23,7 +23,7 @@ public final class StringKey {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((string.toLowerCase() == null) ? 0 : string.toLowerCase().hashCode());
+		result = prime * result + (string == null ? 0 : string.toLowerCase().hashCode());
 		return result;
 	}
 
@@ -32,17 +32,14 @@ public final class StringKey {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
-			return false;
+		if (obj instanceof StringKey) {
+			final StringKey other = (StringKey) obj;
+			if (string == null) {
+				return other.string == null;
+			} else {
+				return string.equalsIgnoreCase(other.string);
+			}
 		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final StringKey other = (StringKey) obj;
-		if (string == null) {
-			return other.string == null;
-		} else {
-			return string.equalsIgnoreCase(other.string);
-		}
+		return false;
 	}
 }

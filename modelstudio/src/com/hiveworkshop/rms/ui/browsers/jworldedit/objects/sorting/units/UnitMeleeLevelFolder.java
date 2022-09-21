@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGame
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.AbstractSortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.BottomLevelCategoryFolder;
-import com.hiveworkshop.rms.util.War3ID;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
 
 import javax.swing.tree.TreeNode;
 import java.util.ArrayList;
@@ -16,9 +16,6 @@ public final class UnitMeleeLevelFolder extends AbstractSortingFolderTreeNode {
 	 * default generated id to stop warnings, not going to serialize these folders
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final War3ID UNIT_IS_BUILDING_FIELD = War3ID.fromString("ubdg");
-	private static final War3ID UNIT_CATEGORIZE_SPECIAL_FIELD = War3ID.fromString("uspe");
-	private static final War3ID UNIT_LEVEL = War3ID.fromString("ulev");
 	private static final String TAG_NAME = "unitClass";
 
 	private final BottomLevelCategoryFolder units;
@@ -41,11 +38,11 @@ public final class UnitMeleeLevelFolder extends AbstractSortingFolderTreeNode {
 
 	@Override
 	public SortingFolderTreeNode getNextNode(MutableGameObject object) {
-		if (object.getFieldAsBoolean(UNIT_CATEGORIZE_SPECIAL_FIELD, 0)) {
+		if (object.getFieldAsBoolean(WE_Field.UNIT_CATEGORIZE_SPECIAL.getId(), 0)) {
 			return special;
 		} else if (object.getAlias().toString().length() > 1 && Character.isUpperCase(object.getAlias().charAt(0))) {
 			return heroes;
-		} else if (object.getFieldAsBoolean(UNIT_IS_BUILDING_FIELD, 0)) {
+		} else if (object.getFieldAsBoolean(WE_Field.UNIT_IS_BUILDING.getId(), 0)) {
 			return buildings;
 		} else {
 			return units;
@@ -78,7 +75,7 @@ public final class UnitMeleeLevelFolder extends AbstractSortingFolderTreeNode {
 		}
 		final int comp1 = a_slkTag.compareTo(b_slkTag);
 		if (comp1 == 0) {
-			final int comp2 = Integer.compare(a.getFieldAsInteger(UNIT_LEVEL, 0), b.getFieldAsInteger(UNIT_LEVEL, 0));
+			final int comp2 = Integer.compare(a.getFieldAsInteger(WE_Field.UNIT_LEVEL.getId(), 0), b.getFieldAsInteger(WE_Field.UNIT_LEVEL.getId(), 0));
 			if (comp2 == 0) {
 				return a.getName().compareTo(b.getName());
 			}

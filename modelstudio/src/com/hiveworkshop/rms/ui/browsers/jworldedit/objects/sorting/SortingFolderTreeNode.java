@@ -26,6 +26,12 @@ public abstract class SortingFolderTreeNode extends DefaultMutableTreeNode {
 	public abstract DefaultMutableTreeNode add(final MutableGameObject mutableGameObject, TreeNodeLinker treeModel);
 
 	public abstract int getSortIndex(SortingFolderTreeNode childNode);
+	public int getSortIndex(){
+		if(parent instanceof SortingFolderTreeNode){
+			return ((SortingFolderTreeNode) parent).getSortIndex(this);
+		}
+		return 0;
+	}
 
 	public abstract int getSortIndex(TreeNode childNode);
 

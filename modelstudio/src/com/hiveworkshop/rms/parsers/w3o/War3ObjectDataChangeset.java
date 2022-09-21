@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.parsers.w3o;
 
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
 import com.hiveworkshop.rms.util.War3ID;
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
@@ -33,12 +34,9 @@ public final class War3ObjectDataChangeset {
 	private static final Set<War3ID> UNIT_ID_SET;
 	private static final Set<War3ID> ABILITY_ID_SET;
 	static {
-		final Set<War3ID> unitHashSet = new HashSet<>();
 		String[] unitStrings = {"ubpx", "ubpy", "ides", "uhot", "unam", "ureq", "urqa", "utip", "utub"};
-		addFromStringArray(unitHashSet, unitStrings);
-		UNIT_ID_SET = unitHashSet;
+		UNIT_ID_SET = getFromStringArray(unitStrings);
 
-		final Set<War3ID> abilHashSet = new HashSet<>();
 		String[] abilStrings = {
 				"irc2", "irc3",
 				"bsk1", "bsk2", "bsk3",
@@ -70,14 +68,14 @@ public final class War3ObjectDataChangeset {
 				"pxf1", "pxf2",
 				"mls1",
 				"sla1", "sla2"};
-		addFromStringArray(abilHashSet, abilStrings);
-		ABILITY_ID_SET = abilHashSet;
+		ABILITY_ID_SET = getFromStringArray(abilStrings);
 	}
-
-	private static void addFromStringArray(Set<War3ID> hashSet, String[] hashStrings) {
+	private static Set<War3ID> getFromStringArray(String[] hashStrings) {
+		final Set<War3ID> hashSet = new HashSet<>();
 		for(String hashString : hashStrings){
 			hashSet.add(War3ID.fromString(hashString));
 		}
+		return hashSet;
 	}
 
 	private int version;
@@ -130,7 +128,7 @@ public final class War3ObjectDataChangeset {
 	}
 
 	public War3ID getNameField() {
-		final War3ID field = War3ID.fromString("unam");
+		final War3ID field = WE_Field.UNIT_NAME.getId();
 		char cmp = kind;
 		if (!detected) {
 			cmp = expected;

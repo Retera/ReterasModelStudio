@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGame
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.AbstractSortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.SortRace;
-import com.hiveworkshop.rms.util.War3ID;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
 
 import javax.swing.tree.TreeNode;
 
@@ -14,7 +14,6 @@ public class UnitRaceLevelFolder extends AbstractSortingFolderTreeNode {
 	 * default generated id to stop warnings, not going to serialize these folders
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final War3ID UNIT_CATEGORIZE_CAMPAIGN_FIELD = War3ID.fromString("ucam");
 	private final UnitMeleeLevelFolder melee;
 	private final UnitMeleeLevelFolder campaign;
 	private final UnitMeleeLevelFolder hidden;
@@ -31,7 +30,7 @@ public class UnitRaceLevelFolder extends AbstractSortingFolderTreeNode {
 		if (object.readSLKTagBoolean("hiddenInEditor")) {
 			return hidden;
 		}
-		boolean isCampaign = object.getFieldAsBoolean(UNIT_CATEGORIZE_CAMPAIGN_FIELD, 0);
+		boolean isCampaign = object.getFieldAsBoolean(WE_Field.UNIT_CATEGORIZE_CAMPAIGN.getId(), 0);
 		return isCampaign ? campaign : melee;
 	}
 

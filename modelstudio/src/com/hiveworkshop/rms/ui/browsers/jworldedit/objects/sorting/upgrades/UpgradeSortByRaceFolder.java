@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortByRaceFol
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.buffs.DefaultBuffRace;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.BottomLevelCategoryFolder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.SortRace;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
 import com.hiveworkshop.rms.util.War3ID;
 
 import java.util.Arrays;
@@ -16,7 +17,6 @@ public final class UpgradeSortByRaceFolder extends SortByRaceFolder {
 	 * default generated id to stop warnings, not going to serialize these folders
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final War3ID UPGR_RACE_FIELD = War3ID.fromString("grac");
 	private static final String TAG_NAME = "sort";
 
 	public UpgradeSortByRaceFolder(final String displayName) {
@@ -32,7 +32,7 @@ public final class UpgradeSortByRaceFolder extends SortByRaceFolder {
 	}
 
 	protected War3ID getWar3ID() {
-		return UPGR_RACE_FIELD;
+		return WE_Field.UPGR_RACE.getId();
 	}
 
 

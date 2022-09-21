@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.parsers.w3o.Change;
 import com.hiveworkshop.rms.parsers.w3o.ChangeMap;
 import com.hiveworkshop.rms.parsers.w3o.ObjectDataChangeEntry;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.util.War3ID;
 
@@ -12,15 +13,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public final class MutableGameObject {
-	private static final War3ID ROC_SUPPORT_URAC = War3ID.fromString("urac");
-	private static final War3ID ROC_SUPPORT_UCAM = War3ID.fromString("ucam");
-	private static final War3ID ROC_SUPPORT_USPE = War3ID.fromString("uspe");
-	private static final War3ID ROC_SUPPORT_UBDG = War3ID.fromString("ubdg");
+public class MutableGameObject {
 
-	private static final War3ID BUFF_EDITOR_NAME = War3ID.fromString("fnam");
 	private static final War3ID BUFF_BUFFTIP = War3ID.fromString("ftip");
-	private static final War3ID UNIT_CAMPAIGN = War3ID.fromString("ucam");
 	private static final War3ID UNIT_EDITOR_SUFFIX = War3ID.fromString("unsf");
 	private static final War3ID ABIL_EDITOR_SUFFIX = War3ID.fromString("ansf");
 	private static final War3ID DESTRUCTABLE_EDITOR_SUFFIX = War3ID.fromString("bsuf");
@@ -33,33 +28,28 @@ public final class MutableGameObject {
 
 	static {
 		// categorizing - I thought these would be changeFlags value "c", but no luck
-		CATEGORY_FIELDS.add(War3ID.fromString("ubdg")); // is a building
-		CATEGORY_FIELDS.add(War3ID.fromString("uspe")); // categorize special
-		CATEGORY_FIELDS.add(War3ID.fromString("ucam")); // categorize campaign
-		CATEGORY_FIELDS.add(War3ID.fromString("urac")); // race
+		CATEGORY_FIELDS.add(WE_Field.UNIT_IS_BUILDING.getId()); // is a building
+		CATEGORY_FIELDS.add(WE_Field.UNIT_CATEGORIZE_SPECIAL.getId()); // categorize special
+		CATEGORY_FIELDS.add(WE_Field.UNIT_CATEGORIZE_CAMPAIGN.getId()); // categorize campaign
+		CATEGORY_FIELDS.add(WE_Field.UNIT_RACE.getId()); // race
 		CATEGORY_FIELDS.add(War3ID.fromString("uine")); // in editor
 		CATEGORY_FIELDS.add(War3ID.fromString("ucls")); // sort string (not a real field, fanmade)
 
-		CATEGORY_FIELDS.add(War3ID.fromString("icla")); // item class
-
-		CATEGORY_FIELDS.add(War3ID.fromString("bcat")); // destructible category
-
-		CATEGORY_FIELDS.add(War3ID.fromString("dcat")); // doodad category
-
-		CATEGORY_FIELDS.add(War3ID.fromString("aher")); // hero ability
-		CATEGORY_FIELDS.add(War3ID.fromString("aite")); // item ability
-		CATEGORY_FIELDS.add(War3ID.fromString("arac")); // ability race
-
-		CATEGORY_FIELDS.add(War3ID.fromString("frac")); // buff race
-		CATEGORY_FIELDS.add(War3ID.fromString("feff")); // is effect
-
-		CATEGORY_FIELDS.add(War3ID.fromString("grac")); // upgrade race
+		CATEGORY_FIELDS.add(WE_Field.ITEM_CLASS.getId()); // item class
+		CATEGORY_FIELDS.add(WE_Field.DESTR_CATEGORY.getId()); // destructible category
+		CATEGORY_FIELDS.add(WE_Field.DOODAD_CAT.getId()); // doodad category
+		CATEGORY_FIELDS.add(WE_Field.ABIL_IS_HERO_ABIL.getId()); // hero ability
+		CATEGORY_FIELDS.add(WE_Field.ABIL_IS_ITEM_ABIL.getId()); // item ability
+		CATEGORY_FIELDS.add(WE_Field.ABIL_RACE.getId()); // ability race
+		CATEGORY_FIELDS.add(WE_Field.BUFF_RACE.getId()); // buff race
+		CATEGORY_FIELDS.add(WE_Field.IS_EFFECT.getId()); // is effect
+		CATEGORY_FIELDS.add(WE_Field.UPGR_RACE.getId()); // upgrade race
 
 		// field structure fields - doesn't seem to be changeFlags 's' like you might hope
-		FIELD_SETTINGS_FIELDS.add(War3ID.fromString("ubdg")); // unit is a builder
-		FIELD_SETTINGS_FIELDS.add(War3ID.fromString("dvar")); // doodad variations
-		FIELD_SETTINGS_FIELDS.add(War3ID.fromString("alev")); // ability level
-		FIELD_SETTINGS_FIELDS.add(War3ID.fromString("glvl")); // upgrade max level
+		FIELD_SETTINGS_FIELDS.add(WE_Field.UNIT_IS_BUILDING.getId()); // unit is a builder
+		FIELD_SETTINGS_FIELDS.add(WE_Field.DOODAD_VARIATIONS_FIELD.getId()); // doodad variations
+		FIELD_SETTINGS_FIELDS.add(WE_Field.ABIL_LEVLE.getId()); // ability level
+		FIELD_SETTINGS_FIELDS.add(WE_Field.UPGRADE_MAX_LEVEL.getId()); // upgrade max level
 	}
 
 	private final MutableObjectDataChangeNotifier changeNotifier;
@@ -251,7 +241,7 @@ public final class MutableGameObject {
 			case ABILITIES, UPGRADES, DOODADS, ITEM, DESTRUCTIBLES -> "";
 			case BUFFS_EFFECTS -> {
 				if (!nameKnown) {
-					String editorName = getFieldAsString(BUFF_EDITOR_NAME, 0);
+					String editorName = getFieldAsString(WE_Field.BUFF_EDITOR_NAME.getId(), 0);
 					String buffTip = getFieldAsString(BUFF_BUFFTIP, 0);
 					if (editorName.length() > 1) {
 						yield editorName;
@@ -262,7 +252,7 @@ public final class MutableGameObject {
 				yield "";
 			}
 			case UNITS -> {
-				if (getFieldAsBoolean(UNIT_CAMPAIGN, 0) && Character.isUpperCase(getAlias().charAt(0))) {
+				if (getFieldAsBoolean(WE_Field.UNIT_CATEGORIZE_CAMPAIGN.getId(), 0) && Character.isUpperCase(getAlias().charAt(0))) {
 					String fieldAsString1 = getFieldAsString(HERO_PROPER_NAMES, 0);
 					yield fieldAsString1.split(",")[0];
 				}
@@ -275,13 +265,13 @@ public final class MutableGameObject {
 		final GameObject metaData = mutableObjectData.getSourceSLKMetaData().get(field.asStringValue());
 		if (metaData == null) {
 			if (getWorldEditorDataType() == WorldEditorDataType.UNITS) {
-				if (ROC_SUPPORT_URAC.equals(field)) {
+				if (WE_Field.UNIT_RACE.getId().equals(field)) {
 					return parentWC3Object.getField("race");
-				} else if (ROC_SUPPORT_UCAM.equals(field)) {
+				} else if (WE_Field.UNIT_CATEGORIZE_CAMPAIGN.getId().equals(field)) {
 					return "0";
-				} else if (ROC_SUPPORT_USPE.equals(field)) {
+				} else if (WE_Field.UNIT_CATEGORIZE_SPECIAL.getId().equals(field)) {
 					return parentWC3Object.getField("special");
-				} else if (ROC_SUPPORT_UBDG.equals(field)) {
+				} else if (WE_Field.UNIT_IS_BUILDING.getId().equals(field)) {
 					return parentWC3Object.getField("isbldg");
 				}
 			}

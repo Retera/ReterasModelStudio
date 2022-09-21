@@ -18,12 +18,10 @@ import java.util.*;
  */
 public class GeosetVertex extends Vec3 {
 	private final Matrix matrix = new Matrix();
-//	private int vertexGroup = -1;
 	private List<Vec2> tverts = new ArrayList<>();
 	private Set<Triangle> triangles = new HashSet<>();
 	private Geoset geoset;
 	private Vec3 normal = new Vec3();
-//	private byte[] skinBoneIndexes;
 	private Vec4 tangent;
 	private SkinBone[] skinBones;
 
@@ -49,9 +47,7 @@ public class GeosetVertex extends Vec3 {
 		}
 
 		geoset = old.geoset;
-		// TODO copy triangles???????
-		triangles.addAll(old.getTriangles());
-//		vertexGroup = old.vertexGroup;
+//		triangles.addAll(old.getTriangles());
 		if (old.skinBones != null) {
 			setSkinBones(old.getSkinBoneBones(), old.getSkinBoneWeights());
 		}

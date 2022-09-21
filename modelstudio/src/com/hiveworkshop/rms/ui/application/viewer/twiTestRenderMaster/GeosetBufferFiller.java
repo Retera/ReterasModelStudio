@@ -150,24 +150,30 @@ public class GeosetBufferFiller {
 			triColor.set(getTriRGBA(tri));
 			for (GeosetVertex v : tri.getVerts()) {
 				RenderGeoset.RenderVert renderVert = renderGeoset.getRenderVert(v);
-				Vec3 renderPos = renderVert.getRenderPos();
-				Vec3 renderNorm = renderVert.getRenderNorm();
-				Vec4 renderTang = renderVert.getRenderTang();
+				if (renderVert == null){
+					System.out.println("could not find renderVert for: " + v + ", renderGeosetVs: " + renderGeoset.getRenderVerts().size() + ", real verts: " + geo.getVertices().size());
 
-				getUV(layer.getCoordId(), v, uvTransform);
-
-				if(!renderTextures){
-					colorHeap.set(getFaceRGBA(v));
-//					colorHeap.addScaled(triColor, .25f).scale(.8f); // (4/4 + 1/4) * 4/5 = 4/4
-					colorHeap.addScaled(triColor, .5625f).scale(.64f); // (16/16 + 9/16) * 16/25 = 16/16
-//					colorHeap.add(triColor).scale(.5f);
 				} else {
-					colorHeap.set(layerColorHeap);
+
+					Vec3 renderPos = renderVert.getRenderPos();
+					Vec3 renderNorm = renderVert.getRenderNorm();
+					Vec4 renderTang = renderVert.getRenderTang();
+
+					getUV(layer.getCoordId(), v, uvTransform);
+
+					if(!renderTextures){
+						colorHeap.set(getFaceRGBA(v));
+//					colorHeap.addScaled(triColor, .25f).scale(.8f); // (4/4 + 1/4) * 4/5 = 4/4
+						colorHeap.addScaled(triColor, .5625f).scale(.64f); // (16/16 + 9/16) * 16/25 = 16/16
+//					colorHeap.add(triColor).scale(.5f);
+					} else {
+						colorHeap.set(layerColorHeap);
+					}
+
+					int selectionStatus = getSelectionStatus(v);
+
+					pipeline.addVert(renderPos, renderNorm, renderTang, uvHeap, colorHeap, fresnelColorHeap, selectionStatus);
 				}
-
-				int selectionStatus = getSelectionStatus(v);
-
-				pipeline.addVert(renderPos, renderNorm, renderTang, uvHeap, colorHeap, fresnelColorHeap, selectionStatus);
 			}
 		}
 	}

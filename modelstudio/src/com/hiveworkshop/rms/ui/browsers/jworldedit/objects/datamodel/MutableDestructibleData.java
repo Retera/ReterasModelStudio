@@ -26,12 +26,11 @@ public final class MutableDestructibleData extends MutableObjectData {
 
 
 	public static DataTable getStandardDestructableMeta() {
-		return DataTableUtils.getDataTable("Units\\DestructableMetaData.slk");
+		return DataTableUtils.fillDataTable(new DataTable(), "Units\\DestructableMetaData.slk");
 	}
 
 	public static WarcraftData getStandardDestructables() {
-
-		DataTable destructableData = DataTableUtils.getDataTable("Units\\DestructableData.slk");
+		DataTable destructableData = DataTableUtils.fillDataTable(new DataTable(), "Units\\DestructableData.slk");
 
 		return new WarcraftData().add(destructableData, "DestructableData", true);
 	}

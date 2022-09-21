@@ -27,7 +27,7 @@ public final class MutableBuffData extends MutableObjectData {
 	}
 
 	public static DataTable getStandardAbilityBuffMeta() {
-		return DataTableUtils.getDataTable("Units\\AbilityBuffMetaData.slk");
+		return DataTableUtils.fillDataTable(new DataTable(), "Units\\AbilityBuffMetaData.slk");
 	}
 
 	public static WarcraftData getStandardAbilityBuffs() {
@@ -54,7 +54,7 @@ public final class MutableBuffData extends MutableObjectData {
 			ExceptionPopup.display(e);
 		}
 
-		DataTable abilityData = DataTableUtils.getDataTable("Units\\AbilityBuffData.slk");
+		DataTable abilityData = DataTableUtils.fillDataTable(new DataTable(), "Units\\AbilityBuffData.slk");
 
 		return new WarcraftData()
 				.add(profile, "Profile", false)

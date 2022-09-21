@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGame
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortByRaceFolder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.SortRace;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
 import com.hiveworkshop.rms.util.War3ID;
 
 import java.util.Arrays;
@@ -14,8 +15,6 @@ public final class UnitSortByRaceFolder extends SortByRaceFolder {
 	 * default generated id to stop warnings, not going to serialize these folders
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final War3ID UNIT_RACE_FIELD = War3ID.fromString("urac");
-	private static final War3ID UNIT_DISPLAY_AS_NEUTRAL_HOSTILE_FIELD = War3ID.fromString("uhos");
 
 	private static final List<String> defaultNeutralRaces = Arrays.asList("commoner", "demon", "critters", "other", "creeps", "");
 
@@ -52,7 +51,7 @@ public final class UnitSortByRaceFolder extends SortByRaceFolder {
 
 		if (raceKey == DefaultUnitRace.NEUTRAL_PASSIVE
 				|| raceKey == null && defaultNeutralRaces.contains(race) ) {
-			boolean isHostile = object.getFieldAsBoolean(UNIT_DISPLAY_AS_NEUTRAL_HOSTILE_FIELD, 0);
+			boolean isHostile = object.getFieldAsBoolean(WE_Field.UNIT_DISPLAY_AS_NEUTRAL_HOSTILE.getId(), 0);
 			return isHostile ? DefaultUnitRace.NEUTRAL_HOSTILE : DefaultUnitRace.NEUTRAL_PASSIVE;
 		}
 		return raceKey;
@@ -73,6 +72,6 @@ public final class UnitSortByRaceFolder extends SortByRaceFolder {
 	}
 
 	protected War3ID getWar3ID() {
-		return UNIT_RACE_FIELD;
+		return WE_Field.UNIT_RACE.getId();
 	}
 }

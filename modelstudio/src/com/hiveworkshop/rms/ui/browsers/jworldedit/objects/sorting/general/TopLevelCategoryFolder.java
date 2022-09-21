@@ -43,6 +43,18 @@ public final class TopLevelCategoryFolder extends AbstractSortingFolderTreeNode 
 
 	public DefaultMutableTreeNode insertObjectInto(MutableGameObject unit, TreeNodeLinker linker) {
 		SortingFolderTreeNode folderForUnit = null;
+		SortingFolderTreeNode currentNode = this.getNextNode(unit, linker);
+		while (currentNode != null) {
+			folderForUnit = currentNode;
+			currentNode = currentNode.getNextNode(unit, linker);
+		}
+		if (folderForUnit != null) {
+			return folderForUnit.add(unit, linker);
+		}
+		return null;
+	}
+	public DefaultMutableTreeNode insertObjectInto1(MutableGameObject unit, TreeNodeLinker linker) {
+		SortingFolderTreeNode folderForUnit = null;
 		SortingFolderTreeNode currentNode = this;
 		while ((currentNode = currentNode.getNextNode(unit, linker)) != null) {
 			folderForUnit = currentNode;

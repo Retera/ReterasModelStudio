@@ -2,8 +2,8 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.models;
 
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DestructableTabTreeBrowserBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
 import com.hiveworkshop.rms.util.TwiComboBoxModel;
-import com.hiveworkshop.rms.util.War3ID;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -16,7 +16,7 @@ public class BetterDestructibleModelSelector extends BetterSelector {
 	private ArrayList<Integer> variants;
 
 	public BetterDestructibleModelSelector(UnitEditorSettings unitEditorSettings) {
-		super(new DestructableTabTreeBrowserBuilder(), unitEditorSettings, "bfil", "bvar");
+		super(new DestructableTabTreeBrowserBuilder(), unitEditorSettings, WE_Field.DESTR_FILE.getId(), WE_Field.DESTR_VARIATIONS.getId());
 	}
 
 	protected JPanel getRightPanel() {
@@ -33,14 +33,13 @@ public class BetterDestructibleModelSelector extends BetterSelector {
 
 	protected void loadUnitPreview() {
 		variants.clear();
-		int numberOfVariations = currentUnit.getFieldAsInteger(War3ID.fromString("bvar"), 0);
+		int numberOfVariations = currentUnit.getFieldAsInteger(WE_Field.DESTR_VARIATIONS.getId(), 0);
 		for (int i = 0; i < numberOfVariations; i++) {
 			variants.add(i + 1);
 		}
 		variantBox.setEnabled(numberOfVariations > 1);
 		if(variantBox.getItemCount()>0){
 			variantBox.setSelectedIndex(0);
-//			openModel(currentUnit, 0);
 			openModel(getFilePath(currentUnit, 0), currentUnit.getName());
 		}
 	}

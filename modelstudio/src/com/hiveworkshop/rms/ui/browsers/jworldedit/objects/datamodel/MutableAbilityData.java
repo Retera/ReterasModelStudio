@@ -27,7 +27,7 @@ public final class MutableAbilityData extends MutableObjectData {
 	}
 
 	public static DataTable getStandardAbilityMeta() {
-		return DataTableUtils.getDataTable("Units\\AbilityMetaData.slk");
+		return DataTableUtils.fillDataTable(new DataTable(), "Units\\AbilityMetaData.slk");
 	}
 
 	public static WarcraftData getStandardAbilities() {
@@ -56,7 +56,7 @@ public final class MutableAbilityData extends MutableObjectData {
 			ExceptionPopup.display(e);
 		}
 
-		DataTable abilityData = DataTableUtils.getDataTable("Units\\AbilityData.slk");
+		DataTable abilityData = DataTableUtils.fillDataTable(new DataTable(), "Units\\AbilityData.slk");
 
 		return new WarcraftData()
 				.add(profile, "Profile", false)

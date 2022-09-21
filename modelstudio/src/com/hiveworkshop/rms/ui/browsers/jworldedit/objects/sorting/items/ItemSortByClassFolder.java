@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGame
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.AbstractSortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.BottomLevelCategoryFolder;
-import com.hiveworkshop.rms.util.War3ID;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
 
 import javax.swing.tree.TreeNode;
 import java.util.*;
@@ -18,7 +18,6 @@ public final class ItemSortByClassFolder extends AbstractSortingFolderTreeNode {
 	 * default generated id to stop warnings, not going to serialize these folders
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final War3ID ITEM_CLASS_FIELD = War3ID.fromString("icla");
 	private static final Comparator<MutableGameObject> ITEM_NAME_COMPARATOR = Comparator.comparing(MutableGameObject::getName);
 	private final Map<String, BottomLevelCategoryFolder> itemClassToTreeNode = new LinkedHashMap<>();
 	private final List<BottomLevelCategoryFolder> itemClassesList = new ArrayList<>();
@@ -40,7 +39,7 @@ public final class ItemSortByClassFolder extends AbstractSortingFolderTreeNode {
 
 	@Override
 	public SortingFolderTreeNode getNextNode(MutableGameObject object) {
-		String itemClass = object.getFieldAsString(ITEM_CLASS_FIELD, 0);
+		String itemClass = object.getFieldAsString(WE_Field.ITEM_CLASS.getId(), 0);
 		if (!itemClassToTreeNode.containsKey(itemClass)) {
 			return itemClassesList.get(itemClassesList.size() - 1);
 		}

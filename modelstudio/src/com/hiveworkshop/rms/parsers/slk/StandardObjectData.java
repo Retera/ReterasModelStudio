@@ -20,10 +20,9 @@ public class StandardObjectData {
 	}
 
 	public static DataTable getUnitEditorData() {
-		final CompoundDataSource source = GameDataFileSystem.getDefault();
 		final DataTable unitMetaData = new DataTable();
 		try {
-			DataTableUtils.readTXT(unitMetaData, source.getResourceAsStream("UI\\UnitEditorData.txt"), true);
+			DataTableUtils.readTXT(unitMetaData, "UI\\UnitEditorData.txt", true);
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}

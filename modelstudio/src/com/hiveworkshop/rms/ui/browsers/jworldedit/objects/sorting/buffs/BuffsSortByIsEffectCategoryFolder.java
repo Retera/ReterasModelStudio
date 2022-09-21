@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGame
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.AbstractSortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.BottomLevelCategoryFolder;
-import com.hiveworkshop.rms.util.War3ID;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
 
 import javax.swing.tree.TreeNode;
 
@@ -14,7 +14,6 @@ public final class BuffsSortByIsEffectCategoryFolder extends AbstractSortingFold
 	 * default generated id to stop warnings, not going to serialize these folders
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final War3ID IS_EFFECT_FIELD = War3ID.fromString("feff");
 	private static final String TAG_NAME = "sort";
 	private final BottomLevelCategoryFolder buff;
 	private final BottomLevelCategoryFolder effect;
@@ -27,7 +26,7 @@ public final class BuffsSortByIsEffectCategoryFolder extends AbstractSortingFold
 
 	@Override
 	public SortingFolderTreeNode getNextNode(MutableGameObject object) {
-		boolean isEffect = object.getFieldAsBoolean(IS_EFFECT_FIELD, 0);
+		boolean isEffect = object.getFieldAsBoolean(WE_Field.IS_EFFECT.getId(), 0);
 		return isEffect ? effect : buff;
 	}
 

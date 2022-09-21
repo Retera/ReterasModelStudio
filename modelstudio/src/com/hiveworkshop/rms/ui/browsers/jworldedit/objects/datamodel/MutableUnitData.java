@@ -27,7 +27,7 @@ public final class MutableUnitData extends MutableObjectData {
 	}
 
 	public static DataTable getStandardUnitMeta() {
-		return DataTableUtils.getDataTable("Units\\UnitMetaData.slk");
+		return DataTableUtils.fillDataTable(new DataTable(), "Units\\UnitMetaData.slk");
 	}
 
 	public static WarcraftData getStandardUnits() {
@@ -35,19 +35,6 @@ public final class MutableUnitData extends MutableObjectData {
 		final DataTable profile = new DataTable();
 
 		try {
-//			DataTableUtils.readTXT(profile, "Units\\CampaignUnitFunc.txt", true);
-//			DataTableUtils.readTXT(profile, "Units\\CampaignUnitStrings.txt", true);
-//			DataTableUtils.readTXT(profile, "Units\\HumanUnitFunc.txt", true);
-//			DataTableUtils.readTXT(profile, "Units\\HumanUnitStrings.txt", true);
-//			DataTableUtils.readTXT(profile, "Units\\NeutralUnitFunc.txt", true);
-//			DataTableUtils.readTXT(profile, "Units\\NeutralUnitStrings.txt", true);
-//			DataTableUtils.readTXT(profile, "Units\\NightElfUnitFunc.txt", true);
-//			DataTableUtils.readTXT(profile, "Units\\NightElfUnitStrings.txt", true);
-//			DataTableUtils.readTXT(profile, "Units\\OrcUnitFunc.txt", true);
-//			DataTableUtils.readTXT(profile, "Units\\OrcUnitStrings.txt", true);
-//			DataTableUtils.readTXT(profile, "Units\\UndeadUnitFunc.txt", true);
-//			DataTableUtils.readTXT(profile, "Units\\UndeadUnitStrings.txt", true);
-
 			String[] standardUnitPaths = {
 					"Units\\CampaignUnitFunc.txt",
 					"Units\\CampaignUnitStrings.txt",
@@ -68,12 +55,11 @@ public final class MutableUnitData extends MutableObjectData {
 			ExceptionPopup.display(e);
 		}
 
-
-		DataTable unitAbilities = DataTableUtils.getDataTable("Units\\UnitAbilities.slk");
-		DataTable unitBalance = DataTableUtils.getDataTable("Units\\UnitBalance.slk");
-		DataTable unitData = DataTableUtils.getDataTable("Units\\UnitData.slk");
-		DataTable unitUI = DataTableUtils.getDataTable("Units\\UnitUI.slk");
-		DataTable unitWeapons = DataTableUtils.getDataTable("Units\\UnitWeapons.slk");
+		DataTable unitAbilities = DataTableUtils.fillDataTable(new DataTable(), "Units\\UnitAbilities.slk");
+		DataTable unitBalance = DataTableUtils.fillDataTable(new DataTable(), "Units\\UnitBalance.slk");
+		DataTable unitData = DataTableUtils.fillDataTable(new DataTable(), "Units\\UnitData.slk");
+		DataTable unitUI = DataTableUtils.fillDataTable(new DataTable(), "Units\\UnitUI.slk");
+		DataTable unitWeapons = DataTableUtils.fillDataTable(new DataTable(), "Units\\UnitWeapons.slk");
 
 		final DataTable skin = new DataTable();
 		try {

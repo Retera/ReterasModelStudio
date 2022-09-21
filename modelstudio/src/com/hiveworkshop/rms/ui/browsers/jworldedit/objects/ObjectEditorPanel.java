@@ -6,7 +6,6 @@ import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.AbstractWorldEditorPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
-import com.hiveworkshop.rms.util.War3ID;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
-	private static final War3ID UNIT_NAME = War3ID.fromString("unam");
 
 	private final List<UnitEditorPanel> editors = new ArrayList<>();
 	private final JTabbedPane tabbedPane;

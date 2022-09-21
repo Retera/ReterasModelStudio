@@ -10,6 +10,10 @@ import java.util.List;
 import java.util.Set;
 
 public abstract class GameObject implements Comparable<GameObject> {
+	String id;
+	BufferedImage cachedImage = null;
+	String cachedImagePath = null;
+	String placeholderTexPath;
 
 	public abstract void setField(String field, String value);
 
@@ -25,7 +29,9 @@ public abstract class GameObject implements Comparable<GameObject> {
 
 	public abstract List<? extends GameObject> getFieldAsList(String field, ObjectData objectData);
 
-	public abstract String getId();
+	public String getId() {
+		return id;
+	}
 
 	public abstract ObjectData getTable();
 
@@ -112,11 +118,30 @@ public abstract class GameObject implements Comparable<GameObject> {
 
 	public abstract ImageIcon getScaledIcon(int size);
 
-	public abstract Image getImage();
+	public BufferedImage getImage() {
+		String artField = getIconPath();
+		if (!isCached(artField)) {
+			try {
+				BufferedImage gameTex = BLPHandler.getGameTex(artField);
+				cash(artField, gameTex);
+				if (gameTex == null) {
+					gameTex = BLPHandler.getGameTex(placeholderTexPath);
+				}
+				if (gameTex == null) {
+					gameTex = BLPHandler.getBlankImage();
+				}
+				return gameTex;
+			} catch (final Exception ignored) {
+			}
+		} else {
+			return cachedImage;
+		}
+		return BLPHandler.getBlankImage();
+	}
 
-	public ImageIcon getScaledTintedIcon(Color tint, int amt) {
+	public ImageIcon getScaledTintedIcon(Color tint, int size) {
 		Image img = getTintedImage(tint);
-		return new ImageIcon(img.getScaledInstance(amt, amt, Image.SCALE_SMOOTH));
+		return new ImageIcon(img.getScaledInstance(size, size, Image.SCALE_SMOOTH));
 	}
 
 	public Image getTintedImage(Color tint) {
@@ -146,6 +171,26 @@ public abstract class GameObject implements Comparable<GameObject> {
 				(int) (img.getHeight(null) * 1.25), Image.SCALE_SMOOTH));
 	}
 
+	public ImageIcon getIcon() {
+		String artField = getIconPath();
+		return new ImageIcon(BLPHandler.getGameTex(artField));
+	}
+
+	public String getIconPath() {
+		String artField = getField("Art");
+		if (artField.indexOf(',') != -1) {
+			artField = artField.substring(0, artField.indexOf(','));
+		}
+		return artField;
+	}
+
+	public boolean isCached(String artField) {
+		return cachedImage != null && cachedImagePath != null && cachedImagePath.equals(artField);
+	}
+	public void cash(String artField, BufferedImage gameTex) {
+		cachedImage = gameTex;
+		cachedImagePath = artField;
+	}
 	@Override
 	public int compareTo(GameObject b) {
 		if (getField("unitClass").equals("") && !b.getField("unitClass").equals("")) {

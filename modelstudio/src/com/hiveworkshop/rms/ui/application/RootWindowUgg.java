@@ -3,13 +3,13 @@ package com.hiveworkshop.rms.ui.application;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayViewUgg;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.PerspectiveViewUgg;
 import com.hiveworkshop.rms.ui.application.viewer.PreviewView;
+import com.hiveworkshop.rms.ui.application.windowStuff.RootWindowListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.ModelingCreatorToolsView;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree.ModelComponentsView;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.ModelViewManagingView;
-import net.infonode.docking.DockingWindow;
-import net.infonode.docking.RootWindow;
-import net.infonode.docking.TabWindow;
-import net.infonode.docking.View;
+import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs;
+import com.hiveworkshop.rms.util.ScreenInfo;
+import net.infonode.docking.*;
 import net.infonode.docking.util.ViewMap;
 import net.infonode.tabbedpanel.TabAreaVisiblePolicy;
 import net.infonode.tabbedpanel.titledtab.TitledTabBorderSizePolicy;
@@ -27,35 +27,11 @@ public class RootWindowUgg extends RootWindow {
 	private static final WindowHandler2 windowHandler2 = new WindowHandler2();
 
 	public RootWindowUgg(byte[] viewMap1) {
-//		super(viewMap);
 		super(windowHandler2.getViewSerilizer());
 
-
-//		windowHandler2 = new WindowHandler2();
-//		if(viewMap1.length > 0){
-//			try (ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(viewMap1))) {
-////				getViewSerializer().readView(objectInputStream);
-//				System.out.println("loading views");
-//				read(objectInputStream);
-//				System.out.println("done loading views?");
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//				System.out.println("failed.. loading internal original view");
-//				loadDefaultLayout();
-//			}
-//		} else {
-//			System.out.println("no view to load");
-//			loadDefaultLayout();
-//		}
 		loadDefaultLayout();
 
-		final Runnable fixit = () -> {
-			WindowHandler2.traverseAndReset(this);
-//            WindowHandler.traverseAndReset(rootWindow, new Vec3(.3,.3,.3));
-			WindowHandler2.traverseAndFix(this);
-		};
-		addListener(WindowHandler2.getDockingWindowListener());
-		addListener(WindowHandler2.getDockingWindowListener2(fixit));
+		addListener(new RootWindowListener(this));
 		setRootProps(this);
 	}
 
@@ -67,6 +43,43 @@ public class RootWindowUgg extends RootWindow {
 
 	public WindowHandler2 getWindowHandler2() {
 		return windowHandler2;
+	}
+
+	public FloatingWindow newWindow(View view){
+		if (view.getTopLevelAncestor() == null || !view.getTopLevelAncestor().isVisible()) {
+			windowHandler2.addView(view);
+			FloatingWindow newWindow = createFloatingWindow(getLocation(), ScreenInfo.getSmallWindow(), view);
+			newWindow.getTopLevelAncestor().setVisible(true);
+
+			KeyBindingPrefs keyBindingPrefs = ProgramGlobals.getKeyBindingPrefs();
+			newWindow.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
+			newWindow.setActionMap(keyBindingPrefs.getActionMap());
+			return newWindow;
+		}
+		return null;
+	}
+
+	public FloatingWindow newWindow2(View view){
+		if ((view.getTopLevelAncestor() == null) || !view.getTopLevelAncestor().isVisible()) {
+			windowHandler2.addView(view);
+			System.out.println("WindowHandler2: opening new window, creating floating window");
+			FloatingWindow newWindow
+//					= newWindow(rootWindow.getLocation(), new Dimension(640, 480), view);
+					= createFloatingWindow(getLocation(), ScreenInfo.getSmallWindow(), view);
+			System.out.println("WindowHandler2: setting window visible");
+			newWindow.getTopLevelAncestor().setVisible(true);
+
+			System.out.println("WindowHandler2: getting keybindings");
+			KeyBindingPrefs keyBindingPrefs = ProgramGlobals.getKeyBindingPrefs();
+//            view.getRootPane().setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
+			System.out.println("WindowHandler2: setting input map");
+			newWindow.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
+			System.out.println("WindowHandler2: setting action map");
+			newWindow.setActionMap(keyBindingPrefs.getActionMap());
+			System.out.println("WindowHandler2: action map set");
+			return newWindow;
+		}
+		return null;
 	}
 
 	private static void setRootProps(RootWindow rootWindow) {
@@ -185,11 +198,10 @@ public class RootWindowUgg extends RootWindow {
 		setWindow(startupTabWindow);
 		ModelLoader.setCurrentModel(ProgramGlobals.getCurrentModelPanel());
 		revalidate();
-		WindowHandler2.traverseAndFix(this);
 	}
 
 	public ViewMap compileViewMap(){
-		WindowHandler2.traverseAndRemoveNull(getWindow());
+		RootWindowListener.traverseAndRemoveNull(getWindow());
 		for(int i = viewMap.getViewCount(); i>0; i--){
 			View view = viewMap.getView(i - 1);
 			if(!view.isValid() || !view.isVisible() || view.getParent() == null){

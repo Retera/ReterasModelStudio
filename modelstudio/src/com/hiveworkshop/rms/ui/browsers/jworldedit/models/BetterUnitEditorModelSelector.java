@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.parsers.slk.WarcraftObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitTabTreeBrowserBuilder;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -15,7 +15,7 @@ import java.util.List;
 public class BetterUnitEditorModelSelector extends BetterSelector {
 
 	public BetterUnitEditorModelSelector(UnitEditorSettings unitEditorSettings) {
-		super(new UnitTabTreeBrowserBuilder(), unitEditorSettings, "umdl", null);
+		super(new UnitTabTreeBrowserBuilder(), unitEditorSettings, WE_Field.MODEL_FILE.getId(), null);
 	}
 
 	protected JPanel getRightPanel() {
@@ -25,7 +25,7 @@ public class BetterUnitEditorModelSelector extends BetterSelector {
 	}
 
 	protected void loadUnitPreview() {
-		String filepath = currentUnit.getFieldAsString(UnitFields.MODEL_FILE, 0);
+		String filepath = currentUnit.getFieldAsString(WE_Field.MODEL_FILE.getId(), 0);
 		String gameObjectName = currentUnit.getName();
 
 		openModel(filepath, gameObjectName);

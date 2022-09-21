@@ -95,7 +95,6 @@ public class GeosetToMdlx {
 				mdlxGeoset.matrixIndices[matrixIndex++] = model.getObjectId(matrix.get(index));
 			}
 			if (matrix.size() <= 0) {
-				mdlxGeoset.matrixIndices = new long[1];
 				mdlxGeoset.matrixIndices[matrixIndex++] = -1;
 			}
 			int size = matrix.size();

@@ -104,6 +104,7 @@ public final class RenderModel {
 	public RenderModel updateGeosets() {
 		bufferFiller.setHD(ModelUtils.isShaderStringSupported(model.getFormatVersion()));
 		if (renderGeosetMap.size() != model.getGeosets().size()) {
+			System.out.println("cleared geoset map!");
 			renderGeosetMap.clear();
 		}
 		for (final Geoset geoset : model.getGeosets()) {

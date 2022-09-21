@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.AbstractSortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolderTreeNode;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
 import com.hiveworkshop.rms.util.War3ID;
 
 import javax.swing.tree.TreeNode;
@@ -21,7 +22,6 @@ public final class DoodadSortByCategoryFolder extends AbstractSortingFolderTreeN
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final String TAG_NAME = "doodClass";
-	private static final War3ID DOOD_CATEGORY = War3ID.fromString("dcat");
 	private final Map<String, BottomLevelCategoryFolder> objectClassToTreeNode = new LinkedHashMap<>();
 	private final List<BottomLevelCategoryFolder> objectClassesList = new ArrayList<>();
 
@@ -39,7 +39,7 @@ public final class DoodadSortByCategoryFolder extends AbstractSortingFolderTreeN
 
 	@Override
 	public SortingFolderTreeNode getNextNode(MutableGameObject object) {
-		String itemClass = object.getFieldAsString(DOOD_CATEGORY, 0);
+		String itemClass = object.getFieldAsString(WE_Field.DOODAD_CAT.getId(), 0);
 		if (!objectClassToTreeNode.containsKey(itemClass)) {
 			return objectClassesList.get(objectClassesList.size() - 1);
 		}
@@ -63,7 +63,7 @@ public final class DoodadSortByCategoryFolder extends AbstractSortingFolderTreeN
 	}
 
 	protected War3ID getWar3ID() {
-		return DOOD_CATEGORY;
+		return WE_Field.DOODAD_CAT.getId();
 	}
 
 

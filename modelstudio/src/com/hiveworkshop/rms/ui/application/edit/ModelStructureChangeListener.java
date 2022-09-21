@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit;
 
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
@@ -17,23 +16,6 @@ public class ModelStructureChangeListener {
 	private Map<ModelPanel, Consumer<Boolean>> changeListeners;
 
 	public ModelStructureChangeListener() {
-	}
-
-	public static void reloadGeosetManagers(MainPanel mainPanel, ModelPanel modelPanel) {
-
-		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
-//		modelPanel.reloadModelEditingTree();
-//		modelPanel.reloadComponentBrowser();
-//		modelPanel.getComponentBrowserTreePane().repaint();
-
-//		modelPanel.getPerspArea().reloadTextures();
-//		modelPanel.getAnimationViewer().reload();
-//		modelPanel.getAnimationController().reload();
-//		mainPanel.getMainLayoutCreator().getCreatorView().reloadAnimationList();
-		mainPanel.getWindowHandler2().reloadAnimationList();
-
-//		Particle2TextureInstance particleTextureInstance = modelPanel.getPerspArea().getViewport().getParticleTextureInstance();
-		refreshFromEditor(modelPanel);
 	}
 
 	public static ModelStructureChangeListener getModelStructureChangeListener() {

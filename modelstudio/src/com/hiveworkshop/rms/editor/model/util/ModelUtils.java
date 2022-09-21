@@ -557,7 +557,7 @@ public final class ModelUtils {
 	/**
 	 * Finds the outer edges of the meshes contained in the provided collection.
 	 * This will go through the triangles of the vertices in the collection and
-	 * for triangles who's vertices all is contained in the provided collection
+	 * for triangles whose vertices all is contained in the provided collection
 	 * find the edges(vertex-pairs) that only appears once
 	 *
 	 * @return a set of unique GeosetVertex pairs making up the outer edges

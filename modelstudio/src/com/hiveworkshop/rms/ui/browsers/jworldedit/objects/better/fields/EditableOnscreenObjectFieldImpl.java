@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.parsers.slk.ObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
 import com.hiveworkshop.rms.util.War3ID;
 
 @Deprecated
@@ -23,10 +24,10 @@ public final class EditableOnscreenObjectFieldImpl {
 		final GameObject metaDataFieldObject = metaData.get(cachedMetaKeyString);
 		String prefix = categoryName(metaDataFieldObject.getField("category")) + " - ";
 		if (level > 0) {
-			if (metaData.get("alev") != null || metaData.get("glvl") != null) {
+			if (metaData.get(WE_Field.ABIL_LEVLE.getString()) != null || metaData.get(WE_Field.UPGRADE_MAX_LEVEL.getString()) != null) {
 				// abilities, TODO less hacky
 				prefix = String.format(WEString.getString("WESTRING_AEVAL_LVL"), level) + " - " + prefix;
-			} else if (metaData.get("dvar") != null) {
+			} else if (metaData.get(WE_Field.DOODAD_VARIATIONS_FIELD.getString()) != null) {
 				// doodads
 				prefix += String.format(WEString.getString("WESTRING_DEVAL_VAR"), level) + " - ";
 			} else {

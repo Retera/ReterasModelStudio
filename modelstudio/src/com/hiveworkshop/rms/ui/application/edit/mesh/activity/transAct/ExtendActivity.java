@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.activity.transAct;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.mesh.ExtendAction;
+import com.hiveworkshop.rms.editor.actions.mesh.SplitTrisAndFillGap;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
@@ -18,7 +18,6 @@ import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
 
 public class ExtendActivity extends TransformActivity {
 	protected final Vec3 moveVector = new Vec3();
@@ -32,13 +31,22 @@ public class ExtendActivity extends TransformActivity {
 
 
 	protected void startCoord(CoordinateSystem coordinateSystem) {
-		translationAction = modelEditor.beginTranslation();
 		if (selectionManager instanceof SelectionManager) {
 			ModelView modelView = ProgramGlobals.getCurrentModelPanel().getModelView();
-			extendAction = new ExtendAction(modelView.getSelectedVertices(), new Vec3(0, 0, 0));
+			ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
+			extendAction = new SplitTrisAndFillGap(modelView.getSelectedVertices(), changeListener);
 			extendAction.redo();
 		}
+		translationAction = modelEditor.beginTranslation();
 	}
+//	protected void startCoord(CoordinateSystem coordinateSystem) {
+//		if (selectionManager instanceof SelectionManager) {
+//			ModelView modelView = ProgramGlobals.getCurrentModelPanel().getModelView();
+//			extendAction = new ExtendAction(modelView.getSelectedVertices(), new Vec3(0, 0, 0));
+//			extendAction.redo();
+//		}
+//		translationAction = modelEditor.beginTranslation();
+//	}
 
 	protected void finnishAction(MouseEvent e, CoordinateSystem coordinateSystem, boolean wasCanceled) {
 		if (isActing) {
@@ -50,8 +58,9 @@ public class ExtendActivity extends TransformActivity {
 			if(selectionManager instanceof TVertSelectionManager){
 				undoAction = translationAction;
 			} else {
-				ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
-				undoAction = new CompoundAction("extend", changeListener::geosetsUpdated, extendAction, translationAction);
+//				ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
+//				undoAction = new CompoundAction("Extend", changeListener::geosetsUpdated, extendAction, translationAction);
+				undoAction = new CompoundAction("Extend", null, extendAction, translationAction);
 			}
 
 			if (wasCanceled && undoAction != null) {
@@ -71,14 +80,24 @@ public class ExtendActivity extends TransformActivity {
 	}
 
 	protected void startMat() {
-		translationAction = modelEditor.beginTranslation();
 
 		if (selectionManager instanceof SelectionManager) {
 			ModelView modelView = ProgramGlobals.getCurrentModelPanel().getModelView();
-			extendAction = new ExtendAction(modelView.getSelectedVertices(), new Vec3(0, 0, 0));
+			ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
+			extendAction = new SplitTrisAndFillGap(modelView.getSelectedVertices(), changeListener);
 			extendAction.redo();
 		}
+		translationAction = modelEditor.beginTranslation();
 	}
+//	protected void startMat() {
+//
+//		if (selectionManager instanceof SelectionManager) {
+//			ModelView modelView = ProgramGlobals.getCurrentModelPanel().getModelView();
+//			extendAction = new ExtendAction(modelView.getSelectedVertices(), new Vec3(0, 0, 0));
+//			extendAction.redo();
+//		}
+//		translationAction = modelEditor.beginTranslation();
+//	}
 
 	protected void finnishAction(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj, boolean wasCanceled) {
 		if (isActing) {
@@ -92,8 +111,9 @@ public class ExtendActivity extends TransformActivity {
 			if(selectionManager instanceof TVertSelectionManager){
 				undoAction = translationAction;
 			} else {
-				ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
-				undoAction = new CompoundAction("extend", changeListener::geosetsUpdated, extendAction, translationAction);
+				undoAction = new CompoundAction("extend", null, extendAction, translationAction);
+//				ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
+//				undoAction = new CompoundAction("extend", changeListener::geosetsUpdated, extendAction, translationAction);
 			}
 
 			if (wasCanceled && undoAction != null) {
@@ -123,10 +143,17 @@ public class ExtendActivity extends TransformActivity {
 	}
 
 
+//	protected void buildMoveVector(Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewProjectionMatrix) {
+//		moveVector.set(0, 0, 0);
+//		tempVec3.set(mouseStart.x, mouseStart.y, zDepth).transform(viewProjectionMatrix, 1, true);
+//		moveVector.set(mouseEnd.x, mouseEnd.y, zDepth).transform(viewProjectionMatrix, 1, true);
+//		moveVector.sub(tempVec3);
+//	}
+
 	protected void buildMoveVector(Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewProjectionMatrix) {
 		moveVector.set(0, 0, 0);
-		tempVec3.set(mouseStart.x, mouseStart.y, zDepth).transform(viewProjectionMatrix, 1, true);
-		moveVector.set(mouseEnd.x, mouseEnd.y, zDepth).transform(viewProjectionMatrix, 1, true);
+		tempVec3.set(mouseStart.x, mouseStart.y, zDepth).transform(inverseViewProjectionMatrix, 1, true);
+		moveVector.set(mouseEnd.x, mouseEnd.y, zDepth).transform(inverseViewProjectionMatrix, 1, true);
 		moveVector.sub(tempVec3);
 	}
 }

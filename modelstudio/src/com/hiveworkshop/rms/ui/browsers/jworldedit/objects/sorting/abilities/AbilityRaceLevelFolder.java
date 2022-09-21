@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGame
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.AbstractSortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.BottomLevelCategoryFolder;
-import com.hiveworkshop.rms.util.War3ID;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
 
 import javax.swing.tree.TreeNode;
 import java.util.ArrayList;
@@ -16,8 +16,6 @@ public final class AbilityRaceLevelFolder extends AbstractSortingFolderTreeNode 
 	 * default generated id to stop warnings, not going to serialize these folders
 	 */
 //	private static final long serialVersionUID = 1L;
-	private static final War3ID ABIL_IS_ITEM_ABIL = War3ID.fromString("aite");
-	private static final War3ID ABIL_IS_HERO_ABIL = War3ID.fromString("aher");
 	private static final String TAG_NAME = "sort";
 
 	private final BottomLevelCategoryFolder units;
@@ -39,9 +37,9 @@ public final class AbilityRaceLevelFolder extends AbstractSortingFolderTreeNode 
 	}
 
 	public SortingFolderTreeNode getNextNode(MutableGameObject object) {
-		if (object.getFieldAsBoolean(ABIL_IS_HERO_ABIL, 0)) {
+		if (object.getFieldAsBoolean(WE_Field.ABIL_IS_HERO_ABIL.getId(), 0)) {
 			return heroes;
-		} else if (object.getFieldAsBoolean(ABIL_IS_ITEM_ABIL, 0)) {
+		} else if (object.getFieldAsBoolean(WE_Field.ABIL_IS_ITEM_ABIL.getId(), 0)) {
 			return items;
 		} else if (!object.readSLKTagBoolean("useInEditor")) {
 			return hidden;

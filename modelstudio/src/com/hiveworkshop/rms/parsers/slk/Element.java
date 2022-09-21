@@ -1,26 +1,127 @@
 package com.hiveworkshop.rms.parsers.slk;
 
-import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.*;
 
-public class Element extends HashedGameObject {
-	// HashMap<String,String> fields = new HashMap<String,String>();
-	// String id;
-	// UnitDataTable parentTable;
+public class Element extends GameObject {
+	HashMap<StringKey, List<String>> fields;
+	ObjectData parentTable;
+	HashMap<String, List<Element>> hashedLists = new HashMap<>();
 
-	public Element(String id, DataTable table) {
-		super(id, table);
+	public Element(String id, DataTable parentTable) {
+		this.id = id;
+		this.parentTable = parentTable;
+		fields = new HashMap<>();
+		placeholderTexPath = "ReplaceableTextures\\CommandButtons\\BTNTemp.blp";
 	}
 
-	public List<GameObject> builds() {
-		return getFieldAsList("Builds", parentTable);
+
+	@Override
+	public void setField(final String field, final String value) {
+		setField(field, value, 0);
 	}
+
+	@Override
+	public void setField(final String field, final String value, final int index) {
+		final StringKey key = new StringKey(field);
+		List<String> list = fields.get(key);
+		if (list == null) {
+			if (index == 0) {
+				list = new ArrayList<>();
+				fields.put(key, list);
+				list.add(value);
+			} else {
+				throw new IndexOutOfBoundsException();
+			}
+		} else {
+			if (list.size() == index) {
+				list.add(value);
+			} else {
+				list.set(index, value);
+			}
+		}
+	}
+
+	public boolean hasField(final String field) {
+		return fields.containsKey(new StringKey(field));
+	}
+
+	@Override
+	public int getFieldValue(final String field) {
+		try {
+			return Integer.parseInt(getField(field));
+		} catch (final NumberFormatException e) {
+
+		}
+		return 0;
+	}
+
+
+	@Override
+	public String getField(final String field) {
+		List<String> list = fields.get(new StringKey(field));
+		if (list != null) {
+			return String.join(",", list);
+		}
+		return "";
+	}
+
+	@Override
+	public String getField(final String field, final int index) {
+		List<String> list = fields.get(new StringKey(field));
+		if (list != null && index < list.size()) {
+			return list.get(index);
+		}
+		return "";
+	}
+
+	@Override
+	public int getFieldValue(final String field, final int index) {
+		try {
+			return Integer.parseInt(getField(field, index));
+		} catch (final NumberFormatException e) {
+
+		}
+		return 0;
+	}
+
+	@Override
+	public List<GameObject> getFieldAsList(String field, ObjectData parentTable) {
+		List<GameObject> fieldAsList = new ArrayList<>();
+
+		List<String> list = fields.get(new StringKey(field));
+		if(list != null){
+			for (String buildingId : list) {
+				GameObject referencedUnit = parentTable.get(buildingId);
+				if (referencedUnit != null) {
+					fieldAsList.add(referencedUnit);
+				}
+			}
+		}
+		return fieldAsList;
+	}
+
+	@Override
+	public String toString() {
+		return getField("Name");
+	}
+
+
+	public void addToList(final String parentId, final String fieldId) {
+		String parentField = getField(fieldId);
+		if (!parentField.contains(parentId)) {
+			parentField = parentField + "," + parentId;
+			setField(fieldId, parentField);
+		}
+	}
+
+	@Override
+	public ObjectData getTable() {
+		return parentTable;
+	}
+
 
 	public List<GameObject> requires() {
 		List<GameObject> requirements = getFieldAsList("Requires", parentTable);
@@ -44,6 +145,9 @@ public class Element extends HashedGameObject {
 		return output;
 	}
 
+	public List<GameObject> builds() {
+		return getFieldAsList("Builds", parentTable);
+	}
 	public List<GameObject> parents() {
 		return getFieldAsList("Parents", parentTable);
 	}
@@ -76,13 +180,6 @@ public class Element extends HashedGameObject {
 		return getFieldAsList("abilList", parentTable);
 	}
 
-	HashMap<String, List<Element>> hashedLists = new HashMap<>();
-
-	@Override
-	public String toString() {
-		return getField("Name");
-	}
-
 	public int getTechTier() {
 		String tier = getField("Custom Field: TechTier");
 		if (tier == null) {
@@ -105,46 +202,6 @@ public class Element extends HashedGameObject {
 
 	public void setTechDepth(int i) {
 		setField("Custom Field: TechDepth", i + "");
-	}
-
-	public ImageIcon getIcon() {
-		String artField = getIconPath();
-		return new ImageIcon(BLPHandler.getGameTex(artField));
-	}
-
-	public String getIconPath() {
-		String artField = getField("Art");
-		if (artField.indexOf(',') != -1) {
-			artField = artField.substring(0, artField.indexOf(','));
-		}
-		return artField;
-	}
-
-	@Override
-	public Image getImage() {
-		String artField = getIconPath();
-		try {
-			BufferedImage gameTex = BLPHandler.getGameTex(artField);
-			if (gameTex == null) {
-				gameTex = BLPHandler.getGameTex("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
-			}
-			if (gameTex == null) {
-				gameTex = BLPHandler.getBlankImage();
-			}
-			return gameTex;
-		} catch (final NullPointerException ignored) {
-		}
-		return BLPHandler.getBlankImage();
-	}
-
-	@Override
-	public ImageIcon getScaledIcon(int size) {
-		Image img = getImage();
-		return new ImageIcon(img.getScaledInstance(size, size, Image.SCALE_SMOOTH));
-	}
-
-	public String getUnitId() {
-		return id;
 	}
 
 	public void addParent(String parentId) {
@@ -171,15 +228,18 @@ public class Element extends HashedGameObject {
 		}
 	}
 
-//	public void addToList(String parentId, String list) {
-//		String parentField = getField(list);
-//		if(!parentField.contains(parentId) ) {
-//			parentField = parentField + "," + parentId;
-//			setField(list, parentField);
-//		}
-//	}
-//
-//	public UnitDataTable getTable() {
-//		return parentTable;
-//	}
+	@Override
+	public ImageIcon getScaledIcon(int size) {
+		Image img = getImage();
+		return new ImageIcon(img.getScaledInstance(size, size, Image.SCALE_SMOOTH));
+	}
+
+	@Override
+	public Set<String> keySet() {
+		final Set<String> keySet = new HashSet<>();
+		for (final StringKey key : fields.keySet()) {
+			keySet.add(key.getString());
+		}
+		return keySet;
+	}
 }

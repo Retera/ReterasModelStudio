@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.browsers.model;
 
-import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
 import com.hiveworkshop.rms.parsers.slk.DataTableUtils;
@@ -226,7 +225,7 @@ public class ModelGroupsHolder {
 				if (value.endsWith(".mdl")) {
 					ginterModelData
 							.computeIfAbsent(value.toLowerCase(), k -> new NamedList<>(value, race.getIconPath()))
-							.add(fieldName + " (" + race.getUnitId() + ")");
+							.add(fieldName + " (" + race.getId() + ")");
 				}
 			}
 		}
@@ -261,7 +260,7 @@ public class ModelGroupsHolder {
 		ModelGroup extra = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_XTRA"));
 		DataTable worldEditData = new DataTable();
 		try {
-			DataTableUtils.readTXT(worldEditData, GameDataFileSystem.getDefault().getResourceAsStream("UI\\WorldEditData.txt"), true);
+			DataTableUtils.readTXT(worldEditData, "UI\\WorldEditData.txt", true);
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}

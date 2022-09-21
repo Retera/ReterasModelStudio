@@ -4,48 +4,26 @@ import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class DataTable extends ObjectData {
-	protected Map<StringKey, Element> dataTable = new LinkedHashMap<>();
-	protected String[] sklDatafiles;
-	protected String[] txtFiles;
+	private Map<StringKey, Element> dataTable = new LinkedHashMap<>();
 
 	public DataTable() {
 
-	}
-//	public DataTable(String[] sklDatafiles, String[] txtFiles) {
-//		loadStuff(sklDatafiles, txtFiles, true);
-//	}
-
-
-	public void loadStuff() {
-		try {
-			for (String sklData : sklDatafiles) {
-				DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream(sklData));
-			}
-			for (String txt : txtFiles) {
-				DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream(txt), true);
-			}
-		} catch (final IOException e) {
-			ExceptionPopup.display(e);
-		}
 	}
 
 	public void loadStuff(String[] sklDatafiles, String[] txtFiles, boolean canProduce) {
 		try {
 			for (String sklData : sklDatafiles) {
-				DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream(sklData));
+				System.out.println("2reading dataTableSLK: " + sklData);
+				new ReadSLK().readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream(sklData));
 			}
 			for (String txt : txtFiles) {
-				InputStream inputStream = GameDataFileSystem.getDefault().getResourceAsStream(txt);
-				if (inputStream != null) {
-					DataTableUtils.readTXT(this, inputStream, canProduce);
-				}
+				DataTableUtils.readTXT(this, txt, canProduce);
 			}
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
@@ -62,71 +40,16 @@ public class DataTable extends ObjectData {
 		return outputKeySet;
 	}
 
-	public void loadDefaults1() {
-		try {
-			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\UnitUI.slk"));
-			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\AbilityData.slk"));
-			// DataTableUtils.readSLK(MpqNativeCodebase.get().getGameFile("Units\\AbilityBuffData.slk"));
-			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\UnitData.slk"));
-			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\UnitAbilities.slk"));
-			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\UnitBalance.slk"));
-			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\UnitWeapons.slk"));
-			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\UpgradeData.slk"));
-		} catch (final IOException e) {
-			ExceptionPopup.display(e);
-		}
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\CampaignUnitFunc.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\CampaignUnitStrings.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\HumanUnitFunc.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\HumanUnitStrings.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\NeutralUnitFunc.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\NeutralUnitStrings.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\NightElfUnitFunc.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\NightElfUnitStrings.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\OrcUnitFunc.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\OrcUnitStrings.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\UndeadUnitFunc.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\UndeadUnitStrings.txt"));
-
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\CampaignUpgradeFunc.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\CampaignUpgradeStrings.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\HumanUpgradeFunc.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\HumanUpgradeStrings.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\NeutralUpgradeFunc.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\NeutralUpgradeStrings.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\NightElfUpgradeFunc.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\NightElfUpgradeStrings.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\OrcUpgradeFunc.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\OrcUpgradeStrings.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\UndeadUpgradeFunc.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\UndeadUpgradeStrings.txt"));
-
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\CampaignAbilityFunc.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\CampaignAbilityStrings.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\CommonAbilityFunc.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\CommonAbilityStrings.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\HumanAbilityFunc.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\HumanAbilityStrings.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\NeutralAbilityFunc.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\NeutralAbilityStrings.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\NightElfAbilityFunc.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\NightElfAbilityStrings.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\OrcAbilityFunc.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\OrcAbilityStrings.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\UndeadAbilityFunc.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\UndeadAbilityStrings.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\ItemAbilityFunc.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\ItemAbilityStrings.txt"));
-		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\ItemStrings.txt"));
-		final InputStream unitSkin = GameDataFileSystem.getDefault().getResourceAsStream("Units\\UnitSkin.txt");
-		if (unitSkin != null) {
-			DataTableUtils.readTXT(this, unitSkin);
-		}
-	}
-
 	@Override
 	public Element get(final String id) {
 		return dataTable.get(new StringKey(id));
+	}
+	public Element getElementWithField(final String id, final String field) {
+		final Element element = get(id);
+		if ((element != null) && element.hasField(field)) {
+			return element;
+		}
+		return null;
 	}
 
 	@Override
@@ -136,6 +59,19 @@ public class DataTable extends ObjectData {
 
 	public void put(final String id, final Element e) {
 		dataTable.put(new StringKey(id), e);
+	}
+
+	public void put(final String id) {
+		dataTable.put(new StringKey(id), new Element(id, this));
+	}
+	public Element computeIfAbsent(final String id) {
+		return dataTable.computeIfAbsent(new StringKey(id), k -> new Element(id, this));
+	}
+
+	public void put(final Element e) {
+		if(e != null){
+			dataTable.put(new StringKey(e.getId()), e);
+		}
 	}
 
 //	public Unit getFallyWorker() {

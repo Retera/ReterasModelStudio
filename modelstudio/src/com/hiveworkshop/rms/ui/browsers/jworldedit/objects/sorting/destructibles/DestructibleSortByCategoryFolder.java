@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGame
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.AbstractSortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.BottomLevelCategoryFolder;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
 import com.hiveworkshop.rms.util.War3ID;
 
 import javax.swing.tree.TreeNode;
@@ -22,7 +23,6 @@ public final class DestructibleSortByCategoryFolder extends AbstractSortingFolde
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final String TAG_NAME = "doodClass";
-	private static final War3ID DEST_CATEGORY = War3ID.fromString("bcat");
 	private final Map<String, BottomLevelCategoryFolder> objectClassToTreeNode = new LinkedHashMap<>();
 	private final List<BottomLevelCategoryFolder> objectClassesList = new ArrayList<>();
 
@@ -40,7 +40,7 @@ public final class DestructibleSortByCategoryFolder extends AbstractSortingFolde
 
 	@Override
 	public SortingFolderTreeNode getNextNode(MutableGameObject object) {
-		String itemClass = object.getFieldAsString(DEST_CATEGORY, 0);
+		String itemClass = object.getFieldAsString(WE_Field.DESTR_CATEGORY.getId(), 0);
 		if (!objectClassToTreeNode.containsKey(itemClass)) {
 			return objectClassesList.get(objectClassesList.size() - 1);
 		}
@@ -66,7 +66,7 @@ public final class DestructibleSortByCategoryFolder extends AbstractSortingFolde
 	}
 
 	protected War3ID getWar3ID() {
-		return DEST_CATEGORY;
+		return WE_Field.DESTR_CATEGORY.getId();
 	}
 
 	public int compare(final MutableGameObject a, final MutableGameObject b) {
