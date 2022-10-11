@@ -205,8 +205,8 @@ public class Bone extends IdObject {
 	}
 
 	/**
-	 * Returns true if this bone contains some type of data that moves, scales, rotates, or otherwise changes based on
-	 * the time track.
+	 * Returns true if this bone contains some type of data that moves, scales,
+	 * rotates, or otherwise changes based on the time track.
 	 *
 	 * @return
 	 */
@@ -357,8 +357,15 @@ public class Bone extends IdObject {
 
 	@Override
 	public float getRenderVisibility(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		if (geosetAnim != null) {
-			return geosetAnim.getRenderVisibility(animatedRenderEnvironment);
+		if (!multiGeoId) {
+			if (geoset != null) {
+				if (geoset.getGeosetAnim() != null) {
+					return geoset.getGeosetAnim().getRenderVisibility(animatedRenderEnvironment);
+				}
+				if (geosetAnim != null) {
+					return geosetAnim.getRenderVisibility(animatedRenderEnvironment);
+				}
+			}
 		}
 		return 1;
 	}
