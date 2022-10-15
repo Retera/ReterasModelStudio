@@ -7,8 +7,7 @@ import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Layers for MDLToolkit/MatrixEater.
@@ -17,22 +16,17 @@ import java.util.List;
  */
 public class Layer extends TimelineContainer implements Named {
 	private FilterMode filterMode = FilterMode.NONE;
+	private final List<Bitmap> textures = new ArrayList<>();
+	private final Map<Integer, BitmapAnimFlag> flipbookTextures = new HashMap<>();
 	private int coordId = 0;
-	private Bitmap texture;
 	private TextureAnim textureAnim;
 	private double emissiveGain = 0;
 	private Vec3 fresnelColor = new Vec3(1, 1, 1);
 	private double fresnelOpacity = 0;
 	private double fresnelTeamColor = 0;
 	private double staticAlpha = 1;// Amount of static alpha (opacity)
-	private final List<Bitmap> textures = new ArrayList<>();
-	private boolean unshaded = false;
-	private boolean sphereEnvMap = false;
-	private boolean twoSided = false;
-	private boolean unfogged = false;
-	private boolean noDepthTest = false;
-	private boolean noDepthSet = false;
-	private boolean unlit = false;
+	private final EnumSet<flag> flags = EnumSet.noneOf(flag.class);
+
 
 	public Layer() {
 	}
@@ -43,13 +37,20 @@ public class Layer extends TimelineContainer implements Named {
 
 	public Layer(FilterMode filterMode, Bitmap texture) {
 		this.filterMode = filterMode;
-		this.texture = texture;
+		textures.add(texture);
+	}
+
+	public Layer(FilterMode filterMode, Collection<Bitmap> textures) {
+		this.filterMode = filterMode;
+		this.textures.addAll(textures);
 	}
 
 	private Layer(Layer other) {
+		textures.addAll(other.textures);
+		flags.addAll(other.flags);
 		filterMode = other.filterMode;
 		coordId = other.coordId;
-		texture = other.texture;
+//		texture = other.texture;
 		if (other.textureAnim != null) {
 			textureAnim = new TextureAnim(other.textureAnim);
 //			textureAnim = other.textureAnim;
@@ -61,160 +62,68 @@ public class Layer extends TimelineContainer implements Named {
 		fresnelColor = new Vec3(other.fresnelColor);
 		fresnelOpacity = other.fresnelOpacity;
 		fresnelTeamColor = other.fresnelTeamColor;
-		unshaded = other.unshaded;
-		sphereEnvMap = other.sphereEnvMap;
-		twoSided = other.twoSided;
-		unfogged = other.unfogged;
-		noDepthTest = other.noDepthTest;
-		noDepthSet = other.noDepthSet;
-		unlit = other.unlit;
+//		unshaded = other.unshaded;
+//		sphereEnvMap = other.sphereEnvMap;
+//		twoSided = other.twoSided;
+//		unfogged = other.unfogged;
+//		noDepthTest = other.noDepthTest;
+//		noDepthSet = other.noDepthSet;
+//		unlit = other.unlit;
 
 		for (AnimFlag<?> animFlag : other.getAnimFlags()) {
 			add(animFlag.deepCopy());
 		}
+		for (Integer slot : other.flipbookTextures.keySet()) {
+			BitmapAnimFlag animFlag = flipbookTextures.get(slot);
+			flipbookTextures.put(slot, (BitmapAnimFlag) animFlag.deepCopy());
+		}
 
-		textures.addAll(other.textures);
 	}
 
-	@Override
-	public int hashCode() {
-		int prime = 31;
-		int result = 1;
-		result = (prime * result) + coordId;
-		result = (prime * result) + ((animFlags == null) ? 0 : animFlags.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(emissiveGain);
-		result = (prime * result) + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(fresnelOpacity);
-		result = (prime * result) + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(fresnelTeamColor);
-		result = (prime * result) + (int) (temp ^ (temp >>> 32));
-		result = (prime * result) + ((filterMode == null) ? 0 : filterMode.hashCode());
-		// result = (prime * result) + ((flags == null) ? 0 : flags.hashCode());
-		temp = Double.doubleToLongBits(staticAlpha);
-		result = (prime * result) + (int) (temp ^ (temp >>> 32));
-		result = (prime * result) + ((texture == null) ? 0 : texture.hashCode());
-		result = (prime * result) + ((textureAnim == null) ? 0 : textureAnim.hashCode());
-		result = (prime * result) + ((textures == null) ? 0 : textures.hashCode());
-		if (fresnelColor != null) {
-			temp = Double.doubleToLongBits(fresnelColor.x);
-			result = (prime * result) + (int) (temp ^ (temp >>> 32));
-			temp = Double.doubleToLongBits(fresnelColor.y);
-			result = (prime * result) + (int) (temp ^ (temp >>> 32));
-			temp = Double.doubleToLongBits(fresnelColor.z);
-			result = (prime * result) + (int) (temp ^ (temp >>> 32));
-		}
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		Layer other = (Layer) obj;
-		if (coordId != other.coordId) {
-			return false;
-		}
-		if (animFlags == null) {
-			if (other.animFlags != null) {
-				return false;
-			}
-		} else if (!animFlags.equals(other.animFlags)) {
-			return false;
-		}
-		if (Double.doubleToLongBits(emissiveGain) != Double.doubleToLongBits(other.emissiveGain)) {
-			return false;
-		}
-		if (Double.doubleToLongBits(fresnelOpacity) != Double.doubleToLongBits(other.fresnelOpacity)) {
-			return false;
-		}
-		if (Double.doubleToLongBits(fresnelTeamColor) != Double.doubleToLongBits(other.fresnelTeamColor)) {
-			return false;
-		}
-		if (fresnelColor != other.fresnelColor && fresnelColor != null && !fresnelColor.equalLocs(other.fresnelColor)) {
-			return false;
-		}
-		if (filterMode == null) {
-			if (other.filterMode != null) {
-				return false;
-			}
-		} else if (!filterMode.equals(other.filterMode)) {
-			return false;
-		}
-
-		if (emissiveGain != other.emissiveGain) {
-			return false;
-		}
-
-		if (fresnelOpacity != other.fresnelOpacity) {
-			return false;
-		}
-
-		if (fresnelTeamColor != other.fresnelTeamColor) {
-			return false;
-		}
-
-		if ((unshaded != other.unshaded) || (sphereEnvMap != other.sphereEnvMap)
-				|| (twoSided != other.twoSided) || (unfogged != other.unfogged)
-				|| (noDepthTest != other.noDepthTest) || (noDepthSet != other.noDepthSet)
-				|| (unlit != other.unlit)) {
-			return false;
-		}
-
-		if (Double.doubleToLongBits(staticAlpha) != Double.doubleToLongBits(other.staticAlpha)) {
-			return false;
-		}
-		if (texture == null) {
-			if (other.texture != null) {
-				return false;
-			}
-		} else if (!texture.equals(other.texture)) {
-			return false;
-		}
-		if (textureAnim == null) {
-			if (other.textureAnim != null) {
-				return false;
-			}
-		} else if (!textureAnim.equals(other.textureAnim)) {
-			return false;
-		}
-		if (textures == null) {
-			return other.textures == null;
+	public void setFlipbookTexture(int slot, BitmapAnimFlag animFlag){
+		if(animFlag != null){
+			flipbookTextures.put(slot, animFlag);
 		} else {
-			return textures.equals(other.textures);
+			flipbookTextures.remove(slot);
 		}
 	}
 
-	public Bitmap firstTexture() {
-		if (texture != null) {
-			return texture;
-		} else if (!textures.isEmpty()) {
+	public Map<Integer, BitmapAnimFlag> getFlipbookTextures() {
+		return flipbookTextures;
+	}
+
+	public BitmapAnimFlag getFlipbookTexture(int slot) {
+		return flipbookTextures.get(slot);
+	}
+
+	public Bitmap getRenderTexture(TimeEnvironmentImpl animatedRenderEnvironment) {
+		BitmapAnimFlag textureFlag = (BitmapAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
+		if ((textureFlag != null) && (animatedRenderEnvironment != null && animatedRenderEnvironment.getCurrentSequence() != null)) {
+			return textureFlag.interpolateAt(animatedRenderEnvironment);
+		} else {
+			if (textures.size() > 0) {
+				return textures.get(0);
+			}
+			return null;
+		}
+	}
+	public Bitmap getRenderTexture(TimeEnvironmentImpl animatedRenderEnvironment, int slot) {
+		BitmapAnimFlag textureFlag = flipbookTextures.get(slot);
+		if ((textureFlag != null) && (animatedRenderEnvironment != null && animatedRenderEnvironment.getCurrentSequence() != null)) {
+			return textureFlag.interpolateAt(animatedRenderEnvironment);
+		} else if(slot < textures.size()){
+			return textures.get(slot);
+		} else if (textures.size() > 0) {
 			return textures.get(0);
 		}
 		return null;
 	}
 
-	public Bitmap getRenderTexture(TimeEnvironmentImpl animatedRenderEnvironment, EditableModel model) {
-		BitmapAnimFlag textureFlag = (BitmapAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
-		if ((textureFlag != null) && (animatedRenderEnvironment != null)) {
-			if (animatedRenderEnvironment.getCurrentSequence() == null) {
-				if (textures.size() > 0) {
-					return textures.get(0);
-				} else {
-					return texture;
-				}
-			}
-			return textureFlag.interpolateAt(animatedRenderEnvironment);
-		} else {
-			return texture;
+	public Bitmap firstTexture() {
+		if (!textures.isEmpty()) {
+			return textures.get(0);
 		}
+		return null;
 	}
 
 	public Bitmap getTexture(int id){
@@ -237,22 +146,10 @@ public class Layer extends TimelineContainer implements Named {
 		return getRenderVisibility(animatedRenderEnvironment, (float) staticAlpha);
 	}
 
-	public void setTextureAnim(TextureAnim texa) {
-		textureAnim = texa;
-	}
-
-	public boolean hasCoordId() {
-		return coordId != 0;
-	}
-
-	public boolean hasTexAnim() {
-		return textureAnim != null;
-	}
-
 	@Override
 	public String getName() {
-		if (texture != null) {
-			return texture.getName() + " layer (mode " + filterMode + ") ";
+		if (!textures.isEmpty()) {
+			return textures.get(0).getName() + " layer (mode " + filterMode + ") ";
 		}
 		return "multi-textured layer (mode " + filterMode + ") ";
 	}
@@ -266,14 +163,6 @@ public class Layer extends TimelineContainer implements Named {
 		return MdlUtils.TOKEN_ALPHA;
 	}
 
-	public Bitmap getTextureBitmap() {
-		return texture;
-	}
-
-	public void setTexture(Bitmap texture) {
-		this.texture = texture;
-	}
-
 	public double getStaticAlpha() {
 		return staticAlpha;
 	}
@@ -282,24 +171,37 @@ public class Layer extends TimelineContainer implements Named {
 		this.staticAlpha = staticAlpha;
 	}
 
+	public boolean hasTexAnim() {
+		return textureAnim != null;
+	}
+
 	public TextureAnim getTextureAnim() {
 		return textureAnim;
 	}
 
-	public void setFilterMode(FilterMode filterMode) {
-		this.filterMode = filterMode;
+	public void setTextureAnim(TextureAnim texa) {
+		textureAnim = texa;
 	}
 
 	public FilterMode getFilterMode() {
 		return filterMode;
 	}
 
-	public void setCoordId(int coordId) {
-		this.coordId = coordId;
+	public void setFilterMode(FilterMode filterMode) {
+		this.filterMode = filterMode;
+	}
+
+
+	public boolean hasCoordId() {
+		return coordId != 0;
 	}
 
 	public int getCoordId() {
 		return coordId;
+	}
+
+	public void setCoordId(int coordId) {
+		this.coordId = coordId;
 	}
 
 	public double getEmissive() {
@@ -335,62 +237,214 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public boolean getUnshaded() {
-		return unshaded;
+		return flags.contains(flag.UNSHADED);
 	}
 
 	public void setUnshaded(boolean unshaded) {
-		this.unshaded = unshaded;
+		boolean ugg = unshaded ? flags.add(flag.UNSHADED) : flags.remove(flag.UNSHADED);
 	}
 
 	public boolean getSphereEnvMap() {
-		return sphereEnvMap;
+		return flags.contains(flag.SPHERE_ENV_MAP);
 	}
 
 	public void setSphereEnvMap(boolean sphereEnvMap) {
-		this.sphereEnvMap = sphereEnvMap;
+		boolean ugg = sphereEnvMap ? flags.add(flag.SPHERE_ENV_MAP) : flags.remove(flag.SPHERE_ENV_MAP);
 	}
 
 	public boolean getTwoSided() {
-		return twoSided;
+		return flags.contains(flag.TWO_SIDED);
 	}
 
 	public void setTwoSided(boolean twoSided) {
-		this.twoSided = twoSided;
+		boolean ugg = twoSided ? flags.add(flag.TWO_SIDED) : flags.remove(flag.TWO_SIDED);
 	}
 
 	public boolean getUnfogged() {
-		return unfogged;
+		return flags.contains(flag.UNFOGGED);
 	}
 
 	public void setUnfogged(boolean unfogged) {
-		this.unfogged = unfogged;
+		boolean ugg = unfogged ? flags.add(flag.UNFOGGED) : flags.remove(flag.UNFOGGED);
 	}
 
 	public boolean getNoDepthTest() {
-		return noDepthTest;
+		return flags.contains(flag.NO_DEPTH_TEST);
+//		return noDepthTest;
 	}
 
 	public void setNoDepthTest(boolean noDepthTest) {
-		this.noDepthTest = noDepthTest;
+		boolean ugg = noDepthTest ? flags.add(flag.NO_DEPTH_TEST) : flags.remove(flag.NO_DEPTH_TEST);
 	}
 
 	public boolean getNoDepthSet() {
-		return noDepthSet;
+		return flags.contains(flag.NO_DEPTH_SET);
 	}
 
 	public void setNoDepthSet(boolean noDepthSet) {
-		this.noDepthSet = noDepthSet;
+		boolean ugg = noDepthSet ? flags.add(flag.NO_DEPTH_SET) : flags.remove(flag.NO_DEPTH_SET);
 	}
 
 	public boolean getUnlit() {
-		return unlit;
+		return flags.contains(flag.UNLIT);
 	}
 
 	public void setUnlit(boolean unlit) {
-		this.unlit = unlit;
+		boolean ugg = unlit ? flags.add(flag.UNLIT) : flags.remove(flag.UNLIT);
+	}
+
+	public Set<flag> getFlags() {
+		return flags;
+	}
+
+	public void setFlags(Collection<flag> newFlags){
+		flags.clear();
+		flags.addAll(newFlags);
+	}
+
+	public boolean isFlagSet(flag flag){
+		return flags.contains(flag);
+	}
+	public void setFlag(flag flag){
+		flags.add(flag);
+	}
+	public void setFlag(flag flag, boolean set){
+		if(set){
+			flags.add(flag);
+		} else {
+			flags.remove(flag);
+		}
 	}
 
 	public Layer deepCopy(){
 		return new Layer(this);
 	}
+
+	@Override
+	public int hashCode() {
+		int prime = 31;
+		int result = 1;
+		result = (prime * result) + coordId;
+		result = (prime * result) + ((animFlags == null) ? 0 : animFlags.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(emissiveGain);
+		result = (prime * result) + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(fresnelOpacity);
+		result = (prime * result) + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(fresnelTeamColor);
+		result = (prime * result) + (int) (temp ^ (temp >>> 32));
+		result = (prime * result) + ((filterMode == null) ? 0 : filterMode.hashCode());
+		// result = (prime * result) + ((flags == null) ? 0 : flags.hashCode());
+		temp = Double.doubleToLongBits(staticAlpha);
+		result = (prime * result) + (int) (temp ^ (temp >>> 32));
+//		result = (prime * result) + ((texture == null) ? 0 : texture.hashCode());
+		result = (prime * result) + ((textureAnim == null) ? 0 : textureAnim.hashCode());
+		result = prime * result + textures.hashCode();
+		if (fresnelColor != null) {
+			temp = Double.doubleToLongBits(fresnelColor.x);
+			result = (prime * result) + (int) (temp ^ (temp >>> 32));
+			temp = Double.doubleToLongBits(fresnelColor.y);
+			result = (prime * result) + (int) (temp ^ (temp >>> 32));
+			temp = Double.doubleToLongBits(fresnelColor.z);
+			result = (prime * result) + (int) (temp ^ (temp >>> 32));
+		}
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj instanceof Layer) {
+			Layer other = (Layer) obj;
+			if (coordId != other.coordId) {
+				return false;
+			}
+			if (!Objects.equals(animFlags, other.animFlags)) {
+				return false;
+			}
+			if (!Objects.equals(flipbookTextures, other.flipbookTextures)) {
+				return false;
+			}
+
+//			if (Double.doubleToLongBits(emissiveGain) != Double.doubleToLongBits(other.emissiveGain)) {
+//				return false;
+//			}
+//			if (Double.doubleToLongBits(fresnelOpacity) != Double.doubleToLongBits(other.fresnelOpacity)) {
+//				return false;
+//			}
+//			if (Double.doubleToLongBits(fresnelTeamColor) != Double.doubleToLongBits(other.fresnelTeamColor)) {
+//				return false;
+//			}
+//			if (Double.doubleToLongBits(staticAlpha) != Double.doubleToLongBits(other.staticAlpha)) {
+//				return false;
+//			}
+
+
+			if (Float.MIN_VALUE < (staticAlpha - other.staticAlpha) ) {
+				return false;
+			}
+			if (Float.MIN_VALUE < (emissiveGain - other.emissiveGain) ) {
+				return false;
+			}
+			if (Float.MIN_VALUE < (fresnelOpacity - other.fresnelOpacity) ) {
+				return false;
+			}
+			if (Float.MIN_VALUE < (fresnelTeamColor - other.fresnelTeamColor) ) {
+				return false;
+			}
+			if (fresnelColor != other.fresnelColor && fresnelColor != null && !fresnelColor.equalLocs(other.fresnelColor)) {
+				return false;
+			}
+			if (filterMode != other.filterMode) {
+				return false;
+			}
+
+			if(!flags.equals(other.flags)){
+				return false;
+			}
+
+			if (!Objects.equals(textureAnim, other.textureAnim)) {
+				return false;
+			}
+
+			return textures.equals(other.textures);
+		}
+		return false;
+	}
+
+
+//		if (layer.getTwoSided()) {mdlxLayer.flags |= 0x10;}
+//
+//		if (layer.getUnfogged()) {mdlxLayer.flags |= 0x20;}
+//
+//		if (layer.getNoDepthTest()) {mdlxLayer.flags |= 0x40;}
+//
+//		if (layer.getNoDepthSet()) {mdlxLayer.flags |= 0x80;}
+//
+//		if (layer.getUnlit()) {mdlxLayer.flags |= 0x100;}
+	public enum flag {
+		UNSHADED(MdlUtils.TOKEN_UNSHADED, 0x1),
+		SPHERE_ENV_MAP(MdlUtils.TOKEN_SPHERE_ENV_MAP, 0x2),
+		TWO_SIDED(MdlUtils.TOKEN_TWO_SIDED, 0x10),
+		UNFOGGED(MdlUtils.TOKEN_UNFOGGED, 0x20),
+		NO_DEPTH_TEST(MdlUtils.TOKEN_NO_DEPTH_TEST, 0x40),
+		NO_DEPTH_SET(MdlUtils.TOKEN_NO_DEPTH_SET, 0x80),
+		UNLIT(MdlUtils.TOKEN_UNLIT, 0x100);
+		final String name;
+		final int flagBit;
+		flag(String name, int flagBit){
+			this.name = name;
+			this.flagBit = flagBit;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+	public int getFlagBit() {
+		return flagBit;
+	}
+}
 }

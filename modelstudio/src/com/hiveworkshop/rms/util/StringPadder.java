@@ -4,7 +4,15 @@ public class StringPadder {
 
 	public static String padStringStart(String string, String padding, int newLength){
 		int paddingSize = newLength - string.length();
-		String repeat = padding.repeat(Math.max(0, paddingSize)).substring(0,paddingSize);
+		if(paddingSize<0){
+			System.err.println("Could not calculate padding size:");
+			System.err.println("\tstring: \"" + string + "\"");
+			System.err.println("\tpadding: \"" + padding + "\"");
+			System.err.println("\tnewLength: " + newLength);
+			System.err.println("\tpaddingSize: " + paddingSize);
+			paddingSize = 0;
+		}
+		String repeat = padding.repeat(paddingSize).substring(0,paddingSize);
 		return repeat + string;
 	}
 

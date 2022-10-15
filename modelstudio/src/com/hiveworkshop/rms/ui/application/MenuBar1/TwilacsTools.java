@@ -1,8 +1,11 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
+import com.hiveworkshop.rms.editor.actions.mesh.FixFacesAction;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.*;
 import com.hiveworkshop.rms.ui.application.tools.SkinningOptionPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -16,6 +19,7 @@ public class TwilacsTools extends JMenu {
 		setMnemonic(KeyEvent.VK_I);
 		getAccessibleContext().setAccessibleDescription("Where Twilac puts new features during development before they find a permanent home.");
 		add(getSkinningMenu());
+		add(getFixFacesMenu());
 
 		add(new WeldVerts().getMenuItem());
 		add(new SplitVertices().getMenuItem());
@@ -62,6 +66,18 @@ public class TwilacsTools extends JMenu {
 	private JMenuItem getSkinningMenu(){
 		JMenuItem menuItem = new JMenuItem("Skinning options");
 		menuItem.addActionListener(e -> SkinningOptionPanel.showPanel(null, ProgramGlobals.getCurrentModelPanel().getModelHandler()));
+		return menuItem;
+	}
+
+	private JMenuItem getFixFacesMenu(){
+		JMenuItem menuItem = new JMenuItem("Fix Faces");
+		menuItem.addActionListener(e -> {
+			ModelPanel currentModelPanel = ProgramGlobals.getCurrentModelPanel();
+			ModelView modelView = currentModelPanel.getModelView();
+			if(!modelView.isEmpty()){
+				currentModelPanel.getModelHandler().getUndoManager().pushAction(new FixFacesAction(modelView.getSelectedTriangles()).redo());
+			}
+		});
 		return menuItem;
 	}
 }

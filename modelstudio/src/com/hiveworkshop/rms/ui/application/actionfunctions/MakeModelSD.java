@@ -15,7 +15,6 @@ import com.hiveworkshop.rms.editor.actions.nodes.SetParticleEmitterPathAction;
 import com.hiveworkshop.rms.editor.actions.tools.ConvertToMatricesAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.editor.model.util.Mesh;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
@@ -148,25 +147,25 @@ public class MakeModelSD extends ActionFunction {
 	}
 
 
-	public static void makeMaterialSD(Material material) {
-		if (material.getShaderString() != null) {
-			material.setShaderString(null);
-			Layer layerZero = material.getLayers().get(0);
-			material.clearLayers();
-			material.addLayer(layerZero);
-			if (material.getTwoSided()) {
-				material.setTwoSided(false);
-				layerZero.setTwoSided(true);
-			}
-		}
-		for (final Layer layer : material.getLayers()) {
-			if (!Double.isNaN(layer.getEmissive())) {
-				layer.setEmissive(Double.NaN);
-			}
-			final AnimFlag<?> flag = layer.find("Emissive");
-			if (flag != null) {
-				layer.remove(flag);
-			}
-		}
-	}
+//	public static void makeMaterialSD(Material material) {
+//		if (material.getShaderString() != null) {
+//			material.setShaderString(null);
+//			Layer layerZero = material.getLayers().get(0);
+//			material.clearLayers();
+//			material.addLayer(layerZero);
+//			if (material.getTwoSided()) {
+//				material.setTwoSided(false);
+//				layerZero.setTwoSided(true);
+//			}
+//		}
+//		for (final Layer layer : material.getLayers()) {
+//			if (!Double.isNaN(layer.getEmissive())) {
+//				layer.setEmissive(Double.NaN);
+//			}
+//			final AnimFlag<?> flag = layer.find("Emissive");
+//			if (flag != null) {
+//				layer.remove(flag);
+//			}
+//		}
+//	}
 }

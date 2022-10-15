@@ -14,7 +14,7 @@ public class KeybindingPrefPanel extends JPanel {
 
 	public KeybindingPrefPanel() {
 		super(new MigLayout("fill", "[][][]"));
-		KeyBindingPrefs keyBindingPrefs = ProgramGlobals.getPrefs().getKeyBindingPrefs();
+		KeyBindingPrefs keyBindingPrefs = ProgramGlobals.getPrefs().getKeyBindingPrefsCopy();
 
 		JPanel settingsPanel = new JPanel(new MigLayout("fill, wrap 2", "[left][right]"));
 		for (TextKey textKey : KeyBindingPrefs.getActionFunctionMap().keySet()) {

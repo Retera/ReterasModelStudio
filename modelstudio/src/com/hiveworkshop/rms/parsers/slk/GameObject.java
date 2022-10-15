@@ -86,7 +86,7 @@ public abstract class GameObject implements Comparable<GameObject> {
 
 	private String getSuffix() {
 		String suf = getField("EditorSuffix");
-		if (suf.length() > 0 && !suf.equals("_")) {
+		if (0 < suf.length() && !suf.equals("_")) {
 			if (suf.startsWith("WESTRING")) {
 				suf = WEString.getString(suf);
 			}
@@ -102,7 +102,7 @@ public abstract class GameObject implements Comparable<GameObject> {
 		String[] names = nameString.split(" ");
 		StringBuilder nameBuilder = new StringBuilder();
 		for (String subName : names) {
-			if (nameBuilder.length() > 0) {
+			if (0 < nameBuilder.length()) {
 				nameBuilder.append(" ");
 			}
 			if (subName.startsWith("WESTRING")) {
@@ -204,5 +204,33 @@ public abstract class GameObject implements Comparable<GameObject> {
 			return comp2;
 		}
 		return comp1;
+	}
+
+	public String getEditorMetaDataDisplayKey(int level) {
+		int index = getFieldValue("index");
+		String metaDataName = getField("field");
+		int repeatCount = getFieldValue("repeat");
+		String upgradeHack = getField("appendIndex");
+		boolean repeats = (repeatCount > 0) && !"0".equals(upgradeHack);
+		int data = getFieldValue("data");
+		if (0 < data) {
+			metaDataName += (char) ('A' + (data - 1));
+		}
+		if ("1".equals(upgradeHack)) {
+			int upgradeExtensionLevel = level - 1;
+			if (0 < upgradeExtensionLevel) {
+				metaDataName += Integer.toString(upgradeExtensionLevel);
+			}
+		} else if (repeats && (index == -1)) {
+			if (level == 0) {
+				level = 1;
+			}
+			if (10 <= repeatCount) {
+				metaDataName += String.format("%2d", level).replace(' ', '0');
+			} else {
+				metaDataName += Integer.toString(level);
+			}
+		}
+		return metaDataName;
 	}
 }

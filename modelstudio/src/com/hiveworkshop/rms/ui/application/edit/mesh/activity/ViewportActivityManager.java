@@ -12,6 +12,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.ui.util.MouseEventHelpers;
 import com.hiveworkshop.rms.util.Mat4;
 
 import java.awt.*;
@@ -142,6 +143,7 @@ public final class ViewportActivityManager implements SelectionListener {
 		} else if (isSelect(e)) {
 			activeActivity = selectActivity;
 		}
+		System.out.println("active Activity: " + this.activeActivity);
 		if (this.activeActivity != null) {
 			activeActivity.mousePressed(e, viewProjectionMatrix, sizeAdj);
 		}
@@ -150,6 +152,18 @@ public final class ViewportActivityManager implements SelectionListener {
 		if (isSelect(e)) {
 			activeActivity = selectActivity;
 			selectActivity.mousePressed(e, viewBox, sizeAdj);
+		}
+	}
+	public void mousePressed(MouseEvent e, Mat4 viewProjectionMatrix, SelectionBoxHelper viewBox, double sizeAdj) {
+		if (isEditing(e)) {
+			activeActivity = currentActivity;
+			activeActivity.mousePressed(e, viewProjectionMatrix, sizeAdj);
+		} else if (isSelect(e)) {
+			activeActivity = selectActivity;
+			selectActivity.mousePressed(e, viewBox, sizeAdj);
+		} else if (this.activeActivity != null){
+			System.out.println("active Activity: " + this.activeActivity);
+			activeActivity.mousePressed(e, viewProjectionMatrix, sizeAdj);
 		}
 	}
 
@@ -183,6 +197,8 @@ public final class ViewportActivityManager implements SelectionListener {
 //		}
 //	}
 
+
+
 	public boolean isEditing() {
 		if (this.currentActivity != null) {
 			return currentActivity.isEditing();
@@ -199,18 +215,34 @@ public final class ViewportActivityManager implements SelectionListener {
 
 		return false;
 	}
+	public boolean isSelecting() {
+//		if (this.selectActivity != null) {
+//		}
+//		return false;
+		return selectActivity.isEditing();
+	}
 
 	private boolean isSelect(MouseEvent e){
 		ProgramPreferences prefs = ProgramGlobals.getPrefs();
-		int event_xor_MB = e.getModifiersEx() ^ prefs.getSelectMouseButton();
-		return event_xor_MB == 0 // no modifiers
-				|| (event_xor_MB ^ prefs.getAddSelectModifier()) == 0 // add selection modifier
-				||  (event_xor_MB ^ prefs.getRemoveSelectModifier()) == 0; // remove selection modifier
+		return MouseEventHelpers.matches(e, prefs.getSelectMouseButton(), prefs.getAddSelectModifier(), prefs.getRemoveSelectModifier());
 	}
 	private boolean isEditing(MouseEvent e){
-		boolean isEd = (ProgramGlobals.getPrefs().getModifyMouseButton() & e.getModifiersEx()) > 0 && !selectionManager.isEmpty();
-		System.out.println("is editing action: " + isEd);
-		return (ProgramGlobals.getPrefs().getModifyMouseButton() & e.getModifiersEx()) > 0 && !selectionManager.isEmpty();
+		ProgramPreferences prefs = ProgramGlobals.getPrefs();
+//		boolean isEd = (prefs.getModifyMouseButton() & e.getModifiersEx()) > 0 && !selectionManager.isEmpty();
+//		System.out.println("is editing action: " + isEd);
+		return MouseEventHelpers.matches(e, prefs.getModifyMouseButton(),prefs.getSnapTransformModifier()) && !selectionManager.isEmpty();
 	}
+//	private boolean isSelect(MouseEvent e){
+//		ProgramPreferences prefs = ProgramGlobals.getPrefs();
+//		int event_xor_MB = e.getModifiersEx() ^ prefs.getSelectMouseButton();
+//		return event_xor_MB == 0 // no modifiers
+//				|| (event_xor_MB ^ prefs.getAddSelectModifier()) == 0 // add selection modifier
+//				||  (event_xor_MB ^ prefs.getRemoveSelectModifier()) == 0; // remove selection modifier
+//	}
+//	private boolean isEditing(MouseEvent e){
+//		boolean isEd = (ProgramGlobals.getPrefs().getModifyMouseButton() & e.getModifiersEx()) > 0 && !selectionManager.isEmpty();
+//		System.out.println("is editing action: " + isEd);
+//		return (ProgramGlobals.getPrefs().getModifyMouseButton() & e.getModifiersEx()) > 0 && !selectionManager.isEmpty();
+//	}
 
 }

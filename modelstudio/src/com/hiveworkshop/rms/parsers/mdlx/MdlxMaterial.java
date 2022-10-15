@@ -167,9 +167,12 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 			stream.writeAttrib(MdlUtils.TOKEN_PRIORITY_PLANE, priorityPlane);
 		}
 
-		if ((flags & 0x2) != 0 && version > 800) {
+		if ((flags & 0x2) != 0) {
 			stream.writeFlag(MdlUtils.TOKEN_TWO_SIDED);
 		}
+//		if ((flags & 0x2) != 0 && version > 800) {
+//			stream.writeFlag(MdlUtils.TOKEN_TWO_SIDED);
+//		}
 
 		if (version > 800) {
 			stream.writeStringAttrib(MdlUtils.TOKEN_SHADER, shader);

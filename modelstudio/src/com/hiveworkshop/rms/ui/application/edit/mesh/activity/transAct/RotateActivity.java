@@ -2,12 +2,15 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.activity.transAct;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericRotateAction;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.RotatorWidget;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.TVertSelectionManager;
+import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.ui.util.MouseEventHelpers;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -79,7 +82,13 @@ public class RotateActivity extends TransformActivity {
 	}
 
 	protected void updateMat(MouseEvent e, Mat4 viewProjectionMatrix, Vec2 mouseEnd) {
-		double radians = computeRotateRadians(e, lastDragPoint, mouseEnd, viewProjectionMatrix);
+		ProgramPreferences prefs = ProgramGlobals.getPrefs();
+		double radians = computeRotateRadians(MouseEventHelpers.hasModifier(e, prefs.getSnapTransformModifier()), lastDragPoint, mouseEnd, viewProjectionMatrix);
+		rotationAction.updateRotation(radians);
+	}
+	protected void updateMat(Mat4 viewProjectionMatrix, Vec2 mouseEnd,
+	                         boolean isPrecise, boolean isSnap, boolean isAxisLock) {
+		double radians = computeRotateRadians(isSnap, lastDragPoint, mouseEnd, viewProjectionMatrix);
 		rotationAction.updateRotation(radians);
 	}
 
@@ -87,7 +96,8 @@ public class RotateActivity extends TransformActivity {
 		if (isActing) {
 			Vec2 mouseEnd = getPoint(e);
 
-			double radians = computeRotateRadians(e, lastDragPoint, mouseEnd, viewProjectionMatrix);
+			ProgramPreferences prefs = ProgramGlobals.getPrefs();
+			double radians = computeRotateRadians(MouseEventHelpers.hasModifier(e, prefs.getSnapTransformModifier()), lastDragPoint, mouseEnd, viewProjectionMatrix);
 			rotationAction.updateRotation(radians);
 			nonRotAngle = 0;
 			totRotAngle = 0;
@@ -172,7 +182,33 @@ public class RotateActivity extends TransformActivity {
 	}
 
 
-	protected double computeRotateRadians(MouseEvent e, Vec2 startingClick, Vec2 endingClick, Mat4 viewProjectionMatrix) {
+	protected double computeRotateRadians(boolean isSnap, Vec2 startingClick, Vec2 endingClick, Mat4 viewProjectionMatrix) {
+		double deltaAngle = 0;
+		Vec2 center = getViewportSelectionCenter();
+		if (dir == MoveDimension.XYZ) {
+//			Vec2 startingDelta = Vec2.getDif(startingClick, center);
+//			Vec2 endingDelta = Vec2.getDif(endingClick, center);
+//
+//			double startingAngle = Math.atan2(-startingDelta.y, startingDelta.x);
+//			double endingAngle = Math.atan2(-endingDelta.y, endingDelta.x);
+
+			double startingAngle = -getThetaOfDiff(startingClick, center);
+			double endingAngle = -getThetaOfDiff(endingClick, center);
+
+			deltaAngle = endingAngle - startingAngle;
+		}
+		if (isSnap) {
+			nonRotAngle += deltaAngle;
+			deltaAngle = getSnappedAngle(nonRotAngle, 15);
+			nonRotAngle -= deltaAngle;
+		} else {
+			nonRotAngle = 0;
+		}
+		totRotAngle += deltaAngle;
+		return deltaAngle;
+	}
+	protected double computeRotateRadians(MouseEvent e, Vec2 startingClick, Vec2 endingClick, Mat4 viewProjectionMatrix,
+	                                      boolean isPrecise, boolean isSnap, boolean isAxisLock) {
 		double deltaAngle = 0;
 		Vec2 center = getViewportSelectionCenter();
 		if (dir == MoveDimension.XYZ) {

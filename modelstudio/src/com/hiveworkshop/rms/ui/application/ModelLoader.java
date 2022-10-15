@@ -2,11 +2,9 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.*;
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.BinaryDecipherHelper;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
@@ -36,22 +34,10 @@ public class ModelLoader {
 	public static final ImageIcon MDLIcon = RMSIcons.MDLIcon;
 
 	public static void refreshAnimationModeState() {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 
-		if ((modelPanel != null) && (modelPanel.getModel() != null)) {
-			ModelHandler modelHandler = modelPanel.getModelHandler();
-			EditableModel model = modelHandler.getModel();
-			Animation anim;
-			if ((ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE) && model.getAnimsSize() > 0) {
-				anim = model.getAnim(0);
-			} else {
-				anim = null;
-			}
-			refreshAndUpdateRenderModel();
-			TimeEnvironmentImpl editTimeEnv = modelPanel.getEditorRenderModel().getTimeEnvironment();
-			editTimeEnv.setSequence(anim);
-			editTimeEnv.setStaticViewMode(!(ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE));
-
+		if (ProgramGlobals.getCurrentModelPanel() != null) {
+			ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+			modelPanel.refreshFromEditor();
 		} else {
 			ProgramGlobals.setEditorActionTypeButton(ModelEditorActionType3.TRANSLATION);
 		}
@@ -64,13 +50,6 @@ public class ModelLoader {
 		}
 
 		ProgramGlobals.getRootWindowUgg().getWindowHandler2().setAnimationMode();
-	}
-
-	private static void refreshAndUpdateRenderModel() {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		RenderModel editorRenderModel = modelPanel.getEditorRenderModel();
-		ModelStructureChangeListener.refreshFromEditor(modelPanel);
-		editorRenderModel.updateNodes(false); // update to 0 position
 	}
 
 	public static ModelPanel newTempModelPanel(ImageIcon icon, EditableModel model) {
@@ -114,7 +93,9 @@ public class ModelLoader {
 
 		Mesh planeMesh = ModelUtils.createPlane((byte) 0, true, 0, max, min, 1);
 		newGeoset.addVerticies(planeMesh.getVertices());
+		planeMesh.getVertices().forEach(vertex -> vertex.setGeoset(newGeoset));
 		newGeoset.setTriangles(planeMesh.getTriangles());
+		planeMesh.getTriangles().forEach(triangle -> triangle.setGeoset(newGeoset));
 
 		blankTextureModel.add(newGeoset);
 		ExtLog extLog = new ExtLog(128).setDefault();
@@ -161,7 +142,13 @@ public class ModelLoader {
 
 	public static void setCurrentModel(ModelPanel modelPanel) {
 		ProgramGlobals.setCurrentModelPanel(modelPanel);
-		refreshAnimationModeState();
+//		refreshAnimationModeState();
+
+		if (modelPanel != null) {
+			modelPanel.refreshFromEditor();
+		}
+
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().setAnimationMode();
 
 //		ProgramGlobals.getRootWindowUgg().getWindowHandler2().getViewportListener().viewportChanged(null);
 		ModelStructureChangeListener.changeListener.keyframesUpdated();

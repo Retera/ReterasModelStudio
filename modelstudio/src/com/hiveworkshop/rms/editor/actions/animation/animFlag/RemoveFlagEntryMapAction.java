@@ -13,12 +13,14 @@ public class RemoveFlagEntryMapAction<T> implements UndoAction {
 	private final Sequence animation;
 	private final AnimFlag<T> animFlag;
 	private final TreeMap<Integer, Entry<T>> entryMap;
+	private final String actionName;
 
 	public RemoveFlagEntryMapAction(AnimFlag<T> animFlag, Sequence animation, ModelStructureChangeListener changeListener) {
 		this.changeListener = changeListener;
 		this.animation = animation;
 		this.animFlag = animFlag;
 		this.entryMap = animFlag.getEntryMap(animation);
+		actionName = "Clear data in \"" + animation.getName() + "\"";
 	}
 
 	@Override
@@ -41,6 +43,6 @@ public class RemoveFlagEntryMapAction<T> implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "add animation";
+		return actionName;
 	}
 }

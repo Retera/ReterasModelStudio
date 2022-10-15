@@ -10,14 +10,17 @@ import java.util.List;
 
 public class SetLayerTextureAction implements UndoAction {
 	private final Bitmap newBitmap;
-	private final boolean wasMainTexture;
 	private final ArrayList<Integer> oldIndices = new ArrayList<>();
 	private final Bitmap oldBitmap;
 	private final Layer layer;
 	private final ModelStructureChangeListener changeListener;
 
-	public SetLayerTextureAction(Bitmap newBitmap, Layer layer, ModelStructureChangeListener changeListener) {
-		this(layer.getTextureBitmap(), newBitmap, layer, changeListener);
+	public SetLayerTextureAction(Bitmap newBitmap, int slot, Layer layer, ModelStructureChangeListener changeListener) {
+		this.newBitmap = newBitmap;
+		this.layer = layer;
+		this.oldBitmap = layer.getTexture(slot);
+		this.changeListener = changeListener;
+		oldIndices.add(slot);
 	}
 
 	public SetLayerTextureAction(Bitmap oldBitmap, Bitmap newBitmap, Layer layer, ModelStructureChangeListener changeListener) {
@@ -25,8 +28,6 @@ public class SetLayerTextureAction implements UndoAction {
 		this.layer = layer;
 		this.oldBitmap = oldBitmap;
 		this.changeListener = changeListener;
-
-		wasMainTexture = layer.getTextureBitmap() != null && layer.getTextureBitmap().equals(oldBitmap);
 
 		List<Bitmap> textures = layer.getTextures();
 		for(int i = 0; i < textures.size(); i++){
@@ -38,9 +39,6 @@ public class SetLayerTextureAction implements UndoAction {
 
 	@Override
 	public UndoAction undo() {
-		if(wasMainTexture){
-			layer.setTexture(oldBitmap);
-		}
 		for (int i : oldIndices){
 			layer.setTexture(i, oldBitmap);
 		}
@@ -52,9 +50,6 @@ public class SetLayerTextureAction implements UndoAction {
 
 	@Override
 	public UndoAction redo() {
-		if(wasMainTexture){
-			layer.setTexture(newBitmap);
-		}
 		for (int i : oldIndices){
 			layer.setTexture(i, newBitmap);
 		}

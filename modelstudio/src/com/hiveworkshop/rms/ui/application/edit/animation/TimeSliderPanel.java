@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.editor.actions.animation.AddKeyframeAction3;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.TimeSkip;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
@@ -153,7 +152,7 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 			if (confirmDialogResult == JOptionPane.OK_OPTION) {
 				RenderModel editorRenderModel = modelHandler.getRenderModel();
 				tbcPanel.applyTo(editorRenderModel.getTimeEnvironment());
-				ModelStructureChangeListener.refreshFromEditor(modelPanel);
+				modelPanel.refreshFromEditor();
 				editorRenderModel.updateNodes(false);
 			}
 		}
@@ -263,10 +262,12 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 					keyframeHandler.drawKeyframeMarkers(g);
 					// time label of dragged keyframe
 					if (mouseAdapter.isDraggingKeyframe()) {
-						mouseAdapter.getDraggingFrame().drawFloatingTime(g);
+						mouseAdapter.getDraggingFrame().drawFloatingTime(g, Color.WHITE, mouseAdapter.getDraggingTimeDiffString());
+					} else if (mouseAdapter.isHoveringKeyframe()) {
+						mouseAdapter.getHoveringFrame().drawFloatingTime(g);
 					}
 					// time slider and glass covering current tick
-					timeSlider.drawTimeSlider(g, timeEnvironment.getEnvTrackTime());
+					timeSlider.drawTimeSlider(g, timeEnvironment.getEnvTrackTime(), keyframeHandler.hasKeyFrameAt(timeEnvironment.getEnvTrackTime()));
 				}
 
 			}

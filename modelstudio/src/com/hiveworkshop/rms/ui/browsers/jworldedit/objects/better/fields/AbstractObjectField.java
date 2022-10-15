@@ -72,8 +72,7 @@ public abstract class AbstractObjectField {
 //		};
 //		final String defaultDialogTitle = WEString.getString(worldEditValueStringKey);
 		final String defaultDialogTitle = WEString.getString(dataType.getEditString());
-		return popupEditor(gameUnit, parent, editRawData, disableLimits, metaKey, level, defaultDialogTitle,
-				metaDataField);
+		return popupEditor(gameUnit, parent, editRawData, disableLimits, metaKey, level, defaultDialogTitle, metaDataField);
 	}
 
 	public boolean hasEditedValue(MutableGameObject gameUnit) {

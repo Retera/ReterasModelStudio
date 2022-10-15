@@ -10,17 +10,19 @@ public class ChangeLayerStaticTextureAction implements UndoAction {
 	private final Bitmap oldBitmap;
 	private final Layer layer;
 	private final ModelStructureChangeListener changeListener;
+	private final int slot;
 
-	public ChangeLayerStaticTextureAction(Bitmap bitmap, Layer layer, ModelStructureChangeListener changeListener) {
+	public ChangeLayerStaticTextureAction(Bitmap bitmap, int slot, Layer layer, ModelStructureChangeListener changeListener) {
 		this.bitmap = bitmap;
 		this.layer = layer;
-		oldBitmap = layer.getTextureBitmap();
+		this.slot = slot;
+		oldBitmap = layer.getTexture(slot);
 		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
-		layer.setTexture(oldBitmap);
+		layer.setTexture(slot, oldBitmap);
 		if (changeListener != null) {
 			changeListener.materialsListChanged();
 		}
@@ -29,7 +31,7 @@ public class ChangeLayerStaticTextureAction implements UndoAction {
 
 	@Override
 	public UndoAction redo() {
-		layer.setTexture(bitmap);
+		layer.setTexture(slot, bitmap);
 		if (changeListener != null) {
 			changeListener.materialsListChanged();
 		}

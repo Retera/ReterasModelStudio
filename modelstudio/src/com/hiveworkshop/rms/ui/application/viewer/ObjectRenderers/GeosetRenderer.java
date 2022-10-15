@@ -169,7 +169,7 @@ public class GeosetRenderer {
 					System.out.println("should render geo " + geo.getName() + ": " + (!renderOpaque && !opaqueLayer) + ", has renderGeo: " + renderModel.getRenderGeoset(geo));
 				}
 
-				Bitmap tex = layer.getRenderTexture(renderEnv, modelView.getModel());
+				Bitmap tex = layer.getRenderTexture(renderEnv);
 
 				if (tex != null) {
 					textureThing.bindLayerTexture(layer, tex, formatVersion, material, 0);

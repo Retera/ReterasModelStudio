@@ -76,7 +76,7 @@ public class DrawFaceActivity extends ViewportActivity {
 			Layer firstLayer = geoset.getMaterial().firstLayer();
 			if ((geoset.getMaterial() != null) && (firstLayer != null)
 					&& (firstLayer.getFilterMode() == FilterMode.NONE)
-					&& "Textures\\white.blp".equalsIgnoreCase(firstLayer.getTextureBitmap().getPath())) {
+					&& "Textures\\white.blp".equalsIgnoreCase(firstLayer.getTexture(0).getPath())) {
 				solidWhiteGeoset = geoset;
 			}
 		}

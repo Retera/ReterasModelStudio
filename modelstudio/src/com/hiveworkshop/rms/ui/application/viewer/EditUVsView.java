@@ -24,8 +24,9 @@ public class EditUVsView extends ModelDependentView {
 
 	@Override
 	public ModelDependentView setModelPanel(ModelPanel modelPanel) {
+		uvPanel.setModel(modelPanel);
 		if(modelPanel != null){
-			uvPanel.setModel(modelPanel.getModelHandler());
+//			uvPanel.setModel(modelPanel);
 			System.out.println("set ModelPanel, ancestor: " + this.getTopLevelAncestor());
 			SwingUtilities.invokeLater(() -> uvPanel.init());
 			System.out.println("returning UV View");

@@ -38,22 +38,29 @@ public class InexactHashVector {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
+		if(obj instanceof InexactHashVector){
+			InexactHashVector objT = (InexactHashVector) obj;
+			return     (int) (x * precision) == (int) (objT.x * objT.precision)
+					&& (int) (y * precision) == (int) (objT.y * objT.precision)
+					&& (int) (z * precision) == (int) (objT.z * objT.precision);
 		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		InexactHashVector other = (InexactHashVector) obj;
-		if (Float.floatToIntBits(x) != Float.floatToIntBits(other.x)) {
-			return false;
-		}
-		if (Float.floatToIntBits(y) != Float.floatToIntBits(other.y)) {
-			return false;
-		}
-		return Float.floatToIntBits(z) == Float.floatToIntBits(other.z);
+		return false;
+//		if (this == obj) {
+//			return true;
+//		}
+//		if (obj == null) {
+//			return false;
+//		}
+//		if (getClass() != obj.getClass()) {
+//			return false;
+//		}
+//		InexactHashVector other = (InexactHashVector) obj;
+//		if (Float.floatToIntBits(x) != Float.floatToIntBits(other.x)) {
+//			return false;
+//		}
+//		if (Float.floatToIntBits(y) != Float.floatToIntBits(other.y)) {
+//			return false;
+//		}
+//		return Float.floatToIntBits(z) == Float.floatToIntBits(other.z);
 	}
 }

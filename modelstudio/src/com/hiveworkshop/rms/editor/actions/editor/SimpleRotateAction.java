@@ -1,20 +1,32 @@
 package com.hiveworkshop.rms.editor.actions.editor;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.model.CameraNode;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public final class SimpleRotateAction implements UndoAction {
 	private final ModelView modelView;
 	private final Vec3 center;
 	private final Quat rot;
+	private final Set<GeosetVertex> selectedVertices;
+	private final Set<IdObject> selectedIdObjects;
+	private final Set<CameraNode> selectedCameras;
 
 
 	public SimpleRotateAction(ModelView modelView, Vec3 center, double radians, Vec3 axis) {
 		this.modelView = modelView;
 		this.center = center;
 		rot = new Quat().setFromAxisAngle(axis, (float) radians);
+		selectedVertices = new HashSet<>(modelView.getSelectedVertices());
+		selectedIdObjects = new HashSet<>(modelView.getSelectedIdObjects());
+		selectedCameras = new HashSet<>(modelView.getSelectedCameraNodes());
 	}
 
 	@Override

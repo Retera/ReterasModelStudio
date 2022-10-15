@@ -219,7 +219,7 @@ public class TempSaveModelStuff {
 		Set<Bitmap> bitmapSet = new LinkedHashSet<>();
 		for (final Material m : model.getMaterials()) {
 			for (final Layer layer : m.getLayers()) {
-				bitmapSet.add(layer.getTextureBitmap());
+				bitmapSet.addAll(layer.getTextures());
 				AnimFlag<?> animFlag = layer.find(MdlUtils.TOKEN_TEXTURE_ID);
 				if (animFlag instanceof BitmapAnimFlag) {
 					for (TreeMap<Integer, Entry<Bitmap>> entryMap : ((BitmapAnimFlag)animFlag).getAnimMap().values()){

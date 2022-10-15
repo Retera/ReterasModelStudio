@@ -413,7 +413,7 @@ public class SelectionManager extends AbstractSelectionManager {
 
 	private Set<GeosetVertex> addTrisFromArea(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		Set<GeosetVertex> newSelection = new HashSet<>();
-		for (Geoset geoset : modelView.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getVisEdGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
 				if (HitTestStuff.triHitTest(triangle, min, max, coordinateSystem)) {
 					newSelection.addAll(Arrays.asList(triangle.getAll()));
@@ -427,7 +427,7 @@ public class SelectionManager extends AbstractSelectionManager {
 	public Set<GeosetVertex> addVertsFromArea(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		Set<GeosetVertex> newSelection = new HashSet<>();
 		int vertexSize = ProgramGlobals.getPrefs().getVertexSize();
-		for (Geoset geoset : modelView.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getVisEdGeosets()) {
 			for (GeosetVertex vertex : geoset.getVertices()) {
 				if (modelView.isEditable(vertex)
 						&& HitTestStuff.hitTest(min, max, vertex, coordinateSystem, vertexSize))
@@ -480,7 +480,7 @@ public class SelectionManager extends AbstractSelectionManager {
 	private Set<GeosetVertex> addTrisFromArea(Vec2 min, Vec2 max, Mat4 viewPortMat) {
 		Set<GeosetVertex> newSelection = new HashSet<>();
 		Vec2[] triPoints = new Vec2[] {new Vec2(), new Vec2(), new Vec2()};
-		for (Geoset geoset : modelView.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getVisEdGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
 				if (modelView.isEditable(triangle)){
 					triPoints[0].setAsProjection(triangle.get(0), viewPortMat);
@@ -503,7 +503,7 @@ public class SelectionManager extends AbstractSelectionManager {
 
 		double vertSize = sizeAdj * ProgramGlobals.getPrefs().getVertexSize() / 2.0;
 
-		for (Geoset geoset : modelView.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getVisEdGeosets()) {
 			RenderGeoset renderGeoset = editorRenderModel.getRenderGeoset(geoset);
 			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
 				if (modelView.isEditable(renderVert.getVertex())){
@@ -561,7 +561,9 @@ public class SelectionManager extends AbstractSelectionManager {
 		Set<GeosetVertex> newSelection = new HashSet<>();
 
 		float vertSize = (float) (sizeAdj * ProgramGlobals.getPrefs().getVertexSize() / 2.0);
-		for (Geoset geoset : modelView.getEditableGeosets()) {
+//		viewBox.printRay();
+		System.out.println("");
+		for (Geoset geoset : modelView.getVisEdGeosets()) {
 			RenderGeoset renderGeoset = editorRenderModel.getRenderGeoset(geoset);
 			for (Triangle triangle : geoset.getTriangles()) {
 				if (modelView.isEditable(triangle)){
@@ -569,11 +571,22 @@ public class SelectionManager extends AbstractSelectionManager {
 					Vec3 renderPos1 = renderGeoset.getRenderVert(triangle.get(1)).getRenderPos();
 					Vec3 renderPos2 = renderGeoset.getRenderVert(triangle.get(2)).getRenderPos();
 					if(viewBox.anyPointInBox(vertSize, renderPos0, renderPos1, renderPos2) || viewBox.triIntersectBox(renderPos0, renderPos1, renderPos2)){
-						System.out.println("point in box!");
+//						System.out.println("point in box!");
 						newSelection.add(triangle.get(0));
 						newSelection.add(triangle.get(1));
 						newSelection.add(triangle.get(2));
 					}
+//					if(viewBox.triIntersectBox(renderPos0, renderPos1, renderPos2)){
+////						System.out.println("tri intersect box!");
+//						newSelection.add(triangle.get(0));
+//						newSelection.add(triangle.get(1));
+//						newSelection.add(triangle.get(2));
+////					} else if(viewBox.anyPointInBox(vertSize, renderPos0, renderPos1, renderPos2)){
+////						System.out.println("any point in box!");
+////						newSelection.add(triangle.get(0));
+////						newSelection.add(triangle.get(1));
+////						newSelection.add(triangle.get(2));
+//					}
 				}
 			}
 		}
@@ -587,7 +600,7 @@ public class SelectionManager extends AbstractSelectionManager {
 
 		float vertSize = (float) (sizeAdj * ProgramGlobals.getPrefs().getVertexSize() / 2.0);
 
-		for (Geoset geoset : modelView.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getVisEdGeosets()) {
 			RenderGeoset renderGeoset = editorRenderModel.getRenderGeoset(geoset);
 			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
 				if (modelView.isEditable(renderVert.getVertex())){
@@ -767,7 +780,7 @@ public class SelectionManager extends AbstractSelectionManager {
 		}
 
 		if (selectionMode == SelectionItemTypes.VERTEX) {
-			for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (Geoset geoset : modelView.getVisEdGeosets()) {
 				for (GeosetVertex vertex : geoset.getVertices()) {
 					if (modelView.isEditable(vertex) && HitTestStuff.hitTest(point, coordinateSystem.convertToViewVec2(vertex), vertexSize)) {
 						return true;
@@ -778,7 +791,7 @@ public class SelectionManager extends AbstractSelectionManager {
 
 
 		if(selectionMode == SelectionItemTypes.CLUSTER){
-			for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (Geoset geoset : modelView.getVisEdGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
 					if (modelView.isEditable(triangle) && HitTestStuff.triHitTest(triangle, point, coordinateSystem)) {
 						return true;
@@ -793,7 +806,7 @@ public class SelectionManager extends AbstractSelectionManager {
 		}
 
 		if(selectionMode == SelectionItemTypes.GROUP){
-			for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (Geoset geoset : modelView.getVisEdGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
 					if (modelView.isEditable(triangle) && HitTestStuff.triHitTest(triangle, point, coordinateSystem)) {
 						return true;
@@ -808,7 +821,7 @@ public class SelectionManager extends AbstractSelectionManager {
 		}
 
 		if(selectionMode == SelectionItemTypes.FACE){
-			for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (Geoset geoset : modelView.getVisEdGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
 					if (modelView.isEditable(triangle) && HitTestStuff.triHitTest(triangle, point, coordinateSystem)) {
 						return true;
@@ -859,7 +872,7 @@ public class SelectionManager extends AbstractSelectionManager {
 		}
 
 		if (selectionMode == SelectionItemTypes.VERTEX) {
-			for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (Geoset geoset : modelView.getVisEdGeosets()) {
 				for (GeosetVertex vertex : geoset.getVertices()) {
 					if (modelView.isEditable(vertex)) {
 						vertexV2.setAsProjection(vertex, viewPortAntiRotMat);
@@ -873,7 +886,7 @@ public class SelectionManager extends AbstractSelectionManager {
 
 		if (selectionMode == SelectionItemTypes.CLUSTER) {
 			Vec2[] triPoints = new Vec2[] {new Vec2(), new Vec2(), new Vec2()};
-			for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (Geoset geoset : modelView.getVisEdGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
 					if (modelView.isEditable(triangle)) {
 						triPoints[0].setAsProjection(triangle.get(0), viewPortAntiRotMat);
@@ -895,7 +908,7 @@ public class SelectionManager extends AbstractSelectionManager {
 
 		if (selectionMode == SelectionItemTypes.GROUP) {
 			Vec2[] triPoints = new Vec2[] {new Vec2(), new Vec2(), new Vec2()};
-			for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (Geoset geoset : modelView.getVisEdGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
 					if (modelView.isEditable(triangle)) {
 						triPoints[0].setAsProjection(triangle.get(0), viewPortAntiRotMat);
@@ -919,7 +932,7 @@ public class SelectionManager extends AbstractSelectionManager {
 
 		if (selectionMode == SelectionItemTypes.FACE) {
 			Vec2[] triPoints = new Vec2[] {new Vec2(), new Vec2(), new Vec2()};
-			for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (Geoset geoset : modelView.getVisEdGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
 					if (modelView.isEditable(triangle)) {
 						triPoints[0].setAsProjection(triangle.get(0), viewPortAntiRotMat);

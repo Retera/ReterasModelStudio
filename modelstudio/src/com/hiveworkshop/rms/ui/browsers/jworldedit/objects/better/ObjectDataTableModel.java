@@ -10,49 +10,45 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.*;
+import java.util.Set;
 
 public class ObjectDataTableModel implements TableModel {
 	private final MutableGameObject gameObject;
 	private final List<AbstractObjectField> fields;
 	private final Set<TableModelListener> tableModelListeners;
 	private boolean displayAsRawData;
-	private final ObjectData metaData;
 	private final Runnable runOnIsCustomUnitStateChange;
 
 	public ObjectDataTableModel(MutableGameObject gameObject, ObjectData metaData,
 	                            AbstractFieldBuilder editorFieldBuilder, boolean displayAsRawData,
 	                            Runnable runOnIsCustomUnitStateChange) {
 		this.gameObject = gameObject;
-		this.metaData = metaData;
 		this.displayAsRawData = displayAsRawData;
 		this.runOnIsCustomUnitStateChange = runOnIsCustomUnitStateChange;
 		tableModelListeners = new LinkedHashSet<>();
 		if (gameObject != null) {
 			fields = editorFieldBuilder.buildFields(metaData, gameObject);
-			fields.sort(getFieldComparator(gameObject));
+			fields.sort((o1, o2) -> compareFields(gameObject, o1, o2));
 		} else {
 			fields = new ArrayList<>();
 		}
 	}
 
-	private Comparator<AbstractObjectField> getFieldComparator(MutableGameObject gameObject) {
-		return (o1, o2) -> {
-			final int o1Level = o1.getLevel();
-			final int o2Level = o2.getLevel();
-			if (o1.isShowingLevelDisplay() && !o2.isShowingLevelDisplay()) {
-				return 1;
-			}
-			if (!o1.isShowingLevelDisplay() && o2.isShowingLevelDisplay()) {
-				return -1;
-			}
-			final int sortNameComparison = o1.getSortName(gameObject).compareTo(o2.getSortName(gameObject));
-			if (sortNameComparison != 0) {
-				return sortNameComparison;
-			}
-			return Integer.compare(o1Level, o2Level);
-		};
+	private int compareFields(MutableGameObject gameObject, AbstractObjectField field1, AbstractObjectField field2) {
+		if (field1.isShowingLevelDisplay() && !field2.isShowingLevelDisplay()) {
+			return 1;
+		}
+		if (!field1.isShowingLevelDisplay() && field2.isShowingLevelDisplay()) {
+			return -1;
+		}
+		final int sortNameComparison = field1.getSortName(gameObject).compareTo(field2.getSortName(gameObject));
+		if (sortNameComparison != 0) {
+			return sortNameComparison;
+		}
+		return Integer.compare(field1.getLevel(), field2.getLevel());
 	}
 
 	public void setDisplayAsRawData(final boolean displayAsRawData) {

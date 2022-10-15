@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
+import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
@@ -424,6 +425,16 @@ public class GeosetVertex extends Vec3 {
 	}
 
 	@Override
+	public Vec3 rotate(Vec3 center, Quat quat) {
+		super.rotate(center, quat);
+		normal.rotate(Vec3.ZERO, quat);
+		if (tangent != null) {
+//			tangent.getVec3().rotate(center, quat);
+//			tangent.rotateAsVec3(Vec3.ZERO, quat);
+			tangent.set(tangent.getVec3().rotate(center, quat), tangent.w);
+		}
+		return this;
+	}
 	public Vec3 rotate(Vec3 center, double radians,
 	                   byte firstXYZ, byte secondXYZ) {
 		super.rotate(center, radians, firstXYZ, secondXYZ);

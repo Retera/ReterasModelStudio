@@ -87,10 +87,10 @@ public class SquatActivity extends TransformActivity {
 	}
 
 	protected void finnishAction(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj, boolean wasCanceled) {
-		if (isActing) {
+		if (isActing && rotationAction != null) {
 			Vec2 mouseEnd = getPoint(e);
 
-			double radians = computeRotateRadians(e, lastDragPoint, mouseEnd, viewProjectionMatrix);
+			double radians = computeRotateRadians(e.isControlDown(), lastDragPoint, mouseEnd, viewProjectionMatrix);
 			rotationAction.updateRotation(radians);
 			nonRotAngle = 0;
 			totRotAngle = 0;
@@ -102,12 +102,17 @@ public class SquatActivity extends TransformActivity {
 			}
 			mouseStartPoint.set(0,0);
 			lastDragPoint.set(0,0);
-			isActing = false;
 		}
+		isActing = false;
 	}
 
 	protected void updateMat(MouseEvent e, Mat4 viewProjectionMatrix, Vec2 mouseEnd) {
-		double radians = computeRotateRadians(e, lastDragPoint, mouseEnd, viewProjectionMatrix);
+		double radians = computeRotateRadians(e.isControlDown(), lastDragPoint, mouseEnd, viewProjectionMatrix);
+		rotationAction.updateRotation(radians);
+	}
+	protected void updateMat(Mat4 viewProjectionMatrix, Vec2 mouseEnd,
+	                         boolean isPrecise, boolean isSnap, boolean isAxisLock) {
+		double radians = computeRotateRadians(isSnap, lastDragPoint, mouseEnd, viewProjectionMatrix);
 		rotationAction.updateRotation(radians);
 	}
 
@@ -190,7 +195,7 @@ public class SquatActivity extends TransformActivity {
 	}
 
 
-	protected double computeRotateRadians(MouseEvent e, Vec2 startingClick, Vec2 endingClick, Mat4 viewProjectionMatrix) {
+	protected double computeRotateRadians(boolean isSnap, Vec2 startingClick, Vec2 endingClick, Mat4 viewProjectionMatrix) {
 		double deltaAngle = 0;
 		Vec2 center = getViewportSelectionCenter();
 		if (dir == MoveDimension.XYZ) {
@@ -208,7 +213,7 @@ public class SquatActivity extends TransformActivity {
 
 			deltaAngle = endingAngle - startingAngle;
 		}
-		if (e.isControlDown()) {
+		if (isSnap) {
 			nonRotAngle += deltaAngle;
 			deltaAngle = getSnappedAngle(nonRotAngle, 15);
 			nonRotAngle -= deltaAngle;

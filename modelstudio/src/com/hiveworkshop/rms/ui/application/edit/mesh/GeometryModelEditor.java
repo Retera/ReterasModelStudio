@@ -56,9 +56,12 @@ public class GeometryModelEditor extends ModelEditor {
     @Override
     public UndoAction rotate(Vec3 center, Vec3 rotate) {
 	    return new CompoundAction("rotate", null,
-			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.x), Vec3.X_AXIS),
-			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.y), Vec3.NEGATIVE_Y_AXIS),
-			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.z), Vec3.NEGATIVE_Z_AXIS));
+			    new StaticMeshRotateAction2(modelView, center, Vec3.X_AXIS, Math.toRadians(rotate.x)),
+			    new StaticMeshRotateAction2(modelView, center, Vec3.NEGATIVE_Y_AXIS, Math.toRadians(rotate.y)),
+			    new StaticMeshRotateAction2(modelView, center, Vec3.NEGATIVE_Z_AXIS, Math.toRadians(rotate.z)));
+//			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.x), Vec3.X_AXIS),
+//			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.y), Vec3.NEGATIVE_Y_AXIS),
+//			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.z), Vec3.NEGATIVE_Z_AXIS));
     }
 
     @Override
@@ -83,7 +86,7 @@ public class GeometryModelEditor extends ModelEditor {
 
 	@Override
 	public GenericRotateAction beginRotation(Vec3 center, Vec3 axis) {
-		return new StaticMeshRotateAction2(modelView, new Vec3(center), axis);
+		return new StaticMeshRotateAction2(modelView, new Vec3(center), axis, 0);
 	}
 
 	@Override

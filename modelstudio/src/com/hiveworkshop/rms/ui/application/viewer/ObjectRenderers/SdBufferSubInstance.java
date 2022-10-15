@@ -41,7 +41,7 @@ public class SdBufferSubInstance extends BufferSubInstance {
 //		for(int i = 0; i<material.getLayers().size() && i < 6; i++){
 //			textures[i] = material.getLayer(i).getRenderTexture(timeEnvironment, model);
 //		}
-		texture = diffuseLayer.getRenderTexture(timeEnvironment, model);
+		texture = diffuseLayer.getRenderTexture(timeEnvironment);
 
 		float fresnelOpacity = diffuseLayer.getInterpolatedFloat(timeEnvironment, MdlUtils.TOKEN_FRESNEL_OPACITY, 0.0f);
 		fresnelColor.set(diffuseLayer.getInterpolatedVector(timeEnvironment, MdlUtils.TOKEN_FRESNEL_COLOR, Vec3.ZERO), fresnelOpacity);

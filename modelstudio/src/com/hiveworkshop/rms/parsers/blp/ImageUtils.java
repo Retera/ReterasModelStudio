@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class ImageUtils {
 	private static final int BYTES_PER_PIXEL = 4;
@@ -174,6 +175,25 @@ public class ImageUtils {
 		for (int shiftedInt : shiftedInts){
 			buffer.put((byte) (shiftedInt & 0xFF));
 		}
+	}
+
+	public static BufferedImage getCheckerImage(int width, int height, int squareSize, Color color1, Color color2){
+		int[] pixels = new int[width*height+squareSize];
+//		Arrays.fill(pixels, MathUtils.uint8ToUint32((byte) 255, (byte) 192, (byte) 192, (byte) 192));
+		Arrays.fill(pixels, color1.getRGB());
+//		int color = MathUtils.uint8ToUint32((byte) 255, (byte) 127, (byte) 127, (byte) 127);
+		int color = color2.getRGB();
+		for (int h = 0; h < height; h++){
+			int hPix = h*width;
+			int wStart = squareSize - (h % (squareSize * 2)) <= 0 ? squareSize : 0;
+			for (int w = wStart; w < width; w += (squareSize * 2)){
+				Arrays.fill(pixels, hPix + w, hPix + w + squareSize, color);
+			}
+		}
+
+		BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		bufferedImage.setRGB(0,0, width, height, pixels, 0, width);
+		return bufferedImage;
 	}
 
 	public enum ColorMode {

@@ -97,6 +97,11 @@ public class ScaleActivity extends TransformActivity {
 		buildScaleVector(lastDragPoint, mouseEnd, viewProjectionMatrix);
 		scaleAction.updateScale(scaleVector);
 	}
+	protected void updateMat(Mat4 viewProjectionMatrix, Vec2 mouseEnd,
+	                         boolean isPrecise, boolean isSnap, boolean isAxisLock) {
+		buildScaleVector(lastDragPoint, mouseEnd, viewProjectionMatrix);
+		scaleAction.updateScale(scaleVector);
+	}
 
 	protected final void buildScaleVector(Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
 		scaleVector.set(1, 1, 1);

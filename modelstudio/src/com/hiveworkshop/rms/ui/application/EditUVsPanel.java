@@ -14,7 +14,8 @@ public class EditUVsPanel {
     public static void showEditUVs() {
 	    UVPanel uvPanel = new UVPanel();
 	    uvPanel.initViewport();
-	    uvPanel.setModel(ProgramGlobals.getCurrentModelPanel().getModelHandler());
+//	    uvPanel.setModel(ProgramGlobals.getCurrentModelPanel().getModelHandler());
+	    uvPanel.setModel(ProgramGlobals.getCurrentModelPanel());
 
 	    ImageIcon UVIcon = new ImageIcon(IconUtils.worldEditStyleIcon(RMSIcons.loadTabImage("UVMap.png")));
 	    String s = "Texture Coordinate Editor: " + ProgramGlobals.getCurrentModelPanel().getModel().getName();

@@ -26,8 +26,8 @@ public class EditorTester {
 		Vec3AnimFlag animFlag = new Vec3AnimFlag("Translation");
 		Sequence sequence = new Animation("Stand", 0, 2000);
 		Sequence sequence2 = new Animation("Stand 2", 2033, 4033);
-		animFlag.setEntryMap(sequence, TimelineTextEditor.stringToEntryMap(getText(), false, Vec3::parseVec3));
-		animFlag.setEntryMap(sequence2, TimelineTextEditor.stringToEntryMap(getText(), false, Vec3::parseVec3));
+		animFlag.setEntryMap(sequence, TimelineTextEditor.stringToEntryMap(getText(), false, Vec3::parseVec3, 3));
+		animFlag.setEntryMap(sequence2, TimelineTextEditor.stringToEntryMap(getText(), false, Vec3::parseVec3, 3));
 		animFlag.setInterpType(InterpolationType.HERMITE);
 
 		Helper helper = new Helper("Mesh03");
@@ -57,7 +57,7 @@ public class EditorTester {
 	private static void testTextEditor() {
 		Vec3AnimFlag animFlag = new Vec3AnimFlag("Translation");
 		Sequence sequence = new Animation("Stand", 0, 2000);
-		animFlag.setEntryMap(sequence, TimelineTextEditor.stringToEntryMap(getText(), false, Vec3::parseVec3));
+		animFlag.setEntryMap(sequence, TimelineTextEditor.stringToEntryMap(getText(), false, Vec3::parseVec3, 3));
 		animFlag.setInterpType(InterpolationType.HERMITE);
 
 		Helper helper = new Helper("Mesh03");

@@ -52,7 +52,9 @@ public class SkinningOptionPanel extends JPanel {
 
 
 		skinPanel.add(skinSubPanel, "growx, growy");
-		tabbedPane.add("Skin", new JScrollPane(skinPanel));
+		JScrollPane scrollPane = new JScrollPane(skinPanel);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		tabbedPane.add("Skin", scrollPane);
 
 		tabbedPane.add("Bones", getBoneAdjustmentsPanel());
 		add(tabbedPane, "growx, growy");

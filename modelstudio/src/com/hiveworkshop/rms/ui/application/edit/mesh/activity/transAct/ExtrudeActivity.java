@@ -18,7 +18,6 @@ import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
 
 public class ExtrudeActivity extends TransformActivity {
 	protected final Vec3 moveVector = new Vec3();
@@ -105,6 +104,12 @@ public class ExtrudeActivity extends TransformActivity {
 	}
 
 	protected void updateMat(MouseEvent e, Mat4 viewProjectionMatrix, Vec2 mouseEnd) {
+		buildMoveVector(lastDragPoint, mouseEnd, viewProjectionMatrix);
+		translationAction.updateTranslation(moveVector);
+	}
+
+	protected void updateMat(Mat4 viewProjectionMatrix, Vec2 mouseEnd,
+	                         boolean isPrecise, boolean isSnap, boolean isAxisLock) {
 		buildMoveVector(lastDragPoint, mouseEnd, viewProjectionMatrix);
 		translationAction.updateTranslation(moveVector);
 	}

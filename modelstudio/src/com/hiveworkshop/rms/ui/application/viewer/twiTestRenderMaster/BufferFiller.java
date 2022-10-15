@@ -154,9 +154,13 @@ public class BufferFiller {
 			if ((programPreferences == null) || programPreferences.textureModels()) {
 				forceReloadTextures();
 			}
-			// JAVA 9+ or maybe WIN 10 allow ridiculous virtual pixes, this combination of
-			// old library code and java std library code give me a metric for the
-			// ridiculous ratio:
+
+			// For when UI scaling is not set to 100%.
+			// Found on Windows by either: Right-click desktop -> Display settings
+			// or: Windows Settings -> System (Or Ease of Access) (-> Display)
+
+			// JAVA 9+ or maybe WIN 10 allow ridiculous virtual pixes, this combination of old library code
+			// and java std library code give me a metric for the ridiculous ratio:
 			DisplayMode displayMode = Display.getDisplayMode();
 			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 			xRatio = (float) (displayMode.getWidth() / screenSize.getWidth());

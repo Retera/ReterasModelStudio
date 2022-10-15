@@ -14,7 +14,7 @@ public class EditorColorsPrefPanel extends JPanel {
 	public EditorColorsPrefPanel() {
 		super(new MigLayout("fill, ins 0, gap 0", "[]10[]"));
 
-		colorPrefs = ProgramGlobals.getPrefs().getEditorColorPrefs();
+		colorPrefs = ProgramGlobals.getPrefs().getEditorColorPrefsCopy();
 
 		for (ColorThing thing : ColorThing.values()) {
 			add(new JLabel(thing.getTextKeyString()));

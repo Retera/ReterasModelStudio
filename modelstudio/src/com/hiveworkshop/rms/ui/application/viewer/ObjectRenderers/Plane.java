@@ -60,7 +60,8 @@ public class Plane {
 		norm.set(tri[1]).sub(tri[0]);
 		tempVec.set(tri[2]).sub(tri[1]);
 		norm.cross(tempVec).normalize();
-		setPoint(tri[0]);
+//		setPoint(tri[0]);
+		this.dist = tri[0].dot(norm);
 		return this;
 	}
 	public Plane setPoint(Vec3 point) {

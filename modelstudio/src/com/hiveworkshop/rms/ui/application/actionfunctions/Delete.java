@@ -25,7 +25,7 @@ public class Delete extends ActionFunction {
 				ProgramGlobals.getRootWindowUgg().getWindowHandler2().getTimeSliderView().getTimeSliderPanel().getKeyframeHandler().deleteSelectedKeyframes();
 			} else {
 				ModelView modelView = modelPanel.getModelView();
-				DeleteAction deleteAction = new DeleteAction(modelView.getSelectedVertices(), ModelStructureChangeListener.changeListener, modelView);
+				DeleteAction deleteAction = new DeleteAction(modelView.getSelectedVertices(), modelView, ProgramGlobals.getSelectionItemType() == SelectionItemTypes.FACE, ModelStructureChangeListener.changeListener);
 				DeleteNodesAction deleteNodesAction = new DeleteNodesAction(modelView.getSelectedIdObjects(), modelView.getSelectedCameras(), ModelStructureChangeListener.changeListener, modelView.getModel());
 				CompoundAction compoundAction = new CompoundAction("deleted components", Arrays.asList(deleteAction, deleteNodesAction));
 				compoundAction.redo();

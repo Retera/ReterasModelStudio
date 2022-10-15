@@ -13,12 +13,11 @@ public class StaticMeshUVScaleAction implements GenericScaleAction {
 	private final ArrayList<Vec2> selectedTVerts;
 	private final ArrayList<Vec2> orgTVerts;
 	private final Vec2 center;
-	private final Vec2 scale = new Vec2(1, 1);
+	private final Vec2 scale;
 	private final Vec2 dScale = new Vec2(1, 1);
 	int uvLayerIndex;
 
-
-	public StaticMeshUVScaleAction(Collection<GeosetVertex> selectedVertices, int uvLayerIndex, Vec2 center) {
+	public StaticMeshUVScaleAction(Collection<GeosetVertex> selectedVertices, int uvLayerIndex, Vec2 center, Vec3 scale) {
 		selectedTVerts = new ArrayList<>();
 		orgTVerts = new ArrayList<>();
 		for (GeosetVertex vertex : selectedVertices) {
@@ -29,6 +28,7 @@ public class StaticMeshUVScaleAction implements GenericScaleAction {
 		}
 		this.uvLayerIndex = uvLayerIndex;
 		this.center = new Vec2(center);
+		this.scale = new Vec2(scale.x, scale.y);
 	}
 
 	@Override

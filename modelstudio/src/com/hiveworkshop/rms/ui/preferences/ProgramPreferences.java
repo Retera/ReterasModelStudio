@@ -68,6 +68,10 @@ public class ProgramPreferences implements Serializable {
 	//	private String keyBindings = new KeyBindingPrefs().makeMap().toString();
 	private String keyBindings = new KeyBindingPrefs().toString();
 	private String editorColors = new EditorColorPrefs().toString();
+	private String cameraShortcuts = new CameraControlPrefs().toString();
+	private transient KeyBindingPrefs keyBindingsPrefs;
+	private transient EditorColorPrefs editorColorsPrefs;
+	private transient CameraControlPrefs cameraShortcutsPrefs;
 
 
 	private MouseButtonPreference threeDCameraSpinButton = MouseButtonPreference.LEFT;
@@ -77,19 +81,21 @@ public class ProgramPreferences implements Serializable {
 	private Integer threeDCameraPanMouseEx = MouseEvent.SHIFT_DOWN_MASK | MouseEvent.BUTTON2_DOWN_MASK;
 	private Integer selectMouseButton = MouseEvent.BUTTON1_DOWN_MASK;
 	private Integer modifyMouseButton = MouseEvent.BUTTON3_DOWN_MASK;
+	private Integer snapTransformModifier = MouseEvent.CTRL_DOWN_MASK;
+	private Integer transformAxisLocModifier = MouseEvent.ALT_DOWN_MASK;
+	private Integer transformPrecisionModifier = MouseEvent.SHIFT_DOWN_MASK;
 	private Integer addSelectModifier = MouseEvent.SHIFT_DOWN_MASK;
 	private Integer removeSelectModifier = MouseEvent.CTRL_DOWN_MASK;
 
+	private Integer cameraOppositeKB = KeyEvent.CTRL_DOWN_MASK;
 	private Integer cameraFrontKB = KeyEvent.VK_NUMPAD1;
 	private Integer cameraSideKB = KeyEvent.VK_NUMPAD3;
 	private Integer cameraTopKB = KeyEvent.VK_NUMPAD7;
 	private Integer cameraLocZoomReset = KeyEvent.VK_NUMPAD0;
-	private Integer cameraOppositeKB = KeyEvent.CTRL_DOWN_MASK;
 	private Integer cameraRotateSidePosKB = KeyEvent.VK_NUMPAD4;
 	private Integer cameraRotateSideNegKB = KeyEvent.VK_NUMPAD6;
 	private Integer cameraRotateUpKB = KeyEvent.VK_NUMPAD8;
 	private Integer cameraRotateDownKB = KeyEvent.VK_NUMPAD2;
-
 	private Integer cameraToggleOrtho = KeyEvent.VK_O;
 
 	private Integer maxNumbersOfUndo = 100;
@@ -689,6 +695,10 @@ public class ProgramPreferences implements Serializable {
 		return modifyMouseButton;
 	}
 
+	public Integer getSnapTransformModifier() {
+		return snapTransformModifier;
+	}
+
 	public void setModifyMouseButton(int modifyMouseButton) {
 		this.modifyMouseButton = modifyMouseButton;
 		saveAndFireListeners();
@@ -764,16 +774,30 @@ public class ProgramPreferences implements Serializable {
 	}
 
 	public KeyBindingPrefs getKeyBindingPrefs() {
+		if(keyBindingsPrefs == null){
+			keyBindingsPrefs = new KeyBindingPrefs().parseString(keyBindings);
+		}
+		return keyBindingsPrefs;
+	}
+	public KeyBindingPrefs getKeyBindingPrefsCopy() {
 		return new KeyBindingPrefs().parseString(keyBindings);
 	}
 
 	public ProgramPreferences setKeyBindings(String keyBindings) {
 		this.keyBindings = keyBindings;
+		if(keyBindingsPrefs == null){
+			keyBindingsPrefs = new KeyBindingPrefs();
+		}
+		keyBindingsPrefs.parseString(keyBindings);
 		return this;
 	}
 
 	public ProgramPreferences setKeyBindings(KeyBindingPrefs keyBindingPrefs) {
 		this.keyBindings = keyBindingPrefs.toString();
+		if(keyBindingsPrefs == null){
+			keyBindingsPrefs = new KeyBindingPrefs();
+		}
+		keyBindingsPrefs.parseString(keyBindings);
 		System.out.println("Saved keybindings!");
 		System.out.println(keyBindings);
 		saveAndFireListeners();
@@ -786,11 +810,21 @@ public class ProgramPreferences implements Serializable {
 	}
 
 	public EditorColorPrefs getEditorColorPrefs() {
+		if(editorColorsPrefs == null){
+			editorColorsPrefs = new EditorColorPrefs().parseString(editorColors);
+		}
+		return editorColorsPrefs;
+	}
+	public EditorColorPrefs getEditorColorPrefsCopy() {
 		return new EditorColorPrefs().parseString(editorColors);
 	}
 
 	public ProgramPreferences setEditorColors(String editorColors) {
 		this.editorColors = editorColors;
+		if(editorColorsPrefs == null){
+			editorColorsPrefs = new EditorColorPrefs();
+		}
+		editorColorsPrefs.parseString(editorColors);
 		return this;
 	}
 
@@ -798,6 +832,37 @@ public class ProgramPreferences implements Serializable {
 		this.editorColors = editorColors.toString();
 		System.out.println("Saved keybindings!");
 		System.out.println(editorColors);
+		saveAndFireListeners();
+		return this;
+	}
+
+	public CameraControlPrefs getCameraControlPrefs() {
+		if(cameraShortcutsPrefs == null){
+			cameraShortcutsPrefs = new CameraControlPrefs().parseString(cameraShortcuts);
+		}
+		return cameraShortcutsPrefs;
+	}
+	public CameraControlPrefs getCameraControlPrefsCopy() {
+		return new CameraControlPrefs().parseString(cameraShortcuts);
+	}
+
+	public ProgramPreferences setCameraControlPrefs(String cameraShortcuts) {
+		this.cameraShortcuts = cameraShortcuts;
+		if(cameraShortcutsPrefs == null){
+			cameraShortcutsPrefs = new CameraControlPrefs();
+		}
+		cameraShortcutsPrefs.parseString(cameraShortcuts);
+		return this;
+	}
+
+	public ProgramPreferences setCameraControlPrefs(CameraControlPrefs cameraShortcuts) {
+		this.cameraShortcuts = cameraShortcuts.toString();
+		if(cameraShortcutsPrefs == null){
+			cameraShortcutsPrefs = new CameraControlPrefs();
+		}
+		cameraShortcutsPrefs.parseString(this.cameraShortcuts);
+		System.out.println("Saved keybindings!");
+		System.out.println(cameraShortcuts);
 		saveAndFireListeners();
 		return this;
 	}

@@ -240,17 +240,11 @@ public class MutableObjectData {
 	public MutableGameObject get(final War3ID id) {
 		MutableGameObject mutableGameObject = cachedKeyToGameObject.get(id);
 		if (mutableGameObject == null) {
-			if (editorData.getCustom().containsKey(id)) {
-				ObjectDataChangeEntry customUnitData = editorData.getCustom().get(id);
+			ObjectDataChangeEntry customUnitData = editorData.getFromID(id);
+			if (customUnitData != null) {
 				GameObject parentWC3Object = sourceSLKData.get(customUnitData.getOldId().asStringValue());
 				mutableGameObject = new MutableGameObject(this, parentWC3Object, customUnitData, changeNotifier);
-				cachedKeyToGameObject.put(id, mutableGameObject);
-			} else if (editorData.getOriginal().containsKey(id)) {
-				ObjectDataChangeEntry customUnitData = editorData.getOriginal().get(id);
-				GameObject parentWC3Object = sourceSLKData.get(customUnitData.getOldId().asStringValue());
-				mutableGameObject = new MutableGameObject(this, parentWC3Object, customUnitData, changeNotifier);
-				cachedKeyToGameObject.put(id, mutableGameObject);
-			} else if (sourceSLKData.get(id.asStringValue()) != null) {
+			} else if (sourceSLKData.get(id.asStringValue()) != null){
 				mutableGameObject = new MutableGameObject(this, sourceSLKData.get(id.asStringValue()), null, changeNotifier);
 				cachedKeyToGameObject.put(id, mutableGameObject);
 			}
@@ -344,33 +338,33 @@ public class MutableObjectData {
 	}
 
 
-	public static String getEditorMetaDataDisplayKey(int level, final GameObject metaData) {
-		int index = metaData.getFieldValue("index");
-		String metaDataName = metaData.getField("field");
-		int repeatCount = metaData.getFieldValue("repeat");
-		String upgradeHack = metaData.getField("appendIndex");
-		boolean repeats = (repeatCount > 0) && !"0".equals(upgradeHack);
-		int data = metaData.getFieldValue("data");
-		if (data > 0) {
-			metaDataName += (char) ('A' + (data - 1));
-		}
-		if ("1".equals(upgradeHack)) {
-			int upgradeExtensionLevel = level - 1;
-			if (upgradeExtensionLevel > 0) {
-				metaDataName += Integer.toString(upgradeExtensionLevel);
-			}
-		} else if (repeats && (index == -1)) {
-			if (level == 0) {
-				level = 1;
-			}
-			if (repeatCount >= 10) {
-				metaDataName += String.format("%2d", level).replace(' ', '0');
-			} else {
-				metaDataName += Integer.toString(level);
-			}
-		}
-		return metaDataName;
-	}
+//	public static String getEditorMetaDataDisplayKey(int level, final GameObject metaData) {
+//		int index = metaData.getFieldValue("index");
+//		String metaDataName = metaData.getField("field");
+//		int repeatCount = metaData.getFieldValue("repeat");
+//		String upgradeHack = metaData.getField("appendIndex");
+//		boolean repeats = (repeatCount > 0) && !"0".equals(upgradeHack);
+//		int data = metaData.getFieldValue("data");
+//		if (data > 0) {
+//			metaDataName += (char) ('A' + (data - 1));
+//		}
+//		if ("1".equals(upgradeHack)) {
+//			int upgradeExtensionLevel = level - 1;
+//			if (upgradeExtensionLevel > 0) {
+//				metaDataName += Integer.toString(upgradeExtensionLevel);
+//			}
+//		} else if (repeats && (index == -1)) {
+//			if (level == 0) {
+//				level = 1;
+//			}
+//			if (repeatCount >= 10) {
+//				metaDataName += String.format("%2d", level).replace(' ', '0');
+//			} else {
+//				metaDataName += Integer.toString(level);
+//			}
+//		}
+//		return metaDataName;
+//	}
 
 	public static String getDisplayAsRawDataName(final MutableGameObject gameObject) {
 		String aliasString = gameObject.getAlias().toString();

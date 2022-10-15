@@ -245,9 +245,9 @@ public class TextureThing {
 					}
 				}
 				final Layer layer = geo.getMaterial().getLayers().get(i);
-				if (layer.getTextureBitmap() != null) {
-					loadToTexMap(model, layer.getTextureBitmap());
-				}
+//				if (layer.getTextureBitmap() != null) {
+//					loadToTexMap(model, layer.getTextureBitmap());
+//				}
 				if (layer.getTextures() != null) {
 					for (final Bitmap tex : layer.getTextures()) {
 						loadToTexMap(model, tex);

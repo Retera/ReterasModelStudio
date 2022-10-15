@@ -132,6 +132,7 @@ public class NodeAnimationModelEditor extends ModelEditor {
 
 	@Override
 	public GenericRotateAction beginSquatTool(Vec3 center, Vec3 axis) {
+		System.out.println("begin Squat!");
 		Set<IdObject> selection = new HashSet<>(modelView.getSelectedIdObjects());
 
 		for (IdObject idObject : modelView.getModel().getIdObjects()) {

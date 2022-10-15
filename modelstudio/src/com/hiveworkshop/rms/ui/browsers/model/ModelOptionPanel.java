@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.ui.application.ModelLoader;
 import com.hiveworkshop.rms.ui.application.model.editors.TwiFocusListener;
 import com.hiveworkshop.rms.ui.application.viewer.AnimationViewer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import com.hiveworkshop.rms.util.TwiComboBoxModel;
 import net.miginfocom.swing.MigLayout;
 
@@ -21,14 +22,15 @@ import java.util.List;
 public class ModelOptionPanel extends JPanel {
 	private final List<ModelGroup> groups;
 
+	private final static ModelGroup prototypeGroup = new ModelGroup("A prototype prototypeGroup");
 	public static void dropCache() {
 		ModelGroupsHolder.dropCache();
 	}
 
 	private final Model nullModel = new Model(null, "", "");
 
-	private final JComboBox<ModelGroup> groupBox;
-	private final JComboBox<Model> modelBox;
+	private final TwiComboBox<ModelGroup> groupBox;
+	private final TwiComboBox<Model> modelBox;
 	private final JTextField filePathField;
 	private final List<TwiComboBoxModel<Model>> groupModels = new ArrayList<>();
 
@@ -42,18 +44,19 @@ public class ModelOptionPanel extends JPanel {
 	public ModelOptionPanel() {
 
 		groups = ModelGroupsHolder.getGroups();
-		TwiComboBoxModel<ModelGroup> groupsModel = new TwiComboBoxModel<>(groups);
+		groupBox = new TwiComboBox<>(groups, prototypeGroup);
+//		TwiComboBoxModel<ModelGroup> groupsModel = new TwiComboBoxModel<>(groups);
 		for (ModelGroup group : groups) {
 			TwiComboBoxModel<Model> groupModel = new TwiComboBoxModel<>(group.getModels());
 			groupModels.add(groupModel);
 		}
 
-		groupBox = new JComboBox<>(groupsModel);
+//		groupBox = new TwiComboBox<>(groupsModel);
 		groupBox.addItemListener(this::groupBoxListener);
 		groupBox.setMaximumRowCount(11);
 		groupBox.setMaximumSize(new Dimension(200, 25));
 
-		modelBox = new JComboBox<>(groupModels.get(0));
+		modelBox = new TwiComboBox<>(groupModels.get(0));
 		modelBox.addItemListener(this::modelBoxListener);
 		modelBox.setMaximumRowCount(20);
 		modelBox.setMaximumSize(new Dimension(1000, 25));
@@ -64,8 +67,10 @@ public class ModelOptionPanel extends JPanel {
 
 		viewer = new AnimationViewer(new ProgramPreferences(), false);
 		viewer.setTitle("No model loaded");
-		groupBox.setSelectedIndex(0);
-		modelBox.setSelectedIndex(0);
+//		groupBox.setSelectedIndex(0);
+//		modelBox.setSelectedIndex(0);
+		groupBox.selectFirst();
+		modelBox.selectFirst();
 		setFilePathFromModelBox();
 
 		setLayout(new MigLayout("fill", "[][grow]", "[grow]"));
@@ -84,7 +89,7 @@ public class ModelOptionPanel extends JPanel {
 			if(selectBoxItemsFromPath(filepath) == null){
 				nullModel.setFilepath(filepath);
 				TwiComboBoxModel<Model> groupModel = groupModels.get(groupBox.getSelectedIndex());
-				groupModel.setSelectedItem(nullModel);
+				groupModel.setSelectedNoListener(nullModel);
 			}
 			currentFilePath = filepath;
 			showModel(filepath);
@@ -133,7 +138,8 @@ public class ModelOptionPanel extends JPanel {
 		if (path != null) {
 			if (selectBoxItemsFromPath(path) == null) {
 				nullModel.setFilepath(path);
-				modelBox.getModel().setSelectedItem(nullModel);
+//				modelBox.getModel().setSelectedItem(nullModel);
+				modelBox.selectOrFirst(nullModel);
 			}
 			currentFilePath = path;
 			filePathField.setText(path);

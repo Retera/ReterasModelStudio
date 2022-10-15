@@ -23,12 +23,12 @@ public class TimeSlider {
 		this.timelinePanel = timelinePanel;
 	}
 
-	public void drawTimeSlider(Graphics g, int time) {
+	public void drawTimeSlider(Graphics g, int time, boolean onFrame) {
 		FontMetrics fontMetrics = g.getFontMetrics(g.getFont());
 		drawRaisedRect(g, fontMetrics, backRect, "<");
 		drawRaisedRect(g, fontMetrics, timeRect, time + "");
 		drawRaisedRect(g, fontMetrics, forwardRect, ">");
-		drawCurrentKeyframeMarker(g);
+		drawCurrentKeyframeMarker(g, onFrame);
 	}
 
 	private void drawRaisedRect(Graphics g, FontMetrics fontMetrics, Rectangle rect, String text) {
@@ -100,15 +100,25 @@ public class TimeSlider {
 	}
 
 
+	private static final Color GLASS_TICK_ON_FRAME_COLOR = new Color(100, 190, 255, 50);
 	private static final Color GLASS_TICK_COVER_COLOR = new Color(100, 190, 255, 100);
 	private static final Color GLASS_TICK_COVER_BORDER_COLOR = new Color(0, 80, 255, 220);
+	private static final Color GLASS_TICK_BORDER_ON_FRAME_COLOR = new Color(100, 240, 50, 220);
 	private static final int VERTICAL_TICKS_HEIGHT = 10;
 
-	public void drawCurrentKeyframeMarker(Graphics g) {
-		g.setColor(GLASS_TICK_COVER_COLOR);
+	public void drawCurrentKeyframeMarker(Graphics g, boolean onFrame) {
+		if(onFrame) {
+			g.setColor(GLASS_TICK_ON_FRAME_COLOR);
+		} else {
+			g.setColor(GLASS_TICK_COVER_COLOR);
+		}
 		int currentTimePixelX = getCenterX();
 		g.fillRect(currentTimePixelX - 4, VERTICAL_SLIDER_HEIGHT, 8, VERTICAL_TICKS_HEIGHT);
-		g.setColor(GLASS_TICK_COVER_BORDER_COLOR);
+		if(onFrame) {
+			g.setColor(GLASS_TICK_BORDER_ON_FRAME_COLOR);
+		} else {
+			g.setColor(GLASS_TICK_COVER_BORDER_COLOR);
+		}
 		g.drawRect(currentTimePixelX - 4, VERTICAL_SLIDER_HEIGHT, 8, VERTICAL_TICKS_HEIGHT);
 	}
 }

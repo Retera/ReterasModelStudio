@@ -26,7 +26,7 @@ public class TimeLogger {
 	public String getTimeString() {
 		if(times.size()==names.size() && times.size()>1){
 			long maxTime = times.get(times.size() - 1) - times.get(0);
-			int timesSize = (int) Math.log(maxTime) + 2;
+			int timesSize = (int) Math.log(maxTime+1) + 2;
 			StringBuilder sb = new StringBuilder();
 			for (int i = 1; i< names.size(); i++){
 				String name = StringPadder.padStringEnd(names.get(i) + ":", " ", longestName + 1);

@@ -44,9 +44,15 @@ public class HdBufferSubInstance extends BufferSubInstance {
 	}
 
 	protected HdBufferSubInstance fetchTextures(TimeEnvironmentImpl timeEnvironment){
-		for(int i = 0; i<material.getLayers().size() && i < 6; i++){
-			textures[i] = material.getLayer(i).getRenderTexture(timeEnvironment, model);
+//		for(int i = 0; i<material.getLayers().size() && i < 6; i++){
+//			textures[i] = material.getLayer(i).getRenderTexture(timeEnvironment);
+//		}
+		for(int i = 0; i<diffuseLayer.getTextures().size() && i < 6; i++){
+			textures[i] = diffuseLayer.getRenderTexture(timeEnvironment, i);
 		}
+//		for(int i = 0; i<material.getLayers().size() && i < 6; i++){
+//			textures[i] = material.getLayer(i).getRenderTexture(timeEnvironment);
+//		}
 
 		float fresnelOpacity = diffuseLayer.getInterpolatedFloat(timeEnvironment, MdlUtils.TOKEN_FRESNEL_OPACITY, 0.0f);
 		fresnelColor.set(diffuseLayer.getInterpolatedVector(timeEnvironment, MdlUtils.TOKEN_FRESNEL_COLOR, Vec3.ZERO), fresnelOpacity);

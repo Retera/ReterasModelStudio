@@ -14,6 +14,7 @@ import com.hiveworkshop.rms.util.SmartButtonGroup;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -43,14 +44,18 @@ public class IdObjectTypeChanger {
 		for(NodeType type : values){
 			buttonGroup.addJRadioButton(type.getName(), null);
 		}
-		buttonGroup.setSelectedIndex(0);
-
-		panel.add(buttonGroup.getButtonPanel());
+		int ordinal = NodeType.getType(idObject).ordinal();
+		buttonGroup.setSelectedIndex(ordinal);
+		buttonGroup.getButton(ordinal).setEnabled(false);
 
 		panel.add(new JLabel("Choose new type for " + typeName), "wrap");
+
 		if(idObject instanceof Bone && !(idObject instanceof Helper)){
-			panel.add(new JLabel("This bone will be removed from any matrix or skin it might be used in."), "wrap");
+			JLabel label = new JLabel("This bone will be removed from any matrix or skin it might be used in.");
+			label.setFont(label.getFont().deriveFont(Font.ITALIC));
+			panel.add(label, "wrap");
 		}
+		panel.add(buttonGroup.getButtonPanel());
 
 		int change_type = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), panel, title, JOptionPane.OK_CANCEL_OPTION);
 		if(change_type == JOptionPane.OK_OPTION){
@@ -83,36 +88,46 @@ public class IdObjectTypeChanger {
 		}
 
 		List<UndoAction> undoActions = new ArrayList<>();
+		undoActions.add(new DeleteNodesAction(oldNode, null, model));
 		undoActions.add(new AddNodeAction(model, newNode, null));
 		undoActions.add(new SetParentAction(oldNode.getChildrenNodes(), newNode, null));
-		undoActions.add(new DeleteNodesAction(oldNode, null, model));
 
-		String actionName = "Turned " + oldNode.getName() + " into " + newNode.getClass().getSimpleName();
+		String actionName = "Turn " + oldNode.getName() + " into " + newNode.getClass().getSimpleName();
 		return new CompoundAction(actionName, undoActions, nodesUpdated);
 	}
 
 
 	enum NodeType {
-		ATTACHMENT("Attachment", () -> new Attachment()),
-		BONE("Bone", () -> new Bone()),
-		COLLISION_SHAPE("CollisionShape", () -> new CollisionShape()),
-		EVENT_OBJECT("EventObject", () -> new EventObject()),
-		HELPER("Helper", () -> new Helper()),
-		LIGHT("Light", () -> new Light()),
-		PARTICLE_EMITTER("ParticleEmitter", () -> new ParticleEmitter()),
-		PARTICLE_EMITTER2("ParticleEmitter2", () -> new ParticleEmitter2()),
-		POPCORN_EMITTER("PopcornEmitter", () -> new ParticleEmitterPopcorn()),
-		RIBBON_EMITTER("RibbonEmitter", () -> new RibbonEmitter());
+		ATTACHMENT("Attachment", () -> new Attachment(), Attachment.class),
+		BONE("Bone", () -> new Bone(), Bone.class),
+		COLLISION_SHAPE("CollisionShape", () -> new CollisionShape(), CollisionShape.class),
+		EVENT_OBJECT("EventObject", () -> new EventObject(), EventObject.class),
+		HELPER("Helper", () -> new Helper(), Helper.class),
+		LIGHT("Light", () -> new Light(), Light.class),
+		PARTICLE_EMITTER("ParticleEmitter", () -> new ParticleEmitter(), ParticleEmitter.class),
+		PARTICLE_EMITTER2("ParticleEmitter2", () -> new ParticleEmitter2(), ParticleEmitter2.class),
+		POPCORN_EMITTER("PopcornEmitter", () -> new ParticleEmitterPopcorn(), ParticleEmitterPopcorn.class),
+		RIBBON_EMITTER("RibbonEmitter", () -> new RibbonEmitter(), RibbonEmitter.class);
 		final String name;
 		final Supplier<IdObject> nodeSupplier;
+		final Class<? extends IdObject> nodeClass;
 
-		NodeType(String name, Supplier<IdObject> nodeSupplier){
+		NodeType(String name, Supplier<IdObject> nodeSupplier, Class<? extends IdObject> nodeClass){
 			this.name = name;
 			this.nodeSupplier = nodeSupplier;
+			this.nodeClass = nodeClass;
 		}
 
 		public String getName() {
 			return name;
+		}
+		public static NodeType getType(IdObject node) {
+			for(NodeType nodeType : NodeType.values()){
+				if(node.getClass() == nodeType.nodeClass){
+					return nodeType;
+				}
+			}
+			return HELPER;
 		}
 
 		public Supplier<IdObject> getNodeSupplier() {

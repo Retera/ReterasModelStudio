@@ -23,17 +23,53 @@ public class DeleteAction implements UndoAction {
 	private final ModelStructureChangeListener changeListener;
 	private final EditableModel model;
 
-
-	public DeleteAction(Collection<GeosetVertex> selection, ModelStructureChangeListener changeListener, ModelView modelView) {
+	public DeleteAction(Collection<GeosetVertex> selection, ModelView modelView, boolean onlyTriangles, ModelStructureChangeListener changeListener) {
 		this.model = modelView.getModel();
 		this.changeListener = changeListener;
 		this.modelView = modelView;
 
-		this.affectedVerts = new HashSet<>(selection);
+		if(onlyTriangles){
+			Set<GeosetVertex> verts = new HashSet<>(selection);
+			this.affectedTris = getFullySelectedTris(getAllAffectedTris(verts), verts);
+			this.affectedVerts = getVertsOnlyInFullySelectedTris(affectedTris);
+		} else {
+			this.affectedVerts = new HashSet<>(selection);
 
-		this.affectedTris = getTrisToRemove(affectedVerts);
+			this.affectedTris = getAllAffectedTris(affectedVerts);
 
+		}
 		this.emptyGeosets = new ArrayList<>();
+	}
+
+
+	private Set<Triangle> getAllAffectedTris(Set<GeosetVertex> selection) {
+		Set<Triangle> affectedTris = new HashSet<>();
+		for (GeosetVertex vertex : selection) {
+			affectedTris.addAll(vertex.getTriangles());
+		}
+		return affectedTris;
+	}
+	private Set<Triangle> getFullySelectedTris(Set<Triangle> affectedTris, Set<GeosetVertex> selection) {
+		Set<Triangle> fullySelectedTris = new HashSet<>();
+		for (Triangle triangle : affectedTris) {
+			if(selection.contains(triangle.get(0))
+					&& selection.contains(triangle.get(1))
+					&& selection.contains(triangle.get(2))){
+				fullySelectedTris.add(triangle);
+			}
+		}
+		return fullySelectedTris;
+	}
+	private Set<GeosetVertex> getVertsOnlyInFullySelectedTris(Set<Triangle> fullySelectedTris) {
+		Set<GeosetVertex> verts = new HashSet<>();
+		for (Triangle triangle : fullySelectedTris) {
+			for(GeosetVertex vertex : triangle.getVerts()){
+				if(fullySelectedTris.containsAll(vertex.getTriangles())){
+					verts.add(vertex);
+				}
+			}
+		}
+		return verts;
 	}
 
 	@Override
@@ -94,15 +130,6 @@ public class DeleteAction implements UndoAction {
 				}
 			}
 		}
-	}
-
-
-	private Set<Triangle> getTrisToRemove(Set<GeosetVertex> selection) {
-		Set<Triangle> trisToDelete = new HashSet<>();
-		for (GeosetVertex vertex : selection) {
-			trisToDelete.addAll(vertex.getTriangles());
-		}
-		return trisToDelete;
 	}
 
 	@Override

@@ -96,12 +96,16 @@ public class CameraManager {
 	}
 
 	public CameraManager loadDefaultCameraFor(double boundsRadius){
+		System.out.println();
 //		this.upAngle = (float) Math.toRadians(90);
 //		this.sideAngle = (float) (Math.PI / 2);
 		this.upAngle = 0.0f;
 		this.sideAngle = 0.0f;
 //		calculateCameraRotation();
 		distance = (float) (boundsRadius * Math.sqrt(2));
+
+		nearClip = Math.min(1.0f, (float) boundsRadius/10f);
+		farClip = Math.max(20000f, (float) boundsRadius*5f);
 //		distance = 3;
 		target.set(0, 0, (float) boundsRadius / 2);
 //		target.set(0, 0, 0);
@@ -246,10 +250,11 @@ public class CameraManager {
 	}
 	public void moveTargetDepth(double dept) {
 		vecHeap.set(camBackward).scale((float) dept);
+		target.add(vecHeap);
 	}
 
 	private void applyPan(double dx, double dy) {
-		target.add(getWorldScreenSpaceAsDeltaRay(-dx,-dy));
+		target.add(getWorldScreenSpaceAsDeltaRay(-dx, -dy));
 	}
 
 	public CameraManager setAllowRotation(boolean allowRotation) {

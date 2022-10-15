@@ -1,7 +1,5 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.panel;
 
-import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.mesh.SplitVertexAction;
 import com.hiveworkshop.rms.editor.actions.uv.MirrorTVerticesAction;
 import com.hiveworkshop.rms.editor.actions.uv.UVRemapAction;
 import com.hiveworkshop.rms.editor.model.Bitmap;
@@ -10,15 +8,14 @@ import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.OpenImages;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.WindowHandler2;
-import com.hiveworkshop.rms.ui.application.actionfunctions.Select;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.PerspectiveViewUgg;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.AnimatedPerspectiveViewport;
 import com.hiveworkshop.rms.ui.application.viewer.UVPanelToolBar;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
+import com.hiveworkshop.rms.ui.gui.modeledit.creator.ManualUVTransformPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
@@ -31,12 +28,11 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.*;
 
-public class UVPanel extends JPanel implements CoordDisplayListener {
+public class UVPanel extends JPanel {
 	private ModelHandler modelHandler;
 	private final JTextField[] mouseCoordDisplay = new JTextField[2];
 	private JPanel zoomPanel;
@@ -47,17 +43,22 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 
 	private final UVViewport uvViewport;
 
+	private final UvPanelMenuBar menuBar;
+	private final ManualUVTransformPanel transformPanel;
+
 	public UVPanel() {
 
 		setLayout(new MigLayout("fill, ins 0", "[grow][]", "[][grow][]"));
 		toolbar = new UVPanelToolBar();
+		transformPanel = new ManualUVTransformPanel();
 
 		setOpaque(true);
-		uvViewport = new UVViewport(this);
+		uvViewport = new UVViewport(this::setMouseCoordDisplay);
 		add(toolbar, "wrap, spanx");
 		add(uvViewport, "growx, growy");
 		add(getStuffPanel(), "growy, wrap");
 		add(getBottomPanel());
+		this.menuBar = new UvPanelMenuBar(uvViewport);
 	}
 
 	private JPanel getBottomPanel() {
@@ -123,6 +124,8 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		stuffPanel.add(divider[2]);
 		stuffPanel.add(unwrapDirectionBox);
 		stuffPanel.add(unwrapButton);
+
+		stuffPanel.add(transformPanel);
 		return stuffPanel;
 	}
 
@@ -184,77 +187,10 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	}
 
 	public JMenuBar getMenuBar() {
-		JMenuBar menuBar = new JMenuBar();
-		menuBar.add(getEditMenu());
-		menuBar.add(getDisplayMenu());
+//		JMenuBar menuBar = new JMenuBar();
+//		menuBar.add(getEditMenu());
+//		menuBar.add(getDisplayMenu());
 		return menuBar;
-	}
-
-	private JMenu getEditMenu() {
-		JMenu editMenu = new JMenu("Edit");
-		editMenu.setMnemonic(KeyEvent.VK_E);
-		editMenu.getAccessibleContext().setAccessibleDescription("Allows the user to use various tools to edit the currently selected model's TVertices.");
-
-//		editMenu.add(getAsMenuItem("Select All", KeyEvent.VK_S, e -> System.out.println("Select All")));
-//		editMenu.add(getAsMenuItem("Invert Selection", KeyEvent.VK_S, e -> System.out.println("Invert Selection")));
-//		editMenu.add(getAsMenuItem("Expand Selection", KeyEvent.VK_S, e -> System.out.println("Expand Selection")));
-		editMenu.add(Select.getSelectAll().getAction());
-		editMenu.add(Select.getInvertSelection().getAction());
-		editMenu.add(Select.getExpandSelection().getAction());
-//		editMenu.add(getAsMenuItem("Select from Viewer", "control V", e -> System.out.println("Select from Viewer")));
-
-		editMenu.add(getAsMenuItem("Split Vertex", KeyEvent.VK_V, e -> splitVertex()));
-
-		editMenu.add(new JSeparator());
-
-		JMenu mirrorSubmenu = getMirrorSubMenu();
-		editMenu.add(mirrorSubmenu);
-		return editMenu;
-	}
-
-	private JMenu getDisplayMenu() {
-		JMenu displayMenu = new JMenu("View");
-		displayMenu.setMnemonic(KeyEvent.VK_V);
-		displayMenu.getAccessibleContext().setAccessibleDescription("Control display settings for this Texture Coordinate Editor window.");
-
-		JCheckBoxMenuItem wrapImage = new JCheckBoxMenuItem("Wrap Image", false);
-		wrapImage.addActionListener(e -> uvViewport.setWrapImage(wrapImage.isSelected()));
-		wrapImage.setToolTipText("Repeat the texture many times in a grid-like display. This feature does not edit the model in any way; only this viewing window.");
-		displayMenu.add(wrapImage);
-
-		JMenuItem setAspectRatio = getAsMenuItem("Set Aspect Ratio", KeyEvent.VK_S, e -> setAspectRatio());
-		setAspectRatio.setAccelerator(KeyStroke.getKeyStroke("control R"));
-		setAspectRatio.setToolTipText("Sets the amount by which the texture display is stretched, for editing textures with non-uniform width and height.");
-		displayMenu.add(setAspectRatio);
-		return displayMenu;
-	}
-
-	private JMenu getMirrorSubMenu() {
-		JMenu mirrorSubmenu = new JMenu("Mirror");
-		mirrorSubmenu.setMnemonic(KeyEvent.VK_M);
-		mirrorSubmenu.getAccessibleContext().setAccessibleDescription("Allows the user to mirror objects.");
-
-		mirrorSubmenu.add(getAsMenuItem("Mirror X (selection center)", KeyEvent.VK_X, e -> mirror(Vec2.X_AXIS, null)));
-		mirrorSubmenu.add(getAsMenuItem("Mirror Y (selection center)", KeyEvent.VK_Y, e -> mirror(Vec2.Y_AXIS, null)));
-
-		mirrorSubmenu.add(getAsMenuItem("Mirror X (image center)", KeyEvent.VK_U, e -> mirror(Vec2.X_AXIS, new Vec2(.5,.5))));
-		mirrorSubmenu.add(getAsMenuItem("Mirror Y (image center)", KeyEvent.VK_V, e -> mirror(Vec2.Y_AXIS, new Vec2(.5,.5))));
-		return mirrorSubmenu;
-	}
-
-	private JMenuItem getAsMenuItem(String itemText, int keyEvent, ActionListener actionListener) {
-		JMenuItem menuItem = new JMenuItem(itemText);
-		menuItem.setMnemonic(keyEvent);
-		menuItem.addActionListener(actionListener);
-		return menuItem;
-	}
-
-	private void splitVertex() {
-		if (modelHandler != null) {
-			UndoAction action = new SplitVertexAction(modelHandler.getModelView().getSelectedVertices(), ModelStructureChangeListener.changeListener);
-			modelHandler.getUndoManager().pushAction(action.redo());
-		}
-		repaint();
 	}
 
 	public void setControlsVisible(boolean flag) {
@@ -287,28 +223,63 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	}
 
 	AnimatedPerspectiveViewport viewport;
-	public UVPanel setModel(ModelHandler modelHandler) {
-		this.modelHandler = modelHandler;
-		toolbar.setModelHandler(modelHandler);
-		uvViewport.setModel(this.modelHandler, toolbar.getViewportActivityManager());
+	public UVPanel setModel(ModelPanel modelPanel) {
+		if (modelPanel != null){
+			this.modelHandler = modelPanel.getModelHandler();
+			transformPanel.setModel(modelHandler, modelPanel.getUvModelEditorManager());
+			toolbar.setModelHandler(modelPanel);
+			menuBar.setModel(modelPanel);
+			uvViewport.setModel(this.modelHandler, modelPanel.getUVViewportActivityManager());
 
-		textureComboBox.removeAllItems();
-		textureComboBox.addAll(modelHandler.getModel().getTextures());
+			textureComboBox.removeAllItems();
+			textureComboBox.addAll(modelHandler.getModel().getTextures());
 
-		textureComboBox.setRenderer(new TextureListRenderer(modelHandler.getModel()));
-		if (textureComboBox.getItemCount() > 0) {
-			textureComboBox.setSelectedItem(null);
-			textureComboBox.setSelectedIndex(0);
-		}
+			textureComboBox.setRenderer(new TextureListRenderer(modelHandler.getModel()));
+			if (textureComboBox.getItemCount() > 0) {
+				textureComboBox.setSelectedItem(null);
+				textureComboBox.setSelectedIndex(0);
+			}
 
-		PerspectiveViewUgg modelDependentView = (PerspectiveViewUgg) WindowHandler2.getAllViews().stream().filter(v -> v instanceof PerspectiveViewUgg).findFirst().orElse(null);
-		if (modelDependentView != null && modelDependentView.getPerspectiveViewport() != null) {
-			viewport = modelDependentView.getPerspectiveViewport();
+			PerspectiveViewUgg modelDependentView = (PerspectiveViewUgg) WindowHandler2.getAllViews().stream().filter(v -> v instanceof PerspectiveViewUgg).findFirst().orElse(null);
+			if (modelDependentView != null && modelDependentView.getPerspectiveViewport() != null) {
+				viewport = modelDependentView.getPerspectiveViewport();
 
+			}
+		} else {
+			modelHandler = null;
+			transformPanel.setModel(null, null);
+			toolbar.setModelHandler(null);
+			menuBar.setModel(null);
+			uvViewport.setModel(null, null);
+
+			textureComboBox.removeAllItems();
 		}
 
 		return this;
 	}
+//	public UVPanel setModel(ModelHandler modelHandler) {
+//		this.modelHandler = modelHandler;
+//		toolbar.setModelHandler(modelHandler);
+//		menuBar.setModel(modelHandler, toolbar.getModelEditorManager());
+//		uvViewport.setModel(this.modelHandler, toolbar.getViewportActivityManager());
+//
+//		textureComboBox.removeAllItems();
+//		textureComboBox.addAll(modelHandler.getModel().getTextures());
+//
+//		textureComboBox.setRenderer(new TextureListRenderer(modelHandler.getModel()));
+//		if (textureComboBox.getItemCount() > 0) {
+//			textureComboBox.setSelectedItem(null);
+//			textureComboBox.setSelectedIndex(0);
+//		}
+//
+//		PerspectiveViewUgg modelDependentView = (PerspectiveViewUgg) WindowHandler2.getAllViews().stream().filter(v -> v instanceof PerspectiveViewUgg).findFirst().orElse(null);
+//		if (modelDependentView != null && modelDependentView.getPerspectiveViewport() != null) {
+//			viewport = modelDependentView.getPerspectiveViewport();
+//
+//		}
+//
+//		return this;
+//	}
 
 	@Override
 	public void paintComponent(Graphics g) {
@@ -333,18 +304,6 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 
 		}
 		uvViewport.repaint();
-	}
-
-	private void setAspectRatio() {
-		JPanel panel = new JPanel();
-		JSpinner widthVal = new JSpinner(new SpinnerNumberModel(1, 1, 10000, 1));
-		JSpinner heightVal = new JSpinner(new SpinnerNumberModel(1, 1, 10000, 1));
-		JLabel toLabel = new JLabel(" to ");
-		panel.add(widthVal);
-		panel.add(toLabel);
-		panel.add(heightVal);
-		JOptionPane.showMessageDialog(this, panel);
-		uvViewport.setAspectRatio((Integer) widthVal.getValue() / (double) (Integer) heightVal.getValue());
 	}
 
 	private void loadExternalImage() {
@@ -382,11 +341,6 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	public int currentLayer() {
 		int uvLayerIndex = 0;
 		return uvLayerIndex;
-	}
-
-	@Override
-	public void notifyUpdate(CoordinateSystem coordinateSystem, double coord1, double coord2) {
-		setMouseCoordDisplay(coord1, coord2);
 	}
 
 

@@ -32,7 +32,8 @@ public class MdlxGeosetAnimation extends MdlxAnimatedObject {
 		writer.writeUInt32(getByteLength(version));
 		writer.writeFloat32(alpha);
 		writer.writeInt32(flags);
-		writer.writeInvFloat32Array(color);
+//		writer.writeInvFloat32Array(color);
+		writer.writeFloat32Array(color);
 		writer.writeInt32(geosetId);
 
 		writeTimelines(writer);

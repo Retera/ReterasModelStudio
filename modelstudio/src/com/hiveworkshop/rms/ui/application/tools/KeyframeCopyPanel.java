@@ -238,12 +238,16 @@ public class KeyframeCopyPanel extends JPanel {
 		List<UndoAction> undoActions = new ArrayList<>();
 		List<Integer> removeTimes = new ArrayList<>();
 		List<Entry<T>> addEntries = new ArrayList<>();
-		for (int j = 0; j < times; j++) {
+		int donAdj = 1;
+		if(times < 0){
+			donAdj = -1;
+		}
+		for (int j = 0; j < Math.abs(times); j++) {
 			if(animFlag.hasEntryAt(recAnimation, recKeyframe + j)){
 				removeTimes.add(recKeyframe + j);
 			}
-			if(animFlag.hasEntryAt(donAnimation, donKeyframe + j)){
-				addEntries.add(animFlag.getEntryAt(donAnim, donKeyframe + j).deepCopy().setTime(recKeyframe + j));
+			if(animFlag.hasEntryAt(donAnimation, donKeyframe + j*donAdj)){
+				addEntries.add(animFlag.getEntryAt(donAnim, donKeyframe + j*donAdj).deepCopy().setTime(recKeyframe + j));
 			}
 		}
 		if(!removeTimes.isEmpty()){

@@ -18,6 +18,7 @@ import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.tools.GlobalSeqWizard;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.CollapsablePanel;
+import com.hiveworkshop.rms.util.TimeLogger;
 import com.hiveworkshop.rms.util.TwiComboBox;
 import net.miginfocom.swing.MigLayout;
 
@@ -40,11 +41,35 @@ public class FlagPanel<T> extends CollapsablePanel {
 	private AnimFlag<T> animFlag;
 	private T staticValue;
 	private final ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
+	TimeLogger timeLogger;
 
 	public FlagPanel(String flagToken, Function<String, T> parseFunction, T defaultValue, ModelHandler modelHandler){
 		this(flagToken, flagToken, parseFunction, defaultValue, modelHandler);
 	}
 
+//	public FlagPanel(String flagToken, String title, Function<String, T> parseFunction, T defaultValue, ModelHandler modelHandler){
+//		this(flagToken, title, parseFunction, defaultValue, modelHandler, new TimeLogger().start());
+//	}
+//	public FlagPanel(String flagToken, String title, Function<String, T> parseFunction, T defaultValue, ModelHandler modelHandler, TimeLogger timeLogger){
+//		super(title, new JPanel(new MigLayout("gap 0, ins 0, hidemode 3")));
+//		timeLogger.log("Initiated Collapsable panel");
+//		this.timeLogger = timeLogger;
+//		this.flagToken = flagToken;
+//		this.title = title;
+//		this.parseFunction = parseFunction;
+//		this.defaultValue = defaultValue;
+//		this.modelHandler = modelHandler;
+//		topPanel = new JPanel(new MigLayout("fill, gap 0, ins 0"));
+//		timeLogger.log("created topPanel");
+//		getCollapsableContentPanel().add(topPanel, "growx, wrap");
+//		timeLogger.log("added topPanel");
+//		multiAnimPanel = new MultiAnimPanel<>(parseFunction, defaultValue, modelHandler);
+//		timeLogger.log("created multiAnimPanel");
+//		getCollapsableContentPanel().add(multiAnimPanel);
+//		timeLogger.log("added multiAnimPanel");
+//		System.out.println("Flagpanel - " + title);
+//		timeLogger.print();
+//	}
 	public FlagPanel(String flagToken, String title, Function<String, T> parseFunction, T defaultValue, ModelHandler modelHandler){
 		super(title, new JPanel(new MigLayout("gap 0, ins 0, hidemode 3")));
 		this.flagToken = flagToken;
@@ -59,45 +84,61 @@ public class FlagPanel<T> extends CollapsablePanel {
 	}
 
 	public FlagPanel<T> update(TimelineContainer node, AnimFlag<T> animFlag, T staticValue){
+//		timeLogger = new TimeLogger().start();
 		this.node = node;
 		this.animFlag = animFlag;
 		this.staticValue = staticValue;
 		topPanel.removeAll();
+//		timeLogger.log("removed all");
 		if(animFlag != null){
-			topPanel.add(dynamicPanel(), "grow");
+//			topPanel.add(dynamicPanel(), "grow");
+			topPanel.add(dynamicPanel(), "growx, growy");
+//			timeLogger.log("added dynamicPanel");
 			multiAnimPanel.setNode(node, animFlag);
+//			timeLogger.log("multiAnimPanel.setNode");
 			if (animFlag.hasGlobalSeq()) {
 				setTitle(title + " (GlobalSeq: " + animFlag.getGlobalSeq() + ")");
 			} else {
 				setTitle(title);
 			}
+//			timeLogger.log("set title");
 			multiAnimPanel.setVisible(true);
+//			timeLogger.log("multiAnimPanel.setVisible");
 		} else {
 			setTitle(title);
-			topPanel.add(staticPanel(), "grow");
+//			topPanel.add(staticPanel(), "grow");
+			topPanel.add(staticPanel(), "growx, growy");
+//			timeLogger.log("added static panel");
 			multiAnimPanel.setVisible(false);
 		}
+//		System.out.println("Flagpanel - " + title + " for " + node);
+//		timeLogger.print();
 		return this;
 	}
 	public FlagPanel<T> update(TimelineContainer node, AnimFlag<T> animFlag){
-		this.node = node;
-		this.animFlag = animFlag;
-		topPanel.removeAll();
-		if(animFlag != null){
-			topPanel.add(dynamicPanel(), "grow");
-			multiAnimPanel.setNode(node, animFlag);
-			if (animFlag.hasGlobalSeq()) {
-				setTitle(title + " (GlobalSeq: " + animFlag.getGlobalSeq() + ")");
-			} else {
-				setTitle(title);
-			}
-			multiAnimPanel.setVisible(true);
-		} else {
-			setTitle(title);
-			topPanel.add(staticPanel(), "grow");
-			multiAnimPanel.setVisible(false);
-		}
-		return this;
+//		timeLogger = new TimeLogger().start();
+//		this.node = node;
+//		this.animFlag = animFlag;
+//		topPanel.removeAll();
+//		timeLogger.log("removed all");
+//		if(animFlag != null){
+////			topPanel.add(dynamicPanel(), "grow");
+//			topPanel.add(dynamicPanel(), "growx, growy");
+//			multiAnimPanel.setNode(node, animFlag);
+//			if (animFlag.hasGlobalSeq()) {
+//				setTitle(title + " (GlobalSeq: " + animFlag.getGlobalSeq() + ")");
+//			} else {
+//				setTitle(title);
+//			}
+//			multiAnimPanel.setVisible(true);
+//		} else {
+//			setTitle(title);
+////			topPanel.add(staticPanel(), "grow");
+//			topPanel.add(staticPanel(), "growx, growy");
+//			multiAnimPanel.setVisible(false);
+//		}
+//		return this;
+		return update(node, animFlag, null);
 	}
 
 	public FlagPanel<T> setStaticComponent(JComponent staticComponent){

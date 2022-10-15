@@ -151,8 +151,8 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 		lodSpinner.reloadNewValue(geoset.getLevelOfDetail());
 		nameTextField.setText(geoset.getLevelOfDetailName());
 
-		hdNamePanel.setVisible(modelHandler.getModel().getFormatVersion() == 1000);
-		lodPanel.setVisible(modelHandler.getModel().getFormatVersion() == 1000);
+		hdNamePanel.setVisible(600 <= modelHandler.getModel().getFormatVersion());
+		lodPanel.setVisible(1000 <= modelHandler.getModel().getFormatVersion());
 
 		visPanel.setGeoset(geoset);
 		geosetAnimPanel.setGeoset(geoset);

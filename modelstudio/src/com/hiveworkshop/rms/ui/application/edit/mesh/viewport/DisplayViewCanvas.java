@@ -33,21 +33,34 @@ public class DisplayViewCanvas extends ModelDependentView {
 		setUpViewAngle();
 
 		// particles:       u2728 ✨, 2614 ☔, 2E19 ⸙,
-		// renderTextures:  u26FE ⛾, 26BF ⚿, 25A8 ▨, 239A, ⎚
+		// renderTextures:  u26FE ⛾, 26BF ⚿, 25A8 ▨, 239A, ⎚, 🌷, 🏵, 🌆, 🏞, 🌐, 🖼, 🖑
 		// wireFrame:       u2B1A ⬚, 2BF4 ⯴, 26E4 ⛤, 25A6 ▦, 27B0 ➰, 27BF ➿, 2341 ⍁, 2342 ⍂
 		// showNormals:     u23CA ⏊, 2BE2 ⯢, 2600 ☀, 23B7 ⎷,
 		// show3dVerts:     u2BCC ⯌, 2360 ⍠, 26EC ⛬, 26DA ⛚, 26AF ⚯, 2058 ⁘,
 
 		String ugg = ""
+				+ "\uD83C\uDF37"
+				+ "\uD83C\uDFF5"
+				+ "\uD83C\uDF06"
+				+ "\uD83C\uDFDE"
+				+ "\uD83C\uDF10"
+				+ "\uD83D\uDDBC"
+				+ "\uD83D\uDD91"
 				+ "\u26AF"
 				+ "\u2BF4"
 				+ "\u2BE2"
 				+ "\u2360";
 
+//		renderTextures =    getButton("\uD83C\uDF37", true, b -> viewportPanel.setRenderTextures(b));
+//		wireFrame =         getButton("\uD83D\uDDBC", false, b -> viewportPanel.setWireFrame(b));
+//		show3dVerts =       getButton("\uD83C\uDF06", true, b -> viewportPanel.setShow3dVerts(b));
+//		showNormals =       getButton("\uD83C\uDFDE", false, b -> viewportPanel.setShowNormals(b));
+
 		renderTextures =    getButton("\u26FE", true, b -> viewportPanel.setRenderTextures(b));
 		wireFrame =         getButton("\u2342", false, b -> viewportPanel.setWireFrame(b));
 		show3dVerts =       getButton("\u26DA", true, b -> viewportPanel.setShow3dVerts(b));
 		showNormals =       getButton("\u23CA", false, b -> viewportPanel.setShowNormals(b));
+
 //		renderTextures =    getButton("texture", true, b -> displayPanel.setRenderTextures(b));
 //		wireFrame =         getButton("wireframe", false, b -> displayPanel.setWireFrame(b));
 //		show3dVerts =       getButton("verts", true, b -> displayPanel.setShow3dVerts(b));

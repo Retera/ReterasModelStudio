@@ -74,6 +74,9 @@ public final class ModelView {
 	public Set<Geoset> getEditableGeosets() {
 		return geosetTracker.getEditableGeosets();
 	}
+	public Set<Geoset> getVisEdGeosets() {
+		return geosetTracker.getVisEdGeosets();
+	}
 
 	public Set<IdObject> getVisibleIdObjects() {
 //		return visibleIdObjects;
@@ -377,6 +380,23 @@ public final class ModelView {
 		return geosetTracker.isVisible(ob);
 	}
 
+//	public <T> boolean isVisible(T obj) {
+//		if (obj instanceof GeosetVertex || obj instanceof Geoset) {
+////			System.out.println("Geoset inVissible:" + visibleGeosets.contains(obj));
+//			return geosetTracker.isInVisible(obj);
+//		} else if (obj instanceof IdObject) {
+////			System.out.println("IdObject inVissible:" + visibleIdObjects.contains(obj));
+//			return visibleIdObjects.contains(obj);
+//		} else if (obj instanceof Camera) {
+////			System.out.println("Camera inVissible:" + visibleCameras.contains(obj));
+//			return visibleCameras.contains(obj);
+//		} else if (obj instanceof CameraNode) {
+////			System.out.println("Camera inVissible:" + visibleCameras.contains(obj));
+//			return visibleCameraNodes.contains(obj);
+//		}
+//		return false;
+//	}
+
 	public boolean isVisible(IdObject ob) {
 		return visibleIdObjects.contains(ob) && idObjectsVisible;
 	}
@@ -614,15 +634,15 @@ public final class ModelView {
 		selectedCameraNodes.remove(camera);
 	}
 
-	public boolean isSelected(GeosetVertex geosetVertex) {
+	public boolean isSelected1(GeosetVertex geosetVertex) {
 		return geosetTracker.isSelected(geosetVertex);
 	}
 
-	public boolean isSelected(IdObject idObject) {
+	public boolean isSelected1(IdObject idObject) {
 		return selectedIdObjects.contains(idObject);
 	}
 
-	public boolean isSelected(Camera camera) {
+	public boolean isSelected1(Camera camera) {
 		return selectedCameraNodes.contains(camera.getSourceNode()) || selectedCameraNodes.contains(camera.getTargetNode());
 	}
 
@@ -650,10 +670,6 @@ public final class ModelView {
 		invertVertSelection();
 		invertIdObjSelection();
 		invertCamSelection();
-	}
-
-	public void selectAllVerts() {
-		geosetTracker.selectAllVerts();
 	}
 
 	public void selectAllIdObjs() {
@@ -725,6 +741,21 @@ public final class ModelView {
 		geosetTracker.setSelectedTVertices(geosetVertices);
 	}
 
+	public <T> boolean isSelected(T obj) {
+		if (obj instanceof GeosetVertex) {
+//			return geosetTracker.isEditable((GeosetVertex) obj) && geosetTracker.isSelected((GeosetVertex) obj);
+			return geosetTracker.isSelected((GeosetVertex) obj);
+		} else if (obj instanceof IdObject) {
+//			return editableIdObjects.contains(obj) && visibleIdObjects.contains(obj) && selectedIdObjects.contains(obj);
+			return isEditable((IdObject)obj) && selectedIdObjects.contains(obj);
+		} else if (obj instanceof Camera) {
+			return  isEditable((Camera)obj) && (selectedCameraNodes.contains(((Camera) obj).getSourceNode())
+					|| selectedCameraNodes.contains(((Camera) obj).getTargetNode()));
+		} else if (obj instanceof CameraNode) {
+			return isEditable((CameraNode)obj) && selectedCameraNodes.contains(((CameraNode) obj));
+		}
+		return false;
+	}
 	public <T> boolean isInEditable(T obj) {
 		if (obj instanceof GeosetVertex || obj instanceof Geoset) {
 			return geosetTracker.isInEditable(obj);
@@ -756,13 +787,13 @@ public final class ModelView {
 	}
 
 	public <T> ModelView makeVisible(T obj, boolean b) {
-		System.out.println("ModelView#makeVisible: " + b);
+//		System.out.println("ModelView#makeVisible: " + b);
 		if (b) {
 			if (obj instanceof Geoset) {
 				System.out.println("Geoset Visible!");
 				makeGeosetVisible(b, (Geoset) obj);
 			} else if (obj instanceof IdObject) {
-				System.out.println("IdObject Visible!");
+//				System.out.println("IdObject Visible!");
 				makeIdObjectVisible((IdObject) obj);
 			} else if (obj instanceof Camera) {
 				System.out.println("Camera Visible!");

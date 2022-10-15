@@ -12,6 +12,7 @@ import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.CollapsablePanel;
 import com.hiveworkshop.rms.util.ScreenInfo;
+import com.hiveworkshop.rms.util.TwiTextEditor.table.TwiTable;
 import com.hiveworkshop.rms.util.TwiTextEditor.table.TwiTableCellEditor;
 import com.hiveworkshop.rms.util.TwiTextEditor.table.TwiTableDefaultRenderer;
 import com.hiveworkshop.rms.util.TwiTextEditor.table.TwiTableModel;
@@ -34,7 +35,7 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 	private final Sequence sequence;
 	private final ModelHandler modelHandler;
 	private TimelineContainer node;
-	private final JTable keyframeTable;
+	private final TwiTable keyframeTable;
 	private TwiTableModel<T> dataModel;
 	private final Function<String, T> parseFunction;
 	private final T defaultValue;
@@ -50,7 +51,7 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 		this.parseFunction = parseFunction;
 		this.defaultValue = defaultValue;
 
-		keyframeTable = new JTable();
+		keyframeTable = new TwiTable();
 		keyframeTable.setDefaultEditor(defaultValue.getClass(), new TwiTableCellEditor<>(parseFunction, defaultValue));
 		TwiTableDefaultRenderer renderer = new TwiTableDefaultRenderer(sequence);
 		keyframeTable.setDefaultRenderer(Integer.class, renderer);
@@ -77,6 +78,7 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 			dataModel = new TwiTableModel<>(animFlag, sequence, defaultValue, null);
 		}
 		keyframeTable.setModel(dataModel);
+		keyframeTable.sizeColumnsToFit(1);
 		setColumnSizes();
 		setTitle(sequence + " (" + sequence.getLength() + ") " + animFlag.size(sequence) + " keyframes");
 //		dataModel.fireTableStructureChanged();
@@ -210,6 +212,8 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 
 	public JPanel fillEditorPanel(){
 		JScrollPane scrollPane = new JScrollPane(keyframeTable);
+//		Dimension suitableSize = ScreenInfo.getSuitableSize(250, 300, 0.6);
+//		Dimension suitableSize2 = ScreenInfo.getSuitableSize(3000, 450, 0.6);
 		Dimension suitableSize = ScreenInfo.getSuitableSize(700, 300, 0.6);
 		Dimension suitableSize2 = ScreenInfo.getSuitableSize(750, 450, 0.6);
 		scrollPane.setPreferredSize(suitableSize);
@@ -233,7 +237,7 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 		mainPanel.add(buttonPanel, "growx");
 
 		updateStuff = () -> {
-			System.out.println("\nupdateStuff");
+//			System.out.println("\nupdateStuff");
 			mainPanel.setPreferredSize(suitableSize2);
 //			int height1 = getHeight();
 //			int spH1 = scrollPane.getHeight();
@@ -249,7 +253,7 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 			public void componentResized(ComponentEvent e) {
 				super.componentResized(e);
 //				updateStuff.run();
-				System.out.println("\nself listener");
+//				System.out.println("\nself listener");
 //
 ////				int height1 = getHeight();
 ////				int spH1 = scrollPane.getHeight();
@@ -264,11 +268,13 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				super.componentResized(e);
-				System.out.println("\nKF listener");
-////				updateStuff.run();
-				System.out.println("height: " + getHeight());
-				System.out.println("SP-height: " + scrollPane.getHeight());
-				System.out.println("RowHeight: " + keyframeTable.getRowHeight());
+//				System.out.println("\nKF listener");
+//////				updateStuff.run();
+//				System.out.println("height: " + getHeight());
+//				System.out.println("SP-height: " + scrollPane.getHeight());
+//				System.out.println("RowHeight: " + keyframeTable.getRowHeight());
+
+
 //				int height1 = getHeight();
 //				int spH1 = scrollPane.getHeight();
 				if(scrollPane.getHeight() < keyframeTable.getRowHeight()*2){
@@ -307,8 +313,8 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 	}
 
 	public void setPrefSize(Dimension suitableSize, JScrollPane scrollPane, JPanel panel) {
-		System.out.println("KF heignt: " + keyframeTable.getHeight());
-		System.out.println("Header heignt: " + keyframeTable.getTableHeader().getHeight());
+//		System.out.println("KF heignt: " + keyframeTable.getHeight());
+//		System.out.println("Header heignt: " + keyframeTable.getTableHeader().getHeight());
 		int totTableHeight = keyframeTable.getHeight() + keyframeTable.getTableHeader().getHeight() + 2;
 		Dimension size = new Dimension(suitableSize);
 		size.height = Math.min(totTableHeight, suitableSize.height);
@@ -318,8 +324,16 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 		panel.setPreferredSize(size2);
 	}
 	public void setPrefSize1(Dimension suitableSize, JScrollPane scrollPane) {
-		System.out.println("\nKF heignt: " + keyframeTable.getHeight());
-		System.out.println("Header heignt: " + keyframeTable.getTableHeader().getHeight());
+//		System.out.println("\nKF heignt: " + keyframeTable.getHeight());
+//		System.out.println("Header heignt: " + keyframeTable.getTableHeader().getHeight());
+		int totTableHeight = keyframeTable.getHeight() + keyframeTable.getTableHeader().getHeight() + 2;
+		Dimension size = new Dimension(suitableSize);
+		size.height = Math.min(totTableHeight, suitableSize.height);
+		scrollPane.setPreferredSize(size);
+	}
+	public void setPrefSize1(Dimension suitableSize, JScrollPane scrollPane, JPanel panel) {
+//		System.out.println("\nKF heignt: " + keyframeTable.getHeight());
+//		System.out.println("Header heignt: " + keyframeTable.getTableHeader().getHeight());
 		int totTableHeight = keyframeTable.getHeight() + keyframeTable.getTableHeader().getHeight() + 2;
 		Dimension size = new Dimension(suitableSize);
 		size.height = Math.min(totTableHeight, suitableSize.height);

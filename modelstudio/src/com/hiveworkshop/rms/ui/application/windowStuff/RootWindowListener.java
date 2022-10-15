@@ -55,8 +55,9 @@ public class RootWindowListener extends DockingWindowAdapter {
 	}
 
 	public static void fixit(DockingWindow window) {
-		traverseAndReset(window);
-		traverseAndFix(window);
+//		traverseAndReset(window);
+//		traverseAndFix(window);
+		traverseAndFix2(window);
 	}
 
 	public static void traverseAndReset(DockingWindow window) {
@@ -87,9 +88,32 @@ public class RootWindowListener extends DockingWindowAdapter {
 			}
 
 			if (window instanceof TabWindow && (childWindowCount != 1) && (childWindow instanceof View)) {
-//				System.out.println(window.getTitle() + " was TabWin, invis titlebar: " + childWindow.getTitle());
+				System.out.println(window.getTitle() + " was TabWin, invis titlebar: " + childWindow.getTitle());
 				((View) childWindow).getViewProperties().getViewTitleBarProperties().setVisible(false);
 			}
+		}
+	}
+	public static void traverseAndFix2(final DockingWindow window) {
+//		System.out.println("WindowHandler2#traverseAndFix - " + window.getTitle());
+		final int childWindowCount = window.getChildWindowCount();
+		for (int i = 0; i < childWindowCount; i++) {
+			final DockingWindow childWindow = window.getChildWindow(i);
+			traverseAndFix2(childWindow);
+
+			childWindow.getWindowProperties().setDragEnabled(!ProgramGlobals.isLockLayout());
+
+			if(childWindow instanceof SplitWindow){
+				((SplitWindow)childWindow).getSplitWindowProperties().setDividerLocationDragEnabled(!ProgramGlobals.isLockLayout());
+			}
+			if (childWindow instanceof View) {
+				if (window instanceof TabWindow && childWindowCount != 1) {
+					System.out.println(window.getTitle() + " was TabWin, invis titlebar: " + childWindow.getTitle());
+					((View) childWindow).getViewProperties().getViewTitleBarProperties().setVisible(false);
+				} else {
+					((View) childWindow).getViewProperties().getViewTitleBarProperties().setVisible(true);
+				}
+			}
+
 		}
 	}
 

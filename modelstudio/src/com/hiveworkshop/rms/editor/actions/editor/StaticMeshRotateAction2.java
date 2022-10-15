@@ -22,10 +22,10 @@ public final class StaticMeshRotateAction2 implements GenericRotateAction {
 	Quat rot = new Quat();
 
 
-	public StaticMeshRotateAction2(ModelView modelView, Vec3 center, Vec3 axis) {
+	public StaticMeshRotateAction2(ModelView modelView, Vec3 center, Vec3 axis, double radians) {
 		this.center = center;
 		this.axis = axis;
-		radians = 0;
+		this.radians = radians;
 		selectedVertices = new HashSet<>(modelView.getSelectedVertices());
 		selectedIdObjects = new HashSet<>(modelView.getSelectedIdObjects());
 		selectedCameraNodes = new HashSet<>(modelView.getSelectedCameraNodes());

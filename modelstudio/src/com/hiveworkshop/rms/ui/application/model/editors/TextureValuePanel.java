@@ -58,7 +58,7 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 
 	@Override
 	void reloadStaticValue(Integer bitmapId) {
-		bitmap = ((Layer) timelineContainer).getTextureBitmap();
+		bitmap = ((Layer) timelineContainer).getTexture(0);
 		staticValue = bitmapId;
 		if (bitmapId == -1) {
 			staticTextureChooser.setSelectedItem(bitmap);
@@ -174,12 +174,12 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 	private void changeStaticBitmap(ItemEvent e) {
 
 		if(e.getStateChange() == ItemEvent.SELECTED
-				&& (((Layer) timelineContainer).getTextureBitmap() != null
-				&& !((Layer) timelineContainer).getTextureBitmap().equals(e.getItem())
-				|| ((Layer) timelineContainer).getTextureBitmap() == null && e.getItem() != null)) {
+				&& (((Layer) timelineContainer).getTexture(0) != null
+				&& !((Layer) timelineContainer).getTexture(0).equals(e.getItem())
+				|| ((Layer) timelineContainer).getTexture(0) == null && e.getItem() != null)) {
 			Bitmap bitmap = (Bitmap) staticTextureChooser.getSelectedItem();
 
-			ChangeLayerStaticTextureAction changeLayerStaticTextureAction = new ChangeLayerStaticTextureAction(bitmap,  (Layer) timelineContainer, changeListener);
+			ChangeLayerStaticTextureAction changeLayerStaticTextureAction = new ChangeLayerStaticTextureAction(bitmap, 0, (Layer) timelineContainer, changeListener);
 			undoManager.pushAction(changeLayerStaticTextureAction.redo());
 		}
 	}

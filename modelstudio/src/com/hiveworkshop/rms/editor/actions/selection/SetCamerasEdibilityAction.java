@@ -2,25 +2,26 @@ package com.hiveworkshop.rms.editor.actions.selection;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
 
 public final class SetCamerasEdibilityAction implements UndoAction {
 	private final ModelView modelViewManager;
-	private final Runnable refreshGUIRunnable;
+	private final ModelStructureChangeListener changeListener;
 	private final boolean editable;
 
 	public SetCamerasEdibilityAction(Boolean editable, ModelView modelViewManager,
-	                                 Runnable refreshGUIRunnable) {
+	                                 ModelStructureChangeListener changeListener) {
 		this.modelViewManager = modelViewManager;
-		this.refreshGUIRunnable = refreshGUIRunnable;
+		this.changeListener = changeListener;
 		this.editable = editable;
 	}
 
 	@Override
 	public UndoAction undo() {
 		modelViewManager.setCamerasEditable(!editable);
-		if (refreshGUIRunnable != null) {
-			refreshGUIRunnable.run();
+		if (changeListener != null) {
+			changeListener.nodesUpdated();
 		}
 		return this;
 	}
@@ -28,8 +29,8 @@ public final class SetCamerasEdibilityAction implements UndoAction {
 	@Override
 	public UndoAction redo() {
 		modelViewManager.setCamerasEditable(editable);
-		if (refreshGUIRunnable != null) {
-			refreshGUIRunnable.run();
+		if (changeListener != null) {
+			changeListener.nodesUpdated();
 		}
 		return this;
 	}

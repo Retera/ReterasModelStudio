@@ -14,6 +14,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelTextureThings;
 import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
 import com.hiveworkshop.rms.ui.util.colorchooser.ColorChooserButton;
 import com.hiveworkshop.rms.util.Quat;
+import com.hiveworkshop.rms.util.TimeLogger;
 import com.hiveworkshop.rms.util.TwiComboBox;
 import com.hiveworkshop.rms.util.TwiTextEditor.table.TwiTableColorEditor;
 import com.hiveworkshop.rms.util.TwiTextEditor.table.TwiTableColorRenderer;
@@ -38,7 +39,7 @@ public class EditorHelpers {
 			this.flagToken = flagToken;
 			this.staticConsumer = staticConsumer;
 			alphaSpinner = new FloatEditorJSpinner(1.0f, (float) Integer.MIN_VALUE, 0.01f, staticConsumer);
-			flagPanel = new FlagPanel<>(MdlUtils.TOKEN_ALPHA, EditorHelpers::parseFloat, 1.0f, modelHandler).setStaticComponent(alphaSpinner);
+			flagPanel = new FlagPanel<>(flagToken, EditorHelpers::parseFloat, 1.0f, modelHandler).setStaticComponent(alphaSpinner);
 		}
 
 		public AlphaEditor update(TimelineContainer node, FloatAnimFlag alphaFlag, float staticAlpha){
@@ -63,10 +64,15 @@ public class EditorHelpers {
 		String flagToken;
 
 		public FloatEditor(ModelHandler modelHandler, String flagToken, Consumer<Float> staticConsumer){
+//			TimeLogger timeLogger = new TimeLogger().start();
 			this.flagToken = flagToken;
 			this.staticConsumer = staticConsumer;
 			floatSpinner = new FloatEditorJSpinner(1.0f, (float) Integer.MIN_VALUE, 0.01f, staticConsumer);
+//			timeLogger.log("created float spinner");
 			flagPanel = new FlagPanel<>(flagToken, EditorHelpers::parseFloat, 1.0f, modelHandler).setStaticComponent(floatSpinner);
+//			timeLogger.log("created flagPanel");
+//			System.out.println("FloatEditor - " + flagToken);
+//			timeLogger.print();
 		}
 
 		public FloatEditor update(TimelineContainer node, FloatAnimFlag alphaFlag, float staticAlpha){
@@ -212,10 +218,14 @@ public class EditorHelpers {
 			this(modelHandler, MdlUtils.TOKEN_COLOR, consumer);
 		}
 		public ColorEditor(ModelHandler modelHandler, String flagToken, Consumer<Vec3> staticConsumer){
+
+			this(flagToken, modelHandler, flagToken, staticConsumer);
+		}
+		public ColorEditor(String title, ModelHandler modelHandler, String flagToken, Consumer<Vec3> staticConsumer){
 			this.flagToken = flagToken;
 			this.staticConsumer = staticConsumer;
 			button = new ColorChooserButton(Color.WHITE, this::colorSelected);
-			flagPanel = new FlagPanel<>(MdlUtils.TOKEN_COLOR, EditorHelpers::parseVec3, new Vec3(1,1,1), modelHandler);
+			flagPanel = new FlagPanel<>(flagToken, title, EditorHelpers::parseVec3, new Vec3(1,1,1), modelHandler);
 			flagPanel.setTableRenderer(new TwiTableColorRenderer(new GlobalSeq(1)));
 			flagPanel.setTableEditor(new TwiTableColorEditor<>(EditorHelpers::parseVec3, DEFAULT_COLOR));
 			flagPanel.setStaticComponent(button);
@@ -265,6 +275,9 @@ public class EditorHelpers {
 			this(modelHandler, MdlUtils.TOKEN_TEXTURE_ID, consumer);
 		}
 		public TextureEditor(ModelHandler modelHandler, String flagToken, Consumer<Bitmap> staticConsumer){
+			this("Texture", modelHandler, MdlUtils.TOKEN_TEXTURE_ID, staticConsumer);
+		}
+		public TextureEditor(String title, ModelHandler modelHandler, String flagToken, Consumer<Bitmap> staticConsumer){
 			this.flagToken = flagToken;
 			this.staticConsumer = staticConsumer;
 
@@ -276,23 +289,32 @@ public class EditorHelpers {
 			textureChooser = new TwiComboBox<>(modelHandler.getModel().getTextures(), new Bitmap("", 1));
 			textureChooser.setRenderer(ModelTextureThings.getTextureListRenderer());
 
-			flagPanel = new FlagPanel<>(flagToken, "Texture", null, modelHandler.getModel().getTexture(0), modelHandler);
+			flagPanel = new FlagPanel<>(flagToken, title, null, modelHandler.getModel().getTexture(0), modelHandler);
 			flagPanel.setTableRenderer(ModelTextureThings.getTextureTableCellRenderer());
 			flagPanel.setTableEditor(new TableComboBoxEditor<>(textureChooser));
 			flagPanel.setStaticComponent(staticTextureChooser);
 		}
 
 		public TextureEditor update(TimelineContainer node, BitmapAnimFlag alphaFlag){
-			flagPanel.update(node, alphaFlag, new Bitmap(""));
+//			flagPanel.update(node, alphaFlag, new Bitmap(""));
+			flagPanel.update(node, alphaFlag);
 			return this;
 		}
 		public TextureEditor update(TimelineContainer node){
-			flagPanel.update(node, (BitmapAnimFlag) node.find(flagToken), new Bitmap(""));
+//			flagPanel.update(node, (BitmapAnimFlag) node.find(flagToken), new Bitmap(""));
+			flagPanel.update(node, (BitmapAnimFlag) node.find(flagToken));
 			return this;
 		}
 		public TextureEditor update(TimelineContainer node, Bitmap bitmap){
-			flagPanel.update(node, (BitmapAnimFlag) node.find(flagToken), bitmap);
-			staticTextureChooser.setSelectedItem(bitmap);
+//			flagPanel.update(node, (BitmapAnimFlag) node.find(flagToken), bitmap);
+			TimeLogger timeLogger = new TimeLogger().start();
+			flagPanel.update(node, (BitmapAnimFlag) node.find(flagToken));
+			timeLogger.log("flagPanel updated for " + node);
+//			staticTextureChooser.setSelectedItem(bitmap);
+			staticTextureChooser.selectOrFirst(bitmap);
+			timeLogger.log("static bitmap set for " + node);
+			System.out.println("[TextureEditor]: update - " + node);
+			timeLogger.print();
 			return this;
 		}
 

@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -191,13 +192,16 @@ public class BLPHandler {
 	private TextureHelper getNewTextureHelper(DataSource dataSource, Bitmap bitmap) throws IOException {
 		String filepath = bitmap.getRenderableTexturePath();
 		String ddsFilepath = filepath.replaceAll("(\\.blp$)|(\\.tif$)", ".dds");
+		String blpFilepath = filepath.replaceAll("(\\.dds$)|(\\.tif$)", ".blp");
 		String nameOnly = filepath.replaceAll(".*[/\\\\]", "");
 
-		String[] filePaths = new String[] {ddsFilepath, nameOnly, filepath};
+		String[] filePaths = new String[] {ddsFilepath, nameOnly, filepath, blpFilepath};
+		System.out.println("getNewTextureHelper for filepath: \"" + filepath + "\"");
 
 		for (String path : filePaths) {
 			BufferedImage resultImage = loadTextureFromSource(dataSource, path);
 			if (resultImage != null) {
+				System.out.println("found imiage with path: \"" + path + "\"");
 				TextureHelper textureHelper = new TextureHelper(dataSource.getFile(path), resultImage, dataSource.allowDownstreamCaching(filepath), bitmap);
 				cache.put(filepath.toLowerCase(Locale.US), textureHelper);
 				return textureHelper;
@@ -205,11 +209,39 @@ public class BLPHandler {
 		}
 		if(filepath.toLowerCase().matches("\\w:.+")){
 			File textureFile = getTextureFile(filepath);
+			System.out.println("loading from disc: \"" + filepath + "\"");
 			BufferedImage bufferedImage = loadTextureFromFile(textureFile);
 			TextureHelper textureHelper = new TextureHelper(textureFile, bufferedImage, true, bitmap);
 			cache.put(filepath.toLowerCase(Locale.US), textureHelper);
 
 			return textureHelper;
+		} else if (filepath.toLowerCase().matches(".+_orm\\.\\w{3,4}")){
+			Color color = new Color(127, 85, 0, 0);
+			BufferedImage bufferedImage = ImageUtils.getColorImage(color);
+
+			int[] pixels = new int[bufferedImage.getWidth()*bufferedImage.getHeight()];
+			Arrays.fill(pixels, color.getRGB());
+
+			bufferedImage.setRGB(0,0, bufferedImage.getWidth(), bufferedImage.getHeight(), pixels, 0, bufferedImage.getWidth());
+//			bufferedImage.getAlphaRaster().setPixel().
+			System.out.println("could not find ORM: \"" + filepath
+					+ "\", color for pixel 1: " +  ((DataBufferInt) bufferedImage.getRaster().getDataBuffer()).getData()[0]
+					+ ", alpha bands: " + bufferedImage.getAlphaRaster().getNumBands()
+					+ ", rgb: " + color.getRGB()
+			);
+
+			TextureHelper textureHelper = new TextureHelper(null, bufferedImage, true, bitmap);
+			cache.put(filepath.toLowerCase(Locale.US), textureHelper);
+		} else if (filepath.toLowerCase().matches(".+_normal\\.\\w{3,4}")){
+			System.out.println("could not find Normal: \"" + filepath + "\"");
+			BufferedImage bufferedImage = ImageUtils.getColorImage(new Color(127, 127, 0, 255));
+			TextureHelper textureHelper = new TextureHelper(null, bufferedImage, true, bitmap);
+			cache.put(filepath.toLowerCase(Locale.US), textureHelper);
+		} else {
+			System.out.println("could not find texture: \"" + filepath + "\"");
+			BufferedImage bufferedImage = ImageUtils.getCheckerImage(64, 64, 2, new Color(200, 80, 200, 255), new Color(110, 0, 110, 255));
+			TextureHelper textureHelper = new TextureHelper(null, bufferedImage, true, bitmap);
+			cache.put(filepath.toLowerCase(Locale.US), textureHelper);
 		}
 		return null;
 	}

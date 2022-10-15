@@ -29,10 +29,10 @@ public class AddMaterialAction implements UndoAction {
 		this.changeListener = modelStructureChangeListener;
 		Set<Bitmap> bitmaps = new HashSet<>(model.getTextures());
 		for (Layer layer : material.getLayers()) {
-			Bitmap bitmap = layer.getTextureBitmap();
-			if (bitmap != null && !bitmaps.contains(bitmap)) {
-				addTextureActions.add(new AddBitmapAction(bitmap, model, null));
-			}
+//			Bitmap bitmap = layer.getTextureBitmap();
+//			if (bitmap != null && !bitmaps.contains(bitmap)) {
+//				addTextureActions.add(new AddBitmapAction(bitmap, model, null));
+//			}
 			if (layer.getTextures() != null && !layer.getTextures().isEmpty()) {
 				for (Bitmap bitmap1 : layer.getTextures()) {
 					if (bitmap1 != null && !bitmaps.contains(bitmap1)) {

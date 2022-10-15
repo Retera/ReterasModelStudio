@@ -14,7 +14,7 @@ public final class StaticMeshUVMoveAction implements GenericMoveAction {
 	private final Vec2 moveVector;
 	int uvLayerIndex;
 
-	public StaticMeshUVMoveAction(Collection<GeosetVertex> selectedVertices, int uvLayerIndex, Vec2 moveVector) {
+	public StaticMeshUVMoveAction(Collection<GeosetVertex> selectedVertices, int uvLayerIndex, Vec3 moveVector) {
 		selectedTVerts = new ArrayList<>();
 
 		for (GeosetVertex vertex : selectedVertices) {
@@ -22,7 +22,7 @@ public final class StaticMeshUVMoveAction implements GenericMoveAction {
 				selectedTVerts.add(vertex.getTVertex(uvLayerIndex));
 			}
 		}
-		this.moveVector = new Vec2(moveVector);
+		this.moveVector = new Vec2(moveVector.x, moveVector.y);
 		this.uvLayerIndex = uvLayerIndex;
 	}
 

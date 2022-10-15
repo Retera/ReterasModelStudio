@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
 import javax.swing.*;
 import javax.swing.tree.TreeCellEditor;
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.util.EventObject;
 
 public class ModelTreeButtonCellEditor extends AbstractCellEditor implements TreeCellEditor {
@@ -21,14 +22,46 @@ public class ModelTreeButtonCellEditor extends AbstractCellEditor implements Tre
 	@Override
 	public boolean isCellEditable(EventObject anEvent) {
 		boolean cellEditable = super.isCellEditable(anEvent);
-		System.out.println("[ButtonCellEditor] isCellEditable: " + cellEditable + " event: " + anEvent);
+//		System.out.println("[ButtonCellEditor] isCellEditable: " + cellEditable + " event: " + anEvent);
 		return cellEditable;
 	}
 
 	@Override
 	public boolean shouldSelectCell(EventObject anEvent) {
 		boolean b = super.shouldSelectCell(anEvent);
-		System.out.println("[ButtonCellEditor] shouldSelectCell: " + b + ", event: " + anEvent);
+		System.out.println("[ButtonCellEditor] shouldSelectCell: " + b + ", \n\tevent: " + anEvent);
+		if(lastComp != null && b && anEvent instanceof MouseEvent){
+			MouseEvent mEvent = (MouseEvent) anEvent;
+			System.out.println("lastComp: " + lastComp);
+			Point point = mEvent.getPoint();
+
+			Component componentAt1 = lastObj.getComponentAt(point);
+			if(componentAt1 != null){
+				System.out.println("componentAt1: " + componentAt1);
+//				componentAt1.dispatchEvent((AWTEvent) anEvent);
+			}
+
+//			Point point2 = mEvent.getLocationOnScreen();
+//			Component componentAt = lastComp.getComponentAt(point);
+//			System.out.println("component at "
+//					+ " \n\tp1 " + lastComp.getBounds() + " contains " + point + ": " + lastComp.contains(point) + "/" + lastComp.getBounds().contains(point) + " " + componentAt
+//					+ " \n\tp2 " + lastComp.getBounds() + " contains " + point2 + ": " + lastComp.contains(point) + "/" + lastComp.getBounds().contains(point2) + " " + lastComp.getComponentAt(point2));
+////			System.out.println(" \n\tp1 " + point + ": " + lastComp.contains(point) + " \n\tp2 " + point2 + ": " + lastComp.contains(point2));
+////			System.out.println("component at2 " + point2 + ": \n\t" + lastComp.getComponentAt(point2));
+//			for (Component component :  lastComp.getComponents()){
+//				System.out.println( "\t[" +component.getX() + "," + component.getY() + "]" + component
+//						+ "\n\t\tp1 " + component.getBounds() + " contains " + point + ": " + component.contains(point) + "/" + component.getBounds().contains(point)
+////						+ "\n\t\t containsPoint1: " + component.contains(point)
+////						+ "\n\t\t getBounds: " + component.getBounds() + ", contP1: " + component.getBounds().contains(point)
+//				);
+////				System.out.println("\t[" +component.getX() + "," + component.getY() + "]" +component
+////						+ "\n\t\t containsPoint2: " + component.contains(point2)
+////						+ "\n\t\t getBounds: " + component.getBounds() + ", contP2: " + component.getBounds().contains(point2));
+//			}
+		}
+
+
+		var ugg = 1;
 //		if(lastComp != null && b && anEvent instanceof MouseEvent){
 //			System.out.println("correct and stuff!");
 //
@@ -60,7 +93,22 @@ public class ModelTreeButtonCellEditor extends AbstractCellEditor implements Tre
 //			lastObj.editableButton.getActionListeners()[0].actionPerformed(e);
 //			lastObj = null;
 //		}
-		return b;
+
+
+//		return b;
+		return true;
+	}
+
+	private Component getCompAt(Container container, Point point){
+		if(container != null && container.getBounds().contains(point)){
+			for (Component component :  container.getComponents()){
+				if(component.getBounds().contains(point)){
+					return component;
+				}
+			}
+			return container;
+		}
+		return null;
 	}
 
 	@Override
@@ -80,7 +128,7 @@ public class ModelTreeButtonCellEditor extends AbstractCellEditor implements Tre
 	@Override
 	public Component getTreeCellEditorComponent(JTree tree, Object value, boolean isSelected, boolean expanded, boolean leaf, int row) {
 		if (value instanceof NodeThing) {
-			System.out.println("[ButtonCellEditor] getTreeCellEditorComponent" + " - " + "returning renderComp");
+//			System.out.println("[ButtonCellEditor] getTreeCellEditorComponent" + " - " + "returning renderComp");
 //			System.out.println("returning renderComp");
 
 			lastObj = (NodeThing<?>) value;

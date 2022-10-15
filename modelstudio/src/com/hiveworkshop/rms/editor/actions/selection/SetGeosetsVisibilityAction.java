@@ -2,24 +2,25 @@ package com.hiveworkshop.rms.editor.actions.selection;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
 public final class SetGeosetsVisibilityAction implements UndoAction {
 	private final ModelView modelViewManager;
-	private final Runnable refreshGUIRunnable;
+	private final ModelStructureChangeListener changeListener;
 	private final boolean visible;
 
 	public SetGeosetsVisibilityAction(Boolean visible, ModelView modelViewManager,
-	                                  Runnable refreshGUIRunnable) {
+	                                  ModelStructureChangeListener changeListener) {
 		this.modelViewManager = modelViewManager;
-		this.refreshGUIRunnable = refreshGUIRunnable;
+		this.changeListener = changeListener;
 		this.visible = visible;
 	}
 
 	@Override
 	public UndoAction undo() {
 		modelViewManager.setGeosetsVisible(!visible);
-		if (refreshGUIRunnable != null) {
-			refreshGUIRunnable.run();
+		if (changeListener != null) {
+			changeListener.nodesUpdated();
 		}
 		return this;
 	}
@@ -27,8 +28,8 @@ public final class SetGeosetsVisibilityAction implements UndoAction {
 	@Override
 	public UndoAction redo() {
 		modelViewManager.setGeosetsVisible(visible);
-		if (refreshGUIRunnable != null) {
-			refreshGUIRunnable.run();
+		if (changeListener != null) {
+			changeListener.nodesUpdated();
 		}
 		return this;
 	}

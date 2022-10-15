@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.ObjectDataTableModel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.FieldPopupUtils;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.builders.AbstractFieldBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.TopLevelCategoryFolder;
@@ -35,7 +34,7 @@ public class UnitEditorPanel extends JSplitPane {
 	private TopLevelCategoryFolder root;
 
 	private final JTable table;
-	private final AbstractFieldBuilder editorFieldBuilder;
+	private final ObjectTabTreeBrowserBuilder objectTabTreeBrowserBuilder;
 	private boolean holdingShift = false;
 	private ObjectDataTableModel dataModel;
 	private TreePath currentUnitTreePath;
@@ -55,7 +54,7 @@ public class UnitEditorPanel extends JSplitPane {
 
 		this.unitData = objectTabTreeBrowserBuilder.getUnitData();
 		this.unitMetaData = unitData.getSourceSLKMetaData();
-		this.editorFieldBuilder = objectTabTreeBrowserBuilder.getEditorFieldBuilder();
+		this.objectTabTreeBrowserBuilder = objectTabTreeBrowserBuilder;
 
 //		System.out.println(unitData + ", " + objectTabTreeBrowserBuilder + ", " + settings + ", " + unitData.getWorldEditorDataType());
 		tree = new UnitEditorTree(objectTabTreeBrowserBuilder, settings);
@@ -449,7 +448,7 @@ public class UnitEditorPanel extends JSplitPane {
 	}
 
 	public void fillTable() {
-		dataModel = new ObjectDataTableModel(currentUnit, unitMetaData, editorFieldBuilder,
+		dataModel = new ObjectDataTableModel(currentUnit, unitMetaData, objectTabTreeBrowserBuilder,
 				settings.isDisplayAsRawData(), () -> changeCustomUnit());
 
 		dataModel.addTableModelListener(e -> getTableModelListener());

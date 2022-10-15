@@ -99,9 +99,9 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 
 	private Set<GeosetVertex> addTrisFromArea(Vec2 min, Vec2 max, int uvLayerIndex) {
 		Set<GeosetVertex> newSelection = new HashSet<>();
-		for (Geoset geoset : modelView.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getVisEdGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
-				if (HitTestStuff.triHitTest(triangle, min, max, uvLayerIndex)) {
+				if (modelView.isEditable(triangle) && HitTestStuff.triHitTest(triangle, min, max, uvLayerIndex)) {
 					newSelection.addAll(Arrays.asList(triangle.getVerts()));
 				}
 			}
@@ -111,9 +111,9 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 
 	private Set<GeosetVertex> addTrisFromArea(Vec2 min, Vec2 max, int uvLayerIndex, Mat4 viewPortAntiRotMat) {
 		Set<GeosetVertex> newSelection = new HashSet<>();
-		for (Geoset geoset : modelView.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getVisEdGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
-				if (HitTestStuff.triHitTest(triangle, min, max, uvLayerIndex, viewPortAntiRotMat)) {
+				if (modelView.isEditable(triangle) && HitTestStuff.triHitTest(triangle, min, max, uvLayerIndex, viewPortAntiRotMat)) {
 					newSelection.addAll(Arrays.asList(triangle.getVerts()));
 				}
 			}
@@ -123,9 +123,9 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 
 	private Set<GeosetVertex> addTrisFromArea(Vec2 min, Vec2 max, int uvLayerIndex, SelectionBoxHelper viewBox) {
 		Set<GeosetVertex> newSelection = new HashSet<>();
-		for (Geoset geoset : modelView.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getVisEdGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
-//				if (HitTestStuff.triHitTest(triangle, min, max, uvLayerIndex, viewBox)) {
+//				if (modelView.isEditable(triangle) && HitTestStuff.triHitTest(triangle, min, max, uvLayerIndex, viewBox)) {
 //					newSelection.addAll(Arrays.asList(triangle.getVerts()));
 //				}
 			}
@@ -135,9 +135,9 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 
 	public Set<GeosetVertex> addVertsFromArea(Vec2 min, Vec2 max, double vertexSize, int uvLayerIndex) {
 		Set<GeosetVertex> newSelection = new HashSet<>();
-		for (Geoset geoset : modelView.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getVisEdGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
-				if (geosetVertex.getTverts().size() > uvLayerIndex) {
+				if (modelView.isEditable(geosetVertex) && geosetVertex.getTverts().size() > uvLayerIndex) {
 					if (HitTestStuff.hitTest(min, max, geosetVertex.getTVertex(uvLayerIndex), vertexSize)) {
 						newSelection.add(geosetVertex);
 					}
@@ -150,10 +150,11 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 
 	public Set<GeosetVertex> addVertsFromArea(Vec2 min, Vec2 max, double vertexSize, int uvLayerIndex, Mat4 viewPortAntiRotMat) {
 		Set<GeosetVertex> newSelection = new HashSet<>();
-		for (Geoset geoset : modelView.getEditableGeosets()) {
+		Vec2 tVertex = new Vec2();
+		for (Geoset geoset : modelView.getVisEdGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
-				if (geosetVertex.getTverts().size() > uvLayerIndex) {
-					Vec2 tVertex = new Vec2(geosetVertex.getTVertex(uvLayerIndex)).transform(viewPortAntiRotMat);
+				if (modelView.isEditable(geosetVertex) && geosetVertex.getTverts().size() > uvLayerIndex) {
+					tVertex.set(geosetVertex.getTVertex(uvLayerIndex)).transform(viewPortAntiRotMat);
 					if (HitTestStuff.hitTest(min, max, tVertex, vertexSize)) {
 						newSelection.add(geosetVertex);
 					}
@@ -167,9 +168,9 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 	public Set<GeosetVertex> addVertsFromArea(Vec2 min, Vec2 max, double vertexSize, int uvLayerIndex, SelectionBoxHelper viewBox) {
 		Set<GeosetVertex> newSelection = new HashSet<>();
 		Vec3 vec3 = new Vec3();
-		for (Geoset geoset : modelView.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getVisEdGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
-				if (geosetVertex.getTverts().size() > uvLayerIndex && modelView.isEditable(geosetVertex)) {
+				if (modelView.isEditable(geosetVertex) && geosetVertex.getTverts().size() > uvLayerIndex && modelView.isEditable(geosetVertex)) {
 					vec3.set(geosetVertex.getTVertex(uvLayerIndex), 0);
 					if (viewBox.pointInBox(vec3)) {
 						newSelection.add(geosetVertex);
@@ -324,9 +325,9 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 			double vertexSize = ProgramGlobals.getPrefs().getVertexSize() / 2.0 / coordinateSystem.getZoom();
 			Vec2 point2 = new Vec2(coordinateSystem.geomX(point.x), coordinateSystem.geomY(point.y));
 
-			for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (Geoset geoset : modelView.getVisEdGeosets()) {
 				for (GeosetVertex geosetVertex : geoset.getVertices()) {
-					if (geosetVertex.getTverts().size() > tvertexLayerId) {
+					if (modelView.isEditable(geosetVertex) && geosetVertex.getTverts().size() > tvertexLayerId) {
 						if (HitTestStuff.hitTest(point2, geosetVertex.getTVertex(tvertexLayerId), vertexSize)) {
 							return true;
 						}
@@ -335,9 +336,9 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 			}
 		} else if (selectionMode == SelectionItemTypes.FACE) {
 			Vec2 point2 = new Vec2(coordinateSystem.geomX(point.x), coordinateSystem.geomY(point.y));
-			for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (Geoset geoset : modelView.getVisEdGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
-					if (HitTestStuff.triHitTest(triangle, point2, tvertexLayerId)) {
+					if (modelView.isEditable(triangle) && HitTestStuff.triHitTest(triangle, point2, tvertexLayerId)) {
 						return true;
 					}
 				}
@@ -350,9 +351,9 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 		int tvertexLayerId = 0;
 		if (selectionMode == SelectionItemTypes.VERTEX) {
 			double vertexSize = sizeAdj * ProgramGlobals.getPrefs().getVertexSize() / 2.0;
-			for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (Geoset geoset : modelView.getVisEdGeosets()) {
 				for (GeosetVertex geosetVertex : geoset.getVertices()) {
-					if (geosetVertex.getTverts().size() > tvertexLayerId) {
+					if (modelView.isEditable(geosetVertex) && geosetVertex.getTverts().size() > tvertexLayerId) {
 						if (HitTestStuff.hitTest(point, geosetVertex.getTVertex(tvertexLayerId), vertexSize)) {
 							return true;
 						}
@@ -360,9 +361,9 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 				}
 			}
 		} else if (selectionMode == SelectionItemTypes.FACE) {
-			for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (Geoset geoset : modelView.getVisEdGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
-					if (HitTestStuff.triHitTest(triangle, point, tvertexLayerId)) {
+					if (modelView.isEditable(triangle) && HitTestStuff.triHitTest(triangle, point, tvertexLayerId)) {
 						return true;
 					}
 				}

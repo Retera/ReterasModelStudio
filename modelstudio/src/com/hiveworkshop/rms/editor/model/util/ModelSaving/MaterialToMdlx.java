@@ -13,9 +13,19 @@ public class MaterialToMdlx {
 	public static MdlxMaterial toMdlx(Material material, EditableModel model) {
 		final MdlxMaterial mdlxMaterial = new MdlxMaterial();
 
-		if (model.getFormatVersion() < 1100) {
+		if (model.getFormatVersion() < 900) {
 			for (final Layer layer : material.getLayers()) {
 				mdlxMaterial.layers.add(toMdlx(layer, model));
+			}
+		} else if (model.getFormatVersion() < 1100) {
+			for (final Layer layer : material.getLayers()) {
+				for (int i = 0; i < layer.getTextures().size(); i++){
+					mdlxMaterial.layers.add(toMdlx(layer, i, model));
+				}
+
+//				for(Bitmap bitmap : layer.getTextures()){
+//					mdlxMaterial.layers.add(toMdlx(layer, model));
+//				}
 			}
 		} else {
 			String shaderString = material.getShaderString();
@@ -23,52 +33,77 @@ public class MaterialToMdlx {
 					&& !shaderString.isEmpty()
 					&& !shaderString.equals(Material.SHADER_SD_FIXEDFUNCTION)
 					&& !shaderString.equals(Material.SHADER_SD_LEGACY)
-					&& 1<material.getLayers().size()){
-				Layer firstLayer = material.getLayer(0);
-				MdlxLayer mdlxLayer = getMdlxLayer(firstLayer, model);
-
-				if(shaderString.equalsIgnoreCase(Material.SHADER_HD_DEFAULT_UNIT)){
-					mdlxLayer.hdFlag = 1;
-				} else if(shaderString.equalsIgnoreCase(Material.SHADER_HD_CRYSTAL)){
-					mdlxLayer.hdFlag = 2;
-				} else if(shaderString.equalsIgnoreCase(Material.SHADER_SD_FIXEDFUNCTION)){
-					mdlxLayer.hdFlag = 3;
-				} else if(shaderString.equalsIgnoreCase(Material.SHADER_SD_LEGACY)){
-					mdlxLayer.hdFlag = 4;
-				} else if(shaderString.matches("\\w+")){
-					mdlxLayer.hdFlag = Integer.parseInt(shaderString);
-				} else {
-					mdlxLayer.hdFlag = 1;
-				}
+//					&& 1<material.getLayers().size()
+			){
 
 				for (int i = 0; i <material.getLayers().size(); i++) {
 					Layer layer = material.getLayer(i);
-					AnimFlag<?> animFlag = layer.find(MdlUtils.TOKEN_TEXTURE_ID);
-					if(animFlag != null && 0 < animFlag.size()){
-						mdlxLayer.hdTextureIds.add(0);
-						mdlxLayer.hdTextureSlots.add(0);
-						mdlxLayer.textureIdTimelineMap.put(i, animFlag.toMdlx(layer, model));
-//						System.out.println("writing timeline for layer: " + i);
+					MdlxLayer mdlxLayer = getMdlxLayer(layer, 0, model);
+
+					if(shaderString.equalsIgnoreCase(Material.SHADER_HD_DEFAULT_UNIT)){
+						mdlxLayer.hdFlag = 1;
+					} else if(shaderString.equalsIgnoreCase(Material.SHADER_HD_CRYSTAL)){
+						mdlxLayer.hdFlag = 2;
+					} else if(shaderString.equalsIgnoreCase(Material.SHADER_SD_FIXEDFUNCTION)){
+						mdlxLayer.hdFlag = 3;
+					} else if(shaderString.equalsIgnoreCase(Material.SHADER_SD_LEGACY)){
+						mdlxLayer.hdFlag = 4;
+					} else if(shaderString.matches("\\w+")){
+						mdlxLayer.hdFlag = Integer.parseInt(shaderString);
 					} else {
-//						System.out.println("writing layer + "+ i + ": " + model.getTextureId(layer.getTextureBitmap()) + ", " + i);
-						mdlxLayer.hdTextureIds.add(model.getTextureId(layer.getTextureBitmap()));
-						mdlxLayer.hdTextureSlots.add(i);
+						mdlxLayer.hdFlag = 1;
 					}
-				}
-				for (AnimFlag<?> timeline : firstLayer.getAnimFlags()) {
-					if (!timeline.getAnimMap().isEmpty()
-							&& !timeline.getName().equals(MdlUtils.TOKEN_TEXTURE_ID)) {
+					for(int j = 0; j<layer.getTextures().size(); j++){
+						AnimFlag<?> animFlag = layer.getFlipbookTexture(i);
+						if(animFlag != null && 0 < animFlag.size()){
+							mdlxLayer.hdTextureIds.add(0);
+							mdlxLayer.hdTextureSlots.add(0);
+							mdlxLayer.textureIdTimelineMap.put(i, animFlag.toMdlx(layer, model));
+//						System.out.println("writing timeline for layer: " + i);
+						} else {
+//						System.out.println("writing layer + "+ i + ": " + model.getTextureId(layer.getTexture(0)) + ", " + i);
+							mdlxLayer.hdTextureIds.add(model.getTextureId(layer.getTexture(j)));
+							mdlxLayer.hdTextureSlots.add(j);
+						}
+					}
+
+					for (AnimFlag<?> timeline : layer.getAnimFlags()) {
+						if (!timeline.getAnimMap().isEmpty()
+								&& !timeline.getName().equals(MdlUtils.TOKEN_TEXTURE_ID)) {
 //						System.out.println("writing animflag: " + timeline.getName());
-						mdlxLayer.timelines.add(timeline.toMdlx(firstLayer, model));
+							mdlxLayer.timelines.add(timeline.toMdlx(layer, model));
+						}
 					}
+					mdlxMaterial.layers.add(mdlxLayer);
 				}
+//				for (int i = 0; i <material.getLayers().size(); i++) {
+//					Layer layer = material.getLayer(i);
+//					AnimFlag<?> animFlag = layer.find(MdlUtils.TOKEN_TEXTURE_ID);
+//					if(animFlag != null && 0 < animFlag.size()){
+//						mdlxLayer.hdTextureIds.add(0);
+//						mdlxLayer.hdTextureSlots.add(0);
+//						mdlxLayer.textureIdTimelineMap.put(i, animFlag.toMdlx(layer, model));
+////						System.out.println("writing timeline for layer: " + i);
+//					} else {
+////						System.out.println("writing layer + "+ i + ": " + model.getTextureId(layer.getTexture(0)) + ", " + i);
+//						mdlxLayer.hdTextureIds.add(model.getTextureId(layer.getTexture(0)));
+//						mdlxLayer.hdTextureSlots.add(i);
+//					}
+//				}
+//				for (AnimFlag<?> timeline : firstLayer.getAnimFlags()) {
+//					if (!timeline.getAnimMap().isEmpty()
+//							&& !timeline.getName().equals(MdlUtils.TOKEN_TEXTURE_ID)) {
+////						System.out.println("writing animflag: " + timeline.getName());
+//						mdlxLayer.timelines.add(timeline.toMdlx(firstLayer, model));
+//					}
+//				}
+//				mdlxMaterial.layers.add(mdlxLayer);
 
 
-				mdlxMaterial.layers.add(mdlxLayer);
 			} else {
 				for (final Layer layer : material.getLayers()) {
 					MdlxLayer mdlxLayer = toMdlx(layer, model);
-					mdlxLayer.hdTextureIds.add(model.getTextureId(layer.getTextureBitmap()));
+					mdlxLayer.hdTextureIds.add(model.getTextureId(layer.getTexture(0)));
 					mdlxLayer.hdTextureSlots.add(0);
 					mdlxMaterial.layers.add(mdlxLayer);
 				}
@@ -85,6 +120,9 @@ public class MaterialToMdlx {
 		if (material.getSortPrimsFarZ()) {
 			mdlxMaterial.flags |= 0x10;
 		}
+		if (material.getSortPrimsNearZ()) {
+			mdlxMaterial.flags |= 0x8;
+		}
 
 		if (material.getFullResolution()) {
 			mdlxMaterial.flags |= 0x20;
@@ -100,13 +138,19 @@ public class MaterialToMdlx {
 	}
 
 	public static MdlxLayer toMdlx(Layer layer, EditableModel model) {
-		MdlxLayer mdlxLayer = getMdlxLayer(layer, model);
+		MdlxLayer mdlxLayer = getMdlxLayer(layer,0,  model);
+		layer.timelinesToMdlx(mdlxLayer, model);
+
+		return mdlxLayer;
+	}
+	public static MdlxLayer toMdlx(Layer layer, int slot, EditableModel model) {
+		MdlxLayer mdlxLayer = getMdlxLayer(layer, slot, model);
 		layer.timelinesToMdlx(mdlxLayer, model);
 
 		return mdlxLayer;
 	}
 
-	private static MdlxLayer getMdlxLayer(Layer layer, EditableModel model) {
+	private static MdlxLayer getMdlxLayer(Layer layer, int slot, EditableModel model) {
 		MdlxLayer mdlxLayer = new MdlxLayer();
 
 		mdlxLayer.filterMode = layer.getFilterMode();
@@ -139,7 +183,7 @@ public class MaterialToMdlx {
 			mdlxLayer.flags |= 0x100;
 		}
 
-		mdlxLayer.textureId = model.getTextureId(layer.getTextureBitmap());
+		mdlxLayer.textureId = model.getTextureId(layer.getTexture(slot));
 		mdlxLayer.textureAnimationId = model.getTextureAnimId(layer.getTextureAnim());
 		mdlxLayer.coordId = layer.getCoordId();
 		mdlxLayer.alpha = (float) layer.getStaticAlpha();

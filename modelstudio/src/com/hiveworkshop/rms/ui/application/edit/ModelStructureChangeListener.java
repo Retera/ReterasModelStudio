@@ -1,12 +1,10 @@
 package com.hiveworkshop.rms.ui.application.edit;
 
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -14,6 +12,8 @@ public class ModelStructureChangeListener {
 	public static final ModelStructureChangeListener changeListener = new ModelStructureChangeListener();
 
 	private Map<ModelPanel, Consumer<Boolean>> changeListeners;
+	private final Map<Object, Runnable> selectionListeners = new HashMap<>();
+	private final Map<Object, Runnable> stateChangeListeners = new HashMap<>();
 
 	public ModelStructureChangeListener() {
 	}
@@ -32,24 +32,19 @@ public class ModelStructureChangeListener {
 		System.out.println("nodesUpdated");
 		// Tell program to set visibility after import
 		updateElementsAndRefreshFromEditor();
-		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+		stateChanged();
 	}
 
 	private void updateElementsAndRefreshFromEditor() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			modelPanel.getModelView().updateElements();
-			refreshFromEditor(modelPanel);
+			modelPanel.refreshFromEditor();
 		}
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 	}
 
-	public static void refreshFromEditor(ModelPanel modelPanel) {
-		System.out.println("refreshFromEditor");
-		ModelHandler modelHandler = modelPanel.getModelHandler();
-		updateRenderModel(modelHandler.getRenderModel());
-		updateRenderModel(modelHandler.getPreviewRenderModel());
 
-	}
 	public static void refreshRenderGeosets() {
 		System.out.println("refreshRenderGeosets");
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
@@ -57,34 +52,24 @@ public class ModelStructureChangeListener {
 			ModelHandler modelHandler = modelPanel.getModelHandler();
 			modelHandler.getRenderModel().updateGeosets();
 			modelHandler.getPreviewRenderModel().updateGeosets();
+			modelPanel.getModelView().updateElements();
+			modelPanel.refreshFromEditor();
 		}
-	}
-
-	public static void updateRenderModel(RenderModel renderModel) {
-		renderModel.refreshFromEditor();
-		TimeEnvironmentImpl timeEnv = renderModel.getTimeEnvironment();
-		int animationTime = timeEnv.getAnimationTime();
-		Sequence currentSequence = timeEnv.getCurrentSequence();
-		timeEnv.setSequence(currentSequence);
-		timeEnv.setAnimationTime(animationTime);
 	}
 
 	public void geosetsUpdated() {
 		// Tell program to set visibility after import
 		refreshRenderGeosets();
-		updateElementsAndRefreshFromEditor();
 		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+		stateChanged();
 	}
 
 	public void camerasUpdated() {
 		// Tell program to set visibility after import
 		updateElementsAndRefreshFromEditor();
-		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 	}
 
 	public void keyframesUpdated() {
-//		ProgramGlobals.getMainPanel().getMainLayoutCreator().getTimeSliderView().getTimeSliderPanel().revalidateKeyframeDisplay();
-//		ProgramGlobals.getMainPanel().getWindowHandler2().reValidateKeyframes();
 		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reValidateKeyframes();
 	}
 
@@ -92,7 +77,7 @@ public class ModelStructureChangeListener {
 		System.out.println("animationParamsChanged");
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
-			refreshFromEditor(modelPanel);
+			modelPanel.refreshFromEditor();
 		}
 		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadAnimationList();
 		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
@@ -101,50 +86,47 @@ public class ModelStructureChangeListener {
 	public void texturesChanged() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
-			refreshFromEditor(modelPanel);
+			modelPanel.refreshFromEditor();
 		}
 		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 	}
 
 	public void headerChanged() {
-//		reloadComponentBrowser(mainPanel.getGeoControlModelData(), modelPanel);
-//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-//		if (modelPanel != null) {
-////			modelPanel.reloadComponentBrowser();
-//		}
-		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
-	}
-
-	public void globalSequenceLengthChanged() {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null) {
-			refreshFromEditor(modelPanel);
-		}
 		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 	}
 
 	public void materialsListChanged() {
-//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-//		if (modelPanel != null) {
-////			modelPanel.getAnimationViewer().reloadAllTextures();
-////			modelPanel.getPerspArea().reloadAllTextures();
-//			modelPanel.repaintSelfAndRelatedChildren();
-//			modelPanel.reloadGeosetManagers();
-//		}
 		updateElementsAndRefreshFromEditor();
-		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 	}
 
 	public void nodeHierarchyChanged() {
 		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
-//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-//		if (modelPanel != null) {
-//			modelPanel.reloadModelEditingTree();
-////			modelPanel.reloadComponentBrowser();
-//		}
 	}
 
 	public void selectionChanged() {
 		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reValidateKeyframes();
+		for(Runnable listener : selectionListeners.values()){
+			listener.run();
+		}
+	}
+	public void stateChanged() {
+//		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reValidateKeyframes();
+		for(Runnable listener : stateChangeListeners.values()){
+			listener.run();
+		}
+	}
+
+	public void addSelectionListener(Object owner, Runnable listener){
+		selectionListeners.put(owner, listener);
+	}
+	public void removeSelectionListener(Object owner){
+		selectionListeners.remove(owner);
+	}
+
+	public void addStateChangeListener(Object owner, Runnable listener){
+		stateChangeListeners.put(owner, listener);
+	}
+	public void removeStateChangeListener(Object owner){
+		stateChangeListeners.remove(owner);
 	}
 }

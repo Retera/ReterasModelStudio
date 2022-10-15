@@ -128,9 +128,20 @@ public class TwiComboBox<E> extends JComboBox<E> {
 	}
 
 	public TwiComboBox<E> selectOrFirst(E item){
-		setSelectedItem(item);
+//		setSelectedItem(item);
+		comboBoxModel.setSelectedNoListener(item);
 		if(getSelectedItem() == null && getItemCount() > 0){
-			setSelectedIndex(0);
+			comboBoxModel.setSelectedNoListener(comboBoxModel.getElementAt(0));
+		}
+//		setSelectedItem(item);
+//		if(getSelectedItem() == null && getItemCount() > 0){
+//			setSelectedIndex(0);
+//		}
+		return this;
+	}
+	public TwiComboBox<E> selectFirst(){
+		if(getItemCount() > 0){
+			comboBoxModel.setSelectedNoListener(comboBoxModel.getElementAt(0));
 		}
 		return this;
 	}
@@ -171,4 +182,44 @@ public class TwiComboBox<E> extends JComboBox<E> {
 	public E getSelected(){
 		return comboBoxModel.getSelectedTyped();
 	}
+
+
+//	public void setSelectedItem(Object anObject) {
+//		Object oldSelection = selectedItemReminder;
+//		Object objectToSelect = anObject;
+//		if (oldSelection == null || !oldSelection.equals(anObject)) {
+//
+//			if (anObject != null && !isEditable()) {
+//				// For non editable combo boxes, an invalid selection
+//				// will be rejected.
+//				boolean found = false;
+//				for (int i = 0; i < dataModel.getSize(); i++) {
+//					E element = dataModel.getElementAt(i);
+//					if (anObject.equals(element)) {
+//						found = true;
+//						objectToSelect = element;
+//						break;
+//					}
+//				}
+//				if (!found) {
+//					return;
+//				}
+//
+//				getEditor().setItem(anObject);
+//			}
+//
+//			// Must toggle the state of this flag since this method
+//			// call may result in ListDataEvents being fired.
+////			selectingItem = true;
+//			dataModel.setSelectedItem(objectToSelect);
+////			selectingItem = false;
+//
+//			if (selectedItemReminder != dataModel.getSelectedItem()) {
+//				// in case a users implementation of ComboBoxModel doesn't fire a
+//				// ListDataEvent when the selection changes.
+//				selectedItemChanged();
+//			}
+//		}
+//		fireActionEvent();
+//	}
 }

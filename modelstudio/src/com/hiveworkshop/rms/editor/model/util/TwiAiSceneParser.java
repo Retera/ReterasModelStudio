@@ -124,7 +124,7 @@ public class TwiAiSceneParser {
 		final Layer diffuseLayer = new Layer();
 
 //		aiMaterial.getNumTextures(AiTextureType.DIFFUSE);
-		diffuseLayer.setTexture(loadTexture(model, aiMaterial.getTextureFile(AiTextureType.DIFFUSE, 0)));
+		diffuseLayer.setTexture(0, loadTexture(model, aiMaterial.getTextureFile(AiTextureType.DIFFUSE, 0)));
 		diffuseLayer.setStaticAlpha(aiMaterial.getOpacity());
 
 //		String textureFile = aiMaterial.getTextureFile(AiTextureType.NORMALS, 0);

@@ -186,34 +186,6 @@ public class BakeAndRebindAction implements UndoAction {
 		return Math.abs(diff.x) > v || Math.abs(diff.y) > v || Math.abs(diff.z) > v;
 	}
 
-	private void addRotationKeyframes(Animation animation) {
-		Quat lastRot = null;
-		Integer lastKeyRot = null;
-		for(Integer i : diffRotKF.keySet()){
-			Quat quat = diffRotKF.get(i);
-			if(quat != null){
-				boolean shouldAddQuat = isShouldAddQuat(lastRot, lastKeyRot, i, quat);
-				if(shouldAddQuat){
-					newRotationFlag.addEntry(i, quat, animation);
-					lastRot = quat;
-					lastKeyRot = i;
-				}
-			}
-		}
-	}
-	private boolean isShouldAddQuat(Quat lastRot, Integer lastKeyRot, Integer i, Quat quat) {
-		Integer nextKey = diffRotKF.higherKey(i);
-		if(lastRot == null || nextKey == null){
-			return true;
-		}
-		Quat nextRot = diffRotKF.get(nextKey);
-		if (nextRot == null) {
-			return true;
-		}
-		float t = getTimeFactor(lastKeyRot, i, nextKey);
-		return shouldAddQuat(lastRot, quat, t, nextRot);
-	}
-
 	private void addRotationKeyframes2(Animation animation) {
 		Integer lastKeyRot = null;
 		for(Integer i : diffRotKF.keySet()){
@@ -244,25 +216,17 @@ public class BakeAndRebindAction implements UndoAction {
 	private boolean shouldAddQuat(Quat lastRot, Quat quat, float t, Quat nextRot) {
 		Quat interp = Quat.getSlerped(lastRot, nextRot, t);
 
-//		return getRotDot(1, 0, 0, quat, interp) > 0.999f
-//				|| getRotDot(0, 1, 0, quat, interp) > 0.999f
-//				|| getRotDot(0, 0, 1, quat, interp) > 0.999f;
-		return getRotAngDiff(1, 0, 0, quat, interp) < 0.1f
-				|| getRotAngDiff(0, 1, 0, quat, interp) < 0.1f
-				|| getRotAngDiff(0, 0, 1, quat, interp) < 0.1f;
-//		return getRotDot(1, 0, 0, quat, interp) < 0.9999998f
-//				|| getRotDot(0, 1, 0, quat, interp) < 0.9999998f
-//				|| getRotDot(0, 0, 1, quat, interp) < 0.9999998f;
+		return     0.05f < getRotAngDiff(1, 0, 0, quat, interp)
+				|| 0.05f < getRotAngDiff(0, 1, 0, quat, interp)
+				|| 0.05f < getRotAngDiff(0, 0, 1, quat, interp);
+
 	}
 
-	private float getRotDot(float x, float y, float z, Quat quat, Quat interp) {
-		Vec3 temp1 = new Vec3(x,y,z).transform(interp);
-		Vec3 temp2 = new Vec3(x,y,z).transform(quat);
-		return temp1.dot(temp2);
-	}
+	Vec3 temp1 = new Vec3();
+	Vec3 temp2 = new Vec3();
 	private float getRotAngDiff(float x, float y, float z, Quat quat, Quat interp) {
-		Vec3 temp1 = new Vec3(x,y,z).transform(interp);
-		Vec3 temp2 = new Vec3(x,y,z).transform(quat);
+		temp1.set(x,y,z).transform(interp);
+		temp2.set(x,y,z).transform(quat);
 		return (float) temp1.degAngleTo(temp2);
 	}
 

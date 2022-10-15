@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
 
@@ -10,6 +9,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class MouseListenerThing2 extends MouseAdapter {
@@ -25,14 +25,16 @@ public class MouseListenerThing2 extends MouseAdapter {
 
 	private UndoHandler undoHandler;
 	private ViewportActivityManager viewportActivity;
-	private final CoordDisplayListener coordDisplayListener;
+	private final BiConsumer<Double, Double> coordDisplayListener2;
 
 	private Point lastClick;
 	private final Timer clickTimer = new Timer(16, e -> clickTimer());
 
-	public MouseListenerThing2(ViewportView viewportView, CoordDisplayListener coordDisplayListener, CoordinateSystem coordinateSystem) {
+	public MouseListenerThing2(ViewportView viewportView,
+	                           BiConsumer<Double, Double> coordDisplayListener2,
+	                           CoordinateSystem coordinateSystem) {
 		this.viewportView = viewportView;
-		this.coordDisplayListener = coordDisplayListener;
+		this.coordDisplayListener2 = coordDisplayListener2;
 		this.coordinateSystem = coordinateSystem;
 		this.cursorManager = viewportView::setCursor;
 	}
@@ -67,7 +69,7 @@ public class MouseListenerThing2 extends MouseAdapter {
 			lastClick.y = (int) my;
 		}
 
-		coordDisplayListener.notifyUpdate(coordinateSystem, coordinateSystem.geomX(mx), coordinateSystem.geomY(my));
+		coordDisplayListener2.accept(coordinateSystem.geomX(mx), coordinateSystem.geomY(my));
 
 		viewportView.repaint();
 		return false;

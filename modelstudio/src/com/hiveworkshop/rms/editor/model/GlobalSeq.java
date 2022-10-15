@@ -29,4 +29,8 @@ public class GlobalSeq extends Sequence {
 	public String toString() {
 		return "Global Sequence " + length;
 	}
+
+	public String getName() {
+		return "Global Sequence " + length;
+	}
 }

@@ -145,21 +145,22 @@ public class KeyframeHandler {
 
 	public void deleteKeyframes(String actionName, int trackTime, Collection<TimelineContainer> objects) {
 		List<UndoAction> actions = new ArrayList<>();
+		Sequence currentSequence = timeEnvironment.getCurrentSequence();
 		for (TimelineContainer object : objects) {
 			for (AnimFlag<?> flag : object.getAnimFlags()) {
-				Sequence currentSequence = timeEnvironment.getCurrentSequence();
-				if (flag.getEntryMap(currentSequence).containsKey(trackTime)) {
+				if (flag.hasEntryAt(currentSequence, trackTime)) {
 					actions.add(new RemoveFlagEntryAction<>(flag, trackTime, currentSequence, null));
 				}
 			}
 		}
 		// TODO build one action for performance, so that the structure change notifier is not called N times, where N is the number of selected timelines
+
 		CompoundAction action = new CompoundAction(actionName, actions, () -> changeListener.keyframesUpdated());
 		undoManager.pushAction(action.redo());
 	}
 	public void deleteKeyframe(AnimFlag<?> flag, int trackTime) {
 		Sequence currentSequence = timeEnvironment.getCurrentSequence();
-		if (flag.getEntryMap(currentSequence).containsKey(trackTime)) {
+		if (flag.hasEntryAt(currentSequence, trackTime)) {
 			undoManager.pushAction(new RemoveFlagEntryAction<>(flag, trackTime, currentSequence, changeListener).redo());
 		}
 	}
@@ -289,6 +290,10 @@ public class KeyframeHandler {
 			}
 		}
 		return null;
+	}
+
+	public Boolean hasKeyFrameAt(int time){
+		return timeToKey.containsKey(time);
 	}
 
 	public KeyFrame getKeyFrame(int time){

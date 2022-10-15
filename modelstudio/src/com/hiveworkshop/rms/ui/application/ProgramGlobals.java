@@ -150,8 +150,9 @@ public class ProgramGlobals {
 			modelPanels.add(currentModelPanel);
 		}
 		if (currentModelPanel != null) {
-			selectionItemTypeGroup.setActiveButton(currentModelPanel.getSelectionType());
+			selectionModeGroup.setActiveButton(SelectionMode.SELECT);
 			actionTypeGroup.setActiveButton(currentModelPanel.getEditorActionType());
+			selectionItemTypeGroup.setActiveButton(currentModelPanel.getSelectionType());
 		}
 		menuBar.setToolsMenuEnabled(currentModelPanel != null);
 	}
@@ -191,6 +192,15 @@ public class ProgramGlobals {
 	private static void setSelectionItemType(SelectionItemTypes selectionItemTypes){
 		if(currentModelPanel != null){
 			currentModelPanel.setSelectionType(selectionItemTypes);
+			ModelEditorActionType3 editorActionType = getEditorActionType();
+			if (selectionItemTypes == SelectionItemTypes.ANIMATE
+					&& (editorActionType == ModelEditorActionType3.EXTRUDE
+					|| editorActionType == ModelEditorActionType3.EXTEND)) {
+				setEditorActionTypeButton(ModelEditorActionType3.TRANSLATION);
+			} else if (selectionItemTypes != SelectionItemTypes.ANIMATE
+					&& editorActionType == ModelEditorActionType3.SQUAT) {
+				setEditorActionTypeButton(ModelEditorActionType3.ROTATION);
+			}
 		}
 	}
 

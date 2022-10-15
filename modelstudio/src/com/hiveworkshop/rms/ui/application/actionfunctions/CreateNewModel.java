@@ -102,9 +102,10 @@ public class CreateNewModel extends ActionFunction{
 		if (!model.contains(material)) {
 			model.add(material);
 			for (Layer layer : material.getLayers()){
-				Bitmap bitmap = layer.getTextureBitmap();
-				if(model.contains(bitmap)){
-					model.add(bitmap);
+				for(Bitmap bitmap : layer.getTextures()){
+					if(model.contains(bitmap)){
+						model.add(bitmap);
+					}
 				}
 			}
 		}

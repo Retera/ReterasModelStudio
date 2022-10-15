@@ -201,10 +201,10 @@ public class SetMaterialShaderStringAction implements UndoAction {
 
 		Set<Bitmap> bitmaps = new HashSet<>(model.getTextures());
 		for (Layer layer : newLayers) {
-			Bitmap bitmap = layer.getTextureBitmap();
-			if (bitmap != null && !bitmaps.contains(bitmap)) {
-				addTextureActions.add(new AddBitmapAction(bitmap, model, null));
-			}
+//			Bitmap bitmap = layer.getTextureBitmap();
+//			if (bitmap != null && !bitmaps.contains(bitmap)) {
+//				addTextureActions.add(new AddBitmapAction(bitmap, model, null));
+//			}
 			if (layer.getTextures() != null && !layer.getTextures().isEmpty()) {
 				for (Bitmap bitmap1 : layer.getTextures()) {
 					if (bitmap1 != null && !bitmaps.contains(bitmap1)) {
@@ -249,33 +249,33 @@ public class SetMaterialShaderStringAction implements UndoAction {
 
 
 
-	public static void makeMaterialSD(Material material) {
-		if (material.getShaderString() != null) {
-			material.setShaderString(null);
-			Layer layerZero = material.getLayers().get(0);
-			material.clearLayers();
-			material.addLayer(layerZero);
-			if (material.getTwoSided()) {
-				material.setTwoSided(false);
-				layerZero.setTwoSided(true);
-			}
-		}
-		for (final Layer layer : material.getLayers()) {
-			if (!Double.isNaN(layer.getEmissive())) {
-				layer.setEmissive(Double.NaN);
-			}
-			final AnimFlag<?> flag = layer.find("Emissive");
-			if (flag != null) {
-				layer.remove(flag);
-			}
-		}
-	}
+//	public static void makeMaterialSD(Material material) {
+//		if (material.getShaderString() != null) {
+//			material.setShaderString(null);
+//			Layer layerZero = material.getLayers().get(0);
+//			material.clearLayers();
+//			material.addLayer(layerZero);
+//			if (material.getTwoSided()) {
+//				material.setTwoSided(false);
+//				layerZero.setTwoSided(true);
+//			}
+//		}
+//		for (final Layer layer : material.getLayers()) {
+//			if (!Double.isNaN(layer.getEmissive())) {
+//				layer.setEmissive(Double.NaN);
+//			}
+//			final AnimFlag<?> flag = layer.find("Emissive");
+//			if (flag != null) {
+//				layer.remove(flag);
+//			}
+//		}
+//	}
 
 	public static void makeMaterialHD(Material material) {
 		material.setShaderString("Shader_HD_DefaultUnit");
 		Layer diffuseLayer;
 		if (!material.getLayers().isEmpty()) {
-			diffuseLayer = material.getLayers().stream().filter(layer -> !layer.getTextureBitmap().getPath().equals("")).findFirst().orElse(material.getLayers().get(0));
+			diffuseLayer = material.getLayers().stream().filter(layer -> !layer.getTexture(0).getPath().equals("")).findFirst().orElse(material.getLayers().get(0));
 		} else {
 			diffuseLayer = new Layer(getBitmap("Textures\\White.dds"));
 		}

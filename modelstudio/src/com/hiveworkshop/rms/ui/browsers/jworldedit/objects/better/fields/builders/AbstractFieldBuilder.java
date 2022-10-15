@@ -2,11 +2,9 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.builde
 
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.ObjectData;
-import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.*;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.util.War3ID;
 
@@ -27,46 +25,74 @@ public abstract class AbstractFieldBuilder {
 			GameObject metaDataField = metaData.get(key);
 			War3ID metaKey = War3ID.fromString(key);
 
-			if (includeField(gameObject, metaDataField, metaKey)) {
-				makeAndAddFields(fields, metaKey, metaDataField, gameObject, metaData);
+			if (includeField(gameObject, metaDataField)) {
+//				makeAndAddFields(fields, metaKey, metaDataField, gameObject, metaData);
+				fields.addAll(makeFields(metaKey, metaDataField, gameObject, metaData));
 			}
 		}
 		return fields;
 	}
 
-	protected abstract void makeAndAddFields(List<AbstractObjectField> fields, War3ID metaKey, GameObject metaDataField,
-	                                         MutableGameObject gameObject, ObjectData metaData);
+	protected abstract List<AbstractObjectField> makeFields(War3ID metaKey, GameObject metaDataField, MutableGameObject gameObject, ObjectData metaData);
 
-	protected abstract boolean includeField(MutableGameObject gameObject, GameObject metaDataField, War3ID metaKey);
+	protected boolean includeField(MutableGameObject gameObject, GameObject metaDataField) {
+		return true;
+	}
 
-	public final AbstractObjectField create(MutableGameObject gameObject, ObjectData metaData,
-	                                        War3ID metaKey, int level, boolean hasMoreThanOneLevel) {
+	public AbstractObjectField create(MutableGameObject gameObject, ObjectData metaData, War3ID metaKey, int level, boolean hasMoreThanOneLevel) {
+//		int level = 0;
+//		boolean hasMoreThanOneLevel = false;
 		GameObject metaField = metaData.get(metaKey.toString());
 
 		int displayLevel = hasMoreThanOneLevel ? level : 0;
-		String displayName = getDisplayName(metaData, metaKey, displayLevel, gameObject);
-		String rawDataName = getRawDataName(metaData, metaKey, displayLevel);
+		String displayName = getDisplayName(metaField, displayLevel, gameObject);
+		String rawDataName = metaField.getEditorMetaDataDisplayKey(level);
 
-		String displayPrefix = getDisplayPrefix(metaData, metaKey, displayLevel, gameObject);
+		String displayPrefix = getDisplayPrefix(displayLevel);
 		String prefixedDispName = displayPrefix + displayName;
 
+		AbstractObjectField field = getObjectField(metaKey, level, hasMoreThanOneLevel, metaField, displayName, rawDataName, prefixedDispName);
+		return field;
+	}
+	public AbstractObjectField create(GameObject metaField, MutableGameObject gameObject, War3ID metaKey, int level, boolean hasMoreThanOneLevel) {
+		int displayLevel = hasMoreThanOneLevel ? level : 0;
+		String displayName = getDisplayName(metaField, displayLevel, gameObject);
+		String rawDataName = metaField.getEditorMetaDataDisplayKey(level);
+
+		String displayPrefix = getDisplayPrefix(displayLevel);
+		String prefixedDispName = displayPrefix + displayName;
+
+		AbstractObjectField field = getObjectField(metaKey, level, hasMoreThanOneLevel, metaField, displayName, rawDataName, prefixedDispName);
+		return field;
+	}
+	public AbstractObjectField create1(MutableGameObject gameObject, ObjectData metaData, War3ID metaKey, int level, boolean hasMoreThanOneLevel) {
+		GameObject metaField = metaData.get(metaKey.toString());
+
+		int displayLevel = hasMoreThanOneLevel ? level : 0;
+		String displayName = getDisplayName(metaField, displayLevel, gameObject);
+		String rawDataName = metaField.getEditorMetaDataDisplayKey(level);
+
+		String displayPrefix = getDisplayPrefix(displayLevel);
+		String prefixedDispName = displayPrefix + displayName;
+
+		return getObjectField(metaKey, level, hasMoreThanOneLevel, metaField, displayName, rawDataName, prefixedDispName);
+	}
+
+	protected AbstractObjectField getObjectField(War3ID metaKey, int level, boolean hasMoreThanOneLevel, GameObject metaField, String displayName, String rawDataName, String prefixedDispName) {
 		return switch (metaField.getField("type")) {
-			case "attackBits", "teamColor", "deathType", "versionFlags", "channelFlags", "channelType", "int" -> new IntegerObjectField(prefixedDispName, displayName, rawDataName, hasMoreThanOneLevel, metaKey, level, worldEditorDataType, metaField);
+			case "attackBits", "teamColor", "deathType", "versionFlags", "channelFlags", "channelType",
+					"int" -> new IntegerObjectField(prefixedDispName, displayName, rawDataName, hasMoreThanOneLevel, metaKey, level, worldEditorDataType, metaField);
 			case "real", "unreal" -> new FloatObjectField(prefixedDispName, displayName, rawDataName, hasMoreThanOneLevel, metaKey, level, worldEditorDataType, metaField);
 			case "bool" -> new BooleanObjectField(prefixedDispName, displayName, rawDataName, hasMoreThanOneLevel, metaKey, level, worldEditorDataType, metaField);
-			case "unitRace" -> new GameEnumObjectField(prefixedDispName, displayName, rawDataName, hasMoreThanOneLevel, metaKey, level, worldEditorDataType, metaField, "unitRace", "WESTRING_COD_TYPE_UNITRACE", StandardObjectData.getUnitEditorData());
-//			case "string" -> new StringObjectField(prefixedDispName, displayName, rawDataName, hasMoreThanOneLevel, metaKey, level, worldEditorDataType, metaField);
+			case "unitRace" -> new GameEnumObjectField(prefixedDispName, displayName, rawDataName, hasMoreThanOneLevel, metaKey, level, worldEditorDataType, metaField);
 			default -> new StringObjectField(prefixedDispName, displayName, rawDataName, hasMoreThanOneLevel, metaKey, level, worldEditorDataType, metaField);
 		};
 	}
 
-	protected abstract String getDisplayName(ObjectData metaData, War3ID metaKey, int level, MutableGameObject gameObject);
+	protected abstract String getDisplayName(GameObject metaDataField, int level, MutableGameObject gameObject);
 
-	protected abstract String getDisplayPrefix(ObjectData metaData, War3ID metaKey, int level, MutableGameObject gameObject);
-
-	private String getRawDataName(ObjectData metaData, War3ID metaKey, int level) {
-		GameObject metaDataFieldObject = metaData.get(metaKey.toString());
-		return MutableObjectData.getEditorMetaDataDisplayKey(level, metaDataFieldObject);
+	protected String getDisplayPrefix(int level) {
+		return "";
 	}
 
 	public WorldEditorDataType getWorldEditorDataType() {

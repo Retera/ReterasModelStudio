@@ -2,12 +2,12 @@ package com.hiveworkshop.rms.ui.application.edit.uv.panel;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportView;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.UVViewportModelRenderer;
 import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.function.BiConsumer;
 
 public class UVViewport extends ViewportView {
 	private final ArrayList<Image> backgrounds = new ArrayList<>();
@@ -17,8 +17,8 @@ public class UVViewport extends ViewportView {
 	private final Vec2 endDrawPoint = new Vec2();
 	private final UVViewportModelRenderer viewportModelRenderer;
 
-	public UVViewport(CoordDisplayListener coordDisplayListener) {
-		super((byte) 0, (byte) 1, new Dimension(400, 400), coordDisplayListener);
+	public UVViewport(BiConsumer<Double, Double> coordDisplayListener2) {
+		super((byte) 0, (byte) 1, new Dimension(400, 400), coordDisplayListener2);
 
 		coordinateSystem.setYFlip(1);
 

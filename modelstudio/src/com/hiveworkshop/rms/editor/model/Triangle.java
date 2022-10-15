@@ -273,7 +273,7 @@ public class Triangle {
 
 	@Override
 	public String toString() {
-		return vertIds[0] + ", " + vertIds[1] + ", " + vertIds[2];
+		return verts[0] + ", " + verts[1] + ", " + verts[2];
 	}
 
 	/**

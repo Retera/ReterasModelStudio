@@ -68,6 +68,14 @@ public class Element extends GameObject {
 		return "";
 	}
 
+	public List<String> getFieldList(final String field) {
+		List<String> list = fields.get(new StringKey(field));
+		if (list != null) {
+			return list;
+		}
+		return Collections.emptyList();
+	}
+
 	@Override
 	public String getField(final String field, final int index) {
 		List<String> list = fields.get(new StringKey(field));

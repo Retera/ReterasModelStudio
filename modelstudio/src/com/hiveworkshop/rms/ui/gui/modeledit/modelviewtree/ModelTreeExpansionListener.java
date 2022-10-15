@@ -12,14 +12,15 @@ public class ModelTreeExpansionListener implements TreeExpansionListener {
 	private boolean isPropagating = false;
 
 	public ModelTreeExpansionListener setControlDown(boolean controlDown) {
+//		System.out.println("[MTEL] controllDown: " + controlDown);
 		this.controlDown = controlDown;
 		return this;
 	}
 
 	@Override
 	public void treeExpanded(TreeExpansionEvent event) {
-		System.out.println("[expand] event: " + event);
-		System.out.println("source: " + event.getSource());
+		System.out.println("[MTEL][expand] event: " + event);
+		System.out.println("[MTEL]source: " + event.getSource());
 
 //		if (event.getSource() instanceof ComponentThingTree) {
 //			printEventInfo(event);
@@ -52,14 +53,14 @@ public class ModelTreeExpansionListener implements TreeExpansionListener {
 
 	@Override
 	public void treeCollapsed(TreeExpansionEvent event) {
-		System.out.println("[collapse] event: " + event);
+		System.out.println("[MTEL][collapse] event: " + event);
 		propagateExpansion(event, false);
 	}
 
 	private void propagateExpansion(TreeExpansionEvent event, boolean expand) {
 		if (controlDown && (!isPropagating)) {
 			isPropagating = true;
-			System.out.println("Control was down!");
+			System.out.println("[MTEL] Control was down!");
 			Object source = event.getSource();
 			TreePath path = event.getPath();
 			if (path.getLastPathComponent() instanceof DefaultMutableTreeNode) {
@@ -83,7 +84,7 @@ public class ModelTreeExpansionListener implements TreeExpansionListener {
 				((JTree)source).collapsePath(path);
 			}
 		} else {
-			System.out.println("Source not JTree: " + source);
+			System.out.println("[MTEL] Source not JTree: " + source);
 		}
 	}
 

@@ -18,6 +18,7 @@ public class TimeLineMouseListener extends MouseAdapter {
 
 	private final TimeLinePopup popupMenu;
 	private KeyFrame draggingFrame = null;
+	private KeyFrame hoverFrame = null;
 	private int draggingFrameStartTime = 0;
 	private boolean isDraggingSlider = false;
 	private Robot robot;
@@ -169,7 +170,8 @@ public class TimeLineMouseListener extends MouseAdapter {
 	}
 
 	public void checkMouseOver(Point mousePt) {
-		if (keyframeHandler.getTimeFromPoint(mousePt) != null) {
+		hoverFrame = keyframeHandler.getKeyFrameFromPoint(mousePt);
+		if (hoverFrame != null) {
 			timeSliderPanel.setCursor(slideCursor);
 		} else {
 			timeSliderPanel.setCursor(null);
@@ -194,8 +196,31 @@ public class TimeLineMouseListener extends MouseAdapter {
 		return draggingFrame != null;
 	}
 
+	public int getDraggingStartTime() {
+		return draggingFrameStartTime;
+	}
+	public int getDraggingTimeDiff() {
+		return draggingFrameStartTime - draggingFrame.getTime();
+	}
+	public String getDraggingTimeDiffString() {
+
+		int timeDiff = draggingFrame.getTime() - draggingFrameStartTime;
+		if(timeDiff<0){
+			return " ( " + timeDiff + ")";
+		} else {
+			return " ( +" + timeDiff + ")";
+		}
+	}
 	public KeyFrame getDraggingFrame() {
 		return draggingFrame;
+	}
+
+	public boolean isHoveringKeyframe() {
+		return hoverFrame != null;
+	}
+
+	public KeyFrame getHoveringFrame() {
+		return hoverFrame;
 	}
 
 	public TimeLineMouseListener setTimelineVisible(boolean timelineVisible) {

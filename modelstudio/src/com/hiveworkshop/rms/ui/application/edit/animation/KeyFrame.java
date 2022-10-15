@@ -184,6 +184,22 @@ public final class KeyFrame {
 		g.drawString(text, x1, y);
 
 	}
+	public void drawFloatingTime(Graphics g, Color color, String extraText) {
+
+		FontMetrics fontMetrics = g.getFontMetrics(g.getFont());
+		g.setColor(color);
+//		int draggingFrameTime = time;
+//		if (draggingFrameTime > timeEnvironment.getLength()) {
+//			draggingFrameTime = timeEnvironment.getLength();
+//		} else if (draggingFrameTime < 0) {
+//			draggingFrameTime = 0;
+//		}
+		String text = time + extraText;
+		int y = (renderRect.y) - 2;
+		int x1 = renderRect.x + ((renderRect.width - fontMetrics.stringWidth(text)) / 2);
+		g.drawString(text, x1, y);
+
+	}
 
 
 	public boolean[] getTransRotScalOth() {

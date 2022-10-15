@@ -5,15 +5,21 @@ import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 public class SelectionBoxHelper {
-	ViewBox viewBox = new ViewBox();
-	Ray topRightRay = new Ray();
-	Ray botLeftRay  = new Ray();
+	private final ViewBox viewBox = new ViewBox();
+	private final Ray topRightRay = new Ray();
+	private final Ray botLeftRay  = new Ray();
 
-	protected Vec3 vecHeap = new Vec3();
-//	private final Ray rayHeap = new Ray();
-//	private final Plane viewPlane = new Plane();
-	Vec3 topRightPoint = new Vec3();
-	Vec3 botLeftPoint = new Vec3();
+	private final Vec3 vecHeap = new Vec3();
+	private final Vec3 topRightPoint = new Vec3();
+	private final Vec3 botLeftPoint = new Vec3();
+
+	private final Ray tempRay = new Ray();
+	private final Plane tempPlane = new Plane();
+
+
+	private final Vec3 v0 = new Vec3();
+	private final Vec3 v1 = new Vec3();
+	private final Vec3 v2 = new Vec3();
 
 	public SelectionBoxHelper setFrom(Vec2 topRight, Vec2 bottomLeft, Vec3 camRight, Vec3 camUp, Plane viewPlane, Mat4 invViewProjectionMat){
 		topRightRay.setNearFar(topRight, invViewProjectionMat);
@@ -68,27 +74,51 @@ public class SelectionBoxHelper {
 		}
 		return false;
 	}
-
-	private Ray tempRay = new Ray();
-	private Vec3 tempVec = new Vec3();
-	private Plane tempPlane = new Plane();
-
 	public boolean triIntersectBox(Vec3 v0, Vec3 v1, Vec3 v2){
 		if(testLine(v0, v1) || testLine(v1, v2) || testLine(v2, v0)){
 			return true;
 		}
 
 		tempPlane.setFrom(v0, v1, v2);
-
 		return pointInTri(v0, v1, v2, tempPlane.getIntersectP(topRightRay));
 	}
 
 	private boolean testLine(Vec3 v0, Vec3 v1){
 		float length = v0.distance(v1);
 		tempRay.setFromPoints(v0, v1);
-//		tempVec.set(v1).sub(tempRay.getPoint());
-		tempVec.set(tempRay.getPoint()).addScaled(tempRay.getDir(), length);
-//		System.out.println( "l: " + length + ", vecs: " + v1 + " vs " + tempVec);
+		vecHeap.set(tempRay.getPoint()).addScaled(tempRay.getDir(), length);
+
+		float bottomI = viewBox.bottom.getIntersect3(tempRay);
+		float topI = viewBox.top.getIntersect3(tempRay);
+		float rightI = viewBox.right.getIntersect3(tempRay);
+		float leftI = viewBox.left.getIntersect3(tempRay);
+
+
+		if(Float.isFinite(topI) && Float.isFinite(bottomI)
+				&& 0 <= topI && topI<length
+				&& 0 <= bottomI && bottomI<length){
+			vecHeap.set(tempRay.getPoint()).addScaled(tempRay.getDir(), (topI + bottomI)/2f);
+
+			if(pointInBox(vecHeap)){
+				return true;
+			}
+		}
+		if(Float.isFinite(rightI) && Float.isFinite(leftI)
+				&& 0 <= rightI && rightI<length
+				&& 0 <= leftI && leftI<length){
+			vecHeap.set(tempRay.getPoint()).addScaled(tempRay.getDir(), (rightI + leftI)/2f);
+			return pointInBox(vecHeap);
+		}
+
+		return false;
+	}
+
+	private boolean testLine1(Vec3 v0, Vec3 v1){
+		float length = v0.distance(v1);
+		tempRay.setFromPoints(v0, v1);
+//		vecHeap.set(v1).sub(tempRay.getPoint());
+		vecHeap.set(tempRay.getPoint()).addScaled(tempRay.getDir(), length);
+//		System.out.println( "l: " + length + ", vecs: " + v1 + " vs " + vecHeap);
 
 
 		float bottomI = viewBox.bottom.getIntersect3(tempRay);
@@ -108,30 +138,26 @@ public class SelectionBoxHelper {
 		if(Float.isFinite(topI) && Float.isFinite(bottomI)
 				&& 0 <= topI && topI<length
 				&& 0 <= bottomI && bottomI<length){
-			tempVec.set(tempRay.getPoint()).addScaled(tempRay.getDir(), (topI + bottomI)/2f);
-//			System.out.println("topBot vec: " + tempVec);
-			b = pointInBox(tempVec);
-//			if(pointInBox(tempVec)){
+			vecHeap.set(tempRay.getPoint()).addScaled(tempRay.getDir(), (topI + bottomI)/2f);
+//			System.out.println("topBot vec: " + vecHeap);
+			b = pointInBox(vecHeap);
+//			if(pointInBox(vecHeap)){
 //				return true;
 //			}
 		}
 		if(Float.isFinite(rightI) && Float.isFinite(leftI)
 				&& 0 <= rightI && rightI<length
 				&& 0 <= leftI && leftI<length){
-			tempVec.set(tempRay.getPoint()).addScaled(tempRay.getDir(), (rightI + leftI)/2f);
-//			System.out.println("leftRight vec: " + tempVec);
-			b = b || pointInBox(tempVec);
-//			if(pointInBox(tempVec)){
+			vecHeap.set(tempRay.getPoint()).addScaled(tempRay.getDir(), (rightI + leftI)/2f);
+//			System.out.println("leftRight vec: " + vecHeap);
+			b = b || pointInBox(vecHeap);
+//			if(pointInBox(vecHeap)){
 //				return true;
 //			}
 		}
 
 		return b;
 	}
-
-	Vec3 v0 = new Vec3();
-	Vec3 v1 = new Vec3();
-	Vec3 v2 = new Vec3();
 
 	private boolean pointInTri(Vec3 A, Vec3 B, Vec3 C, Vec3 P){
 		// https://blackpawn.com/texts/pointinpoly/
@@ -148,11 +174,10 @@ public class SelectionBoxHelper {
 		float dot12 = v1.dot(v2);
 
 		// Compute barycentric coordinates
-		float invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+		float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
 		float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
 		float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
 
-		// Check if point is in triangle
 		return (u >= 0) && (v >= 0) && (u + v < 1);
 	}
 }

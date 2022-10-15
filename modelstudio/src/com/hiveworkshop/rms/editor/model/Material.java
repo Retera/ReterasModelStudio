@@ -1,7 +1,8 @@
 package com.hiveworkshop.rms.editor.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+
+import java.util.*;
 
 /**
  * A class for MDL materials.
@@ -17,10 +18,7 @@ public class Material {
 	List<Layer> layers = new ArrayList<>();
 	int priorityPlane = 0;
 	String shaderString = "";
-	boolean constantColor = false;
-	boolean sortPrimsFarZ = false;
-	boolean fullResolution = false;
-	boolean twoSided = false;
+	private final EnumSet<flag> flags = EnumSet.noneOf(flag.class);
 
 	public Material() {
 
@@ -39,12 +37,13 @@ public class Material {
 		for (Layer layer : material.layers) {
 			this.layers.add(layer.deepCopy());
 		}
+		flags.addAll(material.flags);
 		priorityPlane = material.priorityPlane;
 		shaderString = material.shaderString;
-		constantColor = material.constantColor;
-		sortPrimsFarZ = material.sortPrimsFarZ;
-		fullResolution = material.fullResolution;
-		twoSided = material.twoSided;
+//		constantColor = material.constantColor;
+//		sortPrimsFarZ = material.sortPrimsFarZ;
+//		fullResolution = material.fullResolution;
+//		twoSided = material.twoSided;
 	}
 
 	public String getName2() {
@@ -52,7 +51,7 @@ public class Material {
 		if (layers.size() > 0) {
 			if (SHADER_HD_DEFAULT_UNIT.equals(shaderString)) {
 				try {
-					name.append(" over ").append(layers.get(0).getTextureBitmap().getName());
+					name.append(" over ").append(layers.get(0).getTexture(0).getName());
 					if (layers.get(0).find("Alpha") != null) {
 						name.append(" (animated Alpha)");
 					}
@@ -60,8 +59,8 @@ public class Material {
 					name.append(" over ").append("animated texture layers (").append(layers.get(0).getTextures().get(0).getName()).append(")");
 				}
 			} else {
-				if (layers.get(layers.size() - 1).getTextureBitmap() != null) {
-					name = new StringBuilder(layers.get(layers.size() - 1).getTextureBitmap().getName());
+				if (layers.get(layers.size() - 1).getTexture(0) != null) {
+					name = new StringBuilder(layers.get(layers.size() - 1).getTexture(0).getName());
 					if (layers.get(layers.size() - 1).find("Alpha") != null) {
 						name.append(" (animated Alpha)");
 					}
@@ -70,7 +69,7 @@ public class Material {
 				}
 				for (int i = layers.size() - 2; i >= 0; i--) {
 					try {
-						name.append(" over ").append(layers.get(i).getTextureBitmap().getName());
+						name.append(" over ").append(layers.get(i).getTexture(0).getName());
 						if (layers.get(i).find("Alpha") != null) {
 							name.append(" (animated Alpha)");
 						}
@@ -93,7 +92,7 @@ public class Material {
 		if (layers.size() > 0) {
 			if (SHADER_HD_DEFAULT_UNIT.equals(shaderString)) {
 				try {
-					name.append(over).append(layers.get(0).getTextureBitmap().getName());
+					name.append(over).append(layers.get(0).getTexture(0).getName());
 					if (layers.get(0).find("Alpha") != null) {
 						name.append(animated + alpha);
 					}
@@ -102,8 +101,8 @@ public class Material {
 					name.append(over).append(animated + texture).append("(").append(layers.get(0).getTextures().get(0).getName()).append(")");
 				}
 			} else {
-				if (layers.get(layers.size() - 1).getTextureBitmap() != null) {
-					name = new StringBuilder(layers.get(layers.size() - 1).getTextureBitmap().getName());
+				if (layers.get(layers.size() - 1).getTexture(0) != null) {
+					name = new StringBuilder(layers.get(layers.size() - 1).getTexture(0).getName());
 					if (layers.get(layers.size() - 1).find("Alpha") != null) {
 						name.append(animated + alpha);
 					}
@@ -113,7 +112,7 @@ public class Material {
 				for (int i = layers.size() - 2; i >= 0; i--) {
 					Layer layer = layers.get(i);
 					try {
-						Bitmap textureBitmap = layer.getTextureBitmap();
+						Bitmap textureBitmap = layer.getTexture(0);
 						if(textureBitmap != null){
 							name.append(over).append(textureBitmap.getName());
 						}
@@ -204,76 +203,130 @@ public class Material {
 
 	@Override
 	public boolean equals(final Object obj) {
-//		System.out.println("equals");
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final Material other = (Material) obj;
-
-		if ((constantColor != other.constantColor) || (sortPrimsFarZ != other.sortPrimsFarZ)
-				|| (fullResolution != other.fullResolution) || (twoSided != other.twoSided)) {
-			return false;
-		}
-		if (layers == null) {
-			if (other.layers != null) {
+		if (obj instanceof Material) {
+			final Material other = (Material) obj;
+			if (!Objects.equals(flags, other.flags)) {
 				return false;
 			}
-		} else if (!layers.equals(other.layers)) {
-			return false;
+			if (!Objects.equals(layers, other.getLayers())) {
+				return false;
+			}
+			if (priorityPlane != other.priorityPlane) {
+				return false;
+			}
+			return Objects.equals(shaderString, other.shaderString);
 		}
-		if (priorityPlane != other.priorityPlane) {
-			return false;
-		}
-		if (shaderString == null) {
-			return other.shaderString == null;
-		} else {
-			return shaderString.equals(other.shaderString);
-		}
+		return false;
 	}
 
 	public boolean getConstantColor() {
-		return constantColor;
+		return flags.contains(flag.CONSTANT_COLOR);
 	}
 
 	public void setConstantColor(final boolean constantColor) {
-		this.constantColor = constantColor;
+		setFlag(flag.CONSTANT_COLOR, constantColor);
 	}
 
 	public boolean getSortPrimsFarZ() {
-		return sortPrimsFarZ;
+		return flags.contains(flag.SORT_PRIMS_FAR_Z);
 	}
 
 	public void setSortPrimsFarZ(final boolean sortPrimsFarZ) {
-		this.sortPrimsFarZ = sortPrimsFarZ;
+		setFlag(flag.SORT_PRIMS_FAR_Z, sortPrimsFarZ);
+	}
+
+	public boolean getSortPrimsNearZ() {
+		return flags.contains(flag.SORT_PRIMS_NEAR_Z);
+	}
+	public void setSortPrimsNearZ(final boolean sortPrimsNearZ) {
+		setFlag(flag.SORT_PRIMS_NEAR_Z, sortPrimsNearZ);
 	}
 
 	public boolean getFullResolution() {
-		return fullResolution;
+		return flags.contains(flag.FULL_RESOLUTION);
 	}
 
 	public void setFullResolution(final boolean fullResolution) {
-		this.fullResolution = fullResolution;
+		setFlag(flag.FULL_RESOLUTION, fullResolution);
 	}
 
 	public boolean getTwoSided() {
-		return twoSided;
+		return flags.contains(flag.TWO_SIDED);
 	}
 
 	public void setTwoSided(final boolean twoSided) {
-		this.twoSided = twoSided;
+		setFlag(flag.TWO_SIDED, twoSided);
 	}
 
+	public EnumSet<flag> getFlags() {
+		return flags;
+	}
+
+	public void setFlag(flag flag, boolean on){
+		if (on){
+			flags.add(flag);
+		} else {
+			flags.remove(flag);
+		}
+	}
+	public boolean isFlagSet(flag flag){
+		return flags.contains(flag);
+	}
 	public Material deepCopy(){
 		return new Material(this);
 	}
 
 	public boolean isHD(){
 		return shaderString.equals(SHADER_HD_DEFAULT_UNIT);
+	}
+
+
+
+//	boolean constantColor = false;
+//	boolean sortPrimsFarZ = false;
+//	boolean fullResolution = false;
+//	boolean twoSided = false;
+
+	public enum flag {
+		TWO_SIDED(MdlUtils.TOKEN_TWO_SIDED, 0x2),
+		CONSTANT_COLOR(MdlUtils.TOKEN_CONSTANT_COLOR, 0x1),
+		SORT_PRIMS_FAR_Z(MdlUtils.TOKEN_SORT_PRIMS_FAR_Z, 0x10),
+		SORT_PRIMS_NEAR_Z(MdlUtils.TOKEN_SORT_PRIMS_NEAR_Z, 0x8),
+		FULL_RESOLUTION(MdlUtils.TOKEN_FULL_RESOLUTION, 0x20);
+		final String name;
+		final int flagBit;
+		flag(String name, int flagBit){
+			this.name = name;
+			this.flagBit = flagBit;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public int getFlagBit() {
+			return flagBit;
+		}
+
+		public static flag getFromFlagBit(int flagBit){
+			for(flag flag : flag.values()){
+				if((flagBit&flag.getFlagBit()) == flag.getFlagBit()){
+					return flag;
+				}
+			}
+			return null;
+		}
+		public static Set<flag> getFlags(int flagBits){
+			Set<flag> flags = new HashSet<>();
+			for(flag flag : flag.values()){
+				if((flagBits&flag.getFlagBit()) == flag.getFlagBit()){
+					flags.add(flag);
+				}
+			}
+			return flags;
+		}
 	}
 }

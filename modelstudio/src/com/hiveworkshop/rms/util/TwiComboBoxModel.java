@@ -76,6 +76,14 @@ public class TwiComboBoxModel<E> extends AbstractListModel<E> implements Mutable
 			fireContentsChanged(this, -1, -1);
 		}
 	}
+	public void setSelectedNoListener(E anObject) {
+		if ((selectedObject != null && !selectedObject.equals(anObject)) ||
+				selectedObject == null && anObject != null) {
+			selectedObject = anObject;
+			selectedTypedObject = anObject;
+//			fireContentsChanged(this, -1, -1);
+		}
+	}
 
 	// implements javax.swing.ComboBoxModel
 	public Object getSelectedItem() {

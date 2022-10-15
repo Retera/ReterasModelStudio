@@ -29,9 +29,9 @@ public class RootWindowUgg extends RootWindow {
 	public RootWindowUgg(byte[] viewMap1) {
 		super(windowHandler2.getViewSerilizer());
 
+		addListener(new RootWindowListener(this));
 		loadDefaultLayout();
 
-		addListener(new RootWindowListener(this));
 		setRootProps(this);
 	}
 

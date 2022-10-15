@@ -4,9 +4,10 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.FileDialog;
-import com.hiveworkshop.rms.ui.application.ModelLoader;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.File;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
@@ -28,6 +29,7 @@ public class ModelPanel {
 	private final ViewportActivityManager viewportActivityManager;
 	private final ViewportActivityManager viewportUVActivityManager;
 	private final ModelEditorManager modelEditorManager;
+
 	private final TVertexEditorManager uvModelEditorManager;
 
 	private SelectionItemTypes selectionType = SelectionItemTypes.VERTEX;
@@ -93,6 +95,10 @@ public class ModelPanel {
 		return modelEditorManager;
 	}
 
+	public TVertexEditorManager getUvModelEditorManager() {
+		return uvModelEditorManager;
+	}
+
 	public boolean close() {
 		// returns true if closed successfully
 		if (!modelHandler.getUndoManager().isUndoListEmpty()) {
@@ -131,6 +137,22 @@ public class ModelPanel {
 //		}
 	}
 
+	public void refreshFromEditor() {
+		System.out.println("refreshFromEditor");
+//		ModelHandler modelHandler = modelPanel.getModelHandler();
+		updateRenderModel(modelHandler.getRenderModel());
+		updateRenderModel(modelHandler.getPreviewRenderModel());
+
+	}
+	public static void updateRenderModel(RenderModel renderModel) {
+		TimeEnvironmentImpl timeEnv = renderModel.getTimeEnvironment();
+		int animationTime = timeEnv.getAnimationTime();
+		Sequence currentSequence = timeEnv.getCurrentSequence();
+		timeEnv.setSequence(currentSequence);
+		timeEnv.setAnimationTime(animationTime);
+		renderModel.refreshFromEditor();
+	}
+
 	public EditableModel getModel() {
 		return modelHandler.getModel();
 	}
@@ -147,7 +169,9 @@ public class ModelPanel {
 		this.selectionType = selectionType;
 		modelEditorManager.setSelectionItemType(selectionType);
 		uvModelEditorManager.setSelectionItemType(selectionType);
-		ModelLoader.refreshAnimationModeState();
+		refreshFromEditor();
+
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().setAnimationMode();
 	}
 
 	public SelectionItemTypes getSelectionType() {

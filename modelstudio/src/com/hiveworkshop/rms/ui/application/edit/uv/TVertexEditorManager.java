@@ -5,23 +5,11 @@ import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.TVertSelectionManager;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.TVertexSelectionItemTypes;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 
 public final class TVertexEditorManager extends AbstractModelEditorManager {
 	public static boolean MOVE_LINKED;
 	TVertexEditor tVertexEditor;
-
-	public TVertexEditorManager(ModelHandler modelHandler,
-	                            ToolbarButtonGroup2<SelectionMode> modeButtonGroup) {
-		super(modelHandler);
-		selectionManager = new TVertSelectionManager(modelHandler.getRenderModel(), modelHandler.getModelView(), transformSelectionMode(TVertexSelectionItemTypes.VERTEX));
-		tVertexEditor = new TVertexEditor(selectionManager, modelHandler.getModelView(), transformSelectionMode(TVertexSelectionItemTypes.VERTEX));
-		setSelectionItemType(TVertexSelectionItemTypes.VERTEX);
-
-	}
-
 
 	public TVertexEditorManager(ModelHandler modelHandler) {
 		super(modelHandler);

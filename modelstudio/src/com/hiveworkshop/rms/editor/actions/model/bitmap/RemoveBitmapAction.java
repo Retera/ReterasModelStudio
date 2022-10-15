@@ -10,21 +10,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RemoveBitmapAction implements UndoAction {
-	private final Bitmap bitmap;
+	private final Bitmap bitmapToRemove;
 	private final EditableModel model;
 	private final ModelStructureChangeListener changeListener;
 	List<UndoAction> undoActions;
 
-	public RemoveBitmapAction(Bitmap bitmap, EditableModel model, ModelStructureChangeListener changeListener) {
-		this.bitmap = bitmap;
+	public RemoveBitmapAction(Bitmap bitmapToRemove, EditableModel model, ModelStructureChangeListener changeListener) {
+		this.bitmapToRemove = bitmapToRemove;
 		this.model = model;
 		this.changeListener = changeListener;
-		undoActions = getRemoveActions(bitmap);
+		undoActions = getRemoveActions(bitmapToRemove);
 	}
 
 	@Override
 	public UndoAction undo() {
-		model.add(bitmap);
+		model.add(bitmapToRemove);
 		for (UndoAction undoAction : undoActions){
 			undoAction.undo();
 		}
@@ -36,7 +36,7 @@ public class RemoveBitmapAction implements UndoAction {
 
 	@Override
 	public UndoAction redo() {
-		model.remove(bitmap);
+		model.remove(bitmapToRemove);
 		for (UndoAction undoAction : undoActions){
 			undoAction.redo();
 		}
@@ -55,23 +55,16 @@ public class RemoveBitmapAction implements UndoAction {
 	public List<UndoAction> getRemoveActions(Bitmap texture) {
 		ArrayList<UndoAction> undoActions = new ArrayList<>();
 		// remove a texture, replacing with "Textures\\white.blp" if necessary.
-		Bitmap replacement = null;
-		if(model.getTextures().size() > 1){
-			for (int i = 0; i < model.getTextures().size(); i++){
-				Bitmap b = model.getTextures().get(i);
-				if (b != texture){
-					replacement = b;
-					break;
-				}
-			}
-		}
+		Bitmap replacement = getReplacementBitmap(texture);
 		if (replacement == null){
 			replacement = new Bitmap("Textures\\white.blp");
 			undoActions.add(new AddBitmapAction(replacement, model, null));
 		}
 		for (Material material : model.getMaterials()) {
 			for (Layer layer : material.getLayers()) {
-				undoActions.add(new SetLayerTextureAction(texture, replacement, layer, null));
+				if(layer.getTextures().contains(texture)){
+					undoActions.add(new SetLayerTextureAction(texture, replacement, layer, null));
+				}
 			}
 		}
 		for (final ParticleEmitter2 emitter : model.getParticleEmitter2s()) {
@@ -80,5 +73,14 @@ public class RemoveBitmapAction implements UndoAction {
 			}
 		}
 		return undoActions;
+	}
+
+	private Bitmap getReplacementBitmap(Bitmap texture) {
+		for(Bitmap bitmap : model.getTextures()){
+			if(bitmap != texture){
+				return bitmap;
+			}
+		}
+		return null;
 	}
 }

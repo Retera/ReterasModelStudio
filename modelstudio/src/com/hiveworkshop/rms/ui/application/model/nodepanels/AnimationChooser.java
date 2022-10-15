@@ -42,6 +42,7 @@ public class AnimationChooser extends TwiComboBox<Sequence>{
 		return this;
 	}
 	public AnimationChooser setModel(RenderModel renderModel) {
+		System.out.println("[AnimationChooser] setModel");
 		if(renderModel != null){
 			this.model = renderModel.getModel();
 			timeEnvironment = renderModel.getTimeEnvironment();
@@ -67,9 +68,11 @@ public class AnimationChooser extends TwiComboBox<Sequence>{
 	}
 
 	public void chooseSequence(Sequence selectedItem) {
+		System.out.println("[AnimationChooser] chooseSequence: '" + selectedItem + "'");
 		selectOrFirst(selectedItem);
 	}
 	private void setSequence(Sequence selectedItem) {
+		System.out.println("[AnimationChooser] setSequence: '" + selectedItem + "'");
 		if (timeEnvironment != null) {
 			timeEnvironment.setSequence(selectedItem);
 			if(playOnSelect){
@@ -108,7 +111,9 @@ public class AnimationChooser extends TwiComboBox<Sequence>{
 
 	public AnimationChooser updateAnimationList() {
 		Sequence selectedItem = (Sequence) getSelectedItem();
+//		Sequence selectedItem = getSelected();
 		getComboBoxModel().removeAllElements();
+		System.out.println("[AnimationChooser] updateAnimationList - selected: '" + selectedItem + "'");
 		if (model != null) {
 			if (anims)          addAll(model.getAnims());
 			if (globalSeqs)     addAll(model.getGlobalSeqs());

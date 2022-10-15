@@ -131,6 +131,11 @@ public class ExtendActivity extends TransformActivity {
 		buildMoveVector(lastDragPoint, mouseEnd, viewProjectionMatrix);
 		translationAction.updateTranslation(moveVector);
 	}
+	protected void updateMat(Mat4 viewProjectionMatrix, Vec2 mouseEnd,
+	                         boolean isPrecise, boolean isSnap, boolean isAxisLock) {
+		buildMoveVector(lastDragPoint, mouseEnd, viewProjectionMatrix);
+		translationAction.updateTranslation(moveVector);
+	}
 
 	protected void buildMoveVector(Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
 		moveVector.set(0, 0, 0);

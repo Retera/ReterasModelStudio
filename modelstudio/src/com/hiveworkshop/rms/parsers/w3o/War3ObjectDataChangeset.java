@@ -752,6 +752,15 @@ public final class War3ObjectDataChangeset {
 		return custom;
 	}
 
+	public ObjectDataChangeEntry getFromID(final War3ID id) {
+		if(custom.containsKey(id)){
+			return custom.get(id);
+		} else if (original.containsKey(id)) {
+			return original.get(id);
+		}
+		return null;
+	}
+
 	private static void debugprint(final String s) {
 		boolean debug = false;
 		if(debug){

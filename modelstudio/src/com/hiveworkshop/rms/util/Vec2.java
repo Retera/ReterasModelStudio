@@ -167,6 +167,13 @@ public class Vec2 {
 		return this;
 	}
 
+	public Vec2 rotate(Vec2 center, Quat quat) {
+		sub(center);
+		transform(quat);
+		add(center);
+		return this;
+	}
+
 	public float lengthSquared() {
 		return (x * x) + (y * y);
 	}
@@ -287,6 +294,20 @@ public class Vec2 {
 		this.x = (float) x;
 		this.y = (float) y;
 		return this;
+	}
+
+	public Vec2 transform(Quat quat) {
+		float uvx = - quat.z * y;
+		float uvy = quat.z * x;
+		float uvz = quat.x * y - quat.y * x;
+		float uuvx = quat.y * uvz - quat.z * uvy;
+		float uuvy = quat.z * uvx - quat.x * uvz;
+		float w2 = quat.w * 2;
+
+		float newX = x + (uvx * w2) + (uuvx * 2);
+		float newY = y + (uvy * w2) + (uuvy * 2);
+
+		return set(newX, newY);
 	}
 
 	public Vec2 transform(final Mat4 mat4) {

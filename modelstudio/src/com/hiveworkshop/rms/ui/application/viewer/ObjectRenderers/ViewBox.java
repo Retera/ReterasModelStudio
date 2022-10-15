@@ -48,6 +48,7 @@ public class ViewBox {
 				&& top.inFrontOf(point)
 				&& left.inFrontOf(point);
 	}
+
 	public boolean pointInBox(Vec3 point, float margin) {
 		return     bottom.inFrontOf(point, margin)
 				&& right.inFrontOf(point, margin)
@@ -61,10 +62,10 @@ public class ViewBox {
 		boolean b_top = top.inFrontOf(point);
 		boolean b_left = left.inFrontOf(point);
 		System.out.println(""
-				+ "in front of Bottom: " + b_bottom + " ( " + bottom.getPoint() + ", " + bottom.getNorm() + " )"
-				+ "\nin front of Right:  " + b_right + " ( " + right.getPoint() + ", " + right.getNorm() + " )"
-				+ "\nin front of Top:    " + b_top + " ( " + top.getPoint() + ", " + top.getNorm() + " )"
-				+ "\nin front of Left:   " + b_left + " ( " + left.getPoint() + ", " + left.getNorm() + " )"
+				+ "in front of Bottom: " + b_bottom + "\t( " + bottom.getPoint() + ",\t" + bottom.getNorm() + " )"
+				+ "\nin front of Right:  " + b_right + "\t( " + right.getPoint() + ",\t" + right.getNorm() + " )"
+				+ "\nin front of Top:    " + b_top + "\t( " + top.getPoint() + ",\t" + top.getNorm() + " )"
+				+ "\nin front of Left:   " + b_left + "\t( " + left.getPoint() + ",\t" + left.getNorm() + " )"
 		);
 		return b_bottom && b_right && b_top && b_left;
 	}

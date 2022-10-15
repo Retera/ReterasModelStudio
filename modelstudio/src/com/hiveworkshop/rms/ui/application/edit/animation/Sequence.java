@@ -36,6 +36,8 @@ public abstract class Sequence implements Comparable<Sequence> {
 		return start + length;
 	}
 
+	public abstract String getName();
+
 	@Override
 	public abstract int compareTo(Sequence o);
 

@@ -61,7 +61,7 @@ public class MoveActivity extends TransformActivity {
 			buildMoveVector(lastDragPoint, mouseEnd, inverseViewProjectionMatrix);
 			translationAction.updateTranslation(moveVector);
 
-			System.out.println("moved from " + mouseStartPoint + " to " + mouseEnd);
+			System.out.println("moved from " + mouseStartPoint + " to " + mouseEnd + ", canceled: " + wasCanceled + ", e: " + e);
 			UndoAction undoAction = translationAction;
 			if (wasCanceled && undoAction != null) {
 				undoAction.undo();
@@ -75,6 +75,11 @@ public class MoveActivity extends TransformActivity {
 	}
 
 	protected void updateMat(MouseEvent e, Mat4 viewProjectionMatrix, Vec2 mouseEnd) {
+		buildMoveVector(lastDragPoint, mouseEnd, viewProjectionMatrix);
+		translationAction.updateTranslation(moveVector);
+	}
+	protected void updateMat(Mat4 viewProjectionMatrix, Vec2 mouseEnd,
+	                         boolean isPrecise, boolean isSnap, boolean isAxisLock) {
 		buildMoveVector(lastDragPoint, mouseEnd, viewProjectionMatrix);
 		translationAction.updateTranslation(moveVector);
 	}

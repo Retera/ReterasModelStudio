@@ -12,19 +12,16 @@ public class TimeEnvironmentImpl {
 	private int length;
 
 	boolean live = false;
-	private boolean looping = true;
 
 	private int animationTime;
 	private int globalSeqTime = 0;
 	protected float animationSpeed = 1f;
 
-	private Sequence sequence;
 	private Animation animation;
 	private GlobalSeq globalSeq = null; // I think this is used to view a models global sequences (w/o animating other things)
 
 	private LoopType loopType = LoopType.DEFAULT_LOOP;
 
-	private boolean staticViewMode;
 	private long lastUpdateMillis = System.currentTimeMillis();
 
 	private final TimeBoundChangeListener notifier = new TimeBoundChangeListener();
@@ -45,52 +42,20 @@ public class TimeEnvironmentImpl {
 			animationTime = Math.min(length, animationTime);
 			animationTime = Math.max(0, animationTime);
 
-			notifier.timeBoundsChanged(start, end);
 		}
+		notifier.timeBoundsChanged(start, end);
 		return this;
 	}
-
-//	public TimeEnvironmentImpl setAnimation(Animation animation) {
-//		this.animation = animation;
-//		if (animation != null) {
-//			setBounds(animation.getStart(), animation.getEnd());
-//			globalSeq = null;
-//		}
-//		updateLastMillis();
-//		if (loopType == PreviewPanel.LoopType.DEFAULT_LOOP) {
-//			looping = animation != null && !animation.isNonLooping();
-//		}
-//		return this;
-//	}
-
-	public TimeEnvironmentImpl setStaticViewMode(final boolean staticViewMode) {
-		this.staticViewMode = staticViewMode;
-		return this;
-	}
-
-//	public TimeEnvironmentImpl setGlobalSeq(final GlobalSeq globalSeq) {
-//		this.globalSeq = globalSeq;
-//		if (globalSeq != null) {
-//			setBounds(0, globalSeq.length);
-//			notifier.timeBoundsChanged(0, globalSeq.getLength());
-//		}
-//		return this;
-//	}
 
 
 	public TimeEnvironmentImpl setSequence(final Sequence sequence) {
 		if (sequence instanceof Animation) {
 			this.animation = (Animation) sequence;
-//			setBounds(sequence.getStart(), sequence.getEnd());
 			setBounds(0, sequence.getLength());
 			globalSeq = null;
-			if (loopType == LoopType.DEFAULT_LOOP) {
-				looping = animation != null && !animation.isNonLooping();
-			}
 		} else if (sequence instanceof GlobalSeq) {
 			this.globalSeq = (GlobalSeq) sequence;
-			setBounds(0, sequence.length);
-			notifier.timeBoundsChanged(0, sequence.getLength());
+			setBounds(0, sequence.getLength());
 		} else {
 			globalSeq = null;
 			this.animation = null;
@@ -202,32 +167,8 @@ public class TimeEnvironmentImpl {
 
 	public TimeEnvironmentImpl setLoopType(final LoopType loopType) {
 		this.loopType = loopType;
-		switch (loopType) {
-			case ALWAYS_LOOP -> looping = true;
-			case DEFAULT_LOOP -> looping = animation != null && !animation.isNonLooping();
-			case NEVER_LOOP -> looping = false;
-		}
 		return this;
 	}
-
-	public TimeEnvironmentImpl setAlwaysLooping() {
-		this.loopType = LoopType.ALWAYS_LOOP;
-		looping = true;
-		return this;
-	}
-
-	public TimeEnvironmentImpl setDefaultLooping() {
-		this.loopType = LoopType.DEFAULT_LOOP;
-		looping = animation != null && !animation.isNonLooping();
-		return this;
-	}
-
-	public TimeEnvironmentImpl setNeverLooping() {
-		this.loopType = LoopType.NEVER_LOOP;
-		looping = false;
-		return this;
-	}
-
 
 	public boolean isLive() {
 		return live;
@@ -242,16 +183,13 @@ public class TimeEnvironmentImpl {
 	public TimeEnvironmentImpl updateAnimationTime() {
 		long timeSkip = System.currentTimeMillis() - lastUpdateMillis;
 		updateLastMillis();
-//		if ((animation != null) && (end-start > 0)) {
 		if ((live) && (length > 0)) {
 //			System.out.println("animationTime: " + animationTime + ", speed: " + animationSpeed);
-//			if (looping) {
 			if (loopType == LoopType.ALWAYS_LOOP || animation != null && !animation.isNonLooping() && loopType == LoopType.DEFAULT_LOOP) {
 //				animationTime = start + (int) ((animationTime - start + (long) (timeSkip * animationSpeed)) % animation.length());
 				animationTime = (int) (((animationTime) + (long) (timeSkip * animationSpeed)) % (length));
 				globalSeqTime = (int) (globalSeqTime + (long) (timeSkip * animationSpeed));
 			} else {
-//				if (animationTime >= animation.length()) {
 				globalSeqTime = (int) (globalSeqTime + (long) (timeSkip * animationSpeed));
 				if (animationTime >= length) {
 					live = false;

@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff.TSpline;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -21,6 +22,11 @@ public class ManualTransformPanel extends JPanel {
 	private JPanel scalePanel;
 	private JPanel rotatePanel;
 	private ShrinkFattenPanel shrinkFattenPanel;
+	private JPanel selectionPanel;
+	JLabel selectedVerts = new JLabel();
+	JLabel selectedNodes = new JLabel();
+	JLabel selectedCams = new JLabel();
+	JLabel selectionCenter = new JLabel();
 
 	public ManualTransformPanel() {
 		super(new MigLayout("hidemode 2, ins 0, gap 0"));
@@ -29,6 +35,7 @@ public class ManualTransformPanel extends JPanel {
 		scalePanel = getScalePanel();
 		rotatePanel = getRotatePanel();
 
+		add(getSelectionInfoPanel(), "spanx, wrap");
 		add(movePanel);
 //		add(moveToPanel);
 		add(scalePanel);
@@ -47,6 +54,7 @@ public class ManualTransformPanel extends JPanel {
 		}
 
 		ProgramGlobals.getActionTypeGroup().addToolbarButtonListener(this::showCorrectPanel);
+		ModelStructureChangeListener.changeListener.addSelectionListener(this, this::updateSelectionPanel);
 	}
 
 	public void showCorrectPanel(ModelEditorActionType3 type3) {
@@ -90,6 +98,7 @@ public class ManualTransformPanel extends JPanel {
 			this.modelEditorManager = null;
 		}
 		shrinkFattenPanel.setModel(modelHandler);
+		updateSelectionPanel();
 		return this;
 	}
 
@@ -98,6 +107,40 @@ public class ManualTransformPanel extends JPanel {
 		return this;
 	}
 
+	JPanel getSelectionInfoPanel(){
+		JPanel selectionPanel = new JPanel(new MigLayout("gap 0", "[][][grow]"));
+		selectionPanel.add(new JLabel("Selection:"), "wrap");
+		selectionPanel.add(new JLabel("Vertices: "), "");
+		selectionPanel.add(selectedVerts, "right, wrap");
+		selectionPanel.add(new JLabel("Nodes: "), "");
+		selectionPanel.add(selectedNodes, "right, wrap");
+		selectionPanel.add(new JLabel("Camera Nodes: "), "");
+		selectionPanel.add(selectedCams, "right, wrap");
+		selectionPanel.add(new JLabel("Center: "), "wrap");
+		selectionPanel.add(selectionCenter, "spanx 3");
+		return selectionPanel;
+//		JPanel selectionPanel = new JPanel(new MigLayout("gap 0"));
+//		selectionPanel.add(new JLabel("Selection:"), "wrap");
+//		selectionPanel.add(selectedVerts, "wrap");
+//		selectionPanel.add(selectedNodes, "wrap");
+//		selectionPanel.add(selectedCams, "wrap");
+//		selectionPanel.add(selectionCenter);
+//		return selectionPanel;
+	}
+	void updateSelectionPanel(){
+		if(modelHandler != null){
+			selectedVerts.setText("" + modelHandler.getModelView().getSelectedVertices().size());
+			selectedNodes.setText("" + modelHandler.getModelView().getSelectedIdObjects().size());
+			selectedCams.setText("" + modelHandler.getModelView().getSelectedCameraNodes().size());
+			selectionCenter.setText("" + modelHandler.getModelView().getSelectionCenter());
+		}
+//		if(modelHandler != null){
+//			selectedVerts.setText("Vertices: " + modelHandler.getModelView().getSelectedVertices().size());
+//			selectedNodes.setText("Nodes: " + modelHandler.getModelView().getSelectedIdObjects().size());
+//			selectedCams.setText("Camera Nodes: " + modelHandler.getModelView().getSelectedCameraNodes().size());
+//			selectionCenter.setText("Center: " + modelHandler.getModelView().getSelectionCenter());
+//		}
+	}
 
 	JPanel getMovePanel() {
 		JPanel inputPanel = new JPanel(new MigLayout("gap 0"));

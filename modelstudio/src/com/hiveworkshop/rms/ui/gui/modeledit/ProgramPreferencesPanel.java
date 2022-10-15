@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.ui.preferences.MouseButtonPreference;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.dataSourceChooser.DataSourceChooserPanel;
 import com.hiveworkshop.rms.ui.util.colorchooser.ColorChooserIconLabel;
+import com.hiveworkshop.rms.util.CollapsablePanel;
 import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.ScreenInfo;
 import com.hiveworkshop.rms.util.SmartButtonGroup;
@@ -189,6 +190,9 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		//cameraOppositeKB
 
 
+		CollapsablePanel camera_shortcuts = new CollapsablePanel("Camera Shortcuts", new CameraShortcutPrefPanel());
+		hotkeysPanel.add(camera_shortcuts, "wrap");
+
 		String spinTextKey = "Camera Spin";
 		hotkeysPanel.add(new JLabel(spinTextKey));
 		JButton spinButton = new JButton(MouseEvent.getModifiersExText(pref.getThreeDCameraSpinMouseEx()));
@@ -201,58 +205,60 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		panButton.addActionListener(e -> pref.setThreeDCameraPanMouseEx(editMouseButtonBinding(panTextKey, panButton, pref.getThreeDCameraPanMouseEx(), false)));
 		hotkeysPanel.add(panButton, "wrap");
 
-		String cameraFrontKBTextKey = "Camera Front";
-		hotkeysPanel.add(new JLabel(cameraFrontKBTextKey));
-		JButton cameraFrontKBButton = new JButton(KeyEvent.getKeyText(pref.getCameraFrontKB()));
-//		cameraFrontKBButton.addActionListener(e -> pref.setCameraFrontKB(editMouseButtonBinding(cameraFrontKBTextKey, cameraFrontKBButton, pref.getCameraFrontKB(), false)));
-		cameraFrontKBButton.addActionListener(e -> editKeyBinding(cameraFrontKBTextKey, cameraFrontKBButton, pref::getCameraFrontKB, pref::setCameraFrontKB));
-		hotkeysPanel.add(cameraFrontKBButton, "wrap");
-
-		String cameraSideKBTextKey = "Camera Side";
-		hotkeysPanel.add(new JLabel(cameraSideKBTextKey));
-		JButton cameraSideKBButton = new JButton(KeyEvent.getKeyText(pref.getCameraSideKB()));
-//		cameraSideKBButton.addActionListener(e -> pref.setCameraSideKB(editMouseButtonBinding(cameraSideKBTextKey, cameraSideKBButton, pref.getCameraSideKB(), false)));
-		cameraSideKBButton.addActionListener(e -> editKeyBinding(cameraSideKBTextKey, cameraSideKBButton, pref::getCameraSideKB, pref::setCameraSideKB));
-		hotkeysPanel.add(cameraSideKBButton, "wrap");
-
-		String cameraTopKBTextKey = "Camera Top";
-		hotkeysPanel.add(new JLabel(cameraTopKBTextKey));
-		JButton cameraTopKBButton = new JButton(KeyEvent.getKeyText(pref.getCameraTopKB()));
-//		cameraTopKBButton.addActionListener(e -> pref.setCameraTopKB(editMouseButtonBinding(cameraTopKBTextKey, cameraTopKBButton, pref.getCameraTopKB(), false)));
-		cameraTopKBButton.addActionListener(e -> editKeyBinding(cameraTopKBTextKey, cameraTopKBButton, pref::getCameraTopKB, pref::setCameraTopKB));
-		hotkeysPanel.add(cameraTopKBButton, "wrap");
-
-		String cameraOppositeKBTextKey = "Camera Opposite Direction Modifier";
-		hotkeysPanel.add(new JLabel(cameraOppositeKBTextKey));
-		JButton cameraOppositeKBButton = new JButton(KeyEvent.getModifiersExText(pref.getCameraOppositeKB()));
-//		cameraOppositeKBButton.addActionListener(e -> pref.setCameraOppositeKB(editMouseButtonBinding(cameraOppositeKBTextKey, cameraOppositeKBButton, pref.getCameraOppositeKB(), false)));
-		cameraOppositeKBButton.addActionListener(e -> editKeyMod(cameraOppositeKBTextKey, cameraOppositeKBButton, pref::getCameraOppositeKB, pref::setCameraOppositeKB));
-		hotkeysPanel.add(cameraOppositeKBButton, "wrap");
-
-		String cameraLocZoomResetTextKey = "Camera Reset Location and Zoom";
-		hotkeysPanel.add(new JLabel(cameraLocZoomResetTextKey));
-		JButton cameraLocZoomResetButton = new JButton(KeyEvent.getKeyText(pref.getCameraLocZoomReset()));
-//		cameraLocZoomResetButton.addActionListener(e -> pref.setCameraLocZoomReset(editMouseButtonBinding(cameraLocZoomResetTextKey, cameraLocZoomResetButton, pref.getCameraLocZoomReset(), false)));
-		cameraLocZoomResetButton.addActionListener(e -> editKeyBinding(cameraLocZoomResetTextKey, cameraLocZoomResetButton, pref::getCameraLocZoomReset, pref::setCameraLocZoomReset));
-		hotkeysPanel.add(cameraLocZoomResetButton, "wrap");
-
-		String cameraToggleOrtho = "Camera Toggle Orthographical";
-		hotkeysPanel.add(new JLabel(cameraToggleOrtho));
-		JButton cameraToggleOrthoButton = new JButton(KeyEvent.getKeyText(pref.getCameraToggleOrtho()));
-//		cameraLocZoomResetButton.addActionListener(e -> pref.setCameraLocZoomReset(editMouseButtonBinding(cameraLocZoomResetTextKey, cameraLocZoomResetButton, pref.getCameraLocZoomReset(), false)));
-		cameraToggleOrthoButton.addActionListener(e -> editKeyBinding(cameraToggleOrtho, cameraToggleOrthoButton, pref::getCameraToggleOrtho, pref::setCameraToggleOrtho));
-		hotkeysPanel.add(cameraToggleOrthoButton, "wrap");
+//		String cameraFrontKBTextKey = "Camera Front";
+//		hotkeysPanel.add(new JLabel(cameraFrontKBTextKey));
+//		JButton cameraFrontKBButton = new JButton(KeyEvent.getKeyText(pref.getCameraFrontKB()));
+////		cameraFrontKBButton.addActionListener(e -> pref.setCameraFrontKB(editMouseButtonBinding(cameraFrontKBTextKey, cameraFrontKBButton, pref.getCameraFrontKB(), false)));
+//		cameraFrontKBButton.addActionListener(e -> editKeyBinding(cameraFrontKBTextKey, cameraFrontKBButton, pref::getCameraFrontKB, pref::setCameraFrontKB));
+//		hotkeysPanel.add(cameraFrontKBButton, "wrap");
+//
+//		String cameraSideKBTextKey = "Camera Side";
+//		hotkeysPanel.add(new JLabel(cameraSideKBTextKey));
+//		JButton cameraSideKBButton = new JButton(KeyEvent.getKeyText(pref.getCameraSideKB()));
+////		cameraSideKBButton.addActionListener(e -> pref.setCameraSideKB(editMouseButtonBinding(cameraSideKBTextKey, cameraSideKBButton, pref.getCameraSideKB(), false)));
+//		cameraSideKBButton.addActionListener(e -> editKeyBinding(cameraSideKBTextKey, cameraSideKBButton, pref::getCameraSideKB, pref::setCameraSideKB));
+//		hotkeysPanel.add(cameraSideKBButton, "wrap");
+//
+//		String cameraTopKBTextKey = "Camera Top";
+//		hotkeysPanel.add(new JLabel(cameraTopKBTextKey));
+//		JButton cameraTopKBButton = new JButton(KeyEvent.getKeyText(pref.getCameraTopKB()));
+////		cameraTopKBButton.addActionListener(e -> pref.setCameraTopKB(editMouseButtonBinding(cameraTopKBTextKey, cameraTopKBButton, pref.getCameraTopKB(), false)));
+//		cameraTopKBButton.addActionListener(e -> editKeyBinding(cameraTopKBTextKey, cameraTopKBButton, pref::getCameraTopKB, pref::setCameraTopKB));
+//		hotkeysPanel.add(cameraTopKBButton, "wrap");
+//
+//		String cameraOppositeKBTextKey = "Camera Opposite Direction Modifier";
+//		hotkeysPanel.add(new JLabel(cameraOppositeKBTextKey));
+//		JButton cameraOppositeKBButton = new JButton(KeyEvent.getModifiersExText(pref.getCameraOppositeKB()));
+////		cameraOppositeKBButton.addActionListener(e -> pref.setCameraOppositeKB(editMouseButtonBinding(cameraOppositeKBTextKey, cameraOppositeKBButton, pref.getCameraOppositeKB(), false)));
+//		cameraOppositeKBButton.addActionListener(e -> editKeyMod(cameraOppositeKBTextKey, cameraOppositeKBButton, pref::getCameraOppositeKB, pref::setCameraOppositeKB));
+//		hotkeysPanel.add(cameraOppositeKBButton, "wrap");
+//
+//		String cameraLocZoomResetTextKey = "Camera Reset Location and Zoom";
+//		hotkeysPanel.add(new JLabel(cameraLocZoomResetTextKey));
+//		JButton cameraLocZoomResetButton = new JButton(KeyEvent.getKeyText(pref.getCameraLocZoomReset()));
+////		cameraLocZoomResetButton.addActionListener(e -> pref.setCameraLocZoomReset(editMouseButtonBinding(cameraLocZoomResetTextKey, cameraLocZoomResetButton, pref.getCameraLocZoomReset(), false)));
+//		cameraLocZoomResetButton.addActionListener(e -> editKeyBinding(cameraLocZoomResetTextKey, cameraLocZoomResetButton, pref::getCameraLocZoomReset, pref::setCameraLocZoomReset));
+//		hotkeysPanel.add(cameraLocZoomResetButton, "wrap");
+//
+//		String cameraToggleOrtho = "Camera Toggle Orthographical";
+//		hotkeysPanel.add(new JLabel(cameraToggleOrtho));
+//		JButton cameraToggleOrthoButton = new JButton(KeyEvent.getKeyText(pref.getCameraToggleOrtho()));
+////		cameraLocZoomResetButton.addActionListener(e -> pref.setCameraLocZoomReset(editMouseButtonBinding(cameraLocZoomResetTextKey, cameraLocZoomResetButton, pref.getCameraLocZoomReset(), false)));
+//		cameraToggleOrthoButton.addActionListener(e -> editKeyBinding(cameraToggleOrtho, cameraToggleOrthoButton, pref::getCameraToggleOrtho, pref::setCameraToggleOrtho));
+//		hotkeysPanel.add(cameraToggleOrthoButton, "wrap");
 
 		String modifyTextKey = "Manipulate";
 		hotkeysPanel.add(new JLabel(modifyTextKey));
 		JButton modifyButton = new JButton(MouseEvent.getModifiersExText(pref.getModifyMouseButton()));
-		modifyButton.addActionListener(e -> pref.setModifyMouseButton(editMouseButtonBinding(modifyTextKey, modifyButton, pref.getModifyMouseButton(), true)));
+//		modifyButton.addActionListener(e -> pref.setModifyMouseButton(editMouseButtonBinding(modifyTextKey, modifyButton, pref.getModifyMouseButton(), true)));
+		modifyButton.addActionListener(e -> pref.setModifyMouseButton(editMouseButtonBinding(modifyTextKey, modifyButton, pref.getModifyMouseButton(), false)));
 		hotkeysPanel.add(modifyButton, "wrap");
 
 		String selectTextKey = "Select";
 		hotkeysPanel.add(new JLabel(selectTextKey));
 		JButton selectButton = new JButton(MouseEvent.getModifiersExText(pref.getSelectMouseButton()));
-		selectButton.addActionListener(e -> pref.setSelectMouseButton(editMouseButtonBinding(selectTextKey, selectButton, pref.getSelectMouseButton(), true)));
+//		selectButton.addActionListener(e -> pref.setSelectMouseButton(editMouseButtonBinding(selectTextKey, selectButton, pref.getSelectMouseButton(), true)));
+		selectButton.addActionListener(e -> pref.setSelectMouseButton(editMouseButtonBinding(selectTextKey, selectButton, pref.getSelectMouseButton(), false)));
 		hotkeysPanel.add(selectButton, "wrap");
 
 		JButton edit_keybindings = new JButton("Edit Keybindings");

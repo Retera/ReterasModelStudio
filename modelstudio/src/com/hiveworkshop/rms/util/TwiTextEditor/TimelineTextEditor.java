@@ -3,8 +3,7 @@ package com.hiveworkshop.rms.util.TwiTextEditor;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.SetFlagEntryMapAction;
 import com.hiveworkshop.rms.editor.model.Named;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.Entry;
+import com.hiveworkshop.rms.editor.model.animflag.*;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.model.editors.ValueParserUtil;
@@ -71,7 +70,7 @@ public class TimelineTextEditor<T> {
 	}
 
 	private void apply() {
-		TreeMap<Integer, Entry<T>> newEntryMap = stringToEntryMap(editorPane.getText(), animFlag.tans(), parseFunction);
+		TreeMap<Integer, Entry<T>> newEntryMap = stringToEntryMap(editorPane.getText(), animFlag.tans(), parseFunction, getVectorSize());
 		SetFlagEntryMapAction<T> action = new SetFlagEntryMapAction<>(animFlag, sequence, newEntryMap, changeListener);
 		if(modelHandler != null){
 			modelHandler.getUndoManager().pushAction(action.redo());
@@ -122,7 +121,7 @@ public class TimelineTextEditor<T> {
 		return stringBuilder.toString();
 	}
 
-	public static <Q> TreeMap<Integer, Entry<Q>> stringToEntryMap(String text, boolean tans, Function<String, Q> parseFunction){
+	public static <Q> TreeMap<Integer, Entry<Q>> stringToEntryMap(String text, boolean tans, Function<String, Q> parseFunction, int vectorSize){
 		TreeMap<Integer, Entry<Q>> entryMap = new TreeMap<>();
 		String[] entries = text.split("\n+[\\s]*(?=\\d)");
 
@@ -145,7 +144,8 @@ public class TimelineTextEditor<T> {
 				String[] time_value = eLines[0].strip().split(":");
 				if (time_value.length>1){
 					int time = Integer.parseInt("0" + time_value[0].replaceAll("\\D", ""));
-					Q value = parseFunction.apply(ValueParserUtil.getString(4, time_value[1].replaceAll("[^-\\d,.eE]", "")));
+					Q value = parseFunction.apply(ValueParserUtil.getString(vectorSize, time_value[1].replaceAll("[^-\\d,.eE]", "")));
+//					System.out.println("entry value: " + value);
 					Entry<Q> entry = new Entry<>(time, value);
 					if(tans){
 //						System.out.println("tans");
@@ -163,5 +163,24 @@ public class TimelineTextEditor<T> {
 		System.out.println("made EntryMap with: " + entryMap.size() + " entries");
 
 		return entryMap;
+	}
+
+	private int getVectorSize(){
+		if(animFlag instanceof QuatAnimFlag){
+			return 4;
+		}
+		if(animFlag instanceof Vec3AnimFlag){
+			return 3;
+		}
+		if(animFlag instanceof FloatAnimFlag){
+			return 1;
+		}
+		if(animFlag instanceof IntAnimFlag){
+			return 1;
+		}
+		if(animFlag instanceof BitmapAnimFlag){
+			return 1;
+		}
+		return 0;
 	}
 }

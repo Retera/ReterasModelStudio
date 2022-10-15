@@ -19,10 +19,12 @@ public class GeosetTracker {
 	private final Set<GeosetVertex> selEdTVertices = new HashSet<>();
 	private final Set<GeosetVertex> selEdVertices = new HashSet<>();
 
+	private final Set<GeosetVertex> geoHiddenVertices = new HashSet<>();
 	private final Set<GeosetVertex> hiddenVertices = new HashSet<>();
 	private final Set<GeosetVertex> editableVertices = new HashSet<>();
 	private final Set<GeosetVertex> notEditableVertices = new HashSet<>();
 
+	private final Set<Geoset> visEdGeosets = new HashSet<>();
 	private final Set<Geoset> editableGeosets = new HashSet<>();
 	private final Set<Geoset> notEditableGeosets = new HashSet<>();
 	private final Set<Geoset> visibleGeosets = new HashSet<>();
@@ -54,6 +56,17 @@ public class GeosetTracker {
 	public Set<Geoset> getEditableGeosets() {
 		if (geosetsVisible && geosetsEditable) return editableGeosets;
 		return Collections.emptySet();
+	}
+
+	public Set<Geoset> getVisEdGeosets() {
+		visEdGeosets.clear();
+		if (geosetsVisible && geosetsEditable){
+			visEdGeosets.addAll(editableGeosets);
+			visEdGeosets.removeAll(hiddenGeosets);
+//			return visEdGeosets;
+		}
+		return visEdGeosets;
+//		return Collections.emptySet();
 	}
 
 	public void setHighlightedGeoset(Geoset highlightedGeoset) {
@@ -140,20 +153,22 @@ public class GeosetTracker {
 	public void makeGeosetVisible(Geoset geoset) {
 		visibleGeosets.add(geoset);
 		hiddenGeosets.remove(geoset);
-		hiddenVertices.removeAll(geoset.getVertices());
+		geoset.getVertices().forEach(geoHiddenVertices::remove);
+//		hiddenVertices.removeAll(geoset.getVertices());
 	}
 
 	public void makeGeosetNotVisible(Geoset geoset) {
 		visibleGeosets.remove(geoset);
 		hiddenGeosets.add(geoset);
-		hiddenVertices.addAll(geoset.getVertices());
+		geoHiddenVertices.addAll(geoset.getVertices());
+//		hiddenVertices.addAll(geoset.getVertices());
 	}
 
 	public <T> boolean isVisible(T ob) {
 		if(ob instanceof Geoset){
 			return visibleGeosets.contains(ob) && geosetsVisible;
 		} else if (ob instanceof GeosetVertex){
-			return !hiddenVertices.contains(ob) && geosetsVisible;
+			return !hiddenVertices.contains(ob) && geosetsVisible && visibleGeosets.contains(((GeosetVertex) ob).getGeoset());
 		} else if (ob instanceof Triangle){
 			Triangle tri = (Triangle) ob;
 			return geosetsVisible
@@ -164,43 +179,71 @@ public class GeosetTracker {
 		return false;
 	}
 	public <T> boolean isEditable(T ob) {
-		if(ob instanceof Geoset){
-			return geosetsEditable && geosetsVisible && editableGeosets.contains(ob) && visibleGeosets.contains(ob);
-		} else if (ob instanceof GeosetVertex){
-			return geosetsEditable && geosetsVisible && editableVertices.contains(ob) && !hiddenVertices.contains(ob);
-		} else if (ob instanceof Triangle){
-			Triangle tri = (Triangle) ob;
-			return geosetsEditable
-					&& geosetsVisible
-					&& editableVertices.containsAll(Arrays.asList(tri.getVerts()))
-					&& !hiddenVertices.contains(tri.get(0))
-					&& !hiddenVertices.contains(tri.get(1))
-					&& !hiddenVertices.contains(tri.get(2));
+		if(geosetsEditable && geosetsVisible){
+			if(ob instanceof Geoset){
+				return editableGeosets.contains(ob) && visibleGeosets.contains(ob);
+			} else if (ob instanceof GeosetVertex){
+				return visibleGeosets.contains(((GeosetVertex) ob).getGeoset())
+						&& editableGeosets.contains(((GeosetVertex) ob).getGeoset())
+						&& editableVertices.contains(ob)
+						&& !hiddenVertices.contains(ob) ;
+			} else if (ob instanceof Triangle){
+				Triangle tri = (Triangle) ob;
+				return visibleGeosets.contains(((Triangle) ob).getGeoset())
+//						&& editableVertices.containsAll(Arrays.asList(tri.getVerts()))
+						&& editableVertices.contains(tri.get(0))
+						&& editableVertices.contains(tri.get(1))
+						&& editableVertices.contains(tri.get(2))
+						&& !hiddenVertices.contains(tri.get(0))
+						&& !hiddenVertices.contains(tri.get(1))
+						&& !hiddenVertices.contains(tri.get(2));
+			}
 		}
 		return false;
 	}
+//	public <T> boolean isEditable(T ob) {
+//		if(ob instanceof Geoset){
+//			return geosetsEditable && geosetsVisible && editableGeosets.contains(ob) && visibleGeosets.contains(ob);
+//		} else if (ob instanceof GeosetVertex){
+//			return geosetsEditable && geosetsVisible && editableVertices.contains(ob)
+//					&& !hiddenVertices.contains(ob) && visibleGeosets.contains(((GeosetVertex) ob).getGeoset());
+//		} else if (ob instanceof Triangle){
+//			Triangle tri = (Triangle) ob;
+//			return geosetsEditable
+//					&& geosetsVisible
+//					&& editableVertices.containsAll(Arrays.asList(tri.getVerts()))
+//					&& visibleGeosets.contains(((Triangle) ob).getGeoset())
+//					&& !hiddenVertices.contains(tri.get(0))
+//					&& !hiddenVertices.contains(tri.get(1))
+//					&& !hiddenVertices.contains(tri.get(2));
+//		}
+//		return false;
+//	}
 
-	public boolean isVisible(Geoset ob) {
-		return visibleGeosets.contains(ob) && geosetsVisible;
-	}
 
-	public boolean isEditable(Geoset ob) {
-		return geosetsEditable && geosetsVisible && editableGeosets.contains(ob) && visibleGeosets.contains(ob);
-	}
 
-	public boolean isEditable(GeosetVertex ob) {
-		return geosetsEditable && geosetsVisible && editableVertices.contains(ob) && !hiddenVertices.contains(ob);
-	}
 
-	public boolean isEditable(Triangle ob) {
-		return geosetsEditable && geosetsVisible && editableVertices.containsAll(Arrays.asList(ob.getVerts())) && !hiddenVertices.contains(ob.get(0)) && !hiddenVertices.contains(ob.get(1)) && !hiddenVertices.contains(ob.get(2));
-	}
+//	public boolean isVisible(Geoset ob) {
+//		return visibleGeosets.contains(ob) && geosetsVisible;
+//	}
+
+//	public boolean isEditable(Geoset ob) {
+//		return geosetsEditable && geosetsVisible && editableGeosets.contains(ob) && visibleGeosets.contains(ob);
+//	}
+//
+//	public boolean isEditable(GeosetVertex ob) {
+//		return geosetsEditable && geosetsVisible && editableVertices.contains(ob) && !hiddenVertices.contains(ob);
+//	}
+//
+//	public boolean isEditable(Triangle ob) {
+//		return geosetsEditable && geosetsVisible && editableVertices.containsAll(Arrays.asList(ob.getVerts())) && !hiddenVertices.contains(ob.get(0)) && !hiddenVertices.contains(ob.get(1)) && !hiddenVertices.contains(ob.get(2));
+//	}
 
 	public boolean shouldRender(Geoset ob) {
 		return visibleGeosets.contains(ob) && geosetsVisible;
 	}
 	public boolean canSelect(Geoset ob) {
-		return editableGeosets.contains(ob) && geosetsVisible && geosetsEditable;
+		return visibleGeosets.contains(ob) && editableGeosets.contains(ob) && geosetsVisible && geosetsEditable;
 	}
 
 	public Set<GeosetVertex> getSelectedVertices() {
@@ -208,6 +251,7 @@ public class GeosetTracker {
 		if (!geosetsEditable || !geosetsVisible) return Collections.emptySet();
 		selEdVertices.clear();
 		selEdVertices.addAll(selectedVertices);
+		selEdVertices.removeAll(geoHiddenVertices);
 		selEdVertices.removeAll(hiddenVertices);
 		selEdVertices.removeAll(notEditableVertices);
 		return selEdVertices;
@@ -220,7 +264,8 @@ public class GeosetTracker {
 
 	public Set<Triangle> getSelectedTriangles() {
 		Set<Triangle> selTris = new HashSet<>();
-		for (GeosetVertex vertex : selectedVertices) {
+//		for (GeosetVertex vertex : selectedVertices) {
+		for (GeosetVertex vertex : getSelectedVertices()) {
 			for (Triangle triangle : vertex.getTriangles()) {
 				if (selectedVertices.containsAll(Arrays.asList(triangle.getVerts()))) {
 					selTris.add(triangle);
@@ -275,30 +320,27 @@ public class GeosetTracker {
 		return hiddenVertices.contains(vertex) || hiddenGeosets.contains(vertex.getGeoset());
 	}
 	public boolean isSelected(GeosetVertex geosetVertex) {
-		return selectedVertices.contains(geosetVertex);
+		return selectedVertices.contains(geosetVertex) && isEditable(geosetVertex);
 	}
 
 	public void invertVertSelection() {
 		Set<GeosetVertex> tempVerts = new HashSet<>();
-		for (Geoset geoset : editableGeosets) {
+		for (Geoset geoset : getVisEdGeosets()) {
 			tempVerts.addAll(geoset.getVertices());
+//			tempVerts.removeIf(this::isHidden);
+			tempVerts.removeIf(v -> !isEditable(v));
 		}
 		tempVerts.removeAll(selectedVertices);
 		setSelectedVertices(tempVerts);
 	}
 
-	public void selectAllVerts() {
-		for (Geoset geoset : editableGeosets) {
-			selectedVertices.addAll(geoset.getVertices());
-		}
-	}
-
 	public void selectAll() {
 		if (geosetsVisible && geosetsEditable) {
-			for (Geoset geoset : editableGeosets) {
+			for (Geoset geoset : getVisEdGeosets()) {
 				if (isEditable(geoset)) {
 					selectedVertices.addAll(geoset.getVertices());
-					selectedVertices.removeIf(this::isHidden);
+//					selectedVertices.removeIf(this::isHidden);
+					selectedVertices.removeIf(v -> !isEditable(v));
 				}
 			}
 		}
@@ -321,9 +363,9 @@ public class GeosetTracker {
 
 	public void unHideAllVertices() {
 		hiddenVertices.clear();
-		for (Geoset geoset : hiddenGeosets) {
-			hiddenVertices.addAll(geoset.getVertices());
-		}
+//		for (Geoset geoset : hiddenGeosets) {
+//			hiddenVertices.addAll(geoset.getVertices());
+//		}
 	}
 
 	public void clearSelectedTVertices() {
@@ -346,7 +388,8 @@ public class GeosetTracker {
 
 	public Vec2 getTSelectionCenter(){
 		Set<Vec2> selectedPoints = new HashSet<>();
-		selectedTVertices.stream().filter(editableVertices::contains).forEach(v -> selectedPoints.add(v.getTVertex(0)));
+//		selectedTVertices.stream().filter(editableVertices::contains).forEach(v -> selectedPoints.add(v.getTVertex(0)));
+		getSelectedVertices().forEach(v -> selectedPoints.add(v.getTVertex(0)));
 
 		return Vec2.centerOfGroup(selectedPoints);
 	}
@@ -377,7 +420,7 @@ public class GeosetTracker {
 	public <T> boolean isInVisible(T obj) {
 		if (obj instanceof GeosetVertex) {
 //			System.out.println("GeosetVertex inVissible:" + hiddenVertices.contains(obj));
-			return !hiddenVertices.contains(obj);
+			return !hiddenVertices.contains(obj) && visibleGeosets.contains(((GeosetVertex) obj).getGeoset());
 		} else if (obj instanceof Geoset) {
 //			System.out.println("Geoset inVissible:" + visibleGeosets.contains(obj));
 			return visibleGeosets.contains(obj);

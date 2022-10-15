@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
@@ -10,6 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.util.function.BiConsumer;
 
 public abstract class ViewportView extends JPanel {
 
@@ -29,7 +29,7 @@ public abstract class ViewportView extends JPanel {
 
 	public ViewportView(byte d1, byte d2,
 	                    Dimension minDim,
-	                    CoordDisplayListener coordDisplayListener) {
+	                    BiConsumer<Double, Double> coordDisplayListener2) {
 
 		coordinateSystem = new CoordinateSystem(d1, d2, this);
 
@@ -42,7 +42,7 @@ public abstract class ViewportView extends JPanel {
 //		add(boxY = Box.createVerticalStrut(minDim.height));
 //		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
-		mouseListenerThing2 = new MouseListenerThing2(this, coordDisplayListener, coordinateSystem);
+		mouseListenerThing2 = new MouseListenerThing2(this, coordDisplayListener2, coordinateSystem);
 		addMouseListener(mouseListenerThing2);
 		addMouseWheelListener(mouseListenerThing2);
 		addMouseMotionListener(mouseListenerThing2);

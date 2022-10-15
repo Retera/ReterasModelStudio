@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
+import com.hiveworkshop.rms.editor.model.animflag.BitmapAnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxMaterial;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTexture;
@@ -18,8 +18,15 @@ public class MaterialFactory {
 	public static Material createMaterial(MdlxMaterial mdlxMaterial, EditableModel model) {
 		Material material = new Material();
 		List<Layer> layers = new ArrayList<>();
-		for (final MdlxLayer mdlxLayer : mdlxMaterial.layers) {
-			layers.addAll(createLayer(mdlxLayer, model));
+		if(model.getFormatVersion() < 900
+				|| 1000 < model.getFormatVersion()
+				|| !mdlxMaterial.shader.equals(Material.SHADER_HD_DEFAULT_UNIT)
+				&& !mdlxMaterial.shader.equals(Material.SHADER_HD_CRYSTAL)){
+			for (final MdlxLayer mdlxLayer : mdlxMaterial.layers) {
+				layers.add(createLayer(mdlxLayer, model));
+			}
+		} else {
+			layers.add(createLayer(mdlxMaterial.layers, model));
 		}
 		material.setLayers(layers);
 
@@ -37,9 +44,12 @@ public class MaterialFactory {
 			material.setFullResolution(true);
 		}
 
-		if (ModelUtils.isShaderStringSupported(model.getFormatVersion()) && ((mdlxMaterial.flags & 0x2) != 0)) {
+		if (((mdlxMaterial.flags & 0x2) != 0)) {
 			material.setTwoSided(true);
 		}
+//		if (ModelUtils.isShaderStringSupported(model.getFormatVersion()) && ((mdlxMaterial.flags & 0x2) != 0)) {
+//			material.setTwoSided(true);
+//		}
 
 		material.setShaderString(mdlxMaterial.shader);
 		if(1000 < model.getFormatVersion() && mdlxMaterial.layers.get(0).hdFlag != 0){
@@ -53,42 +63,158 @@ public class MaterialFactory {
 		return material;
 	}
 
-	static List<Layer> createLayer(MdlxLayer mdlxLayer, EditableModel model) {
-		List<Layer> layers = new ArrayList<>();
-		for (int i = 0; i < mdlxLayer.hdTextureIds.size(); i++){
-			Layer layer = new Layer(mdlxLayer.filterMode, model.getTexture(mdlxLayer.hdTextureIds.get(i)));
-			int shadingFlags = mdlxLayer.flags;
+	static Layer createLayer(List<MdlxLayer> mdlxLayers, EditableModel model) {
+		List<Bitmap> textures = new ArrayList<>();
+		for (MdlxLayer mdlxLayer : mdlxLayers) {
+			textures.add(model.getTexture(mdlxLayer.hdTextureIds.get(0)));
 
-			layer.setUnshaded((shadingFlags & 0x1) != 0);
-			layer.setSphereEnvMap((shadingFlags & 0x2) != 0);
-			layer.setTwoSided((shadingFlags & 0x10) != 0);
-			layer.setUnfogged((shadingFlags & 0x20) != 0);
-			layer.setNoDepthTest((shadingFlags & 0x40) != 0);
-			layer.setNoDepthSet((shadingFlags & 0x80) != 0);
-			layer.setUnlit((shadingFlags & 0x100) != 0);
-
-			layer.setTextureAnim(model.getTexAnim(mdlxLayer.textureAnimationId));
-			layer.setCoordId((int) mdlxLayer.coordId);
-			layer.setStaticAlpha(mdlxLayer.alpha);
-
-			// > 800
-			layer.setEmissive(mdlxLayer.emissiveGain);
-			// > 900
-//		    layer.setFresnelColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxLayer.fresnelColor)));
-			layer.setFresnelColor(new Vec3(mdlxLayer.fresnelColor));
-			layer.setFresnelOpacity(mdlxLayer.fresnelOpacity);
-			layer.setFresnelTeamColor(mdlxLayer.fresnelTeamColor);
-
-			if(i == 0){
-				// loads all animated stuff into the first layer (in case of v1100)
-				layer.loadTimelines(mdlxLayer, model);
-			}
-			if(mdlxLayer.textureIdTimelineMap.get(i) != null){
-				layer.add(AnimFlag.createFromTimeline(mdlxLayer.textureIdTimelineMap.get(i), model));
-			}
-			layers.add(layer);
 		}
-		return layers;
+		MdlxLayer mdlxLayer = mdlxLayers.get(0);
+		Layer layer = new Layer(mdlxLayer.filterMode, textures);
+
+		int shadingFlags = mdlxLayer.flags;
+
+		layer.setUnshaded((shadingFlags & 0x1) != 0);
+		layer.setSphereEnvMap((shadingFlags & 0x2) != 0);
+		layer.setTwoSided((shadingFlags & 0x10) != 0);
+		layer.setUnfogged((shadingFlags & 0x20) != 0);
+		layer.setNoDepthTest((shadingFlags & 0x40) != 0);
+		layer.setNoDepthSet((shadingFlags & 0x80) != 0);
+		layer.setUnlit((shadingFlags & 0x100) != 0);
+
+		layer.setTextureAnim(model.getTexAnim(mdlxLayer.textureAnimationId));
+		layer.setCoordId((int) mdlxLayer.coordId);
+		layer.setStaticAlpha(mdlxLayer.alpha);
+
+		// > 800
+		layer.setEmissive(mdlxLayer.emissiveGain);
+		// > 900
+//		    layer.setFresnelColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxLayer.fresnelColor)));
+		layer.setFresnelColor(new Vec3(mdlxLayer.fresnelColor));
+		layer.setFresnelOpacity(mdlxLayer.fresnelOpacity);
+		layer.setFresnelTeamColor(mdlxLayer.fresnelTeamColor);
+
+		layer.loadTimelines(mdlxLayer, model);
+
+		for (int i = 0; i < mdlxLayer.hdTextureIds.size(); i++){
+			if(mdlxLayer.textureIdTimelineMap.get(i) != null){
+				AnimFlag<?> animFlag = AnimFlag.createFromTimeline(mdlxLayer.textureIdTimelineMap.get(i), model);
+				if(animFlag instanceof BitmapAnimFlag){
+					layer.setFlipbookTexture(i, (BitmapAnimFlag) animFlag);
+				}
+				layer.add(animFlag);
+			}
+		}
+//		for (int i = 0; i < mdlxLayer.hdTextureIds.size(); i++){
+//			Layer layer = new Layer(mdlxLayer.filterMode, model.getTexture(mdlxLayer.hdTextureIds.get(i)));
+//			int shadingFlags = mdlxLayer.flags;
+//
+//			layer.setUnshaded((shadingFlags & 0x1) != 0);
+//			layer.setSphereEnvMap((shadingFlags & 0x2) != 0);
+//			layer.setTwoSided((shadingFlags & 0x10) != 0);
+//			layer.setUnfogged((shadingFlags & 0x20) != 0);
+//			layer.setNoDepthTest((shadingFlags & 0x40) != 0);
+//			layer.setNoDepthSet((shadingFlags & 0x80) != 0);
+//			layer.setUnlit((shadingFlags & 0x100) != 0);
+//
+//			layer.setTextureAnim(model.getTexAnim(mdlxLayer.textureAnimationId));
+//			layer.setCoordId((int) mdlxLayer.coordId);
+//			layer.setStaticAlpha(mdlxLayer.alpha);
+//
+//			// > 800
+//			layer.setEmissive(mdlxLayer.emissiveGain);
+//			// > 900
+////		    layer.setFresnelColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxLayer.fresnelColor)));
+//			layer.setFresnelColor(new Vec3(mdlxLayer.fresnelColor));
+//			layer.setFresnelOpacity(mdlxLayer.fresnelOpacity);
+//			layer.setFresnelTeamColor(mdlxLayer.fresnelTeamColor);
+//
+//			if(i == 0){
+//				// loads all animated stuff into the first layer (in case of v1100)
+//				layer.loadTimelines(mdlxLayer, model);
+//			}
+//			if(mdlxLayer.textureIdTimelineMap.get(i) != null){
+//				layer.add(AnimFlag.createFromTimeline(mdlxLayer.textureIdTimelineMap.get(i), model));
+//			}
+//			layers.add(layer);
+//		}
+		return layer;
+	}
+	static Layer createLayer(MdlxLayer mdlxLayer, EditableModel model) {
+		List<Bitmap> textures = new ArrayList<>();
+		for (int i = 0; i < mdlxLayer.hdTextureIds.size(); i++){
+			textures.add(model.getTexture(mdlxLayer.hdTextureIds.get(i)));
+		}
+		Layer layer = new Layer(mdlxLayer.filterMode, textures);
+		int shadingFlags = mdlxLayer.flags;
+
+		layer.setUnshaded((shadingFlags & 0x1) != 0);
+		layer.setSphereEnvMap((shadingFlags & 0x2) != 0);
+		layer.setTwoSided((shadingFlags & 0x10) != 0);
+		layer.setUnfogged((shadingFlags & 0x20) != 0);
+		layer.setNoDepthTest((shadingFlags & 0x40) != 0);
+		layer.setNoDepthSet((shadingFlags & 0x80) != 0);
+		layer.setUnlit((shadingFlags & 0x100) != 0);
+
+		layer.setTextureAnim(model.getTexAnim(mdlxLayer.textureAnimationId));
+		layer.setCoordId((int) mdlxLayer.coordId);
+		layer.setStaticAlpha(mdlxLayer.alpha);
+
+		// > 800
+		layer.setEmissive(mdlxLayer.emissiveGain);
+		// > 900
+//		    layer.setFresnelColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxLayer.fresnelColor)));
+		layer.setFresnelColor(new Vec3(mdlxLayer.fresnelColor));
+		layer.setFresnelOpacity(mdlxLayer.fresnelOpacity);
+		layer.setFresnelTeamColor(mdlxLayer.fresnelTeamColor);
+
+		layer.loadTimelines(mdlxLayer, model);
+
+		for (int i = 0; i < mdlxLayer.hdTextureIds.size(); i++){
+			if(mdlxLayer.textureIdTimelineMap.get(i) != null){
+				AnimFlag<?> animFlag = AnimFlag.createFromTimeline(mdlxLayer.textureIdTimelineMap.get(i), model);
+				if(animFlag instanceof BitmapAnimFlag){
+					layer.setFlipbookTexture(i, (BitmapAnimFlag) animFlag);
+				}
+				layer.add(animFlag);
+			}
+		}
+//		for (int i = 0; i < mdlxLayer.hdTextureIds.size(); i++){
+//			Layer layer = new Layer(mdlxLayer.filterMode, model.getTexture(mdlxLayer.hdTextureIds.get(i)));
+//			int shadingFlags = mdlxLayer.flags;
+//
+//			layer.setUnshaded((shadingFlags & 0x1) != 0);
+//			layer.setSphereEnvMap((shadingFlags & 0x2) != 0);
+//			layer.setTwoSided((shadingFlags & 0x10) != 0);
+//			layer.setUnfogged((shadingFlags & 0x20) != 0);
+//			layer.setNoDepthTest((shadingFlags & 0x40) != 0);
+//			layer.setNoDepthSet((shadingFlags & 0x80) != 0);
+//			layer.setUnlit((shadingFlags & 0x100) != 0);
+//
+//			layer.setTextureAnim(model.getTexAnim(mdlxLayer.textureAnimationId));
+//			layer.setCoordId((int) mdlxLayer.coordId);
+//			layer.setStaticAlpha(mdlxLayer.alpha);
+//
+//			// > 800
+//			layer.setEmissive(mdlxLayer.emissiveGain);
+//			// > 900
+////		    layer.setFresnelColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxLayer.fresnelColor)));
+//			layer.setFresnelColor(new Vec3(mdlxLayer.fresnelColor));
+//			layer.setFresnelOpacity(mdlxLayer.fresnelOpacity);
+//			layer.setFresnelTeamColor(mdlxLayer.fresnelTeamColor);
+//
+//			if(i == 0){
+//				// loads all animated stuff into the first layer (in case of v1100)
+//				layer.loadTimelines(mdlxLayer, model);
+//			}
+//			if(mdlxLayer.textureIdTimelineMap.get(i) != null){
+//				layer.add(AnimFlag.createFromTimeline(mdlxLayer.textureIdTimelineMap.get(i), model));
+//			}
+//			layers.add(layer);
+//		}
+//		List<Layer> layers = new ArrayList<>();
+//		layers.add(layer);
+		return layer;
 	}
 
 	public static Bitmap createBitmap(MdlxTexture texture) {

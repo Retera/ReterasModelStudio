@@ -1,11 +1,10 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
-import com.hiveworkshop.rms.ui.application.EditUVsPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.RootWindowUgg;
 import com.hiveworkshop.rms.ui.application.actionfunctions.*;
-import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVView;
 import com.hiveworkshop.rms.ui.application.tools.EditTexturesPanel;
+import com.hiveworkshop.rms.ui.application.viewer.EditUVsView;
 import com.hiveworkshop.rms.util.Vec2;
 
 import javax.swing.*;
@@ -29,10 +28,11 @@ public class ToolsMenu extends JMenu {
 
 		add(new JSeparator());
 
-		add(createMenuItem("Edit UV Mapping", KeyEvent.VK_U, e -> EditUVsPanel.showEditUVs()));
-
+//		add(createMenuItem("Edit UV Mapping", KeyEvent.VK_U, e -> EditUVsPanel.showEditUVs()));
 		RootWindowUgg rootWindow = ProgramGlobals.getRootWindowUgg();
-		add(createMenuItem("Edit UV Mapping2", KeyEvent.VK_A, e -> rootWindow.newWindow(new UVView("Edit UV Mapping").setModelPanel(ProgramGlobals.getCurrentModelPanel()))));
+		add(createMenuItem("Edit UV Mapping", KeyEvent.VK_U, e -> rootWindow.newWindow(new EditUVsView().setModelPanel(ProgramGlobals.getCurrentModelPanel()))));
+
+//		add(createMenuItem("Edit UV Mapping2", KeyEvent.VK_A, e -> rootWindow.newWindow(new UVView("Edit UV Mapping").setModelPanel(ProgramGlobals.getCurrentModelPanel()))));
 
 		JMenuItem editTextures = new JMenuItem("Edit Textures");
 		editTextures.setMnemonic(KeyEvent.VK_T);
@@ -69,5 +69,18 @@ public class ToolsMenu extends JMenu {
 		mirrorSubmenu.add(new JSeparator());
 
 		mirrorSubmenu.add(mirrorFlip);
+	}
+
+	private void openEditUVsView(RootWindowUgg rootWindow) {
+//		ModelDependentView view = new EditUVsView();
+//		System.out.println("sat model panel, opening window");
+//		rootWindow.newWindow(view);
+//		view.setModelPanel(ProgramGlobals.getCurrentModelPanel());
+//		System.out.println("done opening window");
+
+
+		System.out.println("sat model panel, opening window");
+		rootWindow.newWindow(new EditUVsView().setModelPanel(ProgramGlobals.getCurrentModelPanel()));
+		System.out.println("done opening window");
 	}
 }

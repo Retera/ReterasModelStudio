@@ -18,24 +18,25 @@ public class ViewportHelpers {
 				defaultAnimationExtent.setMinMax(currentAnimation.getExtents());
 			}
 		}
+
 		ExtLog someExtent = new ExtLog(Vec3.ZERO, Vec3.ZERO, 0);
 		someExtent.setMinMax(defaultAnimationExtent);
 		someExtent.setMinMax(modelExtent);
 
-		double boundsRadius = 64;
-		if (someExtent.hasBoundsRadius() && (someExtent.getBoundsRadius() > 1)) {
+		double boundsRadius = 0;
+		if (someExtent.hasBoundsRadius() && 0.01 < someExtent.getBoundsRadius()) {
 			final double extBoundRadius = someExtent.getBoundsRadius();
-			if (extBoundRadius > boundsRadius) {
+			if (boundsRadius < extBoundRadius) {
 				boundsRadius = extBoundRadius;
 			}
 		}
-		if ((someExtent.getMaximumExtent() != null) && (someExtent.getMaximumExtent() != null)) {
+		if (someExtent.getMaximumExtent() != null) {
 			final double minMaxBoundRadius = someExtent.getMaximumExtent().distance(someExtent.getMinimumExtent()) / 2;
 			if (minMaxBoundRadius > boundsRadius) {
 				boundsRadius = minMaxBoundRadius;
 			}
 		}
-		if ((boundsRadius > 10000) || (boundsRadius < 0.1)) {
+		if (boundsRadius <= 0 || boundsRadius > 100000) {
 			boundsRadius = 64;
 		}
 

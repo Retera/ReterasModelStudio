@@ -291,7 +291,7 @@ public class MutableGameObject {
 		} else if ((index != -1) && (level > 0)) {
 			index = level - 1;
 		}
-		String editorMetaDataDisplayKey = MutableObjectData.getEditorMetaDataDisplayKey(level, metaData);
+		String editorMetaDataDisplayKey = metaData.getEditorMetaDataDisplayKey(level);
 		if (SaveProfile.get().isHd() && parentWC3Object.keySet().contains(editorMetaDataDisplayKey + ":hd")) {
 			editorMetaDataDisplayKey = editorMetaDataDisplayKey + ":hd";
 		}

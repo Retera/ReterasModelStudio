@@ -11,6 +11,8 @@ import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.TVertSelectionManager;
+import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.ui.util.MouseEventHelpers;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -40,15 +42,31 @@ public abstract class TransformActivity extends ViewportActivity {
 
 	@Override
 	public void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem) {
-		if (SwingUtilities.isRightMouseButton(e)) {
+		int modifiersEx = e.getModifiersEx();
+		ProgramPreferences prefs = ProgramGlobals.getPrefs();
+		Integer modifyMouseButton = ProgramGlobals.getPrefs().getModifyMouseButton();
+		if (!MouseEventHelpers.isSameMouseButton(e, prefs.getModifyMouseButton())) {
 			finnishAction(e, coordinateSystem, true);
 		} else {
 			finnishAction(e, coordinateSystem, !SwingUtilities.isMiddleMouseButton(e));
 		}
+
+//		if ((modifiersEx & modifyMouseButton) == modifyMouseButton ) {
+//			finnishAction(e, coordinateSystem, true);
+//		} else {
+//			finnishAction(e, coordinateSystem, !SwingUtilities.isMiddleMouseButton(e));
+//		}
+
+//		if (SwingUtilities.isRightMouseButton(e)) {
+//			finnishAction(e, coordinateSystem, true);
+//		} else {
+//			finnishAction(e, coordinateSystem, !SwingUtilities.isMiddleMouseButton(e));
+//		}
 		System.out.println("Mouse pressed! selectionView: " + selectionManager + " is UV-manager: " + (selectionManager instanceof TVertSelectionManager));
 		System.out.println("mouseX: " + e.getX() + "mouseY: " + e.getY());
-		int modifiersEx = e.getModifiersEx();
-		if ((ProgramGlobals.getPrefs().getModifyMouseButton() & modifiersEx) > 0 && !selectionManager.isEmpty()) {
+
+		if (MouseEventHelpers.matches(e, prefs.getModifyMouseButton(),prefs.getSnapTransformModifier()) && !selectionManager.isEmpty()) {
+//		if ((modifyMouseButton & modifiersEx) > 0 && !selectionManager.isEmpty()) {
 			isActing = true;
 
 			Vec2 mousePoint = new Vec2(e.getX(), e.getY());
@@ -97,12 +115,15 @@ public abstract class TransformActivity extends ViewportActivity {
 
 	@Override
 	public void mousePressed(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
+		ProgramPreferences prefs = ProgramGlobals.getPrefs();
 		if (isActing) {
+			System.out.println("vpMat, canceled");
 			finnishAction(e, viewProjectionMatrix, sizeAdj, true);
 		}
 
 		int modifiersEx = e.getModifiersEx();
-		if ((ProgramGlobals.getPrefs().getModifyMouseButton() & modifiersEx) > 0 && !selectionManager.isEmpty()) {
+//		if ((ProgramGlobals.getPrefs().getModifyMouseButton() & modifiersEx) > 0 && !selectionManager.isEmpty()) {
+		if (MouseEventHelpers.matches(e, prefs.getModifyMouseButton(),prefs.getSnapTransformModifier()) && !selectionManager.isEmpty()) {
 			isActing = true;
 
 
@@ -147,13 +168,22 @@ public abstract class TransformActivity extends ViewportActivity {
 	@Override
 	public void mouseDragged(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 		if (isActing) {
+			ProgramPreferences prefs = ProgramGlobals.getPrefs();
+			boolean isPrecise = false;
+			boolean isSnap = MouseEventHelpers.hasModifier(e, prefs.getSnapTransformModifier());
+			boolean isAxisLock = false;
 			Vec2 mouseEnd = getPoint(e);
-			updateMat(e, viewProjectionMatrix, mouseEnd);
+//			updateMat(e, viewProjectionMatrix, mouseEnd);
+			updateMat(viewProjectionMatrix, mouseEnd, isPrecise, isSnap, isAxisLock);
 			lastDragPoint.set(mouseEnd);
 		}
 	}
 
 	protected abstract void updateMat(MouseEvent e, Mat4 viewProjectionMatrix, Vec2 mouseEnd);
+	protected void updateMat(Mat4 viewProjectionMatrix, Vec2 mouseEnd,
+	                         boolean isPrecise, boolean isSnap, boolean isAxisLock){
+
+	}
 
 	@Override
 	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {

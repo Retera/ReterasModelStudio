@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
@@ -15,7 +16,10 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
+import java.awt.event.InputMethodListener;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.List;
 import java.util.*;
 
@@ -33,6 +37,7 @@ public class ComponentThingTree extends JTree {
 	protected ModelHandler modelHandler;
 	protected ModelView modelView;
 	protected UndoManager undoManager;
+	ModelTreeMouseAdapter mouseAdapter;
 
 	private final Map<IdObject, ComponentTreeNode<IdObject>> nodeToTreeElement = new HashMap<>();
 	private final ModelTreeExpansionListener tel;
@@ -42,19 +47,37 @@ public class ComponentThingTree extends JTree {
 		// Disabling toggling by double-click
 		setToggleClickCount(0);
 		setOpaque(false);
-		setEditable(true);
+		setEditable(false);
 
 		BasicTreeUI basicTreeUI = (BasicTreeUI) getUI();
 		basicTreeUI.setRightChildIndent(5);
+		System.out.println("KeyListeners: " + getKeyListeners().length);
+		for(KeyListener a_KeyListener : getKeyListeners()){
+			System.out.println(a_KeyListener);
+		}
+		System.out.println("MouseListeners: " + getMouseListeners().length);
+		for(MouseListener MouseListener : getMouseListeners()){
+			System.out.println(MouseListener);
+		}
+		System.out.println("MouseMotionListeners: " + getMouseMotionListeners().length);
+		for(MouseMotionListener a_MouseMotionListener : getMouseMotionListeners()){
+			System.out.println(a_MouseMotionListener);
+		}
+		System.out.println("InputMethodListeners: " + getInputMethodListeners().length);
+		for(InputMethodListener a_InputMethodListener : getInputMethodListeners()){
+			System.out.println(a_InputMethodListener);
+		}
 
 		tel = new ModelTreeExpansionListener();
-		MouseAdapter mouseAdapter = new ModelTreeMouseAdapter(tel::setControlDown, this);
-		ModelTreeKeyAdapter keyAdapter = new ModelTreeKeyAdapter(tel::setControlDown);
+		mouseAdapter = new ModelTreeMouseAdapter(tel::setControlDown, this);
 
 		addTreeExpansionListener(tel);
 		addMouseListener(mouseAdapter);
 		addMouseMotionListener(mouseAdapter);
+		ModelTreeKeyAdapter keyAdapter = new ModelTreeKeyAdapter(tel::setControlDown);
 		addKeyListener(keyAdapter);
+		ModelStructureChangeListener.changeListener.addSelectionListener(this, this::repaint);
+		ModelStructureChangeListener.changeListener.addStateChangeListener(this, this::updateNodes);
 	}
 
 	public ComponentThingTree setControlDown(boolean controlDown) {
@@ -71,7 +94,9 @@ public class ComponentThingTree extends JTree {
 		} else {
 			this.modelView = null;
 			this.undoManager = null;
+
 		}
+		mouseAdapter.setUndoManager(this.undoManager);
 		buildBaseNodes();
 		System.out.println("ComponentThingTree#setModel: buildTreeModel");
 		DefaultTreeModel treeModel = buildTreeModel(modelHandler);
@@ -111,8 +136,10 @@ public class ComponentThingTree extends JTree {
 
 	private void buildBaseNodes() {
 		root = new ComponentTreeNode<>(modelHandler, modelHandler.getModel());
-		root.setVisible1(true);
-		root.setEditable1(true);
+//		root.setVisible1(true);
+//		root.setEditable1(true);
+		root.updateEditability(true);
+		root.updateVisibility(true);
 
 		meshes = new ComponentTreeGeosetsTopNode(modelHandler);
 		nodes = new ComponentTreeIdObjectTopNode(modelHandler);
@@ -241,6 +268,15 @@ public class ComponentThingTree extends JTree {
 		for (Camera camera : modelHandler.getModel().getCameras()) {
 			cameras.add(new ComponentTreeNode<>(modelHandler, camera));
 		}
+	}
+
+	public void updateNodes(){
+//		meshes.updateState();
+//		nodes.updateState();
+//		cameras.updateState();
+		meshes.getChildComponents(new HashSet<>()).forEach(NodeThing::updateState);
+		nodes.getChildComponents(new HashSet<>()).forEach(NodeThing::updateState);
+		cameras.getChildComponents(new HashSet<>()).forEach(NodeThing::updateState);
 	}
 
 

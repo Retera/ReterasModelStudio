@@ -19,23 +19,27 @@ public final class StaticMeshUVRotateAction implements GenericRotateAction {
 	int uvLayerIndex;
 
 	public StaticMeshUVRotateAction(Collection<GeosetVertex> selectedVertices, int uvLayerIndex, Vec2 center, byte dim1, byte dim2) {
-		this(selectedVertices, uvLayerIndex, new Vec3(center.x, center.y, 0), dim1, dim2);
+		this(selectedVertices, uvLayerIndex, new Vec3(center.x, center.y, 0), dim1, dim2, 0);
 	}
 
-	public StaticMeshUVRotateAction(Collection<GeosetVertex> selectedVertices, int uvLayerIndex, Vec3 center, byte dim1, byte dim2) {
+	public StaticMeshUVRotateAction(Collection<GeosetVertex> selectedVertices,
+	                                int uvLayerIndex, Vec3 center,
+	                                byte dim1, byte dim2,
+	                                double radians) {
 		selectedTVerts = new ArrayList<>();
 		orgTVerts = new ArrayList<>();
 		for (GeosetVertex vertex : selectedVertices) {
 			if (uvLayerIndex < vertex.getTverts().size()) {
-				selectedTVerts.add(vertex.getTVertex(uvLayerIndex));
-				orgTVerts.add(new Vec2(vertex.getTVertex(uvLayerIndex)));
+				Vec2 tVertex = vertex.getTVertex(uvLayerIndex);
+				selectedTVerts.add(tVertex);
+				orgTVerts.add(new Vec2(tVertex));
 			}
 		}
 		this.uvLayerIndex = uvLayerIndex;
 		this.center = center;
 		this.dim1 = dim1;
 		this.dim2 = dim2;
-		this.radians = 0;
+		this.radians = radians;
 	}
 
 	@Override
@@ -56,7 +60,7 @@ public final class StaticMeshUVRotateAction implements GenericRotateAction {
 
 	@Override
 	public String actionName() {
-		return "rotate";
+		return "Rotate UVs";
 	}
 
 	@Override

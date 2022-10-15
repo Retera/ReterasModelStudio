@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.uv.TVertexEditorManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
@@ -51,7 +52,8 @@ public class UVPanelToolBar extends JToolBar{
 		addSeparator();
 		actionTypeGroup = new ToolbarButtonGroup2<>(this, new ModelEditorActionType3[]{ModelEditorActionType3.TRANSLATION, ModelEditorActionType3.SCALING, ModelEditorActionType3.ROTATION});
 		actionTypeGroup.addToolbarButtonListener(this::changeActivity);
-		actionTypeGroup.setActiveButton(ModelEditorActionType3.TRANSLATION);
+//		actionTypeGroup.setActiveButton(ModelEditorActionType3.TRANSLATION);
+		actionTypeGroup.setActiveButton(ProgramGlobals.getEditorActionType());
 
 		add(new AbstractAction("Snap", RMSIcons.loadToolBarImageIcon("snap.png")) {
 			@Override
@@ -93,7 +95,8 @@ public class UVPanelToolBar extends JToolBar{
 	}
 	public void changeActivity(ModelEditorActionType3 newType) {
 		if (newType != null && modelEditorManager != null) {
-			viewportActivityManager.setCurrentActivity(newType);
+			ProgramGlobals.setEditorActionTypeButton(newType);
+//			viewportActivityManager.setCurrentActivity(newType);
 		}
 	}
 
@@ -119,13 +122,32 @@ public class UVPanelToolBar extends JToolBar{
 		return button;
 	}
 
-	public UVPanelToolBar setModelHandler(ModelHandler modelHandler) {
-		this.modelHandler = modelHandler;
+//	public UVPanelToolBar setModelHandler(ModelHandler modelHandler) {
+//		this.modelHandler = modelHandler;
+//
+//		modelEditorManager = new TVertexEditorManager(this.modelHandler, selectionModeGroup);
+//		viewportActivityManager = new ViewportActivityManager(modelHandler, modelEditorManager);
+//		viewportActivityManager.setCurrentActivity(ModelEditorActionType3.TRANSLATION);
+//		updateItemGroupTypes();
+//		return this;
+//	}
+	public UVPanelToolBar setModelHandler(ModelPanel modelPanel) {
+		if(modelPanel != null){
+			this.modelHandler = modelPanel.getModelHandler();
 
-		modelEditorManager = new TVertexEditorManager(this.modelHandler, selectionModeGroup);
-		viewportActivityManager = new ViewportActivityManager(modelHandler, modelEditorManager);
-		viewportActivityManager.setCurrentActivity(ModelEditorActionType3.TRANSLATION);
-		updateItemGroupTypes();
+			modelEditorManager = modelPanel.getUvModelEditorManager();
+			viewportActivityManager = modelPanel.getUVViewportActivityManager();
+//			viewportActivityManager.setCurrentActivity(ModelEditorActionType3.TRANSLATION);
+			this.setVisible(true);
+			updateItemGroupTypes();
+		} else {
+			this.setVisible(false);
+			this.modelHandler = null;
+			modelEditorManager = null;
+			viewportActivityManager = null;
+//			viewportActivityManager.setCurrentActivity(ModelEditorActionType3.TRANSLATION);
+
+		}
 		return this;
 	}
 
