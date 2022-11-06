@@ -40,6 +40,8 @@ public class Material implements MaterialView {
 	public static final String SHADER_HD_DEFAULT_UNIT = "Shader_HD_DefaultUnit";
 	public static final String SHADER_SD_FIXED_FUNCTION = "Shader_SD_FixedFunction";
 	public static int teamColor = 00;
+	public static boolean FLIP_ORM_ALPHA = false;
+	public static boolean LIGHTEN_BAKED_DARK_AREAS = true;
 	com.etheller.collections.ArrayList<Layer> layers;
 	private int priorityPlane = 0;
 	// "flags" are my way of dealing with all the stuff that I
@@ -495,8 +497,9 @@ public class Material implements MaterialView {
 				}
 			}
 			final Vector3f viewDirection = new Vector3f(32f, 0, 128f);
-			final Vector3f lightDirection = new Vector3f(-24.1937f, 30.4879f, 444.411f);
-			if (model.getCameras().size() > 0
+//			final Vector3f lightDirection = new Vector3f(-24.1937f, 30.4879f, 444.411f);
+			final Vector3f lightDirection = new Vector3f(130.31f, 0f, 120.197f);
+			if (false && model.getCameras().size() > 0
 					&& diffuseTextureDataRenderableFilePath.toLowerCase(Locale.US).contains("portrait")) {
 				final Vertex position = model.getCameras().get(0).getPosition();
 				viewDirection.set((float) position.x, (float) position.y, (float) position.z);
@@ -621,11 +624,17 @@ public class Material implements MaterialView {
 											tv2.x, tv2.y) / denom;
 									final double b2 = MathUtils.areaOfTriangle(tv0.x, tv0.y, tv1.x, tv1.y, unitSpaceX,
 											unitSpaceY) / denom;
+									if (Math.abs(b0 - 0) <= 0.0001 || Math.abs(b1 - 0) <= 0.0001
+											|| Math.abs(b2 - 0) <= 0.0001) {
+									}
 
 									bakingCells[iToUse][jToUse].barycentricNormal = new Vertex(
 											g0.getNormal().x * b0 + g1.getNormal().x * b1 + g2.getNormal().x * b2,
 											g0.getNormal().y * b0 + g1.getNormal().y * b1 + g2.getNormal().y * b2,
 											g0.getNormal().z * b0 + g1.getNormal().z * b1 + g2.getNormal().z * b2);
+									if (Math.abs(bakingCells[iToUse][jToUse].barycentricNormal.z) <= 0.0001) {
+										System.out.println("dark edge");
+									}
 
 									bakingCells[iToUse][jToUse].barycentricPosition = new Vertex(
 											g0.x * b0 + g1.x * b1 + g2.x * b2, g0.y * b0 + g1.y * b1 + g2.y * b2,
@@ -670,7 +679,7 @@ public class Material implements MaterialView {
 													+ vertexData1.tangentFragPos.z * b1
 													+ vertexData2.tangentFragPos.z * b2));
 
-									if ((bakingCells[iToUse][jToUse].ormRGB >>> 24 & 0xFF) > 0) {
+									if ((bakingCells[iToUse][jToUse].ormRGB >>> 24 & 0xFF) > 0 != FLIP_ORM_ALPHA) {
 										teamColorPixels++;
 									}
 								}
@@ -694,7 +703,10 @@ public class Material implements MaterialView {
 
 					final BakingCell bakingCell = bakingCells[i][j];
 
-					final float teamColorNess = (bakingCell.ormRGB >> 24 & 0xFF) / 255.0f;
+					float teamColorNess = (bakingCell.ormRGB >> 24 & 0xFF) / 255.0f;
+					if (FLIP_ORM_ALPHA) {
+						teamColorNess = 1.0f - teamColorNess;
+					}
 					final float nonTeamColorNess = 1.0f - teamColorNess;
 
 					final float baseRed = (bakingCell.diffuseRGB >> 16 & 0xFF) / 255.0f;
@@ -711,7 +723,10 @@ public class Material implements MaterialView {
 						lightDir.set(bakingCell.tangentLightPos);
 						lightDir.normalise();
 						{
-							final float cosTheta = Vector3f.dot(lightDir, normal) * 0.5f + 0.5f;
+							float cosTheta = Vector3f.dot(lightDir, normal);
+							if (LIGHTEN_BAKED_DARK_AREAS) {
+								cosTheta = cosTheta * 0.5f + 0.5f;
+							}
 							final float lambertFactor = (float) Math.max(0.0, Math.min(1.0, cosTheta));
 
 							diffuse.scale((float) Math.max(0.0, Math.min(1.0, lambertFactor)));

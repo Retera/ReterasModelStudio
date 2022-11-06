@@ -3462,6 +3462,27 @@ public class EditableModel implements Named {
 			faceModelEditor.splitGeoset();
 		}
 
+		do {
+			selectedTriangles.clear();
+			for (final Geoset geoset : model.getGeosets()) {
+				final int size = geoset.getVertices().size();
+				final int halfGeosetVerticesSize = size / 2;
+				if (size >= 7433) {
+					int index = 0;
+					for (final GeosetVertex vertex : geoset.getVertices()) {
+						if (index > halfGeosetVerticesSize) {
+							selectedTriangles.addAll(vertex.triangles);
+						}
+						index++;
+					}
+				}
+			}
+			if (!selectedTriangles.isEmpty()) {
+				faceSelectionManager.setSelection(selectedTriangles);
+				faceModelEditor.splitGeoset();
+			}
+		} while (!selectedTriangles.isEmpty());
+
 //		final List<Animation> removedAnimations = new ArrayList<>();
 		final List<Animation> dupAnimations = new ArrayList<>();
 		final ArrayList<EventObject> allEventObjects = model.sortedIdObjects(EventObject.class);
