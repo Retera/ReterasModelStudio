@@ -99,7 +99,7 @@ public class SpliceGeosetPanel extends JPanel{
 			for (GeosetVertex vertex : newGeoset.getVertices()) {
 				vertex.replaceBones(chainMap);
 			}
-			newGeoset.getMatrices().clear();
+			newGeoset.clearMatrices();
 			addedVertexes.addAll(newGeoset.getVertices());
 			AddGeosetAction addGeosetAction = new AddGeosetAction(newGeoset, recModel, ModelStructureChangeListener.changeListener);
 			undoActions.add(addGeosetAction);

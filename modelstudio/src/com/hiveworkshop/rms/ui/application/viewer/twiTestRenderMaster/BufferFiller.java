@@ -183,8 +183,11 @@ public class BufferFiller {
 	}
 	public void paintCanvas(ViewportSettings viewportSettings, CameraManager cameraManager, MouseListenerThing mouseAdapter, Component viewportCanvas) {
 		runUpdate();
-		if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 5000) {
-			System.err.println("AnimatedPerspectiveViewport omitting frames due to avoid Exception log spam");
+		long timeSinceException = System.currentTimeMillis() - lastExceptionTimeMillis;
+		if (timeSinceException < 5000) {
+			if(timeSinceException<24){
+				System.err.println("AnimatedPerspectiveViewport omitting frames due to avoid Exception log spam");
+			}
 			return;
 		}
 		try {

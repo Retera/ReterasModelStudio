@@ -8,8 +8,6 @@ import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 import org.lwjgl.opengl.GL11;
 
-import java.util.List;
-
 /**
  * ParticleEmitter2 class, these are the things most people would think of as a
  * particle emitter, I think. Blizzard favored use of these over
@@ -19,38 +17,37 @@ import java.util.List;
  * Eric Theller 3/10/2012 3:32 PM
  */
 public class ParticleEmitter2 extends EmitterIdObject {
-	FilterMode filterMode = FilterMode.BLEND;
-	HeadOrTail headOrTail = HeadOrTail.HEAD;
-	boolean unshaded = false;
-	boolean sortPrimsFarZ = false;
-	boolean lineEmitter = false;
-	boolean unfogged = false;
-	boolean modelSpace = false;
-	boolean xYQuad = false;
-	boolean squirt = false;
-	double speed = 0;
-	double variation = 0;
-	double latitude = 0;
-	double gravity = 0;
-	double emissionRate = 0;
-	double width = 0;
-	double length = 0;
-	double lifeSpan = 0;
-	double tailLength = 0;
-	double time = 0;
-	int rows = 0;
-	int columns = 0;
-	int textureID = 0;
-	int replaceableId = 0;
-	int priorityPlane = 0;
-	Vec3[] segmentColor = {new Vec3(1, 1, 1), new Vec3(1, 1, 1), new Vec3(1, 1, 1)};
-	Vec3 alphas = new Vec3(1, 1, 1);
-	Vec3 particleScaling = new Vec3(1, 1, 1);
-	Vec3 headUVAnim = new Vec3(0, 0, 1);
-	Vec3 headDecayUVAnim = new Vec3(0, 0, 1);
-	Vec3 tailUVAnim = new Vec3(0, 0, 1);
-	Vec3 tailDecayUVAnim = new Vec3(0, 0, 1);
-	Bitmap texture;
+	private FilterMode filterMode = FilterMode.BLEND;
+	private HeadOrTail headOrTail = HeadOrTail.HEAD;
+	private boolean unshaded = false;
+	private boolean sortPrimsFarZ = false;
+	private boolean lineEmitter = false;
+	private boolean unfogged = false;
+	private boolean modelSpace = false;
+	private boolean xYQuad = false;
+	private boolean squirt = false;
+	private double speed = 0;
+	private double variation = 0;
+	private double latitude = 0;
+	private double gravity = 0;
+	private double emissionRate = 0;
+	private double width = 0;
+	private double length = 0;
+	private double lifeSpan = 0;
+	private double tailLength = 0;
+	private double time = 0;
+	private int rows = 0;
+	private int columns = 0;
+	private int replaceableId = 0;
+	private int priorityPlane = 0;
+	private final Vec3[] segmentColor = {new Vec3(1, 1, 1), new Vec3(1, 1, 1), new Vec3(1, 1, 1)};
+	private final Vec3 alphas = new Vec3(1, 1, 1);
+	private final Vec3 particleScaling = new Vec3(1, 1, 1);
+	private final Vec3 headUVAnim = new Vec3(0, 0, 1);
+	private final Vec3 headDecayUVAnim = new Vec3(0, 0, 1);
+	private final Vec3 tailUVAnim = new Vec3(0, 0, 1);
+	private final Vec3 tailDecayUVAnim = new Vec3(0, 0, 1);
+	private Bitmap texture;
 
 	public ParticleEmitter2() {
 	}
@@ -84,20 +81,18 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		time = emitter.time;
 		rows = emitter.rows;
 		columns = emitter.columns;
-		textureID = emitter.textureID;
 		replaceableId = emitter.replaceableId;
 		priorityPlane = emitter.priorityPlane;
 
-//		segmentColor = emitter.segmentColor.clone(); //todo clone for real
 		segmentColor[0].set(emitter.segmentColor[0]);
 		segmentColor[1].set(emitter.segmentColor[1]);
 		segmentColor[2].set(emitter.segmentColor[2]);
-		alphas = new Vec3(emitter.alphas);
-		particleScaling = new Vec3(emitter.particleScaling);
-		headUVAnim = new Vec3(emitter.headUVAnim);
-		headDecayUVAnim = new Vec3(emitter.headDecayUVAnim);
-		tailUVAnim = new Vec3(emitter.tailUVAnim);
-		tailDecayUVAnim = new Vec3(emitter.tailDecayUVAnim);
+		alphas.set(emitter.alphas);
+		particleScaling.set(emitter.particleScaling);
+		headUVAnim.set(emitter.headUVAnim);
+		headDecayUVAnim.set(emitter.headDecayUVAnim);
+		tailUVAnim.set(emitter.tailUVAnim);
+		tailDecayUVAnim.set(emitter.tailDecayUVAnim);
 
 		texture = emitter.texture;
 	}
@@ -209,24 +204,6 @@ public class ParticleEmitter2 extends EmitterIdObject {
 
 	public void setFilterMode(FilterMode filterMode) {
 		this.filterMode = filterMode;
-	}
-
-	public void updateTextureRef(List<Bitmap> textures) {
-		if (0 <= textureID && textureID < textures.size()) {
-			texture = textures.get(getTextureId());
-		}
-	}
-
-	public int getTextureId() {
-		return textureID;
-	}
-
-	public void setTextureId(int textureId) {
-		if (textureId != -1) {
-			textureID = textureId;
-		} else {
-			textureID = 0;
-		}
 	}
 
 	public double getSpeed() {
@@ -360,14 +337,6 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		this.columns = columns;
 	}
 
-	public int getTextureID() {
-		return textureID;
-	}
-
-	public void setTextureID(int textureID) {
-		this.textureID = textureID;
-	}
-
 	public int getReplaceableId() {
 		return replaceableId;
 	}
@@ -401,7 +370,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	}
 
 	public void setParticleScaling(Vec3 particleScaling) {
-		this.particleScaling = particleScaling;
+		this.particleScaling.set(particleScaling);
 	}
 
 	public Vec3 getHeadUVAnim() {
@@ -409,7 +378,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	}
 
 	public void setHeadUVAnim(Vec3 headUVAnim) {
-		this.headUVAnim = headUVAnim;
+		this.headUVAnim.set(headUVAnim);
 	}
 
 	public Vec3 getHeadDecayUVAnim() {
@@ -417,7 +386,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	}
 
 	public void setHeadDecayUVAnim(Vec3 headDecayUVAnim) {
-		this.headDecayUVAnim = headDecayUVAnim;
+		this.headDecayUVAnim.set(headDecayUVAnim);
 	}
 
 	public Vec3 getTailUVAnim() {
@@ -425,7 +394,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	}
 
 	public void setTailUVAnim(Vec3 tailUVAnim) {
-		this.tailUVAnim = tailUVAnim;
+		this.tailUVAnim.set(tailUVAnim);
 	}
 
 	public Vec3 getTailDecayUVAnim() {
@@ -433,7 +402,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	}
 
 	public void setTailDecayUVAnim(Vec3 tailDecayUVAnim) {
-		this.tailDecayUVAnim = tailDecayUVAnim;
+		this.tailDecayUVAnim.set(tailDecayUVAnim);
 	}
 
 	public void setSegmentColor(int index, Vec3 color) {

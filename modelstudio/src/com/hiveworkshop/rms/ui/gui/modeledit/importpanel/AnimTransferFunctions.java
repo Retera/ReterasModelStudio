@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -250,7 +251,9 @@ public class AnimTransferFunctions {
 	private void doClearAnims(List<AnimFlag<?>> recModFlags, List<EventObject> recModEventObjs) {
 		for (Animation anim : mht.receivingModel.getAnims()) {
 			for (AnimFlag<?> af : recModFlags) {
-				if (((af.getTypeId() == 1) || (af.getTypeId() == 2) || (af.getTypeId() == 3))) {
+				if (af.getName().equals(MdlUtils.TOKEN_SCALING)
+						|| af.getName().equals(MdlUtils.TOKEN_ROTATION)
+						|| af.getName().equals(MdlUtils.TOKEN_TRANSLATION)) {
 					// !af.hasGlobalSeq && was above before
 					af.deleteAnim(anim);
 				}
@@ -407,7 +410,9 @@ public class AnimTransferFunctions {
 		// reverse the animation
 		int length = anim1.getLength();
 		for (AnimFlag<?> af : donModFlags) {
-			if (!af.hasGlobalSeq() && ((af.getTypeId() == 1) || (af.getTypeId() == 2) || (af.getTypeId() == 3))) {
+			if (!af.hasGlobalSeq() && (af.getName().equals(MdlUtils.TOKEN_SCALING)
+					|| af.getName().equals(MdlUtils.TOKEN_ROTATION)
+					|| af.getName().equals(MdlUtils.TOKEN_TRANSLATION))) {
 				AnimFlagUtils.timeScale2(af, anim1, -length, length);
 			}
 		}

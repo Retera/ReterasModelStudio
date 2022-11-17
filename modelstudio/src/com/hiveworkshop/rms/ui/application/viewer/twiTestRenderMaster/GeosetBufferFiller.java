@@ -151,7 +151,7 @@ public class GeosetBufferFiller {
 			for (GeosetVertex v : tri.getVerts()) {
 				RenderGeoset.RenderVert renderVert = renderGeoset.getRenderVert(v);
 				if (renderVert == null){
-					System.out.println("could not find renderVert for: " + v + ", renderGeosetVs: " + renderGeoset.getRenderVerts().size() + ", real verts: " + geo.getVertices().size());
+//					System.out.println("could not find renderVert for: " + v + ", renderGeosetVs: " + renderGeoset.getRenderVerts().size() + ", real verts: " + geo.getVertices().size());
 
 				} else {
 

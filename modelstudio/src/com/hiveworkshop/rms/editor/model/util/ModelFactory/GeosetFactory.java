@@ -11,7 +11,7 @@ import java.util.List;
 public class GeosetFactory {
 	public static Geoset createGeoset(MdlxGeoset mdlxGeoset, ModelInfoHolder infoHolder, EditableModel model) {
 		Geoset geoset = new Geoset();
-		geoset.setExtLog(new ExtLog(mdlxGeoset.extent));
+		geoset.setExtents(new ExtLog(mdlxGeoset.extent));
 
 		for (int i = 0; i < mdlxGeoset.sequenceExtents.size() && i<model.getAnimsSize(); i++) {
 			ExtLog extents = new ExtLog(mdlxGeoset.sequenceExtents.get(i));
@@ -30,6 +30,7 @@ public class GeosetFactory {
 		geoset.setLevelOfDetailName(mdlxGeoset.lodName);
 
 		int index = 0;
+		List<Matrix> matrices = new ArrayList<>();
 		for (long size : mdlxGeoset.matrixGroups) {
 			Matrix m = new Matrix();
 			for (int i = 0; i < size; i++) {
@@ -42,7 +43,8 @@ public class GeosetFactory {
 				}
 				index++;
 			}
-			geoset.addMatrix(m);
+//			geoset.addMatrix(m);
+			matrices.add(m);
 		}
 
 
@@ -54,7 +56,6 @@ public class GeosetFactory {
 		final float[] tangents = mdlxGeoset.tangents;
 		final short[] skin = mdlxGeoset.skin;
 		ArrayList<short[]> skinList = new ArrayList<>();
-		ArrayList<float[]> tangentList = new ArrayList<>();
 
 		List<GeosetVertex> vertexList = new ArrayList<>();
 		List<Triangle> triangleList = new ArrayList<>();
@@ -78,7 +79,7 @@ public class GeosetFactory {
 //				}
 //			}
 			if (vertexGroups != null && i < vertexGroups.length) {
-				Matrix matrix = geoset.getMatrix((256 + vertexGroups[i]) % 256);
+				Matrix matrix = matrices.get((256 + vertexGroups[i]) % 256);
 				if (matrix != null) {
 					for (Bone bone : matrix.getBones()) {
 						gv.addBoneAttachment(bone);
@@ -116,23 +117,10 @@ public class GeosetFactory {
 
 				gv.setSkinBones(bones, weights);
 
-				tangentList.add(tang);
 				skinList.add(new short[] {skin[(i * 8)], skin[(i * 8) + 1], skin[(i * 8) + 2], skin[(i * 8) + 3], skin[(i * 8) + 4], skin[(i * 8) + 5], skin[(i * 8) + 6], skin[(i * 8) + 7]});
 
 			}
-
-//			if (!(gv.getVertexGroup() == -1 && infoHolder.isTangentAndSkinSupported())) {
-//				Matrix matrix = geoset.getMatrix(gv.getVertexGroup());
-//				if (matrix != null) {
-//					for (Bone bone : matrix.getBones()) {
-//						gv.addBoneAttachment(bone);
-//					}
-//				}
-//			}
-
 		}
-		geoset.setTangents(tangentList);
-//		geoset.setSkin(skinList);
 		// guys I didn't code this to allow experimental non-triangle faces that were suggested to exist
 		// on the web (i.e. quads). if you wanted to fix that, you'd want to do it below
 		final int[] facesVertIndices = mdlxGeoset.faces;

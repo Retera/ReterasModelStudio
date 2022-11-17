@@ -9,7 +9,7 @@ import com.hiveworkshop.rms.ui.language.TextKey;
 public class SplitVertices extends ActionFunction{
 
 	public SplitVertices(){
-		super(TextKey.SPLIT_VERTICES, SnapVertices::snapVertices);
+		super(TextKey.SPLIT_VERTICES, SplitVertices::snapVertices);
 	}
 
 	public static void snapVertices(ModelHandler modelHandler) {

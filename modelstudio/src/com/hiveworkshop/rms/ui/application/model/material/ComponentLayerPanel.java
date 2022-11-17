@@ -159,7 +159,7 @@ public class ComponentLayerPanel extends ComponentPanel<Layer> {
 
 		for(int i = 0; i < selectedItem.getTextures().size(); i++){
 			EditorHelpers.TextureEditor texturePanel = getTexturePanel(i);
-			texturePanel.update(itemToSelect, itemToSelect.getTexture(i));
+			texturePanel.update(itemToSelect.getTextureSlot(i), itemToSelect.getTexture(i));
 			leftHandSettingsPanel.add(texturePanel.getFlagPanel(), "wrap, growx");
 		}
 	}

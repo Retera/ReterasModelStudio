@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 
 public final class CharIconLabel extends JLabel {
-	private boolean doPrint = true;
+	private boolean doPrint = false;
 	private Color currentColor;
 	private Color orgColor;
 	private static final ColorChooserPopup COLOR_CHOOSER_POPUP = new ColorChooserPopup();
@@ -362,17 +362,18 @@ public final class CharIconLabel extends JLabel {
 		g.setFont(font);
 		Rectangle2D stringBounds = font.getStringBounds(imageText, g.getFontRenderContext());
 		float descent = font.getLineMetrics(imageText, g.getFontRenderContext()).getDescent();
-		print("descent: " + descent);
-		float ascent = font.getLineMetrics(imageText, g.getFontRenderContext()).getAscent();
-		print("ascent: " + ascent);
-		float uggscent = font.getLineMetrics(imageText, g.getFontRenderContext()).getHeight();
-		print("height: " + uggscent);
-		double half_h = g.getFontMetrics().getLineMetrics(imageText, null).getHeight()/2.0;
+//		print("descent: " + descent);
+//		float ascent = font.getLineMetrics(imageText, g.getFontRenderContext()).getAscent();
+//		print("ascent: " + ascent);
+//		float uggscent = font.getLineMetrics(imageText, g.getFontRenderContext()).getHeight();
+//		print("height: " + uggscent);
+//		double half_h = g.getFontMetrics().getLineMetrics(imageText, null).getHeight()/2.0;
 //		int textX = (int) ((width-g.getFontMetrics().charWidth('W'))/2.0);
 //		int textY = (int) (height/2.0 + half_h);
 		int textX = (int) ((width-stringBounds.getWidth())/2.0);
 		int textY = (int) ((height + stringBounds.getHeight())/2.0-descent);
-		printStringBoundsInfo(stringBounds);
+//		printStringBoundsInfo(stringBounds);
+
 //		int textY = (int) ((height + stringBounds.getMaxY())/2.0);
 //		char[] chars = new char[1];
 //		imageText.getChars(0, 1, chars, 0);

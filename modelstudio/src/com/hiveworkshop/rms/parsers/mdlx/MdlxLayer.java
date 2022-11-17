@@ -47,7 +47,7 @@ public class MdlxLayer extends MdlxAnimatedObject {
 	public void readMdx(final BinaryReader reader, final int version) {
 		final int position = reader.position();
 		final long size = reader.readUInt32();
-		System.out.println("\nLAYER size: " + size);
+//		System.out.println("\nLAYER size: " + size);
 
 		int sizeTracker = 4;
 		filterMode = FilterMode.fromId(reader.readInt32());
@@ -117,6 +117,12 @@ public class MdlxLayer extends MdlxAnimatedObject {
 
 		int pos = reader.position();
 		readTimelines(reader, size - (reader.position() - position));
+		if(hdTextureIds.size() == 1 && 0 < timelines.size()){
+			MdlxTimeline<?> timeline = timelines.stream().filter(t -> t.name.equals(War3ID.fromString("KMTF"))).findFirst().orElse(null);
+			if(timeline != null){
+				textureIdTimelineMap.put(0, timeline);
+			}
+		}
 		sizeTracker += (reader.position() - pos);
 //		System.out.println(sizeTracker + "/" + size + " layer bytes read");
 		for(; sizeTracker< size; sizeTracker+=4){
@@ -146,7 +152,7 @@ public class MdlxLayer extends MdlxAnimatedObject {
 
 				hdTextureIds.add(animOrTextureId);
 				hdTextureSlots.add(textureSlot);
-//				System.out.println("~~~~ " + sizeTracker/4 + " (" + sizeTracker + "): " + i + " " + textureSlots[nameSlot] + " - id: " + hdTextureIds2.get(i) + ", slot: " + hdTextureSlots2.get(i));
+//				System.out.println("~~~~ " + sizeTracker/4 + " (" + sizeTracker + "): " + i + " " + textureSlots[nameSlot] + " - id: " + hdTextureIds.get(i) + ", slot: " + hdTextureSlots.get(i));
 ////				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): " + i*2 + " " + textureSlots[nameSlot] + "_id  : " + hdTextureIds[i]);
 ////				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): " + (i*2+1) + " " + textureSlots[nameSlot] + "_slot: " + hdTextureSlots[i]);
 				sizeTracker+=4;
@@ -265,11 +271,11 @@ public class MdlxLayer extends MdlxAnimatedObject {
 //		sizeTracker += 4;
 //		sizeTracker += 4;
 
-		if (version > 800) {
+		if (800 < version) {
 			writer.writeFloat32(emissiveGain);
 //			sizeTracker += 4;
 
-			if (version > 900) {
+			if (900 < version) {
 				writer.writeFloat32Array(fresnelColor);
 				writer.writeFloat32(fresnelOpacity);
 				writer.writeFloat32(fresnelTeamColor);
@@ -282,14 +288,24 @@ public class MdlxLayer extends MdlxAnimatedObject {
 		if(1000 < version){
 			writer.writeInt32(hdFlag);
 			writer.writeInt32(hdTextureIds.size());
+			System.out.println("textures:" + hdTextureIds.size());
 //			sizeTracker += 4;
 //			sizeTracker += 4;
 			for(int i = 0; i < hdTextureIds.size(); i++){
 				writer.writeInt32(hdTextureIds.get(i));
 				writer.writeInt32(hdTextureSlots.get(i));
+				System.out.println("texture " + i + "/" + hdTextureIds.size() + " - textureID:" + hdTextureIds.get(i));
+//				System.out.println("textureID:" + hdTextureIds.get(i));
+//				System.out.println("TextureSlot:" + hdTextureSlots.get(i));
 //				sizeTracker += 4;
 //				sizeTracker += 4;
 				if(textureIdTimelineMap.get(i) != null){
+					if(textureIdTimelineMap.get(i).values[0] instanceof long[]){
+						long[] ugg = (long[]) textureIdTimelineMap.get(i).values[0];
+						System.out.println("\ttextureIdTimeline: " + textureIdTimelineMap.get(i).name + " [0]: " + ugg[0] + " - " + textureIdTimelineMap.get(i));
+					} else {
+						System.out.println("\ttextureIdTimeline: " + textureIdTimelineMap.get(i).name + " [0]: " + textureIdTimelineMap.get(i).values[0] + " - " + textureIdTimelineMap.get(i));
+					}
 					textureIdTimelineMap.get(i).writeMdx(writer);
 //					sizeTracker += integerMdlxTimelineMap.get(i).size();
 				}

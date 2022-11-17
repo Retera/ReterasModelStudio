@@ -99,7 +99,7 @@ public class BitmapAnimFlag extends AnimFlag<Bitmap> {
 	}
 
 	@Override
-	protected Bitmap getIdentity(int typeId) {
+	protected Bitmap getIdentity() {
 		TreeMap<Integer, Entry<Bitmap>> map = sequenceMap.values().stream().findFirst().orElse(null);
 		if(map != null){
 			return map.firstEntry().getValue().getValue();
@@ -124,19 +124,9 @@ public class BitmapAnimFlag extends AnimFlag<Bitmap> {
 		Bitmap ceilValue = entryCeil.getValue();
 		Bitmap ceilInTan = entryCeil.getInTan();
 
-		switch (typeid) {
-//			case TRANSLATION, SCALING, COLOR -> {
-			case TEXTUREID -> {
-				return switch (interpolationType) {
-//					case BEZIER -> int.getBezier(floorValue, floorOutTan, ceilInTan, ceilValue, timeFactor);
-//					case DONT_INTERP -> floorValue;
-//					case HERMITE -> int.getHermite(floorValue, floorOutTan, ceilInTan, ceilValue, timeFactor);
-//					case LINEAR -> int.getLerped(floorValue, ceilValue, timeFactor);
-					case DONT_INTERP, BEZIER, HERMITE, LINEAR -> floorValue;
-				};
-			}
-		}
-		throw new IllegalStateException();
+		return switch (interpolationType) {
+			case DONT_INTERP, BEZIER, HERMITE, LINEAR -> floorValue;
+		};
 	}
 
 	@Override

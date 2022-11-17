@@ -66,7 +66,7 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 
 	public ViewportCanvas setModel(RenderModel renderModel) {
 //		viewportCanvas.getWidth(), viewportCanvas.getHeight()
-		System.out.println("VP canvas size: x=" + getWidth() + " y=" + getHeight() + ", dim=" +getSize() + ", rekt=" + getBounds());
+//		System.out.println("VP canvas size: x=" + getWidth() + " y=" + getHeight() + ", dim=" +getSize() + ", rekt=" + getBounds());
 		if(renderModel != null){
 			ExtLog extents = renderModel.getModel().getExtents();
 			cameraManager.loadDefaultCameraFor(ViewportHelpers.getBoundsRadius(renderModel.getTimeEnvironment(), extents));

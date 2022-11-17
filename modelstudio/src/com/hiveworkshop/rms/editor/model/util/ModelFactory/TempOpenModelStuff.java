@@ -174,40 +174,11 @@ public class TempOpenModelStuff {
 		}
 
 		infoHolder.fixIdObjectParents();
+		infoHolder.fixBoneGeosets();
 
-		doPostRead(model); // fixes all the things
-
-		return model;
-	}
-
-	public static void doPostRead(EditableModel model) {
-		System.out.println("doPostRead for model: " + model.getName());
-		updateBoneGeosetReferences(model);
-//		for (Geoset geo : model.getGeosets()) {
-//			GeosetFactory.updateToObjects(geo, model);
-//		}
 		removeGeosetAnimsWOGeoset(model);
 
-//		final List<AnimFlag<?>> animFlags = model.getAllAnimFlags();// laggggg!
-//		for (final AnimFlag<?> af : animFlags) {
-//			af.updateGlobalSeqRef(model);
-//			if (!af.getName().equals("Scaling")
-//					&& !af.getName().equals("Translation")
-//					&& !af.getName().equals("Rotation")) {
-//			}
-//		}
-
-//		final List<EventObject> evtObjs = model.getEvents();
-//		for (final EventObject af : evtObjs) {
-//			af.updateGlobalSeqRef(model);
-//		}
-
-		for (final ParticleEmitter2 temp : model.getParticleEmitter2s()) {
-			temp.updateTextureRef(model.getTextures());
-		}
-		for (ParticleEmitterPopcorn popcorn : model.getPopcornEmitters()) {
-			popcorn.initAnimsVisStates(model.getAnims());
-		}
+		return model;
 	}
 
 	private static void removeGeosetAnimsWOGeoset(EditableModel model) {
@@ -223,27 +194,6 @@ public class TempOpenModelStuff {
 		for (final GeosetAnim bad : badAnims) {
 			model.remove(bad);
 		}
-	}
-
-	public static void updateBoneGeosetReferences(EditableModel model) {
-		final List<Bone> bones = model.getBones();
-		final List<? extends Bone> helpers = model.getHelpers();
-		bones.addAll(helpers);
-		for (Bone bone : bones) {
-			if ((bone.getGeosetId() != -1) && (bone.getGeosetId() < model.getGeosets().size())) {
-				bone.setGeoset(model.getGeoset(bone.getGeosetId()));
-			}
-			if ((bone.getGeosetAnimId() != -1) && (bone.getGeosetAnimId() < model.getGeosetAnims().size())) {
-				bone.setGeosetAnim(model.getGeosetAnim(bone.getGeosetAnimId()));
-			}
-		}
-//		List<Camera> cameras = model.getCameras();
-//		for (int i = 0; i < cameras.size(); i++) {
-//			final Camera camera = cameras.get(i);
-//			if (model.getBindPoseChunk() != null) {
-//				camera.setBindPose(model.getBindPoseChunk().bindPose[i + model.getAllObjects().size()]);
-//			}
-//		}
 	}
 
 	public static Animation createAnimation(MdlxSequence sequence) {

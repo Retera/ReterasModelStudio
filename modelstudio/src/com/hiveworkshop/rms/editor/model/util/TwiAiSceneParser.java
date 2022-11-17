@@ -121,10 +121,11 @@ public class TwiAiSceneParser {
 
 	public static Material createMaterial(AiMaterial aiMaterial, EditableModel model) {
 		Material material = new Material();
-		final Layer diffuseLayer = new Layer();
+		Bitmap texture = loadTexture(model, aiMaterial.getTextureFile(AiTextureType.DIFFUSE, 0));
+		final Layer diffuseLayer = new Layer(texture);
 
 //		aiMaterial.getNumTextures(AiTextureType.DIFFUSE);
-		diffuseLayer.setTexture(0, loadTexture(model, aiMaterial.getTextureFile(AiTextureType.DIFFUSE, 0)));
+//		diffuseLayer.setTexture(0, texture);
 		diffuseLayer.setStaticAlpha(aiMaterial.getOpacity());
 
 //		String textureFile = aiMaterial.getTextureFile(AiTextureType.NORMALS, 0);

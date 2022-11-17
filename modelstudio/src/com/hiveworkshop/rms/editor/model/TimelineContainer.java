@@ -55,11 +55,7 @@ public abstract class TimelineContainer implements VisibilitySource {
 	}
 
 	public void remove(String name) {
-		AnimFlag<?> timeline = animFlags.get(name);
-
-		if (timeline != null) {
-			animFlags.remove(name);
-		}
+		animFlags.remove(name);
 	}
 
 	public void clearAnimFlags() {
@@ -132,12 +128,6 @@ public abstract class TimelineContainer implements VisibilitySource {
 		}
 
 		return defaultValue;
-	}
-
-	public void flipOver(byte axis) {
-		for (AnimFlag<?> timeline : animFlags.values()) {
-			timeline.flipOver(axis);
-		}
 	}
 
 	@Override

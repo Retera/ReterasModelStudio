@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
@@ -80,14 +81,14 @@ public class MirrorModelAction implements UndoAction {
 		for (Sequence anim : sequenceMap.keySet()) {
 			TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
 			Collection<Entry<T>> entries = entryMap.values();
-			if (timeline.getTypeId() == AnimFlag.ROTATION && timeline instanceof QuatAnimFlag) {
+			if (timeline instanceof QuatAnimFlag && timeline.getName().equals(MdlUtils.TOKEN_ROTATION)) {
 				// Rotation
 				for (Entry<T> entry : entries) {
 					flipQuat(mirrorMul, (Quat) entry.getValue(), axis);
 					flipQuat(mirrorMul, (Quat) entry.getInTan(), axis);
 					flipQuat(mirrorMul, (Quat) entry.getOutTan(), axis);
 				}
-			} else if (timeline.getTypeId() == AnimFlag.TRANSLATION && timeline instanceof Vec3AnimFlag) {
+			} else if (timeline instanceof Vec3AnimFlag && timeline.getName().equals(MdlUtils.TOKEN_TRANSLATION)) {
 				// Translation
 				for (Entry<T> entry : entries) {
 					flipVec3(mirrorMul, (Vec3) entry.getValue());

@@ -11,16 +11,21 @@ import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 public class MaterialToMdlx {
 
 	public static MdlxMaterial toMdlx(Material material, EditableModel model) {
+//		System.out.println("\nMdlxMaterial");
 		final MdlxMaterial mdlxMaterial = new MdlxMaterial();
 
 		if (model.getFormatVersion() < 900) {
 			for (final Layer layer : material.getLayers()) {
-				mdlxMaterial.layers.add(toMdlx(layer, model));
+				MdlxLayer mdlxLayer = toMdlx(layer, model);
+				mdlxLayer.hdTextureIds.add(mdlxLayer.textureId);
+				mdlxMaterial.layers.add(mdlxLayer);
 			}
 		} else if (model.getFormatVersion() < 1100) {
 			for (final Layer layer : material.getLayers()) {
 				for (int i = 0; i < layer.getTextures().size(); i++){
-					mdlxMaterial.layers.add(toMdlx(layer, i, model));
+					MdlxLayer mdlxLayer = toMdlx(layer, i, model);
+					mdlxLayer.hdTextureIds.add(mdlxLayer.textureId);
+					mdlxMaterial.layers.add(mdlxLayer);
 				}
 
 //				for(Bitmap bitmap : layer.getTextures()){
@@ -54,14 +59,18 @@ public class MaterialToMdlx {
 						mdlxLayer.hdFlag = 1;
 					}
 					for(int j = 0; j<layer.getTextures().size(); j++){
-						AnimFlag<?> animFlag = layer.getFlipbookTexture(i);
+						AnimFlag<?> animFlag = layer.getFlipbookTexture(j);
+//						System.out.println("saving texture " + j + ", animflag:" + animFlag);
 						if(animFlag != null && 0 < animFlag.size()){
+//							System.out.println(animFlag.getName());
 							mdlxLayer.hdTextureIds.add(0);
 							mdlxLayer.hdTextureSlots.add(0);
-							mdlxLayer.textureIdTimelineMap.put(i, animFlag.toMdlx(layer, model));
-//						System.out.println("writing timeline for layer: " + i);
+							mdlxLayer.textureIdTimelineMap.put(j, animFlag.toMdlx(layer, model));
+//							System.out.println("writing timeline for layer: " + i);
+//							System.out.println("saving texture " + j + " for layer " + i + ", animflag:" + animFlag.getName());
 						} else {
-//						System.out.println("writing layer + "+ i + ": " + model.getTextureId(layer.getTexture(0)) + ", " + i);
+//							System.out.println("writing layer "+ i + ": " + model.getTextureId(layer.getTexture(0)) + ", " + i);
+//							System.out.println("saving texture " + j + " for layer " + i + ", animflag:" + animFlag);
 							mdlxLayer.hdTextureIds.add(model.getTextureId(layer.getTexture(j)));
 							mdlxLayer.hdTextureSlots.add(j);
 						}
@@ -70,7 +79,7 @@ public class MaterialToMdlx {
 					for (AnimFlag<?> timeline : layer.getAnimFlags()) {
 						if (!timeline.getAnimMap().isEmpty()
 								&& !timeline.getName().equals(MdlUtils.TOKEN_TEXTURE_ID)) {
-//						System.out.println("writing animflag: " + timeline.getName());
+//							System.out.println("writing animflag: " + timeline.getName());
 							mdlxLayer.timelines.add(timeline.toMdlx(layer, model));
 						}
 					}

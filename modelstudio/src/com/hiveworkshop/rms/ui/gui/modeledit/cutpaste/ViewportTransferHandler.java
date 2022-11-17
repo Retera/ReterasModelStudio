@@ -348,20 +348,11 @@ public class ViewportTransferHandler extends TransferHandler {
 
 
 	public void applyVerticesToMatrices(Geoset geoset, EditableModel model) {
-		geoset.getMatrices().clear();
+		geoset.clearMatrices();
 		for (GeosetVertex vertex : geoset.getVertices()) {
-			Matrix matrix = vertex.getMatrix();
-
-
-			matrix.cureBones(model);
-//			matrix.updateIds(model);
-			if (!geoset.getMatrices().contains(matrix)) {
-				geoset.getMatrices().add(matrix);
-//				matrix.updateIds(model);
-			}
-//			vertex.setVertexGroup(geoset.getMatrices().indexOf(matrix));
-//			vertex.setMatrix(matrix);
+			vertex.getMatrix().cureBones(model);
 		}
+		geoset.reMakeMatrixList();
 	}
 
 	private Vec3 fixVertBones(EditableModel stringableModel, Bone dummyBone, Geoset geoset) {

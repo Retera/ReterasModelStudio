@@ -36,7 +36,7 @@ public class ImportGeoset extends ActionFunction {
 			for (int i = 0; i < newGeoset.numTriangles(); i++) {
 				Triangle tri = newGeoset.getTriangle(i);
 				host.add(tri);
-				tri.setGeoRef(host);
+				tri.setGeoset(host);
 			}
 		}
 	}
@@ -67,8 +67,7 @@ public class ImportGeoset extends ActionFunction {
 			nameBoneMap.put(bone.getName(), bone);
 		}
 		Map<IdObject, IdObject> boneToBoneMap = new HashMap<>();
-		geoset.reMakeMatrixList();
-		for (Matrix m : geoset.getMatrices()) {
+		for (Matrix m : geoset.collectMatrices()) {
 			System.out.println(m.size());
 			for (Bone bone : m.getBones()){
 				boneToBoneMap.put(bone, nameBoneMap.get(bone.getName()));
@@ -87,6 +86,7 @@ public class ImportGeoset extends ActionFunction {
 //			}
 			gv.setGeoset(geoset);
 		}
+		geoset.reMakeMatrixList();
 		geoset.setParentModel(model);
 	}
 }

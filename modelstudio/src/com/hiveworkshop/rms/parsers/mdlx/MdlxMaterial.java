@@ -27,11 +27,12 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 		int sizeTracker = 0;
 		long size = reader.readUInt32(); // Don't care about the size
 		sizeTracker +=4;
-//		System.out.println("material! size: " + size);
+//		System.out.println("\nMaterial! size: " + size);
 
 		priorityPlane = reader.readInt32();
 		sizeTracker +=4;
 		flags = reader.readInt32();
+//		System.out.println(sizeTracker/4 + " (" + sizeTracker + "): flag  " + Integer.toBinaryString(flags) + " ("  + flags + ")");
 		sizeTracker +=4;
 
 		if (800 < version && version < 1100) {
@@ -65,7 +66,7 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 		int matReadBytes = matEndPos - matStartPos;
 //		System.out.println("read material bytes: " + matReadBytes);
 		for (int i = sizeTracker; i < size; i+=4) {
-			System.out.println("left over in material: " + i/4 + " (" + i + "): " + reader.readInt32());
+//			System.out.println("left over in material: " + i/4 + " (" + i + "): " + reader.readInt32());
 		}
 	}
 

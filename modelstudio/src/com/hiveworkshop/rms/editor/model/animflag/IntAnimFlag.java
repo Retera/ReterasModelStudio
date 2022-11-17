@@ -93,12 +93,8 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 	}
 
 	@Override
-	protected Integer getIdentity(int typeId) {
-		if(typeId == ROTATION){
-			return 0;
-		} else {
-			return (int) identity(typeId);
-		}
+	protected Integer getIdentity() {
+		return 0;
 	}
 
 	@Override
@@ -112,24 +108,14 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 	@Override
 	public Integer getInterpolatedValue(Entry<Integer> entryFloor, Entry<Integer> entryCeil, float timeFactor) {
 		Integer floorValue = entryFloor.getValue();
-		Integer floorOutTan = entryFloor.getOutTan();
+//		Integer floorOutTan = entryFloor.getOutTan();
+//
+//		Integer ceilValue = entryCeil.getValue();
+//		Integer ceilInTan = entryCeil.getInTan();
 
-		Integer ceilValue = entryCeil.getValue();
-		Integer ceilInTan = entryCeil.getInTan();
-
-		switch (typeid) {
-//			case TRANSLATION, SCALING, COLOR -> {
-			case TEXTUREID -> {
-				return switch (interpolationType) {
-//					case BEZIER -> int.getBezier(floorValue, floorOutTan, ceilInTan, ceilValue, timeFactor);
-//					case DONT_INTERP -> floorValue;
-//					case HERMITE -> int.getHermite(floorValue, floorOutTan, ceilInTan, ceilValue, timeFactor);
-//					case LINEAR -> int.getLerped(floorValue, ceilValue, timeFactor);
-					case DONT_INTERP, BEZIER, HERMITE, LINEAR -> floorValue;
-				};
-			}
-		}
-		throw new IllegalStateException();
+		return switch (interpolationType) {
+			case DONT_INTERP, BEZIER, HERMITE, LINEAR -> floorValue;
+		};
 	}
 
 	@Override

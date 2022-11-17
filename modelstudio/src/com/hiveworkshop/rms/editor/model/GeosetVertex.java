@@ -82,10 +82,6 @@ public class GeosetVertex extends Vec3 {
 		tverts.clear();
 	}
 
-	public int getMatrixIndex(){
-		return geoset.getMatrices().indexOf(matrix);
-	}
-
 	public void clearBoneAttachments() {
 		matrix.clear();
 	}
@@ -100,6 +96,19 @@ public class GeosetVertex extends Vec3 {
 
 	public void addBoneAttachments(Collection<Bone> b) {
 		matrix.addAll(b);
+	}
+
+	public boolean hasBones(){
+		if(skinBones != null){
+			for (SkinBone skinBone : skinBones){
+				if(skinBone != null && skinBone.getBone() != null){
+					return true;
+				}
+			}
+			return false;
+		} else {
+			return !matrix.getBones().isEmpty();
+		}
 	}
 
 	public List<Bone> getBones() {

@@ -2,15 +2,11 @@ package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
-import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.blp.ImageUtils;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.RMSFileChooser;
-import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
-import com.hiveworkshop.rms.ui.util.TwiList;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import com.hiveworkshop.rms.util.FramePopup;
-import com.hiveworkshop.rms.util.GU;
 import com.hiveworkshop.rms.util.SmartButtonGroup;
 import com.hiveworkshop.rms.util.TwiComboBox;
 import de.wc3data.image.TgaFile;
@@ -18,7 +14,6 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
@@ -42,7 +37,8 @@ public class TextureCompositionPanel extends JPanel {
 		super(new MigLayout("fill", "[grow]", "[grow]"));
 //		fileDialog = new FileDialog(this);
 		JTabbedPane tabbedPane = new JTabbedPane();
-		tabbedPane.addTab("Load Images", getLoadImagesPanel());
+//		tabbedPane.addTab("Load Images", getLoadImagesPanel());
+		tabbedPane.addTab("Load Images", new TextureLoadListPanel(bitmaps, 12, 32));
 		tabbedPane.addTab("Combine Images", getImagePanel());
 
 		add(tabbedPane, "growx, growy");
@@ -64,103 +60,103 @@ public class TextureCompositionPanel extends JPanel {
 		return imagePanel;
 	}
 
-	private JButton getFileDialogButton1() {
-		JButton open_images = new JButton("Open Images");
-//		open_images.addActionListener(e -> openImages(fileDialog.importImages()));
-		return open_images;
-	}
-	private JButton getFileDialogButton2(TwiList<Bitmap> bitmapJList) {
-		JButton open_images = new JButton("Open Images");
-		open_images.addActionListener(e -> openImages2(bitmapJList, importImages()));
-		return open_images;
-	}
-
-	private JPanel getLoadImagesPanel(){
-		JPanel panel = new JPanel(new MigLayout("fill, ins 0", "[grow][grow]", "[grow][]"));
-		TwiList<Bitmap> bitmapJList = new TwiList<>(bitmaps);
-		panel.add(getTexturesListPanel(bitmapJList), "growx, growy");
-		panel.add(getImageViewerPanel(), "growx, growy, wrap");
-		panel.add(getFileDialogButton2(bitmapJList));
-		return panel;
-	}
-
-
-
-	private final JPanel imageViewerPanel = new JPanel(new BorderLayout());
-	DataSource workingDirectory = GameDataFileSystem.getDefault();
-
-	private JPanel getTexturesListPanel(TwiList<Bitmap> bitmapJList) {
-		JPanel texturesListPanel = new JPanel(new MigLayout("fill, ins 0", "[grow]", "[grow][]"));
-		texturesListPanel.setBorder(BorderFactory.createTitledBorder("Textures"));
-		texturesListPanel.setPreferredSize(this.getSize());
-
-		TextureListRenderer textureListRenderer = new TextureListRenderer(workingDirectory);
-		textureListRenderer.setTextSize(12);
-		textureListRenderer.setImageSize(32);
-		JCheckBox displayPath = new JCheckBox("Display Path");
-		displayPath.addActionListener(e -> {
-			textureListRenderer.setShowPath(displayPath.isSelected());
-			bitmapJList.repaint();
-		});
-
-		bitmapJList.setCellRenderer(textureListRenderer);
-		bitmapJList.addSelectionListener1(this::onListSelection);
-		texturesListPanel.add(new JScrollPane(bitmapJList), "growx, growy, wrap");
-
-		texturesListPanel.add(displayPath, "");
-		return texturesListPanel;
-	}
-
-	private void onListSelection(Bitmap bitmap) {
-		if (bitmap != null) {
-			comp.setImage(getImage(bitmap, workingDirectory));
-			comp.resetZoom();
-			imageViewerPanel.revalidate();
-			imageViewerPanel.repaint();
-		}
-	}
-
-
-	private BufferedImage getImage(Bitmap bitmap, DataSource workingDirectory){
-		BufferedImage texture = BLPHandler.getImage(bitmap, workingDirectory);
-		if(texture != null){
-			return texture;
-		} else {
-			int imageSize = 128;
-			final BufferedImage image = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_INT_ARGB);
-			final Graphics2D g2 = image.createGraphics();
-			g2.setColor(Color.BLACK);
-			int size = imageSize-6;
-			GU.drawCenteredSquare(g2, imageSize/2, imageSize/2, size);
-			int dist1 = (imageSize - size)/2;
-			int dist2 = imageSize-dist1;
-			GU.drawLines(g2, dist1, dist1, dist2, dist2, dist1, dist2, dist2, dist1);
-//			g2.drawString(exc.getClass().getSimpleName() + ": " + exc.getMessage(), 15, 15);
-			return image;
-		}
-	}
-
-
-
-	private JPanel getImageViewerPanel() {
-		imageViewerPanel.setBorder(new TitledBorder(null, "Image Viewer", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		comp = new ZoomableImagePreviewPanel(null);
-		imageViewerPanel.add(comp);
-//		add(imageViewerPanel, "w 50%:95%:95%, growy, wrap");
-		return imageViewerPanel;
-	}
-
-	private void openImages(Bitmap[] bitmap){
-		if(bitmap != null){
-			bitmaps.addAll(List.of(bitmap));
-		}
-	}
-	private void openImages2(TwiList<Bitmap> bitmapJList, Bitmap[] bitmap){
-		if(bitmap != null){
-			bitmaps.addAll(List.of(bitmap));
-			bitmapJList.listSize();
-		}
-	}
+//	private JButton getFileDialogButton1() {
+//		JButton open_images = new JButton("Open Images");
+////		open_images.addActionListener(e -> openImages(fileDialog.importImages()));
+//		return open_images;
+//	}
+//	private JButton getFileDialogButton2(TwiList<Bitmap> bitmapJList) {
+//		JButton open_images = new JButton("Open Images");
+//		open_images.addActionListener(e -> openImages2(bitmapJList, importImages()));
+//		return open_images;
+//	}
+//
+//	private JPanel getLoadImagesPanel(){
+//		JPanel panel = new JPanel(new MigLayout("fill, ins 0", "[grow][grow]", "[grow][]"));
+//		TwiList<Bitmap> bitmapJList = new TwiList<>(bitmaps);
+//		panel.add(getTexturesListPanel(bitmapJList), "growx, growy");
+//		panel.add(getImageViewerPanel(), "growx, growy, wrap");
+//		panel.add(getFileDialogButton2(bitmapJList));
+//		return panel;
+//	}
+//
+//
+//
+//	private final JPanel imageViewerPanel = new JPanel(new BorderLayout());
+//	DataSource workingDirectory = GameDataFileSystem.getDefault();
+//
+//	private JPanel getTexturesListPanel(TwiList<Bitmap> bitmapJList) {
+//		JPanel texturesListPanel = new JPanel(new MigLayout("fill, ins 0", "[grow]", "[grow][]"));
+//		texturesListPanel.setBorder(BorderFactory.createTitledBorder("Textures"));
+//		texturesListPanel.setPreferredSize(this.getSize());
+//
+//		TextureListRenderer textureListRenderer = new TextureListRenderer(workingDirectory);
+//		textureListRenderer.setTextSize(12);
+//		textureListRenderer.setImageSize(32);
+//		JCheckBox displayPath = new JCheckBox("Display Path");
+//		displayPath.addActionListener(e -> {
+//			textureListRenderer.setShowPath(displayPath.isSelected());
+//			bitmapJList.repaint();
+//		});
+//
+//		bitmapJList.setCellRenderer(textureListRenderer);
+//		bitmapJList.addSelectionListener1(this::onListSelection);
+//		texturesListPanel.add(new JScrollPane(bitmapJList), "growx, growy, wrap");
+//
+//		texturesListPanel.add(displayPath, "");
+//		return texturesListPanel;
+//	}
+//
+//	private void onListSelection(Bitmap bitmap) {
+//		if (bitmap != null) {
+//			comp.setImage(getImage(bitmap, workingDirectory));
+//			comp.resetZoom();
+//			imageViewerPanel.revalidate();
+//			imageViewerPanel.repaint();
+//		}
+//	}
+//
+//
+//	private BufferedImage getImage(Bitmap bitmap, DataSource workingDirectory){
+//		BufferedImage texture = BLPHandler.getImage(bitmap, workingDirectory);
+//		if(texture != null){
+//			return texture;
+//		} else {
+//			int imageSize = 128;
+//			final BufferedImage image = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_INT_ARGB);
+//			final Graphics2D g2 = image.createGraphics();
+//			g2.setColor(Color.BLACK);
+//			int size = imageSize-6;
+//			GU.drawCenteredSquare(g2, imageSize/2, imageSize/2, size);
+//			int dist1 = (imageSize - size)/2;
+//			int dist2 = imageSize-dist1;
+//			GU.drawLines(g2, dist1, dist1, dist2, dist2, dist1, dist2, dist2, dist1);
+////			g2.drawString(exc.getClass().getSimpleName() + ": " + exc.getMessage(), 15, 15);
+//			return image;
+//		}
+//	}
+//
+//
+//
+//	private JPanel getImageViewerPanel() {
+//		imageViewerPanel.setBorder(new TitledBorder(null, "Image Viewer", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+//		comp = new ZoomableImagePreviewPanel(null);
+//		imageViewerPanel.add(comp);
+////		add(imageViewerPanel, "w 50%:95%:95%, growy, wrap");
+//		return imageViewerPanel;
+//	}
+//
+//	private void openImages(Bitmap[] bitmap){
+//		if(bitmap != null){
+//			bitmaps.addAll(List.of(bitmap));
+//		}
+//	}
+//	private void openImages2(TwiList<Bitmap> bitmapJList, Bitmap[] bitmap){
+//		if(bitmap != null){
+//			bitmaps.addAll(List.of(bitmap));
+//			bitmapJList.listSize();
+//		}
+//	}
 
 	private JPanel getSubImagesPanel() {
 		JPanel subImagesPanel = new JPanel(new MigLayout("fill, ins 0, wrap 2", "[][grow]", ""));

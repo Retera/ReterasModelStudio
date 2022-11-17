@@ -151,8 +151,9 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 //		return mdlxTimeline;
 	}
 
-	protected Quat getIdentity(int typeId) {
-		return (Quat) identity(typeId);
+	@Override
+	protected Quat getIdentity() {
+		return Quat.IDENTITY;
 	}
 
 	@Override
@@ -172,16 +173,12 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 		Quat ceilValue = entryCeil.getValue();
 		Quat ceilInTan = entryCeil.getInTan();
 
-//		System.out.println(typeid);
-		if (typeid == ROTATION) {
-			return switch (interpolationType) {
-				case BEZIER -> Quat.getSquad(floorValue, ceilValue, floorOutTan, ceilInTan, timeFactor);
-				case DONT_INTERP -> floorValue;
-				case HERMITE -> Quat.getSquad(floorValue, ceilValue, floorOutTan, ceilInTan, timeFactor);
-				case LINEAR -> Quat.getSlerped(floorValue, ceilValue, timeFactor);
-			};
-		}
-		throw new IllegalStateException();
+		return switch (interpolationType) {
+			case BEZIER -> Quat.getSquad(floorValue, ceilValue, floorOutTan, ceilInTan, timeFactor);
+			case DONT_INTERP -> floorValue;
+			case HERMITE -> Quat.getSquad(floorValue, ceilValue, floorOutTan, ceilInTan, timeFactor);
+			case LINEAR -> Quat.getSlerped(floorValue, ceilValue, timeFactor);
+		};
 	}
 
 	@Override

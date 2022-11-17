@@ -14,7 +14,8 @@ import java.util.List;
  * <p>
  * Eric Theller 11/10/2011
  */
-public class GeosetAnim extends TimelineContainer implements Named {
+//public class GeosetAnim extends TimelineContainer implements Named {
+public class GeosetAnim extends TimelineContainer {
 	private double staticAlpha = 1;
 	private Vec3 staticColor = new Vec3(1, 1, 1);
 	private Geoset geoset;
@@ -40,18 +41,18 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		dropShadow = other.dropShadow;
 	}
 
-	public String getVisTagname() {
-		return geoset.getName();
-	}
-
-	@Override
-	public String getName() {
-		return geoset.getName() + "'s Anim";
-	}
-
-	@Override
-	public void setName(String text) {
-	}
+//	public String getVisTagname() {
+//		return geoset.getName();
+//	}
+//
+//	@Override
+//	public String getName() {
+//		return geoset.getName() + "'s Anim";
+//	}
+//
+//	@Override
+//	public void setName(String text) {
+//	}
 
 	public GeosetAnim getMostVisible(GeosetAnim partner) {
 		if ((getVisibilityFlag() != null) && (partner != null)) {

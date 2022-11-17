@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.editor.model.animflag.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
@@ -79,7 +80,9 @@ public class AddBirthDeathSequences {
 		}
         if (removeOldAnimation) {
 	        for (AnimFlag<?> af : ModelUtils.getAllAnimFlags(model)) {
-		        if (((af.getTypeId() == 1) || (af.getTypeId() == 2) || (af.getTypeId() == 3))) {
+		        if (af.getName().equals(MdlUtils.TOKEN_SCALING)
+				        || af.getName().equals(MdlUtils.TOKEN_ROTATION)
+				        || af.getName().equals(MdlUtils.TOKEN_TRANSLATION)) {
 			        af.deleteAnim(oldAnimation);
 		        }
 	        }
@@ -126,7 +129,7 @@ public class AddBirthDeathSequences {
 	        Vec3AnimFlag translation = null;
 	        boolean globalSeq = false;
             for (final AnimFlag<?> af : b.getAnimFlags()) {
-                if (af.getTypeId() == AnimFlag.TRANSLATION) {
+                if (af.getName().equals(MdlUtils.TOKEN_TRANSLATION)) {
                     if (af.hasGlobalSeq()) {
 	                    globalSeq = true;
 	                    break;

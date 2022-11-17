@@ -133,10 +133,26 @@ public class TwiComboBox<E> extends JComboBox<E> {
 		if(getSelectedItem() == null && getItemCount() > 0){
 			comboBoxModel.setSelectedNoListener(comboBoxModel.getElementAt(0));
 		}
+		selectedItemReminder = comboBoxModel.getSelectedItem();
+		if(getEditor() != null){
+			getEditor().setItem(comboBoxModel.getSelectedItem());
+		}
 //		setSelectedItem(item);
 //		if(getSelectedItem() == null && getItemCount() > 0){
 //			setSelectedIndex(0);
 //		}
+		return this;
+	}
+	public TwiComboBox<E> selectOrFirstWithListener(E item){
+//		setSelectedItem(item);
+		comboBoxModel.setSelectedItem(item);
+		if(getSelectedItem() == null && getItemCount() > 0){
+			comboBoxModel.setSelectedItem(comboBoxModel.getElementAt(0));
+		}
+		selectedItemReminder = comboBoxModel.getSelectedItem();
+		if(getEditor() != null){
+			getEditor().setItem(comboBoxModel.getSelectedItem());
+		}
 		return this;
 	}
 	public TwiComboBox<E> selectFirst(){

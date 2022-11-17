@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.model.util.ModelFactory;
 
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxBone;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGenericObject;
 import com.hiveworkshop.rms.util.BiMap;
 import com.hiveworkshop.rms.util.Vec3;
@@ -24,6 +25,8 @@ public class ModelInfoHolder {
 	public List<FaceEffect> faceEffects = new ArrayList<>();
 	int formatVersion = 800;
 	Map<IdObject, Integer> objToParentIdMap = new HashMap<>();
+	Map<Bone, Integer> boneToGeoset = new HashMap<>();
+	Map<Bone, Integer> boneToGeosetAnim = new HashMap<>();
 	BiMap<Integer, IdObject> idObjMap = new BiMap<>();
 	List<Vec3> pivots = new ArrayList<>();
 	BindPose bindPose;
@@ -60,6 +63,11 @@ public class ModelInfoHolder {
 			idObject.setBindPose(bindPose.getBindPose(mdlxObj.objectId));
 		}
 
+		if(idObject instanceof Bone && mdlxObj instanceof MdlxBone){
+			boneToGeoset.put((Bone) idObject, ((MdlxBone)mdlxObj).geosetId);
+			boneToGeosetAnim.put((Bone) idObject, ((MdlxBone)mdlxObj).geosetAnimationId);
+		}
+
 		return this;
 	}
 
@@ -86,6 +94,22 @@ public class ModelInfoHolder {
 			int parentId = objToParentIdMap.get(idObject);
 			if (parentId != -1 && idObjMap.containsKey(parentId)) {
 				idObject.setParent(idObjMap.get(parentId));
+			}
+		}
+		return this;
+	}
+
+	public ModelInfoHolder fixBoneGeosets() {
+		for (Bone bone : boneToGeoset.keySet()) {
+			Integer geosetId = boneToGeoset.get(bone);
+			if(geosetId != null && 0 <= geosetId && geosetId < geosets.size()){
+				bone.setGeoset(geosets.get(geosetId));
+			}
+		}
+		for (Bone bone : boneToGeosetAnim.keySet()) {
+			Integer geosetAnimId = boneToGeosetAnim.get(bone);
+			if(geosetAnimId != null && 0 <= geosetAnimId && geosetAnimId < geosetAnims.size()){
+				bone.setGeosetAnim(geosetAnims.get(geosetAnimId));
 			}
 		}
 		return this;

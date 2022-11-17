@@ -52,7 +52,7 @@ public class ComponentCollisionPanel extends ComponentIdObjectPanel<CollisionSha
 	}
 
 	private void setV1(Vec3 v1){
-		if(v1 != idObject.getVertex(0)){
+		if(!v1.equalLocs(idObject.getVertex(0))){
 //			Vec3 v2 = v1SpinnerArray.isEnabled() ? v1SpinnerArray.getValue() : null;
 			Vec3 v2 = idObject.getVertex(1);
 			undoManager.pushAction(new SetCollisionExtents(idObject, idObject.getBoundsRadius(), v1, v2, changeListener).redo());
@@ -60,7 +60,7 @@ public class ComponentCollisionPanel extends ComponentIdObjectPanel<CollisionSha
 	}
 
 	private void setV2(Vec3 v2){
-		if(v2 != idObject.getVertex(1)){
+		if(!v2.equalLocs(idObject.getVertex(1))){
 //			Vec3 v1 = v1SpinnerArray.isEnabled() ? v1SpinnerArray.getValue() : null;
 			Vec3 v1 = idObject.getVertex(0);
 			undoManager.pushAction(new SetCollisionExtents(idObject, idObject.getBoundsRadius(), v1, v2, changeListener).redo());

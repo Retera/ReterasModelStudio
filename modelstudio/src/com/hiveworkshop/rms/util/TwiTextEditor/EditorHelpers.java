@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.util.TwiTextEditor;
 
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
+import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.*;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
@@ -307,8 +308,21 @@ public class EditorHelpers {
 		}
 		public TextureEditor update(TimelineContainer node, Bitmap bitmap){
 //			flagPanel.update(node, (BitmapAnimFlag) node.find(flagToken), bitmap);
-			TimeLogger timeLogger = new TimeLogger().start();
+//			TimeLogger timeLogger = new TimeLogger().start();
 			flagPanel.update(node, (BitmapAnimFlag) node.find(flagToken));
+//			timeLogger.log("flagPanel updated for " + node);
+//			staticTextureChooser.setSelectedItem(bitmap);
+			staticTextureChooser.selectOrFirst(bitmap);
+//			timeLogger.log("static bitmap set for " + node);
+//			System.out.println("[TextureEditor]: update - " + node);
+//			timeLogger.print();
+			return this;
+		}
+		public TextureEditor update(Layer node, int slot, Bitmap bitmap){
+//			flagPanel.update(node, (BitmapAnimFlag) node.find(flagToken), bitmap);
+			TimeLogger timeLogger = new TimeLogger().start();
+			flagPanel.update(node, node.getFlipbookTexture(slot));
+
 			timeLogger.log("flagPanel updated for " + node);
 //			staticTextureChooser.setSelectedItem(bitmap);
 			staticTextureChooser.selectOrFirst(bitmap);

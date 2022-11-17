@@ -5,19 +5,18 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import java.util.*;
 
 public class Geoset implements Named, VisibilitySource {
-	private ExtLog extents;
-	private List<GeosetVertex> vertices = new ArrayList<>();
-	private List<Triangle> triangles = new ArrayList<>();
-	private List<Matrix> matrices = new ArrayList<>();
-	private final Map<Animation, ExtLog> animExts = new HashMap<>();
+	private EditableModel parentModel;
 	private Material material;
 	private int selectionGroup = 0;
-	private EditableModel parentModel;
 	private GeosetAnim geosetAnim = null;
 	private int levelOfDetail = 0;
 	private String levelOfDetailName = "";
-	private List<float[]> tangents;
 	private boolean unselectable = false;
+	private ExtLog extents;
+	private final List<GeosetVertex> vertices = new ArrayList<>();
+	private final List<Triangle> triangles = new ArrayList<>();
+	private final List<Matrix> matrices = new ArrayList<>();
+	private final Map<Animation, ExtLog> animExts = new HashMap<>();
 
 	public Geoset() {
 	}
@@ -145,10 +144,6 @@ public class Geoset implements Named, VisibilitySource {
 		return vertices.get(0).getTverts().size();
 	}
 
-	public void setTriangles(final List<Triangle> list) {
-		triangles = list;
-	}
-
 	public void addTriangle(final Triangle p) {
 		// Left for compat
 		add(p);
@@ -197,27 +192,19 @@ public class Geoset implements Named, VisibilitySource {
 		triangles.removeAll(t);
 	}
 
-	public void addMatrix(final Matrix v) {
-		matrices.add(v);
-	}
+//	public void addMatrix(final Matrix v) {
+//		matrices.add(v);
+//	}
 
-	public Matrix getMatrix(final int vertId) {
-		if ((vertId < 0) && (vertId >= -128)) {
-			return getMatrix(256 + vertId);
-		}
-		if (vertId >= matrices.size()) {
-			return null;
-		}
-		return matrices.get(vertId);
-	}
-
-	public int getMatrixId(Matrix matrix){
-		return matrices.indexOf(matrix);
-	}
-
-	public int numMatrices() {
-		return matrices.size();
-	}
+//	public Matrix getMatrix(final int vertId) {
+//		if ((vertId < 0) && (vertId >= -128)) {
+//			return getMatrix(256 + vertId);
+//		}
+//		if (vertId >= matrices.size()) {
+//			return null;
+//		}
+//		return matrices.get(vertId);
+//	}
 
 	public void setMaterial(final Material m) {
 		material = m;
@@ -227,20 +214,13 @@ public class Geoset implements Named, VisibilitySource {
 		return material;
 	}
 
-	public void setExtLog(final ExtLog e) {
-		extents = e;
+	public void setExtents(final ExtLog extents) {
+		this.extents = extents;
 	}
 
-	public ExtLog getExtLog() {
+	public ExtLog getExtents() {
 		return extents;
 	}
-
-//	public void add(final Animation a) {
-//		anims.add(a);
-//	}
-//	public Animation getAnim(final int id) {
-//		return anims.get(id);
-//	}
 
 	public void add(Animation a, ExtLog e) {
 		if (e != null){
@@ -255,19 +235,6 @@ public class Geoset implements Named, VisibilitySource {
 
 	public Map<Animation, ExtLog> getAnimExts() {
 		return animExts;
-	}
-
-//	public int numAnims() {
-//		return anims.size();
-//	}
-
-	public void reMakeMatrixList(){
-		matrices.clear();
-		for (GeosetVertex vertex : vertices) {
-			if (!matrices.contains(vertex.getMatrix())) {
-				matrices.add(vertex.getMatrix());
-			}
-		}
 	}
 
 	public boolean isEmpty() {
@@ -302,14 +269,6 @@ public class Geoset implements Named, VisibilitySource {
 		return "Alpha";
 	}
 
-	public ExtLog getExtents() {
-		return extents;
-	}
-
-	public void setExtents(final ExtLog extents) {
-		this.extents = extents;
-	}
-
 	public List<GeosetVertex> getVertices() {
 		return vertices;
 	}
@@ -318,33 +277,32 @@ public class Geoset implements Named, VisibilitySource {
 		this.vertices.addAll(vertex);
 	}
 
-	public void setVertex(final List<GeosetVertex> vertex) {
-		this.vertices = vertex;
-	}
-
 	public List<Triangle> getTriangles() {
 		return triangles;
-	}
-
-	public void setTriangle(final List<Triangle> triangle) {
-		triangles = triangle;
 	}
 
 	public List<Matrix> getMatrices() {
 		return matrices;
 	}
-
-	public void setMatrices(final List<Matrix> matrices) {
-		this.matrices = matrices;
+	public void clearMatrices() {
+		matrices.clear();
+	}
+	public Set<Matrix> collectMatrices() {
+		LinkedHashSet<Matrix> matrixSet = new LinkedHashSet<>();
+		for (GeosetVertex vertex : vertices) {
+			matrixSet.add(vertex.getMatrix());
+		}
+		return matrixSet;
 	}
 
-//	public List<Animation> getAnims() {
-//		return anims;
-//	}
-
-//	public void setAnims(final List<Animation> anims) {
-//		this.anims = anims;
-//	}
+	public void reMakeMatrixList(){
+		matrices.clear();
+		for (GeosetVertex vertex : vertices) {
+			if (!matrices.contains(vertex.getMatrix())) {
+				matrices.add(vertex.getMatrix());
+			}
+		}
+	}
 
 	public int getSelectionGroup() {
 		return selectionGroup;
@@ -467,17 +425,9 @@ public class Geoset implements Named, VisibilitySource {
 		return boneMap;
 	}
 
-	public void setTangents(List<float[]> tangents) {
-		this.tangents = tangents;
-	}
-
-	public List<float[]> getTangents() {
-		return tangents;
-	}
-
 	public Geoset deepCopy(){
-		Geoset geoset = new Geoset();
-		geoset.setExtents(extents.deepCopy());
+		Geoset geoset = emptyCopy();
+
 		Map<GeosetVertex, GeosetVertex> oldToNew = new HashMap<>();
 		for(GeosetVertex geosetVertex : vertices){
 			GeosetVertex newVertex = oldToNew.computeIfAbsent(geosetVertex, k -> geosetVertex.deepCopy());
@@ -490,23 +440,6 @@ public class Geoset implements Named, VisibilitySource {
 			GeosetVertex v1 = oldToNew.get(triangle.get(1));
 			GeosetVertex v2 = oldToNew.get(triangle.get(2));
 			geoset.add(new Triangle(v0, v1, v2, geoset));
-		}
-		geoset.setLevelOfDetailName(levelOfDetailName);
-		for(Animation anim : animExts.keySet()){
-			geoset.add(anim, animExts.get(anim).deepCopy());
-		}
-		geoset.setMaterial(material);
-		geoset.setSelectionGroup(selectionGroup);
-		geoset.setParentModel(parentModel);
-		geoset.setLevelOfDetail(levelOfDetail);
-		if (tangents != null) {
-			geoset.setTangents(new ArrayList<>(tangents));
-		}
-		geoset.setUnselectable(unselectable);
-		if (geosetAnim != null) {
-			GeosetAnim geosetAnimC = geosetAnim.deepCopy();
-			geoset.setGeosetAnim(geosetAnimC);
-			geosetAnimC.setGeoset(geoset);
 		}
 		return geoset;
 	}
@@ -523,8 +456,8 @@ public class Geoset implements Named, VisibilitySource {
 		geoset.setSelectionGroup(selectionGroup);
 		geoset.setParentModel(parentModel);
 		geoset.setLevelOfDetail(levelOfDetail);
-
 		geoset.setUnselectable(unselectable);
+
 		if (geosetAnim != null) {
 			GeosetAnim geosetAnimC = geosetAnim.deepCopy();
 			geoset.setGeosetAnim(geosetAnimC);

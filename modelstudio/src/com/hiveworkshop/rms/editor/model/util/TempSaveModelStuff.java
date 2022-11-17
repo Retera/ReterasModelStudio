@@ -12,7 +12,6 @@ import com.hiveworkshop.rms.editor.model.util.ModelSaving.MaterialToMdlx;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTexture;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTextureAnimation;
-import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
@@ -21,14 +20,16 @@ public class TempSaveModelStuff {
 	public static boolean DISABLE_BONE_GEO_ID_VALIDATOR = false;
 
 	public static MdlxModel toMdlx(EditableModel model) {
-		doSavePreps(model); // restores all GeosetID, ObjectID, TextureID,
-		// MaterialID stuff all based on object references in the Java
+		doSavePreps(model);
+		// restores all GeosetID, ObjectID, TextureID, MaterialID stuff
+		// all based on object references in the Java
 		// (this is so that you can write a program that does something like
-		// "mdl.add(new Bone())" without a problem, or even
-		// "mdl.add(otherMdl.getGeoset(5))" and have the geoset's textures and
-		// materials all be carried over with it via object references in java
-
-		// also this re-creates all matrices, which are consumed by the
+		// "mdl.add(new Bone())"
+		// without a problem, or even
+		// "mdl.add(otherMdl.getGeoset(5))"
+		// and have the geoset's textures and  materials all be carried
+		// over with it via object references in java.
+		// This re-creates all matrices, which are consumed by the
 		// MatrixEater at runtime in doPostRead() in favor of each vertex
 		// having its own attachments list, no vertex groups)
 
@@ -157,15 +158,13 @@ public class TempSaveModelStuff {
 		emptyGeosets.forEach(model::remove);
 
 		cureBoneGeoAnimIds(model);
-		updateObjectIds(model);
-		// We want to print out the right ObjectIds!
+		removeEmptyAnimFlags(model);
+		collectBindPoses(model);
 
 		// Geosets
-		if (model.getGeosets() != null) {
-			if (model.getGeosets().size() > 0) {
-				for (final Geoset geoset : model.getGeosets()) {
-					doSavePrep(geoset, model);
-				}
+		if (model.getGeosets() != null && 0 < model.getGeosets().size()) {
+			for (final Geoset geoset : model.getGeosets()) {
+				doSavePrep(geoset, model);
 			}
 		}
 
@@ -219,15 +218,18 @@ public class TempSaveModelStuff {
 		Set<Bitmap> bitmapSet = new LinkedHashSet<>();
 		for (final Material m : model.getMaterials()) {
 			for (final Layer layer : m.getLayers()) {
-				bitmapSet.addAll(layer.getTextures());
-				AnimFlag<?> animFlag = layer.find(MdlUtils.TOKEN_TEXTURE_ID);
-				if (animFlag instanceof BitmapAnimFlag) {
-					for (TreeMap<Integer, Entry<Bitmap>> entryMap : ((BitmapAnimFlag)animFlag).getAnimMap().values()){
-						for(Entry<Bitmap> entry : entryMap.values()){
-							if(entry != null){
-								bitmapSet.add(entry.getValue());
+				for (Layer.Texture texture : layer.getTextureSlots()){
+					BitmapAnimFlag animFlag = texture.getFlipbookTexture();
+					if (animFlag != null) {
+						for (TreeMap<Integer, Entry<Bitmap>> entryMap : animFlag.getAnimMap().values()){
+							for(Entry<Bitmap> entry : entryMap.values()){
+								if(entry != null){
+									bitmapSet.add(entry.getValue());
+								}
 							}
 						}
+					} else {
+						bitmapSet.add(texture.getTexture());
 					}
 				}
 			}
@@ -243,8 +245,6 @@ public class TempSaveModelStuff {
 			if ((pe.getTexture() != null) && !model.contains(pe.getTexture())) {
 				model.add(pe.getTexture());
 			}
-			pe.setTextureId(model.getTextureId(pe.getTexture()));
-			// will be -1 if null
 		}
 	}
 
@@ -267,30 +267,11 @@ public class TempSaveModelStuff {
 			if (af.getGlobalSeq() != null && !model.contains(af.getGlobalSeq())) {
 				model.add(af.getGlobalSeq());
 			}
-//			af.updateGlobalSeqId(model);// keep the ids straight
 		}
 		for (final EventObject af : evtObjs) {
 			if (af.getGlobalSeq() != null && !model.contains(af.getGlobalSeq())) {
 				model.add(af.getGlobalSeq());
 			}
-//			af.updateGlobalSeqId(model);// keep the ids straight
-		}
-	}
-
-	public static void updateObjectIds(EditableModel model) {
-
-		// -- Injected in save prep --
-		removeEmptyAnimFlags(model);
-		// -- end injected ---
-
-		collectBindPoses(model);
-
-		List<Bone> bones = model.getBones();
-		List<? extends Bone> helpers = model.getHelpers();
-		bones.addAll(helpers);
-		for (Bone b : bones) {
-			b.setGeosetId(model.getGeosets().indexOf(b.getGeoset()));
-			b.setGeosetAnimId(model.getGeosetAnims().indexOf(b.getGeosetAnim()));
 		}
 	}
 
@@ -342,7 +323,7 @@ public class TempSaveModelStuff {
 		}
 		for (final Geoset geoset : model.getGeosets()) {
 			final GeosetAnim ga = getGeosetAnimOfGeoset(model.getGeosetAnims(), model.getGeosets(), geoset);
-			for (final Matrix matrix : geoset.getMatrices()) {
+			for (final Matrix matrix : geoset.collectMatrices()) {
 				for (final Bone bone : matrix.getBones()) {
 					if (!bone.isMultiGeo()) {
 						if (bone.getGeoset() == null) {
@@ -367,34 +348,36 @@ public class TempSaveModelStuff {
 					} else {
 						bone.setGeosetAnim(null);
 					}
-					IdObject boneParent = bone.getParent();
-					while (boneParent != null) {
-						if (boneParent.getClass() == Bone.class) {
-							final Bone b2 = (Bone) boneParent;
-							if (!b2.isMultiGeo()) {
-								if (b2.getGeoset() == null) {
-									// The bone has been found by no prior matrices
-									b2.setGeosetAnim(ga);
-									b2.setGeoset(geoset);
-								} else if (b2.getGeoset() != geoset) {
-									// The bone has only been found by ONE matrix
-									b2.setMultiGeoId(true);
-									b2.setGeoset(null);
-									if (ga != null) {
-										b2.setGeosetAnim(ga.getMostVisible(b2.getGeosetAnim()));
-										if (b2.getGeosetAnim() != null) {
-											b2.setGeoset(b2.getGeosetAnim().getGeoset());
-											b2.setMultiGeoId(false);
-										}
-									}
+					fixBoneChain(geoset, ga, bone);
+				}
+			}
+		}
+	}
 
-								}
-							} else if ((ga != null) && (ga != b2.getGeosetAnim())) {
-								b2.setGeosetAnim(ga.getMostVisible(b2.getGeosetAnim()));
+	private static void fixBoneChain(Geoset geoset, GeosetAnim ga, IdObject boneParent) {
+		while ((boneParent = boneParent.getParent()) != null) {
+			if (boneParent instanceof Bone && !(boneParent instanceof Helper)) {
+				final Bone bone = (Bone) boneParent;
+				if (!bone.isMultiGeo()) {
+					if (bone.getGeoset() == null) {
+						// The bone has been found by no prior matrices
+						bone.setGeosetAnim(ga);
+						bone.setGeoset(geoset);
+					} else if (bone.getGeoset() != geoset) {
+						// The bone has only been found by ONE matrix
+						bone.setMultiGeoId(true);
+						bone.setGeoset(null);
+						if (ga != null) {
+							bone.setGeosetAnim(ga.getMostVisible(bone.getGeosetAnim()));
+							if (bone.getGeosetAnim() != null) {
+								bone.setGeoset(bone.getGeosetAnim().getGeoset());
+								bone.setMultiGeoId(false);
 							}
 						}
-						boneParent = boneParent.getParent();
+
 					}
+				} else if ((ga != null) && (ga != bone.getGeosetAnim())) {
+					bone.setGeosetAnim(ga.getMostVisible(bone.getGeosetAnim()));
 				}
 			}
 		}
@@ -445,60 +428,18 @@ public class TempSaveModelStuff {
 		purifyFaces(geoset);
 
 		// Clearing matrix list
-		geoset.getMatrices().clear();
+		geoset.clearMatrices();
 		System.out.println("Prepping geoset for saving: " + model.getName() + ": " + geoset.getName());
 		for (final GeosetVertex geosetVertex : geoset.getVertices()) {
-			if (geosetVertex.getSkinBoneBones() != null) {
-				if (geoset.getMatrices().isEmpty()) {
-					List<Bone> bones = model.getBones();
-					for (int j = 0; (j < bones.size()) && (j < 256); j++) {
-						List<Bone> singleBoneList = new ArrayList<>();
-						singleBoneList.add(bones.get(j));
-						Matrix matrix = new Matrix(singleBoneList);
-//						matrix.cureBones(model);
-//						matrix.updateIds(model);
-						geoset.getMatrices().add(matrix);
-					}
-				}
-				int skinIndex = 0;
-				for (Bone bone : geosetVertex.getSkinBoneBones()) {
-					if (bone != null) {
-						List<Bone> singleBoneList = new ArrayList<>();
-						singleBoneList.add(bone);
-						Matrix newTemp = new Matrix(singleBoneList);
-						int index = -1;
-						for (int m = 0; (m < geoset.getMatrices().size()) && (index == -1); m++) {
-							if (newTemp.equals(geoset.getMatrices().get(m))) {
-								index = m;
-							}
-						}
-					}
-				}
-//				geosetVertex.setVertexGroup(-1);
-			} else {
-				Matrix matrix = geosetVertex.getMatrix();
-				matrix.cureBones(model);
+			if (geosetVertex.getSkinBoneBones() == null) {
+				geosetVertex.getMatrix().cureBones(model);
 
-//				matrix.updateIds(model);
-				if (!geoset.getMatrices().contains(matrix)) {
-					System.out.println("matrix size: " + matrix.size());
-					geoset.getMatrices().add(matrix);
-//					matrix.updateIds(model);
-				}
-//				geosetVertex.setVertexGroup(geoset.getMatrices().indexOf(matrix));
-//				geosetVertex.setMatrix(matrix);
 			}
 		}
 		for (Triangle triangle : geoset.getTriangles()) {
-			triangle.updateVertexIds(geoset);
+			triangle.setGeoset(geoset);
 		}
-		int boneRefCount = 0;
-		for (Matrix matrix : geoset.getMatrices()) {
-			boneRefCount += matrix.getBones().size();
-		}
-		for (Matrix matrix : geoset.getMatrices()) {
-			matrix.cureBones(model);
-		}
+		geoset.reMakeMatrixList();
 	}
 
 	public static MdlxTexture toMdlx(Bitmap bitmap) {

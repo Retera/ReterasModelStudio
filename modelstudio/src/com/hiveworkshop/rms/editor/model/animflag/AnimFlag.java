@@ -26,33 +26,18 @@ import java.util.*;
  * Eric Theller 11/5/2011
  */
 public abstract class AnimFlag<T> {
-	// Types of AnimFlags:
-	public static final int OTHER_TYPE = 0; // Use for titles like "Intensity", "AmbIntensity", and other extraneous things
-	public static final int ALPHA = 0;
-	public static final int SCALING = 1;
-	public static final int ROTATION = 2;
-	public static final int TRANSLATION = 3;
-	public static final int COLOR = 4;
-	public static final int TEXTUREID = 5;
-
-	public static final Quat ROTATE_IDENTITY = new Quat(0, 0, 0, 1);
-	public static final Vec3 SCALE_IDENTITY = new Vec3(1, 1, 1);
-	public static final Vec3 TRANSLATE_IDENTITY = new Vec3(0, 0, 0);
 	protected String name;
 	protected InterpolationType interpolationType = InterpolationType.DONT_INTERP;
 	protected GlobalSeq globalSeq;
 	protected Map<Sequence, TreeMap<Integer, Entry<T>>> sequenceMap = new HashMap<>();
-	protected int typeid = 0;
 	protected Map<Sequence, Integer[]> timeKeysMap = new HashMap<>();
 
 	public AnimFlag(String title) {
 		name = title;
-		generateTypeId();
 	}
 
 	public AnimFlag(MdlxTimeline<?> timeline, EditableModel model) {
 		name = AnimationMap.ID_TO_TAG.get(timeline.name).getMdlToken();
-		generateTypeId();
 
 		interpolationType = timeline.interpolationType;
 
@@ -105,7 +90,6 @@ public abstract class AnimFlag<T> {
 		name = af.name;
 		globalSeq = af.globalSeq;
 		interpolationType = af.interpolationType;
-		typeid = af.typeid;
 	}
 
 	public boolean equals(Object o) {
@@ -118,8 +102,7 @@ public abstract class AnimFlag<T> {
 		return name.equals(animFlag.getName())
 				|| sequenceMap.equals(animFlag.sequenceMap)
 				|| (Objects.equals(globalSeq, animFlag.globalSeq)
-				&& interpolationType == animFlag.interpolationType
-				&& typeid == animFlag.typeid);
+				&& interpolationType == animFlag.interpolationType);
 	}
 
 	public AnimFlag<T> setFromOther(AnimFlag<T> other) {
@@ -193,10 +176,10 @@ public abstract class AnimFlag<T> {
 		for (int i = 0; i < size; i++) {
 			Entry<T> entry = tempEntries.get(i);
 			Q[] array = getArray(entry, mdlxTimeline, model);
-			if(i == 0){
-				System.out.println("(Q): " + (Q) entry.getValueArr() + ", org: " + entry.getValueArr());
-				System.out.println("(Q): " + ", org: " + Arrays.toString(entry.getValueArr()));
-			}
+//			if(i == 0){
+//				System.out.println("(Q): " + (Q) entry.getValueArr() + ", org: " + entry.getValueArr());
+//				System.out.println("(Q): " + ", org: " + Arrays.toString(entry.getValueArr()));
+//			}
 //			mdlxTimeline.add(i, tempFrames.get(i), (Q)tempEntries.get(i).getValueArr(), (Q)tempEntries.get(i).getInTanArr(), (Q)tempEntries.get(i).getOutTanArr());
 //			mdlxTimeline.add(i, tempFrames.get(i), (Q) entry.getValueArr(), (Q) entry.getInTanArr(), (Q) entry.getOutTanArr());
 			mdlxTimeline.add(i, tempFrames.get(i), array[0], array[1], array[2]);
@@ -469,66 +452,6 @@ public abstract class AnimFlag<T> {
 		name = title;
 	}
 
-	public int getTypeId() {
-		return typeid;
-	}
-
-	public void generateTypeId() {
-		typeid = switch (name) {
-			case "Scaling" -> SCALING;
-			case "Rotation" -> ROTATION;
-			case "Translation" -> TRANSLATION;
-			case "Color" -> COLOR;
-			case "TextureID" ->TEXTUREID; // aflg.title.equals("Visibility") || -- 100.088% visible in UndeadCampaign3D OutTans! Golook!
-			default -> ALPHA;
-		};
-	}
-
-	public void flipOver(byte axis) {
-		for (Sequence anim : sequenceMap.keySet()) {
-			TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
-			Collection<Entry<T>> entries = entryMap.values();
-			if (typeid == ROTATION && this instanceof QuatAnimFlag) {
-				// Rotation
-				for (Entry<T> entry : entries) {
-					flipQuat(axis, (Quat) entry.getValue());
-					flipQuat(axis, (Quat) entry.getInTan());
-					flipQuat(axis, (Quat) entry.getOutTan());
-				}
-			} else if (typeid == TRANSLATION && this instanceof Vec3AnimFlag) {
-				// Translation
-				for (Entry<T> entry : entries) {
-					flipVec3(axis, (Vec3) entry.getValue());
-					flipVec3(axis, (Vec3) entry.getInTan());
-					flipVec3(axis, (Vec3) entry.getOutTan());
-				}
-			}
-		}
-	}
-
-	public void flipVec3(byte axis, Vec3 value) {
-		value.setCoord(axis, -value.getCoord(axis));
-	}
-
-	private void flipQuat(byte axis, Quat quat) {
-		Vec3 euler = quat.toEuler();
-		switch (axis) {
-			case 0 -> {
-				euler.x = -euler.x;
-				euler.y = -euler.y;
-			}
-			case 1 -> {
-				euler.x = -euler.x;
-				euler.z = -euler.z;
-			}
-			case 2 -> {
-				euler.y = -euler.y;
-				euler.z = -euler.z;
-			}
-		}
-		quat.set(euler);
-	}
-
 	public boolean tans() {
 		return interpolationType.tangential();
 	}
@@ -694,7 +617,7 @@ public abstract class AnimFlag<T> {
 	public T interpolateAt(final TimeEnvironmentImpl animatedRenderEnvironment) {
 		if (sequenceMap.isEmpty() || (animatedRenderEnvironment == null) || animatedRenderEnvironment.getCurrentSequence() == null) {
 //			System.out.println("Identity 1, seqMapEmpty: " + sequenceMap.isEmpty());
-			return getIdentity(typeid);
+			return getIdentity();
 		}
 
 		Sequence currentSequence = hasGlobalSeq() ? globalSeq : animatedRenderEnvironment.getCurrentSequence();
@@ -708,7 +631,7 @@ public abstract class AnimFlag<T> {
 			if (this instanceof IntAnimFlag) {
 				System.out.println("Identity 2: no entryMap or entryMap empty");
 			}
-			return getIdentity(typeid);
+			return getIdentity();
 		}
 
 		int sequenceLength = currentSequence.getLength();
@@ -732,7 +655,7 @@ public abstract class AnimFlag<T> {
 				|| sequenceLength < time
 				|| time < 0) {
 //			System.out.println("Identity 4");
-			return getIdentity(typeid);
+			return getIdentity();
 		}
 		// only one keyframe in the animation
 		if (lastKeyframeTime.equals(firstKeyframeTime)) {
@@ -817,25 +740,7 @@ public abstract class AnimFlag<T> {
 
 	public abstract T getInterpolatedValue(Entry<T> entryFloor, Entry<T> entryCeil, float timeFactor);
 
-	protected abstract T getIdentity(int typeId);
-
-	protected Object identity(int typeId) {
-		return switch (typeId) {
-			case ALPHA -> 1.f;
-			case TRANSLATION -> TRANSLATE_IDENTITY;
-			case SCALING, COLOR -> SCALE_IDENTITY;
-			case ROTATION -> ROTATE_IDENTITY;
-			case TEXTUREID -> {
-				long currentTime = System.currentTimeMillis();
-				if (lastConsoleLogTime < currentTime) {
-					System.err.println("Texture identity used in renderer... TODO make this function more intelligent.");
-					lastConsoleLogTime = currentTime + 1000;
-				}
-				yield 0;
-			}
-			default -> throw new IllegalStateException("Unexpected value: " + typeId);
-		};
-	}
+	protected abstract T getIdentity();
 
 	public void slideKeyframe(int startTrackTime, int endTrackTime, Sequence anim) {
 		TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);

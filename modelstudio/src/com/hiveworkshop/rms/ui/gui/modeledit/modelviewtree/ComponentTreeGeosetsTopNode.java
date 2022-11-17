@@ -26,7 +26,7 @@ public class ComponentTreeGeosetsTopNode extends NodeThing<String> {
 	public String updateState() {
 		this.visible = modelView.isGeosetsVisible();
 		this.editable = modelView.isGeosetsEditable();
-		System.out.println("[GeosetTopNode] updateState, vis: " + visible + ", ed: " + editable);
+//		System.out.println("[GeosetTopNode] updateState, vis: " + visible + ", ed: " + editable);
 		updateButtons();
 		return item;
 	}

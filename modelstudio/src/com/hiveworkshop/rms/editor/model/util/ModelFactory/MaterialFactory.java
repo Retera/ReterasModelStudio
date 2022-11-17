@@ -16,7 +16,7 @@ import java.util.List;
 
 public class MaterialFactory {
 	public static Material createMaterial(MdlxMaterial mdlxMaterial, EditableModel model) {
-		Material material = new Material();
+
 		List<Layer> layers = new ArrayList<>();
 		if(model.getFormatVersion() < 900
 				|| 1000 < model.getFormatVersion()
@@ -28,7 +28,7 @@ public class MaterialFactory {
 		} else {
 			layers.add(createLayer(mdlxMaterial.layers, model));
 		}
-		material.setLayers(layers);
+		Material material = new Material(layers);
 
 		material.setPriorityPlane(mdlxMaterial.priorityPlane);
 

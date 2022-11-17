@@ -15,8 +15,8 @@ public class IdObjectToMdlx {
 
 		objectToMdlx(bone, mdlxBone, model);
 
-		mdlxBone.geosetId = bone.getGeosetId();
-		mdlxBone.geosetAnimationId = bone.getGeosetAnimId();
+		mdlxBone.geosetId = model.getGeosets().indexOf(bone.getGeoset());
+		mdlxBone.geosetAnimationId = model.getGeosetAnims().indexOf(bone.getGeosetAnim());
 
 		return mdlxBone;
 	}
@@ -198,7 +198,7 @@ public class IdObjectToMdlx {
 		mdlxEmitter.tailIntervals[0] = particleEmitter2.getTailUVAnim().toLongArray();
 		mdlxEmitter.tailIntervals[1] = particleEmitter2.getTailDecayUVAnim().toLongArray();
 
-		mdlxEmitter.textureId = particleEmitter2.getTextureID();
+		mdlxEmitter.textureId = model.getTextureId(particleEmitter2.getTexture());
 		mdlxEmitter.priorityPlane = particleEmitter2.getPriorityPlane();
 		mdlxEmitter.replaceableId = particleEmitter2.getReplaceableId();
 

@@ -53,7 +53,7 @@ public class ExportTexture extends ActionFunction {
 			materials.addElement(mat);
 		}
 		for (ParticleEmitter2 emitter2 : model.getParticleEmitter2s()) {
-			Material dummyMaterial = new Material(new Layer(FilterMode.BLEND, model.getTexture(emitter2.getTextureID())));
+			Material dummyMaterial = new Material(new Layer(FilterMode.BLEND, emitter2.getTexture()));
 		}
 
 		JList<Material> materialsList = new JList<>(materials);

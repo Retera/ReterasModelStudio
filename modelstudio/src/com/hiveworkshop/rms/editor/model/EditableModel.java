@@ -275,10 +275,10 @@ public class EditableModel implements Named {
 			JOptionPane.showMessageDialog(null,
 					"Tried to add null Triangle component to model, which is really bad. Tell Retera you saw this once you have errors.");
 		} else {
-			if (!contains(x.geoset)) {
-				add(x.geoset);
+			if (!contains(x.getGeoset())) {
+				add(x.getGeoset());
 			}
-			x.geoset.add(x);
+			x.getGeoset().add(x);
 		}
 	}
 

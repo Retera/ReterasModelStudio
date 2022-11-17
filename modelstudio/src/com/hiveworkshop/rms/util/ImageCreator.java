@@ -73,6 +73,40 @@ public class ImageCreator {
 		return theImage;
 	}
 
+	public static BufferedImage setClip(final BufferedImage source, final BufferedImage clip) {
+		int height = Math.max(source.getHeight(), clip.getHeight());
+		int width = Math.max(source.getWidth(), clip.getWidth());
+		Raster rasterSrc = getScaledImage(source, width, height).getData();
+		Raster rasterClip = getScaledImage(clip, width, height).getData();
+
+		BufferedImage combined = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		WritableRaster combinedRaster = combined.getRaster();
+
+		float[] pixelDataSrc = new float[rasterSrc.getNumBands()];
+		float[] pixelDataClip = new float[rasterClip.getNumBands()];
+		float[] pixelData = new float[pixelDataClip.length];
+
+		int srcAlphaBand = pixelDataSrc.length == 4 ? 3 : -1;
+		int clipAlphaBand = pixelDataClip.length == 4 ? 3 : -1;
+
+		for(int h = 0; h< height; h++){
+			for(int w = 0; w< width; w++){
+//				rasterSrc.getPixel(w, h, pixelDataSrc);
+				rasterSrc.getPixel(w, h, pixelData);
+				rasterClip.getPixel(w, h, pixelDataClip);
+
+				float addAlpha = 1;
+
+//				pixelData[3] = 255f - Math.min(1f, ((255-pixelDataSrc[3])/255f) * ((addAlpha)))*255f;
+				pixelData[3] = pixelData[3]*pixelDataClip[3]/255f;
+				combinedRaster.setPixel(w, h, pixelData);
+			}
+		}
+		combined.setData(combinedRaster);
+
+		return combined;
+	}
+
 	public static BufferedImage mergeImage(final BufferedImage source, final BufferedImage overlay) {
 		final int w = Math.max(source.getWidth(), overlay.getWidth());
 		final int h = Math.max(source.getHeight(), overlay.getHeight());

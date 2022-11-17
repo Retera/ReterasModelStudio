@@ -3,12 +3,9 @@ package com.hiveworkshop.rms.editor.model;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.List;
-
 public class Triangle {
-	GeosetVertex[] verts = new GeosetVertex[3];
-	int[] vertIds = new int[3];
-	Geoset geoset;
+	private final GeosetVertex[] verts = new GeosetVertex[3];
+	private Geoset geoset;
 
 	public Triangle(Geoset geoRef) {
 		verts[0] = null;
@@ -24,73 +21,17 @@ public class Triangle {
 		geoset = geoRef;
 	}
 
-	public Triangle(int a, int b, int c, Geoset geoRef) {
-		vertIds[0] = a;
-		vertIds[1] = b;
-		vertIds[2] = c;
-		verts[0] = geoRef.getVertex(a).addTriangle(this);
-		verts[1] = geoRef.getVertex(b).addTriangle(this);
-		verts[2] = geoRef.getVertex(c).addTriangle(this);
-		geoset = geoRef;
-	}
-
 	public Triangle(GeosetVertex a, GeosetVertex b, GeosetVertex c) {
 		verts[0] = a.addTriangle(this);
 		verts[1] = b.addTriangle(this);
 		verts[2] = c.addTriangle(this);
 		geoset = null;
 	}
-//	public Triangle(GeosetVertex a, GeosetVertex b, GeosetVertex c) {
-//		verts[0] = a;
-//		verts[1] = b;
-//		verts[2] = c;
-//		geoset = null;
-//	}
-
-	public Triangle(int a, int b, int c) {
-		vertIds[0] = a;
-		vertIds[1] = b;
-		vertIds[2] = c;
-		// m_verts[0] = geoRef.getVertex(a);
-		// m_verts[1] = geoRef.getVertex(b);
-		// m_verts[2] = geoRef.getVertex(c);
-		geoset = null;
-	}
-
-	public void setGeoRef(Geoset geoRef) {
-		geoset = geoRef;
-	}
-
-	public void updateVertexRefs() {
-		verts[0] = geoset.getVertex(vertIds[0]);
-		verts[1] = geoset.getVertex(vertIds[1]);
-		verts[2] = geoset.getVertex(vertIds[2]);
-	}
-
-	public void updateVertexIds() {
-		// Potentially this procedure could lag a bunch in the way I wrote it,
-		// but it will change vertex ids to match a changed geoset,
-		// assuming the geoset still contains the vertex
-		vertIds[0] = geoset.getVertexId(verts[0]);
-		vertIds[1] = geoset.getVertexId(verts[1]);
-		vertIds[2] = geoset.getVertexId(verts[2]);
-	}
 
 	public void forceVertsUpdate() {
 		verts[0].addTriangle(this);
 		verts[1].addTriangle(this);
 		verts[2].addTriangle(this);
-	}
-
-	public void updateVertexIds(Geoset geoRef) {
-		geoset = geoRef;
-		updateVertexIds();
-	}
-
-	public void updateVertexRefs(List<GeosetVertex> list) {
-		verts[0] = list.get(vertIds[0]);
-		verts[1] = list.get(vertIds[1]);
-		verts[2] = list.get(vertIds[2]);
 	}
 
 	public boolean containsRef(GeosetVertex v) {
@@ -111,7 +52,6 @@ public class Triangle {
 
 	public void set(int index, GeosetVertex v) {
 		verts[index] = v;
-		vertIds[index] = geoset.getVertexId(v);
 	}
 
 	public Triangle replace(GeosetVertex oldV, GeosetVertex newV) {
@@ -144,7 +84,7 @@ public class Triangle {
 
 	public boolean equalLocs(Triangle t) {
 		for (int i = 0; i < 3; i++) {
-			if (!t.verts[i].equalLocs(verts[i]) || t.vertIds[i] != vertIds[i]) {
+			if (!t.verts[i].equalLocs(verts[i])) {
 				return false;
 			}
 		}
@@ -214,7 +154,7 @@ public class Triangle {
 
 	public boolean equalRefs(Triangle t) {
 		for (int i = 0; i < 3; i++) {
-			if (t.verts[i] != verts[i] || t.vertIds[i] != vertIds[i]) {
+			if (t.verts[i] != verts[i]) {
 				return false;
 			}
 		}
@@ -281,14 +221,10 @@ public class Triangle {
 	 */
 	public void flip(boolean flipNormals) {
 		GeosetVertex tempVert;
-		int tempVertId;
 		tempVert = verts[2];
 		verts[2] = verts[1];
 		verts[1] = tempVert;
 
-		tempVertId = vertIds[2];
-		vertIds[2] = vertIds[1];
-		vertIds[1] = tempVertId;
 		if (flipNormals) {
 			for (GeosetVertex geosetVertex : verts) {
 				Vec3 normal = geosetVertex.getNormal();
@@ -301,9 +237,6 @@ public class Triangle {
 	}
 
 	public Geoset getGeoset() {
-		if (geoset == null) {
-
-		}
 		return geoset;
 	}
 
@@ -323,14 +256,6 @@ public class Triangle {
 		this.verts[0] = verts[0];
 		this.verts[1] = verts[1];
 		this.verts[2] = verts[2];
-	}
-
-	public int[] getVertIds() {
-		return vertIds;
-	}
-
-	public void setVertIds(int[] vertIds) {
-		this.vertIds = vertIds;
 	}
 
 	public Vec3 getNormal() {

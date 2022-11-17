@@ -300,7 +300,20 @@ public final class ModelUtils {
 		return box;
 	}
 
-	private static Mesh getBoxMesh2(int xSegs, int ySegs, int zSegs) {
+
+	public static Mesh getBoxMesh2(Vec3 max, Vec3 min, int lengthSegs, int widthSegs, int heightSegs) {
+		Mesh boxMesh2 = getBoxMesh2(lengthSegs, widthSegs, heightSegs);
+		Vec3 size = new Vec3(max).sub(min);
+//		Vec3 center = new Vec3(max).add(min).scale(.5f);
+		for(GeosetVertex vertex : boxMesh2.getVertices()){
+//			vertex.scaleCentered(center, size);
+//			vertex.scaleCentered(Vec3.ZERO, size);
+			vertex.multiply(size).add(min);
+		}
+		return boxMesh2;
+	}
+
+	public static Mesh getBoxMesh2(int xSegs, int ySegs, int zSegs) {
 		Mesh box = new Mesh(new ArrayList<>(), new ArrayList<>());
 
 		Vec3 spinPoint = new Vec3(0.5, 0.5, 0.5);

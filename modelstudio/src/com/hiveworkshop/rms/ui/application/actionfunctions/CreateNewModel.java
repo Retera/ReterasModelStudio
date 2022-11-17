@@ -59,7 +59,7 @@ public class CreateNewModel extends ActionFunction{
 		return switch (t) {
 			case EMPTY -> null;
 			case PLANE -> ModelUtils.createPlane((byte) 2, true, 0, min.getProjected((byte) 0, (byte) 1), max.getProjected((byte) 0, (byte) 1), segments);
-			case BOX -> ModelUtils.getBoxMesh(min, max, segments, segments, segments);
+			case BOX -> ModelUtils.getBoxMesh2(min, max, segments, segments, segments);
 		};
 	}
 

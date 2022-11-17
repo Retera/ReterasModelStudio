@@ -14,7 +14,6 @@ public class Bone extends IdObject {
 	private int geosetId = -1;
 	private boolean multiGeoId;
 	private Geoset geoset;
-	private int geosetAnimId = -1;
 	private GeosetAnim geosetAnim;
 	private boolean hasGeoAnim;// Sometimes its "None," sometimes it's not used
 
@@ -30,10 +29,8 @@ public class Bone extends IdObject {
 	protected Bone(Bone b) {
 		super(b);
 
-		geosetId = b.geosetId;
 		multiGeoId = b.multiGeoId;
 		geoset = b.geoset;
-		geosetAnimId = b.geosetAnimId;
 		geosetAnim = b.geosetAnim;
 		hasGeoAnim = b.hasGeoAnim;
 	}
@@ -93,30 +90,12 @@ public class Bone extends IdObject {
 		return this;
 	}
 
-	public int getGeosetId() {
-		return geosetId;
-	}
-
-	public Bone setGeosetId(int geosetId) {
-		this.geosetId = geosetId;
-		return this;
-	}
-
 	public GeosetAnim getGeosetAnim() {
 		return geosetAnim;
 	}
 
 	public Bone setGeosetAnim(GeosetAnim geosetAnim) {
 		this.geosetAnim = geosetAnim;
-		return this;
-	}
-
-	public int getGeosetAnimId() {
-		return geosetAnimId;
-	}
-
-	public Bone setGeosetAnimId(int geosetAnimId) {
-		this.geosetAnimId = geosetAnimId;
 		return this;
 	}
 

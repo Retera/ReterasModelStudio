@@ -47,13 +47,13 @@ public class SelectionManager extends AbstractSelectionManager {
 	private Set<GeosetVertex> getGroupBundle(Collection<GeosetVertex> selectedVertices) {
 		Set<VertexGroupBundle> bundleSet = new HashSet<>();
 		for (GeosetVertex vertex : selectedVertices) {
-			bundleSet.add(new VertexGroupBundle(vertex.getGeoset(), vertex.getMatrixIndex()));
+			bundleSet.add(new VertexGroupBundle(vertex.getGeoset(), vertex.getMatrix()));
 		}
 
 		Set<GeosetVertex> verticesSelected = new HashSet<>();
 		for (VertexGroupBundle bundle : bundleSet) {
 			for (GeosetVertex geosetVertex : bundle.getGeoset().getVertices()) {
-				if (geosetVertex.getMatrixIndex() == bundle.getVertexGroupId()) {
+				if (Objects.equals(geosetVertex.getMatrix(), bundle.getMatrix())) {
 					verticesSelected.add(geosetVertex);
 				}
 			}

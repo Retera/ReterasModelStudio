@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Layers for MDLToolkit/MatrixEater.
@@ -16,8 +17,7 @@ import java.util.*;
  */
 public class Layer extends TimelineContainer implements Named {
 	private FilterMode filterMode = FilterMode.NONE;
-	private final List<Bitmap> textures = new ArrayList<>();
-	private final Map<Integer, BitmapAnimFlag> flipbookTextures = new HashMap<>();
+	private final List<Texture> textures = new ArrayList<>();
 	private int coordId = 0;
 	private TextureAnim textureAnim;
 	private double emissiveGain = 0;
@@ -37,20 +37,19 @@ public class Layer extends TimelineContainer implements Named {
 
 	public Layer(FilterMode filterMode, Bitmap texture) {
 		this.filterMode = filterMode;
-		textures.add(texture);
+		textures.add(new Texture(texture));
 	}
 
 	public Layer(FilterMode filterMode, Collection<Bitmap> textures) {
 		this.filterMode = filterMode;
-		this.textures.addAll(textures);
+		textures.forEach(b -> this.textures.add(new Texture(b)));
 	}
 
 	private Layer(Layer other) {
-		textures.addAll(other.textures);
+		other.textures.forEach(t -> textures.add(t.deepCopy()));
 		flags.addAll(other.flags);
 		filterMode = other.filterMode;
 		coordId = other.coordId;
-//		texture = other.texture;
 		if (other.textureAnim != null) {
 			textureAnim = new TextureAnim(other.textureAnim);
 //			textureAnim = other.textureAnim;
@@ -62,83 +61,66 @@ public class Layer extends TimelineContainer implements Named {
 		fresnelColor = new Vec3(other.fresnelColor);
 		fresnelOpacity = other.fresnelOpacity;
 		fresnelTeamColor = other.fresnelTeamColor;
-//		unshaded = other.unshaded;
-//		sphereEnvMap = other.sphereEnvMap;
-//		twoSided = other.twoSided;
-//		unfogged = other.unfogged;
-//		noDepthTest = other.noDepthTest;
-//		noDepthSet = other.noDepthSet;
-//		unlit = other.unlit;
 
 		for (AnimFlag<?> animFlag : other.getAnimFlags()) {
 			add(animFlag.deepCopy());
-		}
-		for (Integer slot : other.flipbookTextures.keySet()) {
-			BitmapAnimFlag animFlag = flipbookTextures.get(slot);
-			flipbookTextures.put(slot, (BitmapAnimFlag) animFlag.deepCopy());
 		}
 
 	}
 
 	public void setFlipbookTexture(int slot, BitmapAnimFlag animFlag){
-		if(animFlag != null){
-			flipbookTextures.put(slot, animFlag);
-		} else {
-			flipbookTextures.remove(slot);
-		}
-	}
-
-	public Map<Integer, BitmapAnimFlag> getFlipbookTextures() {
-		return flipbookTextures;
+		textures.get(slot).setFlipBookTexture(animFlag);
 	}
 
 	public BitmapAnimFlag getFlipbookTexture(int slot) {
-		return flipbookTextures.get(slot);
+		return textures.get(slot).getFlipbookTexture();
 	}
 
 	public Bitmap getRenderTexture(TimeEnvironmentImpl animatedRenderEnvironment) {
-		BitmapAnimFlag textureFlag = (BitmapAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
-		if ((textureFlag != null) && (animatedRenderEnvironment != null && animatedRenderEnvironment.getCurrentSequence() != null)) {
-			return textureFlag.interpolateAt(animatedRenderEnvironment);
-		} else {
-			if (textures.size() > 0) {
-				return textures.get(0);
-			}
-			return null;
-		}
+		return textures.get(0).getFlipbookTexture(animatedRenderEnvironment);
+
 	}
 	public Bitmap getRenderTexture(TimeEnvironmentImpl animatedRenderEnvironment, int slot) {
-		BitmapAnimFlag textureFlag = flipbookTextures.get(slot);
-		if ((textureFlag != null) && (animatedRenderEnvironment != null && animatedRenderEnvironment.getCurrentSequence() != null)) {
-			return textureFlag.interpolateAt(animatedRenderEnvironment);
-		} else if(slot < textures.size()){
-			return textures.get(slot);
-		} else if (textures.size() > 0) {
-			return textures.get(0);
+		Bitmap bitmap = textures.get(slot).getFlipbookTexture(animatedRenderEnvironment);
+		if (bitmap == null) {
+			return textures.get(0).getTexture();
 		}
-		return null;
+		return bitmap;
 	}
 
 	public Bitmap firstTexture() {
 		if (!textures.isEmpty()) {
-			return textures.get(0);
+			return textures.get(0).getTexture();
 		}
 		return null;
 	}
 
 	public Bitmap getTexture(int id){
 		if (0 <= id && id < textures.size()){
-			return textures.get(id);
+			return textures.get(id).getTexture();
 		}
 		return null;
 	}
 
-	public List<Bitmap> getTextures() {
+	public Texture getTextureSlot(int slot){
+		if (0 <= slot && slot < textures.size()){
+			return textures.get(slot);
+		}
+		return null;
+	}
+	public List<Texture> getTextureSlots(){
 		return textures;
+	}
+	public List<Bitmap> getTextures() {
+		return textures.stream().map(Texture::getTexture).collect(Collectors.toList());
 	}
 
 	public void setTexture(int i, Bitmap texture) {
-		this.textures.set(i, texture);
+		if(i < textures.size()){
+			this.textures.get(i).setTexture(texture);
+		} else {
+			textures.add(new Texture(texture));
+		}
 	}
 
 	@Override
@@ -149,7 +131,7 @@ public class Layer extends TimelineContainer implements Named {
 	@Override
 	public String getName() {
 		if (!textures.isEmpty()) {
-			return textures.get(0).getName() + " layer (mode " + filterMode + ") ";
+			return textures.get(0).getTexture().getName() + " layer (mode " + filterMode + ") ";
 		}
 		return "multi-textured layer (mode " + filterMode + ") ";
 	}
@@ -364,23 +346,6 @@ public class Layer extends TimelineContainer implements Named {
 			if (!Objects.equals(animFlags, other.animFlags)) {
 				return false;
 			}
-			if (!Objects.equals(flipbookTextures, other.flipbookTextures)) {
-				return false;
-			}
-
-//			if (Double.doubleToLongBits(emissiveGain) != Double.doubleToLongBits(other.emissiveGain)) {
-//				return false;
-//			}
-//			if (Double.doubleToLongBits(fresnelOpacity) != Double.doubleToLongBits(other.fresnelOpacity)) {
-//				return false;
-//			}
-//			if (Double.doubleToLongBits(fresnelTeamColor) != Double.doubleToLongBits(other.fresnelTeamColor)) {
-//				return false;
-//			}
-//			if (Double.doubleToLongBits(staticAlpha) != Double.doubleToLongBits(other.staticAlpha)) {
-//				return false;
-//			}
-
 
 			if (Float.MIN_VALUE < (staticAlpha - other.staticAlpha) ) {
 				return false;
@@ -415,15 +380,67 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 
-//		if (layer.getTwoSided()) {mdlxLayer.flags |= 0x10;}
-//
-//		if (layer.getUnfogged()) {mdlxLayer.flags |= 0x20;}
-//
-//		if (layer.getNoDepthTest()) {mdlxLayer.flags |= 0x40;}
-//
-//		if (layer.getNoDepthSet()) {mdlxLayer.flags |= 0x80;}
-//
-//		if (layer.getUnlit()) {mdlxLayer.flags |= 0x100;}
+	public static class Texture extends TimelineContainer {
+		private Bitmap texture;
+
+		public Texture() {
+		}
+		public Texture(Bitmap texture) {
+			this.texture = texture;
+		}
+		public Texture setTexture(Bitmap texture) {
+			this.texture = texture;
+			return this;
+		}
+		public Bitmap getTexture() {
+			return texture;
+		}
+
+		public Texture setFlipBookTexture(BitmapAnimFlag animFlag) {
+			if(animFlag != null){
+				add(animFlag);
+			} else {
+				remove(MdlUtils.TOKEN_TEXTURE_ID);
+			}
+			return this;
+		}
+
+		public BitmapAnimFlag getFlipbookTexture(){
+			AnimFlag<?> animFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
+			System.out.println("layerTexture flipbook: " + animFlag);
+			if(animFlag instanceof BitmapAnimFlag) {
+				return (BitmapAnimFlag) animFlag;
+			}
+			return null;
+		}
+		public Bitmap getFlipbookTexture(TimeEnvironmentImpl environment){
+			if (environment != null && environment.getCurrentSequence() != null) {
+				AnimFlag<?> animFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
+				if(animFlag instanceof BitmapAnimFlag) {
+					return ((BitmapAnimFlag) animFlag).interpolateAt(environment);
+				}
+			}
+			return texture;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if(other instanceof Texture){
+				if(other == this) return true;
+				return Objects.equals(animFlags, ((Texture) other).animFlags)
+						&& Objects.equals(texture, ((Texture) other).texture);
+			}
+			return false;
+		}
+
+		public Texture deepCopy() {
+			Texture copy = new Texture();
+			copy.setTexture(texture);
+			copy.copyTimelines(this);
+			return copy;
+		}
+
+	}
 	public enum flag {
 		UNSHADED(MdlUtils.TOKEN_UNSHADED, 0x1),
 		SPHERE_ENV_MAP(MdlUtils.TOKEN_SPHERE_ENV_MAP, 0x2),

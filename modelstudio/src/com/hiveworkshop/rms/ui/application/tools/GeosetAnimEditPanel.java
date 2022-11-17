@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.TreeMap;
 
 public class GeosetAnimEditPanel extends JPanel {
-	private GeosetAnim donGeosetAnim;
+	private Geoset donGeoset;
 	private boolean invertVis = false;
 	private boolean copyVis = true;
 	private boolean copyColor = true;
@@ -34,10 +34,7 @@ public class GeosetAnimEditPanel extends JPanel {
 
 	private final UndoManager undoManager;
 
-	/**
-	 * Create the panel.
-	 */
-	public GeosetAnimEditPanel(EditableModel model, GeosetAnim recGeosetAnim, UndoManager undoManager) {
+	public GeosetAnimEditPanel(EditableModel model, Geoset recGeoset, UndoManager undoManager) {
 		this.undoManager = undoManager;
 		setLayout(new MigLayout("fill", "[grow][grow]"));
 
@@ -58,10 +55,10 @@ public class GeosetAnimEditPanel extends JPanel {
 		flipColorBox.addOnSelectItemListener(fc -> flipColor = fc);
 
 		JButton copyButton = new JButton("Copy Animation Data");
-		copyButton.addActionListener(e -> doCopy(recGeosetAnim, donGeosetAnim, model.getAllSequences()));
+		copyButton.addActionListener(e -> doCopy(recGeoset, donGeoset, model.getAllSequences()));
 
 		add(info, "spanx, growx, wrap");
-		add(getDonGeoAnimPanel(model.getGeosetAnims()), "spanx, growx, aligny top, wrap");
+		add(getDonGeoAnimPanel(model.getGeosets()), "spanx, growx, aligny top, wrap");
 		add(copy_alpha);
 		add(invert_alpha, "wrap");
 		add(copy_color, "");
@@ -69,29 +66,32 @@ public class GeosetAnimEditPanel extends JPanel {
 		add(copyButton, "spanx, align center, wrap");
 	}
 
-	public static void show(JComponent parent, EditableModel model, GeosetAnim geosetAnim, UndoManager undoManager) {
-		GeosetAnimEditPanel animCopyPanel = new GeosetAnimEditPanel(model, geosetAnim, undoManager);
-		FramePopup.show(animCopyPanel, parent, geosetAnim.getName());
+	public static void show(JComponent parent, EditableModel model, Geoset geoset, UndoManager undoManager) {
+		GeosetAnimEditPanel animCopyPanel = new GeosetAnimEditPanel(model, geoset, undoManager);
+		FramePopup.show(animCopyPanel, parent, geoset.getName() + "'s Anim");
 	}
 
-	private JPanel getDonGeoAnimPanel(List<GeosetAnim> geosetAnims) {
+	private JPanel getDonGeoAnimPanel(List<Geoset> geosets) {
 		JPanel donGeoAnimPanel = new JPanel(new MigLayout("fill, gap 0"));
 		donGeoAnimPanel.add(new JLabel("From:"), "wrap");
 
 		Geoset geoset = new Geoset();
 		geoset.setParentModel(new EditableModel());
 		geoset.setLevelOfDetailName("Dummy geoset for prototype purposes cuz Swing");
-		TwiComboBox<GeosetAnim> comboBox = new TwiComboBox<>(geosetAnims, new GeosetAnim(geoset));
-		comboBox.addOnSelectItemListener(ga -> donGeosetAnim = ga);
-		comboBox.setStringFunctionRender((ga) -> ((GeosetAnim) ga).getName());
+		TwiComboBox<Geoset> comboBox = new TwiComboBox<>(geosets, geoset);
+		comboBox.addOnSelectItemListener(geo -> donGeoset = geo);
+		comboBox.setStringFunctionRender((geo) -> ((Geoset) geo).getName() + "'s Anim");
 
-		donGeosetAnim = geosetAnims.get(0);
+		donGeoset = geosets.get(0);
 		donGeoAnimPanel.add(comboBox, "wrap, growx");
 		return donGeoAnimPanel;
 	}
 
-	private void doCopy(GeosetAnim recGeosetAnim, GeosetAnim donGeosetAnim, List<Sequence> allSequences) {
+	private void doCopy(Geoset recGeoset, Geoset donGeoset, List<Sequence> allSequences) {
 		ArrayList<UndoAction> actions = new ArrayList<>();
+
+		GeosetAnim recGeosetAnim = recGeoset.getGeosetAnim();
+		GeosetAnim donGeosetAnim = donGeoset.getGeosetAnim();
 
 		for (AnimFlag<?> animFlag : donGeosetAnim.getAnimFlags()){
 			if (copyVis && (animFlag.getName().equals(MdlUtils.TOKEN_ALPHA) || animFlag.getName().equals(MdlUtils.TOKEN_VISIBILITY))){

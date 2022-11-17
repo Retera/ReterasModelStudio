@@ -94,7 +94,7 @@ public class ModelLoader {
 		Mesh planeMesh = ModelUtils.createPlane((byte) 0, true, 0, max, min, 1);
 		newGeoset.addVerticies(planeMesh.getVertices());
 		planeMesh.getVertices().forEach(vertex -> vertex.setGeoset(newGeoset));
-		newGeoset.setTriangles(planeMesh.getTriangles());
+		newGeoset.addTriangles(planeMesh.getTriangles());
 		planeMesh.getTriangles().forEach(triangle -> triangle.setGeoset(newGeoset));
 
 		blankTextureModel.add(newGeoset);

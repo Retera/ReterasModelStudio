@@ -377,18 +377,18 @@ public class ModelHolderThing {
 		// ToDo Fix MatrixShell for HD models!!
 
 		for (Geoset geoset : receivingModel.getGeosets()) {
-			geoset.reMakeMatrixList();
 			GeosetShell geoShell = new GeosetShell(geoset, receivingModel, false);
 			geoShell.setMatrixShells(createMatrixShells(geoset, recModObjShellBiMap, receivingModel, false));
 			recModGeoShells.addElement(geoShell);
+			geoset.reMakeMatrixList();
 		}
 		allGeoShells.addAll(recModGeoShells);
 
 		for (Geoset geoset : donatingModel.getGeosets()) {
-			geoset.reMakeMatrixList();
 			GeosetShell geoShell = new GeosetShell(geoset, donatingModel, true);
 			geoShell.setMatrixShells(createMatrixShells(geoset, donModObjShellBiMap, donatingModel, true));
 			donModGeoShells.addElement(geoShell);
+			geoset.reMakeMatrixList();
 		}
 		allGeoShells.addAll(donModGeoShells);
 
@@ -427,7 +427,7 @@ public class ModelHolderThing {
 				matrixShells.addElement(ms);
 			}
 		} else {
-			for (Matrix matrix : geoset.getMatrices()) {
+			for (Matrix matrix : geoset.collectMatrices()) {
 				ArrayList<IdObjectShell<?>> orgBones = new ArrayList<>();
 				// For look to find similarly named stuff and add it
 				for (Bone bone : matrix.getBones()) {

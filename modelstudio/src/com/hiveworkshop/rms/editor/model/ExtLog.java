@@ -128,6 +128,17 @@ public class ExtLog {
 		return new ExtLog(this);
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == this) return true;
+		if(obj instanceof ExtLog){
+			return minimumExtent.equalLocs(((ExtLog)obj).minimumExtent)
+					&& maximumExtent.equalLocs(((ExtLog)obj).maximumExtent)
+					&& boundsRadius == ((ExtLog)obj).boundsRadius;
+		}
+		return false;
+	}
+
 	public String toString() {
 		return "minExt: " + minimumExtent + "\nmaxExt: " + maximumExtent + "\nbonusRad: " + boundsRadius;
 //		return "minExt: " + minimumExtent.toString() + "\nmaxExt: " + maximumExtent.toString() + "\nbonusRad: " + boundsRadius;

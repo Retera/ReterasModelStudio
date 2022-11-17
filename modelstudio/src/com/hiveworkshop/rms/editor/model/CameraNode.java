@@ -58,7 +58,7 @@ public abstract class CameraNode extends AnimatedNode {
 
 	@Override
 	public Vec3 getRenderScale(TimeEnvironmentImpl animatedRenderEnvironment) {
-		return AnimFlag.SCALE_IDENTITY;
+		return Vec3.ONE;
 	}
 
 	@Override
@@ -170,7 +170,7 @@ public abstract class CameraNode extends AnimatedNode {
 
 		@Override
 		public Quat getRenderRotation(TimeEnvironmentImpl animatedRenderEnvironment) {
-			return AnimFlag.ROTATE_IDENTITY;
+			return Quat.IDENTITY;
 		}
 	}
 }

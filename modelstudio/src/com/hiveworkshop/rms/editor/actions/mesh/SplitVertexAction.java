@@ -88,6 +88,7 @@ public final class SplitVertexAction implements UndoAction {
 				vertsToCheckAgain.add(geosetVertex);
 			}
 		}
+
 		for(GeosetVertex vertex : vertsToCheckAgain){
 			if(otherEdgeTriangles.containsAll(vertex.getTriangles())){
 				checkFullyAdded(mainEdgeTriVerts, vertex);
@@ -339,9 +340,11 @@ public final class SplitVertexAction implements UndoAction {
 	private void splitEdge() {
 		for (GeosetVertex geosetVertex : selectedVertices) {
 			GeosetVertex newVertex = oldToNew.computeIfAbsent(geosetVertex, k -> geosetVertex.deepCopy());
+//			System.out.println("new vertex geoset: " + newVertex.getGeoset());
 			for (Triangle triangle : geosetVertex.getTriangles()) {
 				if(otherEdgeTriangles.contains(triangle)){
 					triangle.replace(geosetVertex, newVertex);
+					newVertex.addTriangle(triangle);
 				} else {
 					newVertex.removeTriangle(triangle);
 				}

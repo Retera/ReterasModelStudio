@@ -3,11 +3,11 @@ package com.hiveworkshop.rms.editor.model.animflag;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatTimeline;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.MathUtils;
 
-import javax.swing.*;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -81,16 +81,11 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 	}
 
 	@Override
-	protected Float getIdentity(int typeId) {
-		if ((typeId == ROTATION) && !sequenceMap.isEmpty()) {//&& sequenceMap.firstEntry() != null && sequenceMap.firstEntry().getValue().firstEntry().getValue().getValue() != null) {
-			return (float) 0; // magic Camera rotation!
-		}
-		Object identity = identity(typeId);
-		if(identity instanceof Float || identity instanceof Integer){
-
-			return (float) identity;
+	protected Float getIdentity() {
+		if(name.equals(MdlUtils.TOKEN_ALPHA)){
+			return 1f;
 		} else {
-			return (float) 0;
+			return 0f;
 		}
 	}
 
@@ -110,15 +105,12 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 		Float ceilValue = entryCeil.getValue();
 		Float ceilInTan = entryCeil.getInTan();
 
-		if (typeid == ALPHA || typeid == ROTATION) {
-			return switch (interpolationType) {
-				case BEZIER -> MathUtils.bezier(floorValue, floorOutTan, ceilInTan, ceilValue, timeFactor);
-				case DONT_INTERP -> floorValue;
-				case HERMITE -> MathUtils.hermite(floorValue, floorOutTan, ceilInTan, ceilValue, timeFactor);
-				case LINEAR -> MathUtils.lerp(floorValue, ceilValue, timeFactor);
-			};
-		}
-		throw new IllegalStateException();
+		return switch (interpolationType) {
+			case BEZIER -> MathUtils.bezier(floorValue, floorOutTan, ceilInTan, ceilValue, timeFactor);
+			case DONT_INTERP -> floorValue;
+			case HERMITE -> MathUtils.hermite(floorValue, floorOutTan, ceilInTan, ceilValue, timeFactor);
+			case LINEAR -> MathUtils.lerp(floorValue, ceilValue, timeFactor);
+		};
 	}
 
 	@Override
@@ -189,21 +181,23 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 
 	public FloatAnimFlag getMostVisible(final FloatAnimFlag partner) {
 		if (partner != null) {
-			if ((typeid == 0) && (partner.typeid == 0)) {
-
-//				FloatAnimFlag self = this;
-//				FloatAnimFlag mostVisible = getMostVissibleAnimFlag(self, partner, null);
-//				if (mostVisible == null) return null;
+			return getMostVissibleAnimFlag(this, partner, null);
+//			if ((name.equals(MdlUtils.TOKEN_ALPHA) || name.equals(MdlUtils.TOKEN_VISIBILITY))
+//					&& (partner.name.equals(MdlUtils.TOKEN_ALPHA) || partner.name.equals(MdlUtils.TOKEN_VISIBILITY))) {
 //
-//				// partner has priority!
-//				return getMostVissibleAnimFlag(partner, self, mostVisible);
-				return getMostVissibleAnimFlag(this, partner, null);
-
-			} else {
-				JOptionPane.showMessageDialog(null,
-						"Error: Program attempted to compare visibility with non-visibility animation component." +
-								"\nThis... probably means something is horribly wrong. Save your work, if you can.");
-			}
+////				FloatAnimFlag self = this;
+////				FloatAnimFlag mostVisible = getMostVissibleAnimFlag(self, partner, null);
+////				if (mostVisible == null) return null;
+////
+////				// partner has priority!
+////				return getMostVissibleAnimFlag(partner, self, mostVisible);
+//				return getMostVissibleAnimFlag(this, partner, null);
+//
+//			} else {
+//				JOptionPane.showMessageDialog(null,
+//						"Error: Program attempted to compare visibility with non-visibility animation component." +
+//								"\nThis... probably means something is horribly wrong. Save your work, if you can.");
+//			}
 		}
 		return null;
 	}

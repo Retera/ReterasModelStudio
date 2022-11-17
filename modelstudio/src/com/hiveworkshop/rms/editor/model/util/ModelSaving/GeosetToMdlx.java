@@ -7,6 +7,10 @@ import com.hiveworkshop.rms.parsers.mdlx.MdlxGeosetAnimation;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 public class GeosetToMdlx {
 
 	public static MdlxGeoset toMdlx(Geoset geoset, EditableModel model) {
@@ -35,6 +39,7 @@ public class GeosetToMdlx {
 
 		mdlxGeoset.vertexGroups = new short[numVertices];
 		mdlxGeoset.uvSets = new float[nrOfTextureVertexGroups][numVertices * 2];
+		List<Matrix> matrices = new ArrayList<>(geoset.collectMatrices());
 
 		for (int vId = 0; vId < numVertices; vId++) {
 			final GeosetVertex vertex = geoset.getVertex(vId);
@@ -59,9 +64,7 @@ public class GeosetToMdlx {
 				mdlxGeoset.uvSets[uvLayerIndex][(vId * 2) + 1] = uv.y;
 			}
 
-//			mdlxGeoset.vertexGroups[vId] = (byte) vertex.getVertexGroup();
-//			mdlxGeoset.vertexGroups[vId] = (short) (geoset.getMatrixId(vertex.getMatrix())%256);
-			mdlxGeoset.vertexGroups[vId] = (short) (geoset.getMatrixId(vertex.getMatrix()));
+			mdlxGeoset.vertexGroups[vId] = (short) (matrices.indexOf(vertex.getMatrix()));
 		}
 
 		// Again, the current implementation of my mdl code is that it only handles triangle face types
@@ -86,11 +89,11 @@ public class GeosetToMdlx {
 
 		mdlxGeoset.selectionGroup = geoset.getSelectionGroup();
 
-		mdlxGeoset.matrixIndices = new long[getMatrixIndexesSize(geoset)];
-		mdlxGeoset.matrixGroups = new long[geoset.getMatrices().size()];
+		mdlxGeoset.matrixIndices = new long[getMatrixIndexesSize(matrices)];
+		mdlxGeoset.matrixGroups = new long[matrices.size()];
 		int matrixIndex = 0;
 		int groupIndex = 0;
-		for (final Matrix matrix : geoset.getMatrices()) {
+		for (final Matrix matrix : matrices) {
 			for (int index = 0; index < matrix.size() && matrixIndex < mdlxGeoset.matrixIndices.length; index++) {
 				mdlxGeoset.matrixIndices[matrixIndex++] = model.getObjectId(matrix.get(index));
 			}
@@ -132,9 +135,9 @@ public class GeosetToMdlx {
 		return mdlxGeoset;
 	}
 
-	public static int getMatrixIndexesSize(Geoset geoset) {
+	public static int getMatrixIndexesSize(Collection<Matrix> matrices) {
 		int matrixIndexesSize = 0;
-		for (final Matrix matrix : geoset.getMatrices()) {
+		for (final Matrix matrix : matrices) {
 			int size = matrix.size();
 			if (size == -1) {
 				size = 1;

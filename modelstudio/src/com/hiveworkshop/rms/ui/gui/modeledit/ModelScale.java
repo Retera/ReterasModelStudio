@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Vec3;
@@ -33,7 +34,7 @@ public class ModelScale {
 	public static void scale(EditableModel mdl, Vec3 scale, Vec3 center) {
 		double avgScale = (scale.x + scale.y + scale.z) / 3.0;
 		for (AnimFlag<?> flag : ModelUtils.getAllAnimFlags(mdl)) {
-			if (flag.getTypeId() == AnimFlag.TRANSLATION) {
+			if (flag.getName().equals(MdlUtils.TOKEN_TRANSLATION)) {
 				for (Sequence anim : flag.getAnimMap().keySet()) {
 					TreeMap<Integer, Entry<Vec3>> entryMap = ((Vec3AnimFlag) flag).getEntryMap(anim);
 					if (entryMap != null) {

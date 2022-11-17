@@ -1,22 +1,43 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.selection;
 
 import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.Matrix;
+
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 public class VertexGroupBundle {
-	private Geoset geoset;
-	private int vertexGroupId;
+	private final Geoset geoset;
+	private final Matrix matrix;
 
-	public VertexGroupBundle(Geoset geoset, int vertexGroupId) {
+	public VertexGroupBundle(Geoset geoset, Matrix vertexMatrix) {
 		this.geoset = geoset;
-		this.vertexGroupId = vertexGroupId;
+		this.matrix = vertexMatrix;
 	}
 
 	public Geoset getGeoset() {
 		return geoset;
 	}
 
-	public int getVertexGroupId() {
-		return vertexGroupId;
+
+	public Matrix getMatrix() {
+		return matrix;
+	}
+
+	public boolean sameMatrix(Matrix vertexMatrix){
+		return Objects.equals(matrix, vertexMatrix);
+	}
+
+	public Set<GeosetVertex> getBundleVerts(){
+		Set<GeosetVertex> verticesSelected = new HashSet<>();
+		for (GeosetVertex geosetVertex : geoset.getVertices()) {
+			if (Objects.equals(geosetVertex.getMatrix(), matrix)) {
+				verticesSelected.add(geosetVertex);
+			}
+		}
+		return verticesSelected;
 	}
 
 	@Override
@@ -24,7 +45,7 @@ public class VertexGroupBundle {
 		int prime = 31;
 		int result = 1;
 		result = (prime * result) + ((geoset == null) ? 0 : geoset.hashCode());
-		result = (prime * result) + vertexGroupId;
+		result = (prime * result) + matrix.hashCode();
 		return result;
 	}
 
@@ -33,21 +54,11 @@ public class VertexGroupBundle {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
-			return false;
+		if (obj instanceof VertexGroupBundle) {
+			VertexGroupBundle other = (VertexGroupBundle) obj;
+			return Objects.equals(geoset, other.geoset) && Objects.equals(matrix, other.matrix);
 		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		VertexGroupBundle other = (VertexGroupBundle) obj;
-		if (geoset == null) {
-			if (other.geoset != null) {
-				return false;
-			}
-		} else if (!geoset.equals(other.geoset)) {
-			return false;
-		}
-		return vertexGroupId == other.vertexGroupId;
+		return false;
 	}
 
 }

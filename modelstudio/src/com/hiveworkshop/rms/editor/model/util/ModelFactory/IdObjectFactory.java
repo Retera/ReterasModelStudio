@@ -17,8 +17,6 @@ public class IdObjectFactory {
 
 		loadObject(bone, mdlxBone, model);
 
-		bone.setGeosetId(mdlxBone.geosetId);
-		bone.setGeosetAnimId(mdlxBone.geosetAnimationId);
 		return bone;
 	}
 
@@ -161,20 +159,21 @@ public class IdObjectFactory {
 			particleEmitter2.setSegmentColor(i, colors[i]);
 //			setSegmentColor(i, new Vec3(ModelUtils.flipRGBtoBGR(colors[i])));
 		}
+		Vec3 temp = new Vec3();
 
 		short[] alphas = mdlxEmitter.segmentAlphas;
-		particleEmitter2.setAlpha(new Vec3(alphas[0], alphas[1], alphas[2]));
-		particleEmitter2.setParticleScaling(new Vec3(mdlxEmitter.segmentScaling));
+		particleEmitter2.setAlpha(temp.set(alphas[0], alphas[1], alphas[2]));
+		particleEmitter2.setParticleScaling(temp.set(mdlxEmitter.segmentScaling));
 
 		long[][] head = mdlxEmitter.headIntervals;
 		long[][] tail = mdlxEmitter.tailIntervals;
 
-		particleEmitter2.setHeadUVAnim(new Vec3(head[0][0], head[0][1], head[0][2]));
-		particleEmitter2.setHeadDecayUVAnim(new Vec3(head[1][0], head[1][1], head[1][2]));
-		particleEmitter2.setTailUVAnim(new Vec3(tail[0][0], tail[0][1], tail[0][2]));
-		particleEmitter2.setTailDecayUVAnim(new Vec3(tail[1][0], tail[1][1], tail[1][2]));
+		particleEmitter2.setHeadUVAnim(temp.set(head[0][0], head[0][1], head[0][2]));
+		particleEmitter2.setHeadDecayUVAnim(temp.set(head[1][0], head[1][1], head[1][2]));
+		particleEmitter2.setTailUVAnim(temp.set(tail[0][0], tail[0][1], tail[0][2]));
+		particleEmitter2.setTailDecayUVAnim(temp.set(tail[1][0], tail[1][1], tail[1][2]));
 
-		particleEmitter2.setTextureID(mdlxEmitter.textureId);
+		particleEmitter2.setTexture(model.getTexture(mdlxEmitter.textureId));
 
 		particleEmitter2.setSquirt(mdlxEmitter.squirt == 1);
 
@@ -199,6 +198,7 @@ public class IdObjectFactory {
 		particleEmitterPopcorn.setPath(mdlxEmitter.path);
 		particleEmitterPopcorn.setAnimVisibilityGuide(mdlxEmitter.animationVisiblityGuide);
 		System.out.println("VisGuid: " + mdlxEmitter.animationVisiblityGuide);
+		particleEmitterPopcorn.initAnimsVisStates(model.getAnims());
 		return particleEmitterPopcorn;
 	}
 

@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.editor.actions.nodes;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
-import com.hiveworkshop.rms.util.Vec3;
 
 public class SetFromOtherParticle2Action implements UndoAction {
 	ParticleEmitter2 emitter;
@@ -71,7 +70,6 @@ public class SetFromOtherParticle2Action implements UndoAction {
 		emitter.setTime(emitter2.getTime());
 		emitter.setRows(emitter2.getRows());
 		emitter.setColumns(emitter2.getColumns());
-		emitter.setTextureID(emitter2.getTextureID());
 		emitter.setReplaceableId(emitter2.getReplaceableId());
 		emitter.setPriorityPlane(emitter2.getPriorityPlane());
 
@@ -79,11 +77,11 @@ public class SetFromOtherParticle2Action implements UndoAction {
 		emitter.setSegmentColor(1, emitter2.getSegmentColor(1));
 		emitter.setSegmentColor(2, emitter2.getSegmentColor(2));
 		emitter.setAlpha(emitter2.getAlpha());
-		emitter.setParticleScaling(new Vec3(emitter2.getParticleScaling()));
-		emitter.setHeadUVAnim(new Vec3(emitter2.getHeadUVAnim()));
-		emitter.setHeadDecayUVAnim(new Vec3(emitter2.getHeadDecayUVAnim()));
-		emitter.setTailUVAnim(new Vec3(emitter2.getTailUVAnim()));
-		emitter.setTailDecayUVAnim(new Vec3(emitter2.getTailDecayUVAnim()));
+		emitter.setParticleScaling(emitter2.getParticleScaling());
+		emitter.setHeadUVAnim(emitter2.getHeadUVAnim());
+		emitter.setHeadDecayUVAnim(emitter2.getHeadDecayUVAnim());
+		emitter.setTailUVAnim(emitter2.getTailUVAnim());
+		emitter.setTailDecayUVAnim(emitter2.getTailDecayUVAnim());
 
 		emitter.setTexture(emitter2.getTexture());
 	}

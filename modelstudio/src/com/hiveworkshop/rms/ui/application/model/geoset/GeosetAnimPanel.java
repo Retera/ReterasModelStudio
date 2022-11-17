@@ -76,7 +76,7 @@ public class GeosetAnimPanel extends JPanel {
 	}
 
 	private void copyFromOther() {
-		GeosetAnimEditPanel.show(ProgramGlobals.getMainPanel(), model, geosetAnim, undoManager);
+		GeosetAnimEditPanel.show(ProgramGlobals.getMainPanel(), model, geoset, undoManager);
 		repaint();
 	}
 

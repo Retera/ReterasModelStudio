@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+
 /**
  * Write a description of class Helper here.
  *
@@ -8,11 +10,8 @@ package com.hiveworkshop.rms.editor.model;
  */
 public class Helper extends Bone { // Haha blizz
 	public Helper(final String name) {
-		super(name);
-	}
-
-	public Helper(final int j) {
 		super();
+		this.name = name;
 	}
 
 	public Helper(final Helper h) {
@@ -26,5 +25,11 @@ public class Helper extends Bone { // Haha blizz
 	@Override
 	public Helper copy() {
 		return new Helper(this);
+	}
+
+
+	@Override
+	public double getClickRadius() {
+		return ProgramGlobals.getPrefs().getNodeBoxSize();
 	}
 }

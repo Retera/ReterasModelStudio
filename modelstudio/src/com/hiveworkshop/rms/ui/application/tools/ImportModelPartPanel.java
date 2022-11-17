@@ -84,7 +84,7 @@ public class ImportModelPartPanel extends TwiImportPanel {
 			}
 			Set<GeosetVertex> addedVertexes = new HashSet<>();
 			for (Geoset geoset : newGeosets) {
-				geoset.getMatrices().clear();
+				geoset.clearMatrices();
 				addedVertexes.addAll(geoset.getVertices());
 				undoActions.add(new AddGeosetAction(geoset, recModel, null));
 			}

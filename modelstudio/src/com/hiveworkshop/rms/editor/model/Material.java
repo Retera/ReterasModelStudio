@@ -15,7 +15,7 @@ public class Material {
 	public static final String SHADER_SD_FIXEDFUNCTION = "Shader_SD_FixedFunction";
 	public static final String SHADER_SD_LEGACY = "Shader_SD_Legacy";
 	public static int teamColor = 0;
-	List<Layer> layers = new ArrayList<>();
+	private final List<Layer> layers = new ArrayList<>();
 	int priorityPlane = 0;
 	String shaderString = "";
 	private final EnumSet<flag> flags = EnumSet.noneOf(flag.class);
@@ -180,7 +180,8 @@ public class Material {
 	}
 
 	public void setLayers(final List<Layer> layers) {
-		this.layers = layers;
+		this.layers.clear();
+		this.layers.addAll(layers);
 	}
 
 	public int getPriorityPlane() {

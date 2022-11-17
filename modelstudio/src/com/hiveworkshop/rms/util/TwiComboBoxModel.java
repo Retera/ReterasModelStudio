@@ -73,7 +73,7 @@ public class TwiComboBoxModel<E> extends AbstractListModel<E> implements Mutable
 				selectedObject == null && anObject != null) {
 			selectedObject = anObject;
 			selectedTypedObject = anObject;
-			fireContentsChanged(this, -1, -1);
+			fireIntervalAdded(this, -1, -1);
 		}
 	}
 	public void setSelectedNoListener(E anObject) {
