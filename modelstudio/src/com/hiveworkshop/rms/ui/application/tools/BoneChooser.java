@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.Helper;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.IdObjectShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
 import com.hiveworkshop.rms.ui.util.SearchableList;
@@ -42,13 +41,6 @@ public class BoneChooser {
 		IdObjectShell<Bone> currentBoneShell = null;
 		bonesJList.add(new IdObjectShell<>(null));
 		for (Bone bone : model.getBones()) {
-			IdObjectShell<Bone> boneShell = new IdObjectShell<>(bone);
-			bonesJList.add(boneShell);
-			if (bone == currentBone) {
-				currentBoneShell = boneShell;
-			}
-		}
-		for (Helper bone : model.getHelpers()) {
 			IdObjectShell<Bone> boneShell = new IdObjectShell<>(bone);
 			bonesJList.add(boneShell);
 			if (bone == currentBone) {

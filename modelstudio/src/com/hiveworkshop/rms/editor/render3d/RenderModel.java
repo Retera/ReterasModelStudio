@@ -21,7 +21,7 @@ import java.util.*;
 public final class RenderModel {
 	Quat IDENTITY = new Quat();
 	private final EditableModel model;
-	public static final double MAGIC_RENDER_SHOW_CONSTANT = 0.75;
+	public static final double MAGIC_RENDER_SHOW_CONSTANT = 0.25;
 	private final List<AnimatedNode> sortedNodes = new ArrayList<>();
 	private final TimeEnvironmentImpl timeEnvironment;
 

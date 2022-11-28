@@ -243,11 +243,11 @@ public class BoneReplacementWizard {
 	
 	private List<IdObject> checkForSuitibleChildBones(IdObject idObject, List<IdObject> nodesToCheck){
 		List<IdObject> nodes =  new ArrayList<>();
-		if(idObject instanceof Bone && !(idObject instanceof Helper)){
+		if(idObject instanceof Bone){
 			for (IdObject node : nodesToCheck){
 				if(node instanceof Helper){
 					for(IdObject child : node.getChildrenNodes()){
-						if(child instanceof Bone && !(child instanceof Helper)){
+						if(child instanceof Bone){
 							nodes.add(child);
 						}
 					}
@@ -346,11 +346,11 @@ public class BoneReplacementWizard {
 
 	private List<IdObject> fetchSuitibleChildBones(IdObject idObject, List<IdObject> nodesToCheck){
 		List<IdObject> nodes =  new ArrayList<>();
-		if(idObject instanceof Bone && !(idObject instanceof Helper)){
+		if(idObject instanceof Bone){
 			for (IdObject node : nodesToCheck){
 				if(node instanceof Helper){
 					for(IdObject child : node.getChildrenNodes()){
-						if(child instanceof Bone && !(child instanceof Helper)){
+						if(child instanceof Bone){
 							nodes.add(child);
 						}
 					}

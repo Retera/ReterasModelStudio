@@ -91,6 +91,9 @@ public class Vec3SpinnerArray {
 		spinners[0].setEnabled(b);
 		spinners[1].setEnabled(b);
 		spinners[2].setEnabled(b);
+		labels[0].setEnabled(b);
+		labels[1].setEnabled(b);
+		labels[2].setEnabled(b);
 		return this;
 	}
 

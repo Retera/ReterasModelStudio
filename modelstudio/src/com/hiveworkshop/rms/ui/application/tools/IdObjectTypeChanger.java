@@ -17,7 +17,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 
 public class IdObjectTypeChanger {
@@ -50,7 +50,7 @@ public class IdObjectTypeChanger {
 
 		panel.add(new JLabel("Choose new type for " + typeName), "wrap");
 
-		if(idObject instanceof Bone && !(idObject instanceof Helper)){
+		if(idObject instanceof Bone){
 			JLabel label = new JLabel("This bone will be removed from any matrix or skin it might be used in.");
 			label.setFont(label.getFont().deriveFont(Font.ITALIC));
 			panel.add(label, "wrap");
@@ -59,7 +59,7 @@ public class IdObjectTypeChanger {
 
 		int change_type = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), panel, title, JOptionPane.OK_CANCEL_OPTION);
 		if(change_type == JOptionPane.OK_OPTION){
-			IdObject newNode = values[buttonGroup.getSelectedIndex()].getNewNode();
+			IdObject newNode = values[buttonGroup.getSelectedIndex()].getNewNode(idObject.getName());
 			if(idObject.getClass() != newNode.getClass()){
 				IdObjectTypeChanger.doReplaceNode(idObject, newNode, modelHandler);
 			}
@@ -98,23 +98,22 @@ public class IdObjectTypeChanger {
 
 
 	enum NodeType {
-		ATTACHMENT("Attachment", () -> new Attachment(), Attachment.class),
-		BONE("Bone", () -> new Bone(), Bone.class),
-		COLLISION_SHAPE("CollisionShape", () -> new CollisionShape(), CollisionShape.class),
-		EVENT_OBJECT("EventObject", () -> new EventObject(), EventObject.class),
-		HELPER("Helper", () -> new Helper(), Helper.class),
-		LIGHT("Light", () -> new Light(), Light.class),
-		PARTICLE_EMITTER("ParticleEmitter", () -> new ParticleEmitter(), ParticleEmitter.class),
-		PARTICLE_EMITTER2("ParticleEmitter2", () -> new ParticleEmitter2(), ParticleEmitter2.class),
-		POPCORN_EMITTER("PopcornEmitter", () -> new ParticleEmitterPopcorn(), ParticleEmitterPopcorn.class),
-		RIBBON_EMITTER("RibbonEmitter", () -> new RibbonEmitter(), RibbonEmitter.class);
+		ATTACHMENT("Attachment", (name) -> new Attachment(name), Attachment.class),
+		BONE("Bone", (name) -> new Bone(name), Bone.class),
+		COLLISION_SHAPE("CollisionShape", (name) -> new CollisionShape(name), CollisionShape.class),
+		EVENT_OBJECT("EventObject", (name) -> new EventObject(name), EventObject.class),
+		HELPER("Helper", (name) -> new Helper(name), Helper.class),
+		LIGHT("Light", (name) -> new Light(name), Light.class),
+		PARTICLE_EMITTER("ParticleEmitter", (name) -> new ParticleEmitter(name), ParticleEmitter.class),
+		PARTICLE_EMITTER2("ParticleEmitter2", (name) -> new ParticleEmitter2(name), ParticleEmitter2.class),
+		POPCORN_EMITTER("PopcornEmitter", (name) -> new ParticleEmitterPopcorn(name), ParticleEmitterPopcorn.class),
+		RIBBON_EMITTER("RibbonEmitter", (name) -> new RibbonEmitter(name), RibbonEmitter.class);
 		final String name;
-		final Supplier<IdObject> nodeSupplier;
+		final Function<String, IdObject> nodeFunction;
 		final Class<? extends IdObject> nodeClass;
-
-		NodeType(String name, Supplier<IdObject> nodeSupplier, Class<? extends IdObject> nodeClass){
+		NodeType(String name, Function<String, IdObject> nodeFunction, Class<? extends IdObject> nodeClass){
 			this.name = name;
-			this.nodeSupplier = nodeSupplier;
+			this.nodeFunction = nodeFunction;
 			this.nodeClass = nodeClass;
 		}
 
@@ -130,12 +129,8 @@ public class IdObjectTypeChanger {
 			return HELPER;
 		}
 
-		public Supplier<IdObject> getNodeSupplier() {
-			return nodeSupplier;
-		}
-
-		public IdObject getNewNode(){
-			return nodeSupplier.get();
+		public IdObject getNewNode(String name){
+			return nodeFunction.apply(name);
 		}
 	}
 }

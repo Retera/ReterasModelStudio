@@ -264,7 +264,7 @@ public class IdObjectFactory {
 	}
 
 	public static CollisionShape createCollisionShape(MdlxCollisionShape mdlxShape, EditableModel model) {
-		CollisionShape collisionShape = new CollisionShape();
+		CollisionShape collisionShape = new CollisionShape(mdlxShape.type);
 		if ((mdlxShape.flags & 8192) != 8192) {
 			System.err.println("MDX -> MDL error: A collisionshape '" + mdlxShape.name
 					+ "' not flagged as collisionshape in MDX!");
@@ -272,14 +272,12 @@ public class IdObjectFactory {
 
 		loadObject(collisionShape, mdlxShape, model);
 
-		collisionShape.setType(mdlxShape.type);
-
 		float[][] vertices = mdlxShape.vertices;
 
-		collisionShape.addVertex(new Vec3(vertices[0]));
+		collisionShape.setVertex(0, new Vec3(vertices[0]));
 
 		if (collisionShape.getType() != MdlxCollisionShape.Type.SPHERE) {
-			collisionShape.addVertex(new Vec3(vertices[1]));
+			collisionShape.setVertex(1, new Vec3(vertices[1]));
 		}
 
 		if (collisionShape.getType() == MdlxCollisionShape.Type.CYLINDER) {

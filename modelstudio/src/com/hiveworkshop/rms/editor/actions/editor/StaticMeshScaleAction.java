@@ -62,7 +62,7 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 
 	@Override
 	public UndoAction undo() {
-		Vec3 revScale = new Vec3(1, 1, 1).divide(scale.length()>0 ? scale : new Vec3(0.1, 0.1, 0.1).scale(0.0000001f));
+		Vec3 revScale = new Vec3(1, 1, 1).divide(0 < scale.length() ? scale : new Vec3(0.1, 0.1, 0.1).scale(0.0000001f));
 		rawScale(center, revScale);
 
 		for (int i = 0; i<selectedVertices.size(); i++) {
@@ -109,9 +109,9 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 //				translateBone(object, scale);
 //			} else
 			if (object instanceof CollisionShape) {
-				double boundsRadius = ((CollisionShape) object).getBoundsRadius();
-				if ((boundsRadius != -99) && (scale.x == scale.x) && (scale.y == scale.z)) {
-					((CollisionShape) object).setBoundsRadius(boundsRadius * scale.x);
+				CollisionShape shape = (CollisionShape) object;
+				if ((scale.x == scale.z) && (scale.y == scale.z)) {
+					shape.setBoundsRadius(shape.getBoundsRadius() * scale.x);
 				}
 			}
 			if(object instanceof ParticleEmitter2){

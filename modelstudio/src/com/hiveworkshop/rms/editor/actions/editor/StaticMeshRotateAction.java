@@ -20,7 +20,7 @@ public final class StaticMeshRotateAction implements GenericRotateAction {
 	private double radians;
 	private final Set<GeosetVertex> selectedVertices;
 	private final Set<IdObject> selectedIdObjects;
-	private final Set<CameraNode> selectedCameras;
+	private final Set<CameraNode> selectedCameraNodes;
 
 	public StaticMeshRotateAction(ModelView modelView, Vec3 center, byte dim1, byte dim2) {
 		this.center = center;
@@ -28,7 +28,7 @@ public final class StaticMeshRotateAction implements GenericRotateAction {
 		axis = getPerpAxis(dim1, dim2);
 		selectedVertices = new HashSet<>(modelView.getSelectedVertices());
 		selectedIdObjects = new HashSet<>(modelView.getSelectedIdObjects());
-		selectedCameras = new HashSet<>(modelView.getSelectedCameraNodes());
+		selectedCameraNodes = new HashSet<>(modelView.getSelectedCameraNodes());
 	}
 
 	@Override
@@ -55,8 +55,8 @@ public final class StaticMeshRotateAction implements GenericRotateAction {
 		return this;
 	}
 
-	public void rotate(double v) {
-		rot.setFromAxisAngle(axis, (float) v);
+	public void rotate(double radians) {
+		rot.setFromAxisAngle(axis, (float) radians);
 		for (GeosetVertex vertex : selectedVertices) {
 			vertex.rotate(center, rot);
 		}
@@ -73,8 +73,8 @@ public final class StaticMeshRotateAction implements GenericRotateAction {
 			}
 		}
 
-		for (CameraNode cameraNode : selectedCameras) {
-			cameraNode.getPosition().rotate(center, rot);
+		for (CameraNode node : selectedCameraNodes) {
+			node.getPosition().rotate(center, rot);
 		}
 	}
 

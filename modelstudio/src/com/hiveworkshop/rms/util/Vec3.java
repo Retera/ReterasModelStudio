@@ -886,6 +886,17 @@ public class Vec3 {
 		return this.set(color.getColorComponents(null));
 	}
 
+	public Vec3 setAsAxis(Quat quat){
+		float angle = (float) Math.acos(quat.w) * 2;
+		float sinOfHalfAngle = (float) Math.sin(angle / 2.0);
+		if(sinOfHalfAngle != 0) {
+			float ax = quat.x / sinOfHalfAngle;
+			float ay = quat.y / sinOfHalfAngle;
+			float az = quat.z / sinOfHalfAngle;
+			return set(ax, ay, az);
+		}
+		return set(0, 0, 1);
+	}
 	public int getPositionHash() {
 		int prime = 31;
 		int result = 1;

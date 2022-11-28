@@ -137,7 +137,7 @@ public final class ResettableIdObjectRenderer {
 
 	            graphics.drawRoundRect((int) minCoord.x, (int) minCoord.y, (int) diff.x, (int) diff.y, vertexSize, vertexSize);
             }
-        } else if (collisionShape.getBoundsRadius() != -99) {
+        } else if (collisionShape.getType() == MdlxCollisionShape.Type.CYLINDER || collisionShape.getType() == MdlxCollisionShape.Type.SPHERE) {
             Vec3 vertexHeap = new Vec3(collisionShape.getPivotPoint());
             if (worldMatrix != null) {
                 vertexHeap.transform(worldMatrix);

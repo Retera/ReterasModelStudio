@@ -82,7 +82,6 @@ public class NodeAnimationModelEditor extends ModelEditor {
 
 	@Override
 	public GenericMoveAction beginTranslation() {
-		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from a TimeEnvironmentImpl render environment, and never from the anim previewer impl
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
 		Set<CameraNode> camSelection = modelView.getSelectedCameraNodes();
 

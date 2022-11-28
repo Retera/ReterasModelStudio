@@ -490,6 +490,17 @@ public class Quat extends Vec4 {
 		float az = z / sinOfHalfAngle;
 		return new Vec4(ax, ay, az, angle);
 	}
+	public Vec3 getAxis() {
+		float angle = (float) Math.acos(w) * 2;
+		float sinOfHalfAngle = (float) Math.sin(angle / 2.0);
+		float ax = x / sinOfHalfAngle;
+		float ay = y / sinOfHalfAngle;
+		float az = z / sinOfHalfAngle;
+		return new Vec3(ax, ay, az);
+	}
+	public float getAxisAngle() {
+		return (float) Math.acos(w) * 2;
+	}
 
 	public Quat setIdentity() {
 		x = 0;

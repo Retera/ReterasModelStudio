@@ -14,33 +14,38 @@ import java.util.List;
  * Eric Theller 3/10/2012 3:52 PM
  */
 public class CollisionShape extends IdObject {
-//	ExtLog extents;
-	Type type = Type.BOX;
-	List<Vec3> vertices = new ArrayList<>();
-	Vec3 vertex1 = new Vec3();
-	Vec3 vertex2 = new Vec3();
-	double boundsRadius = -99;
+	private Type type;
+	private final List<Vec3> vertices = new ArrayList<>();
+	private double boundsRadius = 0;
 
 	public CollisionShape(CollisionShape shape) {
 		super(shape);
 
 		type = shape.type;
 
-		vertices = new ArrayList<>(shape.vertices);
-		vertex1.set(shape.vertex1);
-		vertex2.set(shape.vertex2);
-
-//		if (shape.extents != null) {
-//			extents = shape.extents.deepCopy();
-//		}
+		for(Vec3 vert : shape.vertices){
+			vertices.add(new Vec3(vert));
+		}
 		boundsRadius = shape.boundsRadius;
 	}
 
 	public CollisionShape(String name) {
-		this.name = name;
+		this(name, Type.SPHERE);
 	}
 
 	public CollisionShape() {
+		this(Type.SPHERE);
+	}
+	public CollisionShape(Type type) {
+		this("", type);
+	}
+	public CollisionShape(String name, Type type) {
+		this.name = name;
+		this.type = type;
+		vertices.add(new Vec3());
+		if(type != Type.SPHERE){
+			vertices.add(new Vec3());
+		}
 	}
 
 	@Override
@@ -56,18 +61,15 @@ public class CollisionShape extends IdObject {
 		this.type = type;
 	}
 
-	public void addVertex(Vec3 v) {
-		vertices.add(v);
-	}
-
 	public void setVertex(int vertId, Vec3 v){
-		Vec3 vertex = getVertex(vertId);
-		if(vertex != null && v == null){
-			vertices.remove(vertId);
-		} else if(vertex != null){
-			vertex.set(v);
-		} else {
-			vertices.add(vertId, v);
+		if(vertId < vertices.size()) {
+			if(v == null){
+				vertices.remove(vertId);
+			} else {
+				vertices.get(vertId).set(v);
+			}
+		} else if (v != null) {
+			vertices.add(v);
 		}
 	}
 
@@ -82,20 +84,13 @@ public class CollisionShape extends IdObject {
 		return vertices.size();
 	}
 
-//	public ExtLog getExtents() {
-//		return extents;
-//	}
-
-//	public void setExtents(ExtLog extents) {
-//		this.extents = extents;
-//	}
-
 	public List<Vec3> getVertices() {
 		return vertices;
 	}
 
 	public void setVertices(List<Vec3> vertices) {
-		this.vertices = vertices;
+		this.vertices.clear();
+		this.vertices.addAll(vertices);
 	}
 
 	public CollisionShape setBoundsRadius(double boundsRadius) {

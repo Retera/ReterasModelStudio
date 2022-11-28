@@ -117,7 +117,7 @@ public class Layer extends TimelineContainer implements Named {
 
 	public void setTexture(int i, Bitmap texture) {
 		if(i < textures.size()){
-			this.textures.get(i).setTexture(texture);
+			textures.get(i).setTexture(texture);
 		} else {
 			textures.add(new Texture(texture));
 		}

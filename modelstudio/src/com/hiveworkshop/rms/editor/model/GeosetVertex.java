@@ -147,7 +147,7 @@ public class GeosetVertex extends Vec3 {
 			for (SkinBone skinBone : skinBones){
 				if (skinBone != null && skinBone.getBone() != null){
 					IdObject idObject = newBoneMap.get(skinBone.getBone());
-					if(idObject instanceof Bone && !(idObject instanceof Helper)){
+					if(idObject instanceof Bone){
 						skinBone.setBone((Bone) idObject);
 					}
 				}
@@ -161,7 +161,7 @@ public class GeosetVertex extends Vec3 {
 			for (SkinBone skinBone : skinBones){
 				if (skinBone != null && skinBone.getBone() != null){
 					IdObject idObject = newBoneMap.get(skinBone.getBone());
-					if(idObject instanceof Bone && !(idObject instanceof Helper)){
+					if(idObject instanceof Bone){
 						skinBone.setBone((Bone) idObject);
 					}
 				}

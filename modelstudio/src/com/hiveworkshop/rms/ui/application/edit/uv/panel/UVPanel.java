@@ -131,7 +131,7 @@ public class UVPanel extends JPanel {
 
 	private void mirror(Vec2 axis, Vec2 center) {
 		if (modelHandler != null) {
-			if(center == null){
+			if(center == null) {
 				center = toolbar.getModelEditorManager().getSelectionView().getUVCenter(0);
 			}
 			Collection<Vec2> tVertices = getTVertices(modelHandler.getModelView().getSelectedVertices(), 0);
@@ -153,7 +153,7 @@ public class UVPanel extends JPanel {
 	private void unwrapFromView(UnwrapDirection unwrapDirection) {
 		if (unwrapDirection != null) {
 			Mat4 cam;
-			if(unwrapDirection == UnwrapDirection.PERSPECTIVE){
+			if(unwrapDirection == UnwrapDirection.PERSPECTIVE) {
 				cam = viewport.getCameraHandler().getViewPortAntiRotMat();
 			} else {
 				cam = new Mat4().setIdentity();
@@ -231,11 +231,10 @@ public class UVPanel extends JPanel {
 			menuBar.setModel(modelPanel);
 			uvViewport.setModel(this.modelHandler, modelPanel.getUVViewportActivityManager());
 
-			textureComboBox.removeAllItems();
-			textureComboBox.addAll(modelHandler.getModel().getTextures());
+			textureComboBox.setNewLinkedModelOf(modelHandler.getModel().getTextures());
 
 			textureComboBox.setRenderer(new TextureListRenderer(modelHandler.getModel()));
-			if (textureComboBox.getItemCount() > 0) {
+			if (0 < textureComboBox.getItemCount()) {
 				textureComboBox.setSelectedItem(null);
 				textureComboBox.setSelectedIndex(0);
 			}

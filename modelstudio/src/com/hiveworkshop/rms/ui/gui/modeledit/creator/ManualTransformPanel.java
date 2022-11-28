@@ -18,7 +18,6 @@ public class ManualTransformPanel extends JPanel {
 	private ModelHandler modelHandler;
 	private ModelEditorManager modelEditorManager;
 	private JPanel movePanel;
-	//	private JPanel moveToPanel;
 	private JPanel scalePanel;
 	private JPanel rotatePanel;
 	private ShrinkFattenPanel shrinkFattenPanel;
@@ -31,18 +30,14 @@ public class ManualTransformPanel extends JPanel {
 	public ManualTransformPanel() {
 		super(new MigLayout("hidemode 2, ins 0, gap 0"));
 		movePanel = getMovePanel();
-//		moveToPanel = getMoveToPanel();
 		scalePanel = getScalePanel();
 		rotatePanel = getRotatePanel();
 
 		add(getSelectionInfoPanel(), "spanx, wrap");
 		add(movePanel);
-//		add(moveToPanel);
 		add(scalePanel);
 		add(rotatePanel);
 
-//		movePanel.setVisible(false);
-//		moveToPanel.setVisible(false);
 		scalePanel.setVisible(false);
 		rotatePanel.setVisible(false);
 
@@ -62,19 +57,16 @@ public class ManualTransformPanel extends JPanel {
 
 			case TRANSLATION, EXTRUDE, EXTEND -> {
 				movePanel.setVisible(true);
-//				moveToPanel.setVisible(false);
 				scalePanel.setVisible(false);
 				rotatePanel.setVisible(false);
 			}
 			case ROTATION, SQUAT -> {
 				movePanel.setVisible(false);
-//				moveToPanel.setVisible(false);
 				scalePanel.setVisible(false);
 				rotatePanel.setVisible(true);
 			}
 			case SCALING -> {
 				movePanel.setVisible(false);
-//				moveToPanel.setVisible(false);
 				scalePanel.setVisible(true);
 				rotatePanel.setVisible(false);
 			}
@@ -119,13 +111,6 @@ public class ManualTransformPanel extends JPanel {
 		selectionPanel.add(new JLabel("Center: "), "wrap");
 		selectionPanel.add(selectionCenter, "spanx 3");
 		return selectionPanel;
-//		JPanel selectionPanel = new JPanel(new MigLayout("gap 0"));
-//		selectionPanel.add(new JLabel("Selection:"), "wrap");
-//		selectionPanel.add(selectedVerts, "wrap");
-//		selectionPanel.add(selectedNodes, "wrap");
-//		selectionPanel.add(selectedCams, "wrap");
-//		selectionPanel.add(selectionCenter);
-//		return selectionPanel;
 	}
 	void updateSelectionPanel(){
 		if(modelHandler != null){
@@ -134,12 +119,6 @@ public class ManualTransformPanel extends JPanel {
 			selectedCams.setText("" + modelHandler.getModelView().getSelectedCameraNodes().size());
 			selectionCenter.setText("" + modelHandler.getModelView().getSelectionCenter());
 		}
-//		if(modelHandler != null){
-//			selectedVerts.setText("Vertices: " + modelHandler.getModelView().getSelectedVertices().size());
-//			selectedNodes.setText("Nodes: " + modelHandler.getModelView().getSelectedIdObjects().size());
-//			selectedCams.setText("Camera Nodes: " + modelHandler.getModelView().getSelectedCameraNodes().size());
-//			selectionCenter.setText("Center: " + modelHandler.getModelView().getSelectionCenter());
-//		}
 	}
 
 	JPanel getMovePanel() {
@@ -148,33 +127,16 @@ public class ManualTransformPanel extends JPanel {
 		inputPanel.add(spinners.setSpinnerWrap(true).spinnerPanel(), "wrap");
 
 		JButton button = new JButton("Move");
-		button.addActionListener(e -> move(spinners));
+		button.addActionListener(e -> move(spinners.getValue()));
 		inputPanel.add(button, "wrap");
 
 		Vec3SpinnerArray spinners2 = new Vec3SpinnerArray(new Vec3(0, 0, 0), "New Position X:", "New Position Y:", "New Position Z:");
 		inputPanel.add(spinners2.setSpinnerWrap(true).spinnerPanel(), "wrap");
 
 		JButton button2 = new JButton("Move to");
-		button2.addActionListener(e -> moveTo(spinners2));
+		button2.addActionListener(e -> moveTo(spinners2.getValue()));
 		inputPanel.add(button2);
 		return inputPanel;
-	}
-
-	JPanel getMovePanel1() {
-		JPanel inputPanel = new JPanel(new MigLayout("gap 0"));
-		Vec3SpinnerArray spinners = new Vec3SpinnerArray(new Vec3(0, 0, 0), "Move X:", "Move Y:", "Move Z:");
-		inputPanel.add(spinners.setSpinnerWrap(true).spinnerPanel(), "wrap");
-
-		JButton button = new JButton("Move");
-		button.addActionListener(e -> move(spinners));
-		inputPanel.add(button);
-		return inputPanel;
-	}
-
-	private void move(Vec3SpinnerArray spinners) {
-		if (modelHandler != null && !modelHandler.getModelView().isEmpty()) {
-			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().translate(spinners.getValue()).redo());
-		}
 	}
 
 	JPanel getRotatePanel() {

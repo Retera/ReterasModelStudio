@@ -23,7 +23,7 @@ public class ComponentCollisionPanel extends ComponentIdObjectPanel<CollisionSha
 		typeBox.addOnSelectItemListener(this::setType);
 		v1SpinnerArray = new Vec3SpinnerArray().setVec3Consumer(this::setV1);
 		v2SpinnerArray = new Vec3SpinnerArray().setVec3Consumer(this::setV2);
-		boundsSpinner = new FloatEditorJSpinner(-99, -99, 1);
+		boundsSpinner = new FloatEditorJSpinner(0, 0, 1);
 		boundsSpinner.setFloatEditingStoppedListener(this::setBoundRad);
 
 		topPanel.add(typeBox, "wrap");
@@ -42,7 +42,9 @@ public class ComponentCollisionPanel extends ComponentIdObjectPanel<CollisionSha
 		} else {
 			v2SpinnerArray.setValues(Vec3.ZERO).setEnabled(false);
 		}
-		boundsSpinner.reloadNewValue(idObject.getBoundsRadius()).setEnabled(idObject.getBoundsRadius()>=0);
+		boundsSpinner.reloadNewValue(idObject.getBoundsRadius())
+				.setEnabled(idObject.getType() == MdlxCollisionShape.Type.CYLINDER
+						|| idObject.getType() == MdlxCollisionShape.Type.SPHERE);
 	}
 
 	private void setType(MdlxCollisionShape.Type type){
@@ -53,7 +55,6 @@ public class ComponentCollisionPanel extends ComponentIdObjectPanel<CollisionSha
 
 	private void setV1(Vec3 v1){
 		if(!v1.equalLocs(idObject.getVertex(0))){
-//			Vec3 v2 = v1SpinnerArray.isEnabled() ? v1SpinnerArray.getValue() : null;
 			Vec3 v2 = idObject.getVertex(1);
 			undoManager.pushAction(new SetCollisionExtents(idObject, idObject.getBoundsRadius(), v1, v2, changeListener).redo());
 		}
@@ -61,15 +62,12 @@ public class ComponentCollisionPanel extends ComponentIdObjectPanel<CollisionSha
 
 	private void setV2(Vec3 v2){
 		if(!v2.equalLocs(idObject.getVertex(1))){
-//			Vec3 v1 = v1SpinnerArray.isEnabled() ? v1SpinnerArray.getValue() : null;
 			Vec3 v1 = idObject.getVertex(0);
 			undoManager.pushAction(new SetCollisionExtents(idObject, idObject.getBoundsRadius(), v1, v2, changeListener).redo());
 		}
 	}
 	private void setBoundRad(float boundsRadius){
 		if(boundsRadius != idObject.getBoundsRadius() && boundsRadius>=0 && idObject.getBoundsRadius()>=0){
-//			Vec3 v1 = v1SpinnerArray.isEnabled() ? v1SpinnerArray.getValue() : null;
-//			Vec3 v2 = v1SpinnerArray.isEnabled() ? v1SpinnerArray.getValue() : null;
 			Vec3 v1 = idObject.getVertex(0);
 			Vec3 v2 = idObject.getVertex(1);
 			undoManager.pushAction(new SetCollisionExtents(idObject, boundsRadius, v1, v2, changeListener).redo());

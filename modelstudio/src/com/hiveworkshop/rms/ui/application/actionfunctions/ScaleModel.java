@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.actions.editor.StaticMeshScaleAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.language.TextKey;
 import com.hiveworkshop.rms.util.SmartNumberSlider;
 import com.hiveworkshop.rms.util.Vec3;
@@ -18,13 +17,11 @@ public class ScaleModel extends ActionFunction {
 	private final static String SLIDER_CONSTRAINTS = "wrap, growx, spanx";
 
 	public ScaleModel(){
-		super(TextKey.SCALE_MODEL, () -> showPopup());
+		super(TextKey.SCALE_MODEL, ScaleModel::showPopup);
 	}
 
-	public static void showPopup(){
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null) {
-			ModelHandler modelHandler = modelPanel.getModelHandler();
+	private static void showPopup(ModelHandler modelHandler) {
+		if(modelHandler != null){
 			StaticMeshScaleAction action = startScaleModel(new Vec3(0, 0, 0), modelHandler.getModel());
 			Vec3 scaleVec = new Vec3(1,1,1);
 			float[] scaleDiff = new float[]{1, 1};

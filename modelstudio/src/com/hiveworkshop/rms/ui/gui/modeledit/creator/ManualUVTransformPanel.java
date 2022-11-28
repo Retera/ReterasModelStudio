@@ -16,7 +16,6 @@ public class ManualUVTransformPanel extends JPanel {
 	private ModelHandler modelHandler;
 	private TVertexEditorManager tVertexEditorManager;
 	private JPanel movePanel;
-	//	private JPanel moveToPanel;
 	private JPanel scalePanel;
 	private JPanel rotatePanel;
 //	private ShrinkFattenPanel shrinkFattenPanel;
@@ -24,17 +23,13 @@ public class ManualUVTransformPanel extends JPanel {
 	public ManualUVTransformPanel() {
 		super(new MigLayout("hidemode 2, ins 0, gap 0"));
 		movePanel = getMovePanel();
-//		moveToPanel = getMoveToPanel();
 		scalePanel = getScalePanel();
 		rotatePanel = getRotatePanel();
 
 		add(movePanel);
-//		add(moveToPanel);
 		add(scalePanel);
 		add(rotatePanel);
 
-//		movePanel.setVisible(false);
-//		moveToPanel.setVisible(false);
 		scalePanel.setVisible(false);
 		rotatePanel.setVisible(false);
 
@@ -53,19 +48,16 @@ public class ManualUVTransformPanel extends JPanel {
 
 			case TRANSLATION, EXTRUDE, EXTEND -> {
 				movePanel.setVisible(true);
-//				moveToPanel.setVisible(false);
 				scalePanel.setVisible(false);
 				rotatePanel.setVisible(false);
 			}
 			case ROTATION, SQUAT -> {
 				movePanel.setVisible(false);
-//				moveToPanel.setVisible(false);
 				scalePanel.setVisible(false);
 				rotatePanel.setVisible(true);
 			}
 			case SCALING -> {
 				movePanel.setVisible(false);
-//				moveToPanel.setVisible(false);
 				scalePanel.setVisible(true);
 				rotatePanel.setVisible(false);
 			}
@@ -113,17 +105,6 @@ public class ManualUVTransformPanel extends JPanel {
 		JButton button2 = new JButton("Move to");
 		button2.addActionListener(e -> moveTo(spinners2));
 		inputPanel.add(button2);
-		return inputPanel;
-	}
-
-	JPanel getMovePanel1() {
-		JPanel inputPanel = new JPanel(new MigLayout("gap 0"));
-		Vec2SpinnerArray spinners = new Vec2SpinnerArray(new Vec2(0, 0), "Move X:", "Move Y:");
-		inputPanel.add(spinners.setSpinnerWrap(true).spinnerPanel(), "wrap");
-
-		JButton button = new JButton("Move");
-		button.addActionListener(e -> move(spinners));
-		inputPanel.add(button);
 		return inputPanel;
 	}
 
@@ -191,17 +172,6 @@ public class ManualUVTransformPanel extends JPanel {
 //			Vec2 selectionCenter = modelHandler.getModelView().getSelectionCenter();
 			modelHandler.getUndoManager().pushAction(tVertexEditorManager.getModelEditor().rotate(center, spinners.getVec3Value()).redo());
 		}
-	}
-
-	JPanel getMoveToPanel() {
-		JPanel inputPanel = new JPanel(new MigLayout("gap 0"));
-		Vec2SpinnerArray spinners = new Vec2SpinnerArray(new Vec2(0, 0), "New Position X:", "New Position Y:");
-		inputPanel.add(spinners.setSpinnerWrap(true).spinnerPanel(), "wrap");
-
-		JButton button = new JButton("Move to");
-		button.addActionListener(e -> moveTo(spinners));
-		inputPanel.add(button);
-		return inputPanel;
 	}
 
 	private void moveTo(Vec2SpinnerArray spinners) {

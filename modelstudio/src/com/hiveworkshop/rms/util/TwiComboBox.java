@@ -70,7 +70,7 @@ public class TwiComboBox<E> extends JComboBox<E> {
 			}
 		} else if (e.getStateChange() == ItemEvent.DESELECTED
 				&& comboBoxModel != null
-				&& comboBoxModel.getSelectedTyped() == null){
+				&& comboBoxModel.getSelectedTyped() == null) {
 			consumer.accept(null);
 		}
 	}
@@ -90,7 +90,7 @@ public class TwiComboBox<E> extends JComboBox<E> {
 
 		int itemCount = getItemCount();
 		int newIndex = previousSelectedIndex + steps;
-		if(allowLastToFirst){
+		if (allowLastToFirst) {
 			newIndex = (itemCount + newIndex) % itemCount;
 		} else {
 			newIndex = MathUtils.clamp(newIndex, 0, itemCount-1);
@@ -130,15 +130,15 @@ public class TwiComboBox<E> extends JComboBox<E> {
 	public TwiComboBox<E> selectOrFirst(E item){
 //		setSelectedItem(item);
 		comboBoxModel.setSelectedNoListener(item);
-		if(getSelectedItem() == null && getItemCount() > 0){
+		if (getSelectedItem() == null && 0 < getItemCount()) {
 			comboBoxModel.setSelectedNoListener(comboBoxModel.getElementAt(0));
 		}
 		selectedItemReminder = comboBoxModel.getSelectedItem();
-		if(getEditor() != null){
+		if (getEditor() != null) {
 			getEditor().setItem(comboBoxModel.getSelectedItem());
 		}
 //		setSelectedItem(item);
-//		if(getSelectedItem() == null && getItemCount() > 0){
+//		if (getSelectedItem() == null && getItemCount() > 0) {
 //			setSelectedIndex(0);
 //		}
 		return this;
@@ -146,17 +146,17 @@ public class TwiComboBox<E> extends JComboBox<E> {
 	public TwiComboBox<E> selectOrFirstWithListener(E item){
 //		setSelectedItem(item);
 		comboBoxModel.setSelectedItem(item);
-		if(getSelectedItem() == null && getItemCount() > 0){
+		if (getSelectedItem() == null && 0 < getItemCount()) {
 			comboBoxModel.setSelectedItem(comboBoxModel.getElementAt(0));
 		}
 		selectedItemReminder = comboBoxModel.getSelectedItem();
-		if(getEditor() != null){
+		if (getEditor() != null) {
 			getEditor().setItem(comboBoxModel.getSelectedItem());
 		}
 		return this;
 	}
 	public TwiComboBox<E> selectFirst(){
-		if(getItemCount() > 0){
+		if (0 < getItemCount()) {
 			comboBoxModel.setSelectedNoListener(comboBoxModel.getElementAt(0));
 		}
 		return this;
