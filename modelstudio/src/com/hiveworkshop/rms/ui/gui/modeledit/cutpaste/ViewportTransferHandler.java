@@ -157,10 +157,8 @@ public class ViewportTransferHandler extends TransferHandler {
 		List<GeosetVertex> pastedVerts = new ArrayList<>();
 		for (Geoset pastedGeoset : pastedModel.getGeosets()) {
 			pastedGeoset.setParentModel(currentModel);
-			if(pastedGeoset.getGeosetAnim() != null){
-				for (AnimFlag<?> animFlag : pastedGeoset.getGeosetAnim().getAnimFlags()) {
-					replaceAnimations(animFlag, sequenceMap);
-				}
+			for (AnimFlag<?> animFlag : pastedGeoset.getAnimFlags()) {
+				replaceAnimations(animFlag, sequenceMap);
 			}
 			for (GeosetVertex vertex : pastedGeoset.getVertices()){
 				if (vertex.getSkinBones() != null) {
@@ -313,9 +311,6 @@ public class ViewportTransferHandler extends TransferHandler {
 		for (Geoset geoset : copySelection.getGeosets()) {
 			stringableModel.add(geoset);
 			stringableModel.add(geoset.getMaterial());
-			if (geoset.getGeosetAnim() != null){
-				stringableModel.add(geoset.getGeosetAnim());
-			}
 			count += geoset.getVertices().size();
 
 			dummyBone.getPivotPoint().add(fixVertBones(stringableModel, dummyBone, geoset));

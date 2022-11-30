@@ -5,36 +5,21 @@ import com.hiveworkshop.rms.editor.actions.mesh.MergeGeosetsAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetAnim;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.language.TextKey;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class MinimizeGeosets extends ActionFunction {
 	public MinimizeGeosets(){
-		super(TextKey.MINIMIZE_GEOSETS, () -> minimizeGeoset());
+		super(TextKey.MINIMIZE_GEOSETS, MinimizeGeosets::minimizeGeoset);
 
 	}
 
-	public static void minimizeGeoset() {
-//		final int confirm = JOptionPane.showConfirmDialog(mainPanel,
-//				"This is experimental and I did not code the Undo option for it yet. Continue?" +
-//						"\nMy advice is to click cancel and save once first.",
-//				"Confirmation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-//		if (confirm != JOptionPane.OK_OPTION) {
-//			return;
-//		}
-
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		EditableModel model = modelPanel.getModel();
-//		TempSaveModelStuff.doSavePreps(model);
+	public static void minimizeGeoset(ModelHandler modelHandler) {
+		EditableModel model = modelHandler.getModel();
 
 		List<UndoAction> mergeActions = new ArrayList<>();
 		Set<Geoset> geosetsToMerge = new HashSet<>();
@@ -42,13 +27,9 @@ public class MinimizeGeosets extends ActionFunction {
 
 		for (Geoset geoset : model.getGeosets()) {
 			for (Geoset retainedGeoset : geosetsToKeep) {
-				if (retainedGeoset.getMaterial().equals(geoset.getMaterial())
-						&& (retainedGeoset.getSelectionGroup() == geoset.getSelectionGroup())
-						&& (retainedGeoset.getUnselectable() == geoset.getUnselectable())
-						&& isGeosetAnimationsMergable(retainedGeoset.getGeosetAnim(), geoset.getGeosetAnim())) {
-
+				if (isGeosetsMergable(geoset, retainedGeoset)) {
 					geosetsToMerge.add(geoset);
-					mergeActions.add(new MergeGeosetsAction(retainedGeoset, geoset, modelPanel.getModelView(), null));
+					mergeActions.add(new MergeGeosetsAction(retainedGeoset, geoset, modelHandler.getModelView(), null));
 					break;
 				}
 			}
@@ -59,41 +40,23 @@ public class MinimizeGeosets extends ActionFunction {
 
 		ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
 		UndoAction undoAction = new CompoundAction("Minimize Geosets", mergeActions, changeListener::geosetsUpdated);
-		modelPanel.getUndoManager().pushAction(undoAction.redo());
+		modelHandler.getUndoManager().pushAction(undoAction.redo());
 	}
 
-	private static boolean isGeosetAnimationsMergable(final GeosetAnim first, final GeosetAnim second) {
-		if ((first == null) && (second == null)) {
-			return true;
-		}
-		if ((first == null) || (second == null)) {
-			return false;
-		}
-		final AnimFlag<?> firstVisibilityFlag = first.getVisibilityFlag();
-		final AnimFlag<?> secondVisibilityFlag = second.getVisibilityFlag();
-		if ((firstVisibilityFlag == null) != (secondVisibilityFlag == null)) {
-			return false;
-		}
-		if ((firstVisibilityFlag != null) && !firstVisibilityFlag.equals(secondVisibilityFlag)) {
-			return false;
-		}
-		if (first.isDropShadow() != second.isDropShadow()) {
-			return false;
-		}
-		if (Math.abs(first.getStaticAlpha() - second.getStaticAlpha()) > 0.001) {
-			return false;
-		}
-		if ((first.getStaticColor() == null) != (second.getStaticColor() == null)) {
-			return false;
-		}
-		if ((first.getStaticColor() != null) && !first.getStaticColor().equalLocs(second.getStaticColor())) {
-			return false;
-		}
-		final AnimFlag<?> firstAnimatedColor = first.find("Color");
-		final AnimFlag<?> secondAnimatedColor = second.find("Color");
-		if ((firstAnimatedColor == null) != (secondAnimatedColor == null)) {
-			return false;
-		}
-		return (firstAnimatedColor == null) || firstAnimatedColor.equals(secondAnimatedColor);
+	private static boolean isGeosetsMergable(Geoset geoset, Geoset retainedGeoset) {
+		return retainedGeoset.getMaterial().equals(geoset.getMaterial())
+				&& retainedGeoset.getSelectionGroup() == geoset.getSelectionGroup()
+				&& retainedGeoset.getUnselectable() == geoset.getUnselectable()
+				&& retainedGeoset.isDropShadow() == geoset.isDropShadow()
+				&& Math.abs(retainedGeoset.getStaticAlpha() - geoset.getStaticAlpha()) < 0.001
+				&& retainedGeoset.getStaticColor().equalLocs(geoset.getStaticColor())
+				&& equalFlags(retainedGeoset.getVisibilityFlag(), geoset.getVisibilityFlag())
+				&& equalFlags(retainedGeoset.find("Color"), geoset.find("Color"));
+	}
+
+	private static boolean equalFlags(AnimFlag<?> flag1, AnimFlag<?> flag2) {
+		return Objects.equals(flag1, flag2)
+				|| flag1 == null && flag2.size() == 0
+				|| flag2 == null && flag1.size() == 0;
 	}
 }

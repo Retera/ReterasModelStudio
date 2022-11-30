@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.ui.application.tools;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.ReplaceAnimFlagsAction;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetAnim;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
@@ -23,14 +22,9 @@ import java.util.function.Consumer;
 public class GeosetAnimCopyPanel extends JPanel {
 	private Geoset donGeoset;
 	private boolean invertVis = false;
-
 	private final UndoManager undoManager;
 
-	/**
-	 * Create the panel.
-	 */
 	public GeosetAnimCopyPanel(EditableModel model, Geoset recGeoset, UndoManager undoManager) {
-//		this.recGeosetAnim = recGeosetAnim;
 		this.undoManager = undoManager;
 		setLayout(new MigLayout("fill", "[grow][grow]"));
 
@@ -63,7 +57,7 @@ public class GeosetAnimCopyPanel extends JPanel {
 		donGeoAnimPanel.add(new JLabel("From:"), "wrap");
 
 		String[] geoAnimNames = geosets.stream()
-				.filter(geoset -> geoset.getGeosetAnim() != null)
+				.filter(Geoset::hasAnim)
 				.map(geoset -> geoset.getName() + "'s Anim")
 				.toArray(String[]::new);
 		donGeoAnimPanel.add(getCombobox(geoAnimNames, i -> donGeoset = geosets.get(i)), "wrap, growx");
@@ -85,10 +79,8 @@ public class GeosetAnimCopyPanel extends JPanel {
 
 	private void doCopy(Geoset recGeoset, Geoset donGeoset) {
 		ArrayList<AnimFlag<?>> newAnimFlags = new ArrayList<>();
-		GeosetAnim recGeosetAnim = recGeoset.getGeosetAnim();
-		GeosetAnim donGeosetAnim = donGeoset.getGeosetAnim();
 
-		for (AnimFlag<?> animFlag : donGeosetAnim.getAnimFlags()){
+		for (AnimFlag<?> animFlag : donGeoset.getAnimFlags()){
 			AnimFlag<?> newAnimFlag = animFlag.deepCopy();
 			if(invertVis && (animFlag.getName().equals(MdlUtils.TOKEN_ALPHA) || animFlag.getName().equals(MdlUtils.TOKEN_VISIBILITY)) && animFlag instanceof FloatAnimFlag){
 				FloatAnimFlag floatAnimFlag = (FloatAnimFlag) newAnimFlag;
@@ -101,18 +93,7 @@ public class GeosetAnimCopyPanel extends JPanel {
 			newAnimFlags.add(newAnimFlag);
 		}
 
-		undoManager.pushAction(new ReplaceAnimFlagsAction(recGeosetAnim, newAnimFlags, ModelStructureChangeListener.changeListener).redo());
+		undoManager.pushAction(new ReplaceAnimFlagsAction(recGeoset, newAnimFlags, ModelStructureChangeListener.changeListener).redo());
 	}
 
-
-//	private <Q> void setAnimFlagKeyframes(Animation donAnimation, int donKeyframe, Animation recAnimation, int recKeyframe, int times, AnimFlag<Q> animFlag) {
-//		for (int j = 0; j < times; j++) {
-//			animFlag.removeKeyframe(recKeyframe + j, recAnimation);
-//			Entry<Q> entryAt = animFlag.getEntryAt(donAnimation, donKeyframe + j);
-//			if (entryAt != null) {
-//				Entry<Q> entry = entryAt.deepCopy();
-//				animFlag.setOrAddEntry(recKeyframe + j, entry, recAnimation);
-//			}
-//		}
-//	}
 }

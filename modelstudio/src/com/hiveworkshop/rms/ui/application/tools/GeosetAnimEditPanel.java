@@ -6,7 +6,6 @@ import com.hiveworkshop.rms.editor.actions.animation.animFlag.RemoveAnimFlagActi
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetAnim;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
@@ -90,19 +89,15 @@ public class GeosetAnimEditPanel extends JPanel {
 	private void doCopy(Geoset recGeoset, Geoset donGeoset, List<Sequence> allSequences) {
 		ArrayList<UndoAction> actions = new ArrayList<>();
 
-		GeosetAnim recGeosetAnim = recGeoset.getGeosetAnim();
-		GeosetAnim donGeosetAnim = donGeoset.getGeosetAnim();
-
-		for (AnimFlag<?> animFlag : donGeosetAnim.getAnimFlags()){
+		for (AnimFlag<?> animFlag : donGeoset.getAnimFlags()){
 			if (copyVis && (animFlag.getName().equals(MdlUtils.TOKEN_ALPHA) || animFlag.getName().equals(MdlUtils.TOKEN_VISIBILITY))){
 				AnimFlag<?> newAnimFlag = animFlag.deepCopy();
-				if(recGeosetAnim.has(animFlag.getName())){
-					actions.add(new RemoveAnimFlagAction(recGeosetAnim, recGeosetAnim.find(animFlag.getName()), null));
+				if(recGeoset.has(animFlag.getName())){
+					actions.add(new RemoveAnimFlagAction(recGeoset, recGeoset.find(animFlag.getName()), null));
 				}
 				if(invertVis && animFlag instanceof FloatAnimFlag){
 					FloatAnimFlag floatAnimFlag = (FloatAnimFlag) newAnimFlag;
 					for (Sequence sequence : allSequences){
-//				        if(!newAnimFlag.hasSequence(sequence) || newAnimFlag.getEntryMap(sequence).size() == 0 || newAnimFlag.getEntryAt(sequence, 0) == null){
 						if(floatAnimFlag.getEntryAt(sequence, 0) == null){
 							if(floatAnimFlag.tans()){
 								floatAnimFlag.addEntry(new Entry<>(0, 1.0f, 1.0f, 1.0f), sequence);
@@ -117,11 +112,11 @@ public class GeosetAnimEditPanel extends JPanel {
 						}
 					}
 				}
-				actions.add(new AddAnimFlagAction<>(recGeosetAnim, newAnimFlag, null));
+				actions.add(new AddAnimFlagAction<>(recGeoset, newAnimFlag, null));
 			} else if (copyColor && animFlag.getName().equals(MdlUtils.TOKEN_COLOR)){
 				AnimFlag<?> newAnimFlag = animFlag.deepCopy();
-				if(recGeosetAnim.has(animFlag.getName())){
-					actions.add(new RemoveAnimFlagAction(recGeosetAnim, recGeosetAnim.find(animFlag.getName()), null));
+				if(recGeoset.has(animFlag.getName())){
+					actions.add(new RemoveAnimFlagAction(recGeoset, recGeoset.find(animFlag.getName()), null));
 				}
 				if(flipColor != FlipColor.DONT_FLIP && animFlag instanceof Vec3AnimFlag){
 					Vec3AnimFlag floatAnimFlag = (Vec3AnimFlag) newAnimFlag;
@@ -139,15 +134,15 @@ public class GeosetAnimEditPanel extends JPanel {
 						}
 					}
 				}
-				actions.add(new AddAnimFlagAction<>(recGeosetAnim, newAnimFlag, null));
+				actions.add(new AddAnimFlagAction<>(recGeoset, newAnimFlag, null));
 			} else if (!animFlag.getName().equals(MdlUtils.TOKEN_COLOR)
 					&& !animFlag.getName().equals(MdlUtils.TOKEN_ALPHA)
 					&& !animFlag.getName().equals(MdlUtils.TOKEN_VISIBILITY)){
 				AnimFlag<?> newAnimFlag = animFlag.deepCopy();
-				if(recGeosetAnim.has(animFlag.getName())){
-					actions.add(new RemoveAnimFlagAction(recGeosetAnim, recGeosetAnim.find(animFlag.getName()), null));
+				if(recGeoset.has(animFlag.getName())){
+					actions.add(new RemoveAnimFlagAction(recGeoset, recGeoset.find(animFlag.getName()), null));
 				}
-				actions.add(new AddAnimFlagAction<>(recGeosetAnim, newAnimFlag, null));
+				actions.add(new AddAnimFlagAction<>(recGeoset, newAnimFlag, null));
 			}
 		}
 		if(!actions.isEmpty()){
@@ -164,7 +159,7 @@ public class GeosetAnimEditPanel extends JPanel {
 		RGB_BRG     ("RGB - BRG"),
 		RGB_GBR     ("RGB - GBR"),
 		;
-		String name;
+		final String name;
 		FlipColor(String name){
 			this.name = name;
 		}

@@ -40,7 +40,7 @@ public class GeosetOverviewPanel extends OverviewPanel {
 			infoPanel.add(new JLabel("" + geoset.getLevelOfDetail()));
 
 			infoPanel.add(getMaterialLabel(model, geoset));
-			infoPanel.add(new JLabel("" + (geoset.getGeosetAnim() == null ? "no" : "yes")));
+			infoPanel.add(new JLabel("" + (geoset.hasAnim() ? "yes" : "no")));
 		}
 
 		infoPanel.add(new JLabel("Total"), "gapy 10");

@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -53,7 +52,7 @@ public class SoundEmitter extends IdObject {
 		final SoundEmitter x = new SoundEmitter();
 
 		x.name = name;
-		x.pivotPoint = new Vec3(pivotPoint);
+		x.pivotPoint.set(pivotPoint);
 //		x.objectId = objectId;
 //		x.parentId = parentId;
 		x.setParent(getParent());

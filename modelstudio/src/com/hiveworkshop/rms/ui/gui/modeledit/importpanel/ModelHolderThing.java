@@ -85,9 +85,9 @@ public class ModelHolderThing {
 	public ArrayList<VisibilityShell> allVisShells = new ArrayList<>();
 
 
-	BiMap<VisibilitySource, VisibilityShell> recModVisShellBiMap = new BiMap<>();
-	BiMap<VisibilitySource, VisibilityShell> donModVisShellBiMap = new BiMap<>();
-	BiMap<VisibilitySource, VisibilityShell> allVisShellBiMap = new BiMap<>();
+	BiMap<TimelineContainer, VisibilityShell> recModVisShellBiMap = new BiMap<>();
+	BiMap<TimelineContainer, VisibilityShell> donModVisShellBiMap = new BiMap<>();
+	BiMap<TimelineContainer, VisibilityShell> allVisShellBiMap = new BiMap<>();
 
 	VisibilityShell neverVisible = new VisibilityShell(false);
 	VisibilityShell alwaysVisible = new VisibilityShell(true);
@@ -303,24 +303,24 @@ public class ModelHolderThing {
 	}
 
 	private void initBoneHelperLists() {
-		BiMap<IdObject, IdObjectShell<Bone>> recBoneBiMap = getBoneShellBiMap(receivingModel.getBones(), receivingModel, false);
+		BiMap<IdObject, IdObjectShell<? extends IdObject>> recBoneBiMap = getIdObjectShellBiMap(receivingModel.getBones(), receivingModel, false);
 		recModObjShellBiMap.putAll(recBoneBiMap);
 		recModBones.addAll(recBoneBiMap.values());
 		recModBoneShells.addAll(recBoneBiMap.values());
 
-		BiMap<IdObject, IdObjectShell<Bone>> recHelpBiMap = getBoneShellBiMap(receivingModel.getHelpers(), receivingModel, false);
+		BiMap<IdObject, IdObjectShell<? extends IdObject>> recHelpBiMap = getIdObjectShellBiMap(receivingModel.getHelpers(), receivingModel, false);
 		recModObjShellBiMap.putAll(recHelpBiMap);
 		recModBoneShells.addAll(recHelpBiMap.values());
 
 //		recModObjShellBiMap.values().forEach(bs -> bs.setParentBs(recModObjShellBiMap));
 
 
-		BiMap<IdObject, IdObjectShell<Bone>> donBoneBiMap = getBoneShellBiMap(donatingModel.getBones(), donatingModel, true);
+		BiMap<IdObject, IdObjectShell<? extends IdObject>> donBoneBiMap = getIdObjectShellBiMap(donatingModel.getBones(), donatingModel, true);
 		donModObjShellBiMap.putAll(donBoneBiMap);
 		donModBones.addAll(donBoneBiMap.values());
 		donModBoneShells.addAll(donBoneBiMap.values());
 
-		BiMap<IdObject, IdObjectShell<Bone>> donHelpBiMap = getBoneShellBiMap(donatingModel.getHelpers(), donatingModel, true);
+		BiMap<IdObject, IdObjectShell<? extends IdObject>> donHelpBiMap = getIdObjectShellBiMap(donatingModel.getHelpers(), donatingModel, true);
 		donModObjShellBiMap.putAll(donHelpBiMap);
 		donModBoneShells.addAll(donHelpBiMap.values());
 
@@ -330,10 +330,10 @@ public class ModelHolderThing {
 		allBoneShells.addAll(donModBoneShells);
 	}
 
-	private BiMap<IdObject, IdObjectShell<Bone>> getBoneShellBiMap(List<? extends Bone> objectList, EditableModel model, boolean isDonModel) {
-		BiMap<IdObject, IdObjectShell<Bone>> biMap = new BiMap<>();
-		for (Bone bone : objectList) {
-			IdObjectShell<Bone> bs = new IdObjectShell<>(bone, isDonModel, model.getName(), true);
+	private BiMap<IdObject, IdObjectShell<? extends IdObject>> getIdObjectShellBiMap(List<? extends IdObject> objectList, EditableModel model, boolean isDonModel) {
+		BiMap<IdObject, IdObjectShell<? extends IdObject>> biMap = new BiMap<>();
+		for (IdObject bone : objectList) {
+			IdObjectShell<? extends IdObject> bs = new IdObjectShell<>(bone, isDonModel, model.getName(), true);
 			biMap.put(bone, bs);
 		}
 		return biMap;
@@ -584,7 +584,7 @@ public class ModelHolderThing {
 		}
 	}
 
-	public VisibilityShell visShellFromObject(VisibilitySource vs) {
+	public VisibilityShell visShellFromObject(TimelineContainer vs) {
 		return allVisShellBiMap.get(vs);
 	}
 }

@@ -5,9 +5,7 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderGeoset;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.render3d.RenderNode2;
-import com.hiveworkshop.rms.editor.render3d.RenderNodeCamera;
-import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
+import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
@@ -37,7 +35,6 @@ public class ExportStaticMesh extends ActionFunction {
 					"Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-//		JCheckBox checkBox = new JCheckBox("remove all nodes");
 		int i = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(),
 				"Remove all nodes in the exported model?",
 				"Remove All Nodes?", JOptionPane.YES_NO_CANCEL_OPTION);
@@ -93,28 +90,17 @@ public class ExportStaticMesh extends ActionFunction {
 //		}
 
 		for (Camera camera : frozenModel.getCameras()){
-			freezeCamera(sequenceInstance, trackTime, frozenRenderModel, camera);
+			freezeNode(frozenRenderModel, camera.getSourceNode(), MdlUtils.TOKEN_ROTATION);
+			freezeNode(frozenRenderModel, camera.getTargetNode());
 		}
 
 		frozenModel.clearAnimations();
 		frozenModel.add(stand);
 		setSingeEntryForRemaining(stand, frozenRenderEnv, frozenModel);
 
-		removeNotVisibleGeosets(frozenRenderEnv, frozenModel);
-
 		File.onClickSaveAs(null, FileDialog.SAVE_MODEL, frozenModel);
 	}
 
-	private static void freezeNodes1(EditableModel frozenModel, RenderModel frozenRenderModel) {
-		for (IdObject idObject : frozenModel.getIdObjects()){
-			RenderNode2 renderNode = frozenRenderModel.getRenderNode(idObject);
-			idObject.setPivotPoint(renderNode.getPivot());
-			idObject.remove(MdlUtils.TOKEN_TRANSLATION);
-			idObject.remove(MdlUtils.TOKEN_ROTATION);
-			idObject.remove(MdlUtils.TOKEN_SCALING);
-//			idObject.clearAnimFlags();
-		}
-	}
 	private static void removeNotVisibleNodes(EditableModel frozenModel, TimeEnvironmentImpl frozenRenderEnv) {
 		List<IdObject> nodesToRemove = new ArrayList<>();
 		for (IdObject idObject : frozenModel.getIdObjects()){
@@ -130,32 +116,54 @@ public class ExportStaticMesh extends ActionFunction {
 		}
 	}
 	private static void freezeNodes(EditableModel frozenModel, RenderModel frozenRenderModel) {
-		freezeNodes(frozenRenderModel,
-				frozenModel.getBones(),
-//				frozenModel.getLights(),
-				frozenModel.getHelpers(),
-				frozenModel.getAttachments(),
-//				frozenModel.getParticleEmitters(),
-//				frozenModel.getParticleEmitter2s(),
-//				frozenModel.getPopcornEmitters(),
-//				frozenModel.getRibbonEmitters(),
-				frozenModel.getEvents(),
-				frozenModel.getColliders());
+				freezeNodes(frozenRenderModel, frozenModel.getBones());
+//				freezeNodes(frozenRenderModel, frozenModel.getLights());
+				freezeNodes(frozenRenderModel, frozenModel.getHelpers());
+				freezeNodes(frozenRenderModel, frozenModel.getAttachments());
+//				freezeNodes(frozenRenderModel, frozenModel.getParticleEmitters());
+//				freezeNodes(frozenRenderModel, frozenModel.getParticleEmitter2s());
+//				freezeNodes(frozenRenderModel, frozenModel.getPopcornEmitters());
+//				freezeNodes(frozenRenderModel, frozenModel.getRibbonEmitters());
+				freezeNodes(frozenRenderModel, frozenModel.getEvents());
+				freezeNodes(frozenRenderModel, frozenModel.getColliders());
 
 	}
 
-	private static void freezeNodes(RenderModel frozenRenderModel, List<? extends IdObject>... idObjectsLists) {
-		for (List<? extends IdObject> idObjects : idObjectsLists){
-			for (IdObject idObject : idObjects){
-				RenderNode2 renderNode = frozenRenderModel.getRenderNode(idObject);
-				idObject.setPivotPoint(renderNode.getPivot());
-//				idObject.remove(MdlUtils.TOKEN_TRANSLATION);
-//				idObject.remove(MdlUtils.TOKEN_ROTATION);
-//				idObject.remove(MdlUtils.TOKEN_SCALING);
-				idObject.clearAnimFlags();
-			}
+	private static void freezeNodes(RenderModel frozenRenderModel, List<? extends AnimatedNode> nodes) {
+		for (AnimatedNode node : nodes){
+			freezeNode(frozenRenderModel, node);
 		}
 	}
+	private static void freezeNode(RenderModel frozenRenderModel, AnimatedNode node, String... flagsToAddBack) {
+		RenderNode<?> renderNode = frozenRenderModel.getRenderNode(node);
+		if(renderNode != null){
+			List<AnimFlag<?>> fixedFlagsToAddBack = new ArrayList<>();
+			for(String flag : flagsToAddBack){
+				AnimFlag<?> animFlag = interpolateAndClear(frozenRenderModel.getTimeEnvironment(), node.find(flag));
+				if (animFlag != null){
+					fixedFlagsToAddBack.add(animFlag);
+				}
+			}
+
+			node.setPivotPoint(renderNode.getPivot());
+			node.clearAnimFlags();
+			node.addAll(fixedFlagsToAddBack);
+		}
+	}
+	private static <Q> AnimFlag<Q> interpolateAndClear(TimeEnvironmentImpl renderEnv, AnimFlag<Q> animFlag) {
+		if(animFlag != null && animFlag.hasSequence(renderEnv.getCurrentSequence())
+//				|| animFlag != null && animFlag.hasGlobalSeq()
+		){
+			Q o = animFlag.interpolateAt(renderEnv);
+			animFlag.clear();
+			if(o != null){
+				animFlag.addEntry(renderEnv.getEnvTrackTime(), o, renderEnv.getCurrentSequence());
+				return animFlag;
+			}
+		}
+		return null;
+	}
+
 
 	private static Sequence getSequenceInstance(Sequence currentAnimation, EditableModel frozenModel) {
 		// Finds the actual Sequence object in the model copy
@@ -168,7 +176,7 @@ public class ExportStaticMesh extends ActionFunction {
 				} else if (sequence.getLength() == currentAnimation.getLength()
 						&& ((sequence instanceof GlobalSeq && currentAnimation instanceof GlobalSeq)
 							|| (sequence instanceof Animation && currentAnimation instanceof Animation
-								&& ((Animation) sequence).getName().equals(((Animation) currentAnimation).getName())))){
+								&& sequence.getName().equals(currentAnimation.getName())))){
 					sequenceInstance = sequence;
 				}
 			}
@@ -183,34 +191,6 @@ public class ExportStaticMesh extends ActionFunction {
 		return boneRoot;
 	}
 
-	private static void freezeCamera(Sequence sequenceInstance, int trackTime, RenderModel frozenRenderModel, Camera camera) {
-		CameraNode.SourceNode sourceNode = camera.getSourceNode();
-		RenderNodeCamera nodeCamera1 = frozenRenderModel.getRenderNode(sourceNode);
-		sourceNode.setPosition(nodeCamera1.getPivot());
-		AnimFlag<?> animFlag = interpolateAndClear(sequenceInstance, trackTime, sourceNode.find(MdlUtils.TOKEN_ROTATION));
-		sourceNode.clearAnimFlags();
-		if(animFlag != null){
-			sourceNode.add(animFlag);
-		}
-
-		CameraNode.TargetNode targetNode = camera.getTargetNode();
-		RenderNodeCamera nodeCamera2 = frozenRenderModel.getRenderNode(targetNode);
-		targetNode.setPosition(nodeCamera2.getPivot());
-		targetNode.clearAnimFlags();
-	}
-
-	private static <Q> AnimFlag<Q> interpolateAndClear(Sequence sequenceInstance, int trackTime, AnimFlag<Q> animFlag) {
-		if(animFlag != null && animFlag.hasSequence(sequenceInstance)){
-			Q o = animFlag.interpolateAt(sequenceInstance, trackTime);
-			animFlag.clear();
-			if(o != null){
-				animFlag.addEntry(trackTime, o, sequenceInstance);
-				return animFlag;
-			}
-		}
-		return null;
-	}
-
 	private static void setSingeEntryForRemaining(Animation stand, TimeEnvironmentImpl renderEnv, EditableModel frozenModel) {
 		List<AnimFlag<?>> allAnimFlags = ModelUtils.getAllAnimFlags(frozenModel);
 		for (AnimFlag<?> flag : allAnimFlags) {
@@ -222,42 +202,20 @@ public class ExportStaticMesh extends ActionFunction {
 
 	private static <Q> void addFlagEntry(TimeEnvironmentImpl renderEnv, Animation stand, AnimFlag<Q> flag) {
 		Q value = flag.interpolateAt(renderEnv);
-		flag.setInterpType(InterpolationType.DONT_INTERP);
+//		flag.setInterpType(InterpolationType.DONT_INTERP);
 		flag.clear();
 		flag.addEntry(0, value, stand);
-	}
-
-	private static void removeNotVisibleGeosets(TimeEnvironmentImpl renderEnv, EditableModel frozenModel) {
-		List<Geoset> geosetsToRemove = new ArrayList<>();
-		for (Geoset geoset : frozenModel.getGeosets()) {
-			GeosetAnim geosetAnim = geoset.getGeosetAnim();
-
-			if (geosetAnim != null) {
-				double visValue = geosetAnim.getRenderVisibility(renderEnv, (float) geosetAnim.getStaticAlpha());
-
-				if (visValue < 0.01) {
-					geosetsToRemove.add(geoset);
-					frozenModel.remove(geosetAnim);
-				}
-			}
-		}
-
-		for (Geoset geoset : geosetsToRemove) {
-			frozenModel.remove(geoset);
-		}
 	}
 
 	private static void processGeosets(RenderModel frozenRenderModel, EditableModel frozenModel, Bone boneRoot) {
 		List<Geoset> geosetsToRemove = new ArrayList<>();
 		for(Geoset geoset : frozenModel.getGeosets()){
 			RenderGeoset renderGeoset = frozenRenderModel.getRenderGeoset(geoset);
-			GeosetAnim geosetAnim = geoset.getGeosetAnim();
-			if(geosetAnim != null){
-				Vec4 renderColor = renderGeoset.getRenderColor();
-				geosetAnim.setStaticAlpha(renderColor.w);
-				geosetAnim.setStaticColor(renderColor.getVec3());
-				geosetAnim.clearAnimFlags();
-			}
+			Vec4 renderColor = renderGeoset.getRenderColor();
+
+			geoset.setStaticAlpha(renderColor.w);
+			geoset.setStaticColor(renderColor.getVec3());
+			geoset.clearAnimFlags();
 			if(0.01 < renderGeoset.getRenderColor().w){
 				applyVertexTransforms(boneRoot, geoset, renderGeoset);
 			} else {
@@ -292,7 +250,7 @@ public class ExportStaticMesh extends ActionFunction {
 
 	private static String getAnimationName(EditableModel model, int trackTime, Sequence currentAnimation) {
 		if(currentAnimation instanceof Animation){
-			return "_" + ((Animation) currentAnimation).getName() + "At" + trackTime;
+			return "_" + currentAnimation.getName() + "At" + trackTime;
 		} else if (currentAnimation instanceof GlobalSeq){
 			return "_GlobalSeq" + model.getGlobalSeqId((GlobalSeq) currentAnimation) + "At" + trackTime;
 		}

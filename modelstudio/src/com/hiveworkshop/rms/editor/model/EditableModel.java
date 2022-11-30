@@ -31,7 +31,6 @@ public class EditableModel implements Named {
 	private final List<Material> materials = new ArrayList<>();
 	private final List<TextureAnim> texAnims = new ArrayList<>();
 	private final List<Geoset> geosets = new ArrayList<>();
-	private final List<GeosetAnim> geosetAnims = new ArrayList<>();
 	private final List<Vec3> pivots = new ArrayList<>();
 	private final List<Camera> cameras = new ArrayList<>();
 	private final List<FaceEffect> faceEffects = new ArrayList<>();
@@ -92,7 +91,6 @@ public class EditableModel implements Named {
 			extents = other.extents.deepCopy();
 		}
 		formatVersion = other.formatVersion;
-//		header = new ArrayList<>(other.header);
 		header.addAll(other.header);
 		name = other.name;
 	}
@@ -104,8 +102,6 @@ public class EditableModel implements Named {
 		materials.clear();
 		texAnims.clear();
 		geosets.clear();
-		geosetAnims.clear();
-//		idObjects.clear();
 		pivots.clear();
 		cameras.clear();
 		modelIdObjects.clearAll();
@@ -249,15 +245,6 @@ public class EditableModel implements Named {
 		}
 	}
 
-	public void add(final GeosetAnim x) {
-		if (x == null) {
-			JOptionPane.showMessageDialog(null,
-					"Tried to add null GeosetAnim component to model, which is really bad. Tell Retera you saw this once you have errors.");
-		} else {
-			geosetAnims.add(x);
-		}
-	}
-
 	public void add(final GeosetVertex x) {
 		if (x == null) {
 			JOptionPane.showMessageDialog(null,
@@ -288,7 +275,6 @@ public class EditableModel implements Named {
 					"Tried to add null IdObject component to model, which is really bad. Tell Retera you saw this once you have errors.");
 		} else {
 			modelIdObjects.addIdObject(x);
-//			idObjects.add(x);
 			if ((x.pivotPoint != null) && !pivots.contains(x.pivotPoint)) {
 				pivots.add(x.pivotPoint);
 			}
@@ -360,10 +346,6 @@ public class EditableModel implements Named {
 		return geosets.contains(x);
 	}
 
-	public boolean contains(final GeosetAnim x) {
-		return geosetAnims.contains(x);
-	}
-
 	public boolean contains(final GlobalSeq x) {
 		return globalSeqs.contains(x);
 	}
@@ -400,9 +382,6 @@ public class EditableModel implements Named {
 		geosets.remove(g);
 	}
 
-	public void remove(final GeosetAnim g) {
-		geosetAnims.remove(g);
-	}
 	public void remove(final TextureAnim o) {
 		texAnims.remove(o);
 	}
@@ -502,10 +481,6 @@ public class EditableModel implements Named {
 		return (okIndex(i, geosets)) ? geosets.get(i) : null;
 	}
 
-	public GeosetAnim getGeosetAnim(final int i) {
-		return (okIndex(i, geosetAnims)) ? geosetAnims.get(i) : null;
-	}
-
 	private boolean okIndex(int i, List<?> list) {
 		return 0 <= i && i < list.size();
 	}
@@ -561,10 +536,6 @@ public class EditableModel implements Named {
 
 	public List<Geoset> getGeosets() {
 		return geosets;
-	}
-
-	public List<GeosetAnim> getGeosetAnims() {
-		return geosetAnims;
 	}
 
 	public List<Material> getMaterials() {
@@ -773,20 +744,11 @@ public class EditableModel implements Named {
 			return allObjects;
 		}
 
-		//		IdObject getIdObject(int index) {
-//			return allObjects.get(index);
-//		}
 		IdObject getIdObject(int index) {
 			return getIdToIdObjectMap().get(index);
 		}
 
 		IdObject getObject(final String name) {
-//			for (final IdObject obj : allObjects) {
-//				if (obj.name.equalsIgnoreCase(name)) {
-//					return obj;
-//				}
-//			}
-//			return null;
 			return getNameToIdObjectMap().get(name);
 		}
 
@@ -801,7 +763,6 @@ public class EditableModel implements Named {
 		}
 
 		int getObjectId(final IdObject idObject) {
-//			System.out.println("allObjects.size(): " + allObjects.size());
 			return getIdObjectToIdMap().getOrDefault(idObject, -1);
 		}
 

@@ -46,6 +46,9 @@ public abstract class CameraNode extends AnimatedNode {
 	public void setPosition(Vec3 position) {
 		this.position.set(position);
 	}
+	public void setPivotPoint(Vec3 position) {
+		this.position.set(position);
+	}
 	public Vec3 getPivotPoint() {
 		return position;
 	}
@@ -89,8 +92,7 @@ public abstract class CameraNode extends AnimatedNode {
 			copy(node);
 		}
 
-		@Override
-		public String getName() {
+		public String getName1() {
 			return "Source of: " + parent.getName();
 		}
 
@@ -158,8 +160,7 @@ public abstract class CameraNode extends AnimatedNode {
 			copy(node);
 		}
 
-		@Override
-		public String getName() {
+		public String getName1() {
 			return "Target of: " + parent.getName();
 		}
 

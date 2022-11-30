@@ -153,8 +153,8 @@ public class FileDialog {
         fileChooser.setCurrentDirectory(getCurrentDirectory());
 
         final int returnValue = fileChooser.showOpenDialog(getParent());
-        fileChooser.setMultiSelectionEnabled(false);
         File[] files = fileChooser.getSelectedFiles();
+        fileChooser.setMultiSelectionEnabled(false);
         fileChooser.setSelectedFile(null);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             if (files != null && 0 < files.length) {

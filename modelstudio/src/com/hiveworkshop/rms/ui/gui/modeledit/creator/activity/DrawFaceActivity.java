@@ -55,8 +55,9 @@ public class DrawFaceActivity extends ViewportActivity {
 			geosetVertex.addTVertex(new Vec2(0, 0));
 			UndoAction action2;
 			DrawVertexAction drawVertexAction = new DrawVertexAction(geosetVertex);
-			if (!modelView.getModel().contains(solidWhiteGeoset)) {
-				AddGeosetAction addGeosetAction = new AddGeosetAction(solidWhiteGeoset, modelView, ModelStructureChangeListener.changeListener);
+			EditableModel model = modelView.getModel();
+			if (!model.contains(solidWhiteGeoset)) {
+				AddGeosetAction addGeosetAction = new AddGeosetAction(solidWhiteGeoset, model, ModelStructureChangeListener.changeListener);
 				action2 = new CompoundAction("add vertex", Arrays.asList(addGeosetAction, drawVertexAction));
 			} else {
 				action2 = drawVertexAction;
@@ -70,7 +71,8 @@ public class DrawFaceActivity extends ViewportActivity {
 	}
 
 	public Geoset getSolidWhiteGeoset() {
-		List<Geoset> geosets = modelView.getModel().getGeosets();
+		EditableModel model = modelView.getModel();
+		List<Geoset> geosets = model.getGeosets();
 		Geoset solidWhiteGeoset = null;
 		for (Geoset geoset : geosets) {
 			Layer firstLayer = geoset.getMaterial().firstLayer();

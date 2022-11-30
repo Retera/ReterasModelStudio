@@ -4,10 +4,6 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.parsers.mdlx.*;
 import com.hiveworkshop.rms.util.Vec3;
 
-import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
-
 public class TempOpenModelStuff {
 
 	public static EditableModel createEditableModel(MdlxModel mdlxModel) {
@@ -156,8 +152,8 @@ public class TempOpenModelStuff {
 		// Step 9: GeosetAnims
 		for (final MdlxGeosetAnimation mdlxGeosetAnimation : mdlxModel.geosetAnimations) {
 			if (mdlxGeosetAnimation.geosetId != -1) {
-				GeosetAnim geosetAnim = createGeosetAnim(mdlxGeosetAnimation, infoHolder, model);
-				model.add(geosetAnim);
+				Geoset geosetAnim = createGeosetAnim(mdlxGeosetAnimation, infoHolder, model);
+				infoHolder.animatedGeosets.add(geosetAnim);
 			}
 		}
 
@@ -174,26 +170,8 @@ public class TempOpenModelStuff {
 		}
 
 		infoHolder.fixIdObjectParents();
-		infoHolder.fixBoneGeosets();
-
-		removeGeosetAnimsWOGeoset(model);
 
 		return model;
-	}
-
-	private static void removeGeosetAnimsWOGeoset(EditableModel model) {
-		List<GeosetAnim> badAnims = new ArrayList<>();
-		for (GeosetAnim geoAnim : model.getGeosetAnims()) {
-			if (geoAnim.getGeoset() == null) {
-				badAnims.add(geoAnim);
-			}
-		}
-		if (!badAnims.isEmpty()) {
-			JOptionPane.showMessageDialog(null, "We discovered GeosetAnim data pointing to an invalid GeosetID! Bad data will be deleted. Please backup your model file.");
-		}
-		for (final GeosetAnim bad : badAnims) {
-			model.remove(bad);
-		}
 	}
 
 	public static Animation createAnimation(MdlxSequence sequence) {
@@ -212,21 +190,19 @@ public class TempOpenModelStuff {
 		return animation;
 	}
 
-	public static GeosetAnim createGeosetAnim(MdlxGeosetAnimation mdlxAnimation, ModelInfoHolder infoHolder, EditableModel model) {
+	public static Geoset createGeosetAnim(MdlxGeosetAnimation mdlxAnimation, ModelInfoHolder infoHolder, EditableModel model) {
 		Geoset geoset = infoHolder.geosets.get(mdlxAnimation.geosetId);
 
-		GeosetAnim geosetAnim = new GeosetAnim(geoset);
-		geosetAnim.setStaticAlpha(mdlxAnimation.alpha);
-//		geosetAnim.setStaticColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxAnimation.color)));
-		geosetAnim.setStaticColor(new Vec3(mdlxAnimation.color));
-
-		geosetAnim.setDropShadow(((mdlxAnimation.flags & 1) == 1));
-
-		geosetAnim.loadTimelines(mdlxAnimation, model);
 		if (geoset != null) {
-			geoset.setGeosetAnim(geosetAnim);
+			geoset.setStaticAlpha(mdlxAnimation.alpha);
+			geoset.setStaticColor(new Vec3(mdlxAnimation.color));
+
+			geoset.setDropShadow(((mdlxAnimation.flags & 1) == 1));
+
+			geoset.loadTimelines(mdlxAnimation, model);
 		}
-		return geosetAnim;
+
+		return geoset;
 	}
 
 }

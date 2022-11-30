@@ -53,10 +53,6 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 			Map<GeosetShell, Geoset> newGeosetsMap = getNewGeosetsMap();
 			for (Geoset geoset : newGeosetsMap.values()) {
 				newModel.add(geoset);
-				if (geoset.getGeosetAnim() != null) {
-//					geoset.setGeosetAnim(null);
-					newModel.add(geoset.getGeosetAnim());
-				}
 				if (!newModel.contains(geoset.getMaterial())) {
 					Material material = geoset.getMaterial().deepCopy();
 					geoset.setMaterial(material);
@@ -71,13 +67,6 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 			collectIdObjectAnims(newObjectsMap);
 
 			fixGeosetBones(newGeosetsMap, newObjectsMap);
-//
-//			for(Bitmap bitmap : mht.receivingModel.getTextures()){
-//				newModel.add(bitmap);
-//			}
-//			for(Bitmap bitmap : mht.donatingModel.getTextures()){
-//				newModel.add(bitmap);
-//			}
 
 			for (AnimShell animShell : mht.allAnimShells) {
 				if (animShell.getImportType() == AnimShell.ImportType.IMPORT_BASIC
@@ -389,7 +378,7 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 		}
 
 		model.getTexAnims().stream().filter(o -> o.owns(orgFlag)).forEach(o -> o.add(newGlobalSeqFlag));
-		model.getGeosetAnims().stream().filter(o -> o.owns(orgFlag)).forEach(o -> o.add(newGlobalSeqFlag));
+		model.getGeosets().stream().filter(o -> o.owns(orgFlag)).forEach(o -> o.add(newGlobalSeqFlag));
 		model.getIdObjects().stream().filter(o -> o.owns(orgFlag)).forEach(o -> o.add(newGlobalSeqFlag));
 		model.getCameras().stream().filter(o -> o.getSourceNode().owns(orgFlag)).forEach(o -> o.getSourceNode().add(newGlobalSeqFlag));
 
@@ -423,7 +412,7 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 	private void setNewVisSources(List<Animation> oldAnims, boolean clearAnims, List<Animation> newAnims) {
 		final List<AnimFlag<Float>> finalVisFlags = new ArrayList<>();
 		for (VisibilityShell visibilityShell : mht.futureVisComponents) {
-			VisibilitySource temp = ((VisibilitySource) visibilityShell.getSource());
+			TimelineContainer temp = ((TimelineContainer) visibilityShell.getSource());
 			AnimFlag<Float> visFlag = temp.getVisibilityFlag();// might be null
 			AnimFlag<Float> newVisFlag;
 
@@ -459,7 +448,7 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 			finalVisFlags.add(newVisFlag);
 		}
 		for (int i = 0; i < mht.futureVisComponents.size(); i++) {
-			VisibilitySource visSource = ((VisibilitySource) mht.futureVisComponents.get(i).getSource());
+			TimelineContainer visSource = ((TimelineContainer) mht.futureVisComponents.get(i).getSource());
 			AnimFlag<Float> visFlag = finalVisFlags.get(i);// might be null
 			if (visFlag.size() > 0) {
 				visSource.setVisibilityFlag(visFlag);
@@ -482,7 +471,7 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 				}
 				return tempFlag;
 			} else if (!source.isAlwaysVisible()) {
-				return (FloatAnimFlag) ((VisibilitySource) source.getSource()).getVisibilityFlag();
+				return (FloatAnimFlag) ((TimelineContainer) source.getSource()).getVisibilityFlag();
 			}
 		}
 		return null;
@@ -704,10 +693,6 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 				newModel.add(geoset);
 
 				geosetsAdded.put(geoShell, geoset);
-
-				if (geoset.getGeosetAnim() != null) {
-					newModel.add(geoset.getGeosetAnim());
-				}
 			}
 		}
 
@@ -723,9 +708,6 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 		for (GeosetShell geoShell : mht.recModGeoShells) {
 
 			if (!geoShell.isDoImport()) {
-				if (geoShell.getGeoset().getGeosetAnim() != null) {
-					mht.receivingModel.remove(geoShell.getGeoset().getGeosetAnim());
-				}
 				geosetsRemoved.add(geoShell.getGeoset());
 				mht.receivingModel.remove(geoShell.getGeoset());
 			} else {

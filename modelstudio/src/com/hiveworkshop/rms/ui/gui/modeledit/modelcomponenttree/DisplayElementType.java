@@ -26,7 +26,6 @@ public enum DisplayElementType {
 	RIBBON("RibbonEmitter", "ribbon.png"),
 	EVENT_OBJECT("EventObject", "event.png"),
 	COLLISION_SHAPE("CollisionShape", "collision.png"),
-	GEOSET_ANIM("GeosetAnim", "geoanim.png"),
 	CAMERA("Camera", "camera.png"),
 	FACEFX("FaceFX", "fafx.png"),
 	BINDPOSE("BindPose", "bindpos.png"),

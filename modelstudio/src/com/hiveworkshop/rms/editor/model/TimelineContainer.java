@@ -10,7 +10,7 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
-public abstract class TimelineContainer implements VisibilitySource {
+public abstract class TimelineContainer {
 	protected Map<String, AnimFlag<?>> animFlags = new HashMap<>();
 
 	public void loadTimelines(MdlxAnimatedObject object, EditableModel model) {
@@ -130,7 +130,6 @@ public abstract class TimelineContainer implements VisibilitySource {
 		return defaultValue;
 	}
 
-	@Override
 	public AnimFlag<Float> getVisibilityFlag() {
 		AnimFlag<?> timeline = find(MdlUtils.TOKEN_VISIBILITY);
 
@@ -144,8 +143,6 @@ public abstract class TimelineContainer implements VisibilitySource {
 		return null;
 	}
 
-	// VisibilitySource methods
-	@Override
 	public void setVisibilityFlag(AnimFlag<Float> flag) {
 		remove(MdlUtils.TOKEN_VISIBILITY);
 		remove(MdlUtils.TOKEN_ALPHA);
@@ -163,68 +160,13 @@ public abstract class TimelineContainer implements VisibilitySource {
 		return getInterpolatedFloat(animatedRenderEnvironment, visFlagName(), defaultValue);
 	}
 
-	@Override
 	public String visFlagName() {
 		return MdlUtils.TOKEN_VISIBILITY;
 	}
 
-	public VisibilitySource getVisibilitySource() {
+	public TimelineContainer getVisibilitySource() {
 		if (getVisibilityFlag() != null) {
 			return this;
-		}
-		return null;
-	}
-
-	public AnimFlag<Vec3> getTranslationFlag(GlobalSeq globalSeq) {
-		AnimFlag<?> timeline = find(MdlUtils.TOKEN_TRANSLATION, globalSeq);
-
-		if (timeline instanceof Vec3AnimFlag) {
-			return (Vec3AnimFlag) timeline;
-		}
-		return null;
-	}
-
-	public AnimFlag<Vec3> getScalingFlag(GlobalSeq globalSeq) {
-		AnimFlag<?> timeline = find(MdlUtils.TOKEN_SCALING, globalSeq);
-
-		if (timeline instanceof Vec3AnimFlag) {
-			return (Vec3AnimFlag) timeline;
-		}
-		return null;
-	}
-
-	public AnimFlag<Quat> getRotationFlag(GlobalSeq globalSeq) {
-		AnimFlag<?> timeline = find(MdlUtils.TOKEN_ROTATION, globalSeq);
-
-		if (timeline instanceof QuatAnimFlag) {
-			return (QuatAnimFlag) timeline;
-		}
-		return null;
-	}
-
-	public AnimFlag<Vec3> getTranslationFlag() {
-		AnimFlag<?> timeline = find(MdlUtils.TOKEN_TRANSLATION);
-
-		if (timeline instanceof Vec3AnimFlag) {
-			return (Vec3AnimFlag) timeline;
-		}
-		return null;
-	}
-
-	public AnimFlag<Vec3> getScalingFlag() {
-		AnimFlag<?> timeline = find(MdlUtils.TOKEN_SCALING);
-
-		if (timeline instanceof Vec3AnimFlag) {
-			return (Vec3AnimFlag) timeline;
-		}
-		return null;
-	}
-
-	public AnimFlag<Quat> getRotationFlag() {
-		AnimFlag<?> timeline = find(MdlUtils.TOKEN_ROTATION);
-
-		if (timeline instanceof QuatAnimFlag) {
-			return (QuatAnimFlag) timeline;
 		}
 		return null;
 	}

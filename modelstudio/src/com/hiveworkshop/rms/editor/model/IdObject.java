@@ -7,12 +7,7 @@ import com.hiveworkshop.rms.util.Vec3;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Write a description of class ObjectId here.
- *
- * @author (your name)
- * @version (a version number or a date)
- */
+
 public abstract class IdObject extends AnimatedNode implements Named {
 	public static final int DEFAULT_CLICK_RADIUS = 8;
 
@@ -24,7 +19,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	protected boolean billboardLockX = false;
 	protected boolean billboardLockY = false;
 	protected boolean billboardLockZ = false;
-	protected Vec3 pivotPoint = new Vec3();
+	protected final Vec3 pivotPoint = new Vec3();
 	protected IdObject parent;
 	protected final List<IdObject> childrenNodes = new ArrayList<>();
 	protected float[] bindPose;
@@ -42,7 +37,6 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		billboardLockX = other.billboardLockX;
 		billboardLockY = other.billboardLockY;
 		billboardLockZ = other.billboardLockZ;
-//		pivotPoint = new Vec3(other.pivotPoint);
 		pivotPoint.set(other.pivotPoint);
 		setParent(other.parent);
 		if (other.bindPose != null) {

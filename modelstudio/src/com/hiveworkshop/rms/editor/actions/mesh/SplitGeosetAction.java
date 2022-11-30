@@ -1,7 +1,10 @@
 package com.hiveworkshop.rms.editor.actions.mesh;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -22,7 +25,7 @@ public final class SplitGeosetAction implements UndoAction {
 	List<Triangle> addedTriangles = new ArrayList<>();
 	Set<Triangle> selectedEdgeTriangles = new HashSet<>();
 	Set<Triangle> notSelectedEdgeTriangles = new HashSet<>();
-	List<GeosetVertex> affectedVertices = new ArrayList<>();
+	Set<GeosetVertex> affectedVertices = new HashSet<>();
 	Set<GeosetVertex> orgEdgeVertices = new HashSet<>();
 	Map<GeosetVertex, GeosetVertex> oldToNew = new HashMap<>();
 	Set<Pair<GeosetVertex, GeosetVertex>> edges;
@@ -45,7 +48,7 @@ public final class SplitGeosetAction implements UndoAction {
 		findEdgeTris();
 		makeVertCopies();
 
-		createGeosetCopies(model);
+		createGeosetCopies();
 	}
 
 	private void findInternalEdgeVerts() {
@@ -87,24 +90,9 @@ public final class SplitGeosetAction implements UndoAction {
 					newVertex.addTriangle(triangle);
 				}
 			}
-			trisToRemove.forEach(t -> geosetVertex.removeTriangle(t));
+			trisToRemove.forEach(geosetVertex::removeTriangle);
 		}
 	}
-//	private void splitEdge() {
-//		for (GeosetVertex geosetVertex : orgEdgeVertices) {
-//			GeosetVertex newVertex = oldToNew.get(geosetVertex);
-//			List<Triangle> trisToRemove = new ArrayList<>();
-//			for (Triangle triangle : geosetVertex.getTriangles()) {
-//				if (selectedEdgeTriangles.contains(triangle)) {
-//					newVertex.removeTriangle(triangle);
-//				} else if (notSelectedEdgeTriangles.contains(triangle)) {
-//					trisToRemove.add(triangle);
-//					triangle.replace(geosetVertex, newVertex);
-//				}
-//			}
-//			trisToRemove.forEach(t -> geosetVertex.removeTriangle(t));
-//		}
-//	}
 
 	private void unSplitEdge() {
 		for (GeosetVertex geosetVertex : orgEdgeVertices) {
@@ -133,18 +121,12 @@ public final class SplitGeosetAction implements UndoAction {
 
 		for (Geoset geoset : oldGeoToNewGeo.values()) {
 			model.add(geoset);
-			if (geoset.getGeosetAnim() != null) {
-				model.add(geoset.getGeosetAnim());
-			}
 		}
 	}
 
 	private void removeGeosets() {
 		for (Geoset geoset : oldGeoToNewGeo.values()) {
 			model.remove(geoset);
-			if (geoset.getGeosetAnim() != null) {
-				model.remove(geoset.getGeosetAnim());
-			}
 		}
 
 		for (GeosetVertex vertex : affectedVertices) {
@@ -179,12 +161,6 @@ public final class SplitGeosetAction implements UndoAction {
 
 	@Override
 	public UndoAction redo() {
-//		for (Geoset geoset : oldGeoToNewGeo.values()) {
-//			model.add(geoset);
-//			if (geoset.getGeosetAnim() != null) {
-//				model.add(geoset.getGeosetAnim());
-//			}
-//		}
 		splitEdge();
 		for (GeosetVertex newVert : oldToNew.values()) {
 			newVert.getGeoset().add(newVert);
@@ -202,7 +178,7 @@ public final class SplitGeosetAction implements UndoAction {
 		return "split geoset";
 	}
 
-	private void createGeosetCopies(EditableModel model) {
+	private void createGeosetCopies() {
 
 		Set<Geoset> geosetsToCopy = new HashSet<>();
 		for (GeosetVertex vert : affectedVertices) {
@@ -210,27 +186,7 @@ public final class SplitGeosetAction implements UndoAction {
 		}
 
 		for (Geoset geoset : geosetsToCopy) {
-			Geoset geosetCreated = new Geoset();
-			if (geoset.getExtents() != null) {
-				geosetCreated.setExtents(geoset.getExtents().deepCopy());
-			}
-			for (Animation anim : model.getAnims()) {
-				if(geoset.getAnimExtent(anim) != null){
-					geosetCreated.add(anim, geoset.getAnimExtent(anim).deepCopy());
-				}
-			}
-
-			geosetCreated.setUnselectable(geoset.getUnselectable());
-			geosetCreated.setSelectionGroup(geoset.getSelectionGroup());
-			GeosetAnim geosetAnim = geoset.getGeosetAnim();
-			if (geosetAnim != null) {
-				GeosetAnim createdGeosetAnim = geosetAnim.deepCopy().setGeoset(geosetCreated);
-				geosetCreated.setGeosetAnim(createdGeosetAnim);
-			}
-			geosetCreated.setParentModel(model);
-			geosetCreated.setMaterial(geoset.getMaterial());
-			oldGeoToNewGeo.put(geoset, geosetCreated);
+			oldGeoToNewGeo.put(geoset, geoset.emptyCopy());
 		}
 	}
-
 }

@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.actions.addactions.AddGeosetAction;
 import com.hiveworkshop.rms.editor.actions.addactions.DrawVertexAction;
 import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Material;
@@ -41,13 +42,15 @@ public class DrawVertexActivity extends ViewportActivity {
 	}
 
 	public DrawVertexActivity(ModelHandler modelHandler,
-	                          ModelEditorManager modelEditorManager, ViewportActivity lastActivity) {
+	                          ModelEditorManager modelEditorManager,
+	                          ViewportActivity lastActivity) {
 		super(modelHandler, modelEditorManager);
 		this.lastActivity = lastActivity;
 	}
 
 	public DrawVertexActivity(ModelHandler modelHandler,
-	                          ModelEditorManager modelEditorManager, ModelEditorActionType3 lastEditorType) {
+	                          ModelEditorManager modelEditorManager,
+	                          ModelEditorActionType3 lastEditorType) {
 		super(modelHandler, modelEditorManager);
 		this.lastEditorType = lastEditorType;
 	}
@@ -64,13 +67,14 @@ public class DrawVertexActivity extends ViewportActivity {
 			Vec3 facingVector = new Vec3(0, 0, 1); // TODO make this work with CameraHandler
 
 			List<UndoAction> undoActions = new ArrayList<>();
-			Material solidWhiteMaterial = ModelUtils.getWhiteMaterial(modelView.getModel());
+			EditableModel model = modelHandler.getModel();
+			Material solidWhiteMaterial = ModelUtils.getWhiteMaterial(model);
 			Geoset solidWhiteGeoset = getSolidWhiteGeoset(solidWhiteMaterial);
 
-			if (!modelView.getModel().contains(solidWhiteMaterial) || !modelView.getModel().contains(solidWhiteGeoset) || !modelView.isEditable(solidWhiteGeoset)) {
-				undoActions.add(new AddGeosetAction(solidWhiteGeoset, modelView, null));
-				if (!modelHandler.getModel().getMaterials().contains(solidWhiteMaterial)) {
-					undoActions.add(new AddMaterialAction(solidWhiteMaterial, modelHandler.getModel(), null));
+			if (!model.contains(solidWhiteMaterial) || !model.contains(solidWhiteGeoset) || !modelView.isEditable(solidWhiteGeoset)) {
+				undoActions.add(new AddGeosetAction(solidWhiteGeoset, model, null));
+				if (!model.getMaterials().contains(solidWhiteMaterial)) {
+					undoActions.add(new AddMaterialAction(solidWhiteMaterial, model, null));
 				}
 			}
 
@@ -106,8 +110,6 @@ public class DrawVertexActivity extends ViewportActivity {
 		Vec2 point = getPoint(e);
 		Vec3 locationCalculator = new Vec3(point.x, point.y, 0).transform(viewProjectionMatrix);
 		try {
-//			Viewport viewport = viewportListener.getViewport();
-//			Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
 			Vec3 facingVector = new Vec3(1, 0, 0).transform(viewProjectionMatrix);
 
 			List<UndoAction> undoActions = new ArrayList<>();
@@ -126,7 +128,6 @@ public class DrawVertexActivity extends ViewportActivity {
 			undoActions.add(new DrawVertexAction(geosetVertex));
 			undoManager.pushAction(new CompoundAction("add vertex", undoActions, ModelStructureChangeListener.changeListener::geosetsUpdated).redo());
 			if (lastEditorType != null) {
-//				ProgramGlobals.getCurrentModelPanel().changeActivity(lastActivity);
 				ProgramGlobals.getCurrentModelPanel().setEditorActionType(lastEditorType);
 			}
 		} catch (WrongModeException exc) {
@@ -139,15 +140,5 @@ public class DrawVertexActivity extends ViewportActivity {
 	public void mouseMoved(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 		lastMousePoint = e.getPoint();
 	}
-
-
-//	public void render(Graphics2D g, CameraHandler cameraHandler, RenderModel renderModel, boolean isAnimated) {
-//		if (!isAnimated) {
-//			g.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.VERTEX));
-//			if (lastMousePoint != null) {
-//				g.fillRect(lastMousePoint.x, lastMousePoint.y, 3, 3);
-//			}
-//		}
-//	}
 
 }

@@ -183,10 +183,8 @@ public class KeyframeCopyPanel extends JPanel {
 		}
 
 		for(Geoset geoset : model.getGeosets()){
-			if(geoset.getGeosetAnim() != null){
-				ArrayList<AnimFlag<?>> animFlags = geoset.getGeosetAnim().getAnimFlags();
-				undoActions.addAll(getSetKeyframesAction(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlags));
-			}
+			ArrayList<AnimFlag<?>> animFlags = geoset.getAnimFlags();
+			undoActions.addAll(getSetKeyframesAction(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlags));
 		}
 		for (TextureAnim textureAnim : model.getTexAnims()){
 			ArrayList<AnimFlag<?>> animFlags = textureAnim.getAnimFlags();
@@ -213,14 +211,7 @@ public class KeyframeCopyPanel extends JPanel {
 				}
 			}
 		}
-//		for (Bone bone : bones) {
-//			ArrayList<AnimFlag<?>> animFlags = bone.getAnimFlags();
-//			undoActions.addAll(getSetKeyframesAction(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlags));
-//		}
-//		for (Helper helper : helpers) {
-//			ArrayList<AnimFlag<?>> animFlags = helper.getAnimFlags();
-//			undoActions.addAll(getSetKeyframesAction(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlags));
-//		}
+
 		if(!undoActions.isEmpty()){
 			modelHandler.getUndoManager().pushAction(new CompoundAction("Copy keyframes", undoActions, ModelStructureChangeListener.changeListener::keyframesUpdated).redo());
 		}

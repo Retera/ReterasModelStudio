@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.addactions.AddGeosetAction;
 import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
@@ -22,6 +23,7 @@ import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -115,17 +117,18 @@ public abstract class ViewportActivity implements SelectionListener {
 
 
 	protected UndoAction getAddAction(Material solidWhiteMaterial, Geoset solidWhiteGeoset) {
-		if (!modelView.getModel().contains(solidWhiteMaterial) || !modelView.getModel().contains(solidWhiteGeoset) || !modelView.isEditable(solidWhiteGeoset)) {
-			AddGeosetAction addGeosetAction = new AddGeosetAction(solidWhiteGeoset, modelView, null);
-			if (!modelHandler.getModel().contains(solidWhiteMaterial)) {
-				AddMaterialAction addMaterialAction = new AddMaterialAction(solidWhiteMaterial, modelHandler.getModel(), null);
-				return new CompoundAction("Add geoset", ModelStructureChangeListener.changeListener::geosetsUpdated, addGeosetAction, addMaterialAction);
-			} else {
+		EditableModel model = modelHandler.getModel();
 
-				return new CompoundAction("Add geoset", ModelStructureChangeListener.changeListener::geosetsUpdated, addGeosetAction);
+		if (!modelView.isEditable(solidWhiteGeoset)) {
+			List<UndoAction> undoActions = new ArrayList<>();
+			undoActions.add(new AddGeosetAction(solidWhiteGeoset, model, null));
+			if (!model.contains(solidWhiteMaterial)) {
+				undoActions.add(new AddMaterialAction(solidWhiteMaterial, model, null));
 			}
-
+			return new CompoundAction("Add geoset", undoActions, ModelStructureChangeListener.changeListener::geosetsUpdated);
 		}
+
+
 		return null;
 	}
 

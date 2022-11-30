@@ -140,16 +140,11 @@ public class GeosetRenderer {
 	private void renderGeoset(Geoset geo, boolean renderOpaque, int formatVersion, boolean overriddenColors, boolean renderTextures) {
 		if (!correctLoD(geo, formatVersion) || geo.getVertices().isEmpty()) return;
 
-		GeosetAnim geosetAnim = geo.getGeosetAnim();
-		Vec3 renderColor = null;
-		float geosetAnimVisibility = 1;
-		if (geosetAnim != null) {
-			geosetAnimVisibility = geosetAnim.getRenderVisibility(renderEnv);// do not show invisible geosets
-			if (geosetAnimVisibility < RenderModel.MAGIC_RENDER_SHOW_CONSTANT) {
-				return;
-			}
-			renderColor = geosetAnim.getRenderColor(renderEnv);
+		float geosetAnimVisibility = geo.getRenderVisibility(renderEnv);
+		if (geosetAnimVisibility < RenderModel.MAGIC_RENDER_SHOW_CONSTANT) {
+			return;
 		}
+		Vec3 renderColor = geo.getRenderColor(renderEnv);
 
 		Material material = geo.getMaterial();
 		List<Layer> layers = material.getLayers();

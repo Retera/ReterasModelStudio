@@ -184,24 +184,20 @@ public abstract class BufferSubInstance {
 	protected abstract BufferSubInstance fetchTextures(TimeEnvironmentImpl timeEnvironment);
 
 
-
+	Vec3 uvCenter = new Vec3(.5,.5,.5);
 	protected void setUVTransform(Layer layer, TimeEnvironmentImpl timeEnvironment) {
 		uvTransform.setIdentity();
 		if(layer.getTextureAnim() != null){
-
-			uvTransform.fromRotationTranslationScale(
+			uvTransform.fromRotationTranslationScaleOrigin(
 					layer.getTextureAnim().getInterpolatedQuat(timeEnvironment, MdlUtils.TOKEN_ROTATION, Quat.IDENTITY),
 					layer.getTextureAnim().getInterpolatedVector(timeEnvironment, MdlUtils.TOKEN_TRANSLATION, Vec3.ZERO),
-					layer.getTextureAnim().getInterpolatedVector(timeEnvironment, MdlUtils.TOKEN_SCALING, Vec3.ONE)
+					layer.getTextureAnim().getInterpolatedVector(timeEnvironment, MdlUtils.TOKEN_SCALING, Vec3.ONE),
+					uvCenter
 			);
 		} else {
 			uvTransform.fromRotationTranslationScale(Quat.IDENTITY, Vec3.ZERO, Vec3.ONE);
 		}
-//		return uvTransform;
-//		return null;
 	}
-
-
 
 	public boolean isTwoSided() {
 		return twoSided;

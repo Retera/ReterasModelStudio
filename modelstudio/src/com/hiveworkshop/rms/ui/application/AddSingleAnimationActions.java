@@ -11,7 +11,7 @@ import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.VisibilitySource;
+import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
@@ -79,8 +79,6 @@ public class AddSingleAnimationActions {
 		if (modelPanel != null && modelPanel.getModelHandler() != null) {
 			ModelHandler modelHandler = modelPanel.getModelHandler();
 			GlobalSeqHelper.showNewGlobSeqPopup(ProgramGlobals.getMainPanel(), "Enter Length", modelHandler);
-//			UndoAction action = new AddSequenceAction(modelHandler.getModel(), new GlobalSeq(1000 + modelHandler.getModel().getGlobalSeqs().size()), ModelStructureChangeListener.getModelStructureChangeListener());
-//			modelHandler.getUndoManager().pushAction(action.redo());
 		}
 	}
 
@@ -97,12 +95,11 @@ public class AddSingleAnimationActions {
 		JPanel newAnimationPanel = new JPanel(new MigLayout());
 		newAnimationPanel.add(new JLabel("Add new empty animation"), "span 2, wrap");
 		newAnimationPanel.add(new JLabel("Name"));
+
 		JTextField nameField = new JTextField();
 		nameField.setText("newAnimation");
 		newAnimationPanel.add(nameField, "wrap, grow");
-//		newAnimationPanel.add(new JLabel("Start"));
-//		JSpinner startSpinner = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
-//		newAnimationPanel.add(startSpinner, "wrap");
+
 		newAnimationPanel.add(new JLabel("Length"));
 		JSpinner lengthSpinner = new JSpinner(new SpinnerNumberModel(500, 0, Integer.MAX_VALUE, 1));
 		newAnimationPanel.add(lengthSpinner, "wrap");
@@ -116,49 +113,26 @@ public class AddSingleAnimationActions {
 		creationPanel.add(existingAnimationsPanel, "cell 1 0");
 
 		List<Animation> currAnim = modelHandler.getModel().getAnims();
-//		List<Integer> startTimes = new ArrayList<>();
 		List<Integer> animNumber = new ArrayList<>();
 		List<Integer> lengths = new ArrayList<>();
 		List<String> animationNames = new ArrayList<>();
         for (Animation a : currAnim) {
-//	        startTimes.add(a.getStart());
 	        animNumber.add(animNumber.size());
 	        lengths.add(a.getLength());
 	        animationNames.add(a.getName());
         }
 
         DefaultTableModel animationTableModel = new DefaultTableModel();
-//		animationTableModel.addColumn("start", startTimes.toArray());
 		animationTableModel.addColumn("", animNumber.toArray());
 		animationTableModel.addColumn("name", animationNames.toArray());
 		animationTableModel.addColumn("length", lengths.toArray());
 
         existingAnimationTable.setModel(animationTableModel);
 
-//        JButton setStartAfter = new JButton("Start After");
-//        setStartAfter.addActionListener(e -> {
-//	        int length = (Integer) lengthSpinner.getValue();
-//	        int newStart = ((Integer) existingAnimationTable.getValueAt(existingAnimationTable.getSelectedRow(), 1)) + 1;
-//	        startSpinner.setValue(newStart);
-//	        lengthSpinner.setValue(length);
-//        });
-//        JButton setEndBefore = new JButton("End Before");
-////        setEndBefore.addActionListener(e -> lengthSpinner.setValue(existingAnimationTable.getValueAt(existingAnimationTable.getSelectedRow(), 0)));
-//        setEndBefore.addActionListener(e -> {
-//	        int duration = (Integer) lengthSpinner.getValue();
-//	        int selectedRow = existingAnimationTable.getSelectedRow();
-//	        int start = ((Integer) existingAnimationTable.getValueAt(selectedRow, 0)) - 1 - duration;
-//	        startSpinner.setValue(start);
-//        });
-//
-//		existingAnimationsPanel.add(setStartAfter);
-//		existingAnimationsPanel.add(setEndBefore);
-
-//        optionPane.setOptions();
 		int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), creationPanel, "Create Empty Animation", JOptionPane.OK_CANCEL_OPTION);
-		System.out.println("option \"" + option + "\"");
+
 		int length = (Integer) lengthSpinner.getValue();
-		if (option == 0) {
+		if (option == JOptionPane.OK_OPTION) {
 			Animation animation = new Animation(nameField.getText(), 0, length);
 			UndoAction action = new AddSequenceAction(modelHandler.getModel(), animation, ModelStructureChangeListener.getModelStructureChangeListener());
 			modelHandler.getUndoManager().pushAction(action.redo());
@@ -214,19 +188,20 @@ public class AddSingleAnimationActions {
 		UndoAction importAction = getImportAction(modelHandler.getModel(), animMap, nodeMap);
 		actions.add(importAction);
 
-		for (Animation animation : animations){
+		for (Animation animation : animations) {
 			animMap.put(animation, animation);
 			actions.addAll(getSetVisibilityActions(modelHandler.getModel(), vis, animation));
 		}
 
 		modelHandler.getUndoManager().pushAction(
-				new CompoundAction("Add Single Animation", actions, ModelStructureChangeListener.changeListener::animationParamsChanged)
+				new CompoundAction("Add Single Animation", actions,
+						ModelStructureChangeListener.changeListener::animationParamsChanged)
 						.redo());
 
 
 		String visString = vis == null ? "everything visible" : vis.getName() + "'s visibility!";
 		String animString;
-		if(animations.size() == 1){
+		if (animations.size() == 1) {
 			String name = animations.stream().findFirst().get().getName();
 			animString = animSrcName + "'s " + name;
 		} else {
@@ -237,11 +212,11 @@ public class AddSingleAnimationActions {
 
 	public static List<UndoAction> getSetVisibilityActions(EditableModel model, Animation visibilitySource, Animation target) {
 		List<UndoAction> undoActions = new ArrayList<>();
-		List<VisibilitySource> allVisibilitySources = ModelUtils.getAllVis(model);
-		for (VisibilitySource source : allVisibilitySources) {
+		List<TimelineContainer> allVisibilitySources = ModelUtils.getAllVis(model);
+		for (TimelineContainer source : allVisibilitySources) {
 			AnimFlag<Float> visibilityFlag = source.getVisibilityFlag();
 			TreeMap<Integer, Entry<Float>> entryMapCopy = visibilityFlag.getSequenceEntryMapCopy(visibilitySource);
-			if(entryMapCopy != null){
+			if (entryMapCopy != null) {
 				undoActions.add(new SetFlagEntryMapAction<>(visibilityFlag, target, entryMapCopy, null));
 			}
 		}
@@ -260,7 +235,7 @@ public class AddSingleAnimationActions {
 	private static UndoAction getAddSequencesAction(EditableModel recModel, Map<Sequence, Sequence> recToDonSequenceMap) {
 		List<UndoAction> undoActions = new ArrayList<>();
 		for(Sequence recSeq : recToDonSequenceMap.keySet()){
-			if(!recModel.contains(recSeq)){
+			if (!recModel.contains(recSeq)) {
 				undoActions.add(new AddSequenceAction(recModel, recSeq, null));
 			}
 		}
@@ -277,9 +252,9 @@ public class AddSingleAnimationActions {
 				AnimFlag<?> recAnimFlag = flagPair.getFirst();
 				AnimFlag<?> donAnimFlag = flagPair.getSecond();
 
-				if (recAnimFlag != null && donAnimFlag != null){
+				if (recAnimFlag != null && donAnimFlag != null) {
 					undoActions.addAll(getReplaceTransfActions(recToDonSequenceMap, recAnimFlag, donAnimFlag));
-				} else if (recAnimFlag != null){
+				} else if (recAnimFlag != null) {
 					for (Sequence sequence : recToDonSequenceMap.keySet()) {
 						undoActions.add(new RemoveFlagEntryMapAction<>(recAnimFlag, sequence, null));
 					}
@@ -303,7 +278,7 @@ public class AddSingleAnimationActions {
 	private static <Q> List<UndoAction> getReplaceTransfActions(Map<Sequence, Sequence> recToDonSequenceMap, AnimFlag<Q> recAnimFlag, AnimFlag<?> donAnimFlag) {
 		List<UndoAction> undoActions = new ArrayList<>();
 		AnimFlag<Q> donTyped = recAnimFlag.getAsTypedOrNull(donAnimFlag);
-		if (donTyped != null){
+		if (donTyped != null) {
 			for (Sequence recSequence : recToDonSequenceMap.keySet()) {
 				Sequence donSequence = recToDonSequenceMap.get(recSequence);
 				undoActions.add(new ReplaceSequenceTransformations<>(donTyped, recAnimFlag, donSequence, recSequence, null));
@@ -314,20 +289,20 @@ public class AddSingleAnimationActions {
 
 	private static List<Pair<AnimFlag<?>, AnimFlag<?>>> getFlagPairs(IdObject recIdObject, IdObject donIdObject){
 		List<Pair<AnimFlag<?>, AnimFlag<?>>> pairList = new ArrayList<>();
-		if(recIdObject != null && donIdObject != null){
+		if (recIdObject != null && donIdObject != null) {
 			ArrayList<AnimFlag<?>> recAnimFlags = recIdObject.getAnimFlags();
 			ArrayList<AnimFlag<?>> donAnimFlags = donIdObject.getAnimFlags();
 
 			Set<AnimFlag<?>> matchedFlags = new HashSet<>();
-			for (AnimFlag<?> recAnimFlag : recAnimFlags){
+			for (AnimFlag<?> recAnimFlag : recAnimFlags) {
 				AnimFlag<?> donAnimFlag = donIdObject.find(recAnimFlag.getName());
 				// donAnimFlag == null means the animation should be cleared
 				pairList.add(new Pair<>(recAnimFlag, donAnimFlag));
 				matchedFlags.add(donAnimFlag);
 			}
 
-			for (AnimFlag<?> donAnimFlag : donAnimFlags){
-				if(!matchedFlags.contains(donAnimFlag)){
+			for (AnimFlag<?> donAnimFlag : donAnimFlags) {
+				if (!matchedFlags.contains(donAnimFlag)) {
 					// Add a pair if receiving IdObject doesn't have transformation of this type
 					pairList.add(new Pair<>(null, donAnimFlag));
 				}

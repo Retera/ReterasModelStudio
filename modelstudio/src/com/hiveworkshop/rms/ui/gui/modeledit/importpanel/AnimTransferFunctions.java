@@ -21,7 +21,7 @@ public class AnimTransferFunctions {
 
 	public void animTransfer(boolean singleAnimation, Animation pickedAnim, Animation visFromAnim, boolean show) {
 		mht.clearRecModAnims.setSelected(true);
-		ugg(IdObjectShell.ImportType.MOTION_FROM, singleAnimation);
+		initStates(IdObjectShell.ImportType.MOTION_FROM, singleAnimation);
 
 		if (singleAnimation) {
 			importSingleAnim2(pickedAnim);
@@ -47,7 +47,7 @@ public class AnimTransferFunctions {
 		}
 	}
 
-	private void ugg(IdObjectShell.ImportType importType, boolean singleAnim) {
+	private void initStates(IdObjectShell.ImportType importType, boolean singleAnim) {
 		mht.setImportAllGeos(false);
 		mht.setImportStatusForAllDonBones(importType);
 		mht.setImportAllDonObjs(false);
@@ -60,7 +60,7 @@ public class AnimTransferFunctions {
 
 	private boolean isGutz(VisibilityShell donVis) {
 		boolean isGeoset = donVis.getSource() instanceof Geoset;
-		boolean hasGeoAnim = ((Geoset) donVis.getSource()).getGeosetAnim() != null;
+		boolean hasGeoAnim = ((Geoset) donVis.getSource()).hasAnim();
 		if (isGeoset && hasGeoAnim) {
 			Bitmap bitmap = ((Geoset) donVis.getSource()).getMaterial().firstLayer().firstTexture();
 			return bitmap.getPath().equalsIgnoreCase("textures\\gutz.blp");
@@ -72,7 +72,7 @@ public class AnimTransferFunctions {
 
 	public void animTransfer1(boolean singleAnimation, Animation pickedAnim, Animation visFromAnim, boolean show) {
 		mht.clearRecModAnims.setSelected(true);
-		ugg(IdObjectShell.ImportType.MOTION_FROM, singleAnimation);
+		initStates(IdObjectShell.ImportType.MOTION_FROM, singleAnimation);
 
 		if (singleAnimation) {
 			importSingleAnim2(pickedAnim);
@@ -101,7 +101,7 @@ public class AnimTransferFunctions {
 	public void animTransferPartTwo(Animation pickedAnim, Animation visFromAnim, boolean show) {
 		// This should be an import from self
 		// This seems to be a stupid hack to put back lost stuff...
-		ugg(IdObjectShell.ImportType.DONT_IMPORT, true);
+		initStates(IdObjectShell.ImportType.DONT_IMPORT, true);
 
 		importSingleAnim1(pickedAnim, visFromAnim);
 
@@ -220,10 +220,6 @@ public class AnimTransferFunctions {
 				mht.receivingModel.add(geoShell.getGeoset());
 
 				geosetsAdded.add(geoShell.getGeoset());
-
-				if (geoShell.getGeoset().getGeosetAnim() != null) {
-					mht.receivingModel.add(geoShell.getGeoset().getGeosetAnim());
-				}
 			}
 		}
 		return geosetsAdded;
@@ -235,9 +231,6 @@ public class AnimTransferFunctions {
 		for (GeosetShell geoShell : mht.recModGeoShells) {
 
 			if (!geoShell.isDoImport()) {
-				if (geoShell.getGeoset().getGeosetAnim() != null) {
-					mht.receivingModel.remove(geoShell.getGeoset().getGeosetAnim());
-				}
 				geosetsRemoved.add(geoShell.getGeoset());
 				mht.receivingModel.remove(geoShell.getGeoset());
 			} else {
@@ -472,7 +465,7 @@ public class AnimTransferFunctions {
 		}
 
 		model.getTexAnims().stream().filter(o -> o.owns(orgFlag)).forEach(o -> o.add(newGlobalSeqFlag));
-		model.getGeosetAnims().stream().filter(o -> o.owns(orgFlag)).forEach(o -> o.add(newGlobalSeqFlag));
+		model.getGeosets().stream().filter(o -> o.owns(orgFlag)).forEach(o -> o.add(newGlobalSeqFlag));
 		model.getIdObjects().stream().filter(o -> o.owns(orgFlag)).forEach(o -> o.add(newGlobalSeqFlag));
 		model.getCameras().stream().filter(o -> o.getSourceNode().owns(orgFlag)).forEach(o -> o.getSourceNode().add(newGlobalSeqFlag));
 
@@ -628,7 +621,7 @@ public class AnimTransferFunctions {
 	private void setNewVisSources(List<Animation> oldAnims, boolean clearAnims, List<Animation> newAnims) {
 		final List<AnimFlag<Float>> finalVisFlags = new ArrayList<>();
 		for (VisibilityShell visibilityShell : mht.futureVisComponents) {
-			VisibilitySource temp = ((VisibilitySource) visibilityShell.getSource());
+			TimelineContainer temp = ((TimelineContainer) visibilityShell.getSource());
 			AnimFlag<Float> visFlag = temp.getVisibilityFlag();// might be null
 			AnimFlag<Float> newVisFlag;
 
@@ -664,7 +657,7 @@ public class AnimTransferFunctions {
 			finalVisFlags.add(newVisFlag);
 		}
 		for (int i = 0; i < mht.futureVisComponents.size(); i++) {
-			VisibilitySource visSource = ((VisibilitySource) mht.futureVisComponents.get(i).getSource());
+			TimelineContainer visSource = ((TimelineContainer) mht.futureVisComponents.get(i).getSource());
 			AnimFlag<Float> visFlag = finalVisFlags.get(i);// might be null
 			if (visFlag.size() > 0) {
 				visSource.setVisibilityFlag(visFlag);
@@ -687,7 +680,7 @@ public class AnimTransferFunctions {
 				}
 				return tempFlag;
 			} else if (!source.isAlwaysVisible()) {
-				return (FloatAnimFlag) ((VisibilitySource) source.getSource()).getVisibilityFlag();
+				return (FloatAnimFlag) ((TimelineContainer) source.getSource()).getVisibilityFlag();
 			}
 		}
 		return null;

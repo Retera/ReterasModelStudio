@@ -115,10 +115,7 @@ public class SpliceGeosetPanel extends JPanel{
 		Map<Animation, Animation> recToDonAnimMap = getRecToDonAnimMap();
 
 		for(Geoset geoset : newGeosets){
-			GeosetAnim geosetAnim = geoset.getGeosetAnim();
-			if(geosetAnim != null){
-				copyGeosetAnims(recToDonAnimMap, geosetAnim);
-			}
+			copyGeosetAnims(recToDonAnimMap, geoset.getAnimFlags());
 		}
 		
 		for (Material material : donModel.getMaterials()){
@@ -140,8 +137,8 @@ public class SpliceGeosetPanel extends JPanel{
 		}
 	}
 
-	private void copyGeosetAnims(Map<Animation, Animation> recToDonAnimMap, GeosetAnim geosetAnim) {
-		for (AnimFlag<?> animFlag : geosetAnim.getAnimFlags()){
+	private void copyGeosetAnims(Map<Animation, Animation> recToDonAnimMap, ArrayList<AnimFlag<?>> animFlags) {
+		for (AnimFlag<?> animFlag : animFlags){
 			for(Animation recAnim : recModel.getAnims()){
 				Animation donAnim = recToDonAnimMap.get(recAnim);
 				if(donAnim != null && animFlag.hasSequence(donAnim)){

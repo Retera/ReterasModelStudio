@@ -152,7 +152,7 @@ public class ImportPanel extends JTabbedPane {
 		}
 
 		model.getTexAnims().stream().filter(o -> o.owns(orgFlag)).forEach(o -> o.add(newGlobalSeqFlag));
-		model.getGeosetAnims().stream().filter(o -> o.owns(orgFlag)).forEach(o -> o.add(newGlobalSeqFlag));
+		model.getGeosets().stream().filter(o -> o.owns(orgFlag)).forEach(o -> o.add(newGlobalSeqFlag));
 		model.getIdObjects().stream().filter(o -> o.owns(orgFlag)).forEach(o -> o.add(newGlobalSeqFlag));
 		model.getCameras().stream().filter(o -> o.getSourceNode().owns(orgFlag)).forEach(o -> o.getSourceNode().add(newGlobalSeqFlag));
 
@@ -277,7 +277,7 @@ public class ImportPanel extends JTabbedPane {
 	private void setNewVisSources(List<Animation> oldAnims, boolean clearAnims, List<Animation> newAnims) {
 		final List<AnimFlag<Float>> finalVisFlags = new ArrayList<>();
 		for (VisibilityShell visibilityShell : mht.futureVisComponents) {
-			VisibilitySource temp = ((VisibilitySource) visibilityShell.getSource());
+			TimelineContainer temp = ((TimelineContainer) visibilityShell.getSource());
 			AnimFlag<Float> visFlag = temp.getVisibilityFlag();// might be null
 			AnimFlag<Float> newVisFlag;
 
@@ -313,7 +313,7 @@ public class ImportPanel extends JTabbedPane {
 			finalVisFlags.add(newVisFlag);
 		}
 		for (int i = 0; i < mht.futureVisComponents.size(); i++) {
-			VisibilitySource visSource = ((VisibilitySource) mht.futureVisComponents.get(i).getSource());
+			TimelineContainer visSource = ((TimelineContainer) mht.futureVisComponents.get(i).getSource());
 			AnimFlag<Float> visFlag = finalVisFlags.get(i);// might be null
 			if (visFlag.size() > 0) {
 				visSource.setVisibilityFlag(visFlag);
@@ -328,7 +328,7 @@ public class ImportPanel extends JTabbedPane {
 			if (source.isNeverVisible()) {
 				return getNeverVisFlag(tans, anims);
 			} else if (!source.isAlwaysVisible()) {
-				return (FloatAnimFlag) ((VisibilitySource) source.getSource()).getVisibilityFlag();
+				return (FloatAnimFlag) ((TimelineContainer) source.getSource()).getVisibilityFlag();
 			}
 		}
 		return null;
@@ -730,10 +730,6 @@ public class ImportPanel extends JTabbedPane {
 				mht.receivingModel.add(geoShell.getGeoset());
 
 				geosetsAdded.add(geoShell.getGeoset());
-
-				if (geoShell.getGeoset().getGeosetAnim() != null) {
-					mht.receivingModel.add(geoShell.getGeoset().getGeosetAnim());
-				}
 			}
 		}
 		return geosetsAdded;
@@ -745,9 +741,6 @@ public class ImportPanel extends JTabbedPane {
 		for (GeosetShell geoShell : mht.recModGeoShells) {
 
 			if (!geoShell.isDoImport()) {
-				if (geoShell.getGeoset().getGeosetAnim() != null) {
-					mht.receivingModel.remove(geoShell.getGeoset().getGeosetAnim());
-				}
 				geosetsRemoved.add(geoShell.getGeoset());
 				mht.receivingModel.remove(geoShell.getGeoset());
 			} else {
@@ -857,7 +850,7 @@ public class ImportPanel extends JTabbedPane {
 	private boolean isGutz(VisibilityShell donVis) {
 		boolean isGeoset = donVis.getSource() instanceof Geoset;
 		if(isGeoset){
-			boolean hasGeoAnim = ((Geoset) donVis.getSource()).getGeosetAnim() != null;
+			boolean hasGeoAnim = ((Geoset) donVis.getSource()).hasAnim();
 			if(hasGeoAnim){
 				Bitmap bitmap = ((Geoset) donVis.getSource()).getMaterial().firstLayer().firstTexture();
 				return bitmap.getPath().equalsIgnoreCase("textures\\gutz.blp");

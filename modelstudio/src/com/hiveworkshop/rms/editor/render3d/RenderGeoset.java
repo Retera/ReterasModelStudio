@@ -72,14 +72,10 @@ public class RenderGeoset {
 			renderVert.update(getTransform(renderVert.vertex, animate));
 		}
 
-		if (geoset.getGeosetAnim() != null) {
-			if (animate) {
-				renderColor.set(geoset.getGeosetAnim().getRenderColor(renderModel.getTimeEnvironment()), geoset.getGeosetAnim().getRenderVisibility(renderModel.getTimeEnvironment()));
-			} else {
-				renderColor.set(geoset.getGeosetAnim().getStaticColor(), (float) geoset.getGeosetAnim().getStaticAlpha());
-			}
+		if (animate) {
+			renderColor.set(geoset.getRenderColor(renderModel.getTimeEnvironment()), geoset.getRenderVisibility(renderModel.getTimeEnvironment()));
 		} else {
-			renderColor.set(1,1,1,1);
+			renderColor.set(geoset.getStaticColor(), (float) geoset.getStaticAlpha());
 		}
 
 		return this;

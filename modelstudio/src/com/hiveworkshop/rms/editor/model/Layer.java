@@ -460,8 +460,8 @@ public class Layer extends TimelineContainer implements Named {
 			return name;
 		}
 
-	public int getFlagBit() {
-		return flagBit;
+		public int getFlagBit() {
+			return flagBit;
+		}
 	}
-}
 }

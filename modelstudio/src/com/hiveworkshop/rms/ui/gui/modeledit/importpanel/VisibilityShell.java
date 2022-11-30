@@ -2,11 +2,10 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.Named;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
-import com.hiveworkshop.rms.editor.model.VisibilitySource;
 
 public class VisibilityShell {
 	private final Named source;
-	private final VisibilitySource visibilitySource;
+	private final TimelineContainer visibilitySource;
 	private final String modelName;
 
 	private final boolean isFromDonating;
@@ -20,12 +19,12 @@ public class VisibilityShell {
 	private boolean neverVisible = false;
 	private boolean multipleSelected = false;
 
-	public VisibilityShell(VisibilitySource vs, String modelName, boolean isFromDonating) {
+	public VisibilityShell(TimelineContainer vs, String modelName, boolean isFromDonating) {
 		source = (Named) vs;
 		visibilitySource = vs;
 		this.modelName = modelName;
 		this.isFromDonating = isFromDonating;
-		if (visibilitySource instanceof TimelineContainer && visibilitySource.getVisibilityFlag() != null) {
+		if (visibilitySource != null && visibilitySource.getVisibilityFlag() != null) {
 			if (isFromDonating) {
 				recModAnimsVisSource = this;
 			} else {
@@ -55,7 +54,7 @@ public class VisibilityShell {
 		return source;
 	}
 
-	public VisibilitySource getVisibilitySource() {
+	public TimelineContainer getVisibilitySource() {
 		return visibilitySource;
 	}
 

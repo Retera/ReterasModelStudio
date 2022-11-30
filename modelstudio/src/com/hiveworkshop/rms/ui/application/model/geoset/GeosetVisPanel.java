@@ -23,7 +23,7 @@ public class GeosetVisPanel extends JPanel {
 	private final EditableModel model;
 	private final UndoManager undoManager;
 	private final ModelStructureChangeListener changeListener;
-	private GeosetAnim geosetAnim;
+	private Geoset geoset;
 	private Material material;
 
 	public GeosetVisPanel(ModelHandler modelHandler) {
@@ -34,7 +34,7 @@ public class GeosetVisPanel extends JPanel {
 	}
 
 	public GeosetVisPanel setGeoset(Geoset geoset){
-		this.geosetAnim = geoset.getGeosetAnim();
+		this.geoset = geoset;
 		this.material = geoset.getMaterial();
 		removeAll();
 		setBorder(null);
@@ -61,41 +61,17 @@ public class GeosetVisPanel extends JPanel {
 			JComponent visPanelComponent = getVisPanelComponent(matAnimVisMap.get(animation), null);
 			visPanelComponent.setEnabled(false);
 			add(visPanelComponent);
-
-//			if (geoAnimVisMap.containsKey(animation)) {
-//				add(getToggelGeoAnimVisButton(geoAnimVisMap, animation), "");
-//			} else {
-//				add(new JLabel());
-//			}
-//			if (matAnimVisMap.containsKey(animation)) {
-//				add(getMaterialVisButton(matAnimVisMap, animation), "");
-//			} else {
-//				add(new JLabel());
-//			}
-
 		}
 	}
 
 	private Map<Animation, Visibility> getGeosetAnimVisMap() {
 		Map<Animation, Visibility> geoAnimVisMap = new HashMap<>();
-		if (geosetAnim != null && geosetAnim.getVisibilityFlag() != null) {
+		if (geoset.getVisibilityFlag() != null) {
 			for (Animation animation : model.getAnims()) {
-				geoAnimVisMap.put(animation, getVis(geosetAnim.getVisibilityFlag().getEntryMap(animation)));
+				geoAnimVisMap.put(animation, getVis(geoset.getVisibilityFlag().getEntryMap(animation)));
 			}
 		}
 		return geoAnimVisMap;
-	}
-
-	private JButton getMaterialVisButton(Map<Animation, Visibility> matAnimVisMap, Animation animation) {
-		Visibility visibility = matAnimVisMap.get(animation);
-		JButton animButton = getVisButton(visibility, null);
-		animButton.setEnabled(false);
-		return animButton;
-	}
-
-	private JButton getToggelGeoAnimVisButton(Map<Animation, Visibility> geoAnimVisMap, Animation animation) {
-		Visibility visibility = geoAnimVisMap.get(animation);
-		return getVisButton(visibility, e -> toggleVisibility(animation, visibility));
 	}
 
 	private JComponent getVisPanelComponent(Visibility visibility, ActionListener actionListener) {
@@ -121,7 +97,7 @@ public class GeosetVisPanel extends JPanel {
 
 
 	private void toggleVisibility(Animation animation, Visibility currVis) {
-		AnimFlag<Float> visibilityFlag = geosetAnim.getVisibilityFlag();
+		AnimFlag<Float> visibilityFlag = geoset.getVisibilityFlag();
 		TreeMap<Integer, Entry<Float>> entryMap = visibilityFlag.getEntryMap(animation);
 		if (currVis == Visibility.VISIBLE) {
 			System.out.println("going invis!");
@@ -256,7 +232,7 @@ public class GeosetVisPanel extends JPanel {
 		TRANSPARENT("transparent"),
 		ANIMATED("animated"),
 		VISIBLE("visible");
-		String s;
+		final String s;
 		Visibility(String s){
 			this.s = s;
 		}

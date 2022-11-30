@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.addactions.AddGeosetAction;
-import com.hiveworkshop.rms.editor.actions.model.SetGeosetAnimAction;
+import com.hiveworkshop.rms.editor.actions.animation.AddTimelineAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.ui.application.FileDialog;
@@ -137,9 +137,9 @@ public class SpliceHandsByTwilac {
 				}
 			}
 			undoActions.add(new AddGeosetAction(geo, animationModel, null));
-			GeosetAnim geosetAnim = animationModel.getGeosetAnim(0);
+			Geoset geosetAnim = animationModel.getGeoset(0);
 			if(geosetAnim != null){
-				undoActions.add(new SetGeosetAnimAction(animationModel, geo, geosetAnim.deepCopy(),  null));
+				undoActions.add(new AddTimelineAction<>(geo, geosetAnim.getVisibilityFlag().deepCopy()));
 			}
 		}
 		modelHandler.getUndoManager().pushAction(new CompoundAction("Splice Mesh", undoActions, ModelStructureChangeListener.changeListener::geosetsUpdated).redo());

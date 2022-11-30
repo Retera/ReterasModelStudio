@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.application.model;
 
-import com.hiveworkshop.rms.ui.application.model.geoset.ComponentGeosetAnimPanel;
 import com.hiveworkshop.rms.ui.application.model.geoset.ComponentGeosetPanel;
 import com.hiveworkshop.rms.ui.application.model.material.ComponentTextureAnimPanel;
 import com.hiveworkshop.rms.ui.application.model.nodepanels.*;
@@ -81,7 +80,7 @@ public class ComponentsPanel extends JPanel {
 	private JPanel getOverviewPanel(DisplayElementType type, ModelHandler modelHandler){
 		return switch (type){
 			case DUMMY, MODEL_ROOT, HEADER, COMMENT, DATA, MATERIAL, TEXTURE_ANIM,
-					TVERT_ANIM, GEOSET_ANIM, HELPER, RIBBON, EVENT_OBJECT, BINDPOSE,
+					TVERT_ANIM, HELPER, RIBBON, EVENT_OBJECT, BINDPOSE,
 					GROUP, FACEFX, CAMERA, ATTACHMENT, COLLISION_SHAPE, PARTICLE2,
 					PARTICLE, LIGHT, BONE, POPCORN -> null;
 			case GLOBAL_SEQ -> new GlobalSeqOverviewPanel(modelHandler);
@@ -106,7 +105,6 @@ public class ComponentsPanel extends JPanel {
 			case TEXTURE_ANIM -> new ComponentTextureAnimPanel(modelHandler);
 			case TVERT_ANIM -> new ComponentTextureAnimPanel(modelHandler);
 			case GEOSET_ITEM -> new ComponentGeosetPanel(modelHandler);
-			case GEOSET_ANIM -> new ComponentGeosetAnimPanel(modelHandler);
 			case BONE -> new ComponentBonePanel(modelHandler);
 			case HELPER -> new ComponentHelperPanel(modelHandler);
 			case LIGHT -> new ComponentLightPanel(modelHandler);

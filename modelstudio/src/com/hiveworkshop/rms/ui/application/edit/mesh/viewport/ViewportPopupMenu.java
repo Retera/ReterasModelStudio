@@ -187,7 +187,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 //				UndoAction faceFromSelection = ModelEditActions.createFaceFromSelection(modelHandler.getModelView(), viewport.getFacingVector());
 //				modelHandler.getUndoManager().pushAction(faceFromSelection.redo());
 //			}
-			UndoAction faceFromSelection = CreateFace.createFaceFromSelection(modelHandler.getModelView(), new Vec3(0, 0, 1));
+			UndoAction faceFromSelection = CreateFace.createFaceFromSelection(modelHandler.getModelView(), null);
 			if (faceFromSelection != null) {
 				modelHandler.getUndoManager().pushAction(faceFromSelection.redo());
 			}
@@ -204,7 +204,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 		if (i == 0) {
 			Set<GeosetVertex> selectedVertices = modelHandler.getModelView().getSelectedVertices();
 			modelHandler.getUndoManager()
-					.pushAction(new SetMatrixAction3(selectedVertices, matrixPopup.getNewBoneList(), matrixPopup.getBonesNotInAll()).redo());
+					.pushAction(new SetMatrixAction3(selectedVertices, matrixPopup.getNewBoneList(), matrixPopup.getBonesNotInAll(), ModelStructureChangeListener.changeListener).redo());
 		}
 	}
 
@@ -213,7 +213,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 		String[] words = {"Accept", "Cancel"};
 		int i = JOptionPane.showOptionDialog(parent, skinPopup, "Rebuild Skin", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, words, words[1]);
 		if (i == 0) {
-			SetHdSkinAction hdSkinAction = new SetHdSkinAction(modelHandler.getModelView().getSelectedVertices(), skinPopup.getBones(), skinPopup.getSkinWeights());
+			SetHdSkinAction hdSkinAction = new SetHdSkinAction(modelHandler.getModelView().getSelectedVertices(), skinPopup.getBones(), skinPopup.getSkinWeights(), ModelStructureChangeListener.changeListener);
 			modelHandler.getUndoManager().pushAction(hdSkinAction.redo());
 		}
 	}

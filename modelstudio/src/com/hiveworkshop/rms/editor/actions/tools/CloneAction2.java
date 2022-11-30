@@ -105,9 +105,6 @@ public final class CloneAction2 implements UndoAction {
 		if(vertsToNewGeoset){
 			for(Geoset geoset : oldToNewGeosetsMap.values()){
 				model.remove(geoset);
-				if(geoset.getGeosetAnim() != null){
-					model.remove(geoset.getGeosetAnim());
-				}
 			}
 		} else {
 			for (GeosetVertex gv : newVertices) {
@@ -139,9 +136,6 @@ public final class CloneAction2 implements UndoAction {
 		if(vertsToNewGeoset){
 			for(Geoset geoset : oldToNewGeosetsMap.values()){
 				model.add(geoset);
-				if(geoset.getGeosetAnim() != null){
-					model.add(geoset.getGeosetAnim());
-				}
 			}
 		} else {
 			for (GeosetVertex gv : newVertices) {
@@ -169,7 +163,7 @@ public final class CloneAction2 implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "clone";
+		return "Clone";
 	}
 
 }

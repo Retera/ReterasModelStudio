@@ -2,9 +2,7 @@ package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.addactions.AddGeosetAction;
-import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddAnimFlagAction;
-import com.hiveworkshop.rms.editor.actions.animation.animFlag.RemoveAnimFlagAction;
-import com.hiveworkshop.rms.editor.actions.model.SetGeosetAnimAction;
+import com.hiveworkshop.rms.editor.actions.animation.AddTimelineAction;
 import com.hiveworkshop.rms.editor.actions.nodes.AddNodeAction;
 import com.hiveworkshop.rms.editor.actions.nodes.BakeAndRebindAction;
 import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
@@ -109,17 +107,16 @@ public class DuplicateForAnimation extends JPanel {
 	private void duplicateGeoWNodes(Geoset geoset, List<Animation> animationsToSplit){
 		List<UndoAction> undoActions = new ArrayList<>();
 		Set<IdObject> idObjects = new HashSet<>(geoset.getBoneMap().keySet());
-		Map<IdObject, IdObject> oldToNewObjMap = new HashMap<>();
-		Set<IdObject> newIdObjects = new HashSet<>();
-		Set<IdObject> toRebindIdObjects = new HashSet<>();
 
+		Map<IdObject, IdObject> oldToNewObjMap = new HashMap<>();
 		for (IdObject idObject : idObjects) {
 			IdObject copy = idObject.copy();
 			copy.setName(getCopyName(copy.getName()));
 			oldToNewObjMap.put(idObject, copy);
-			newIdObjects.add(copy);
 		}
-		for (IdObject idObject : newIdObjects) {
+
+		Set<IdObject> toRebindIdObjects = new HashSet<>();
+		for (IdObject idObject : oldToNewObjMap.values()) {
 			IdObject newParent = oldToNewObjMap.get(idObject.getParent());
 			if(newParent != null) {
 				idObject.setParent(newParent);
@@ -128,59 +125,52 @@ public class DuplicateForAnimation extends JPanel {
 			}
 		}
 
+		for(IdObject idObject : oldToNewObjMap.values()){
+			undoActions.add(new AddNodeAction(modelHandler.getModel(), idObject, null));
+		}
+
+		for(IdObject idObject : toRebindIdObjects) {
+			undoActions.add(new BakeAndRebindAction(idObject, null, animationsToSplit, modelHandler));
+		}
+
+		Geoset newGeoset = getNewGeoset(geoset, oldToNewObjMap);
+		AnimFlag<Float> visFlagForOrg = getVisFlagForOrg(animationsToSplit, newGeoset);
+
+		undoActions.add(new AddGeosetAction(newGeoset, modelHandler.getModel(), null));
+		undoActions.add(new AddTimelineAction<>(geoset, visFlagForOrg));
+
+		SelectionBundle selectionBundle = new SelectionBundle(oldToNewObjMap.values(), newGeoset.getVertices());
+		undoActions.add(new SetSelectionUggAction(selectionBundle, modelHandler.getModelView(), null));
+
+		undoManager.pushAction(new CompoundAction("Duplicate for animation", undoActions, changeListener::geosetsUpdated).redo());
+	}
+
+	private AnimFlag<Float> getVisFlagForOrg(List<Animation> animationsToSplit, Geoset geoset) {
+		if(geoset.getVisibilityFlag() == null){
+			geoset.setVisibilityFlag(new FloatAnimFlag(geoset.visFlagName()));
+		}
+		AnimFlag<Float> visFlagForOrg = geoset.getVisibilityFlag().deepCopy();
+		invertVis(animationsToSplit, visFlagForOrg);
+
+		return visFlagForOrg;
+	}
+
+	private Geoset getNewGeoset(Geoset geoset, Map<IdObject, IdObject> oldToNewObjMap) {
 		Geoset newGeoset = geoset.deepCopy();
 
 		for (GeosetVertex newVert : newGeoset.getVertices()) {
 			newVert.replaceBones(oldToNewObjMap, false);
 		}
 
-		GeosetAnim newGeoAnim = newGeoset.forceGetGeosetAnim();
-		if(newGeoAnim.getVisibilityFlag() == null){
-			newGeoAnim.setVisibilityFlag(new FloatAnimFlag(newGeoAnim.visFlagName()));
-		}
-		List<Sequence> animations = new ArrayList<>(modelHandler.getModel().getAnims());
-		animations.removeAll(animationsToSplit);
-		invertVis(animations, newGeoAnim.getVisibilityFlag());
-		GeosetAnim geoAnim = newGeoAnim.deepCopy();
-//		invertVis(modelHandler.getModel().getAllSequences(), geoAnim.getVisibilityFlag());
-		invertVis(animations, geoAnim.getVisibilityFlag());
-
-		for(IdObject idObject : oldToNewObjMap.values()){
-			undoActions.add(new AddNodeAction(modelHandler.getModel(), idObject, null));
-		}
-		undoActions.add(new AddGeosetAction(newGeoset, modelHandler.getModel(), null));
-
-		undoActions.add(new SetGeosetAnimAction(modelHandler.getModel(), geoset, geoAnim, null));
-
-		for(IdObject idObject : toRebindIdObjects) {
-			undoActions.add(new BakeAndRebindAction(idObject, null, animationsToSplit, modelHandler));
+		if(newGeoset.getVisibilityFlag() == null){
+			newGeoset.setVisibilityFlag(new FloatAnimFlag(newGeoset.visFlagName()));
 		}
 
-		SelectionBundle selectionBundle = new SelectionBundle(oldToNewObjMap.values(), newGeoset.getVertices());
-		undoActions.add(new SetSelectionUggAction(selectionBundle, modelHandler.getModelView(), null));
+		List<Sequence> animationsToKeep = new ArrayList<>(modelHandler.getModel().getAnims());
+		animationsToKeep.removeAll(animationsToSplit);
+		invertVis(animationsToKeep, newGeoset.getVisibilityFlag());
 
-		undoManager.pushAction(new CompoundAction("Duplicate for animation", undoActions, changeListener::nodesUpdated).redo());
-
-//		UndoAction pasteAction = new CompoundAction("Paste", undoActions, ModelStructureChangeListener.changeListener::geosetsUpdated);
-//
-////		SelectionBundle pastedSelection = new SelectionBundle(pastedVerts, validIdObjects, pastedModel.getCameras());
-//		SelectionBundle pastedSelection = new SelectionBundle(pastedVerts, validIdObjects, cameraNodes);
-//
-//		ModelView currentModelView = currModelHandler.getModelView();
-//		UndoAction selectPasted = new SetSelectionUggAction(pastedSelection, currentModelView, "select pasted", null);
-//
-//		UndoManager undoManager = currModelHandler.getUndoManager();
-//		UndoAction pasteAndSelectAction = new CompoundAction("Paste", ModelStructureChangeListener.changeListener::geosetsUpdated, pasteAction, selectPasted);
-//		undoManager.pushAction(pasteAndSelectAction.redo());
-
-
-//		if(geoAnim == null){
-//			geoAnim = new GeosetAnim(geoset);
-//			geoAnim.setVisibilityFlag(new FloatAnimFlag(MdlUtils.TOKEN_ALPHA));
-//			undoActions.add(new SetGeosetAnimAction(modelHandler.getModel(), geoset, geoAnim, changeListener));
-//		}
-//		AnimFlag<Float> visibilityFlag = geoAnim.getVisibilityFlag();
-
+		return newGeoset;
 	}
 
 	private String getCopyName(String copyName) {
@@ -196,29 +186,8 @@ public class DuplicateForAnimation extends JPanel {
 		return name;
 	}
 
-
-
-
-	private void doCopy(GeosetAnim recGeosetAnim, GeosetAnim donGeosetAnim, List<Sequence> allSequences) {
-		ArrayList<UndoAction> actions = new ArrayList<>();
-
-		AnimFlag<?> animFlag = donGeosetAnim.getVisibilityFlag();
-
-		AnimFlag<?> newAnimFlag = animFlag.deepCopy();
-		if(recGeosetAnim.has(animFlag.getName())){
-			actions.add(new RemoveAnimFlagAction(recGeosetAnim, recGeosetAnim.find(animFlag.getName()), null));
-		}
-
-		invertVis(allSequences, (FloatAnimFlag) newAnimFlag);
-		actions.add(new AddAnimFlagAction<>(recGeosetAnim, newAnimFlag, null));
-
-
-		undoManager.pushAction(new CompoundAction("Copy Geoset anim data", actions, ModelStructureChangeListener.changeListener::geosetsUpdated).redo());
-	}
-
-	private void invertVis(List<Sequence> allSequences, AnimFlag<Float> animFlag) {
+	private void invertVis(List<? extends Sequence> allSequences, AnimFlag<Float> animFlag) {
 		for (Sequence sequence : allSequences){
-//				        if(!animFlag.hasSequence(sequence) || animFlag.getEntryMap(sequence).size() == 0 || animFlag.getEntryAt(sequence, 0) == null){
 			if(animFlag.getEntryAt(sequence, 0) == null){
 				if(animFlag.tans()){
 					animFlag.addEntry(new Entry<>(0, 1.0f, 1.0f, 1.0f), sequence);

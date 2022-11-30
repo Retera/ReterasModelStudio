@@ -9,22 +9,21 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import java.util.*;
 
 public final class TeamColorAddAction implements UndoAction {
-
+	private final ModelStructureChangeListener changeListener;
 	private final List<Geoset> geosetsCreated;
 	private final EditableModel model;
 	private final Set<Triangle> trisToSeparate;
-	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final Collection<GeosetVertex> selection;
 	private final Collection<GeosetVertex> newVerticesToSelect;
 	private final ModelView modelView;
 
 	public TeamColorAddAction(Collection<GeosetVertex> geosetVertsToSep,
 	                          ModelView modelView,
-	                          ModelStructureChangeListener modelStructureChangeListener) {
+	                          ModelStructureChangeListener changeListener) {
 		this.trisToSeparate = new HashSet<>();
 		this.modelView = modelView;
 		this.model = modelView.getModel();
-		this.modelStructureChangeListener = modelStructureChangeListener;
+		this.changeListener = changeListener;
 		geosetsCreated = new ArrayList<>();
 		newVerticesToSelect = new ArrayList<>();
 		Set<GeosetVertex> verticesInTheTriangles = new HashSet<>(geosetVertsToSep);
@@ -40,38 +39,14 @@ public final class TeamColorAddAction implements UndoAction {
 		}
 
 		Map<Geoset, Geoset> oldGeoToNewGeo = new HashMap<>();
-		Map<GeosetVertex, GeosetVertex> oldVertToNewVert = new HashMap<>();
 		for (Geoset geoset : geosetsToCopy) {
-			Geoset geosetCreated = new Geoset();
-			if (geoset.getExtents() != null) {
-				geosetCreated.setExtents(geoset.getExtents().deepCopy());
-			}
-			for (Animation anim : model.getAnims()) {
-				if(geoset.getAnimExtent(anim) != null){
-					geosetCreated.add(anim, geoset.getAnimExtent(anim).deepCopy());
-				}
-			}
-			geosetCreated.setUnselectable(geoset.getUnselectable());
-			geosetCreated.setSelectionGroup(geoset.getSelectionGroup());
-			GeosetAnim geosetAnim = geoset.getGeosetAnim();
-			if (geosetAnim != null) {
-				geosetCreated.setGeosetAnim(geosetAnim.deepCopy().setGeoset(geosetCreated));
-			}
-			geosetCreated.setParentModel(model);
-			Material newMaterial = geoset.getMaterial().deepCopy();
-			if (newMaterial.getLayers().get(0).getFilterMode() == FilterMode.NONE) {
-				newMaterial.getLayers().get(0).setFilterMode(FilterMode.BLEND);
-			}
-			Layer teamColorLayer = new Layer(new Bitmap("", 1));
-			teamColorLayer.setUnshaded(true);
-			if (geoset.getMaterial().firstLayer().getTwoSided()) {
-				teamColorLayer.setTwoSided(true);
-			}
-			newMaterial.addLayer(0, teamColorLayer);
-			geosetCreated.setMaterial(newMaterial);
+			Geoset geosetCreated = geoset.emptyCopy();
+			geosetCreated.setMaterial(getTCMaterial(geoset.getMaterial()));
 			oldGeoToNewGeo.put(geoset, geosetCreated);
 			geosetsCreated.add(geosetCreated);
 		}
+
+		Map<GeosetVertex, GeosetVertex> oldVertToNewVert = new HashMap<>();
 		for (GeosetVertex vertex : verticesInTheTriangles) {
 			//ToDo VertexCopy code duplication
 			GeosetVertex copy = vertex.deepCopy();
@@ -81,6 +56,7 @@ public final class TeamColorAddAction implements UndoAction {
 			oldVertToNewVert.put(vertex, copy);
 			newVerticesToSelect.add(copy);
 		}
+
 		for (Triangle tri : trisToSeparate) {
 			GeosetVertex a, b, c;
 			a = oldVertToNewVert.get(tri.get(0));
@@ -89,11 +65,22 @@ public final class TeamColorAddAction implements UndoAction {
 			Geoset newGeoset = oldGeoToNewGeo.get(tri.getGeoset());
 			Triangle newTriangle = new Triangle(a, b, c, newGeoset);
 			newGeoset.add(newTriangle);
-//			a.addTriangle(newTriangle);
-//			b.addTriangle(newTriangle);
-//			c.addTriangle(newTriangle);
 		}
 		selection = new ArrayList<>(modelView.getSelectedVertices());
+	}
+
+	private Material getTCMaterial(Material material) {
+		Material newMaterial = material.deepCopy();
+		if (newMaterial.getLayers().get(0).getFilterMode() == FilterMode.NONE) {
+			newMaterial.getLayers().get(0).setFilterMode(FilterMode.BLEND);
+		}
+		Layer teamColorLayer = new Layer(new Bitmap("", 1));
+		teamColorLayer.setUnshaded(true);
+		if (material.firstLayer().getTwoSided()) {
+			teamColorLayer.setTwoSided(true);
+		}
+		newMaterial.addLayer(0, teamColorLayer);
+		return newMaterial;
 	}
 
 	@Override
@@ -101,7 +88,6 @@ public final class TeamColorAddAction implements UndoAction {
 		for (Geoset geoset : geosetsCreated) {
 			model.remove(geoset);
 		}
-		modelStructureChangeListener.geosetsUpdated();
 		for (Triangle tri : trisToSeparate) {
 			Geoset geoset = tri.getGeoset();
 			for (GeosetVertex gv : tri.getVerts()) {
@@ -113,6 +99,9 @@ public final class TeamColorAddAction implements UndoAction {
 			geoset.add(tri);
 		}
 		modelView.setSelectedVertices(selection);
+		if(changeListener != null){
+			changeListener.geosetsUpdated();
+		}
 		return this;
 	}
 
@@ -131,14 +120,16 @@ public final class TeamColorAddAction implements UndoAction {
 			}
 			geoset.removeTriangle(tri);
 		}
-		modelStructureChangeListener.geosetsUpdated();
 		modelView.setSelectedVertices(newVerticesToSelect);
+		if(changeListener != null){
+			changeListener.geosetsUpdated();
+		}
 		return this;
 	}
 
 	@Override
 	public String actionName() {
-		return "add team color layer";
+		return "Split Geoset For Team Color";
 	}
 
 }

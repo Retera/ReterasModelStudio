@@ -121,9 +121,8 @@ public class ScriptActions {
 					int green = Integer.parseInt(data.substring(15, 18));
 					int blue = Integer.parseInt(data.substring(18, 21));
 					int alpha = Integer.parseInt(data.substring(21, 24));
-					GeosetAnim forceGetGeosetAnim = geo.forceGetGeosetAnim();
-					forceGetGeosetAnim.setStaticColor(new Vec3(blue / 255.0, green / 255.0, red / 255.0));
-					forceGetGeosetAnim.setStaticAlpha(alpha / 255.0);
+					geo.setStaticColor(new Vec3(blue / 255.0, green / 255.0, red / 255.0));
+					geo.setStaticAlpha(alpha / 255.0);
 					System.out.println(x + "," + y + "," + z);
 
 					Mesh mesh = ModelUtils.createBox(new Vec3(x, y, z).scale(10),

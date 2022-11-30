@@ -11,12 +11,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class MergeGeosetsAction implements UndoAction {
-	Geoset recGeoset;
-	Geoset donGeoset;
-	Set<GeosetVertex> donVerts;
-	Set<Triangle> donTris;
-	ModelView modelView;
-	ModelStructureChangeListener changeListener;
+	private final Geoset recGeoset;
+	private final Geoset donGeoset;
+	private final Set<GeosetVertex> donVerts;
+	private final Set<Triangle> donTris;
+	private final ModelView modelView;
+	private final ModelStructureChangeListener changeListener;
 
 	public MergeGeosetsAction(Geoset recGeoset, Geoset donGeoset, ModelView modelView, ModelStructureChangeListener changeListener) {
 		this.modelView = modelView;
@@ -41,9 +41,6 @@ public class MergeGeosetsAction implements UndoAction {
 
 		modelView.getModel().add(donGeoset);
 
-		if (donGeoset.getGeosetAnim() != null) {
-			modelView.getModel().add(donGeoset.getGeosetAnim());
-		}
 		if (changeListener != null) {
 			changeListener.geosetsUpdated();
 		}
@@ -63,9 +60,6 @@ public class MergeGeosetsAction implements UndoAction {
 
 		modelView.getModel().remove(donGeoset);
 
-		if (donGeoset.getGeosetAnim() != null) {
-			modelView.getModel().remove(donGeoset.getGeosetAnim());
-		}
 		if (changeListener != null) {
 			changeListener.geosetsUpdated();
 		}
@@ -74,6 +68,6 @@ public class MergeGeosetsAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "merge geosets";
+		return "Merge Geosets";
 	}
 }

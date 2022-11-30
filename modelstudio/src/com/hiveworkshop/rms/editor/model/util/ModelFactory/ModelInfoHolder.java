@@ -20,7 +20,7 @@ public class ModelInfoHolder {
 	public List<SoundFile> sounds = new ArrayList<>();
 	public List<TextureAnim> texAnims = new ArrayList<>();
 	public List<Geoset> geosets = new ArrayList<>();
-	public List<GeosetAnim> geosetAnims = new ArrayList<>();
+	public List<Geoset> animatedGeosets = new ArrayList<>();
 	public List<Camera> cameras = new ArrayList<>();
 	public List<FaceEffect> faceEffects = new ArrayList<>();
 	int formatVersion = 800;
@@ -94,22 +94,6 @@ public class ModelInfoHolder {
 			int parentId = objToParentIdMap.get(idObject);
 			if (parentId != -1 && idObjMap.containsKey(parentId)) {
 				idObject.setParent(idObjMap.get(parentId));
-			}
-		}
-		return this;
-	}
-
-	public ModelInfoHolder fixBoneGeosets() {
-		for (Bone bone : boneToGeoset.keySet()) {
-			Integer geosetId = boneToGeoset.get(bone);
-			if(geosetId != null && 0 <= geosetId && geosetId < geosets.size()){
-				bone.setGeoset(geosets.get(geosetId));
-			}
-		}
-		for (Bone bone : boneToGeosetAnim.keySet()) {
-			Integer geosetAnimId = boneToGeosetAnim.get(bone);
-			if(geosetAnimId != null && 0 <= geosetAnimId && geosetAnimId < geosetAnims.size()){
-				bone.setGeosetAnim(geosetAnims.get(geosetAnimId));
 			}
 		}
 		return this;

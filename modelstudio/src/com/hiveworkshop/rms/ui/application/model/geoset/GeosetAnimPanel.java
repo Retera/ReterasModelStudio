@@ -1,12 +1,11 @@
 package com.hiveworkshop.rms.ui.application.model.geoset;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.mesh.SetGeosetAnimStaticAlphaAction;
-import com.hiveworkshop.rms.editor.actions.mesh.SetGeosetAnimStaticColorAction;
-import com.hiveworkshop.rms.editor.actions.model.SetGeosetAnimAction;
+import com.hiveworkshop.rms.editor.actions.mesh.SetGeosetStaticAlphaAction;
+import com.hiveworkshop.rms.editor.actions.mesh.SetGeosetStaticColorAction;
+import com.hiveworkshop.rms.editor.actions.util.BoolAction;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetAnim;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
@@ -22,13 +21,12 @@ public class GeosetAnimPanel extends JPanel {
 	private final EditableModel model;
 	private final UndoManager undoManager;
 	private final ModelStructureChangeListener changeListener;
-	private GeosetAnim geosetAnim;
+	private final JPanel animatedPanel;
+	private final EditorHelpers.AlphaEditor alphaEditor;
+	private final EditorHelpers.ColorEditor colorEditor;
+	private final JCheckBox dropShadow;
 	private Geoset geoset;
-	JPanel animatedPanel;
-	EditorHelpers.AlphaEditor alphaEditor;
-	EditorHelpers.ColorEditor colorEditor;
-	JButton addAnim;
-	
+
 	public GeosetAnimPanel(ModelHandler modelHandler){
 		super(new MigLayout("fill, hideMode 2", "[]", "[][][grow]"));
 		this.model = modelHandler.getModel();
@@ -42,6 +40,11 @@ public class GeosetAnimPanel extends JPanel {
 		button.addActionListener(e -> copyFromOther());
 		animatedPanel.add(button, "wrap");
 
+		dropShadow = new JCheckBox("DropShadow");
+		dropShadow.setToolTipText("Treat geoset as drop shadow");
+		dropShadow.addActionListener(e -> setDropShadow(dropShadow.isSelected()));
+//		animatedPanel.add(dropShadow, "wrap");
+
 		colorEditor = new EditorHelpers.ColorEditor(modelHandler, this::setStaticColor);
 		animatedPanel.add(colorEditor.getFlagPanel(), "wrap");
 
@@ -50,29 +53,21 @@ public class GeosetAnimPanel extends JPanel {
 
 
 		add(animatedPanel, "span 2, wrap");
-
-		addAnim = new JButton("Add GeosetAnim");
-		addAnim.addActionListener(e -> setGeosetAnim());
-		add(addAnim);
 	}
 	
 	public GeosetAnimPanel setGeoset(Geoset geoset){
 		this.geoset = geoset;
-		this.geosetAnim = geoset.getGeosetAnim();
-		if (geosetAnim != null) {
-			alphaEditor.update(geosetAnim, (float) geosetAnim.getStaticAlpha());
-			colorEditor.update(geosetAnim, geosetAnim.getStaticColor());
-			animatedPanel.setVisible(true);
-			addAnim.setVisible(false);
-		} else {
-			animatedPanel.setVisible(false);
-			addAnim.setVisible(true);
-		}
+		dropShadow.setSelected(geoset.isDropShadow());
+		alphaEditor.update(geoset, (float) geoset.getStaticAlpha());
+		colorEditor.update(geoset, geoset.getStaticColor());
+		animatedPanel.setVisible(true);
+
 		return this;
 	}
-
-	private void setGeosetAnim() {
-		undoManager.pushAction(new SetGeosetAnimAction(model, geoset, changeListener).redo());
+	private void setDropShadow(boolean dropShadow) {
+		if(geoset.isDropShadow() != dropShadow){
+			undoManager.pushAction(new BoolAction(geoset::setDropShadow, dropShadow, "Set Drop Shadow", null).redo());
+		}
 	}
 
 	private void copyFromOther() {
@@ -81,15 +76,15 @@ public class GeosetAnimPanel extends JPanel {
 	}
 
 	private void setStaticAlpha(float newAlpha) {
-		if(geosetAnim.getStaticAlpha() != newAlpha){
-			UndoAction action = new SetGeosetAnimStaticAlphaAction(geosetAnim, newAlpha, changeListener);
+		if(geoset.getStaticAlpha() != newAlpha){
+			UndoAction action = new SetGeosetStaticAlphaAction(geoset, newAlpha, changeListener);
 			undoManager.pushAction(action.redo());
 		}
 	}
 
 	private void setStaticColor(Vec3 color) {
-		if(!geosetAnim.getStaticColor().equalLocs(color)){
-			UndoAction action = new SetGeosetAnimStaticColorAction(geosetAnim, color, changeListener);
+		if(!geoset.getStaticColor().equalLocs(color)){
+			UndoAction action = new SetGeosetStaticColorAction(geoset, color, changeListener);
 			undoManager.pushAction(action.redo());
 		}
 	}

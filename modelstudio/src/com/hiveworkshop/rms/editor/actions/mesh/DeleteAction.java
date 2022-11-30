@@ -22,6 +22,7 @@ public class DeleteAction implements UndoAction {
 	private final ModelView modelView;
 	private final ModelStructureChangeListener changeListener;
 	private final EditableModel model;
+	private final String actionName;
 
 	public DeleteAction(Collection<GeosetVertex> selection, ModelView modelView, boolean onlyTriangles, ModelStructureChangeListener changeListener) {
 		this.model = modelView.getModel();
@@ -32,10 +33,15 @@ public class DeleteAction implements UndoAction {
 			Set<GeosetVertex> verts = new HashSet<>(selection);
 			this.affectedTris = getFullySelectedTris(getAllAffectedTris(verts), verts);
 			this.affectedVerts = getVertsOnlyInFullySelectedTris(affectedTris);
+			actionName = "Delete "
+					+ affectedTris.size()
+					+ (affectedTris.size() == 1 ? " Triangle" : " Triangles");
 		} else {
 			this.affectedVerts = new HashSet<>(selection);
-
 			this.affectedTris = getAllAffectedTris(affectedVerts);
+			actionName = "Delete "
+					+ affectedVerts.size()
+					+ (affectedVerts.size() == 1 ? " Vertex" : " Vertices");
 
 		}
 		this.emptyGeosets = new ArrayList<>();
@@ -87,9 +93,6 @@ public class DeleteAction implements UndoAction {
 
 		for (Geoset geoset : emptyGeosets) {
 			model.remove(geoset);
-			if (geoset.getGeosetAnim() != null) {
-				model.remove(geoset.getGeosetAnim());
-			}
 		}
 		if(changeListener != null){
 			changeListener.geosetsUpdated();
@@ -110,9 +113,6 @@ public class DeleteAction implements UndoAction {
 		}
 		for (Geoset geoset : emptyGeosets) {
 			model.add(geoset);
-			if (geoset.getGeosetAnim() != null) {
-				model.add(geoset.getGeosetAnim());
-			}
 		}
 		if(changeListener != null){
 			changeListener.geosetsUpdated();
@@ -134,6 +134,6 @@ public class DeleteAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "delete vertices";
+		return actionName;
 	}
 }

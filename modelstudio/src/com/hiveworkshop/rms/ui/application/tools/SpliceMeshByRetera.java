@@ -70,11 +70,10 @@ public class SpliceMeshByRetera {
 		List<String> warnings = new ArrayList<>();
 		List<Geoset> geosets = meshModel.getGeosets();
 
-		GeosetAnim geosetAnim = animationModel.getGeosetAnim(0);
+		Geoset geosetAnim = animationModel.getGeoset(0);
 		if(geosetAnim != null){
-			geosets.forEach(geoset -> geoset.setGeosetAnim(geosetAnim.deepCopy().setGeoset(geoset)));
+			geosets.forEach(geoset -> geoset.add(geosetAnim.getVisibilityFlag().deepCopy()));
 		}
-
 
 		Set<Material> materials = geosets.stream().map(Geoset::getMaterial).collect(Collectors.toSet());
 		for(Material material : materials){

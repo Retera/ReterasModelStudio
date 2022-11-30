@@ -39,7 +39,7 @@ public class FlagUtils {
 				case MdlUtils.TOKEN_SCALING -> AnimationMap.KTAS;
 				default -> null;
 			};
-		} else if (container instanceof GeosetAnim) {
+		} else if (container instanceof Geoset) {
 			return switch (name) {
 				case MdlUtils.TOKEN_ALPHA -> AnimationMap.KGAO;
 				case MdlUtils.TOKEN_COLOR -> AnimationMap.KGAC;

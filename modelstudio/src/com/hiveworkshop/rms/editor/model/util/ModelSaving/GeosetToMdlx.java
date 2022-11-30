@@ -151,22 +151,22 @@ public class GeosetToMdlx {
 		return matrixIndexesSize;
 	}
 
-	public static MdlxGeosetAnimation toMdlx(GeosetAnim geosetAnim, EditableModel model) {
+	public static MdlxGeosetAnimation animatedToMdlx(Geoset geoset, EditableModel model) {
 		MdlxGeosetAnimation animation = new MdlxGeosetAnimation();
 
-		animation.geosetId = model.computeGeosetID(geosetAnim.getGeoset());
+		animation.geosetId = model.computeGeosetID(geoset);
 
-		if (geosetAnim.isDropShadow()) {
+		if (geoset.isDropShadow()) {
 			animation.flags |= 1;
 		}
-		if (geosetAnim.find("Color") != null || !geosetAnim.getStaticColor().equals(new Vec3(1, 1, 1))) {
+		if (geoset.find("Color") != null || !geoset.getStaticColor().equals(new Vec3(1, 1, 1))) {
 			animation.flags |= 0x2;
 		}
 
 //		animation.color = ModelUtils.flipRGBtoBGR(geosetAnim.getStaticColor().toFloatArray());
-		animation.color = geosetAnim.getStaticColor().toFloatArray();
+		animation.color = geoset.getStaticColor().toFloatArray();
 
-		geosetAnim.timelinesToMdlx(animation, model);
+		geoset.timelinesToMdlx(animation, model);
 
 		return animation;
 	}

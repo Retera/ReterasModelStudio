@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.util.*;
 
 import javax.swing.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class ModelUtils {
 	public static String getPortrait(String filepath) {
@@ -454,59 +455,53 @@ public final class ModelUtils {
 		return 900 <= formatVersion;
 	}
 
-	public static List<VisibilitySource> getAllVis(EditableModel model) {
+	public static List<TimelineContainer> getAllVis(EditableModel model) {
 		// Probably will cause a bunch of lag, be wary
-		List<VisibilitySource> allVis = Collections.synchronizedList(new ArrayList<>());
+		List<TimelineContainer> allVis = Collections.synchronizedList(new ArrayList<>());
 		for (Material m : model.getMaterials()) {
 			for (Layer lay : m.getLayers()) {
-				VisibilitySource vs = lay.getVisibilitySource();
+				TimelineContainer vs = lay.getVisibilitySource();
 				if (vs != null) {
 					allVis.add(vs);
 				}
 			}
 		}
-		if (model.getTexAnims() != null) {
-			for (TextureAnim texa : model.getTexAnims()) {
-				if (texa != null) {
-					VisibilitySource vs = texa.getVisibilitySource();
-					if (vs != null) {
-						allVis.add(vs);
-					}
-				} else {
-					JOptionPane.showMessageDialog(null,
-							"WARNING: Error with processing time-scale from TextureAnims! Program will attempt to proceed.");
+		for (TextureAnim texa : model.getTexAnims()) {
+			if (texa != null) {
+				TimelineContainer vs = texa.getVisibilitySource();
+				if (vs != null) {
+					allVis.add(vs);
 				}
+			} else {
+				JOptionPane.showMessageDialog(null,
+						"WARNING: Error with processing time-scale from TextureAnims! Program will attempt to proceed.");
 			}
 		}
-		if (model.getGeosetAnims() != null) {
-			for (GeosetAnim ga : model.getGeosetAnims()) {
-				if (ga != null) {
-					VisibilitySource vs = ga.getVisibilitySource();
-					if (vs != null) {
-						allVis.add(vs);
-					}
-				} else {
-					JOptionPane.showMessageDialog(null,
-							"WARNING: Error with processing time-scale from GeosetAnims! Program will attempt to proceed.");
+		for (Geoset geoset : model.getGeosets()) {
+			if (geoset != null) {
+				TimelineContainer vs = geoset.getVisibilitySource();
+				if (vs != null) {
+					allVis.add(vs);
 				}
+			} else {
+				JOptionPane.showMessageDialog(null,
+						"WARNING: Error with processing time-scale from GeosetAnims! Program will attempt to proceed.");
 			}
 		}
 		for (IdObject idObject : model.getIdObjects()) {
-			VisibilitySource vs = idObject.getVisibilitySource();
+			TimelineContainer vs = idObject.getVisibilitySource();
 			if (vs != null) {
 				allVis.add(vs);
 			}
 		}
-		if (model.getCameras() != null) {
-			for (Camera x : model.getCameras()) {
-				VisibilitySource vs1 = x.getSourceNode().getVisibilitySource();
-				if (vs1 != null) {
-					allVis.add(vs1);
-				}
-				VisibilitySource vs2 = x.getTargetNode().getVisibilitySource();
-				if (vs2 != null) {
-					allVis.add(vs2);
-				}
+		for (Camera x : model.getCameras()) {
+			TimelineContainer vs1 = x.getSourceNode().getVisibilitySource();
+			if (vs1 != null) {
+				allVis.add(vs1);
+			}
+			TimelineContainer vs2 = x.getTargetNode().getVisibilitySource();
+			if (vs2 != null) {
+				allVis.add(vs2);
 			}
 		}
 
@@ -534,34 +529,28 @@ public final class ModelUtils {
 				allFlags.addAll(lay.getAnimFlags());
 			}
 		}
-		if (model.getTexAnims() != null) {
-			for (TextureAnim texa : model.getTexAnims()) {
-				if (texa != null) {
-					allFlags.addAll(texa.getAnimFlags());
-				} else {
-					JOptionPane.showMessageDialog(null,
-							"WARNING: Error with processing time-scale from TextureAnims! Program will attempt to proceed.");
-				}
+		for (TextureAnim texa : model.getTexAnims()) {
+			if (texa != null) {
+				allFlags.addAll(texa.getAnimFlags());
+			} else {
+				JOptionPane.showMessageDialog(null,
+						"WARNING: Error with processing time-scale from TextureAnims! Program will attempt to proceed.");
 			}
 		}
-		if (model.getGeosetAnims() != null) {
-			for (GeosetAnim ga : model.getGeosetAnims()) {
-				if (ga != null) {
-					allFlags.addAll(ga.getAnimFlags());
-				} else {
-					JOptionPane.showMessageDialog(null,
-							"WARNING: Error with processing time-scale from GeosetAnims! Program will attempt to proceed.");
-				}
+		for (Geoset geoset : model.getGeosets()) {
+			if (geoset != null) {
+				allFlags.addAll(geoset.getAnimFlags());
+			} else {
+				JOptionPane.showMessageDialog(null,
+						"WARNING: Error with processing time-scale from GeosetAnims! Program will attempt to proceed.");
 			}
 		}
 		for (IdObject idObject : model.getIdObjects()) {
 			allFlags.addAll(idObject.getAnimFlags());
 		}
-		if (model.getCameras() != null) {
-			for (Camera x : model.getCameras()) {
-				allFlags.addAll(x.getSourceNode().getAnimFlags());
-				allFlags.addAll(x.getTargetNode().getAnimFlags());
-			}
+		for (Camera x : model.getCameras()) {
+			allFlags.addAll(x.getSourceNode().getAnimFlags());
+			allFlags.addAll(x.getTargetNode().getAnimFlags());
 		}
 
 		return allFlags;
@@ -647,5 +636,61 @@ public final class ModelUtils {
 			return bonesMatrixSumHeap.uniformScale(1f / boneCount);
 		}
 		return bonesMatrixSumHeap.setIdentity();
+	}
+
+
+	public static String sdGetMostCommonUniqueBoneName(Set<Bone> bones) {
+		List<Bone> nonSharedParentBones = new ArrayList<>();
+		if (!bones.isEmpty()) {
+			if (bones.size() == 1) {
+				return new ArrayList<>(bones).get(0).getName().replaceAll("(?i)bone_*", "");
+			}
+			for (Bone bone : bones) {
+				Bone lp = lastParentIn(bone, bones);
+
+				if (lp != null && !nonSharedParentBones.contains(lp)) {
+					nonSharedParentBones.add(lp);
+				}
+			}
+			List<Bone> curatedBones = nonSharedParentBones.stream()
+					.filter(bone -> !bone.getName().toLowerCase().startsWith("mesh") && !bone.getName().toLowerCase().startsWith("object"))
+					.collect(Collectors.toList());
+
+			if (curatedBones.size() < 3 && curatedBones.size() != nonSharedParentBones.size()) {
+				for (int i = 0; i < nonSharedParentBones.size() && curatedBones.size() < 3; i++) {
+					if (!curatedBones.contains(nonSharedParentBones.get(i))) {
+						curatedBones.add(nonSharedParentBones.get(i));
+					}
+				}
+			}
+			List<String> nameParts = new ArrayList<>();
+			for (Bone bone : curatedBones) {
+				nameParts.add(bone.getName().replaceAll("(?i)bone_*", ""));
+			}
+			String name = String.join(", ", nameParts);
+			if(65 < name.length()){
+				return name.substring(0, Math.max(65, name.indexOf(", ", 45)+2)) + "...";
+			}
+			return name;
+		}
+		return "";
+	}
+
+
+	public static Bone lastParentIn(Bone bone, Collection<Bone> list) {
+		Bone parentBone = bone;
+		int infStopper = 0;
+		while (list.contains(parentBone) && parentBone != null && infStopper < 1000) {
+			if (bone.getParent() instanceof Bone) {
+				parentBone = (Bone) bone.getParent();
+				if (list.contains(parentBone)) {
+					bone = parentBone;
+				}
+			} else {
+				return bone;
+			}
+			infStopper++;
+		}
+		return bone;
 	}
 }

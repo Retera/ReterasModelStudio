@@ -102,22 +102,14 @@ public class VisibilityEditPanel extends JPanel {
 		fetchUniqueVisShells(mht.receivingModel, tempList);
 		fetchUniqueVisShells(mht.donatingModel, tempList);
 
-		for (VisibilitySource visSource : ModelUtils.getAllVis(mht.receivingModel)) {
-			if (visSource.getClass() != GeosetAnim.class) {
-				recModVisSourcesOld.add(visShellFromObject(visSource));
-			} else {
-				recModVisSourcesOld.add(visShellFromObject(((GeosetAnim) visSource).getGeoset()));
-			}
+		for (TimelineContainer visSource : ModelUtils.getAllVis(mht.receivingModel)) {
+			recModVisSourcesOld.add(visShellFromObject(visSource));
 		}
 		recModVisSourcesOld.add(mht.neverVisible);
 		recModVisSourcesOld.add(mht.alwaysVisible);
 
-		for (VisibilitySource visSource : ModelUtils.getAllVis(mht.donatingModel)) {
-			if (visSource.getClass() != GeosetAnim.class) {
-				donModVisSourcesNew.add(visShellFromObject(visSource));
-			} else {
-				donModVisSourcesNew.add(visShellFromObject(((GeosetAnim) visSource).getGeoset()));
-			}
+		for (TimelineContainer visSource : ModelUtils.getAllVis(mht.donatingModel)) {
+			donModVisSourcesNew.add(visShellFromObject(visSource));
 		}
 		donModVisSourcesNew.add(mht.neverVisible);
 		donModVisSourcesNew.add(mht.alwaysVisible);
@@ -158,7 +150,7 @@ public class VisibilityEditPanel extends JPanel {
 		}
 	}
 
-	public VisibilityShell visShellFromObject(VisibilitySource vs) {
+	public VisibilityShell visShellFromObject(TimelineContainer vs) {
 		return mht.allVisShellBiMap.get(vs);
 	}
 

@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.BitmapAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
+import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelSaving.AnimToMdlx;
 import com.hiveworkshop.rms.editor.model.util.ModelSaving.GeosetToMdlx;
 import com.hiveworkshop.rms.editor.model.util.ModelSaving.IdObjectToMdlx;
@@ -20,7 +21,7 @@ public class TempSaveModelStuff {
 	public static boolean DISABLE_BONE_GEO_ID_VALIDATOR = false;
 
 	public static MdlxModel toMdlx(EditableModel model) {
-		doSavePreps(model);
+		Map<Bone, BoneGeosets> boneGeosetsMap = doSavePreps(model);
 		// restores all GeosetID, ObjectID, TextureID, MaterialID stuff
 		// all based on object references in the Java
 		// (this is so that you can write a program that does something like
@@ -63,13 +64,13 @@ public class TempSaveModelStuff {
 
 		for (final Geoset geoset : model.getGeosets()) {
 			mdlxModel.geosets.add(GeosetToMdlx.toMdlx(geoset, model));
-			if (geoset.getGeosetAnim() != null) {
-				mdlxModel.geosetAnimations.add(GeosetToMdlx.toMdlx(geoset.getGeosetAnim(), model));
+			if (geoset.hasAnim()) {
+				mdlxModel.geosetAnimations.add(GeosetToMdlx.animatedToMdlx(geoset, model));
 			}
 		}
 
 		for (final Bone bone : model.getBones()) {
-			mdlxModel.bones.add(IdObjectToMdlx.toMdlx(bone, model));
+			mdlxModel.bones.add(IdObjectToMdlx.toMdlx(bone, model, boneGeosetsMap.get(bone)));
 		}
 
 		for (final Light light : model.getLights()) {
@@ -127,7 +128,7 @@ public class TempSaveModelStuff {
 		return mdlxModel;
 	}
 
-	public static void doSavePreps(EditableModel model) {
+	public static Map<Bone, BoneGeosets> doSavePreps(EditableModel model) {
 		// restores all GeosetID, ObjectID, TextureID, MaterialID stuff,
 		// all based on object references in the Java (this is so that you
 		// can write a program that does something like  "mdl.add(new Bone())" without a problem,
@@ -150,14 +151,11 @@ public class TempSaveModelStuff {
 		for (Geoset geoset : model.getGeosets()) {
 			if (geoset.isEmpty()) {
 				emptyGeosets.add(geoset);
-				if (geoset.getGeosetAnim() != null) {
-					model.remove(geoset.getGeosetAnim());
-				}
 			}
 		}
 		emptyGeosets.forEach(model::remove);
 
-		cureBoneGeoAnimIds(model);
+		Map<Bone, BoneGeosets> boneGeosetsMap = cureBoneGeoAnimIds2(model);
 		removeEmptyAnimFlags(model);
 		collectBindPoses(model);
 
@@ -173,6 +171,7 @@ public class TempSaveModelStuff {
 		for (final IdObject idObject : model.getIdObjects()) {
 			model.addPivotPoint(idObject.getPivotPoint());
 		}
+		return boneGeosetsMap;
 	}
 
 	private static void fixAnimIntervals(EditableModel model) {
@@ -311,99 +310,96 @@ public class TempSaveModelStuff {
 		}
 	}
 
-	public static void cureBoneGeoAnimIds(EditableModel model) {
+	public static Map<Bone, BoneGeosets> cureBoneGeoAnimIds2(EditableModel model) {
 		if (DISABLE_BONE_GEO_ID_VALIDATOR) {
-			return;
+			return new HashMap<>();
 		}
-		final List<Bone> bones = model.getBones();
-		for (final Bone b : bones) {
-			b.setMultiGeoId(false);
-			b.setGeoset(null);
-			b.setGeosetAnim(null);
-		}
+		Map<Bone, Set<Geoset>> boneToGeosets = new HashMap<>();
 		for (final Geoset geoset : model.getGeosets()) {
-			final GeosetAnim ga = getGeosetAnimOfGeoset(model.getGeosetAnims(), model.getGeosets(), geoset);
 			for (final Matrix matrix : geoset.collectMatrices()) {
 				for (final Bone bone : matrix.getBones()) {
-					if (!bone.isMultiGeo()) {
-						if (bone.getGeoset() == null) {
-							// The bone has been found by no prior matrices
-							bone.setGeosetAnim(ga);
-							bone.setGeoset(geoset);
-						} else if (bone.getGeoset() != geoset) {
-							// The bone has only been found by ONE matrix
-							bone.setMultiGeoId(true);
-							bone.setGeoset(null);
-							if (ga != null) {
-								bone.setGeosetAnim(ga.getMostVisible(bone.getGeosetAnim()));
-							} else {
-								bone.setGeosetAnim(null);
-							}
-
+					boneToGeosets.computeIfAbsent(bone, k -> new HashSet<>()).add(geoset);
+					IdObject parent = bone.getParent();
+					int maxDepth = 200; // to not get stuck in a loop if there's cyclic parenting
+					while (parent != null && 0 < maxDepth){
+						if(parent instanceof Bone){
+							boneToGeosets.computeIfAbsent((Bone) parent, k -> new HashSet<>()).add(geoset);
 						}
-					} else if (ga != null) {
-						if (ga != bone.getGeosetAnim()) {
-							bone.setGeosetAnim(ga.getMostVisible(bone.getGeosetAnim()));
-						}
-					} else {
-						bone.setGeosetAnim(null);
+						parent = parent.getParent();
+						maxDepth--;
 					}
-					fixBoneChain(geoset, ga, bone);
 				}
 			}
 		}
+		Map<Bone, BoneGeosets> boneGeosetsMap = new HashMap<>();
+		for (final Bone bone : boneToGeosets.keySet()) {
+			Set<Geoset> geosets = boneToGeosets.get(bone);
+			boolean multiGeo = false;
+			Geoset animatedGeoset = null;
+			Geoset mainGeoset = null;
+			for(Geoset geoset : geosets){
+				if (!multiGeo && mainGeoset == null) {
+					// The bone has been found by no prior matrices
+					animatedGeoset = geoset;
+					mainGeoset = geoset;
+				} else if (!multiGeo && mainGeoset != geoset) {
+					// The bone has only been found by ONE matrix
+					multiGeo = true;
+					mainGeoset = null;
+					animatedGeoset = getMostVisible(geoset, animatedGeoset);
+					if (animatedGeoset != null) {
+						mainGeoset = animatedGeoset;
+						multiGeo = false;
+					}
+
+				} else if (multiGeo) {
+					// The bone has been found by more than one matrix
+					animatedGeoset = getMostVisible(geoset, animatedGeoset);
+				}
+			}
+			boneGeosetsMap.put(bone, new BoneGeosets().setGeoset(mainGeoset).setAnimatedGeoset(animatedGeoset));
+		}
+		return boneGeosetsMap;
 	}
 
-	private static void fixBoneChain(Geoset geoset, GeosetAnim ga, IdObject boneParent) {
-		while ((boneParent = boneParent.getParent()) != null) {
-			if (boneParent instanceof Bone && !(boneParent instanceof Helper)) {
-				final Bone bone = (Bone) boneParent;
-				if (!bone.isMultiGeo()) {
-					if (bone.getGeoset() == null) {
-						// The bone has been found by no prior matrices
-						bone.setGeosetAnim(ga);
-						bone.setGeoset(geoset);
-					} else if (bone.getGeoset() != geoset) {
-						// The bone has only been found by ONE matrix
-						bone.setMultiGeoId(true);
-						bone.setGeoset(null);
-						if (ga != null) {
-							bone.setGeosetAnim(ga.getMostVisible(bone.getGeosetAnim()));
-							if (bone.getGeosetAnim() != null) {
-								bone.setGeoset(bone.getGeosetAnim().getGeoset());
-								bone.setMultiGeoId(false);
-							}
-						}
-
-					}
-				} else if ((ga != null) && (ga != bone.getGeosetAnim())) {
-					bone.setGeosetAnim(ga.getMostVisible(bone.getGeosetAnim()));
+	public static Geoset getMostVisible(Geoset geoAnim1, Geoset geoAnim2) {
+		if(geoAnim1 == geoAnim2){
+			return geoAnim1;
+		} if (geoAnim1 != null && geoAnim2 != null) {
+			FloatAnimFlag visFlag1 = (FloatAnimFlag) geoAnim1.getVisibilityFlag();
+			FloatAnimFlag visFlag2 = (FloatAnimFlag) geoAnim2.getVisibilityFlag();
+			if (visFlag1 != null && visFlag2 != null) {
+				FloatAnimFlag result = visFlag1.getMostVisible(visFlag2);
+				if (result == visFlag1) {
+					return geoAnim1;
+				} else if (result == visFlag2) {
+					return geoAnim2;
 				}
 			}
 		}
+		return null;
 	}
 
-	public static GeosetAnim getGeosetAnimOfGeoset(List<GeosetAnim> geosetAnims, List<Geoset> allModelGeosets, Geoset geoset) {
-		if (geoset.getGeosetAnim() == null) {
-			boolean noIds = geosetAnims.stream().noneMatch(ga -> ga.getGeoset() != null);
-
-			if (noIds) {
-				int geosetIndex = allModelGeosets.indexOf(geoset);
-				if (geosetAnims.size() > geosetIndex) {
-					geoset.setGeosetAnim(geosetAnims.get(geosetIndex));
-				} else {
-					return null;
-				}
-			} else {
-				for (final GeosetAnim ga : geosetAnims) {
-					if (ga.getGeoset() == geoset) {
-						geoset.setGeosetAnim(ga);
-						break;
-					}
-				}
-			}
+	public static class BoneGeosets{
+		private Geoset geoset;
+		private Geoset animatedGeoset;
+		public Geoset getGeoset() {
+			return geoset;
 		}
-		return geoset.getGeosetAnim();
+
+		public BoneGeosets setGeoset(Geoset geoset) {
+			this.geoset = geoset;
+			return this;
+		}
+
+		public Geoset getAnimatedGeoset() {
+			return animatedGeoset;
+		}
+
+		public BoneGeosets setAnimatedGeoset(Geoset animatedGeoset) {
+			this.animatedGeoset = animatedGeoset;
+			return this;
+		}
 	}
 
 	public static void purifyFaces(Geoset geoset) {

@@ -1,41 +1,73 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
-public class Geoset implements Named, VisibilitySource {
+public class Geoset extends TimelineContainer implements Named {
 	private EditableModel parentModel;
 	private Material material;
 	private int selectionGroup = 0;
-	private GeosetAnim geosetAnim = null;
 	private int levelOfDetail = 0;
 	private String levelOfDetailName = "";
 	private boolean unselectable = false;
-	private ExtLog extents;
+	private final ExtLog extents = new ExtLog();
 	private final List<GeosetVertex> vertices = new ArrayList<>();
 	private final List<Triangle> triangles = new ArrayList<>();
-	private final List<Matrix> matrices = new ArrayList<>();
 	private final Map<Animation, ExtLog> animExts = new HashMap<>();
+	private double staticAlpha = 1;
+	private final Vec3 staticColor = new Vec3(1, 1, 1);
+	private boolean dropShadow = false;
+	private String tempName;
 
 	public Geoset() {
 	}
 
 	@Override
 	public String getName() {
-		if (levelOfDetailName.equals("")) {
-			Map<Bone, List<GeosetVertex>> boneMap = getBoneMap();
-			if (!boneMap.isEmpty()) {
-				Set<Bone> bones = boneMap.keySet();
-				bones.removeIf(Objects::isNull);
-				String name = sdGetMostCommonUniqueBoneName(bones);
-				return "# " + (parentModel.getGeosetId(this)) + ": " + name;
+		if(tempName == null){
+			if(parentModel != null){
+				tempName = "# " + (parentModel.getGeosetId(this)) + ": ";
+			} else {
+				tempName = "# ? ";
 			}
-		} else {
-			return "# " + (parentModel.getGeosetId(this)) + ": " + levelOfDetailName;
+			if (levelOfDetailName.equals("")) {
+				Map<Bone, List<GeosetVertex>> boneMap = getBoneMap();
+				if (!boneMap.isEmpty()) {
+					Set<Bone> bones = boneMap.keySet();
+					bones.removeIf(Objects::isNull);
+					tempName += ModelUtils.sdGetMostCommonUniqueBoneName(bones);
+				} else {
+					tempName += "No bones";
+				}
+			} else {
+				tempName += levelOfDetailName;
+			}
 		}
-		if (parentModel != null) {
-			return "# " + (parentModel.getGeosetId(this));
+		return tempName;
+	}
+
+	public void resetTempName(){
+		tempName = null;
+	}
+
+	public String getName11() {
+		if(parentModel != null){
+			if (levelOfDetailName.equals("")) {
+				Map<Bone, List<GeosetVertex>> boneMap = getBoneMap();
+				if (!boneMap.isEmpty()) {
+					Set<Bone> bones = boneMap.keySet();
+					bones.removeIf(Objects::isNull);
+					String name = ModelUtils.sdGetMostCommonUniqueBoneName(bones);
+					return "# " + (parentModel.getGeosetId(this)) + ": " + name;
+				}
+				return "# " + (parentModel.getGeosetId(this));
+			} else {
+				return "# " + (parentModel.getGeosetId(this)) + ": " + levelOfDetailName;
+			}
 		}
 		return "Geosets";
 	}
@@ -47,61 +79,6 @@ public class Geoset implements Named, VisibilitySource {
 		}
 	}
 
-	public String sdGetMostCommonUniqueBoneName(Set<Bone> bones) {
-		List<Bone> nonSharedParentBones = new ArrayList<>();
-		List<Bone> mBones = new ArrayList<>(bones);
-		if (!bones.isEmpty()) {
-			if (mBones.size() == 1) {
-				return mBones.get(0).getName().replaceAll("(?i)bone_*", "");
-			}
-			for (Bone bone : mBones) {
-				Bone lp = lastParentIn(bone, mBones);
-
-				if ((lp != null && lp.getGeoset() == this || lp instanceof Helper) && !nonSharedParentBones.contains(lp)) {
-					nonSharedParentBones.add(lp);
-				}
-			}
-			List<Bone> curatedBones = new ArrayList<>();
-			for (Bone bone : nonSharedParentBones) {
-				if (!bone.getName().toLowerCase().startsWith("mesh")) {
-					curatedBones.add(bone);
-				}
-			}
-			if (curatedBones.size() < 3) {
-				for (int i = 0; i < nonSharedParentBones.size() && curatedBones.size() < 3; i++) {
-					if (!curatedBones.contains(nonSharedParentBones.get(i))) {
-						curatedBones.add(nonSharedParentBones.get(i));
-					}
-				}
-			}
-			List<String> nameParts = new ArrayList<>();
-			for (Bone bone : curatedBones) {
-				nameParts.add(bone.getName().replaceAll("(?i)bone_*", ""));
-			}
-			return String.join(", ", nameParts);
-		}
-		return "";
-	}
-
-
-	public Bone lastParentIn(Bone bone, List<Bone> list) {
-		Bone parentBone = bone;
-		int infStopper = 0;
-		while (list.contains(parentBone) && parentBone != null && infStopper < 1000) {
-			if (bone.getParent() instanceof Bone) {
-				parentBone = (Bone) bone.getParent();
-				if (parentBone.isMultiGeo() || (parentBone.getGeoset() != this && parentBone.getGeoset() != null)) {
-					return bone;
-				} else if (list.contains(parentBone)) {
-					bone = parentBone;
-				}
-			} else {
-				return bone;
-			}
-			infStopper++;
-		}
-		return bone;
-	}
 	public void addVertex(final GeosetVertex v) {
 		add(v);
 	}
@@ -157,9 +134,6 @@ public class Geoset implements Named, VisibilitySource {
 		if (!triangles.contains(p)) {
 			triangles.add(p);
 		}
-//		else {
-////			System.out.println("2x triangles");
-//		}
 	}
 
 	public Triangle getTriangle(final int triId) {
@@ -192,20 +166,6 @@ public class Geoset implements Named, VisibilitySource {
 		triangles.removeAll(t);
 	}
 
-//	public void addMatrix(final Matrix v) {
-//		matrices.add(v);
-//	}
-
-//	public Matrix getMatrix(final int vertId) {
-//		if ((vertId < 0) && (vertId >= -128)) {
-//			return getMatrix(256 + vertId);
-//		}
-//		if (vertId >= matrices.size()) {
-//			return null;
-//		}
-//		return matrices.get(vertId);
-//	}
-
 	public void setMaterial(final Material m) {
 		material = m;
 	}
@@ -215,7 +175,7 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	public void setExtents(final ExtLog extents) {
-		this.extents = extents;
+		this.extents.set(extents);
 	}
 
 	public ExtLog getExtents() {
@@ -241,34 +201,6 @@ public class Geoset implements Named, VisibilitySource {
 		return vertices.size() <= 0;
 	}
 
-	public GeosetAnim forceGetGeosetAnim() {
-		if (geosetAnim == null) {
-			geosetAnim = new GeosetAnim(this);
-			parentModel.add(geosetAnim);
-		}
-		return geosetAnim;
-	}
-
-	@Override
-	public AnimFlag<Float> getVisibilityFlag() {
-		if (geosetAnim != null) {
-			return geosetAnim.getVisibilityFlag();
-		}
-		return null;
-	}
-
-	@Override
-	public void setVisibilityFlag(AnimFlag<Float> a) {
-		if (a != null) {
-			forceGetGeosetAnim().setVisibilityFlag(a);
-		}
-	}
-
-	@Override
-	public String visFlagName() {
-		return "Alpha";
-	}
-
 	public List<GeosetVertex> getVertices() {
 		return vertices;
 	}
@@ -281,11 +213,8 @@ public class Geoset implements Named, VisibilitySource {
 		return triangles;
 	}
 
-	public List<Matrix> getMatrices() {
-		return matrices;
-	}
 	public void clearMatrices() {
-		matrices.clear();
+//		matrices.clear();
 	}
 	public Set<Matrix> collectMatrices() {
 		LinkedHashSet<Matrix> matrixSet = new LinkedHashSet<>();
@@ -296,12 +225,12 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	public void reMakeMatrixList(){
-		matrices.clear();
-		for (GeosetVertex vertex : vertices) {
-			if (!matrices.contains(vertex.getMatrix())) {
-				matrices.add(vertex.getMatrix());
-			}
-		}
+//		matrices.clear();
+//		for (GeosetVertex vertex : vertices) {
+//			if (!matrices.contains(vertex.getMatrix())) {
+//				matrices.add(vertex.getMatrix());
+//			}
+//		}
 	}
 
 	public int getSelectionGroup() {
@@ -342,14 +271,6 @@ public class Geoset implements Named, VisibilitySource {
 
 	public void setParentModel(final EditableModel parentModel) {
 		this.parentModel = parentModel;
-	}
-
-	public GeosetAnim getGeosetAnim() {
-		return geosetAnim;
-	}
-
-	public void setGeosetAnim(final GeosetAnim geosetAnim) {
-		this.geosetAnim = geosetAnim;
 	}
 
 	public void remove(final Triangle tri) {
@@ -398,30 +319,6 @@ public class Geoset implements Named, VisibilitySource {
 			}
 		}
 
-//		for (GeosetVertex geosetVertex : getVertices()) {
-//			SkinBone[] ssb = geosetVertex.getSkinBones();
-//			if (ssb != null) {
-//				for (SkinBone skinBone : ssb) {
-//					if (skinBone != null && skinBone.getBone() != null) {
-//						if (!boneMap.containsKey(skinBone.getBone())) {
-//							boneMap.put(skinBone.getBone(), new ArrayList<>());
-//						}
-//						if (skinBone.getWeight() > 0) {
-////						System.out.println("added geoVert");
-//							boneMap.get(skinBone.getBone()).add(geosetVertex);
-//						}
-//					}
-//				}
-//			} else {
-//				for (Bone bone : geosetVertex.getBones()) {
-//					if (!boneMap.containsKey(bone)) {
-//						boneMap.put(bone, new ArrayList<>());
-//					}
-//					boneMap.get(bone).add(geosetVertex);
-//				}
-//			}
-//		}
-
 		return boneMap;
 	}
 
@@ -457,13 +354,56 @@ public class Geoset implements Named, VisibilitySource {
 		geoset.setParentModel(parentModel);
 		geoset.setLevelOfDetail(levelOfDetail);
 		geoset.setUnselectable(unselectable);
+		geoset.staticAlpha = staticAlpha;
+		geoset.staticColor.set(staticColor);
+		geoset.dropShadow = dropShadow;
 
-		if (geosetAnim != null) {
-			GeosetAnim geosetAnimC = geosetAnim.deepCopy();
-			geoset.setGeosetAnim(geosetAnimC);
-			geosetAnimC.setGeoset(geoset);
+
+		for (AnimFlag<?> animFlag : getAnimFlags()) {
+			geoset.add(animFlag.deepCopy());
 		}
+
 		return geoset;
 	}
 
+	public boolean hasAnim(){
+		return !animFlags.isEmpty() || staticAlpha != 1f || !staticColor.equalLocs(Vec3.ONE);
+	}
+
+	public float getRenderVisibility(TimeEnvironmentImpl animatedRenderEnvironment) {
+		return getRenderVisibility(animatedRenderEnvironment, (float) staticAlpha);
+	}
+
+	@Override
+	public String visFlagName() {
+		return "Alpha";
+	}
+
+	public double getStaticAlpha() {
+		return staticAlpha;
+	}
+
+	public void setStaticAlpha(double staticAlpha) {
+		this.staticAlpha = staticAlpha;
+	}
+
+	public Vec3 getStaticColor() {
+		return staticColor;
+	}
+
+	public void setStaticColor(Vec3 staticColor) {
+		this.staticColor.set(staticColor);
+	}
+
+	public boolean isDropShadow() {
+		return dropShadow;
+	}
+
+	public void setDropShadow(boolean dropShadow) {
+		this.dropShadow = dropShadow;
+	}
+
+	public Vec3 getRenderColor(TimeEnvironmentImpl animatedRenderEnvironment) {
+		return getInterpolatedVector(animatedRenderEnvironment, "Color", staticColor);
+	}
 }

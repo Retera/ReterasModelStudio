@@ -1,22 +1,29 @@
 package com.hiveworkshop.rms.editor.model.util.ModelSaving;
 
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.util.TempSaveModelStuff;
 import com.hiveworkshop.rms.parsers.mdlx.*;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class IdObjectToMdlx {
 
-	public static MdlxBone toMdlx(Bone bone, EditableModel model) {
+	public static MdlxBone toMdlx(Bone bone, EditableModel model, TempSaveModelStuff.BoneGeosets boneGeosets) {
 		MdlxBone mdlxBone = new MdlxBone();
 
 		objectToMdlx(bone, mdlxBone, model);
 
-		mdlxBone.geosetId = model.getGeosets().indexOf(bone.getGeoset());
-		mdlxBone.geosetAnimationId = model.getGeosetAnims().indexOf(bone.getGeosetAnim());
+		if(boneGeosets != null){
+			mdlxBone.geosetId = model.getGeosets().indexOf(boneGeosets.getGeoset());
+			mdlxBone.geosetAnimationId = model.getGeosets().stream()
+					.filter(Geoset::hasAnim)
+					.collect(Collectors.toList())
+					.indexOf(boneGeosets.getAnimatedGeoset());
+		}
 
 		return mdlxBone;
 	}

@@ -17,15 +17,15 @@ public class ManualTransformPanel extends JPanel {
 
 	private ModelHandler modelHandler;
 	private ModelEditorManager modelEditorManager;
-	private JPanel movePanel;
-	private JPanel scalePanel;
-	private JPanel rotatePanel;
+	private final JPanel movePanel;
+	private final JPanel scalePanel;
+	private final JPanel rotatePanel;
 	private ShrinkFattenPanel shrinkFattenPanel;
 	private JPanel selectionPanel;
-	JLabel selectedVerts = new JLabel();
-	JLabel selectedNodes = new JLabel();
-	JLabel selectedCams = new JLabel();
-	JLabel selectionCenter = new JLabel();
+	private final JLabel selectedVerts = new JLabel();
+	private final JLabel selectedNodes = new JLabel();
+	private final JLabel selectedCams = new JLabel();
+	private final JLabel selectionCenter = new JLabel();
 
 	public ManualTransformPanel() {
 		super(new MigLayout("hidemode 2, ins 0, gap 0"));
@@ -122,86 +122,74 @@ public class ManualTransformPanel extends JPanel {
 	}
 
 	JPanel getMovePanel() {
-		JPanel inputPanel = new JPanel(new MigLayout("gap 0"));
-		Vec3SpinnerArray spinners = new Vec3SpinnerArray(new Vec3(0, 0, 0), "Move X:", "Move Y:", "Move Z:");
+		JPanel inputPanel = new JPanel(new MigLayout("gap 0", "", "[]3[]10[]3[]"));
+		Vec3SpinnerArray spinners = new Vec3SpinnerArray("Move X:", "Move Y:", "Move Z:").setLabelWrap(false);
 		inputPanel.add(spinners.setSpinnerWrap(true).spinnerPanel(), "wrap");
 
 		JButton button = new JButton("Move");
 		button.addActionListener(e -> move(spinners.getValue()));
 		inputPanel.add(button, "wrap");
 
-		Vec3SpinnerArray spinners2 = new Vec3SpinnerArray(new Vec3(0, 0, 0), "New Position X:", "New Position Y:", "New Position Z:");
+		Vec3SpinnerArray spinners2 = new Vec3SpinnerArray("New X:", "New Y:", "New Z:").setLabelWrap(false);
 		inputPanel.add(spinners2.setSpinnerWrap(true).spinnerPanel(), "wrap");
 
 		JButton button2 = new JButton("Move to");
 		button2.addActionListener(e -> moveTo(spinners2.getValue()));
-		inputPanel.add(button2);
+		inputPanel.add(button2, "split");
+		JButton toSelection = new JButton("»«");
+		toSelection.setToolTipText("Set position to center of selection");
+		inputPanel.add(toSelection, "wrap");
+		toSelection.addActionListener(e -> spinners2.setValues(getCurrCenter()));
 		return inputPanel;
 	}
 
 	JPanel getRotatePanel() {
-		JPanel inputPanel = new JPanel(new MigLayout("gap 0"));
+		JPanel inputPanel = new JPanel(new MigLayout("gap 0", "", "[]3[]3[]3[]"));
 //		Vec3SpinnerArray spinners = new Vec3SpinnerArray(new Vec3(0, 0, 0), "Rotate X degrees (around axis facing front):", "Rotate Y degrees (around axis facing left):", "Rotate Z degrees (around axis facing up):");
-		Vec3SpinnerArray spinners = new Vec3SpinnerArray(new Vec3(0, 0, 0), "Rotate X (degrees)", "Rotate Y (degrees):", "Rotate Z (degrees):");
+		Vec3SpinnerArray spinners = new Vec3SpinnerArray("Rotate X:", "Rotate Y:", "Rotate Z:").setLabelWrap(false);
 		inputPanel.add(spinners.setSpinnerWrap(true).spinnerPanel(), "wrap");
 
+		JPanel originPanel = new JPanel(new MigLayout("gap 0, ins 0"));
 		JCheckBox customOrigin = new JCheckBox("Custom Origin");
-		inputPanel.add(customOrigin, "wrap");
+		originPanel.add(customOrigin, "split");
+		JButton toSelection = new JButton("»«");
+		toSelection.setToolTipText("Set origin to center of selection");
+		originPanel.add(toSelection, "wrap");
+
 		Vec3SpinnerArray centerSpinners = getCenterSpinners();
 		customOrigin.addActionListener(e -> centerSpinners.setEnabled(customOrigin.isSelected()));
-		inputPanel.add(centerSpinners.setSpinnerWrap(true).spinnerPanel(), "wrap");
+		originPanel.add(centerSpinners.setSpinnerWrap(true).spinnerPanel(), "wrap");
+		toSelection.addActionListener(e -> centerSpinners.setValues(getCurrCenter()));
+
+		inputPanel.add(originPanel, "wrap");
 
 		JButton button = new JButton("Rotate");
-		button.addActionListener(e -> rotate(spinners, customOrigin, centerSpinners));
+		button.addActionListener(e -> rotate(spinners.getValue(), customOrigin.isSelected(), centerSpinners.getValue()));
 		inputPanel.add(button);
 		return inputPanel;
-	}
-
-	private void rotate(Vec3SpinnerArray spinners, JCheckBox customOrigin, Vec3SpinnerArray centerSpinners) {
-		if (modelHandler != null && !modelHandler.getModelView().isEmpty()) {
-			Vec3 center;
-			if (customOrigin.isSelected()) {
-				center = centerSpinners.getValue();
-			} else {
-				center = modelHandler.getModelView().getSelectionCenter();
-			}
-//			Vec3 selectionCenter = modelHandler.getModelView().getSelectionCenter();
-			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().rotate(center, spinners.getValue()).redo());
-		}
-	}
-
-	JPanel getMoveToPanel() {
-		JPanel inputPanel = new JPanel(new MigLayout("gap 0"));
-		Vec3SpinnerArray spinners = new Vec3SpinnerArray(new Vec3(0, 0, 0), "New Position X:", "New Position Y:", "New Position Z:");
-		inputPanel.add(spinners.setSpinnerWrap(true).spinnerPanel(), "wrap");
-
-		JButton button = new JButton("Move to");
-		button.addActionListener(e -> moveTo(spinners));
-		inputPanel.add(button);
-		return inputPanel;
-	}
-
-	private void moveTo(Vec3SpinnerArray spinners) {
-		if (modelHandler != null && !modelHandler.getModelView().isEmpty()) {
-			Vec3 selectionCenter = modelHandler.getModelView().getSelectionCenter();
-			modelHandler.getUndoManager()
-					.pushAction(modelEditorManager.getModelEditor().setPosition(selectionCenter, spinners.getValue()).redo());
-		}
 	}
 
 	JPanel getScalePanel() {
-		JPanel inputPanel = new JPanel(new MigLayout("gap 0, hidemode 1"));
-		Vec3SpinnerArray spinners = new Vec3SpinnerArray(new Vec3(1, 1, 1), "Scale X:", "Scale Y:", "Scale Z:");
+		JPanel inputPanel = new JPanel(new MigLayout("gap 0, hidemode 1", "", "[]3[]3[]3[]"));
+		Vec3SpinnerArray spinners = new Vec3SpinnerArray(new Vec3(1, 1, 1), "Scale X:", "Scale Y:", "Scale Z:").setLabelWrap(false);
 		inputPanel.add(spinners.setSpinnerWrap(true).spinnerPanel(), "wrap");
 
+		JPanel originPanel = new JPanel(new MigLayout("gap 0, ins 0"));
 		JCheckBox customOrigin = new JCheckBox("Custom Origin");
-		inputPanel.add(customOrigin, "wrap");
+		originPanel.add(customOrigin, "split");
+		JButton toSelection = new JButton("»«");
+		toSelection.setToolTipText("Set origin to center of selection");
+		originPanel.add(toSelection, "wrap");
+
 		Vec3SpinnerArray centerSpinners = getCenterSpinners();
 		customOrigin.addActionListener(e -> centerSpinners.setEnabled(customOrigin.isSelected()));
-		inputPanel.add(centerSpinners.setSpinnerWrap(true).spinnerPanel(), "wrap");
+		originPanel.add(centerSpinners.setSpinnerWrap(true).spinnerPanel(), "wrap");
+		toSelection.addActionListener(e -> centerSpinners.setValues(getCurrCenter()));
+
+		inputPanel.add(originPanel, "wrap");
 
 		JButton button = new JButton("Scale");
-		button.addActionListener(e -> scale(spinners, customOrigin, centerSpinners));
+		button.addActionListener(e -> scale(spinners.getValue(), customOrigin.isSelected(), centerSpinners.getValue()));
 		inputPanel.add(button, "wrap");
 
 		shrinkFattenPanel = new ShrinkFattenPanel();
@@ -210,21 +198,44 @@ public class ManualTransformPanel extends JPanel {
 	}
 
 	private Vec3SpinnerArray getCenterSpinners() {
-		Vec3SpinnerArray centerSpinners = new Vec3SpinnerArray("Center X:", "Center Y:", "Center Z:");
+		Vec3SpinnerArray centerSpinners = new Vec3SpinnerArray("Center X:", "Center Y:", "Center Z:").setLabelWrap(false);
 		centerSpinners.setEnabled(false);
 		return centerSpinners;
 	}
 
-	private void scale(Vec3SpinnerArray spinners, JCheckBox customOrigin, Vec3SpinnerArray centerSpinners) {
+	private void rotate(Vec3 rot, boolean customOrigin, Vec3 customCenter) {
 		if (modelHandler != null && !modelHandler.getModelView().isEmpty()) {
-			Vec3 center;
-			if (customOrigin.isSelected()) {
-				center = centerSpinners.getValue();
-			} else {
-				center = modelHandler.getModelView().getSelectionCenter();
-			}
-			modelHandler.getUndoManager()
-					.pushAction(modelEditorManager.getModelEditor().scale(center, spinners.getValue()).redo());
+			Vec3 center = customOrigin ? customCenter : modelHandler.getModelView().getSelectionCenter();
+			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().rotate(center, rot).redo());
+		}
+	}
+
+
+	private void move(Vec3 dist) {
+		if (modelHandler != null && !modelHandler.getModelView().isEmpty()) {
+			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().translate(dist).redo());
+		}
+	}
+
+	private void moveTo(Vec3 pos) {
+		if (modelHandler != null && !modelHandler.getModelView().isEmpty()) {
+			Vec3 selectionCenter = getCurrCenter();
+			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().setPosition(selectionCenter, pos).redo());
+		}
+	}
+
+	private void scale(Vec3 scale, boolean customOrigin, Vec3 customCenter) {
+		if (modelHandler != null && !modelHandler.getModelView().isEmpty()) {
+			Vec3 center = customOrigin ? customCenter : getCurrCenter();
+			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().scale(center, scale).redo());
+		}
+	}
+
+	private Vec3 getCurrCenter(){
+		if(modelHandler == null){
+			return Vec3.ZERO;
+		} else {
+			return modelHandler.getModelView().getSelectionCenter();
 		}
 	}
 }

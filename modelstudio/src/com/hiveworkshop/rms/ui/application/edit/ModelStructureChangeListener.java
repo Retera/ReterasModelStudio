@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit;
 
+import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -31,6 +32,7 @@ public class ModelStructureChangeListener {
 	public void nodesUpdated() {
 		System.out.println("nodesUpdated");
 		// Tell program to set visibility after import
+		resetGeosetTempNames();
 		updateElementsAndRefreshFromEditor();
 		stateChanged();
 	}
@@ -59,6 +61,7 @@ public class ModelStructureChangeListener {
 
 	public void geosetsUpdated() {
 		// Tell program to set visibility after import
+		resetGeosetTempNames();
 		refreshRenderGeosets();
 		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 		stateChanged();
@@ -100,6 +103,7 @@ public class ModelStructureChangeListener {
 	}
 
 	public void nodeHierarchyChanged() {
+		resetGeosetTempNames();
 		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 	}
 
@@ -113,6 +117,16 @@ public class ModelStructureChangeListener {
 //		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reValidateKeyframes();
 		for(Runnable listener : stateChangeListeners.values()){
 			listener.run();
+		}
+	}
+
+	private void resetGeosetTempNames(){
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			for (Geoset geoset : modelPanel.getModel().getGeosets()) {
+				geoset.resetTempName();
+			}
+
 		}
 	}
 
