@@ -83,24 +83,28 @@ public class ParticleEmitterChunk {
 				if (MdxUtils.checkOptionalId(in, ParticleEmitterEmissionRate.key)) {
 					particleEmitterEmissionRate = new ParticleEmitterEmissionRate();
 					particleEmitterEmissionRate.load(in);
-				} else if (MdxUtils.checkOptionalId(in, ParticleEmitterGravity.key)) {
+				}
+				else if (MdxUtils.checkOptionalId(in, ParticleEmitterGravity.key)) {
 					particleEmitterGravity = new ParticleEmitterGravity();
 					particleEmitterGravity.load(in);
-				} else if (MdxUtils.checkOptionalId(in, ParticleEmitterLongitude.key)) {
+				}
+				else if (MdxUtils.checkOptionalId(in, ParticleEmitterLongitude.key)) {
 					particleEmitterLongitude = new ParticleEmitterLongitude();
 					particleEmitterLongitude.load(in);
-				} else if (MdxUtils.checkOptionalId(in, ParticleEmitterLatitude.key)) {
+				}
+				else if (MdxUtils.checkOptionalId(in, ParticleEmitterLatitude.key)) {
 					particleEmitterLatitude = new ParticleEmitterLatitude();
 					particleEmitterLatitude.load(in);
-				} else if (MdxUtils.checkOptionalId(in, ParticleEmitterLifeSpan.key)) {
+				}
+				else if (MdxUtils.checkOptionalId(in, ParticleEmitterLifeSpan.key)) {
 					particleEmitterLifeSpan = new ParticleEmitterLifeSpan();
 					particleEmitterLifeSpan.load(in);
-				} else if (MdxUtils.checkOptionalId(in, ParticleEmitterSpeed.key)) {
-					System.err.println("LOADED SPEED");
-					System.exit(0);
+				}
+				else if (MdxUtils.checkOptionalId(in, ParticleEmitterSpeed.key)) {
 					particleEmitterSpeed = new ParticleEmitterSpeed();
 					particleEmitterSpeed.load(in);
-				} else if (MdxUtils.checkOptionalId(in, ParticleEmitterVisibility.key)) {
+				}
+				else if (MdxUtils.checkOptionalId(in, ParticleEmitterVisibility.key)) {
 					particleEmitterVisibility = new ParticleEmitterVisibility();
 					particleEmitterVisibility.load(in);
 				}
@@ -196,7 +200,8 @@ public class ParticleEmitterChunk {
 			initialVelocity = (float) mdlEmitter.getInitVelocity();
 			if (mdlEmitter.isMDLEmitter()) {
 				node.flags |= Node.NodeFlag.EMITTER_USES_MDL.getValue();
-			} else {
+			}
+			else {
 				node.flags |= Node.NodeFlag.EMITTER_USES_TGA.getValue();
 			}
 			for (final AnimFlag af : mdlEmitter.getAnimFlags()) {
@@ -217,7 +222,8 @@ public class ParticleEmitterChunk {
 							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
 						}
 					}
-				} else if (af.getName().equals("EmissionRate")) {
+				}
+				else if (af.getName().equals("EmissionRate")) {
 					particleEmitterEmissionRate = new ParticleEmitterEmissionRate();
 					particleEmitterEmissionRate.globalSequenceId = af.getGlobalSeqId();
 					particleEmitterEmissionRate.interpolationType = af.getInterpType();
@@ -234,7 +240,8 @@ public class ParticleEmitterChunk {
 							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
 						}
 					}
-				} else if (af.getName().equals("Gravity")) {
+				}
+				else if (af.getName().equals("Gravity")) {
 					particleEmitterGravity = new ParticleEmitterGravity();
 					particleEmitterGravity.globalSequenceId = af.getGlobalSeqId();
 					particleEmitterGravity.interpolationType = af.getInterpType();
@@ -251,7 +258,8 @@ public class ParticleEmitterChunk {
 							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
 						}
 					}
-				} else if (af.getName().equals("Longitude")) {
+				}
+				else if (af.getName().equals("Longitude")) {
 					particleEmitterLongitude = new ParticleEmitterLongitude();
 					particleEmitterLongitude.globalSequenceId = af.getGlobalSeqId();
 					particleEmitterLongitude.interpolationType = af.getInterpType();
@@ -268,7 +276,8 @@ public class ParticleEmitterChunk {
 							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
 						}
 					}
-				} else if (af.getName().equals("Latitude")) {
+				}
+				else if (af.getName().equals("Latitude")) {
 					particleEmitterLatitude = new ParticleEmitterLatitude();
 					particleEmitterLatitude.globalSequenceId = af.getGlobalSeqId();
 					particleEmitterLatitude.interpolationType = af.getInterpType();
@@ -285,7 +294,8 @@ public class ParticleEmitterChunk {
 							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
 						}
 					}
-				} else if (af.getName().equals("LifeSpan")) {
+				}
+				else if (af.getName().equals("LifeSpan")) {
 					particleEmitterLifeSpan = new ParticleEmitterLifeSpan();
 					particleEmitterLifeSpan.globalSequenceId = af.getGlobalSeqId();
 					particleEmitterLifeSpan.interpolationType = af.getInterpType();
@@ -302,7 +312,8 @@ public class ParticleEmitterChunk {
 							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
 						}
 					}
-				} else if (af.getName().equals("Speed")
+				}
+				else if (af.getName().equals("Speed")
 						/* ghostwolf named it speed in his code, I think it's a bug */ || af.getName()
 								.equals("InitVelocity")) {
 					particleEmitterSpeed = new ParticleEmitterSpeed();
@@ -321,10 +332,9 @@ public class ParticleEmitterChunk {
 							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
 						}
 					}
-				} else {
-					if (Node.LOG_DISCARDED_FLAGS) {
-						System.err.println("discarded flag " + af.getName());
-					}
+				}
+				else if (Node.LOG_DISCARDED_FLAGS) {
+					System.err.println("discarded flag " + af.getName());
 				}
 			}
 		}
