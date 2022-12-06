@@ -3295,7 +3295,7 @@ public class EditableModel implements Named {
 			for (final GeosetVertex vertex : geo.getVertices()) {
 				vertex.un900Heuristic();
 			}
-			if (geo.getLevelOfDetail() != targetLevelOfDetail) {
+			if (geo.getLevelOfDetail() != targetLevelOfDetail && geo.getLevelOfDetail() != -1) {
 				// wrong lod
 				wrongLOD.add(geo);
 			}

@@ -376,6 +376,21 @@ public class MainPanel extends JPanel
 				if (animationModeState) {
 					timeSliderPanel.deleteSelectedKeyframes();
 				} else {
+					mpanel.getUndoManager()
+							.pushAction(mpanel.getModelEditorManager().getModelEditor().deleteSelectedComponents());
+				}
+			}
+			repaintSelfAndChildren(mpanel);
+		}
+	};
+	AbstractAction deleteHotkeyAction = new AbstractAction("Delete") {
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			final ModelPanel mpanel = currentModelPanel();
+			if (mpanel != null) {
+				if (animationModeState) {
+					timeSliderPanel.deleteSelectedKeyframes();
+				} else {
 					// NOTE delete was here
 				}
 			}
@@ -2137,7 +2152,7 @@ public class MainPanel extends JPanel
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control Y"),
 				"Redo");
 
-		root.getActionMap().put("Delete", deleteAction);
+		root.getActionMap().put("Delete", deleteHotkeyAction);
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("DELETE"), "Delete");
 
 		root.getActionMap().put("CloneSelection", cloneAction);

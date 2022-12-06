@@ -518,7 +518,7 @@ public class Material implements MaterialView {
 			final Map<Vertex, VertexData> vertexToData = new HashMap<>();
 			final Vector3f temp = new Vector3f();
 			for (final Geoset geo : model.getGeosets()) {
-				if (geo.getLevelOfDetail() != lod) {
+				if (geo.getLevelOfDetail() != lod && geo.getLevelOfDetail() != -1) {
 					continue;
 				}
 				if (geo.getMaterial() == this || geo.getMaterial().equals(this) || geo.getMaterial().getLayers().get(0)
@@ -567,7 +567,7 @@ public class Material implements MaterialView {
 				}
 			}
 			for (final Geoset geo : model.getGeosets()) {
-				if (geo.getLevelOfDetail() != lod) {
+				if (geo.getLevelOfDetail() != lod && geo.getLevelOfDetail() != -1) {
 					continue;
 				}
 				if (geo.getMaterial() == this || geo.getMaterial().equals(this) || geo.getMaterial().getLayers().get(0)
