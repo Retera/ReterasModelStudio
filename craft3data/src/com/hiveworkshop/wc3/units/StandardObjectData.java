@@ -62,7 +62,8 @@ public class StandardObjectData {
 			if (unitSkin != null) {
 				skin.readTXT(unitSkin, true);
 			}
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 
@@ -97,7 +98,8 @@ public class StandardObjectData {
 			profile.readTXT(source.getResourceAsStream("Units\\ItemFunc.txt"), true);
 			profile.readTXT(source.getResourceAsStream("Units\\ItemStrings.txt"), true);
 			itemData.readSLK(source.getResourceAsStream("Units\\ItemData.slk"));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 
@@ -116,7 +118,8 @@ public class StandardObjectData {
 
 		try {
 			destructableData.readSLK(source.getResourceAsStream("Units\\DestructableData.slk"));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 
@@ -138,7 +141,8 @@ public class StandardObjectData {
 			if (unitSkin != null) {
 				destructableData.readTXT(unitSkin, true);
 			}
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 
@@ -154,7 +158,8 @@ public class StandardObjectData {
 		final DataTable unitMetaData = new DataTable();
 		try {
 			unitMetaData.readSLK(source.getResourceAsStream("Units\\UnitMetaData.slk"));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 		return unitMetaData;
@@ -165,7 +170,8 @@ public class StandardObjectData {
 		final DataTable unitMetaData = new DataTable();
 		try {
 			unitMetaData.readSLK(source.getResourceAsStream("Units\\DestructableMetaData.slk"));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 		return unitMetaData;
@@ -176,7 +182,8 @@ public class StandardObjectData {
 		final DataTable unitMetaData = new DataTable();
 		try {
 			unitMetaData.readSLK(source.getResourceAsStream("Doodads\\DoodadMetaData.slk"));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 		return unitMetaData;
@@ -212,7 +219,8 @@ public class StandardObjectData {
 			}
 
 			abilityData.readSLK(source.getResourceAsStream("Units\\AbilityData.slk"));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 
@@ -249,13 +257,14 @@ public class StandardObjectData {
 			profile.readTXT(source.getResourceAsStream("Units\\ItemAbilityStrings.txt"), true);
 
 			abilityData.readSLK(source.getResourceAsStream("Units\\AbilityBuffData.slk"));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 
 		final WarcraftData abilities = new WarcraftData();
 
-		abilities.add(profile, "Profile", false);
+		abilities.add(profile, "Profile", true);
 		abilities.add(abilityData, "AbilityData", true);
 
 		return abilities;
@@ -282,7 +291,8 @@ public class StandardObjectData {
 			profile.readTXT(source.getResourceAsStream("Units\\UndeadUpgradeStrings.txt"), true);
 
 			upgradeData.readSLK(source.getResourceAsStream("Units\\UpgradeData.slk"));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 
@@ -299,7 +309,8 @@ public class StandardObjectData {
 		final DataTable unitMetaData = new DataTable();
 		try {
 			unitMetaData.readSLK(source.getResourceAsStream("Units\\UpgradeMetaData.slk"));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 		return unitMetaData;
@@ -310,7 +321,8 @@ public class StandardObjectData {
 		final DataTable unitMetaData = new DataTable();
 		try {
 			unitMetaData.readSLK(source.getResourceAsStream("Units\\UpgradeEffectMetaData.slk"));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 		return unitMetaData;
@@ -321,7 +333,8 @@ public class StandardObjectData {
 		final DataTable unitMetaData = new DataTable();
 		try {
 			unitMetaData.readSLK(source.getResourceAsStream("Units\\AbilityMetaData.slk"));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 		return unitMetaData;
@@ -332,7 +345,8 @@ public class StandardObjectData {
 		final DataTable unitMetaData = new DataTable();
 		try {
 			unitMetaData.readSLK(source.getResourceAsStream("Units\\AbilityBuffMetaData.slk"));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 		return unitMetaData;
@@ -343,7 +357,8 @@ public class StandardObjectData {
 		final DataTable unitMetaData = new DataTable();
 		try {
 			unitMetaData.readTXT(source.getResourceAsStream("UI\\UnitEditorData.txt"), true);
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 		return unitMetaData;
@@ -354,7 +369,8 @@ public class StandardObjectData {
 		final DataTable unitMetaData = new DataTable();
 		try {
 			unitMetaData.readTXT(source.getResourceAsStream("UI\\WorldEditData.txt"), true);
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 		return unitMetaData;
@@ -560,7 +576,8 @@ public class StandardObjectData {
 			if (nameKnown && name.startsWith("WESTRING")) {
 				if (!name.contains(" ")) {
 					name = WEString.getString(name);
-				} else {
+				}
+				else {
 					final String[] names = name.split(" ");
 					name = "";
 					for (final String subName : names) {
@@ -569,7 +586,8 @@ public class StandardObjectData {
 						}
 						if (subName.startsWith("WESTRING")) {
 							name += WEString.getString(subName);
-						} else {
+						}
+						else {
 							name += subName;
 						}
 					}
@@ -628,7 +646,8 @@ public class StandardObjectData {
 								64, 64);
 					}
 					return storedImage;
-				} catch (final Exception exc) {
+				}
+				catch (final Exception exc) {
 					// artField =
 					// "ReplaceableTextures\\CommandButtons\\BTNTemp.blp";
 					storedImage = BLPHandler.get().getGameTex(artField);
@@ -642,7 +661,8 @@ public class StandardObjectData {
 					// return
 					// BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNAcolyte.blp");
 				}
-			} else {
+			}
+			else {
 				if (storedImage == null) {
 					return IconUtils.scale(
 							BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp"), 64,
