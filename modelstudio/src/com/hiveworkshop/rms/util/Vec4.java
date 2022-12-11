@@ -61,62 +61,6 @@ public class Vec4 {
 		return set(0, 0, 1, angle);
 	}
 
-	public float getCoord(final byte dim) {
-		return switch (dim) {
-			case 0 -> x;
-			case 1 -> y;
-			case 2 -> z;
-			case 3 -> w;
-			case -1 -> -x;
-			case -2 -> -y;
-			case -3 -> -z;
-			case -4 -> -w;
-			default -> 0;
-		};
-	}
-
-	public Vec4 setCoord(final byte dim, final float value) {
-		if (!Float.isNaN(value)) {
-			switch (dim) {
-				case 0 -> x = value;
-				case 1 -> y = value;
-				case 2 -> z = value;
-				case 3 -> w = value;
-				case -1 -> x = -value;
-				case -2 -> y = -value;
-				case -3 -> z = -value;
-				case -4 -> w = -value;
-			}
-		}
-		return this;
-	}
-
-	public Vec4 setCoord(final byte dim, final double value) {
-		if (!Double.isNaN(value)) {
-			switch (dim) {
-				case 0 -> x = (float) value;
-				case 1 -> y = (float) value;
-				case 2 -> z = (float) value;
-				case 3 -> w = (float) value;
-				case -1 -> x = (float) -value;
-				case -2 -> y = (float) -value;
-				case -3 -> z = (float) -value;
-				case -4 -> w = (float) -value;
-			}
-		}
-		return this;
-	}
-
-	public Vec4 translateCoord(final byte dim, final float value) {
-		switch (dim) {
-			case 0 -> x += value;
-			case 1 -> y += value;
-			case 2 -> z += value;
-			case 3 -> w += value;
-		}
-		return this;
-	}
-
 	public static Vec4 getTransformed(final Vec4 a, Mat4 mat4) {
 		return new Vec4(a).transform(mat4);
 	}
@@ -411,28 +355,6 @@ public class Vec4 {
 		y = (y * factor1) + (outTan.y * factor2) + (inTan.y * factor3) + (toward.y * factor4);
 		z = (z * factor1) + (outTan.z * factor2) + (inTan.z * factor3) + (toward.z * factor4);
 		w = (w * factor1) + (outTan.w * factor2) + (inTan.w * factor3) + (toward.w * factor4);
-		return this;
-	}
-
-	public Vec4 rotateAsVec3(Vec3 center, double radians, byte firstXYZ, byte secondXYZ){
-		addScaled(center, -1);
-		double d1 = getCoord(firstXYZ);
-		double d2 = getCoord(secondXYZ);
-
-		double r = Math.sqrt((d1 * d1) + (d2 * d2));
-		double verAng = Math.acos(d1 / r);
-		if (d2 < 0) {
-			verAng = -verAng;
-		}
-		double newFirstCoord = (Math.cos(verAng + radians) * r);
-		if (!Double.isNaN(newFirstCoord)) {
-			setCoord(firstXYZ, newFirstCoord);
-		}
-		double newSecondCoord = (Math.sin(verAng + radians) * r);
-		if (!Double.isNaN(newSecondCoord)) {
-			setCoord(secondXYZ, newSecondCoord);
-		}
-		add(center);
 		return this;
 	}
 

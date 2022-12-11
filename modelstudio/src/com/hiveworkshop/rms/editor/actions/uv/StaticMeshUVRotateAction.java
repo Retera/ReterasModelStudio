@@ -1,31 +1,28 @@
 package com.hiveworkshop.rms.editor.actions.uv;
 
-import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.util.GenericRotateAction;
+import com.hiveworkshop.rms.editor.actions.editor.AbstractTransformAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.util.Mat4;
+import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-public final class StaticMeshUVRotateAction implements GenericRotateAction {
+public final class StaticMeshUVRotateAction extends AbstractTransformAction {
 	private final ArrayList<Vec2> selectedTVerts;
 	private final ArrayList<Vec2> orgTVerts;
 	private final Vec3 center;
 	private double radians;
-	private final byte dim1;
-	private final byte dim2;
-	int uvLayerIndex;
-
-	public StaticMeshUVRotateAction(Collection<GeosetVertex> selectedVertices, int uvLayerIndex, Vec2 center, byte dim1, byte dim2) {
-		this(selectedVertices, uvLayerIndex, new Vec3(center.x, center.y, 0), dim1, dim2, 0);
-	}
+	private final Vec3 axis;
+	private final Quat rot = new Quat();
+	private final Mat4 invRotMat = new Mat4();
+	private final Mat4 rotMat = new Mat4();
 
 	public StaticMeshUVRotateAction(Collection<GeosetVertex> selectedVertices,
-	                                int uvLayerIndex, Vec3 center,
-	                                byte dim1, byte dim2,
-	                                double radians) {
+	                                int uvLayerIndex, Vec3 center, Vec3 axis,
+	                                double radians, Mat4 rotMat) {
 		selectedTVerts = new ArrayList<>();
 		orgTVerts = new ArrayList<>();
 		for (GeosetVertex vertex : selectedVertices) {
@@ -35,15 +32,14 @@ public final class StaticMeshUVRotateAction implements GenericRotateAction {
 				orgTVerts.add(new Vec2(tVertex));
 			}
 		}
-		this.uvLayerIndex = uvLayerIndex;
 		this.center = center;
-		this.dim1 = dim1;
-		this.dim2 = dim2;
+		this.axis = axis;
 		this.radians = radians;
+		this.rotMat.set(rotMat);
+		this.invRotMat.set(rotMat).invert();
 	}
-
 	@Override
-	public UndoAction undo() {
+	public StaticMeshUVRotateAction undo() {
 		for (int i = 0; i<selectedTVerts.size(); i++) {
 			selectedTVerts.get(i).set(orgTVerts.get(i));
 		}
@@ -51,10 +47,8 @@ public final class StaticMeshUVRotateAction implements GenericRotateAction {
 	}
 
 	@Override
-	public UndoAction redo() {
-		for (Vec2 vertex : selectedTVerts) {
-			vertex.rotate(center.x, center.y, radians, dim1, dim2);
-		}
+	public StaticMeshUVRotateAction redo() {
+		rawRot(radians);
 		return this;
 	}
 
@@ -64,12 +58,30 @@ public final class StaticMeshUVRotateAction implements GenericRotateAction {
 	}
 
 	@Override
-	public GenericRotateAction updateRotation(double radians) {
+	public StaticMeshUVRotateAction updateRotation(double radians) {
 		this.radians += radians;
-		for (int i = 0; i<selectedTVerts.size(); i++) {
-			selectedTVerts.get(i).set(orgTVerts.get(i)).rotate(center.x, center.y, this.radians, dim1, dim2);
-		}
+		rawRot(this.radians);
 		return this;
 	}
 
+	Vec3 tempVec = new Vec3();
+	@Override
+	public StaticMeshUVRotateAction setRotation(double radians) {
+		this.radians = radians;
+		rawRot(this.radians);
+		return this;
+	}
+
+	private void rawRot(double radians) {
+		rot.setFromAxisAngle(axis, (float) radians).normalize();
+		for (int i = 0; i<selectedTVerts.size(); i++) {
+			tempVec.set(orgTVerts.get(i), 0)
+					.sub(center)
+					.transform(rotMat, 1, true)
+					.transform(rot)
+					.transform(invRotMat, 1, true)
+					.add(center);
+			selectedTVerts.get(i).set(tempVec.x, tempVec.y);
+		}
+	}
 }

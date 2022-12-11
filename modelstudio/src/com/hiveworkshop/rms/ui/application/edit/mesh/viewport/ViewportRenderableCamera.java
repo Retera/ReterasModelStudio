@@ -8,8 +8,8 @@ import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Mat4;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
-import com.hiveworkshop.rms.util.Vec4;
 
 import java.awt.*;
 import java.io.IOException;
@@ -70,14 +70,16 @@ public class ViewportRenderableCamera {
 		for (int i = 0; i < points.length; i++) {
 			points[i] = new Point(0, 0);
 		}
+
+		Vec3 tempV3 = new Vec3();
 		for (Geoset geoset : cameraModel.getGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
 				for (int i = 0; i < 3; i++) {
 					GeosetVertex vertex = triangle.getVerts()[i];
-					Vec4 vectorHeap = new Vec4(vertex, 1);
-					vectorHeap.transform(scaleTranslateMatrix);
-					points[i].x = (int) coordinateSystem.viewX(vectorHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
-					points[i].y = (int) coordinateSystem.viewY(vectorHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
+					tempV3.set(vertex).transform(scaleTranslateMatrix, 1, true);
+					Vec2 vec2 = coordinateSystem.viewV(tempV3);
+					points[i].x = (int) vec2.x;
+					points[i].y = (int) vec2.y;
 				}
 				graphics.drawLine(points[0].x, points[0].y, points[1].x, points[1].y);
 				graphics.drawLine(points[2].x, points[2].y, points[1].x, points[1].y);

@@ -1,12 +1,12 @@
 package com.hiveworkshop.rms.editor.actions.animation;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.util.GenericRotateAction;
+import com.hiveworkshop.rms.editor.actions.editor.AbstractTransformAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.render3d.RenderNode2;
+import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Mat4;
@@ -15,7 +15,7 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
-public class SquatToolKeyframeAction implements GenericRotateAction {
+public class SquatToolKeyframeAction extends AbstractTransformAction {
 	private final UndoAction addingTimelinesOrKeyframesAction;
 	private final int trackTime;
 	private final HashMap<IdObject, Quat> nodeToLocalRotation;
@@ -25,24 +25,22 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 	private final RenderModel editorRenderModel;
 	private final Collection<IdObject> nodeSelection;
 	private final List<IdObject> squatObjects;
+	private final Mat4 invRotMat = new Mat4();
+	private final Mat4 rotMat = new Mat4();
+	private double radians;
+
 
 	public SquatToolKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
 	                               Collection<IdObject> nodeSelection,
 	                               RenderModel editorRenderModel,
 	                               Vec3 center,
-	                               byte dim1, byte dim2) {
-		this(addingTimelinesOrKeyframesAction, nodeSelection, editorRenderModel, center, getUnusedAxis(getUnusedXYZ(dim1, dim2)));
-	}
-
-	public SquatToolKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
-	                               Collection<IdObject> nodeSelection,
-	                               RenderModel editorRenderModel,
-	                               Vec3 center,
-	                               Vec3 axis) {
+	                               Vec3 axis, Mat4 rotMat) {
 		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
 		this.editorRenderModel = editorRenderModel;
 		this.trackTime = editorRenderModel.getTimeEnvironment().getEnvTrackTime();
 		this.anim = editorRenderModel.getTimeEnvironment().getCurrentSequence();
+		this.rotMat.set(rotMat);
+		this.invRotMat.set(rotMat).invert();
 
 		this.nodeSelection = new HashSet<>(nodeSelection);
 
@@ -61,9 +59,8 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 
 		squatObjects = new ArrayList<>();
 		for (IdObject idObject : childSet) {
-			if (nodeToLocalRotation.containsKey(idObject.getParent())
-					&& (idObject instanceof Bone && idObject.getParent() instanceof Bone
-					&& idObject instanceof Helper == idObject.getParent() instanceof Helper)) {
+			if (nodeToLocalRotation.containsKey(idObject.getParent()) && idObject instanceof Bone
+					&& idObject.getParent() instanceof Bone && !(idObject.getParent() instanceof Helper)) {
 				squatObjects.add(idObject);
 			}
 		}
@@ -90,19 +87,23 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 	}
 
 	@Override
-	public UndoAction undo() {
+	public SquatToolKeyframeAction undo() {
 		Quat localRotation = new Quat();
 		for (IdObject node : nodeToLocalRotation.keySet()) {
 			localRotation.set(nodeToLocalRotation.get(node)).invertRotation();
 			updateLocalRotationKeyframe(node, localRotation);
 		}
-		addingTimelinesOrKeyframesAction.undo();
+		if(addingTimelinesOrKeyframesAction != null){
+			addingTimelinesOrKeyframesAction.undo();
+		}
 		return this;
 	}
 
 	@Override
-	public UndoAction redo() {
-		addingTimelinesOrKeyframesAction.redo();
+	public SquatToolKeyframeAction redo() {
+		if(addingTimelinesOrKeyframesAction != null){
+			addingTimelinesOrKeyframesAction.redo();
+		}
 		for (IdObject node : nodeToLocalRotation.keySet()) {
 			Quat localRotation = nodeToLocalRotation.get(node);
 			updateLocalRotationKeyframe(node, localRotation);
@@ -115,49 +116,60 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 		return "edit rotation w/ squat";
 	}
 
-	public GenericRotateAction doSetup(){
-		addingTimelinesOrKeyframesAction.redo();
+	public SquatToolKeyframeAction doSetup(){
+		if(addingTimelinesOrKeyframesAction != null){
+			addingTimelinesOrKeyframesAction.redo();
+		}
 		return this;
 	}
 
 	@Override
-	public GenericRotateAction updateRotation(double radians) {
+	public SquatToolKeyframeAction updateRotation(double radians) {
 		// Note to future author: the reason for saved local rotation is that
 		// the input rotation took place in world space and got converted into local space
-		Quat rotation = new Quat();
-		for (IdObject idObject : nodeSelection) {
-			if (nodeToLocalRotation.get(idObject) != null) {
-				setRotationAxis((float) radians, idObject, rotation);
-				nodeToLocalRotation.get(idObject).mul(rotation);
-				updateLocalRotationKeyframe(idObject, rotation);
+		this.radians += radians;
+		for (IdObject node : nodeSelection) {
+			if (nodeToLocalRotation.get(node) != null) {
+				Quat rotation = getRotation(node, axis, (float) radians);
+				nodeToLocalRotation.get(node).mul(rotation);
+				updateLocalRotationKeyframe(node, rotation);
 			}
 		}
-		for (IdObject idObject : squatObjects) {
+		for (IdObject node : squatObjects) {
 			// cancel the parent rotation
-			if (nodeToLocalRotation.get(idObject) != null) {
-				setRotationAxis((float) radians, idObject, rotation);
-				rotation.invertRotation();
-				nodeToLocalRotation.get(idObject).mul(rotation);
-				updateLocalRotationKeyframe(idObject, rotation);
+			if (nodeToLocalRotation.get(node) != null) {
+				Quat rotation = getRotation(node, axis, (float) radians).invertRotation();
+				nodeToLocalRotation.get(node).mul(rotation);
+				updateLocalRotationKeyframe(node, rotation);
 			}
 		}
 
 		return this;
 	}
 
-	private Quat setRotationAxis(float radians, IdObject idObject, Quat rotation) {
-		rotation.set(0, 0, 0, 1);
-		RenderNode2 renderNode = editorRenderModel.getRenderNode(idObject);
-		Mat4 worldMatrix = renderNode.getWorldMatrix();
+	@Override
+	public SquatToolKeyframeAction setRotation(double radians) {
+		// Note to future author: the reason for saved local rotation is that
+		// the input rotation took place in world space and got converted into local space
+		double rotDiff = radians - this.radians;
+		this.radians = radians;
+		for (IdObject node : nodeSelection) {
+			if (nodeToLocalRotation.get(node) != null) {
+				Quat rotation = getRotation(node, axis, (float) rotDiff);
+				nodeToLocalRotation.get(node).mul(rotation);
+				updateLocalRotationKeyframe(node, rotation);
+			}
+		}
+		for (IdObject node : squatObjects) {
+			// cancel the parent rotation
+			if (nodeToLocalRotation.get(node) != null) {
+				Quat rotation = getRotation(node, axis, (float) rotDiff).invertRotation();
+				nodeToLocalRotation.get(node).mul(rotation);
+				updateLocalRotationKeyframe(node, rotation);
+			}
+		}
 
-		rotation.transform(worldMatrix);
-		rotation.add(axis);
-		rotation.transformInverted(worldMatrix);
-
-		rotation.w = radians;
-		rotation.setFromAxisAngle(rotation);
-
-		return rotation;
+		return this;
 	}
 
 	public void updateLocalRotationKeyframe(AnimatedNode animatedNode, Quat localRotation) {
@@ -177,22 +189,21 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 		}
 	}
 
-	public static byte getUnusedXYZ(byte portFirstXYZ, byte portSecondXYZ) {
-		if (portFirstXYZ < 0) {
-			portFirstXYZ = (byte) (-portFirstXYZ - 1);
-		}
-		if (portSecondXYZ < 0) {
-			portSecondXYZ = (byte) (-portSecondXYZ - 1);
-		}
-		return (byte) (3 - portFirstXYZ - portSecondXYZ);
-	}
+	Quat tempQuat = new Quat();
+	Vec3 tempAxis = new Vec3();
+	Vec3 tempAxis2 = new Vec3();
+	Mat4 tempMat = new Mat4();
 
-	static Vec3 getUnusedAxis(byte unusedXYZ) {
-		return switch (unusedXYZ) {
-			case 0 -> new Vec3(1, 0, 0);
-			case 1 -> new Vec3(0, -1, 0);
-			default -> new Vec3(0, 0, -1);
-		};
-	}
+	private Quat getRotation(AnimatedNode idObject, Vec3 axis, float radians) {
+		RenderNode<?> renderNode = editorRenderModel.getRenderNode(idObject);
+		tempAxis.set(axis).transform(invRotMat, 1, true);
+		if(renderNode != null){
+			tempMat.set(renderNode.getWorldMatrix()).invert();
 
+			tempAxis.add(renderNode.getPivot()).transform(tempMat, 1, true);
+			tempAxis2.set(renderNode.getPivot()).transform(tempMat, 1, true);
+			return tempQuat.setFromAxisAngle(tempAxis.sub(tempAxis2).normalize(), -radians).normalize();
+		}
+		return tempQuat.setIdentity();
+	}
 }

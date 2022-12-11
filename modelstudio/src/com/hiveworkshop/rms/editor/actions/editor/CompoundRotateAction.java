@@ -1,21 +1,20 @@
 package com.hiveworkshop.rms.editor.actions.editor;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.util.GenericRotateAction;
 
 import java.util.List;
 
-public final class CompoundRotateAction implements GenericRotateAction {
-	private final List<? extends GenericRotateAction> actions;
+public final class CompoundRotateAction extends AbstractTransformAction {
+	private final List<? extends AbstractTransformAction> actions;
 	private final String name;
 
-	public CompoundRotateAction(final String name, final List<? extends GenericRotateAction> actions) {
+	public CompoundRotateAction(final String name, final List<? extends AbstractTransformAction> actions) {
 		this.name = name;
 		this.actions = actions;
 	}
 
 	@Override
-	public UndoAction undo() {
+	public CompoundRotateAction undo() {
 		for (final UndoAction action : actions) {
 			action.undo();
 		}
@@ -23,7 +22,7 @@ public final class CompoundRotateAction implements GenericRotateAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public CompoundRotateAction redo() {
 		for (final UndoAction action : actions) {
 			action.redo();
 		}
@@ -36,8 +35,8 @@ public final class CompoundRotateAction implements GenericRotateAction {
 	}
 
 	@Override
-	public GenericRotateAction updateRotation(final double radians) {
-		for (final GenericRotateAction action : actions) {
+	public CompoundRotateAction updateRotation(final double radians) {
+		for (final AbstractTransformAction action : actions) {
 			action.updateRotation(radians);
 		}
 		return this;

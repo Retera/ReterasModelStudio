@@ -48,7 +48,7 @@ public class ModelStructureChangeListener {
 
 
 	public static void refreshRenderGeosets() {
-		System.out.println("refreshRenderGeosets");
+//		System.out.println("refreshRenderGeosets");
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			ModelHandler modelHandler = modelPanel.getModelHandler();

@@ -282,17 +282,17 @@ public final class ModelComponentBrowserTree extends JTree {
 //		System.out.println("Reloading ModelComponentBrowserTree");
 		SwingUtilities.invokeLater(() -> {
 			TreePath selectionPath = getSelectionPath();
-			System.out.println("selectionPath: " + selectionPath);
+//			System.out.println("selectionPath: " + selectionPath);
 
 			TreePath rootPath = new TreePath(getModel().getRoot());
-			System.out.println("rootPath: " + rootPath);
+//			System.out.println("rootPath: " + rootPath);
 
 
 			Enumeration<TreePath> expandedDescendants = getExpandedDescendants(rootPath);
 			setModel(buildTreeModel(modelHandler));
 
 			TreePath newRootPath = new TreePath(getModel().getRoot());
-			System.out.println("newRootPath: " + newRootPath);
+//			System.out.println("newRootPath: " + newRootPath);
 
 			List<TreePath> pathsToExpand = new ArrayList<>();
 
@@ -307,14 +307,14 @@ public final class ModelComponentBrowserTree extends JTree {
 
 			TreePath newSelectionPath = newRootPath;
 			if (selectionPath != null) {
-				System.out.println("selection path not null!");
+//				System.out.println("selection path not null!");
 
 				ChoosableDisplayElement<?> element = asElement((DefaultMutableTreeNode) selectionPath.getLastPathComponent());
 				if (element != null && element.getItem() instanceof IdObject) {
 					IdObject idObject = (IdObject) element.getItem();
 					if (nodeToTreeElement.containsKey(idObject)) {
 						newSelectionPath = new TreePath(nodeToTreeElement.get(idObject).getPath());
-						System.out.println("make visible: " + newSelectionPath);
+//						System.out.println("make visible: " + newSelectionPath);
 						makeVisible(newSelectionPath);
 					}
 				} else {

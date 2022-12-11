@@ -24,37 +24,38 @@ public class ModelThumbnailMaker {
 //			System.out.println("nr geosets: " + model.getGeosets().size());
 //			System.out.println("bounds: " + Arrays.toString(getModelBoundsSize(model)));
 		if(boundSize == null){
-			boundSize = getBoundBoxSize(model, (byte) 1, (byte) 2);
+			boundSize = getBoundBoxSize(model, Vec3.Y_AXIS, Vec3.Z_AXIS);
 		}
 
 		scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), boundSize);
 
-		drawGeosetsFlat(model, graphics, (byte) 1, (byte) 2, Color.GRAY);
+		drawGeosetsFlat(model, graphics, Vec3.Y_AXIS, Vec3.Z_AXIS, Color.GRAY);
 		graphics.dispose();
 		return image;
 	}
 
-	public static void drawGeosetsFlat(EditableModel model, Graphics g, byte a, byte b, Color color) {
-//		g.setColor(color);
+	public static void drawGeosetsFlat(EditableModel model, Graphics g, Vec3 right, Vec3 up, Color color) {
 		for (Geoset geo : model.getGeosets()) {
-			drawGeosetFlat(g, a, b, geo, color);
+			drawGeosetFlat(g, right, up, geo, color);
 		}
 	}
 
-	public static void drawGeosetFlat(Graphics g, byte a, byte b, Geoset geo, Color color) {
+	public static void drawGeosetFlat(Graphics g, Vec3 right, Vec3 up, Geoset geo, Color color) {
 		g.setColor(color);
 		for (Triangle t : geo.getTriangles()) {
-			drawTriangle(g, a, b, t);
+			drawTriangle(g, right, up, t);
 		}
 	}
 
 	public static void drawFilteredTriangles2(EditableModel model, Graphics g,
-	                                          byte a, byte b, Map<Geoset, Map<Bone, List<GeosetVertex>>> boneMap, Bone bone) {
+	                                          Vec3 right, Vec3 up,
+	                                          Map<Geoset, Map<Bone, List<GeosetVertex>>> boneMap,
+	                                          Bone bone) {
 		List<Triangle> triangles = getBoneParentedTriangles(model, boneMap, bone);
 
 		g.setColor(Color.RED);
 		for (Triangle t : triangles) {
-			drawTriangle(g, a, b, t);
+			drawTriangle(g, right, up, t);
 		}
 	}
 
@@ -78,53 +79,58 @@ public class ModelThumbnailMaker {
 		Vec2 delta = Vec2.getDif(realBounds[1], realBounds[0]);
 		double boxSize = Math.max(delta.x, delta.y);
 
-		Vec2 boxOffset = Vec2.getScaled(delta, -.5f).add(new Vec2(boxSize / 2f, boxSize / 2f)).add(realBounds[1]);
+		Vec2 boxOffset = delta.scale(-.5f).translate(boxSize / 2f, boxSize / 2f).add(realBounds[1]);
 
 		g.scale(bounds.getWidth() / boxSize, bounds.getHeight() / boxSize);
 		g.translate(boxOffset.x, boxOffset.y);
 	}
 
-	public static Vec2[] getBoundBoxSize(EditableModel model, byte a, byte b) {
-		Vec2[] realBoxBounds = {new Vec2(Float.MAX_VALUE, Float.MAX_VALUE), new Vec2(Float.MIN_VALUE, Float.MIN_VALUE)};
+	public static Vec2[] getBoundBoxSize(EditableModel model, Vec3 right, Vec3 up) {
+		Vec3 maxBound = new Vec3(-Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE);
+		Vec3 minBound = new Vec3(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
 
 		for (Geoset geo : model.getGeosets()) {
 			for (Triangle t : geo.getTriangles()) {
-				Vec2[] projectedVerts = t.getProjectedVerts(a, b);
-				for (Vec2 v : projectedVerts) {
-					realBoxBounds[0].minimize(v);
-					realBoxBounds[1].maximize(v);
+				for (Vec3 v : t.getVerts()) {
+					minBound.minimize(v);
+					maxBound.maximize(v);
 				}
 			}
 		}
-		return realBoxBounds;
+
+		Vec2 maxBoundV2 = new Vec2(maxBound.dot(right), maxBound.dot(up));
+		Vec2 minBoundV2 = new Vec2(minBound.dot(right), minBound.dot(up));
+
+		return new Vec2[]{minBoundV2, maxBoundV2};
 	}
 
-	public static void drawCrossHair(Graphics g, byte a, byte b, Vec3 extraHighlightPoint) {
-		int x = (int) extraHighlightPoint.getCoord(a);
-		int y = (int) -extraHighlightPoint.getCoord(b);
-		g.drawOval(x - 5, y - 5, 10, 10);
-		g.drawLine(x, y - 10, x, y + 10);
-		g.drawLine(x - 10, y, x + 10, y);
-	}
-
-	private static void drawTriangle(Graphics g, byte a, byte b, Triangle t) {
-		double[] x = t.getCoords(a);
-		double[] y = t.getCoords(b);
-		int[] xInt = new int[4];
-		int[] yInt = new int[4];
-		for (int ix = 0; ix < 3; ix++) {
-			xInt[ix] = (int) Math.round(x[ix]);
-			yInt[ix] = (int) Math.round(-y[ix]);
-		}
-		xInt[3] = xInt[0];
-		yInt[3] = yInt[0];
+	private static void drawTriangle(Graphics g, Vec3 right, Vec3 up, Triangle t) {
+		int[] xInt = getTriPoints(t, right, 1);
+		int[] yInt = getTriPoints(t, up, -1);
 		g.drawPolyline(xInt, yInt, 4);
 	}
 
-	public static void drawBoneMarker(Graphics g, byte a, byte b, Vec3 boneMarker) {
+	private static int[] getTriPoints(Triangle t, Vec3 dim, int flip){
+		int[] output = new int[4];
+		for (int i = 0; i < 3; i++) {
+			output[i] = Math.round(t.get(i).dot(dim)) * flip;
+		}
+		output[3] = output[0];
+		return output;
+	}
+
+	public static void drawBoneMarker(Graphics g, Vec3 right, Vec3 up, Vec3 boneMarker) {
 		g.setColor(Color.YELLOW);
 		if (boneMarker != null) {
-			drawCrossHair(g, a, b, boneMarker);
+			drawCrossHair(g, right, up, boneMarker);
 		}
+	}
+
+	public static void drawCrossHair(Graphics g, Vec3 right, Vec3 up, Vec3 extraHighlightPoint) {
+		int x = (int) extraHighlightPoint.dot(right);
+		int y = (int) -extraHighlightPoint.dot(up);
+		g.drawOval(x - 5, y - 5, 10, 10);
+		g.drawLine(x, y - 10, x, y + 10);
+		g.drawLine(x - 10, y, x + 10, y);
 	}
 }

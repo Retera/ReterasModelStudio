@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.Mat4;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
@@ -22,14 +23,11 @@ public class LinkRenderer {
 		Vec3 vertexHeap = Vec3.getTransformed(pivotPoint, worldMatrix);
 		Vec3 vertexHeap2 = Vec3.getTransformed(target, targetWorldMatrix);
 
-		int xCoord = (int) coordinateSystem.viewX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
-		int yCoord = (int) coordinateSystem.viewY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
-		int xCoord2 = (int) coordinateSystem.viewX(vertexHeap2.getCoord(coordinateSystem.getPortFirstXYZ()));
-		int yCoord2 = (int) coordinateSystem.viewY(vertexHeap2.getCoord(coordinateSystem.getPortSecondXYZ()));
+		Vec2 pivP = coordinateSystem.viewV(vertexHeap);
+		Vec2 targP = coordinateSystem.viewV(vertexHeap2);
 
-		graphics.setPaint(new GradientPaint(new Point(xCoord, yCoord), Color.WHITE, new Point(xCoord2, yCoord2), Color.BLACK));
-
-		graphics.drawLine(xCoord, yCoord, xCoord2, yCoord2);
+		graphics.setPaint(new GradientPaint(pivP.x, pivP.y, Color.WHITE, targP.x, targP.y, Color.BLACK));
+		graphics.drawLine((int) pivP.x, (int) pivP.y, (int) targP.x, (int) targP.y);
 	}
 
 	public void renderLinks(Graphics2D graphics, CoordinateSystem coordinateSystem, ModelHandler modelHandler) {

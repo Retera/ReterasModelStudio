@@ -196,12 +196,12 @@ public class BLPHandler {
 		String nameOnly = filepath.replaceAll(".*[/\\\\]", "");
 
 		String[] filePaths = new String[] {ddsFilepath, nameOnly, filepath, blpFilepath};
-		System.out.println("getNewTextureHelper for filepath: \"" + filepath + "\"");
+//		System.out.println("getNewTextureHelper for filepath: \"" + filepath + "\"");
 
 		for (String path : filePaths) {
 			BufferedImage resultImage = loadTextureFromSource(dataSource, path);
 			if (resultImage != null) {
-				System.out.println("found imiage with path: \"" + path + "\"");
+//				System.out.println("found imiage with path: \"" + path + "\"");
 				TextureHelper textureHelper = new TextureHelper(dataSource.getFile(path), resultImage, dataSource.allowDownstreamCaching(filepath), bitmap);
 				cache.put(filepath.toLowerCase(Locale.US), textureHelper);
 				return textureHelper;
@@ -209,7 +209,7 @@ public class BLPHandler {
 		}
 		if(filepath.toLowerCase().matches("\\w:.+")){
 			File textureFile = getTextureFile(filepath);
-			System.out.println("loading from disc: \"" + filepath + "\"");
+//			System.out.println("loading from disc: \"" + filepath + "\"");
 			BufferedImage bufferedImage = loadTextureFromFile(textureFile);
 			TextureHelper textureHelper = new TextureHelper(textureFile, bufferedImage, true, bitmap);
 			cache.put(filepath.toLowerCase(Locale.US), textureHelper);

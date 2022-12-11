@@ -51,26 +51,30 @@ public class CreateNewModel extends ActionFunction{
 
 			type selected = type.values()[typeGroup.getSelectedIndex()];
 			Mesh mesh = getMesh(selected, new Vec3(64, 64, 0), new Vec3(-64, -64, 128), segments);
-			createModel(newModelNameField, mesh, selected.getName());
+			createModel(newModelNameField.getText(), mesh, selected.getName());
 		}
 	}
 
 	private static Mesh getMesh(type t, Vec3 max, Vec3 min, int segments){
 		return switch (t) {
 			case EMPTY -> null;
-			case PLANE -> ModelUtils.createPlane((byte) 2, true, 0, min.getProjected((byte) 0, (byte) 1), max.getProjected((byte) 0, (byte) 1), segments);
+			case PLANE -> ModelUtils.getPlaneMesh2(min, max, segments, segments);
 			case BOX -> ModelUtils.getBoxMesh2(min, max, segments, segments, segments);
 		};
 	}
 
-	private static void createModel(JTextField newModelNameField, Mesh mesh, String name) {
-		EditableModel model = new EditableModel(newModelNameField.getText());
+	public static void newEmptyModel(){
+		createModel("New Empty", null, "Empty");
+	}
+
+	private static void createModel(String name, Mesh mesh, String geosetName) {
+		EditableModel model = new EditableModel(name);
 		Bone bone = new Bone("Root");
 		model.add(bone);
 
 		if(mesh != null){
 			Geoset geoset = getGeoset(bone, mesh);
-			geoset.setName(name);
+			geoset.setName(geosetName);
 			geoset.setMaterial(ModelUtils.getWhiteMaterial(model));
 
 			addGeoset(geoset, model);

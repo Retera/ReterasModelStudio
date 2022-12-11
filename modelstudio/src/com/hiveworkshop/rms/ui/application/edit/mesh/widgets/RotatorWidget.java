@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.widgets;
 
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.MoveDimension;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -14,29 +14,26 @@ public final class RotatorWidget extends Widget {
 	public RotatorWidget() {
 	}
 
-	@Override
-	public MoveDimension getDirectionByMouse(Vec2 mousePoint, CoordinateSystem coordinateSystem) {
-		if(coordinateSystem != null){
-			byte dim1 = coordinateSystem.getPortFirstXYZ();
-			byte dim2 = coordinateSystem.getPortSecondXYZ();
-			double x = coordinateSystem.viewX(point.getCoord(dim1));
-			double y = coordinateSystem.viewY(point.getCoord(dim2));
 
-			double deltaX = x - mousePoint.x;
-			double deltaY = y - mousePoint.y;
-			if (Math.abs(deltaX) <= 3 && Math.abs(deltaY) <= ROTATOR_RADIUS) {
-				return MoveDimension.getByByte(dim1);
-			}
-			if (Math.abs(deltaX) <= ROTATOR_RADIUS && Math.abs(deltaY) <= 3) {
-				return MoveDimension.getByByte(dim2);
-			}
-			double dstSquared = deltaY * deltaY + deltaX * deltaX;
-			if (Math.abs(Math.sqrt(dstSquared) - ROTATOR_RADIUS) <= 3) {
-				return MoveDimension.getByByte(getOutwardDimension(dim1, dim2));
-			}
-			if (dstSquared < ROTATOR_RADIUS_SQUARED) {
-				return MoveDimension.NONE;
-			}
+	public MoveDimension getDirectionByMouse(Vec2 mousePoint1, Mat4 viewportMat, Component parent) {
+		Vec2 vpPoint = getVpPoint(viewportMat, parent);
+		int x = (int) vpPoint.x;
+		int y = (int) vpPoint.y;
+
+		double deltaX = x - ((1 + mousePoint1.x)/2f*parent.getWidth());
+		double deltaY = y - ((1 - mousePoint1.y)/2f*parent.getHeight());
+		if (Math.abs(deltaX) <= 3 && Math.abs(deltaY) <= ROTATOR_RADIUS) {
+			return MoveDimension.X;
+		}
+		if (Math.abs(deltaX) <= ROTATOR_RADIUS && Math.abs(deltaY) <= 3) {
+			return MoveDimension.Y;
+		}
+		double dstSquared = deltaY * deltaY + deltaX * deltaX;
+		if (Math.abs(Math.sqrt(dstSquared) - ROTATOR_RADIUS) <= 3) {
+			return MoveDimension.Z;
+		}
+		if (dstSquared < ROTATOR_RADIUS_SQUARED) {
+			return MoveDimension.NONE;
 		}
 
 		return MoveDimension.NONE;
@@ -46,35 +43,42 @@ public final class RotatorWidget extends Widget {
 		return point;
 	}
 
-	@Override
-	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem) {
-		byte xDimension = coordinateSystem.getPortFirstXYZ();
-		byte yDimension = coordinateSystem.getPortSecondXYZ();
-		double x = coordinateSystem.viewX(point.getCoord(xDimension));
-		double y = coordinateSystem.viewY(point.getCoord(yDimension));
+	public void render(Graphics2D graphics, Mat4 viewportMat, Mat4 invViewportMat, Component parent){
+		float aspect = parent.getWidth() / (float)parent.getHeight();
+		temp0.set(0, 0, 0).transform(invViewportMat, 1, true);
 
-		setHighLightableColor(graphics, yDimension, moveDirection);
+		Vec3 tempX = tempPoint.set(1, 0, 0).transform(invViewportMat, 1, true).sub(temp0);
+		MoveDimension xDim = MoveDimension.getByAxis(tempX.normalize());
+
+		Vec3 tempY = tempPoint.set(0, aspect*1, 0).transform(invViewportMat, 1, true).sub(temp0);
+		MoveDimension yDim = MoveDimension.getByAxis(tempY.normalize());
+
+		MoveDimension zDim = MoveDimension.values()[MoveDimension.XYZ.ordinal() - xDim.ordinal() - yDim.ordinal()];
+
+		Vec3 tempTot = tempPoint.set(1, aspect*1, 0).transform(invViewportMat, 1, true).sub(temp0);
+		MoveDimension totDim = MoveDimension.getByAxis(tempTot.normalize());
+
+		Vec2 vpPoint = getVpPoint(viewportMat, parent);
+		int x = (int) vpPoint.x;
+		int y = (int) vpPoint.y;
+
+		graphics.setColor(getHighLightableColor(yDim, moveDirection == yDim || moveDirection == totDim));
 		drawHorzLine(graphics, x, y);
-		setHighLightableColor(graphics, xDimension, moveDirection);
+		graphics.setColor(getHighLightableColor(xDim, moveDirection == xDim || moveDirection == totDim));
 		drawVertLine(graphics, x, y);
-		setHighLightableColor(graphics, getOutwardDimension(xDimension, yDimension), moveDirection);
-//        setColorByDimension(graphics, getOutwardDimension(xDimension, yDimension));
+		graphics.setColor(getHighLightableColor(zDim, moveDirection == zDim || moveDirection == totDim));
 		drawCircle(graphics, x, y);
 
-		if (moveDirection != null) {
-		    switch (moveDirection) {
-			    case XY -> {
-				    graphics.setColor(new Color(0.5f, 0.5f, 0.5f, 0.4f));
-				    graphics.fillOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2, ROTATOR_RADIUS * 2);
-				    setColorByDimension(graphics, xDimension);
-				    drawHorzLine(graphics, x, y);
-				    setColorByDimension(graphics, yDimension);
-				    drawVertLine(graphics, x, y);
-				    setColorByDimension(graphics, getOutwardDimension(xDimension, yDimension));
-				    drawCircle(graphics, x, y);
-			    }
-		    }
-	    }
+		if (moveDirection != null && moveDirection == MoveDimension.XY) {
+			graphics.setColor(new Color(0.5f, 0.5f, 0.5f, 0.4f));
+			graphics.fillOval(x - ROTATOR_RADIUS, y - ROTATOR_RADIUS, ROTATOR_RADIUS * 2, ROTATOR_RADIUS * 2);
+			graphics.setColor(getColor(xDim));
+			drawHorzLine(graphics, x, y);
+			graphics.setColor(getColor(yDim));
+			drawVertLine(graphics, x, y);
+			graphics.setColor(getColor(zDim));
+			drawCircle(graphics, x, y);
+		}
     }
 
 	public void drawCircle(Graphics2D graphics, double x, double y) {
@@ -87,19 +91,5 @@ public final class RotatorWidget extends Widget {
 
 	public void drawHorzLine(Graphics2D graphics, double x, double y) {
 		graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
-	}
-
-	private byte getOutwardDimension(byte xDimension, byte yDimension) {
-		return getUnusedXYZ(xDimension, yDimension);
-	}
-
-	public static byte getUnusedXYZ(byte portFirstXYZ, byte portSecondXYZ) {
-		if (portFirstXYZ < 0) {
-			portFirstXYZ = (byte) (-portFirstXYZ - 1);
-		}
-		if (portSecondXYZ < 0) {
-			portSecondXYZ = (byte) (-portSecondXYZ - 1);
-		}
-		return (byte) (3 - portFirstXYZ - portSecondXYZ);
 	}
 }

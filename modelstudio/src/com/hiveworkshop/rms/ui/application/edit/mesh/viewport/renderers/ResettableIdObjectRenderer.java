@@ -179,9 +179,7 @@ public final class ResettableIdObjectRenderer {
     }
 
 	public static Vec2 convertToViewVec2(CoordinateSystem coordinateSystem, Vec3 vertex) {
-		double x = coordinateSystem.viewX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
-		double y = coordinateSystem.viewY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
-		return new Vec2(x, y);
+		return coordinateSystem.viewV(vertex);
 	}
 
 	public Mat4 getWorldMatrix(AnimatedNode object) {
@@ -197,8 +195,9 @@ public final class ResettableIdObjectRenderer {
         if (worldMatrix != null) {
             vertexHeap.transform(worldMatrix);
         }
-        int xCoord = (int) coordinateSystem.viewX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
-        int yCoord = (int) coordinateSystem.viewY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
+		Vec2 vec2 = convertToViewVec2(coordinateSystem, vertexHeap);
+		int xCoord = (int) vec2.x;
+        int yCoord = (int) vec2.y;
         double zoom = coordinateSystem.getZoom();
 
         int attenuationStart = (int) (object.getAttenuationStart() * zoom);
@@ -265,14 +264,11 @@ public final class ResettableIdObjectRenderer {
         }
         Graphics2D g2 = ((Graphics2D) graphics.create());
 
-        byte dim1 = coordinateSystem.getPortFirstXYZ();
-        byte dim2 = coordinateSystem.getPortSecondXYZ();
-        Point start = new Point(
-                (int) Math.round(coordinateSystem.viewX(position.getCoord(dim1))),
-                (int) Math.round(coordinateSystem.viewY(position.getCoord(dim2))));
-        Point end = new Point(
-                (int) Math.round(coordinateSystem.viewX(targetPosition.getCoord(dim1))),
-                (int) Math.round(coordinateSystem.viewY(targetPosition.getCoord(dim2))));
+	    Vec2 posV = convertToViewVec2(coordinateSystem, position);
+	    Point start = new Point(Math.round(posV.x), Math.round(posV.y));
+
+	    Vec2 targV = convertToViewVec2(coordinateSystem, position);
+        Point end = new Point(Math.round(targV.x), Math.round(targV.y));
 
         g2.translate(end.x, end.y);
         g2.rotate(-(Math.PI / 2 + Math.atan2(end.x - start.x, end.y - start.y)));

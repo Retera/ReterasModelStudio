@@ -10,7 +10,6 @@ import com.hiveworkshop.rms.util.Vec3;
 import java.util.*;
 
 public class ExtendAction implements UndoAction {
-	MoveAction baseMovement;
 	List<Vec3> selection;
 	List<Triangle> addedTriangles = new ArrayList<>();
 	Set<Triangle> notSelectedEdgeTriangles;
@@ -19,11 +18,10 @@ public class ExtendAction implements UndoAction {
 	Map<GeosetVertex, GeosetVertex> oldToNew = new HashMap<>();
 	Set<Pair<GeosetVertex, GeosetVertex>> edges;
 
-	public ExtendAction(Collection<GeosetVertex> selection, Vec3 moveVector) {
+	public ExtendAction(Collection<GeosetVertex> selection) {
 		affectedVertices.addAll(selection);
 		this.selection = new ArrayList<>(selection);
 
-		baseMovement = new MoveAction(this.selection, moveVector, VertexActionType.UNKNOWN);
 		edges = ModelUtils.getEdges(affectedVertices);
 		orgEdgeVertices = collectEdgeVerts(edges);
 		notSelectedEdgeTriangles = getNotSelectedEdgeTris(getAllEdgeTris(orgEdgeVertices), affectedVertices);
@@ -111,7 +109,6 @@ public class ExtendAction implements UndoAction {
 	@Override
 	public UndoAction redo() {
 		splitEdge();
-		baseMovement.redo();
 		fillGap();
 		for (GeosetVertex newVert : oldToNew.values()) {
 			newVert.getGeoset().add(newVert);
@@ -131,7 +128,6 @@ public class ExtendAction implements UndoAction {
 			triangle.getGeoset().remove(triangle);
 		}
 		removeGapFill();
-		baseMovement.undo();
 		unSplitEdge();
 		return this;
 	}

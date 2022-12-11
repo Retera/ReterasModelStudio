@@ -1,22 +1,21 @@
 package com.hiveworkshop.rms.editor.actions.editor;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.List;
 
-public final class CompoundScaleAction implements GenericScaleAction {
-	private final List<? extends GenericScaleAction> actions;
+public final class CompoundScaleAction extends AbstractTransformAction {
+	private final List<? extends AbstractTransformAction> actions;
 	private final String name;
 
-	public CompoundScaleAction(final String name, final List<? extends GenericScaleAction> actions) {
+	public CompoundScaleAction(final String name, final List<? extends AbstractTransformAction> actions) {
 		this.name = name;
 		this.actions = actions;
 	}
 
 	@Override
-	public UndoAction undo() {
+	public CompoundScaleAction undo() {
 		for (final UndoAction action : actions) {
 			action.undo();
 		}
@@ -24,7 +23,7 @@ public final class CompoundScaleAction implements GenericScaleAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public CompoundScaleAction redo() {
 		for (final UndoAction action : actions) {
 			action.redo();
 		}
@@ -37,8 +36,8 @@ public final class CompoundScaleAction implements GenericScaleAction {
 	}
 
 	@Override
-	public GenericScaleAction updateScale(final Vec3 scale) {
-		for (final GenericScaleAction action : actions) {
+	public CompoundScaleAction updateScale(final Vec3 scale) {
+		for (final AbstractTransformAction action : actions) {
 			action.updateScale(scale);
 		}
 		return this;

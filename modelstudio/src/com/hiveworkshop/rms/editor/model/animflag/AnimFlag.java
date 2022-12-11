@@ -175,14 +175,16 @@ public abstract class AnimFlag<T> {
 
 		for (int i = 0; i < size; i++) {
 			Entry<T> entry = tempEntries.get(i);
-			Q[] array = getArray(entry, mdlxTimeline, model);
+			if(entry.getValue() != null){
+				Q[] array = getArray(entry, mdlxTimeline, model);
 //			if(i == 0){
 //				System.out.println("(Q): " + (Q) entry.getValueArr() + ", org: " + entry.getValueArr());
 //				System.out.println("(Q): " + ", org: " + Arrays.toString(entry.getValueArr()));
 //			}
 //			mdlxTimeline.add(i, tempFrames.get(i), (Q)tempEntries.get(i).getValueArr(), (Q)tempEntries.get(i).getInTanArr(), (Q)tempEntries.get(i).getOutTanArr());
 //			mdlxTimeline.add(i, tempFrames.get(i), (Q) entry.getValueArr(), (Q) entry.getInTanArr(), (Q) entry.getOutTanArr());
-			mdlxTimeline.add(i, tempFrames.get(i), array[0], array[1], array[2]);
+				mdlxTimeline.add(i, tempFrames.get(i), array[0], array[1], array[2]);
+			}
 		}
 
 

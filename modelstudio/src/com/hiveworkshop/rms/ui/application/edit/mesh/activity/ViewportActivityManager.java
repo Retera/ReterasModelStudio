@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.transAct.*;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.AbstractCamera;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.SelectionBoxHelper;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
@@ -53,8 +53,6 @@ public final class ViewportActivityManager implements SelectionListener {
 	}
 
 	public void setCurrentActivity(ModelEditorActionType3 action) {
-//		this.currentActivity = new MultiManipulatorActivity(action, modelHandler, modelEditorManager);
-
 		this.currentActivity =  switch (action) {
 			case TRANSLATION -> new MoveActivity(modelHandler, modelEditorManager);
 			case ROTATION -> new RotateActivity(modelHandler, modelEditorManager);
@@ -93,43 +91,8 @@ public final class ViewportActivityManager implements SelectionListener {
 		}
 	}
 
-	public void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem) {
-		if (isEditing(e)) {
-			activeActivity = currentActivity;
-		} else if (isSelect(e)) {
-			activeActivity = selectActivity;
-		}
-		if (this.activeActivity != null) {
-			activeActivity.mousePressed(e, coordinateSystem);
-		}
-	}
 
-	public void mouseReleased(MouseEvent e, CoordinateSystem coordinateSystem) {
-		if (this.activeActivity != null) {
-			activeActivity.mouseReleased(e, coordinateSystem);
-		}
-		activeActivity = null;
-	}
-
-	public void mouseMoved(MouseEvent e, CoordinateSystem coordinateSystem) {
-		if (this.currentActivity != null) {
-			currentActivity.mouseMoved(e, coordinateSystem);
-		}
-//		if (this.activeActivity != null) {
-//			activeActivity.mouseMoved(e, coordinateSystem);
-//		}
-	}
-
-	public void mouseDragged(MouseEvent e, CoordinateSystem coordinateSystem) {
-		if (this.activeActivity != null) {
-			activeActivity.mouseDragged(e, coordinateSystem);
-		}
-	}
-
-	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
-//		if (this.activeActivity != null) {
-//			activeActivity.render(g, coordinateSystem, renderModel, isAnimated);
-//		}
+	public void render(Graphics2D g, AbstractCamera coordinateSystem, RenderModel renderModel, boolean isAnimated) {
 		selectActivity.render(g, coordinateSystem, renderModel, isAnimated);
 		if (this.currentActivity != null) {
 			currentActivity.render(g, coordinateSystem, renderModel, isAnimated);
@@ -137,23 +100,6 @@ public final class ViewportActivityManager implements SelectionListener {
 	}
 
 
-	public void mousePressed(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
-		if (isEditing(e)) {
-			activeActivity = currentActivity;
-		} else if (isSelect(e)) {
-			activeActivity = selectActivity;
-		}
-		System.out.println("active Activity: " + this.activeActivity);
-		if (this.activeActivity != null) {
-			activeActivity.mousePressed(e, viewProjectionMatrix, sizeAdj);
-		}
-	}
-	public void mousePressed(MouseEvent e, SelectionBoxHelper viewBox, double sizeAdj) {
-		if (isSelect(e)) {
-			activeActivity = selectActivity;
-			selectActivity.mousePressed(e, viewBox, sizeAdj);
-		}
-	}
 	public void mousePressed(MouseEvent e, Mat4 viewProjectionMatrix, SelectionBoxHelper viewBox, double sizeAdj) {
 		if (isEditing(e)) {
 			activeActivity = currentActivity;
@@ -182,43 +128,30 @@ public final class ViewportActivityManager implements SelectionListener {
 	public void mouseMoved(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 		if (this.activeActivity != null) {
 			activeActivity.mouseMoved(e, viewProjectionMatrix, sizeAdj);
+		} else if (currentActivity != null) {
+			currentActivity.mouseMoved(e, viewProjectionMatrix, sizeAdj);
+		} else {
+			selectActivity.mouseMoved(e, viewProjectionMatrix, sizeAdj);
 		}
 	}
 
 	public void mouseDragged(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 		if (this.activeActivity != null) {
 			activeActivity.mouseDragged(e, viewProjectionMatrix, sizeAdj);
+		} else {
+			mouseMoved(e, viewProjectionMatrix, sizeAdj);
 		}
 	}
-
-//	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
-//		if (this.currentActivity != null) {
-//			currentActivity.render(g, coordinateSystem, renderModel, isAnimated);
-//		}
-//	}
-
 
 
 	public boolean isEditing() {
 		if (this.currentActivity != null) {
 			return currentActivity.isEditing();
 		}
-//		else {
-//			return selectTransActivity.isEditing();
-//		}
-
-//		if (this.activeActivity != null) {
-//			return activeActivity.isEditing();
-//		} else {
-//			return selectTransActivity.isEditing();
-//		}
 
 		return false;
 	}
 	public boolean isSelecting() {
-//		if (this.selectActivity != null) {
-//		}
-//		return false;
 		return selectActivity.isEditing();
 	}
 
@@ -228,21 +161,7 @@ public final class ViewportActivityManager implements SelectionListener {
 	}
 	private boolean isEditing(MouseEvent e){
 		ProgramPreferences prefs = ProgramGlobals.getPrefs();
-//		boolean isEd = (prefs.getModifyMouseButton() & e.getModifiersEx()) > 0 && !selectionManager.isEmpty();
-//		System.out.println("is editing action: " + isEd);
-		return MouseEventHelpers.matches(e, prefs.getModifyMouseButton(),prefs.getSnapTransformModifier()) && !selectionManager.isEmpty();
+		return MouseEventHelpers.matches(e, prefs.getModifyMouseButton(),prefs.getSnapTransformModifier()) && !(selectionManager.isEmpty() && currentActivity.selectionNeeded());
 	}
-//	private boolean isSelect(MouseEvent e){
-//		ProgramPreferences prefs = ProgramGlobals.getPrefs();
-//		int event_xor_MB = e.getModifiersEx() ^ prefs.getSelectMouseButton();
-//		return event_xor_MB == 0 // no modifiers
-//				|| (event_xor_MB ^ prefs.getAddSelectModifier()) == 0 // add selection modifier
-//				||  (event_xor_MB ^ prefs.getRemoveSelectModifier()) == 0; // remove selection modifier
-//	}
-//	private boolean isEditing(MouseEvent e){
-//		boolean isEd = (ProgramGlobals.getPrefs().getModifyMouseButton() & e.getModifiersEx()) > 0 && !selectionManager.isEmpty();
-//		System.out.println("is editing action: " + isEd);
-//		return (ProgramGlobals.getPrefs().getModifyMouseButton() & e.getModifiersEx()) > 0 && !selectionManager.isEmpty();
-//	}
 
 }

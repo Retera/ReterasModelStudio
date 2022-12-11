@@ -1,67 +1,111 @@
 package com.hiveworkshop.rms.editor.actions.editor;
 
-import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.editor.model.CameraNode;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class StaticMeshRotateAction implements GenericRotateAction {
+public final class StaticMeshRotateAction extends AbstractTransformAction {
 	private final Vec3 center;
 	private final Vec3 axis;
 	private final Quat rot = new Quat();
+	private final Mat4 invRotMat = new Mat4();
+	private final Mat4 rotMat = new Mat4();
 
 	private double radians;
 	private final Set<GeosetVertex> selectedVertices;
 	private final Set<IdObject> selectedIdObjects;
 	private final Set<CameraNode> selectedCameraNodes;
 
-	public StaticMeshRotateAction(ModelView modelView, Vec3 center, byte dim1, byte dim2) {
+	public StaticMeshRotateAction(ModelView modelView, Vec3 center, Vec3 axis, double radians) {
+		this(modelView.getSelectedVertices(),
+				modelView.getSelectedIdObjects(),
+				modelView.getSelectedCameraNodes(),
+				center, axis, radians);
+	}
+
+	public StaticMeshRotateAction(Collection<GeosetVertex> selectedVertices,
+	                              Collection<IdObject> selectedIdObjects,
+	                              Collection<CameraNode> selectedCameraNodes,
+	                              Vec3 center, Vec3 axis, double radians) {
+		this(selectedVertices, selectedIdObjects, selectedCameraNodes, center, axis, radians, new Mat4().setIdentity());
+	}
+	public StaticMeshRotateAction(ModelView modelView, Vec3 center, Vec3 axis, double radians, Mat4 rotMat) {
+		this(modelView.getSelectedVertices(),
+				modelView.getSelectedIdObjects(),
+				modelView.getSelectedCameraNodes(),
+				center, axis, radians, rotMat);
+	}
+
+	public StaticMeshRotateAction(Collection<GeosetVertex> selectedVertices,
+	                              Collection<IdObject> selectedIdObjects,
+	                              Collection<CameraNode> selectedCameraNodes,
+	                              Vec3 center, Vec3 axis, double radians, Mat4 rotMat) {
 		this.center = center;
-		radians = 0;
-		axis = getPerpAxis(dim1, dim2);
-		selectedVertices = new HashSet<>(modelView.getSelectedVertices());
-		selectedIdObjects = new HashSet<>(modelView.getSelectedIdObjects());
-		selectedCameraNodes = new HashSet<>(modelView.getSelectedCameraNodes());
+		this.axis = axis;
+		this.radians = radians;
+		this.rotMat.set(rotMat);
+		this.invRotMat.set(rotMat).invert();
+		this.selectedVertices = new HashSet<>(selectedVertices);
+		this.selectedIdObjects = new HashSet<>(selectedIdObjects);
+		this.selectedCameraNodes = new HashSet<>(selectedCameraNodes);
 	}
 
 	@Override
-	public UndoAction undo() {
-		rotate(-radians);
+	public StaticMeshRotateAction undo() {
+		updateTransform(-radians);
 		return this;
 	}
 
 	@Override
-	public UndoAction redo() {
-		rotate(radians);
+	public StaticMeshRotateAction redo() {
+		updateTransform(radians);
 		return this;
 	}
 
 	@Override
 	public String actionName() {
-		return "rotate";
+		return "Rotate";
 	}
 
 	@Override
-	public GenericRotateAction updateRotation(double radians) {
+	public StaticMeshRotateAction updateRotation(double radians) {
 		this.radians += radians;
-		rotate(radians);
-		return this;
+		return updateTransform(radians);
 	}
 
-	public void rotate(double radians) {
-		rot.setFromAxisAngle(axis, (float) radians);
+	@Override
+	public StaticMeshRotateAction setRotation(double radians) {
+		double rotDiff = radians - this.radians;
+		this.radians = radians;
+		return updateTransform(rotDiff);
+	}
+
+	public StaticMeshRotateAction updateTransform(double radians) {
+		rot.setFromAxisAngle(axis, (float) -radians).normalize();
 		for (GeosetVertex vertex : selectedVertices) {
-			vertex.rotate(center, rot);
+			vertex
+					.sub(center)
+					.transform(rotMat, 1, true)
+					.transform(rot)
+					.transform(invRotMat, 1, true)
+					.add(center);
+
 		}
 		for (IdObject b : selectedIdObjects) {
-			b.getPivotPoint().rotate(center, rot);
+			b.getPivotPoint().sub(center)
+					.transform(rotMat, 1, true)
+					.transform(rot)
+					.transform(invRotMat, 1, true)
+					.add(center);
+
 			float[] bindPose = b.getBindPose();
 			if (bindPose != null) {
 				bindPose[9] = b.getPivotPoint().x;
@@ -74,22 +118,13 @@ public final class StaticMeshRotateAction implements GenericRotateAction {
 		}
 
 		for (CameraNode node : selectedCameraNodes) {
-			node.getPosition().rotate(center, rot);
+			node.getPosition()
+					.sub(center)
+					.transform(rotMat, 1, true)
+					.transform(rot)
+					.transform(invRotMat, 1, true)
+					.add(center);
 		}
-	}
-
-	Vec3 getPerpAxis(byte dim1, byte dim2){
-		return new Vec3(getAxis(dim1)).cross(getAxis(dim2));
-	}
-	private Vec3 getAxis(byte dim) {
-		return switch (dim) {
-			case 0 -> Vec3.X_AXIS;
-			case 1 -> Vec3.Y_AXIS;
-			case 2 -> Vec3.Z_AXIS;
-			case -1 -> Vec3.NEGATIVE_X_AXIS;
-			case -2 -> Vec3.NEGATIVE_Y_AXIS;
-			case -3 -> Vec3.NEGATIVE_Z_AXIS;
-			default -> Vec3.Z_AXIS;
-		};
+		return this;
 	}
 }

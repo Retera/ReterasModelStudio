@@ -32,7 +32,7 @@ public class AddTimelineAction<T> implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "add timeline";
+		return "Add timeline";
 	}
 
 }

@@ -7,7 +7,9 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityMa
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ViewportModelRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 import net.infonode.docking.View;
 
@@ -27,15 +29,13 @@ public class Viewport extends ViewportView {
 	long totTempRenderTime;
 	long renderCount;
 
-	public Viewport(byte d1, byte d2, ModelHandler modelHandler,
+	public Viewport(Vec3 right, Vec3 up, ModelHandler modelHandler,
 	                ViewportActivityManager activityListener,
 	                BiConsumer<Double, Double> coordDisplayListener2,
 	                ModelEditorManager modelEditorManager,
 	                ViewportTransferHandler viewportTransferHandler) {
-		super(d1, d2, new Dimension(200, 200), coordDisplayListener2);
+		super(right, up, coordDisplayListener2);
 		setModel(modelHandler, activityListener);
-		// Dimension 1 and Dimension 2, these specify which dimensions to display.
-		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z dimensions
 
 		this.modelEditorManager = modelEditorManager;
 		setupCopyPaste(viewportTransferHandler);
@@ -46,9 +46,7 @@ public class Viewport extends ViewportView {
 		viewportModelRenderer = new ViewportModelRenderer(ProgramGlobals.getPrefs().getVertexSize());
 		linkRenderer = new LinkRenderer();
 
-		facingVector = new Vec3(0, 0, 0);
-		final byte unusedXYZ = coordinateSystem.getUnusedXYZ();
-		facingVector.setCoord(unusedXYZ, unusedXYZ == 0 ? 1 : -1);
+		facingVector = new Vec3(coordinateSystem.getCamBackward());
 
 		paintTimer = new Timer(16, e -> {
 			repaint();
@@ -88,28 +86,31 @@ public class Viewport extends ViewportView {
 		Graphics2D graphics2d = (Graphics2D) g;
 
 		if (modelEditorManager.getModelEditor().editorWantsAnimation()) {
-			Stroke stroke = graphics2d.getStroke();
+			Stroke orgStroke = graphics2d.getStroke();
 			graphics2d.setStroke(new BasicStroke(3));
 			modelHandler.getRenderModel().updateNodes(false);
 
 			linkRenderer.renderLinks(graphics2d, coordinateSystem, modelHandler);
 
-			graphics2d.setStroke(stroke);
-
-			viewportModelRenderer.renderModel(graphics2d, coordinateSystem, modelHandler, true);
-
-			viewportActivity.render(graphics2d, coordinateSystem, modelHandler.getRenderModel(), true);
-		} else {
-			viewportModelRenderer.renderModel(graphics2d, coordinateSystem, modelHandler, false);
-
-			viewportActivity.render(graphics2d, coordinateSystem, modelHandler.getRenderModel(), false);
+			graphics2d.setStroke(orgStroke);
 		}
 
-		getColor(g, coordinateSystem.getPortFirstXYZ());
-		g.drawLine((int) Math.round(coordinateSystem.viewX(0)), (int) Math.round(coordinateSystem.viewY(0)), (int) Math.round(coordinateSystem.viewX(5)), (int) Math.round(coordinateSystem.viewY(0)));
+		viewportModelRenderer.renderModel(graphics2d, coordinateSystem, modelHandler, modelEditorManager.getModelEditor().editorWantsAnimation());
+		viewportActivityManager.render(graphics2d, coordinateSystem, modelHandler.getRenderModel(), modelEditorManager.getModelEditor().editorWantsAnimation());
 
-		getColor(g, coordinateSystem.getPortSecondXYZ());
-		g.drawLine((int) Math.round(coordinateSystem.viewX(0)), (int) Math.round(coordinateSystem.viewY(0)), (int) Math.round(coordinateSystem.viewX(0)), (int) Math.round(coordinateSystem.viewY(5)));
+		g.setColor(MoveDimension.getByAxis(coordinateSystem.getCamRight()).getColor());
+
+		Vec2 start = coordinateSystem.viewVN(0,0);
+		int startX = Math.round(start.x * getWidth());
+		int startY = Math.round(start.y * getHeight());
+
+		Vec2 end = coordinateSystem.viewVN(5,5);
+		int endX   = Math.round(end.x * getWidth());
+		int endY   = Math.round(end.y * getHeight());
+		g.drawLine(startX, startY, endX, startY);
+
+		g.setColor(MoveDimension.getByAxis(coordinateSystem.getCamUp()).getColor());
+		g.drawLine(startX, startY, startX, endY);
 
 
 		adjustAndRunPaintTimer(renderStart);
@@ -138,17 +139,9 @@ public class Viewport extends ViewportView {
 		}
 	}
 
-	private void getColor(Graphics g, byte dir) {
-		switch (dir) {
-			case 0 -> g.setColor(new Color(0, 255, 0));
-			case 1 -> g.setColor(new Color(255, 0, 0));
-			case 2 -> g.setColor(new Color(0, 0, 255));
-		}
-	}
-
-	public void setViewportAxises(String name, byte dim1, byte dim2) {
+	public void setViewportAxises(String name, Vec3 right, Vec3 up) {
 		view.getViewProperties().setTitle(name);
-		coordinateSystem.setDimensions(dim1, dim2);
+		coordinateSystem.setDimensions(right, up);
 	}
 
 	public ModelEditorManager getModelEditorManager() {

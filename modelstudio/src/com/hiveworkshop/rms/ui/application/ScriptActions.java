@@ -125,8 +125,9 @@ public class ScriptActions {
 					geo.setStaticAlpha(alpha / 255.0);
 					System.out.println(x + "," + y + "," + z);
 
-					Mesh mesh = ModelUtils.createBox(new Vec3(x, y, z).scale(10),
-							new Vec3(x + sX, y + sY, z + sZ).scale(10), 1, 1, 1, geo);
+					Mesh mesh = ModelUtils.getBoxMesh2(new Vec3(x, y, z).scale(10),
+							new Vec3(x + sX, y + sY, z + sZ).scale(10), 1, 1, 1);
+					mesh.setGeoset(geo);
 					geo.addVerticies(mesh.getVertices());
 					geo.addTriangles(mesh.getTriangles());
 				}

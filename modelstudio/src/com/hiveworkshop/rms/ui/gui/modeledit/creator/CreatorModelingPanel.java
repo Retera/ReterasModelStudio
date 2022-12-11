@@ -8,10 +8,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportPopupMenu;
 import com.hiveworkshop.rms.ui.application.model.nodepanels.AnimationChooser;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.DrawBoneActivity;
-import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.DrawBoxActivity;
-import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.DrawPlaneActivity;
-import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.DrawVertexActivity;
+import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModeButton2;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
@@ -53,8 +50,8 @@ public class CreatorModelingPanel extends JPanel {
 
 		modelingOptionsCardPanel = new TwiCardPanel();
 
-		modelingOptionsCardPanel.add(getMeshBasicsPanel(), "Mesh Basics");
 		modelingOptionsCardPanel.add(getStandardPrimitivesPanel(), "Standard Primitives");
+		modelingOptionsCardPanel.add(getMeshBasicsPanel(), "Mesh Basics");
 //		modelingOptionsCardPanel.add(getStandardPrimitivesPanel(), "Extended Primitives");
 //		modelingOptionsCardPanel.add(getStandardPrimitivesPanel(), "Animation Nodes");
 
@@ -84,6 +81,7 @@ public class CreatorModelingPanel extends JPanel {
 		JPanel drawPrimitivesPanel = new JPanel(new MigLayout("ins 0, gap 0, wrap 1, fill", "[grow]", ""));
 		drawPrimitivesPanel.setBorder(BorderFactory.createTitledBorder("Draw"));
 		drawPrimitivesPanel.add(getModeButton("Plane", this::drawPlane));
+//		drawPrimitivesPanel.add(getModeButton("Face", this::drawFace));
 		drawPrimitivesPanel.add(getModeButton("Box", this::drawBox));
 
 		JPanel spOptionsPanel = new JPanel(new MigLayout("ins 0, gap 0, fill", "[grow]"));
@@ -173,6 +171,14 @@ public class CreatorModelingPanel extends JPanel {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			DrawPlaneActivity activity = new DrawPlaneActivity(modelHandler, modelEditorManager, 1, 1, 1);
+			modeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+			modelPanel.changeActivity(activity);
+		}
+	}
+	private void drawFace(ModeButton modeButton) {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			DrawFaceActivity activity = new DrawFaceActivity(modelHandler, modelEditorManager);
 			modeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
 			modelPanel.changeActivity(activity);
 		}

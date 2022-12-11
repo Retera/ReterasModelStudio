@@ -45,7 +45,9 @@ public class FloatEditorJSpinner extends JSpinner {
 		addChangeListener(e -> {
 			setColors(UNSAVED_FG, UNSAVED_BG);
 		});
-		final JFormattedTextField textField = ((DefaultEditor) getEditor()).getTextField();
+		NumberEditor editor = (NumberEditor) getEditor();
+		editor.getFormat().setMaximumFractionDigits(4);
+		final JFormattedTextField textField = editor.getTextField();
 		final DefaultFormatter formatter = (DefaultFormatter) textField.getFormatter();
 		formatter.setCommitsOnValidEdit(true);
 

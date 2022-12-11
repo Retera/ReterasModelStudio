@@ -1,260 +1,91 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.activity.transAct;
 
-import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.util.GenericRotateAction;
-import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.RotatorWidget;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.MoveDimension;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.TVertSelectionManager;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.ui.util.MouseEventHelpers;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.awt.event.MouseEvent;
-
 public class RotateActivity extends TransformActivity {
-	protected GenericRotateAction rotationAction;
-	protected double nonRotAngle;
+	protected double realTotRotAngle;
 	protected double totRotAngle;
+	protected final Vec2 realMouseStart = new Vec2();
+	protected final Vec3 center = new Vec3();
+	protected final Mat4 invRotMat = new Mat4();
+	protected double radius = 0;
 
 	public RotateActivity(ModelHandler modelHandler,
 	                      AbstractModelEditorManager modelEditorManager) {
 		super(modelHandler, modelEditorManager, new RotatorWidget());
 	}
 
-	protected void startCoord(CoordinateSystem coordinateSystem) {
-		byte dim1 = coordinateSystem.getPortFirstXYZ();
-		byte dim2 = coordinateSystem.getPortSecondXYZ();
-
-		Vec3 center = selectionManager.getCenter();
-		byte planeDim1;
-		byte planeDim2;
-		nonRotAngle = 0;
-		if (dir != MoveDimension.XYZ && dir.containDirection(dim1)) {
-			planeDim1 = getUnusedXYZ(dim1, dim2);
-			planeDim2 = dim2;
-		} else if (dir != MoveDimension.XYZ && dir.containDirection(dim2)) {
-			planeDim1 = dim1;
-			planeDim2 = getUnusedXYZ(dim1, dim2);
-		} else {
-			planeDim1 = dim1;
-			planeDim2 = dim2;
-		}
-		rotationAction = modelEditor.beginRotation(center, planeDim1, planeDim2);
-	}
-
 	protected void startMat() {
-		Vec3 center = selectionManager.getCenter();
-		nonRotAngle = 0;
+		invRotMat.set(getRotMat()).invert();
+
+		Vec3 selCenter = selectionManager.getCenter();
+		center.set(selCenter).transform(viewProjectionMatrix, 1, true);
+		realMouseStart.set(mouseStartPoint);
+		radius = tempVec2.set(mouseStartPoint.x, mouseStartPoint.y).translate(center.x, center.y).length();
+		realTotRotAngle = 0;
 		Vec3 axis = getAxis();
-		rotationAction = modelEditor.beginRotation(center, axis);
+		transformAction = modelEditor.beginRotation(selCenter, axis, rotMat);
 	}
 
-
-	protected void finnishAction(MouseEvent e, CoordinateSystem coordinateSystem, boolean wasCanceled) {
-		if (isActing) {
-			Vec2 mouseEnd = new Vec2(coordinateSystem.geomX(e.getX()), coordinateSystem.geomY(e.getY()));
-
-			double radians = computeRotateRadians(e, lastDragPoint, mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
-			rotationAction.updateRotation(radians);
-			nonRotAngle = 0;
-			totRotAngle = 0;
-			UndoAction undoAction = rotationAction;
-			if (wasCanceled && undoAction != null) {
-				undoAction.undo();
-			} else if (undoAction != null) {
-				undoManager.pushAction(undoAction);
-			}
-			mouseStartPoint.set(0,0);
-			lastDragPoint.set(0,0);
-			isActing = false;
+	protected Vec3 getAxis() {
+		Vec3 axis = new Vec3();
+		if (dir.containDim(MoveDimension.Z)) {
+			axis.set(Vec3.Z_AXIS);
+		} else if (dir.containDim(MoveDimension.X)) {
+			axis.set(Vec3.X_AXIS);
+		} else if (dir.containDim(MoveDimension.Y)) {
+			axis.set(Vec3.Y_AXIS);
+		} else {
+			axis.set(Vec3.Z_AXIS);
 		}
-	}
-
-	protected void updateCoord(MouseEvent e, CoordinateSystem coordinateSystem, Vec2 mouseEnd) {
-		double radians = computeRotateRadians(e, lastDragPoint, mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
-		rotationAction.updateRotation(radians);
-	}
-
-	protected void updateMat(MouseEvent e, Mat4 viewProjectionMatrix, Vec2 mouseEnd) {
-		ProgramPreferences prefs = ProgramGlobals.getPrefs();
-		double radians = computeRotateRadians(MouseEventHelpers.hasModifier(e, prefs.getSnapTransformModifier()), lastDragPoint, mouseEnd, viewProjectionMatrix);
-		rotationAction.updateRotation(radians);
-	}
-	protected void updateMat(Mat4 viewProjectionMatrix, Vec2 mouseEnd,
-	                         boolean isPrecise, boolean isSnap, boolean isAxisLock) {
-		double radians = computeRotateRadians(isSnap, lastDragPoint, mouseEnd, viewProjectionMatrix);
-		rotationAction.updateRotation(radians);
-	}
-
-	protected void finnishAction(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj, boolean wasCanceled) {
-		if (isActing) {
-			Vec2 mouseEnd = getPoint(e);
-
-			ProgramPreferences prefs = ProgramGlobals.getPrefs();
-			double radians = computeRotateRadians(MouseEventHelpers.hasModifier(e, prefs.getSnapTransformModifier()), lastDragPoint, mouseEnd, viewProjectionMatrix);
-			rotationAction.updateRotation(radians);
-			nonRotAngle = 0;
-			totRotAngle = 0;
-			UndoAction undoAction = rotationAction;
-			if (wasCanceled && undoAction != null) {
-				undoAction.undo();
-			} else if (undoAction != null) {
-				undoManager.pushAction(undoAction);
-			}
-			mouseStartPoint.set(0,0);
-			lastDragPoint.set(0,0);
-			isActing = false;
-		}
-	}
-
-	protected Vec3 getAxis(){
-		tempVec3.set(0, 0, -1).transform(inverseViewProjectionMatrix, 1, true);
-		Vec3 axis = new Vec3(0, 0, 1).transform(inverseViewProjectionMatrix, 1, true);
-		axis.sub(tempVec3).normalize();
 		return axis;
 	}
 
-
-	protected Vec2 getVec2Center(byte portFirstXYZ, byte portSecondXYZ) {
-		if(selectionManager instanceof TVertSelectionManager){
-			return selectionManager.getUVCenter(0);
-		} else {
-			return selectionManager.getCenter().getProjected(portFirstXYZ, portSecondXYZ);
-		}
+	protected void updateMat(Mat4 viewProjectionMatrix, Vec2 mouseEnd,
+	                         boolean isPrecise, boolean isSnap, boolean isAxisLock) {
+		double radians = computeRotateRadians(isSnap, lastMousePoint, mouseEnd);
+		transformAction.setRotation(radians);
 	}
 
-	protected Vec2 getVec2Center(Mat4 viewProjectionMatrix) {
-		if(selectionManager instanceof TVertSelectionManager){
-			return selectionManager.getUVCenter(0);
-		} else {
-			Vec3 flatCenter = new Vec3();
-			flatCenter.set(selectionManager.getCenter()).transform(viewProjectionMatrix);
-			return new Vec2(flatCenter.y, flatCenter.z);
-		}
+	protected void finnishAction() {
+		totRotAngle = 0;
+		realTotRotAngle = 0;
 	}
 
-	protected double computeRotateRadians(MouseEvent e, Vec2 startingClick, Vec2 endingClick, byte portFirstXYZ, byte portSecondXYZ) {
+	protected double computeRotateRadians(boolean isSnap, Vec2 mouseStart, Vec2 mouseEnd) {
 		double deltaAngle = 0;
-		Vec2 center = getVec2Center(portFirstXYZ, portSecondXYZ);
-		if (dir == MoveDimension.XYZ) {
-			Vec2 startingDelta = Vec2.getDif(startingClick, center);
-			Vec2 endingDelta = Vec2.getDif(endingClick, center);
 
-			double startingAngle = Math.atan2(startingDelta.y, startingDelta.x);
-			double endingAngle = Math.atan2(endingDelta.y, endingDelta.x);
+		if (dir.containDim(MoveDimension.Z)) {
+			double startingAngle = -getThetaOfDiff(mouseStart, center);
+			double endingAngle = -getThetaOfDiff(mouseEnd, center);
 
 			deltaAngle = endingAngle - startingAngle;
+		} else if (dir.containDim(MoveDimension.X)) {
+			double dyEnd = mouseEnd.y - center.y;
+			double dyStart = mouseStart.y - center.y;
+			deltaAngle = (dyEnd - dyStart) / radius;
+		} else if (dir.containDim(MoveDimension.Y)) {
+			double dxEnd = mouseEnd.x - center.x;
+			double dxStart = mouseStart.x - center.x;
+			deltaAngle = (dxEnd - dxStart) / radius;
+		}
+		return getAngle(deltaAngle, isSnap);
+	}
 
+
+	protected double getAngle(double deltaAngle, boolean isSnap) {
+		realTotRotAngle += deltaAngle;
+		if(isSnap){
+			totRotAngle = Math.toRadians(((int) (Math.toDegrees(realTotRotAngle) / 15.0)) * 15);
 		} else {
-			if (dir.containDirection(portFirstXYZ)) {
-				double radius = getRadius();
-				deltaAngle = (endingClick.y - startingClick.y) / radius;
-			}
-			if (dir.containDirection(portSecondXYZ)) {
-				double radius = getRadius();
-				deltaAngle = (endingClick.x - startingClick.x) / radius;
-			}
-			if (dir.containDirection(getUnusedXYZ(portFirstXYZ, portSecondXYZ))) {
-				Vec2 startingDelta = Vec2.getDif(startingClick, center);
-				Vec2 endingDelta = Vec2.getDif(endingClick, center);
-
-				double startingAngle = Math.atan2(startingDelta.y, startingDelta.x);
-				double endingAngle = Math.atan2(endingDelta.y, endingDelta.x);
-
-				deltaAngle = endingAngle - startingAngle;
-			}
+			totRotAngle = realTotRotAngle;
 		}
-		if (e.isControlDown()) {
-			nonRotAngle += deltaAngle;
-			deltaAngle = getSnappedAngle(nonRotAngle, 15);
-			nonRotAngle -= deltaAngle;
-		} else {
-			nonRotAngle = 0;
-		}
-		totRotAngle += deltaAngle;
-		return deltaAngle;
-	}
-
-
-	protected double computeRotateRadians(boolean isSnap, Vec2 startingClick, Vec2 endingClick, Mat4 viewProjectionMatrix) {
-		double deltaAngle = 0;
-		Vec2 center = getViewportSelectionCenter();
-		if (dir == MoveDimension.XYZ) {
-//			Vec2 startingDelta = Vec2.getDif(startingClick, center);
-//			Vec2 endingDelta = Vec2.getDif(endingClick, center);
-//
-//			double startingAngle = Math.atan2(-startingDelta.y, startingDelta.x);
-//			double endingAngle = Math.atan2(-endingDelta.y, endingDelta.x);
-
-			double startingAngle = -getThetaOfDiff(startingClick, center);
-			double endingAngle = -getThetaOfDiff(endingClick, center);
-
-			deltaAngle = endingAngle - startingAngle;
-		}
-		if (isSnap) {
-			nonRotAngle += deltaAngle;
-			deltaAngle = getSnappedAngle(nonRotAngle, 15);
-			nonRotAngle -= deltaAngle;
-		} else {
-			nonRotAngle = 0;
-		}
-		totRotAngle += deltaAngle;
-		return deltaAngle;
-	}
-	protected double computeRotateRadians(MouseEvent e, Vec2 startingClick, Vec2 endingClick, Mat4 viewProjectionMatrix,
-	                                      boolean isPrecise, boolean isSnap, boolean isAxisLock) {
-		double deltaAngle = 0;
-		Vec2 center = getViewportSelectionCenter();
-		if (dir == MoveDimension.XYZ) {
-//			Vec2 startingDelta = Vec2.getDif(startingClick, center);
-//			Vec2 endingDelta = Vec2.getDif(endingClick, center);
-//
-//			double startingAngle = Math.atan2(-startingDelta.y, startingDelta.x);
-//			double endingAngle = Math.atan2(-endingDelta.y, endingDelta.x);
-
-			double startingAngle = -getThetaOfDiff(startingClick, center);
-			double endingAngle = -getThetaOfDiff(endingClick, center);
-
-			deltaAngle = endingAngle - startingAngle;
-		}
-		if (e.isControlDown()) {
-			nonRotAngle += deltaAngle;
-			deltaAngle = getSnappedAngle(nonRotAngle, 15);
-			nonRotAngle -= deltaAngle;
-		} else {
-			nonRotAngle = 0;
-		}
-		totRotAngle += deltaAngle;
-		return deltaAngle;
-	}
-
-	protected double getSnappedAngle(double angleToSnap, int snapDeg) {
-		double angleDeg = Math.toDegrees(angleToSnap);
-		int snapAngleDeg = ((int) angleDeg / snapDeg) * snapDeg;
-		return Math.toRadians(snapAngleDeg);
-	}
-
-	protected double getRadius() {
-		double radius = selectionManager.getCircumscribedSphereRadius(selectionManager.getCenter(), 0);
-		if (radius <= 0) {
-			radius = 64;
-		}
-		return radius;
-	}
-
-	public static byte getUnusedXYZ(byte portFirstXYZ, byte portSecondXYZ) {
-		if (portFirstXYZ < 0) {
-			portFirstXYZ = (byte) (-portFirstXYZ - 1);
-		}
-		if (portSecondXYZ < 0) {
-			portSecondXYZ = (byte) (-portSecondXYZ - 1);
-		}
-		return (byte) (3 - portFirstXYZ - portSecondXYZ);
+		return totRotAngle;
 	}
 }

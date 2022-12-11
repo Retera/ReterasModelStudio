@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.widgets;
 
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.MoveDimension;
 import com.hiveworkshop.rms.util.GU;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -32,63 +32,66 @@ public final class MoverWidget extends Widget {
 
 	private long debugPrintLimiter;
 
-	@Override
-	public MoveDimension getDirectionByMouse(Vec2 mousePoint1, CoordinateSystem coordinateSystem) {
-		if(coordinateSystem != null){
-			byte dim1 = coordinateSystem.getPortFirstXYZ();
-			byte dim2 = coordinateSystem.getPortSecondXYZ();
-			double x = coordinateSystem.viewX(point.getCoord(dim1));
-			double y = coordinateSystem.viewY(point.getCoord(dim2));
-			long currentTime = System.currentTimeMillis();
-			if (debugPrintLimiter < currentTime) {
-				debugPrintLimiter = currentTime + 500;
-//			System.out.println("d1: "  + dim1 + ", d2: " + dim2);
-			}
-
-			MoveDimension direction = MoveDimension.NONE;
-			Point mousePoint = new Point((int)mousePoint1.x, (int)mousePoint1.y);
-
-			if (GU.getTransPolygon((int) x, (int) y, northTriangle).contains(mousePoint)
-					|| GU.getTransPolygon((int) x, (int) y, nortLineHitBox).contains(mousePoint)) {
-				direction = MoveDimension.getByByte(dim2);
-			}
-			if (GU.getTransPolygon((int) x, (int) y, eastTriangle).contains(mousePoint)
-					|| GU.getTransPolygon((int) x, (int) y, eastLineHitBox).contains(mousePoint)) {
-				direction = MoveDimension.getByByte(dim1);
-			}
-			if (new Rectangle((int) x, (int) y - LINE_SHORT, LINE_SHORT, LINE_SHORT).contains(mousePoint)) {
-				direction = MoveDimension.getByByte(dim1, dim2);
-			}
-
-			return direction;
+	public MoveDimension getDirectionByMouse(Vec2 mousePoint, Mat4 viewportMat, Component parent){
+		Vec2 vpPoint = getVpPoint(viewportMat, parent);
+		int x = (int) vpPoint.x;
+		int y = (int) vpPoint.y;
+		long currentTime = System.currentTimeMillis();
+		if (debugPrintLimiter < currentTime) {
+			debugPrintLimiter = currentTime + 500;
 		}
-		return MoveDimension.NONE;
+
+		MoveDimension direction = MoveDimension.NONE;
+		Point mouseP = getMousePoint(mousePoint, parent);
+
+		if (GU.getTransPolygon(x, y, northTriangle).contains(mouseP)
+				|| GU.getTransPolygon(x, y, nortLineHitBox).contains(mouseP)) {
+			direction = MoveDimension.Y;
+		}
+		if (GU.getTransPolygon(x, y, eastTriangle).contains(mouseP)
+				|| GU.getTransPolygon(x, y, eastLineHitBox).contains(mouseP)) {
+			direction = MoveDimension.X;
+		}
+		if (new Rectangle(x, y - LINE_SHORT, LINE_SHORT, LINE_SHORT).contains(mouseP)) {
+			direction = MoveDimension.XY;
+		}
+		return direction;
 	}
 
 	public Vec3 getPoint() {
 		return point;
 	}
 
-	@Override
-	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem) {
-		byte xDimension = coordinateSystem.getPortFirstXYZ();
-		byte yDimension = coordinateSystem.getPortSecondXYZ();
-		int x = (int) coordinateSystem.viewX(point.getCoord(xDimension));
-		int y = (int) coordinateSystem.viewY(point.getCoord(yDimension));
+	public void render(Graphics2D graphics, Mat4 viewportMat, Mat4 invViewportMat, Component parent){
+		float aspect = parent.getWidth() / (float)parent.getHeight();
+		temp0.set(0, 0, 0).transform(invViewportMat, 1, true);
 
-		setHighLightableColor(graphics, yDimension, moveDirection);
+		Vec3 tempX = tempPoint.set(1, 0, 0).transform(invViewportMat, 1, true).sub(temp0);
+		MoveDimension xDim = MoveDimension.getByAxis(tempX.normalize());
+
+		Vec3 tempY = tempPoint.set(0, aspect*1, 0).transform(invViewportMat, 1, true).sub(temp0);
+		MoveDimension yDim = MoveDimension.getByAxis(tempY.normalize());
+
+		Vec3 tempTot = tempPoint.set(1, aspect*1, 0).transform(invViewportMat, 1, true).sub(temp0);
+		MoveDimension totDim = MoveDimension.getByAxis(tempTot.normalize());
+
+		Vec2 vpPoint = getVpPoint(viewportMat, parent);
+		int x = (int) vpPoint.x;
+		int y = (int) vpPoint.y;
+
+		graphics.setColor(getHighLightableColor(yDim, moveDirection == yDim || moveDirection == totDim));
 		drawNorthArrow(graphics, x, y);
 
-		setHighLightableColor(graphics, xDimension, moveDirection);
+		graphics.setColor(getHighLightableColor(xDim, moveDirection == xDim || moveDirection == totDim));
 		drawEastArrow(graphics, x, y);
 
-		setColorByDimension(graphics, xDimension);
+		graphics.setColor(getColor(xDim));
 		drawNorthLine(graphics, x, y, LINE_SHORT, LINE_SHORT);
 
-		setColorByDimension(graphics, yDimension);
+		graphics.setColor(getColor(yDim));
 		drawEastLine(graphics, x, y, LINE_SHORT, LINE_SHORT);
 
-		if (moveDirection.containDirection(xDimension) && moveDirection.containDirection(yDimension)) {
+		if (moveDirection == totDim) {
 			graphics.setColor(new Color(255, 255, 0, 70));
 			graphics.fillRect(x, y - LINE_SHORT, LINE_SHORT, LINE_SHORT);
 		}

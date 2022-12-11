@@ -20,7 +20,7 @@ public class DataTable extends ObjectData {
 		try {
 			for (String sklData : sklDatafiles) {
 				System.out.println("2reading dataTableSLK: " + sklData);
-				new ReadSLK().readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream(sklData));
+				DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream(sklData));
 			}
 			for (String txt : txtFiles) {
 				DataTableUtils.readTXT(this, txt, canProduce);

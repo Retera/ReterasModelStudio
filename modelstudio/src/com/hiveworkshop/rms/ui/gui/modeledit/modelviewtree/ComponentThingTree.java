@@ -98,13 +98,13 @@ public class ComponentThingTree extends JTree {
 		}
 		mouseAdapter.setUndoManager(this.undoManager);
 		buildBaseNodes();
-		System.out.println("ComponentThingTree#setModel: buildTreeModel");
+//		System.out.println("ComponentThingTree#setModel: buildTreeModel");
 		DefaultTreeModel treeModel = buildTreeModel(modelHandler);
 
-		System.out.println("meshes: " + meshes);
-		System.out.println("meshes: " + Arrays.toString(meshes.getPath()));
+//		System.out.println("meshes: " + meshes);
+//		System.out.println("meshes: " + Arrays.toString(meshes.getPath()));
 
-		System.out.println("ComponentThingTree#setModel: setTreeModel");
+//		System.out.println("ComponentThingTree#setModel: setTreeModel");
 		setModel(treeModel);
 
 		setCellRenderer(this::getCellComp);
@@ -150,7 +150,7 @@ public class ComponentThingTree extends JTree {
 		TreePath rootPath = new TreePath(getModel().getRoot());
 		Enumeration<TreePath> expandedDescendants = getExpandedDescendants(rootPath);
 		DefaultTreeModel treeModel = buildTreeModel(modelHandler);
-		System.out.println("ComponentThingTree#setModel: setTreeModel");
+//		System.out.println("ComponentThingTree#setModel: setTreeModel");
 		setModel(treeModel);
 
 		expandTree(expandedDescendants);

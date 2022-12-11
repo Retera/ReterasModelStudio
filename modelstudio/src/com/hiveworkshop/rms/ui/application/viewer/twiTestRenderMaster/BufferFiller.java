@@ -213,7 +213,8 @@ public class BufferFiller {
 
 		programPreferences.getPerspectiveBackgroundColor().getColorComponents(backgroundColor);
 		if(renderModel != null){
-			geosetBufferFiller.fillBuffer(shaderManager.getOrCreatePipeline(isHD), true);
+//			geosetBufferFiller.fillBuffer(shaderManager.getOrCreatePipeline(isHD), true);
+			geosetBufferFiller.fillBuffer(shaderManager, true);
 
 			nodeBufferFiller.fillBuffer(shaderManager.getOrCreateBoneMarkerShaderPipeline());
 
@@ -253,7 +254,11 @@ public class BufferFiller {
 
 
 		if(renderModel != null){
-			ShaderPipeline pipeline = shaderManager.getOrCreatePipeline(isHD);
+			if(isHD){
+				ShaderPipeline pipeline = shaderManager.getOrCreatePipeline(isHD);
+				RendererThing1.renderGeosets(cameraManager, pipeline, width, height, viewportSettings.isWireFrame(), viewportSettings.isRenderTextures());
+			}
+			ShaderPipeline pipeline = shaderManager.getOrCreatePipeline(false);
 			RendererThing1.renderGeosets(cameraManager, pipeline, width, height, viewportSettings.isWireFrame(), viewportSettings.isRenderTextures());
 
 			if(viewportSettings.isShowNodes()){

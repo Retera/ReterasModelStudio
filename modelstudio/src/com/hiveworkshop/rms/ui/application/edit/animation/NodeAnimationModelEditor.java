@@ -3,9 +3,9 @@ package com.hiveworkshop.rms.ui.application.edit.animation;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.*;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryAction;
-import com.hiveworkshop.rms.editor.actions.editor.StaticMeshMoveAction;
+import com.hiveworkshop.rms.editor.actions.editor.AbstractTransformAction;
 import com.hiveworkshop.rms.editor.actions.editor.StaticMeshShrinkFattenAction;
-import com.hiveworkshop.rms.editor.actions.util.*;
+import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.CameraNode;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
@@ -22,6 +22,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -42,31 +43,30 @@ public class NodeAnimationModelEditor extends ModelEditor {
 	}
 
 	@Override
-	public UndoAction translate(Vec3 v) {
+	public UndoAction translate(Vec3 v, Mat4 rotMat) {
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
 		Set<CameraNode> camSelection = modelView.getSelectedCameraNodes();
 
 		CompoundAction setup = getSetupAction(selection, camSelection, ModelEditorActionType3.TRANSLATION);
-		return new TranslationKeyframeAction(setup, selection, camSelection, renderModel, v);
+		return new TranslationKeyframeAction(setup, selection, camSelection, renderModel, v, rotMat);
 	}
 
 	@Override
-	public UndoAction scale(Vec3 center, Vec3 scale) {
+	public UndoAction scale(Vec3 center, Vec3 scale, Mat4 rotMat) {
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
 
 		CompoundAction setup = getSetupAction(selection, ModelEditorActionType3.SCALING);
-		return new ScalingKeyframeAction(setup, selection, center, scale, renderModel);
+		return new ScalingKeyframeAction(setup, selection, center, scale, renderModel, rotMat);
 	}
 
 	@Override
-	public UndoAction rotate(Vec3 center, Vec3 rotate) {
+	public UndoAction rotate(Vec3 center, Vec3 rotate, Mat4 rotMat) {
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
 		CompoundAction setup = getSetupAction(selection, ModelEditorActionType3.ROTATION);
-		DoNothingAction doNothingAction = new DoNothingAction("");
 		return new CompoundAction("rotate", changeListener::keyframesUpdated, setup,
-				new RotationKeyframeAction(doNothingAction, selection, renderModel, center, Vec3.X_AXIS, Math.toRadians(rotate.x)),
-				new RotationKeyframeAction(doNothingAction, selection, renderModel, center, Vec3.NEGATIVE_Y_AXIS, Math.toRadians(rotate.y)),
-				new RotationKeyframeAction(doNothingAction, selection, renderModel, center, Vec3.NEGATIVE_Z_AXIS, Math.toRadians(rotate.z)));
+				new RotationKeyframeAction(null, selection, renderModel, center, Vec3.X_AXIS, Math.toRadians(rotate.x), rotMat),
+				new RotationKeyframeAction(null, selection, renderModel, center, Vec3.NEGATIVE_Y_AXIS, Math.toRadians(rotate.y), rotMat),
+				new RotationKeyframeAction(null, selection, renderModel, center, Vec3.NEGATIVE_Z_AXIS, Math.toRadians(rotate.z), rotMat));
 	}
 
 	@Override
@@ -77,60 +77,46 @@ public class NodeAnimationModelEditor extends ModelEditor {
 	@Override
 	public UndoAction setPosition(Vec3 center, Vec3 v) {
 		Vec3 delta = Vec3.getDiff(v, center);
-		return new StaticMeshMoveAction(modelView, delta);
+//		return new StaticMeshMoveAction(modelView, delta);
+		return translate(delta, new Mat4());
 	}
 
 	@Override
-	public GenericMoveAction beginTranslation() {
+	public AbstractTransformAction beginTranslation(Mat4 rotMat) {
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
 		Set<CameraNode> camSelection = modelView.getSelectedCameraNodes();
 
 		CompoundAction setup = getSetupAction(selection, camSelection, ModelEditorActionType3.TRANSLATION);
-		return new TranslationKeyframeAction(setup, selection, camSelection, renderModel).doSetup();
+		return new TranslationKeyframeAction(setup, selection, camSelection, renderModel, rotMat).doSetup();
+	}
+//	@Override
+	public AbstractTransformAction beginExtrude(Mat4 rotMat) {
+		return beginTranslation(new Mat4());
+	}
+//	@Override
+	public AbstractTransformAction beginExtend(Mat4 rotMat) {
+		return beginTranslation(new Mat4());
 	}
 
 	@Override
-	public GenericScaleAction beginScaling(Vec3 center) {
+	public AbstractTransformAction beginScaling(Vec3 center, Mat4 rotMat) {
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
 
 		CompoundAction setup = getSetupAction(selection, ModelEditorActionType3.SCALING);
-		return new ScalingKeyframeAction(setup, selection, center, renderModel).doSetup();
+		return new ScalingKeyframeAction(setup, selection, center, renderModel, rotMat).doSetup();
 	}
 
 	@Override
-	public GenericRotateAction beginRotation(Vec3 center, byte firstXYZ, byte secondXYZ) {
-		Set<IdObject> selection = modelView.getSelectedIdObjects();
-
-		CompoundAction setup = getSetupAction(selection, ModelEditorActionType3.ROTATION);
-		return new RotationKeyframeAction(setup, selection, renderModel, center, firstXYZ, secondXYZ).doSetup();
-	}
-
-	@Override
-	public GenericRotateAction beginSquatTool(Vec3 center, byte firstXYZ, byte secondXYZ) {
-		Set<IdObject> selection = new HashSet<>(modelView.getSelectedIdObjects());
-
-		for (IdObject idObject : modelView.getModel().getIdObjects()) {
-			if (modelView.getSelectedIdObjects().contains(idObject.getParent())
-					&& isBoneAndSameClass(idObject, idObject.getParent())) {
-				selection.add(idObject);
-			}
-		}
-
-		CompoundAction setup = getSetupAction(selection, ModelEditorActionType3.SQUAT);
-		return new SquatToolKeyframeAction(setup, selection, renderModel, center, firstXYZ, secondXYZ).doSetup();
-	}
-
-	@Override
-	public GenericRotateAction beginRotation(Vec3 center, Vec3 axis) {
+	public AbstractTransformAction beginRotation(Vec3 center, Vec3 axis, Mat4 rotMat) {
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
 		Set<CameraNode> camSelection = modelView.getSelectedCameraNodes();
 
 		CompoundAction setup = getSetupAction(selection, camSelection, ModelEditorActionType3.ROTATION);
-		return new RotationKeyframeAction(setup, selection, camSelection, renderModel, center, axis).doSetup();
+		return new RotationKeyframeAction(setup, selection, camSelection, renderModel, center, axis, rotMat).doSetup();
 	}
 
 	@Override
-	public GenericRotateAction beginSquatTool(Vec3 center, Vec3 axis) {
+	public AbstractTransformAction beginSquatTool(Vec3 center, Vec3 axis, Mat4 rotMat) {
 		System.out.println("begin Squat!");
 		Set<IdObject> selection = new HashSet<>(modelView.getSelectedIdObjects());
 
@@ -142,7 +128,7 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		}
 
 		CompoundAction setup = getSetupAction(selection, ModelEditorActionType3.SQUAT);
-		return new SquatToolKeyframeAction(setup, modelView.getSelectedIdObjects(), renderModel, center, axis).doSetup();
+		return new SquatToolKeyframeAction(setup, modelView.getSelectedIdObjects(), renderModel, center, axis, rotMat).doSetup();
 	}
 
 	public CompoundAction getSetupAction(Set<IdObject> selection, ModelEditorActionType3 actionType) {

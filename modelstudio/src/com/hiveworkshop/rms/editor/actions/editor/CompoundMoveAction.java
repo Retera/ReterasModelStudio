@@ -1,28 +1,27 @@
 package com.hiveworkshop.rms.editor.actions.editor;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.Arrays;
 import java.util.List;
 
-public final class CompoundMoveAction implements GenericMoveAction {
-	private final List<? extends GenericMoveAction> actions;
+public final class CompoundMoveAction extends AbstractTransformAction{
+	private final List<? extends AbstractTransformAction> actions;
 	private final String name;
 
-	public CompoundMoveAction(final String name, final List<? extends GenericMoveAction> actions) {
+	public CompoundMoveAction(final String name, final List<? extends AbstractTransformAction> actions) {
 		this.name = name;
 		this.actions = actions;
 	}
 
-	public CompoundMoveAction(final String name, final GenericMoveAction... actions) {
+	public CompoundMoveAction(final String name, final AbstractTransformAction... actions) {
 		this.name = name;
 		this.actions = Arrays.asList(actions);
 	}
 
 	@Override
-	public UndoAction undo() {
+	public CompoundMoveAction undo() {
 		for (final UndoAction action : actions) {
 			action.undo();
 		}
@@ -30,7 +29,7 @@ public final class CompoundMoveAction implements GenericMoveAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public CompoundMoveAction redo() {
 		for (final UndoAction action : actions) {
 			action.redo();
 		}
@@ -43,15 +42,8 @@ public final class CompoundMoveAction implements GenericMoveAction {
 	}
 
 	@Override
-	public void updateTranslation(final double deltaX, final double deltaY, final double deltaZ) {
-		for (final GenericMoveAction action : actions) {
-			action.updateTranslation(deltaX, deltaY, deltaZ);
-		}
-	}
-
-	@Override
-	public GenericMoveAction updateTranslation(Vec3 delta) {
-		for (final GenericMoveAction action : actions) {
+	public CompoundMoveAction updateTranslation(Vec3 delta) {
+		for (final AbstractTransformAction action : actions) {
 			action.updateTranslation(delta);
 		}
 		return this;

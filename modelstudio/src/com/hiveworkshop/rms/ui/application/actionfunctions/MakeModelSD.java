@@ -21,7 +21,6 @@ import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.language.TextKey;
-import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
@@ -101,7 +100,7 @@ public class MakeModelSD extends ActionFunction {
 		System.out.println("HERO HERO HERO");
 		Bone dummyHeroGlowNode = new Bone("hero_reforged");
 		// this model needs hero glow
-		Mesh heroGlowPlane = ModelUtils.createPlane((byte) 0, (byte) 1, new Vec3(0, 0, 1), 0, new Vec2(-64, -64), new Vec2(64, 64), 1, 1);
+		Mesh heroGlowPlane = ModelUtils.getPlaneMesh2(new Vec3(64, 64, 0), new Vec3(-64, -64, 0), 1, 1);
 
 		Geoset heroGlow = new Geoset();
 		heroGlow.getVertices().addAll(heroGlowPlane.getVertices());

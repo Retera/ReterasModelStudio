@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.tools;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ModelThumbnailMaker;
 import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
 import java.awt.*;
@@ -92,9 +93,9 @@ public class ModelIconHandler {
 			graphics.drawImage(modelOutline, 0, 0, null);
 			ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(32, 32), getModelBoundsSize(model));
 			if (idObject instanceof Bone) {
-				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, (byte) 1, (byte) 2, getBoneMap(model), (Bone) idObject);
+				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, Vec3.Y_AXIS, Vec3.Z_AXIS, getBoneMap(model), (Bone) idObject);
 			}
-			ModelThumbnailMaker.drawBoneMarker(graphics, (byte) 1, (byte) 2, idObject.getPivotPoint());
+			ModelThumbnailMaker.drawBoneMarker(graphics, Vec3.Y_AXIS, Vec3.Z_AXIS, idObject.getPivotPoint());
 		}
 	}
 
@@ -131,7 +132,7 @@ public class ModelIconHandler {
 			BufferedImage modelOutline = getModelOutlineImage(backgroundColor, model);
 			graphics.drawImage(modelOutline, 0, 0, null);
 			ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(32, 32), getModelBoundsSize(model));
-			ModelThumbnailMaker.drawGeosetFlat(graphics, (byte) 1, (byte) 2, geoset, Color.RED);
+			ModelThumbnailMaker.drawGeosetFlat(graphics, Vec3.Y_AXIS, Vec3.Z_AXIS, geoset, Color.RED);
 		}
 	}
 
@@ -175,7 +176,7 @@ public class ModelIconHandler {
 			graphics.fill3DRect(0, 0, 32, 32, false);
 			if (model.contains(geoset)) {
 				ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(32, 32), getModelBoundsSize(model));
-				ModelThumbnailMaker.drawGeosetFlat(graphics, (byte) 1, (byte) 2, geoset, Color.RED);
+				ModelThumbnailMaker.drawGeosetFlat(graphics, Vec3.Y_AXIS, Vec3.Z_AXIS, geoset, Color.RED);
 			}
 			graphics.dispose();
 			geosetToCachedHL.put(geoset, image);
@@ -190,7 +191,7 @@ public class ModelIconHandler {
 			graphics.setColor(new Color(255,255,255,0));
 			graphics.fill3DRect(0, 0, 32, 32, false);
 			ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(32, 32), getModelBoundsSize(model));
-			ModelThumbnailMaker.drawGeosetFlat(graphics, (byte) 1, (byte) 2, geoset, Color.RED);
+			ModelThumbnailMaker.drawGeosetFlat(graphics, Vec3.Y_AXIS, Vec3.Z_AXIS, geoset, Color.RED);
 		}
 	}
 
@@ -208,7 +209,7 @@ public class ModelIconHandler {
 		if (modelBoundsSizeMap.containsKey(model)) {
 			return modelBoundsSizeMap.get(model);
 		} else {
-			Vec2[] boundSize = ModelThumbnailMaker.getBoundBoxSize(model, (byte) 1, (byte) 2);
+			Vec2[] boundSize = ModelThumbnailMaker.getBoundBoxSize(model, Vec3.Y_AXIS, Vec3.Z_AXIS);
 			modelBoundsSizeMap.put(model, boundSize);
 			return boundSize;
 		}

@@ -168,9 +168,8 @@ public class ViewportModelRenderer {
 	}
 
 	public static Vec2 convertToViewVec2(CoordinateSystem coordinateSystem, Vec3 vertex) {
-		double x = coordinateSystem.viewX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
-		double y = coordinateSystem.viewY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
-		return new Vec2(x, y);
+		Vec2 pointA = coordinateSystem.viewVN(vertex);
+		return pointA.set(pointA.x * coordinateSystem.getParentWidth(), pointA.y * coordinateSystem.getParentHeight());
 	}
 
 	public void renderCamera(Camera camera) {

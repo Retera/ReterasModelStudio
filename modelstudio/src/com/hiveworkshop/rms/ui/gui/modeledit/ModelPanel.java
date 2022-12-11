@@ -101,7 +101,8 @@ public class ModelPanel {
 
 	public boolean close() {
 		// returns true if closed successfully
-		if (!modelHandler.getUndoManager().isUndoListEmpty()) {
+//		if (!modelHandler.getUndoManager().isUndoListEmpty()) {
+		if (!modelHandler.getUndoManager().hasChangedSinceSave()) {
 			final Object[] options = {"Yes", "No", "Cancel"};
 			EditableModel model = modelHandler.getModel();
 			final int n = JOptionPane.showOptionDialog(ProgramGlobals.getMainPanel(),
@@ -138,7 +139,7 @@ public class ModelPanel {
 	}
 
 	public void refreshFromEditor() {
-		System.out.println("refreshFromEditor");
+//		System.out.println("refreshFromEditor");
 //		ModelHandler modelHandler = modelPanel.getModelHandler();
 		updateRenderModel(modelHandler.getRenderModel());
 		updateRenderModel(modelHandler.getPreviewRenderModel());

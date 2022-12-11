@@ -35,7 +35,7 @@ public class StaticMeshShrinkFattenAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
+	public StaticMeshShrinkFattenAction undo() {
 		for (int i = 0; i<selectedVertices.size(); i++) {
 			selectedVertices.get(i).set(opgPosVertices.get(i));
 		}
@@ -43,7 +43,7 @@ public class StaticMeshShrinkFattenAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public StaticMeshShrinkFattenAction redo() {
 		rawScale(amount);
 		return this;
 	}

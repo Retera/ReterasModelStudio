@@ -35,27 +35,15 @@ public class Vec2 {
 			center.add(v);
 		}
 
-		center.scale(1.0f / group.size());
+		if(group.size() != 0){
+			center.scale(1.0f / group.size());
+		}
 
 		return center;
 	}
 
-	public float getCoord(final int dim) {
-		return switch (dim) {
-			case 0 -> x;
-			case 1 -> y;
-			default -> 0;
-		};
-	}
-
-	public Vec2 setCoord(final int dim, final double value) {
-		if (!Double.isNaN(value)) {
-			switch (dim) {
-				case 0 -> x = (float) value;
-				case 1 -> y = (float) value;
-			}
-		}
-		return this;
+	public float dot(final Vec2 a) {
+		return (x * a.x) + (y * a.y);
 	}
 
 	public static Vec2 getProd(Vec2 a, Vec2 b) {
@@ -77,24 +65,6 @@ public class Vec2 {
 	public static Vec2 getDif(Vec2 a, Vec2 b) {
 		return new Vec2(a).sub(b);
 	}
-
-	public Vec2 translateCoord(final byte dim, final double value) {
-		switch (dim) {
-			case 0 -> x += value;
-			case 1 -> y += value;
-		}
-		return this;
-	}
-
-	public Vec2 setProjection(Vec3 vec3, byte dim1, byte dim2) {
-		this.x += vec3.getCoord(dim1);
-		this.y += vec3.getCoord(dim2);
-		return this;
-	}
-//	public void rotate(final double centerX, final double centerY, final double radians, final byte firstXYZ,
-//	                   final byte secondXYZ) {
-//		rotateVertex(centerX, centerY, radians, firstXYZ, secondXYZ, this);
-//	}
 
 	public Vec2 translate(final double x, final double y) {
 		this.x += x;
@@ -128,42 +98,6 @@ public class Vec2 {
 //		final float dy = this.y - center.y;
 //		this.x = center.x + (dx * a.x);
 //		this.y = center.y + (dy * a.y);
-		return this;
-	}
-
-	public Vec2 rotate(final double centerX, final double centerY, final double radians,
-	                   final byte firstXYZ, final byte secondXYZ) {
-		final double x1 = getCoord(firstXYZ);
-		final double y1 = getCoord(secondXYZ);
-		final double cx = switch (firstXYZ) {
-			case 0 -> centerX;
-			case 1 -> centerY;
-			case 2 -> 0;
-			default -> 0;
-		};// = coordinateSystem.geomX(centerX);
-		final double dx = x1 - cx;
-		final double cy = switch (secondXYZ) {
-			case 0 -> centerX;
-			case 1 -> centerY;
-			case 2 -> 0;
-			default -> 0;
-		};// = coordinateSystem.geomY(centerY);
-		final double dy = y1 - cy;
-		final double r = Math.sqrt((dx * dx) + (dy * dy));
-		double verAng = Math.acos(dx / r);
-		if (dy < 0) {
-			verAng = -verAng;
-		}
-		// if( getDimEditable(dim1) )
-		double newFirstCoord = (Math.cos(verAng + radians) * r) + cx;
-		if (!Double.isNaN(newFirstCoord)) {
-			setCoord(firstXYZ, (float) newFirstCoord);
-		}
-		// if( getDimEditable(dim2) )
-		double newSecondCoord = (Math.sin(verAng + radians) * r) + cy;
-		if (!Double.isNaN(newSecondCoord)) {
-			setCoord(secondXYZ, (float) newSecondCoord);
-		}
 		return this;
 	}
 

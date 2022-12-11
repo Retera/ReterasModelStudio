@@ -111,8 +111,7 @@ public class UVViewportModelRenderer {
 	}
 
 	public static Vec2 convertToViewVec2(CoordinateSystem coordinateSystem, Vec2 vertex) {
-		double x = coordinateSystem.viewX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
-		double y = coordinateSystem.viewY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
-		return new Vec2(x, y);
+		Vec2 pointA = coordinateSystem.viewVN(vertex);
+		return pointA.set((1f +pointA.x)/2f * coordinateSystem.getParentWidth(), (1f-pointA.y)/2f * coordinateSystem.getParentHeight());
 	}
 }

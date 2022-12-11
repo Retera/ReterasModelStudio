@@ -25,6 +25,7 @@ import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.MatrixPopup;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.SkinPopup;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec3SpinnerArray;
 import net.miginfocom.swing.MigLayout;
@@ -300,7 +301,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 		}
 
 		if (!modelHandler.getModelView().isEmpty()) {
-			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().translate(spinners.getValue()).redo());
+			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().translate(spinners.getValue(), new Mat4()).redo());
 		}
 	}
 
@@ -316,7 +317,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 
 		if (!modelHandler.getModelView().isEmpty()) {
 			Vec3 selectionCenter = modelHandler.getModelView().getSelectionCenter();
-			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().rotate(selectionCenter, spinners.getValue()).redo());
+			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().rotate(selectionCenter, spinners.getValue(), new Mat4()).redo());
 		}
 	}
 
@@ -362,7 +363,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 		}
 		if (!modelHandler.getModelView().isEmpty()) {
 			modelHandler.getUndoManager()
-					.pushAction(modelEditorManager.getModelEditor().scale(center, spinners.getValue()).redo());
+					.pushAction(modelEditorManager.getModelEditor().scale(center, spinners.getValue(), new Mat4()).redo());
 		}
 	}
 

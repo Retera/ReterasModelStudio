@@ -303,8 +303,8 @@ public class CameraHandler {
 	public Vec3 getActualCameraPos() {
 		Vec3 statCamPos = new Vec3(0f, -70f, -200f);
 		Vec3 dynCamPos = Vec3.getScaled(cameraPos, (float) m_zoom).sub(statCamPos);
-		dynCamPos.rotate(Vec3.ZERO, Math.toRadians(yAngle), (byte) 0, (byte) 2);
-		dynCamPos.rotate(Vec3.ZERO, Math.toRadians(zAngle), (byte) 1, (byte) 2);
+		dynCamPos.rotate(Vec3.ZERO, new Quat().setFromAxisAngle(Vec3.Y_AXIS, (float) Math.toRadians(yAngle)));
+		dynCamPos.rotate(Vec3.ZERO, new Quat().setFromAxisAngle(Vec3.X_AXIS, (float) Math.toRadians(zAngle)));
 		return dynCamPos;
 	}
 

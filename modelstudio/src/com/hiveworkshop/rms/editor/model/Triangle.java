@@ -161,54 +161,16 @@ public class Triangle {
 		return true;
 	}
 
-	public int[] getIntCoords(byte dim) {
-		int[] output = new int[3];
-		for (int i = 0; i < 3; i++) {
-			output[i] = (int) (verts[i].getCoord(dim));
-		}
-		return output;
-	}
-
-	public double[] getCoords(byte dim) {
-		double[] output = new double[3];
-		for (int i = 0; i < 3; i++) {
-			output[i] = (verts[i].getCoord(dim));
-		}
-		return output;
-	}
-
-	public Vec2[] getProjectedVerts(byte axis1, byte axis2) {
-		Vec2[] output = new Vec2[3];
-		for (int i = 0; i < 3; i++) {
-//			output[i] = new Vec2(verts[i].getCoord(axis1), verts[i].getCoord(axis2));
-			output[i] = verts[i].getProjected(axis1, axis2);
-		}
-		return output;
-	}
-
-	public Vec2[] getProjectedNorms(byte axis1, byte axis2) {
-		Vec2[] output = new Vec2[3];
-		for (int i = 0; i < 3; i++) {
-//			output[i] = new Vec2(verts[i].getCoord(axis1), verts[i].getCoord(axis2));
-			output[i] = verts[i].getNormal().getProjected(axis1, axis2);
-		}
-		return output;
-	}
-
-	public double[] getTVertCoords(byte dim, int layerId) {
-		double[] output = new double[3];
-		for (int i = 0; i < 3; i++) {
-			output[i] = (verts[i].getTVertex(layerId).getCoord(dim));
-		}
-		return output;
-	}
-
 	public Vec2[] getTVerts(int layerId) {
 		Vec2[] output = new Vec2[3];
 		for (int i = 0; i < 3; i++) {
 			output[i] = verts[i].getTVertex(layerId);
 		}
 		return output;
+	}
+
+	public Vec2 getTVert(int i,int layerId) {
+		return verts[i].getTVertex(layerId);
 	}
 
 	@Override

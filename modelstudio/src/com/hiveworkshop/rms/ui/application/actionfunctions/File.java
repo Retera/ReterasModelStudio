@@ -79,8 +79,10 @@ public class File {
 				MdxUtils.saveMdx(model, modelFile);
 			}
 			model.setFileRef(modelFile);
+			model.setTemp(false);
 
 			if (modelPanel != null) {
+				modelPanel.getModelHandler().getUndoManager().resetActionsSinceSave();
 				modelPanel.updateMenuItem(modelFile);
 				// currentMDLDisp().resetBeenSaved();
 				// TODO reset been saved

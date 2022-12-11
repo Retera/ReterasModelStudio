@@ -1,35 +1,47 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator.activity;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.addactions.AddGeosetAction;
-import com.hiveworkshop.rms.editor.actions.addactions.DrawVertexAction;
+import com.hiveworkshop.rms.editor.actions.addactions.DrawGeometryAction;
+import com.hiveworkshop.rms.editor.actions.mesh.AddTriangleAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
-import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.util.FilterMode;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.AbstractCamera;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
+import com.hiveworkshop.rms.ui.util.MouseEventHelpers;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Set;
 
 public class DrawFaceActivity extends ViewportActivity {
+	Vec3 scale = new Vec3(1,1,1);
 
-	private Point lastMousePoint;
-	Set<GeosetVertex> createdVerts = new HashSet<>();
+	float[] halfScreenXY;
+	float halfScreenX;
+	float halfScreenY;
+	private final Vec3 startPoint3d = new Vec3();
+	ArrayList<GeosetVertex> vertices = new ArrayList<>();
+	protected boolean isActing = false;
+
+	@Override
+	public boolean selectionNeeded() {
+		return false;
+	}
+	@Override
+	public boolean isEditing() {
+		return transformAction != null;
+	}
 
 	public DrawFaceActivity(ModelHandler modelHandler,
 	                        ModelEditorManager modelEditorManager) {
@@ -37,73 +49,95 @@ public class DrawFaceActivity extends ViewportActivity {
 	}
 
 	@Override
-	public void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem) {
-		Vec3 locationCalculator = new Vec3(0, 0, 0);
-		locationCalculator.setCoord(coordinateSystem.getPortFirstXYZ(), coordinateSystem.geomX(e.getX()));
-		locationCalculator.setCoord(coordinateSystem.getPortSecondXYZ(), coordinateSystem.geomY(e.getY()));
-		locationCalculator.setCoord(coordinateSystem.getUnusedXYZ(), 0);
-		try {
-//			Viewport viewport = viewportListener.getViewport();
-//			Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
-			Vec3 facingVector = new Vec3(0, 0, 1); // todo make this work with CameraHandler
-
-			Geoset solidWhiteGeoset = getSolidWhiteGeoset();
-
-
-			GeosetVertex geosetVertex = new GeosetVertex(locationCalculator, new Vec3(facingVector));
-			geosetVertex.setGeoset(solidWhiteGeoset);
-			geosetVertex.addTVertex(new Vec2(0, 0));
-			UndoAction action2;
-			DrawVertexAction drawVertexAction = new DrawVertexAction(geosetVertex);
-			EditableModel model = modelView.getModel();
-			if (!model.contains(solidWhiteGeoset)) {
-				AddGeosetAction addGeosetAction = new AddGeosetAction(solidWhiteGeoset, model, ModelStructureChangeListener.changeListener);
-				action2 = new CompoundAction("add vertex", Arrays.asList(addGeosetAction, drawVertexAction));
-			} else {
-				action2 = drawVertexAction;
-			}
-			action2.redo();
-
-			undoManager.pushAction(action2);
-		} catch (WrongModeException exc) {
-			JOptionPane.showMessageDialog(null, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-
-	public Geoset getSolidWhiteGeoset() {
-		EditableModel model = modelView.getModel();
-		List<Geoset> geosets = model.getGeosets();
-		Geoset solidWhiteGeoset = null;
-		for (Geoset geoset : geosets) {
-			Layer firstLayer = geoset.getMaterial().firstLayer();
-			if ((geoset.getMaterial() != null) && (firstLayer != null)
-					&& (firstLayer.getFilterMode() == FilterMode.NONE)
-					&& "Textures\\white.blp".equalsIgnoreCase(firstLayer.getTexture(0).getPath())) {
-				solidWhiteGeoset = geoset;
-			}
-		}
-
-		if (solidWhiteGeoset == null) {
-			solidWhiteGeoset = new Geoset();
-			solidWhiteGeoset.setMaterial(new Material(new Layer(new Bitmap("Textures\\white.blp"))));
-		}
-		return solidWhiteGeoset;
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e, CoordinateSystem coordinateSystem) {
-		lastMousePoint = e.getPoint();
-	}
-
-	@Override
-	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
+	public void render(Graphics2D g, AbstractCamera coordinateSystem, RenderModel renderModel, boolean isAnimated) {
 		if (!isAnimated) {
 //			g.setColor(preferences.getVertexColor());
 			g.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.VERTEX));
 			if (lastMousePoint != null) {
-				g.fillRect(lastMousePoint.x, lastMousePoint.y, 3, 3);
+				g.fillRect((int) lastMousePoint.x, (int) lastMousePoint.y, 3, 3);
 			}
 		}
 	}
 
+	@Override
+	public void mousePressed(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
+		Vec2 point = getPoint(e);
+		scale.set(Vec3.ZERO);
+		if (transformAction == null) {
+			isActing = true;
+//			if(modelView.getSelectedVertices().size() <= 2){
+//          //need to check that all verts is in the same geoset, and then use that geoset
+//				vertices.addAll(modelView.getSelectedVertices());
+//			}
+			mouseStartPoint.set(point);
+			this.inverseViewProjectionMatrix.set(viewProjectionMatrix).invert();
+			this.viewProjectionMatrix.set(viewProjectionMatrix);
+			halfScreenXY = halfScreenXY();
+			halfScreenX = halfScreenXY[0];
+			halfScreenY = halfScreenXY[1];
+			GeosetVertex geosetVertex = new GeosetVertex(Vec3.ZERO, Vec3.Z_AXIS);
+			geosetVertex.addTVertex(new Vec2(0, 0));
+			vertices.add(geosetVertex);
+			Set<GeosetVertex> vertexSet = Collections.singleton(geosetVertex);
+			UndoAction setupAction = getSetupAction(vertexSet, Collections.emptySet()).redo();
+			if(vertices.size() == 3){
+				Triangle triangle = new Triangle(vertices.get(0), vertices.get(1), vertices.get(2));
+				AddTriangleAction addTriangleAction = new AddTriangleAction(geosetVertex.getGeoset(), Collections.singleton(triangle));
+				setupAction = new CompoundAction("Draw Face",  changeListener::geosetsUpdated, setupAction, addTriangleAction.redo());
+			}
+
+			Mat4 rotMat = getRotMat();
+			startPoint3d.set(get3DPoint(mouseStartPoint));
+			transformAction = new DrawGeometryAction("Draw Face",startPoint3d, rotMat, vertexSet, setupAction,null);
+			scale.set(0, 0, 0);
+			transformAction.setScale(scale);
+
+		}
+		lastMousePoint.set(point);
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
+		if (transformAction != null) {
+			undoManager.pushAction(transformAction);
+			transformAction = null;
+			isActing = false;
+			if(vertices.size() == 3){
+				vertices.remove(0);
+			}
+		}
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
+		mouseDragged(e, viewProjectionMatrix, sizeAdj);
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
+		Vec2 mouseEnd = getPoint(e);
+		if (transformAction != null) {
+
+			int modifiersEx = e.getModifiersEx();
+
+			float xDist3d = (mouseEnd.x - mouseStartPoint.x)*halfScreenX;
+			float yDist3d = (mouseEnd.y - mouseStartPoint.y)*halfScreenY;
+			float avgDist3d = (Math.abs(xDist3d)+Math.abs(yDist3d))/2f;
+
+//			if(MouseEventHelpers.hasModifier(modifiersEx, MouseEvent.CTRL_DOWN_MASK)){
+//				scale.set(yDist3d, xDist3d, 0);
+//			} else
+			if(MouseEventHelpers.hasModifier(modifiersEx, MouseEvent.SHIFT_DOWN_MASK)){
+				scale.set(Math.copySign(avgDist3d, xDist3d), Math.copySign(avgDist3d, yDist3d), 0);
+			} else {
+				scale.set(xDist3d, yDist3d, 0);
+			}
+
+			transformAction.setScale(scale);
+			transformAction.setTranslation(get3DPoint(getPoint(e)));
+
+		}
+		lastMousePoint.set(mouseEnd);
+
+	}
 }

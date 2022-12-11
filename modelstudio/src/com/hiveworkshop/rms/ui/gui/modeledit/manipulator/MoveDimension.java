@@ -1,30 +1,33 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.manipulator;
 
-import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.awt.*;
 
 public enum MoveDimension {
 	NONE, X, Y, XY, Z, XZ, YZ, XYZ,
 	;
 
-	public static MoveDimension getByByte(byte dimension) {
-		return switch (dimension) {
-			case 0, -1 -> MoveDimension.X;
-			case 1, -2 -> MoveDimension.Y;
-			case 2, -3 -> MoveDimension.Z;
-			default -> MoveDimension.NONE;
+	public static MoveDimension getByAxis(Vec3 axis) {
+		MoveDimension mdX = 0.5<Math.abs(axis.dot(Vec3.X_AXIS)) ? X : NONE;
+		MoveDimension mdY = 0.5<Math.abs(axis.dot(Vec3.Y_AXIS)) ? Y : NONE;
+		MoveDimension mdZ = 0.5<Math.abs(axis.dot(Vec3.Z_AXIS)) ? Z : NONE;
+
+		return MoveDimension.values()[mdX.ordinal() | mdY.ordinal() | mdZ.ordinal()];
+	}
+
+	public Color getColor() {
+		return switch (this) {
+			case X -> new Color(0, 255, 0);
+			case Y -> new Color(255, 0, 0);
+			case Z -> new Color(0, 0, 255);
+			default -> new Color(255, 0, 255);
 		};
 	}
 
-	public static MoveDimension getByByte(final byte dimension, final byte dimension2) {
-		MoveDimension d1 = getByByte(dimension);
-		MoveDimension d2 = getByByte(dimension2);
-		return MoveDimension.values()[d1.ordinal() | d2.ordinal()];
-	}
-
-	public boolean containDirection(byte dim) {
+	public boolean containDim(MoveDimension dim) {
 		// Some bit magic to se if this contains the dimension (ex Y in XY)
-		return (this.ordinal() & getByByte(dim).ordinal()) > 0;
+		return (ordinal() & dim.ordinal()) == dim.ordinal();
 	}
 
 	public static Vec3 getDirAxis(MoveDimension dir) {
@@ -40,17 +43,17 @@ public enum MoveDimension {
 		};
 	}
 
-	public static Quat getDirAxisRot(MoveDimension dir) {
-		return switch (dir) {
-			case NONE -> null;
-			case X  -> new Quat(1, 0, 0, 1);
-			case Y  -> new Quat(0, 1, 0, 1);
-			case XY -> new Quat(1, 1, 0, 1);
-			case Z  -> new Quat(0, 0, 1, 1);
-			case XZ -> new Quat(1, 0, 1, 1);
-			case YZ -> new Quat(0, 1, 1, 1);
-			case XYZ -> new Quat(1, 1, 1, 1);
-		};
-	}
+//	public static Quat getDirAxisRot(MoveDimension dir) {
+//		return switch (dir) {
+//			case NONE -> null;
+//			case X  -> new Quat(1, 0, 0, 1);
+//			case Y  -> new Quat(0, 1, 0, 1);
+//			case XY -> new Quat(1, 1, 0, 1);
+//			case Z  -> new Quat(0, 0, 1, 1);
+//			case XZ -> new Quat(1, 0, 1, 1);
+//			case YZ -> new Quat(0, 1, 1, 1);
+//			case XYZ -> new Quat(1, 1, 1, 1);
+//		};
+//	}
 
 }

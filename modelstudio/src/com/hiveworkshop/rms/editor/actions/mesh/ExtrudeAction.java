@@ -4,13 +4,14 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.util.Pair;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
 public class ExtrudeAction implements UndoAction {
-	MoveAction baseMovement;
+	ModelStructureChangeListener changeListener;
 	List<Vec3> selection;
 	List<Triangle> addedTriangles = new ArrayList<>();
 	Set<Triangle> notSelectedEdgeTriangles = new HashSet<>();
@@ -22,11 +23,11 @@ public class ExtrudeAction implements UndoAction {
 	Set<Pair<GeosetVertex, GeosetVertex>> edges;
 	Set<Pair<GeosetVertex, GeosetVertex>> edges2;
 
-	public ExtrudeAction(Collection<GeosetVertex> selection, Vec3 moveVector) {
+	public ExtrudeAction(Collection<GeosetVertex> selection, ModelStructureChangeListener changeListener) {
+		this.changeListener = changeListener;
 		affectedVertices.addAll(selection);
 		this.selection = new ArrayList<>(selection);
 
-		baseMovement = new MoveAction(this.selection, moveVector, VertexActionType.UNKNOWN);
 		edges = ModelUtils.getEdges(affectedVertices);
 		orgEdgeVertices = collectEdgeVerts(edges);
 		notSelectedEdgeTriangles = getNotSelectedEdgeTris(getAllEdgeTris(orgEdgeVertices), affectedVertices);
@@ -139,13 +140,16 @@ public class ExtrudeAction implements UndoAction {
 	@Override
 	public UndoAction redo() {
 		splitEdge();
-		baseMovement.redo();
 		fillGap();
 		for (GeosetVertex newVert : oldToNew.values()) {
 			newVert.getGeoset().add(newVert);
 			for (Triangle triangle : newVert.getTriangles()) {
 				newVert.getGeoset().add(triangle);
 			}
+		}
+
+		if(changeListener != null){
+			changeListener.geosetsUpdated();
 		}
 		return this;
 	}
@@ -159,14 +163,17 @@ public class ExtrudeAction implements UndoAction {
 			triangle.getGeoset().remove(triangle);
 		}
 		removeGapFill();
-		baseMovement.undo();
 		unSplitEdge();
+
+		if(changeListener != null){
+			changeListener.geosetsUpdated();
+		}
 		return this;
 	}
 
 	@Override
 	public String actionName() {
-		return "extrude";
+		return "Extrude";
 	}
 
 }

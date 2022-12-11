@@ -297,7 +297,7 @@ public class TextureViewport extends BetterAWTGLCanvas {
 		glPolygonMode(GL_FRONT_FACE, GL_FILL);
 		glColor4f(1, 0, 0, 1);
 		glBegin(GL_LINES);
-		Vec3 RT = new Vec3(100, 0, 0).transform(cameraHandler.getViewPortAntiRotMat2());
+		Vec3 RT = new Vec3(100, 0, 0).transform(cameraHandler.getViewProjectionMatrix());
 
 		GL11.glVertex3f(0, 0, 0);
 		GL11.glVertex3f(RT.x, RT.y, RT.z);
@@ -385,7 +385,7 @@ public class TextureViewport extends BetterAWTGLCanvas {
 
 	private void cameraMarkerPainter() {
 		if (mouseAdapter.isSelecting()) {
-			CubePainter.paintRekt(mouseAdapter.getStartPGeo(), mouseAdapter.getEndPGeo1(), mouseAdapter.getEndPGeo2(), mouseAdapter.getEndPGeo3(), cameraHandler);
+			CubePainter.paintRekt(mouseAdapter.getStartP(), mouseAdapter.getEndP(), cameraHandler);
 		}
 	}
 }

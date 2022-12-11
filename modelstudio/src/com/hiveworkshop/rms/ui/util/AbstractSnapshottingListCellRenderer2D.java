@@ -89,13 +89,13 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 			graphics.drawImage(modelOutline, 0, 0, null);
 			ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
 			if (valueTyped instanceof IdObjectShell && ((IdObjectShell<?>) valueTyped).getIdObject() instanceof Bone) {
-				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, (byte) 1, (byte) 2, getBoneMap(model), (Bone) ((IdObjectShell<?>) valueTyped).getIdObject());
+				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, Vec3.Y_AXIS, Vec3.Z_AXIS, getBoneMap(model), (Bone) ((IdObjectShell<?>) valueTyped).getIdObject());
 			} else if (valueTyped instanceof IdObjectShell<?> && ((IdObjectShell<?>) valueTyped).getIdObject() instanceof Bone) {
-				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, (byte) 1, (byte) 2, getBoneMap(model), (Bone) ((IdObjectShell<?>) valueTyped).getIdObject());
+				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, Vec3.Y_AXIS, Vec3.Z_AXIS, getBoneMap(model), (Bone) ((IdObjectShell<?>) valueTyped).getIdObject());
 			} else if (valueTyped instanceof Bone) {
-				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, (byte) 1, (byte) 2, getBoneMap(model), (Bone) valueTyped);
+				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, Vec3.Y_AXIS, Vec3.Z_AXIS, getBoneMap(model), (Bone) valueTyped);
 			}
-			ModelThumbnailMaker.drawBoneMarker(graphics, (byte) 1, (byte) 2, getRenderVertex(valueTyped));
+			ModelThumbnailMaker.drawBoneMarker(graphics, Vec3.Y_AXIS, Vec3.Z_AXIS, getRenderVertex(valueTyped));
 		}
 	}
 
@@ -103,7 +103,7 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 		if (modelBoundsSizeMap.containsKey(model)) {
 			return modelBoundsSizeMap.get(model);
 		} else {
-			Vec2[] boundSize = ModelThumbnailMaker.getBoundBoxSize(model, (byte) 1, (byte) 2);
+			Vec2[] boundSize = ModelThumbnailMaker.getBoundBoxSize(model, Vec3.Y_AXIS, Vec3.Z_AXIS);
 			modelBoundsSizeMap.put(model, boundSize);
 			return boundSize;
 		}

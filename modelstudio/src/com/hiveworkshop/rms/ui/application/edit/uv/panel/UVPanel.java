@@ -67,10 +67,11 @@ public class UVPanel extends JPanel {
 		zoomPanel.add(getButton(20, 20, "Minus.png", e -> zoom(-1.15)));
 
 		navPanel = new JPanel(new MigLayout("gap 0"));
-		navPanel.add(getButton(32, 16, "ArrowUp.png", e -> moveUpDown(20)), "cell 1 0");
-		navPanel.add(getButton(32, 16, "ArrowDown.png", e -> moveUpDown(-20)), "cell 0 1");
+		navPanel.add(getButton(32, 16, "ArrowUp.png",    e ->    moveUpDown( 20)), "cell 1 0");
+//		navPanel.add(getButton(32, 16, "ArrowDown.png",  e ->    moveUpDown(-20)), "cell 0 1");
+		navPanel.add(getButton(16, 32, "ArrowLeft.png",  e -> moveLeftRight( 20)), "cell 0 1");
 		navPanel.add(getButton(16, 32, "ArrowRight.png", e -> moveLeftRight(-20)), "cell 2 1");
-		navPanel.add(getButton(32, 16, "ArrowDown.png", e -> moveUpDown(-20)), "cell 1 2");
+		navPanel.add(getButton(32, 16, "ArrowDown.png",  e ->    moveUpDown(-20)), "cell 1 2");
 
 
 		for (int i = 0; i < mouseCoordDisplay.length; i++) {
@@ -154,7 +155,7 @@ public class UVPanel extends JPanel {
 		if (unwrapDirection != null) {
 			Mat4 cam;
 			if(unwrapDirection == UnwrapDirection.PERSPECTIVE) {
-				cam = viewport.getCameraHandler().getViewPortAntiRotMat();
+				cam = viewport.getCameraHandler().getViewProjectionMatrix();
 			} else {
 				cam = new Mat4().setIdentity();
 			}
@@ -208,8 +209,10 @@ public class UVPanel extends JPanel {
 		uvViewport.init();
 //		System.out.println("Zoom: " + uvViewport.getCoordinateSystem().getZoom());
 //		uvViewport.getCoordinateSystem().zoomOut(1.5);
-		uvViewport.getCoordinateSystem().doZoom(.5, .5, false);
-		uvViewport.getCoordinateSystem().doZoom(.5, .5, false);
+
+//		uvViewport.getCoordinateSystem().doZoom(.5, .5, false);
+//		uvViewport.getCoordinateSystem().doZoom(.5, .5, false);
+
 //		System.out.println("UVPanel: vp initiated, setting controls visibility");
 
 		setControlsVisible(ProgramGlobals.getPrefs().showVMControls());

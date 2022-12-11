@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
+import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.MoveDimension;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
@@ -21,13 +22,17 @@ public class MirrorModelAction implements UndoAction {
 	private List<GeosetVertex> selection;
 	private final List<IdObject> idObjects;
 	private final byte mirrorDim;
+	private final MoveDimension moveDimension;
 	private final Vec3 center;
+	private final Vec3 axis;
 
-	public MirrorModelAction(Collection<GeosetVertex> selection, Collection<IdObject> idObjects, byte mirrorDim, Vec3 center) {
+	public MirrorModelAction(Collection<GeosetVertex> selection, Collection<IdObject> idObjects, Vec3 axis, Vec3 center) {
 		this.center = center;
 		this.selection = new ArrayList<>(selection);
 		this.idObjects = new ArrayList<>(idObjects);
-		this.mirrorDim = mirrorDim;
+		moveDimension = MoveDimension.getByAxis(axis);
+		this.mirrorDim = 0;
+		this.axis = axis;
 	}
 
 	@Override
@@ -43,10 +48,9 @@ public class MirrorModelAction implements UndoAction {
 	}
 
 	private void doMirror() {
-		Vec3 mirrorAxis = new Vec3(0,0,0).setCoord(mirrorDim, 1);
-		Vec3 mirrorMul = new Vec3(1,1,1).addScaled(mirrorAxis, -2); // sets one axis to -1
+		Vec3 mirrorMul = new Vec3(1,1,1).addScaled(axis, -2); // sets one axis to -1
 		Vec4 mirrorMulTang = mirrorMul.getVec4(1);
-		Vec3 center = new Vec3(this.center).multiply(mirrorAxis).scale(2); // extracts center coord for one axis
+		Vec3 center = new Vec3(this.center).multiply(axis).scale(2); // extracts center coord for one axis
 		// center is scaled by 2 and added last instead of v.sub(center).multiply(mirrorMul).add(center)
 		for (GeosetVertex vert : selection) {
 			vert.multiply(mirrorMul).add(center);
@@ -64,19 +68,19 @@ public class MirrorModelAction implements UndoAction {
 		}
 		for (IdObject obj : idObjects) {
 			obj.getPivotPoint().multiply(mirrorMul).add(center);
-			flipOver(mirrorMul, obj.getAnimFlags(), mirrorDim);
+			flipOver(mirrorMul, obj.getAnimFlags());
 		}
 	}
 
 
 
-	public void flipOver(Vec3 mirrorMul, Collection<AnimFlag<?>> animFlags, byte axis) {
+	public void flipOver(Vec3 mirrorMul, Collection<AnimFlag<?>> animFlags) {
 		for (AnimFlag<?> timeline : animFlags) {
-			flipOver(mirrorMul, timeline, axis);
+			flipOver(mirrorMul, timeline);
 		}
 	}
 
-	public <T> void flipOver(Vec3 mirrorMul, AnimFlag<T> timeline, byte axis) {
+	public <T> void flipOver(Vec3 mirrorMul, AnimFlag<T> timeline) {
 		Map<Sequence, TreeMap<Integer, Entry<T>>> sequenceMap = timeline.getAnimMap();
 		for (Sequence anim : sequenceMap.keySet()) {
 			TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
@@ -84,9 +88,9 @@ public class MirrorModelAction implements UndoAction {
 			if (timeline instanceof QuatAnimFlag && timeline.getName().equals(MdlUtils.TOKEN_ROTATION)) {
 				// Rotation
 				for (Entry<T> entry : entries) {
-					flipQuat(mirrorMul, (Quat) entry.getValue(), axis);
-					flipQuat(mirrorMul, (Quat) entry.getInTan(), axis);
-					flipQuat(mirrorMul, (Quat) entry.getOutTan(), axis);
+					flipQuat(mirrorMul, (Quat) entry.getValue());
+					flipQuat(mirrorMul, (Quat) entry.getInTan());
+					flipQuat(mirrorMul, (Quat) entry.getOutTan());
 				}
 			} else if (timeline instanceof Vec3AnimFlag && timeline.getName().equals(MdlUtils.TOKEN_TRANSLATION)) {
 				// Translation
@@ -99,57 +103,24 @@ public class MirrorModelAction implements UndoAction {
 		}
 	}
 
-
-
 	public void flipVec3(Vec3 mirrorMul, Vec3 value) {
 		if(value != null){
 			value.multiply(mirrorMul);
 		}
 	}
 
-	private void flipQuat(Vec3 mirrorMul, Quat quat, byte axis) {
-//		switch (dim) {
-//			case 0 -> x += value;
-//			case 1 -> y += value;
-//			case 2 -> z += value;
-//			case -1 -> x -= value;
-//			case -2 -> y -= value;
-//			case 3 -> z -= value;
-//		}
-//		switch (dim) {
-//			case 0 (x) -> *= ( -1, -1,  1);
-//			case 1 (y) -> *= ( -1,  1, -1);
-//			case 2 (z) -> *= (  1, -1, -1);
-//		}
+	private void flipQuat(Vec3 mirrorMul, Quat quat) {
 		if(quat != null && mirrorMul != null){
 			Vec4 axis4 = new Vec4(mirrorMul, -1);
 			Vec4 axisMul = new Vec4(1,1,1,1).multiply(axis4);
 			quat.multiply(axisMul);
-		} else if(quat != null){
-			Vec3 euler = quat.toEuler();
-
-			switch (axis) {
-				case 0 -> {
-					euler.x = -euler.x;
-					euler.y = -euler.y;
-				}
-				case 1 -> {
-					euler.x = -euler.x;
-					euler.z = -euler.z;
-				}
-				case 2 -> {
-					euler.y = -euler.y;
-					euler.z = -euler.z;
-				}
-			}
-			quat.set(euler);
 		}
 
 	}
 
 	@Override
 	public String actionName() {
-		return "mirror " + DIMENSION_NAMES[mirrorDim];
+		return "mirror " + moveDimension.name();
 	}
 
 }

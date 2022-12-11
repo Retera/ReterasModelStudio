@@ -8,7 +8,6 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.SelectionBoxHelper;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.util.Mat4;
@@ -37,18 +36,10 @@ public abstract class AbstractSelectionManager {
 		return modelView.getSelectedVertices();
 	}
 
-	public abstract SelectionBundle getSelectionBundle(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
-
 	public abstract SelectionBundle getSelectionBundle(Vec2 min, Vec2 max, Mat4 viewPortAntiRotMat, double sizeAdj);
 
 	public abstract SelectionBundle getSelectionBundle(Vec2 min, Vec2 max, SelectionBoxHelper viewBox, double sizeAdj);
 
-//	public abstract SelectionBundle getSelectionBundle(Vec3 min, Vec3 max, Mat4 viewPortAntiRotMat, double sizeAdj);
-
-	public UndoAction selectStuff(Vec2 min, Vec2 max, SelectionMode selectionMode, CoordinateSystem coordinateSystem) {
-		SelectionBundle newSelection = getSelectionBundle(min, max, coordinateSystem);
-		return getUndoAction(selectionMode, newSelection);
-	}
 
 	public UndoAction selectStuff(Vec2 min, Vec2 max, SelectionMode selectionMode, Mat4 viewPortAntiRotMat, double sizeAdj) {
 		SelectionBundle newSelection = getSelectionBundle(min, max, viewPortAntiRotMat, sizeAdj);
@@ -60,10 +51,6 @@ public abstract class AbstractSelectionManager {
 		return getUndoAction(selectionMode, newSelection);
 	}
 
-//	public UndoAction selectStuff(Vec3 min, Vec3 max, SelectionMode selectionMode, Mat4 viewPortAntiRotMat, double sizeAdj) {
-//		SelectionBundle newSelection = getSelectionBundle(min, max, viewPortAntiRotMat, sizeAdj);
-//		return getUndoAction(selectionMode, newSelection);
-//	}
 
 	private UndoAction getUndoAction(SelectionMode selectionMode, SelectionBundle newSelection) {
 		if (selectionMode == null) {
@@ -119,8 +106,6 @@ public abstract class AbstractSelectionManager {
 	public abstract Vec2 getUVCenter(int tvertexLayerId);
 
 	public abstract Collection<? extends Vec2> getSelectedTVertices(int tvertexLayerId);
-
-	public abstract boolean selectableUnderCursor(Vec2 point, CoordinateSystem axes);
 
 	public abstract boolean selectableUnderCursor(Vec2 point, Mat4 viewPortAntiRotMat, double sizeAdj);
 

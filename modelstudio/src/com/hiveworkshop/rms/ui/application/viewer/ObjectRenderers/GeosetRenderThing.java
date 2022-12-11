@@ -139,14 +139,15 @@ public class GeosetRenderThing {
 //			for (int i = 0; i < numLayers; i++) {
 			for (int i = numLayers-1; i >=0; i--) {
 				Layer layer = material.getLayers().get(i);
-				SdBufferSubInstance instance = new SdBufferSubInstance(model, textureThing);
-				instance.setRenderTextures(renderTextures);
-				instance.setMaterial(material, i, renderModel.getTimeEnvironment());
-				if(lastAddedLayer == null || layer.getCoordId() != lastAddedLayer.getCoordId()){
-					lastAddedLayer = layer;
-					pipeline.startInstance(instance);
-					setRenderColor(layer);
-					lastInstance = instance;
+				if(0.1 < layer.getRenderVisibility(renderModel.getTimeEnvironment())){
+					SdBufferSubInstance instance = new SdBufferSubInstance(model, textureThing);
+					instance.setRenderTextures(renderTextures);
+					instance.setMaterial(material, i, renderModel.getTimeEnvironment());
+					if(lastAddedLayer == null || layer.getCoordId() != lastAddedLayer.getCoordId()){
+						lastAddedLayer = layer;
+						pipeline.startInstance(instance);
+						setRenderColor(layer);
+						lastInstance = instance;
 //				fresnelColorHeap.set(0f,0f,0f);
 //				boolean twoSided = layer.getTwoSided() || (ModelUtils.isShaderStringSupported(formatVersion) && material.getTwoSided());
 //				Bitmap tex = layer.getRenderTexture(renderModel.getTimeEnvironment(), model);
@@ -158,12 +159,13 @@ public class GeosetRenderThing {
 //					textureThing.setUpFilterMode(pipeline, layer, twoSided);
 //				}
 
-					drawGeo(pipeline, geo, layer, renderTextures);
-					pipeline.endInstance();
-				} else {
-					instance.setOffset(lastInstance.getOffset());
-					instance.setVertCount(lastInstance.getVertCount());
-					pipeline.overlappingInstance(instance);
+						drawGeo(pipeline, geo, layer, renderTextures);
+						pipeline.endInstance();
+					} else {
+						instance.setOffset(lastInstance.getOffset());
+						instance.setVertCount(lastInstance.getVertCount());
+						pipeline.overlappingInstance(instance);
+					}
 				}
 
 			}
@@ -256,7 +258,6 @@ public class GeosetRenderThing {
 
 	Vec4 triColor = new Vec4();
 	private void drawGeo(ShaderPipeline pipeline, Geoset geo, Layer layer, boolean renderTextures) {
-		Mat4 uvTransform = getUVTransform(layer);
 		RenderGeoset renderGeoset = renderModel.getRenderGeoset(geo);
 		layerColorHeap.set(renderGeoset.getRenderColor());
 		for (Triangle tri : geo.getTriangles()) {
@@ -268,7 +269,7 @@ public class GeosetRenderThing {
 				Vec3 renderNorm = renderVert.getRenderNorm();
 				Vec4 renderTang = renderVert.getRenderTang();
 
-				getUV(layer.getCoordId(), v, uvTransform);
+				getUV(layer.getCoordId(), v);
 
 				if(!renderTextures){
 					getFaceRGBA(v);
@@ -372,26 +373,24 @@ public class GeosetRenderThing {
 
 	}
 
-	private Vec2 getUV(int coordId, GeosetVertex vertex, Mat4 uvTransform) {
+	private Vec2 getUV(int coordId, GeosetVertex vertex) {
 		List<Vec2> uvs = vertex.getTverts();
 		if (coordId >= uvs.size()) {
 			coordId = uvs.size() - 1;
 		}
 		uvHeap.set(uvs.get(coordId));
-//		if(uvTransform != null){
-//			uvHeap.transform2(uvTransform);
-//		}
 		return uvHeap;
 	}
 
+	Vec3 uvCenter = new Vec3(1,1,1);
 	private Mat4 getUVTransform(Layer layer) {
 		if(layer.getTextureAnim() != null){
 			uvTransform.setIdentity();
-
-			uvTransform.fromRotationTranslationScale(
+			uvTransform.fromRotationTranslationScaleOrigin(
 					layer.getTextureAnim().getInterpolatedQuat(renderModel.getTimeEnvironment(), MdlUtils.TOKEN_ROTATION, Quat.IDENTITY),
 					layer.getTextureAnim().getInterpolatedVector(renderModel.getTimeEnvironment(), MdlUtils.TOKEN_TRANSLATION, Vec3.ZERO),
-					layer.getTextureAnim().getInterpolatedVector(renderModel.getTimeEnvironment(), MdlUtils.TOKEN_SCALING, Vec3.ONE)
+					layer.getTextureAnim().getInterpolatedVector(renderModel.getTimeEnvironment(), MdlUtils.TOKEN_SCALING, Vec3.ONE),
+					uvCenter
 			);
 			return uvTransform;
 		}

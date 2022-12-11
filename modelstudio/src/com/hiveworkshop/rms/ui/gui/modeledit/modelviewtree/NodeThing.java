@@ -173,7 +173,7 @@ public abstract class NodeThing<T> extends DefaultMutableTreeNode {
 			}
 		}
 		if(this instanceof ComponentTreeGeosetsTopNode){
-			System.out.println("GeoTop-child-comps:" + thingsToAffect.size());
+//			System.out.println("GeoTop-child-comps:" + thingsToAffect.size());
 		}
 		return thingsToAffect;
 	}

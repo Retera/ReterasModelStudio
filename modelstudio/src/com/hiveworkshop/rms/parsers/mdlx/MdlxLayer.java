@@ -292,13 +292,11 @@ public class MdlxLayer extends MdlxAnimatedObject {
 //			sizeTracker += 4;
 //			sizeTracker += 4;
 			for(int i = 0; i < hdTextureIds.size(); i++){
-				writer.writeInt32(hdTextureIds.get(i));
+				Integer textureID = hdTextureIds.get(i);
+				textureID = (textureID == null || textureID == -1) ? 0 : textureID;
+				writer.writeInt32(textureID);
 				writer.writeInt32(hdTextureSlots.get(i));
-				System.out.println("texture " + i + "/" + hdTextureIds.size() + " - textureID:" + hdTextureIds.get(i));
-//				System.out.println("textureID:" + hdTextureIds.get(i));
-//				System.out.println("TextureSlot:" + hdTextureSlots.get(i));
-//				sizeTracker += 4;
-//				sizeTracker += 4;
+				System.out.println("texture " + i + "/" + hdTextureIds.size() + " - textureID:" + textureID);
 				if(textureIdTimelineMap.get(i) != null){
 					if(textureIdTimelineMap.get(i).values[0] instanceof long[]){
 						long[] ugg = (long[]) textureIdTimelineMap.get(i).values[0];

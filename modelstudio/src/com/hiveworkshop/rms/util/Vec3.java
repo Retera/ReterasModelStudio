@@ -133,46 +133,8 @@ public class Vec3 {
 	public static Vec3 getBezier(final Vec3 from, final Vec3 outTan, final Vec3 inTan, final Vec3 toward, final float t) {
 		return new Vec3(from).bezier(outTan, inTan, toward, t);
 	}
-
-
-	protected static double getCenterDimCoord(double centerX, double centerY, double centerZ, byte dim) {
-		return switch (dim) {
-			case 0 -> centerX;
-			case 1 -> centerY;
-			case 2 -> centerZ;
-			case -1 -> -centerX;
-			case -2 -> -centerY;
-			case -3 -> -centerZ;
-			default -> centerZ;
-		};
-	}
-
-	protected static double getCenterDimCoord(Vec3 center, byte dim) {
-		return switch (dim) {
-			case 0 -> center.x;
-			case 1 -> center.y;
-			case 2 -> center.z;
-			case -1 -> -center.x;
-			case -2 -> -center.y;
-			case -3 -> -center.z;
-			default -> center.z;
-		};
-	}
-
-	public float getCoord(final byte dim) {
-		return switch (dim) {
-			case 0 -> x;
-			case 1 -> y;
-			case 2 -> z;
-			case -1 -> -x;
-			case -2 -> -y;
-			case -3 -> -z;
-			default -> 0;
-		};
-	}
-
-	public Vec2 getProjected(byte dim1, byte dim2) {
-		return new Vec2(getCoord(dim1), getCoord(dim2));
+	public Vec2 getProjected(Vec3 axis1, Vec3 axis2) {
+		return new Vec2(dot(axis1), dot(axis2));
 	}
 
 	public boolean equalLocs(final Vec3 v) {
@@ -206,28 +168,6 @@ public class Vec3 {
 		return distance(other.getVec3());
 	}
 
-	public Vec3 rotate(Vec3 center, double radians, byte firstXYZ, byte secondXYZ) {
-		sub(center);
-		double d1 = getCoord(firstXYZ);
-		double d2 = getCoord(secondXYZ);
-
-		double r = Math.sqrt((d1 * d1) + (d2 * d2));
-		double verAng = Math.acos(d1 / r);
-		if (d2 < 0) {
-			verAng = -verAng;
-		}
-		double newFirstCoord = (Math.cos(verAng + radians) * r);
-		if (!Double.isNaN(newFirstCoord)) {
-			setCoord(firstXYZ, newFirstCoord);
-		}
-		double newSecondCoord = (Math.sin(verAng + radians) * r);
-		if (!Double.isNaN(newSecondCoord)) {
-			setCoord(secondXYZ, newSecondCoord);
-		}
-		add(center);
-		return this;
-	}
-
 	public Vec3 rotate(Vec3 center, Quat quat) {
 		sub(center);
 		transform(quat);
@@ -254,6 +194,15 @@ public class Vec3 {
 
 	public float[] toArray() {
 		return new float[] {x, y, z};
+	}
+	public float[] toArray(float[] array) {
+		if(array == null || array.length<3){
+			return new float[] {x, y, z};
+		}
+		array[0] = x;
+		array[1] = y;
+		array[2] = z;
+		return array;
 	}
 
 	public float[] toFloatArray() {
@@ -292,6 +241,15 @@ public class Vec3 {
 
 	public float dot(final Vec3 a) {
 		return (x * a.x) + (y * a.y) + (z * a.z);
+	}
+	public float dotNorm(final Vec3 a) {
+		float len = length() * a.length();
+
+		if (len != 0) {
+			len = 1.0f / len;
+		}
+
+		return ((x * a.x) + (y * a.y) + (z * a.z))*len;
 	}
 
 	public Vec3 multiply(final Vec3 a) {
@@ -626,39 +584,6 @@ public class Vec3 {
 		return this;
 	}
 
-	public Vec3 setCoord(final byte dim, final double value) {
-		if (!Double.isNaN(value)) {
-			switch (dim) {
-				case 0 -> x = (float) value;
-				case 1 -> y = (float) value;
-				case 2 -> z = (float) value;
-				case -1 -> x = (float) -value;
-				case -2 -> y = (float) -value;
-				case -3 -> z = (float) -value;
-//                case -32 -> z = (float) -value;
-			}
-		}
-		return this;
-	}
-
-	public Vec3 setCoords(byte dim1, byte dim2, Vec2 vec2) {
-		setCoord(dim1, vec2.x);
-		setCoord(dim2, vec2.y);
-		return this;
-	}
-
-	public Vec3 translateCoord(final byte dim, final double value) {
-		switch (dim) {
-			case 0 -> x += value;
-			case 1 -> y += value;
-			case 2 -> z += value;
-			case -1 -> x -= value;
-			case -2 -> y -= value;
-			case 3 -> z -= value;
-		}
-		return this;
-	}
-
 	public Vec3 minimize(Vec3 a) {
 		x = Math.min(x, a.x);
 		y = Math.min(y, a.y);
@@ -906,35 +831,6 @@ public class Vec3 {
 		return result;
 	}
 
-
-	public Vec2 getTransformedAndProjected(final Mat4 mat4, byte dim1, byte dim2) {
-		float newX = (mat4.m00 * x) + (mat4.m10 * y) + (mat4.m20 * z) + mat4.m30;
-		float newY = (mat4.m01 * x) + (mat4.m11 * y) + (mat4.m21 * z) + mat4.m31;
-		float newZ = (mat4.m02 * x) + (mat4.m12 * y) + (mat4.m22 * z) + mat4.m32;
-
-		float projX = switch (dim1) {
-			case 0 -> newX;
-			case 1 -> newY;
-			case 2 -> newZ;
-			case -1 -> -newX;
-			case -2 -> -newY;
-			case -3 -> -newZ;
-			default -> 0;
-		};
-		float projY = switch (dim2) {
-			case 0 -> newX;
-			case 1 -> newY;
-			case 2 -> newZ;
-			case -1 -> -newX;
-			case -2 -> -newY;
-			case -3 -> -newZ;
-			default -> 0;
-		};
-		return new Vec2(projX, projY);
-	}
-
-
-
 	public Vec3 getLocationFromMat(Mat4 mat4, Vec3 pivot) {
 		x = mat4.m30 + ((mat4.m00 * pivot.x) + (mat4.m10 * pivot.y) + (mat4.m20 * pivot.z)) - pivot.x;
 		y = mat4.m31 + ((mat4.m01 * pivot.x) + (mat4.m11 * pivot.y) + (mat4.m21 * pivot.z)) - pivot.y;
@@ -950,4 +846,8 @@ public class Vec3 {
 		return set(tempX, tempY, tempZ);
 	}
 
+
+	public String toRoundedString(){
+		return "{ " + Math.round(x) + ", " + Math.round(y) + ", " + Math.round(z) + " }";
+	}
 }

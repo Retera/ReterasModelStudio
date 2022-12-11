@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.ui.application.actionfunctions.*;
 import com.hiveworkshop.rms.ui.application.tools.EditTexturesPanel;
 import com.hiveworkshop.rms.ui.application.viewer.EditUVsView;
 import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -21,6 +22,7 @@ public class ToolsMenu extends JMenu {
 		getAccessibleContext().setAccessibleDescription("Allows the user to use various model editing tools. (You must open a model before you may use this menu.)");
 
 		add(new ScaleModel().getMenuItem());
+		add(new RotateModel().getMenuItem());
 
 		add(new ViewSkinning().getMenuItem());
 		add(new FlipFaces().getMenuItem());
@@ -62,9 +64,9 @@ public class ToolsMenu extends JMenu {
 		JCheckBoxMenuItem mirrorFlip = new JCheckBoxMenuItem("Automatically flip after mirror (preserves surface)", true);
 		mirrorFlip.setMnemonic(KeyEvent.VK_A);
 
-		mirrorSubmenu.add(createMenuItem("Mirror X", KeyEvent.VK_X, e -> MirrorSelection.mirrorAxis(ProgramGlobals.getCurrentModelPanel().getModelHandler(), (byte) 0, mirrorFlip.isSelected(), null)));
-		mirrorSubmenu.add(createMenuItem("Mirror Y", KeyEvent.VK_Y, e -> MirrorSelection.mirrorAxis(ProgramGlobals.getCurrentModelPanel().getModelHandler(), (byte) 1, mirrorFlip.isSelected(), null)));
-		mirrorSubmenu.add(createMenuItem("Mirror Z", KeyEvent.VK_Z, e -> MirrorSelection.mirrorAxis(ProgramGlobals.getCurrentModelPanel().getModelHandler(), (byte) 2, mirrorFlip.isSelected(), null)));
+		mirrorSubmenu.add(createMenuItem("Mirror X", KeyEvent.VK_X, e -> MirrorSelection.mirrorAxis(ProgramGlobals.getCurrentModelPanel().getModelHandler(), Vec3.X_AXIS, mirrorFlip.isSelected(), null)));
+		mirrorSubmenu.add(createMenuItem("Mirror Y", KeyEvent.VK_Y, e -> MirrorSelection.mirrorAxis(ProgramGlobals.getCurrentModelPanel().getModelHandler(), Vec3.Y_AXIS, mirrorFlip.isSelected(), null)));
+		mirrorSubmenu.add(createMenuItem("Mirror Z", KeyEvent.VK_Z, e -> MirrorSelection.mirrorAxis(ProgramGlobals.getCurrentModelPanel().getModelHandler(), Vec3.Z_AXIS, mirrorFlip.isSelected(), null)));
 
 		mirrorSubmenu.add(new JSeparator());
 

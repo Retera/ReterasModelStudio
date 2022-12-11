@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportView;
 import com.hiveworkshop.rms.ui.application.edit.uv.UVViewportModelRenderer;
 import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -18,18 +19,14 @@ public class UVViewport extends ViewportView {
 	private final UVViewportModelRenderer viewportModelRenderer;
 
 	public UVViewport(BiConsumer<Double, Double> coordDisplayListener2) {
-		super((byte) 0, (byte) 1, new Dimension(400, 400), coordDisplayListener2);
-
-		coordinateSystem.setYFlip(1);
+		super(Vec3.X_AXIS, Vec3.NEGATIVE_Y_AXIS, coordDisplayListener2);
 
 		viewportModelRenderer = new UVViewportModelRenderer();
 	}
 
 	public void init() {
 		coordinateSystem.setZoom(Math.min(getWidth(), getHeight()));
-		coordinateSystem.setPosition(0,0);
-//		coordinateSystem.translate(-.25,-.5);
-		coordinateSystem.translate(-.5,-.5);
+		coordinateSystem.setPosition(.5,-.5);
 	}
 
 	public void paintComponent(Graphics g, int vertexSize) {
@@ -43,15 +40,16 @@ public class UVViewport extends ViewportView {
 		if(modelHandler != null){
 			viewportModelRenderer.drawGeosetUVs(graphics2d, coordinateSystem, modelHandler);
 
-			viewportActivity.render(graphics2d, coordinateSystem, modelHandler.getRenderModel(), false);
+			viewportActivityManager.render(graphics2d, coordinateSystem, modelHandler.getRenderModel(), false);
 		}
 	}
 
 	private void PaintBackgroundImage(Graphics g) {
 		for (Image background : backgrounds) {
 			if (isWrapImage) {
-				calcStartDrawPoint(startDrawPoint);
-				calcEndDrawPoint(endDrawPoint);
+				startDrawPoint.set(coordinateSystem.geomVN(-1,-1));
+				endDrawPoint.set(coordinateSystem.geomVN(1, 1));
+
 				for (int y = (int) startDrawPoint.y; y < (int) endDrawPoint.y; y++) {
 					for (int x = (int) startDrawPoint.x; x < (int) endDrawPoint.x; x++) {
 						drawImage(g, background, x, y);
@@ -68,25 +66,21 @@ public class UVViewport extends ViewportView {
 		return this;
 	}
 
-	private Vec2 calcStartDrawPoint(Vec2 minHeap){
-		int minX = (int) Math.floor(coordinateSystem.geomX(0));
-		int minY = (int) Math.floor(coordinateSystem.geomY(0));
-
-		return minHeap.set(minX, minY);
-	}
-	private Vec2 calcEndDrawPoint(Vec2 maxHeap){
-		int maxX = (int) Math.ceil(coordinateSystem.geomX(getWidth()));
-		int maxY = (int) Math.ceil(coordinateSystem.geomY(getHeight()));
-
-		return maxHeap.set(maxX, maxY);
-	}
-
 	private void drawImage(Graphics g, Image background, double x, double y) {
-		double startX = coordinateSystem.viewX(x);
-		double endX = coordinateSystem.viewX(x + 1);
-		double startY = coordinateSystem.viewY(y);
-		double endY = coordinateSystem.viewY(y + 1);
-		g.drawImage(background, (int) startX, (int) startY, (int) (endX - startX), (int) (endY - startY), null);
+		Vec2 start = coordinateSystem.viewVN(x, y);
+		Vec2 end = coordinateSystem.viewVN(x+1, y+1);
+
+		double startX = (1 + start.x)/2f * getWidth();
+		double startY = (1 - start.y)/2f * getHeight();
+
+		double endX   = (1 + end.x  )/2f * getWidth();
+		double endY   = (1 - end.y  )/2f * getHeight();
+
+
+		int width = (int) (endX - startX);
+		int height = (int) (endY - startY);
+
+		g.drawImage(background, (int) startX, (int) startY, width, height, null);
 	}
 
 	public void setMinimumSize(int w, int h){
@@ -95,7 +89,7 @@ public class UVViewport extends ViewportView {
 	}
 
 	public void setAspectRatio(double ratio) {
-		coordinateSystem.setAspectRatio(ratio);
+		coordinateSystem.setImageAspectRatio(ratio);
 	}
 
 	public void addBackgroundImage(final Image i) {

@@ -1,41 +1,36 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator.activity;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.addactions.DrawBoxAction;
-import com.hiveworkshop.rms.editor.actions.addactions.DrawBoxAction2;
-import com.hiveworkshop.rms.editor.actions.editor.CompoundMoveAction;
-import com.hiveworkshop.rms.editor.actions.util.DoNothingMoveActionAdapter;
-import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.editor.actions.addactions.DrawGeometryAction;
+import com.hiveworkshop.rms.editor.model.util.Mesh;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.util.MouseEventHelpers;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import javax.swing.*;
-import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DrawBoxActivity extends ViewportActivity {
 
 	private DrawingState drawingState = DrawingState.NOTHING;
-	private final Vec2 mouseStartPoint = new Vec2();
-	private final Vec2 lastMousePoint = new Vec2();
-	private GenericMoveAction boxAction;
+	private final Vec3 startPoint3d = new Vec3();
+
 	private int numSegsX;
 	private int numSegsY;
 	private int numSegsZ;
-	private double lastHeightModeZ = 0;
-	private double firstHeightModeZ = 0;
+	protected final Vec3 moveVector = new Vec3();
+	protected float zDepth = 0;
 
+	float[] halfScreenXY;
+	float halfScreenX;
+	float halfScreenY;
+
+	Vec3 scale = new Vec3(1,1,1);
+	//	Vec3 scaleAdj = new Vec3(1,1,1);
 	public DrawBoxActivity(ModelHandler modelHandler,
 	                       ModelEditorManager modelEditorManager,
 	                       int numSegsX, int numSegsY, int numSegsZ) {
@@ -45,129 +40,61 @@ public class DrawBoxActivity extends ViewportActivity {
 		this.numSegsZ = numSegsZ;
 	}
 
+	@Override
+	public boolean selectionNeeded() {
+		return false;
+	}
+
+	@Override
+	public boolean isEditing() {
+		return drawingState != DrawingState.NOTHING;
+	}
+
 	public void setNumSegsX(int numSegsX) {
 		this.numSegsX = numSegsX;
 	}
-
 	public void setNumSegsY(int numSegsY) {
 		this.numSegsY = numSegsY;
 	}
-
 	public void setNumSegsZ(int numSegsZ) {
 		this.numSegsZ = numSegsZ;
 	}
 
 	@Override
-	public void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem) {
-		if (drawingState == DrawingState.NOTHING) {
-			Vec3 locationCalculator = convertToVec3(coordinateSystem, e.getPoint());
-			mouseStartPoint.set(locationCalculator.getProjected(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ()));
-			drawingState = DrawingState.WANT_BEGIN_BASE;
-		}
-	}
-
-	public static Vec3 convertToVec3(CoordinateSystem coordinateSystem, Point point) {
-		Vec3 vertex = new Vec3(0, 0, 0);
-		vertex.setCoord(coordinateSystem.getPortFirstXYZ(), coordinateSystem.geomX(point.x));
-		vertex.setCoord(coordinateSystem.getPortSecondXYZ(), coordinateSystem.geomY(point.y));
-		return vertex;
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e, CoordinateSystem coordinateSystem) {
-		if (drawingState == DrawingState.BASE) {
-			if (boxAction == null) {
-				drawingState = DrawingState.NOTHING;
-			} else {
-
-				lastHeightModeZ = coordinateSystem.geomY(e.getY());
-				firstHeightModeZ = lastHeightModeZ;
-				drawingState = DrawingState.HEIGHT;
-			}
-		} else if (drawingState == DrawingState.HEIGHT) {
-			undoManager.pushAction(boxAction);
-			boxAction = null;
-			drawingState = DrawingState.NOTHING;
-		}
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e, CoordinateSystem coordinateSystem) {
-		mouseDragged(e, coordinateSystem);
-	}
-
-	@Override
-	public void mouseDragged(MouseEvent e, CoordinateSystem coordinateSystem) {
-		if (drawingState == DrawingState.WANT_BEGIN_BASE || drawingState == DrawingState.BASE) {
-			drawingState = DrawingState.BASE;
-
-			Vec3 locationCalculator = convertToVec3(coordinateSystem, e.getPoint());
-			Vec2 mouseEnd = locationCalculator.getProjected(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
-
-			updateBase(mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
-		} else if (drawingState == DrawingState.HEIGHT) {
-			double heightModeZ = coordinateSystem.geomY(e.getY());
-			if (Math.abs(heightModeZ - firstHeightModeZ - 1) > 0.1) {
-				boxAction.updateTranslation(0, 0, heightModeZ - lastHeightModeZ);
-			}
-			lastHeightModeZ = heightModeZ;
-		}
-	}
-
-	public void updateBase(Vec2 mouseEnd, byte dim1, byte dim2) {
-		if (Math.abs(mouseEnd.x - mouseStartPoint.x) >= 0.1 && Math.abs(mouseEnd.y - mouseStartPoint.y) >= 0.1) {
-			if (boxAction == null) {
-				Vec3 facingVector = new Vec3(0, 0, 1); // todo make this work with CameraHandler
-				try {
-
-					List<GenericMoveAction> moveActions = new ArrayList<>();
-
-					Material solidWhiteMaterial = ModelUtils.getWhiteMaterial(modelView.getModel());
-					Geoset solidWhiteGeoset = getSolidWhiteGeoset(solidWhiteMaterial);
-
-					UndoAction addAction = getAddAction(solidWhiteMaterial, solidWhiteGeoset);
-					if (addAction != null) {
-						moveActions.add(new DoNothingMoveActionAdapter(addAction));
-					}
-
-					moveActions.add(new DrawBoxAction(mouseStartPoint, mouseEnd, dim1, dim2, facingVector, numSegsX, numSegsY, numSegsZ, solidWhiteGeoset));
-
-					boxAction = new CompoundMoveAction("Add Box", moveActions);
-					;
-					boxAction.redo();
-
-				} catch (WrongModeException exc) {
-					drawingState = DrawingState.NOTHING;
-					JOptionPane.showMessageDialog(null, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-				}
-			} else {
-				boxAction.updateTranslation(mouseEnd.x - lastMousePoint.x, mouseEnd.y - lastMousePoint.y, 0);
-			}
-			lastMousePoint.set(mouseEnd);
-		}
-	}
-
-	@Override
 	public void mousePressed(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
+		Vec2 point = getPoint(e);
+		scale.set(Vec3.ZERO);
 		if (drawingState == DrawingState.NOTHING) {
-			mouseStartPoint.set(getPoint(e));
+			mouseStartPoint.set(point);
+			this.inverseViewProjectionMatrix.set(viewProjectionMatrix).invert();
+			this.viewProjectionMatrix.set(viewProjectionMatrix);
+			halfScreenXY = halfScreenXY();
+			halfScreenX = halfScreenXY[0];
+			halfScreenY = halfScreenXY[1];
+
+
 			drawingState = DrawingState.WANT_BEGIN_BASE;
+			Mesh mesh = ModelUtils.getBoxMesh2(numSegsX, numSegsY, numSegsZ);
+			UndoAction setupAction = getSetupAction(mesh.getVertices(), mesh.getTriangles());
+
+
+			startPoint3d.set(get3DPoint(mouseStartPoint));
+
+			Mat4 rotMat = getRotMat();
+			transformAction = new DrawGeometryAction("Draw Box", startPoint3d, rotMat, mesh.getVertices(), setupAction,
+					null).doSetup();
+			transformAction.setScale(scale);
+
 		}
+		lastMousePoint.set(point);
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
-		if (drawingState == DrawingState.BASE) {
-			if (boxAction == null) {
-				drawingState = DrawingState.NOTHING;
-			} else {
-				lastHeightModeZ = getPoint(e).y;;
-				firstHeightModeZ = lastHeightModeZ;
-				drawingState = DrawingState.HEIGHT;
-			}
-		} else if (drawingState == DrawingState.HEIGHT) {
-			undoManager.pushAction(boxAction);
-			boxAction = null;
+		if (transformAction != null) {
+			undoManager.pushAction(transformAction);
+
+			transformAction = null;
 			drawingState = DrawingState.NOTHING;
 		}
 	}
@@ -177,54 +104,45 @@ public class DrawBoxActivity extends ViewportActivity {
 		mouseDragged(e, viewProjectionMatrix, sizeAdj);
 	}
 
+
 	@Override
 	public void mouseDragged(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 		Vec2 mouseEnd = getPoint(e);
-		if (drawingState == DrawingState.WANT_BEGIN_BASE || drawingState == DrawingState.BASE) {
-			drawingState = DrawingState.BASE;
+		if (transformAction != null) {
 
+			int modifiersEx = e.getModifiersEx();
 
-			updateBase(mouseEnd);
-		} else if (drawingState == DrawingState.HEIGHT) {
-			double heightModeZ = mouseEnd.y;
-			if (Math.abs(heightModeZ - firstHeightModeZ - 1) > 0.1) {
-				boxAction.updateTranslation(0, 0, heightModeZ - lastHeightModeZ);
-			}
-			lastHeightModeZ = heightModeZ;
-		}
-	}
+//			float deltaX = (mouseEnd.x - lastMousePoint.x)*halfScreenX;
+//			float deltaY = (mouseEnd.y - lastMousePoint.y)*halfScreenY;
+//			float deltaAvr = (Math.abs(deltaX)+Math.abs(deltaY))/2f;
 
-	public void updateBase(Vec2 mouseEnd) {
-		if (Math.abs(mouseEnd.x - mouseStartPoint.x) >= 0.1 && Math.abs(mouseEnd.y - mouseStartPoint.y) >= 0.1) {
-			if (boxAction == null) {
-				Vec3 facingVector = new Vec3(0, 0, 1); // todo make this work with CameraHandler
-				try {
+//			Vec3 dPoint = get3DPoint(mouseEnd);
+//			float xDist1 = (mouseEnd.x - mouseStartPoint.x);
+//			float yDist1 = (mouseEnd.y - mouseStartPoint.y);
+			float xDist3d = (mouseEnd.x - mouseStartPoint.x)*halfScreenX;
+			float yDist3d = (mouseEnd.y - mouseStartPoint.y)*halfScreenY;
+//			float len = (float) Math.sqrt(xDist3d*xDist3d+yDist3d*yDist3d);
+			float avgDist3d = (Math.abs(xDist3d)+Math.abs(yDist3d))/2f;
 
-					List<GenericMoveAction> moveActions = new ArrayList<>();
-
-					Material solidWhiteMaterial = ModelUtils.getWhiteMaterial(modelView.getModel());
-					Geoset solidWhiteGeoset = getSolidWhiteGeoset(solidWhiteMaterial);
-
-					UndoAction addAction = getAddAction(solidWhiteMaterial, solidWhiteGeoset);
-					if (addAction != null) {
-						moveActions.add(new DoNothingMoveActionAdapter(addAction));
-					}
-
-					moveActions.add(new DrawBoxAction2(mouseStartPoint, mouseEnd, facingVector, numSegsX, numSegsY, numSegsZ, solidWhiteGeoset));
-
-					boxAction = new CompoundMoveAction("Add Box", moveActions);
-					;
-					boxAction.redo();
-
-				} catch (WrongModeException exc) {
-					drawingState = DrawingState.NOTHING;
-					JOptionPane.showMessageDialog(null, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-				}
+//			if(MouseEventHelpers.hasModifier(modifiersEx, MouseEvent.CTRL_DOWN_MASK)
+//					&& MouseEventHelpers.hasModifier(modifiersEx, MouseEvent.SHIFT_DOWN_MASK)){
+//				scale.set(yDist3d, avgDist3d, -xDist3d);
+//
+//			} else
+			if(MouseEventHelpers.hasModifier(modifiersEx, MouseEvent.CTRL_DOWN_MASK)){
+//				scale.set(yDist3d, avgDist3d, -xDist3d);
+				scale.set(xDist3d, yDist3d, avgDist3d);
 			} else {
-				boxAction.updateTranslation(mouseEnd.x - lastMousePoint.x, mouseEnd.y - lastMousePoint.y, 0);
+
+				scale.set(Math.copySign(avgDist3d, xDist3d), Math.copySign(avgDist3d, yDist3d), avgDist3d);
+//				scale.set(Math.copySign(avgDist3d, yDist3d), avgDist3d, Math.copySign(avgDist3d, -xDist3d));
 			}
-			lastMousePoint.set(mouseEnd);
+
+			transformAction.setScale(scale);
+
 		}
+		lastMousePoint.set(mouseEnd);
+
 	}
 
 	private enum DrawingState {

@@ -14,7 +14,8 @@ import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.ExtFilter;
 import com.hiveworkshop.rms.util.ImageCreator;
-import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Quat;
+import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.fileviewers.SklViewer;
 import com.hiveworkshop.rms.util.fileviewers.TxtViewer;
 import jassimp.AiPostProcessSteps;
@@ -88,10 +89,8 @@ public class ModelLoader {
 
 		int groundOffset = aspectRatio > 1 ? (128 - displayHeight) / 2 : 0;
 
-		Vec2 min = new Vec2(-displayWidth / 2.0, groundOffset);
-		Vec2 max = new Vec2(displayWidth / 2.0, displayHeight + groundOffset);
-
-		Mesh planeMesh = ModelUtils.createPlane((byte) 0, true, 0, max, min, 1);
+		Mesh planeMesh = ModelUtils.getPlaneMesh2(new Vec3(-groundOffset, displayWidth / 2.0, 0), new Vec3(-groundOffset-displayHeight, -displayWidth / 2.0, 0), 1, 1);
+		planeMesh.rotate(new Quat().setFromAxisAngle(Vec3.Y_AXIS, (float) Math.toRadians(90)));
 		newGeoset.addVerticies(planeMesh.getVertices());
 		planeMesh.getVertices().forEach(vertex -> vertex.setGeoset(newGeoset));
 		newGeoset.addTriangles(planeMesh.getTriangles());
@@ -136,8 +135,7 @@ public class ModelLoader {
 				if (openModelPanel.close()) {
 					ProgramGlobals.removeModelPanel(openModelPanel);
 				}
-			}
-		}
+			}}
 	}
 
 	public static void setCurrentModel(ModelPanel modelPanel) {

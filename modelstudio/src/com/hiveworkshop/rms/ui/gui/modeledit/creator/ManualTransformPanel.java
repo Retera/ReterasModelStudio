@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec3SpinnerArray;
 import net.miginfocom.swing.MigLayout;
@@ -136,6 +137,7 @@ public class ManualTransformPanel extends JPanel {
 		JButton button2 = new JButton("Move to");
 		button2.addActionListener(e -> moveTo(spinners2.getValue()));
 		inputPanel.add(button2, "split");
+
 		JButton toSelection = new JButton("»«");
 		toSelection.setToolTipText("Set position to center of selection");
 		inputPanel.add(toSelection, "wrap");
@@ -205,15 +207,15 @@ public class ManualTransformPanel extends JPanel {
 
 	private void rotate(Vec3 rot, boolean customOrigin, Vec3 customCenter) {
 		if (modelHandler != null && !modelHandler.getModelView().isEmpty()) {
-			Vec3 center = customOrigin ? customCenter : modelHandler.getModelView().getSelectionCenter();
-			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().rotate(center, rot).redo());
+			Vec3 center = customOrigin ? customCenter : getCurrCenter();
+			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().rotate(center, rot, new Mat4()).redo());
 		}
 	}
 
 
 	private void move(Vec3 dist) {
 		if (modelHandler != null && !modelHandler.getModelView().isEmpty()) {
-			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().translate(dist).redo());
+			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().translate(dist, new Mat4()).redo());
 		}
 	}
 
@@ -227,7 +229,7 @@ public class ManualTransformPanel extends JPanel {
 	private void scale(Vec3 scale, boolean customOrigin, Vec3 customCenter) {
 		if (modelHandler != null && !modelHandler.getModelView().isEmpty()) {
 			Vec3 center = customOrigin ? customCenter : getCurrCenter();
-			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().scale(center, scale).redo());
+			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().scale(center, scale, new Mat4()).redo());
 		}
 	}
 

@@ -14,6 +14,10 @@ public class Vec1SpinnerArray {
 	private String labelConst = "";
 	private String spinnerConst = "";
 	private boolean isEnabled = true;
+	private float minValue;
+	private float maxValue;
+	private float stepSize;
+	private float[] floats;
 
 	private Consumer<Float> vec3Consumer;
 
@@ -37,13 +41,22 @@ public class Vec1SpinnerArray {
 		this(startV, l1, -100000.00f, 0.1f);
 	}
 	public Vec1SpinnerArray(Float startV, String l1, float minValue, float stepSize) {
-		spinners[0] = getStandardSpinner(startV, minValue, stepSize).reloadNewValue(startV);
+		this(startV, l1, minValue, 100000.00f, stepSize);
+	}
+	public Vec1SpinnerArray(Float startV, String l1, float minValue, float maxValue, float stepSize) {
+		this.floats = new float[] {startV};
+		this.minValue = minValue;
+		this.maxValue = maxValue;
+		this.stepSize = stepSize;
 
 		labels[0] = new JLabel(l1);
 	}
 
 	private FloatEditorJSpinner getStandardSpinner(float startValue, float minValue, float stepSize) {
 		return new FloatEditorJSpinner(startValue, minValue, stepSize);
+	}
+	private FloatEditorJSpinner getStandardSpinner(float startValue, float minValue, float maxValue, float stepSize) {
+		return new FloatEditorJSpinner(startValue, minValue, maxValue, stepSize, null);
 	}
 
 	public JPanel spinnerPanel() {
@@ -58,7 +71,7 @@ public class Vec1SpinnerArray {
 	public JPanel getCoordPanel(int i) {
 		JPanel coordPanel = new JPanel(new MigLayout("gap 0, ins 0"));
 		coordPanel.add(labels[i], labelConst + ", " + labelWrap);
-		coordPanel.add(spinners[i], spinnerConst);
+		coordPanel.add(getSpinner(i), spinnerConst);
 		return coordPanel;
 	}
 
@@ -73,19 +86,45 @@ public class Vec1SpinnerArray {
 
 	public Vec1SpinnerArray setValues(Float newValue) {
 		isUpdating = true;
-		spinners[0].reloadNewValue(newValue);
+		getSpinner(0).reloadNewValue(newValue);
 		isUpdating = false;
 		return this;
 	}
 
 	public Vec1SpinnerArray setEnabled(boolean b) {
 		isEnabled = b;
-		spinners[0].setEnabled(b);
+		if(spinners[0] != null) spinners[0].setEnabled(b);
+		labels[0].setEnabled(b);
 		return this;
 	}
 
 	public boolean isEnabled() {
 		return isEnabled;
+	}
+
+	public Vec1SpinnerArray setMaxValue(float maxValue) {
+		this.maxValue = maxValue;
+		return this;
+	}
+
+	public Vec1SpinnerArray setMinValue(float minValue) {
+		this.minValue = minValue;
+		return this;
+	}
+
+	public Vec1SpinnerArray setStepSize(float stepSize) {
+		this.stepSize = stepSize;
+		return this;
+	}
+
+	private FloatEditorJSpinner getSpinner(int i){
+		if(spinners[i] == null){
+			spinners[i] = getStandardSpinner(floats[i], minValue, maxValue, stepSize).reloadNewValue(floats[i]);
+			spinners[i].setEnabled(isEnabled);
+
+			if (vec3Consumer != null) spinners[i].setFloatEditingStoppedListener(f -> runConsumer());
+		}
+		return spinners[i];
 	}
 
 	public Vec1SpinnerArray setLabelWrap(boolean b) {
@@ -109,13 +148,13 @@ public class Vec1SpinnerArray {
 	}
 
 	public Vec1SpinnerArray setStepSize(double stepSize){
-		((SpinnerNumberModel)spinners[0].getModel()).setStepSize(stepSize);
+		if(spinners[0] != null) ((SpinnerNumberModel)spinners[0].getModel()).setStepSize(stepSize);
 		return this;
 	}
 
 	public Vec1SpinnerArray setVec2Consumer(Consumer<Float> consumer) {
 		this.vec3Consumer = consumer;
-		spinners[0].setFloatEditingStoppedListener(f -> runConsumer());
+		if(spinners[0] != null) spinners[0].setFloatEditingStoppedListener(f -> runConsumer());
 		return this;
 	}
 

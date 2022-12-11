@@ -317,7 +317,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 //				drawUglyTestLine();
 
 //				System.out.println("painting camera!");
-				cameraMarkerPainter();
+				selectBoxPainter();
 				GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f);
 				if (autoRepainting) {
 //					System.out.println("paintAndUpdate");
@@ -379,7 +379,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		glPolygonMode(GL_FRONT_FACE, GL_FILL);
 		glColor4f(1, 0, 0, 1);
 		glBegin(GL_LINES);
-		Vec3 RT = new Vec3(100, 0, 0).transform(cameraHandler.getViewPortAntiRotMat2());
+		Vec3 RT = new Vec3(100, 0, 0).transform(cameraHandler.getViewProjectionMatrix());
 
 		GL11.glVertex3f(0, 0, 0);
 		GL11.glVertex3f(RT.x, RT.y, RT.z);
@@ -561,10 +561,10 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		}
 	}
 
-	private void cameraMarkerPainter() {
+	private void selectBoxPainter() {
 //		CubePainter.paintCameraLookAt(cameraHandler);
 		if (mouseAdapter.isSelecting()) {
-			CubePainter.paintRekt(mouseAdapter.getStartPGeo(), mouseAdapter.getEndPGeo1(), mouseAdapter.getEndPGeo2(), mouseAdapter.getEndPGeo3(), cameraHandler);
+			CubePainter.paintRekt(mouseAdapter.getStartP(), mouseAdapter.getEndP(), cameraHandler);
 		}
 	}
 }

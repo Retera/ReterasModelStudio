@@ -1,62 +1,106 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes;
 
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.Plane;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.SelectionBoxHelper;
 import com.hiveworkshop.rms.util.Mat4;
-import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseWheelEvent;
 
-public final class CoordinateSystem {
-	private final Mat4 viewPortAntiRotMat = new Mat4();
-	private final Quat inverseCameraRotation = new Quat();
-	private Vec3 axis1 = new Vec3();
-	private Vec3 axis2 = new Vec3();
-	private final double ZOOM_FACTOR = 1.15;
-
-	private byte dimension1;
-	private byte dimension2;
+public final class CoordinateSystem extends AbstractCamera {
 	private final JComponent parent;
+
+	private final Mat4 cameraSpaceMatrix = new Mat4();          // World -> Camera
+	private final Mat4 viewMatrix = new Mat4();                  // World -> View
+	private final Mat4 projectionMatrix = new Mat4();            // View -> Clip
+	private final Mat4 viewProjectionMatrix = new Mat4();        // World -> Clip
+	private final Mat4 invViewProjectionMatrix = new Mat4();     // Clip -> World
+
+	private final Vec3 target = new Vec3();
+	private final Vec3 cameraRight = new Vec3();
+	private final Vec3 cameraUp = new Vec3();
+	private final Vec3 camPosition = new Vec3();
+	private final Vec3 camBackward = new Vec3();
+
+	private final Vec3 vecHeap = new Vec3();
+	private final Mat4 tempMat4 = new Mat4();
+
+	private final double ZOOM_FACTOR = 1.15;
+	private final Vec2 temp = new Vec2();
+	private final Vec2 temp2 = new Vec2();
+	private final Vec3 tempV3 = new Vec3();
+
 	private double cameraX = 0;
 	private double cameraY = 0;
+
 	private double zoom = 1;
-	private double aspectRatio = 1;
-	private int yFlip = -1;
+	private double imageAspectRatio = 1;
 
-	public CoordinateSystem(byte dimension1, byte dimension2, JComponent parent) {
-		this.dimension1 = dimension1;
-		this.dimension2 = dimension2;
+	public CoordinateSystem(Vec3 right, Vec3 up, JComponent parent) {
 		this.parent = parent;
-		axis1.setCoord(dimension1, 1);
-		axis2.setCoord(dimension2, 1);
-		Quat rot1 = new Quat().setFromAxisAngle(axis1, 0).normalize().invertRotation();
-		Quat rot2 = new Quat().setFromAxisAngle(axis2, 0).normalize().invertRotation();
-
-		inverseCameraRotation.set(rot1).mul(rot2).normalize().invertRotation();
-		viewPortAntiRotMat.setIdentity().fromQuat(inverseCameraRotation);
+		setDimensions(right, up);
 	}
 
-	public CoordinateSystem setYFlip(int yFlip) {
-		this.yFlip = yFlip;
+	public CoordinateSystem setDimensions(Vec3 right, Vec3 up) {
+
+		cameraRight.set(right);
+		cameraUp.set(up);
+		camBackward.set(cameraRight).cross(cameraUp).normalize();
+
+		updateCamera();
 		return this;
 	}
 
-	public CoordinateSystem setAspectRatio(double aspectRatio) {
-		this.aspectRatio = aspectRatio;
+	public CoordinateSystem setImageAspectRatio(double imageAspectRatio) {
+		this.imageAspectRatio = imageAspectRatio;
+		updateCamera();
 		return this;
 	}
 
-	public double getAspectRatio() {
-		return aspectRatio;
+	SelectionBoxHelper selectionBoxHelper = new SelectionBoxHelper();
+	private final Plane planeHeap = new Plane();
+	public SelectionBoxHelper getSelectionBoxHelper(Vec2 topRight, Vec2 bottomLeft){
+		planeHeap.set(camBackward, target);
+		return selectionBoxHelper.setFrom(topRight, bottomLeft, cameraRight, cameraUp, planeHeap, invViewProjectionMatrix);
 	}
 
+	// 1 px on screen to distance in world
+	public double sizeAdj(){
+		double x1 = geomV(1, 0).x;
+		double x2 = geomV(0, 0).x;
+		return x1-x2;
+	}
+
+	public double getImageAspectRatio() {
+		return imageAspectRatio;
+	}
 	public double getCameraX() {
 		return cameraX;
 	}
-
 	public double getCameraY() {
 		return cameraY;
+	}
+
+	public int getParentHeight() {
+		if(parent != null){
+			return parent.getHeight();
+		}
+		return 480;
+	}
+	public int getParentWidth() {
+		if(parent != null){
+			return parent.getWidth();
+		}
+		return 640;
+	}
+	public Component getParent() {
+		return parent;
+	}
+	public Component getComponent() {
+		return parent;
 	}
 
 	public double getZoom() {
@@ -65,208 +109,166 @@ public final class CoordinateSystem {
 
 	public CoordinateSystem setZoom(double zoom) {
 		this.zoom = zoom;
+		updateCamera();
 		return this;
 	}
 
-	public CoordinateSystem doZoom(MouseWheelEvent e) {
-		int wr = e.getWheelRotation();
-
-		double mouseX = e.getX();
-		double mouseY = e.getY();
-		return doZoom(wr, mouseX, mouseY);
+	public void doZoom(MouseWheelEvent e) {
+		doZoom(e.getWheelRotation(),e.getX(), e.getY());
 	}
 
-	// xRatio = [0.0, 1.0]
-	public CoordinateSystem doZoom(double wRatio, double hRatio, boolean zoomIn) {
-		double mouseX = wRatio * parent.getWidth();
-		double mouseY = hRatio * parent.getHeight();
-
-		return doZoom(zoomIn ? -1 : 1, mouseX, mouseY);
-	}
-	private CoordinateSystem doZoom(int wr, double mouseX, double mouseY) {
+	public CoordinateSystem doZoom(int wr, double mouseX, double mouseY) {
 		int dir = wr < 0 ? -1 : 1;
-		double w = mouseX - (parent.getWidth() / 2.0);
-		double h = mouseY - (parent.getHeight() / 2.0);
+		double w = mouseX - (getParentWidth() / 2.0);
+		double h = mouseY - (getParentHeight() / 2.0);
 
 		for (int i = 0; i < wr * dir; i++) {
 			double zoomAdjust = (ZOOM_FACTOR - 1) * dir / zoom;
 
 			if (dir == -1) {
-				cameraX += w * zoomAdjust / ZOOM_FACTOR / aspectRatio;
+				cameraX -= w * zoomAdjust / ZOOM_FACTOR / imageAspectRatio;
 				cameraY += h * zoomAdjust / ZOOM_FACTOR;
 				zoom *= ZOOM_FACTOR;
 			} else {
-
-				cameraX += w * zoomAdjust  / aspectRatio;
+				cameraX -= w * zoomAdjust  / imageAspectRatio;
 				cameraY += h * zoomAdjust ;
 				zoom /= ZOOM_FACTOR;
 			}
 		}
-		return this;
-	}
-
-	public CoordinateSystem doZoom1(MouseWheelEvent e) {
-		int wr = e.getWheelRotation();
-
-		int dir = wr < 0 ? -1 : 1;
-
-		double mouseX = e.getX();
-		double mouseY = e.getY();
-		System.out.println("mouseX: " + mouseX + ", mouseY: " + mouseY);
-
-		double w = mouseX - (parent.getWidth() / 2.0);
-		double h = mouseY - (parent.getHeight() / 2.0);
-		double wRatio = mouseX / parent.getWidth();
-		double hRatio = mouseY / parent.getHeight();
-
-		for (int i = 0; i < wr * dir; i++) {
-			double zoomAdjust = (ZOOM_FACTOR - 1) * dir / ZOOM_FACTOR;
-
-			cameraX += w * zoomAdjust / zoom / aspectRatio;
-			cameraY += h * zoomAdjust / zoom;
-//
-//			cameraX += w * (ZOOM_FACTOR - 1) * dir / ZOOM_FACTOR / zoom / aspectRatio;
-//			cameraY += h * (ZOOM_FACTOR - 1) * dir / ZOOM_FACTOR / zoom;
-
-			if (dir == -1) {
-
-				zoom *= ZOOM_FACTOR;
-			} else {
-				zoom /= ZOOM_FACTOR;
-			}
-		}
+		updateCamera();
 		return this;
 	}
 
 	public CoordinateSystem zoomIn(double amount) {
 		zoom *= amount;
+		updateCamera();
 		return this;
 	}
 
 	public CoordinateSystem zoomOut(double amount) {
 		zoom /= amount;
+		updateCamera();
 		return this;
 	}
 
 	public CoordinateSystem setPosition(double x, double y) {
 		cameraX = x;
 		cameraY = y;
+		updateCamera();
 		return this;
 	}
 
-	public CoordinateSystem translate(double x, double y) {
-		cameraX += x / aspectRatio;
-		cameraY += y;
-		return this;
+	public void rotate(double right, double up){
+		translateZoomed(right, up);
+	}
+
+	public void translate(double x, double y) {
+		cameraX -= x / imageAspectRatio;
+		cameraY -= y;
+		updateCamera();
 	}
 
 	public CoordinateSystem translateZoomed(double x, double y) {
-		cameraX += x / zoom / aspectRatio;
-		cameraY += y / zoom;
+		cameraX -= .5 * x * getParentWidth() / zoom / imageAspectRatio;
+		cameraY -= .5 * y * getParentHeight()  / zoom;
+
+		updateCamera();
 		return this;
 	}
 
-	public CoordinateSystem setGeomPosition(double x, double y) {
-		cameraX = geomX(x);
-		cameraY = geomY(y);
-		return this;
+	// Geometry to screen (pixel coordinates in parent component)
+	public Vec2 viewV(Vec3 vertex) {
+		return viewV(vertex.x, vertex.y, vertex.z);
 	}
-
-	public CoordinateSystem setDimensions(byte dimension1, byte dimension2) {
-		this.dimension1 = dimension1;
-		this.dimension2 = dimension2;
-
-		axis1.setCoord(dimension1, 1);
-		axis2.setCoord(dimension2, 1);
-		Quat rot1 = new Quat().setFromAxisAngle(axis1, 0).normalize().invertRotation();
-		Quat rot2 = new Quat().setFromAxisAngle(axis2, 0).normalize().invertRotation();
-
-		inverseCameraRotation.set(rot1).mul(rot2).normalize().invertRotation();
-		viewPortAntiRotMat.setIdentity().fromQuat(inverseCameraRotation);
-		return this;
-	}
-
-	public Vec2 viewV(double x, double y) {
-		double x_view = (x + cameraX) * zoom * aspectRatio + parent.getWidth() / 2.0;
-		double y_view = ((y * yFlip + cameraY) * zoom) + parent.getHeight() / 2.0;
-		return new Vec2(x_view, y_view);
-	}
-
 	public Vec2 viewV(Vec2 vec2) {
-		double x_view = (vec2.x + cameraX) * zoom * aspectRatio + parent.getWidth() / 2.0;
-		double y_view = ((vec2.y * yFlip + cameraY) * zoom) + parent.getHeight() / 2.0;
-		return new Vec2(x_view, y_view);
+		return viewV(vec2.x, vec2.y, 0);
+	}
+	public Vec2 viewV(double x, double y) {
+		return viewV(x, y, 0);
+	}
+	public Vec2 viewV(double x, double y, double z) {
+		tempV3.set(x, y, z).transform(viewProjectionMatrix, 1, true);
+		return new Vec2((1+tempV3.x)/2.0 * getParentWidth(), (1-tempV3.y)/2.0 * getParentHeight());
 	}
 
-	public Vec2 convertToViewVec2(Vec3 vertex) {
-		double x = viewX(vertex.getCoord(dimension1));
-		double y = viewY(vertex.getCoord(dimension2));
-		return new Vec2(x, y);
+	// Geometry to clip (normalized view space ([-1,1] to [1,-1] corresponding to [0,0] to [width, height] in parent component)
+	public Vec2 viewVN(Vec3 vertex) {
+		return viewVN(vertex.x, vertex.y, vertex.z);
+	}
+	public Vec2 viewVN(Vec2 vec2) {
+		return viewVN(vec2.x, vec2.y, 0);
+	}
+	public Vec2 viewVN(double x, double y) {
+		return viewVN(x, y, 0);
+	}
+	public Vec2 viewVN(double x, double y, double z) {
+		tempV3.set(x, y, z).transform(viewProjectionMatrix, 1, true);
+		return new Vec2(tempV3.x, tempV3.y);
 	}
 
-	public Vec2 geomVec2(Vec2 point) {
-		return new Vec2(geomX(point.x), geomY(point.y));
+	// Screen to geometry coordinates
+	public Vec2 geomV(Vec2 vec2) {
+		return geomV(vec2.x, vec2.y);
+	}
+	public Vec2 geomV(double x, double y) {
+		return geomVN(
+				x * (2.0/(double) getParentWidth())-1,
+				1 - y *(2.0/(double) getParentHeight()));
 	}
 
-	public double viewX(double x) {
-		return (x + cameraX) * zoom * aspectRatio + parent.getWidth() / 2.0;
+	// Clip space to geometry coordinates
+	public Vec2 geomVN(Vec2 vec2) {
+		return geomVN(vec2.x, vec2.y);
+	}
+	public Vec2 geomVN(double x, double y) {
+		tempV3.set(x, y, 0).transform(invViewProjectionMatrix, 1, true);
+		return temp.set(tempV3.x, tempV3.y);
+	}
+	public Vec3 getGeoPoint(Vec2 vec2) {
+		return getGeoPoint(vec2.x, vec2.y);
+	}
+	public Vec3 getGeoPoint(double x, double y) {
+		return tempV3.set(x, y, 0).transform(invViewProjectionMatrix, 1, true);
 	}
 
-	public double viewY(double y) {
-		return ((y * yFlip + cameraY) * zoom) + parent.getHeight() / 2.0;
+	public Vec3 getCamRight() {
+		return camBackward;
+	}
+	public Vec3 getCamUp() {
+		return camBackward;
+	}
+	public Vec3 getCamBackward() {
+		return camBackward;
 	}
 
-	public double geomX(double x) {
-		return (x - parent.getWidth() / 2.0) / aspectRatio / zoom - cameraX;
+	public Mat4 getInvViewProjectionMat() {
+		return invViewProjectionMatrix;
+	}
+	public Mat4 getViewProjectionMatrix() {
+		return viewProjectionMatrix;
 	}
 
-	public double geomY(double y) {
-		return yFlip * ((y - parent.getHeight() / 2.0) / zoom - cameraY);
-	}
+	public void updateCamera() {
+		target.set(Vec3.ZERO).addScaled(cameraRight, (float) cameraX).addScaled(cameraUp, (float) cameraY);
 
-	public byte getPortFirstXYZ() {
-		return dimension1;
-	}
+		cameraSpaceMatrix.set(cameraRight, cameraUp, camBackward);
 
-	public byte getPortSecondXYZ() {
-		return dimension2;
-	}
+		camPosition.set(camBackward).add(target);
 
-	public byte getUnusedXYZ() {
-		if (dimension1 < 0) {
-			dimension1 = (byte) (-dimension1 - 1);
-		}
-		if (dimension2 < 0) {
-			dimension2 = (byte) (-dimension2 - 1);
-		}
-		return (byte) (3 - dimension1 - dimension2);
-	}
 
-	public Mat4 getViewPortAntiRotMat() {
-//		viewPortAntiRotMat.setIdentity().fromQuat(inverseCameraRotation.invertRotation());
-//		inverseCameraRotation.invertRotation();
-		return viewPortAntiRotMat;
-	}
+		vecHeap.set(camPosition).negate();
+		tempMat4.setIdentity().translate(vecHeap);
 
-	public Quat viewportRotation() {
-		return switch (getUnusedXYZ()) {
-			case 0 -> new Quat().setFromAxisAngle(Vec3.X_AXIS, 0);
-			case 1 -> new Quat().setFromAxisAngle(Vec3.Y_AXIS, 0);
-			case 2 -> new Quat().setFromAxisAngle(Vec3.Z_AXIS, 0);
-			case -1 -> new Quat().setFromAxisAngle(Vec3.NEGATIVE_X_AXIS, 0);
-			case -2 -> new Quat().setFromAxisAngle(Vec3.NEGATIVE_Y_AXIS, 0);
-			case -3 -> new Quat().setFromAxisAngle(Vec3.NEGATIVE_Z_AXIS, 0);
-			default -> throw new IllegalStateException("Unexpected value: " + getUnusedXYZ());
-		};
-//		return switch (dim) {
-//			case 0 -> centerX;
-//			case 1 -> centerY;
-//			case -1 -> -centerX;
-//			case -2 -> -centerY;
-//			case -3 -> -centerZ;
-//			case 2 -> centerZ;
-//			default -> centerZ;
-//		};
-	}
+		viewMatrix.set(cameraSpaceMatrix).mul(tempMat4);
 
+		float distance = (float) (1f/zoom);
+		float aspectRatioF = (float) imageAspectRatio;
+		float halfDist = distance / 2.0f;
+		projectionMatrix.setOrtho(
+				-getParentWidth()* halfDist /aspectRatioF, getParentWidth()* halfDist /aspectRatioF,
+				-getParentHeight()* halfDist, getParentHeight()* halfDist,
+				-1000, 1000);
+		viewProjectionMatrix.set(projectionMatrix).mul(viewMatrix);
+		invViewProjectionMatrix.set(viewProjectionMatrix).invert();
+	}
 }

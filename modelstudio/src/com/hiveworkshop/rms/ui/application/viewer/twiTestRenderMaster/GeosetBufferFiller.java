@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.HdBufferSubInstance;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.SdBufferSubInstance;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ShaderManager;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ShaderPipeline;
 import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
@@ -65,6 +66,34 @@ public class GeosetBufferFiller {
 		return this;
 	}
 
+	public void fillBuffer(ShaderManager shaderManager, boolean renderTextures) {
+		if(renderModel != null){
+			int formatVersion = model.getFormatVersion();
+			boolean shaderStringSupported = ModelUtils.isShaderStringSupported(formatVersion);
+			shaderManager.getOrCreatePipeline(false).prepare();
+			if(shaderStringSupported){
+				shaderManager.getOrCreatePipeline(true).prepare();
+
+			}
+			for (Geoset geo : model.getGeosets()) {
+				if(correctLoD(formatVersion, geo) && modelView.shouldRender(geo)){
+					Material material = geo.getMaterial();
+					ShaderPipeline pipeline = shaderManager.getOrCreatePipeline(shaderStringSupported && material.getShaderString() != null && material.getShaderString().length() > 0);
+//					System.out.println("pipeline: " + pipeline.getClass());
+					if(renderTextures){
+						colorHeap.set(renderModel.getRenderGeoset(geo).getRenderColor());
+					} else {
+						colorHeap.set(1,1,1,1);
+					}
+					if(colorHeap.w > RenderModel.MAGIC_RENDER_SHOW_CONSTANT){
+						renderInst(pipeline, geo, formatVersion, renderTextures);
+					} else {
+//						System.out.println("invis!");
+					}
+				}
+			}
+		}
+	}
 	public void fillBuffer(ShaderPipeline pipeline, boolean renderTextures) {
 		if(renderModel != null){
 			int formatVersion = model.getFormatVersion();
@@ -113,24 +142,26 @@ public class GeosetBufferFiller {
 			SdBufferSubInstance lastInstance = null;
 
 //			for (int i = 0; i < numLayers; i++) {
-			for (int i = numLayers-1; i >=0; i--) {
+			for (int i = numLayers-1; 0 <= i; i--) {
 				Layer layer = material.getLayers().get(i);
-				SdBufferSubInstance instance = new SdBufferSubInstance(model, textureThing);
-				instance.setRenderTextures(renderTextures);
-				instance.setMaterial(material, i, renderModel.getTimeEnvironment());
-				instance.setLayerColor(renderModel.getRenderGeoset(geo).getRenderColor());
-				if(lastAddedLayer == null || layer.getCoordId() != lastAddedLayer.getCoordId()){
-					lastAddedLayer = layer;
-					pipeline.startInstance(instance);
-					setRenderColor(layer);
-					lastInstance = instance;
+				if(0 < layer.getRenderVisibility(renderModel.getTimeEnvironment())){
+					SdBufferSubInstance instance = new SdBufferSubInstance(model, textureThing);
+					instance.setRenderTextures(renderTextures);
+					instance.setMaterial(material, i, renderModel.getTimeEnvironment());
+					instance.setLayerColor(renderModel.getRenderGeoset(geo).getRenderColor());
+					if(lastAddedLayer == null || layer.getCoordId() != lastAddedLayer.getCoordId()){
+						lastAddedLayer = layer;
+						pipeline.startInstance(instance);
+						setRenderColor(layer);
+						lastInstance = instance;
 
-					drawGeo(pipeline, geo, layer, renderTextures);
-					pipeline.endInstance();
-				} else {
-					instance.setOffset(lastInstance.getOffset());
-					instance.setVertCount(lastInstance.getVertCount());
-					pipeline.overlappingInstance(instance);
+						drawGeo(pipeline, geo, layer, renderTextures);
+						pipeline.endInstance();
+					} else {
+						instance.setOffset(lastInstance.getOffset());
+						instance.setVertCount(lastInstance.getVertCount());
+						pipeline.overlappingInstance(instance);
+					}
 				}
 
 			}

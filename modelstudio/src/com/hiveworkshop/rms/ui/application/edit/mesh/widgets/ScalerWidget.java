@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.widgets;
 
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.MoveDimension;
 import com.hiveworkshop.rms.util.GU;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -37,33 +37,28 @@ public final class ScalerWidget extends Widget {
 
 	}
 
-	@Override
-	public MoveDimension getDirectionByMouse(Vec2 mousePoint1, CoordinateSystem coordinateSystem) {
-		if(coordinateSystem != null) {
-			byte dim1 = coordinateSystem.getPortFirstXYZ();
-			byte dim2 = coordinateSystem.getPortSecondXYZ();
-			int x = (int) coordinateSystem.viewX(point.getCoord(dim1));
-			int y = (int) coordinateSystem.viewY(point.getCoord(dim2));
+	public MoveDimension getDirectionByMouse(Vec2 mousePoint, Mat4 viewportMat, Component parent){
+		MoveDimension direction = MoveDimension.NONE;
 
-			MoveDimension direction = MoveDimension.NONE;
+		Point mouseP = getMousePoint(mousePoint, parent);
 
-			Point mousePoint = new Point((int) mousePoint1.x, (int) mousePoint1.y);
+		Vec2 vpPoint = getVpPoint(viewportMat, parent);
+		int x = (int) vpPoint.x;
+		int y = (int) vpPoint.y;
 
-			if (GU.getTransPolygon(x, y, triangle).contains(mousePoint)) {
-				return MoveDimension.XYZ;
-			}
-			if (GU.getTransPolygon(x, y, northLineHitBox).contains(mousePoint)) {
-				return MoveDimension.getByByte(dim2);
-			}
-			if (GU.getTransPolygon(x, y, eastLineHitBox).contains(mousePoint)) {
-				return MoveDimension.getByByte(dim1);
-			}
-			if (GU.getTransPolygon(x, y, romb).contains(mousePoint)) {
-				return MoveDimension.getByByte(dim1, dim2);
-			}
-			return direction;
+		if (GU.getTransPolygon(x, y, triangle).contains(mouseP)) {
+			return MoveDimension.XYZ;
 		}
-		return MoveDimension.NONE;
+		if (GU.getTransPolygon(x, y, northLineHitBox).contains(mouseP)) {
+			return MoveDimension.Y;
+		}
+		if (GU.getTransPolygon(x, y, eastLineHitBox).contains(mouseP)) {
+			return MoveDimension.X;
+		}
+		if (GU.getTransPolygon(x, y, romb).contains(mouseP)) {
+			return MoveDimension.XY;
+		}
+		return direction;
 	}
 
 	public Vec3 getPoint() {
@@ -71,18 +66,30 @@ public final class ScalerWidget extends Widget {
 	}
 
 	@Override
-	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem) {
-		byte xDimension = coordinateSystem.getPortFirstXYZ();
-		byte yDimension = coordinateSystem.getPortSecondXYZ();
-		int x = (int) coordinateSystem.viewX(point.getCoord(xDimension));
-		int y = (int) coordinateSystem.viewY(point.getCoord(yDimension));
+	public void render(Graphics2D graphics, Mat4 viewportMat, Mat4 invViewportMat, Component parent){
+		float aspect = parent.getWidth() / (float)parent.getHeight();
+		temp0.set(0, 0, 0).transform(invViewportMat, 1, true);
+
+		Vec3 tempX = tempPoint.set(1, 0, 0).transform(invViewportMat, 1, true).sub(temp0);
+		MoveDimension xDim = MoveDimension.getByAxis(tempX.normalize());
+
+		Vec3 tempY = tempPoint.set(0, aspect*1, 0).transform(invViewportMat, 1, true).sub(temp0);
+		MoveDimension yDim = MoveDimension.getByAxis(tempY.normalize());
+
+		Vec3 tempTot = tempPoint.set(1, aspect*1, 0).transform(invViewportMat, 1, true).sub(temp0);
+		MoveDimension totDim = MoveDimension.getByAxis(tempTot.normalize());
+
+		Vec2 vpPoint = getVpPoint(viewportMat, parent);
+		int x = (int) vpPoint.x;
+		int y = (int) vpPoint.y;
+
 		if (moveDirection != null) {
-			setHighLightableColor(graphics, xDimension, moveDirection);
+			graphics.setColor(getHighLightableColor(xDim, moveDirection == xDim || moveDirection == totDim));
 			drawEastLine(graphics, x, y);
 			drawDiagonalLineEast(graphics, x, y, EXTERIOR_TRIANGLE_OFFSET);
 			drawDiagonalLineEast(graphics, x, y, INTERIOR_TRIANGLE_OFFSET);
 
-			setHighLightableColor(graphics, yDimension, moveDirection);
+			graphics.setColor(getHighLightableColor(yDim, moveDirection == yDim || moveDirection == totDim));
 			drawNorthLine(graphics, x, y);
 			drawDiagonalLineNorth(graphics, x, y, EXTERIOR_TRIANGLE_OFFSET);
 			drawDiagonalLineNorth(graphics, x, y, INTERIOR_TRIANGLE_OFFSET);

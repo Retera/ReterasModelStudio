@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.language.TextKey;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.SmartNumberSlider;
 import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
@@ -45,7 +46,7 @@ public class ScaleModel extends ActionFunction {
 			cameraNodes.add(camera.getSourceNode());
 			cameraNodes.add(camera.getTargetNode());
 		}
-		return new StaticMeshScaleAction(vertices, model.getIdObjects(), cameraNodes, center);
+		return new StaticMeshScaleAction(vertices, model.getIdObjects(), cameraNodes, center, new Vec3(1, 1, 1), new Mat4());
 	}
 	private static void updateScaleModel(StaticMeshScaleAction action, Vec3 scale, float scaleFloat, float[] lastScaleFloat){
 		float newScale = 0f + (scaleFloat/lastScaleFloat[0]);

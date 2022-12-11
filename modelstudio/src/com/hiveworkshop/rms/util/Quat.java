@@ -456,6 +456,31 @@ public class Quat extends Vec4 {
 		return setFromAxisAngle(axisX, axisY, axisZ, (float) angle).normalize().invertRotation();
 	}
 
+	public Quat rotationBetweenVectors(Vec3 start, Vec3 dest){
+		float cosTheta = start.dotNorm(dest);
+		Vec3 rotationAxis;
+
+		if (cosTheta < -1 + 0.001f){
+			// special case when vectors in opposite directions:
+			// there is no "ideal" rotation axis
+			// So guess one; any will do as long as it's perpendicular to start
+			rotationAxis = new Vec3(0.0f, 0.0f, 1.0f).crossNorm(start);
+			if (rotationAxis.length() < 0.01 ) // bad luck, they were parallel, try again!
+				rotationAxis.set(1.0f, 0.0f, 0.0f).crossNorm(start);
+
+			rotationAxis.normalize();
+			return setFromAxisAngle(rotationAxis, (float) Math.toRadians(180));
+		}
+
+		rotationAxis = start.cross(dest);
+
+		float s = (float) Math.sqrt( (1+cosTheta)*2 );
+		float invs = 1 / s;
+		set(rotationAxis.x * invs, rotationAxis.y * invs, rotationAxis.z * invs, s * 0.5f );
+		return this;
+
+	}
+
 	public Quat setFromAxisAngle(final Vec3 axis, final float angle) {
 		return setFromAxisAngle(axis.x, axis.y, axis.z, angle);
 	}

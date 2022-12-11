@@ -1,12 +1,11 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.editor.AbstractTransformAction;
 import com.hiveworkshop.rms.editor.actions.editor.StaticMeshShrinkFattenAction;
-import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
-import com.hiveworkshop.rms.editor.actions.util.GenericRotateAction;
-import com.hiveworkshop.rms.editor.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
 
 /**
@@ -24,27 +23,27 @@ public abstract class ModelEditor {
 		this.modelView = modelView;
 	}
 
-	public abstract UndoAction translate(Vec3 v);
+	public abstract UndoAction translate(Vec3 v, Mat4 rotMat);
 
-	public abstract UndoAction scale(Vec3 center, Vec3 scale);
+	public abstract UndoAction scale(Vec3 center, Vec3 scale, Mat4 rotMat);
 
 	public abstract UndoAction setPosition(Vec3 center, Vec3 v);
 
-	public abstract UndoAction rotate(Vec3 center, Vec3 rotate);
+	public abstract UndoAction rotate(Vec3 center, Vec3 rotate, Mat4 rotMat);
 
 	public abstract UndoAction shrinkFatten(float amount);
 
-	public abstract GenericMoveAction beginTranslation();
+	public abstract AbstractTransformAction beginTranslation(Mat4 rotMat);
 
-	public abstract GenericScaleAction beginScaling(Vec3 center);
+	public abstract AbstractTransformAction beginExtrude(Mat4 rotMat);
 
-	public abstract GenericRotateAction beginRotation(Vec3 center, byte firstXYZ, byte secondXYZ);
+	public abstract AbstractTransformAction beginExtend(Mat4 rotMat);
 
-	public abstract GenericRotateAction beginSquatTool(Vec3 center, byte firstXYZ, byte secondXYZ);
+	public abstract AbstractTransformAction beginScaling(Vec3 center, Mat4 rotMat);
 
-	public abstract GenericRotateAction beginRotation(Vec3 center, Vec3 axis);
+	public abstract AbstractTransformAction beginRotation(Vec3 center, Vec3 axis, Mat4 rotMat);
 
-	public abstract GenericRotateAction beginSquatTool(Vec3 center, Vec3 axis);
+	public abstract AbstractTransformAction beginSquatTool(Vec3 center, Vec3 axis, Mat4 rotMat);
 
 	public abstract StaticMeshShrinkFattenAction beginShrinkFatten(float amount);
 

@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.editor.actions.animation;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.util.GenericScaleAction;
+import com.hiveworkshop.rms.editor.actions.editor.AbstractTransformAction;
 import com.hiveworkshop.rms.editor.model.AnimatedNode;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.IdObject;
@@ -10,49 +10,60 @@ import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class ScalingKeyframeAction implements GenericScaleAction {
+public class ScalingKeyframeAction extends AbstractTransformAction {
 	private final UndoAction addingTimelinesOrKeyframesAction;
 	private final int trackTime;
 	private final List<IdObject> nodeList;
 	private final Vec3 scale;
 	private final Sequence anim;
+	private final RenderModel editorRenderModel;
+	private final Mat4 invRotMat = new Mat4();
+	private final Mat4 rotMat = new Mat4();
 
 	public ScalingKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
 	                             Collection<IdObject> nodeSelection,
-	                             Vec3 center, RenderModel editorRenderModel) {
-		this(addingTimelinesOrKeyframesAction, nodeSelection, center, new Vec3(1,1,1), editorRenderModel);
+	                             Vec3 center, RenderModel editorRenderModel, Mat4 rotMat) {
+		this(addingTimelinesOrKeyframesAction, nodeSelection, center, new Vec3(1,1,1), editorRenderModel, rotMat);
 	}
 
 	public ScalingKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
 	                             Collection<IdObject> nodeSelection,
-	                             Vec3 center, Vec3 scale, RenderModel editorRenderModel) {
+	                             Vec3 center, Vec3 scale, RenderModel editorRenderModel, Mat4 rotMat) {
 		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
 		this.trackTime = editorRenderModel.getTimeEnvironment().getEnvTrackTime();
 		this.anim = editorRenderModel.getTimeEnvironment().getCurrentSequence();
 		nodeList = new ArrayList<>(nodeSelection);
+		this.editorRenderModel = editorRenderModel;
 
 		this.scale = new Vec3(scale);
+		this.rotMat.set(rotMat);
+		this.invRotMat.set(rotMat).invert();
 	}
 
 	@Override
-	public UndoAction undo() {
+	public ScalingKeyframeAction undo() {
 		Vec3 tempInverse = new Vec3(1, 1, 1).divide(scale);
 		for (IdObject node : nodeList) {
 			updateScalingKeyframe(node, trackTime, tempInverse);
 		}
-		addingTimelinesOrKeyframesAction.undo();
+		if(addingTimelinesOrKeyframesAction != null){
+			addingTimelinesOrKeyframesAction.undo();
+		}
 		return this;
 	}
 
 	@Override
-	public UndoAction redo() {
-		addingTimelinesOrKeyframesAction.redo();
+	public ScalingKeyframeAction redo() {
+		if(addingTimelinesOrKeyframesAction != null){
+			addingTimelinesOrKeyframesAction.redo();
+		}
 		for (IdObject node : nodeList) {
 			updateScalingKeyframe(node, trackTime, scale);
 		}
@@ -61,23 +72,35 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 
 	@Override
 	public String actionName() {
-		return "edit scaling";
+		return "Edit Scaling";
 	}
 
-	public GenericScaleAction doSetup(){
-		addingTimelinesOrKeyframesAction.redo();
+	public ScalingKeyframeAction doSetup(){
+		if(addingTimelinesOrKeyframesAction != null){
+			addingTimelinesOrKeyframesAction.redo();
+		}
 		return this;
 	}
 
 	@Override
-	public GenericScaleAction updateScale(Vec3 scale) {
+	public ScalingKeyframeAction updateScale(Vec3 scale) {
 		this.scale.multiply(scale);
 		for (IdObject node : nodeList) {
 			updateScalingKeyframe(node, trackTime, scale);
 		}
 		return this;
 	}
+	@Override
+	public ScalingKeyframeAction setScale(Vec3 scale) {
+		scaleDiff.set(scale).divide(this.scale);
+		this.scale.set(scale);
+		for (IdObject node : nodeList) {
+			updateScalingKeyframe(node, trackTime, scaleDiff);
+		}
+		return this;
+	}
 
+	Vec3 scaleDiff = new Vec3();
 	public void updateScalingKeyframe(AnimatedNode animatedNode, int trackTime, Vec3 scale) {
 		Vec3AnimFlag animFlag = (Vec3AnimFlag) animatedNode.find(MdlUtils.TOKEN_SCALING);
 		if (animFlag == null || anim instanceof GlobalSeq && animFlag.getGlobalSeq() != anim) {
@@ -139,7 +162,7 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 //	}
 //
 //
-//	public UndoAction undo2() {
+//	public ScalingKeyframeAction undo2() {
 //		Vec3 tempInverse = new Vec3(1, 1, 1).divide(scale);
 //		for (IdObject node : nodeToLocalScale.keySet()) {
 //			tempInverse.set(1, 1, 1).divide(nodeToLocalScale.get(node));
@@ -155,7 +178,7 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 //	}
 //
 //
-//	public UndoAction redo2() {
+//	public ScalingKeyframeAction redo2() {
 //		addingTimelinesOrKeyframesAction.redo();
 //		for (IdObject node : nodeToLocalScale.keySet()) {
 //			Vec3 localScale = nodeToLocalScale.get(node);
@@ -169,7 +192,7 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 //	}
 //
 //
-//	public GenericScaleAction updateScale2(Vec3 scale) {
+//	public ScalingKeyframeAction updateScale2(Vec3 scale) {
 //		Vec4 translationHeap = new Vec4();
 //		Vec3 translationHeap2 = new Vec3();
 //		Vec3 delta = new Vec3();

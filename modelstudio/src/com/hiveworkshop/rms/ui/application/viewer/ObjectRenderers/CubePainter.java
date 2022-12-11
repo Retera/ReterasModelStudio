@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 import org.lwjgl.opengl.GL11;
 
@@ -11,15 +12,23 @@ public class CubePainter {
 	static double A90 = (Math.PI/2.0);
 	Color ugg = new Color(255, (int)(255 * .2f), 255);
 	Color ugg2 = new Color(255, 255, 255);
+	private static final Vec3 corner1 = new Vec3();
+	private static final Vec3 corner2 = new Vec3();
+	private static final Vec3 corner3 = new Vec3();
+	private static final Vec3 corner4 = new Vec3();
+	private static final Vec2 tempV2 = new Vec2();
 
-
-	public static void paintRekt(Vec3 start, Vec3 end1, Vec3 end2, Vec3 end3, CameraManager cameraHandler) {
+	public static void paintRekt(Vec2 start, Vec2 end, CameraManager cameraHandler) {
 
 //		glBegin(GL11.GL_TRIANGLES);
 //		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 //		GL11.glDepthMask(false);
 //		glDisable(GL_DEPTH_TEST);
 //		glBegin(GL11.GL_LINES);
+		Vec3 corner1 = cameraHandler.getGeoPoint(tempV2.set(start.x, start.y));
+		Vec3 corner2 = cameraHandler.getGeoPoint(tempV2.set(start.x, end.y));
+		Vec3 corner3 = cameraHandler.getGeoPoint(tempV2.set(end.x, end.y));
+		Vec3 corner4 = cameraHandler.getGeoPoint(tempV2.set(end.x, start.y));
 
 
 		GL11.glDepthMask(false);
@@ -41,9 +50,9 @@ public class CubePainter {
 		glColor4f(1f, .2f, 1f, .7f);
 
 		GL11.glNormal3f(0, frnt, 0);
-		doGlQuad(start, end1, end2, end1);
+		doGlQuad(corner1, corner2, corner3, corner2);
 
-		doGlQuad(end2, end3, start, end3);
+		doGlQuad(corner3, corner4, corner1, corner4);
 
 		glEnd();
 	}

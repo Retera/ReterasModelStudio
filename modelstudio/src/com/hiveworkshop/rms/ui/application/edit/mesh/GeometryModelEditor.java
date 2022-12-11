@@ -2,19 +2,18 @@ package com.hiveworkshop.rms.ui.application.edit.mesh;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.editor.*;
+import com.hiveworkshop.rms.editor.actions.mesh.ExtrudeAction;
+import com.hiveworkshop.rms.editor.actions.mesh.SplitTrisAndFillGap;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
-import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
-import com.hiveworkshop.rms.editor.actions.util.GenericRotateAction;
-import com.hiveworkshop.rms.editor.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
 
 public class GeometryModelEditor extends ModelEditor {
-	protected final ModelStructureChangeListener structureChangeListener;
+	protected final ModelStructureChangeListener changeListener;
 	protected ModelHandler modelHandler;
 	protected SelectionItemTypes selectionMode;
 
@@ -23,7 +22,7 @@ public class GeometryModelEditor extends ModelEditor {
 	                           SelectionItemTypes selectionMode) {
 		super(selectionManager, modelHandler.getModelView());
 		this.modelHandler = modelHandler;
-		this.structureChangeListener = ModelStructureChangeListener.changeListener;
+		this.changeListener = ModelStructureChangeListener.changeListener;
 		this.selectionMode = selectionMode;
 	}
 
@@ -33,14 +32,14 @@ public class GeometryModelEditor extends ModelEditor {
 	}
 
 	@Override
-	public UndoAction translate(Vec3 v) {
+	public UndoAction translate(Vec3 v, Mat4 rotMat) {
 		Vec3 delta = new Vec3(v);
-		return new StaticMeshMoveAction(modelView, delta);
+		return new StaticMeshMoveAction(modelView, delta, rotMat);
 	}
 
 	@Override
-	public UndoAction scale(Vec3 center, Vec3 scale) {
-		return new StaticMeshScaleAction(modelView, center, scale);
+	public UndoAction scale(Vec3 center, Vec3 scale, Mat4 rotMat) {
+		return new StaticMeshScaleAction(modelView, center, rotMat, scale);
 	}
 
 	public UndoAction shrinkFatten(float amount) {
@@ -50,18 +49,15 @@ public class GeometryModelEditor extends ModelEditor {
     @Override
     public UndoAction setPosition(Vec3 center, Vec3 v) {
         Vec3 delta = Vec3.getDiff(v, center);
-	    return new StaticMeshMoveAction(modelView, delta);
+	    return new StaticMeshMoveAction(modelView, delta, new Mat4());
     }
 
     @Override
-    public UndoAction rotate(Vec3 center, Vec3 rotate) {
+    public UndoAction rotate(Vec3 center, Vec3 rotate, Mat4 rotMat) {
 	    return new CompoundAction("rotate", null,
-			    new StaticMeshRotateAction2(modelView, center, Vec3.X_AXIS, Math.toRadians(rotate.x)),
-			    new StaticMeshRotateAction2(modelView, center, Vec3.NEGATIVE_Y_AXIS, Math.toRadians(rotate.y)),
-			    new StaticMeshRotateAction2(modelView, center, Vec3.NEGATIVE_Z_AXIS, Math.toRadians(rotate.z)));
-//			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.x), Vec3.X_AXIS),
-//			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.y), Vec3.NEGATIVE_Y_AXIS),
-//			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.z), Vec3.NEGATIVE_Z_AXIS));
+			    new StaticMeshRotateAction(modelView, center, Vec3.X_AXIS, Math.toRadians(rotate.x)),
+			    new StaticMeshRotateAction(modelView, center, Vec3.NEGATIVE_Y_AXIS, Math.toRadians(rotate.y)),
+			    new StaticMeshRotateAction(modelView, center, Vec3.NEGATIVE_Z_AXIS, Math.toRadians(rotate.z)));
     }
 
     @Override
@@ -70,33 +66,31 @@ public class GeometryModelEditor extends ModelEditor {
     }
 
     @Override
-    public GenericMoveAction beginTranslation() {
-        return new StaticMeshMoveAction(modelView, Vec3.ZERO);
+    public AbstractTransformAction beginTranslation(Mat4 rotMat) {
+        return new StaticMeshMoveAction(modelView, Vec3.ZERO, rotMat);
+    }
+//    @Override
+    public AbstractTransformAction beginExtrude(Mat4 rotMat) {
+        return new StaticMeshMoveAction(modelView, Vec3.ZERO, "Extrude", new ExtrudeAction(modelView.getSelectedVertices(), changeListener), rotMat).doSetup();
+    }
+//    @Override
+    public AbstractTransformAction beginExtend(Mat4 rotMat) {
+        return new StaticMeshMoveAction(modelView, Vec3.ZERO, "Extend", new SplitTrisAndFillGap(modelView.getSelectedVertices(), changeListener), rotMat).doSetup();
     }
 
 	@Override
-	public GenericRotateAction beginRotation(Vec3 center, byte dim1, byte dim2) {
-		return new StaticMeshRotateAction(modelView, new Vec3(center), dim1, dim2);
+	public AbstractTransformAction beginRotation(Vec3 center, Vec3 axis, Mat4 rotMat) {
+		return new StaticMeshRotateAction(modelView, new Vec3(center), axis, 0, rotMat);
 	}
 
 	@Override
-	public GenericRotateAction beginSquatTool(Vec3 center, byte firstXYZ, byte secondXYZ) {
-		throw new WrongModeException("Unable to use squat tool outside animation editor mode");
+	public AbstractTransformAction beginSquatTool(Vec3 center, Vec3 axis, Mat4 rotMat) {
+		return this.beginRotation(center, axis, rotMat);
+//		throw new WrongModeException("Unable to use squat tool outside animation editor mode");
 	}
-
 	@Override
-	public GenericRotateAction beginRotation(Vec3 center, Vec3 axis) {
-		return new StaticMeshRotateAction2(modelView, new Vec3(center), axis, 0);
-	}
-
-	@Override
-	public GenericRotateAction beginSquatTool(Vec3 center, Vec3 axis) {
-		throw new WrongModeException("Unable to use squat tool outside animation editor mode");
-	}
-
-	@Override
-	public GenericScaleAction beginScaling(Vec3 center) {
-		return new StaticMeshScaleAction(modelView, center);
+	public AbstractTransformAction beginScaling(Vec3 center, Mat4 rotMat) {
+		return new StaticMeshScaleAction(modelView, center, rotMat);
 	}
 
 	public StaticMeshShrinkFattenAction beginShrinkFatten(float amount) {

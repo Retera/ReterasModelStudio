@@ -1,30 +1,11 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.selection;
 
 import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 public class HitTestStuff {
-	public static boolean hitTest(Vec2 min, Vec2 max, Vec3 vec3, CoordinateSystem coordinateSystem, double vertexSize) {
-		byte dim1 = coordinateSystem.getPortFirstXYZ();
-		byte dim2 = coordinateSystem.getPortSecondXYZ();
-
-		Vec2 vertexV2 = vec3.getProjected(dim1, dim2);
-
-		double vertSize = vertexSize / 2.0 / coordinateSystem.getZoom();
-		return hitTest(min, max, vertexV2, vertSize);
-	}
-
-	public static boolean triHitTest(Triangle triangle, Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-		byte dim1 = coordinateSystem.getPortFirstXYZ();
-		byte dim2 = coordinateSystem.getPortSecondXYZ();
-
-		Vec2[] triPoints = triangle.getProjectedVerts(dim1, dim2);
-		return triangleOverlapArea(min, max, triPoints);
-	}
-
 	public static boolean triHitTest(Triangle triangle, Vec2 min, Vec2 max, int tvIndex) {
 		Vec2[] tVerts = triangle.getTVerts(tvIndex);
 
@@ -52,16 +33,6 @@ public class HitTestStuff {
 				|| triEdgeIntersectsLine(triPoints, min, max);
 	}
 
-	public static boolean triHitTest(Triangle triangle, Vec2 point, CoordinateSystem coordinateSystem) {
-		byte dim1 = coordinateSystem.getPortFirstXYZ();
-		byte dim2 = coordinateSystem.getPortSecondXYZ();
-
-		Vec2[] triPoints = triangle.getProjectedVerts(dim1, dim2);
-
-		return pointInTriangle(point, triPoints);
-	}
-
-	//ugg
 	public static boolean triHitTest(Triangle triangle, Vec2 point, int tvIndex) {
 		return pointInTriangle(point, triangle.getTVerts(tvIndex));
 	}

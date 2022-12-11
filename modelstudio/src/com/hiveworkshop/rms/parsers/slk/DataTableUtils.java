@@ -13,10 +13,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public class DataTableUtils {
-//	private static final boolean DEBUG = false;
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
+//	private static final boolean DEBUG = true;
 
 	public static void readTXT(DataTable dataTable, String filepath) {
+		debugLog("1 readTXT: \"" + filepath + "\"" + ", producible: " + false);
 		if (GameDataFileSystem.getDefault().has(filepath)) {
 			InputStream resourceAsStream = GameDataFileSystem.getDefault().getResourceAsStream(filepath);
 			try {
@@ -31,6 +32,7 @@ public class DataTableUtils {
 
 	public static void readTXT(DataTable dataTable, String filepath, boolean canProduce) throws IOException {
 
+		debugLog("2 readTXT: \"" + filepath + "\"" + ", producible: " + canProduce);
 		if (GameDataFileSystem.getDefault().has(filepath)) {
 			InputStream resourceAsStream = GameDataFileSystem.getDefault().getResourceAsStream(filepath);
 			readTXT(dataTable, resourceAsStream, canProduce);
@@ -47,6 +49,7 @@ public class DataTableUtils {
 			reader.reset(); // not the BOM marker
 		}
 
+		String lastKey = "";
 		String input = "";
 		Element currentUnit = null;
 		while ((input = reader.readLine()) != null) {
@@ -54,6 +57,7 @@ public class DataTableUtils {
 			if (!input.startsWith("//")) {
 				if (input.startsWith("[") && input.contains("]")) {
 					final String newKey = extractBracketContent(input);
+					lastKey = newKey;
 					currentUnit = dataTable.get(newKey);
 					if (currentUnit == null && canProduce) {
 						currentUnit = new LMUnit(newKey, dataTable);
@@ -64,7 +68,7 @@ public class DataTableUtils {
 					List<String> fieldValues = getFieldValues(input.substring(input.indexOf("=") + 1));
 
 					if (currentUnit == null) {
-						System.out.println("null for " + input);
+						debugLog("[Utils] null for " + input + " (" + lastKey + ")");
 					} else {
 						for(int i = 0; i<fieldValues.size(); i++){
 							currentUnit.setField(fieldName, fieldValues.get(i), i);

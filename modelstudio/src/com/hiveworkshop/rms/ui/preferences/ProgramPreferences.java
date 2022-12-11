@@ -98,7 +98,7 @@ public class ProgramPreferences implements Serializable {
 	private Integer cameraRotateDownKB = KeyEvent.VK_NUMPAD2;
 	private Integer cameraToggleOrtho = KeyEvent.VK_O;
 
-	private Integer maxNumbersOfUndo = 100;
+	private Integer maxNumbersOfUndo = 200;
 
 
 	//	private ViewMap viewMap = new ViewMap();

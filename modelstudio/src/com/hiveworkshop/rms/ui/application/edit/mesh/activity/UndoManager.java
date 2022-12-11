@@ -11,6 +11,7 @@ public class UndoManager {
 	private final Deque<UndoAction> availableUndoActions;
 	private final Deque<UndoAction> availableRedoActions;
 	private final UndoHandler undoHandler;
+	private int actionsSinceSave = 0;
 
 	public UndoManager(final UndoHandler undoHandler) {
 		this.undoHandler = undoHandler;
@@ -21,12 +22,14 @@ public class UndoManager {
 	public void undo() {
 		UndoAction action = availableUndoActions.pop();
 		action.undo();
+		actionsSinceSave--;
 		availableRedoActions.push(action);
 	}
 
 	public void redo() {
 		UndoAction action = availableRedoActions.pop();
 		action.redo();
+		actionsSinceSave++;
 		availableUndoActions.push(action);
 	}
 
@@ -37,9 +40,17 @@ public class UndoManager {
 			availableUndoActions.removeLast();
 //			availableUndoActions.pollLast();
 		}
+		actionsSinceSave++;
 		undoHandler.refreshUndo();
 	}
 
+	public boolean hasChangedSinceSave(){
+		return actionsSinceSave == 0;
+	}
+
+	public void resetActionsSinceSave(){
+		actionsSinceSave = 0;
+	}
 	public boolean isUndoListEmpty() {
 		return availableUndoActions.isEmpty();
 	}

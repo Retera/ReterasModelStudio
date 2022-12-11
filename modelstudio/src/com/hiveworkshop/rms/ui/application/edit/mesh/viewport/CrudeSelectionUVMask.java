@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.ExportTexture;
+import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -20,12 +21,13 @@ public class CrudeSelectionUVMask {
 
 		graphics.setColor(Color.WHITE);
 		for (Triangle triangle : modelView.getSelectedTriangles()) {
-			drawTriangle(graphics, (byte) 0, (byte) 1, width, height, triangle, true);
+			drawTriangleUV(graphics, Vec2.X_AXIS, Vec2.Y_AXIS, width, height, 0, triangle, true);
+
 		}
 		if(lineColor != null){
 			graphics.setColor(lineColor);
 			for (Triangle triangle : modelView.getSelectedTriangles()) {
-				drawTriangle(graphics, (byte) 0, (byte) 1, width, height, triangle, false);
+				drawTriangleUV(graphics, Vec2.X_AXIS, Vec2.Y_AXIS, width, height, 0, triangle, false);
 			}
 		}
 
@@ -34,23 +36,23 @@ public class CrudeSelectionUVMask {
 	}
 
 
-	private static void drawTriangle(Graphics g, byte a, byte b, int width, int height, Triangle t, boolean fill) {
-		double[] x = t.getTVertCoords(a, 0);
-		double[] y = t.getTVertCoords(b, 0);
-		int[] xInt = new int[4];
-		int[] yInt = new int[4];
-		for (int ix = 0; ix < 3; ix++) {
-			xInt[ix] = (int) Math.round(x[ix]*width);
-			yInt[ix] = (int) (Math.round(y[ix]*height));
-		}
-//		System.out.println("x: " + xInt[0] + ", y: " + yInt[0]);
-		xInt[3] = xInt[0];
-		yInt[3] = yInt[0];
+	private static void drawTriangleUV(Graphics g, Vec2 right, Vec2 up, int width, int height, int uvLayer, Triangle t, boolean fill) {
+		int[] xInt = getTriUVPoints(t, uvLayer, right, width);
+		int[] yInt = getTriUVPoints(t, uvLayer, up, -height);
 		if(fill){
 			g.fillPolygon(xInt, yInt, 4);
 		} else {
 			g.drawPolyline(xInt, yInt, 4);
 		}
+	}
+
+	private static int[] getTriUVPoints(Triangle t, int uvLayer, Vec2 dim, int scale){
+		int[] output = new int[4];
+		for (int i = 0; i < 3; i++) {
+			output[i] = Math.round(t.getTVert(i, uvLayer).dot(dim)) * scale;
+		}
+		output[3] = output[0];
+		return output;
 	}
 
 	public static void saveImage(ModelView modelView, int width, int height){

@@ -4,117 +4,186 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.Point2D;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.image.BufferedImage;
 import java.util.function.BiConsumer;
 
 public abstract class ViewportView extends JPanel {
-
-	private final double ZOOM_FACTOR = 1.15;
 	protected CoordinateSystem coordinateSystem;
-
-	protected JPopupMenu contextMenu;
-
-	protected Component boxX, boxY;
-
 	protected Point lastMouseMotion = new Point(0, 0);
-
 	protected ModelHandler modelHandler;
-	protected ViewportActivityManager viewportActivity;
-
+	protected ViewportActivityManager viewportActivityManager;
 	protected MouseListenerThing2 mouseListenerThing2;
+	private final Timer repaintTimer = new Timer(16, e -> repaintTimer());
+	private Color weakLineColor = new Color(80, 80, 80, 100);
+	private Color mediumLineColor = new Color(80, 80, 80, 150);
+	private Color strongLineColor = new Color(0,0,0, 255);
+	private Color xLineColor = new Color(200,20,20, 255);
+	private Color yLineColor = new Color(20,200,20, 255);
 
-	public ViewportView(byte d1, byte d2,
-	                    Dimension minDim,
+	public ViewportView(Vec3 right, Vec3 up,
 	                    BiConsumer<Double, Double> coordDisplayListener2) {
 
-		coordinateSystem = new CoordinateSystem(d1, d2, this);
+		coordinateSystem = new CoordinateSystem(right, up, this);
 
 		setBorder(BorderFactory.createBevelBorder(1));
 		setBackground(ProgramGlobals.getPrefs().getBackgroundColor());
-
-		// Viewport border
-//		setMinimumSize(minDim);
-//		add(boxX = Box.createHorizontalStrut(minDim.width));
-//		add(boxY = Box.createVerticalStrut(minDim.height));
-//		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
 		mouseListenerThing2 = new MouseListenerThing2(this, coordDisplayListener2, coordinateSystem);
 		addMouseListener(mouseListenerThing2);
 		addMouseWheelListener(mouseListenerThing2);
 		addMouseMotionListener(mouseListenerThing2);
+		addFocusListener(getFocusAdapter());
+
+		addComponentListener(getComponentAdapter());
 	}
 
-	public void setModel(ModelHandler modelHandler, ViewportActivityManager viewportActivity) {
-		this.modelHandler = modelHandler;
-		this.viewportActivity = viewportActivity;
-		if (modelHandler != null) {
-			mouseListenerThing2.setUndoHandler(modelHandler.getUndoHandler());
-		} else {
-			mouseListenerThing2.setUndoHandler(null);
+	private FocusAdapter getFocusAdapter() {
+		return new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				super.focusGained(e);
+
+				if (!repaintTimer.isRunning()) {
+					repaintTimer.start();
+				}
+				setTimerDelay(16);
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				super.focusLost(e);
+				if (repaintTimer.isRunning()) {
+					setTimerDelay(200);
+				}
+			}
+		};
+	}
+
+	private ComponentAdapter getComponentAdapter() {
+		return new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				super.componentResized(e);
+//				repaint();
+			}
+
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				super.componentMoved(e);
+//				System.out.println("moved");
+			}
+
+			@Override
+			public void componentShown(ComponentEvent e) {
+				super.componentShown(e);
+
+				if (!repaintTimer.isRunning()) {
+					repaintTimer.start();
+				}
+				System.out.println("Shown!!");
+			}
+
+			@Override
+			public void componentHidden(ComponentEvent e) {
+				super.componentHidden(e);
+				if (repaintTimer.isRunning()) {
+					repaintTimer.stop();
+				}
+				System.out.println("hidden!!");
+			}
+		};
+	}
+
+	private boolean repaintTimer() {
+		if(isShowing()){
+			repaint();
 		}
-		mouseListenerThing2.setViewportActivity(viewportActivity);
+		if(!isShowing() && repaintTimer.isRunning()){
+			repaintTimer.stop();
+		}
+		return false;
+	}
+
+	private void setTimerDelay(int delay){
+		repaintTimer.setDelay(delay);
+	}
+	public void setModel(ModelHandler modelHandler, ViewportActivityManager viewportActivityManager) {
+		this.modelHandler = modelHandler;
+		this.viewportActivityManager = viewportActivityManager;
+
+		mouseListenerThing2.setActivityManager(viewportActivityManager);
 	}
 
 	public CoordinateSystem getCoordinateSystem() {
 		return coordinateSystem;
 	}
 
+	private final Vec2 originInScreenSpace = new Vec2();
+	private final Vec2 stepSize = new Vec2();
+	private final Vec2 temp = new Vec2();
 	public void drawGrid(Graphics g) {
-		Point2D.Double cameraOrigin = new Point2D.Double(coordinateSystem.viewX(0), coordinateSystem.viewY(0));
+		temp.set(getWidth()/2f, getHeight()/2f);
+		Vec2 worldOriginClip = coordinateSystem.viewVN(0, 0);
+		originInScreenSpace.set(1+worldOriginClip.x, 1-worldOriginClip.y).mul(temp);
 
-		float increment = 20 * (float) coordinateSystem.getZoom();
-		while (increment < 100) {
-			increment *= 10;
+		Vec2 distClip = coordinateSystem.viewVN(1, 1);
+		stepSize.set(1+distClip.x, 1-distClip.y).mul(temp).sub(originInScreenSpace);
+
+		if(Math.abs(stepSize.x)<.0001){
+			stepSize.set(100, 100);
 		}
-		float lightIncrement = increment;
-		while (lightIncrement > 100) {
-			lightIncrement /= 10;
+
+		int v = (int)Math.log10(stepSize.x);
+
+		if(v != 2) {
+			stepSize.scale((float) Math.pow(10, 2-v));
 		}
-		float darkIncrement = increment * 10;
-		g.setColor(Color.DARK_GRAY);
-		drawXLines(g, cameraOrigin, lightIncrement);
-		drawYLines(g, cameraOrigin, lightIncrement);
 
-		g.setColor(Color.GRAY);
-		drawXLines(g, cameraOrigin, increment);
-		drawYLines(g, cameraOrigin, increment);
+		temp.set(originInScreenSpace);
+		int stepDiffX = (int)(temp.x / stepSize.x)+1;
+		temp.x -= stepSize.x * stepDiffX;
 
-		g.setColor(Color.ORANGE);
-		drawXLines(g, cameraOrigin, darkIncrement);
-		drawYLines(g, cameraOrigin, darkIncrement);
+		int stepDiffY = (int)(temp.y / stepSize.y)+1;
+		temp.y -= stepSize.y * stepDiffY;
 
-		g.setColor(Color.BLACK);
-		g.drawLine(0, (int) cameraOrigin.y, getWidth(), (int) cameraOrigin.y);
-		g.drawLine((int) cameraOrigin.x, 0, (int) cameraOrigin.x, getHeight());
+
+		g.setColor(weakLineColor);
+		drawXLines(g, temp, stepSize.x/10f);
+		drawYLines(g, temp, stepSize.y/10f);
+
+		g.setColor(mediumLineColor);
+		drawXLines(g, temp, stepSize.x);
+		drawYLines(g, temp, stepSize.y);
+
+		g.setColor(strongLineColor);
+		drawXLines(g, temp, stepSize.x*10f);
+		drawYLines(g, temp, stepSize.y*10f);
+
+		g.setColor(xLineColor);
+		g.drawLine(0, (int) originInScreenSpace.y, getWidth(), (int) originInScreenSpace.y);
+		g.setColor(yLineColor);
+		g.drawLine((int) originInScreenSpace.x, 0, (int) originInScreenSpace.x, getHeight());
 	}
 
-	private void drawXLines(Graphics g, Point2D.Double cameraOrigin, float distance) {
-		for (float x = 0; ((cameraOrigin.x + x) < getWidth()) || ((cameraOrigin.x - x) >= 0); x += distance) {
+	private void drawXLines(Graphics g, Vec2 cameraOrigin, float distance) {
+		for (float x = 0; (cameraOrigin.x + x) < getWidth(); x += distance) {
 			g.drawLine((int) (cameraOrigin.x + x), 0, (int) (cameraOrigin.x + x), getHeight());
-			g.drawLine((int) (cameraOrigin.x - x), 0, (int) (cameraOrigin.x - x), getHeight());
 		}
 	}
 
-	private void drawYLines(Graphics g, Point2D.Double cameraOrigin, float distance) {
-		for (float y = 0; ((cameraOrigin.y + y) < getHeight()) || ((cameraOrigin.y - y) >= 0); y += distance) {
+	private void drawYLines(Graphics g, Vec2 cameraOrigin, float distance) {
+		for (float y = 0; (cameraOrigin.y + y) < getHeight(); y += distance) {
 			g.drawLine(0, (int) (cameraOrigin.y + y), getWidth(), (int) (cameraOrigin.y + y));
-			g.drawLine(0, (int) (cameraOrigin.y - y), getWidth(), (int) (cameraOrigin.y - y));
 		}
-	}
-
-	public int[] getOffsets() {
-		int[] off = new int[] {0, 0};
-		Component temp = this;
-		while (temp != null) {
-			off[0] += temp.getX();
-			off[1] += temp.getY();
-			temp = temp.getParent();
-		}
-		return off;
 	}
 
 	public BufferedImage getBufferedImage() {

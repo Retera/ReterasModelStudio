@@ -7,18 +7,23 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
 public class AddAnimFlagAction<T> implements UndoAction {
 	private final ModelStructureChangeListener changeListener;
-	TimelineContainer timelineContainer;
-	AnimFlag<T> animFlag;
+	private final TimelineContainer timelineContainer;
+	private final AnimFlag<T> animFlag;
+	private final AnimFlag<?> oldAnimFlag;
 
 	public AddAnimFlagAction(TimelineContainer timelineContainer, AnimFlag<T> animFlag, ModelStructureChangeListener changeListener) {
 		this.changeListener = changeListener;
 		this.timelineContainer = timelineContainer;
 		this.animFlag = animFlag;
+		this.oldAnimFlag = timelineContainer.find(animFlag.getName());
 	}
 
 	@Override
 	public UndoAction undo() {
 		timelineContainer.remove(animFlag);
+		if(oldAnimFlag != null){
+			timelineContainer.add(oldAnimFlag);
+		}
 		if (changeListener != null) {
 			changeListener.materialsListChanged();
 		}
@@ -36,6 +41,6 @@ public class AddAnimFlagAction<T> implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set dynamic";
+		return "Set Dynamic";
 	}
 }

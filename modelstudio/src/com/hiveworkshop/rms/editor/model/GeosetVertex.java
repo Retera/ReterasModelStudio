@@ -444,15 +444,6 @@ public class GeosetVertex extends Vec3 {
 		}
 		return this;
 	}
-	public Vec3 rotate(Vec3 center, double radians,
-	                   byte firstXYZ, byte secondXYZ) {
-		super.rotate(center, radians, firstXYZ, secondXYZ);
-		normal.rotate(Vec3.ZERO, radians, firstXYZ, secondXYZ);
-		if (tangent != null) {
-			tangent.rotateAsVec3(Vec3.ZERO, radians, firstXYZ, secondXYZ);
-		}
-		return this;
-	}
 
 
 	public void rigBones(List<Bone> matrixBones) {

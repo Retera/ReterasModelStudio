@@ -156,10 +156,10 @@ public class SplineTracker<T> {
 			value = (T) v;
 			return (T) v;
 		} else if (value instanceof Vec3) {
-			((Vec3) value).setCoord((byte) 0, newValue);
+			((Vec3) value).x = newValue;
 			return value;
 		} else if (value instanceof Quat) {
-			((Quat) value).setCoord((byte) 0, newValue);
+			((Quat) value).x = newValue;
 			return value;
 		}
 		throw new IllegalArgumentException("Unknown subscripting (set): " + value + ", " + 0 + ", " + newValue);
@@ -209,9 +209,9 @@ public class SplineTracker<T> {
 		if ((entryInEnd.value instanceof Float || entryInEnd.value instanceof Integer)) {
 			return (float) entryInEnd.value;
 		} else if (entryInEnd.value instanceof Vec3) {
-			return ((Vec3) entryInEnd.value).getCoord((byte) 0);
+			return ((Vec3) entryInEnd.value).x;
 		} else if (entryInEnd.value instanceof Quat) {
-			return ((Quat) entryInEnd.value).getCoord((byte) 0);
+			return ((Quat) entryInEnd.value).x;
 		}
 		throw new IllegalArgumentException("Unknown subscripting (get): " + entryInEnd.value + ", " + 0);
 	}
@@ -219,9 +219,9 @@ public class SplineTracker<T> {
 		if ((entryOutEnd.value instanceof Float || entryOutEnd.value instanceof Integer)) {
 			return (float) entryOutEnd.value;
 		} else if (entryOutEnd.value instanceof Vec3) {
-			return ((Vec3) entryOutEnd.value).getCoord((byte) 0);
+			return ((Vec3) entryOutEnd.value).x;
 		} else if (entryOutEnd.value instanceof Quat) {
-			return ((Quat) entryOutEnd.value).getCoord((byte) 0);
+			return ((Quat) entryOutEnd.value).x;
 		}
 		throw new IllegalArgumentException("Unknown subscripting (get): " + entryOutEnd.value + ", " + 0);
 	}

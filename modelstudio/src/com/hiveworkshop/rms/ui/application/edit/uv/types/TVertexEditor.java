@@ -1,22 +1,19 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.types;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.editor.AbstractTransformAction;
 import com.hiveworkshop.rms.editor.actions.editor.StaticMeshShrinkFattenAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
-import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
-import com.hiveworkshop.rms.editor.actions.util.GenericRotateAction;
-import com.hiveworkshop.rms.editor.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.editor.actions.uv.StaticMeshUVMoveAction;
 import com.hiveworkshop.rms.editor.actions.uv.StaticMeshUVRotateAction;
-import com.hiveworkshop.rms.editor.actions.uv.StaticMeshUVRotateAction2;
 import com.hiveworkshop.rms.editor.actions.uv.StaticMeshUVScaleAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -44,7 +41,6 @@ public class TVertexEditor extends ModelEditor {
 	}
 
 	public Vec2 getSelectionCenter() {
-//		return selectionManager.getCenter();
 		Set<Vec2> tvertices = new HashSet<>(getTVertices(modelView.getSelectedVertices(), uvLayerIndex));
 		return Vec2.centerOfGroup(tvertices); // TODO is this correct?
 	}
@@ -59,66 +55,56 @@ public class TVertexEditor extends ModelEditor {
 		return tVertices;
 	}
 
-	public GenericMoveAction beginTranslation() {
-		return new StaticMeshUVMoveAction(modelView.getSelectedVertices(), uvLayerIndex, Vec3.ZERO);
+	public AbstractTransformAction beginTranslation(Mat4 rotMat) {
+		return new StaticMeshUVMoveAction(modelView.getSelectedVertices(), uvLayerIndex, Vec3.ZERO, rotMat);
 	}
 
-	public GenericRotateAction beginRotation(Vec3 center, byte dim1, byte dim2) {
-		return new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, dim1, dim2, 0);
+	public AbstractTransformAction beginExtrude(Mat4 rotMat) {
+		return beginTranslation(new Mat4());
 	}
 
-	public GenericRotateAction beginRotation(Vec3 center, Vec3 axis) {
-		return new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, (byte) 0, (byte) 1, 0);
+	public AbstractTransformAction beginExtend(Mat4 rotMat) {
+		return beginTranslation(new Mat4());
 	}
 
-	public GenericScaleAction beginScaling(Vec3 center) {
-		return new StaticMeshUVScaleAction(modelView.getSelectedVertices(), uvLayerIndex, center.getProjected((byte) 0, (byte) 1), Vec3.ONE);
+	public AbstractTransformAction beginRotation(Vec3 center, Vec3 axis, Mat4 rotMat) {
+		return new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, axis, 0, new Mat4());
 	}
 
-	@Override
-	public GenericRotateAction beginSquatTool(Vec3 center, byte firstXYZ, byte secondXYZ) {
-		throw new WrongModeException("Unable to use squat tool outside animation editor mode");
-	}
-
-	@Override
-	public GenericRotateAction beginSquatTool(Vec3 center, Vec3 axis) {
-		throw new WrongModeException("Unable to use squat tool outside animation editor mode");
+	public AbstractTransformAction beginScaling(Vec3 center, Mat4 rotMat) {
+		return new StaticMeshUVScaleAction(modelView.getSelectedVertices(), uvLayerIndex,
+				center, Vec3.ONE, rotMat);
 	}
 
 	@Override
-	public UndoAction translate(Vec3 v) {
+	public AbstractTransformAction beginSquatTool(Vec3 center, Vec3 axis, Mat4 rotMat) {
+		return this.beginRotation(center, axis, rotMat);
+//		throw new WrongModeException("Unable to use squat tool outside animation editor mode");
+	}
+
+	@Override
+	public UndoAction translate(Vec3 v, Mat4 rotMat) {
 		Vec3 delta = new Vec3(v);
-		return new StaticMeshUVMoveAction(modelView.getSelectedVertices(), uvLayerIndex, delta);
+		return new StaticMeshUVMoveAction(modelView.getSelectedVertices(), uvLayerIndex, delta, new Mat4());
 	}
 
 	@Override
-	public UndoAction scale(Vec3 center, Vec3 scale) {
-		return new StaticMeshUVScaleAction(modelView.getSelectedVertices(), uvLayerIndex, center.getProjected((byte) 0, (byte) 1), scale);
+	public UndoAction scale(Vec3 center, Vec3 scale, Mat4 rotMat) {
+		return new StaticMeshUVScaleAction(modelView.getSelectedVertices(), uvLayerIndex, center, scale, new Mat4());
 	}
 
 	@Override
-	public UndoAction rotate(Vec3 center, Vec3 rotate) {
+	public UndoAction rotate(Vec3 center, Vec3 rotate, Mat4 rotMat) {
 		return new CompoundAction("rotate", null,
-				new StaticMeshUVRotateAction2(modelView.getSelectedVertices(), uvLayerIndex, center, Vec3.X_AXIS, Math.toRadians(rotate.x)),
-				new StaticMeshUVRotateAction2(modelView.getSelectedVertices(), uvLayerIndex, center, Vec3.NEGATIVE_Y_AXIS, Math.toRadians(rotate.y)),
-				new StaticMeshUVRotateAction2(modelView.getSelectedVertices(), uvLayerIndex, center, Vec3.NEGATIVE_Z_AXIS, Math.toRadians(rotate.z)));
-//		return new CompoundAction("rotate", Arrays.asList(
-////				new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, (byte) 0, (byte) 1, rotate.x),
-//				new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, (byte) 2, (byte) 1, rotate.x),
-//				new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, (byte) 0, (byte) 2, rotate.y),
-//				new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, (byte) 1, (byte) 0, rotate.z)
-//				));
-				// ToDo fix this? not sure if this is used or what it should rotate...
-//		return new CompoundAction("rotate", Arrays.asList(
-//				new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, (byte) 2, (byte) 1).updateRotation(Math.toRadians(rotate.x)),
-//				new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, (byte) 0, (byte) 2).updateRotation(Math.toRadians(rotate.y))))
-//				.redo();
+				new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, Vec3.X_AXIS, Math.toRadians(rotate.x), new Mat4()),
+				new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, Vec3.NEGATIVE_Y_AXIS, Math.toRadians(rotate.y), new Mat4()),
+				new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, Vec3.NEGATIVE_Z_AXIS, Math.toRadians(rotate.z), new Mat4()));
 	}
 
 	@Override
 	public UndoAction setPosition(Vec3 center, Vec3 v) {
 		Vec3 delta = Vec3.getDiff(v, center);
-		return new StaticMeshUVMoveAction(modelView.getSelectedVertices(), uvLayerIndex, delta);
+		return new StaticMeshUVMoveAction(modelView.getSelectedVertices(), uvLayerIndex, delta, new Mat4());
 	}
 
 	public int getUVLayerIndex() {
