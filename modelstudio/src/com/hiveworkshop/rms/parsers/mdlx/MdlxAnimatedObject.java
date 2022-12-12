@@ -22,11 +22,8 @@ public abstract class MdlxAnimatedObject implements MdlxChunk, MdlxBlock {
 		while (size > 0) {
 			final War3ID name = new War3ID(reader.readTag());
 			AnimationMap animationMap = AnimationMap.ID_TO_TAG.get(name);
-//			if(animationMap != AnimationMap.KGTR && animationMap != AnimationMap.KGRT && animationMap != AnimationMap.KGSC)
-//				System.out.println("reading timeline for: " + name);
 			if(animationMap != null){
 				final MdlxTimeline<?> timeline = animationMap.getNewTimeline();
-
 				timeline.readMdx(reader);
 
 				size -= timeline.getByteLength();

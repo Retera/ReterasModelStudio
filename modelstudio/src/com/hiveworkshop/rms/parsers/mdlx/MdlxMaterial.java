@@ -23,32 +23,27 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 
 	@Override
 	public void readMdx(final BinaryReader reader, final int version) {
-		int matStartPos = reader.position();
 		int sizeTracker = 0;
 		long size = reader.readUInt32(); // Don't care about the size
 		sizeTracker +=4;
-//		System.out.println("\nMaterial! size: " + size);
 
 		priorityPlane = reader.readInt32();
 		sizeTracker +=4;
 		flags = reader.readInt32();
-//		System.out.println(sizeTracker/4 + " (" + sizeTracker + "): flag  " + Integer.toBinaryString(flags) + " ("  + flags + ")");
 		sizeTracker +=4;
 
 		if (800 < version && version < 1100) {
 			shader = reader.read(80);
 			sizeTracker +=80;
-//				System.out.println("shader: " + shader);
 		}
 
 		reader.readInt32(); // skip LAYS
-//			System.out.println("skipping \"LAYS\"(?): " + reader.read(4));
 		sizeTracker +=4;
 
 
 		final long layerCount = reader.readUInt32();
 		sizeTracker +=4;
-//		System.out.println("sizeTracker: " + sizeTracker + ", reading " + layerCount + " layers!");
+
 		int startLaysPos = reader.position();
 		for (int i = 0; i < layerCount; i++) {
 			final MdlxLayer layer = new MdlxLayer();
@@ -56,51 +51,13 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 			layers.add(layer);
 		}
 		int endLaysPos = reader.position();
-		int laysersSize = endLaysPos - startLaysPos;
-//		System.out.println("layerSize: " + laysersSize);
+		int layersSize = endLaysPos - startLaysPos;
 
-		int matEndPos = reader.position();
+		sizeTracker += layersSize;
 
-		sizeTracker += laysersSize;
-//		System.out.println("sizeTracker: " + sizeTracker);
-		int matReadBytes = matEndPos - matStartPos;
-//		System.out.println("read material bytes: " + matReadBytes);
+
 		for (int i = sizeTracker; i < size; i+=4) {
-//			System.out.println("left over in material: " + i/4 + " (" + i + "): " + reader.readInt32());
-		}
-	}
-
-	private void readAndPrintChunk(BinaryReader reader, int sizeTracker, long size) {
-		priorityPlane = reader.readInt32();
-		sizeTracker +=4;
-		flags = reader.readInt32();
-		sizeTracker +=4;
-		reader.readInt32(); // skip LAYS
-//			System.out.println("skipping \"LAYS\"(?): " + reader.read(4));
-		sizeTracker +=4;
-		for (int i = sizeTracker; i < size; i+=4) {
-//				System.out.println(i/4 + " (" + i + "): " + reader.readInt32());
-			System.out.println("mat " + i/4 + " (" + i + "): " + reader.read(4));
-		}
-	}
-
-	public void readMdxORG(final BinaryReader reader, final int version) {
-		reader.readUInt32(); // Don't care about the size
-
-		priorityPlane = reader.readInt32();
-		flags = reader.readInt32();
-
-		if (version > 800) {
-			shader = reader.read(80);
-		}
-
-		reader.readInt32(); // skip LAYS
-
-		final long layerCount = reader.readUInt32();
-		for (int i = 0; i < layerCount; i++) {
-			final MdlxLayer layer = new MdlxLayer();
-			layer.readMdx(reader, version);
-			layers.add(layer);
+			System.out.println("left over in material: " + i/4 + " (" + i + "): " + reader.readInt32());
 		}
 	}
 
@@ -138,7 +95,6 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 					layer.readMdl(stream, version);
 					layers.add(layer);
 				}
-//				default -> throw new RuntimeException("Unknown token in Material: " + token);
 				default -> ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Material: " + token);
 			}
 		}
@@ -171,11 +127,11 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 		if ((flags & 0x2) != 0) {
 			stream.writeFlag(MdlUtils.TOKEN_TWO_SIDED);
 		}
-//		if ((flags & 0x2) != 0 && version > 800) {
+//		if ((flags & 0x2) != 0 && 800 < version) {
 //			stream.writeFlag(MdlUtils.TOKEN_TWO_SIDED);
 //		}
 
-		if (version > 800) {
+		if (800 < version) {
 			stream.writeStringAttrib(MdlUtils.TOKEN_SHADER, shader);
 		}
 

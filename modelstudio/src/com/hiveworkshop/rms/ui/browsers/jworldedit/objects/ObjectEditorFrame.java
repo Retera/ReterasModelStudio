@@ -20,7 +20,6 @@ public class ObjectEditorFrame extends JFrame {
 		panel = new ObjectEditorPanel();
 		System.out.println("Panelur done!");
 		setContentPane(panel);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 		pack();
 		setLocationRelativeTo(null);
@@ -54,11 +53,16 @@ public class ObjectEditorFrame extends JFrame {
 	public static void main(final String[] args) {
 		setUpLookAndFeel();
 
-		showObjectEditor();
+		ObjectEditorFrame frame = new ObjectEditorFrame();
+		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		frame.setVisible(true);
+		frame.setJMenuBar(getjMenuBar());
+		frame.panel.loadHotkeys();
 	}
 
 	public static void showObjectEditor() {
 		ObjectEditorFrame frame = new ObjectEditorFrame();
+		frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		frame.setVisible(true);
 		frame.setJMenuBar(getjMenuBar());
 		frame.panel.loadHotkeys();

@@ -5,8 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A Warcraft 3 model. Supports loading from and saving to both the binary MDX
- * and text MDL file formats.
+ * A Warcraft 3 model. Supports loading from and saving to both the binary MDX and text MDL file formats.
  */
 public class MdlxModel {
 
@@ -15,8 +14,7 @@ public class MdlxModel {
 	public String name = "";
 	/**
 	 * (Comment copied from Ghostwolf JS)
-	 * To the best of my knowledge, this should always be left empty.
-	 * This is probably a leftover from the Warcraft 3 beta.
+	 * To the best of my knowledge, this should always be left empty. This is probably a leftover from the Warcraft 3 beta.
 	 * (WS game note: No, I never saw any animation files in the RoC 2001-2002 Beta. So it must be from the Alpha)
 	 */
 	public String animationFile = "";

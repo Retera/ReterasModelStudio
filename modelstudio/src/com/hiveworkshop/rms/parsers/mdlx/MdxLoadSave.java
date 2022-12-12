@@ -40,50 +40,6 @@ public class MdxLoadSave {
 	private static final int FAFX = ('F' << 24) | ('A' << 16) | ('F' << 8) | ('X');// War3ID.fromString("FAFX").getValue();
 	private static final int BPOS = ('B' << 24) | ('P' << 16) | ('O' << 8) | ('S');// War3ID.fromString("BPOS").getValue();
 
-	public static void loadMdxORG(MdlxModel mdlxModel, final ByteBuffer buffer) {
-		final BinaryReader reader = new BinaryReader(buffer);
-
-		if (reader.readTag() != MDLX) {
-			throw new IllegalStateException("WrongMagicNumber");
-		}
-		try {
-			while (reader.remaining() > 0) {
-				final int tag = reader.readTag();
-				final int size = reader.readInt32();
-
-				switch (tag) {
-					case VERS -> loadVersionChunk(mdlxModel, reader);
-					case MODL -> loadModelChunk(mdlxModel, reader);
-					case SEQS -> loadStaticObjects(mdlxModel.version, mdlxModel.sequences, MdlxSequence::new, reader, size / 132);
-					case GLBS -> loadGlobalSequenceChunk(mdlxModel.globalSequences, reader, size);
-					case MTLS -> loadDynamicObjects(mdlxModel.version, mdlxModel.materials, MdlxMaterial::new, reader, size);
-					case TEXS -> loadStaticObjects(mdlxModel.version, mdlxModel.textures, MdlxTexture::new, reader, size / 268);
-					case TXAN -> loadDynamicObjects(mdlxModel.version, mdlxModel.textureAnimations, MdlxTextureAnimation::new, reader, size);
-					case GEOS -> loadDynamicObjects(mdlxModel.version, mdlxModel.geosets, MdlxGeoset::new, reader, size);
-					case GEOA -> loadDynamicObjects(mdlxModel.version, mdlxModel.geosetAnimations, MdlxGeosetAnimation::new, reader, size);
-					case BONE -> loadDynamicObjects(mdlxModel.version, mdlxModel.bones, MdlxBone::new, reader, size);
-					case LITE -> loadDynamicObjects(mdlxModel.version, mdlxModel.lights, MdlxLight::new, reader, size);
-					case HELP -> loadDynamicObjects(mdlxModel.version, mdlxModel.helpers, MdlxHelper::new, reader, size);
-					case ATCH -> loadDynamicObjects(mdlxModel.version, mdlxModel.attachments, MdlxAttachment::new, reader, size);
-					case PIVT -> loadPivotPointChunk(mdlxModel.pivotPoints, reader, size);
-					case PREM -> loadDynamicObjects(mdlxModel.version, mdlxModel.particleEmitters, MdlxParticleEmitter::new, reader, size);
-					case PRE2 -> loadDynamicObjects(mdlxModel.version, mdlxModel.particleEmitters2, MdlxParticleEmitter2::new, reader, size);
-					case CORN -> loadDynamicObjects(mdlxModel.version, mdlxModel.particleEmittersPopcorn, MdlxParticleEmitterPopcorn::new, reader, size);
-					case RIBB -> loadDynamicObjects(mdlxModel.version, mdlxModel.ribbonEmitters, MdlxRibbonEmitter::new, reader, size);
-					case CAMS -> loadDynamicObjects(mdlxModel.version, mdlxModel.cameras, MdlxCamera::new, reader, size);
-					case EVTS -> loadDynamicObjects(mdlxModel.version, mdlxModel.eventObjects, MdlxEventObject::new, reader, size);
-					case CLID -> loadDynamicObjects(mdlxModel.version, mdlxModel.collisionShapes, MdlxCollisionShape::new, reader, size);
-					case FAFX -> loadStaticObjects(mdlxModel.version, mdlxModel.faceEffects, MdlxFaceEffect::new, reader, size / 340);
-					case BPOS -> loadBindPoseChunk(mdlxModel.bindPose, reader, size);
-					default -> mdlxModel.unknownChunks.add(new MdlxUnknownChunk(reader, size, new War3ID(tag)));
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			ExceptionPopup.display(e);
-//			throw new RuntimeException(e);
-		}
-	}
 	public static void loadMdx(MdlxModel mdlxModel, final ByteBuffer buffer) {
 		final BinaryReader reader = new BinaryReader(buffer);
 //		int LAYS = ('L' << 24) | ('A' << 16) | ('Y' << 8) | ('S');
@@ -241,32 +197,21 @@ public class MdxLoadSave {
 	private static <E extends MdlxBlock & MdlxChunk> void loadDynamicObjects(int version, List<E> out,
 	                                                                         Supplier<E> constructor,
 	                                                                         BinaryReader reader, long size) {
-		long totalSize1 = 0;
 		long totalSize = 0;
-//		System.out.println("size: " + size);
 		int readerStartPos = reader.position();
-		if(version == 1101){
-			readAndPrintChunk(version, out, constructor, reader, size);
-		} else {
+		while (totalSize < size) {
+			final E object = constructor.get();
+			object.readMdx(reader, version);
 
-			while (totalSize < size) {
-				final E object = constructor.get();
+			out.add(object);
 
-				object.readMdx(reader, version);
-
-				totalSize1 += object.getByteLength(version);
-//				System.out.println("totalSize1: " + totalSize1);
-
-				out.add(object);
-
-				int readerCurrPos = reader.position();
-				totalSize = readerCurrPos - readerStartPos;
-//				System.out.println("totalSize: " + totalSize);
-			}
+			int readerCurrPos = reader.position();
+			totalSize = readerCurrPos - readerStartPos;
 		}
 	}
 
 	private static <E extends MdlxBlock & MdlxChunk> void readAndPrintChunk(int version, List<E> out, Supplier<E> constructor, BinaryReader reader, long size) {
+		// For investigating byte code
 		int matStartPos = reader.position();
 		int sizeTracker = 0;
 		final E object = constructor.get();
@@ -291,20 +236,6 @@ public class MdxLoadSave {
 
 		int matEndPos = reader.position();
 		System.out.println("read " + (matEndPos - matStartPos) + " bytes");
-	}
-	private static <E extends MdlxBlock & MdlxChunk> void loadDynamicObjectsORG(int version, List<E> out,
-	                                                                         Supplier<E> constructor,
-	                                                                         BinaryReader reader, long size) {
-		long totalSize = 0;
-		while (totalSize < size) {
-			final E object = constructor.get();
-
-			object.readMdx(reader, version);
-
-			totalSize += object.getByteLength(version);
-
-			out.add(object);
-		}
 	}
 
 	private static void loadPivotPointChunk(List<float[]> pivotPoints, BinaryReader reader, long size) {

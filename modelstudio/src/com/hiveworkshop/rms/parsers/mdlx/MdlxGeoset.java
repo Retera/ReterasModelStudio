@@ -262,12 +262,12 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 						this.vertexGroups[i++] = vertexGroup;
 					}
 				}
-				case "Tangents" -> {
+				case MdlUtils.TOKEN_TANGENTS -> {
 					final int tansCount = (int) stream.readUInt32();
 					tangents = new float[tansCount * 4];
 					stream.readVectorArray(tangents, 4);
 				}
-				case "SkinWeights" -> {
+				case MdlUtils.TOKEN_SKINWEIGHTS -> {
 					final int skinCount = (int) stream.readUInt32();
 					skin = new short[skinCount * 8];
 					stream.readUInt8Array(skin, 8);
@@ -293,31 +293,6 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 					}
 					stream.read(); // }
 				}
-//				case MdlUtils.TOKEN_FACES -> {
-//					faceTypeGroups = new long[] {4L};
-//					stream.readInt(); // number of groups
-//					final int count = stream.readInt();
-//					System.out.println("\"{\"? " + stream.read()); // {
-//					System.out.println("\"Triangles\"? " + stream.read()); // Triangles
-////					stream.read(); // {
-//					System.out.println("count: " + count);
-//					if(count > 0){
-//						faces = stream.readUInt16Array(new int[count], 3);
-//						faceGroups = new long[] {count};
-//					} else {
-//						faces = new int[]{};
-//						faceGroups = new long[]{};
-//						if (stream.read().equals("{")){
-//							if (stream.read().equals("{")){
-//								stream.read(); // }
-//							}
-//							stream.read(); // }
-//						}
-//					}
-//					System.out.println("faces: " + faces);
-//					System.out.println("faceGroups: " + faceGroups);
-//					System.out.println("\"}\"? " + stream.read()); // }
-//				}
 				case MdlUtils.TOKEN_GROUPS -> {
 					final List<Integer> indices = new ArrayList<>();
 					final List<Integer> groups = new ArrayList<>();
@@ -405,7 +380,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 
 
 			if (tangents != null) {
-				stream.startBlock("Tangents", tangents.length / 4);
+				stream.startBlock(MdlUtils.TOKEN_TANGENTS, tangents.length / 4);
 
 				for (int i = 0, l = tangents.length; i < l; i += 4) {
 					stream.writeFloatArray(Arrays.copyOfRange(tangents, i, i + 4));
@@ -415,7 +390,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 			}
 
 			if (skin != null) {
-				stream.startBlock("SkinWeights", skin.length / 8);
+				stream.startBlock(MdlUtils.TOKEN_SKINWEIGHTS, skin.length / 8);
 
 				for (int i = 0, l = skin.length; i < l; i += 8) {
 					stream.writeShortArrayRaw(Arrays.copyOfRange(skin, i, i + 8));
@@ -462,10 +437,10 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 		}
 
 		if (version > 800) {
-			stream.writeAttrib("LevelOfDetail", lod);
+			stream.writeAttrib(MdlUtils.TOKEN_LEVELOFDETAIL, lod);
 	  
 			if (lodName.length() > 0) {
-			  stream.writeStringAttrib("Name", lodName);
+			  stream.writeStringAttrib(MdlUtils.TOKEN_NAME, lodName);
 			}
 		  }
 
@@ -474,18 +449,18 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 
 	@Override
 	public long getByteLength(final int version) {
-		long size = 120 + (vertices.length * 4) + (normals.length * 4) + (faceTypeGroups.length * 4)
-				+ (faceGroups.length * 4) + (faces.length * 2) + vertexGroups.length
-				+ (matrixGroups.length * 4) + (matrixIndices.length * 4) + (sequenceExtents.size() * 28);
+		long size = 120 + (vertices.length * 4L) + (normals.length * 4L) + (faceTypeGroups.length * 4L)
+				+ (faceGroups.length * 4L) + (faces.length * 2L) + vertexGroups.length
+				+ (matrixGroups.length * 4L) + (matrixIndices.length * 4L) + (sequenceExtents.size() * 28L);
 		for (final float[] uvSet : uvSets) {
-			size += 8 + (uvSet.length * 4);
+			size += 8 + (uvSet.length * 4L);
 		}
 
 		if (version > 800) {
 			size += 84;
 
 			if (tangents != null) {
-				size += 8 + tangents.length * 4;
+				size += 8 + tangents.length * 4L;
 			}
 
 			if (skin != null) {

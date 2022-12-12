@@ -196,6 +196,10 @@ public class MdlUtils {
 
 	// > 800
 
+	public static final String TOKEN_NAME = "Name";
+	public static final String TOKEN_LEVELOFDETAIL = "LevelOfDetail";
+	public static final String TOKEN_SKINWEIGHTS = "SkinWeights";
+	public static final String TOKEN_TANGENTS = "Tangents";
 	public static final String TOKEN_SHADER = "Shader";
 
 	public static final String TOKEN_FACE_FX = "FaceFX";

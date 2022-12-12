@@ -45,14 +45,11 @@ public class MdlxAttachment extends MdlxGenericObject {
 		for (final String token : super.readMdlGeneric(stream)) {
 			if (MdlUtils.TOKEN_ATTACHMENT_ID.equals(token)) {
 				attachmentId = stream.readInt();
-			}
-			else if (MdlUtils.TOKEN_PATH.equals(token)) {
+			} else if (MdlUtils.TOKEN_PATH.equals(token)) {
 				path = stream.read();
-			}
-			else if (MdlUtils.TOKEN_VISIBILITY.equals(token)) {
+			} else if (MdlUtils.TOKEN_VISIBILITY.equals(token)) {
 				readTimeline(stream, AnimationMap.KATV);
-			}
-			else {
+			} else {
 				ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Attachment " + name + ": " + token);
 			}
 		}

@@ -39,22 +39,18 @@ public class MdlxBone extends MdlxGenericObject {
 
 				if (MdlUtils.TOKEN_MULTIPLE.equals(token)) {
 					geosetId = -1;
-				}
-				else {
+				} else {
 					geosetId = Integer.parseInt(token);
 				}
-			}
-			else if (MdlUtils.TOKEN_GEOSETANIMID.equals(token)) {
+			} else if (MdlUtils.TOKEN_GEOSETANIMID.equals(token)) {
 				token = stream.read();
 
 				if (MdlUtils.TOKEN_NONE.equals(token)) {
 					geosetAnimationId = -1;
-				}
-				else {
+				} else {
 					geosetAnimationId = Integer.parseInt(token);
 				}
-			}
-			else {
+			} else {
 				ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Bone " + name + ": " + token);
 			}
 		}
@@ -67,14 +63,12 @@ public class MdlxBone extends MdlxGenericObject {
 
 		if (geosetId == -1) {
 			stream.writeAttrib(MdlUtils.TOKEN_GEOSETID, MdlUtils.TOKEN_MULTIPLE);
-		}
-		else {
+		} else {
 			stream.writeAttrib(MdlUtils.TOKEN_GEOSETID, geosetId);
 		}
 		if (geosetAnimationId == -1) {
 			stream.writeAttrib(MdlUtils.TOKEN_GEOSETANIMID, MdlUtils.TOKEN_NONE);
-		}
-		else {
+		} else {
 			stream.writeAttrib(MdlUtils.TOKEN_GEOSETANIMID, geosetAnimationId);
 		}
 

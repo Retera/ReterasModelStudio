@@ -15,10 +15,6 @@ public class MdlLoadSave {
 		String token;
 		final MdlTokenInputStream stream = new MdlTokenInputStream(buffer);
 
-//		char ugg = 'C';
-//		char[] mugg = new char[]{' ', ',', '\t', '\n', ':', '\r'};
-//		if(mugg.contains(ugg))
-
 		while ((token = stream.read()) != null) {
 			try {
 				switch (token) {
