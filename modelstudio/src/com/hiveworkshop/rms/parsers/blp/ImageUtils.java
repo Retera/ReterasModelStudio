@@ -18,11 +18,15 @@ public class ImageUtils {
 
 	public static BufferedImage getColorImage(Color color){
 		BufferedImage bufferedImage = new BufferedImage(16,16, BufferedImage.TYPE_INT_ARGB);
-		Graphics graphics = bufferedImage.getGraphics();
-		graphics.setColor(color);
-//		graphics.drawRect(0,0,16,16);
-		graphics.fillRect(0,0,16,16);
-		graphics.dispose();
+		int[] pixels = new int[bufferedImage.getWidth()*bufferedImage.getHeight()];
+		Arrays.fill(pixels, color.getRGB());
+
+		bufferedImage.setRGB(0,0, bufferedImage.getWidth(), bufferedImage.getHeight(), pixels, 0, bufferedImage.getWidth());
+//		Graphics graphics = bufferedImage.getGraphics();
+//		graphics.setColor(color);
+////		graphics.drawRect(0,0,16,16);
+//		graphics.fillRect(0,0,16,16);
+//		graphics.dispose();
 		return bufferedImage;
 	}
 	public static BufferedImage getColorImage(Color color, int size){
@@ -35,6 +39,14 @@ public class ImageUtils {
 		return bufferedImage;
 	}
 
+	public static BufferedImage removeAlphaChannel(BufferedImage source) {
+		BufferedImage combined = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_INT_RGB);
+
+		Graphics g = combined.getGraphics();
+		g.drawImage(source, 0, 0, source.getWidth(), source.getHeight(), null);
+
+		return combined;
+	}
 
 	public static ByteBuffer getByteBuffer(BufferedImage bufferedImage) {
 		int[] pixels = new int[bufferedImage.getWidth() * bufferedImage.getHeight()];

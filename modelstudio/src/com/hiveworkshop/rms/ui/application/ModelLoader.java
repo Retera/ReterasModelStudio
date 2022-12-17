@@ -13,7 +13,7 @@ import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.ExtFilter;
-import com.hiveworkshop.rms.util.ImageCreator;
+import com.hiveworkshop.rms.util.ImageUtils.ImageCreator;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.fileviewers.SklViewer;

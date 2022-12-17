@@ -91,13 +91,24 @@ public class MdlxLayer extends MdlxAnimatedObject {
 		}
 
 		int pos = reader.position();
-		readTimelines(reader, size - (reader.position() - position));
-		if(hdTextureIds.size() == 1 && 0 < timelines.size()){
-			timelines.stream()
-					.filter(t -> t.name.equals(War3ID.fromString("KMTF")))
-					.findFirst()
-					.ifPresent(timeline -> textureIdTimelineMap.put(0, timeline));
+		long tempSize = size - (reader.position() - position);
+
+		while (0 < tempSize) {
+			final War3ID name = new War3ID(reader.readTag());
+			MdlxTimeline<?> timeline = getTimeline(reader, name);
+			if(timeline != null){
+				if(War3ID.fromString("KMTF").equals(name) && hdTextureIds.size() == 1){
+					textureIdTimelineMap.put(0, timeline);
+				} else {
+					timelines.add(timeline);
+				}
+				tempSize -=  timeline.getByteLength();
+			} else {
+				System.out.println("couldn't find tag for: " + name);
+				break;
+			}
 		}
+
 		sizeTracker += (reader.position() - pos);
 		for(; sizeTracker< size; sizeTracker+=4){
 				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): " + reader.readInt32());
@@ -112,7 +123,8 @@ public class MdlxLayer extends MdlxAnimatedObject {
 			if(1024<animOrTextureId){
 				int pos = reader.position();
 				i--;
-				MdlxTimeline<?> timeline = getTimeline(animOrTextureId, reader);
+//				MdlxTimeline<?> timeline = getTimeline(animOrTextureId, reader);
+				MdlxTimeline<?> timeline = getTimeline(reader, new War3ID(Integer.reverseBytes(animOrTextureId)));
 				textureIdTimelineMap.put(i, timeline);
 				sizeTracker += (reader.position() - pos);
 			} else {
@@ -127,8 +139,7 @@ public class MdlxLayer extends MdlxAnimatedObject {
 		return sizeTracker;
 	}
 
-	public MdlxTimeline<?> getTimeline(int revTag, final BinaryReader reader) {
-		final War3ID name = new War3ID(Integer.reverseBytes(revTag));
+	private MdlxTimeline<?> getTimeline(BinaryReader reader, War3ID name) {
 		AnimationMap animationMap = AnimationMap.ID_TO_TAG.get(name);
 		if(animationMap != null){
 			final MdlxTimeline<?> timeline = animationMap.getNewTimeline();
@@ -137,31 +148,6 @@ public class MdlxLayer extends MdlxAnimatedObject {
 			return timeline;
 		}
 		return null;
-	}
-
-
-	public void readMdxORG(final BinaryReader reader, final int version) {
-		final int position = reader.position();
-		final long size = reader.readUInt32();
-
-		filterMode = FilterMode.fromId(reader.readInt32());
-		flags = reader.readInt32(); // UInt32 in JS
-		textureId = reader.readInt32();
-		textureAnimationId = reader.readInt32();
-		coordId = reader.readInt32();
-		alpha = reader.readFloat32();
-
-		if (version > 800) {
-			emissiveGain = reader.readFloat32();
-
-			if (version > 900) {
-				reader.readFloat32Array(fresnelColor);
-				fresnelOpacity = reader.readFloat32();
-				fresnelTeamColor = reader.readFloat32();
-			}
-		}
-
-		readTimelines(reader, size - (reader.position() - position));
 	}
 
 	@Override
@@ -229,13 +215,16 @@ public class MdlxLayer extends MdlxAnimatedObject {
 					hdTextureSlots.add(hdTextureSlots.size());
 				}
 				case MdlUtils.TOKEN_TEXTURE_ID -> {
-					if (1000 < version) {
-						final MdlxTimeline<?> timeline = AnimationMap.KMTF.getNewTimeline();
-						timeline.readMdl(stream);
-						textureIdTimelineMap.put(hdTextureIds.size(), timeline);
-					} else {
-						readTimeline(stream, AnimationMap.KMTF);
-					}
+					final MdlxTimeline<?> timeline = AnimationMap.KMTF.getNewTimeline();
+					timeline.readMdl(stream);
+					textureIdTimelineMap.put(hdTextureIds.size(), timeline);
+//					if (1000 < version) {
+//						final MdlxTimeline<?> timeline = AnimationMap.KMTF.getNewTimeline();
+//						timeline.readMdl(stream);
+//						textureIdTimelineMap.put(hdTextureIds.size(), timeline);
+//					} else {
+//						readTimeline(stream, AnimationMap.KMTF);
+//					}
 					hdTextureIds.add(0);
 					hdTextureSlots.add(0);
 				}

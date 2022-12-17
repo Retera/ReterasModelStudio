@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff;
 
-import com.hiveworkshop.rms.util.GU;
+import com.hiveworkshop.rms.util.ImageUtils.GU;
 import com.hiveworkshop.rms.util.Vec2;
 
 import javax.swing.*;

@@ -9,9 +9,11 @@ import com.hiveworkshop.rms.editor.model.animflag.BitmapAnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxMaterial;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTexture;
+import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MaterialFactory {
@@ -23,7 +25,7 @@ public class MaterialFactory {
 				|| !mdlxMaterial.shader.equals(Material.SHADER_HD_DEFAULT_UNIT)
 				&& !mdlxMaterial.shader.equals(Material.SHADER_HD_CRYSTAL)){
 			for (final MdlxLayer mdlxLayer : mdlxMaterial.layers) {
-				layers.add(createLayer(mdlxLayer, model));
+				layers.add(createLayer(Collections.singletonList(mdlxLayer), model));
 			}
 		} else {
 			layers.add(createLayer(mdlxMaterial.layers, model));
@@ -64,13 +66,22 @@ public class MaterialFactory {
 	}
 
 	static Layer createLayer(List<MdlxLayer> mdlxLayers, EditableModel model) {
-		List<Bitmap> textures = new ArrayList<>();
-		for (MdlxLayer mdlxLayer : mdlxLayers) {
-			textures.add(model.getTexture(mdlxLayer.hdTextureIds.get(0)));
-
+		Layer layer = new Layer();
+		for (int slot = 0; slot < mdlxLayers.size(); slot++) {
+			MdlxLayer mdlxLayer = mdlxLayers.get(slot);
+			for (int i = 0; i < mdlxLayer.hdTextureIds.size(); i++){
+				layer.setTexture(slot+i, model.getTexture(mdlxLayer.hdTextureIds.get(i)));
+				MdlxTimeline<?> timeline = mdlxLayer.textureIdTimelineMap.get(i);
+				if(timeline != null){
+					AnimFlag<?> animFlag = AnimFlag.createFromTimeline(timeline, model);
+					if(animFlag instanceof BitmapAnimFlag){
+						layer.setFlipbookTexture(slot+i, (BitmapAnimFlag) animFlag);
+					}
+				}
+			}
 		}
 		MdlxLayer mdlxLayer = mdlxLayers.get(0);
-		Layer layer = new Layer(mdlxLayer.filterMode, textures);
+		layer.setFilterMode(mdlxLayer.filterMode);
 
 		int shadingFlags = mdlxLayer.flags;
 
@@ -89,131 +100,15 @@ public class MaterialFactory {
 		// > 800
 		layer.setEmissive(mdlxLayer.emissiveGain);
 		// > 900
-//		    layer.setFresnelColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxLayer.fresnelColor)));
 		layer.setFresnelColor(new Vec3(mdlxLayer.fresnelColor));
 		layer.setFresnelOpacity(mdlxLayer.fresnelOpacity);
 		layer.setFresnelTeamColor(mdlxLayer.fresnelTeamColor);
 
-		layer.loadTimelines(mdlxLayer, model);
-
-		for (int i = 0; i < mdlxLayer.hdTextureIds.size(); i++){
-			if(mdlxLayer.textureIdTimelineMap.get(i) != null){
-				AnimFlag<?> animFlag = AnimFlag.createFromTimeline(mdlxLayer.textureIdTimelineMap.get(i), model);
-				if(animFlag instanceof BitmapAnimFlag){
-					layer.setFlipbookTexture(i, (BitmapAnimFlag) animFlag);
-				}
-				layer.add(animFlag);
-			}
+		for (MdlxTimeline<?> timeline : mdlxLayer.timelines) {
+			System.out.println("adding other timeline: " + timeline.name);
+			AnimFlag<?> fromTimeline = AnimFlag.createFromTimeline(timeline, model);
+			layer.add(fromTimeline);
 		}
-//		for (int i = 0; i < mdlxLayer.hdTextureIds.size(); i++){
-//			Layer layer = new Layer(mdlxLayer.filterMode, model.getTexture(mdlxLayer.hdTextureIds.get(i)));
-//			int shadingFlags = mdlxLayer.flags;
-//
-//			layer.setUnshaded((shadingFlags & 0x1) != 0);
-//			layer.setSphereEnvMap((shadingFlags & 0x2) != 0);
-//			layer.setTwoSided((shadingFlags & 0x10) != 0);
-//			layer.setUnfogged((shadingFlags & 0x20) != 0);
-//			layer.setNoDepthTest((shadingFlags & 0x40) != 0);
-//			layer.setNoDepthSet((shadingFlags & 0x80) != 0);
-//			layer.setUnlit((shadingFlags & 0x100) != 0);
-//
-//			layer.setTextureAnim(model.getTexAnim(mdlxLayer.textureAnimationId));
-//			layer.setCoordId((int) mdlxLayer.coordId);
-//			layer.setStaticAlpha(mdlxLayer.alpha);
-//
-//			// > 800
-//			layer.setEmissive(mdlxLayer.emissiveGain);
-//			// > 900
-////		    layer.setFresnelColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxLayer.fresnelColor)));
-//			layer.setFresnelColor(new Vec3(mdlxLayer.fresnelColor));
-//			layer.setFresnelOpacity(mdlxLayer.fresnelOpacity);
-//			layer.setFresnelTeamColor(mdlxLayer.fresnelTeamColor);
-//
-//			if(i == 0){
-//				// loads all animated stuff into the first layer (in case of v1100)
-//				layer.loadTimelines(mdlxLayer, model);
-//			}
-//			if(mdlxLayer.textureIdTimelineMap.get(i) != null){
-//				layer.add(AnimFlag.createFromTimeline(mdlxLayer.textureIdTimelineMap.get(i), model));
-//			}
-//			layers.add(layer);
-//		}
-		return layer;
-	}
-	static Layer createLayer(MdlxLayer mdlxLayer, EditableModel model) {
-		List<Bitmap> textures = new ArrayList<>();
-		for (int i = 0; i < mdlxLayer.hdTextureIds.size(); i++){
-			textures.add(model.getTexture(mdlxLayer.hdTextureIds.get(i)));
-		}
-		Layer layer = new Layer(mdlxLayer.filterMode, textures);
-		int shadingFlags = mdlxLayer.flags;
-
-		layer.setUnshaded((shadingFlags & 0x1) != 0);
-		layer.setSphereEnvMap((shadingFlags & 0x2) != 0);
-		layer.setTwoSided((shadingFlags & 0x10) != 0);
-		layer.setUnfogged((shadingFlags & 0x20) != 0);
-		layer.setNoDepthTest((shadingFlags & 0x40) != 0);
-		layer.setNoDepthSet((shadingFlags & 0x80) != 0);
-		layer.setUnlit((shadingFlags & 0x100) != 0);
-
-		layer.setTextureAnim(model.getTexAnim(mdlxLayer.textureAnimationId));
-		layer.setCoordId((int) mdlxLayer.coordId);
-		layer.setStaticAlpha(mdlxLayer.alpha);
-
-		// > 800
-		layer.setEmissive(mdlxLayer.emissiveGain);
-		// > 900
-//		    layer.setFresnelColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxLayer.fresnelColor)));
-		layer.setFresnelColor(new Vec3(mdlxLayer.fresnelColor));
-		layer.setFresnelOpacity(mdlxLayer.fresnelOpacity);
-		layer.setFresnelTeamColor(mdlxLayer.fresnelTeamColor);
-
-		layer.loadTimelines(mdlxLayer, model);
-
-		for (int i = 0; i < mdlxLayer.hdTextureIds.size(); i++){
-			if(mdlxLayer.textureIdTimelineMap.get(i) != null){
-				AnimFlag<?> animFlag = AnimFlag.createFromTimeline(mdlxLayer.textureIdTimelineMap.get(i), model);
-				if(animFlag instanceof BitmapAnimFlag){
-					layer.setFlipbookTexture(i, (BitmapAnimFlag) animFlag);
-				}
-				layer.add(animFlag);
-			}
-		}
-//		for (int i = 0; i < mdlxLayer.hdTextureIds.size(); i++){
-//			Layer layer = new Layer(mdlxLayer.filterMode, model.getTexture(mdlxLayer.hdTextureIds.get(i)));
-//			int shadingFlags = mdlxLayer.flags;
-//
-//			layer.setUnshaded((shadingFlags & 0x1) != 0);
-//			layer.setSphereEnvMap((shadingFlags & 0x2) != 0);
-//			layer.setTwoSided((shadingFlags & 0x10) != 0);
-//			layer.setUnfogged((shadingFlags & 0x20) != 0);
-//			layer.setNoDepthTest((shadingFlags & 0x40) != 0);
-//			layer.setNoDepthSet((shadingFlags & 0x80) != 0);
-//			layer.setUnlit((shadingFlags & 0x100) != 0);
-//
-//			layer.setTextureAnim(model.getTexAnim(mdlxLayer.textureAnimationId));
-//			layer.setCoordId((int) mdlxLayer.coordId);
-//			layer.setStaticAlpha(mdlxLayer.alpha);
-//
-//			// > 800
-//			layer.setEmissive(mdlxLayer.emissiveGain);
-//			// > 900
-////		    layer.setFresnelColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxLayer.fresnelColor)));
-//			layer.setFresnelColor(new Vec3(mdlxLayer.fresnelColor));
-//			layer.setFresnelOpacity(mdlxLayer.fresnelOpacity);
-//			layer.setFresnelTeamColor(mdlxLayer.fresnelTeamColor);
-//
-//			if(i == 0){
-//				// loads all animated stuff into the first layer (in case of v1100)
-//				layer.loadTimelines(mdlxLayer, model);
-//			}
-//			if(mdlxLayer.textureIdTimelineMap.get(i) != null){
-//				layer.add(AnimFlag.createFromTimeline(mdlxLayer.textureIdTimelineMap.get(i), model));
-//			}
-//			layers.add(layer);
-//		}
-//		List<Layer> layers = new ArrayList<>();
-//		layers.add(layer);
 		return layer;
 	}
 

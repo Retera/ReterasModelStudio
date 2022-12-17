@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.util;
+package com.hiveworkshop.rms.util.ImageUtils;
 
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.Layer;

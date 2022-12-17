@@ -219,9 +219,20 @@ public class Geoset extends TimelineContainer implements Named {
 	public Set<Matrix> collectMatrices() {
 		LinkedHashSet<Matrix> matrixSet = new LinkedHashSet<>();
 		for (GeosetVertex vertex : vertices) {
-			matrixSet.add(vertex.getMatrix());
+			Matrix matrix = vertex.getMatrix();
+			if(!matrix.isEmpty()){
+				matrixSet.add(matrix);
+			}
 		}
 		return matrixSet;
+	}
+
+	public Set<Bone> collectBones(){
+		Set<Bone> boneSet = new HashSet<>();
+		for (GeosetVertex vertex : vertices) {
+			boneSet.addAll(vertex.getAllBones());
+		}
+		return boneSet;
 	}
 
 	public void reMakeMatrixList(){

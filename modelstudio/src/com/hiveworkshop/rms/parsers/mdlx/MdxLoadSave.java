@@ -98,9 +98,9 @@ public class MdxLoadSave {
 //			throw new RuntimeException(e);
 		}
 
-		for(int i = 0; i<mdlxModel.textures.size(); i++){
-			System.out.println("#" + i + ": " + mdlxModel.textures.get(i).path + ", " + mdlxModel.textures.get(i).replaceableId);
-		}
+//		for(int i = 0; i<mdlxModel.textures.size(); i++){
+//			System.out.println("#" + i + ": " + mdlxModel.textures.get(i).path + ", " + mdlxModel.textures.get(i).replaceableId);
+//		}
 	}
 
 	private static void tryToRecover(MdlxModel mdlxModel, BinaryReader reader, int tag, int size, int mode) {

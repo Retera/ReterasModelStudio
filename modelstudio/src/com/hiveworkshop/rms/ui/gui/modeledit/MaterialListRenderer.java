@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.util.ImageCreator;
+import com.hiveworkshop.rms.util.ImageUtils.ImageCreator;
 
 import javax.swing.*;
 import java.awt.*;

@@ -254,7 +254,7 @@ public class UVPanel extends JPanel {
 			menuBar.setModel(null);
 			uvViewport.setModel(null, null);
 
-			textureComboBox.removeAllItems();
+			textureComboBox.setNewLinkedModelOf(new ArrayList<>());
 		}
 
 		return this;
@@ -315,7 +315,7 @@ public class UVPanel extends JPanel {
 
 	private void setBitmapAsBackground(Bitmap bitmap) {
 		BufferedImage image = null;
-		if (bitmap != null) {
+		if (modelHandler != null && bitmap != null) {
 			image = BLPHandler.getImage(bitmap, modelHandler.getModel().getWrappedDataSource());
 		}
 		setTextureAsBackground(image);

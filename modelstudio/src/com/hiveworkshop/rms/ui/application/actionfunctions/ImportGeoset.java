@@ -67,12 +67,15 @@ public class ImportGeoset extends ActionFunction {
 			nameBoneMap.put(bone.getName(), bone);
 		}
 		Map<IdObject, IdObject> boneToBoneMap = new HashMap<>();
-		for (Matrix m : geoset.collectMatrices()) {
-			System.out.println(m.size());
-			for (Bone bone : m.getBones()){
-				boneToBoneMap.put(bone, nameBoneMap.get(bone.getName()));
-			}
+		for (Bone bone : geoset.collectBones()){
+			boneToBoneMap.put(bone, nameBoneMap.get(bone.getName()));
 		}
+//		for (Matrix m : geoset.collectMatrices()) {
+//			System.out.println(m.size());
+//			for (Bone bone : m.getBones()){
+//				boneToBoneMap.put(bone, nameBoneMap.get(bone.getName()));
+//			}
+//		}
 
 		for (GeosetVertex gv : geoset.getVertices()) {
 			if (!(gv.getMatrix().getBones().isEmpty() && ModelUtils.isTangentAndSkinSupported(model.getFormatVersion()))) {

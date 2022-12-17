@@ -22,7 +22,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
 import com.hiveworkshop.rms.ui.util.TwiList;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import com.hiveworkshop.rms.util.FramePopup;
-import com.hiveworkshop.rms.util.GU;
+import com.hiveworkshop.rms.util.ImageUtils.GU;
 import com.hiveworkshop.rms.util.TwiComboBox;
 import net.miginfocom.swing.MigLayout;
 

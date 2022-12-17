@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ui.application;
+package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.editor.actions.model.bitmap.AddBitmapAction;
 import com.hiveworkshop.rms.editor.actions.nodes.AddNodeAction;
@@ -7,9 +7,9 @@ import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
-import com.hiveworkshop.rms.ui.application.tools.IdObjectChooserButton;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.util.colorchooser.ColorChooserButton;
@@ -20,9 +20,13 @@ import net.miginfocom.swing.MigLayout;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenu;
+import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenuItem;
 
 public class AddParticlePanel extends JPanel{
 
@@ -108,6 +112,24 @@ public class AddParticlePanel extends JPanel{
 		add(optionsPanel);
 	}
 
+	public static JMenu getParticleMenu(){
+		JMenu addParticleMenu = createMenu("Particle", KeyEvent.VK_P);
+		List<ParticleInformation> particleInformationList = fetchIncludedParticles();
+		for (ParticleInformation particleInformation : particleInformationList) {
+			addParticleMenu.add(getAddParticleButton(particleInformation));
+		}
+
+		addParticleMenu.add(createMenuItem("Empty Popcorn", KeyEvent.VK_O, e -> AddParticlePanel.addEmptyPopcorn()));
+		return addParticleMenu;
+	}
+
+	private static JMenuItem getAddParticleButton(ParticleInformation particleInformation) {
+		ImageIcon icon = new ImageIcon(particleInformation.getImage().getScaledInstance(28, 28, Image.SCALE_DEFAULT));
+		JMenuItem particleItem = new JMenuItem(particleInformation.getName(), icon);
+		particleItem.addActionListener(e -> addParticleEmitter2(particleInformation, ProgramGlobals.getCurrentModelPanel().getModelHandler()));
+		return particleItem;
+	}
+
 	private ParticleEmitter2 getParticleEmitter2(ParticleInformation particleInformation) {
 		try {
 			return MdxUtils.loadEditable(particleInformation.filePath, null).getParticleEmitter2s().get(0);
@@ -125,7 +147,6 @@ public class AddParticlePanel extends JPanel{
 			flag = new FloatAnimFlag(MdlUtils.TOKEN_VISIBILITY);
 			particle.add(flag);
 		}
-
 
 		FloatAnimFlag visFlag = (FloatAnimFlag) particle.getVisibilityFlag();
 		for (Animation animation : animations) {
@@ -148,12 +169,6 @@ public class AddParticlePanel extends JPanel{
 		}
 		return colorPanel;
 	}
-	public static void addParticleButtons(JMenu addParticle) {
-		List<ParticleInformation> particleInformationList = fetchIncludedParticles();
-		for (ParticleInformation particleInformation : particleInformationList) {
-			makeAndAddParticleButtons(addParticle, particleInformation);
-		}
-	}
 
 	private static List<ParticleInformation> fetchIncludedParticles() {
 		List<ParticleInformation> particleInformations = new ArrayList<>();
@@ -164,13 +179,6 @@ public class AddParticlePanel extends JPanel{
 			particleInformations.add(new ParticleInformation(mdxPath, name, image2));
 		}
 		return particleInformations;
-	}
-
-	private static void makeAndAddParticleButtons(JMenu addParticle, ParticleInformation particleInformation) {
-		final JMenuItem particleItem = new JMenuItem(particleInformation.getName(), new ImageIcon(particleInformation.getImage().getScaledInstance(28, 28, Image.SCALE_DEFAULT)));
-//		particleItem.addActionListener(e -> makeAddParticlePanel(particleInformation));
-		particleItem.addActionListener(e -> addParticleEmitter2(particleInformation, ProgramGlobals.getCurrentModelPanel().getModelHandler()));
-		addParticle.add(particleItem);
 	}
 
 	public static void addEmptyPopcorn() {
@@ -186,7 +194,6 @@ public class AddParticlePanel extends JPanel{
 
 	public static Image loadImage(final String path) {
 		try {
-//            System.out.println(path);
 			return ImageIO.read(GameDataFileSystem.getDefault().getResourceAsStream(path));
 		} catch (final IOException e) {
 			throw new RuntimeException(e);

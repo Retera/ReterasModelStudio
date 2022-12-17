@@ -3,23 +3,24 @@ package com.hiveworkshop.rms.ui.application.tools;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.nodes.AddNodeAction;
 import com.hiveworkshop.rms.editor.actions.nodes.SetFromOtherParticle2Action;
-import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.ExtLog;
-import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
+import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
+import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter2;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
-import com.hiveworkshop.rms.ui.icons.IconUtils;
+import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
+import com.hiveworkshop.rms.ui.util.colorchooser.ColorChooserIconLabel;
 import com.hiveworkshop.rms.util.SmartButtonGroup;
 import com.hiveworkshop.rms.util.SmartNumberSlider;
-import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import com.hiveworkshop.rms.util.Vec3SpinnerArray;
 import net.miginfocom.swing.MigLayout;
 import org.lwjgl.LWJGLException;
@@ -27,7 +28,8 @@ import org.lwjgl.LWJGLException;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
-import java.awt.color.ColorSpace;
+import java.awt.image.BufferedImage;
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 public class ParticleEditPanel extends JPanel {
@@ -38,32 +40,13 @@ public class ParticleEditPanel extends JPanel {
 	private final ParticleEmitter2 particleEmitter2;
 	private ParticleEmitter2 copy;
 
-	private final JColorChooser colorChooser = new JColorChooser();
-	private final JPopupMenu chooseColor = new JPopupMenu("Choose Color");
-	private final Vec3 selectedColor = new Vec3(1, 1, 1);
-	int currentColorIndex = 0;
-	JButton[] colorButtons;
-
 	public ParticleEditPanel(ParticleEmitter2 particleEmitter2) {
 		super(new MigLayout("", "[]", ""));
 		this.particleEmitter2 = particleEmitter2;
-		tempModelHandler = getModelHandler(particleEmitter2);
+
+		copy = particleEmitter2.copy();
+		tempModelHandler = getModelHandler(copy);
 		perspectiveViewport = getViewport(tempModelHandler);
-
-		colorChooser.getSelectionModel().addChangeListener(e -> {
-			Color color = colorChooser.getColor();
-			selectedColor.set(color.getComponents(null));
-			if (colorButtons != null) {
-				colorButtons[currentColorIndex].setIcon(new ImageIcon(IconUtils.createBlank(color, 32, 32)));
-			}
-			changeColor();
-		});
-		chooseColor.add(colorChooser);
-
-//		for (AnimFlag<?> animFlag : particleEmitter2.getAnimFlags()) {
-//			System.out.println("got flag: " + animFlag.getName() + " (" + animFlag.getEntryMap().size() + ")");
-//		}
-
 
 		TimeEnvironmentImpl renderEnv = tempModelHandler.getPreviewRenderModel().getTimeEnvironment();
 		renderEnv.setRelativeAnimationTime(0);
@@ -75,99 +58,18 @@ public class ParticleEditPanel extends JPanel {
 		viewportPanel.add(perspectiveViewport, BorderLayout.CENTER);
 		add(viewportPanel, "");
 
-		SmartButtonGroup headTail = new SmartButtonGroup("Head/Tail");
-		headTail.addPanelConst("gap 0");
-		headTail.addJRadioButton("Head", e -> copy.setHeadOrTail(MdlxParticleEmitter2.HeadOrTail.HEAD));
-		headTail.addJRadioButton("Tail", e -> copy.setHeadOrTail(MdlxParticleEmitter2.HeadOrTail.TAIL));
-		headTail.addJRadioButton("Both", e -> copy.setHeadOrTail(MdlxParticleEmitter2.HeadOrTail.BOTH));
-		headTail.setSelectedIndex(copy.getHeadOrTail().ordinal());
-		add(headTail.getButtonPanel(), "");
-
-		SmartButtonGroup filterMode = new SmartButtonGroup("Filter Mode");
-		filterMode.addPanelConst("gap 0");
-		filterMode.addJRadioButton("Blend", e -> copy.setFilterMode(MdlxParticleEmitter2.FilterMode.BLEND));
-		filterMode.addJRadioButton("Additive", e -> copy.setFilterMode(MdlxParticleEmitter2.FilterMode.ADDITIVE));
-		filterMode.addJRadioButton("Modulate", e -> copy.setFilterMode(MdlxParticleEmitter2.FilterMode.MODULATE));
-		filterMode.addJRadioButton("Modulate2x", e -> copy.setFilterMode(MdlxParticleEmitter2.FilterMode.MODULATE2X));
-		filterMode.addJRadioButton("AlphaKey", e -> copy.setFilterMode(MdlxParticleEmitter2.FilterMode.ALPHAKEY));
-		filterMode.setSelectedIndex(copy.getFilterMode().ordinal());
-		add(filterMode.getButtonPanel(), "");
-
-		JPanel flagPanel = new JPanel(new MigLayout("ins 0, gap 0"));
-		flagPanel.setBorder(BorderFactory.createTitledBorder("Flags"));
-		add(flagPanel, "wrap");
-
-		flagPanel.add(getCheckBox("Unshaded", copy.getUnshaded(), (b) -> copy.setUnshaded(b)), "wrap");
-		flagPanel.add(getCheckBox("Unfogged", copy.getUnfogged(), (b) -> copy.setUnfogged(b)), "wrap");
-		flagPanel.add(getCheckBox("LineEmitter", copy.getLineEmitter(), (b) -> copy.setLineEmitter(b)), "wrap");
-		flagPanel.add(getCheckBox("SortPrimsFarZ", copy.getSortPrimsFarZ(), (b) -> copy.setSortPrimsFarZ(b)), "wrap");
-		flagPanel.add(getCheckBox("ModelSpace", copy.getModelSpace(), (b) -> copy.setModelSpace(b)), "wrap");
-		flagPanel.add(getCheckBox("XYQuad", copy.getXYQuad(), (b) -> copy.setXYQuad(b)), "wrap");
-		flagPanel.add(getCheckBox("Squirt", copy.getSquirt(), (b) -> copy.setSquirt(b)), "wrap");
+		add(getHeadTailGroup().getButtonPanel(), "");
+		add(getFilterModeButtonGroup().getButtonPanel(), "");
+//		add(getFlagPanel(), "wrap");
+		add(getFlagPanel(), "");
+		add(getTexturePanel(), "wrap");
 
 
 		JPanel subPanel = new JPanel(new MigLayout("ins 0", "[]20[]"));
 
-		JPanel sliderPanel = new JPanel(new MigLayout("ins 0"));
+		subPanel.add(getSliderPanel(), "");
 
-		sliderPanel.add(new SmartNumberSlider("Speed", copy.getSpeed(), 500, (i) -> copy.setSpeed(i)), SLIDER_CONSTRAINTS);
-		sliderPanel.add(new SmartNumberSlider("Variation (%)", copy.getVariation() * 100, 500, (i) -> copy.setVariation(i / 100d)), SLIDER_CONSTRAINTS);
-		sliderPanel.add(new SmartNumberSlider("EmissionRate", copy.getEmissionRate(), 100, (i) -> copy.setEmissionRate(i)), SLIDER_CONSTRAINTS);
-		sliderPanel.add(new SmartNumberSlider("Latitude", copy.getLatitude(), 180, (i) -> copy.setLatitude(i)), SLIDER_CONSTRAINTS);
-		sliderPanel.add(new SmartNumberSlider("Gravity", copy.getGravity(), -100, 100, (i) -> copy.setGravity(i)), SLIDER_CONSTRAINTS);
-		sliderPanel.add(new SmartNumberSlider("Width", copy.getWidth(), 400, (i) -> copy.setWidth(i)), SLIDER_CONSTRAINTS);
-		sliderPanel.add(new SmartNumberSlider("Length", copy.getLength(), 400, (i) -> copy.setLength(i)), SLIDER_CONSTRAINTS);
-		sliderPanel.add(new SmartNumberSlider("LifeSpan (~ 0.1 s)", copy.getLifeSpan() * 10, 200, (i) -> copy.setLifeSpan(i / 10d)).setMinLowerLimit(0).setMaxUpperLimit(1000), SLIDER_CONSTRAINTS);
-		sliderPanel.add(new SmartNumberSlider("TailLength", copy.getTailLength(), 100, (i) -> copy.setTailLength(i)), SLIDER_CONSTRAINTS);
-		sliderPanel.add(new SmartNumberSlider("Time (%)", copy.getTime() * 100, 100, (i) -> copy.setTime(i / 100d)).setMinLowerLimit(0).setMaxUpperLimit(100).setExpandMax(false).setExpandMin(false), SLIDER_CONSTRAINTS);
-
-		sliderPanel.add(new JLabel("Sub-Textures:"), "wrap");
-		sliderPanel.add(new SmartNumberSlider("Rows", copy.getRows(), 16, (i) -> copy.setRows(i)).setMinLowerLimit(1).setMaxUpperLimit(100), SLIDER_CONSTRAINTS);
-		sliderPanel.add(new SmartNumberSlider("Columns", copy.getColumns(), 16, (i) -> copy.setColumns(i)).setMinLowerLimit(1).setMaxUpperLimit(100), SLIDER_CONSTRAINTS);
-		subPanel.add(sliderPanel, "");
-
-		JPanel spinnerPanel = new JPanel(new MigLayout("ins 0"));
-
-
-		spinnerPanel.add(getColorPanel(), SPINNER_CONSTRAINTS);
-
-		JPanel alphaPanel = new Vec3SpinnerArray(copy.getAlpha(), 0, .1f)
-				.setVec3Consumer((v) -> copy.setAlpha(v))
-				.spinnerPanel();
-		alphaPanel.setBorder(BorderFactory.createTitledBorder("Alpha"));
-		spinnerPanel.add(alphaPanel, SPINNER_CONSTRAINTS);
-
-		JPanel scalingPanel = new Vec3SpinnerArray(copy.getParticleScaling())
-				.setVec3Consumer((v) -> copy.setParticleScaling(v))
-				.spinnerPanel();
-		scalingPanel.setBorder(BorderFactory.createTitledBorder("Particle Scaling"));
-		spinnerPanel.add(scalingPanel, SPINNER_CONSTRAINTS);
-
-		JPanel headPanel = new JPanel(new MigLayout("ins 0"));
-		headPanel.setBorder(BorderFactory.createTitledBorder("Head UV (sub-texture index)"));
-		headPanel.add(new JLabel("Life Span"));
-		headPanel.add(new Vec3SpinnerArray(copy.getHeadUVAnim(), "start", "end", "repeat").setVec3Consumer((v) -> copy.setHeadUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
-		headPanel.add(new JLabel("Decay"));
-//		headPanel.add(new JLabel("Life Texture Index"));
-//		headPanel.add(
-//				new Vec3SpinnerArray(copy.getHeadUVAnim(), "start", "end", "repeat", 0, 1)
-//				.setVec3Consumer((v) -> copy.setHeadUVAnim(v))
-//				.spinnerPanel(), SPINNER_CONSTRAINTS);
-//		headPanel.add(new JLabel("Decay Texture Index"));
-		headPanel.add(new Vec3SpinnerArray(copy.getHeadDecayUVAnim(), "start", "end", "repeat").setVec3Consumer((v) -> copy.setHeadDecayUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
-		spinnerPanel.add(headPanel, SPINNER_CONSTRAINTS);
-
-		JPanel tailPanel = new JPanel(new MigLayout("ins 0"));
-		tailPanel.setBorder(BorderFactory.createTitledBorder("Tail UV (sub-texture index)"));
-		tailPanel.add(new JLabel("Life Span"));
-		tailPanel.add(new Vec3SpinnerArray(copy.getTailUVAnim(), "start", "end", "repeat").setVec3Consumer((v) -> copy.setTailUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
-		tailPanel.add(new JLabel("Decay"));
-		tailPanel.add(new Vec3SpinnerArray(copy.getTailDecayUVAnim(), "start", "end", "repeat").setVec3Consumer((v) -> copy.setTailDecayUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
-		spinnerPanel.add(tailPanel, SPINNER_CONSTRAINTS);
-
-//		add(new SmartNumberSlider("Textureid", copy.getTextureID(), 50, (i) -> copy.setTextureID(i)), sliderConstraints);
-//		add(new SmartNumberSlider("Replaceableid", copy.getReplaceableId(), 50, (i) -> copy.setReplaceableId(i)), sliderConstraints);
-//		add(new SmartNumberSlider("Priorityplane", copy.getPriorityPlane(), 50, (i) -> copy.setPriorityPlane(i)), sliderConstraints);
+		JPanel spinnerPanel = getSpinnerPanel();
 
 		subPanel.add(spinnerPanel, "wrap");
 		add(subPanel, "spanx, wrap");
@@ -179,6 +81,105 @@ public class ParticleEditPanel extends JPanel {
 		JButton addAsNew = new JButton("Add as new Emitter");
 		addAsNew.addActionListener(e -> addAsNew());
 		add(addAsNew, "wrap");
+	}
+
+	private JPanel getSpinnerPanel() {
+		JPanel spinnerPanel = new JPanel(new MigLayout("ins 0"));
+
+
+		spinnerPanel.add(getColorPanel(), SPINNER_CONSTRAINTS);
+
+		JPanel alphaPanel = new Vec3SpinnerArray(copy.getAlpha(), 0, .1f)
+				.setVec3Consumer((v) -> copy.setAlpha(v))
+				.spinnerPanel("Alpha");
+		spinnerPanel.add(alphaPanel, SPINNER_CONSTRAINTS);
+
+		JPanel scalingPanel = new Vec3SpinnerArray(copy.getParticleScaling())
+				.setVec3Consumer((v) -> copy.setParticleScaling(v))
+				.spinnerPanel("Particle Scaling");
+		spinnerPanel.add(scalingPanel, SPINNER_CONSTRAINTS);
+
+		spinnerPanel.add(getHeadPanel(), SPINNER_CONSTRAINTS);
+		spinnerPanel.add(getTailPanel(), SPINNER_CONSTRAINTS);
+		return spinnerPanel;
+	}
+
+	private SmartButtonGroup getHeadTailGroup() {
+		SmartButtonGroup headTail = new SmartButtonGroup("Head/Tail");
+		headTail.addPanelConst("gap 0");
+		headTail.addJRadioButton("Head", e -> copy.setHeadOrTail(MdlxParticleEmitter2.HeadOrTail.HEAD));
+		headTail.addJRadioButton("Tail", e -> copy.setHeadOrTail(MdlxParticleEmitter2.HeadOrTail.TAIL));
+		headTail.addJRadioButton("Both", e -> copy.setHeadOrTail(MdlxParticleEmitter2.HeadOrTail.BOTH));
+		headTail.setSelectedIndex(copy.getHeadOrTail().ordinal());
+		return headTail;
+	}
+
+	private JPanel getTailPanel() {
+		JPanel tailPanel = new JPanel(new MigLayout("ins 0"));
+		tailPanel.setBorder(BorderFactory.createTitledBorder("Tail UV (sub-texture index)"));
+		tailPanel.add(new JLabel("Life Span"));
+		tailPanel.add(new Vec3SpinnerArray(copy.getTailUVAnim(), "start", "end", "repeat").setVec3Consumer((v) -> copy.setTailUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
+		tailPanel.add(new JLabel("Decay"));
+		tailPanel.add(new Vec3SpinnerArray(copy.getTailDecayUVAnim(), "start", "end", "repeat").setVec3Consumer((v) -> copy.setTailDecayUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
+		return tailPanel;
+	}
+
+	private JPanel getHeadPanel() {
+		JPanel headPanel = new JPanel(new MigLayout("ins 0"));
+		headPanel.setBorder(BorderFactory.createTitledBorder("Head UV (sub-texture index)"));
+		headPanel.add(new JLabel("Life Span"));
+		headPanel.add(new Vec3SpinnerArray(copy.getHeadUVAnim(), "start", "end", "repeat").setVec3Consumer((v) -> copy.setHeadUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
+		headPanel.add(new JLabel("Decay"));
+
+		headPanel.add(new Vec3SpinnerArray(copy.getHeadDecayUVAnim(), "start", "end", "repeat").setVec3Consumer((v) -> copy.setHeadDecayUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
+		return headPanel;
+	}
+
+	private JPanel getSliderPanel() {
+		JPanel sliderPanel = new JPanel(new MigLayout("ins 0"));
+
+		sliderPanel.add(new SmartNumberSlider("EmissionRate", copy.getEmissionRate(), 100, (i) -> copy.setEmissionRate(i)).addLabelTooltip("Particles emitted per second"), SLIDER_CONSTRAINTS);
+
+		sliderPanel.add(new SmartNumberSlider("Speed", copy.getSpeed(), 500, (i) -> copy.setSpeed(i)), SLIDER_CONSTRAINTS + ", gaptop 5");
+		sliderPanel.add(new SmartNumberSlider("Variation (%)", copy.getVariation() * 100, 500, (i) -> copy.setVariation(i / 100d)).addLabelTooltip("Variation in speed"), SLIDER_CONSTRAINTS);
+
+		sliderPanel.add(new SmartNumberSlider("Latitude", copy.getLatitude(), 180, (i) -> copy.setLatitude(i)).addLabelTooltip("Angular spread"), SLIDER_CONSTRAINTS);
+		sliderPanel.add(new SmartNumberSlider("Gravity", copy.getGravity(), -100, 100, (i) -> copy.setGravity(i)), SLIDER_CONSTRAINTS);
+
+		sliderPanel.add(new SmartNumberSlider("Width", copy.getWidth(), 400, (i) -> copy.setWidth(i)).addLabelTooltip("Width of the spawn plane"), SLIDER_CONSTRAINTS + ", gaptop 5");
+		sliderPanel.add(new SmartNumberSlider("Length", copy.getLength(), 400, (i) -> copy.setLength(i)).addLabelTooltip("Length of the spawn plane"), SLIDER_CONSTRAINTS);
+
+		sliderPanel.add(new SmartNumberSlider("LifeSpan (~ 0.1 s)", copy.getLifeSpan() * 10, 200, (i) -> copy.setLifeSpan(i / 10d)).setMinLowerLimit(0).setMaxUpperLimit(1000), SLIDER_CONSTRAINTS);
+		sliderPanel.add(new SmartNumberSlider("TailLength", copy.getTailLength(), 100, (i) -> copy.setTailLength(i)), SLIDER_CONSTRAINTS);
+		sliderPanel.add(new SmartNumberSlider("Time (%)", copy.getTime() * 100, 0, 100, (i) -> copy.setTime(i / 100d), false, false).addLabelTooltip("Fraction of lifespan at which to start decaying"), SLIDER_CONSTRAINTS);
+
+		return sliderPanel;
+	}
+
+	private JPanel getFlagPanel() {
+		JPanel flagPanel = new JPanel(new MigLayout("ins 0, gap 0"));
+		flagPanel.setBorder(BorderFactory.createTitledBorder("Flags"));
+
+		flagPanel.add(getCheckBox("Unshaded", copy.getUnshaded(), (b) -> copy.setUnshaded(b)), "wrap");
+		flagPanel.add(getCheckBox("Unfogged", copy.getUnfogged(), (b) -> copy.setUnfogged(b)), "wrap");
+		flagPanel.add(getCheckBox("LineEmitter", copy.getLineEmitter(), (b) -> copy.setLineEmitter(b)), "wrap");
+		flagPanel.add(getCheckBox("SortPrimsFarZ", copy.getSortPrimsFarZ(), (b) -> copy.setSortPrimsFarZ(b)), "wrap");
+		flagPanel.add(getCheckBox("ModelSpace", copy.getModelSpace(), (b) -> copy.setModelSpace(b)), "wrap");
+		flagPanel.add(getCheckBox("XYQuad", copy.getXYQuad(), (b) -> copy.setXYQuad(b)), "wrap");
+		flagPanel.add(getCheckBox("Squirt", copy.getSquirt(), (b) -> copy.setSquirt(b)), "wrap");
+		return flagPanel;
+	}
+
+	private SmartButtonGroup getFilterModeButtonGroup() {
+		SmartButtonGroup filterMode = new SmartButtonGroup("Filter Mode");
+		filterMode.addPanelConst("gap 0");
+		filterMode.addJRadioButton("Blend", e -> copy.setFilterMode(MdlxParticleEmitter2.FilterMode.BLEND));
+		filterMode.addJRadioButton("Additive", e -> copy.setFilterMode(MdlxParticleEmitter2.FilterMode.ADDITIVE));
+		filterMode.addJRadioButton("Modulate", e -> copy.setFilterMode(MdlxParticleEmitter2.FilterMode.MODULATE));
+		filterMode.addJRadioButton("Modulate2x", e -> copy.setFilterMode(MdlxParticleEmitter2.FilterMode.MODULATE2X));
+		filterMode.addJRadioButton("AlphaKey", e -> copy.setFilterMode(MdlxParticleEmitter2.FilterMode.ALPHAKEY));
+		filterMode.setSelectedIndex(copy.getFilterMode().ordinal());
+		return filterMode;
 	}
 
 	public JCheckBox getCheckBox(String flagName, boolean selected, Consumer<Boolean> checkboxConsumer) {
@@ -206,35 +207,78 @@ public class ParticleEditPanel extends JPanel {
 		}
 	}
 
-//	private void doApply(boolean ugg){
-//		particleEmitter2.setSpeed(copy.getSpeed());
-//		particleEmitter2.setVariation(copy.getVariation());
-//		particleEmitter2.setEmissionRate(copy.getEmissionRate());
-//		particleEmitter2.setLatitude(copy.getLatitude());
-//		particleEmitter2.setGravity(copy.getGravity());
-//		particleEmitter2.setWidth(copy.getWidth());
-//		particleEmitter2.setLength(copy.getLength());
-//		particleEmitter2.setLifeSpan(copy.getLifeSpan());
-//		particleEmitter2.setTailLength(copy.getTailLength());
-//		particleEmitter2.setTime(copy.getTime());
-//		particleEmitter2.setRows(copy.getRows());
-//		particleEmitter2.setColumns(copy.getColumns());
-//
-//		particleEmitter2.setAlpha(copy.getAlpha());
-//		particleEmitter2.setParticleScaling(copy.getParticleScaling());
-//		particleEmitter2.setHeadUVAnim(copy.getHeadUVAnim());
-//		particleEmitter2.setHeadDecayUVAnim(copy.getHeadDecayUVAnim());
-//		particleEmitter2.setTailUVAnim(copy.getTailUVAnim());
-//		particleEmitter2.setTailDecayUVAnim(copy.getTailDecayUVAnim());
-//
-//		particleEmitter2.setSegmentColor(0, copy.getSegmentColor(0));
-//		particleEmitter2.setSegmentColor(1, copy.getSegmentColor(1));
-//		particleEmitter2.setSegmentColor(2, copy.getSegmentColor(2));
-//	}
+	private JPanel getTexturePanel(){
+		JPanel panel = new JPanel(new MigLayout("fill"));
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		ModelHandler modelHandler;
+		if (modelPanel != null) {
+			modelHandler = modelPanel.getModelHandler();
+		} else {
+			modelHandler = tempModelHandler;
+		}
+		JLabel imageLabel = new JLabel();
+		updateImageLabel(imageLabel);
 
-	private void setColor(Vec3 color) {
-		Color color1 = new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), clampColorVector(color.toFloatArray()), 1.0f);
-		colorChooser.setColor(color1);
+		EditableModel model = modelHandler.getModel();
+		TwiComboBox<Bitmap> textureChooser = new TwiComboBox<>(model.getTextures(), new Bitmap("", 1));
+		textureChooser.setRenderer(new TextureListRenderer(model).setImageSize(16));
+//		textureChooser.addOnSelectItemListener(copy::setTexture);
+		textureChooser.addOnSelectItemListener(bitmap -> changeTexture(bitmap, imageLabel));
+		panel.add(textureChooser, "spanx, growx, wrap");
+
+		panel.add(imageLabel, "growx");
+
+//		panel.add(new SmartNumberSlider("Rows", copy.getRows(), 1, 16, (i) -> copy.setRows(i)).setMinLowerLimit(1).setMaxUpperLimit(100), "");
+//		panel.add(new SmartNumberSlider("Columns", copy.getColumns(), 1, 16, (i) -> copy.setColumns(i)).setMinLowerLimit(1).setMaxUpperLimit(100), "");
+		panel.add(new JLabel("Rows"), "split");
+		panel.add(new IntEditorJSpinner(copy.getRows(), 1, 1024, i -> updateImageParts(i, copy.getCols(), imageLabel)), ", wrap");
+		panel.add(new JLabel("Columns"), "split");
+		panel.add(new IntEditorJSpinner(copy.getColumns(), 1, 1024, i -> updateImageParts(copy.getRows(), i, imageLabel)));
+		return panel;
+	}
+
+	private void changeTexture(Bitmap texture, JLabel imageLabel){
+		copy.setTexture(texture);
+		updateImageLabel(imageLabel);
+	}
+
+	private void updateImageParts(int rows, int cols, JLabel imageLabel){
+		copy.setRows(rows);
+		copy.setColumns(cols);
+		updateImageLabel(imageLabel);
+	}
+
+	private void updateImageLabel(JLabel imageLabel) {
+		BufferedImage bufferedImage = BLPHandler.getImage(copy.getTexture(), GameDataFileSystem.getDefault());
+		int cols = copy.getCols();
+		int rows = copy.getRows();
+		int iconWidth = 128;
+		int iconHeight = 128 * bufferedImage.getHeight()/bufferedImage.getWidth();
+
+		Image scaledInstance = bufferedImage.getScaledInstance(iconWidth, iconHeight, Image.SCALE_SMOOTH);
+
+		int w = scaledInstance.getWidth(null);
+		int h = scaledInstance.getHeight(null);
+		BufferedImage iconImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+		int[] pixels = new int[w*h];
+		Arrays.fill(pixels, 0);
+		iconImage.setRGB(0,0, w, h, pixels, 0, w);
+
+		Graphics graphics = iconImage.getGraphics();
+		graphics.drawImage(scaledInstance, 0,0,null);
+
+		graphics.setColor(new Color(128,128,128,128));
+		float colSpace = w/(float)cols;
+		float rowSpace = h/(float)rows;
+		for(float i = colSpace; i < w; i+= colSpace){
+			graphics.drawLine((int) i, 0, (int) i, h);
+		}
+		for(float i = rowSpace; i < h; i+= rowSpace){
+			graphics.drawLine(0, (int) i, w, (int) i);
+		}
+		graphics.dispose();
+
+		imageLabel.setIcon(new ImageIcon(iconImage));
 	}
 
 	private float[] clampColorVector(float[] rowColor) {
@@ -244,8 +288,12 @@ public class ParticleEditPanel extends JPanel {
 		return rowColor;
 	}
 
-	private void changeColor() {
-		copy.setSegmentColor(currentColorIndex, selectedColor);
+//	private void changeColor() {
+//		copy.setSegmentColor(currentColorIndex, selectedColor);
+//	}
+	private void changeColor(int i, Color color) {
+		System.out.println("Setting color " + i + " to: " + color);
+		copy.setSegmentColor(i, clampColorVector(color.getComponents(null)));
 	}
 
 
@@ -265,7 +313,7 @@ public class ParticleEditPanel extends JPanel {
 		};
 	}
 
-	private ModelHandler getModelHandler(ParticleEmitter2 particleEmitter2) {
+	private ModelHandler getModelHandler(ParticleEmitter2 copy) {
 		EditableModel tempModel = new EditableModel();
 
 		tempModel.setExtents(new ExtLog(100));
@@ -276,8 +324,6 @@ public class ParticleEditPanel extends JPanel {
 //		Bone bone = new Bone("noBone");
 //		tempModel.add(bone);
 
-		copy = particleEmitter2.copy();
-//		ParticleEmitter2 copy = particleEmitter2.copy();
 		copy.setParent(null);
 		if (copy.getVisibilityFlag() != null) {
 			FloatAnimFlag flag = new FloatAnimFlag(MdlUtils.TOKEN_VISIBILITY);
@@ -326,47 +372,14 @@ public class ParticleEditPanel extends JPanel {
 
 	private JPanel getColorPanel() {
 		JPanel panel = new JPanel(new MigLayout("ins 0"));
-		colorButtons = new JButton[3];
-		colorButtons[0] = getColorButton(0);
-		colorButtons[1] = getColorButton(1);
-		colorButtons[2] = getColorButton(2);
+		ColorChooserIconLabel button0 = new ColorChooserIconLabel(copy.getSegmentColor(0).asFloatColor(), c -> changeColor(0, c));
+		ColorChooserIconLabel button1 = new ColorChooserIconLabel(copy.getSegmentColor(1).asFloatColor(), c -> changeColor(1, c));
+		ColorChooserIconLabel button2 = new ColorChooserIconLabel(copy.getSegmentColor(2).asFloatColor(), c -> changeColor(2, c));
 
-		panel.add(colorButtons[0]);
-		panel.add(colorButtons[1]);
-		panel.add(colorButtons[2]);
+		panel.add(button0);
+		panel.add(button1);
+		panel.add(button2);
 
 		return panel;
-	}
-
-	private JButton getColorButton(int i) {
-		Color color = new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), clampColorVector(copy.getSegmentColor(i).toFloatArray()), 1.0f);
-//		JButton button = new JButton("Color " + (i+1), new ImageIcon(IconUtils.createBlank(color, 32, 32)));
-		JButton button = new JButton("", new ImageIcon(IconUtils.createBlank(color, 32, 32)));
-		button.addActionListener(e12 -> {
-			currentColorIndex = i;
-			setColor(copy.getSegmentColor(i));
-			chooseColor.show(button, 0, 0);
-		});
-
-		return button;
-	}
-
-	private void makeColorButtons(ParticleEmitter2 particle, JButton[] colorButtons, Color[] colors) {
-		for (int i = 0; i < colorButtons.length; i++) {
-			final Vec3 colorValues = particle.getSegmentColor(i);
-			final Color color = new Color((int) (colorValues.x * 255), (int) (colorValues.y * 255), (int) (colorValues.z * 255));
-
-			final JButton button = new JButton("Color " + (i + 1), new ImageIcon(IconUtils.createBlank(color, 32, 32)));
-			colors[i] = color;
-			final int index = i;
-			button.addActionListener(e12 -> {
-				final Color colorChoice = JColorChooser.showDialog(this, "Chooser Color", colors[index]);
-				if (colorChoice != null) {
-					colors[index] = colorChoice;
-					button.setIcon(new ImageIcon(IconUtils.createBlank(colors[index], 32, 32)));
-				}
-			});
-			colorButtons[i] = button;
-		}
 	}
 }

@@ -9,7 +9,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.language.TextKey;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import com.hiveworkshop.rms.util.ImageCreator;
+import com.hiveworkshop.rms.util.ImageUtils.ImageCreator;
 
 import java.awt.image.BufferedImage;
 

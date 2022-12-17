@@ -27,6 +27,16 @@ public abstract class TimelineContainer {
 		}
 	}
 
+	public List<MdlxTimeline<?>> timelinesToMdlx(EditableModel model) {
+		List<MdlxTimeline<?>> timelines = new ArrayList<>();
+		for (AnimFlag<?> timeline : animFlags.values()) {
+			if (!timeline.getAnimMap().isEmpty()) {
+				timelines.add(timeline.toMdlx(this, model));
+			}
+		}
+		return timelines;
+	}
+
 	public void add(AnimFlag<?> timeline) {
 		animFlags.put(timeline.getName(), timeline);
 	}

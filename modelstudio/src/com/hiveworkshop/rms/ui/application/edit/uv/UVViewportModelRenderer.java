@@ -9,7 +9,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.GU;
+import com.hiveworkshop.rms.util.ImageUtils.GU;
 import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;

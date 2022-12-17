@@ -53,16 +53,18 @@ public class SmartNumberSlider extends JPanel {
 		addValueConsumer(consumer);
 	}
 
-	public SmartNumberSlider(String s, int minMin, int minMax, int initial, boolean expandMin, boolean expandMax) {
+	public SmartNumberSlider(String s, int minSoftLimit, int maxSoftLimit, int initial, boolean expandMin, boolean expandMax) {
 		super(new MigLayout("ins 0, fill", "[left, grow][right][right]"));
-		this.minMin = minMin;
-		this.minMax = minMax;
+		this.minMin = minSoftLimit;
+		this.minMax = maxSoftLimit;
 		this.initial = initial;
 		this.expandMin = expandMin;
 		this.expandMax = expandMax;
-		brm = new AdaptingRangeModel(initial, 0, minMin, minMax);
+		brm = new AdaptingRangeModel(initial, 0, minSoftLimit, maxSoftLimit);
+		brm.setMaxLowerLimit(maxSoftLimit);
+		brm.setMinUpperLimit(minSoftLimit);
 		jSlider = new JSlider(brm);
-		jSlider.setMaximum(minMax);
+		jSlider.setMaximum(maxSoftLimit);
 //		jSlider.addChangeListener(e -> {getPrintln(e);});
 		label = new JLabel(s);
 		add(label, "growx");
@@ -72,6 +74,13 @@ public class SmartNumberSlider extends JPanel {
 		textField.setAllowedCharacters("-1234567890");
 		textField.addOnCaretEventFunction((st) -> setValueFromText(st));
 		add(textField, "wmin 25");
+
+		if (!expandMax) {
+			brm.setMaxUpperLimit(maxSoftLimit);
+		}
+		if (!expandMin) {
+			brm.setMinLowerLimit(minSoftLimit);
+		}
 	}
 
 	public int getValue() {
@@ -89,6 +98,11 @@ public class SmartNumberSlider extends JPanel {
 		//todo fix this to not throw error...
 		jSlider.addChangeListener(e -> setTextfieldText());
 
+		return this;
+	}
+
+	public SmartNumberSlider addLabelTooltip(String tooltip){
+		label.setToolTipText(tooltip);
 		return this;
 	}
 
@@ -122,11 +136,21 @@ public class SmartNumberSlider extends JPanel {
 
 	public SmartNumberSlider setExpandMin(boolean expandMin) {
 		this.expandMin = expandMin;
+
+		if(!expandMin){
+			brm.setMinLowerLimit(minMin);
+		}
+//		brm.setMinLowerLimit(expandMin ? Integer.MIN_VALUE : minMin);
+
 		return this;
 	}
 
 	public SmartNumberSlider setExpandMax(boolean expandMax) {
 		this.expandMax = expandMax;
+		if(!expandMax){
+			brm.setMaxUpperLimit(minMax);
+		}
+//		brm.setMaxUpperLimit(expandMax ? Integer.MIN_VALUE : minMax);
 		return this;
 	}
 

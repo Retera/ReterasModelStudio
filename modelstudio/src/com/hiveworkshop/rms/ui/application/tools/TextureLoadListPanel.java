@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.RMSFileChooser;
 import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
 import com.hiveworkshop.rms.ui.util.TwiList;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
-import com.hiveworkshop.rms.util.GU;
+import com.hiveworkshop.rms.util.ImageUtils.GU;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;

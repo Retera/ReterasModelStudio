@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.GeosetShell;
-import com.hiveworkshop.rms.util.ImageCreator;
+import com.hiveworkshop.rms.util.ImageUtils.ImageCreator;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;

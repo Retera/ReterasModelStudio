@@ -1,4 +1,6 @@
-package com.hiveworkshop.rms.util;
+package com.hiveworkshop.rms.util.ImageUtils;
+
+import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;
 

@@ -55,9 +55,6 @@ public class TextureHelper {
 	public boolean hasBeenModified() {
 		return file != null && (!file.exists() || new File(path).lastModified() != lastModified);
 	}
-//	public boolean hasBeenModified() {
-//		return file == null || !file.exists() || new File(path).lastModified() != lastModified;
-//	}
 
 	public BufferedImage getBufferedImage() {
 		if (!hasBeenModified()) {
@@ -66,22 +63,22 @@ public class TextureHelper {
 		return null;
 	}
 
-	public BufferedImage getCashedBufferedImage() {
-		return bufferedImage;
-	}
-
-	public GPUReadyTexture getGpuReadyTexture() {
-		if (bufferedImage != null && !hasBeenModified()) {
-			if (gpuReadyTexture == null) {
-				buffer = getByteBuffer(bufferedImage);
-				width = bufferedImage.getWidth();
-				height = bufferedImage.getHeight();
-				gpuReadyTexture = new GPUReadyTexture(buffer, width, height);
-			}
-			return gpuReadyTexture;
-		}
-		return null;
-	}
+//	public BufferedImage getCashedBufferedImage() {
+//		return bufferedImage;
+//	}
+//
+//	public GPUReadyTexture getGpuReadyTexture() {
+//		if (bufferedImage != null && !hasBeenModified()) {
+//			if (gpuReadyTexture == null) {
+//				buffer = getByteBuffer(bufferedImage);
+//				width = bufferedImage.getWidth();
+//				height = bufferedImage.getHeight();
+//				gpuReadyTexture = new GPUReadyTexture(buffer, width, height);
+//			}
+//			return gpuReadyTexture;
+//		}
+//		return null;
+//	}
 
 	public ByteBuffer getBuffer() {
 		if(buffer == null){
@@ -106,25 +103,8 @@ public class TextureHelper {
 	public boolean isWrapHeight() {
 		return bitmap != null && bitmap.isWrapHeight();
 	}
-	//	public GPUReadyTexture getGpuReadyTexture() {
-////		if (bufferedImage != null && !hasBeenModified()) {
-////			if (gpuReadyTexture == null) {
-////				gpuReadyTexture = new GPUReadyTexture(getByteBuffer(bufferedImage), bufferedImage.getWidth(), bufferedImage.getHeight());
-////			}
-////			return gpuReadyTexture;
-////		}
-////		return null;
-//		return getGpuReadyTexture(false);
-//	}
 
 	public GPUReadyTexture getCashedGpuReadyTexture() {
-//		if (bufferedImage != null) {
-//			if (gpuReadyTexture == null) {
-//				gpuReadyTexture = new GPUReadyTexture(getByteBuffer(bufferedImage), bufferedImage.getWidth(), bufferedImage.getHeight());
-//			}
-//			return gpuReadyTexture;
-//		}
-//		return null;
 		return getGpuReadyTexture(true);
 	}
 

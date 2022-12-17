@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff;
 
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
-import com.hiveworkshop.rms.util.GU;
+import com.hiveworkshop.rms.util.ImageUtils.GU;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 

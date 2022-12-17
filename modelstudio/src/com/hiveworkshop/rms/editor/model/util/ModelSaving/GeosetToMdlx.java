@@ -89,22 +89,34 @@ public class GeosetToMdlx {
 
 		mdlxGeoset.selectionGroup = geoset.getSelectionGroup();
 
-		mdlxGeoset.matrixIndices = new long[getMatrixIndexesSize(matrices)];
-		mdlxGeoset.matrixGroups = new long[matrices.size()];
-		int matrixIndex = 0;
-		int groupIndex = 0;
-		for (final Matrix matrix : matrices) {
-			for (int index = 0; index < matrix.size() && matrixIndex < mdlxGeoset.matrixIndices.length; index++) {
-				mdlxGeoset.matrixIndices[matrixIndex++] = model.getObjectId(matrix.get(index));
+		if (matrices.isEmpty()){
+			List<Bone> bones = model.getBones();
+			int size = bones.size();
+			mdlxGeoset.matrixIndices = new long[size];
+			mdlxGeoset.matrixGroups = new long[size];
+			for (int i = 0; i < size; i++) {
+				int objectId = model.getObjectId(bones.get(i));
+				mdlxGeoset.matrixIndices[i] = objectId;
+				mdlxGeoset.matrixGroups[i] = 1;
 			}
-			if (matrix.size() <= 0) {
-				mdlxGeoset.matrixIndices[matrixIndex++] = -1;
+		} else {
+			mdlxGeoset.matrixIndices = new long[getMatrixIndexesSize(matrices)];
+			mdlxGeoset.matrixGroups = new long[matrices.size()];
+			int matrixIndex = 0;
+			int groupIndex = 0;
+			for (final Matrix matrix : matrices) {
+				for (int index = 0; index < matrix.size() && matrixIndex < mdlxGeoset.matrixIndices.length; index++) {
+					mdlxGeoset.matrixIndices[matrixIndex++] = model.getObjectId(matrix.get(index));
+				}
+				if (matrix.size() <= 0) {
+					mdlxGeoset.matrixIndices[matrixIndex++] = -1;
+				}
+				int size = matrix.size();
+				if (size == -1) {
+					size = 1;
+				}
+				mdlxGeoset.matrixGroups[groupIndex++] = size;
 			}
-			int size = matrix.size();
-			if (size == -1) {
-				size = 1;
-			}
-			mdlxGeoset.matrixGroups[groupIndex++] = size;
 		}
 
 		mdlxGeoset.lod = geoset.getLevelOfDetail();

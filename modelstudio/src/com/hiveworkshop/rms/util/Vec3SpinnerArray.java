@@ -59,6 +59,10 @@ public class Vec3SpinnerArray {
 	}
 
 	public JPanel spinnerPanel() {
+		return spinnerPanel(null);
+	}
+
+	public JPanel spinnerPanel(String title) {
 		JPanel spinnerPanel = new JPanel(new MigLayout("gap 0, ins 0"));
 		JPanel xPanel = getCoordPanel(0);
 		JPanel yPanel = getCoordPanel(1);
@@ -67,6 +71,10 @@ public class Vec3SpinnerArray {
 		spinnerPanel.add(xPanel, spinnerWrap);
 		spinnerPanel.add(yPanel, spinnerWrap);
 		spinnerPanel.add(zPanel, spinnerWrap);
+
+		if(title != null){
+			spinnerPanel.setBorder(BorderFactory.createTitledBorder(title));
+		}
 
 		return spinnerPanel;
 	}

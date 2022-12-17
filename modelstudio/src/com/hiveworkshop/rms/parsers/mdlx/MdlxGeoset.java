@@ -114,7 +114,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 //		System.out.println("Read: faceCount: " + faceCount);
 //		System.out.println("Read: geosetVGCount: " + geosetVertexGroupsCount);
 
-		if (version > 800) {
+		if (800 < version) {
 			lod = reader.readInt32();
 			lodName = reader.read(80);
 		}
@@ -131,7 +131,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 
 		int id = reader.readTag(); // TANG or SKIN or UVAS
 
-		if (version > 800 && id != UVAS.getValue()) {
+		if (800 < version && id != UVAS.getValue()) {
 			if (id == TANG.getValue()) {
 				tangents = reader.readFloat32Array(reader.readInt32() * 4);
 
@@ -199,7 +199,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 //
 //		System.out.println("Save: VG len: " + vertexGroups.length);
 
-		if (version > 800) {
+		if (800 < version) {
 			writer.writeInt32(lod);
 			writer.writeWithNulls(lodName, 80);
 		}
@@ -211,7 +211,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 			sequenceExtent.writeMdx(writer);
 		}
 
-		if (version > 800) {
+		if (800 < version) {
 			if (tangents != null) {
 				writer.writeTag(TANG.getValue());
 				writer.writeUInt32(tangents.length / 4);
@@ -278,7 +278,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 					final int count = stream.readInt();
 					stream.read(); // {
 					stream.read(); // Triangles
-					if(count > 0){
+					if(0 < count){
 						faces = stream.readUInt16Array(new int[count], 3);
 						faceGroups = new long[] {count};
 					} else {
@@ -368,7 +368,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 			stream.endBlock();
 		}
 
-		if (version > 800) {
+		if (800 < version) {
 
 			stream.startBlock(MdlUtils.TOKEN_VERTEX_GROUP);
 			if (skin == null) {
@@ -405,7 +405,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 		stream.startBlock(MdlUtils.TOKEN_TRIANGLES);
 		final StringBuilder facesBuffer = new StringBuilder();
 		for (final int faceValue : faces) {
-			if (facesBuffer.length() > 0) {
+			if (0 < facesBuffer.length()) {
 				facesBuffer.append(", ");
 			}
 			facesBuffer.append(faceValue);
@@ -436,7 +436,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 			stream.writeFlag(MdlUtils.TOKEN_UNSELECTABLE);
 		}
 
-		if (version > 800) {
+		if (800 < version) {
 			stream.writeAttrib(MdlUtils.TOKEN_LEVELOFDETAIL, lod);
 	  
 			if (lodName.length() > 0) {
@@ -456,7 +456,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 			size += 8 + (uvSet.length * 4L);
 		}
 
-		if (version > 800) {
+		if (800 < version) {
 			size += 84;
 
 			if (tangents != null) {
