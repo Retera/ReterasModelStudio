@@ -461,6 +461,9 @@ public class Material implements MaterialView {
 					getRenderableTexturePath(zeroLayer.getShaderTextures().get(ShaderTextureTypeHD.ORM)));
 			final BufferedImage reflectionsTextureData = BLPHandler.get().getTexture(workingDirectory,
 					getRenderableTexturePath(zeroLayer.getShaderTextures().get(ShaderTextureTypeHD.Reflections)));
+			if (diffuseTextureData == null) {
+				System.out.println("err");
+			}
 			final int diffuseTextureDataWidth = diffuseTextureData.getWidth();
 			final int diffuseTextureDataHeight = diffuseTextureData.getHeight();
 			System.out.println("Diffuse: " + diffuseTextureDataWidth + " x " + diffuseTextureDataHeight);
@@ -498,7 +501,7 @@ public class Material implements MaterialView {
 			}
 			final Vector3f viewDirection = new Vector3f(32f, 0, 128f);
 //			final Vector3f lightDirection = new Vector3f(-24.1937f, 30.4879f, 444.411f);
-			final Vector3f lightDirection = new Vector3f(130.31f, 0f, 120.197f);
+			final Vector3f lightDirection = new Vector3f(0f, -130.31f, 120.197f);
 			if (false && model.getCameras().size() > 0
 					&& diffuseTextureDataRenderableFilePath.toLowerCase(Locale.US).contains("portrait")) {
 				final Vertex position = model.getCameras().get(0).getPosition();
@@ -586,6 +589,10 @@ public class Material implements MaterialView {
 						final TVertex tv0 = g0.getTVertex(0);
 						final TVertex tv1 = g1.getTVertex(0);
 						final TVertex tv2 = g2.getTVertex(0);
+						final double denom = MathUtils.areaOfTriangle(tv0.x, tv0.y, tv1.x, tv1.y, tv2.x, tv2.y);
+						if (Math.abs(denom - 0) <= 0.000001) {
+							continue;
+						}
 						final double minX = Math.min(tv0.getX(), Math.min(tv1.getX(), tv2.getX()));
 						final double minY = Math.min(tv0.getY(), Math.min(tv1.getY(), tv2.getY()));
 						final double maxX = Math.max(tv0.getX(), Math.max(tv1.getX(), tv2.getX()));
@@ -616,8 +623,6 @@ public class Material implements MaterialView {
 									final double unitSpaceY = (double) iToUse / (double) bakingCells.length;
 
 									// barycentric
-									final double denom = MathUtils.areaOfTriangle(tv0.x, tv0.y, tv1.x, tv1.y, tv2.x,
-											tv2.y);
 									final double b0 = MathUtils.areaOfTriangle(unitSpaceX, unitSpaceY, tv1.x, tv1.y,
 											tv2.x, tv2.y) / denom;
 									final double b1 = MathUtils.areaOfTriangle(tv0.x, tv0.y, unitSpaceX, unitSpaceY,
@@ -632,9 +637,6 @@ public class Material implements MaterialView {
 											g0.getNormal().x * b0 + g1.getNormal().x * b1 + g2.getNormal().x * b2,
 											g0.getNormal().y * b0 + g1.getNormal().y * b1 + g2.getNormal().y * b2,
 											g0.getNormal().z * b0 + g1.getNormal().z * b1 + g2.getNormal().z * b2);
-									if (Math.abs(bakingCells[iToUse][jToUse].barycentricNormal.z) <= 0.0001) {
-										System.out.println("dark edge");
-									}
 
 									bakingCells[iToUse][jToUse].barycentricPosition = new Vertex(
 											g0.x * b0 + g1.x * b1 + g2.x * b2, g0.y * b0 + g1.y * b1 + g2.y * b2,
@@ -705,7 +707,7 @@ public class Material implements MaterialView {
 
 					float teamColorNess = (bakingCell.ormRGB >> 24 & 0xFF) / 255.0f;
 					if (FLIP_ORM_ALPHA) {
-						teamColorNess = 1.0f - teamColorNess;
+						teamColorNess = 0.0f;// 1.0f - teamColorNess;
 					}
 					final float nonTeamColorNess = 1.0f - teamColorNess;
 
@@ -718,7 +720,7 @@ public class Material implements MaterialView {
 						final float normalX = (bakingCell.normalRGB >> 16 & 0xFF) / 255.0f * 2.0f - 1.0f;
 						final float normalY = (bakingCell.normalRGB >> 8 & 0xFF) / 255.0f * 2.0f - 1.0f;
 						final Vector3f normal = new Vector3f(normalY, normalX,
-								(float) Math.sqrt(1.0 - (normalX * normalX + normalY * normalY)));
+								(float) Math.sqrt(Math.max(0, 1.0 - (normalX * normalX + normalY * normalY))));
 						final Vector3f lightDir = new Vector3f(0, 0, 1);// bakingCell.tangentViewPos;
 						lightDir.set(bakingCell.tangentLightPos);
 						lightDir.normalise();

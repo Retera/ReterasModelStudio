@@ -26,7 +26,7 @@ import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.units.DataTable;
 import com.hiveworkshop.wc3.units.Element;
 
-public class FtlopMaker6_TerrainArt {
+public class FtlopMaker6_Ubersplat {
 	public static EditableModel genericModel() {
 		final EditableModel blankTextureModel = new EditableModel("GenericPlane");
 		blankTextureModel.setFormatVersion(800);
@@ -90,13 +90,13 @@ public class FtlopMaker6_TerrainArt {
 		final DataTable terrainData = new DataTable();
 
 		try {
-			terrainData.readSLK(source.getResourceAsStream("TerrainArt\\Terrain.slk"));
+			terrainData.readSLK(source.getResourceAsStream("Splats\\UberSplatData.slk"));
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 
 		final ThreadLocal<EditableModel> genericModel = new ThreadLocal<>();
-		final String outputDump = "C:\\Temp\\HiveForged\\ArchiveT\\";
+		final String outputDump = "C:\\Temp\\HiveForged\\ArchiveU\\";
 		final Set<String> keySet = terrainData.keySet();
 		final int size = keySet.size();
 		int i = 0;
@@ -106,7 +106,7 @@ public class FtlopMaker6_TerrainArt {
 		Material.LIGHTEN_BAKED_DARK_AREAS = false;
 		for (final String key : keySet) {
 			final Element terrain = terrainData.get(key);
-			final String dir = terrain.getField("dir");
+			final String dir = terrain.getField("Dir");
 			final String file = terrain.getField("file");
 
 			final int fi = i;
