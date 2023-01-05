@@ -10,7 +10,7 @@ import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.viewer.MouseListenerThing;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CubePainter;
-import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.GridPainter;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.OldRenderer.GridPainter;
 import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;

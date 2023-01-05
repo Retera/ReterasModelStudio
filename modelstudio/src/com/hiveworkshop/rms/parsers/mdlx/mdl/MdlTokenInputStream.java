@@ -21,8 +21,7 @@ public class MdlTokenInputStream {
 		final int length = buffer.remaining();
 
 		while (index < length) {
-			// Note: cast from 'byte' to 'char' will cause Java incompatibility with Chinese
-			// and Russian/Cyrillic and others
+			// Note: cast from 'byte' to 'char' will cause Java incompatibility with Chinese and Russian/Cyrillic and others
 			final char c = (char) buffer.get(buffer.position() + index++);
 
 			if (inComment) {

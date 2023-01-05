@@ -211,12 +211,11 @@ public class Vec4 {
 		float uuvz = quat.x * uvy - quat.y * uvx;
 		float w2 = quat.w * 2;
 
-		float newX = x + (uvx * w2) + (uuvx * 2);
-		float newY = y + (uvy * w2) + (uuvy * 2);
-		float newZ = z + (uvz * w2) + (uuvz * 2);
-		float newW = w;
+		x += (uvx * w2) + (uuvx * 2);
+		y += (uvy * w2) + (uuvy * 2);
+		z += (uvz * w2) + (uuvz * 2);
 
-		return set(newX, newY, newZ, newW);
+		return this;
 	}
 
 	public float dot(final Vec4 a) {

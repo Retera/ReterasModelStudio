@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.actionfunctions;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.mesh.SimplifyGeometryAction;
 import com.hiveworkshop.rms.editor.actions.mesh.WeldVertsAction;
 import com.hiveworkshop.rms.editor.actions.selection.AddSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
@@ -18,6 +19,16 @@ public class WeldVerts extends ActionFunction {
 	}
 
 	public static void doWeld(ModelHandler modelHandler) {
+		ModelView modelView = modelHandler.getModelView();
+		Set<GeosetVertex> selectedVertices = modelView.getSelectedVertices();
+		UndoAction selectionAction = new AddSelectionUggAction(selectedVertices, modelView, null); // to get back selection when undoing
+		UndoAction action = new SimplifyGeometryAction(selectedVertices, 1000,
+				true,
+				-1, -1, -1, ModelStructureChangeListener.changeListener);
+		modelHandler.getUndoManager().pushAction(new CompoundAction("Weld Vertices", null, selectionAction, action).redo());
+	}
+
+	public static void doWeld1(ModelHandler modelHandler) {
 		ModelView modelView = modelHandler.getModelView();
 		Set<GeosetVertex> selectedVertices = modelView.getSelectedVertices();
 		UndoAction selectionAction = new AddSelectionUggAction(selectedVertices, modelView, null); // to get back selection when undoing

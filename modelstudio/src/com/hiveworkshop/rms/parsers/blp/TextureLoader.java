@@ -71,6 +71,19 @@ public class TextureLoader {
 	}
 
 
+	public TextureHelper getTextureHelper(DataSource dataSource, Bitmap bitmap){
+		String lowerFilePath = bitmap.getRenderableTexturePath().toLowerCase(Locale.US);
+		TextureHelper textureHelper = cache.get(lowerFilePath);
+		if (textureHelper != null) {
+			return textureHelper;
+		} else {
+			try {
+				return getNewTextureHelper(dataSource, bitmap);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
 
 	private TextureHelper getNewTextureHelper(DataSource dataSource, Bitmap bitmap) throws IOException {
 		String filepath = bitmap.getRenderableTexturePath();
@@ -86,7 +99,7 @@ public class TextureLoader {
 				File file = dataSource.getFile(path);
 				BufferedImage resultImage = loadTextureFromFile(file);
 				if (resultImage != null) {
-//				System.out.println("found imiage with path: \"" + path + "\"");
+//				System.out.println("found image with path: \"" + path + "\"");
 					TextureHelper textureHelper = new TextureHelper(file, resultImage, dataSource.allowDownstreamCaching(filepath), bitmap);
 					cache.put(filepath.toLowerCase(Locale.US), textureHelper);
 					return textureHelper;

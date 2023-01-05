@@ -8,8 +8,9 @@ import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
 import org.lwjgl.opengl.*;
 
+
 public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
-	private static final int STRIDE = POSITION + NORMAL + UV + TANGENT + SELECTION_STATUS;
+	private static final int STRIDE = POSITION + NORMAL + UV + TANGENT + FRESNEL_COLOR + SELECTION_STATUS;
 
 	public SimpleDiffuseShaderPipeline() {
 		currentMatrix.setIdentity();
@@ -18,6 +19,7 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 		load();
 		setupUniforms();
 	}
+
 	public SimpleDiffuseShaderPipeline(String vertexShader, String fragmentShader) {
 		currentMatrix.setIdentity();
 		this.vertexShader = vertexShader;
@@ -26,26 +28,35 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 		setupUniforms();
 	}
 
-
 	protected void setupUniforms(){
 		createUniform("u_textureDiffuse");
+		createUniform("u_textureNormal");
+		createUniform("u_textureORM");
+		createUniform("u_textureEmissive");
+		createUniform("u_textureTeamColor");
+		createUniform("u_textureReflections");
 		createUniform("u_textureUsed");
 		createUniform("u_alphaTest");
 		createUniform("u_lightingEnabled");
 		createUniform("u_lightDirection");
 		createUniform("u_viewPos");
-		createUniform("u_projection");
-		createUniform("u_view");
-		createUniform("u_uvTransform");
+		createUniform("u_viewportSize");
+		createUniform("u_fresnelTeamColor");
+		createUniform("u_fresnelColor");
 		createUniform("u_geosetColor");
 
 		createUniform("u_vertColors[0]");
 		createUniform("u_vertColors[1]");
 		createUniform("u_vertColors[2]");
 		createUniform("u_vertColors[3]");
+		createUniform("u_projection");
+		createUniform("u_view");
+		createUniform("u_uvTransform");
 	}
 
 	public void doRender() {
+//		System.out.println("glEnd");
+		//https://github.com/flowtsohg/mdx-m3-viewer/tree/827d1bda1731934fb8e1a5cf68d39786f9cb857d/src/viewer/handlers/w3x/shaders
 		GL30.glBindVertexArray(glVertexArrayId);
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, glVertexBufferId);
 
@@ -54,23 +65,20 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, glVertexBufferId);
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, pipelineVertexBuffer, GL15.GL_DYNAMIC_DRAW);
 
+		GL20.glUseProgram(shaderProgram);
+
 		enableAttribArray(POSITION, STRIDE);
 		enableAttribArray(NORMAL, STRIDE);
 		enableAttribArray(UV, STRIDE);
 		enableAttribArray(TANGENT, STRIDE);
+		enableAttribArray(FRESNEL_COLOR, STRIDE);
 		enableAttribArray(SELECTION_STATUS, STRIDE);
 
-		GL20.glUseProgram(shaderProgram);
 		setUpConstantUniforms();
-
 
 		if(!instances.isEmpty()){
 			for (BufferSubInstance instance : instances){
-				if(textureUsed == 0 && instance.getTextureSlot() == 0){
-					setUpAndDraw(instance);
-				} else {
-					setUpAndDraw(instance);
-				}
+				setUpAndDraw(instance);
 			}
 		} else {
 			setUpAndDraw();
@@ -81,14 +89,6 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 
 	private void setUpConstantUniforms(){
 		glUniform("u_textureUsed", textureUsed);
-		glUniform("u_lightingEnabled", lightingEnabled);
-		tempVec3.set(30.4879f, -24.1937f, 444.411f);
-		glUniform("u_lightDirection", tempVec3);
-		glUniform("u_viewPos", Vec3.NEGATIVE_Z_AXIS);
-		fillMatrixBuffer(pipelineMatrixBuffer, projectionMat);
-		GL20.glUniformMatrix4(getUniformLocation("u_projection"), false, pipelineMatrixBuffer);
-		fillMatrixBuffer(pipelineViewMatrixBuffer, viewMat);
-		GL20.glUniformMatrix4(getUniformLocation("u_view"), false, pipelineViewMatrixBuffer);
 
 
 		float[] colorHig;
@@ -106,10 +106,22 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 			colorEdi = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.TRIANGLE_LINE);
 			colorVis = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.TRIANGLE_LINE_UNEDITABLE);
 		}
+
 		glUniform("u_vertColors[0]", colorHig[0], colorHig[1], colorHig[2], colorHig[3]);
 		glUniform("u_vertColors[1]", colorSel[0], colorSel[1], colorSel[2], colorSel[3]);
 		glUniform("u_vertColors[2]", colorEdi[0], colorEdi[1], colorEdi[2], colorEdi[3]);
 		glUniform("u_vertColors[3]", colorVis[0], colorVis[1], colorVis[2], colorVis[3]);
+
+		glUniform("u_lightingEnabled", lightingEnabled);
+		tempVec3.set(30.4879f, -24.1937f, 444.411f);
+		glUniform("u_lightDirection", tempVec3);
+
+		glUniform("u_viewPos", Vec3.NEGATIVE_Z_AXIS);
+
+		fillMatrixBuffer(pipelineMatrixBuffer, projectionMat);
+		GL20.glUniformMatrix4(getUniformLocation("u_projection"), false, pipelineMatrixBuffer);
+		fillMatrixBuffer(pipelineViewMatrixBuffer, viewMat);
+		GL20.glUniformMatrix4(getUniformLocation("u_view"), false, pipelineViewMatrixBuffer);
 	}
 
 	private void setUpAndDraw(BufferSubInstance instance) {
@@ -138,7 +150,7 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 			textureUsed = 1;
 			GL13.glActiveTexture(GL13.GL_TEXTURE0);
 		}
-		else if (glEnum == GL11.GL_ALPHA_TEST) {
+		else if (glEnum == GL11.GL_ALPHA_TEST && textureUnit == 0) {
 			alphaTest = 1;
 		}
 		else if (glEnum == GL11.GL_LIGHTING) {
@@ -149,9 +161,9 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 	public void glDisableIfNeeded(int glEnum) {
 		if (glEnum == GL11.GL_TEXTURE_2D) {
 			textureUsed = 0;
-			GL13.glActiveTexture(0);
+//			GL13.glActiveTexture(0);
 		}
-		else if (glEnum == GL11.GL_ALPHA_TEST) {
+		else if (glEnum == GL11.GL_ALPHA_TEST && textureUnit == 0) {
 			alphaTest = 0;
 		}
 		else if (glEnum == GL11.GL_LIGHTING) {
@@ -161,9 +173,7 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 
 
 	public void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres){
-		int baseOffset = vertexCount * STRIDE;
-		currBufferOffset = 0;
-		ensureCapacity(baseOffset + STRIDE);
+		int baseOffset = prepareAddVertex(STRIDE);
 		position.set(pos, 1);
 		normal.set(norm, 1).normalizeAsV3();
 		tangent.set(tang).normalizeAsV3();
@@ -173,6 +183,7 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 		addToBuffer(baseOffset, normal);
 		addToBuffer(baseOffset, uv);
 		addToBuffer(baseOffset, tangent);
+		addToBuffer(baseOffset, fres);
 		addToBuffer(baseOffset, 0);
 
 		vertexCount++;
@@ -180,9 +191,7 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 	}
 
 	public void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres, int selectionStatus){
-		int baseOffset = vertexCount * STRIDE;
-		currBufferOffset = 0;
-		ensureCapacity(baseOffset + STRIDE);
+		int baseOffset = prepareAddVertex(STRIDE);
 		position.set(pos, 1);
 		normal.set(norm, 1).normalizeAsV3();
 		tangent.set(tang).normalizeAsV3();
@@ -192,10 +201,10 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 		addToBuffer(baseOffset, normal);
 		addToBuffer(baseOffset, uv);
 		addToBuffer(baseOffset, tangent);
+		addToBuffer(baseOffset, fres);
 		addToBuffer(baseOffset, selectionStatus);
 
 		vertexCount++;
 
 	}
-
 }

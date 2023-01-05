@@ -242,6 +242,11 @@ public class Vec3 {
 	public float dot(final Vec3 a) {
 		return (x * a.x) + (y * a.y) + (z * a.z);
 	}
+
+	public float dot(final Vec4 a) {
+		return (x * a.x) + (y * a.y) + (z * a.z);
+	}
+
 	public float dotNorm(final Vec3 a) {
 		float len = length() * a.length();
 

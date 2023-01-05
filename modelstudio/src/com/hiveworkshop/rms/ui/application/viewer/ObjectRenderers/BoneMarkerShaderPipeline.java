@@ -39,6 +39,8 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 		createUniform("u_viewPos");
 		createUniform("u_projection");
 		createUniform("u_view");
+		createUniform("u_size");
+		createUniform("show_node_dir");
 
 		createUniform("u_vertColors[0]");
 		createUniform("u_vertColors[1]");
@@ -57,7 +59,7 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, pipelineVertexBuffer, GL15.GL_DYNAMIC_DRAW);
 
 		enableAttribArray(POSITION, STRIDE);
-		enableAttribArray(POSITION, STRIDE);
+		enableAttribArray(POSITION, STRIDE); // parent location
 		enableAttribArray(ROTATION, STRIDE);
 		enableAttribArray(VEC3, STRIDE); // Scaling
 //		enableAttribArray(NORMAL, STRIDE);
@@ -80,6 +82,10 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 		glUniform("u_vertColors[1]", colorSel[0], colorSel[1], colorSel[2], colorSel[3]);
 		glUniform("u_vertColors[2]", colorEdi[0], colorEdi[1], colorEdi[2], colorEdi[3]);
 		glUniform("u_vertColors[3]", colorVis[0], colorVis[1], colorVis[2], colorVis[3]);
+
+//		float u_size = ProgramGlobals.getPrefs().getNodeBoxSize();
+		glUniform("u_size", ProgramGlobals.getPrefs().getNodeBoxSize()/5f);
+		glUniform("show_node_dir", ProgramGlobals.getPrefs().showNodeForward() ? 1 : 0);
 
 
 		tempVec4.set(0,0,0,1).transform(currentMatrix);

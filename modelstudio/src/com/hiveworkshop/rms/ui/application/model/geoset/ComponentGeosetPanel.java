@@ -191,7 +191,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 	}
 
 	private void setToggleButtonText() {
-		toggleSdHd.setVisible(modelHandler.getModel().getFormatVersion() >= 900);
+		toggleSdHd.setVisible(900 <= modelHandler.getModel().getFormatVersion());
 		if (geoset.isHD()) {
 			toggleSdHd.setText("Make Geoset SD");
 		} else {

@@ -438,9 +438,7 @@ public class GeosetVertex extends Vec3 {
 		super.rotate(center, quat);
 		normal.rotate(Vec3.ZERO, quat);
 		if (tangent != null) {
-//			tangent.getVec3().rotate(center, quat);
-//			tangent.rotateAsVec3(Vec3.ZERO, quat);
-			tangent.set(tangent.getVec3().rotate(center, quat), tangent.w);
+			tangent.transform(quat);
 		}
 		return this;
 	}

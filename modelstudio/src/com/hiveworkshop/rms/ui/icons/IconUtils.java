@@ -83,7 +83,7 @@ public final class IconUtils {
 			case UPGRADES -> gameObject.getFieldAsString(WE_Field.UPGRADES_ICON.getId(), 1);
 			case UNITS -> gameObject.getFieldAsString(WE_Field.UNITS_ICON.getId(), 0);
 		};
-		return BLPHandler.getGameTex(iconPath);
+		return BLPHandler.getImage(iconPath);
 	}
 
 	public static BufferedImage getIcon(final MutableGameObject gameObject) {
@@ -96,10 +96,10 @@ public final class IconUtils {
 			case UPGRADES -> gameObject.getFieldAsString(WE_Field.UPGRADES_ICON.getId(), 1);
 			case UNITS -> gameObject.getFieldAsString(WE_Field.UNITS_ICON.getId(), 0);
 		};
-		BufferedImage gameTex = BLPHandler.getGameTex(iconPath);
+		BufferedImage gameTex = BLPHandler.getImage(iconPath);
 		if(gameTex == null){
 			System.out.println("could not load texture from \"" + iconPath + "\"");
-			gameTex = BLPHandler.getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp");
+			gameTex = BLPHandler.getImage("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp");
 		}
 		return gameTex;
 	}

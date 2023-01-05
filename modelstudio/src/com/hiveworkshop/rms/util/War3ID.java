@@ -60,17 +60,10 @@ public final class War3ID implements Comparable<War3ID> {
 
 	@Override
 	public boolean equals(final Object obj) {
-		if (this == obj) {
-			return true;
+		if(obj instanceof War3ID){
+			return this == obj || value == ((War3ID) obj).value;
 		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final War3ID other = (War3ID) obj;
-		return value == other.value;
+		return false;
 	}
 
 	@Override

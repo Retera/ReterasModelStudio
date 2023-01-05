@@ -204,10 +204,10 @@ public class AdaptingRangeModel implements BoundedRangeModel, Serializable {
 
 	public void setRangeProperties(int newValue, int newExtent, int newMin, int newMax, boolean adjusting) {
 //		System.out.println("setRangeProperties: newValue: " + newValue + ", newExtent: " + newExtent + ", newMin: " + newMin + ", newMax: " + newMax + ", adjusting: " + adjusting);
-		if (newMin > newMax) {
+		if (newMax < newMin) {
 			newMin = newMax;
 		}
-		if (newValue > newMax) {
+		if (newMax < newValue) {
 			newMax = newValue;
 		}
 		if (newValue < newMin) {
@@ -220,13 +220,16 @@ public class AdaptingRangeModel implements BoundedRangeModel, Serializable {
 		} else if (newValue == newMin){
 			newMin = Math.max(newMin-2, minLowerLimit);
 			newMax = Math.max(newMax-2, maxLowerLimit);
+		} else {
+			newMax = Math.max(newValue+2, maxLowerLimit);
+			newMin = Math.min(newValue-2, minUpperLimit);
 		}
 
 		/* Convert the addends to long so that extent can be
 		 * Integer.MAX_VALUE without rolling over the sum.
 		 * A JCK test covers this, see bug 4097718.
 		 */
-		if (((long) newExtent + (long) newValue) > newMax) {
+		if (newMax < ((long) newExtent + (long) newValue)) {
 			newExtent = newMax - newValue;
 		}
 

@@ -1,5 +1,6 @@
-package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
+package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.OldRenderer;
 
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
 import org.lwjgl.opengl.GL11;
 
 import static org.lwjgl.opengl.GL11.*;

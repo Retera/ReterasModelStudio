@@ -2,9 +2,11 @@ package com.hiveworkshop.rms.util;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 
 public class BinaryWriter {
     public ByteBuffer buffer;
+    public static final Charset UTF8 = Charset.forName("utf-8");
 
     public BinaryWriter(final int capacity) {
         buffer = ByteBuffer.allocate(capacity);
@@ -32,12 +34,12 @@ public class BinaryWriter {
     }
 
     public void writeWithNulls(final String value, final int length) {
-        final byte[] bytes = value.getBytes();
+        final byte[] bytes = value.getBytes(UTF8);
         final int nulls = length - bytes.length;
 
         writeInt8Array(bytes);
 
-        if (nulls > 0) {
+        if (0 < nulls) {
             for (int i = 0; i < nulls; i++) {
                 writeInt8((byte)0);
             }

@@ -62,23 +62,23 @@ public class MdlxParticleEmitterPopcorn extends MdlxGenericObject {
 	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		for (final String token : super.readMdlGeneric(stream)) {
 			switch (token) {
-				case "SortPrimsFarZ" -> flags |= 0x10000;
-				case "Unshaded" -> flags |= 0x8000;
-				case "Unfogged" -> flags |= 0x40000;
-				case "static LifeSpan" -> lifeSpan = stream.readFloat();
-				case "LifeSpan" -> readTimeline(stream, AnimationMap.KPPL);
-				case "static EmissionRate" -> emissionRate = stream.readFloat();
-				case "EmissionRate" -> readTimeline(stream, AnimationMap.KPPE);
-				case "static Speed" -> speed = stream.readFloat();
-				case "Speed" -> readTimeline(stream, AnimationMap.KPPS);
-				case "static Color" -> stream.readColor(color);
-				case "Color" -> readTimeline(stream, AnimationMap.KPPC);
-				case "static Alpha" -> alpha = stream.readFloat();
-				case "Alpha" -> readTimeline(stream, AnimationMap.KPPA);
-				case "Visibility" -> readTimeline(stream, AnimationMap.KPPV);
-				case "ReplaceableId" -> replaceableId = stream.readInt();
-				case "Path" -> path = stream.read();
-				case "AnimVisibilityGuide" -> animationVisiblityGuide = stream.read();
+				case MdlUtils.TOKEN_SORT_PRIMS_FAR_Z -> flags |= 0x10000;
+				case MdlUtils.TOKEN_UNSHADED -> flags |= 0x8000;
+				case MdlUtils.TOKEN_UNFOGGED -> flags |= 0x40000;
+				case MdlUtils.TOKEN_STATIC_LIFE_SPAN -> lifeSpan = stream.readFloat();
+				case MdlUtils.TOKEN_LIFE_SPAN -> readTimeline(stream, AnimationMap.KPPL);
+				case MdlUtils.TOKEN_STATIC_EMISSION_RATE -> emissionRate = stream.readFloat();
+				case MdlUtils.TOKEN_EMISSION_RATE -> readTimeline(stream, AnimationMap.KPPE);
+				case MdlUtils.TOKEN_STATIC_SPEED -> speed = stream.readFloat();
+				case MdlUtils.TOKEN_SPEED -> readTimeline(stream, AnimationMap.KPPS);
+				case MdlUtils.TOKEN_STATIC_COLOR -> stream.readColor(color);
+				case MdlUtils.TOKEN_COLOR -> readTimeline(stream, AnimationMap.KPPC);
+				case MdlUtils.TOKEN_STATIC_ALPHA -> alpha = stream.readFloat();
+				case MdlUtils.TOKEN_ALPHA -> readTimeline(stream, AnimationMap.KPPA);
+				case MdlUtils.TOKEN_VISIBILITY -> readTimeline(stream, AnimationMap.KPPV);
+				case MdlUtils.TOKEN_REPLACEABLE_ID -> replaceableId = stream.readInt();
+				case MdlUtils.TOKEN_PATH -> path = stream.read();
+				case MdlUtils.TOKEN_ANIM_VISIBILITY_GUIDE -> animationVisiblityGuide = stream.read();
 				default -> ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in MdlxParticleEmitterPopcorn " + name + ": " + token);
 			}
 		}
@@ -132,7 +132,7 @@ public class MdlxParticleEmitterPopcorn extends MdlxGenericObject {
 		}
 
 		if (animationVisiblityGuide.length() != 0) {
-			stream.writeStringAttrib("AnimVisibilityGuide", animationVisiblityGuide);
+			stream.writeStringAttrib(MdlUtils.TOKEN_ANIM_VISIBILITY_GUIDE, animationVisiblityGuide);
 		}
 
 		writeGenericTimelines(stream);

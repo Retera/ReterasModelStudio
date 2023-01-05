@@ -5,10 +5,7 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.RootWindowUgg;
 import com.hiveworkshop.rms.ui.application.actionfunctions.*;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ExportFrameViewCanvas;
-import com.hiveworkshop.rms.ui.application.tools.AnimationTransfer;
-import com.hiveworkshop.rms.ui.application.tools.KeyframeCopyPanel;
-import com.hiveworkshop.rms.ui.application.tools.SpliceHandsByTwilac;
-import com.hiveworkshop.rms.ui.application.tools.SpliceMeshByRetera;
+import com.hiveworkshop.rms.ui.application.tools.*;
 import com.hiveworkshop.rms.util.ModelDependentView;
 
 import javax.swing.*;
@@ -38,6 +35,7 @@ public class ScriptsMenu extends JMenu {
 
 //		add(getMenuItem(ActionMapActions.EDIT_MODEL_COMPS, KeyEvent.VK_C));
 
+		add(new ObjBatchConverter().getMenuItem());
 
 		add(new ExportStaticMesh().setMenuItemMnemonic(KeyEvent.VK_X).getMenuItem());
 		add(new ExportViewportFrame().setMenuItemMnemonic(KeyEvent.VK_P).getMenuItem());

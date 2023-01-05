@@ -40,7 +40,7 @@ public class TriggerTreeCellRenderer extends DefaultTreeCellRenderer {
 			revalidate();
 			try {
 				final BufferedImage img = BLPHandler
-						.getGameTex("ReplaceableTextures\\WorldEditUI\\CampaignEditor-Map.blp");
+						.getImage("ReplaceableTextures\\WorldEditUI\\CampaignEditor-Map.blp");
 				final ImageIcon mapIcon = new ImageIcon(
 						toBufferedImage(img.getScaledInstance(16, 16, Image.SCALE_FAST)));
 				setOpenIcon(mapIcon);

@@ -12,7 +12,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
-import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.VertRendererThing;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.OldRenderer.VertRendererThing;
 import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.ui.preferences.EditorColorPrefs;

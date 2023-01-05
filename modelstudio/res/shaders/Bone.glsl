@@ -2,7 +2,8 @@
 #define PI 3.1415926538
 //layout (lines) in;
 layout (points) in;
-layout (triangle_strip, max_vertices = 48) out;
+//layout (triangle_strip, max_vertices = 48) out;
+layout (triangle_strip, max_vertices = 51) out;
 
 
 const float MAGNITUDE = 10;
@@ -18,13 +19,13 @@ struct quad {
     vec3 norm;
 };
 
-quad backQuad = quad(
+quad leftQuad = quad(
     vec3( 1,  1, -1),
     vec3(-1,  1, -1),
     vec3( 1,  1,  1),
     vec3(-1,  1,  1),
     vec3( 0,  1,  0));
-quad frontQuad = quad(
+quad rightQuad = quad(
     vec3(-1, -1, -1),
     vec3( 1, -1, -1),
     vec3(-1, -1,  1),
@@ -42,13 +43,13 @@ quad botQuad = quad(
     vec3(-1, -1, -1),
     vec3( 1, -1, -1),
     vec3( 0,  0, -1));
-quad leftQuad = quad(
+quad backQuad = quad(
     vec3(-1,  1, -1),
     vec3(-1, -1, -1),
     vec3(-1,  1,  1),
     vec3(-1, -1,  1),
     vec3(-1,  0,  0));
-quad rightQuad = quad(
+quad frontQuad = quad(
     vec3( 1, -1, -1),
     vec3( 1,  1, -1),
     vec3( 1, -1,  1),
@@ -59,6 +60,8 @@ uniform vec3 u_viewPos;
 uniform mat4 u_projection;
 uniform mat4 u_view;
 uniform vec2 scale;
+uniform float u_size;
+uniform int show_node_dir;
 
 
 in VS_OUT {
@@ -156,12 +159,20 @@ void DrawLongQuadBetween(vec4 p1, vec4 p2, quad q, vec4 rot, vec3 scale1, vec3 s
 }
 
 void DrawCube(vec4 p1, vec4 rot, vec3 scale, vec4 color) {
+    v_color = gs_in[0].color; // for alpha value
+//    DrawQuadAt(p1, frontQuad, rot, scale, vec4(1, 1, 0, 1));
+//    DrawQuadAt(p1, backQuad, rot, scale, vec4(0, 0, 1, 1));
+//    DrawQuadAt(p1, topQuad, rot, scale, vec4(0, 1, 1, 1));
+//    DrawQuadAt(p1, botQuad, rot, scale, vec4(.5, .5, .5, 1));
+//    DrawQuadAt(p1, rightQuad, rot, scale, vec4(0, 1, 0, 1));
+//    DrawQuadAt(p1, leftQuad, rot, scale, vec4(1, 0, 0, 1));
+
     DrawQuadAt(p1, frontQuad, rot, scale, color);
     DrawQuadAt(p1, backQuad, rot, scale, color);
-    DrawQuadAt(p1, topQuad, rot, scale, color);
-    DrawQuadAt(p1, botQuad, rot, scale, color);
     DrawQuadAt(p1, rightQuad, rot, scale, color);
     DrawQuadAt(p1, leftQuad, rot, scale, color);
+    DrawQuadAt(p1, topQuad, rot, scale, color);
+    DrawQuadAt(p1, botQuad, rot, scale, color);
 }
 
 void DrawStick(vec4 p1, vec4 p2, vec4 rot1, vec3 scale, vec4 color) {
@@ -170,16 +181,38 @@ void DrawStick(vec4 p1, vec4 p2, vec4 rot1, vec3 scale, vec4 color) {
     vec3 scale2 = scale * .4;
     DrawQuadAt(p1, topQuad, rot, scale1, color);
     DrawQuadAt(p2, botQuad, rot, scale2, color);
-    DrawLongQuadBetween(p1, p2, frontQuad, rot, scale1, scale2, color);
-    DrawLongQuadBetween(p1, p2, backQuad, rot, scale1, scale2, color);
     DrawLongQuadBetween(p1, p2, rightQuad, rot, scale1, scale2, color);
     DrawLongQuadBetween(p1, p2, leftQuad, rot, scale1, scale2, color);
+    DrawLongQuadBetween(p1, p2, frontQuad, rot, scale1, scale2, color);
+    DrawLongQuadBetween(p1, p2, backQuad, rot, scale1, scale2, color);
+}
+
+void DrawTriAt(vec4 p1, quad q, vec3 offs, vec4 rot, vec3 scale, vec4 color) {
+    mat4 ugg = u_projection * u_view;
+    vec4 quadNormal = u_view * vec4(transform(rot, q.norm.xyz), 0);
+    float shadowThing = (3 + dot(quadNormal,vec4(0,0,1,0)))/4.0;
+
+    v_color.xyz = color.xyz * shadowThing;
+
+    vec3 tempScale = (vec3(5,5,5)-offs*3)*.2;
+    vec3 midpoint = (q.p1 + q.p3)*tempScale*.5;
+
+    EmVert(ugg * (p1 + vec4(transform(rot, (offs + q.p0)*scale), 0.0)));    // 1:bottom-left
+    EmVert(ugg * (p1 + vec4(transform(rot, (offs + midpoint)*scale), 0.0)));    // 2:bottom-right
+    EmVert(ugg * (p1 + vec4(transform(rot, (offs + q.p2)*scale), 0.0)));    // 3:top-left
+//    EmVert(ugg * (p1 + vec4(transform(rot, q.p3*scale), 0.0)));    // 4:top-right
+
+    EndPrimitive();
 }
 
 void main() {
     v_color = gs_in[0].color;
-    DrawCube(gs_in[0].pos, gs_in[0].rot, gs_in[0].scale, gs_in[0].color);
+    vec3 scale = gs_in[0].scale*u_size;
+    DrawCube(gs_in[0].pos, gs_in[0].rot, scale, gs_in[0].color);
+    if(show_node_dir == 1){
+        DrawTriAt(gs_in[0].pos, topQuad, vec3(1,0,0), gs_in[0].rot, scale, gs_in[0].color);
+    }
 
     v_color = gs_in[0].color2;
-    DrawStick(gs_in[0].pos, gs_in[0].end, gs_in[0].rot, gs_in[0].scale, gs_in[0].color2);
+    DrawStick(gs_in[0].pos, gs_in[0].end, gs_in[0].rot, scale, gs_in[0].color2);
 }

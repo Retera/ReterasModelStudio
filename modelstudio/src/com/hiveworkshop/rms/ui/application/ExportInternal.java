@@ -60,7 +60,7 @@ public class ExportInternal {
 				ioException.printStackTrace();
 			}
 		} else if(fileDialog.isSavableTextureExt(saveExt)){
-			BufferedImage gameTex = BLPHandler.getGameTex(internalPath);
+			BufferedImage gameTex = BLPHandler.getImage(internalPath);
 			ExportTexture.saveTexture(gameTex, selectedFile, saveExt, ProgramGlobals.getMainPanel());
 		}
 	}
@@ -98,7 +98,7 @@ public class ExportInternal {
 		if (selectedFile != null) {
 			String saveExt = fileDialog.getExtensionOrNull(selectedFile);
 			if(!extension.equalsIgnoreCase(saveExt) && (fileDialog.isSavableTextureExt(saveExt))) {
-				BufferedImage gameTex = BLPHandler.getGameTex(internalPath);
+				BufferedImage gameTex = BLPHandler.getImage(internalPath);
 				ExportTexture.saveTexture(gameTex, selectedFile, saveExt, ProgramGlobals.getMainPanel());
 			} else {
 				exportExact(internalPath, selectedFile, dataSource);

@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
+package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.OldRenderer;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;

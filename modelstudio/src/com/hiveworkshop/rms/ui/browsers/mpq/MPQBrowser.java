@@ -188,13 +188,13 @@ public class MPQBrowser extends JPanel {
 				} else {
 					if (expanded) {
 						BufferedImage gameTex = BLPHandler
-								.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp");
+								.getImage("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp");
 						if(gameTex != null){
 							setIcon(new ImageIcon(gameTex));
 						}
 					} else {
 						BufferedImage gameTex = BLPHandler
-								.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp");
+								.getImage("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp");
 						if(gameTex != null){
 							setIcon(new ImageIcon(gameTex));
 						}

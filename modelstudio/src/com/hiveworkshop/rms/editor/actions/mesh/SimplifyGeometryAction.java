@@ -12,7 +12,15 @@ public class SimplifyGeometryAction implements UndoAction {
 	private final ModelStructureChangeListener changeListener;
 
 	public SimplifyGeometryAction(Collection<GeosetVertex> selection, ModelStructureChangeListener changeListener) {
-//		System.out.println("looking at " + selection.size() + " vertices");
+		this(selection, 100,
+				false,
+				0.001f, 0.00001f, 0.001f, changeListener);
+	}
+
+	public SimplifyGeometryAction(Collection<GeosetVertex> selection,
+	                              int precision, boolean ign_skin,
+	                              float norm_prec, float uv_prec, float tang_prec,
+	                              ModelStructureChangeListener changeListener) {
 		Map<Geoset, Set<GeosetVertex>> geosetVertexMap = new HashMap<>();
 		this.changeListener = changeListener;
 
@@ -21,7 +29,9 @@ public class SimplifyGeometryAction implements UndoAction {
 		}
 
 		for (Geoset geoset : geosetVertexMap.keySet()) {
-			actions.add(new SimplifyGeometryAction2(geoset, geosetVertexMap.get(geoset), null));
+			actions.add(new SimplifyGeometryAction2(geoset, geosetVertexMap.get(geoset),
+			precision, ign_skin,
+			norm_prec, uv_prec, tang_prec, null));
 		}
 	}
 

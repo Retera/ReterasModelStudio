@@ -23,6 +23,7 @@ public class ProgramPreferences implements Serializable {
 	private Integer teamColor = 6;
 	private Integer viewMode = 1;
 	private Boolean showNormals = false;
+	private Boolean showNodeForward = false;
 	private Boolean show3dVerts = false;
 	private Boolean showPerspectiveGrid = true;
 	private Boolean showVertexModifierControls = false;
@@ -176,6 +177,9 @@ public class ProgramPreferences implements Serializable {
 	public boolean showNormals() {
 		return showNormals;
 	}
+	public boolean showNodeForward() {
+		return showNodeForward;
+	}
 	public boolean show3dVerts() {
 		return show3dVerts;
 	}
@@ -235,6 +239,11 @@ public class ProgramPreferences implements Serializable {
 
 	public void setShowNormals(final boolean showNormals) {
 		this.showNormals = showNormals;
+		saveAndFireListeners();
+	}
+
+	public void setShowNodeForward(final boolean showNodeForward) {
+		this.showNodeForward = showNodeForward;
 		saveAndFireListeners();
 	}
 

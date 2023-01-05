@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
-import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.AnimatedPerspectiveViewport;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.OldRenderer.AnimatedPerspectiveViewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 import org.lwjgl.LWJGLException;

@@ -110,7 +110,7 @@ public class MDLSnapshot {
 		path = path.substring(0, path.length() - 4);
 		int texture;
 		try {
-			final BufferedImage gameTex = BLPHandler.getGameTex(path + ".blp");
+			final BufferedImage gameTex = BLPHandler.getImage(path + ".blp");
 			texture = loadTexture(layer, gameTex);
 		} catch (final Exception exc) {
 			exc.printStackTrace();

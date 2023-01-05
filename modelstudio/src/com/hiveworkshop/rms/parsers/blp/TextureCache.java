@@ -13,9 +13,25 @@ public class TextureCache {
 		((DataBufferInt) blankImage.getRaster().getDataBuffer()).getData()[0] = 16777215;
 	}
 
+	public TextureCache(){
+		remakePlaceholders();
+	}
+
 	public TextureCache dropCache() {
 		cache.clear();
+		remakePlaceholders();
 		return this;
+	}
+
+	private void remakePlaceholders() {
+		for (RMS_PHT pht : RMS_PHT.values()) {
+			put(pht.getPath(), new TextureHelper(null, pht.getColorImage()));
+		}
+	}
+
+
+	public int size() {
+		return cache.size();
 	}
 
 	public TextureHelper get(String filepath){

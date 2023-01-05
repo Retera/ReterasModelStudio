@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.nodepanels.AnimationChooser;
 import com.hiveworkshop.rms.util.SmartButtonGroup;
+import com.hiveworkshop.rms.util.SmartNumberSlider;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -15,7 +16,7 @@ import java.util.function.Consumer;
 public class AnimationController extends JPanel {
 	private TimeEnvironmentImpl renderEnv;
 	private final AnimationChooser animationChooser;
-	private final JSlider speedSlider;
+	private final SmartNumberSlider speedSlider;
 	private final SmartButtonGroup loopTypePanel;
 	private boolean allowUnanimated = true;
 
@@ -44,7 +45,7 @@ public class AnimationController extends JPanel {
 		if (renderModel != null) {
 			animationChooser.setModel(renderModel);
 			renderEnv = renderModel.getTimeEnvironment();
-			renderEnv.setAnimationSpeed(speedSlider.getValue() / 50f);
+			renderEnv.setAnimationSpeed(speedSlider.getValue() / 100f);
 			loopTypePanel.setSelectedIndex(loopTypePanel.getSelectedIndex());
 		} else {
 			animationChooser.setModel(null, null);
@@ -64,11 +65,15 @@ public class AnimationController extends JPanel {
 		return new IntEditorJSpinner(0, 0, 5, lodListener);
 	}
 
-	private JSlider getSpeedSlider() {
-		JSlider speedSlider = new JSlider(0, 100, 50);
-		JLabel speedSliderLabel = new JLabel("Speed: 100%");
-		speedSlider.addChangeListener(e -> changeAnimationSpeed(speedSlider, speedSliderLabel));
-		return speedSlider;
+	private SmartNumberSlider getSpeedSlider() {
+		SmartNumberSlider slider = new SmartNumberSlider("", 0, 200, 100, false, true);
+		slider.setMinLowerLimit(0);
+		slider.setMinUpperLimit(0);
+		slider.setMaxLowerLimit(200);
+		slider.setMaxUpperLimit(1000);
+//		JLabel speedSliderLabel = new JLabel("Speed: 100%");
+		slider.addValueConsumer((s) -> changeAnimationSpeed(s));
+		return slider;
 	}
 
 	private SmartButtonGroup getLoopTypePanel() {
@@ -80,11 +85,11 @@ public class AnimationController extends JPanel {
 		return loopTypeGroup;
 	}
 
-	public void changeAnimationSpeed(JSlider speedSlider, JLabel speedSliderLabel) {
-		speedSliderLabel.setText("Speed: " + (speedSlider.getValue() * 2) + "%");
+	public void changeAnimationSpeed(Integer speed) {
+//		speedSliderLabel.setText("Speed: " + (speed * 2) + "%");
 
 		if (renderEnv != null) {
-			renderEnv.setAnimationSpeed(speedSlider.getValue() / 50f);
+			renderEnv.setAnimationSpeed(speed / 100f);
 		}
 	}
 

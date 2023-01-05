@@ -208,7 +208,7 @@ public class ModelOptionPanel extends JPanel {
 	public ImageIcon getIconForSelected(){
 		String iconPath = getCachedIconPath();
 		if(iconPath != null && iconPath.length() > 0){
-			Image scaledInstance = BLPHandler.getGameTex(iconPath).getScaledInstance(16, 16, Image.SCALE_FAST);
+			Image scaledInstance = BLPHandler.getImage(iconPath).getScaledInstance(16, 16, Image.SCALE_FAST);
 			return new ImageIcon(scaledInstance);
 		} else {
 			return ModelLoader.MDLIcon;

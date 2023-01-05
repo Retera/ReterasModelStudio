@@ -48,6 +48,6 @@ public abstract class AbstractWorldEditorPanel extends JPanel {
 		if (!iconTexturePath.endsWith(".blp")) {
 			iconTexturePath += ".blp";
 		}
-		return new ImageIcon(BLPHandler.getGameTex(iconTexturePath));
+		return new ImageIcon(BLPHandler.getImage(iconTexturePath));
 	}
 }

@@ -339,8 +339,8 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 				case MdlUtils.TOKEN_MATERIAL_ID -> materialId = stream.readInt();
 				case MdlUtils.TOKEN_SELECTION_GROUP -> selectionGroup = stream.readInt();
 				case MdlUtils.TOKEN_UNSELECTABLE -> selectionFlags = 4;
-				case "LevelOfDetail" -> lod = stream.readInt();
-				case "Name" -> lodName = stream.read();
+				case MdlUtils.TOKEN_LEVELOFDETAIL -> lod = stream.readInt();
+				case MdlUtils.TOKEN_NAME -> lodName = stream.read();
 				default -> ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Geoset: " + token);
 			}
 		}
@@ -449,9 +449,16 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 
 	@Override
 	public long getByteLength(final int version) {
-		long size = 120 + (vertices.length * 4L) + (normals.length * 4L) + (faceTypeGroups.length * 4L)
-				+ (faceGroups.length * 4L) + (faces.length * 2L) + vertexGroups.length
-				+ (matrixGroups.length * 4L) + (matrixIndices.length * 4L) + (sequenceExtents.size() * 28L);
+		long size = 120
+				+ (vertices.length * 4L)
+				+ (normals.length * 4L)
+				+ (faceTypeGroups.length * 4L)
+				+ (faceGroups.length * 4L)
+				+ (faces.length * 2L)
+				+ vertexGroups.length
+				+ (matrixGroups.length * 4L)
+				+ (matrixIndices.length * 4L)
+				+ (sequenceExtents.size() * 28L);
 		for (final float[] uvSet : uvSets) {
 			size += 8 + (uvSet.length * 4L);
 		}

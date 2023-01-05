@@ -48,35 +48,24 @@ public class MdlxCamera extends MdlxAnimatedObject {
 
 		for (final String token : stream.readBlock()) {
 			switch (token) {
-				case MdlUtils.TOKEN_POSITION:
-					stream.readFloatArray(position);
-					break;
-				case MdlUtils.TOKEN_TRANSLATION:
-					readTimeline(stream, AnimationMap.KCTR);
-					break;
-				case MdlUtils.TOKEN_ROTATION:
-					readTimeline(stream, AnimationMap.KCRL);
-					break;
-				case MdlUtils.TOKEN_FIELDOFVIEW:
-					fieldOfView = stream.readFloat();
-					break;
-				case MdlUtils.TOKEN_FARCLIP:
-					farClippingPlane = stream.readFloat();
-					break;
-				case MdlUtils.TOKEN_NEARCLIP:
-					nearClippingPlane = stream.readFloat();
-					break;
-				case MdlUtils.TOKEN_TARGET:
-					for (final String subToken : stream.readBlock()) {
-						switch (subToken) {
-							case MdlUtils.TOKEN_POSITION -> stream.readFloatArray(targetPosition);
-							case MdlUtils.TOKEN_TRANSLATION -> readTimeline(stream, AnimationMap.KTTR);
-							default -> ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Camera " + name + "'s Target: " + subToken);
-						}
-					}
-					break;
-				default:
-					ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Camera " + name + ": " + token);
+				case MdlUtils.TOKEN_POSITION -> stream.readFloatArray(position);
+				case MdlUtils.TOKEN_TRANSLATION -> readTimeline(stream, AnimationMap.KCTR);
+				case MdlUtils.TOKEN_ROTATION -> readTimeline(stream, AnimationMap.KCRL);
+				case MdlUtils.TOKEN_FIELDOFVIEW -> fieldOfView = stream.readFloat();
+				case MdlUtils.TOKEN_FARCLIP -> farClippingPlane = stream.readFloat();
+				case MdlUtils.TOKEN_NEARCLIP -> nearClippingPlane = stream.readFloat();
+				case MdlUtils.TOKEN_TARGET -> readTargetChunk(stream);
+				default -> ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Camera " + name + ": " + token);
+			}
+		}
+	}
+
+	private void readTargetChunk(MdlTokenInputStream stream) {
+		for (final String subToken : stream.readBlock()) {
+			switch (subToken) {
+				case MdlUtils.TOKEN_POSITION -> stream.readFloatArray(targetPosition);
+				case MdlUtils.TOKEN_TRANSLATION -> readTimeline(stream, AnimationMap.KTTR);
+				default -> ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Camera " + name + "'s Target: " + subToken);
 			}
 		}
 	}

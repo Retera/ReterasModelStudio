@@ -375,9 +375,9 @@ public class UnitEditorPanel extends JSplitPane {
 	}
 
 	private ImageIcon niceIcon(final String filepath) {
-		BufferedImage gameTex = BLPHandler.getGameTex(filepath);
+		BufferedImage gameTex = BLPHandler.getImage(filepath);
 		if (gameTex == null) {
-			gameTex = BLPHandler.getGameTex("Textures\\black32.blp");
+			gameTex = BLPHandler.getImage("Textures\\black32.blp");
 		}
 		return new ImageIcon(IconUtils.worldEditStyleIcon(gameTex.getScaledInstance(16, 16, Image.SCALE_FAST)));
 	}

@@ -58,8 +58,8 @@ public class ImageUtils {
 			for (int x = 0; x < bufferedImage.getWidth(); x++) {
 				int pixel = pixels[(y * bufferedImage.getWidth()) + x];
 				buffer.put((byte) ((pixel >> 16) & 0xFF)); // Red component
-				buffer.put((byte) ((pixel >> 8) & 0xFF)); // Green component
-				buffer.put((byte) (pixel & 0xFF)); // Blue component
+				buffer.put((byte) ((pixel >>  8) & 0xFF)); // Green component
+				buffer.put((byte) ((pixel >>  0) & 0xFF)); // Blue component
 				buffer.put((byte) ((pixel >> 24) & 0xFF)); // Alpha component.
 				// Only for RGBA
 			}
@@ -79,11 +79,11 @@ public class ImageUtils {
 				int pixel = pixels[(y * bufferedImage.getWidth()) + x];
 
 				switch (channel){
-					case 0 -> putInBuffer(buffer, pixel >> 16, pixel >> 16, pixel >> 16, 0xFF);
-					case 1 -> putInBuffer(buffer, pixel >> 16, pixel >> 16, pixel >> 16, 0xFF);
-					case 2 -> putInBuffer(buffer, pixel >> 16, pixel >> 16, pixel >> 16, 0xFF);
-					case 3 -> putInBuffer(buffer, pixel >> 16, pixel >> 16, pixel >> 16, 0xFF);
-					default -> putInBuffer(buffer, pixel >> 16, pixel >> 8, pixel >> 0, pixel >> 24);
+					case 0 ->  putInBuffer(buffer, pixel >> 16, pixel >> 16, pixel >> 16, 0xFF);
+					case 1 ->  putInBuffer(buffer, pixel >> 16, pixel >> 16, pixel >> 16, 0xFF);
+					case 2 ->  putInBuffer(buffer, pixel >> 16, pixel >> 16, pixel >> 16, 0xFF);
+					case 3 ->  putInBuffer(buffer, pixel >> 16, pixel >> 16, pixel >> 16, 0xFF);
+					default -> putInBuffer(buffer, pixel >> 16, pixel >>  8, pixel >>  0, pixel >> 24);
 				}
 
 				buffer.put((byte) ((pixel >> 16) & 0xFF)); // Red component
@@ -120,15 +120,15 @@ public class ImageUtils {
 //					pixelData[pd] = pixelData1[pd]*pixelData2[pd];
 //				}
 				switch (colorMode){
-					case RED_RED -> fillRasterData(pixelData, srcPixelData[dataBands[0]], 0.0f, 0.0f, 255.0f);
-					case GREEN_GREEN -> fillRasterData(pixelData, 0.0f, srcPixelData[dataBands[1]], 0.0f, 255.0f);
-					case BLUE_BLUE -> fillRasterData(pixelData, 0.0f, 0.0f, srcPixelData[dataBands[2]], 255.0f);
-					case RGBA -> fillRasterData(pixelData, srcPixelData[dataBands[0]], srcPixelData[dataBands[1]], srcPixelData[dataBands[2]], srcPixelData[dataBands[3]]);
-					case RED_BW -> fillRasterData(pixelData, srcPixelData[dataBands[0]], srcPixelData[dataBands[0]], srcPixelData[dataBands[0]], 255.0f);
-					case GREEN_BW -> fillRasterData(pixelData, srcPixelData[dataBands[1]], srcPixelData[dataBands[1]], srcPixelData[dataBands[1]], 255.0f);
-					case BLUE_BW -> fillRasterData(pixelData, srcPixelData[dataBands[2]], srcPixelData[dataBands[2]], srcPixelData[dataBands[2]], 255.0f);
-					case ALPHA -> fillRasterData(pixelData, srcPixelData[dataBands[3]], srcPixelData[dataBands[3]], srcPixelData[dataBands[3]], 255.0f);
-					case RGB -> fillRasterData(pixelData, srcPixelData[dataBands[0]], srcPixelData[dataBands[1]], srcPixelData[dataBands[2]], 255.0f);
+					case RED_RED ->     fillRasterData(pixelData, srcPixelData[dataBands[0]],                       0.0f,                       0.0f,                     255.0f);
+					case GREEN_GREEN -> fillRasterData(pixelData,                       0.0f, srcPixelData[dataBands[1]],                       0.0f,                     255.0f);
+					case BLUE_BLUE ->   fillRasterData(pixelData,                       0.0f,                       0.0f, srcPixelData[dataBands[2]],                     255.0f);
+					case RGBA ->        fillRasterData(pixelData, srcPixelData[dataBands[0]], srcPixelData[dataBands[1]], srcPixelData[dataBands[2]], srcPixelData[dataBands[3]]);
+					case RED_BW ->      fillRasterData(pixelData, srcPixelData[dataBands[0]], srcPixelData[dataBands[0]], srcPixelData[dataBands[0]],                     255.0f);
+					case GREEN_BW ->    fillRasterData(pixelData, srcPixelData[dataBands[1]], srcPixelData[dataBands[1]], srcPixelData[dataBands[1]],                     255.0f);
+					case BLUE_BW ->     fillRasterData(pixelData, srcPixelData[dataBands[2]], srcPixelData[dataBands[2]], srcPixelData[dataBands[2]],                     255.0f);
+					case ALPHA ->       fillRasterData(pixelData, srcPixelData[dataBands[3]], srcPixelData[dataBands[3]], srcPixelData[dataBands[3]],                     255.0f);
+					case RGB ->         fillRasterData(pixelData, srcPixelData[dataBands[0]], srcPixelData[dataBands[1]], srcPixelData[dataBands[2]],                     255.0f);
 				}
 				channelImageRaster.setPixel(w, h, pixelData);
 			}
@@ -142,7 +142,7 @@ public class ImageUtils {
 		return switch (bufferedImage.getType()){
 			case BufferedImage.TYPE_INT_BGR ->  new int[]{2, 1, 0};
 			case BufferedImage.TYPE_INT_RGB ->  new int[]{0, 1, 2};
-			case BufferedImage.TYPE_INT_ARGB ->  new int[]{0, 1, 2, 3};
+			case BufferedImage.TYPE_INT_ARGB -> new int[]{0, 1, 2, 3};
 			default -> new int[]{0, 1, 2, 3};
 		};
 	}
@@ -164,15 +164,15 @@ public class ImageUtils {
 				int pixel = pixels[(y * bufferedImage.getWidth()) + x];
 
 				switch (colorMode){
-					case RED_RED -> putInBuffer(buffer, pixel >> 16, 0, 0, 0xFF);
-					case RED_BW -> putInBuffer(buffer, pixel >> 16, pixel >> 16, pixel >> 16, 0xFF);
-					case GREEN_GREEN -> putInBuffer(buffer, 0, pixel >> 8, 0, 0xFF);
-					case GREEN_BW -> putInBuffer(buffer, pixel >> 8, pixel >> 8, pixel >> 8, 0xFF);
-					case BLUE_BLUE -> putInBuffer(buffer, 0, 0, pixel >> 0, 0xFF);
-					case BLUE_BW -> putInBuffer(buffer, pixel >> 0, pixel >> 0, pixel >> 0, 0xFF);
-					case ALPHA -> putInBuffer(buffer, pixel >> 24, pixel >> 24, pixel >> 24, 0xFF);
-					case RGBA -> putInBuffer(buffer, pixel >> 16, pixel >> 8, pixel >> 0, 0xFF);
-					case RGB -> putInBuffer(buffer, pixel >> 16, pixel >> 8, pixel >> 0, pixel >> 24);
+					case RED_RED ->     putInBuffer(buffer, pixel >> 16,           0,           0,        0xFF);
+					case RED_BW ->      putInBuffer(buffer, pixel >> 16, pixel >> 16, pixel >> 16,        0xFF);
+					case GREEN_GREEN -> putInBuffer(buffer,           0, pixel >>  8,           0,        0xFF);
+					case GREEN_BW ->    putInBuffer(buffer, pixel >>  8, pixel >>  8, pixel >>  8,        0xFF);
+					case BLUE_BLUE ->   putInBuffer(buffer,           0,           0, pixel >>  0,        0xFF);
+					case BLUE_BW ->     putInBuffer(buffer, pixel >>  0, pixel >>  0, pixel >>  0,        0xFF);
+					case ALPHA ->       putInBuffer(buffer, pixel >> 24, pixel >> 24, pixel >> 24,        0xFF);
+					case RGBA ->        putInBuffer(buffer, pixel >> 16, pixel >>  8, pixel >>  0,        0xFF);
+					case RGB ->         putInBuffer(buffer, pixel >> 16, pixel >>  8, pixel >>  0, pixel >> 24);
 				}
 			}
 		}

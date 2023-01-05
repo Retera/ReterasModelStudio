@@ -56,7 +56,7 @@ public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer {
 					// img = BLPHandler.get().getGameTex("Textures\\BTNTemp.blp");
 				}
 				if (img == null) {
-					BufferedImage gameTex = BLPHandler.getGameTex(replWEUI + "DoodadPlaceholder.blp");
+					BufferedImage gameTex = BLPHandler.getImage(replWEUI + "DoodadPlaceholder.blp");
 					Image scaledInstance = gameTex.getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_FAST);
 					img = IconUtils.worldEditStyleIcon(scaledInstance);
 				}
@@ -80,11 +80,11 @@ public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer {
 			String value1 = value.toString() + " (" + leafCount + ")";
 			super.getTreeCellRendererComponent(tree, value1, selected, expanded, false, row, hasFocus);
 			if (expanded) {
-				BufferedImage gameTex = BLPHandler.getGameTex(replWEUI + "Editor-TriggerGroup-Open.blp");
+				BufferedImage gameTex = BLPHandler.getImage(replWEUI + "Editor-TriggerGroup-Open.blp");
 				ImageIcon icon = getImageIcon(gameTex);
 				setIcon(icon);
 			} else {
-				BufferedImage gameTex = BLPHandler.getGameTex(replWEUI + "Editor-TriggerGroup.blp");
+				BufferedImage gameTex = BLPHandler.getImage(replWEUI + "Editor-TriggerGroup.blp");
 				ImageIcon icon = getImageIcon(gameTex);
 				setIcon(icon);
 			}

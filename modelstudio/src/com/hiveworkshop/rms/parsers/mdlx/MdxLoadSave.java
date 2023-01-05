@@ -256,22 +256,27 @@ public class MdxLoadSave {
 		writer.writeTag(MDLX);
 		saveVersionChunk(mdlxModel.version, writer);
 		saveModelChunk(mdlxModel, writer);
+
 		saveStaticObjectChunk(mdlxModel.version, writer, SEQS, mdlxModel.sequences, 132);
 		saveGlobalSequenceChunk(mdlxModel.globalSequences, writer);
+
 		saveDynamicObjectChunk(mdlxModel, writer, MTLS, mdlxModel.materials);
 		saveStaticObjectChunk(mdlxModel.version, writer, TEXS, mdlxModel.textures, 268);
 		saveDynamicObjectChunk(mdlxModel, writer, TXAN, mdlxModel.textureAnimations);
 		saveDynamicObjectChunk(mdlxModel, writer, GEOS, mdlxModel.geosets);
 		saveDynamicObjectChunk(mdlxModel, writer, GEOA, mdlxModel.geosetAnimations);
+
 		saveDynamicObjectChunk(mdlxModel, writer, BONE, mdlxModel.bones);
 		saveDynamicObjectChunk(mdlxModel, writer, LITE, mdlxModel.lights);
 		saveDynamicObjectChunk(mdlxModel, writer, HELP, mdlxModel.helpers);
 		saveDynamicObjectChunk(mdlxModel, writer, ATCH, mdlxModel.attachments);
+
 		savePivotPointChunk(mdlxModel.pivotPoints, writer);
+
 		saveDynamicObjectChunk(mdlxModel, writer, PREM, mdlxModel.particleEmitters);
 		saveDynamicObjectChunk(mdlxModel, writer, PRE2, mdlxModel.particleEmitters2);
 
-		if (mdlxModel.version > 800) {
+		if (800 < mdlxModel.version) {
 			saveDynamicObjectChunk(mdlxModel, writer, CORN, mdlxModel.particleEmittersPopcorn);
 		}
 
@@ -280,7 +285,7 @@ public class MdxLoadSave {
 		saveDynamicObjectChunk(mdlxModel, writer, EVTS, mdlxModel.eventObjects);
 		saveDynamicObjectChunk(mdlxModel, writer, CLID, mdlxModel.collisionShapes);
 
-		if (mdlxModel.version > 800) {
+		if (800 < mdlxModel.version) {
 			saveStaticObjectChunk(mdlxModel.version, writer, FAFX, mdlxModel.faceEffects, 340);
 			saveBindPoseChunk(mdlxModel.bindPose, writer);
 		}

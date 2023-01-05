@@ -1,18 +1,20 @@
-package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
+package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.OldRenderer;
 
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode2;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.ui.preferences.EditorColorPrefs;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
+import org.lwjgl.opengl.GL11;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class BoneRenderThingBuf {
+public class BoneRenderThing2 {
 	private CameraManager cameraHandler;
 	private Vec3 diffVec = new Vec3();
 	private Vec3 tempVec = new Vec3();
@@ -26,7 +28,7 @@ public class BoneRenderThingBuf {
 	private Vec3[] renderPointsStemTop;
 	private Vec3[] pointsStemBot;
 	private Vec3[] renderPointsStemBot;
-	public BoneRenderThingBuf(CameraManager cameraHandler){
+	public BoneRenderThing2(CameraManager cameraHandler){
 		this.cameraHandler = cameraHandler;
 		float boxRadLength = 1.0f;
 		float boxRadHeight = 1.0f;
@@ -105,11 +107,7 @@ public class BoneRenderThingBuf {
 
 	}
 
-	public int getQuadsPerObj(){
-		return 12;
-	}
-
-	public void paintBones(VertexBuffers renderBuffers, ModelView modelView, RenderModel renderModel, IdObject idObject) {
+	public void paintBones(ModelView modelView, RenderModel renderModel, IdObject idObject) {
 		RenderNode2 renderNode = renderModel.getRenderNode(idObject);
 		if (renderNode != null && modelView.shouldRender(idObject)) {
 
@@ -125,31 +123,22 @@ public class BoneRenderThingBuf {
 			EditorColorPrefs colorPrefs = ProgramGlobals.getEditorColorPrefs();
 
 
-			float[] rgba = getRGBA(modelView, idObject, colorPrefs);
+			float[] components;
+			if (modelView.getHighlightedNode() == idObject) {
+				components = colorPrefs.getColorComponents(ColorThing.NODE_HIGHLIGHTED);
+			} else if (!modelView.isEditable(idObject)) {
+				components = colorPrefs.getColorComponents(ColorThing.NODE_UNEDITABLE);
+			} else if (modelView.isSelected(idObject)) {
+				components = colorPrefs.getColorComponents(ColorThing.NODE_SELECTED);
+			} else {
+				components = colorPrefs.getColorComponents(ColorThing.NODE);
+			}
 
-
-			doJoint(renderBuffers, rgba);
-			doStem2(renderBuffers, rgba);
-
-//			doGlGeom(renderBuffers, rgba);
+			doGlGeom(components);
 		}
 	}
 
-	public float[] getRGBA(ModelView modelView, IdObject idObject, EditorColorPrefs colorPrefs) {
-		float[] rgba;
-		if (modelView.getHighlightedNode() == idObject) {
-			rgba = colorPrefs.getColorComponents(ColorThing.NODE_HIGHLIGHTED);
-		} else if (!modelView.isEditable(idObject)) {
-			rgba = colorPrefs.getColorComponents(ColorThing.NODE_UNEDITABLE);
-		} else if (modelView.isSelected(idObject)) {
-			rgba = colorPrefs.getColorComponents(ColorThing.NODE_SELECTED);
-		} else {
-			rgba = colorPrefs.getColorComponents(ColorThing.NODE);
-		}
-		return rgba;
-	}
-
-	public BoneRenderThingBuf transform(Quat rot, Vec3 p1, Vec3 p2){
+	public BoneRenderThing2 transform(Quat rot, Vec3 p1, Vec3 p2){
 		for(int i = 0; i< pointsJoint.length; i++){
 			renderPointsJoint[i].set(pointsJoint[i]).transform(rot).add(p1);
 		}
@@ -167,7 +156,7 @@ public class BoneRenderThingBuf {
 		return this;
 	}
 
-	public BoneRenderThingBuf transform(Quat rot, Vec3 p1, Vec3 p2, float scale) {
+	public BoneRenderThing2 transform(Quat rot, Vec3 p1, Vec3 p2, float scale) {
 		for (int i = 0; i < pointsJoint.length; i++) {
 			renderPointsJoint[i].set(pointsJoint[i]).scale(scale).transform(rot).add(p1);
 		}
@@ -185,7 +174,43 @@ public class BoneRenderThingBuf {
 		return this;
 	}
 
-	public BoneRenderThingBuf transform2(Vec3 p1, Vec3 p2, float nodeSize) {
+	public BoneRenderThing2 transform2(Vec3 p1, Vec3 p2) {
+		diffVec.set(p2).sub(p1);
+		float scale = 1;
+//		System.out.println("dist to par: " + diffVec.length());
+		if (diffVec.x == 0 && diffVec.y == 0 && diffVec.z == 0) {
+			diffVec.set(Vec3.Z_AXIS).scale(0.01f);
+		}
+//		else {
+//			scale = diffVec.length() / 10;
+//		}
+		tempVec.set(Vec3.Z_AXIS).cross(diffVec).normalize();
+
+		difRotR.setFromAxisAngle(tempVec, (float) (diffVec.getAngleToZaxis())).normalize();
+		rot90.setFromAxisAngle(tempVec, (float) (Math.PI / 2)).normalize();
+		difRotR.mul(rot90).normalize();
+
+		transform(difRotR, p1, p2, scale);
+//		transform(difRotR, p1, p2);
+
+		return this;
+	}
+	public BoneRenderThing2 transform2(Vec3 p1, Vec3 p2, Vec3 scale) {
+		diffVec.set(p2).sub(p1);
+		if (diffVec.x == 0 && diffVec.y == 0 && diffVec.z == 0) {
+			diffVec.set(Vec3.Z_AXIS).scale(0.01f);
+		}
+		tempVec.set(Vec3.Z_AXIS).cross(diffVec).normalize();
+
+		difRotR.setFromAxisAngle(tempVec, (float) (diffVec.getAngleToZaxis())).normalize();
+		rot90.setFromAxisAngle(tempVec, (float) (Math.PI / 2)).normalize();
+		difRotR.mul(rot90).normalize();
+
+		transform(difRotR, p1, p2);
+
+		return this;
+	}
+	public BoneRenderThing2 transform2(Vec3 p1, Vec3 p2, float nodeSize) {
 		diffVec.set(p2).sub(p1);
 //		System.out.println("dist to par: " + diffVec.length());
 		if (diffVec.x == 0 && diffVec.y == 0 && diffVec.z == 0) {
@@ -205,58 +230,118 @@ public class BoneRenderThingBuf {
 		return this;
 	}
 
-	public BoneRenderThingBuf doGlGeom(VertexBuffers buffers, float[] color) {
+	public BoneRenderThing2 doGlGeom(float[] color) {
+//		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glPolygonMode(GL_FRONT_FACE, GL_FILL);
+//		glBegin(GL_QUADS);
 		glColor4f(color[0], color[1], color[2], color[3]);
+//		glBegin(GL_TRIANGLE_STRIP);
 		glBegin(GL_TRIANGLES);
-		doJoint(buffers, color);
-		doStem2(buffers, color);
+		doJoint();
+		doStem2();
 		glEnd();
+//		glBegin(GL_TRIANGLE_STRIP);
+//		doStem2();
+//		glEnd();
+//		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//		glBegin(GL_TRIANGLES);
+//		glColor4f(color[0], color[1], color[2], color[3]);
+//		doStem();
+//		glEnd();
 		return this;
 	}
 
-	private void doJoint(VertexBuffers buffers, float[] color) {
+	private void doJoint() {
 		//Front
-		doGlTriQuad(buffers, renderPointsJoint[6], renderPointsJoint[4], renderPointsJoint[7], renderPointsJoint[5], renderNormals[0], color);
+		doGlTriQuad(renderPointsJoint[6], renderPointsJoint[4], renderPointsJoint[7], renderPointsJoint[5], renderNormals[0]);
+
 		//Back
-		doGlTriQuad(buffers, renderPointsJoint[3], renderPointsJoint[1], renderPointsJoint[2], renderPointsJoint[0], renderNormals[1], color);
+		doGlTriQuad(renderPointsJoint[3], renderPointsJoint[1], renderPointsJoint[2], renderPointsJoint[0], renderNormals[1]);
+
 		//Left
-		doGlTriQuad(buffers, renderPointsJoint[0], renderPointsJoint[4], renderPointsJoint[2], renderPointsJoint[6], renderNormals[2], color);
+		doGlTriQuad(renderPointsJoint[0], renderPointsJoint[4], renderPointsJoint[2], renderPointsJoint[6], renderNormals[2]);
+
 		//Right
-		doGlTriQuad(buffers, renderPointsJoint[3], renderPointsJoint[7], renderPointsJoint[1], renderPointsJoint[5], renderNormals[3], color);
+		doGlTriQuad(renderPointsJoint[3], renderPointsJoint[7], renderPointsJoint[1], renderPointsJoint[5], renderNormals[3]);
+
 		//Up
-		doGlTriQuad(buffers, renderPointsJoint[1], renderPointsJoint[5], renderPointsJoint[0], renderPointsJoint[4], renderNormals[4], color);
-		//Down
-		doGlTriQuad(buffers, renderPointsJoint[2], renderPointsJoint[6], renderPointsJoint[3], renderPointsJoint[7], renderNormals[5], color);
-
-	}
-
-	private void doStem2(VertexBuffers buffers, float[] color) {
+		doGlTriQuad(renderPointsJoint[1], renderPointsJoint[5], renderPointsJoint[0], renderPointsJoint[4], renderNormals[4]);
 
 		//Down
-		doGlTriQuad(buffers, renderPointsStemBot[0], renderPointsStemBot[1], renderPointsStemBot[2], renderPointsStemBot[3], renderNormals[0], color);
-		//Up
-		doGlTriQuad(buffers, renderPointsStemTop[1], renderPointsStemTop[0], renderPointsStemTop[3], renderPointsStemTop[2], renderNormals[1], color);
-		//Front
-		doGlTriQuad(buffers, renderPointsStemTop[0], renderPointsStemBot[0], renderPointsStemTop[2], renderPointsStemBot[2], renderNormals[2], color);
-		//Back
-		doGlTriQuad(buffers, renderPointsStemTop[3], renderPointsStemBot[3], renderPointsStemTop[1], renderPointsStemBot[1], renderNormals[3], color);
-		//Right
-		doGlTriQuad(buffers, renderPointsStemTop[1], renderPointsStemBot[1], renderPointsStemTop[0], renderPointsStemBot[0], renderNormals[4], color);
-		//Left
-		doGlTriQuad(buffers, renderPointsStemTop[2], renderPointsStemBot[2], renderPointsStemTop[3], renderPointsStemBot[3], renderNormals[5], color);
-
-
+		doGlTriQuad(renderPointsJoint[2], renderPointsJoint[6], renderPointsJoint[3], renderPointsJoint[7], renderNormals[5]);
 	}
 
-	private static void doGlTriQuad(VertexBuffers buffers, Vec3 LT, Vec3 LB, Vec3 RT, Vec3 RB, Vec3 normal, float[] color) {
-		buffers.setMultiple(LT, normal, color);
-		buffers.setMultiple(LB, normal, color);
-		buffers.setMultiple(RT, normal, color);
+	private void doStem2() {
+//		renderPointsStemTop = new Vec3[]{
+//				new Vec3( 1, -1, 1),// F R 0
+//				new Vec3(-1, -1, 1),// B R 1
+//				new Vec3( 1,  1, 1),// F L 2
+//				new Vec3(-1,  1, 1) // B L 3
+//		};
+		//Down
+//		glColor4f(0,0,1,1);
+//		doGlQuad(renderPointsStemBot[2], renderPointsStemBot[0], renderPointsStemBot[3], renderPointsStemBot[1], renderNormals[0]);
+		doGlTriQuad(renderPointsStemBot[0], renderPointsStemBot[1], renderPointsStemBot[2], renderPointsStemBot[3], renderNormals[0]);
 
-		buffers.setMultiple(RT, normal, color);
-		buffers.setMultiple(LB, normal, color);
-		buffers.setMultiple(RB, normal, color);
+		//Up
+//		glColor4f(1,1,0,1);
+//		doGlQuad(renderPointsStemTop[3], renderPointsStemTop[1], renderPointsStemTop[2], renderPointsStemTop[0], renderNormals[1]);
+		doGlTriQuad(renderPointsStemTop[1], renderPointsStemTop[0], renderPointsStemTop[3], renderPointsStemTop[2], renderNormals[1]);
+		//Front
+//		glColor4f(1,0,0,1);
+//		doGlQuad(renderPointsStemTop[0], renderPointsStemBot[0], renderPointsStemTop[2], renderPointsStemBot[2], renderNormals[2]);
+//		doGlQuad(renderPointsStemTop[0], renderPointsStemTop[2], renderPointsStemBot[0], renderPointsStemBot[2], renderNormals[2]);
+		doGlTriQuad(renderPointsStemTop[0], renderPointsStemBot[0], renderPointsStemTop[2], renderPointsStemBot[2], renderNormals[2]);
+		//Back
+//		glColor4f(0,1,1,1);
+		doGlTriQuad(renderPointsStemTop[3], renderPointsStemBot[3], renderPointsStemTop[1], renderPointsStemBot[1], renderNormals[3]);
+		//Right
+//		glColor4f(0,1,0,1);
+		doGlTriQuad(renderPointsStemTop[1], renderPointsStemBot[1], renderPointsStemTop[0], renderPointsStemBot[0], renderNormals[4]);
+		//Left
+//		glColor4f(1,0,1,1);
+		doGlTriQuad(renderPointsStemTop[2], renderPointsStemBot[2], renderPointsStemTop[3], renderPointsStemBot[3], renderNormals[5]);
+	}
 
+
+//	pointsStem =
+	private void doStem() {
+
+//		Vec3[] ugg = new Vec3[]{
+//				new Vec3( 1, -1, 1),// F R 0
+//				new Vec3(-1, -1, 1),// B R 1
+//				new Vec3( 1,  1, 1),// F L 2
+//				new Vec3(-1,  1, 1),// B L 3
+//				new Vec3( 0, 0, -1)};
+		//Front
+//		doGlTri(renderPointsStem[0], renderPointsStem[2], renderPointsStem[4], renderNormals[0]);
+//
+//		//Back
+//		doGlTri(renderPointsStem[3], renderPointsStem[1], renderPointsStem[4], renderNormals[1]);
+//
+//		//Left
+//		doGlTri(renderPointsStem[3], renderPointsStem[2], renderPointsStem[4], renderNormals[2]);
+//
+//		//Right
+//		doGlTri(renderPointsStem[0], renderPointsStem[1], renderPointsStem[4], renderNormals[3]);
+	}
+
+	private static void doGlQuad(Vec3 RT, Vec3 LT, Vec3 RB, Vec3 LB, Vec3 normal) {
+		GL11.glNormal3f(normal.x,normal.y,normal.z);
+		GL11.glVertex3f(RT.x, RT.y, RT.z);
+		GL11.glVertex3f(LT.x, LT.y, LT.z);
+		GL11.glVertex3f(LB.x, LB.y, LB.z);
+		GL11.glVertex3f(RB.x, RB.y, RB.z);
+	}
+	private static void doGlTriQuad(Vec3 LT, Vec3 LB, Vec3 RT, Vec3 RB, Vec3 normal) {
+		GL11.glNormal3f(normal.x,normal.y,normal.z);
+
+		GL11.glVertex3f(LT.x, LT.y, LT.z);
+		GL11.glVertex3f(LB.x, LB.y, LB.z);
+		GL11.glVertex3f(RT.x, RT.y, RT.z);
+
+		GL11.glVertex3f(RT.x, RT.y, RT.z);
+		GL11.glVertex3f(LB.x, LB.y, LB.z);
+		GL11.glVertex3f(RB.x, RB.y, RB.z);
 	}
 }

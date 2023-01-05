@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
+package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.OldRenderer;
 
 import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.EditableModel;
@@ -11,6 +11,7 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.viewer.KeylistenerThing;
 import com.hiveworkshop.rms.ui.application.viewer.MouseListenerThing;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.*;
 import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
 import com.hiveworkshop.rms.ui.application.viewer.ViewportHelpers;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;

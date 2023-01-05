@@ -144,6 +144,9 @@ public class TwiAiSceneParser {
 				return texture;
 			}
 		}
+		if(path.isBlank()){
+			path = "Textures\\BTNtempW.blp";
+		}
 
 		Bitmap texture = new Bitmap(path);
 		model.add(texture);

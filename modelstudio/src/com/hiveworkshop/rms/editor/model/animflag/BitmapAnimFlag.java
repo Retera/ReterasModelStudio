@@ -63,7 +63,7 @@ public class BitmapAnimFlag extends AnimFlag<Bitmap> {
 //				}
 //
 				if (hasGlobalSeq()) {
-					System.out.println("Global seq! " + globalSeq);
+//					System.out.println("Global seq! " + globalSeq);
 					addEntry((int) frames[i] - globalSeq.getStart(), valueAsObject, inTanAsObject, outTanAsObject, globalSeq);
 				} else if (animationTreeMap.floorEntry((int) frames[i]) != null) {
 					Sequence sequence = animationTreeMap.floorEntry((int) frames[i]).getValue();

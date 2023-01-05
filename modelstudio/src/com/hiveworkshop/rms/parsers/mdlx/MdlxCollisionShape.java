@@ -9,25 +9,33 @@ import com.hiveworkshop.rms.util.BinaryWriter;
 
 public class MdlxCollisionShape extends MdlxGenericObject {
 	public enum Type {
-		BOX,
-		PLANE,
-		SPHERE(true),
-		CYLINDER(true);
+		BOX(false, 2, MdlUtils.TOKEN_BOX),
+		PLANE(false, 2, MdlUtils.TOKEN_PLANE),
+		SPHERE(true, 1, MdlUtils.TOKEN_SPHERE),
+		CYLINDER(true, 2, MdlUtils.TOKEN_CYLINDER);
 
 		private static final Type[] VALUES = values();
 
 		private final boolean boundsRadius;
+		private final int vertices;
+		private final String mdlName;
 
-		Type() {
-			boundsRadius = false;
-		}
-
-		Type(final boolean boundsRadius) {
+		Type(final boolean boundsRadius, final int vertices, String mdlName) {
 			this.boundsRadius = boundsRadius;
+			this.vertices = vertices;
+			this.mdlName = mdlName;
 		}
 
 		public boolean isBoundsRadius() {
 			return boundsRadius;
+		}
+
+		public int getVertices() {
+			return vertices;
+		}
+
+		public String getMdlName() {
+			return mdlName;
 		}
 
 		public static Type from(final int index) {
@@ -48,13 +56,12 @@ public class MdlxCollisionShape extends MdlxGenericObject {
 		super.readMdx(reader, version);
 
 		type = MdlxCollisionShape.Type.from(reader.readInt32());
-		reader.readFloat32Array(vertices[0]);
 
-		if (type != Type.SPHERE) {
-			reader.readFloat32Array(vertices[1]);
+		for (int i = 0; i < type.getVertices(); i++) {
+			reader.readFloat32Array(vertices[i]);
 		}
 
-		if ((type == Type.SPHERE) || (type == Type.CYLINDER)) {
+		if (type.isBoundsRadius()) {
 			boundsRadius = reader.readFloat32();
 		}
 	}
@@ -64,13 +71,12 @@ public class MdlxCollisionShape extends MdlxGenericObject {
 		super.writeMdx(writer, version);
 
 		writer.writeInt32(type.ordinal());
-		writer.writeFloat32Array(vertices[0]);
 
-		if (type != MdlxCollisionShape.Type.SPHERE) {
-			writer.writeFloat32Array(vertices[1]);
+		for (int i = 0; i < type.getVertices(); i++) {
+			writer.writeFloat32Array(vertices[i]);
 		}
 
-		if ((type == Type.SPHERE) || (type == Type.CYLINDER)) {
+		if (type.isBoundsRadius()) {
 			writer.writeFloat32(boundsRadius);
 		}
 	}
@@ -86,9 +92,8 @@ public class MdlxCollisionShape extends MdlxGenericObject {
 				case MdlUtils.TOKEN_VERTICES -> {
 					final int count = stream.readInt();
 					stream.read(); // {
-					stream.readFloatArray(vertices[0]);
-					if (count == 2) {
-						stream.readFloatArray(vertices[1]);
+					for (int i = 0; i < count; i++) {
+						stream.readFloatArray(vertices[i]);
 					}
 					stream.read(); // }
 				}
@@ -102,28 +107,15 @@ public class MdlxCollisionShape extends MdlxGenericObject {
 	public void writeMdl(final MdlTokenOutputStream stream, final int version) {
 		stream.startObjectBlock(MdlUtils.TOKEN_COLLISION_SHAPE, name);
 		writeGenericHeader(stream);
-		final String type;
-		int vertices = 2;
-		switch (this.type) {
-			case BOX -> type = MdlUtils.TOKEN_BOX;
-			case PLANE -> type = MdlUtils.TOKEN_PLANE;
-			case SPHERE -> {
-				type = MdlUtils.TOKEN_SPHERE;
-				vertices = 1;
-			}
-			case CYLINDER -> type = MdlUtils.TOKEN_CYLINDER;
-			default -> throw new IllegalStateException("Invalid type in CollisionShape " + name + ": " + this.type);
-		}
 
-		stream.writeFlag(type);
-		stream.startBlock(MdlUtils.TOKEN_VERTICES, vertices);
-		stream.writeFloatArray(this.vertices[0]);
-		if (vertices == 2) {
-			stream.writeFloatArray(this.vertices[1]);
+		stream.writeFlag(this.type.getMdlName());
+		stream.startBlock(MdlUtils.TOKEN_VERTICES, this.type.getVertices());
+		for (int i = 0; i < this.type.getVertices(); i++) {
+			stream.writeFloatArray(this.vertices[i]);
 		}
 		stream.endBlock();
 
-		if (this.type.boundsRadius) {
+		if (this.type.isBoundsRadius()) {
 			stream.writeFloatAttrib(MdlUtils.TOKEN_BOUNDSRADIUS, boundsRadius);
 		}
 
@@ -133,13 +125,9 @@ public class MdlxCollisionShape extends MdlxGenericObject {
 
 	@Override
 	public long getByteLength(final int version) {
-		long size = 16 + super.getByteLength(version);
+		long size = super.getByteLength(version) + 4 + (12L * type.getVertices());
 
-		if (type != Type.SPHERE) {
-			size += 12;
-		}
-
-		if ((type == Type.SPHERE) || (type == Type.CYLINDER)) {
+		if (type.isBoundsRadius()) {
 			size += 4;
 		}
 

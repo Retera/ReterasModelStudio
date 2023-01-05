@@ -36,7 +36,7 @@ public class RecalculateTangentsAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "recalculate tangents";
+		return "Recalculate Tangents";
 	}
 
 	@Override

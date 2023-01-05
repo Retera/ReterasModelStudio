@@ -171,11 +171,12 @@ public class ShaderManager {
 		}
 		if(customHDShaderPipeline != null){
 			return customHDShaderPipeline;
-		} else if (hd) {
-			return getOrCreateHdPipeline();
-		} else {
-			return getOrCreateSdPipeline();
+//		} else if (hd) {
+//			return getOrCreateHdPipeline();
+//		} else {
+//			return getOrCreateSdPipeline();
 		}
+		return getOrCreateHdPipeline();
 	}
 
 	public ShaderPipeline getOrCreateHdPipeline() {

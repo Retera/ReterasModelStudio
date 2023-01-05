@@ -14,6 +14,8 @@ uniform mat4 u_view;
 uniform mat4 u_uvTransform;
 uniform vec4 u_geosetColor;
 
+uniform int u_lightingEnabled;
+
 uniform vec4 u_vertColors[4];
 // holds the vertex colors for [0:highlighted, 1:selected, 2:editable, 3:vissible (not editable)]
 
@@ -21,6 +23,7 @@ out vec2 v_uv;
 out vec4 v_color;
 out vec4 v_colorAlt;
 out vec4 v_normal;
+out vec3 v_lightDirection;
 out vec3 v_tangentLightPos;
 out vec3 v_tangentViewPos;
 out vec3 v_tangentFragPos;

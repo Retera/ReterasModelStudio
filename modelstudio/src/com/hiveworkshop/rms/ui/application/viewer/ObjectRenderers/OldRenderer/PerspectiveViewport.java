@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ui.application.viewer;
+package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.OldRenderer;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
@@ -6,7 +6,12 @@ import com.hiveworkshop.rms.editor.render3d.RenderParticleEmitter2;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.*;
+import com.hiveworkshop.rms.ui.application.viewer.KeylistenerThing;
+import com.hiveworkshop.rms.ui.application.viewer.MouseListenerThing;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CubePainter;
+import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
+import com.hiveworkshop.rms.ui.application.viewer.ViewportHelpers;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;

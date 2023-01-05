@@ -177,22 +177,28 @@ public class MdlLoadSave {
 		saveCommentBlock(mdlxModel.comments, stream);
 		saveVersionBlock(mdlxModel.version, stream);
 		saveModelBlock(mdlxModel, stream);
+
 		saveStaticObjectsBlock(mdlxModel.version, stream, MdlUtils.TOKEN_SEQUENCES, mdlxModel.sequences);
 		saveGlobalSequenceBlock(mdlxModel.globalSequences, stream);
+
 		saveStaticObjectsBlock(mdlxModel.version, stream, MdlUtils.TOKEN_TEXTURES, mdlxModel.textures);
 		saveStaticObjectsBlock(mdlxModel.version, stream, MdlUtils.TOKEN_MATERIALS, mdlxModel.materials);
 		saveStaticObjectsBlock(mdlxModel.version, stream, MdlUtils.TOKEN_TEXTURE_ANIMS, mdlxModel.textureAnimations);
+
 		saveObjects(mdlxModel.version, stream, mdlxModel.geosets);
 		saveObjects(mdlxModel.version, stream, mdlxModel.geosetAnimations);
+
 		saveObjects(mdlxModel.version, stream, mdlxModel.bones);
 		saveObjects(mdlxModel.version, stream, mdlxModel.lights);
 		saveObjects(mdlxModel.version, stream, mdlxModel.helpers);
 		saveObjects(mdlxModel.version, stream, mdlxModel.attachments);
+
 		savePivotPointBlock(mdlxModel.pivotPoints, stream);
+
 		saveObjects(mdlxModel.version, stream, mdlxModel.particleEmitters);
 		saveObjects(mdlxModel.version, stream, mdlxModel.particleEmitters2);
 
-		if (mdlxModel.version > 800) {
+		if (800 < mdlxModel.version) {
 			saveObjects(mdlxModel.version, stream, mdlxModel.particleEmittersPopcorn);
 		}
 
@@ -201,7 +207,7 @@ public class MdlLoadSave {
 		saveObjects(mdlxModel.version, stream, mdlxModel.eventObjects);
 		saveObjects(mdlxModel.version, stream, mdlxModel.collisionShapes);
 
-		if (mdlxModel.version > 800) {
+		if (800 < mdlxModel.version) {
 			saveObjects(mdlxModel.version, stream, mdlxModel.faceEffects);
 			saveBindPoseBlock(mdlxModel.bindPose, stream);
 		}

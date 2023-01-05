@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGeoset;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.Vec4;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,10 +80,14 @@ public class GeosetFactory {
 //				}
 //			}
 			if (vertexGroups != null && i < vertexGroups.length) {
-				Matrix matrix = matrices.get((256 + vertexGroups[i]) % 256);
-				if (matrix != null) {
-					for (Bone bone : matrix.getBones()) {
-						gv.addBoneAttachment(bone);
+				int matInd = (256 + vertexGroups[i]) % 256;
+//				System.out.println("vertGroup: " + vertexGroups[i] + ", -> " + matInd + "");
+				if(matInd < matrices.size()){
+					Matrix matrix = matrices.get(matInd);
+					if (matrix != null) {
+						for (Bone bone : matrix.getBones()) {
+							gv.addBoneAttachment(bone);
+						}
 					}
 				}
 			}
@@ -99,7 +104,7 @@ public class GeosetFactory {
 //			if (ModelUtils.isTangentAndSkinSupported(model.getFormatVersion()) && tangents != null && (i*4 + 3) < tangents.length) {
 			if (infoHolder.isTangentAndSkinSupported() && tangents != null) {
 				// version 900
-				float[] tang = {tangents[(i * 4)], tangents[(i * 4) + 1], tangents[(i * 4) + 2], tangents[(i * 4) + 3]};
+				Vec4 tang = new Vec4(tangents[(i * 4)], tangents[(i * 4) + 1], tangents[(i * 4) + 2], tangents[(i * 4) + 3]);
 				gv.initV900();
 				gv.setTangent(tang);
 

@@ -122,8 +122,6 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 		glUniform("u_vertColors[3]", colorVis[0], colorVis[1], colorVis[2], colorVis[3]);
 
 
-//		alphaTest = 0;
-//		lightingEnabled = 0;
 		glUniform("u_alphaTest", alphaTest);
 		glUniform("u_lightingEnabled", lightingEnabled);
 		tempVec3.set(30.4879f, -24.1937f, 444.411f);
@@ -140,6 +138,9 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 
 	private void setUpAndDraw(BufferSubInstance instance) {
 		instance.setUpInstance(this);
+		if(textureUsed == 0){
+			GL11.glDisable(GL11.GL_CULL_FACE);
+		}
 		glUniform("u_fresnelTeamColor", instance.getFresnelTeamColor());
 		glUniform("u_fresnelColor", instance.getFresnelColor());
 		glUniform("u_geosetColor", instance.getLayerColor());
@@ -205,13 +206,11 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 		position.set(pos, 1);
 		normal.set(norm, 1).normalizeAsV3();
 		tangent.set(tang).normalizeAsV3();
-//		color.set(col);
 
 
 		addToBuffer(baseOffset, position);
 		addToBuffer(baseOffset, normal);
 		addToBuffer(baseOffset, uv);
-//		addToBuffer(baseOffset, color);
 		addToBuffer(baseOffset, tangent);
 		addToBuffer(baseOffset, fres);
 		addToBuffer(baseOffset, 0);

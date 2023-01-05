@@ -128,7 +128,7 @@ public class MPQImageBrowser extends JPanel {
 	}
 
 	private BufferedImage getImage(String filepath){
-		BufferedImage texture = BLPHandler.getGameTex(filepath);
+		BufferedImage texture = BLPHandler.getImage(filepath);
 		if(texture != null){
 			if(colorMode == ImageUtils.ColorMode.RGBA){
 				return texture;
@@ -238,13 +238,13 @@ public class MPQImageBrowser extends JPanel {
 				} else {
 					if (expanded) {
 						BufferedImage gameTex = BLPHandler
-								.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp");
+								.getImage("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp");
 						if(gameTex != null){
 							setIcon(new ImageIcon(gameTex));
 						}
 					} else {
 						BufferedImage gameTex = BLPHandler
-								.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp");
+								.getImage("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp");
 						if(gameTex != null){
 							setIcon(new ImageIcon(gameTex));
 						}

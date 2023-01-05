@@ -34,7 +34,7 @@ public class ScriptView {
 		hackerPanel.add(new RTextScrollPane(scriptTextArea), BorderLayout.CENTER);
 
 		ImageIcon icon = new ImageIcon(BLPHandler
-				.getGameTex("ReplaceableTextures\\CommandButtons\\BTNReplay-Play.blp")
+				.getImage("ReplaceableTextures\\CommandButtons\\BTNReplay-Play.blp")
 				.getScaledInstance(24, 24, Image.SCALE_FAST));
 
 		JButton runScriptButton = new JButton("Run", icon);
@@ -56,7 +56,7 @@ public class ScriptView {
 		hackerPanel.add(new RTextScrollPane(scriptTextArea), BorderLayout.CENTER);
 
 		ImageIcon icon = new ImageIcon(BLPHandler
-				.getGameTex("ReplaceableTextures\\CommandButtons\\BTNReplay-Play.blp")
+				.getImage("ReplaceableTextures\\CommandButtons\\BTNReplay-Play.blp")
 				.getScaledInstance(24, 24, Image.SCALE_FAST));
 
 		JButton runScriptButton = new JButton("Run", icon);

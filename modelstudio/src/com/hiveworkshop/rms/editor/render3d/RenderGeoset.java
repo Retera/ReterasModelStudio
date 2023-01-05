@@ -160,7 +160,7 @@ public class RenderGeoset {
 			if (vertex.getTangent() != null) {
 				renderTang.set(vertex.getTang());
 			} else {
-				renderTang.set(Vec3.Z_AXIS, 0);
+				renderTang.set(Vec3.Z_AXIS, 1);
 			}
 			if (mat4 != null) {
 				renderPos.transform(mat4);

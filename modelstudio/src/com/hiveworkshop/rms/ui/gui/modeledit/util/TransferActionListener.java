@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.util;
 
-import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.OldRenderer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.language.TextKey;
 import org.lwjgl.opengl.AWTGLCanvas;
 

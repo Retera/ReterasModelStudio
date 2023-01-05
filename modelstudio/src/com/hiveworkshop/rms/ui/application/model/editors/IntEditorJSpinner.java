@@ -29,7 +29,11 @@ public class IntEditorJSpinner extends JSpinner {
 	}
 
 	public IntEditorJSpinner(int value, int minValue, int maxValue, Consumer<Integer> intConsumer) {
-		super(new SpinnerNumberModel(value, minValue, maxValue, 1));
+		this(value, minValue, maxValue, 1, intConsumer);
+	}
+
+	public IntEditorJSpinner(int value, int minValue, int maxValue, int stepSize, Consumer<Integer> intConsumer) {
+		super(new SpinnerNumberModel(value, minValue, maxValue, stepSize));
 		this.intConsumer = intConsumer;
 		init();
 	}

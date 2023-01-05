@@ -1,19 +1,8 @@
 package com.hiveworkshop.rms.ui.application;
 
-import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
-import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
-import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
-import com.hiveworkshop.rms.ui.browsers.mpq.MPQBrowser;
-import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
-import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.preferences.listeners.WarcraftDataSourceChangeListener;
-import net.infonode.docking.DockingWindow;
 import net.infonode.docking.SplitWindow;
 import net.infonode.docking.View;
 
@@ -74,55 +63,11 @@ public class MenuBarActions {
 			                                              final boolean isSelected,
 			                                              final boolean cellHasFocus) {
 				Component cellRendererComp = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-				ImageIcon icon = new ImageIcon(MainPanel.class.getResource("ImageBin/deleteme.png"));
+				ImageIcon icon = RMSIcons.loadHiveBrowserImageIcon("deleteme.png");
 				ImageIcon scaledIcon = new ImageIcon(icon.getImage().getScaledInstance(48, 32, Image.SCALE_DEFAULT));
 				setIcon(scaledIcon);
 				return cellRendererComp;
 			}
 		};
-	}
-
-	public static void updateDataSource() {
-		GameDataFileSystem.refresh(SaveProfile.get().getDataSources());
-		// cache priority order...
-		UnitOptionPanel.dropRaceCache();
-		DataTableHolder.dropCache();
-		ModelOptionPanel.dropCache();
-		WEString.dropCache();
-		BLPHandler.get().dropCache();
-		ProgramGlobals.getMenuBar().updateTeamColors();
-		traverseAndReloadData(ProgramGlobals.getRootWindowUgg());
-	}
-
-
-	public static void traverseAndReloadData(DockingWindow window) {
-		int childWindowCount = window.getChildWindowCount();
-		for (int i = 0; i < childWindowCount; i++) {
-			DockingWindow childWindow = window.getChildWindow(i);
-			traverseAndReloadData(childWindow);
-			if (childWindow instanceof View) {
-				View view = (View) childWindow;
-				Component component = view.getComponent();
-				if (component instanceof JScrollPane) {
-					JScrollPane pane = (JScrollPane) component;
-					Component viewportView = pane.getViewport().getView();
-					if (viewportView instanceof UnitEditorTree) {
-						UnitEditorTree unitEditorTree = (UnitEditorTree) viewportView;
-						WorldEditorDataType dataType = unitEditorTree.getDataType();
-						if (dataType == WorldEditorDataType.UNITS) {
-							System.out.println("saw unit tree");
-							unitEditorTree.setUnitDataAndReloadVerySlowly();
-						} else if (dataType == WorldEditorDataType.DOODADS) {
-							System.out.println("saw doodad tree");
-							unitEditorTree.setUnitDataAndReloadVerySlowly();
-						}
-					}
-				} else if (component instanceof MPQBrowser) {
-					System.out.println("saw mpq tree");
-					MPQBrowser comp = (MPQBrowser) component;
-					comp.refreshTree();
-				}
-			}
-		}
 	}
 }

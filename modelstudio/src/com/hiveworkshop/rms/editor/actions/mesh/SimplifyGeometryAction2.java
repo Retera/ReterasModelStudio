@@ -13,15 +13,32 @@ public class SimplifyGeometryAction2 implements UndoAction {
 	private final ModelStructureChangeListener changeListener;
 	private final Map<GeosetVertex, GeosetVertex> oldToNew = new HashMap<>();
 	private final Map<Triangle, GeosetVertex[]> triOrgVertMap = new HashMap<>();
+	private final boolean ign_norm;
+	private final boolean ign_uv;
+	private final boolean ign_tang;
+	private final boolean ign_skin;
+	private final float norm_prec;
+	private final float uv_prec;
+	private final float tang_prec;
 	private Set<Triangle> trianglesToRemove = new HashSet<>();
 
-	public SimplifyGeometryAction2(Geoset geoset, Collection<GeosetVertex> selection, ModelStructureChangeListener changeListener) {
+	public SimplifyGeometryAction2(Geoset geoset, Collection<GeosetVertex> selection,
+	                               int precision, boolean ign_skin,
+	                               float norm_prec, float uv_prec, float tang_prec,
+	                               ModelStructureChangeListener changeListener) {
 		this.geoset = geoset;
 		this.changeListener = changeListener;
+		this.norm_prec = norm_prec;
+		this.uv_prec = uv_prec;
+		this.tang_prec = tang_prec;
+		this.ign_norm = -1f == norm_prec;
+		this.ign_uv = -1f == uv_prec;
+		this.ign_tang = -1f == tang_prec;
+		this.ign_skin = ign_skin;
 
 		Map<InexactHashVector, List<GeosetVertex>> locationToGVs = new HashMap<>();
 		for (GeosetVertex vertex : selection) {
-			locationToGVs.computeIfAbsent(new InexactHashVector(vertex, 100), k -> new ArrayList<>()).add(vertex);
+			locationToGVs.computeIfAbsent(new InexactHashVector(vertex, precision), k -> new ArrayList<>()).add(vertex);
 		}
 
 		for (InexactHashVector location : locationToGVs.keySet()){
@@ -44,6 +61,13 @@ public class SimplifyGeometryAction2 implements UndoAction {
 				triOrgVertMap.put(triangle, new GeosetVertex[]{triangle.get(0), triangle.get(1), triangle.get(2)});
 			}
 		}
+	}
+
+	public SimplifyGeometryAction2(Geoset geoset, Collection<GeosetVertex> selection, ModelStructureChangeListener changeListener) {
+		this(geoset, selection, 100,
+				false,
+				0.001f, 0.00001f, 0.001f,
+				changeListener);
 	}
 
 	private GeosetVertex getVertexToKeep(Set<GeosetVertex> verticesToKeep, GeosetVertex vertex) {
@@ -143,36 +167,47 @@ public class SimplifyGeometryAction2 implements UndoAction {
 	}
 
 	private boolean isSameNormal(GeosetVertex vertexToKeep, GeosetVertex vertex) {
-		return vertexToKeep.getNormal() == null
+		return ign_norm
+				|| vertexToKeep.getNormal() == null
 				&& vertex.getNormal() == null
 				|| vertexToKeep.getNormal() != null
 				&& vertex.getNormal() != null
-				&& vertexToKeep.getNormal().distance(vertex.getNormal()) < 0.001f;
+				&& vertexToKeep.getNormal().distance(vertex.getNormal()) < norm_prec;
 	}
 	private boolean isSameTangent(GeosetVertex vertexToKeep, GeosetVertex vertex) {
-		return vertexToKeep.getTangent() == null
+		return ign_tang
+				|| vertexToKeep.getTangent() == null
 				&& vertex.getTangent() == null
 				|| vertexToKeep.getTangent() != null
 				&& vertex.getTangent() != null
-				&& vertexToKeep.getTangent().distance(vertex.getTangent()) < 0.001f;
+				&& vertexToKeep.getTangent().distance(vertex.getTangent()) < tang_prec;
 	}
 
+	private final HashSet<Bone> tempSet = new HashSet<>();
 	private boolean isSameBones(GeosetVertex vertexToKeep, GeosetVertex vertex) {
+		if(ign_skin){
+			return true;
+		}
 		SkinBone[] vertexToKeepSkinBones = vertexToKeep.getSkinBones();
 		SkinBone[] vertexSkinBones = vertex.getSkinBones();
 		if (vertexToKeepSkinBones != null && vertexSkinBones != null) {
 			return Arrays.equals(vertexToKeepSkinBones, vertexSkinBones);
 		} else {
+			tempSet.clear();
 			List<Bone> vertexToKeepBones = vertexToKeep.getBones();
 			List<Bone> vertexBones = vertex.getBones();
 			if (vertexToKeepBones.size() > 0 && vertexToKeepBones.size() == vertexBones.size()) {
-				return vertexToKeepBones.containsAll(vertexBones);
+				tempSet.addAll(vertexToKeepBones);
+				return tempSet.containsAll(vertexBones);
 			}
 		}
 		return false;
 	}
 
 	private boolean isSameUvCoord(GeosetVertex vertexToKeep, GeosetVertex vertex) {
+		if(ign_uv){
+			return true;
+		}
 		List<Vec2> tverts1 = vertexToKeep.getTverts();
 		List<Vec2> tverts2 = vertex.getTverts();
 		int size1 = tverts1.size();
@@ -181,7 +216,7 @@ public class SimplifyGeometryAction2 implements UndoAction {
 			return false;
 		}
 		for (int tvI = 0; tvI < size1; tvI++) {
-			if (tverts1.get(tvI).distance(tverts2.get(tvI)) > 0.00001f) {
+			if (tverts1.get(tvI).distance(tverts2.get(tvI)) > uv_prec) {
 				return false;
 			}
 		}

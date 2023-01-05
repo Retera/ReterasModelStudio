@@ -17,6 +17,6 @@ public class WorldEditArt {
 		if (!iconTexturePath.endsWith(".blp")) {
 			iconTexturePath += ".blp";
 		}
-		return new ImageIcon(BLPHandler.getGameTex(iconTexturePath));
+		return new ImageIcon(BLPHandler.getImage(iconTexturePath));
 	}
 }

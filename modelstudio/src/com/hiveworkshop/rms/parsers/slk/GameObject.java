@@ -120,10 +120,10 @@ public abstract class GameObject implements Comparable<GameObject> {
 		String artField = getIconPath();
 		if (!isCached(artField)) {
 			try {
-				BufferedImage gameTex = BLPHandler.getGameTex(artField);
+				BufferedImage gameTex = BLPHandler.getImage(artField);
 				cash(artField, gameTex);
 				if (gameTex == null) {
-					gameTex = BLPHandler.getGameTex(placeholderTexPath);
+					gameTex = BLPHandler.getImage(placeholderTexPath);
 				}
 				if (gameTex == null) {
 					gameTex = BLPHandler.getBlankImage();
@@ -145,7 +145,7 @@ public abstract class GameObject implements Comparable<GameObject> {
 	public Image getTintedImage(Color tint) {
 		Image img = getImage();
 		if (img == null) {
-			return BLPHandler.getGameTex("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
+			return BLPHandler.getImage("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
 		}
 		BufferedImage out = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_4BYTE_ABGR);
 		Graphics2D g2 = (Graphics2D) out.getGraphics();
@@ -170,7 +170,7 @@ public abstract class GameObject implements Comparable<GameObject> {
 
 	public ImageIcon getIcon() {
 		String artField = getIconPath();
-		return new ImageIcon(BLPHandler.getGameTex(artField));
+		return new ImageIcon(BLPHandler.getImage(artField));
 	}
 
 	public String getIconPath() {

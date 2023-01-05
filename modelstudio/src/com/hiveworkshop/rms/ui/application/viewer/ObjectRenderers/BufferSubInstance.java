@@ -17,12 +17,12 @@ public abstract class BufferSubInstance {
 	protected final Bitmap[] colorTexs = new Bitmap[6];
 	protected final Color[] colors = new Color[6];
 	{
-		colorTexs[0] = new Bitmap("Diffuse");
-		colorTexs[1] = new Bitmap("Normal");
-		colorTexs[2] = new Bitmap("ORM");
-		colorTexs[3] = new Bitmap("Emissive");
-		colorTexs[4] = new Bitmap("Team Color");
-		colorTexs[5] = new Bitmap("Reflections");
+		colorTexs[0] = new Bitmap("RMS_Placeholders\\Diffuse");
+		colorTexs[1] = new Bitmap("RMS_Placeholders\\Normal");
+		colorTexs[2] = new Bitmap("RMS_Placeholders\\ORM");
+		colorTexs[3] = new Bitmap("RMS_Placeholders\\Emissive");
+		colorTexs[4] = new Bitmap("RMS_Placeholders\\Team Color");
+		colorTexs[5] = new Bitmap("RMS_Placeholders\\Reflections");
 
 		colors[0] = Color.GRAY;
 		colors[1] = new Color(.5f, .5f, 0, 1);
@@ -120,12 +120,6 @@ public abstract class BufferSubInstance {
 //				time = System.currentTimeMillis() + 1000;
 //			}
 
-			if(pipeline instanceof HDDiffuseShaderPipeline && this instanceof SdBufferSubInstance){
-				for (int i = 0; i < 6; i++){
-					textureThing.loadAndBindTexture(colorTexs[i], colors[i], i);
-				}
-			} else {
-			}
 			for (int i = 0; i < 6; i++){
 				if(textures[i] != null){
 					textureThing.loadAndBindTexture(model, textures[i], i);
