@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -156,6 +157,6 @@ public class SoundEmitter extends IdObject {
 
 	@Override
 	public double getClickRadius() {
-		return DEFAULT_CLICK_RADIUS;
+		return ProgramGlobals.getPrefs().getNodeBoxSize();
 	}
 }

@@ -103,7 +103,7 @@ public class CollisionShape extends IdObject {
 
 	@Override
 	public double getClickRadius() {
-		return ProgramGlobals.getPrefs().getNodeBoxSize() * 2;
+		return ProgramGlobals.getPrefs().getNodeBoxSize();
 ////		byte xDimension = coordinateSystem.getPortFirstXYZ();
 ////		byte yDimension = coordinateSystem.getPortSecondXYZ();
 ////		int xCoord = (int) coordinateSystem.viewX(pivotPoint.getCoord(xDimension));

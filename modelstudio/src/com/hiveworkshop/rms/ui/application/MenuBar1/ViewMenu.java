@@ -2,6 +2,8 @@ package com.hiveworkshop.rms.ui.application.MenuBar1;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.util.SmartButtonGroup;
+import com.hiveworkshop.rms.util.SmartNumberSlider;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -27,7 +29,7 @@ public class ViewMenu extends JMenu {
 		showNormals.putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
 		add(showNormals);
 
-		JCheckBoxMenuItem showNodeForward = new JCheckBoxMenuItem("Show NodeForward", true);
+		JCheckBoxMenuItem showNodeForward = new JCheckBoxMenuItem("Show Node Forward", true);
 		showNodeForward.setMnemonic(KeyEvent.VK_F);
 		showNodeForward.setSelected(ProgramGlobals.getPrefs().showNodeForward());
 		showNodeForward.addActionListener(e -> ProgramGlobals.getPrefs().setShowNodeForward(showNodeForward.isSelected()));
@@ -62,6 +64,11 @@ public class ViewMenu extends JMenu {
 		newDirectory.addActionListener(e -> ProgramGlobals.getUndoHandler().refreshUndo());
 //		viewMenu.add(newDirectory);
 
+		add(new JSeparator());
+		SmartNumberSlider slider = new SmartNumberSlider("Node Size", ProgramGlobals.getPrefs().getNodeBoxSize(), 1, 20, s -> ProgramGlobals.getPrefs().setNodeBoxSize(s), false, true);
+		slider.setMaxUpperLimit(100);
+		slider.setLayout(new MigLayout("ins 0", "[left, 70][right, 100][right, 30]"));
+		add(slider);
 		add(new JSeparator());
 
 		JCheckBoxMenuItem showVertexModifyControls = new JCheckBoxMenuItem("Show Viewport Buttons", true);

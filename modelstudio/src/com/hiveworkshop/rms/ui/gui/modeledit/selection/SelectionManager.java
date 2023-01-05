@@ -332,7 +332,7 @@ public class SelectionManager extends AbstractSelectionManager {
 //		Vec2 vertexV2 = new Vec2();
 		for (IdObject object : modelView.getEditableIdObjects()) {
 			if (modelView.isEditable(object)) {
-				float vertSize = (float) (sizeAdj * object.getClickRadius() / 2.0);
+				float vertSize = (float) (object.getClickRadius() / 5.0);
 				if(viewBox.pointInBox(object.getPivotPoint(), vertSize)) {
 					selectedItems.add(object);
 				}

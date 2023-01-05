@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLight.Type;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.util.Vec3;
 
 public class Light extends IdObject {
@@ -100,6 +101,6 @@ public class Light extends IdObject {
 
 	@Override
 	public double getClickRadius() {
-		return DEFAULT_CLICK_RADIUS;
+		return ProgramGlobals.getPrefs().getNodeBoxSize();
 	}
 }

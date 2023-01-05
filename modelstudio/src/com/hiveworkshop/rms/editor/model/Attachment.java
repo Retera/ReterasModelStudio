@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+
 /**
  * Write a description of class Attachment here.
  *
@@ -54,6 +56,6 @@ public class Attachment extends IdObject {
 
 	@Override
 	public double getClickRadius() {
-		return DEFAULT_CLICK_RADIUS;
+		return ProgramGlobals.getPrefs().getNodeBoxSize();
 	}
 }

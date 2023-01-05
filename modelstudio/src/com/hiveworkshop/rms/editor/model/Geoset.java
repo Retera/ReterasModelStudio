@@ -310,7 +310,8 @@ public class Geoset extends TimelineContainer implements Named {
 	}
 
 	public boolean isHD() {
-		return getParentModel().getFormatVersion() >= 900 && !getVertices().isEmpty() && getVertex(0).getTangent() != null;
+//		return getParentModel().getFormatVersion() >= 900 && !getVertices().isEmpty() && (getVertex(0).getTangent() != null);
+		return getParentModel().getFormatVersion() >= 900 && !getVertices().isEmpty() && (getVertex(0).getTangent() != null || getVertex(0).getSkinBones() != null);
 	}
 
 	public Map<Bone, List<GeosetVertex>> getBoneMap() {

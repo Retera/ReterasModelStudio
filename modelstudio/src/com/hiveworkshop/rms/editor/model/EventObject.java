@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 
@@ -184,7 +185,7 @@ public class EventObject extends IdObject {
 	@Override
 	public double getClickRadius() {
 		// return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
-		return DEFAULT_CLICK_RADIUS;
+		return ProgramGlobals.getPrefs().getNodeBoxSize();
 	}
 
 	@Override

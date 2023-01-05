@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.render3d.EmitterIdObject;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter2.FilterMode;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter2.HeadOrTail;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 import org.lwjgl.opengl.GL11;
@@ -435,7 +436,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 
 	@Override
 	public double getClickRadius() {
-		return DEFAULT_CLICK_RADIUS;
+		return ProgramGlobals.getPrefs().getNodeBoxSize();
 	}
 
 	public double getRenderWidth(TimeEnvironmentImpl animatedRenderEnvironment) {

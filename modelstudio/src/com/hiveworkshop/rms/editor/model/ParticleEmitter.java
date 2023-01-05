@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.render3d.EmitterIdObject;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 
 /**
@@ -138,7 +139,7 @@ public class ParticleEmitter extends EmitterIdObject {
 
 	@Override
 	public double getClickRadius() {
-		return DEFAULT_CLICK_RADIUS;
+		return ProgramGlobals.getPrefs().getNodeBoxSize();
 	}
 
 	public double getRenderSpeed(TimeEnvironmentImpl animatedRenderEnvironment) {
