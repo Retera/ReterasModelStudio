@@ -30,8 +30,13 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 	// 5: modulate
 	// 6: modulate 2x
 	public static enum FilterMode {
-		NONE("None"), TRANSPARENT("Transparent"), BLEND("Blend"), ADDITIVE("Additive"), ADDALPHA("AddAlpha"),
-		MODULATE("Modulate"), MODULATE2X("Modulate2x");
+		NONE("None"),
+		TRANSPARENT("Transparent"),
+		BLEND("Blend"),
+		ADDITIVE("Additive"),
+		ADDALPHA("AddAlpha"),
+		MODULATE("Modulate"),
+		MODULATE2X("Modulate2x");
 
 		String mdlText;
 
@@ -101,31 +106,31 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + CoordId;
-		result = prime * result + TVertexAnimId;
-		result = prime * result + (anims == null ? 0 : anims.hashCode());
+		result = (prime * result) + CoordId;
+		result = (prime * result) + TVertexAnimId;
+		result = (prime * result) + (anims == null ? 0 : anims.hashCode());
 		long temp;
 		temp = Double.doubleToLongBits(emissiveGain);
-		result = prime * result + (int) (temp ^ temp >>> 32);
+		result = (prime * result) + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(fresnelOpacity);
-		result = prime * result + (int) (temp ^ temp >>> 32);
+		result = (prime * result) + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(fresnelTeamColor);
-		result = prime * result + (int) (temp ^ temp >>> 32);
-		result = prime * result + (filterMode == null ? 0 : filterMode.hashCode());
-		result = prime * result + (flags == null ? 0 : flags.hashCode());
+		result = (prime * result) + (int) (temp ^ (temp >>> 32));
+		result = (prime * result) + (filterMode == null ? 0 : filterMode.hashCode());
+		result = (prime * result) + (flags == null ? 0 : flags.hashCode());
 		temp = Double.doubleToLongBits(staticAlpha);
-		result = prime * result + (int) (temp ^ temp >>> 32);
-		result = prime * result + (textureAnim == null ? 0 : textureAnim.hashCode());
-		result = prime * result + (textures == null ? 0 : textures.hashCode());
-		result = prime * result + (shaderTextures == null ? 0 : shaderTextures.hashCode());
-		result = prime * result + (layerShader == null ? 0 : layerShader.hashCode());
+		result = (prime * result) + (int) (temp ^ (temp >>> 32));
+		result = (prime * result) + (textureAnim == null ? 0 : textureAnim.hashCode());
+		result = (prime * result) + (textures == null ? 0 : textures.hashCode());
+		result = (prime * result) + (shaderTextures == null ? 0 : shaderTextures.hashCode());
+		result = (prime * result) + (layerShader == null ? 0 : layerShader.hashCode());
 		if (fresnelColor != null) {
 			temp = Double.doubleToLongBits(fresnelColor.x);
-			result = prime * result + (int) (temp ^ temp >>> 32);
+			result = (prime * result) + (int) (temp ^ (temp >>> 32));
 			temp = Double.doubleToLongBits(fresnelColor.y);
-			result = prime * result + (int) (temp ^ temp >>> 32);
+			result = (prime * result) + (int) (temp ^ (temp >>> 32));
 			temp = Double.doubleToLongBits(fresnelColor.z);
-			result = prime * result + (int) (temp ^ temp >>> 32);
+			result = (prime * result) + (int) (temp ^ (temp >>> 32));
 		}
 		return result;
 	}
@@ -152,7 +157,8 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 			if (other.anims != null) {
 				return false;
 			}
-		} else if (!anims.equals(other.anims)) {
+		}
+		else if (!anims.equals(other.anims)) {
 			return false;
 		}
 		if (Double.doubleToLongBits(emissiveGain) != Double.doubleToLongBits(other.emissiveGain)) {
@@ -168,7 +174,8 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 			if (other.fresnelColor != null) {
 				return false;
 			}
-		} else {
+		}
+		else {
 			if (other.fresnelColor == null) {
 				return false;
 			}
@@ -180,14 +187,16 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 			if (other.filterMode != null) {
 				return false;
 			}
-		} else if (!filterMode.equals(other.filterMode)) {
+		}
+		else if (!filterMode.equals(other.filterMode)) {
 			return false;
 		}
 		if (flags == null) {
 			if (other.flags != null) {
 				return false;
 			}
-		} else if (!flags.equals(other.flags)) {
+		}
+		else if (!flags.equals(other.flags)) {
 			return false;
 		}
 		if (Double.doubleToLongBits(staticAlpha) != Double.doubleToLongBits(other.staticAlpha)) {
@@ -197,28 +206,32 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 			if (other.textureAnim != null) {
 				return false;
 			}
-		} else if (!textureAnim.equals(other.textureAnim)) {
+		}
+		else if (!textureAnim.equals(other.textureAnim)) {
 			return false;
 		}
 		if (textures == null) {
 			if (other.textures != null) {
 				return false;
 			}
-		} else if (!textures.equals(other.textures)) {
+		}
+		else if (!textures.equals(other.textures)) {
 			return false;
 		}
 		if (shaderTextures == null) {
 			if (other.shaderTextures != null) {
 				return false;
 			}
-		} else if (!shaderTextures.equals(other.shaderTextures)) {
+		}
+		else if (!shaderTextures.equals(other.shaderTextures)) {
 			return false;
 		}
 		if (layerShader == null) {
 			if (other.layerShader != null) {
 				return false;
 			}
-		} else if (!layerShader.equals(other.layerShader)) {
+		}
+		else if (!layerShader.equals(other.layerShader)) {
 			return false;
 		}
 		return true;
@@ -268,7 +281,8 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		CoordId = other.CoordId;
 		if (other.textureAnim != null) {
 			textureAnim = new TextureAnim(other.textureAnim);
-		} else {
+		}
+		else {
 			textureAnim = null;
 		}
 		staticAlpha = other.staticAlpha;
@@ -288,7 +302,8 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 			for (final Bitmap bmp : other.textures) {
 				textures.add(new Bitmap(bmp));
 			}
-		} else {
+		}
+		else {
 			textures = null;
 		}
 	}
@@ -330,7 +345,8 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 			final AnimFlag flag = new AnimFlag(lay.materialEmissions);
 			anims.add(flag);
 			emissiveGain = lay.emissiveGain;
-		} else if (!Float.isNaN(lay.emissiveGain)) {
+		}
+		else if (!Float.isNaN(lay.emissiveGain)) {
 			emissiveGain = lay.emissiveGain;
 		}
 		setTVertexAnimId(lay.textureAnimationId);
@@ -342,7 +358,8 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		if (lay.materialAlpha != null) {
 			final AnimFlag flag = new AnimFlag(lay.materialAlpha);
 			anims.add(flag);
-		} else if (lay.alpha != 1.0f) {
+		}
+		else if (lay.alpha != 1.0f) {
 			setStaticAlpha(lay.alpha);
 		}
 		if (lay.materialTextureId != null) {
@@ -352,22 +369,25 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		if (lay.materialFresnelColor != null) {
 			final AnimFlag flag = new AnimFlag(lay.materialFresnelColor);
 			anims.add(flag);
-		} else if (lay.fresnelColor != null) {
+		}
+		else if (lay.fresnelColor != null) {
 			final Vertex coloring = new Vertex(MdlxUtils.flipRGBtoBGR(lay.fresnelColor));
-			if (coloring.x != 1.0 || coloring.y != 1.0 || coloring.z != 1.0) {
+			if ((coloring.x != 1.0) || (coloring.y != 1.0) || (coloring.z != 1.0)) {
 				setFresnelColor(coloring);
 			}
 		}
 		if (lay.materialFresnelOpacity != null) {
 			final AnimFlag flag = new AnimFlag(lay.materialFresnelOpacity);
 			anims.add(flag);
-		} else if (lay.fresnelOpacity != 0.0f) {
+		}
+		else if (lay.fresnelOpacity != 0.0f) {
 			fresnelOpacity = lay.fresnelOpacity;
 		}
 		if (lay.materialFresnelTeamColor != null) {
 			final AnimFlag flag = new AnimFlag(lay.materialFresnelTeamColor);
 			anims.add(flag);
-		} else if (lay.fresnelTeamColor != 0.0f) {
+		}
+		else if (lay.fresnelTeamColor != 0.0f) {
 			fresnelTeamColor = lay.fresnelTeamColor;
 		}
 		if (lay.textureIdsMDLX1100 != null) {
@@ -388,7 +408,8 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		}
 		if (lay.shaderTypeId != LayerChunk.Layer.NO_SHADER_TYPE_ID) {
 			layerShader = LayerShader.fromId(lay.shaderTypeId);
-		} else {
+		}
+		else {
 			layerShader = LayerShader.SD; // TODO determine this later on, probably from MDLX1000 parser
 		}
 	}
@@ -403,8 +424,9 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		final Bitmap diffuse = shaderTextures.get(ShaderTextureTypeHD.Diffuse);
 		if (diffuse != null) {
 			return diffuse;
-		} else {
-			if (textures != null && textures.size() > 0) {
+		}
+		else {
+			if ((textures != null) && (textures.size() > 0)) {
 				return textures.get(0);
 			}
 			return null;
@@ -416,21 +438,23 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		final String flagKeyName = (shaderTextureTypeHD == ShaderTextureTypeHD.Diffuse ? ""
 				: shaderTextureTypeHD.name()) + "TextureID";
 		final AnimFlag textureFlag = AnimFlag.find(getAnims(), flagKeyName);
-		if (textureFlag != null && animatedRenderEnvironment != null) {
+		if ((textureFlag != null) && (animatedRenderEnvironment != null)) {
 			if (animatedRenderEnvironment.getCurrentAnimation() == null) {
 				if (textures.size() > 0) {
 					return textures.get(0);
-				} else {
+				}
+				else {
 					return shaderTextures.get(shaderTextureTypeHD);
 				}
 			}
 			final Integer textureIdAtTime = (Integer) textureFlag.interpolateAt(animatedRenderEnvironment, -1);
-			if (textureIdAtTime >= model.getTextures().size() || textureIdAtTime == -1) {
+			if ((textureIdAtTime >= model.getTextures().size()) || (textureIdAtTime == -1)) {
 				return shaderTextures.get(shaderTextureTypeHD);
 			}
 			final Bitmap textureAtTime = model.getTextures().get(textureIdAtTime);
 			return textureAtTime;
-		} else {
+		}
+		else {
 			return shaderTextures.get(shaderTextureTypeHD);
 		}
 	}
@@ -450,13 +474,14 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 
 	public Vertex getRenderFresnelColor(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		final AnimFlag fresnelColorFlag = AnimFlag.find(getAnims(), "FresnelColor");
-		if (fresnelColorFlag != null && animatedRenderEnvironment != null) {
+		if ((fresnelColorFlag != null) && (animatedRenderEnvironment != null)) {
 			if (animatedRenderEnvironment.getCurrentAnimation() == null) {
 				return fresnelColor;
 			}
 			final Vertex fresnelColorAtTime = (Vertex) fresnelColorFlag.interpolateAt(animatedRenderEnvironment);
 			return fresnelColorAtTime;
-		} else {
+		}
+		else {
 			return fresnelColor;
 		}
 	}
@@ -599,13 +624,13 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 	}
 
 	public void updateRefs(final EditableModel mdlr) {
-		if (TVertexAnimId >= 0 && TVertexAnimId < mdlr.texAnims.size()) {
+		if ((TVertexAnimId >= 0) && (TVertexAnimId < mdlr.texAnims.size())) {
 			textureAnim = mdlr.texAnims.get(TVertexAnimId);
 		}
 		shaderTextures.clear();
 		for (final Map.Entry<ShaderTextureTypeHD, Integer> entry : shaderTextureIds.entrySet()) {
 			final Integer textureId = entry.getValue();
-			if (textureId >= 0 && textureId < mdlr.getTextures().size()) {
+			if ((textureId >= 0) && (textureId < mdlr.getTextures().size())) {
 				shaderTextures.put(entry.getKey(), mdlr.getTexture(textureId));
 			}
 		}
@@ -625,51 +650,67 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 			while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
 				if (line.contains("FilterMode")) {
 					lay.filterMode = MDLReader.readField(line);
-				} else if (line.contains("static TextureID")) {
+				}
+				else if (line.contains("static TextureID")) {
 					final int textureId = MDLReader.readInt(line);
 					lay.shaderTextureIds.put(ShaderTextureTypeHD.Diffuse, textureId);
 					lay.shaderTextures.put(ShaderTextureTypeHD.Diffuse, mdlr.getTexture(textureId));
-				} else if (line.contains("CoordId")) {
+				}
+				else if (line.contains("CoordId")) {
 					lay.CoordId = MDLReader.readInt(line);
-				} else if (line.contains("ShaderTypeId")) {
+				}
+				else if (line.contains("ShaderTypeId")) {
 					lay.layerShader = LayerShader.fromId(MDLReader.readInt(line));
-				} else if (line.contains("static Emissive") && !line.contains("TextureID")) {
+				}
+				else if (line.contains("static Emissive") && !line.contains("TextureID")) {
 					lay.emissiveGain = MDLReader.readDouble(line);
-				} else if (line.contains("Emissive") && !line.contains("TextureID")) {
+				}
+				else if (line.contains("Emissive") && !line.contains("TextureID")) {
 					MDLReader.reset(mdl);
 					final AnimFlag emissiveGainAnimFlag = AnimFlag.read(mdl);
 					if (emissiveGainAnimFlag.getName().equals("Emissive")) {
 						emissiveGainAnimFlag.setName("EmissiveGain");
 					}
 					lay.anims.add(emissiveGainAnimFlag);
-				} else if (line.contains("static FresnelOpacity")) {
+				}
+				else if (line.contains("static FresnelOpacity")) {
 					lay.fresnelOpacity = MDLReader.readDouble(line);
-				} else if (line.contains("FresnelOpacity")) {
+				}
+				else if (line.contains("FresnelOpacity")) {
 					MDLReader.reset(mdl);
 					lay.anims.add(AnimFlag.read(mdl));
-				} else if (line.contains("static FresnelTeamColor")) {
+				}
+				else if (line.contains("static FresnelTeamColor")) {
 					lay.fresnelTeamColor = MDLReader.readDouble(line);
-				} else if (line.contains("FresnelTeamColor")) {
+				}
+				else if (line.contains("FresnelTeamColor")) {
 					MDLReader.reset(mdl);
 					lay.anims.add(AnimFlag.read(mdl));
-				} else if (line.contains("static FresnelColor")) {
+				}
+				else if (line.contains("static FresnelColor")) {
 					lay.fresnelColor = Vertex.parseText(line);
-				} else if (line.contains("FresnelColor")) {
+				}
+				else if (line.contains("FresnelColor")) {
 					MDLReader.reset(mdl);
 					lay.anims.add(AnimFlag.read(mdl));
 					hasAnimatedFresnelColor = true;
-				} else if (line.contains("TVertexAnimId")) {
+				}
+				else if (line.contains("TVertexAnimId")) {
 					lay.TVertexAnimId = MDLReader.readInt(line);
-				} else if (line.contains("static Alpha")) {
+				}
+				else if (line.contains("static Alpha")) {
 					lay.staticAlpha = MDLReader.readDouble(line);
-				} else if (line.contains("Alpha")) {
+				}
+				else if (line.contains("Alpha")) {
 					MDLReader.reset(mdl);
 					lay.anims.add(AnimFlag.read(mdl));
-				} else if (line.contains("TextureID") && line.contains("{")) {
+				}
+				else if (line.contains("TextureID") && line.contains("{")) {
 					MDLReader.reset(mdl);
 					lay.anims.add(AnimFlag.read(mdl));
 					lay.buildTextureList(mdlr);
-				} else {
+				}
+				else {
 					boolean foundMatch = false;
 					for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
 						if (line.contains("static " + shaderTextureTypeHD.name() + "TextureID")) {
@@ -694,14 +735,15 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 				MDLReader.mark(mdl);
 			}
 			if (ModelUtils.isFresnelColorLayerSupported(mdlr.getFormatVersion()) && !hasAnimatedFresnelColor
-					&& lay.fresnelColor == null) {
+					&& (lay.fresnelColor == null)) {
 				lay.fresnelColor = new Vertex(1, 1, 1); // default value
 			}
 			if (ModelUtils.isEmissiveLayerSupported(mdlr.getFormatVersion()) && Double.isNaN(lay.emissiveGain)) {
 				lay.emissiveGain = 1.0;
 			}
 			return lay;
-		} else {
+		}
+		else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Unable to parse Layer: Missing or unrecognized open statement.");
 		}
@@ -734,20 +776,22 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		if (ModelUtils.isCombinedHDLayerSupported(version)) {
 			if (layerShader == null) {
 				writer.println(tabs + "\tShaderTypeId 0, // null");
-			} else {
+			}
+			else {
 				writer.println(tabs + "\tShaderTypeId " + layerShader.ordinal() + ", //" + layerShader.name());
 			}
 			for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
 				final Integer textureId = shaderTextureIds.get(shaderTextureTypeHD);
-				if (textureId != null && textureId != -1) {
+				if ((textureId != null) && (textureId != -1)) {
 					final String name = shaderTextureTypeHD == ShaderTextureTypeHD.Diffuse ? ""
 							: shaderTextureTypeHD.name();
 					writer.println(tabs + "\tstatic " + name + "TextureID " + textureId + ",");
 				}
 			}
-		} else {
+		}
+		else {
 			final Integer textureId = shaderTextureIds.get(ShaderTextureTypeHD.Diffuse);
-			if (textureId != null && textureId != -1) {
+			if ((textureId != null) && (textureId != -1)) {
 				writer.println(tabs + "\tstatic TextureID " + textureId + ",");
 			}
 		}
@@ -773,7 +817,7 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 				foundAlpha = true;
 			}
 		}
-		if (staticAlpha != -1 && !foundAlpha) {
+		if ((staticAlpha != -1) && !foundAlpha) {
 			writer.println(tabs + "\tstatic Alpha " + staticAlpha + ",");
 		}
 		if (ModelUtils.isEmissiveLayerSupported(version)) {
@@ -785,7 +829,7 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 					foundEmissive = true;
 				}
 			}
-			if (!Double.isNaN(emissiveGain) && emissiveGain != 1.0 && !foundEmissive) {
+			if (!Double.isNaN(emissiveGain) && (emissiveGain != 1.0) && !foundEmissive) {
 				writer.println(tabs + "\tstatic EmissiveGain " + MDLReader.doubleToString(emissiveGain) + ",");
 			}
 		}
@@ -798,7 +842,8 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 					foundFresnelColor = true;
 				}
 			}
-			if (fresnelColor != null && (fresnelColor.x != 1.0 || fresnelColor.y != 1.0 || fresnelColor.z != 1.0)
+			if ((fresnelColor != null)
+					&& ((fresnelColor.x != 1.0) || (fresnelColor.y != 1.0) || (fresnelColor.z != 1.0))
 					&& !foundFresnelColor) {
 				writer.println(tabs + "\tstatic FresnelColor " + fresnelColor + ",");
 			}
@@ -810,7 +855,7 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 					foundFresnelOpacity = true;
 				}
 			}
-			if (!Double.isNaN(fresnelOpacity) && fresnelOpacity != 0 && !foundFresnelOpacity) {
+			if (!Double.isNaN(fresnelOpacity) && (fresnelOpacity != 0) && !foundFresnelOpacity) {
 				writer.println(tabs + "\tstatic FresnelOpacity " + MDLReader.doubleToString(fresnelOpacity) + ",");
 			}
 			boolean foundFresnelTeamColor = false;
@@ -821,7 +866,7 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 					foundFresnelTeamColor = true;
 				}
 			}
-			if (!Double.isNaN(fresnelTeamColor) && fresnelTeamColor != 0 && !foundFresnelTeamColor) {
+			if (!Double.isNaN(fresnelTeamColor) && (fresnelTeamColor != 0) && !foundFresnelTeamColor) {
 				writer.println(tabs + "\tstatic FresnelTeamColor " + MDLReader.doubleToString(fresnelTeamColor) + ",");
 			}
 		}

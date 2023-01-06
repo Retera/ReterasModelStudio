@@ -165,6 +165,7 @@ public class ComponentsPanel extends JPanel implements ModelComponentListener {
 
 	@Override
 	public void selected(final ParticleEmitterPopcorn popcornFxEmitter) {
+
 	}
 
 	@Override

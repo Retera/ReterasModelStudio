@@ -66,7 +66,8 @@ public class Material implements MaterialView {
 				if (layers.get(layers.size() - 1).getFlag("Alpha") != null) {
 					name = name + " (animated Alpha)";
 				}
-			} else {
+			}
+			else {
 				name = "animated texture layers";
 			}
 			for (int i = layers.size() - 2; i >= 0; i--) {
@@ -76,12 +77,14 @@ public class Material implements MaterialView {
 					if (layers.get(i).getFlag("Alpha") != null) {
 						name = name + " (animated Alpha)";
 					}
-				} catch (final NullPointerException e) {
+				}
+				catch (final NullPointerException e) {
 					name = name + " over " + "animated texture layers (" + layers.get(i).textures.get(0).getName()
 							+ ")";
 				}
 			}
-		} else {
+		}
+		else {
 			name = "(Material with no layers)";
 		}
 		return name;
@@ -149,7 +152,8 @@ public class Material implements MaterialView {
 				}
 				condensedLayer.updateTextureListIfApplicable(mdlObject);
 				layers.add(condensedLayer);
-			} else {
+			}
+			else {
 				for (final LayerChunk.Layer lay : mat.layerChunk.layer) {
 					final Layer layer = new Layer(lay);
 					layer.updateRefs(mdlObject);
@@ -157,7 +161,8 @@ public class Material implements MaterialView {
 					layers.add(layer);
 				}
 			}
-		} else {
+		}
+		else {
 			for (final LayerChunk.Layer lay : mat.layerChunk.layer) {
 				final Layer layer = new Layer(lay);
 				layer.updateRefs(mdlObject);
@@ -235,9 +240,9 @@ public class Material implements MaterialView {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (flags == null ? 0 : flags.hashCode());
-		result = prime * result + (layers == null ? 0 : layers.hashCode());
-		result = prime * result + priorityPlane;
+		result = (prime * result) + (flags == null ? 0 : flags.hashCode());
+		result = (prime * result) + (layers == null ? 0 : layers.hashCode());
+		result = (prime * result) + priorityPlane;
 		return result;
 	}
 
@@ -257,14 +262,16 @@ public class Material implements MaterialView {
 			if (other.flags != null) {
 				return false;
 			}
-		} else if (!flags.equals(other.flags)) {
+		}
+		else if (!flags.equals(other.flags)) {
 			return false;
 		}
 		if (layers == null) {
 			if (other.layers != null) {
 				return false;
 			}
-		} else if (!ListView.Util.equalContents(layers, other.layers)) {
+		}
+		else if (!ListView.Util.equalContents(layers, other.layers)) {
 			return false;
 		}
 		if (priorityPlane != other.priorityPlane) {
@@ -284,11 +291,14 @@ public class Material implements MaterialView {
 					MDLReader.reset(mdl);
 					mat.layers.add(Layer.read(mdl, mdlr));
 					MDLReader.mark(mdl);
-				} else if (line.contains("PriorityPlane")) {
+				}
+				else if (line.contains("PriorityPlane")) {
 					mat.priorityPlane = MDLReader.readInt(line);
-				} else if (line.contains("Shader")) {
+				}
+				else if (line.contains("Shader")) {
 					shaderString = MDLReader.readName(line);
-				} else {
+				}
+				else {
 					mat.flags.add(MDLReader.readFlag(line));
 					// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Error
 					// parsing Material: Unrecognized statement
@@ -296,7 +306,7 @@ public class Material implements MaterialView {
 				}
 				MDLReader.mark(mdl);
 			}
-			if (SHADER_HD_DEFAULT_UNIT.equals(shaderString) && mat.layers.size() > 0) {
+			if (SHADER_HD_DEFAULT_UNIT.equals(shaderString) && (mat.layers.size() > 0)) {
 				// condense layer(s) to single layer
 				final Layer firstLayer = mat.layers.get(0);
 
@@ -323,7 +333,8 @@ public class Material implements MaterialView {
 				firstLayer.updateTextureListIfApplicable(mdlr);
 			}
 			return mat;
-		} else {
+		}
+		else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Unable to parse Material: Missing or unrecognized open statement.");
 		}
@@ -342,7 +353,8 @@ public class Material implements MaterialView {
 				MDLReader.mark(mdl);
 			}
 			return outputs;
-		} else {
+		}
+		else {
 			MDLReader.reset(mdl);
 			// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Unable
 			// to parse Materials: Missing or unrecognized open statement.");
@@ -358,9 +370,10 @@ public class Material implements MaterialView {
 		writer.println(tabs + "Material {");
 		if (ModelUtils.isShaderStringSupported(version)) {
 			String shaderString;
-			if (layers.size() > 0 && layers.get(0).getLayerShader() == LayerShader.HD) {
+			if ((layers.size() > 0) && (layers.get(0).getLayerShader() == LayerShader.HD)) {
 				shaderString = SHADER_HD_DEFAULT_UNIT;
-			} else {
+			}
+			else {
 				shaderString = "";
 			}
 			writer.println(tabs + "\tShader \"" + shaderString + "\",");
@@ -381,7 +394,7 @@ public class Material implements MaterialView {
 		for (int i = 0; i < layers.size(); i++) {
 			final Layer layer = layers.get(i);
 			layer.printTo(writer, tabHeight + 1, useCoords, version);
-			if (ModelUtils.isShaderStringSupported(version) && layer.getLayerShader() == LayerShader.HD) {
+			if (ModelUtils.isShaderStringSupported(version) && (layer.getLayerShader() == LayerShader.HD)) {
 				for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
 					if (shaderTextureTypeHD != ShaderTextureTypeHD.Diffuse) {
 						final Integer textureId = layer.getShaderTextureIds().get(shaderTextureTypeHD);
@@ -412,7 +425,8 @@ public class Material implements MaterialView {
 			final BufferedImage newImage = tex.getBufferedImage(workingDirectory);
 			if (theImage == null) {
 				theImage = newImage;
-			} else if (newImage != null) {
+			}
+			else if (newImage != null) {
 				theImage = mergeImage(theImage, newImage);
 			}
 		}
@@ -433,7 +447,7 @@ public class Material implements MaterialView {
 	 */
 	public String getBakedHDNonEmissiveBufferedImage(final DataSource workingDirectory, final File outputDirectory,
 			final EditableModel model, final int lod, final Map<Triangle, Integer> triangleToTeamColorPixelCount) {
-		if (layers.size() == 1 && layers.get(0).getLayerShader() == LayerShader.HD) {
+		if ((layers.size() == 1) && (layers.get(0).getLayerShader() == LayerShader.HD)) {
 			final Layer zeroLayer = layers.get(0);
 
 			class BakingCell {
@@ -496,7 +510,7 @@ public class Material implements MaterialView {
 			}
 			final Vector3f viewDirection = new Vector3f(32f, 0, 128f);
 			final Vector3f lightDirection = new Vector3f(-24.1937f, 30.4879f, 444.411f);
-			if (model.getCameras().size() > 0
+			if ((model.getCameras().size() > 0)
 					&& diffuseTextureDataRenderableFilePath.toLowerCase(Locale.US).contains("portrait")) {
 				final Vertex position = model.getCameras().get(0).getPosition();
 				viewDirection.set((float) position.x, (float) position.y, (float) position.z);
@@ -518,11 +532,11 @@ public class Material implements MaterialView {
 			final Map<Vertex, VertexData> vertexToData = new HashMap<>();
 			final Vector3f temp = new Vector3f();
 			for (final Geoset geo : model.getGeosets()) {
-				if (geo.getLevelOfDetail() != lod && geo.getLevelOfDetail() != -1) {
+				if ((geo.getLevelOfDetail() != lod) && (geo.getLevelOfDetail() != -1)) {
 					continue;
 				}
-				if (geo.getMaterial() == this || geo.getMaterial().equals(this) || geo.getMaterial().getLayers().get(0)
-						.firstTexture().getPath().equals(zeroLayer.firstTexture().getPath())) {
+				if ((geo.getMaterial() == this) || geo.getMaterial().equals(this) || geo.getMaterial().getLayers()
+						.get(0).firstTexture().getPath().equals(zeroLayer.firstTexture().getPath())) {
 					for (final GeosetVertex vertex : geo.getVertices()) {
 						// hacky fake vertex shader-like thing (should closely match with code in vertex
 						// shader for HD previewing)
@@ -531,8 +545,12 @@ public class Material implements MaterialView {
 						final Vector3f normal = new Vector3f((float) vertex.getNormal().x, (float) vertex.getNormal().y,
 								(float) vertex.getNormal().z);
 						temp.set(normal).scale(Vector3f.dot(tangent, normal));
-						Vector3f.sub(tangent, temp, tangent);
-						tangent.normalise();
+						if (tangent.equals(temp)) {
+							Vector3f.sub(tangent, temp, tangent);
+							if (tangent.lengthSquared() != 0) {
+								tangent.normalise();
+							}
+						}
 						final Vector3f binormal = new Vector3f();
 						Vector3f.cross(normal, tangent, binormal);
 						binormal.scale(vertex.getTangent()[3]);
@@ -567,11 +585,11 @@ public class Material implements MaterialView {
 				}
 			}
 			for (final Geoset geo : model.getGeosets()) {
-				if (geo.getLevelOfDetail() != lod && geo.getLevelOfDetail() != -1) {
+				if ((geo.getLevelOfDetail() != lod) && (geo.getLevelOfDetail() != -1)) {
 					continue;
 				}
-				if (geo.getMaterial() == this || geo.getMaterial().equals(this) || geo.getMaterial().getLayers().get(0)
-						.firstTexture().getPath().equals(zeroLayer.firstTexture().getPath())) {
+				if ((geo.getMaterial() == this) || geo.getMaterial().equals(this) || geo.getMaterial().getLayers()
+						.get(0).firstTexture().getPath().equals(zeroLayer.firstTexture().getPath())) {
 					// find geosets bound to this material, needed for baking
 					for (final Triangle tri : geo.getTriangles()) {
 						// find the triangles using this material, since we need to eval them in 3d
@@ -605,9 +623,9 @@ public class Material implements MaterialView {
 						for (int i = iminY; i <= imaxY; i++) {
 							for (int j = iminX; j <= imaxX; j++) {
 								if (polygon.contains(j, i)) {
-									final int jToUse = (j % bakingCells[0].length + bakingCells[0].length)
+									final int jToUse = ((j % bakingCells[0].length) + bakingCells[0].length)
 											% bakingCells[0].length;
-									final int iToUse = (i % bakingCells.length + bakingCells.length)
+									final int iToUse = ((i % bakingCells.length) + bakingCells.length)
 											% bakingCells.length;
 									final double unitSpaceX = (double) jToUse / (double) bakingCells[0].length;
 									final double unitSpaceY = (double) iToUse / (double) bakingCells.length;
@@ -623,54 +641,59 @@ public class Material implements MaterialView {
 											unitSpaceY) / denom;
 
 									bakingCells[iToUse][jToUse].barycentricNormal = new Vertex(
-											g0.getNormal().x * b0 + g1.getNormal().x * b1 + g2.getNormal().x * b2,
-											g0.getNormal().y * b0 + g1.getNormal().y * b1 + g2.getNormal().y * b2,
-											g0.getNormal().z * b0 + g1.getNormal().z * b1 + g2.getNormal().z * b2);
+											(g0.getNormal().x * b0) + (g1.getNormal().x * b1) + (g2.getNormal().x * b2),
+											(g0.getNormal().y * b0) + (g1.getNormal().y * b1) + (g2.getNormal().y * b2),
+											(g0.getNormal().z * b0) + (g1.getNormal().z * b1)
+													+ (g2.getNormal().z * b2));
 
 									bakingCells[iToUse][jToUse].barycentricPosition = new Vertex(
-											g0.x * b0 + g1.x * b1 + g2.x * b2, g0.y * b0 + g1.y * b1 + g2.y * b2,
-											g0.z * b0 + g1.z * b1 + g2.z * b2);
+											(g0.x * b0) + (g1.x * b1) + (g2.x * b2),
+											(g0.y * b0) + (g1.y * b1) + (g2.y * b2),
+											(g0.z * b0) + (g1.z * b1) + (g2.z * b2));
 
 									bakingCells[iToUse][jToUse].barycentricTangent = new double[] {
-											g0.getTangent()[0] * b0 + g1.getTangent()[0] * b1 + g2.getTangent()[0] * b2,
-											g0.getTangent()[1] * b0 + g1.getTangent()[1] * b1 + g2.getTangent()[1] * b2,
-											g0.getTangent()[2] * b0 + g1.getTangent()[2] * b1 + g2.getTangent()[2] * b2,
+											(g0.getTangent()[0] * b0) + (g1.getTangent()[0] * b1)
+													+ (g2.getTangent()[0] * b2),
+											(g0.getTangent()[1] * b0) + (g1.getTangent()[1] * b1)
+													+ (g2.getTangent()[1] * b2),
+											(g0.getTangent()[2] * b0) + (g1.getTangent()[2] * b1)
+													+ (g2.getTangent()[2] * b2),
 											g0.getTangent()[3] };
 
 									bakingCells[iToUse][jToUse].tangentLightPos = new Vector3f(
-											(float) (vertexData0.tangentLightPos.x * b0
-													+ vertexData1.tangentLightPos.x * b1
-													+ vertexData2.tangentLightPos.x * b2),
-											(float) (vertexData0.tangentLightPos.y * b0
-													+ vertexData1.tangentLightPos.y * b1
-													+ vertexData2.tangentLightPos.y * b2),
-											(float) (vertexData0.tangentLightPos.z * b0
-													+ vertexData1.tangentLightPos.z * b1
-													+ vertexData2.tangentLightPos.z * b2));
+											(float) ((vertexData0.tangentLightPos.x * b0)
+													+ (vertexData1.tangentLightPos.x * b1)
+													+ (vertexData2.tangentLightPos.x * b2)),
+											(float) ((vertexData0.tangentLightPos.y * b0)
+													+ (vertexData1.tangentLightPos.y * b1)
+													+ (vertexData2.tangentLightPos.y * b2)),
+											(float) ((vertexData0.tangentLightPos.z * b0)
+													+ (vertexData1.tangentLightPos.z * b1)
+													+ (vertexData2.tangentLightPos.z * b2)));
 
 									bakingCells[iToUse][jToUse].tangentViewPos = new Vector3f(
-											(float) (vertexData0.tangentViewPos.x * b0
-													+ vertexData1.tangentViewPos.x * b1
-													+ vertexData2.tangentViewPos.x * b2),
-											(float) (vertexData0.tangentViewPos.y * b0
-													+ vertexData1.tangentViewPos.y * b1
-													+ vertexData2.tangentViewPos.y * b2),
-											(float) (vertexData0.tangentViewPos.z * b0
-													+ vertexData1.tangentViewPos.z * b1
-													+ vertexData2.tangentViewPos.z * b2));
+											(float) ((vertexData0.tangentViewPos.x * b0)
+													+ (vertexData1.tangentViewPos.x * b1)
+													+ (vertexData2.tangentViewPos.x * b2)),
+											(float) ((vertexData0.tangentViewPos.y * b0)
+													+ (vertexData1.tangentViewPos.y * b1)
+													+ (vertexData2.tangentViewPos.y * b2)),
+											(float) ((vertexData0.tangentViewPos.z * b0)
+													+ (vertexData1.tangentViewPos.z * b1)
+													+ (vertexData2.tangentViewPos.z * b2)));
 
 									bakingCells[iToUse][jToUse].tangentFragPos = new Vector3f(
-											(float) (vertexData0.tangentFragPos.x * b0
-													+ vertexData1.tangentFragPos.x * b1
-													+ vertexData2.tangentFragPos.x * b2),
-											(float) (vertexData0.tangentFragPos.y * b0
-													+ vertexData1.tangentFragPos.y * b1
-													+ vertexData2.tangentFragPos.y * b2),
-											(float) (vertexData0.tangentFragPos.z * b0
-													+ vertexData1.tangentFragPos.z * b1
-													+ vertexData2.tangentFragPos.z * b2));
+											(float) ((vertexData0.tangentFragPos.x * b0)
+													+ (vertexData1.tangentFragPos.x * b1)
+													+ (vertexData2.tangentFragPos.x * b2)),
+											(float) ((vertexData0.tangentFragPos.y * b0)
+													+ (vertexData1.tangentFragPos.y * b1)
+													+ (vertexData2.tangentFragPos.y * b2)),
+											(float) ((vertexData0.tangentFragPos.z * b0)
+													+ (vertexData1.tangentFragPos.z * b1)
+													+ (vertexData2.tangentFragPos.z * b2)));
 
-									if ((bakingCells[iToUse][jToUse].ormRGB >>> 24 & 0xFF) > 0) {
+									if (((bakingCells[iToUse][jToUse].ormRGB >>> 24) & 0xFF) > 0) {
 										teamColorPixels++;
 									}
 								}
@@ -694,24 +717,24 @@ public class Material implements MaterialView {
 
 					final BakingCell bakingCell = bakingCells[i][j];
 
-					final float teamColorNess = (bakingCell.ormRGB >> 24 & 0xFF) / 255.0f;
+					final float teamColorNess = ((bakingCell.ormRGB >> 24) & 0xFF) / 255.0f;
 					final float nonTeamColorNess = 1.0f - teamColorNess;
 
-					final float baseRed = (bakingCell.diffuseRGB >> 16 & 0xFF) / 255.0f;
-					final float baseGreen = (bakingCell.diffuseRGB >> 8 & 0xFF) / 255.0f;
-					final float baseBlue = (bakingCell.diffuseRGB >> 0 & 0xFF) / 255.0f;
+					final float baseRed = ((bakingCell.diffuseRGB >> 16) & 0xFF) / 255.0f;
+					final float baseGreen = ((bakingCell.diffuseRGB >> 8) & 0xFF) / 255.0f;
+					final float baseBlue = ((bakingCell.diffuseRGB >> 0) & 0xFF) / 255.0f;
 					final Vector3f diffuse = new Vector3f(baseRed, baseGreen, baseBlue);
 					diffuse.scale(nonTeamColorNess);
 					if (bakingCell.tangentFragPos != null) {
-						final float normalX = (bakingCell.normalRGB >> 16 & 0xFF) / 255.0f * 2.0f - 1.0f;
-						final float normalY = (bakingCell.normalRGB >> 8 & 0xFF) / 255.0f * 2.0f - 1.0f;
+						final float normalX = ((((bakingCell.normalRGB >> 16) & 0xFF) / 255.0f) * 2.0f) - 1.0f;
+						final float normalY = ((((bakingCell.normalRGB >> 8) & 0xFF) / 255.0f) * 2.0f) - 1.0f;
 						final Vector3f normal = new Vector3f(normalY, normalX,
-								(float) Math.sqrt(1.0 - (normalX * normalX + normalY * normalY)));
+								(float) Math.sqrt(1.0 - ((normalX * normalX) + (normalY * normalY))));
 						final Vector3f lightDir = new Vector3f(0, 0, 1);// bakingCell.tangentViewPos;
 						lightDir.set(bakingCell.tangentLightPos);
 						lightDir.normalise();
 						{
-							final float cosTheta = Vector3f.dot(lightDir, normal) * 0.5f + 0.5f;
+							final float cosTheta = (Vector3f.dot(lightDir, normal) * 0.5f) + 0.5f;
 							final float lambertFactor = (float) Math.max(0.0, Math.min(1.0, cosTheta));
 
 							diffuse.scale((float) Math.max(0.0, Math.min(1.0, lambertFactor)));
@@ -727,15 +750,16 @@ public class Material implements MaterialView {
 						Vector3f.add(lightDir, viewDir, halfwayDir);
 						halfwayDir.normalise();
 						final float spec = (float) Math.pow(Math.max(Vector3f.dot(normal, halfwayDir), 0.0f), 32.0f);
-						final float metalness = (bakingCell.ormRGB >> 0 & 0xFF) / 255.0f;
-						final float roughness = (bakingCell.ormRGB >> 8 & 0xFF) / 255.0f;
+						final float metalness = ((bakingCell.ormRGB >> 0) & 0xFF) / 255.0f;
+						final float roughness = ((bakingCell.ormRGB >> 8) & 0xFF) / 255.0f;
 //						"			vec3 specular = vec3(max(-ormTexel.g+0.5, 0.0)+ormTexel.b) * spec * (reflectionsTexel.xyz * (1.0 - ormTexel.g) + ormTexel.g * color.xyz);\r\n"
 						final float specularX = (float) ((Math.max(-roughness + 0.5, 0.0) + metalness) * spec);
 						final Vector3f specular = new Vector3f(specularX, specularX, specularX);
 						// TODO maybe fresnel here
 						Vector3f.add(specular, diffuse, fragColorRGB);
 						nShadedPixels++;
-					} else {
+					}
+					else {
 						fragColorRGB.set(diffuse);
 						nDiffusePixels++;
 					}
@@ -744,11 +768,11 @@ public class Material implements MaterialView {
 					final int green = Math.round(Math.min(255, fragColorRGB.y * 255f)) & 0xFF;
 					final int blue = Math.round(Math.min(255, fragColorRGB.z * 255f)) & 0xFF;
 
-					float alpha = (bakingCell.diffuseRGB >> 24 & 0xFF) / 255.0f;
-					alpha *= 1.0f - teamColorNess * Math.max(baseRed, Math.max(baseGreen, baseBlue));
+					float alpha = ((bakingCell.diffuseRGB >> 24) & 0xFF) / 255.0f;
+					alpha *= 1.0f - (teamColorNess * Math.max(baseRed, Math.max(baseGreen, baseBlue)));
 					final int alphaI = Math.round(alpha * 255f) & 0xFF;
 
-					bakingCell.outputARGB = alphaI << 24 | red << 16 | green << 8 | blue << 0;
+					bakingCell.outputARGB = (alphaI << 24) | (red << 16) | (green << 8) | (blue << 0);
 					bakedImg.setRGB(j, i, bakingCell.outputARGB);
 				}
 			}
@@ -764,12 +788,14 @@ public class Material implements MaterialView {
 				final String newTexturePath = diffuseName + "_baked.tga";
 				TgaFile.writeTGA(bakedImg, new File(outputDirectory.getPath() + "/" + newTexturePath));
 				return newTexturePath;
-			} catch (final IOException e) {
+			}
+			catch (final IOException e) {
 				throw new RuntimeException(e);
 			}
 //			diffuseLayer.get
 
-		} else {
+		}
+		else {
 			throw new RuntimeException("Failed to begin baking HD -> SD texture, did not find 6 layers!");
 		}
 	}
@@ -788,7 +814,8 @@ public class Material implements MaterialView {
 		if (path.length() == 0) {
 			if (tex.getReplaceableId() == 1) {
 				path = "ReplaceableTextures\\TeamColor\\TeamColor0" + teamColor + ".blp";
-			} else if (tex.getReplaceableId() == 2) {
+			}
+			else if (tex.getReplaceableId() == 2) {
 				path = "ReplaceableTextures\\TeamGlow\\TeamGlow0" + teamColor + ".blp";
 			}
 		}

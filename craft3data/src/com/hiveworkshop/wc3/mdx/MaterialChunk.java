@@ -27,7 +27,7 @@ public class MaterialChunk {
 			final Material tempmaterial = new Material();
 			materialList.add(tempmaterial);
 			tempmaterial.load(in, version);
-			materialCounter -= tempmaterial.getSize(version);
+			materialCounter -= tempmaterial.getSize(version, false);
 		}
 		material = materialList.toArray(new Material[materialList.size()]);
 	}
@@ -35,19 +35,19 @@ public class MaterialChunk {
 	public void save(final BlizzardDataOutputStream out, final int version) throws IOException {
 		final int nrOfMaterials = material.length;
 		out.writeNByteString("MTLS", 4);
-		out.writeInt(getSize(version) - 8);// ChunkSize
+		out.writeInt(getSize(version, LayerChunk.WRITE_JANK_REFORGED_2022_FORMAT_FILE_FIXES_NAGA_WATER) - 8);// ChunkSize
 		for (int i = 0; i < material.length; i++) {
 			material[i].save(out, version);
 		}
 
 	}
 
-	public int getSize(final int version) {
+	public int getSize(final int version, final boolean includeAllTexIds) {
 		int a = 0;
 		a += 4;
 		a += 4;
 		for (int i = 0; i < material.length; i++) {
-			a += material[i].getSize(version);
+			a += material[i].getSize(version, includeAllTexIds);
 		}
 
 		return a;
@@ -76,7 +76,7 @@ public class MaterialChunk {
 		}
 
 		public void save(final BlizzardDataOutputStream out, final int version) throws IOException {
-			out.writeInt(getSize(version));// InclusiveSize
+			out.writeInt(getSize(version, LayerChunk.WRITE_JANK_REFORGED_2022_FORMAT_FILE_FIXES_NAGA_WATER));// InclusiveSize
 			out.writeInt(priorityPlane);
 			out.writeInt(flags);
 
@@ -90,13 +90,13 @@ public class MaterialChunk {
 
 		}
 
-		public int getSize(final int version) {
+		public int getSize(final int version, final boolean includeAllTexIds) {
 			int a = 0;
 			a += 4;
 			a += 4;
 			a += 4;
 			if (layerChunk != null) {
-				a += layerChunk.getSize(version);
+				a += layerChunk.getSize(version, includeAllTexIds);
 			}
 			if (ModelUtils.isShaderStringSupported(version)) {
 				a += SHADER_PART_LEN_V900;
@@ -114,13 +114,15 @@ public class MaterialChunk {
 			int layerSize = 0;
 			for (int i = 0; i < mat.getLayers().size(); i++) {
 				final com.hiveworkshop.wc3.mdl.Layer layer = mat.getLayers().get(i);
-				if (ModelUtils.isShaderStringSupported(version) && layer.getLayerShader() == LayerShader.HD) {
+				if (ModelUtils.isShaderStringSupported(version) && (layer.getLayerShader() == LayerShader.HD)) {
 					if (layer.getShaderTextureIds().get(ShaderTextureTypeHD.Reflections) == null) {
 						layerSize += ShaderTextureTypeHD.VALUES.length - 1;
-					} else {
+					}
+					else {
 						layerSize += ShaderTextureTypeHD.VALUES.length;
 					}
-				} else {
+				}
+				else {
 					layerSize++;
 				}
 			}
@@ -129,12 +131,13 @@ public class MaterialChunk {
 			int layersIndex = 0;
 			for (int i = 0; i < mat.getLayers().size(); i++) {
 				final com.hiveworkshop.wc3.mdl.Layer layer = mat.getLayers().get(i);
-				if (ModelUtils.isShaderStringSupported(version) && layer.getLayerShader() == LayerShader.HD) {
+				if (ModelUtils.isShaderStringSupported(version) && (layer.getLayerShader() == LayerShader.HD)) {
 					shader = com.hiveworkshop.wc3.mdl.Material.SHADER_HD_DEFAULT_UNIT;
 					for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
 						if (shaderTextureTypeHD == ShaderTextureTypeHD.Diffuse) {
 							layerChunk.layer[layersIndex++] = layerChunk.new Layer(layer, LayerShader.SD, version);
-						} else {
+						}
+						else {
 							final Integer shaderTextureId = layer.getShaderTextureIds().get(shaderTextureTypeHD);
 							if (shaderTextureId != null) {
 								final com.hiveworkshop.wc3.mdl.Layer outputLayer = new com.hiveworkshop.wc3.mdl.Layer(
@@ -150,14 +153,16 @@ public class MaterialChunk {
 
 								layerChunk.layer[layersIndex++] = layerChunk.new Layer(outputLayer, LayerShader.SD,
 										version);
-							} else if (shaderTextureTypeHD != ShaderTextureTypeHD.Reflections) {
+							}
+							else if (shaderTextureTypeHD != ShaderTextureTypeHD.Reflections) {
 								layerChunk.layer[layersIndex++] = layerChunk.new Layer(
 										new com.hiveworkshop.wc3.mdl.Layer(FilterMode.NONE.getMdlText(), -1),
 										LayerShader.SD, version);
 							}
 						}
 					}
-				} else {
+				}
+				else {
 					layerChunk.layer[layersIndex++] = layerChunk.new Layer(layer, layer.getLayerShader(), version);
 				}
 			}
