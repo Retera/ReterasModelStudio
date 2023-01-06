@@ -1,11 +1,68 @@
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}{\f1\fnil\fcharset2 Symbol;}}
-{\*\generator Riched20 10.0.19041}\viewkind4\uc1 
+{\*\generator Riched20 10.0.22000}\viewkind4\uc1 
 \pard\sa200\sl276\slmult1\qc\b\f0\fs40\lang9 Changelog\par
 \b0\fs20 Retera Model Studio\par
 
-\pard\sa200\sl276\slmult1\b\fs32 v0.04:\par
+\pard\sa200\sl276\slmult1\b\fs32 Changelog\par
 
-\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li720\sa200\sl276\slmult1\b0 Most of the notes for the updated changelog have been moved to the Hive Workshop download page. Check there for details.\b\par
+\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li720\sa200\sl276\slmult1\b0 The changelog below might be out of date. If in doubt, it should not hurt to cross reference with the information on the Hive Workshop in the "Tools" page for Retera Model Studio: https ://www.hiveworkshop.com/threads/reteras-model-studio.316000/\b\par
+
+\pard\sa200\sl276\slmult1 v0.04.4f:\par
+
+\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li720\sa200\sl276\slmult1\b0 Tried a fix based on a user report to change the fundamental function used for adding animations from one model into another so that it would nuke any data on the timeline in the area in which the new animation data was being inserted. This was a test in response to the user Kaizer on Discord complaining about an animation transfer problem that I did not have the files for locally to reproduce on my machine, and I cannot confirm that the code change will fix his issue, but the code change should be harmless for the expected use case of animation transfers in this program.\b\par
+{\pntext\f1\'B7\tab}\b0 Changed how HD mesh is previewed so that it might appear to fade during its Decay Flesh animation. There might be a couple of other cases that also fade in a manner more similar to Warcraft III: Reforged when previewing. The model data saved by the editing tools is not affected.\b\par
+{\pntext\f1\'B7\tab}\b0 Fixed the "KnightStatueA" case when using the HD SD texture baking utility; apparently it had a parallel tangent/normal pair in a way that confused my code, and so I told the code to do nothing when it encounters that case instead of crashing. It might create glitched pixels or something but the code should no longer crash.\b\par
+{\pntext\f1\'B7\tab}\b0 A change was made based on the request from @Wolfe on Discord so that spinning the camera more than 90 degrees does not do an instant "flip" of the camera unless we reach a larger angle, such as maybe 180 or 360 degrees.\b\par
+
+\pard\sa200\sl276\slmult1 v0.04.4e:\par
+
+\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li720\sa200\sl276\slmult1\b0 The new version 0.04.4e fixes a bug that I encountered in the ParticleEmitter parser for MDX files after someone asked me about it. The parser would exit the Retera Model Studio application when seeing animated Speed on a ParticleEmitter with no warning, and lose any open user files.\b\par
+
+\pard\sa200\sl276\slmult1 v0.04.4d:\par
+
+\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li720\sa200\sl276\slmult1\b0 Using the dropdown menus for "Edit > Delete" was broken from 0.04.3 to 0.04.4 and should be fixed again to delete vertices how it used to. (It doesn't work on the Tracks view yet, unlike the DEL hotkey, though.)\par
+{\pntext\f1\'B7\tab}Using "convert HD to SD (experimental)" had a bug that was reported to me where some model geometry would be deleted in custom, nonstandard models (when LoD == -1 but not 0). This has been changed so that the geometry in question is retained in the converted SD model.\par
+{\pntext\f1\'B7\tab}Fixed a bug reported by @Leo Akastenix on Discord which caused 3D mesh to display differently on the "View" tab versus how the "View in 3D" of Hive and the Warcraft 3 game actually work (For anyone interested in the technicality behind this, you can review my source code change. This pertains to a case when we use GeosetId instead of GeosetAnimId in a Bone when optimizing it out in the previewer.) Visually, this was causing a geoset to disappear on a test model when the geoset should have been visible.\par
+{\pntext\f1\'B7\tab}Some logging message if you attach a console to the program used to print out "Whoa!2" if you encounter an unexpected shader type ID in an MDX1100 (patch 1.33) asset. Now instead it will print "MDX11 parser reached unexpected shader type ID: 2" (Most likely no user will ever see this fix)\b\par
+
+\pard\sa200\sl276\slmult1 v0.04.4c:\par
+
+\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li720\sa200\sl276\slmult1\b0 This bundle has been updated with a small update 0.04.4c that changed the way the "Recalculate Tangents" function works, as well as maybe some tweaks to the experimental function to convert HD to SD or something like that. So, these changes might be invisible to most users.\b\par
+
+\pard\sa200\sl276\slmult1 v0.04.4b:\par
+
+\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li720\sa200\sl276\slmult1\b0 The 0.04.4 version has been upgraded to 0.04.4b to possibly fix a bug related to saving Classic "SD" models that was introduced in the changes (to support Patch 1.33), and I removed the "Demon" and "PTR" tags from the program naming so that it is clear that this will eventually probably become the only version of the 0.04 program in the future. (For 0.05+ builds, you can find the Twilac version on GitHub releases or on the Retera Model Studio Users Group discord server)\par
+{\pntext\f1\'B7\tab}I also added an option in the settings menu on 0.04.4b that allows users to check a box (and then restart the program) that might automatically "fix" a visual issue some users are experiencing on Windows systems that causes visual artifacts in the Java Swing UI part of the program.\b\par
+
+\pard\sa200\sl276\slmult1 v0.04.4:\par
+
+\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li720\sa200\sl276\slmult1\b0 Changed the application to run on Java 17 and use OpenGL shaders to support better previewing of Reforged graphics. Credits to the Twilac version of Retera Model Studio for some of the config settings used for configuring this program for Java 17.\b\par
+
+\pard\sa200\sl276\slmult1 v0.04.2b:\par
+
+\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li720\sa200\sl276\slmult1\b0 Fixed a bug in "Edit/delete model components" reported by Hive user @Makkad (retains FaceFX chunks now)\b\par
+
+\pard\sa200\sl276\slmult1 v0.04.2:\par
+
+\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li720\sa200\sl276\slmult1\b0 Tiny change requested by discord user VictorZ that allows "Rotate Type-In" to work in the Animation Editor. (The code for this was copied almost directly from the Twilac version of 0.05, so you should seriously probably just use 0.05!)\b\par
+
+\pard\sa200\sl276\slmult1 v0.04.1:\par
+
+\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li720\sa200\sl276\slmult1\b0 Opening a file in a folder does not walk the directory tree of that folder\par
+{\pntext\f1\'B7\tab}Scripts -> Skin Splice function added upon request from Vulfar\par
+
+\pard\sa200\sl276\slmult1\b v0.04 for 1.32.10:\b0\par
+
+\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li720\sa200\sl276\slmult1 Fixes the program to work with the new Warcraft III Patch 1.32.10 that changed the TFVS formatting for some reason.\par
+{\pntext\f1\'B7\tab}Includes some really minor internal bug fixes over the previous version\par
+
+\pard\sa200\sl276\slmult1\b v0.04:\par
+
+\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li720\sa200\sl276\slmult1\b0 Merged the version known as "Retera Model Studio Reforged Hack" to be the mainline version of the tool going forward (this version includes all of the fixes listed here)\par
+{\pntext\f1\'B7\tab}Added support for Reforged assets and a bunch of bug fixes related to working with those\par
+{\pntext\f1\'B7\tab}Added "Scripts -> Assign FormatVersion 800" to convert Reforged Classic Models to the legacy classic model format, as well as "Scripts -> Assign FormatVersion 1000" to convert legacy game client models to match the format used by the "Classic Graphics" of Reforged.\par
+{\pntext\f1\'B7\tab}Added a "Reforged Graphics Mode" and "Classic Graphics Mode" in the data sources chooser panel\par
+{\pntext\f1\'B7\tab}Added the "Model" tab which is buggy and unfinished\b\par
 
 \pard\sa200\sl276\slmult1 v0.03 Public Beta:\par
 
