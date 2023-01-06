@@ -32,6 +32,7 @@ public abstract class CameraManager {
 	protected Vector3f position;
 	public Vector3f target;
 	protected Vector3f worldUp;
+	protected Vector3f worldDown;
 	protected Vector3f vecHeap;
 	protected Vector4f vec4Heap;
 	protected Quaternion quatHeap;
@@ -51,6 +52,7 @@ public abstract class CameraManager {
 		this.position = new Vector3f();
 		this.target = new Vector3f(0, 0, 0);
 		this.worldUp = new Vector3f(0, 0, 1);
+		this.worldDown = new Vector3f(0, 0, -1);
 		this.vecHeap = new Vector3f();
 		this.vec4Heap = new Vector4f();
 		this.quatHeap = new Quaternion();

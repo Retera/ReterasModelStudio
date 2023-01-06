@@ -60,7 +60,8 @@ public final class PortraitCameraManager extends CameraManager {
 		}
 		this.camera.perspective(fieldOfView, this.camera.getAspect(), nearClip, farClip);
 
-		this.camera.moveToAndFace(this.position, this.target, this.worldUp);
+		this.camera.moveToAndFace(this.position, this.target,
+				(this.horizontalAngle < 0) || (this.horizontalAngle > Math.PI) ? this.worldDown : this.worldUp);
 	}
 
 	public void setModelInstance(final RenderModel modelInstance, final Camera camera) {
@@ -68,7 +69,8 @@ public final class PortraitCameraManager extends CameraManager {
 		if (modelInstance == null) {
 			this.modelCamera = null;
 			reset();
-		} else if (camera != null) {
+		}
+		else if (camera != null) {
 			this.modelCamera = camera;
 			fieldOfView = (float) this.modelCamera.getFieldOfView() * 0.75f;
 			nearClip = (float) this.modelCamera.getNearClip();
