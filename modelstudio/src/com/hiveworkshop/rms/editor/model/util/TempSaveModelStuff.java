@@ -13,7 +13,6 @@ import com.hiveworkshop.rms.editor.model.util.ModelSaving.MaterialToMdlx;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTexture;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTextureAnimation;
-import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
@@ -21,7 +20,8 @@ public class TempSaveModelStuff {
 	public static boolean DISABLE_BONE_GEO_ID_VALIDATOR = false;
 
 	public static MdlxModel toMdlx(EditableModel model) {
-		Map<Bone, BoneGeosets> boneGeosetsMap = doSavePreps(model);
+		doSavePreps(model);
+		Map<Bone, BoneGeosets> boneGeosetsMap = getBoneGeosetMap(model.getGeosets());
 		// restores all GeosetID, ObjectID, TextureID, MaterialID stuff
 		// all based on object references in the Java
 		// (this is so that you can write a program that does something like
@@ -113,22 +113,22 @@ public class TempSaveModelStuff {
 			mdlxModel.collisionShapes.add(IdObjectToMdlx.toMdlx(shape, model));
 		}
 
-		for (final Vec3 point : model.getPivots()) {
-			mdlxModel.pivotPoints.add(point.toFloatArray());
+		for (final IdObject idObject : model.getIdObjects()) {
+			mdlxModel.pivotPoints.add(idObject.getPivotPoint().toFloatArray());
 		}
 
 		for (final FaceEffect effect : model.getFaceEffects()) {
 			mdlxModel.faceEffects.add(effect.toMdlx());
 		}
 
-		if (model.getBindPoseChunk() != null) {
-			mdlxModel.bindPose = model.getBindPoseChunk().toMdlx();
+		if (model.isUseBindPose()) {
+			mdlxModel.bindPose.addAll(getBindPoses(model).getBindPoses());
 		}
 
 		return mdlxModel;
 	}
 
-	public static Map<Bone, BoneGeosets> doSavePreps(EditableModel model) {
+	public static void doSavePreps(EditableModel model) {
 		// restores all GeosetID, ObjectID, TextureID, MaterialID stuff,
 		// all based on object references in the Java (this is so that you
 		// can write a program that does something like  "mdl.add(new Bone())" without a problem,
@@ -139,14 +139,34 @@ public class TempSaveModelStuff {
 		// MatrixEater at runtime in doPostRead() in favor of each vertex
 		// having its own attachments list, no vertex groups)
 
+		model.sortIdObjects();
+		removeEmptyGeosets(model);
 		rebuildLists(model);
 		// If rebuilding the lists is to crash, then we want to crash the thread
 		// BEFORE clearing the file
 
 		// Animations
 		fixAnimIntervals(model);
+		removeEmptyAnimFlags(model);
 
-		// Geosets -- delete if empty
+		// Geosets
+		for (final Geoset geoset : model.getGeosets()) {
+			purifyFaces(geoset);
+
+			for (final GeosetVertex geosetVertex : geoset.getVertices()) {
+				if (geosetVertex.getSkinBoneBones() == null) {
+					geosetVertex.getMatrix().cureBones(model.getBones());
+
+				}
+			}
+			for (Triangle triangle : geoset.getTriangles()) {
+				triangle.setGeoset(geoset);
+			}
+		}
+
+	}
+
+	private static void removeEmptyGeosets(EditableModel model) {
 		List<Geoset> emptyGeosets = new ArrayList<>();
 		for (Geoset geoset : model.getGeosets()) {
 			if (geoset.isEmpty()) {
@@ -154,24 +174,6 @@ public class TempSaveModelStuff {
 			}
 		}
 		emptyGeosets.forEach(model::remove);
-
-		Map<Bone, BoneGeosets> boneGeosetsMap = cureBoneGeoAnimIds2(model);
-		removeEmptyAnimFlags(model);
-		collectBindPoses(model);
-
-		// Geosets
-		if (model.getGeosets() != null && 0 < model.getGeosets().size()) {
-			for (final Geoset geoset : model.getGeosets()) {
-				doSavePrep(geoset, model);
-			}
-		}
-
-		// Clearing pivot points
-		model.clearPivots();
-		for (final IdObject idObject : model.getIdObjects()) {
-			model.addPivotPoint(idObject.getPivotPoint());
-		}
-		return boneGeosetsMap;
 	}
 
 	private static void fixAnimIntervals(EditableModel model) {
@@ -274,9 +276,7 @@ public class TempSaveModelStuff {
 		}
 	}
 
-	private static void collectBindPoses(EditableModel model) {
-		model.sortIdObjects();
-		model.setBindPoseChunk(null);
+	private static BindPose getBindPoses(EditableModel model) {
 		BindPose bindPoseChunk = new BindPose();
 		for (IdObject obj : model.getIdObjects()) {
 			if (obj.getBindPose() != null) {
@@ -286,11 +286,15 @@ public class TempSaveModelStuff {
 		for (Camera obj : model.getCameras()) {
 			if (obj.getBindPose() != null) {
 				bindPoseChunk.addBindPose(obj.getBindPose());
+			} else if (bindPoseChunk.getSize() == model.getIdObjects().size()){
+				bindPoseChunk.addBindPose(new float[] {
+						1, 0, 0,
+						0, 1, 0,
+						0, 0, 1,
+						obj.getPosition().x, obj.getPosition().y, obj.getPosition().z});
 			}
 		}
-		if(bindPoseChunk.getSize()>0){
-			model.setBindPoseChunk(bindPoseChunk);
-		}
+		return bindPoseChunk;
 	}
 
 	private static void removeEmptyAnimFlags(EditableModel model) {
@@ -310,12 +314,12 @@ public class TempSaveModelStuff {
 		}
 	}
 
-	public static Map<Bone, BoneGeosets> cureBoneGeoAnimIds2(EditableModel model) {
+	public static Map<Bone, BoneGeosets> getBoneGeosetMap(List<Geoset> modelGeosets) {
 		if (DISABLE_BONE_GEO_ID_VALIDATOR) {
 			return new HashMap<>();
 		}
 		Map<Bone, Set<Geoset>> boneToGeosets = new HashMap<>();
-		for (final Geoset geoset : model.getGeosets()) {
+		for (final Geoset geoset : modelGeosets) {
 			for (final Matrix matrix : geoset.collectMatrices()) {
 				for (final Bone bone : matrix.getBones()) {
 					boneToGeosets.computeIfAbsent(bone, k -> new HashSet<>()).add(geoset);
@@ -404,38 +408,16 @@ public class TempSaveModelStuff {
 
 	public static void purifyFaces(Geoset geoset) {
 		List<Triangle> triangles = geoset.getTriangles();
-		for (int i = triangles.size() - 1; i >= 0; i--) {
-			final Triangle tri = triangles.get(i);
-			for (int ix = 0; ix < triangles.size(); ix++) {
-				final Triangle trix = triangles.get(ix);
-				if (trix != tri) {
-					if (trix.equalRefsNoIds(tri)) {
-						// Changed this from "sameVerts" -- this means that triangles with the same
-						// vertices but in a different order will no longer be purged automatically.
-						triangles.remove(tri);
-						break;
-					}
+		for (int i = triangles.size()-1; 0 <= i; i--) {
+			Triangle triToCheck = triangles.get(i);
+			for(int j = 0; j < i; j++){
+				Triangle refTri = triangles.get(j);
+				if(refTri != triToCheck && refTri.equalRefs(triToCheck)) {
+					triangles.remove(triToCheck);
+					break;
 				}
 			}
 		}
-	}
-
-	public static void doSavePrep(Geoset geoset, final EditableModel model) {
-		purifyFaces(geoset);
-
-		// Clearing matrix list
-		geoset.clearMatrices();
-		System.out.println("Prepping geoset for saving: " + model.getName() + ": " + geoset.getName());
-		for (final GeosetVertex geosetVertex : geoset.getVertices()) {
-			if (geosetVertex.getSkinBoneBones() == null) {
-				geosetVertex.getMatrix().cureBones(model);
-
-			}
-		}
-		for (Triangle triangle : geoset.getTriangles()) {
-			triangle.setGeoset(geoset);
-		}
-		geoset.reMakeMatrixList();
 	}
 
 	public static MdlxTexture toMdlx(Bitmap bitmap) {

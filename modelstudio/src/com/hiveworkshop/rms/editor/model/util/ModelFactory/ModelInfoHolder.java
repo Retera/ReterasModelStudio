@@ -75,7 +75,7 @@ public class ModelInfoHolder {
 		cameras.add(camera);
 		if (bindPose != null) {
 			int cameraBindPose = cameras.size() - 1 + idObjMap.size();
-			if (bindPose.getSize() > cameraBindPose) {
+			if (cameraBindPose < bindPose.getSize()) {
 				camera.setBindPose(bindPose.getBindPose(cameraBindPose));
 			}
 		}

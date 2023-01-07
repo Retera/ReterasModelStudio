@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.actions.mesh.RecalculateTangentsAction;
 import com.hiveworkshop.rms.editor.actions.model.header.SetFormatVersionAction;
 import com.hiveworkshop.rms.editor.actions.model.material.SetMaterialShaderStringAction;
 import com.hiveworkshop.rms.editor.actions.tools.ConvertToSkinBonesAction;
+import com.hiveworkshop.rms.editor.actions.util.BoolAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
@@ -35,6 +36,9 @@ public class MakeModelHD extends ActionFunction {
 			}
 			for (Material material : model.getMaterials()) {
 				undoActions.add(new SetMaterialShaderStringAction(model, material, "Shader_HD_DefaultUnit", null));
+			}
+			if(!model.isUseBindPose()){
+				undoActions.add(new BoolAction(model::setUseBindPose, true, "", null));
 			}
 			for(IdObject idObject : model.getIdObjects()){
 				System.out.println("making idObject HD");

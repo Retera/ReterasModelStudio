@@ -39,8 +39,8 @@ public class Matrix {
 		return out.toString();
 	}
 
-	public void cureBones(EditableModel model) {
-		bones.removeIf(b -> !model.getBones().contains(b));
+	public void cureBones(List<Bone> modelBones) {
+		bones.removeIf(b -> !modelBones.contains(b));
 	}
 
 

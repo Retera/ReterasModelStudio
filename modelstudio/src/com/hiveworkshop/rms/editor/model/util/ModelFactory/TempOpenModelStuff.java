@@ -15,7 +15,7 @@ public class TempOpenModelStuff {
 
 		model.setFormatVersion(mdlxModel.version);
 		model.setBlendTime((int) mdlxModel.blendTime);
-		model.setExtents(new ExtLog(mdlxModel.extent));
+		model.getExtents().set(mdlxModel.extent.min, mdlxModel.extent.max, mdlxModel.extent.boundsRadius);
 
 		// Step ?: add comments
 		for (final String comment : mdlxModel.comments) {
@@ -45,8 +45,9 @@ public class TempOpenModelStuff {
 			infoHolder.addPivot(new Vec3(point));
 		}
 
-		if (mdlxModel.bindPose.size() > 0) {
+		if (0 < mdlxModel.bindPose.size()) {
 			infoHolder.setBindPose(mdlxModel.bindPose);
+			model.setUseBindPose(true);
 		}
 
 		// Step 6: Convert TVertexAnims
@@ -165,8 +166,8 @@ public class TempOpenModelStuff {
 		// is used to fetch the correct BindPose
 		for (final MdlxCamera mdlxCamera : mdlxModel.cameras) {
 			Camera x = new Camera(mdlxCamera, model);
-			model.add(x);
 			infoHolder.add(x);
+			model.add(x);
 		}
 
 		infoHolder.fixIdObjectParents();

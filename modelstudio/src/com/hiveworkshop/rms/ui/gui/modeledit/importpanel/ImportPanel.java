@@ -427,7 +427,7 @@ public class ImportPanel extends JTabbedPane {
 							ms.getMatrix().getBones().add(dummyBone);
 						}
 					}
-					ms.getMatrix().cureBones(mht.receivingModel);
+					ms.getMatrix().cureBones(mht.receivingModel.getBones());
 					if(vertexList != null){
 						for(GeosetVertex vertex : vertexList){
 							vertex.clearBoneAttachments();

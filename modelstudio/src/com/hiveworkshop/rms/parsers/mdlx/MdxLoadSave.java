@@ -359,7 +359,7 @@ public class MdxLoadSave {
 	}
 
 	private static void saveBindPoseChunk(List<float[]> bindPose, final BinaryWriter writer) {
-		if (bindPose.size() > 0) {
+		if (0 < bindPose.size()) {
 			writer.writeTag(BPOS);
 			writer.writeUInt32(4 + bindPose.size() * 48);
 			writer.writeUInt32(bindPose.size());

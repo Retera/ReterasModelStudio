@@ -67,7 +67,7 @@ public class Camera implements Named {
 		for (AnimFlag<?> animFlag : camera.sourceNode.getAnimFlags()) {
 			sourceNode.add(animFlag.deepCopy());
 		}
-		bindPose = camera.bindPose;
+		bindPose = camera.bindPose.clone();
 	}
 
 	public MdlxCamera toMdlx(EditableModel model) {

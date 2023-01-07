@@ -204,9 +204,6 @@ public final class ModelComponentBrowserTree extends JTree {
 				root.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.FACEFX, modelView, faceEffect, number++).setNameFunc(() -> DisplayElementType.FACEFX.getName() + " \"" + faceEffect.getFaceEffectTarget() + "\"")));
 			}
 		}
-		if (model.getBindPoseChunk() != null) {
-			root.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.BINDPOSE, modelView, model.getBindPoseChunk()).setNameFunc(() -> "BindPose")));
-		}
 		return new DefaultTreeModel(root);
 	}
 

@@ -13,6 +13,7 @@ import com.hiveworkshop.rms.editor.actions.nodes.DeleteNodesAction;
 import com.hiveworkshop.rms.editor.actions.nodes.SetAttachmentPathAction;
 import com.hiveworkshop.rms.editor.actions.nodes.SetParticleEmitterPathAction;
 import com.hiveworkshop.rms.editor.actions.tools.ConvertToMatricesAction;
+import com.hiveworkshop.rms.editor.actions.util.BoolAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.FilterMode;
@@ -89,6 +90,9 @@ public class MakeModelSD extends ActionFunction {
 					path = path.replace('/', '\\');
 					undoActions.add(new SetAttachmentPathAction(emitter, path, null));
 				}
+			}
+			if(model.isUseBindPose()){
+				undoActions.add(new BoolAction(model::setUseBindPose, false, "", null));
 			}
 
 			undoActions.add(new DeleteFaceEffectAction(new ArrayList<>(model.getFaceEffects()), model, null));

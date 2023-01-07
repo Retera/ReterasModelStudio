@@ -345,7 +345,7 @@ public class ViewportTransferHandler extends TransferHandler {
 	public void applyVerticesToMatrices(Geoset geoset, EditableModel model) {
 		geoset.clearMatrices();
 		for (GeosetVertex vertex : geoset.getVertices()) {
-			vertex.getMatrix().cureBones(model);
+			vertex.getMatrix().cureBones(model.getBones());
 		}
 		geoset.reMakeMatrixList();
 	}

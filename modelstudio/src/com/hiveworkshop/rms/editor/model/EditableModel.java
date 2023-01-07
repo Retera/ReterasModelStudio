@@ -1,11 +1,11 @@
 package com.hiveworkshop.rms.editor.model;
+
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.filesystem.sources.FolderDataSource;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
-import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
 import java.io.File;
@@ -21,7 +21,7 @@ public class EditableModel implements Named {
 	private File fileRef;
 	private String name = "UnnamedModel";
 	private int blendTime = 0;
-	private ExtLog extents;
+	private final ExtLog extents = new ExtLog();
 	private int formatVersion = 800;
 	private final ArrayList<String> header = new ArrayList<>();
 	private final ArrayList<String> comments = new ArrayList<>();
@@ -31,10 +31,9 @@ public class EditableModel implements Named {
 	private final List<Material> materials = new ArrayList<>();
 	private final List<TextureAnim> texAnims = new ArrayList<>();
 	private final List<Geoset> geosets = new ArrayList<>();
-	private final List<Vec3> pivots = new ArrayList<>();
 	private final List<Camera> cameras = new ArrayList<>();
 	private final List<FaceEffect> faceEffects = new ArrayList<>();
-	private BindPose bindPose;
+	private boolean useBindPose;
 	private boolean temporary;
 	private DataSource wrappedDataSource = GameDataFileSystem.getDefault();
 
@@ -87,9 +86,7 @@ public class EditableModel implements Named {
 	public void copyHeaders(final EditableModel other) {
 		setFileRef(other.fileRef);
 		blendTime = other.blendTime;
-		if (other.extents != null) {
-			extents = other.extents.deepCopy();
-		}
+		extents.set(other.extents);
 		formatVersion = other.formatVersion;
 		header.addAll(other.header);
 		name = other.name;
@@ -102,7 +99,6 @@ public class EditableModel implements Named {
 		materials.clear();
 		texAnims.clear();
 		geosets.clear();
-		pivots.clear();
 		cameras.clear();
 		modelIdObjects.clearAll();
 	}
@@ -145,7 +141,7 @@ public class EditableModel implements Named {
 	}
 
 	public void setExtents(final ExtLog extents) {
-		this.extents = extents;
+		this.extents.set(extents);
 	}
 
 	public int getFormatVersion() {
@@ -175,6 +171,14 @@ public class EditableModel implements Named {
 
 	public void setTemp(final boolean flag) {
 		temporary = flag;
+	}
+
+	public boolean isUseBindPose() {
+		return useBindPose;
+	}
+
+	public void setUseBindPose(final boolean useBindPose) {
+		this.useBindPose = useBindPose;
 	}
 
 	public int getAnimsSize() {
@@ -218,10 +222,8 @@ public class EditableModel implements Named {
 					"Tried to add null Camera component to model, which is really bad. Tell Retera you saw this once you have errors.");
 		} else {
 			cameras.add(x);
-			if (ModelUtils.isBindPoseSupported(formatVersion) && (bindPose != null)) {
-				if (x.getBindPose() == null) {
-					x.setBindPose(new float[] {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0});
-				}
+			if (ModelUtils.isBindPoseSupported(formatVersion) && useBindPose && x.getBindPose() == null) {
+				x.setBindPose(new float[] {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0});
 			}
 		}
 	}
@@ -275,20 +277,15 @@ public class EditableModel implements Named {
 					"Tried to add null IdObject component to model, which is really bad. Tell Retera you saw this once you have errors.");
 		} else {
 			modelIdObjects.addIdObject(x);
-			if ((x.pivotPoint != null) && !pivots.contains(x.pivotPoint)) {
-				pivots.add(x.pivotPoint);
-			}
-			if (ModelUtils.isBindPoseSupported(formatVersion) && (bindPose != null)) {
-				if (x.getBindPose() == null) {
-					float xBP = x.pivotPoint != null ? x.pivotPoint.x : 0;
-					float yBP = x.pivotPoint != null ? x.pivotPoint.y : 0;
-					float zBP = x.pivotPoint != null ? x.pivotPoint.z : 0;
-					x.setBindPose(new float[] {
-							1, 0, 0,
-							0, 1, 0,
-							0, 0, 1,
-							xBP, yBP, zBP});
-				}
+			if (ModelUtils.isBindPoseSupported(formatVersion) && useBindPose && x.getBindPose() == null) {
+				float xBP = x.pivotPoint.x;
+				float yBP = x.pivotPoint.y;
+				float zBP = x.pivotPoint.z;
+				x.setBindPose(new float[] {
+						1, 0, 0,
+						0, 1, 0,
+						0, 0, 1,
+						xBP, yBP, zBP});
 			}
 		}
 	}
@@ -309,10 +306,6 @@ public class EditableModel implements Named {
 		} else {
 			texAnims.add(x);
 		}
-	}
-
-	public void addPivotPoint(final Vec3 x) {
-		pivots.add(x);
 	}
 
 	public void addFaceEffect(final FaceEffect faceEffect) {
@@ -438,10 +431,6 @@ public class EditableModel implements Named {
 		modelIdObjects.clearAll();
 	}
 
-	public void clearPivots() {
-		pivots.clear();
-	}
-
 	public IdObject getObject(final String name) {
 		return modelIdObjects.getObject(name);
 	}
@@ -550,20 +539,8 @@ public class EditableModel implements Named {
 		return texAnims;
 	}
 
-	public List<Vec3> getPivots() {
-		return pivots;
-	}
-
 	public List<FaceEffect> getFaceEffects() {
 		return faceEffects;
-	}
-
-	public BindPose getBindPoseChunk() {
-		return bindPose;
-	}
-
-	public void setBindPoseChunk(final BindPose bindPoseChunk) {
-		bindPose = bindPoseChunk;
 	}
 
 	public List<IdObject> getIdObjects() {

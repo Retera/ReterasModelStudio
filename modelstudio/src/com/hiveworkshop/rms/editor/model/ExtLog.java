@@ -81,15 +81,22 @@ public class ExtLog {
 		return this;
 	}
 
-	public ExtLog setDefault() {
-		minimumExtent.set(DEFAULT_MINEXT);
-		maximumExtent.set(DEFAULT_MAXEXT);
+	public ExtLog set(final float[] minE, final float[] maxE, final double boundsRad) {
+		minimumExtent.set(minE);
+		maximumExtent.set(maxE);
+		boundsRadius = boundsRad;
 		return this;
 	}
 
-	public ExtLog setExt(final Vec3 minE, final Vec3 maxE) {
+	public ExtLog set(final Vec3 minE, final Vec3 maxE) {
 		minimumExtent.set(minE);
 		maximumExtent.set(maxE);
+		return this;
+	}
+
+	public ExtLog setDefault() {
+		minimumExtent.set(DEFAULT_MINEXT);
+		maximumExtent.set(DEFAULT_MAXEXT);
 		return this;
 	}
 
