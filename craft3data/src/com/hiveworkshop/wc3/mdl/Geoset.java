@@ -68,7 +68,8 @@ public class Geoset implements Named, VisibilitySource {
 					mdxGeo.vertexPositions[i + 2]));
 			if (k >= mdxGeo.vertexGroups.length) {
 				gv.setVertexGroup(-1);
-			} else {
+			}
+			else {
 				gv.setVertexGroup((256 + mdxGeo.vertexGroups[k]) % 256);
 			}
 			// this is an unsigned byte, the other guys java code will read as
@@ -138,7 +139,7 @@ public class Geoset implements Named, VisibilitySource {
 
 	public String getUIName(final EditableModel model) {
 		final int uiNumber = model.getGeosetId(this) + 1;
-		if (getLevelOfDetailName() != null && getLevelOfDetailName().length() > 0) {
+		if ((getLevelOfDetailName() != null) && (getLevelOfDetailName().length() > 0)) {
 			return "(" + uiNumber + ") " + getLevelOfDetailName();
 		}
 		return "Geoset " + uiNumber;
@@ -232,7 +233,8 @@ public class Geoset implements Named, VisibilitySource {
 	public void add(final Triangle p) {
 		if (!triangles.contains(p)) {
 			triangles.add(p);
-		} else {
+		}
+		else {
 			System.out.println("2x triangles");
 		}
 	}
@@ -275,7 +277,7 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	public Matrix getMatrix(final int vertId) {
-		if (vertId < 0 && vertId >= -128) {
+		if ((vertId < 0) && (vertId >= -128)) {
 			return getMatrix(256 + vertId);
 		}
 		if (vertId >= matrix.size()) {
@@ -362,21 +364,24 @@ public class Geoset implements Named, VisibilitySource {
 		final byte[] temp = new byte[8];
 		try {
 			temp[0] = (byte) Short.parseShort(entries[0].split("\\{")[1].trim());
-		} catch (final NumberFormatException e) {
+		}
+		catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Error {" + input + "}: Skin data could not be interpreted.");
 		}
 		for (int i = 1; i < 7; i++) {
 			try {
 				temp[i] = (byte) Short.parseShort(entries[i].trim());
-			} catch (final NumberFormatException e) {
+			}
+			catch (final NumberFormatException e) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 						"Error {" + input + "}: Skin data could not be interpreted.");
 			}
 		}
 		try {
 			temp[7] = (byte) Short.parseShort(entries[7].split("}")[0].trim());
-		} catch (final NumberFormatException e) {
+		}
+		catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Error {" + input + "}: Skin data could not be interpreted.");
 		}
@@ -388,21 +393,24 @@ public class Geoset implements Named, VisibilitySource {
 		final float[] temp = new float[4];
 		try {
 			temp[0] = Float.parseFloat(entries[0].split("\\{")[1].trim());
-		} catch (final NumberFormatException e) {
+		}
+		catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Error {" + input + "}: Tangent data could not be interpreted.");
 		}
 		for (int i = 1; i < 3; i++) {
 			try {
 				temp[i] = Float.parseFloat(entries[i].trim());
-			} catch (final NumberFormatException e) {
+			}
+			catch (final NumberFormatException e) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 						"Error {" + input + "}: Tangent data could not be interpreted.");
 			}
 		}
 		try {
 			temp[3] = Float.parseFloat(entries[3].split("}")[0].trim());
-		} catch (final NumberFormatException e) {
+		}
+		catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Error {" + input + "}: Tangent data could not be interpreted.");
 		}
@@ -428,7 +436,8 @@ public class Geoset implements Named, VisibilitySource {
 				while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
 					geo.addNormal(Normal.parseText(line));
 				}
-			} else {
+			}
+			else {
 				MDLReader.reset(mdl);
 			}
 			while ((line = MDLReader.nextLine(mdl)).contains("TVertices")) {
@@ -507,23 +516,29 @@ public class Geoset implements Named, VisibilitySource {
 				if (line.contains("Extent") || line.contains("BoundsRadius")) {
 					MDLReader.reset(mdl);
 					geo.setExtLog(ExtLog.read(mdl));
-				} else if (line.contains("Anim")) {
+				}
+				else if (line.contains("Anim")) {
 					MDLReader.reset(mdl);
 					geo.add(Animation.read(mdl));
 					MDLReader.mark(mdl);
-				} else if (line.contains("MaterialID")) {
+				}
+				else if (line.contains("MaterialID")) {
 					geo.materialID = MDLReader.readInt(line);
 					MDLReader.mark(mdl);
-				} else if (line.contains("SelectionGroup")) {
+				}
+				else if (line.contains("SelectionGroup")) {
 					geo.selectionGroup = MDLReader.readInt(line);
 					MDLReader.mark(mdl);
-				} else if (line.contains("LevelOfDetailName") || line.contains("Name")) {
+				}
+				else if (line.contains("LevelOfDetailName") || line.contains("Name")) {
 					geo.levelOfDetailName = MDLReader.readName(line);
 					MDLReader.mark(mdl);
-				} else if (line.contains("LevelOfDetail")) {
+				}
+				else if (line.contains("LevelOfDetail")) {
 					geo.levelOfDetail = MDLReader.readInt(line);
 					MDLReader.mark(mdl);
-				} else {
+				}
+				else {
 					geo.addFlag(MDLReader.readFlag(line));
 					MDLReader.mark(mdl);
 				}
@@ -533,7 +548,8 @@ public class Geoset implements Named, VisibilitySource {
 			// reading completed!");
 
 			return geo;
-		} else {
+		}
+		else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Unable to parse Geoset: Missing or unrecognized open statement '" + line + "'.");
 		}
@@ -549,7 +565,7 @@ public class Geoset implements Named, VisibilitySource {
 		}
 		for (int i = 0; i < sz; i++) {
 			final GeosetVertex gv = vertex.get(i);
-			if (ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion()) && tangents != null) {
+			if (ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion()) && (tangents != null)) {
 				gv.initV900();
 				for (int j = 0; j < 4; j++) {
 					short boneLookupId = skin.get(i)[j];
@@ -561,13 +577,15 @@ public class Geoset implements Named, VisibilitySource {
 						boneWeight += 256;
 					}
 					Bone bone;
-					if (boneLookupId >= mdlr.getIdObjectsSize() || boneLookupId < 0) {
+					if ((boneLookupId >= mdlr.getIdObjectsSize()) || (boneLookupId < 0)) {
 						bone = null;
-					} else {
+					}
+					else {
 						final IdObject idObject = mdlr.getIdObject(boneLookupId);
 						if (idObject instanceof Bone) {
 							bone = (Bone) idObject;
-						} else {
+						}
+						else {
 							bone = null;
 						}
 					}
@@ -581,15 +599,17 @@ public class Geoset implements Named, VisibilitySource {
 			for (int l = 0; l < szuv; l++) {
 				try {
 					gv.addTVertex(uvlayers.get(l).getTVertex(i));
-				} catch (final Exception e) {
+				}
+				catch (final Exception e) {
 					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 							"Error: Length of TVertices and Vertices chunk differ (Or some other unknown error has occurred)!");
 				}
 			}
 			Matrix mx;
-			if (gv.getVertexGroup() == -1 && ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion())) {
+			if ((gv.getVertexGroup() == -1) && ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion())) {
 				mx = null;
-			} else {
+			}
+			else {
 				mx = getMatrix(gv.getVertexGroup());
 			}
 			if (mx != null) {
@@ -597,12 +617,15 @@ public class Geoset implements Named, VisibilitySource {
 				gv.clearBoneAttachments();
 				for (int m = 0; m < szmx; m++) {
 					final int boneId = mx.getBoneId(m);
-					if (boneId >= 0 && boneId < mdlr.getIdObjectsSize()) {
-						gv.addBoneAttachment((Bone) mdlr.getIdObject(boneId));
+					if ((boneId >= 0) && (boneId < mdlr.getIdObjectsSize())) {
+						final IdObject idObject = mdlr.getIdObject(boneId);
+						if (idObject instanceof Bone) {
+							gv.addBoneAttachment((Bone) idObject);
+						}
 					}
 				}
 			}
-			if (normals != null && normals.size() > 0) {
+			if ((normals != null) && (normals.size() > 0)) {
 				gv.setNormal(normals.get(i));
 			}
 			for (final Triangle t : triangles) {
@@ -617,7 +640,8 @@ public class Geoset implements Named, VisibilitySource {
 		}
 		try {
 			material = mdlr.getMaterial(materialID);
-		} catch (final ArrayIndexOutOfBoundsException e) {
+		}
+		catch (final ArrayIndexOutOfBoundsException e) {
 			JOptionPane.showMessageDialog(null, "Error: Material index out of bounds for geoset!");
 		}
 		parentModel = mdlr;
@@ -629,12 +653,13 @@ public class Geoset implements Named, VisibilitySource {
 			final GeosetVertex gv = vertex.get(i);
 			gv.clearBoneAttachments();
 			final Matrix mx = getMatrix(gv.getVertexGroup());
-			if (gv.getVertexGroup() == -1 || mx == null) {
+			if ((gv.getVertexGroup() == -1) || (mx == null)) {
 				if (!ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion())) {
 					throw new IllegalStateException(
 							"You have empty vertex groupings but FormatVersion is 800. Did you load HD mesh into an SD model?");
 				}
-			} else {
+			}
+			else {
 				mx.updateIds(mdlr);
 				final int szmx = mx.size();
 				for (int m = 0; m < szmx; m++) {
@@ -649,7 +674,7 @@ public class Geoset implements Named, VisibilitySource {
 		for (int i = 0; i < vertex.size(); i++) {
 			Matrix newTemp = new Matrix(vertex.get(i).bones);
 			boolean newMatrix = true;
-			for (int m = 0; m < matrix.size() && newMatrix; m++) {
+			for (int m = 0; (m < matrix.size()) && newMatrix; m++) {
 				if (newTemp.equals(matrix.get(m))) {
 					newTemp = matrix.get(m);
 					newMatrix = false;
@@ -708,7 +733,7 @@ public class Geoset implements Named, VisibilitySource {
 			if (temp > bigNum) {
 				bigNum = temp;
 			}
-			if (littleNum == -1 || temp < littleNum) {
+			if ((littleNum == -1) || (temp < littleNum)) {
 				littleNum = temp;
 			}
 		}
@@ -729,10 +754,12 @@ public class Geoset implements Named, VisibilitySource {
 					final TVertex temp = vertex.get(i).getTVertex(uv);
 					if (temp != null) {
 						uvlayers.get(uv).addTVertex(temp);
-					} else {
+					}
+					else {
 						uvlayers.get(uv).addTVertex(new TVertex(0, 0));
 					}
-				} catch (final IndexOutOfBoundsException e) {
+				}
+				catch (final IndexOutOfBoundsException e) {
 					uvlayers.get(uv).addTVertex(new TVertex(0, 0));
 				}
 			}
@@ -775,7 +802,7 @@ public class Geoset implements Named, VisibilitySource {
 						singleBoneList.add(bone);
 						final Matrix newTemp = new Matrix(singleBoneList);
 						int index = -1;
-						for (int m = 0; m < matrix.size() && index == -1; m++) {
+						for (int m = 0; (m < matrix.size()) && (index == -1); m++) {
 							if (newTemp.equals(matrix.get(m))) {
 								index = m;
 							}
@@ -784,10 +811,11 @@ public class Geoset implements Named, VisibilitySource {
 					}
 				}
 				geosetVertex.VertexGroup = -1;
-			} else {
+			}
+			else {
 				Matrix newTemp = new Matrix(geosetVertex.bones);
 				boolean newMatrix = true;
-				for (int m = 0; m < matrix.size() && newMatrix; m++) {
+				for (int m = 0; (m < matrix.size()) && newMatrix; m++) {
 					if (newTemp.equals(matrix.get(m))) {
 						newTemp = matrix.get(m);
 						newMatrix = false;
@@ -802,7 +830,7 @@ public class Geoset implements Named, VisibilitySource {
 			}
 		}
 		final boolean printTangentsToFile = ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion())
-				&& vertex.size() > 0 && vertex.get(0).getTangent() != null;
+				&& (vertex.size() > 0) && (vertex.get(0).getTangent() != null);
 		writer.println("\tVertexGroup {");
 		if (!printTangentsToFile) {
 			for (int i = 0; i < vertex.size(); i++) {
@@ -846,21 +874,23 @@ public class Geoset implements Named, VisibilitySource {
 			writer.println("\t}");
 		}
 		if (trianglesTogether) {
-			writer.println("\tFaces 1 " + triangles.size() * 3 + " {");
+			writer.println("\tFaces 1 " + (triangles.size() * 3) + " {");
 			writer.println("\t\tTriangles {");
 			String triangleOut = "\t\t\t{ ";
 			for (int i = 0; i < triangles.size(); i++) {
 				triangles.get(i).updateVertexIds(this);
-				if (i != triangles.size() - 1) {
+				if (i != (triangles.size() - 1)) {
 					triangleOut = triangleOut + triangles.get(i).toString() + ", ";
-				} else {
+				}
+				else {
 					triangleOut = triangleOut + triangles.get(i).toString() + " ";
 				}
 			}
 			writer.println(triangleOut + "},");
 			writer.println("\t\t}");
-		} else {
-			writer.println("\tFaces " + triangles.size() + " " + triangles.size() * 3 + " {");
+		}
+		else {
+			writer.println("\tFaces " + triangles.size() + " " + (triangles.size() * 3) + " {");
 			writer.println("\t\tTriangles {");
 			final String triangleOut = "\t\t\t{ ";
 			for (int i = 0; i < triangles.size(); i++) {
@@ -889,7 +919,7 @@ public class Geoset implements Named, VisibilitySource {
 
 		writer.println("\tMaterialID " + materialID + ",");
 		writer.println("\tSelectionGroup " + selectionGroup + ",");
-		if (levelOfDetailName != null && ModelUtils.isLevelOfDetailSupported(mdlr.getFormatVersion())) {
+		if ((levelOfDetailName != null) && ModelUtils.isLevelOfDetailSupported(mdlr.getFormatVersion())) {
 			writer.println("\tLevelOfDetail " + levelOfDetail + ",");
 			writer.println("\tName \"" + levelOfDetailName + "\",");
 		}
@@ -914,7 +944,7 @@ public class Geoset implements Named, VisibilitySource {
 			if (temp > bigNum) {
 				bigNum = temp;
 			}
-			if (littleNum == -1 || temp < littleNum) {
+			if ((littleNum == -1) || (temp < littleNum)) {
 				littleNum = temp;
 			}
 		}
@@ -933,7 +963,8 @@ public class Geoset implements Named, VisibilitySource {
 				final TVertex temp = vertex.get(i).getTVertex(uv);
 				if (temp != null) {
 					uvlayers.get(uv).addTVertex(temp);
-				} else {
+				}
+				else {
 					uvlayers.get(uv).addTVertex(new TVertex(0, 0));
 				}
 			}
@@ -945,7 +976,7 @@ public class Geoset implements Named, VisibilitySource {
 			if (geosetVertex.getSkinBones() != null) {
 				if (matrix.isEmpty()) {
 					final ArrayList<Bone> bones = mdlr.sortedIdObjects(Bone.class);
-					for (int j = 0; j < bones.size() && j < 256; j++) {
+					for (int j = 0; (j < bones.size()) && (j < 256); j++) {
 						final ArrayList<Bone> singleBoneList = new ArrayList<Bone>();
 						singleBoneList.add(bones.get(j));
 						final Matrix e = new Matrix(singleBoneList);
@@ -960,7 +991,7 @@ public class Geoset implements Named, VisibilitySource {
 						singleBoneList.add(bone);
 						final Matrix newTemp = new Matrix(singleBoneList);
 						int index = -1;
-						for (int m = 0; m < matrix.size() && index == -1; m++) {
+						for (int m = 0; (m < matrix.size()) && (index == -1); m++) {
 							if (newTemp.equals(matrix.get(m))) {
 								index = m;
 							}
@@ -969,10 +1000,11 @@ public class Geoset implements Named, VisibilitySource {
 					}
 				}
 				geosetVertex.VertexGroup = -1;
-			} else {
+			}
+			else {
 				Matrix newTemp = new Matrix(vertex.get(i).bones);
 				boolean newMatrix = true;
-				for (int m = 0; m < matrix.size() && newMatrix; m++) {
+				for (int m = 0; (m < matrix.size()) && newMatrix; m++) {
 					if (newTemp.equals(matrix.get(m))) {
 						newTemp = matrix.get(m);
 						newMatrix = false;
@@ -1143,8 +1175,8 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	public boolean isHD() {
-		return getParentModel().getFormatVersion() >= 900 && !getVertices().isEmpty()
-				&& getVertex(0).getTangent() != null;
+		return (getParentModel().getFormatVersion() >= 900) && !getVertices().isEmpty()
+				&& (getVertex(0).getTangent() != null);
 	}
 
 	public ExtLog calculateExtent() {
@@ -1170,8 +1202,8 @@ public class Geoset implements Named, VisibilitySource {
 			if (geosetVertex.z < minZ) {
 				minZ = geosetVertex.z;
 			}
-			final double distanceFromCenter = Math.sqrt(geosetVertex.x * geosetVertex.x
-					+ geosetVertex.y * geosetVertex.y + geosetVertex.z * geosetVertex.z);
+			final double distanceFromCenter = Math.sqrt((geosetVertex.x * geosetVertex.x)
+					+ (geosetVertex.y * geosetVertex.y) + (geosetVertex.z * geosetVertex.z));
 			if (distanceFromCenter > maximumDistanceFromCenter) {
 				maximumDistanceFromCenter = distanceFromCenter;
 			}
