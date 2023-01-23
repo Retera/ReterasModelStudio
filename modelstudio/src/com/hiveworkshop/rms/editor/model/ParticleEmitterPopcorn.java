@@ -261,6 +261,14 @@ public class ParticleEmitterPopcorn extends IdObject {
 		return this;
 	}
 
+	public ParticleEmitterPopcorn setAlwaysState(State state) {
+		always = state;
+		return this;
+	}
+	public State getAlwaysState() {
+		return always;
+	}
+
 	public ParticleEmitterPopcorn setAnimVisState(Animation animation, State state) {
 		animationVisStateMap.put(animation, state);
 		return this;

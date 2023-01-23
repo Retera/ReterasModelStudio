@@ -313,6 +313,7 @@ public class EditorHelpers {
 //			timeLogger.log("flagPanel updated for " + node);
 //			staticTextureChooser.setSelectedItem(bitmap);
 			staticTextureChooser.selectOrFirst(bitmap);
+			staticTextureChooser.setToolTipText(bitmap.getName());
 //			timeLogger.log("static bitmap set for " + node);
 //			System.out.println("[TextureEditor]: update - " + node);
 //			timeLogger.print();

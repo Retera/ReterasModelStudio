@@ -23,6 +23,9 @@ import static com.hiveworkshop.rms.util.ImageUtils.ImageCreator.forceBufferedIma
 public class TextureLoader {
 	TextureCache cache = new TextureCache();
 	Bitmap tempBitmap = new Bitmap();
+	BufferedImage checkerImage = ImageUtils.getCheckerImage(64, 64, 2, new Color(200, 80, 200, 255), new Color(110, 0, 110, 255));
+	BufferedImage normalPlaceholder = ImageUtils.getColorImage(new Color(127, 127, 0, 255));
+	BufferedImage ormPlaceholder = ImageUtils.getColorImage(new Color(127, 85, 0, 0));
 
 	public BufferedImage getImage(String path) {
 		return getTexture(GameDataFileSystem.getDefault(), tempBitmap.setPath(path));
@@ -38,6 +41,14 @@ public class TextureLoader {
 		return getTexture(workingDirectory, bitmap);
 	}
 
+	public boolean isBitmapFound(Bitmap bitmap) {
+		TextureHelper textureHelper = cache.get(bitmap.getRenderableTexturePath());
+		if (textureHelper != null) {
+			BufferedImage bufferedImage = textureHelper.getBufferedImage();
+			return bufferedImage != checkerImage && bufferedImage != normalPlaceholder && bufferedImage != ormPlaceholder;
+		}
+		return false;
+	}
 
 	private BufferedImage getTexture(DataSource dataSource, Bitmap bitmap) {
 		BufferedImage cachedBufferedImage = getCachedBufferedImage(bitmap.getRenderableTexturePath());
@@ -100,7 +111,7 @@ public class TextureLoader {
 				BufferedImage resultImage = loadTextureFromFile(file);
 				if (resultImage != null) {
 //				System.out.println("found image with path: \"" + path + "\"");
-					TextureHelper textureHelper = new TextureHelper(file, resultImage, dataSource.allowDownstreamCaching(filepath), bitmap);
+					TextureHelper textureHelper = new TextureHelper(file, resultImage, !dataSource.allowDownstreamCaching(filepath), bitmap);
 					cache.put(filepath.toLowerCase(Locale.US), textureHelper);
 					return textureHelper;
 				}
@@ -116,21 +127,19 @@ public class TextureLoader {
 
 			return textureHelper;
 		} else if (filepath.toLowerCase().matches(".+_orm\\.\\w{3,4}")){
-			Color color = new Color(127, 85, 0, 0);
-			BufferedImage bufferedImage = ImageUtils.getColorImage(color);
-			System.out.println("could not find ORM: \"" + filepath + "\"");
+//			System.out.println("could not find ORM: \"" + filepath + "\"");
 
-			TextureHelper textureHelper = new TextureHelper(null, bufferedImage, true, bitmap);
+			TextureHelper textureHelper = new TextureHelper(null, ormPlaceholder, false, bitmap);
 			cache.put(filepath.toLowerCase(Locale.US), textureHelper);
 		} else if (filepath.toLowerCase().matches(".+_normal\\.\\w{3,4}")){
-			System.out.println("could not find Normal: \"" + filepath + "\"");
-			BufferedImage bufferedImage = ImageUtils.getColorImage(new Color(127, 127, 0, 255));
-			TextureHelper textureHelper = new TextureHelper(null, bufferedImage, true, bitmap);
+//			System.out.println("could not find Normal: \"" + filepath + "\"");
+			BufferedImage bufferedImage = normalPlaceholder;
+			TextureHelper textureHelper = new TextureHelper(null, bufferedImage, false, bitmap);
 			cache.put(filepath.toLowerCase(Locale.US), textureHelper);
 		} else {
-			System.out.println("could not find texture: \"" + filepath + "\"");
-			BufferedImage bufferedImage = ImageUtils.getCheckerImage(64, 64, 2, new Color(200, 80, 200, 255), new Color(110, 0, 110, 255));
-			TextureHelper textureHelper = new TextureHelper(null, bufferedImage, true, bitmap);
+//			System.out.println("could not find texture: \"" + filepath + "\"");
+			BufferedImage bufferedImage = checkerImage;
+			TextureHelper textureHelper = new TextureHelper(null, bufferedImage, false, bitmap);
 			cache.put(filepath.toLowerCase(Locale.US), textureHelper);
 		}
 		return null;
@@ -171,7 +180,7 @@ public class TextureLoader {
 		return null;
 	}
 	private BufferedImage loadTextureFromFile(File file) throws IOException {
-		if (file.exists()) {
+		if (file != null && file.exists()) {
 			if (file.getPath().toLowerCase(Locale.US).endsWith(".tga")) {
 				try (InputStream inputStream = new FileInputStream(file)){
 					return new TwiTGAFile(inputStream).getAsBufferedImage();

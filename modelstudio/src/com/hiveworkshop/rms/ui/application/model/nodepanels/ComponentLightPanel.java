@@ -27,7 +27,7 @@ public class ComponentLightPanel extends ComponentIdObjectPanel<Light> {
 		intensityPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_INTENSITY, this::setIntensity);
 		colorPanel = new EditorHelpers.ColorEditor(modelHandler, this::setColor);
 		ambIntensityPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_AMB_INTENSITY, this::setAmbIntensity);
-		ambColorPanel = new EditorHelpers.ColorEditor(modelHandler, this::setAmbColor);
+		ambColorPanel = new EditorHelpers.ColorEditor(modelHandler, MdlUtils.TOKEN_AMB_COLOR, this::setAmbColor);
 
 		typeTwiComboBox = new TwiComboBox<>(MdlxLight.Type.values()).addOnSelectItemListener(this::setType);
 		topPanel.add(typeTwiComboBox, "spanx, growx, wrap");
@@ -61,37 +61,37 @@ public class ComponentLightPanel extends ComponentIdObjectPanel<Light> {
 
 	private void setAttenuationStart(float value){
 		if(idObject.getAttenuationStart() != value) {
-			undoManager.pushAction(new ConsumerAction<>(idObject::setAttenuationStart, value, idObject.getAttenuationStart(), "AttenuationStart").redo());
+			undoManager.pushAction(new ConsumerAction<>(idObject::setAttenuationStart, value, idObject.getAttenuationStart(), MdlUtils.TOKEN_ATTENUATION_START).redo());
 		}
 	}
 
 	private void setAttenuationEnd(float value){
 		if(idObject.getAttenuationEnd() != value) {
-			undoManager.pushAction(new ConsumerAction<>(idObject::setAttenuationEnd, value, idObject.getAttenuationEnd(), "AttenuationEnd").redo());
+			undoManager.pushAction(new ConsumerAction<>(idObject::setAttenuationEnd, value, idObject.getAttenuationEnd(), MdlUtils.TOKEN_ATTENUATION_END).redo());
 		}
 	}
 
 	private void setIntensity(float value){
 		if(idObject.getIntensity() != value) {
-			undoManager.pushAction(new ConsumerAction<>(idObject::setIntensity, (double) value, idObject.getIntensity(), "Intensity").redo());
+			undoManager.pushAction(new ConsumerAction<>(idObject::setIntensity, (double) value, idObject.getIntensity(), MdlUtils.TOKEN_INTENSITY).redo());
 		}
 	}
 
 	private void setColor(Vec3 value){
-		if(idObject.getStaticColor() != value) {
-			undoManager.pushAction(new ConsumerAction<>(idObject::setStaticColor, value, idObject.getStaticColor(), "StaticColor").redo());
+		if(!idObject.getStaticColor().equalLocs(value)) {
+			undoManager.pushAction(new ConsumerAction<>(idObject::setStaticColor, value, idObject.getStaticColor(), MdlUtils.TOKEN_STATIC_COLOR).redo());
 		}
 	}
 
 	private void setAmbIntensity(float value){
 		if(idObject.getAmbIntensity() != value) {
-			undoManager.pushAction(new ConsumerAction<>(idObject::setAmbIntensity, (double) value, idObject.getAmbIntensity(), "AmbIntensity").redo());
+			undoManager.pushAction(new ConsumerAction<>(idObject::setAmbIntensity, (double) value, idObject.getAmbIntensity(), MdlUtils.TOKEN_AMB_INTENSITY).redo());
 		}
 	}
 
 	private void setAmbColor(Vec3 value){
-		if(idObject.getStaticAmbColor() != value) {
-			undoManager.pushAction(new ConsumerAction<>(idObject::setStaticAmbColor, value, idObject.getStaticAmbColor(), "StaticAmbColor").redo());
+		if(!idObject.getStaticAmbColor().equalLocs(value)) {
+			undoManager.pushAction(new ConsumerAction<>(idObject::setStaticAmbColor, value, idObject.getStaticAmbColor(), MdlUtils.TOKEN_STATIC_AMB_COLOR).redo());
 		}
 	}
 }

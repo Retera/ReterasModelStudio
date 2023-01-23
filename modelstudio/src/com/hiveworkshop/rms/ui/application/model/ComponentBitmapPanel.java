@@ -2,8 +2,7 @@ package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.actions.model.bitmap.SetBitmapPathAction;
 import com.hiveworkshop.rms.editor.actions.model.bitmap.SetBitmapReplaceableIdAction;
-import com.hiveworkshop.rms.editor.actions.model.bitmap.SetBitmapWrapHeightAction;
-import com.hiveworkshop.rms.editor.actions.model.bitmap.SetBitmapWrapWidthAction;
+import com.hiveworkshop.rms.editor.actions.model.bitmap.SetBitmapWrapModeAction;
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
@@ -47,10 +46,10 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 		sizeLabel = new JLabel();
 
 		wrapWidthBox = new JCheckBox("Wrap Width");
-		wrapWidthBox.addActionListener(e -> wrapWidthBox(wrapWidthBox.isSelected()));
+		wrapWidthBox.addActionListener(e -> setWrap(Bitmap.flag.WRAP_WIDTH, wrapWidthBox.isSelected()));
 
 		wrapHeightBox = new JCheckBox("Wrap Height");
-		wrapHeightBox.addActionListener(e -> wrapHeightBox(wrapHeightBox.isSelected()));
+		wrapHeightBox.addActionListener(e -> setWrap(Bitmap.flag.WRAP_HEIGHT, wrapHeightBox.isSelected()));
 
 		imagePreviewPanel = new ZoomableImagePreviewPanel(null);
 		previewPanel = new JPanel();
@@ -99,15 +98,9 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 		ExportTexture.onClickSaveAs(texture, suggestedName, FileDialog.SAVE_TEXTURE, fileDialog, ProgramGlobals.getMainPanel());
 	}
 
-	private void wrapHeightBox(boolean b) {
-		if(bitmap.isWrapHeight() != b){
-			undoManager.pushAction(new SetBitmapWrapHeightAction(bitmap, b, changeListener).redo());
-		}
-	}
-
-	private void wrapWidthBox(boolean b) {
-		if(bitmap.isWrapWidth() != b){
-			undoManager.pushAction(new SetBitmapWrapWidthAction(bitmap, b, changeListener).redo());
+	private void setWrap(Bitmap.flag flag, boolean set){
+		if (bitmap.isFlagSet(flag) != set) {
+			undoManager.pushAction(new SetBitmapWrapModeAction(bitmap, flag, set, changeListener).redo());
 		}
 	}
 

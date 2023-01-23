@@ -7,10 +7,14 @@ import javax.swing.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class SaveProfile implements Serializable {
 	final static long serialVersionUID = 6L;
 	String lastDirectory;
+
+	Set<File> favoriteDirectories;
 	static SaveProfile currentProfile;
 
 	List<String> recent = null;
@@ -30,6 +34,13 @@ public class SaveProfile implements Serializable {
 			recent = new ArrayList<>();
 		}
 		return recent;
+	}
+
+	public Set<File> getFavorites() {
+		if (favoriteDirectories == null) {
+			favoriteDirectories = new TreeSet<>();
+		}
+		return favoriteDirectories;
 	}
 
 	public static SaveProfile get() {
@@ -267,6 +278,19 @@ public class SaveProfile implements Serializable {
 	public void removeFromRecent(final String fp) {
 		if (getRecent().contains(fp)) {
 			getRecent().remove(fp);
+			save();
+		}
+	}
+
+	public void addFavorite(final File fp) {
+//		getFavorites().remove(fp);
+		getFavorites().add(fp);
+		save();
+	}
+
+	public void removeFromFavorite(final File fp) {
+		if (getFavorites().contains(fp)) {
+			getFavorites().remove(fp);
 			save();
 		}
 	}

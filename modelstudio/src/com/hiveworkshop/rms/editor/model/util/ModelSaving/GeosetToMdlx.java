@@ -166,7 +166,7 @@ public class GeosetToMdlx {
 	public static MdlxGeosetAnimation animatedToMdlx(Geoset geoset, EditableModel model) {
 		MdlxGeosetAnimation animation = new MdlxGeosetAnimation();
 
-		animation.geosetId = model.computeGeosetID(geoset);
+		animation.geosetId = model.getGeosetId(geoset);
 
 		if (geoset.isDropShadow()) {
 			animation.flags |= 1;

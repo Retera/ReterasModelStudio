@@ -114,7 +114,7 @@ public class MdlxParticleEmitterPopcorn extends MdlxGenericObject {
 		}
 
 		if (!writeTimeline(stream, AnimationMap.KPPC)) {
-			stream.writeFloatArrayAttrib(MdlUtils.TOKEN_STATIC_COLOR, color);
+			stream.writeColor(MdlUtils.TOKEN_STATIC_COLOR, color);
 		}
 
 		if (!writeTimeline(stream, AnimationMap.KPPA)) {

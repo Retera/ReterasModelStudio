@@ -21,7 +21,7 @@ public class Layer extends TimelineContainer implements Named {
 	private int coordId = 0;
 	private TextureAnim textureAnim;
 	private double emissiveGain = 0;
-	private Vec3 fresnelColor = new Vec3(1, 1, 1);
+	private final Vec3 fresnelColor = new Vec3(1, 1, 1);
 	private double fresnelOpacity = 0;
 	private double fresnelTeamColor = 0;
 	private double staticAlpha = 1;// Amount of static alpha (opacity)
@@ -58,7 +58,7 @@ public class Layer extends TimelineContainer implements Named {
 		}
 		staticAlpha = other.staticAlpha;
 		emissiveGain = other.emissiveGain;
-		fresnelColor = new Vec3(other.fresnelColor);
+		fresnelColor.set(other.fresnelColor);
 		fresnelOpacity = other.fresnelOpacity;
 		fresnelTeamColor = other.fresnelTeamColor;
 
@@ -199,7 +199,7 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public void setFresnelColor(Vec3 fresnelColor) {
-		this.fresnelColor = fresnelColor;
+		this.fresnelColor.set(fresnelColor);
 	}
 
 	public double getFresnelOpacity() {
@@ -316,7 +316,7 @@ public class Layer extends TimelineContainer implements Named {
 		temp = Double.doubleToLongBits(fresnelTeamColor);
 		result = (prime * result) + (int) (temp ^ (temp >>> 32));
 		result = (prime * result) + ((filterMode == null) ? 0 : filterMode.hashCode());
-		// result = (prime * result) + ((flags == null) ? 0 : flags.hashCode());
+		result = (prime * result) + flags.hashCode();
 		temp = Double.doubleToLongBits(staticAlpha);
 		result = (prime * result) + (int) (temp ^ (temp >>> 32));
 //		result = (prime * result) + ((texture == null) ? 0 : texture.hashCode());
@@ -359,7 +359,7 @@ public class Layer extends TimelineContainer implements Named {
 			if (Float.MIN_VALUE < (fresnelTeamColor - other.fresnelTeamColor) ) {
 				return false;
 			}
-			if (fresnelColor != other.fresnelColor && fresnelColor != null && !fresnelColor.equalLocs(other.fresnelColor)) {
+			if (fresnelColor != other.fresnelColor && !fresnelColor.equalLocs(other.fresnelColor)) {
 				return false;
 			}
 			if (filterMode != other.filterMode) {

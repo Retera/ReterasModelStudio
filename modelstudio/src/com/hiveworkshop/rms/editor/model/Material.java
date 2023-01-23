@@ -9,7 +9,7 @@ import java.util.*;
  *
  * Eric Theller 11/5/2011
  */
-public class Material {
+public class Material implements Named {
 	public static final String SHADER_HD_DEFAULT_UNIT = "Shader_HD_DefaultUnit";
 	public static final String SHADER_HD_CRYSTAL = "Shader_HD_Crystal";
 	public static final String SHADER_SD_FIXEDFUNCTION = "Shader_SD_FixedFunction";
@@ -129,6 +129,11 @@ public class Material {
 			name.append("This material got no layers!");
 		}
 		return name.toString();
+	}
+
+
+	@Override
+	public void setName(String text) {
 	}
 
 	public Layer firstLayer() {

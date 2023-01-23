@@ -11,12 +11,20 @@ import java.util.List;
 
 public class RemoveBitmapAction implements UndoAction {
 	private final Bitmap bitmapToRemove;
+	private final Bitmap replacement;
+	private final int index;
 	private final EditableModel model;
 	private final ModelStructureChangeListener changeListener;
-	List<UndoAction> undoActions;
+	private final List<UndoAction> undoActions;
 
 	public RemoveBitmapAction(Bitmap bitmapToRemove, EditableModel model, ModelStructureChangeListener changeListener) {
+		this(bitmapToRemove, null, model, changeListener);
+	}
+
+	public RemoveBitmapAction(Bitmap bitmapToRemove, Bitmap replacement, EditableModel model, ModelStructureChangeListener changeListener) {
 		this.bitmapToRemove = bitmapToRemove;
+		this.replacement = replacement;
+		this.index = model.getId(bitmapToRemove);
 		this.model = model;
 		this.changeListener = changeListener;
 		undoActions = getRemoveActions(bitmapToRemove);
@@ -24,7 +32,7 @@ public class RemoveBitmapAction implements UndoAction {
 
 	@Override
 	public UndoAction undo() {
-		model.add(bitmapToRemove);
+		model.add(bitmapToRemove, index);
 		for (UndoAction undoAction : undoActions){
 			undoAction.undo();
 		}
@@ -76,11 +84,13 @@ public class RemoveBitmapAction implements UndoAction {
 	}
 
 	private Bitmap getReplacementBitmap(Bitmap texture) {
-		for(Bitmap bitmap : model.getTextures()){
-			if(bitmap != texture){
-				return bitmap;
+		if (replacement == null){
+			for(Bitmap bitmap : model.getTextures()){
+				if(bitmap != texture){
+					return bitmap;
+				}
 			}
 		}
-		return null;
+		return replacement;
 	}
 }

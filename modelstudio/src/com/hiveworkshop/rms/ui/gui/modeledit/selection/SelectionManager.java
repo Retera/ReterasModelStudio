@@ -102,14 +102,15 @@ public class SelectionManager extends AbstractSelectionManager {
 			return new SelectionBundle(selectedVerts, selectedObjs, selectedCamNodes);
 		}
 
-//		if (selectionMode == SelectionItemTypes.TPOSE) {
-//			List<IdObject> selectedItems = new ArrayList<>();
-//
-//			for (IdObject object : modelView.getEditableIdObjects()) {
-//				double vertexSize = object.getClickRadius();
-//				if (HitTestStuff.hitTest(min, max, object.getPivotPoint(), coordinateSystem, vertexSize)) {
-//					selectedItems.add(object);
-//				}
+		if (selectionMode == SelectionItemTypes.TPOSE) {
+			List<IdObject> selectedItems = new ArrayList<>();
+
+			for (IdObject object : modelView.getEditableIdObjects()) {
+				if (modelView.isEditable(object)) {
+					double vertexSize = object.getClickRadius();
+					if (viewBox.pointInBox(object.getPivotPoint(), (float) vertexSize)) {
+						selectedItems.add(object);
+					}
 //				if (object instanceof CollisionShape) {
 //					for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
 //						if (HitTestStuff.hitTest(min, max, vertex, coordinateSystem, IdObject.DEFAULT_CLICK_RADIUS)) {
@@ -117,9 +118,20 @@ public class SelectionManager extends AbstractSelectionManager {
 //						}
 //					}
 //				}
-//			}
-//			return new SelectionBundle(selectedItems);
-//		}
+				}
+			}
+			Set<CameraNode> selectedCams = new HashSet<>();
+			for(CameraNode cameraNode : modelView.getEditableCameraNodes()) {
+				if (modelView.isEditable(cameraNode)){
+					RenderNodeCamera renderNode = editorRenderModel.getRenderNode(cameraNode.getParent());
+					Vec3 pivot = cameraNode instanceof CameraNode.SourceNode ? renderNode.getPivot() : renderNode.getTarget();
+					if(viewBox.pointInBox(pivot)){
+						selectedCams.add(cameraNode);
+					}
+				}
+			}
+			return new SelectionBundle(selectedItems, selectedCams);
+		}
 
 		if (selectionMode == SelectionItemTypes.ANIMATE) {
 			Vec2 vertexV2 = new Vec2();
@@ -181,24 +193,12 @@ public class SelectionManager extends AbstractSelectionManager {
 			return new SelectionBundle(selectedVerts, selectedObjs, selectedCamNodes);
 		}
 
-//		if (selectionMode == SelectionItemTypes.TPOSE) {
-//			List<IdObject> selectedItems = new ArrayList<>();
-//
-//			for (IdObject object : modelView.getEditableIdObjects()) {
-//				double vertexSize = object.getClickRadius();
-//				if (HitTestStuff.hitTest(min, max, object.getPivotPoint(), coordinateSystem, vertexSize)) {
-//					selectedItems.add(object);
-//				}
-//				if (object instanceof CollisionShape) {
-//					for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
-//						if (HitTestStuff.hitTest(min, max, vertex, coordinateSystem, IdObject.DEFAULT_CLICK_RADIUS)) {
-//							selectedItems.add(object);
-//						}
-//					}
-//				}
-//			}
-//			return new SelectionBundle(selectedItems);
-//		}
+		if (selectionMode == SelectionItemTypes.TPOSE) {
+			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, viewPortAntiRotMat, sizeAdj);
+			Set<CameraNode> selectedCams = getCameraNodesFromArea(min, max, viewPortAntiRotMat, sizeAdj);
+
+			return new SelectionBundle(selectedObjs, selectedCams);
+		}
 
 		if (selectionMode == SelectionItemTypes.ANIMATE) {
 			Vec2 vertexV2 = new Vec2();

@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.language.TextKey;
 
 import java.awt.event.KeyEvent;
@@ -14,15 +15,14 @@ import java.util.Queue;
 
 public class SortNodes extends ActionFunction {
 	public SortNodes(){
-		super(TextKey.SORT_NODES, () -> sortNodes());
+		super(TextKey.SORT_NODES, SortNodes::sortNodes);
 		setMenuItemMnemonic(KeyEvent.VK_S);
 	}
 
-	public static void sortNodes() {
+	public static void sortNodes(ModelHandler modelHandler) {
 		EditableModel model = ProgramGlobals.getCurrentModelPanel().getModel();
 		List<IdObject> roots = new ArrayList<>();
-		List<IdObject> modelList = model.getIdObjects();
-		for (IdObject object : modelList) {
+		for (IdObject object : model.getIdObjects()) {
 			if (object.getParent() == null) {
 				roots.add(object);
 			}
@@ -35,9 +35,7 @@ public class SortNodes extends ActionFunction {
 			result.add(nextItem);
 		}
 		model.clearAllIdObjects();
-//		for (IdObject node : result) {
-//			model.remove(node);
-//		}
+
 		ModelStructureChangeListener.changeListener.nodesUpdated();
 		for (IdObject node : result) {
 			model.add(node);

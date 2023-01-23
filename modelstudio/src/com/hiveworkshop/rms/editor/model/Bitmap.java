@@ -1,16 +1,18 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.parsers.mdlx.MdlxTexture.WrapMode;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+
+import java.util.EnumSet;
 
 /**
  * A class to represent MDL texture references. (Not materials)
  *
  * Eric Theller 11/5/2011
  */
-public class Bitmap {
+public class Bitmap implements Named {
 	private String imagePath = "";
 	private int replaceableId = 0;
-	WrapMode wrapMode = WrapMode.REPEAT_BOTH;
+	private final EnumSet<flag> flags = EnumSet.noneOf(flag.class);
 
 	public String getPath() {
 		return imagePath;
@@ -19,20 +21,23 @@ public class Bitmap {
 	public Bitmap(String imagePath, int replaceableId) {
 		this.imagePath = imagePath;
 		this.replaceableId = replaceableId;
+		if(imagePath == null){
+			System.err.println("Bitmap Path is null!");
+		}
 	}
 
 	public Bitmap(String imagePath) {
-		this.imagePath = imagePath;
+		this(imagePath, 0);
 	}
 
 	public Bitmap(Bitmap other) {
 		imagePath = other.imagePath;
 		replaceableId = other.replaceableId;
-		wrapMode = other.wrapMode;
+		flags.addAll(other.flags);
 	}
 
 	public Bitmap() {
-
+		this("", 0);
 	}
 
 	public int getReplaceableId() {
@@ -57,6 +62,9 @@ public class Bitmap {
 			}
 		}
 	}
+	@Override
+	public void setName(String text) {
+	}
 
 	public Bitmap setReplaceableId(int replaceableId) {
 		this.replaceableId = replaceableId;
@@ -69,7 +77,7 @@ public class Bitmap {
 		int result = 1;
 		result = (prime * result) + ((imagePath == null) ? 0 : imagePath.hashCode());
 		result = (prime * result) + replaceableId;
-		result = (prime * result) + wrapMode.ordinal();
+		result = (prime * result) + flags.hashCode();
 		return result;
 	}
 
@@ -95,63 +103,46 @@ public class Bitmap {
 		if (replaceableId != other.replaceableId) {
 			return false;
 		}
-		return wrapMode == other.wrapMode;
+		return flags.equals(other.flags);
 	}
 
 	public boolean isWrapHeight() {
-		return (wrapMode == WrapMode.WRAP_HEIGHT) || (wrapMode == WrapMode.WRAP_BOTH);
-	}
-
-	public Bitmap setWrapHeight(boolean flag) {
-		if (flag) {
-			if (wrapMode == WrapMode.REPEAT_BOTH) {
-				wrapMode = WrapMode.WRAP_HEIGHT;
-			} else if (wrapMode == WrapMode.WRAP_WIDTH) {
-				wrapMode = WrapMode.WRAP_BOTH;
-			}
-		} else {
-			if (wrapMode == WrapMode.WRAP_BOTH) {
-				wrapMode = WrapMode.WRAP_WIDTH;
-			} else if (wrapMode == WrapMode.WRAP_HEIGHT) {
-				wrapMode = WrapMode.REPEAT_BOTH;
-			}
-		}
-		return this;
+		return flags.contains(flag.WRAP_HEIGHT);
+//		return (wrapMode == WrapMode.WRAP_HEIGHT) || (wrapMode == WrapMode.WRAP_BOTH);
 	}
 
 	public boolean isWrapWidth() {
-		return (wrapMode == WrapMode.WRAP_WIDTH) || (wrapMode == WrapMode.WRAP_BOTH);
+		return flags.contains(flag.WRAP_WIDTH);
 	}
 
-	public Bitmap setWrapWidth(boolean flag) {
-		if (flag) {
-			if (wrapMode == WrapMode.REPEAT_BOTH) {
-				wrapMode = WrapMode.WRAP_WIDTH;
-			} else if (wrapMode == WrapMode.WRAP_HEIGHT) {
-				wrapMode = WrapMode.WRAP_BOTH;
-			}
-		} else {
-			if (wrapMode == WrapMode.WRAP_BOTH) {
-				wrapMode = WrapMode.WRAP_HEIGHT;
-			} else if (wrapMode == WrapMode.WRAP_WIDTH) {
-				wrapMode = WrapMode.REPEAT_BOTH;
-			}
-		}
+	public Bitmap setWrapHeight(boolean wrap) {
+		boolean ugg = wrap ? flags.add(flag.WRAP_HEIGHT) : flags.remove(flag.WRAP_HEIGHT);
 		return this;
 	}
 
-	public WrapMode getWrapMode() {
-		return wrapMode;
+	public Bitmap setWrapWidth(boolean wrap) {
+		boolean ugg = wrap ? flags.add(flag.WRAP_WIDTH) : flags.remove(flag.WRAP_WIDTH);
+		return this;
 	}
 
-	public Bitmap setWrapMode(WrapMode wrapMode) {
-		this.wrapMode = wrapMode;
+	public boolean isFlagSet(flag flag){
+		return flags.contains(flag);
+	}
+	public Bitmap setFlag(flag flag, boolean set){
+		if(set){
+			flags.add(flag);
+		} else {
+			flags.remove(flag);
+		}
 		return this;
 	}
 
 	public Bitmap setPath(String imagePath) {
 		this.imagePath = imagePath;
 		return this;
+	}
+	public EnumSet<flag> getFlags() {
+		return flags;
 	}
 
 	public String getRenderableTexturePath() {
@@ -182,5 +173,24 @@ public class Bitmap {
 			};
 		}
 		return imagePath;
+	}
+
+	public enum flag {
+		WRAP_WIDTH(MdlUtils.TOKEN_WRAP_WIDTH, 0x1),
+		WRAP_HEIGHT(MdlUtils.TOKEN_WRAP_HEIGHT, 0x2);
+		final String name;
+		final int flagBit;
+		flag(String name, int flagBit){
+			this.name = name;
+			this.flagBit = flagBit;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public int getFlagBit() {
+			return flagBit;
+		}
 	}
 }

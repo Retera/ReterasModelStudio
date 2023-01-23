@@ -32,6 +32,9 @@ public class AnimationChooser extends TwiComboBox<Sequence>{
 	}
 
 	public AnimationChooser setModel(EditableModel model, RenderModel renderModel) {
+		if(this.model != model){
+			getComboBoxModel().setSelectedNoListener(null);
+		}
 		this.model = model;
 		if(renderModel != null){
 			timeEnvironment = renderModel.getTimeEnvironment();
@@ -44,6 +47,9 @@ public class AnimationChooser extends TwiComboBox<Sequence>{
 	public AnimationChooser setModel(RenderModel renderModel) {
 //		System.out.println("[AnimationChooser] setModel");
 		if(renderModel != null){
+			if(this.model != renderModel.getModel()){
+				getComboBoxModel().setSelectedNoListener(null);
+			}
 			this.model = renderModel.getModel();
 			timeEnvironment = renderModel.getTimeEnvironment();
 		} else {

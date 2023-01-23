@@ -216,6 +216,16 @@ public class EditableModel implements Named {
 		}
 	}
 
+	public void add(final Bitmap x, int index) {
+		if (x != null) {
+			if(0 <= index && index !=textures.size()){
+				textures.add(index, x);
+			} else {
+				textures.add(x);
+			}
+		}
+	}
+
 	public void add(final Camera x) {
 		if (x == null) {
 			JOptionPane.showMessageDialog(null,
@@ -503,6 +513,27 @@ public class EditableModel implements Named {
 
 	public int getTextureAnimId(final TextureAnim texa) {
 		return texAnims.indexOf(texa);
+	}
+
+	public int getId(final Object object) {
+		if (object instanceof GlobalSeq){
+			return globalSeqs.indexOf(object);
+		} else if (object instanceof Animation){
+			return anims.indexOf(object);
+		} else if (object instanceof TextureAnim){
+			return texAnims.indexOf(object);
+		} else if (object instanceof Bitmap){
+			return textures.indexOf(object);
+		} else if (object instanceof Material){
+			return materials.indexOf(object);
+		} else if (object instanceof Geoset){
+			return geosets.indexOf(object);
+		} else if (object instanceof IdObject){
+			return modelIdObjects.getObjectId((IdObject) object);
+		} else if (object instanceof Camera){
+			return cameras.indexOf(object);
+		}
+		return -1;
 	}
 
 	public List<Animation> getAnims() {

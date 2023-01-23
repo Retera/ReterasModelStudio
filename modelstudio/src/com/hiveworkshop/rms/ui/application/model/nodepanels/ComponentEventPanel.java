@@ -18,7 +18,6 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.util.TreeSet;
-import java.util.function.Consumer;
 
 public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 	private final JPanel soundsPanel;
@@ -44,29 +43,27 @@ public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 		Sound sound = ProgramGlobals.getSoundMappings().getSound(idObject.getName());
 		if (sound != null) {
 			soundsPanel.add(new JLabel("Name: " + sound.getSoundName()), "wrap, gapbottom 10");
-			String[] soundPaths = sound.getFilePaths();
-			String[] soundNames = sound.getFileNames();
-//			System.out.println("got paths");
-			for (int i = 0; i < soundPaths.length; i++) {
-				makeSoundButton(soundPaths[i], soundNames[i]);
+			String[][] soundNameAndPaths = sound.getFileNameAndPaths();
+			for (String[] soundNameAndPath : soundNameAndPaths) {
+				makeSoundButton(soundNameAndPath[1], soundNameAndPath[0]);
+
+				soundsPanel.add(new JLabel(soundNameAndPath[0]));
+				soundsPanel.add(getButton("play", e -> SoundPlayer.play(soundNameAndPath[1])), "wrap");
 			}
+			soundsPanel.repaint();
 		}
 		eventName.setText(EventObject.getEventName(idObject.getName()));
 		updateTracksPanel();
-//		trackPanel.reloadNewValue(0, idObject.);
 	}
 
 	private void makeSoundButton(String path, String name) {
 		soundsPanel.add(new JLabel(name));
 		soundsPanel.add(getButton("play", e -> SoundPlayer.play(path)), "wrap");
-		soundsPanel.repaint();
-		System.out.println("got sound: " + path);
+//		System.out.println("got sound: " + path);
 	}
 
 	private void updateTracksPanel() {
 		tracksPanel.removeAll();
-//		tracksPanel.add(new JLabel("Animation"));
-//		tracksPanel.add(new JLabel("Event Start Time"), "wrap");
 		for (Sequence sequence : new TreeSet<>(idObject.getEventTrackAnimMap().keySet())) {
 			TreeSet<Integer> eventTrack = idObject.getEventTrack(sequence);
 			if (eventTrack != null) {
@@ -75,15 +72,14 @@ public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 			}
 		}
 		JButton addEventActionButton = new JButton("Add Sequence");
-		addEventActionButton.addActionListener(e -> addEventAction());
+		addEventActionButton.addActionListener(e -> addSequence(getSequence()));
 		tracksPanel.add(addEventActionButton, "wrap");
 	}
 
 	private JPanel getSequencePanel(Sequence sequence, TreeSet<Integer> eventTrack) {
 		JPanel sequenceTrackPanel = new JPanel(new MigLayout("ins 0"));
 		for (int track : eventTrack) {
-			Consumer<Integer> integerConsumer = (i) -> editingStoppedListener(sequence, track, i);
-			IntEditorJSpinner trackSpinner = new IntEditorJSpinner(track, Integer.MIN_VALUE, integerConsumer);
+			IntEditorJSpinner trackSpinner = new IntEditorJSpinner(track, Integer.MIN_VALUE, (i) -> editTrack(sequence, track, i));
 			sequenceTrackPanel.add(trackSpinner, "");
 			sequenceTrackPanel.add(getXButton(e -> removeTrack(sequence, track)), "wrap");
 		}
@@ -92,41 +88,44 @@ public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 
 		JPanel sequencePanel = new JPanel(new MigLayout("ins 0"));
 		sequencePanel.setBorder(BorderFactory.createTitledBorder("" + sequence));
-//		sequencePanel.add(new JLabel("" + sequence));
 		sequencePanel.add(getDeleteButton(e -> removeSequence(sequence)), "wrap");
 		sequencePanel.add(sequenceTrackPanel);
 
 		return sequencePanel;
 	}
-
-	private void addEventAction() {
+	private void addSequence(Sequence newSequence) {
+		if (newSequence != null) {
+			undoManager.pushAction(new AddEventTrackAction(idObject, newSequence, 0, changeListener).redo());
+		}
+	}
+	private Sequence getSequence() {
 		JPanel panel = new JPanel(new MigLayout());
 		TwiComboBox<Sequence> animationBox = new TwiComboBox<>(new Animation("Stand and work for me", 0, 1));
 		animationBox.addAll(model.getAnims());
 		animationBox.addAll(model.getGlobalSeqs());
+		animationBox.removeItem(idObject.getGlobalSeq());
+		for (Sequence sequence : idObject.getEventTrackAnimMap().keySet()){
+			animationBox.removeItem(sequence);
+		}
+		animationBox.selectOrFirst(null);
 
 		animationBox.setRenderer(new SequenceComboBoxRenderer(modelHandler));
 		panel.add(animationBox);
 		int opt = JOptionPane.showConfirmDialog(this, panel, "Add Event Track", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-		if (opt == JOptionPane.OK_OPTION && animationBox.getSelectedItem() != null) {
-			undoManager.pushAction(new AddEventTrackAction(idObject, (Sequence) animationBox.getSelectedItem(), 0, changeListener).redo());
+		if (opt == JOptionPane.OK_OPTION) {
+			return animationBox.getSelected();
 		}
-	}
-
-	private void editingStoppedListener(Sequence sequence, int track, int newValue) {
-		editTrack(sequence, track, newValue);
+		return null;
 	}
 
 	private void editTrack(Sequence sequence, int track, int newValue) {
-		undoManager.pushAction(new EditEventTrackAction(idObject, sequence, track, newValue, changeListener).redo());
+		if(track != newValue){
+			undoManager.pushAction(new EditEventTrackAction(idObject, sequence, track, newValue, changeListener).redo());
+		}
 	}
 
 	private void addTrack(Sequence sequence, int track) {
 		undoManager.pushAction(new AddEventTrackAction(idObject, sequence, track, changeListener).redo());
-	}
-
-	private void addSequence(Sequence sequence) {
-		undoManager.pushAction(new AddEventTrackAction(idObject, sequence, 0, changeListener).redo());
 	}
 
 	private void removeTrack(Sequence sequence, int track) {

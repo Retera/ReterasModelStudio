@@ -78,6 +78,14 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 
 	private JPanel updateAnimVisGuidPanel() {
 		visGuidPanel.removeAll();
+
+		JLabel alwaysLabel = new JLabel("Always");
+		alwaysLabel.setToolTipText("Value to use when \"on\" or \"off\" isn't specified (\"none\" in chosen)");
+		visGuidPanel.add(alwaysLabel);
+		JButton always = new JButton(idObject.getAlwaysState().name());
+		always.addActionListener(e -> setAlwaysState(always));
+		visGuidPanel.add(always, "wrap, gapbottom 5, growx");
+
 		for (Animation animation : modelHandler.getModel().getAnims()) {
 			visGuidPanel.add(new JLabel(animation.getName()));
 			JButton button = new JButton(idObject.getAnimVisState(animation).name());
@@ -92,8 +100,32 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 		for (ParticleEmitterPopcorn.State state : ParticleEmitterPopcorn.State.values()) {
 			JMenuItem menuItem = new JMenuItem(state.name());
 			menuItem.addActionListener(e -> {
-				idObject.setAnimVisState(animation, state);
-				parent.setText(state.name());
+				setAnimState(animation, parent, state);
+			});
+			popupMenu.add(menuItem);
+		}
+		popupMenu.show(parent, parent.getWidth(), 0);
+		return ParticleEmitterPopcorn.State.none;
+	}
+
+	private void setAnimState(Animation animation, JButton parent, ParticleEmitterPopcorn.State state) {
+		ParticleEmitterPopcorn.State orgState = idObject.getAnimVisState(animation);
+		if(state != orgState){
+			undoManager.pushAction(new ConsumerAction<>(s -> idObject.setAnimVisState(animation, s), state, orgState, "").redo());
+			parent.setText(state.name());
+		}
+	}
+
+	private ParticleEmitterPopcorn.State setAlwaysState(JButton parent) {
+		JPopupMenu popupMenu = new JPopupMenu();
+		ParticleEmitterPopcorn.State orgState = idObject.getAlwaysState();
+		for (ParticleEmitterPopcorn.State state : ParticleEmitterPopcorn.State.values()) {
+			JMenuItem menuItem = new JMenuItem(state.name());
+			menuItem.addActionListener(e -> {
+				if(state != orgState){
+					undoManager.pushAction(new ConsumerAction<>(s -> idObject.setAlwaysState(s), state, orgState, "").redo());
+					parent.setText(state.name());
+				}
 			});
 			popupMenu.add(menuItem);
 		}

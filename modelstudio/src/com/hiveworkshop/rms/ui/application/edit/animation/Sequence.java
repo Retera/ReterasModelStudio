@@ -1,6 +1,8 @@
 package com.hiveworkshop.rms.ui.application.edit.animation;
 
-public abstract class Sequence implements Comparable<Sequence> {
+import com.hiveworkshop.rms.editor.model.Named;
+
+public abstract class Sequence implements Comparable<Sequence>, Named {
 	protected int start;
 	protected int length;
 
@@ -37,6 +39,9 @@ public abstract class Sequence implements Comparable<Sequence> {
 	}
 
 	public abstract String getName();
+	@Override
+	public void setName(String text) {
+	}
 
 	@Override
 	public abstract int compareTo(Sequence o);

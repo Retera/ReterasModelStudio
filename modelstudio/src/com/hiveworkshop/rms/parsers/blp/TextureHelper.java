@@ -40,10 +40,10 @@ public class TextureHelper {
 		}
 	}
 
-	public TextureHelper(File file, BufferedImage bufferedImage, boolean shouldCash, Bitmap bitmap) {
+	public TextureHelper(File file, BufferedImage bufferedImage, boolean updateOnFileModified, Bitmap bitmap) {
 		this.bufferedImage = bufferedImage;
 		this.bitmap = bitmap;
-		if (!shouldCash) {
+		if (updateOnFileModified) {
 			this.file = file;
 			if (file != null && file.exists()) {
 				this.lastModified = file.lastModified();

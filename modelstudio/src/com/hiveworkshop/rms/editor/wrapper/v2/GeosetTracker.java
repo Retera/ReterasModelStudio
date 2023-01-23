@@ -475,10 +475,10 @@ public class GeosetTracker {
 			}
 		}
 
-		hiddenVertices.removeIf(g -> !g.getGeoset().contains(g));
-		editableVertices.removeIf(g -> !g.getGeoset().contains(g));
-		notEditableVertices.removeIf(g -> !g.getGeoset().contains(g));
-		selectedVertices.removeIf(g -> !g.getGeoset().contains(g));
+		hiddenVertices.removeIf(g -> g.getGeoset() == null || !g.getGeoset().contains(g));
+		editableVertices.removeIf(g -> g.getGeoset() == null || !g.getGeoset().contains(g));
+		notEditableVertices.removeIf(g -> g.getGeoset() == null || !g.getGeoset().contains(g));
+		selectedVertices.removeIf(g -> g.getGeoset() == null || !g.getGeoset().contains(g));
 	}
 
 	private void removeFromAll(GeosetVertex vertex){

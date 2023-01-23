@@ -116,7 +116,9 @@ public class MaterialFactory {
 		Bitmap bitmap = new Bitmap();
 		bitmap.setPath(texture.path);
 		bitmap.setReplaceableId(texture.replaceableId);
-		bitmap.setWrapMode(texture.wrapMode);
+
+		bitmap.setWrapWidth((texture.wrapFlag & 0x1) != 0);
+		bitmap.setWrapHeight((texture.wrapFlag & 0x2) != 0);
 		return bitmap;
 	}
 }

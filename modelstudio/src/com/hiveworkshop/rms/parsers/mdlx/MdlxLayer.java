@@ -310,7 +310,7 @@ public class MdlxLayer extends MdlxAnimatedObject {
 			}
 		
 			  if (!writeTimeline(stream, AnimationMap.KFC3) && (fresnelColor[0] != 1 || fresnelColor[1] != 1 || fresnelColor[2] != 1)) {
-				  stream.writeFloatArrayAttrib(MdlUtils.TOKEN_STATIC_FRESNEL_COLOR, fresnelColor);
+				  stream.writeColor(MdlUtils.TOKEN_STATIC_FRESNEL_COLOR, fresnelColor);
 			  }
 		
 			  if (!writeTimeline(stream, AnimationMap.KFCA) && fresnelOpacity != 0) {

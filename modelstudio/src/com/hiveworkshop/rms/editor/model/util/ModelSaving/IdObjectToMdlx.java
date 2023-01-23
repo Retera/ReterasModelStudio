@@ -64,6 +64,9 @@ public class IdObjectToMdlx {
 		}
 
 		mdlxShape.boundsRadius = (float) collisionShape.getBoundsRadius();
+		if (Float.isNaN(mdlxShape.boundsRadius) || Float.isInfinite(mdlxShape.boundsRadius)){
+			mdlxShape.boundsRadius = 100;
+		}
 
 		return mdlxShape;
 	}

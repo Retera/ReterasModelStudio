@@ -1,27 +1,27 @@
-package com.hiveworkshop.rms.editor.actions.model.material;
+package com.hiveworkshop.rms.editor.actions.model.bitmap;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
-public class SetLayerFlagAction implements UndoAction {
-	private final Layer layer;
-	private final Layer.flag flag;
+public class SetBitmapWrapModeAction implements UndoAction {
+	private final Bitmap bitmap;
+	private final Bitmap.flag flag;
 	private final boolean set;
 	private final boolean oldState;
 	private final ModelStructureChangeListener changeListener;
 
-	public SetLayerFlagAction(Layer layer, Layer.flag flag, boolean set, ModelStructureChangeListener changeListener) {
-		this.layer = layer;
+	public SetBitmapWrapModeAction(Bitmap bitmap, Bitmap.flag flag, boolean set, ModelStructureChangeListener changeListener) {
+		this.bitmap = bitmap;
 		this.flag = flag;
 		this.set = set;
-		this.oldState = layer.isFlagSet(flag);
+		this.oldState = bitmap.isFlagSet(flag);
 		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
-		layer.setFlag(flag, oldState);
+		bitmap.setFlag(flag, oldState);
 		if (changeListener != null) {
 			changeListener.texturesChanged();
 		}
@@ -30,7 +30,7 @@ public class SetLayerFlagAction implements UndoAction {
 
 	@Override
 	public UndoAction redo() {
-		layer.setFlag(flag, set);
+		bitmap.setFlag(flag, set);
 		if (changeListener != null) {
 			changeListener.texturesChanged();
 		}
@@ -39,6 +39,6 @@ public class SetLayerFlagAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "Toggled Layer " + flag;
+		return "Change Texture Wrap Mode";
 	}
 }

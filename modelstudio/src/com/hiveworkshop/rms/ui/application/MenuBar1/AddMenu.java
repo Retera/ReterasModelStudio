@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.editor.actions.model.material.SetMaterialShaderStringAction;
 import com.hiveworkshop.rms.editor.actions.nodes.AddNodeAction;
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.rms.ui.application.AddBirthDeathSequences;
 import com.hiveworkshop.rms.ui.application.AddSingleAnimationActions;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
@@ -35,7 +36,7 @@ public class AddMenu extends JMenu {
 		add(createMenuItem("Attachment", KeyEvent.VK_T, e -> addIdObject(new Attachment("New Attachment"))));
 		add(createMenuItem("Bone", KeyEvent.VK_B, e -> addIdObject(new Bone("New Bone"))));
 		add(createMenuItem("Camera", KeyEvent.VK_C, e -> addCamera()));
-		add(createMenuItem("CollisionShape", KeyEvent.VK_S, e -> addIdObject(new CollisionShape("New CollisionShape"))));
+		add(createMenuItem("CollisionShape", KeyEvent.VK_S, e -> addIdObject(new CollisionShape("New CollisionShape", MdlxCollisionShape.Type.SPHERE, 100, new Vec3()))));
 		add(createMenuItem("EventObject", KeyEvent.VK_E, e -> addIdObject(new EventObject("New EventObject"))));
 		add(createMenuItem("FaceFX", KeyEvent.VK_F, e -> addFaceFX()));
 		add(createMenuItem("Helper", KeyEvent.VK_H, e -> addIdObject(new Helper("New Helper"))));

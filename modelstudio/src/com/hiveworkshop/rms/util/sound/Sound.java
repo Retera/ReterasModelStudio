@@ -75,6 +75,17 @@ public class Sound {
 		}
 		return new String[0];
 	}
+	public String[][] getFileNameAndPaths() {
+		if (fileNames != null) {
+			String[][] paths = new String[fileNames.length][2];
+			for (int i = 0; i < paths.length; i++) {
+				paths[i][0] = fileNames[i];
+				paths[i][1] = directoryBase + fileNames[i];
+			}
+			return paths;
+		}
+		return new String[0][0];
+	}
 
 	public String getSoundName() {
 		return soundName;

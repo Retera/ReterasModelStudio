@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -46,6 +47,40 @@ public class CollisionShape extends IdObject {
 		if(type != Type.SPHERE){
 			vertices.add(new Vec3());
 		}
+	}
+	public CollisionShape(String name, Type type, float size) {
+		this.name = name;
+		this.type = type;
+		vertices.add(new Vec3());
+		if(type != Type.SPHERE){
+			vertices.add(new Vec3());
+		}
+
+		switch (type) {
+			case BOX -> {
+				vertices.add(new Vec3(-size/2f, -size/2f, 0));
+				vertices.add(new Vec3(size/2f, size/2f, size));
+			}
+			case PLANE -> {
+				vertices.add(new Vec3(-size/2f, -size/2f, 0));
+				vertices.add(new Vec3(size/2f, size/2f, 0));
+			}
+			case SPHERE -> {
+				vertices.add(new Vec3());
+				boundsRadius = size/2f;
+			}
+			case CYLINDER -> {
+				vertices.add(new Vec3());
+				vertices.add(new Vec3(0, 0, size));
+				boundsRadius = size/2f;
+			}
+		}
+	}
+	public CollisionShape(String name, Type type, float boundsRadius, Vec3... vec3s) {
+		this.name = name;
+		this.type = type;
+		this.boundsRadius = boundsRadius;
+		Collections.addAll(vertices, vec3s);
 	}
 
 	@Override

@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.ui.util.ExtFilter;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.File;
@@ -31,7 +32,7 @@ public class FileDialog {
     private static final ExtFilter extFilter = new ExtFilter();
 
     public FileDialog() {
-        this.fileChooser = new RMSFileChooser();
+        this.fileChooser = new RMSFileChooser(profile);
 //        fileChooser.setAccessory(getAccessoryPanel("Ugg!"));
         this.fileChooser.setAcceptAllFileFilterUsed(false);
     }
@@ -178,6 +179,37 @@ public class FileDialog {
                 return file;
             }
         }
+        return null;
+    }
+    public File chooseDir(int operationType) {
+        fileChooser.setDialogTitle("Open");
+//        setFilter(operationType);
+        fileChooser.resetChoosableFileFilters();
+        fileChooser.addChoosableFileFilter(new FileFilter(){
+            @Override
+            public boolean accept(File f) {
+                return f.isDirectory();
+            }
+
+            @Override
+            public String getDescription() {
+                return "Folder";
+            }
+        });
+//        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Folder", ""));
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fileChooser.setCurrentDirectory(getCurrentDirectory());
+
+        final int returnValue = fileChooser.showOpenDialog(getParent());
+        File file = fileChooser.getSelectedFile();
+        fileChooser.setSelectedFile(null);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            if (file != null) {
+                setCurrentPath(file);
+                return file;
+            }
+        }
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         return null;
     }
     private File getCurrentDirectory() {

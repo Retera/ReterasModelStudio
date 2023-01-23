@@ -53,16 +53,20 @@ public class BLPHandler {
 		currTex.cache.dropCache();
 	}
 
+	public static boolean isBitmapFound(Bitmap bitmap) {
+		return getTL().isBitmapFound(bitmap);
+	}
+
 	public static BufferedImage getImage(String iconTexturePath) {
 		return getTL().getImage(iconTexturePath, GameDataFileSystem.getDefault());
 	}
 
 	public static BufferedImage getImage(Bitmap bitmap, DataSource workingDirectory) {
-		System.out.println("bitmap: " + bitmap);
-		if(bitmap != null){
-			System.out.println(bitmap.getPath());
-			System.out.println(bitmap.getName());
-		}
+//		if(bitmap != null){
+//			System.out.println("\tbitmap: \"" + bitmap + "\", path: \"" + bitmap.getPath() + "\", name: \"" + bitmap.getName() + "\"");
+//		} else {
+//			System.out.println("\tbitmap: " + null);
+//		}
 		return getTL().getImage(bitmap, workingDirectory);
 	}
 	public static BufferedImage getBlankImage() {

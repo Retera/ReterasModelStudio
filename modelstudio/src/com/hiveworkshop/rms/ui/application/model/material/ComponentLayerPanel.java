@@ -276,7 +276,7 @@ public class ComponentLayerPanel extends ComponentPanel<Layer> {
 
 	protected void setFresnelColor(Vec3 color){
 		if(!selectedItem.getFresnelColor().equalLocs(color)) {
-			undoManager.pushAction(new ConsumerAction<>(selectedItem::setFresnelColor, color, selectedItem.getFresnelColor(), "FresnelColor").redo());
+			undoManager.pushAction(new ConsumerAction<>(selectedItem::setFresnelColor, color, new Vec3(selectedItem.getFresnelColor()), "FresnelColor").redo());
 		}
 	}
 

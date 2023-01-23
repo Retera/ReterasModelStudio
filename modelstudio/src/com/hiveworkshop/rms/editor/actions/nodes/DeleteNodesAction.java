@@ -18,7 +18,8 @@ public class DeleteNodesAction implements UndoAction {
 	private final Map<IdObject, IdObject> topParentMap = new HashMap<>();
 	private final Map<IdObject, Set<IdObject>> childMap = new HashMap<>();
 
-	private boolean relink = true;
+	private final boolean relink = true;
+	private final int size;
 
 	public DeleteNodesAction(Collection<? extends IdObject> selectedObjects,
 	                         Collection<Camera> selectedCameras,
@@ -34,6 +35,8 @@ public class DeleteNodesAction implements UndoAction {
 			topParentMap.put(idObject, topParent(idObject));
 			childMap.put(idObject, new HashSet<>(idObject.getChildrenNodes()));
 		}
+
+		size = selectedObjects.size() + selectedCameras.size();
 	}
 	public DeleteNodesAction(Collection<? extends IdObject> selectedObjects,
 	                         ModelStructureChangeListener changeListener,
@@ -81,7 +84,7 @@ public class DeleteNodesAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
+	public DeleteNodesAction undo() {
 		for (IdObject object : selectedObjects) {
 			model.add(object);
 		}
@@ -99,7 +102,7 @@ public class DeleteNodesAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public DeleteNodesAction redo() {
 		for (IdObject object : selectedObjects) {
 			model.remove(object);
 		}
@@ -143,6 +146,6 @@ public class DeleteNodesAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "delete nodes";
+		return "Delete " + size + " Nodes";
 	}
 }

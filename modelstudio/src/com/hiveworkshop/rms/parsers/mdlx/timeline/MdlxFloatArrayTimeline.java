@@ -14,7 +14,13 @@ public final class MdlxFloatArrayTimeline extends MdlxTimeline<float[]> {
 	public MdlxFloatArrayTimeline(final int arraySize, War3ID name) {
 		super(name);
 		this.arraySize = arraySize;
-		isColor = name.equals(AnimationMap.KGAC.getWar3id());
+		isColor = name.equals(AnimationMap.KGAC.getWar3id())
+				|| name.equals(AnimationMap.KFC3.getWar3id())
+				|| name.equals(AnimationMap.KLAC.getWar3id())
+				|| name.equals(AnimationMap.KLBC.getWar3id())
+				|| name.equals(AnimationMap.KPPC.getWar3id())
+				|| name.equals(AnimationMap.KRCO.getWar3id())
+		;
 	}
 
 	@Override
