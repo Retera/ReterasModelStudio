@@ -33,6 +33,7 @@ import java.util.Set;
 public class ObjBatchConverter extends JPanel {
 	FileDialog fileDialog;
 	File[] chosenFiles;
+	TwiTextField dirField;
 	File saveLocation;
 	JLabel numFiles = new JLabel("0");
 	JLabel convertProgress = new JLabel("");
@@ -47,7 +48,9 @@ public class ObjBatchConverter extends JPanel {
 		add(Button.create("Choose files", e -> chooseFiles()), "wrap");
 
 		add(new JLabel("destination: "), "split");
-		add(new TwiTextField(20, s -> saveLocation = new File(s)), "wrap");
+		dirField = new TwiTextField(20, s -> saveLocation = new File(s));
+		add(dirField, "");
+		add(Button.create("Chose", e -> chooseSaveLocation()), "wrap");
 
 		add(new JLabel("chosen files: "), "split");
 		add(numFiles, "wrap");
@@ -89,13 +92,12 @@ public class ObjBatchConverter extends JPanel {
 	}
 
 	private void chooseSaveLocation(){
-		;
-		if(chosenFiles == null){
-			numFiles.setText("0");
-			convButton.setEnabled(false);
+		File newSaveLocation = fileDialog.chooseDir(FileDialog.OPEN_MODEL);
+		if(newSaveLocation == null && saveLocation == null){
+			dirField.setText("");
 		} else {
-			numFiles.setText("" + chosenFiles.length);
-			convButton.setEnabled(0 < chosenFiles.length);
+			saveLocation = newSaveLocation;
+			dirField.setText(saveLocation.getPath());
 		}
 	}
 

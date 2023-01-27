@@ -164,6 +164,7 @@ public class ProgramGlobals {
 	public static void removeModelPanel(ModelPanel modelPanel) {
 		if (currentModelPanel == modelPanel) {
 			currentModelPanel.deFocus();
+			modelPanel.close();
 			currentModelPanel = null;
 		}
 		modelPanels.remove(modelPanel);
@@ -272,9 +273,10 @@ public class ProgramGlobals {
 	public static KeyBindingPrefs getKeyBindingPrefs() {
 		return keyBindingPrefs;
 	}
-	public static void linkActions(JRootPane rootPane) {
-		rootPane.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
-		rootPane.setActionMap(keyBindingPrefs.getActionMap());
+
+	public static void linkActions(JComponent component) {
+		component.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
+		component.setActionMap(keyBindingPrefs.getActionMap());
 	}
 
 	public static EditorColorPrefs getEditorColorPrefs() {

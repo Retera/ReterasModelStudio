@@ -55,27 +55,27 @@ public class Main {
 			Point centerPoint = environment.getCenterPoint();
 			System.out.println("GE center point: " + centerPoint);
 
-			GraphicsDevice[] devices = environment.getScreenDevices();
-			for(GraphicsDevice device : devices){
-				System.out.println("GD: " + device
-						+ ", \nid-string: " + device.getIDstring()
-						+ ", \ntype: " + device.getType()
-						+ ", \nconfig: " + device.getDefaultConfiguration()
-						+ ", \nconfigs: " + device.getConfigurations().length
-						+ ", \ndisplayMode: " + device.getDisplayMode()
-						+ ", \ndisplayModes: " + device.getDisplayModes().length
-						+ ", \nAvailableAcceleratedMemory: " + device.getAvailableAcceleratedMemory()
-						+ ""
-				);
-//				for(DisplayMode dm : device.getDisplayModes()){
-//					System.out.println(dm);
-//				}
-			}
-			float yRatio = (float) (displayMode.getHeight() / Toolkit.getDefaultToolkit().getScreenSize().getHeight());
-
-			Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
-			System.out.println("Toolkit screenSize: " + defaultToolkit.getScreenSize());
-			System.out.println("Toolkit screenDPI: " + defaultToolkit.getScreenResolution());
+//			GraphicsDevice[] devices = environment.getScreenDevices();
+//			for(GraphicsDevice device : devices){
+//				System.out.println("GD: " + device
+//						+ ", \nid-string: " + device.getIDstring()
+//						+ ", \ntype: " + device.getType()
+//						+ ", \nconfig: " + device.getDefaultConfiguration()
+//						+ ", \nconfigs: " + device.getConfigurations().length
+//						+ ", \ndisplayMode: " + device.getDisplayMode()
+//						+ ", \ndisplayModes: " + device.getDisplayModes().length
+//						+ ", \nAvailableAcceleratedMemory: " + device.getAvailableAcceleratedMemory()
+//						+ ""
+//				);
+////				for(DisplayMode dm : device.getDisplayModes()){
+////					System.out.println(dm);
+////				}
+//			}
+//			float yRatio = (float) (displayMode.getHeight() / Toolkit.getDefaultToolkit().getScreenSize().getHeight());
+//
+//			Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
+//			System.out.println("Toolkit screenSize: " + defaultToolkit.getScreenSize());
+//			System.out.println("Toolkit screenDPI: " + defaultToolkit.getScreenResolution());
 
 
 		} catch (final Throwable th) {

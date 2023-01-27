@@ -6,12 +6,8 @@ import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.*;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
-import com.hiveworkshop.rms.ui.application.model.editors.FloatEditorJSpinner;
-import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
-import com.hiveworkshop.rms.ui.application.model.editors.TableComboBoxEditor;
-import com.hiveworkshop.rms.ui.application.model.editors.ValueParserUtil;
+import com.hiveworkshop.rms.ui.application.model.editors.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelTextureThings;
 import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
 import com.hiveworkshop.rms.ui.util.colorchooser.ColorChooserButton;
 import com.hiveworkshop.rms.util.Quat;
@@ -288,10 +284,10 @@ public class EditorHelpers {
 
 
 			textureChooser = new TwiComboBox<>(modelHandler.getModel().getTextures(), new Bitmap("", 1));
-			textureChooser.setRenderer(ModelTextureThings.getTextureListRenderer());
+			textureChooser.setRenderer(new TextureListRenderer(modelHandler.getModel()));
 
 			flagPanel = new FlagPanel<>(flagToken, title, null, modelHandler.getModel().getTexture(0), modelHandler);
-			flagPanel.setTableRenderer(ModelTextureThings.getTextureTableCellRenderer());
+			flagPanel.setTableRenderer(new TextureTableCellRenderer(modelHandler.getModel()));
 			flagPanel.setTableEditor(new TableComboBoxEditor<>(textureChooser));
 			flagPanel.setStaticComponent(staticTextureChooser);
 		}

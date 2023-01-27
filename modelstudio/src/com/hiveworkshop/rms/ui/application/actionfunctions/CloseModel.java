@@ -18,9 +18,10 @@ public class CloseModel extends ActionFunction {
 
 	public static void closeModelPanel() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null && modelPanel.close()) {
+		if (modelPanel != null && close(modelPanel)) {
 			int oldIndex = ProgramGlobals.getModelPanels().indexOf(modelPanel);
 			removePanel(modelPanel);
+
 			if (ProgramGlobals.getModelPanels().size() > 0) {
 				int newIndex = Math.min(ProgramGlobals.getModelPanels().size() - 1, oldIndex);
 				ModelLoader.setCurrentModel(ProgramGlobals.getModelPanels().get(newIndex));
@@ -45,8 +46,18 @@ public class CloseModel extends ActionFunction {
 		for (int i = (modelPanels.size() - 2); i >= 0; i--) {
 			ModelPanel openModelPanel = modelPanels.get(i);
 			if (openModelPanel.getUndoManager().isRedoListEmpty() && openModelPanel.getUndoManager().isUndoListEmpty()) {
-//				if (openModelPanel.close()) {
-//				}
+				removePanel(openModelPanel);
+			}
+		}
+	}
+
+	public static void closeUnalteredModelsExcept(ModelPanel modelPanel) {
+		List<ModelPanel> modelPanels = ProgramGlobals.getModelPanels();
+		for (int i = modelPanels.size() - 1; 0 <= i; i--) {
+			ModelPanel openModelPanel = modelPanels.get(i);
+			if (openModelPanel != modelPanel &&
+					openModelPanel.getUndoManager().isRedoListEmpty()
+					&& openModelPanel.getUndoManager().isUndoListEmpty()) {
 				removePanel(openModelPanel);
 			}
 		}
@@ -65,10 +76,10 @@ public class CloseModel extends ActionFunction {
 	public static ModelPanel closeAllModelPanelsExcept(ModelPanel modelPanel) {
 		List<ModelPanel> modelPanels = ProgramGlobals.getModelPanels();
 		ModelPanel lastUnclosedModelPanel = null;
-		for (int i = modelPanels.size() - 1; i >= 0; i--) {
+		for (int i = modelPanels.size() - 1; 0 <= i; i--) {
 			ModelPanel panel = modelPanels.get(i);
 			if (panel != modelPanel) {
-				if (panel.close()) {
+				if (close(panel)) {
 					removePanel(panel);
 				} else {
 					lastUnclosedModelPanel = panel;
@@ -83,10 +94,32 @@ public class CloseModel extends ActionFunction {
 		ProgramGlobals.removeModelPanel(openModelPanel);
 	}
 
+	public static boolean close(ModelPanel modelPanel) {
+		// returns true if closed successfully
+		if(modelPanel != null){
+			ModelHandler modelHandler = modelPanel.getModelHandler();
+			if (!modelHandler.getUndoManager().hasChangedSinceSave()) {
+				final Object[] options = {"Yes", "No", "Cancel"};
+				EditableModel model = modelHandler.getModel();
+				final int n = JOptionPane.showOptionDialog(ProgramGlobals.getMainPanel(),
+						"Would you like to save " + model.getName()
+								+ " (\"" + model.getHeaderName() + "\") " +
+								"before closing?",
+						"Warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
+						options[2]);
+				return switch (n) {
+					case JOptionPane.YES_OPTION -> File.onClickSaveAs(modelPanel, FileDialog.SAVE);
+					case JOptionPane.NO_OPTION -> true;
+					default -> false;
+				};
+			}
+		}
+		return true;
+	}
 	public boolean save(ModelPanel modelPanel) {
 		// returns true if closed successfully
 		ModelHandler modelHandler = modelPanel.getModelHandler();
-		if (!modelHandler.getUndoManager().isUndoListEmpty()) {
+		if (!modelHandler.getUndoManager().hasChangedSinceSave()) {
 			final Object[] options = {"Yes", "No", "Cancel"};
 			EditableModel model = modelHandler.getModel();
 			final int n = JOptionPane.showOptionDialog(ProgramGlobals.getMainPanel(),

@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree;
 
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.Named;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.model.ComponentsPanel;
 
@@ -18,15 +19,24 @@ public class ChoosableDisplayElement<T> {
 	DisplayElementType type;
 
 	public ChoosableDisplayElement(DisplayElementType type, ModelView modelView, T item) {
-		this(type, modelView, item, -1);
+		this(type, modelView, item, null, -1);
 	}
 
 	public ChoosableDisplayElement(DisplayElementType type, ModelView modelView, T item, int id) {
+		this(type, modelView, item, null, id);
+	}
+
+	public ChoosableDisplayElement(DisplayElementType type, ModelView modelView, T item, Supplier<String> namingFunk) {
+		this(type, modelView, item, namingFunk, -1);
+	}
+
+	public ChoosableDisplayElement(DisplayElementType type, ModelView modelView, T item, Supplier<String> namingFunk, int id) {
 		this.modelView = modelView;
 		this.type = type;
 		this.id = id;
 		this.item = item;
 		this.icon = type.getIcon();
+		this.namingFunk = namingFunk;
 	}
 
 	public ChoosableDisplayElement<T> setNameFunc(Supplier<String> namingFunk) {
@@ -74,7 +84,15 @@ public class ChoosableDisplayElement<T> {
 		if (namingFunk != null) {
 			return namingFunk.get();
 		}
-		return "";
+//		return "";
+		String idString = id == -1 ? "" : "# " + id + ": ";
+		if(item instanceof String){
+			return idString + item;
+		} else if(item instanceof Named){
+			return idString + ((Named) item).getName();
+		} else {
+			return idString + item.toString();
+		}
 	}
 
 	public boolean hasSameItem(ChoosableDisplayElement<?> other) {

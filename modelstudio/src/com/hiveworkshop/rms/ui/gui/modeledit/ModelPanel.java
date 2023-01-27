@@ -3,9 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.actionfunctions.File;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
@@ -13,10 +11,12 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.uv.TVertexEditorManager;
+import com.hiveworkshop.rms.ui.application.model.editors.ThumbnailProvider;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 
 import javax.swing.*;
+import java.util.HashMap;
 import java.util.function.Consumer;
 
 /**
@@ -25,7 +25,9 @@ import java.util.function.Consumer;
  * Eric Theller 6/7/2012
  */
 public class ModelPanel {
+	private final static HashMap<EditableModel, ModelPanel> modelToPanelMap = new HashMap<>();
 	private final ModelHandler modelHandler;
+	private final ThumbnailProvider thumbnailProvider;
 	private final ViewportActivityManager viewportActivityManager;
 	private final ViewportActivityManager viewportUVActivityManager;
 	private final ModelEditorManager modelEditorManager;
@@ -40,7 +42,6 @@ public class ModelPanel {
 	Consumer<SelectionItemTypes> selectionItemTypeListener;
 
 	public ModelPanel(ModelHandler modelHandler) {
-		ModelTextureThings.setModel(modelHandler.getModel());
 		this.modelHandler = modelHandler;
 
 		modelEditorManager = new ModelEditorManager(modelHandler);
@@ -50,6 +51,10 @@ public class ModelPanel {
 		viewportUVActivityManager = new ViewportActivityManager(modelHandler, uvModelEditorManager);
 
 		changeActivity(editorActionType);
+
+		thumbnailProvider = new ThumbnailProvider(modelHandler.getModel().getWrappedDataSource());
+
+		modelToPanelMap.put(modelHandler.getModel(), this);
 	}
 
 	public ViewportActivityManager getViewportActivityManager() {
@@ -99,25 +104,10 @@ public class ModelPanel {
 		return uvModelEditorManager;
 	}
 
-	public boolean close() {
-		// returns true if closed successfully
-//		if (!modelHandler.getUndoManager().isUndoListEmpty()) {
-		if (!modelHandler.getUndoManager().hasChangedSinceSave()) {
-			final Object[] options = {"Yes", "No", "Cancel"};
-			EditableModel model = modelHandler.getModel();
-			final int n = JOptionPane.showOptionDialog(ProgramGlobals.getMainPanel(),
-					"Would you like to save " + model.getName()
-							+ " (\"" + model.getHeaderName() + "\") " +
-							"before closing?",
-					"Warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
-					options[2]);
-			return switch (n) {
-				case JOptionPane.YES_OPTION -> File.onClickSaveAs(this, FileDialog.SAVE);
-				case JOptionPane.NO_OPTION -> true;
-				default -> false;
-			};
-		}
-		return true;
+	public void close() {
+		// removes references
+		modelToPanelMap.remove(modelHandler.getModel());
+
 	}
 
 	public UndoManager getUndoManager() {
@@ -191,5 +181,13 @@ public class ModelPanel {
 	public void deFocus(){
 		modelHandler.getRenderModel().getBufferFiller().clearTextureMap();
 		modelHandler.getPreviewRenderModel().getBufferFiller().clearTextureMap();
+	}
+
+	public ThumbnailProvider getThumbnailProvider() {
+		return thumbnailProvider;
+	}
+
+	public static ModelPanel getModelPanel(EditableModel model){
+		return modelToPanelMap.get(model);
 	}
 }

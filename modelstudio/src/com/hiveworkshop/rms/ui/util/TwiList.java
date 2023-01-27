@@ -3,6 +3,8 @@ package com.hiveworkshop.rms.ui.util;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
@@ -123,5 +125,27 @@ public class TwiList<T> extends JList<T> {
 		if(selectedIndex != -1){
 			ensureIndexIsVisible(selectedIndex);
 		}
+	}
+
+
+//	Point lastPopup
+	public Point getPopupLocation(MouseEvent event) {
+//		System.out.println("getPopupLocation: " + event);
+//		int selectedIndex = getSelectedIndex();
+		int[] selectedIndices = getSelectedIndices();
+		if (event == null && 0 < selectedIndices.length && 0 <= selectedIndices[0] && selectedIndices[selectedIndices.length-1] < listSize()) {
+			Rectangle cellBounds = getCellBounds(selectedIndices[0], selectedIndices[selectedIndices.length-1]);
+			Point location = cellBounds.getLocation();
+//			return location;
+//			System.out.println("bounds: " + cellBounds);
+			return new Point(location.x, location.y + cellBounds.height);
+		}
+//		if (event == null && 0 <= selectedIndex && selectedIndex < listSize()) {
+//			Rectangle cellBounds = getCellBounds(selectedIndex, selectedIndex);
+//			Point location = cellBounds.getLocation();
+////			return location;
+//			return new Point(location.x, location.y + cellBounds.height);
+//		}
+		return null;
 	}
 }

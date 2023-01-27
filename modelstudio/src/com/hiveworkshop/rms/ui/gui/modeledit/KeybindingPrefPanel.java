@@ -96,87 +96,11 @@ public class KeybindingPrefPanel extends JPanel {
 			}
 		}
 	}
-//	private void editKeyBinding(ActionMapActions action, JButton button, KeyBindingPrefs keyBindingPrefs){
-//		JPanel panel = new JPanel(new MigLayout());
-//		JTextField textField = new JTextField(24);
-//		if(keyBindingPrefs.getKeyStroke(action) != null){
-//			textField.setText(keyBindingPrefs.getKeyStroke(action).toString());
-//		}
-//		textField.setEditable(false);
-//		final KeyEvent[] event = {null};
-//		textField.addKeyListener(new KeyAdapter() {
-//			KeyEvent lastPressedEvent;
-//			@Override
-//			public void keyPressed(KeyEvent e) {
-//				lastPressedEvent = e;
-//				if(event[0] == null){
-//					textField.setText(KeyStroke.getKeyStrokeForEvent(e).toString());
-//				}
-//			}
-//
-//			@Override
-//			public void keyReleased(KeyEvent e) {
-//				System.out.println("keyReleased ugg");
-//				if(event[0] == null){
-//					event[0] = lastPressedEvent;
-//				}
-//			}
-//		});
-//
-//		panel.add(textField);
-//		JButton resetButton = new JButton("Edit");
-//		resetButton.addActionListener(e -> {event[0] = null; textField.setText(""); textField.requestFocus();});
-//		panel.add(resetButton);
-//
-//		int change = JOptionPane.showConfirmDialog(this, panel, "Edit KeyBinding for " + action.getName(), JOptionPane.OK_CANCEL_OPTION);
-//
-//		if(change == JOptionPane.OK_OPTION){
-//			if(event[0] != null){
-//				keyBindingPrefs.setKeyStroke(action, KeyStroke.getKeyStrokeForEvent(event[0]));
-//				button.setText(KeyStroke.getKeyStrokeForEvent(event[0]).toString());
-//			} else {
-//				keyBindingPrefs.setKeyStroke(action, KeyStroke.getKeyStroke("null"));
-//				button.setText("None");
-//			}
-//		}
-//	}
 
 	private void saveKeybindings(KeyBindingPrefs keyBindingPrefs) {
 		ProgramGlobals.getKeyBindingPrefs().parseString(keyBindingPrefs.toString());
 		ProgramGlobals.getPrefs().setKeyBindings(ProgramGlobals.getKeyBindingPrefs());
-		ProgramGlobals.linkActions(ProgramGlobals.getMainPanel().getRootPane());
+		ProgramGlobals.linkActions(ProgramGlobals.getMainPanel());
 		ProgramGlobals.getUndoHandler().refreshUndo();
 	}
-
-//	private JPanel getEditPanel(ActionMapActions action, KeyBindingPrefs keyBindingPrefs){
-//		JPanel panel = new JPanel(new MigLayout());
-//		JTextField textField = new JTextField(24);
-//		textField.setText(keyBindingPrefs.getKeyStroke(action).toString());
-//		textField.setEditable(false);
-//		final KeyEvent[] event = {null};
-//		textField.addKeyListener(new KeyAdapter() {
-//			KeyEvent lastPressedEvent;
-//			@Override
-//			public void keyPressed(KeyEvent e) {
-//				lastPressedEvent = e;
-//				if(event[0] == null){
-//					textField.setText(KeyStroke.getKeyStrokeForEvent(e).toString());
-//				}
-//			}
-//
-//			@Override
-//			public void keyReleased(KeyEvent e) {
-//				System.out.println("keyReleased ugg");
-//				if(event[0] == null){
-//					event[0] = lastPressedEvent;
-//				}
-//			}
-//		});
-//
-//		panel.add(textField);
-//		JButton resetButton = new JButton("Edit");
-//		resetButton.addActionListener(e -> {event[0] = null; textField.setText(""); textField.requestFocus();});
-//		panel.add(resetButton);
-//		return panel;
-//	}
 }

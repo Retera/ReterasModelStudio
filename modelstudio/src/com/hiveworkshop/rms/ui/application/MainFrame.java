@@ -36,7 +36,7 @@ public class MainFrame extends JFrame {
 
 		setLocationRelativeTo(null);
 		setVisible(true);
-		ProgramGlobals.linkActions(mainPanel.getRootPane());
+		ProgramGlobals.linkActions(mainPanel);
 	}
 
 	private void exitAction() {

@@ -90,6 +90,7 @@ public class ModelStructureChangeListener {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			modelPanel.refreshFromEditor();
+			modelPanel.getThumbnailProvider().reload();
 		}
 		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 	}

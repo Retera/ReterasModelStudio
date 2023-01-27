@@ -94,15 +94,15 @@ public abstract class AnimFlag<T> {
 
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (o == null) return false;
-		if (getClass() != o.getClass()) return false;
+		if (o instanceof AnimFlag && getClass() == o.getClass()){
+			AnimFlag<T> animFlag = getAsTypedOrNull((AnimFlag<?>) o);
 
-		AnimFlag<T> animFlag = (AnimFlag<T>) o;
-
-		return name.equals(animFlag.getName())
-				|| sequenceMap.equals(animFlag.sequenceMap)
-				|| (Objects.equals(globalSeq, animFlag.globalSeq)
-				&& interpolationType == animFlag.interpolationType);
+			return name.equals(animFlag.getName())
+					&& sequenceMap.equals(animFlag.sequenceMap)
+					&& (Objects.equals(globalSeq, animFlag.globalSeq)
+					&& interpolationType == animFlag.interpolationType);
+		}
+		return false;
 	}
 
 	public AnimFlag<T> setFromOther(AnimFlag<T> other) {

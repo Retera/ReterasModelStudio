@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.*;
 import com.hiveworkshop.rms.parsers.mdlx.BinaryDecipherHelper;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
+import com.hiveworkshop.rms.ui.application.actionfunctions.CloseModel;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -29,7 +30,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 
 public class ModelLoader {
 	public static final ImageIcon MDLIcon = RMSIcons.MDLIcon;
@@ -123,19 +123,8 @@ public class ModelLoader {
 		}
 
 		if (showModel && ProgramGlobals.getPrefs().getQuickBrowse()) {
-			closeUnalteredModels();
+			CloseModel.closeUnalteredModelsExcept(modelPanel);
 		}
-	}
-
-	private static void closeUnalteredModels() {
-		List<ModelPanel> modelPanels = ProgramGlobals.getModelPanels();
-		for (int i = (modelPanels.size() - 2); i >= 0; i--) {
-			ModelPanel openModelPanel = modelPanels.get(i);
-			if (openModelPanel.getUndoManager().isRedoListEmpty() && openModelPanel.getUndoManager().isUndoListEmpty()) {
-				if (openModelPanel.close()) {
-					ProgramGlobals.removeModelPanel(openModelPanel);
-				}
-			}}
 	}
 
 	public static void setCurrentModel(ModelPanel modelPanel) {

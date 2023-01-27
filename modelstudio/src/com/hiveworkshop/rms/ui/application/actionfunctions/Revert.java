@@ -20,7 +20,7 @@ public class Revert extends ActionFunction {
 //			if(!modelPanel.getModel().getFile().exists()){
 				System.out.println("Original file not found...");
 			}
-			if (modelPanel.close()) {
+			if (CloseModel.close(modelPanel)) {
 				ProgramGlobals.removeModelPanel(modelPanel);
 				// TODO remove from notifiers to fix leaks
 				ModelLoader.setCurrentModel(null);

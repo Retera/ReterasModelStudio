@@ -228,16 +228,16 @@ public class ViewportTransferHandler extends TransferHandler {
 
 	private  Map<Sequence, Sequence> getSequenceMap(List<Sequence> pastedModelSequences, List<Sequence> sequences){
 		Map<Sequence, Sequence> sequenceMap = new HashMap<>();
-		for (Sequence pSequence : pastedModelSequences){
+		for (Sequence pSequence : pastedModelSequences) {
 			for (Sequence sequence : sequences){
-				if (pSequence.getLength() == sequence.getLength()){
-					if (pSequence instanceof Animation && sequence instanceof Animation){
-						if (((Animation) pSequence).getName().equals(((Animation) sequence).getName())){
+				if (pSequence.getLength() == sequence.getLength()) {
+					if (pSequence instanceof Animation && sequence instanceof Animation) {
+						if (((Animation) pSequence).getName().equals(((Animation) sequence).getName())) {
 							System.out.println(pSequence + " == " + sequence);
 							sequenceMap.put(pSequence, sequence);
 							break;
 						}
-					} else if (pSequence instanceof GlobalSeq && sequence instanceof GlobalSeq){
+					} else if (pSequence instanceof GlobalSeq && sequence instanceof GlobalSeq) {
 						System.out.println(pSequence + " == " + sequence);
 						sequenceMap.put(pSequence, sequence);
 						break;

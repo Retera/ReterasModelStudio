@@ -360,7 +360,8 @@ public class BoneChainMapWizard {
 	}
 
 	protected boolean isBones(IdObject idObject1, IdObject idObject2) {
-		return idObject1 instanceof Bone && idObject2 instanceof Bone;
+
+		return (idObject1 instanceof Bone || idObject1 instanceof Helper) && (idObject2 instanceof Bone || idObject2 instanceof Helper);
 	}
 
 	public BoneChainMapWizard setAllowTopLevelMapping(boolean allowTopLevelMapping) {

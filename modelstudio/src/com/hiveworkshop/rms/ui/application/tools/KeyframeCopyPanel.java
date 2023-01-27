@@ -5,9 +5,11 @@ import com.hiveworkshop.rms.editor.actions.animation.AddEventTrackAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.RemoveFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
+import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.AddSingleAnimationActions;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.ActionFunction;
@@ -23,11 +25,10 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class KeyframeCopyPanel extends JPanel {
 	private final ModelHandler modelHandler;
@@ -39,6 +40,8 @@ public class KeyframeCopyPanel extends JPanel {
 
 	private Animation donAnim;
 	private Animation recAnim;
+
+	boolean onlySelectedNodes = false;
 
 	/**
 	 * Create the panel.
@@ -64,6 +67,10 @@ public class KeyframeCopyPanel extends JPanel {
 		JButton addAnimButton = new JButton("add new animation");
 		addAnimButton.addActionListener(e -> AddSingleAnimationActions.addEmptyAnimation(this.modelHandler));
 		add(addAnimButton, "skip, right, wrap");
+
+		JCheckBox onlySelected = new JCheckBox("Only selected nodes");
+		onlySelected.addActionListener(e -> onlySelectedNodes = onlySelected.isSelected());
+		add(onlySelected, "wrap");
 
 		JPanel donAnimPanel = getDonAnimPanel();
 		add(donAnimPanel, "growx, aligny top");
@@ -164,14 +171,47 @@ public class KeyframeCopyPanel extends JPanel {
 		Integer donStart = (Integer) donTimeSpinner.getValue();
 		Integer recStart = (Integer) recTimeSpinner.getValue();
 		int times = (Integer) donTimeEndSpinner.getValue() - donStart + 1;
-		copyKeyframe(donAnim, donStart, recAnim, recStart, times);
+		if(onlySelectedNodes){
+			copyKeyframeSelected(donAnim, donStart, recAnim, recStart, times);
+		} else {
+			copyKeyframe(donAnim, donStart, recAnim, recStart, times);
+		}
 	}
 
 	private void copyKeyframe(Animation donAnimation, int donKeyframe, Animation recAnimation, int recKeyframe, int times) {
 		EditableModel model = modelHandler.getModel();
+
+		List<IdObject> idObjects = model.getIdObjects();
+		List<Geoset> geosets = model.getGeosets();
+		List<Camera> cameras = model.getCameras();
+		List<EventObject> events = model.getEvents();
+
+		copyKeyframes(donAnimation, donKeyframe, recAnimation, recKeyframe, times, model, idObjects, geosets, cameras, events);
+	}
+
+	private void copyKeyframeSelected(Animation donAnimation, int donKeyframe, Animation recAnimation, int recKeyframe, int times) {
+		EditableModel model = modelHandler.getModel();
+		ModelView modelView = modelHandler.getModelView();
+
+		Set<IdObject> idObjects = modelView.getSelectedIdObjects();
+		Set<Geoset> geosets = modelView.getEditableGeosets();
+		Set<Camera> cameras = modelView.getSelectedCameras();
+		List<EventObject> eventObjects = idObjects.stream().filter(o -> o instanceof EventObject).map(o -> (EventObject)o).collect(Collectors.toList());
+
+		copyKeyframes(donAnimation, donKeyframe, recAnimation, recKeyframe, times, model, idObjects, geosets, cameras, eventObjects);
+	}
+
+
+	private void copyKeyframes(Animation donAnimation, int donKeyframe,
+	                           Animation recAnimation, int recKeyframe, int times,
+	                           EditableModel model,
+	                           Collection<IdObject> idObjects,
+	                           Collection<Geoset> geosets,
+	                           Collection<Camera> cameras,
+	                           Collection<EventObject> events) {
 		List<UndoAction> undoActions = new ArrayList<>();
 
-		for (IdObject idObject : model.getIdObjects()) {
+		for (IdObject idObject : idObjects) {
 			ArrayList<AnimFlag<?>> animFlags = idObject.getAnimFlags();
 			undoActions.addAll(getSetKeyframesAction(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlags));
 		}
@@ -182,7 +222,7 @@ public class KeyframeCopyPanel extends JPanel {
 			}
 		}
 
-		for(Geoset geoset : model.getGeosets()){
+		for(Geoset geoset : geosets){
 			ArrayList<AnimFlag<?>> animFlags = geoset.getAnimFlags();
 			undoActions.addAll(getSetKeyframesAction(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlags));
 		}
@@ -190,19 +230,19 @@ public class KeyframeCopyPanel extends JPanel {
 			ArrayList<AnimFlag<?>> animFlags = textureAnim.getAnimFlags();
 			undoActions.addAll(getSetKeyframesAction(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlags));
 		}
-		for (Camera camera : model.getCameras()){
+		for (Camera camera : cameras){
 			ArrayList<AnimFlag<?>> animFlags1 = camera.getSourceNode().getAnimFlags();
 			undoActions.addAll(getSetKeyframesAction(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlags1));
 			ArrayList<AnimFlag<?>> animFlags2 = camera.getTargetNode().getAnimFlags();
 			undoActions.addAll(getSetKeyframesAction(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlags2));
 		}
-		for (EventObject eventObject : model.getEvents()){
+		for (EventObject eventObject : events){
 			TreeSet<Integer> eventTrack = eventObject.getEventTrack(donAnimation);
 			if(eventTrack != null){
 				ArrayList<Integer> newTracks = new ArrayList<>();
 				for(Integer time : eventTrack){
 					int newTime = time - donKeyframe + recKeyframe;
-					if(0 <= newTime && newTime < donKeyframe+times-1){
+					if(0 <= newTime && newTime < donKeyframe + times -1){
 						newTracks.add(newTime);
 					}
 				}

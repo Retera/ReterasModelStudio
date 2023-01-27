@@ -51,7 +51,7 @@ public class TextureLoadListPanel extends JPanel{
 		texturesListPanel.setBorder(BorderFactory.createTitledBorder("Textures"));
 		texturesListPanel.setPreferredSize(this.getSize());
 
-		TextureListRenderer textureListRenderer = new TextureListRenderer(workingDirectory);
+		TextureListRenderer textureListRenderer = new TextureListRenderer(null);
 		textureListRenderer.setTextSize(textSize);
 		textureListRenderer.setImageSize(imageSize);
 		JCheckBox displayPath = new JCheckBox("Display Path");

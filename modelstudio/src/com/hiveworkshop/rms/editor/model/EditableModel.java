@@ -492,10 +492,6 @@ public class EditableModel implements Named {
 		return geosets.indexOf(g);
 	}
 
-	public int computeGeosetID(final Geoset geoset) {
-		return geosets.indexOf(geoset);
-	}
-
 	public int getObjectId(final IdObject idObject) {
 		return modelIdObjects.getObjectId(idObject);
 	}

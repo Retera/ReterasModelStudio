@@ -28,7 +28,7 @@ import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenuIt
 
 public class WindowsMenu extends JMenu {
 
-	private Map<ModelPanel, JMenuItem> modelMenuItemMap = new HashMap<>();
+	private final Map<ModelPanel, JMenuItem> modelMenuItemMap = new HashMap<>();
 
 	public WindowsMenu() {
 		super("Window");
@@ -71,13 +71,12 @@ public class WindowsMenu extends JMenu {
 		menuItem.addActionListener(e -> ModelLoader.setCurrentModel(modelPanel));
 		modelPanel.setJMenuItem(menuItem);
 		modelMenuItemMap.put(modelPanel, menuItem);
-		add(modelPanel.getMenuItem());
+		add(menuItem);
 	}
 
 	public void removeModelPanelItem(ModelPanel modelPanel) {
 		remove(modelMenuItemMap.get(modelPanel));
 		modelMenuItemMap.remove(modelPanel);
-//		remove(modelPanel.getMenuItem());
 	}
 
 	public static void openViewer(View view) {

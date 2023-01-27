@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
+import javax.swing.event.TreeSelectionEvent;
 import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.tree.*;
 import java.awt.*;
@@ -43,7 +44,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 
 		componentsPanel = new ComponentsPanel(modelHandler);
-		addSelectListener(componentsPanel);
+		addTreeSelectionListener(e -> onTreeSelection(componentsPanel, e));
 	}
 
 	public ComponentsPanel getComponentsPanel() {
@@ -113,73 +114,47 @@ public final class ModelComponentBrowserTree extends JTree {
 		EditableModel model = modelHandler.getModel();
 		ModelView modelView = modelHandler.getModelView();
 
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.MODEL_ROOT, modelView, model).setNameFunc(() -> "Model \"" + model.getHeaderName() + "\""));
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.MODEL_ROOT, modelView, model, () -> "Model \"" + model.getHeaderName() + "\""));
 
-//		root.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.COMMENT, modelView, model.getHeader()).setNameFunc(() -> "Comment")));
-		root.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.COMMENT, modelView, model.getComments()).setNameFunc(() -> "Comment")));
+		root.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.COMMENT, modelView, model.getComments(), () -> "Comment")));
 
-		root.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.HEADER, modelView, model).setNameFunc(() -> "Header")));
+		root.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.HEADER, modelView, model, () -> "Header")));
 
-		DefaultMutableTreeNode sequences = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.ANIMATION, modelView, "Sequences").setNameFunc(() -> "Sequences"));
-		root.add(sequences);
-		for (Animation item : model.getAnims()) {
-			sequences.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.ANIMATION, modelView, item).setNameFunc(() -> item.getName())));
-		}
+		root.add(getSequencesNode(model, modelView));
+		root.add(getGlobalSequences(model, modelView));
+		root.add(getTextures(model, modelView));
+		root.add(getMaterials(model, modelView));
+		root.add(getTextureAnims(model, modelView));
+		root.add(getGeosets(model, modelView));
+		root.add(getNodes(model, modelView));
+		root.add(getCameras(model, modelView));
 
-		DefaultMutableTreeNode globalSequences = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.GLOBAL_SEQ, modelView, "GlobalSequences").setNameFunc(() -> "GlobalSequences"));
-		root.add(globalSequences);
-		for (GlobalSeq globalSeq : model.getGlobalSeqs()) {
-			globalSequences.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.GLOBAL_SEQ, modelView, globalSeq).setNameFunc(() -> "GlobalSequence " + model.getGlobalSeqId(globalSeq) + ": Duration " + globalSeq.getLength())));
-		}
-
-		DefaultMutableTreeNode textures = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.TEXTURE, modelView, "Textures").setNameFunc(() -> "Textures"));
-		root.add(textures);
 		int number = 0;
-		for (Bitmap item : model.getTextures()) {
-			textures.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.TEXTURE, modelView, item, number++).setNameFunc(() -> item.getName())));
+		if (!model.getFaceEffects().isEmpty()) {
+			for (FaceEffect faceEffect : model.getFaceEffects()) {
+				root.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.FACEFX, modelView, faceEffect, () -> DisplayElementType.FACEFX.getName() + " \"" + faceEffect.getFaceEffectTarget() + "\"", number++)));
+			}
 		}
+		return new DefaultTreeModel(root);
+	}
 
-		DefaultMutableTreeNode materials = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.MATERIAL, modelView, "Materials").setNameFunc(() -> "Materials"));
-		root.add(materials);
-		number = 0;
-		for (Material item : model.getMaterials()) {
-			int number1 = number;
-			materials.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.MATERIAL, modelView, item, number++).setNameFunc(() -> "# " + number1 + " " + item.getName())));
+	private DefaultMutableTreeNode getCameras(EditableModel model, ModelView modelView) {
+		DefaultMutableTreeNode cameras = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.CAMERA, modelView, "Cameras"));
+		for (Camera item : model.getCameras()) {
+			cameras.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.CAMERA, modelView, item, model.getId(item))));
 		}
+		return cameras;
+	}
 
-		DefaultMutableTreeNode textureAnims = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.TEXTURE_ANIM, modelView, "TextureAnims").setNameFunc(() -> "TextureAnims"));
-		root.add(textureAnims);
-		number = 0;
-		for (TextureAnim item : model.getTexAnims()) {
-			textureAnims.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.TEXTURE_ANIM, modelView, item, number++).setNameFunc(() -> "# " + model.getTexAnims().indexOf(item))));
-		}
-
-		DefaultMutableTreeNode geosets = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.GEOSET_ITEM, modelView, "Geosets").setNameFunc(() -> "Geosets"));
-		root.add(geosets);
-		number = 0;
-		for (Geoset item : model.getGeosets()) {
-			ChoosableDisplayElement<Geoset> geosetItem2 = new ChoosableDisplayElement<>(DisplayElementType.GEOSET_ITEM, modelView, item, number++).setNameFunc(() -> item.getName());
-
-			geosets.add(new DefaultMutableTreeNode(geosetItem2));
-		}
-
-//		DefaultMutableTreeNode geosetAnims = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.GEOSET_ANIM, modelView, "GeosetAnims").setNameFunc(() -> "GeosetAnims"));
-//		for (GeosetAnim item : model.getGeosetAnims()) {
-//			geosetAnims.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.GEOSET_ANIM, modelView, item).setNameFunc(() -> "# " + model.getGeosets().indexOf(item.getGeoset()))));
-//		}
-//		root.add(geosetAnims);
-
-
-		DefaultMutableTreeNode nodes = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.NODES, modelView, "Nodes").setNameFunc(() -> "Nodes"));
-		root.add(nodes);
+	private DefaultMutableTreeNode getNodes(EditableModel model, ModelView modelView) {
+		DefaultMutableTreeNode nodes = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.NODES, modelView, "Nodes"));
 
 		nodeToTreeElement = new HashMap<>();
 		nodeToTreeElement.put(null, nodes);
 
 		// Create all treeNodes
 		for (IdObject idObject : model.getIdObjects()) {
-			ChoosableDisplayElement<?> element = getIdObjectElement(modelView, idObject);
-			DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(element);
+			DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(getIdObjectElement(modelView, idObject));
 
 			nodeToTreeElement.put(idObject, treeNode);
 		}
@@ -191,40 +166,77 @@ public final class ModelComponentBrowserTree extends JTree {
 			DefaultMutableTreeNode parentTreeNode = nodeToTreeElement.get(parent);
 			parentTreeNode.add(nodeToTreeElement.get(idObject));
 		}
-
-		DefaultMutableTreeNode cameras = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.CAMERA, modelView, null).setNameFunc(() -> "Cameras"));
-		root.add(cameras);
-		for (Camera item : model.getCameras()) {
-			cameras.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.CAMERA, modelView, item).setNameFunc(() -> "Camera \"" + item.getName() + "\"")));
-		}
-
-		number = 0;
-		if (!model.getFaceEffects().isEmpty()) {
-			for (FaceEffect faceEffect : model.getFaceEffects()) {
-				root.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.FACEFX, modelView, faceEffect, number++).setNameFunc(() -> DisplayElementType.FACEFX.getName() + " \"" + faceEffect.getFaceEffectTarget() + "\"")));
-			}
-		}
-		return new DefaultTreeModel(root);
+		return nodes;
 	}
 
-	public void addSelectListener(ComponentsPanel componentsPanel) {
-		addTreeSelectionListener(e -> {
-			TreePath path = e.getNewLeadSelectionPath();
-			boolean selected = false;
+	private DefaultMutableTreeNode getGeosets(EditableModel model, ModelView modelView) {
+		DefaultMutableTreeNode geosets = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.GEOSET_ITEM, modelView, "Geosets"));
+		for (Geoset item : model.getGeosets()) {
+			ChoosableDisplayElement<Geoset> geosetItem2 = new ChoosableDisplayElement<>(DisplayElementType.GEOSET_ITEM, modelView, item);
 
-			if (path != null && path.getLastPathComponent() instanceof DefaultMutableTreeNode) {
+			geosets.add(new DefaultMutableTreeNode(geosetItem2));
+		}
+		return geosets;
+	}
 
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+	private DefaultMutableTreeNode getTextureAnims(EditableModel model, ModelView modelView) {
+		DefaultMutableTreeNode textureAnims = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.TEXTURE_ANIM, modelView, "TextureAnims"));
+		int number = 0;
+		for (TextureAnim item : model.getTexAnims()) {
+			textureAnims.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.TEXTURE_ANIM, modelView, item, () -> "# " + model.getId(item), number++)));
+		}
+		return textureAnims;
+	}
 
-				if (node.getUserObject() instanceof ChoosableDisplayElement) {
-					asElement(node.getUserObject()).select(componentsPanel);
-					selected = true;
-				}
+	private DefaultMutableTreeNode getMaterials(EditableModel model, ModelView modelView) {
+		DefaultMutableTreeNode materials = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.MATERIAL, modelView, "Materials"));
+		for (int i = 0; i<model.getMaterials().size(); i++) {
+			materials.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.MATERIAL, modelView, model.getMaterial(i), i)));
+		}
+		return materials;
+	}
+
+	private DefaultMutableTreeNode getTextures(EditableModel model, ModelView modelView) {
+		DefaultMutableTreeNode textures = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.TEXTURE, modelView, "Textures"));
+		int number = 0;
+		for (Bitmap item : model.getTextures()) {
+			textures.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.TEXTURE, modelView, item, number++)));
+		}
+		return textures;
+	}
+
+	private DefaultMutableTreeNode getGlobalSequences(EditableModel model, ModelView modelView) {
+		DefaultMutableTreeNode globalSequences = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.GLOBAL_SEQ, modelView, "GlobalSequences"));
+		for (GlobalSeq globalSeq : model.getGlobalSeqs()) {
+			globalSequences.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.GLOBAL_SEQ, modelView, globalSeq, model.getId(globalSeq))));
+		}
+		return globalSequences;
+	}
+
+	private DefaultMutableTreeNode getSequencesNode(EditableModel model, ModelView modelView) {
+		DefaultMutableTreeNode sequences = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.ANIMATION, modelView, "Sequences"));
+		for (Animation item : model.getAnims()) {
+			sequences.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.ANIMATION, modelView, item)));
+		}
+		return sequences;
+	}
+
+	private void onTreeSelection(ComponentsPanel componentsPanel, TreeSelectionEvent e) {
+		TreePath path = e.getNewLeadSelectionPath();
+		boolean selected = false;
+
+		if (path != null && path.getLastPathComponent() instanceof DefaultMutableTreeNode) {
+
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+
+			if (node.getUserObject() instanceof ChoosableDisplayElement) {
+				asElement(node.getUserObject()).select(componentsPanel);
+				selected = true;
 			}
-			if (!selected) {
-				componentsPanel.selectedBlank();
-			}
-		});
+		}
+		if (!selected) {
+			componentsPanel.selectedBlank();
+		}
 	}
 
 	private DefaultTreeCellRenderer getComponentBrowserCellRenderer() {
@@ -259,8 +271,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	private ChoosableDisplayElement<?> asElement(TreePath path) {
 		if (path != null) {
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-			ChoosableDisplayElement<?> userObject = asElement(node);
-			if (userObject != null) return userObject;
+			return asElement(node);
 		}
 		return null;
 	}
@@ -348,16 +359,16 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	public static ChoosableDisplayElement<?> getIdObjectElement(ModelView modelView, IdObject idObject) {
 		return switch (idObject.getClass().getSimpleName()) {
-			case "Helper" -> new ChoosableDisplayElement<>(DisplayElementType.HELPER, modelView, idObject).setNameFunc(() -> DisplayElementType.HELPER.getName() + " \"" + idObject.getName() + "\"");
-			case "Bone" -> new ChoosableDisplayElement<>(DisplayElementType.BONE, modelView, idObject).setNameFunc(() -> DisplayElementType.BONE.getName() + " \"" + idObject.getName() + "\"");
-			case "Light" -> new ChoosableDisplayElement<>(DisplayElementType.LIGHT, modelView, idObject).setNameFunc(() -> DisplayElementType.LIGHT.getName() + " \"" + idObject.getName() + "\"");
-			case "Attachment" -> new ChoosableDisplayElement<>(DisplayElementType.ATTACHMENT, modelView, idObject).setNameFunc(() -> DisplayElementType.ATTACHMENT.getName() + " \"" + idObject.getName() + "\"");
-			case "ParticleEmitter" -> new ChoosableDisplayElement<>(DisplayElementType.PARTICLE, modelView, idObject).setNameFunc(() -> DisplayElementType.PARTICLE.getName() + " \"" + idObject.getName() + "\"");
-			case "ParticleEmitter2" -> new ChoosableDisplayElement<>(DisplayElementType.PARTICLE2, modelView, idObject).setNameFunc(() -> DisplayElementType.PARTICLE2.getName() + " \"" + idObject.getName() + "\"");
-			case "ParticleEmitterPopcorn" -> new ChoosableDisplayElement<>(DisplayElementType.POPCORN, modelView, idObject).setNameFunc(() -> DisplayElementType.POPCORN.getName() + " \"" + idObject.getName() + "\"");
-			case "RibbonEmitter" -> new ChoosableDisplayElement<>(DisplayElementType.RIBBON, modelView, idObject).setNameFunc(() -> DisplayElementType.RIBBON.getName() + " \"" + idObject.getName() + "\"");
-			case "EventObject" -> new ChoosableDisplayElement<>(DisplayElementType.EVENT_OBJECT, modelView, idObject).setNameFunc(() -> DisplayElementType.EVENT_OBJECT.getName() + " \"" + idObject.getName() + "\"");
-			case "CollisionShape" -> new ChoosableDisplayElement<>(DisplayElementType.COLLISION_SHAPE, modelView, idObject).setNameFunc(() -> DisplayElementType.COLLISION_SHAPE.getName() + " \"" + idObject.getName() + "\"");
+			case "Helper" -> new ChoosableDisplayElement<>(DisplayElementType.HELPER, modelView, idObject, () -> DisplayElementType.HELPER.getName() + " \"" + idObject.getName() + "\"");
+			case "Bone" -> new ChoosableDisplayElement<>(DisplayElementType.BONE, modelView, idObject, () -> DisplayElementType.BONE.getName() + " \"" + idObject.getName() + "\"");
+			case "Light" -> new ChoosableDisplayElement<>(DisplayElementType.LIGHT, modelView, idObject, () -> DisplayElementType.LIGHT.getName() + " \"" + idObject.getName() + "\"");
+			case "Attachment" -> new ChoosableDisplayElement<>(DisplayElementType.ATTACHMENT, modelView, idObject, () -> DisplayElementType.ATTACHMENT.getName() + " \"" + idObject.getName() + "\"");
+			case "ParticleEmitter" -> new ChoosableDisplayElement<>(DisplayElementType.PARTICLE, modelView, idObject, () -> DisplayElementType.PARTICLE.getName() + " \"" + idObject.getName() + "\"");
+			case "ParticleEmitter2" -> new ChoosableDisplayElement<>(DisplayElementType.PARTICLE2, modelView, idObject, () -> DisplayElementType.PARTICLE2.getName() + " \"" + idObject.getName() + "\"");
+			case "ParticleEmitterPopcorn" -> new ChoosableDisplayElement<>(DisplayElementType.POPCORN, modelView, idObject, () -> DisplayElementType.POPCORN.getName() + " \"" + idObject.getName() + "\"");
+			case "RibbonEmitter" -> new ChoosableDisplayElement<>(DisplayElementType.RIBBON, modelView, idObject, () -> DisplayElementType.RIBBON.getName() + " \"" + idObject.getName() + "\"");
+			case "EventObject" -> new ChoosableDisplayElement<>(DisplayElementType.EVENT_OBJECT, modelView, idObject, () -> DisplayElementType.EVENT_OBJECT.getName() + " \"" + idObject.getName() + "\"");
+			case "CollisionShape" -> new ChoosableDisplayElement<>(DisplayElementType.COLLISION_SHAPE, modelView, idObject, () -> DisplayElementType.COLLISION_SHAPE.getName() + " \"" + idObject.getName() + "\"");
 			default -> null;
 		};
 	}
