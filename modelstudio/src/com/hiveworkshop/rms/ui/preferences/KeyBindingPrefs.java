@@ -76,6 +76,24 @@ public class KeyBindingPrefs implements Serializable {
 		return inputMap;
 	}
 
+	public ActionMap addActionMap(JComponent component) {
+		ActionMap actionMap = component.getActionMap();
+		for (ActionFunction function : actionFunctionMap.values()) {
+			actionMap.put(function.getName(), function.getAction());
+		}
+		return actionMap;
+	}
+
+	public InputMap addInputMap(JComponent component) {
+		InputMap inputMap = component.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+		for (ActionFunction function : actionFunctionMap.values()) {
+			if (function.getKeyStroke() != null) {
+				inputMap.put(function.getKeyStroke(), function.getName());
+			}
+		}
+		return inputMap;
+	}
+
 	public static Map<TextKey, ActionFunction> getActionFunctionMap() {
 		return actionFunctionMap;
 	}

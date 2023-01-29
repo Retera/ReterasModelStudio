@@ -1,11 +1,9 @@
 package com.hiveworkshop.rms.ui.application.windowStuff;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs;
 import net.infonode.docking.*;
 
 import javax.swing.*;
-import java.awt.*;
 
 public class RootWindowListener extends DockingWindowAdapter {
 	private final DockingWindow window;
@@ -42,15 +40,8 @@ public class RootWindowListener extends DockingWindowAdapter {
 	}
 
 	private static void setUpKeyBindings(DockingWindow removedWindow) {
-		KeyBindingPrefs keyBindingPrefs = ProgramGlobals.getKeyBindingPrefs();
-		if (removedWindow instanceof View) {
-			final Component component = ((View) removedWindow).getComponent();
-			if (component instanceof JComponent) {
-				JRootPane rootPane = ((JComponent) component).getRootPane();
-//							mainPanel.linkActions(rootPane);
-				rootPane.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
-				rootPane.setActionMap(keyBindingPrefs.getActionMap());
-			}
+		if(removedWindow != null){
+			ProgramGlobals.linkActions(removedWindow);
 		}
 	}
 

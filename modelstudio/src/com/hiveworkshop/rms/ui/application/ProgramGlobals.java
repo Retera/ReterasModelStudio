@@ -275,8 +275,8 @@ public class ProgramGlobals {
 	}
 
 	public static void linkActions(JComponent component) {
-		component.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
-		component.setActionMap(keyBindingPrefs.getActionMap());
+		keyBindingPrefs.addInputMap(component);
+		keyBindingPrefs.addActionMap(component);
 	}
 
 	public static EditorColorPrefs getEditorColorPrefs() {

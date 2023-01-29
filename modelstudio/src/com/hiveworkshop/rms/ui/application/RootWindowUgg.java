@@ -51,9 +51,7 @@ public class RootWindowUgg extends RootWindow {
 			FloatingWindow newWindow = createFloatingWindow(getLocation(), ScreenInfo.getSmallWindow(), view);
 			newWindow.getTopLevelAncestor().setVisible(true);
 
-			KeyBindingPrefs keyBindingPrefs = ProgramGlobals.getKeyBindingPrefs();
-			newWindow.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
-			newWindow.setActionMap(keyBindingPrefs.getActionMap());
+			ProgramGlobals.linkActions(newWindow);
 			return newWindow;
 		}
 		return null;
