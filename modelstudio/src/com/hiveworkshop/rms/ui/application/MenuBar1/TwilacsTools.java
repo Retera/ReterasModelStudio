@@ -33,6 +33,7 @@ public class TwilacsTools extends JMenu {
 		add(shaderEditorMenu);
 		shaderEditorMenu.add(TwilacStuff.getTestShaderStuffMenuItem());
 		shaderEditorMenu.add(TwilacStuff.getTextShaderStuffNodeMenuItem());
+		shaderEditorMenu.add(TwilacStuff.getTextShaderStuffColMenuItem());
 		shaderEditorMenu.add(TwilacStuff.getTextShaderStuffGridMenuItem());
 
 //		add(TwilacStuff.getSelectEdgeMenuItem());

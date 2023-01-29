@@ -4,6 +4,7 @@ public class ShaderManager {
 	private ShaderPipeline hdPipeline;
 	private ShaderPipeline sdPipeline;
 	private ShaderPipeline particlePipeline;
+	private ShaderPipeline colPipeline;
 	private ShaderPipeline bonePipeline;
 	private ShaderPipeline vertPipeline;
 	private ShaderPipeline normPipeline;
@@ -12,8 +13,10 @@ public class ShaderManager {
 	private ShaderPipeline cameraPipeline;
 	private ShaderPipeline customHDShaderPipeline;
 	private ShaderPipeline customBonePipeline;
+	private ShaderPipeline customColPipeline;
 	private ShaderPipeline customGridPipeline;
 	private Runnable customShaderMaker;
+	private Runnable customColShaderMaker;
 	private Runnable customBoneShaderMaker;
 	private Runnable customGridShaderMaker;
 
@@ -100,6 +103,39 @@ public class ShaderManager {
 			customBonePipeline.discard();
 			customBonePipeline = null;
 			customBoneShaderMaker = null;
+		}
+	}
+
+	public void createCustomColShader(String vertexShader, String fragmentShader, String geometryShader){
+		customColShaderMaker = () -> makeCustomColShader(vertexShader, fragmentShader, geometryShader);
+	}
+	public void makeCustomColShader(String vertexShader, String fragmentShader, String geometryShader){
+		try {
+			ShaderPipeline newCustomPipeline = new CollisionMarkerShaderPipeline(vertexShader, fragmentShader, geometryShader);
+
+			if(customColPipeline != null){
+				customColPipeline.discard();
+			}
+			customColPipeline = newCustomPipeline;
+
+		} catch (Exception e){
+			e.printStackTrace();
+			System.out.println("adding Exception!");
+			lastExeption = e;
+		}
+		customColShaderMaker = null;
+	}
+
+	public ShaderManager removeCustomColShader(){
+		customColShaderMaker = this::doRemoveCustomColShader;
+		return this;
+	}
+
+	private void doRemoveCustomColShader(){
+		if(customColPipeline != null){
+			customColPipeline.discard();
+			customColPipeline = null;
+			customColShaderMaker = null;
 		}
 	}
 
@@ -249,6 +285,19 @@ public class ShaderManager {
 		}
 		return particlePipeline;
 	}
+	public ShaderPipeline getOrCreateColShaderPipeline() {
+		if (customColShaderMaker != null) {
+			customColShaderMaker.run();
+		}
+		if(customColPipeline != null){
+			return customColPipeline;
+		}
+		;
+		if (colPipeline == null) {
+			colPipeline = new CollisionMarkerShaderPipeline();
+		}
+		return colPipeline;
+	}
 
 	public ShaderPipeline getOrCreateCameraShaderPipeline() {
 		if (cameraPipeline == null) {
@@ -267,6 +316,7 @@ public class ShaderManager {
 		if (selectionPipeline != null) selectionPipeline.discard();
 		if (gridPipeline      != null) gridPipeline.discard();
 		if (particlePipeline  != null) particlePipeline.discard();
+		if (colPipeline  != null) colPipeline.discard();
 		if (cameraPipeline    != null) cameraPipeline.discard();
 
 
@@ -278,6 +328,7 @@ public class ShaderManager {
 		selectionPipeline   = null;
 		gridPipeline        = null;
 		particlePipeline    = null;
+		colPipeline    = null;
 		cameraPipeline      = null;
 
 		if (customHDShaderPipeline != null) customHDShaderPipeline.discard();
@@ -288,6 +339,9 @@ public class ShaderManager {
 
 		if (customGridPipeline != null) customGridPipeline.discard();
 		customGridPipeline = null;
+
+		if (customColPipeline != null) customColPipeline.discard();
+		customColPipeline = null;
 
 		return this;
 	}

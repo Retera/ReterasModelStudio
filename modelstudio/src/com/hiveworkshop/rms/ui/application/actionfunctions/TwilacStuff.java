@@ -23,6 +23,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.CrudeSelectionUVMask;
 import com.hiveworkshop.rms.ui.application.tools.*;
 import com.hiveworkshop.rms.ui.application.tools.shadereditors.BoneShaderEditPanel;
+import com.hiveworkshop.rms.ui.application.tools.shadereditors.ColShaderEditPanel;
 import com.hiveworkshop.rms.ui.application.tools.shadereditors.GridShaderEditPanel;
 import com.hiveworkshop.rms.ui.application.tools.shadereditors.MeshShaderEditPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -235,6 +236,19 @@ public class TwilacStuff {
 		}
 	}
 
+	private static class ColShaderEditor extends TwiFunction {
+
+		public ColShaderEditor() {
+			super("Col Shader Editor", ColShaderEditor::doStuff);
+		}
+
+		private static void doStuff(ModelHandler modelHandler) {
+			if(modelHandler != null && modelHandler.getRenderModel() != null){
+				ColShaderEditPanel.show(ProgramGlobals.getMainPanel(), modelHandler.getRenderModel().getBufferFiller());
+			}
+		}
+	}
+
 	private static class GridShaderEditor extends TwiFunction {
 
 		public GridShaderEditor() {
@@ -408,6 +422,9 @@ public class TwilacStuff {
 	}
 	public static JMenuItem getTextShaderStuffNodeMenuItem() {
 		return new NodeShaderEditor().getMenuItem();
+	}
+	public static JMenuItem getTextShaderStuffColMenuItem() {
+		return new ColShaderEditor().getMenuItem();
 	}
 	public static JMenuItem getTextShaderStuffGridMenuItem() {
 		return new GridShaderEditor().getMenuItem();

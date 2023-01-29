@@ -125,7 +125,6 @@ vec4 getRot(vec4 pos, vec4 parent){
     vec4 difRotR = normalize(getFromAxisAngle(tempVec, angleToZ));
     vec4 rot90 = normalize(getFromAxisAngle(tempVec, PI / 2.0));
     return normalize(mulQuat(difRotR,rot90));
-
 }
 
 void DrawQuadAt(vec4 p1, quad q, vec4 rot, vec3 scale, vec4 color) {

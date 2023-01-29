@@ -167,9 +167,9 @@ public class BufferFiller {
 			yRatio = (float) (displayMode.getHeight() / screenSize.getHeight());
 			float dpi = Toolkit.getDefaultToolkit().getScreenResolution();
 //			xRatio = (float) (Toolkit.getDefaultToolkit().getScreenResolution()/96.0);
-			System.out.println("Display.getDisplayMode(): " + displayMode.getWidth() + "x" + displayMode.getHeight());
-			System.out.println("Toolkit.getDefaultToolkit(): " + screenSize.getWidth() + "x" + screenSize.getHeight());
-			System.out.println("xRatio: " + xRatio + ", yRatio: " + yRatio + ", dpi/96.0 = " + (dpi/96.0));
+//			System.out.println("Display.getDisplayMode(): " + displayMode.getWidth() + "x" + displayMode.getHeight());
+//			System.out.println("Toolkit.getDefaultToolkit(): " + screenSize.getWidth() + "x" + screenSize.getHeight());
+//			System.out.println("xRatio: " + xRatio + ", yRatio: " + yRatio + ", dpi/96.0 = " + (dpi/96.0));
 
 			// These ratios will be wrong and users will see corrupted visuals (bad scale, only fits part of window,
 			// etc) if they are using Windows 10 differing UI scale per monitor. I don't think I have an API
@@ -218,6 +218,8 @@ public class BufferFiller {
 
 			nodeBufferFiller.fillBuffer(shaderManager.getOrCreateBoneMarkerShaderPipeline());
 
+			nodeBufferFiller.fillCollBuffer(shaderManager.getOrCreateColShaderPipeline());
+
 			geosetBufferFiller.fillNormalsBuffer(shaderManager.getOrCreateNormPipeline());
 			geosetBufferFiller.fillVertsBuffer(shaderManager.getOrCreateVertPipeline());
 
@@ -264,9 +266,14 @@ public class BufferFiller {
 			if(viewportSettings.isShowNodes()){
 				ShaderPipeline boneMarkerShaderPipeline = shaderManager.getOrCreateBoneMarkerShaderPipeline();
 				RendererThing1.renderNodes(cameraManager, boneMarkerShaderPipeline, width, height);
+				if (viewportSettings.isShowNormals()) {
+					RendererThing1.renderCol(cameraManager, shaderManager.getOrCreateColShaderPipeline(), width, height);
+				}
 			}
 
-			RendererThing1.renderCameras(cameraManager, shaderManager.getOrCreateCameraShaderPipeline(), width, height);
+			if (viewportSettings.isShow3dVerts()) {
+				RendererThing1.renderCameras(cameraManager, shaderManager.getOrCreateCameraShaderPipeline(), width, height);
+			}
 
 
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);

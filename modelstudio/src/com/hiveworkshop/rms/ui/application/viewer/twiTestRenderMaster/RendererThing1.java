@@ -114,6 +114,25 @@ public class RendererThing1 {
 		pipeline.doRender(GL11.GL_TRIANGLES);
 	}
 
+	public static void renderCol(CameraManager cameraManager, ShaderPipeline pipeline, int width, int height) {
+		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		pipeline.glViewport(width, height);
+		pipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
+
+		pipeline.glMatrixMode(GL11.GL_PROJECTION);
+		pipeline.glLoadIdentity();
+		pipeline.glMatrixMode(GL11.GL_MODELVIEW);
+		pipeline.glLoadIdentity();
+
+		pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
+		pipeline.glSetViewMatrix(cameraManager.getViewMat());
+		pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+		pipeline.doRender(GL11.GL_POINTS);
+	}
+
 	public static void renderCameras(CameraManager cameraManager, ShaderPipeline pipeline, int width, int height) {
 		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
