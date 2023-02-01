@@ -206,7 +206,7 @@ public class AnimFlagUtils {
 	}
 
 	public static <Q> float[] calculateTCB(AnimFlag<Q> animFlag, Sequence sequence, int time){
-		if (animFlag.tans()) {
+		if (animFlag.hasSequence(sequence) && animFlag.tans()) {
 			TTan<Q> tTanDer = TTan.getNewTTan(animFlag, sequence);
 			TreeMap<Integer, Entry<Q>> entryMap = animFlag.getEntryMap(sequence);
 

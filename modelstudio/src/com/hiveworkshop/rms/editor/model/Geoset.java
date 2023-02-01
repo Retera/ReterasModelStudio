@@ -79,14 +79,16 @@ public class Geoset extends TimelineContainer implements Named {
 		}
 	}
 
-	public void addVertex(final GeosetVertex v) {
+	public Geoset addVertex(final GeosetVertex v) {
 		add(v);
+		return this;
 	}
 
-	public void add(final GeosetVertex v) {
+	public Geoset add(final GeosetVertex v) {
 		if (!vertices.contains(v) && v.isValid()) {
 			vertices.add(v);
 		}
+		return this;
 	}
 
 	public GeosetVertex getVertex(final int vertId) {
@@ -97,12 +99,14 @@ public class Geoset extends TimelineContainer implements Named {
 		return vertices.indexOf(v);
 	}
 
-	public void remove(final GeosetVertex v) {
+	public Geoset remove(final GeosetVertex v) {
 		vertices.remove(v);
+		return this;
 	}
 
-	public void remove(Collection<GeosetVertex> v) {
+	public Geoset remove(Collection<GeosetVertex> v) {
 		vertices.removeAll(v);
+		return this;
 	}
 
 	public boolean contains(final Triangle t) {
@@ -121,19 +125,22 @@ public class Geoset extends TimelineContainer implements Named {
 		return vertices.get(0).getTverts().size();
 	}
 
-	public void addTriangle(final Triangle p) {
+	public Geoset addTriangle(final Triangle p) {
 		// Left for compat
 		add(p);
+		return this;
 	}
 
-	public void addTriangles(Collection<Triangle> t) {
+	public Geoset addTriangles(Collection<Triangle> t) {
 		triangles.addAll(t);
+		return this;
 	}
 
-	public void add(final Triangle p) {
+	public Geoset add(final Triangle p) {
 		if (!triangles.contains(p)) {
 			triangles.add(p);
 		}
+		return this;
 	}
 
 	public Triangle getTriangle(final int triId) {
@@ -158,36 +165,41 @@ public class Geoset extends TimelineContainer implements Named {
 		return triangles.size();
 	}
 
-	public void removeTriangle(final Triangle t) {
+	public Geoset removeTriangle(final Triangle t) {
 		triangles.remove(t);
+		return this;
 	}
 
-	public void removeTriangles(Collection<Triangle> t) {
+	public Geoset removeTriangles(Collection<Triangle> t) {
 		triangles.removeAll(t);
+		return this;
 	}
 
-	public void setMaterial(final Material m) {
+	public Geoset setMaterial(final Material m) {
 		material = m;
+		return this;
 	}
 
 	public Material getMaterial() {
 		return material;
 	}
 
-	public void setExtents(final ExtLog extents) {
+	public Geoset setExtents(final ExtLog extents) {
 		this.extents.set(extents);
+		return this;
 	}
 
 	public ExtLog getExtents() {
 		return extents;
 	}
 
-	public void add(Animation a, ExtLog e) {
+	public Geoset add(Animation a, ExtLog e) {
 		if (e != null){
 			animExts.put(a, e);
 		} else {
 			animExts.remove(a);
 		}
+		return this;
 	}
 	public ExtLog getAnimExtent(Animation a) {
 		return animExts.get(a);
@@ -205,8 +217,9 @@ public class Geoset extends TimelineContainer implements Named {
 		return vertices;
 	}
 
-	public void addVerticies(Collection<GeosetVertex> vertex) {
+	public Geoset addVerticies(Collection<GeosetVertex> vertex) {
 		this.vertices.addAll(vertex);
+		return this;
 	}
 
 	public List<Triangle> getTriangles() {
@@ -248,24 +261,28 @@ public class Geoset extends TimelineContainer implements Named {
 		return selectionGroup;
 	}
 
-	public void setSelectionGroup(final int selectionGroup) {
+	public Geoset setSelectionGroup(final int selectionGroup) {
 		this.selectionGroup = selectionGroup;
+		return this;
 	}
 
 	public boolean getUnselectable() {
 		return unselectable;
 	}
 
-	public void setUnselectable(final boolean unselectable) {
+	public Geoset setUnselectable(final boolean unselectable) {
 		this.unselectable = unselectable;
+		return this;
 	}
 
-	public void setLevelOfDetail(final int levelOfDetail) {
+	public Geoset setLevelOfDetail(final int levelOfDetail) {
 		this.levelOfDetail = levelOfDetail;
+		return this;
 	}
 
-	public void setLevelOfDetailName(final String levelOfDetailName) {
+	public Geoset setLevelOfDetailName(final String levelOfDetailName) {
 		this.levelOfDetailName = levelOfDetailName;
+		return this;
 	}
 
 	public int getLevelOfDetail() {
@@ -280,33 +297,38 @@ public class Geoset extends TimelineContainer implements Named {
 		return parentModel;
 	}
 
-	public void setParentModel(final EditableModel parentModel) {
+	public Geoset setParentModel(final EditableModel parentModel) {
 		this.parentModel = parentModel;
+		return this;
 	}
 
-	public void remove(final Triangle tri) {
+	public Geoset remove(final Triangle tri) {
 		triangles.remove(tri);
+		return this;
 	}
 
-	public void removeExtended(final Triangle tri) {
+	public Geoset removeExtended(final Triangle tri) {
 		triangles.remove(tri);
 		for (GeosetVertex vertex : tri.getVerts()) {
 			vertex.removeTriangle(tri);
 		}
+		return this;
 	}
 
-	public void cureVertTries() {
+	public Geoset cureVertTries() {
 		Set<Triangle> triangleSet = new HashSet<>(triangles);
 		for (GeosetVertex vertex : vertices) {
 			vertex.getTriangles().removeIf(t -> !triangleSet.contains(t));
 		}
+		return this;
 	}
 
-	public void addExtended(final Triangle tri) {
+	public Geoset addExtended(final Triangle tri) {
 		triangles.add(tri);
 		for (GeosetVertex vertex : tri.getVerts()) {
 			vertex.addTriangle(tri);
 		}
+		return this;
 	}
 
 	public boolean isHD() {
@@ -395,24 +417,27 @@ public class Geoset extends TimelineContainer implements Named {
 		return staticAlpha;
 	}
 
-	public void setStaticAlpha(double staticAlpha) {
+	public Geoset setStaticAlpha(double staticAlpha) {
 		this.staticAlpha = staticAlpha;
+		return this;
 	}
 
 	public Vec3 getStaticColor() {
 		return staticColor;
 	}
 
-	public void setStaticColor(Vec3 staticColor) {
+	public Geoset setStaticColor(Vec3 staticColor) {
 		this.staticColor.set(staticColor);
+		return this;
 	}
 
 	public boolean isDropShadow() {
 		return dropShadow;
 	}
 
-	public void setDropShadow(boolean dropShadow) {
+	public Geoset setDropShadow(boolean dropShadow) {
 		this.dropShadow = dropShadow;
+		return this;
 	}
 
 	public Vec3 getRenderColor(TimeEnvironmentImpl animatedRenderEnvironment) {

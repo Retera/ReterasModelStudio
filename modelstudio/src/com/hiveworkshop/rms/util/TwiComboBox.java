@@ -200,6 +200,15 @@ public class TwiComboBox<E> extends JComboBox<E> {
 	}
 
 
+	public TwiComboBox<E> twiSetRenderer(ListCellRenderer<? super E> aRenderer){
+		super.setRenderer(aRenderer);
+		return this;
+	}
+
+	public TwiComboBox<E> twiSetEnabled(boolean b){
+		super.setEnabled(b);
+		return this;
+	}
 //	public void setSelectedItem(Object anObject) {
 //		Object oldSelection = selectedItemReminder;
 //		Object objectToSelect = anObject;

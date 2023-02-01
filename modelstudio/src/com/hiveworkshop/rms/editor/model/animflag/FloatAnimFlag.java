@@ -8,6 +8,8 @@ import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatTimeline;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.MathUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -40,6 +42,7 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 		model.getAnims().forEach(a -> animationTreeMap.put(a.getStart(), a));
 
 		if (frames.length > 0) {
+			List<Integer> outsideKFs = new ArrayList<>();
 			final boolean hasTangents = interpolationType.tangential();
 
 			for (int i = 0, l = frames.length; i < l; i++) {
@@ -59,8 +62,11 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 				} else if (animationTreeMap.floorEntry((int) frames[i]) != null) {
 					Sequence sequence = animationTreeMap.floorEntry((int) frames[i]).getValue();
 					addEntry((int) frames[i] - sequence.getStart(), valueAsObject, inTanAsObject, outTanAsObject, sequence);
+				} else {
+					outsideKFs.add((int) frames[i]);
 				}
 			}
+//			System.out.println(name + " has " + outsideKFs.size() + " frames outside of animations");
 		}
 	}
 

@@ -90,6 +90,7 @@ public final class StaticMeshRotateAction extends AbstractTransformAction {
 
 	public StaticMeshRotateAction updateTransform(double radians) {
 		rot.setFromAxisAngle(axis, (float) -radians).normalize();
+		Vec3 temp = new Vec3();
 		for (GeosetVertex vertex : selectedVertices) {
 			vertex
 					.sub(center)
@@ -97,6 +98,15 @@ public final class StaticMeshRotateAction extends AbstractTransformAction {
 					.transform(rot)
 					.transform(invRotMat, 1, true)
 					.add(center);
+			vertex.getNormal()
+					.transform(rotMat, 1, true)
+					.transform(rot)
+					.transform(invRotMat, 1, true).normalize();
+			temp.set(vertex.getTangent())
+					.transform(rotMat, 1, true)
+					.transform(rot)
+					.transform(invRotMat, 1, true).normalize();
+			vertex.getTangent().set(temp);
 
 		}
 		for (IdObject b : selectedIdObjects) {

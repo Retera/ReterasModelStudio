@@ -291,12 +291,12 @@ public class TwilacStuff {
 	private static class ExportUVMask extends TwiFunction {
 
 		public ExportUVMask() {
-			super("Export Selected As UV Mask", ExportUVMask::doStuff);
+			super("Export As UV Mask", ExportUVMask::doStuff);
 		}
 
 		private static void doStuff(ModelHandler modelHandler) {
 			if(modelHandler != null){
-				CrudeSelectionUVMask.saveImage(modelHandler.getModelView(), 1024, 1024);
+				CrudeSelectionUVMask.showPanel(ProgramGlobals.getMainPanel(), modelHandler);
 			}
 		}
 	}
