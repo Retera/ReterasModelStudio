@@ -17,8 +17,8 @@ public class StringPadder {
 	}
 
 	public static String padStringEnd(String string, String padding, int newLength){
-		int paddingSize = newLength - string.length();
-		String repeat = padding.repeat(Math.max(0, paddingSize)).substring(0,paddingSize);
+		int paddingSize = Math.max(0, newLength - string.length());
+		String repeat = padding.repeat(paddingSize).substring(0,paddingSize);
 		return string + repeat;
 	}
 

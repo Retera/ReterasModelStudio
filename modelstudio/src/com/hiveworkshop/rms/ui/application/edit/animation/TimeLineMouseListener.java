@@ -53,7 +53,7 @@ public class TimeLineMouseListener extends MouseAdapter {
 		if(modelHandler != null) {
 			this.undoManager = modelHandler.getUndoManager();
 			timeEnvironment = modelHandler.getRenderModel().getTimeEnvironment();
-			popupMenu.setTimeEnvironment(timeEnvironment);
+			popupMenu.setModelHandler(modelHandler);
 		} else {
 			this.undoManager = null;
 		}

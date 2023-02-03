@@ -41,8 +41,6 @@ public final class KeyFrame {
 		timeEnvironment = keyframeHandler.getTimeEnvironment();
 		renderRect = new Rectangle(0, VERTICAL_SLIDER_HEIGHT, width, VERTICAL_TICKS_HEIGHT);
 		setTime(time);
-//		final int currentTimePixelX = computeXFromTime(time);
-//		renderRect = new Rectangle(currentTimePixelX - width / 2, VERTICAL_SLIDER_HEIGHT, width, VERTICAL_TICKS_HEIGHT);
 	}
 
 	protected void reposition() {
@@ -69,9 +67,6 @@ public final class KeyFrame {
 	public Set<TimelineContainer> getObjects() {
 		return objects;
 	}
-//	public Set<IdObject> getObjects() {
-//		return objects;
-//	}
 
 	public KeyFrame addTimeline(AnimFlag<?> animFlag){
 		timelines.add(animFlag);

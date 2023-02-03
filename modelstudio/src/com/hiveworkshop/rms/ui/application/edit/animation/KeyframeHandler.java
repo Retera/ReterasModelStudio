@@ -1,15 +1,12 @@
 package com.hiveworkshop.rms.ui.application.edit.animation;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.animation.SetKeyframeAction_T;
-import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.RemoveFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -22,30 +19,19 @@ import java.util.List;
 import java.util.*;
 
 public class KeyframeHandler {
-//	private static final Color GLASS_TICK_COVER_COLOR = new Color(100, 190, 255, 100);
-//	private static final Color GLASS_TICK_COVER_BORDER_COLOR = new Color(0, 80, 255, 220);
-//	private static final int SLIDER_SIDE_BUTTON_SIZE = 15;
-//	private static final int SLIDING_TIME_CHOOSER_WIDTH = 50 + (SLIDER_SIDE_BUTTON_SIZE * 2);
-//	private static final int VERTICAL_TICKS_HEIGHT = 10;
-//	private static final int VERTICAL_SLIDER_HEIGHT = 15;
-//	private static final int PLAY_BUTTON_SIZE = 30;
-//	private static final Dimension PLAY_BUTTON_DIMENSION = new Dimension(PLAY_BUTTON_SIZE, PLAY_BUTTON_SIZE);
-//	private static final int SIDE_OFFSETS = SLIDING_TIME_CHOOSER_WIDTH / 2;
-//	private static final Stroke WIDTH_2_STROKE = new BasicStroke(2);
-//	private static final Stroke WIDTH_1_STROKE = new BasicStroke(1);
 
 	private final TreeMap<Integer, KeyFrame> timeToKey = new TreeMap<>();
-	private final List<CopiedKeyFrame<?>> copiedKeyframes = new ArrayList<>();
+	private final KeyframeTransferHelper keyframeTransferHelper = new KeyframeTransferHelper();
 	private TimeEnvironmentImpl timeEnvironment;
 	private final JPanel timelinePanel;
 	private ModelHandler modelHandler;
 	private UndoManager undoManager;
 	private final ModelStructureChangeListener changeListener;
+	Collection<TimelineContainer> collectionToUse = new HashSet<>();
 
 	boolean useAllKFs = false;
 	boolean visKFs = true;
 
-	private boolean useAllCopiedKeyframes = false;
 
 	public KeyframeHandler(JPanel timelinePanel){
 		this.timelinePanel = timelinePanel;
@@ -69,7 +55,6 @@ public class KeyframeHandler {
 		updateKeyframeDisplay();
 	}
 
-	Collection<TimelineContainer> collectionToUse = new HashSet<>();
 	public Collection<TimelineContainer> getSelectionToUse() {
 		collectionToUse.clear();
 		if ((modelHandler == null) || (modelHandler.getModel() == null)) {
@@ -89,13 +74,6 @@ public class KeyframeHandler {
 		}
 		return collectionToUse;
 	}
-//	public Collection<TimelineContainer> getSelectionToUse() {
-//		if ((modelHandler == null) || (modelHandler.getModel() == null)) {
-//			return Collections.emptySet();
-//		}
-////		return useAllKFs ? modelHandler.getModel().getIdObjects() : modelHandler.getModelView().getSelectedIdObjects();
-//		return useAllKFs ? modelHandler.getModelView().getEditableIdObjects() : modelHandler.getModelView().getSelectedIdObjects();
-//	}
 
 	public KeyframeHandler setShowAllKFs(boolean useAllKFs){
 		this.useAllKFs = useAllKFs;
@@ -105,19 +83,20 @@ public class KeyframeHandler {
 
 	public void updateKeyframeDisplay() {
 		timeToKey.clear();
+		if(timeEnvironment != null) {
+			Sequence sequence = timeEnvironment.getCurrentSequence();
+			Collection<TimelineContainer> selection = getSelectionToUse();
 
-		Iterable<TimelineContainer> selection = getSelectionToUse();
-		for (TimelineContainer object : selection) {
-			for (AnimFlag<?> flag : object.getAnimFlags()) {
-				if (isCorrectSeq(flag)) {
-					TreeMap<Integer, ? extends Entry<?>> entryMap = flag.getEntryMap(timeEnvironment.getCurrentSequence());
-					if (entryMap != null) {
-//						System.out.println(object.getName() + ": " + flag.getName());
-//						TreeMap<Integer, ? extends Entry<?>> entryMap = flag.getEntryMap(timeEnvironment.getCurrentSequence());
-						for (Integer time : entryMap.keySet()) {
-							KeyFrame keyFrame = timeToKey.computeIfAbsent(time, k -> new KeyFrame(this, time));
-							keyFrame.addObject(object);
-							keyFrame.addTimeline(flag);
+			for (TimelineContainer object : selection) {
+				for (AnimFlag<?> flag : object.getAnimFlags()) {
+					if (isCorrectSeq(flag, sequence)) {
+						TreeMap<Integer, ? extends Entry<?>> entryMap = flag.getEntryMap(sequence);
+						if (entryMap != null) {
+							for (Integer time : entryMap.keySet()) {
+								KeyFrame keyFrame = timeToKey.computeIfAbsent(time, k -> new KeyFrame(this, time));
+								keyFrame.addObject(object);
+								keyFrame.addTimeline(flag);
+							}
 						}
 					}
 				}
@@ -125,155 +104,178 @@ public class KeyframeHandler {
 		}
 	}
 
-	public void cutSpecificItem(Integer time, TimelineContainer object, AnimFlag<?> flag) {
-		copyKeyframes(object, flag, time);
-		deleteKeyframe(flag, time);
-	}
-
-	public void cutItem(Integer time) {
-		copyKeyframes(time);
-		deleteKeyframes("cut keyframe", time, timeToKey.get(time).getObjects());
-	}
+//	public void cutSpecificItem(Sequence sequence, Integer time, TimelineContainer object, AnimFlag<?> flag) {
+////		copyKeyframeAt(object, flag, sequence, time);
+//
+//		keyframeTransferHelper.clear();
+//		keyframeTransferHelper.setUseAll(false);
+//		keyframeTransferHelper.collectKF(sequence, time, object, flag);
+//
+//		if (flag.hasEntryAt(sequence, time)) {
+//			undoManager.pushAction(new RemoveFlagEntryAction<>(flag, time, sequence, changeListener).redo());
+//		}
+//	}
+//
+//	public void cutItem(Sequence sequence, Integer time, Collection<TimelineContainer> selectionToUse) {
+////		copyKeyframes(sequence, time, selectionToUse);
+//		keyframeTransferHelper.clear();
+//		keyframeTransferHelper.setUseAll(false);
+//		keyframeTransferHelper.collectKFs(selectionToUse, sequence, time);
+//		Set<TimelineContainer> objects = timeToKey.get(time).getObjects();
+//		List<UndoAction> actions = getDeleteActions(time, sequence, objects);
+//		if(!actions.isEmpty()){
+//			undoManager.pushAction(new CompoundAction("cut keyframe", actions, changeListener::keyframesUpdated).redo());
+//		}
+//	}
 
 	public void deleteSelectedKeyframes() {
-		KeyFrame keyFrame = timeToKey.get(timeEnvironment.getEnvTrackTime());
+		int time = timeEnvironment.getEnvTrackTime();
+		Sequence sequence = timeEnvironment.getCurrentSequence();
+		KeyFrame keyFrame = timeToKey.get(time);
 		if (keyFrame != null) {
-			deleteKeyframes("delete keyframe", timeEnvironment.getEnvTrackTime(), keyFrame.getObjects());
+			List<UndoAction> actions = getDeleteActions(time, sequence, keyFrame.getObjects());
+			undoManager.pushAction(new CompoundAction("delete keyframe", actions, changeListener::keyframesUpdated).redo());
 		}
 		revalidateKeyframeDisplay();
 	}
+//	public void deleteKeyframes(String actionName, int time, Sequence sequence, Collection<TimelineContainer> objects) {
+//		List<UndoAction> actions = getDeleteActions(time, sequence, objects);
+//		undoManager.pushAction(new CompoundAction(actionName, actions, changeListener::keyframesUpdated).redo());
+//	}
 
-	public void deleteKeyframes(String actionName, int trackTime, Collection<TimelineContainer> objects) {
+
+	private List<UndoAction> getDeleteActions(int time, Sequence sequence, Collection<TimelineContainer> objects) {
 		List<UndoAction> actions = new ArrayList<>();
-		Sequence currentSequence = timeEnvironment.getCurrentSequence();
 		for (TimelineContainer object : objects) {
 			for (AnimFlag<?> flag : object.getAnimFlags()) {
-				if (flag.hasEntryAt(currentSequence, trackTime)) {
-					actions.add(new RemoveFlagEntryAction<>(flag, trackTime, currentSequence, null));
+				if (flag.hasEntryAt(sequence, time)) {
+					actions.add(new RemoveFlagEntryAction<>(flag, time, sequence, null));
 				}
 			}
 		}
-		// TODO build one action for performance, so that the structure change notifier is not called N times, where N is the number of selected timelines
-
-		CompoundAction action = new CompoundAction(actionName, actions, () -> changeListener.keyframesUpdated());
-		undoManager.pushAction(action.redo());
-	}
-	public void deleteKeyframe(AnimFlag<?> flag, int trackTime) {
-		Sequence currentSequence = timeEnvironment.getCurrentSequence();
-		if (flag.hasEntryAt(currentSequence, trackTime)) {
-			undoManager.pushAction(new RemoveFlagEntryAction<>(flag, trackTime, currentSequence, changeListener).redo());
-		}
+		return actions;
 	}
 
-	public void copyKeyframes(int trackTime) {
-		copiedKeyframes.clear();
-		useAllCopiedKeyframes = false;
-		for (TimelineContainer object : getSelectionToUse()) {
-			copyObjectKeyframe(trackTime, object);
-		}
-	}
+//	public void deleteKeyframe(AnimFlag<?> flag, int time, Sequence sequence) {
+//		if (flag.hasEntryAt(sequence, time)) {
+//			undoManager.pushAction(new RemoveFlagEntryAction<>(flag, time, sequence, changeListener).redo());
+//		}
+//	}
+//
+//	public void copyKeyframes(Sequence sequence, int time, Collection<TimelineContainer> selectionToUse) {
+//		keyframeTransferHelper.clear();
+//		keyframeTransferHelper.setUseAll(false);
+//		keyframeTransferHelper.collectKFs(selectionToUse, sequence, time);
+//	}
+//
+//	public void copyAllKeyframes(Sequence sequence, int time) {
+//		List<IdObject> idObjects = modelHandler.getModel().getIdObjects();
+//		keyframeTransferHelper.clear();
+//		keyframeTransferHelper.setUseAll(true);
+//		keyframeTransferHelper.collectKFs(idObjects, sequence, time);
+//	}
+//
+//	public void copyModelPose(Sequence sequence, int time) {
+//		List<IdObject> idObjects = modelHandler.getModel().getIdObjects();
+//		keyframeTransferHelper.clear();
+//		keyframeTransferHelper.setUseAll(true);
+//		keyframeTransferHelper.collectKFs(idObjects, sequence, time);
+//	}
+//
+//	public void copyAllKeyframes(Sequence sequence, int time, Collection<TimelineContainer> selectionToUse) {
+//		keyframeTransferHelper.clear();
+//		keyframeTransferHelper.setUseAll(true);
+//		keyframeTransferHelper.collectKFs(selectionToUse, sequence, time);
+//	}
+//
+//	public void copyModelPose(Sequence sequence, int time, Collection<TimelineContainer> selectionToUse) {
+//		keyframeTransferHelper.clear();
+//		keyframeTransferHelper.setUseAll(true);
+//		keyframeTransferHelper.collectKFs(selectionToUse, sequence, time);
+//	}
+//
+//	public void copyKeyframeAt(TimelineContainer object, AnimFlag<?> flag, Sequence sequence, int time) {
+//		keyframeTransferHelper.clear();
+//		keyframeTransferHelper.setUseAll(false);
+//		keyframeTransferHelper.collectKF(sequence, time, object, flag);
+//	}
 
-	public void copyObjectKeyframe(int trackTime, TimelineContainer object) {
-		for (AnimFlag<?> flag : object.getAnimFlags()) {
-			if (isCorrectSeq(flag)) {
-				copuKeyframes(object, flag, trackTime);
-			}
-		}
-	}
-
-	private boolean isCorrectSeq(AnimFlag<?> flag) {
-		return (flag.getGlobalSeq() == null && timeEnvironment.getGlobalSeq() == null)
-				|| (timeEnvironment.getGlobalSeq() != null && timeEnvironment.getGlobalSeq().equals(flag.getGlobalSeq()));
-	}
-
-	public void copyKeyframes(TimelineContainer object, AnimFlag<?> flag, int trackTime) {
-		copiedKeyframes.clear();
-		useAllCopiedKeyframes = false;
-		copuKeyframes(object, flag, trackTime);
-	}
-
-	private <Q> void copuKeyframes(TimelineContainer object, AnimFlag<Q> flag, int trackTime) {
-		if (flag.hasEntryAt(timeEnvironment.getCurrentSequence(), trackTime)) {
-			copiedKeyframes.add(new CopiedKeyFrame<>(object, flag, flag.getEntryAt(timeEnvironment.getCurrentSequence(), trackTime).deepCopy()));
-		} else {
-			Entry<Q> entry = new Entry<>(trackTime, flag.interpolateAt(timeEnvironment));
-
-			if (flag.tans()) {
-				Entry<Q> entryIn = flag.getFloorEntry(trackTime, timeEnvironment.getCurrentSequence());
-				Entry<Q> entryOut = flag.getCeilEntry(trackTime, timeEnvironment.getCurrentSequence());
-				int animationLength = timeEnvironment.getCurrentSequence().getLength();
-//				float factor = getTimeFactor(trackTime, animationLength, entryIn.time, entryOut.time);
-				float[] tcb = AnimFlagUtils.calculateTCB(flag, timeEnvironment.getCurrentSequence(), trackTime);
-				if(tcb == null){
-					tcb = new float[]{0, .5f, 0};
-				}
-//				float[] tbcFactor = flag.getTbcFactor(0, 0.5f, 0);
-				float[] tbcFactor = flag.getTbcFactor(tcb[2], tcb[0], tcb[1]);
-				flag.calcNewTans(tbcFactor, entryOut, entryIn, entry, animationLength);
-				System.out.println("calc tans! " + entryIn + entryOut + entry);
-			}
-			copiedKeyframes.add(new CopiedKeyFrame<>(object, flag, entry));
-		}
+	private boolean isCorrectSeq(AnimFlag<?> flag, Sequence sequence) {
+		return Objects.equals(flag.getGlobalSeq(), sequence) || flag.getGlobalSeq() == null && !(sequence instanceof GlobalSeq);
 	}
 
 	// to be called externally
 	public void copy() {
-		copyKeyframes(timeEnvironment.getEnvTrackTime());
+		int time = timeEnvironment.getEnvTrackTime();
+		Sequence sequence = timeEnvironment.getCurrentSequence();
+		Collection<TimelineContainer> selectionToUse = getSelectionToUse();
+//		copyKeyframes(sequence, time, selectionToUse);
+		keyframeTransferHelper.clear();
+		keyframeTransferHelper.setUseAll(false);
+		keyframeTransferHelper.collectKFs(selectionToUse, sequence, time);
 	}
 
 	public void cut() {
-		copyKeyframes(timeEnvironment.getEnvTrackTime());
-		final KeyFrame keyFrame = timeToKey.get(timeEnvironment.getEnvTrackTime());
+		int time = timeEnvironment.getEnvTrackTime();
+		Sequence sequence = timeEnvironment.getCurrentSequence();
+		Collection<TimelineContainer> selectionToUse = getSelectionToUse();
+//		copyKeyframes(sequence, time, selectionToUse);
+		keyframeTransferHelper.clear();
+		keyframeTransferHelper.setUseAll(false);
+		keyframeTransferHelper.collectKFs(selectionToUse, sequence, time);
+
+		final KeyFrame keyFrame = timeToKey.get(time);
 		if (keyFrame != null) {
-			deleteKeyframes("cut keyframe", timeEnvironment.getEnvTrackTime(), keyFrame.getObjects());
+			List<UndoAction> actions = getDeleteActions(time, sequence, keyFrame.getObjects());
+			undoManager.pushAction(new CompoundAction("cut keyframe", actions, changeListener::keyframesUpdated).redo());
 		}
 		revalidateKeyframeDisplay();
 	}
 
 	public void paste() {
-		pasteToAllSelected(timeEnvironment.getEnvTrackTime());
+		int time = timeEnvironment.getEnvTrackTime();
+		Sequence sequence = timeEnvironment.getCurrentSequence();
+		Collection<TimelineContainer> selectionToUse = getSelectionToUse();
+		pasteToAllSelected(sequence, time, selectionToUse);
 	}
 
-	public void pasteToAllSelected(int trackTime) {
+	public void pasteToAllSelected(Sequence sequence, int time, Collection<TimelineContainer> selectionToUse) {
 		List<UndoAction> actions = new ArrayList<>();
-		for (CopiedKeyFrame<?> frame : copiedKeyframes) {
-			if (getSelectionToUse().contains(frame.node) || useAllCopiedKeyframes) {
-				actions.add(getUndoAction(trackTime, frame));
+		for (KeyFrameWrapper<?> frame : keyframeTransferHelper.getWrappedKeyframes()) {
+			if (frame.isFromExisting() && (keyframeTransferHelper.isUseAll() || selectionToUse.contains(frame.getNode()))) {
+				actions.add(frame.getSetEntryAction(sequence, time));
 			}
 		}
-		undoManager.pushAction(new CompoundAction("paste keyframe", actions, changeListener::keyframesUpdated).redo());
-		revalidateKeyframeDisplay();
+		if (!actions.isEmpty()) {
+			undoManager.pushAction(new CompoundAction("paste keyframe", actions, changeListener::keyframesUpdated).redo());
+			revalidateKeyframeDisplay();
+		}
 	}
 
-	public void pasteToSpecificTimeline(Integer time, AnimFlag<?> flag) {
-		boolean foundCopiedMatch = false;
-		int mouseClickAnimationTime = time;// computeTimeFromX(e.getX());
-		for (CopiedKeyFrame<?> frame : copiedKeyframes) {
-			if (frame.sourceTimeline == flag) {
-				// only paste to selected nodes
-				undoManager.pushAction(getUndoAction(mouseClickAnimationTime, frame).redo());
-				foundCopiedMatch = true;
-				break;
-			}
-		}
-		if (!foundCopiedMatch) {
-			JOptionPane.showMessageDialog(timelinePanel,
-					"Tell Retera to code in the ability to paste cross-node data!");
-		}
-		revalidateKeyframeDisplay();
-	}
-
-	public void copyAllKeyframes(int trackTime) {
-		copiedKeyframes.clear();
-		useAllCopiedKeyframes = true;
-		for (IdObject object : modelHandler.getModel().getIdObjects()) {
-			for (AnimFlag<?> flag : object.getAnimFlags()) {
-				if (isCorrectSeq(flag)) {
-					copuKeyframes(object, flag, trackTime);
-				}
-			}
-		}
-	}
+//	public void pasteModelPose(Sequence sequence, int time, Collection<TimelineContainer> selectionToUse) {
+//		List<UndoAction> actions = new ArrayList<>();
+//		for (KeyFrameWrapper<?> frame : keyframeTransferHelper.getWrappedKeyframes()) {
+//			if (keyframeTransferHelper.isUseAll() || selectionToUse.contains(frame.getNode())) {
+//				actions.add(frame.getSetEntryAction(sequence, time));
+//			}
+//		}
+//		if (!actions.isEmpty()) {
+//			undoManager.pushAction(new CompoundAction("paste keyframe", actions, changeListener::keyframesUpdated).redo());
+//			revalidateKeyframeDisplay();
+//		}
+//	}
+//
+//	public void pasteToSpecificTimeline(Sequence sequence, Integer time, AnimFlag<?> flag) {
+//		int mouseClickAnimationTime = time;
+//		KeyFrameWrapper<?> kfw = keyframeTransferHelper.getKFW(flag);
+//		if (kfw != null) {
+//			undoManager.pushAction(kfw.getSetEntryAction(sequence, mouseClickAnimationTime).redo());
+//		} else {
+//			JOptionPane.showMessageDialog(timelinePanel,
+//					"Tell Retera to code in the ability to paste cross-node data!");
+//		}
+//		revalidateKeyframeDisplay();
+//	}
 
 	public KeyFrame getKeyFrameFromPoint(Point point) {
 		for (KeyFrame key : timeToKey.values()) {
@@ -298,6 +300,14 @@ public class KeyframeHandler {
 
 	public KeyFrame getKeyFrame(int time){
 		return timeToKey.get(time);
+	}
+
+	public Set<TimelineContainer> getKeyFrameObjects(int time){
+		if(timeToKey.get(time) != null){
+			return timeToKey.get(time).getObjects();
+		} else {
+			return Collections.emptySet();
+		}
 	}
 
 
@@ -397,22 +407,6 @@ public class KeyframeHandler {
 		return transRotScalOth;
 	}
 
-	private <T> UndoAction getUndoAction(int mouseClickAnimationTime, CopiedKeyFrame<T> frame) {
-		// only paste to selected nodes
-		AnimFlag<T> sourceTimeline = frame.sourceTimeline;
-		Entry<T> newEntry = frame.entry.deepCopy();
-		if (sourceTimeline.hasEntryAt(timeEnvironment.getCurrentSequence(), mouseClickAnimationTime)) {
-			newEntry.setTime(mouseClickAnimationTime);
-			return new SetKeyframeAction_T<>(sourceTimeline, newEntry, timeEnvironment.getCurrentSequence(), () -> {
-				// TODO this is a hack to refresh screen while dragging
-//				notifier.timeChanged(timeEnvironment.getEnvTrackTime());
-			});
-		} else {
-			newEntry.setTime(mouseClickAnimationTime);
-			return new AddFlagEntryAction<>(sourceTimeline, newEntry, timeEnvironment.getCurrentSequence(), null);
-		}
-	}
-
 //	private int computeXFromTime(int time) {
 //		int widthMinusOffsets = timelinePanel.getWidth() - (SIDE_OFFSETS * 2);
 //		double timeRatio = (time) / (double) (timeEnvironment.getLength());
@@ -426,24 +420,6 @@ public class KeyframeHandler {
 
 	public TimeEnvironmentImpl getTimeEnvironment() {
 		return timeEnvironment;
-	}
-
-	private static final class CopiedKeyFrame<T> {
-		private final TimelineContainer node;
-		private final AnimFlag<T> sourceTimeline;
-		private final Entry<T> entry;
-
-		public CopiedKeyFrame(TimelineContainer node, AnimFlag<T> sourceTimeline, T value, T inTan, T outTan) {
-			this.node = node;
-			this.sourceTimeline = sourceTimeline;
-			entry = new Entry<>(0, value, inTan, outTan);
-		}
-
-		public CopiedKeyFrame(TimelineContainer node, AnimFlag<T> sourceTimeline, Entry<T> entry) {
-			this.node = node;
-			this.sourceTimeline = sourceTimeline;
-			this.entry = entry;
-		}
 	}
 
 	public void drawKeyframeMarkers(Graphics g) {

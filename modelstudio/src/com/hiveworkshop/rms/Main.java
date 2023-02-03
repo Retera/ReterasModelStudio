@@ -159,6 +159,7 @@ public class Main {
 							"Once you press OK on that error popup, you can probably still use" +
 							"\nRetera Model Studio just fine for everything else.";
 			JOptionPane.showMessageDialog(null, message, "Error " + ProgramVersion.getSurrounded(), JOptionPane.ERROR_MESSAGE);
+			ExceptionPopup.display(e);
 		}
 	}
 
