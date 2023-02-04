@@ -466,7 +466,8 @@ public class NGGLDP {
 				// (used in WC3 portraits, so it'll be wrong on "main menu" background models)
 				tempVec4.set(0.3f, -0.3f, 0.25f, 0.0f);
 				GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_usingModelCamera"), 1);
-			} else {
+			}
+			else {
 				// this one emulates DNC model light
 				// (used in WC3 game world view)
 				tempVec4.set(-24.1937f, 30.4879f, 444.411f, 0.0f);
@@ -630,9 +631,11 @@ public class NGGLDP {
 			if (glEnum == GL11.GL_TEXTURE_2D) {
 				textureUsed = 1;
 				GL13.glActiveTexture(GL13.GL_TEXTURE0);
-			} else if (glEnum == GL11.GL_ALPHA_TEST) {
+			}
+			else if (glEnum == GL11.GL_ALPHA_TEST) {
 				alphaTest = 1;
-			} else if (glEnum == GL11.GL_LIGHTING) {
+			}
+			else if (glEnum == GL11.GL_LIGHTING) {
 				lightingEnabled = 1;
 			}
 		}
@@ -646,9 +649,11 @@ public class NGGLDP {
 			if (glEnum == GL11.GL_TEXTURE_2D) {
 				textureUsed = 0;
 				GL13.glActiveTexture(0);
-			} else if (glEnum == GL11.GL_ALPHA_TEST) {
+			}
+			else if (glEnum == GL11.GL_ALPHA_TEST) {
 				alphaTest = 0;
-			} else if (glEnum == GL11.GL_LIGHTING) {
+			}
+			else if (glEnum == GL11.GL_LIGHTING) {
 				lightingEnabled = 0;
 			}
 		}
@@ -826,7 +831,10 @@ public class NGGLDP {
 				"		} else {\r\n" + //
 				"			color = v_color;\r\n" + //
 				"		}\r\n" + //
-				"		if(u_alphaTest != 0 && color.a < 0.75) {\r\n" + //
+				"		if(v_color.a == 1.0 && u_alphaTest != 0 && color.a < 0.75) {\r\n" + //
+				"			discard;\r\n" + //
+				"		}\r\n" + //
+				"		if(color.a == 0.0) {\r\n" + //
 				"			discard;\r\n" + //
 				"		}\r\n" + //
 				"		if(u_lightingEnabled != 0) {\r\n" + //
@@ -1023,7 +1031,8 @@ public class NGGLDP {
 				// this one emulates UI\MiscData.txt light
 				// (used in WC3 portraits, so it'll be wrong on "main menu" background models)
 				GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), 0.3f, -0.3f, 0.25f);
-			} else {
+			}
+			else {
 				// this one emulates DNC model light
 				// (used in WC3 game world view)
 				GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), -24.1937f, 30.4879f,
@@ -1260,9 +1269,11 @@ public class NGGLDP {
 			if (glEnum == GL11.GL_TEXTURE_2D) {
 				textureUsed = 1;
 				GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureUnit);
-			} else if (glEnum == GL11.GL_ALPHA_TEST && textureUnit == 0) {
+			}
+			else if ((glEnum == GL11.GL_ALPHA_TEST) && (textureUnit == 0)) {
 				alphaTest = 1;
-			} else if (glEnum == GL11.GL_LIGHTING) {
+			}
+			else if (glEnum == GL11.GL_LIGHTING) {
 				lightingEnabled = 1;
 			}
 		}
@@ -1276,9 +1287,11 @@ public class NGGLDP {
 			if (glEnum == GL11.GL_TEXTURE_2D) {
 				textureUsed = 0;
 				GL13.glActiveTexture(0);
-			} else if (glEnum == GL11.GL_ALPHA_TEST && textureUnit == 0) {
+			}
+			else if ((glEnum == GL11.GL_ALPHA_TEST) && (textureUnit == 0)) {
 				alphaTest = 0;
-			} else if (glEnum == GL11.GL_LIGHTING) {
+			}
+			else if (glEnum == GL11.GL_LIGHTING) {
 				lightingEnabled = 0;
 			}
 		}

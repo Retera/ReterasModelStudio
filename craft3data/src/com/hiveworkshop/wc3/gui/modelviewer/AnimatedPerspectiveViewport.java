@@ -1300,16 +1300,9 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			depthMask = true;
 			break;
 		case TRANSPARENT:
-			if (layer.getLayerShader() == LayerShader.HD) {
-				NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
-				GL11.glEnable(GL11.GL_BLEND);
-				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-			}
-			else {
-				NGGLDP.pipeline.glEnableIfNeeded(GL11.GL_ALPHA_TEST);
-				GL11.glAlphaFunc(GL11.GL_GREATER, 0.75f);
-				GL11.glDisable(GL11.GL_BLEND);
-			}
+			NGGLDP.pipeline.glEnableIfNeeded(GL11.GL_ALPHA_TEST);
+			GL11.glAlphaFunc(GL11.GL_GREATER, 0.75f);
+			GL11.glDisable(GL11.GL_BLEND);
 			depthMask = true;
 			break;
 		}

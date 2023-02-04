@@ -39,7 +39,7 @@ public final class RenderModel {
 		HALF_PI_Y.setFromAxisAngle(new Vector4f(0, 1, 0, (float) (-Math.PI / 2)));
 	}
 	private EditableModel model;
-	public static final double MAGIC_RENDER_SHOW_CONSTANT = 0.75;
+	public static final double MAGIC_RENDER_SHOW_CONSTANT = 0.02;
 	private final List<AnimatedNode> sortedNodes = new ArrayList<>();
 	private AnimatedRenderEnvironment animatedRenderEnvironment;
 
