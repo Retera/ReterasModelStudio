@@ -1,6 +1,8 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
 import com.hiveworkshop.rms.editor.actions.mesh.FixFacesAction;
+import com.hiveworkshop.rms.editor.actions.tools.MergeSkinWeightsAction;
+import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.*;
@@ -20,6 +22,7 @@ public class TwilacsTools extends JMenu {
 		getAccessibleContext().setAccessibleDescription("Where Twilac puts new features during development before they find a permanent home.");
 		add(getSkinningMenu());
 		add(getFixFacesMenu());
+		add(getMergeWeightsMenu());
 
 		add(new WeldVerts().getMenuItem());
 		add(new SplitVertices().getMenuItem());
@@ -78,6 +81,19 @@ public class TwilacsTools extends JMenu {
 			ModelView modelView = currentModelPanel.getModelView();
 			if(!modelView.isEmpty()){
 				currentModelPanel.getModelHandler().getUndoManager().pushAction(new FixFacesAction(modelView.getSelectedTriangles()).redo());
+			}
+		});
+		return menuItem;
+	}
+
+	private JMenuItem getMergeWeightsMenu(){
+		JMenuItem menuItem = new JMenuItem("Merge Weights");
+		menuItem.addActionListener(e -> {
+			ModelPanel currentModelPanel = ProgramGlobals.getCurrentModelPanel();
+			ModelView modelView = currentModelPanel.getModelView();
+			if(!modelView.isEmpty() && !modelView.getModel().getBones().isEmpty()){
+				Bone boneForZero = modelView.getModel().getBones().get(0);
+				currentModelPanel.getModelHandler().getUndoManager().pushAction(new MergeSkinWeightsAction(modelView.getSelectedVertices(), boneForZero, true).redo());
 			}
 		});
 		return menuItem;

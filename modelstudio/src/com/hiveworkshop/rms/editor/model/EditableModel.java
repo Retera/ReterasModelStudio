@@ -103,7 +103,7 @@ public class EditableModel implements Named {
 		modelIdObjects.clearAll();
 	}
 
-	public <T extends IdObject> List<? extends IdObject> sortedIdObjects(final Class<T> objectClass) {
+	public <T extends IdObject> List<? extends IdObject> listForIdObjects(final Class<T> objectClass) {
 		return modelIdObjects.getListByClass(objectClass);
 	}
 
@@ -287,6 +287,24 @@ public class EditableModel implements Named {
 					"Tried to add null IdObject component to model, which is really bad. Tell Retera you saw this once you have errors.");
 		} else {
 			modelIdObjects.addIdObject(x);
+			if (ModelUtils.isBindPoseSupported(formatVersion) && useBindPose && x.getBindPose() == null) {
+				float xBP = x.pivotPoint.x;
+				float yBP = x.pivotPoint.y;
+				float zBP = x.pivotPoint.z;
+				x.setBindPose(new float[] {
+						1, 0, 0,
+						0, 1, 0,
+						0, 0, 1,
+						xBP, yBP, zBP});
+			}
+		}
+	}
+	public void add(final IdObject x, int pos) {
+		if (x == null) {
+			JOptionPane.showMessageDialog(null,
+					"Tried to add null IdObject component to model, which is really bad. Tell Retera you saw this once you have errors.");
+		} else {
+			modelIdObjects.addIdObject(x, pos);
 			if (ModelUtils.isBindPoseSupported(formatVersion) && useBindPose && x.getBindPose() == null) {
 				float xBP = x.pivotPoint.x;
 				float yBP = x.pivotPoint.y;
@@ -681,6 +699,39 @@ public class EditableModel implements Named {
 			idToIdObjectMap = null;
 			idObjectToIdMap = null;
 			nameToIdObjectMap = null;
+		}
+
+		void addIdObject(IdObject idObject, int pos) {
+			if (pos == -1) {
+				addIdObject(idObject);
+			} else {
+				if (idObject instanceof Light) {
+					lights.add(Math.min(pos, lights.size()), (Light) idObject);
+				} else if (idObject instanceof Helper) {
+					helpers.add(Math.min(pos, helpers.size()), (Helper) idObject);
+				} else if (idObject instanceof Bone) {
+//				System.out.println("adding Bone: " + idObject.getName());
+					bones.add(Math.min(pos, bones.size()), (Bone) idObject);
+				} else if (idObject instanceof Attachment) {
+					attachments.add(Math.min(pos, attachments.size()), (Attachment) idObject);
+				} else if (idObject instanceof ParticleEmitter) {
+					particleEmitters.add(Math.min(pos, particleEmitters.size()), (ParticleEmitter) idObject);
+				} else if (idObject instanceof ParticleEmitter2) {
+					particleEmitter2s.add(Math.min(pos, particleEmitter2s.size()), (ParticleEmitter2) idObject);
+				} else if (idObject instanceof ParticleEmitterPopcorn) {
+					popcornEmitters.add(Math.min(pos, popcornEmitters.size()), (ParticleEmitterPopcorn) idObject);
+				} else if (idObject instanceof RibbonEmitter) {
+					ribbonEmitters.add(Math.min(pos, ribbonEmitters.size()), (RibbonEmitter) idObject);
+				} else if (idObject instanceof EventObject) {
+					events.add(Math.min(pos, events.size()), (EventObject) idObject);
+				} else if (idObject instanceof CollisionShape) {
+					colliders.add(Math.min(pos, colliders.size()), (CollisionShape) idObject);
+				}
+				allObjects.add(idObject);
+				idToIdObjectMap = null;
+				idObjectToIdMap = null;
+				nameToIdObjectMap = null;
+			}
 		}
 
 		void removeIdObject(IdObject idObject) {

@@ -41,10 +41,10 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 
 	public ComponentGeosetPanel(ModelHandler modelHandler) {
 		super(modelHandler);
-		setLayout(new MigLayout("hidemode 1", "[][grow][grow]", "[]"));
+		setLayout(new MigLayout("hidemode 1", "[][][grow]", "[]"));
 
 		add(geosetLabel, "");
-		add(getDeleteButton(e -> removeGeoset()), "skip 1, wrap");
+		add(getDeleteButton(e -> removeGeoset()), "spanx, right, wrap");
 		hdNamePanel = getHdNamePanel();
 		add(hdNamePanel, "wrap, growx, spanx");
 
@@ -63,10 +63,10 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 		add(toggleSdHd, "wrap");
 
 		visPanel = new GeosetVisPanel(modelHandler);
-		add(visPanel, "wrap");
+		add(visPanel, "wrap, spanx");
 
 		geosetAnimPanel = new GeosetAnimPanel(modelHandler);
-		add(geosetAnimPanel, "wrap");
+		add(geosetAnimPanel, "wrap, spanx");
 	}
 
 	private JPanel getMaterialPanelHolder() {

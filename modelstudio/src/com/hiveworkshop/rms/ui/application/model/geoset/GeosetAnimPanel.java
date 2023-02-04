@@ -33,7 +33,7 @@ public class GeosetAnimPanel extends JPanel {
 		this.undoManager = modelHandler.getUndoManager();
 		this.changeListener = ModelStructureChangeListener.changeListener;
 
-		animatedPanel = new JPanel(new MigLayout("fill, ins 0", "[]", "[grow]"));
+		animatedPanel = new JPanel(new MigLayout("fill, ins 0", "[]", "[]"));
 		animatedPanel.add(new JLabel("GeosetAnim"), "wrap");
 
 		JButton button = new JButton("copy all geosetAnim-info from other");
@@ -52,7 +52,7 @@ public class GeosetAnimPanel extends JPanel {
 		animatedPanel.add(alphaEditor.getFlagPanel(), "wrap");
 
 
-		add(animatedPanel, "span 2, wrap");
+		add(animatedPanel, "wrap");
 	}
 	
 	public GeosetAnimPanel setGeoset(Geoset geoset){

@@ -60,6 +60,18 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	public void setPivotPoint(final Vec3 p) {
 		pivotPoint.set(p);
 	}
+	@Override
+	public Vec3 getPivotPoint() {
+		return pivotPoint;
+	}
+
+	public IdObject getParent() {
+		return parent;
+	}
+
+	public List<IdObject> getChildrenNodes() {
+		return childrenNodes;
+	}
 
 	public void setParent(final IdObject p) {
 		if (p != this) {
@@ -142,19 +154,6 @@ public abstract class IdObject extends AnimatedNode implements Named {
 
 	public boolean getBillboardLockZ() {
 		return billboardLockZ;
-	}
-
-	@Override
-	public Vec3 getPivotPoint() {
-		return pivotPoint;
-	}
-
-	public IdObject getParent() {
-		return parent;
-	}
-
-	public List<IdObject> getChildrenNodes() {
-		return childrenNodes;
 	}
 
 	public float[] getBindPose() {
