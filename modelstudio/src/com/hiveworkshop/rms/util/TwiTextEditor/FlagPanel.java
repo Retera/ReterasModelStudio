@@ -172,11 +172,13 @@ public class FlagPanel<T> extends CollapsablePanel {
 		if(!animFlag.hasGlobalSeq()){
 			JButton button2 = new JButton("To GlobalSeq");
 //		    button2.addActionListener(e -> turnIntoGlobalSeq());
-			button2.addActionListener(e -> GlobalSeqWizard.showPopup(modelHandler, animFlag, title + " to GlobalSeq", this));
+//			button2.addActionListener(e -> GlobalSeqWizard.showPopup(modelHandler, animFlag, title + " to GlobalSeq", this));
+			button2.addActionListener(e -> GlobalSeqWizard.showPopup(modelHandler, animFlag, title + " to GlobalSeq", button2));
 			panel.add(button2, "right, wrap");
 		} else {
 			JButton button2 = new JButton("Edit GlobalSeq");
-			button2.addActionListener(e -> GlobalSeqWizard.showPopup(modelHandler, animFlag, "Edit " + title, this));
+//			button2.addActionListener(e -> GlobalSeqWizard.showPopup(modelHandler, animFlag, "Edit " + title, this));
+			button2.addActionListener(e -> GlobalSeqWizard.showPopup(modelHandler, animFlag, "Edit " + title, button2));
 			panel.add(button2, "right, wrap");
 		}
 		return panel;

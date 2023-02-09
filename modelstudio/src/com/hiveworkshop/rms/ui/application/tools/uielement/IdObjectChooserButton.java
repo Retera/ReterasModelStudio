@@ -1,8 +1,9 @@
-package com.hiveworkshop.rms.ui.application.tools;
+package com.hiveworkshop.rms.ui.application.tools.uielement;
 
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.ui.application.tools.ModelIconHandler;
 
 import javax.swing.*;
 import java.util.Set;

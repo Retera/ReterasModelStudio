@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ui.application.tools;
+package com.hiveworkshop.rms.ui.application.tools.twilacimport;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.addactions.AddGeosetAction;
@@ -8,8 +8,11 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.tools.IdObjectTypeChanger;
+import com.hiveworkshop.rms.ui.application.tools.ModelIconHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
+import com.hiveworkshop.rms.util.ScreenInfo;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -31,8 +34,9 @@ public class SpliceGeosetPanel extends JPanel{
 		this.recModelHandler = recModelHandler;
 
 
-		BoneReplacementWizard wizard2 = new BoneReplacementWizard(this, recModel, donModel)
-				.setClassSet(Collections.singleton(Bone.class))
+//		BoneReplacementWizard wizard2 = new BoneReplacementWizard(this, recModel, donModel)
+		BoneChainMapWizard wizard2 = new BoneChainMapWizard(this, recModel, donModel)
+				.setClassSet(Set.of(Bone.class, Helper.class))
 				.setIsGeometryMode(true)
 				.setCheckHelperBones(true);
 		JPanel editMappingPanel = wizard2.getEditMappingPanel(-1, true, true);
@@ -44,30 +48,31 @@ public class SpliceGeosetPanel extends JPanel{
 		anImport.addActionListener(e -> importGeosets(chosenDonGeos, wizard2.fillAndGetChainMap()));
 
 		JPanel geosetsPanel = new JPanel(new MigLayout("fill", "[]", "[grow][][]"));
-		geosetsPanel.add(getGeosetTogglePanel(), "wrap");
+		geosetsPanel.add(getGeosetTogglePanel(), "wrap, spanx, growx, growy");
 		geosetsPanel.add(matchVis, "wrap");
 		geosetsPanel.add(anImport, "");
+		geosetsPanel.setPreferredSize(ScreenInfo.getSmallWindow());
 
 		JTabbedPane tabbedPane = new JTabbedPane();
 		tabbedPane.addTab("Choose Geosets", geosetsPanel);
 		tabbedPane.addTab("Map Nodes", editMappingPanel);
-		add(tabbedPane);
+		add(tabbedPane, "growx, growy");
 	}
 
-	private JPanel getGeosetTogglePanel(){
-		JPanel geosetPanel = new JPanel(new MigLayout("fill"));
+	private JScrollPane getGeosetTogglePanel(){
+		JPanel geosetPanel = new JPanel(new MigLayout("", "[grow]", "[]"));
 		for(Geoset geoset : donModel.getGeosets()){
 			geosetPanel.add(new JLabel(iconHandler.getImageIcon(geoset, donModel)));
 			JCheckBox checkBox = new JCheckBox(geoset.getName(), true);
 			chosenDonGeos.add(geoset);
-			checkBox.addActionListener(e -> checkboxAction(checkBox, geoset));
+			checkBox.addActionListener(e -> setImportGeoset(geoset, checkBox.isSelected()));
 			geosetPanel.add(checkBox, "growx, wrap");
 		}
-		return geosetPanel;
+		return new JScrollPane(geosetPanel);
 	}
 
-	private void checkboxAction(JCheckBox checkBox, Geoset geoset){
-		if(checkBox.isSelected()){
+	private void setImportGeoset(Geoset geoset, boolean doImport){
+		if(doImport){
 			System.out.println("added Geoset: " + geoset.getName());
 			chosenDonGeos.add(geoset);
 		} else {
@@ -93,6 +98,15 @@ public class SpliceGeosetPanel extends JPanel{
 
 		if(tryMatchVisibility){
 			matchVisibility(newGeosets);
+		}
+
+		for(IdObject idObject : chainMap.keySet()){
+			if(idObject instanceof Bone && chainMap.get(idObject) != null && !(chainMap.get(idObject) instanceof Bone)) {
+				Bone replacementBone = new Bone();
+				UndoAction replaceNodeAction = IdObjectTypeChanger.getReplaceNodeAction(chainMap.get(idObject), replacementBone, recModel, null);
+				undoActions.add(replaceNodeAction);
+				chainMap.put(idObject, replacementBone);
+			}
 		}
 
 		for(Geoset newGeoset : newGeosets){

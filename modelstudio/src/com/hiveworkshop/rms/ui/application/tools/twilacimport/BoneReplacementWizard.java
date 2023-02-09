@@ -1,9 +1,10 @@
-package com.hiveworkshop.rms.ui.application.tools;
+package com.hiveworkshop.rms.ui.application.tools.twilacimport;
 
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Helper;
 import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.ui.application.tools.ModelIconHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.IdObjectListCellRenderer;
 import com.hiveworkshop.rms.util.CollapsablePanel;
 import com.hiveworkshop.rms.util.ScreenInfo;
@@ -36,6 +37,7 @@ public class BoneReplacementWizard {
 	private boolean checkHelperChilds;
 	private boolean isGeometryMode;
 	private boolean allowTopLevelMapping;
+	private boolean autoValidateChain = true;
 
 	private Set<Class<?>> classSet;
 
@@ -132,16 +134,22 @@ public class BoneReplacementWizard {
 	private CollapsablePanel getSubMappingPanel(List<IdObject> mapFromChilds, List<IdObject> mapToChilds, String title) {
 		JPanel matchingPanel = new JPanel(new MigLayout("ins 0"));
 		if (!(mapFromChilds.isEmpty() || mapToChilds.isEmpty())) {
-			Map<IdObject, List<IdObject>> nodeToPosNodes = getNodeToPosNodes1(mapToChilds, mapFromChilds);
+			Map<IdObject, List<IdObject>> nodeToPosNodes = getNodeToPosNodes(mapToChilds, mapFromChilds);
 
 			for (IdObject mapFromNode : nodeToPosNodes.keySet()) {
-				if(mapFromNode.getClass() == Bone.class){
-					List<IdObject> posMapToNodes = getFilterdList(nodeToPosNodes.get(mapFromNode));
-					TwiComboBox<IdObject> boneChooserBox = getShellTwiComboBox(mapFromNode, posMapToNodes);
-					matchingPanel.add(new JLabel(iconHandler.getImageIcon(mapFromNode, mapFromModel)));
-					matchingPanel.add(new JLabel(mapFromNode.getName()));
-					matchingPanel.add(boneChooserBox, "wrap");
-				}
+
+				List<IdObject> posMapToNodes = nodeToPosNodes.get(mapFromNode);
+				TwiComboBox<IdObject> boneChooserBox = getShellTwiComboBox(mapFromNode, posMapToNodes);
+				matchingPanel.add(new JLabel(iconHandler.getImageIcon(mapFromNode, mapFromModel)));
+				matchingPanel.add(new JLabel(mapFromNode.getName()));
+				matchingPanel.add(boneChooserBox, "wrap");
+//				if(mapFromNode.getClass() == Bone.class){
+//					List<IdObject> posMapToNodes = getFilterdList(nodeToPosNodes.get(mapFromNode));
+//					TwiComboBox<IdObject> boneChooserBox = getShellTwiComboBox(mapFromNode, posMapToNodes);
+//					matchingPanel.add(new JLabel(iconHandler.getImageIcon(mapFromNode, mapFromModel)));
+//					matchingPanel.add(new JLabel(mapFromNode.getName()));
+//					matchingPanel.add(boneChooserBox, "wrap");
+//				}
 			}
 
 		}
@@ -180,19 +188,17 @@ public class BoneReplacementWizard {
 
 	private void prefillCurrDepth(List<IdObject> mapFromChilds, List<IdObject> mapToChilds) {
 		if (!(mapFromChilds.isEmpty() || mapToChilds.isEmpty())) {
-			Map<IdObject, List<IdObject>> nodeToPosNodes = getNodeToPosNodes1(mapToChilds, mapFromChilds);
+			Map<IdObject, List<IdObject>> nodeToPosNodes = getNodeToPosNodes(mapToChilds, mapFromChilds);
 			System.out.println("Prefilling at " + currDepth);
 			for (IdObject mapFromNode : nodeToPosNodes.keySet()) {
 				List<IdObject> posMapToNodes = nodeToPosNodes.get(mapFromNode);
-				if(posMapToNodes.size() == 2){
-					nodeDepthMap.setLink(currDepth, mapFromNode, posMapToNodes.get(1));
-					System.out.println("mapped " + mapFromNode.getName() + " to " + posMapToNodes.get(1).getName());
-				} else {
-					IdObject betsMatch = findBetsMatch(mapFromNode, posMapToNodes);
-					nodeDepthMap.setLink(currDepth, mapFromNode, betsMatch);
-					String bestName = betsMatch == null ? "None" : betsMatch.getName();
-					System.out.println("mapped " + mapFromNode.getName() + " to " + bestName);
-				}
+
+				IdObject betsMatch = posMapToNodes.size() == 2 ? posMapToNodes.get(1) : findBetsMatch(mapFromNode, posMapToNodes);
+
+				nodeDepthMap.setLink(currDepth, mapFromNode, betsMatch);
+
+				String bestName = betsMatch == null ? "None" : betsMatch.getName();
+				System.out.println("mapped " + mapFromNode.getName() + " to " + bestName);
 			}
 
 		}
@@ -278,14 +284,23 @@ public class BoneReplacementWizard {
 
 		if (nodeDepthMap.hasMappedNode(currDepth, mapFromNode)) {
 			IdObject currToNode = nodeDepthMap.getMappedNode(currDepth, mapFromNode);
-			comboBox.selectOrFirst(currToNode);
+			comboBox.selectOrFirstWithListener(currToNode);
 		} else if (posMapToNodes.size() == 2) {
 			comboBox.setSelectedIndex(1);
 		} else {
-			comboBox.selectOrFirst(findBetsMatch(mapFromNode, posMapToNodes));
+			comboBox.selectOrFirstWithListener(findBetsMatch(mapFromNode, posMapToNodes));
 		}
 		return comboBox;
 	}
+
+//	private Map<IdObject, List<IdObject>> getNodeToPosNodes1(List<IdObject> idObjectsForComboBox, List<IdObject> idObjectsForPanel) {
+//		Map<IdObject, List<IdObject>> nodeToPosNodes = new HashMap<>();
+//
+//		for (IdObject idObjectForPanel : idObjectsForPanel) {
+//			nodeToPosNodes.put(idObjectForPanel, getValidNodesList(idObjectForPanel, idObjectsForComboBox, presentParent));
+//		}
+//		return nodeToPosNodes;
+//	}
 
 	private Map<IdObject, List<IdObject>> getNodeToPosNodes(List<IdObject> idObjectsForComboBox, List<IdObject> idObjectsForPanel) {
 		Map<IdObject, List<IdObject>> nodeToPosNodes = new HashMap<>();
@@ -297,16 +312,6 @@ public class BoneReplacementWizard {
 		}
 		return nodeToPosNodes;
 	}
-	private Map<IdObject, List<IdObject>> getNodeToPosNodes1(List<IdObject> idObjectsForComboBox, List<IdObject> idObjectsForPanel) {
-		Map<IdObject, List<IdObject>> nodeToPosNodes = new HashMap<>();
-
-		for (IdObject idObjectForPanel : idObjectsForPanel) {
-			nodeToPosNodes.put(idObjectForPanel, getValidNodesList(idObjectForPanel, idObjectsForComboBox, presentParent));
-		}
-		return nodeToPosNodes;
-	}
-
-
 
 	private List<IdObject> getValidNodesList(IdObject idObjectDest, List<IdObject> idObjectsForComboBox, boolean presentParent) {
 		List<IdObject> validObjects = new ArrayList<>();
@@ -327,7 +332,7 @@ public class BoneReplacementWizard {
 
 		if(nodeDepthMap.hasMappedNode(currDepth, idObjectDest)){
 			IdObject mappedNode = nodeDepthMap.getMappedNode(currDepth, idObjectDest);
-			if(!validObjects.contains(mappedNode)){
+			if(autoValidateChain && !validObjects.contains(mappedNode)){
 				nodeDepthMap.removeLink(currDepth, idObjectDest);
 			}
 		}
@@ -335,18 +340,11 @@ public class BoneReplacementWizard {
 		return validObjects;
 	}
 
-	private boolean isValidCandidate(IdObject idObjectDest, IdObject idObject) {
-//		if(isGeometryMode){
-//			return sameClass(idObjectDest, idObject);
-//		}
-		return isBones(idObject, idObjectDest) || sameClass(idObjectDest, idObject);
-	}
-
 
 
 	private List<IdObject> fetchSuitibleChildBones(IdObject idObject, List<IdObject> nodesToCheck){
 		List<IdObject> nodes =  new ArrayList<>();
-		if(idObject instanceof Bone){
+		if(idObject instanceof Bone || idObject instanceof  Helper){
 			for (IdObject node : nodesToCheck){
 				if(node instanceof Helper){
 					for(IdObject child : node.getChildrenNodes()){
@@ -412,12 +410,21 @@ public class BoneReplacementWizard {
 		return s;
 	}
 
+	private boolean isValidCandidate(IdObject idObjectDest, IdObject idObject) {
+//		if(isGeometryMode){
+//			return sameClass(idObjectDest, idObject);
+//		}
+		return isBones(idObject, idObjectDest) || sameClass(idObjectDest, idObject) || idObjectDest instanceof Helper && idObject instanceof Bone;
+	}
+
 	private boolean sameClass(IdObject idObjectDest, IdObject idObject) {
 		return idObject.getClass() == idObjectDest.getClass();
 	}
 
 	protected boolean isBones(IdObject idObject1, IdObject idObject2) {
-		return idObject1 instanceof Bone && idObject2 instanceof Bone;
+//		return idObject1 instanceof Bone && idObject2 instanceof Bone;
+		System.out.println("is bones? " + idObject1 + ", " + idObject2 + " - " + ((idObject1 instanceof Bone || idObject1 instanceof Helper) && (idObject2 instanceof Bone || idObject2 instanceof Helper)));
+		return (idObject1 instanceof Bone || idObject1 instanceof Helper) && (idObject2 instanceof Bone || idObject2 instanceof Helper);
 	}
 
 	public BoneReplacementWizard setAllowTopLevelMapping(boolean allowTopLevelMapping) {

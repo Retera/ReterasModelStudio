@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.actions.addactions.AddGeosetAction;
 import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ModelFromFile;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
@@ -72,7 +73,19 @@ public class SpliceMeshByRetera {
 
 		Geoset geosetAnim = animationModel.getGeoset(0);
 		if(geosetAnim != null){
-			geosets.forEach(geoset -> geoset.add(geosetAnim.getVisibilityFlag().deepCopy()));
+			AnimFlag<Float> visibilityFlag = geosetAnim.getVisibilityFlag();
+			if(visibilityFlag != null) {
+				geosets.forEach(geoset -> geoset.add(visibilityFlag.deepCopy()));
+			} else {
+				geosets.forEach(geoset -> geoset.setStaticAlpha(geosetAnim.getStaticAlpha()));
+			}
+
+			AnimFlag<?> animFlag = geosetAnim.find("Color");
+			if(animFlag != null) {
+				geosets.forEach(geoset -> geoset.add(animFlag.deepCopy()));
+			} else {
+				geosets.forEach(geoset -> geoset.setStaticColor(geosetAnim.getStaticColor()));
+			}
 		}
 
 		Set<Material> materials = geosets.stream().map(Geoset::getMaterial).collect(Collectors.toSet());

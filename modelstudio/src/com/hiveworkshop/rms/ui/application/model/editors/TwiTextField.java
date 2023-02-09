@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 public class TwiTextField extends JTextField {
 	private Consumer<String> textConsumer;
 	private String text = "";
+	private TwiFocusListener focusListener;
 
 	public TwiTextField(int columns, Consumer<String> textChangedAction) {
 		this("", columns, textChangedAction);
@@ -18,12 +19,17 @@ public class TwiTextField extends JTextField {
 	public TwiTextField(String text, int columns, Consumer<String> textChangedAction) {
 		super(text, columns);
 		textConsumer = textChangedAction;
-		this.addFocusListener(getFocusAdapter());
+		focusListener = new TwiFocusListener(this, this::applyNewText);
+		this.addFocusListener(focusListener);
 		this.addKeyListener(getKeyAdapter());
 	}
 
 	@Override
 	public void setText(String text) {
+		if(focusListener != null && focusListener.isTimerRunning()){
+			focusListener.removeTimer();
+			applyNewText();
+		}
 		super.setText(text);
 		this.text = text;
 	}
@@ -55,6 +61,7 @@ public class TwiTextField extends JTextField {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 					applyNewText();
 				} else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+					focusListener.removeTimer();
 					setText(text);
 				}
 			}

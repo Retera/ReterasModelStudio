@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ui.application.tools;
+package com.hiveworkshop.rms.ui.application.tools.twilacimport;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.AddSequenceAction;
@@ -55,7 +55,7 @@ public class ImportBoneChainAnimationPanel extends TwiImportPanel {
 		chainMap = boneChainMapWizard.getChainMap();
 	}
 
-	private void doImport(Bone donBone, Bone recBone, int boneChainDepth) {
+	private void doImport(IdObject donBone, IdObject recBone, int boneChainDepth) {
 		if (donBone != null && recBone != null) {
 			if(chainMap == null){
 				chainMap = getChainMap(donBone, donModel, recBone, recModel, boneChainDepth, false); // receiving bones to donating bones

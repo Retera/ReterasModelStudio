@@ -9,8 +9,8 @@ import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
 import com.hiveworkshop.rms.ui.application.model.editors.ValueParserUtil;
-import com.hiveworkshop.rms.ui.application.tools.IdObjectChooser;
 import com.hiveworkshop.rms.ui.application.tools.IdObjectTypeChanger;
+import com.hiveworkshop.rms.ui.application.tools.uielement.IdObjectChooser;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.TwiTextEditor.FlagPanel;
@@ -52,7 +52,7 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 
 //		setLayout(new MigLayout("fill, gap 0", "[]5[]5[grow]", "[][][][][][grow]"));
 		setLayout(new MigLayout("fillx, gap 0", "[]5[]5[grow]", "[]"));
-		nameField = new TwiTextField(24, this::changeName);
+		nameField = new TwiTextField(24, null);
 		nameField.setFont(new Font("Arial", Font.BOLD, 18));
 		add(nameField, "");
 
@@ -89,6 +89,7 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	public ComponentPanel<T> setSelectedItem(T itemToSelect) {
 		idObject = itemToSelect;
 		nameField.setText(idObject.getName());
+		nameField.setTextConsumer(s -> changeName(s, itemToSelect));
 		pivotSpinner.setValues(idObject.getPivotPoint());
 
 		IdObject parent = idObject.getParent();
@@ -176,6 +177,17 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	}
 
 	private void changeName(String newName) {
+		if (!newName.equals("") && !newName.equals(idObject.getName())) {
+			System.out.println("setting new name to: " + newName);
+			undoManager.pushAction(new NameChangeAction(idObject, newName, changeListener).redo());
+		}
+	}
+
+	private void changeName(String newName, IdObject idObject) {
+		// When changing which node is being viewed the focus lost event
+		// is sent after the new node ha been loaded so to be able to
+		// apply an ongoing name change the focus listener needs a reference
+		// to the node whose name were being edited
 		if (!newName.equals("") && !newName.equals(idObject.getName())) {
 			System.out.println("setting new name to: " + newName);
 			undoManager.pushAction(new NameChangeAction(idObject, newName, changeListener).redo());

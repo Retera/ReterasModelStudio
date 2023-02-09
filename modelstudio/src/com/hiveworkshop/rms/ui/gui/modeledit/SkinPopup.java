@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.SkinBone;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
-import com.hiveworkshop.rms.ui.application.tools.IdObjectChooserButton;
+import com.hiveworkshop.rms.ui.application.tools.uielement.IdObjectChooserButton;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;

@@ -102,11 +102,13 @@ public final class StaticMeshRotateAction extends AbstractTransformAction {
 					.transform(rotMat, 1, true)
 					.transform(rot)
 					.transform(invRotMat, 1, true).normalize();
-			temp.set(vertex.getTangent())
-					.transform(rotMat, 1, true)
-					.transform(rot)
-					.transform(invRotMat, 1, true).normalize();
-			vertex.getTangent().set(temp);
+			if(vertex.getTangent() != null) {
+				temp.set(vertex.getTangent())
+						.transform(rotMat, 1, true)
+						.transform(rot)
+						.transform(invRotMat, 1, true).normalize();
+				vertex.getTangent().set(temp);
+			}
 
 		}
 		for (IdObject b : selectedIdObjects) {

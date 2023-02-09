@@ -26,6 +26,11 @@ import com.hiveworkshop.rms.ui.application.tools.shadereditors.BoneShaderEditPan
 import com.hiveworkshop.rms.ui.application.tools.shadereditors.ColShaderEditPanel;
 import com.hiveworkshop.rms.ui.application.tools.shadereditors.GridShaderEditPanel;
 import com.hiveworkshop.rms.ui.application.tools.shadereditors.MeshShaderEditPanel;
+import com.hiveworkshop.rms.ui.application.tools.twilacimport.ImportBoneChainAnimationPanel;
+import com.hiveworkshop.rms.ui.application.tools.twilacimport.ImportModelPartPanel;
+import com.hiveworkshop.rms.ui.application.tools.twilacimport.SpliceGeosetPanel;
+import com.hiveworkshop.rms.ui.application.tools.twilacimport.SpliceModelPartPanel;
+import com.hiveworkshop.rms.ui.application.tools.uielement.IdObjectChooser;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
@@ -40,6 +45,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class TwilacStuff {
 
@@ -177,6 +183,9 @@ public class TwilacStuff {
 		public SpliceGeoset() {
 			super("Splice Geoset", SpliceGeoset::doStuff);
 		}
+		public SpliceGeoset(Supplier<EditableModel> modelSupplier) {
+			super("Splice Geoset", m -> SpliceGeoset.doStuff2(m, modelSupplier.get()));
+		}
 
 		private static void doStuff(ModelHandler modelHandler) {
 			EditableModel donModel = ModelFromFile.chooseModelFile(FileDialog.OPEN_WC_MODEL, null);
@@ -185,6 +194,35 @@ public class TwilacStuff {
 				FramePopup.show(panel, ProgramGlobals.getMainPanel(), "Splice Geoset(s)");
 			}
 		}
+		private static void doStuff2(ModelHandler modelHandler, EditableModel donModel) {
+			if (donModel != null) {
+				SpliceGeosetPanel panel = new SpliceGeosetPanel(donModel, modelHandler);
+				FramePopup.show(panel, ProgramGlobals.getMainPanel(), "Splice Geoset(s)");
+			}
+		}
+
+//		@Override
+//		public JMenuItem getMenuItem() {
+//			JMenuItem skinSpliceFromFile = new JMenuItem("From File");
+//			skinSpliceFromFile.addActionListener(e -> doStuff2(ModelFromFile.chooseModelFile(FileDialog.OPEN_WC_MODEL, null)));
+//
+//			JMenuItem skinSpliceFromWorkspace = new JMenuItem("From Workspace");
+//			skinSpliceFromWorkspace.addActionListener(e -> spliceModel(getWorkspaceModel()));
+//
+//			JMenuItem skinSpliceFromModel = new JMenuItem("From Model");
+//			skinSpliceFromModel.addActionListener(e -> spliceModel(OpenFromInternal.getInternalModel()));
+//
+//			JMenuItem skinSpliceFromUnit = new JMenuItem("From Unit");
+//			skinSpliceFromUnit.addActionListener(e -> spliceModel(ImportFromUnit.getFileModel()));
+//
+//			JMenu skinSplice;
+//			skinSplice = new JMenu("Splice Geoset(s)");
+//			skinSplice.add(skinSpliceFromFile);
+//			skinSplice.add(skinSpliceFromWorkspace);
+//			skinSplice.add(skinSpliceFromModel);
+//			skinSplice.add(skinSpliceFromUnit);
+//			return super.getMenuItem();
+//		}
 	}
 
 	private static class BridgeEdgeStuff extends TwiFunction {
@@ -408,6 +446,45 @@ public class TwilacStuff {
 	}
 
 	public static JMenuItem getSpliceGeosetMenuItem() {
+//		JMenuItem fromFile = new JMenuItem("From File");
+//		fromFile.addActionListener(e -> doStuff2(ModelFromFile.chooseModelFile(FileDialog.OPEN_WC_MODEL, null)));
+//
+//		JMenuItem fromWorkspace = new JMenuItem("From Workspace");
+//		fromWorkspace.addActionListener(e -> spliceModel(getWorkspaceModel()));
+//
+//		JMenuItem fromModel = new JMenuItem("From Model");
+//		fromModel.addActionListener(e -> spliceModel(OpenFromInternal.getInternalModel()));
+//
+//		JMenuItem fromUnit = new JMenuItem("From Unit");
+//		fromUnit.addActionListener(e -> spliceModel(ImportFromUnit.getFileModel()));
+
+		JMenuItem fromFile = new SpliceGeoset(() -> ModelFromFile.chooseModelFile(FileDialog.OPEN_WC_MODEL, null)).getMenuItem();
+		fromFile.setText("From File");
+//		fromFile.addActionListener(e -> doStuff2(ModelFromFile.chooseModelFile(FileDialog.OPEN_WC_MODEL, null)));
+
+		JMenuItem fromWorkspace = new SpliceGeoset(() -> ModelFromFile.getWorkspaceModelCopy(
+				"Import from Workspace",
+				"Choose a workspace item to import data from:",
+				ProgramGlobals.getMainPanel())).getMenuItem();
+		fromWorkspace.setText("From Workspace");
+//		fromWorkspace.addActionListener(e -> spliceModel(getWorkspaceModel()));
+
+		JMenuItem fromModel = new SpliceGeoset(OpenFromInternal::getInternalModel).getMenuItem();
+		fromModel.setText("From Model");
+//		fromModel.addActionListener(e -> spliceModel(OpenFromInternal.getInternalModel()));
+
+		JMenuItem fromUnit = new SpliceGeoset(ImportFromUnit::getFileModel).getMenuItem();
+		fromUnit.setText("From Unit");
+//		fromUnit.addActionListener(e -> spliceModel(ImportFromUnit.getFileModel()));
+
+		JMenu geoSplice = new JMenu("Splice Geoset(s)");
+		geoSplice.add(fromFile);
+		geoSplice.add(fromWorkspace);
+		geoSplice.add(fromModel);
+		geoSplice.add(fromUnit);
+		return geoSplice;
+	}
+	public static JMenuItem getSpliceGeosetMenuItem1() {
 		return new SpliceGeoset().getMenuItem();
 	}
 

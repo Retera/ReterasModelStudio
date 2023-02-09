@@ -101,7 +101,7 @@ public class TwiComboBoxModel<E> extends AbstractListModel<E> implements Mutable
 
 	// implements javax.swing.ListModel
 	public E getElementAt(int index) {
-		if (index >= 0 && index < objects.size())
+		if (0 <= index && index < objects.size())
 			return objects.get(index);
 		else
 			return null;

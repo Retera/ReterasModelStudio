@@ -22,7 +22,7 @@ import com.hiveworkshop.rms.ui.application.actionfunctions.ImportWC3Model;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.GlobalSeqHelper;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
-import com.hiveworkshop.rms.ui.application.tools.BoneChainMapWizard;
+import com.hiveworkshop.rms.ui.application.tools.twilacimport.BoneChainMapWizard;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.util.SearchableList;

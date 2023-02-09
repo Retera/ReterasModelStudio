@@ -1,7 +1,8 @@
-package com.hiveworkshop.rms.ui.application.tools;
+package com.hiveworkshop.rms.ui.application.tools.twilacimport;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.addactions.AddGeosetAction;
+import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.editor.actions.nodes.AddNodeAction;
 import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
@@ -45,7 +46,7 @@ public class ImportModelPartPanel extends TwiImportPanel {
 			Map<IdObject, IdObject> boneCopyMap = getBoneCopyMap(donBone); //obj to copy
 			boneCopyMap.get(donBone).setParent(recBone);
 
-			Set<Bone> selectedBones = boneCopyMap.keySet().stream()
+			Set<IdObject> selectedBones = boneCopyMap.keySet().stream()
 					.filter(idObject -> idObject instanceof Bone)
 					.map(obj -> (Bone)obj)
 					.collect(Collectors.toSet());
@@ -54,13 +55,17 @@ public class ImportModelPartPanel extends TwiImportPanel {
 			Set<Geoset> newGeosets = getNewGeosets(selectedBones);
 
 			if(selectedBones.size() != selectedBonesSize){
-				for (Bone bone : selectedBones){
+				for (IdObject bone : selectedBones){
 					boneCopyMap.computeIfAbsent(bone, k -> bone.copy());
 				}
 			}
+			Set<Material> newMaterials = new HashSet<>();
 			for(Geoset geoset : newGeosets){
 				for(GeosetVertex vertex : geoset.getVertices()){
 					vertex.replaceBones(boneCopyMap);
+				}
+				if(!recModel.contains(geoset.getMaterial())){
+					newMaterials.add(geoset.getMaterial());
 				}
 			}
 
@@ -82,6 +87,11 @@ public class ImportModelPartPanel extends TwiImportPanel {
 				}
 				undoActions.add(new AddNodeAction(recModel, newIdObject, null));
 			}
+
+			for(Material material : newMaterials){
+				undoActions.add(new AddMaterialAction(material, recModel, null));
+			}
+
 			Set<GeosetVertex> addedVertexes = new HashSet<>();
 			for (Geoset geoset : newGeosets) {
 				geoset.clearMatrices();

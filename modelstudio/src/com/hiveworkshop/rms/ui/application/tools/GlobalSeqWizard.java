@@ -29,9 +29,8 @@ public class GlobalSeqWizard<T> extends JPanel{
 	private final AnimFlag<T> animFlag;
 
 	private Sequence selectedAnim;
-	private GlobalSeq existingGlobSeq;
-	private GlobalSeq customGlobSeq;
-	private GlobalSeq animGlobSeq;
+
+	private GlobalSeq newGlobalSeq;
 	private boolean removeOthers = true;
 
 	GlobalSeqWizard(ModelHandler modelHandler, AnimFlag<T> animFlag){
@@ -93,41 +92,33 @@ public class GlobalSeqWizard<T> extends JPanel{
 
 		TwiComboBox<GlobalSeq> globalSeqBox = getGlobalSeqBox();
 		IntEditorJSpinner customSpinner = new IntEditorJSpinner(1000, 1, Integer.MAX_VALUE, i -> {
-			if(customGlobSeq != null){
-				customGlobSeq.setLength(i);
+			if(newGlobalSeq != null){
+				newGlobalSeq.setLength(i);
 			}
 		});
 
 		SmartButtonGroup typeGroup = new SmartButtonGroup();
 		JRadioButton intoExisting = typeGroup.addJRadioButton("Into Existing", e -> {
-			globalSeqBox.setEnabled(true);
-			customSpinner.setEnabled(false);
-			existingGlobSeq = globalSeqBox.getSelected();
-			customGlobSeq = null;
-			animGlobSeq = null;
+			chooseSeq(0, globalSeqBox, customSpinner);
 		});
-		JRadioButton custom = typeGroup.addJRadioButton("To Custom Length", e -> {
-			globalSeqBox.setEnabled(false);
-			customSpinner.setEnabled(true);
-			existingGlobSeq = null;
-			customGlobSeq = new GlobalSeq(customSpinner.getIntValue());
-			animGlobSeq = null;
-		});
-		JRadioButton useAnimationLength = typeGroup.addJRadioButton("Use Animation Length", e -> {
-			globalSeqBox.setEnabled(false);
-			customSpinner.setEnabled(false);
-			existingGlobSeq = null;
-			customGlobSeq = null;
-			animGlobSeq = new GlobalSeq(selectedAnim == null ? 1000 : selectedAnim.getLength());
-		});
-		if(!modelHandler.getModel().getGeosets().isEmpty()){
-			typePanel.add(intoExisting);
-			typePanel.add(globalSeqBox, "wrap");
-		}
+
+		JRadioButton custom = typeGroup.addJRadioButton("To Custom Length", e -> chooseSeq(1, globalSeqBox, customSpinner));
+		JRadioButton useAnimationLength = typeGroup.addJRadioButton("Use Animation Length", e -> chooseSeq(2, globalSeqBox, customSpinner));
+
+		typePanel.add(intoExisting);
+		intoExisting.setEnabled(0 < modelHandler.getModel().getGlobalSeqs().size());
+
+		typePanel.add(globalSeqBox, "wrap");
+		globalSeqBox.setEnabled(0 < modelHandler.getModel().getGlobalSeqs().size());
+
 		typePanel.add(custom);
+
 		typePanel.add(customSpinner, "wrap");
-		if(!animFlag.hasGlobalSeq()){
-			typePanel.add(useAnimationLength, "wrap");
+
+		typePanel.add(useAnimationLength, "wrap");
+		useAnimationLength.setEnabled(0 < animFlag.getAnimMap().size());
+
+		if(!animFlag.hasGlobalSeq() && 0 < animFlag.getAnimMap().size()){
 //			typeGroup.setSelectedName("Use Animation Length");
 			useAnimationLength.setSelected(true);
 			useAnimationLength.getActionListeners()[0].actionPerformed(null);
@@ -139,20 +130,29 @@ public class GlobalSeqWizard<T> extends JPanel{
 		return typePanel;
 	}
 
+	private void chooseSeq(int type, TwiComboBox<GlobalSeq> globalSeqBox, IntEditorJSpinner customSpinner){
+
+		switch (type){
+			case 0 -> newGlobalSeq = globalSeqBox.getSelected();
+			case 1 -> newGlobalSeq = new GlobalSeq(customSpinner.getIntValue());
+			case 2 -> newGlobalSeq = new GlobalSeq(selectedAnim == null ? 1000 : selectedAnim.getLength());
+			default -> new GlobalSeq(1000);
+		}
+
+		globalSeqBox.setEnabled(type == 0);
+		customSpinner.setEnabled(type == 1);
+	}
+
 	private GlobalSeq getGlobSeqToUse() {
-		if(existingGlobSeq != null){
-			return existingGlobSeq;
-		} else if(customGlobSeq != null){
-			return customGlobSeq;
-		} else if(animGlobSeq != null){
-			return animGlobSeq;
+		if(newGlobalSeq != null){
+			return newGlobalSeq;
 		}
 		return new GlobalSeq(1000);
 	}
 
 	private TwiComboBox<GlobalSeq> getGlobalSeqBox() {
 		TwiComboBox<GlobalSeq> globalSeqBox = new TwiComboBox<>(modelHandler.getModel().getGlobalSeqs(), new GlobalSeq(1000000));
-		globalSeqBox.addOnSelectItemListener(g -> existingGlobSeq = g);
+		globalSeqBox.addOnSelectItemListener(g -> newGlobalSeq = g);
 		return globalSeqBox;
 	}
 
@@ -160,20 +160,23 @@ public class GlobalSeqWizard<T> extends JPanel{
 		TwiComboBox<Animation> animations = new TwiComboBox<>(new Animation("PrototypePrototypePrototypePrototype", 0, 1));
 		animations.setStringFunctionRender(this::animationName);
 		animations.addItem(null);
+
 		for(Animation anim : modelHandler.getModel().getAnims()){
 			if(animFlag.hasSequence(anim)){
 				animations.add(anim);
 			}
 		}
+
 		animations.addOnSelectItemListener(a -> {
 			selectedAnim = a;
-			if(animGlobSeq != null){
-				animGlobSeq.setLength(a == null ? 1000 : a.getLength());
+			if(newGlobalSeq != null){
+				newGlobalSeq.setLength(a == null ? 1000 : a.getLength());
 			}
 		});
-		animations.setSelectedIndex(1);
-		if(animGlobSeq != null){
-			animGlobSeq.setLength(animations.getSelected() == null ? 1000 : animations.getSelected().getLength());
+
+		animations.selectOrFirstWithListener(animations.getItemAt(1));
+		if(newGlobalSeq != null){
+			newGlobalSeq.setLength(animations.getSelected() == null ? 1000 : animations.getSelected().getLength());
 		}
 		return animations;
 	}

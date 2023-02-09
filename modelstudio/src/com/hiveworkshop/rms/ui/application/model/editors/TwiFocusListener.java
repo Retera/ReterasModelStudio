@@ -31,13 +31,20 @@ public class TwiFocusListener extends FocusAdapter {
 		return this;
 	}
 
+	public boolean isTimerRunning(){
+		return timer != null;
+	}
+
 	public TwiFocusListener setLastEditedExtend(int lastEditedExtend) {
 		this.lastEditedExtend = lastEditedExtend;
 		return this;
 	}
 
 	public void removeTimer() {
-		timer.cancel();
+		if(timer != null){
+			timer.cancel();
+			timer = null;
+		}
 	}
 
 	private TimerTask getTimerTask() {
