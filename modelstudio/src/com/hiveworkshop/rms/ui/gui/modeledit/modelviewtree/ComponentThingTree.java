@@ -16,10 +16,6 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.InputMethodListener;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.util.List;
 import java.util.*;
 
@@ -51,22 +47,22 @@ public class ComponentThingTree extends JTree {
 
 		BasicTreeUI basicTreeUI = (BasicTreeUI) getUI();
 		basicTreeUI.setRightChildIndent(5);
-		System.out.println("KeyListeners: " + getKeyListeners().length);
-		for(KeyListener a_KeyListener : getKeyListeners()){
-			System.out.println(a_KeyListener);
-		}
-		System.out.println("MouseListeners: " + getMouseListeners().length);
-		for(MouseListener MouseListener : getMouseListeners()){
-			System.out.println(MouseListener);
-		}
-		System.out.println("MouseMotionListeners: " + getMouseMotionListeners().length);
-		for(MouseMotionListener a_MouseMotionListener : getMouseMotionListeners()){
-			System.out.println(a_MouseMotionListener);
-		}
-		System.out.println("InputMethodListeners: " + getInputMethodListeners().length);
-		for(InputMethodListener a_InputMethodListener : getInputMethodListeners()){
-			System.out.println(a_InputMethodListener);
-		}
+//		System.out.println("KeyListeners: " + getKeyListeners().length);
+//		for(KeyListener a_KeyListener : getKeyListeners()){
+//			System.out.println(a_KeyListener);
+//		}
+//		System.out.println("MouseListeners: " + getMouseListeners().length);
+//		for(MouseListener MouseListener : getMouseListeners()){
+//			System.out.println(MouseListener);
+//		}
+//		System.out.println("MouseMotionListeners: " + getMouseMotionListeners().length);
+//		for(MouseMotionListener a_MouseMotionListener : getMouseMotionListeners()){
+//			System.out.println(a_MouseMotionListener);
+//		}
+//		System.out.println("InputMethodListeners: " + getInputMethodListeners().length);
+//		for(InputMethodListener a_InputMethodListener : getInputMethodListeners()){
+//			System.out.println(a_InputMethodListener);
+//		}
 
 		tel = new ModelTreeExpansionListener();
 		mouseAdapter = new ModelTreeMouseAdapter(tel::setControlDown, this);

@@ -38,7 +38,7 @@ public class CameraControlPrefs {
 
 			stringBuilder.append(keyStroke).append("\n");
 		}
-		System.out.println("CAMERA SHORTCUTS:\n" + stringBuilder);
+//		System.out.println("CAMERA SHORTCUTS:\n" + stringBuilder);
 		return stringBuilder.toString();
 	}
 

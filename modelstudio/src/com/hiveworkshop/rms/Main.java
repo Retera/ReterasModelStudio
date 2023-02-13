@@ -11,11 +11,8 @@ import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.ProgramVersion;
 import com.hiveworkshop.rms.util.ThemeLoadingUtils;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,38 +41,11 @@ public class Main {
 
 	private static void startRealRMS(List<String> startupModelPaths, boolean dataPromptForced){
 		try {
+//			DebugStuff.showSystemInfoPopup();
+
 			LwjglNativesLoader.load();
 
-			GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
-			org.lwjgl.opengl.DisplayMode displayMode = Display.getDisplayMode();
-			DisplayMode desktopDisplayMode = Display.getDesktopDisplayMode();
-//		environment.getDefaultScreenDevice().getDefaultConfiguration().getDefaultTransform()
-			System.out.println("OpenGL displayMode size: " + displayMode.getWidth() + " x " + displayMode.getHeight());
-			System.out.println("OpenGL desktopDisplayMode size: " + desktopDisplayMode.getWidth() + " x " + desktopDisplayMode.getHeight());
-			Point centerPoint = environment.getCenterPoint();
-			System.out.println("GE center point: " + centerPoint);
-
-//			GraphicsDevice[] devices = environment.getScreenDevices();
-//			for(GraphicsDevice device : devices){
-//				System.out.println("GD: " + device
-//						+ ", \nid-string: " + device.getIDstring()
-//						+ ", \ntype: " + device.getType()
-//						+ ", \nconfig: " + device.getDefaultConfiguration()
-//						+ ", \nconfigs: " + device.getConfigurations().length
-//						+ ", \ndisplayMode: " + device.getDisplayMode()
-//						+ ", \ndisplayModes: " + device.getDisplayModes().length
-//						+ ", \nAvailableAcceleratedMemory: " + device.getAvailableAcceleratedMemory()
-//						+ ""
-//				);
-////				for(DisplayMode dm : device.getDisplayModes()){
-////					System.out.println(dm);
-////				}
-//			}
-//			float yRatio = (float) (displayMode.getHeight() / Toolkit.getDefaultToolkit().getScreenSize().getHeight());
-//
-//			Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
-//			System.out.println("Toolkit screenSize: " + defaultToolkit.getScreenSize());
-//			System.out.println("Toolkit screenDPI: " + defaultToolkit.getScreenResolution());
+//			DebugStuff.printScreenInfo();
 
 
 		} catch (final Throwable th) {

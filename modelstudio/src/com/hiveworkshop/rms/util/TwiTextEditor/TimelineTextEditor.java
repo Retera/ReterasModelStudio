@@ -123,29 +123,40 @@ public class TimelineTextEditor<T> {
 
 	public static <Q> TreeMap<Integer, Entry<Q>> stringToEntryMap(String text, boolean tans, Function<String, Q> parseFunction, int vectorSize){
 		TreeMap<Integer, Entry<Q>> entryMap = new TreeMap<>();
-		String[] entries = text.split("\n+[\\s]*(?=\\d)");
+		String[] entries = text.strip().split("\\s*\n+\\s*(?=\\d)");
 
-		String timeAndValue = "[\\s\\S]*\\d+:.*\\d[\\s\\S]*";
+		String timeAndValue = "[\\s\\S]*\\d+:.*\\d[\\s\\S]*"; // quick check has time and at least one digit as value
 
-		String regex = "[ \\t]*\\d+:" +
-				"([\\w]*[ \t]*" +
-					"[{\\[(]?" +
-						"([ \t]*[eE\\d-., \t]+,?[ \t]*)+" +
-					"[}\\])]?" +
-				"[ \\t]*,?[ \\t]*\\n?)+";
+		String regex = "\\s*\\d+:" +
+				"(\\w*\\s*" +
+					"[\\{\\[\\(]?" +
+						"(\\s*[eE\\d-.,\\s]+,?\\s*)+" +
+					"[\\}\\]\\)]?" +
+				"\\s*,?\\s*\\n?)+";
+
+		String timeChunk = "\\s*\\d+:";
+		String maybeStartBracket = "[\\{\\[\\(]?";
+		String maybeEndBracket = "[\\}\\]\\)]?";
+		String validValue = "[eE\\d-.]+";
+		String valueChunk = "\\s*\\w*\\s*" + maybeStartBracket + "(\\s*" + validValue + "\\s*,?)+" + maybeEndBracket + "\\s*,?\\n?";
+
+		String regex2 = timeChunk + "(" + valueChunk + ")+";
+//		System.out.println("~~~~~  regex2  ~~~~~");
+//		System.out.println(regex2);
+//		System.out.println("~~~~~  ~~~~~~  ~~~~~");
+		Pattern pattern2 = Pattern.compile(regex2);
 		Pattern pattern = Pattern.compile(regex);
-		System.out.println("turning " + entries.length + " string entries into entry map");
+		System.out.println("\nturning " + entries.length + " string entries into entry map");
 		for(String sEntry : entries){
 			if(sEntry.matches(timeAndValue) && pattern.matcher(sEntry).matches()){
 				String[] eLines = sEntry.split("\n");
 				if(tans && eLines.length<3){
-					eLines = sEntry.split("(,\\s*\\{)|([Ta][Aa][Nn])");
+					eLines = sEntry.split("(,\\s*\\{)|([Tt][Aa][Nn])");
 				}
 				String[] time_value = eLines[0].strip().split(":");
-				if (time_value.length>1){
+				if (1 < time_value.length){
 					int time = Integer.parseInt("0" + time_value[0].replaceAll("\\D", ""));
 					Q value = parseFunction.apply(ValueParserUtil.getString(vectorSize, time_value[1].replaceAll("[^-\\d,.eE]", "")));
-//					System.out.println("entry value: " + value);
 					Entry<Q> entry = new Entry<>(time, value);
 					if(tans){
 //						System.out.println("tans");

@@ -80,6 +80,12 @@ public class Vec4 {
 	public boolean equals(final Vec4 v) {
 		return (x == v.x) && (y == v.y) && (z == v.z) && (w == v.w);
 	}
+	public boolean equals(Object v) {
+		if(v instanceof Vec4){
+			return equals((Vec4) v);
+		}
+		return false;
+	}
 
 	@Override
 	public String toString() {
