@@ -144,7 +144,7 @@ public class TransformCalculator {
 		Mat4 newWorldMat = new Mat4();
 
 		tempMat.set(parentWorldMatrix).invert().mul(targetWorldMatrix);
-		Vec3 trans = new Vec3().getLocationFromMat(tempMat, targetPivot).add(targetPivot).sub(idObject.getPivotPoint());
+		Vec3 trans = new Vec3().setAsLocationFromMat(tempMat, targetPivot).add(targetPivot).sub(idObject.getPivotPoint());
 
 		Vec3 scale = new Vec3(targetWorldScale);
 		if(!idObject.getDontInheritScaling()){

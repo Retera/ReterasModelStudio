@@ -17,9 +17,7 @@ public class Vec3 {
 	public float y = 0;
 	public float z = 0;
 
-	public Vec3() {
-
-	}
+	public Vec3() {}
 
 	public Vec3(final double x, final double y, final double z) {
 		this.x = (float) x;
@@ -289,13 +287,6 @@ public class Vec3 {
 		return scale(-1f);
 	}
 
-	public static Vec3 transform(final Vec3 a, final Mat4 mat4) {
-		float newX = (mat4.m00 * a.x) + (mat4.m10 * a.y) + (mat4.m20 * a.z) + mat4.m30;
-		float newY = (mat4.m01 * a.x) + (mat4.m11 * a.y) + (mat4.m21 * a.z) + mat4.m31;
-		float newZ = (mat4.m02 * a.x) + (mat4.m12 * a.y) + (mat4.m22 * a.z) + mat4.m32;
-		return new Vec3(newX, newY, newZ);
-	}
-
 	public Vec3 transform(final Mat4 mat4) {
 		return transform(1, mat4);
 	}
@@ -388,7 +379,7 @@ public class Vec3 {
 
 	public double radAngleTo(Vec3 a) {
 		double cos = dot(a) / (length() * a.length());
-		if (cos > 1) {
+		if (1 < cos) {
 			cos = cos % (1.0);
 			return (Math.acos(1 - cos));
 		} else if (cos < -1) {
@@ -565,21 +556,12 @@ public class Vec3 {
 	}
 
 	public Vec3 scale(final Vec3 center, final Vec3 scale) {
-//		Vec3 delta = this.sub(center);
-//		Vec3 scaleRes = delta.multiply(scale);
-//		set(scaleRes.add(center));
 		sub(center).multiply(scale).add(center);
 		return this;
 	}
 	public Vec3 scale(final Vec3 center, float scale) {
-		Vec3 delta = this.sub(center);
-		Vec3 scaleRes = delta.scale(scale);
-		set(scaleRes.add(center));
+		sub(center).scale(scale).add(center);
 		return this;
-	}
-
-	public Vec3 scaleCentered(final Vec3 center, final Vec3 scale) {
-		return sub(center).multiply(scale).add(center);
 	}
 
 	public Vec3 scale(final float factor) {
@@ -644,39 +626,6 @@ public class Vec3 {
 		set(newX, newY, newZ);
 		return this;
 	}
-
-	public Vec3 crossNorm2(final Vec3 a, final Vec3 b) {
-		float lenA = a.length();
-		float lenB = b.length();
-		float scaleF = (lenB * lenA);
-
-		if (scaleF == 0) {
-			scaleF = 1;
-		}
-		float newX = ((a.y * b.z) - (b.y * a.z)) / scaleF;
-		float newY = ((b.x * a.z) - (a.x * b.z)) / scaleF;
-		float newZ = ((a.x * b.y) - (b.x * a.y)) / scaleF;
-
-		set(newX, newY, newZ);
-		return this;
-	}
-
-	public Vec3 crossNorm3(final Vec3 vec1, final Vec3 vec2) {
-		float lenA = vec1.length();
-		float lenB = vec2.length();
-		float scaleF = (lenB * lenA);
-
-		if (scaleF == 0) {
-			scaleF = 1;
-		}
-		float newX = ((vec1.y * vec2.z) - (vec2.y * vec1.z)) / scaleF;
-		float newY = ((vec2.x * vec1.z) - (vec1.x * vec2.z)) / scaleF;
-		float newZ = ((vec1.x * vec2.y) - (vec2.x * vec1.y)) / scaleF;
-
-		set(newX, newY, newZ);
-		return this;
-	}
-
 
 	public boolean isValid() {
 		return !(Float.isNaN(this.x)
@@ -836,21 +785,13 @@ public class Vec3 {
 		return result;
 	}
 
-	public Vec3 getLocationFromMat(Mat4 mat4, Vec3 pivot) {
+	public Vec3 setAsLocationFromMat(Mat4 mat4, Vec3 pivot) {
 		x = mat4.m30 + ((mat4.m00 * pivot.x) + (mat4.m10 * pivot.y) + (mat4.m20 * pivot.z)) - pivot.x;
 		y = mat4.m31 + ((mat4.m01 * pivot.x) + (mat4.m11 * pivot.y) + (mat4.m21 * pivot.z)) - pivot.y;
 		z = mat4.m32 + ((mat4.m02 * pivot.x) + (mat4.m12 * pivot.y) + (mat4.m22 * pivot.z)) - pivot.z;
 
 		return this;
 	}
-	public Vec3 getLocationFromMat(Mat4 mat4) {
-		float tempX = mat4.m30 + ((mat4.m00 * x) + (mat4.m10 * y) + (mat4.m20 * z)) - x;
-		float tempY = mat4.m31 + ((mat4.m01 * x) + (mat4.m11 * y) + (mat4.m21 * z)) - y;
-		float tempZ = mat4.m32 + ((mat4.m02 * x) + (mat4.m12 * y) + (mat4.m22 * z)) - z;
-
-		return set(tempX, tempY, tempZ);
-	}
-
 
 	public String toRoundedString(){
 		return "{ " + Math.round(x) + ", " + Math.round(y) + ", " + Math.round(z) + " }";

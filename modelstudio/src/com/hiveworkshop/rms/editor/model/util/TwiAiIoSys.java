@@ -2,11 +2,12 @@ package com.hiveworkshop.rms.editor.model.util;
 
 import jassimp.AiIOSystem;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class TwiAiIoSys implements AiIOSystem<TwiAiReader> {
-
-
 	private final Class<?> clazz;
 	private final ClassLoader classLoader;
 
@@ -28,42 +29,36 @@ public class TwiAiIoSys implements AiIOSystem<TwiAiReader> {
 	@Override
 	public TwiAiReader open(String path, String ioMode) {
 		try {
-			PrintStream var10000;
-			String var10001;
-			InputStream inputStream;
 			File file = new File(path);
-			inputStream = new FileInputStream(file);
-
-
+			InputStream inputStream = new FileInputStream(file);
 			TwiAiReader twiAiReader = new TwiAiReader(inputStream);
 
-//			int kbSize = twiAiReader.getFileSize()/1000;
-//			double d1 = 10;
-//			double d2 = 0.05 *kbSize;
-//			double d22 = 0.001 *kbSize;
-////			double d3 =  1.065 * Math.pow(10, -13) *size*size;
-//			double d3 =  .1065*d22*d22;
-////			double d3 =  .1065 *d22*d22;
-//			double d4 = d1 + d2 + d3;
-////			double d4 = d22*d22*d22*.0004678;
-//			System.out.println("est load time: "+ d4 + "ms");
-//			System.out.println("file "+ file.length());
 
-			int kbSize = twiAiReader.getFileSize() / 1000;
-			double d1 = 10;
-			double d2 = 0.1 * kbSize;
-			double d22 = 0.0001 * kbSize;
-			double d3 = 2.5 * d22 * d22;
-			double d4 = d1 + d2 + d3;
-			System.out.println("est load time: " + d4 + "ms");
-			System.out.println("file " + file.length());
+//			int kbSize = twiAiReader.getFileSize() / 1000;
+//			double d1 = 10;
+//			double d2 = 0.1 * kbSize;
+//			double d22 = 0.0001 * kbSize;
+//			double d3 = 2.5 * d22 * d22;
+//			double d4 = d1 + d2 + d3;
+//			float timeEst = ((int) d4)/1000f;
+
+//			LocalDateTime localDateTime = LocalDateTime.now();
+//			LocalDateTime localDateTimeNow = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.systemDefault());
+//			LocalDateTime localDateTimeDone = LocalDateTime.ofInstant(Instant.ofEpochMilli((long) (System.currentTimeMillis() + d4)), ZoneId.systemDefault());
+
+//			LocalTime localTimeNow = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.systemDefault()).toLocalTime().truncatedTo(ChronoUnit.SECONDS);
+//			LocalTime localTimeDone = LocalDateTime.ofInstant(Instant.ofEpochMilli((long) (System.currentTimeMillis() + d4)), ZoneId.systemDefault()).toLocalTime().truncatedTo(ChronoUnit.SECONDS);
+//
+//			System.out.println("File size: " + twiAiReader.getFileSize() + " bytes");
+//			System.out.println("(" + localTimeNow + ") " + "est load time: " + timeEst + "s" + "(~"+ localTimeDone + ")");
+//			System.out.println("file " + file.length());
 
 			return twiAiReader;
 //			if (inputStream != null) {
 //				return new TwiAiReader(inputStream);
 //			} else {
-//				var10000 = System.err;
-//				var10001 = this.getClass().getSimpleName();
+//				PrintStream var10000 = System.err;
+//				String var10001 = this.getClass().getSimpleName();
 //				var10000.println("[" + var10001 + "] Cannot find " + path);
 //				return null;
 //			}

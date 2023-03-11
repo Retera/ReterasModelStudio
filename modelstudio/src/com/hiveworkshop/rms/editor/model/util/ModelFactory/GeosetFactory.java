@@ -101,19 +101,19 @@ public class GeosetFactory {
 			}
 
 
-//			if (ModelUtils.isTangentAndSkinSupported(model.getFormatVersion()) && tangents != null && (i*4 + 3) < tangents.length) {
-			if (infoHolder.isTangentAndSkinSupported() && tangents != null) {
-				// version 900
+			if (tangents != null) {
 				Vec4 tang = new Vec4(tangents[(i * 4)], tangents[(i * 4) + 1], tangents[(i * 4) + 2], tangents[(i * 4) + 3]);
-				gv.initV900();
 				gv.setTangent(tang);
+			}
 
-				Bone[] bones = {(Bone) infoHolder.idObjMap.get(((skin[(i * 8)] + 256) % 256)),
+
+			if (skin != null) {
+				Bone[] bones = {
+						(Bone) infoHolder.idObjMap.get(((skin[(i * 8) + 0] + 256) % 256)),
 						(Bone) infoHolder.idObjMap.get(((skin[(i * 8) + 1] + 256) % 256)),
 						(Bone) infoHolder.idObjMap.get(((skin[(i * 8) + 2] + 256) % 256)),
 						(Bone) infoHolder.idObjMap.get(((skin[(i * 8) + 3] + 256) % 256))};
 
-//				short[] weights = {skin[(i * 8) + 4], skin[(i * 8) + 5], skin[(i * 8) + 6], skin[(i * 8) + 7]};
 				short[] weights = {
 						(short)((skin[(i * 8) + 4] + 256) % 256),
 						(short)((skin[(i * 8) + 5] + 256) % 256),
@@ -123,15 +123,13 @@ public class GeosetFactory {
 				gv.setSkinBones(bones, weights);
 
 				skinList.add(new short[] {skin[(i * 8)], skin[(i * 8) + 1], skin[(i * 8) + 2], skin[(i * 8) + 3], skin[(i * 8) + 4], skin[(i * 8) + 5], skin[(i * 8) + 6], skin[(i * 8) + 7]});
-
 			}
 		}
-		// guys I didn't code this to allow experimental non-triangle faces that were suggested to exist
-		// on the web (i.e. quads). if you wanted to fix that, you'd want to do it below
+		// guys, I didn't code this to allow experimental non-triangle faces that were suggested
+		// to exist on the web (i.e. quads). if you wanted to fix that, you'd want to do it below
 		final int[] facesVertIndices = mdlxGeoset.faces;
 
 		for (int i = 0; i < facesVertIndices.length; i += 3) {
-//			Triangle triangle = new Triangle(facesVertIndices[i], facesVertIndices[i + 1], facesVertIndices[i + 2], geoset);
 			if(facesVertIndices[i] < 0 || facesVertIndices[i + 1] < 0 || facesVertIndices[i + 2] < 0 ||
 					facesVertIndices[i] > vertexList.size() || facesVertIndices[i + 1] > vertexList.size() || facesVertIndices[i + 2] > vertexList.size()){
 				continue;

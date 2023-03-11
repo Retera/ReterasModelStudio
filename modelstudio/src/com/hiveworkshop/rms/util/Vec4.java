@@ -251,6 +251,14 @@ public class Vec4 {
 		return this;
 	}
 
+	public Vec4 sub(final Vec3 a) {
+		x = x - a.x;
+		y = y - a.y;
+		z = z - a.z;
+
+		return this;
+	}
+
 	public Vec4 add(final Vec4 a) {
 		x = x + a.x;
 		y = y + a.y;
@@ -447,5 +455,18 @@ public class Vec4 {
 		return new Color(red, green, blue, alpha);
 	}
 
+	public static Vec4 valueOf(String s) throws NumberFormatException {
+		return parseVec4(s);
+	}
+
+	public static Vec4 parseVec4(String s) throws NumberFormatException {
+		String unbracketed = s.replaceAll("[\\[\\](){}]", "");
+		String[] numbers = unbracketed.split(",");
+		float num0 = Float.parseFloat(numbers[0].strip());
+		float num1 = Float.parseFloat(numbers[1].strip());
+		float num2 = Float.parseFloat(numbers[2].strip());
+		float num3 = Float.parseFloat(numbers[3].strip());
+		return new Vec4(num0, num1, num2, num3);
+	}
 
 }

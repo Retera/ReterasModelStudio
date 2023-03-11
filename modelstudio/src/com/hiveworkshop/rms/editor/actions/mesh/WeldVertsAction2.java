@@ -71,7 +71,7 @@ public class WeldVertsAction2 implements UndoAction {
 			}
 			for(GeosetVertex vertex : vertices){
 				normal.add(vertex.getNormal());
-				bones.addAll(vertex.getAllBones());
+				bones.addAll(vertex.getBones());
 				if(vertex.getSkinBones() != null){
 					for (SkinBone skinBone : vertex.getSkinBones()){
 						if (skinBone != null && skinBone.getBone() != null && skinBone.getWeight() != 0){

@@ -56,10 +56,9 @@ public class MdlxModel {
 	public MdlxModel(final ByteBuffer buffer) {
 		load(buffer);
 	}
-
 	public void load(final ByteBuffer buffer) {
 		// MDX files start with "MDLX".
-		if (buffer.get(0) == 77 && buffer.get(1) == 68 && buffer.get(2) == 76 && buffer.get(3) == 88) {
+		if (buffer.get(0) == 'M' && buffer.get(1) == 'D' && buffer.get(2) == 'L' && buffer.get(3) == 'X') {
 			MdxLoadSave.loadMdx(this, buffer);
 		} else {
 			MdlLoadSave.loadMdl(this, buffer);

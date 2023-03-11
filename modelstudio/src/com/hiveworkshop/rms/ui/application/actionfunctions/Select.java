@@ -25,7 +25,9 @@ public class Select {
 	private static SelectAll selectAll;
 	private static InvertSelection invertSelection;
 	private static ExpandSelection expandSelection;
+	private static ShrinkSelection shrinkSelection;
 	private static SelectNodeGeometry selectNodeGeometry;
+	private static SelectGeometryNodes selectGeometryNodes;
 	private static SelectLinkedGeometry selectLinkedGeometry;
 
 	private static class SelectAll extends ActionFunction {
@@ -40,6 +42,13 @@ public class Select {
 		ExpandSelection(){
 			super(TextKey.EXPAND_SELECTION, Select::expandSelection);
 			setKeyStroke(KeyStroke.getKeyStroke("control E"));
+		}
+	}
+	private static class ShrinkSelection  extends ActionFunction {
+
+		ShrinkSelection(){
+			super(TextKey.SHRINK_SELECTION, Select::shrinkSelection);
+			setKeyStroke(KeyStroke.getKeyStroke("control shift E"));
 		}
 	}
 	private static class SelectLinkedGeometry  extends ActionFunction {
@@ -60,6 +69,12 @@ public class Select {
 	private static class SelectNodeGeometry extends ActionFunction{
 		SelectNodeGeometry() {
 			super(TextKey.SELECT_NODE_GEOMETRY, Select::selectNodeGeometry);
+		}
+	}
+
+	private static class SelectGeometryNodes extends ActionFunction{
+		SelectGeometryNodes() {
+			super(TextKey.SELECT_GEOMETRY_NODES, Select::selectGeometryNodes);
 		}
 	}
 
@@ -91,8 +106,14 @@ public class Select {
 	public static JMenuItem getExpandSelectionMenuItem(){
 		return getExpandSelection().getMenuItem();
 	}
+	public static JMenuItem getShrinkSelectionMenuItem(){
+		return getShrinkSelection().getMenuItem();
+	}
 	public static JMenuItem getSelectNodeGeometryMenuItem(){
 		return getSelectNodeGeometry().getMenuItem();
+	}
+	public static JMenuItem getSelectGeometryNodesMenuItem(){
+		return getSelectGeometryNodes().getMenuItem();
 	}
 	public static JMenuItem getSelectLinkedGeometryMenuItem(){
 		return getSelectLinkedGeometry().getMenuItem();
@@ -117,11 +138,23 @@ public class Select {
 		}
 		return expandSelection;
 	}
+	public static ActionFunction getShrinkSelection(){
+		if(shrinkSelection == null){
+			shrinkSelection = new ShrinkSelection();
+		}
+		return shrinkSelection;
+	}
 	public static ActionFunction getSelectNodeGeometry(){
 		if(selectNodeGeometry == null){
 			selectNodeGeometry = new SelectNodeGeometry();
 		}
 		return selectNodeGeometry;
+	}
+	public static ActionFunction getSelectGeometryNodes(){
+		if(selectGeometryNodes == null){
+			selectGeometryNodes = new SelectGeometryNodes();
+		}
+		return selectGeometryNodes;
 	}
 	public static ActionFunction getSelectLinkedGeometry(){
 		if(selectLinkedGeometry == null){
@@ -136,9 +169,11 @@ public class Select {
 		for (Geoset geo : modelView.getEditableGeosets()) {
 			allSelection.addAll(geo.getVertices());
 		}
-		SelectionBundle bundle = new SelectionBundle(allSelection, modelView.getEditableIdObjects(), modelView.getEditableCameraNodes());
-		UndoAction action = new SetSelectionUggAction(bundle, modelView, "select all", ModelStructureChangeListener.changeListener);
-		modelHandler.getUndoManager().pushAction(action.redo());
+		if (!modelView.sameSelection(allSelection, modelView.getEditableIdObjects(), modelView.getEditableCameraNodes())) {
+			SelectionBundle bundle = new SelectionBundle(allSelection, modelView.getEditableIdObjects(), modelView.getEditableCameraNodes());
+			UndoAction action = new SetSelectionUggAction(bundle, modelView, "select all", ModelStructureChangeListener.changeListener);
+			modelHandler.getUndoManager().pushAction(action.redo());
+		}
 	}
 
 	private static void invertSelectActionRes(ModelHandler modelHandler) {
@@ -147,37 +182,153 @@ public class Select {
 
 	private static void selectLinked(ModelHandler modelHandler) {
 		ModelView modelView = modelHandler.getModelView();
-		Set<GeosetVertex> expandedSelection = new HashSet<>(modelView.getSelectedVertices());
-
+		boolean doNodes = true;
+		
+		Set<GeosetVertex> expandedGeoSelection = new HashSet<>(modelView.getSelectedVertices());
 		for (GeosetVertex v : modelView.getSelectedVertices()) {
-			selectLinked(v, expandedSelection);
+			collectLinked(v, expandedGeoSelection);
 		}
-		SelectionBundle bundle = new SelectionBundle(expandedSelection, modelView.getSelectedIdObjects(), modelView.getSelectedCameraNodes());
-		UndoAction action = new SetSelectionUggAction(bundle, modelView, "expand selection", ModelStructureChangeListener.changeListener);
-		modelHandler.getUndoManager().pushAction(action.redo());
+
+		Set<IdObject> expandedNodeSelection = new HashSet<>(modelView.getSelectedIdObjects());
+		if (doNodes) {
+			for (IdObject n : modelView.getSelectedIdObjects()) {
+				collectLinked(n, expandedNodeSelection);
+			}
+		}
+		Set<CameraNode> expandedCamSelection = new HashSet<>();
+		for (Camera camera : modelView.getSelectedCameras()){
+			expandedCamSelection.add(camera.getSourceNode());
+			expandedCamSelection.add(camera.getTargetNode());
+		}
+
+		if (!modelView.sameSelection(expandedGeoSelection, expandedNodeSelection, expandedCamSelection)) {
+			SelectionBundle bundle = new SelectionBundle(expandedGeoSelection, expandedNodeSelection, expandedCamSelection, modelView.getSelectedCameraNodes());
+			UndoAction action = new SetSelectionUggAction(bundle, modelView, "select linked", ModelStructureChangeListener.changeListener);
+			modelHandler.getUndoManager().pushAction(action.redo());
+		}
 	}
 
-	private static void selectLinked(GeosetVertex currentVertex, Set<GeosetVertex> selection) {
+	public static void collectLinked(GeosetVertex currentVertex, Set<GeosetVertex> selection) {
 		selection.add(currentVertex);
 		for (Triangle tri : currentVertex.getTriangles()) {
 			for (GeosetVertex other : tri.getVerts()) {
 				if (!selection.contains(other)) {
-					selectLinked(other, selection);
+					collectLinked(other, selection);
 				}
+			}
+		}
+	}
+
+	public static void collectLinked(IdObject node, Set<IdObject> selection) {
+		selection.add(node);
+		IdObject parent = node.getParent();
+		if (parent != null && !selection.contains(parent)){
+			collectLinked(parent, selection);
+		}
+		for (IdObject child : node.getChildrenNodes()) {
+			if (!selection.contains(child)) {
+				collectLinked(child, selection);
 			}
 		}
 	}
 
 	private static void expandSelection(ModelHandler modelHandler) {
 		ModelView modelView = modelHandler.getModelView();
-		Set<GeosetVertex> expandedSelection = new HashSet<>(modelView.getSelectedVertices());
+		Set<GeosetVertex> selectedVertices = modelView.getSelectedVertices();
+		Set<GeosetVertex> expandedSelection = getExpandedSelection(selectedVertices);
+		if(!modelView.sameSelection(expandedSelection,  modelView.getSelectedIdObjects(), modelView.getSelectedCameraNodes())) {
+			SelectionBundle bundle = new SelectionBundle(expandedSelection, modelView.getSelectedIdObjects(), modelView.getSelectedCameraNodes());
+			UndoAction action = new SetSelectionUggAction(bundle, modelView, "expand selection", ModelStructureChangeListener.changeListener);
+			modelHandler.getUndoManager().pushAction(action.redo());
+		}
+	}
 
-		for (GeosetVertex v : modelView.getSelectedVertices()) {
+	private static void expandSelectionNodes(ModelHandler modelHandler) {
+		ModelView modelView = modelHandler.getModelView();
+		Set<IdObject> selectedIdObjects = modelView.getSelectedIdObjects();
+
+		Set<IdObject> expandedSelection = getExpandedNodeSelecton(selectedIdObjects);
+		if(!modelView.sameSelection(modelView.getSelectedVertices(), expandedSelection, modelView.getSelectedCameraNodes())) {
+			SelectionBundle bundle = new SelectionBundle(modelView.getSelectedVertices(), expandedSelection, modelView.getSelectedCameraNodes());
+			UndoAction action = new SetSelectionUggAction(bundle, modelView, "expand selection", ModelStructureChangeListener.changeListener);
+			modelHandler.getUndoManager().pushAction(action.redo());
+		}
+	}
+
+	private static void shrinkSelection(ModelHandler modelHandler) {
+		ModelView modelView = modelHandler.getModelView();
+
+		Set<GeosetVertex> shrunkenSelection = getShrunkenGeoSelection(modelView.getSelectedVertices());
+
+
+		if(!modelView.sameSelection(shrunkenSelection, modelView.getSelectedIdObjects(), modelView.getSelectedCameraNodes())) {
+			SelectionBundle bundle = new SelectionBundle(shrunkenSelection, modelView.getSelectedIdObjects(), modelView.getSelectedCameraNodes());
+			UndoAction action = new SetSelectionUggAction(bundle, modelView, "shrink selection", ModelStructureChangeListener.changeListener);
+			modelHandler.getUndoManager().pushAction(action.redo());
+		}
+	}
+
+	private static void shrinkSelectionNodes(ModelHandler modelHandler) {
+		ModelView modelView = modelHandler.getModelView();
+
+		Set<IdObject> shrunkenSelection = getShrunkenNodeSelection(modelView.getSelectedIdObjects());
+
+		if(!modelView.sameSelection(modelView.getSelectedVertices(), shrunkenSelection, modelView.getSelectedCameraNodes())) {
+			SelectionBundle bundle = new SelectionBundle(modelView.getSelectedVertices(), shrunkenSelection, modelView.getSelectedCameraNodes());
+
+			UndoAction action = new SetSelectionUggAction(bundle, modelView, "shrink selection", ModelStructureChangeListener.changeListener);
+			modelHandler.getUndoManager().pushAction(action.redo());
+		}
+	}
+
+	public static Set<GeosetVertex> getExpandedSelection(Set<GeosetVertex> selectedVertices) {
+		Set<GeosetVertex> expandedSelection = new HashSet<>(selectedVertices);
+
+		for (GeosetVertex v : selectedVertices) {
 			v.getTriangles().forEach(tri -> expandedSelection.addAll(Arrays.asList(tri.getVerts())));
 		}
-		SelectionBundle bundle = new SelectionBundle(expandedSelection, modelView.getSelectedIdObjects(), modelView.getSelectedCameraNodes());
-		UndoAction action = new SetSelectionUggAction(bundle, modelView, "expand selection", ModelStructureChangeListener.changeListener);
-		modelHandler.getUndoManager().pushAction(action.redo());
+		return expandedSelection;
+	}
+
+	public static Set<IdObject> getExpandedNodeSelecton(Set<IdObject> selectedIdObjects) {
+		Set<IdObject> expandedSelection = new HashSet<>(selectedIdObjects);
+
+		for (IdObject v : selectedIdObjects) {
+			expandedSelection.addAll(v.getChildrenNodes());
+			if (v.getParent() != null){
+				expandedSelection.add(v.getParent());
+			}
+		}
+		return expandedSelection;
+	}
+
+	public static Set<GeosetVertex> getShrunkenGeoSelection(Set<GeosetVertex> selectedVertices) {
+		Set<GeosetVertex> expandedSelection = getExpandedSelection(selectedVertices);
+		expandedSelection.removeAll(selectedVertices);
+
+		Set<GeosetVertex> edgeVerts = new HashSet<>();
+		for (GeosetVertex v : expandedSelection) {
+			v.getTriangles().forEach(tri -> edgeVerts.addAll(Arrays.asList(tri.getVerts())));
+		}
+		Set<GeosetVertex> shrunkenSelection = new HashSet<>(selectedVertices);
+		shrunkenSelection.removeAll(edgeVerts);
+		return shrunkenSelection;
+	}
+
+	public static Set<IdObject> getShrunkenNodeSelection(Set<IdObject> selectedIdObjects) {
+		Set<IdObject> expandedSelection = getExpandedNodeSelecton(selectedIdObjects);
+		expandedSelection.removeAll(selectedIdObjects);
+
+		Set<IdObject> chainEnds = new HashSet<>();
+		for (IdObject v : expandedSelection) {
+			chainEnds.addAll(v.getChildrenNodes());
+			if (v.getParent() != null){
+				chainEnds.add(v.getParent());
+			}
+		}
+		Set<IdObject> shrunkenSelection = new HashSet<>(selectedIdObjects);
+		shrunkenSelection.removeAll(chainEnds);
+		return shrunkenSelection;
 	}
 
 	private static void selectNodeGeometry(ModelHandler modelHandler) {
@@ -200,6 +351,22 @@ public class Select {
 		}
 		if (!vertexList.isEmpty()) {
 			UndoAction action = new SetSelectionUggAction(new SelectionBundle(vertexList), modelView, "Select", ModelStructureChangeListener.changeListener);
+			modelHandler.getUndoManager().pushAction(action.redo());
+		}
+	}
+
+	private static void selectGeometryNodes(ModelHandler modelHandler) {
+		ModelView modelView = modelHandler.getModelView();
+
+		Set<Bone> usedBones = new HashSet<>();
+
+		for (GeosetVertex v : modelView.getSelectedVertices()) {
+			usedBones.addAll(v.getAllBones());
+		}
+		usedBones.removeIf(node -> !modelView.isEditable(node));
+
+		if (!usedBones.isEmpty()) {
+			UndoAction action = new SetSelectionUggAction(new SelectionBundle(usedBones), modelView, "Select", ModelStructureChangeListener.changeListener);
 			modelHandler.getUndoManager().pushAction(action.redo());
 		}
 	}

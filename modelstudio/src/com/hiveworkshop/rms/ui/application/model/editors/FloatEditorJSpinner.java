@@ -126,6 +126,10 @@ public class FloatEditorJSpinner extends JSpinner {
 
 
 	public float getFloatValue() {
+		SpinnerModel model = getModel();
+		if(model instanceof SpinnerNumberModel){
+			return ((SpinnerNumberModel) model).getNumber().floatValue();
+		}
 		if (getValue().getClass().equals(Float.class)) {
 			return (float) getValue();
 		}

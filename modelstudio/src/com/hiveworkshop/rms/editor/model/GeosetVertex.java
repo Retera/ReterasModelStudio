@@ -119,7 +119,7 @@ public class GeosetVertex extends Vec3 {
 		if(skinBones != null){
 			List<Bone> bones = new ArrayList<>();
 			for (SkinBone skinBone : skinBones){
-				if(skinBone != null && skinBone.getBone() != null){
+				if(skinBone != null && skinBone.getBone() != null && skinBone.getWeight() != 0){
 					bones.add(skinBone.getBone());
 				}
 			}
@@ -414,7 +414,11 @@ public class GeosetVertex extends Vec3 {
 	}
 
 	public void setTangent(Vec4 tangent) {
-		this.tangent = tangent;
+		if(this.tangent == null){
+			this.tangent = new Vec4(tangent);
+		} else {
+			this.tangent.set(tangent);
+		}
 	}
 
 	public void removeTangent(){

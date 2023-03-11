@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
 import static com.badlogic.gdx.utils.SharedLibraryLoader.*;
 
 public final class LwjglNativesLoader {
-	static public boolean load = true;
+	static public boolean load;
 
 	static {
 		System.setProperty("org.lwjgl.input.Mouse.allowNegativeMouseCoords", "true");
@@ -58,6 +58,11 @@ public final class LwjglNativesLoader {
 					loader.extractFileTo(is64Bit ? "OpenAL64.dll" : "OpenAL32.dll", nativesDir);
 				}
 			} else if (isMac) {
+				nativesDir = loader.extractFile("liblwjgl.dylib", null).getParentFile();
+				if (!false) {
+					loader.extractFileTo("openal.dylib", nativesDir);
+				}
+			} else if (isIos) {
 				nativesDir = loader.extractFile("liblwjgl.dylib", null).getParentFile();
 				if (!false) {
 					loader.extractFileTo("openal.dylib", nativesDir);

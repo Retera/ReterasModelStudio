@@ -182,9 +182,9 @@ public class ReadSLK {
 //			}
 //		}
 		if(x_list != null && x-1 == x_list.size()){
-			String field = getStringAfter(l, "^C(;[XY]\\d+){0,2};K");
-			if(!field.isEmpty()){
-				x_list.add(field);
+				String field = getStringAfter(l, "^C(;[XY]\\d+){0,2};K");
+				if(!field.isEmpty()){
+					x_list.add(field);
 			}
 		}
 	}

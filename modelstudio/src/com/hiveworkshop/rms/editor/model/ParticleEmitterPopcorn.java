@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
+import com.hiveworkshop.rms.editor.render3d.EmitterIdObject;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
@@ -12,7 +13,7 @@ import java.util.*;
  * match leaked Blizzard MDL. (one of the builds of the game included an MDL by
  * mistake or something)
  */
-public class ParticleEmitterPopcorn extends IdObject {
+public class ParticleEmitterPopcorn extends EmitterIdObject {
 	int replaceableId = 0;
 	float alpha = 0;
 	Vec3 color = new Vec3();
@@ -29,6 +30,31 @@ public class ParticleEmitterPopcorn extends IdObject {
 	}
 
 	public ParticleEmitterPopcorn() {
+	}
+
+	@Override
+	public int getBlendSrc() {
+		return 0;
+	}
+
+	@Override
+	public int getBlendDst() {
+		return 0;
+	}
+
+	@Override
+	public int getRows() {
+		return 0;
+	}
+
+	@Override
+	public int getCols() {
+		return 0;
+	}
+
+	@Override
+	public boolean isRibbonEmitter() {
+		return false;
 	}
 
 	public ParticleEmitterPopcorn(ParticleEmitterPopcorn emitter) {

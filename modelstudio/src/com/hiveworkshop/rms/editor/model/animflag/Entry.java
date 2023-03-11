@@ -164,15 +164,17 @@ public class Entry<T> {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		Entry<?> entry = (Entry<?>) o;
-		if (value instanceof Vec3) {
-			return entry.value instanceof Vec3 && time.equals(entry.time) && ((Vec3) value).equalLocs((Vec3) entry.value)
-					&& (inTan == null && entry.inTan == null || inTan != null && ((Vec3) inTan).equalLocs((Vec3) entry.inTan))
-					&& (outTan == null && entry.outTan == null || outTan != null && ((Vec3) outTan).equalLocs((Vec3) entry.outTan));
-		} else {
-			return time.equals(entry.time) && value.equals(entry.value) && Objects.equals(inTan, entry.inTan) && Objects.equals(outTan, entry.outTan);
+		if (o instanceof Entry) {
+			Entry<?> entry = (Entry<?>) o;
+			if (value instanceof Vec3) {
+				return entry.value instanceof Vec3 && time.equals(entry.time) && ((Vec3) value).equalLocs((Vec3) entry.value)
+						&& (inTan == null && entry.inTan == null || inTan != null && ((Vec3) inTan).equalLocs((Vec3) entry.inTan))
+						&& (outTan == null && entry.outTan == null || outTan != null && ((Vec3) outTan).equalLocs((Vec3) entry.outTan));
+			} else {
+				return time.equals(entry.time) && value.equals(entry.value) && Objects.equals(inTan, entry.inTan) && Objects.equals(outTan, entry.outTan);
+			}
 		}
+		return false;
 	}
 
 	@Override

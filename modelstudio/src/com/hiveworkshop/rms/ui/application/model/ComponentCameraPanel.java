@@ -19,7 +19,8 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ComponentCameraPanel extends ComponentPanel<Camera> {
 	private final TwiTextField nameField;
@@ -180,7 +181,7 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 			rotPanelFloat.update(camera.getSourceNode(), null, 0.0f);
 		} else {
 			rotPanelQuat.update(camera.getSourceNode(), null, new Quat(0, 0, 0, 1));
-			rotPanelFloat.update(camera.getSourceNode(), (FloatAnimFlag) rotationFlag, 0.0f);
+			rotPanelFloat.update(camera.getSourceNode(), null, 0.0f);
 			rotPanelInt.update(camera.getSourceNode(), null, 0);
 		}
 		rotPanelQuat.setVisible(rotationFlag instanceof QuatAnimFlag);
@@ -198,8 +199,12 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 		undoManager.pushAction(new DeleteNodesAction(camera, changeListener, model).redo());
 	}
 	private void simplifyKFs() {
-		boolean allowRemovePeaks = false;
-		undoManager.pushAction(new SimplifyKeyframesAction(Collections.singleton(camera), model.getAllSequences(), 0.1f, 0.1f, allowRemovePeaks).redo());
+		List<AnimFlag<?>> animFlags = new ArrayList<>();
+		animFlags.addAll(camera.getTargetNode().getAnimFlags());
+		animFlags.addAll(camera.getSourceNode().getAnimFlags());
+		if(!animFlags.isEmpty()){
+			undoManager.pushAction(new SimplifyKeyframesAction(animFlags, model.getAllSequences(), 0.1f, -1f, 0.1f, -1f, true).redo());
+		}
 	}
 
 	private void setPosition(Vec3 newPosition) {

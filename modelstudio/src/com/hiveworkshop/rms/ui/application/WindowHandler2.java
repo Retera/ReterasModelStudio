@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayViewCanvas;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayViewUgg;
+import com.hiveworkshop.rms.ui.application.viewer.EditUVsView;
 import com.hiveworkshop.rms.ui.application.viewer.PreviewView;
 import com.hiveworkshop.rms.ui.application.viewer.PreviewViewCanv;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitBrowserView;
@@ -183,24 +184,38 @@ public class WindowHandler2 {
 	}
 
 	public TabWindow getStartupTabWindow() {
-		SplitWindow editingTab = getEditTab();
+		DockingWindow[] dockingWindows = {getViewTab2(), getEditTab(), getModelComponentsView()};
+//		DockingWindow[] dockingWindows = {getModelComponentsView()};
+//		DockingWindow[] dockingWindows = {getEditTab(), getModelComponentsView()};
+//		DockingWindow[] dockingWindows = {getEditTab(), getViewTab2(), getModelComponentsView()};
+//		DockingWindow[] dockingWindows = {getViewTab2(), getEditTab(), getModelComponentsView(), getEditUVsView()};
+//		DockingWindow[] dockingWindows = {getEditUVsView(), getViewTab2(), getEditTab(), getModelComponentsView()};
+//		DockingWindow[] dockingWindows = {getEditUVsView(), getEditTab(), getViewTab2(), getModelComponentsView()};
 
-		DockingWindow viewingTab = getViewTab2();
+		return getStartupTabWindow(dockingWindows);
+	}
 
-//		SplitWindow modelTab = new SplitWindow(true, 0.2f, getPlaceholderView("Contents"), getTitledView("Component"));
+	private TabWindow getStartupTabWindow(DockingWindow... windows){
+		for(DockingWindow window : windows){
+			if(window instanceof ModelDependentView){
+				allViews.add((ModelDependentView) window);
+			}
+		}
+		return new TabWindow(windows);
+	}
+
+	private ModelComponentsView getModelComponentsView() {
 		ModelComponentsView modelTab = new ModelComponentsView();
 		modelTab.getWindowProperties().setTitleProvider(arg0 -> "Model");
 		componentBrowserTreeViews.add(modelTab);
-		allViews.add(modelTab);
-
-//		TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {modelTab});
-//		TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {editingTab, modelTab});
-		TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {viewingTab, editingTab, modelTab});
-
-//        TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {editingTab, viewingTab, modelTab});
-		return startupTabWindow;
+		return modelTab;
 	}
 
+	private EditUVsView getEditUVsView() {
+		EditUVsView editUVsView = new EditUVsView();
+		editUVsView.getWindowProperties().setTitleProvider(arg0 -> "UV");
+		return editUVsView;
+	}
 
 
 	private DockingWindow getViewTab() {

@@ -14,6 +14,7 @@ import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.ExtFilter;
+import com.hiveworkshop.rms.ui.util.FbxLoadingInfo;
 import com.hiveworkshop.rms.util.ImageUtils.ImageCreator;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
@@ -30,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.concurrent.ExecutionException;
 
 public class ModelLoader {
 	public static final ImageIcon MDLIcon = RMSIcons.MDLIcon;
@@ -107,8 +109,12 @@ public class ModelLoader {
 	public static void loadModel(boolean temporary, boolean showModel, ModelPanel modelPanel) {
 		if (temporary) {
 			modelPanel.getModelView().getModel().setTemp(true);
+			modelPanel.getModelView().getModel().setFileRef(null);
 		}
+		loadModel(showModel, modelPanel);
+	}
 
+	public static void loadModel(boolean showModel, ModelPanel modelPanel) {
 		if (ProgramGlobals.getCurrentModelPanel() == modelPanel) {
 			ProgramGlobals.getRootWindowUgg().getWindowHandler2().showModelPanel(modelPanel);
 		}
@@ -118,10 +124,6 @@ public class ModelLoader {
 			setCurrentModel(modelPanel);
 		}
 
-		if (temporary) {
-			modelPanel.getModelView().getModel().setFileRef(null);
-		}
-
 		if (showModel && ProgramGlobals.getPrefs().getQuickBrowse()) {
 			CloseModel.closeUnalteredModelsExcept(modelPanel);
 		}
@@ -129,7 +131,6 @@ public class ModelLoader {
 
 	public static void setCurrentModel(ModelPanel modelPanel) {
 		ProgramGlobals.setCurrentModelPanel(modelPanel);
-//		refreshAnimationModeState();
 
 		if (modelPanel != null) {
 			modelPanel.refreshFromEditor();
@@ -149,48 +150,80 @@ public class ModelLoader {
 		String filepath = f.getPath();
 		System.out.println("loadFile: " + f.getName());
 		System.out.println("filePath: " + filepath);
-		ExtFilter extFilter = new ExtFilter();
 		if (f.exists()) {
-			final String pathLow = filepath.toLowerCase();
-			String ext = pathLow.replaceAll(".+\\.(?=.+)", "");
-			EditableModel model;
-			if (extFilter.isSupTexture(ext)) {
-				model = getImageModel(f, ext);
-				temporary = false;
-
-			} else if (Arrays.asList("mdx", "mdl").contains(ext)) {
-				model = getMdxlModel(f);
-			} else if (Arrays.asList("obj", "fbx").contains(ext)) {
-				model = getAssImpModel(f);
-			} else if (Arrays.asList("pkb").contains(ext)){
-				BinaryDecipherHelper.load(f);
-				model = null;
-			} else if (Arrays.asList("slk").contains(ext)) {
-				String fileName = filepath.replaceAll(".*\\\\", "");
-				new SklViewer().createAndShowHTMLPanel(f, fileName);
-				model = null;
-			} else if (Arrays.asList("txt").contains(ext)) {
-				String fileName = filepath.replaceAll(".*\\\\", "");
-				new TxtViewer().createAndShowHTMLPanel(f, fileName);
-				model = null;
-			} else {
-				model = null;
-			}
-//			else if (ext.equals(".skl")){
-//				new TestSklViewer().createAndShowHTMLPanel(f.getPath(), "View SKL");
-//			}
-			if (model != null) {
-//				ModelPanel tempModelPanel = newTempModelPanel(icon, model);
-				ModelPanel tempModelPanel = new ModelPanel(new ModelHandler(model, icon));
-				loadModel(temporary, showModel, tempModelPanel);
-			}
+			loadAndShowModelFromFile(f, temporary, showModel, icon);
 		} else if (SaveProfile.get().getRecent().contains(filepath)) {
-			int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), "Could not find the file.\nRemove from recent?", "File not found", JOptionPane.YES_NO_OPTION);
+			int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), "Could not find\n\"" + filepath + "\"\nRemove from recent?", "File not found", JOptionPane.YES_NO_OPTION);
 			if (option == JOptionPane.YES_OPTION) {
 				SaveProfile.get().removeFromRecent(filepath);
 				ProgramGlobals.getMenuBar().updateRecent();
 			}
 		}
+	}
+
+	private static void loadAndShowModelFromFile(File f, boolean temporary, boolean showModel, ImageIcon icon) {
+		final FbxLoadingInfo loadingInfo = new FbxLoadingInfo(f);
+		loadingInfo.start();
+		SwingWorker<EditableModel, String> loaderThing = new SwingWorker<>() {
+			@Override
+			protected EditableModel doInBackground() throws Exception {
+				return getEditableModel(f, temporary);
+			}
+
+			@Override
+			protected void done() {
+				try {
+					EditableModel model = get();
+					if (model != null) {
+						ModelPanel tempModelPanel = new ModelPanel(new ModelHandler(model, icon));
+						loadModel(showModel, tempModelPanel);
+					}
+				} catch (InterruptedException | ExecutionException e) {
+					throw new RuntimeException(e);
+				}
+				loadingInfo.stop();
+			}
+		};
+
+		loaderThing.execute();
+	}
+
+	private static EditableModel getEditableModel(File f, boolean temporary) {
+		ExtFilter extFilter = new ExtFilter();
+		String filepath = f.getPath();
+		final String pathLow = filepath.toLowerCase();
+		String ext = pathLow.replaceAll(".+\\.(?=.+)", "");
+		EditableModel model;
+		if (extFilter.isSupTexture(ext)) {
+			model = getImageModel(f, ext);
+			temporary = false;
+
+		} else if (Arrays.asList("mdx", "mdl").contains(ext)) {
+			model = getMdxlModel(f);
+		} else if (Arrays.asList("obj", "fbx").contains(ext)) {
+			model = getAssImpModel(f);
+		} else if (Arrays.asList("pkb").contains(ext)){
+			BinaryDecipherHelper.load(f);
+			model = null;
+		} else if (Arrays.asList("slk").contains(ext)) {
+			String fileName = filepath.replaceAll(".*\\\\", "");
+			new SklViewer().createAndShowHTMLPanel(f, fileName);
+			model = null;
+		} else if (Arrays.asList("txt").contains(ext)) {
+			String fileName = filepath.replaceAll(".*\\\\", "");
+			new TxtViewer().createAndShowHTMLPanel(f, fileName);
+			model = null;
+		} else {
+			model = null;
+		}
+
+		if (model != null) {
+			if (temporary) {
+				model.setTemp(true);
+				model.setFileRef(null);
+			}
+		}
+		return model;
 	}
 
 
@@ -226,21 +259,20 @@ public class ModelLoader {
 			model = getImagePlaneModel(f, 800);
 		}
 		model.setTemp(true);
-//		model.setFileRef(f);
+		model.setFileRef(null);
 		return model;
 	}
 
 	private static EditableModel getMdxlModel(File f) {
-		EditableModel model;
 		try {
-			model = MdxUtils.loadEditable(f);
+			EditableModel model = MdxUtils.loadEditable(f);
 			model.setFileRef(f);
+			return model;
 		} catch (final IOException e) {
 			e.printStackTrace();
 			ExceptionPopup.display(e);
 			throw new RuntimeException("Reading mdx failed");
 		}
-		return model;
 	}
 
 	private static EditableModel getAssImpModel(File f) {

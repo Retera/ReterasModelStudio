@@ -33,6 +33,7 @@ public class ReadTXT {
 
 	public static void readTXT(DataTable dataTable, String filepath, boolean canProduce) throws IOException {
 
+//		System.out.println("readTXT: \"" + filepath + "\"");
 		if (GameDataFileSystem.getDefault().has(filepath)) {
 			InputStream resourceAsStream = GameDataFileSystem.getDefault().getResourceAsStream(filepath);
 			readTXT(dataTable, resourceAsStream, canProduce);
@@ -120,7 +121,7 @@ public class ReadTXT {
 		}
 		if (builder.length() > 0) {
 			if (currentUnit == null) {
-				System.out.println("null for " + input);
+				System.out.println("[Read TXT] null for " + input);
 			}
 			fields.add(builder.toString().trim());
 		}

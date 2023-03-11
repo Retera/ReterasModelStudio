@@ -92,7 +92,7 @@ public class BakeAndRebindAction implements UndoAction {
 			TransformCalculator.GlobTransContainer objTrans = transformCalculator.getGlobalTransform(objToRebind);
 
 			tempMat.set(newParentTrans.getMat4()).invert().mul(objTrans.getMat4());
-			Vec3 trans = new Vec3().getLocationFromMat(tempMat, pivotPoint);
+			Vec3 trans = new Vec3().setAsLocationFromMat(tempMat, pivotPoint);
 			diffTransKF.put(i, trans);
 
 			Vec3 scale = new Vec3(objTrans.getScale());

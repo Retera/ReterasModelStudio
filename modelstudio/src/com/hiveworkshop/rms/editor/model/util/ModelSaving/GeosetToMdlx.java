@@ -133,10 +133,9 @@ public class GeosetToMdlx {
 				short[] skinBoneWeights = vertex.getSkinBoneWeights();
 				Bone[] skinBoneBones = vertex.getSkinBoneBones();
 				for (int j = 0; j < 4; j++) {
-//					int index = skinBoneBones[j] == null ? 0 : skinBoneBones[j].getObjectId(model);
 					int index = skinBoneBones[j] == null ? 0 : model.getObjectId(skinBoneBones[j]);
 					mdlxGeoset.skin[(i * 8) + j] = (short) index;
-					mdlxGeoset.skin[(i * 8) + j + 4] = (short) (skinBoneWeights[j]);
+					mdlxGeoset.skin[(i * 8) + j + 4] = skinBoneWeights[j];
 					mdlxGeoset.tangents[(i * 4) + j] = vertex.getTangent().toFloatArray()[j];
 				}
 			}

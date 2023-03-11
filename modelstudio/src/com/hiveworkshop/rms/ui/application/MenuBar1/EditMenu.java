@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.*;
+import com.hiveworkshop.rms.ui.application.tools.RoundKeyframesPanel;
 import com.hiveworkshop.rms.ui.application.tools.SimplifyKeyframesPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
@@ -64,8 +65,10 @@ public class EditMenu extends JMenu {
 		add(Select.getSelectAllMenuItem());
 		add(Select.getInvertSelectMenuItem());
 		add(Select.getExpandSelectionMenuItem());
+		add(Select.getShrinkSelectionMenuItem());
 		add(Select.getSelectLinkedGeometryMenuItem());
 		add(Select.getSelectNodeGeometryMenuItem());
+		add(Select.getSelectGeometryNodesMenuItem());
 
 		addSeparator();
 
@@ -81,7 +84,7 @@ public class EditMenu extends JMenu {
 		optimizeMenu.add(new LinearizeAnimations().getMenuItem());
 
 		optimizeMenu.add(SimplifyKeyframesPanel.getMenuItem());
-		optimizeMenu.add(SimplifyKeyframesPanel.getMenuItemSelected());
+		optimizeMenu.add(RoundKeyframesPanel.getMenuItem());
 		optimizeMenu.add(new MinimizeGeosets().getMenuItem());
 		optimizeMenu.add(new SimplifyGeometry().getMenuItem());
 		optimizeMenu.add(new SortNodes().getMenuItem());

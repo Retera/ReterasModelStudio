@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
+import com.hiveworkshop.rms.editor.render3d.EmitterIdObject;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -13,7 +14,7 @@ import javax.swing.*;
  *
  * Eric Theller 3/10/2012 3:32 PM
  */
-public class RibbonEmitter extends IdObject {
+public class RibbonEmitter extends EmitterIdObject {
 	double heightAbove = 0;
 	double heightBelow = 0;
 	double alpha = 0;
@@ -29,6 +30,16 @@ public class RibbonEmitter extends IdObject {
 	//https://www.hiveworkshop.com/threads/ribbon-emitters-from-a-mesh-perspective.239816/
 	public RibbonEmitter() {
 
+	}
+
+	@Override
+	public int getBlendSrc() {
+		return 0;
+	}
+
+	@Override
+	public int getBlendDst() {
+		return 0;
 	}
 
 	public RibbonEmitter(final String name) {
@@ -118,6 +129,16 @@ public class RibbonEmitter extends IdObject {
 
 	public int getRows() {
 		return rows;
+	}
+
+	@Override
+	public int getCols() {
+		return columns;
+	}
+
+	@Override
+	public boolean isRibbonEmitter() {
+		return true;
 	}
 
 	public void setRows(final int rows) {

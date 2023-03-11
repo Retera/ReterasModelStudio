@@ -2,8 +2,9 @@ package com.hiveworkshop.rms.util;
 
 public class MathUtils {
 	/**
-	 * Returns true if the value of <code>value</code> falls between the values
+	 * Returns true if the value of <code>value</code> falls between, but not on, the values
 	 * <code>endPoint1</code> and <code>endPoint2</code>.
+	 * @return <code>endPoint1 < value < endPoint2</code>
 	 */
 	public static boolean isBetween(double endPoint1, double endPoint2, double value) {
 		double min = Math.min(endPoint1, endPoint2);
@@ -11,7 +12,12 @@ public class MathUtils {
 		return (min < value) && (value < max);
 	}
 
-	public static boolean isBetween2(double endPoint1, double endPoint2, double value) {
+	/**
+	 * Returns true if the value of <code>value</code> falls between the values
+	 * <code>endPoint1</code> and <code>endPoint2</code>.
+	 * @return <code>endPoint1 <= value <= endPoint2</code>
+	 */
+	public static boolean isBetweenInc(double endPoint1, double endPoint2, double value) {
 		double min = Math.min(endPoint1, endPoint2);
 		double max = Math.max(endPoint1, endPoint2);
 		return (min <= value) && (value <= max);

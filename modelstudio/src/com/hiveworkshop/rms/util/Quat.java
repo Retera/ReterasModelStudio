@@ -551,6 +551,18 @@ public class Quat extends Vec4 {
 		return this;
 	}
 
+	public boolean equals(Object v) {
+		if(v instanceof Quat){
+			Quat q = (Quat) v;
+			float sign = Math.copySign(1f, w*q.w);
+			return (x == sign*q.x) && (y == sign*q.y) && (z == sign*q.z) && (w == sign*q.w);
+		}
+		if(v instanceof Vec4){
+			return equals((Vec4) v);
+		}
+		return false;
+	}
+
 	@Override
 	public Quat normalize() {
 		float len = lengthSquared();

@@ -4,7 +4,9 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 import java.util.HashMap;
+import java.util.function.Consumer;
 
 /**
  * A Buttongroup with button creation functionality and a panel creator
@@ -49,10 +51,7 @@ public class SmartButtonGroup extends ButtonGroup {
 	}
 
 	public SmartButtonGroup addButton(AbstractButton button) {
-		add(button);
-		modelIndexMap.put(button.getModel(), buttonIndexMap.size());
-		buttonIndexMap.put(buttonIndexMap.size(), button);
-		buttonNameMap.put(button.getName(), button);
+		addNewButton(null, buttonIndexMap.size(), button);
 		return this;
 	}
 
@@ -94,6 +93,16 @@ public class SmartButtonGroup extends ButtonGroup {
 
 	public JRadioButton addJRadioButton(String text, ActionListener actionListener) {
 		return addJRadioButton(text, actionListener, buttonIndexMap.size());
+	}
+	public JRadioButton addJRadioButton(String text, ActionListener actionListener, Consumer<Boolean> stateChangeListener) {
+		JRadioButton jRadioButton = addJRadioButton(text, actionListener, buttonIndexMap.size());
+		jRadioButton.addItemListener(e -> stateChangeListener.accept(e.getStateChange() == ItemEvent.SELECTED));
+		return jRadioButton;
+	}
+	public JRadioButton addJRadioToggleButton(String text, Consumer<Boolean> stateChangeListener) {
+		JRadioButton jRadioButton = addJRadioButton(text, null, buttonIndexMap.size());
+		jRadioButton.addItemListener(e -> stateChangeListener.accept(e.getStateChange() == ItemEvent.SELECTED));
+		return jRadioButton;
 	}
 
 	private JRadioButton addJRadioButton(String text, ActionListener actionListener, int index) {

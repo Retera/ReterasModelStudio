@@ -20,7 +20,9 @@ package com.badlogic.gdx.utils;
 
 import java.io.*;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
@@ -42,8 +44,7 @@ public class SharedLibraryLoader {
 	static public boolean isIos = false;
 	static public boolean isAndroid = false;
 	static public boolean isARM = System.getProperty("os.arch").startsWith("arm");
-	static public boolean is64Bit = System.getProperty("os.arch").equals("amd64")
-			|| System.getProperty("os.arch").equals("x86_64");
+	static public boolean is64Bit = System.getProperty("os.arch").equals("amd64") || System.getProperty("os.arch").equals("x86_64");
 
 	// JDK 8 only.
 	static public String abi = System.getProperty("sun.arch.abi") != null ? System.getProperty("sun.arch.abi") : "";
@@ -79,29 +80,6 @@ public class SharedLibraryLoader {
 	}
 
 	/**
-	 * Returns a CRC of the remaining bytes in the stream.
-	 */
-	public String crc(final InputStream input) {
-		if (input == null) {
-			throw new IllegalArgumentException("input cannot be null.");
-		}
-		final CRC32 crc = new CRC32();
-		final byte[] buffer = new byte[4096];
-		try {
-			while (true) {
-				final int length = input.read(buffer);
-				if (length == -1) {
-					break;
-				}
-				crc.update(buffer, 0, length);
-			}
-		} catch (final Exception ex) {
-			StreamUtils.closeQuietly(input);
-		}
-		return Long.toString(crc.getValue(), 16);
-	}
-
-	/**
 	 * Maps a platform independent library name to a platform dependent name.
 	 */
 	public String mapLibraryName(final String libraryName) {
@@ -125,9 +103,9 @@ public class SharedLibraryLoader {
 	 */
 	public void load(final String libraryName) {
 		// in case of iOS, things have been linked statically to the executable, bail out.
-		if (isIos) {
-			return;
-		}
+//		if (isIos) {
+//			return;
+//		}
 
 		synchronized (SharedLibraryLoader.class) {
 			if (isLoaded(libraryName)) {
@@ -199,10 +177,14 @@ public class SharedLibraryLoader {
 		} catch (final RuntimeException ex) {
 			// Fallback to file at java.library.path location, eg for applets.
 			final File file = new File(System.getProperty("java.library.path"), sourcePath);
+			System.out.println("\tfailed to extract file. Hoping to find file at \"" + file.getAbsolutePath() + "\"");
 			if (file.exists()) {
+				System.out.println("\t\tfile found!");
 				return file;
 			}
-			throw ex;
+			System.out.println("\t\tfile not found");
+			throw new RuntimeException("Could not extract \"" + sourcePath + "\"", ex);
+//			throw ex;
 		}
 	}
 
@@ -225,43 +207,31 @@ public class SharedLibraryLoader {
 	 * @return null if a writable path could not be found.
 	 */
 	private File getExtractedFile(final String dirName, final String fileName) {
-		// Temp directory with username in path.
-		final File idealFile = new File(
-				System.getProperty("java.io.tmpdir") + "/libgdx" + System.getProperty("user.name") + "/" + dirName,
-				fileName);
-		if (canWrite(idealFile)) {
-			return idealFile;
-		}
+		String dir1 = System.getProperty("java.io.tmpdir") + "/libgdx" + System.getProperty("user.name") + "/" + dirName; // Temp directory with username in path.
+		String dir2 = getSystemTempFile(dirName); // System provided temp directory.
+		String dir3 = System.getProperty("user.home") + "/.libgdx/" + dirName; // User home.
+		String dir4 = ".temp/" + dirName; // Relative directory.
 
-		// System provided temp directory.
-		try {
-			File file = File.createTempFile(dirName, null);
-			if (file.delete()) {
-				file = new File(file, fileName);
+		File firstWritebleFile = getFirstWritebleFile(fileName, dir1, dir2, dir3, dir4);
+
+		if(firstWritebleFile == null && System.getenv("APP_SANDBOX_CONTAINER_ID") != null){
+			return new File(dir1, fileName);
+		}
+		return firstWritebleFile;
+	}
+
+	private File getFirstWritebleFile(String fileName, String... testDir){
+		for (String dir : testDir) {
+			if(dir != null){
+				File file = new File(dir, fileName);
+				System.out.println("Checking filepath: \"" + file.getPath() + "\"");
 				if (canWrite(file)) {
+					System.out.println("\tvalid path!");
 					return file;
 				}
 			}
-		} catch (final IOException ignored) {
 		}
-
-		// User home.
-		File file = new File(System.getProperty("user.home") + "/.libgdx/" + dirName, fileName);
-		if (canWrite(file)) {
-			return file;
-		}
-
-		// Relative directory.
-		file = new File(".temp/" + dirName, fileName);
-		if (canWrite(file)) {
-			return file;
-		}
-
-		// We are running in the OS X sandbox.
-		if (System.getenv("APP_SANDBOX_CONTAINER_ID") != null) {
-			return idealFile;
-		}
-
+		System.out.println("\tno path were valid!");
 		return null;
 	}
 
@@ -311,8 +281,7 @@ public class SharedLibraryLoader {
 		return false;
 	}
 
-	private File extractFile(final String sourcePath, final String sourceCrc, final File extractedFile)
-			throws IOException {
+	private File extractFile(final String sourcePath, final String sourceCrc, final File extractedFile) throws IOException {
 		String extractedCrc = null;
 		if (extractedFile.exists()) {
 			try {
@@ -326,17 +295,9 @@ public class SharedLibraryLoader {
 			try {
 				final InputStream input = readFile(sourcePath);
 				extractedFile.getParentFile().mkdirs();
-				final FileOutputStream output = new FileOutputStream(extractedFile);
-				final byte[] buffer = new byte[4096];
-				while (true) {
-					final int length = input.read(buffer);
-					if (length == -1) {
-						break;
-					}
-					output.write(buffer, 0, length);
-				}
+				System.out.println("Extracting \"" + sourcePath + "\" to \"" + extractedFile.getPath() + "\"");
+				writeStreamTo(extractedFile, input);
 				input.close();
-				output.close();
 			} catch (final IOException ex) {
 				throw new RuntimeException(
 						"Error extracting file: " + sourcePath + "\nTo: " + extractedFile.getAbsolutePath(), ex);
@@ -346,65 +307,91 @@ public class SharedLibraryLoader {
 		return extractedFile;
 	}
 
+	private void writeStreamTo(File extractedFile, InputStream input) throws IOException {
+		final FileOutputStream output = new FileOutputStream(extractedFile);
+		final byte[] buffer = new byte[4096];
+		int length;
+		while ((length = input.read(buffer)) != -1) {
+			output.write(buffer, 0, length);
+		}
+		output.close();
+	}
+
 	/**
 	 * Extracts the source file and calls System.load. Attemps to extract and load
 	 * from multiple locations. Throws runtime exception if all fail.
 	 */
 	private void loadFile(final String sourcePath) {
 		final String sourceCrc = crc(readFile(sourcePath));
-
 		final String fileName = new File(sourcePath).getName();
 
-		// Temp directory with username in path.
-		File file = new File(
-				System.getProperty("java.io.tmpdir") + "/libgdx" + System.getProperty("user.name") + "/" + sourceCrc,
-				fileName);
-		final Throwable ex = loadFile(sourcePath, sourceCrc, file);
-		if (ex == null) {
-			return;
-		}
+		String dir1 = System.getProperty("java.io.tmpdir") + "/libgdx" + System.getProperty("user.name") + "/" + sourceCrc;// Temp directory with username in path.
+		String dir2 = getSystemTempFile(sourceCrc);// System provided temp directory.
+		String dir3 = System.getProperty("user.home") + "/.libgdx/" + sourceCrc;// User home.
+		String dir4 = ".temp/" + sourceCrc; // Relative directory.
 
-		// System provided temp directory.
-		try {
-			file = File.createTempFile(sourceCrc, null);
-			if (file.delete() && loadFile(sourcePath, sourceCrc, file) == null) {
+		List<Throwable> throwables = tryLoadFileFrom(fileName, sourcePath, sourceCrc, dir1, dir2, dir3, dir4);
+
+		if(throwables != null){
+			// Fallback to java.library.path location, eg for applets.
+			String dir5 = System.getProperty("java.library.path");
+			File file = new File(dir5, sourcePath);
+			if (file.exists()) {
+				System.load(file.getAbsolutePath());
 				return;
 			}
-		} catch (final Throwable ignored) {
-		}
 
-		// User home.
-		file = new File(System.getProperty("user.home") + "/.libgdx/" + sourceCrc, fileName);
-		if (loadFile(sourcePath, sourceCrc, file) == null) {
-			return;
+			throw new RuntimeException(throwables.get(0));
 		}
+	}
 
-		// Relative directory.
-		file = new File(".temp/" + sourceCrc, fileName);
-		if (loadFile(sourcePath, sourceCrc, file) == null) {
-			return;
+	private List<Throwable> tryLoadFileFrom(String fileName, String sourcePath, String sourceCrc, String... dirs) {
+		List<Throwable> exceptionList = new ArrayList<>();
+		for (String dir : dirs){
+			if(dir != null){
+				File file = new File(dir, fileName);
+				try {
+					System.out.println("loading file to: " + file.getPath());
+					System.load(extractFile(sourcePath, sourceCrc, file).getAbsolutePath());
+					return null;
+				} catch (final Throwable ex) {
+					exceptionList.add(ex);
+				}
+			}
 		}
+		return exceptionList;
+	}
 
-		// Fallback to java.library.path location, eg for applets.
-		file = new File(System.getProperty("java.library.path"), sourcePath);
-		if (file.exists()) {
-			System.load(file.getAbsolutePath());
-			return;
+	public String getSystemTempFile(String dirName){
+		// System provided temp directory.
+		try {
+			File file = File.createTempFile(dirName, null);
+			if (file.delete()) {
+				return file.getPath();
+			}
+		} catch (final IOException ignored) {
 		}
-
-		throw new RuntimeException(ex);
+		return null;
 	}
 
 	/**
-	 * @return null if the file was extracted and loaded.
+	 * Returns a CRC of the remaining bytes in the stream.
 	 */
-	private Throwable loadFile(final String sourcePath, final String sourceCrc, final File extractedFile) {
-		try {
-			System.load(extractFile(sourcePath, sourceCrc, extractedFile).getAbsolutePath());
-			return null;
-		} catch (final Throwable ex) {
-			return ex;
+	public String crc(final InputStream input) {
+		if (input == null) {
+			throw new IllegalArgumentException("input cannot be null.");
 		}
+		final CRC32 crc = new CRC32();
+		final byte[] buffer = new byte[4096];
+		try {
+			int length;
+			while ((length = input.read(buffer)) != -1) {
+				crc.update(buffer, 0, length);
+			}
+		} catch (final Exception ex) {
+			StreamUtils.closeQuietly(input);
+		}
+		return Long.toString(crc.getValue(), 16);
 	}
 
 	/**

@@ -9,7 +9,7 @@ public class MdlxUnknownChunk implements MdlxChunk {
 	public final War3ID tag;
 
 	public MdlxUnknownChunk(final BinaryReader reader, final long size, final War3ID tag) {
-		System.err.println("Loading unknown chunk: " + tag);
+		System.err.println("Loading unknown chunk: " + tag + " (" + Integer.toHexString(tag.getValue()) + ")");
 		chunk = reader.readUInt8Array((int)size);
 		this.tag = tag;
 	}

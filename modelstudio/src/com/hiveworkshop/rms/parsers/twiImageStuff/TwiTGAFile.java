@@ -51,7 +51,7 @@ public class TwiTGAFile {
 				int hDest = header.isTopToBottom() ? h : (heigth - 1 - h);
 				for (int w = 0; w < width; w++) {
 					int pixelInd = (h * width) + w;
-					int wDest = header.isLeftToRight() ? w : width - 1 - w;
+					int wDest = header.isLeftToRight() ? width - 1 - w : w;
 					int pixelDest = (hDest * width) + wDest;
 					pixels[pixelDest] = imageData.getPixelColor(pixelInd, header.getType(), colorMap);
 				}

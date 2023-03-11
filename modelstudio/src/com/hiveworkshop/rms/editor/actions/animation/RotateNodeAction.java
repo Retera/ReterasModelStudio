@@ -30,12 +30,7 @@ public class RotateNodeAction extends AbstractTransformAction {
 	private final List<QuatAnimFlag> newRotations = new ArrayList<>();
 
 	public RotateNodeAction(IdObject node,
-	                        Vec3 center, Quat quat,
-	                        ModelStructureChangeListener changeListener){
-		this(node, quat.getAxis(), quat.getAxisAngle(), center, changeListener);
-	}
-	public RotateNodeAction(IdObject node,
-	                        Vec3 axis, float radians, Vec3 center,
+	                        Vec3 axis, double radians, Vec3 center,
 	                        ModelStructureChangeListener changeListener){
 		this.changeListener = changeListener;
 		this.axis = axis;
@@ -45,6 +40,8 @@ public class RotateNodeAction extends AbstractTransformAction {
 		this.newPivot = new Vec3(node.getPivotPoint()).rotate(center, quat);
 
 		collectTimelines();
+		createTimelineActions();
+		rotate(radians);
 	}
 
 	private void collectTimelines() {
@@ -64,6 +61,13 @@ public class RotateNodeAction extends AbstractTransformAction {
 
 	public RotateNodeAction doSetup() {
 		node.setPivotPoint(newPivot);
+		for(UndoAction action : timelineActions){
+			action.redo();
+		}
+		return this;
+	}
+
+	private void createTimelineActions() {
 		if(timelineActions.isEmpty()){
 			for (Vec3AnimFlag newTranslation : newTranslations){
 				timelineActions.add(new AddTimelineAction<>(node, newTranslation));
@@ -74,12 +78,7 @@ public class RotateNodeAction extends AbstractTransformAction {
 			for (QuatAnimFlag newRotation : newRotations){
 				timelineActions.add(new AddTimelineAction<>(node, newRotation));
 			}
-
-			for(UndoAction action : timelineActions){
-				action.redo();
-			}
 		}
-		return this;
 	}
 
 	public RotateNodeAction updateRotation(double radians){

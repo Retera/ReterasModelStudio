@@ -49,13 +49,26 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 	public void readMdx(final BinaryReader reader, final int version) {
 		final long size = reader.readUInt32();
 
-		reader.readInt32(); // skip VRTX
+		int vrtx = reader.readInt32(); // skip VRTX
 		int vertexCount = reader.readInt32();
 		vertices = reader.readFloat32Array(vertexCount * 3);
-		reader.readInt32(); // skip NRMS
+		int nrms = reader.readInt32(); // skip NRMS
 		int normalCount = reader.readInt32();
 		normals = reader.readFloat32Array(normalCount * 3);
-		reader.readInt32(); // skip PTYP
+
+//		char[4] "PTYP"
+//		uint32 faceTypeGroupsCount
+//		uint32[faceTypeGroupsCount] faceTypeGroups // 0: points
+//		// 1: lines
+//		// 2: line loop
+//		// 3: line strip
+//		// 4: triangles
+//		// 5: triangle strip
+//		// 6: triangle fan
+//		// 7: quads
+//		// 8: quad strip
+//		// 9: polygons
+		int ptyp = reader.readInt32(); // skip PTYP
 		int faceTypeGroupsCount = reader.readInt32();
 		faceTypeGroups = reader.readUInt32Array(faceTypeGroupsCount);
 		int pcnt = reader.readInt32();// skip PCNT
@@ -64,28 +77,13 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 		int pvtx = reader.readInt32(); // skip PVTX
 		int faceCount = reader.readInt32();
 		faces = reader.readUInt16Array(faceCount);
-		reader.readInt32(); // skip GNDX
-		vertexGroups = reader.readUInt8Array(reader.readInt32());
 
-//		reader.readInt32(); // skip VRTX
-//		int vertexCount = reader.readInt32();
-//		vertices = reader.readFloat32Array(vertexCount * 3);
-//		reader.readInt32(); // skip NRMS
-//		int normalCount = reader.readInt32();
-//		normals = reader.readFloat32Array(normalCount * 3);
-//		int ptyp = reader.readInt32();// skip PTYP
-//		int faceTypeGroupsCount = reader.readInt32();
-//		faceTypeGroups = reader.readUInt32Array(faceTypeGroupsCount);
-//		int pcnt = reader.readInt32();// skip PCNT
-////		int faceGroupCount = reader.readInt32();
-//		int faceGroupCount = (int) reader.readUInt32();
-//		faceGroups = reader.readUInt32Array(faceGroupCount);
-//		int pvtx = reader.readInt32(); // skip PVTX
-//		int faceCount = reader.readInt32();
-//		faces = reader.readUInt16Array(faceCount);
-//		reader.readInt32(); // skip GNDX
-//
-//		int geosetVertexGroupsCount = reader.readInt32();
+		int gndx = reader.readInt32(); // skip GNDX
+		int vertexGroupsCount = reader.readInt32();
+		vertexGroups = reader.readUInt8Array(vertexGroupsCount);
+
+
+
 //		System.out.println("Read: vertexCount: " + vertexCount);
 //		System.out.println("Read: normalCount: " + normalCount);
 //		System.out.println("Read: ptyp: " + Integer.reverseBytes(ptyp));
@@ -97,22 +95,19 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 //		System.out.println("Read: pvtx: " + Integer.reverseBytes(pvtx));
 //		System.out.println("Read: faceCount: " + faceCount);
 //		System.out.println("Read: faces: " + Arrays.toString(faces));
-//		System.out.println("Read: geosetVGCount: " + geosetVertexGroupsCount);
-//		vertexGroups = reader.readUInt8Array(geosetVertexGroupsCount);
+//		System.out.println("Read: VGCount: " + vertexGroupsCount);
 
 
-		reader.readInt32(); // skip MTGC
-		matrixGroups = reader.readUInt32Array(reader.readInt32());
-		reader.readInt32(); // skip MATS
-		matrixIndices = reader.readUInt32Array(reader.readInt32());
+		int mtgc = reader.readInt32(); // skip MTGC
+		int matrixGroupCount = reader.readInt32();
+		matrixGroups = reader.readUInt32Array(matrixGroupCount);
+		int mats = reader.readInt32(); // skip MATS
+		int matrixIndicesCount = reader.readInt32();
+		matrixIndices = reader.readUInt32Array(matrixIndicesCount);
 		materialId = reader.readUInt32();
 		selectionGroup = reader.readUInt32();
 		selectionFlags = reader.readUInt32();
 
-//		System.out.println("Read: vertexCount: " + vertexCount);
-//		System.out.println("Read: faceGroupCount: " + faceGroupCount);
-//		System.out.println("Read: faceCount: " + faceCount);
-//		System.out.println("Read: geosetVGCount: " + geosetVertexGroupsCount);
 
 		if (800 < version) {
 			lod = reader.readInt32();
