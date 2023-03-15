@@ -194,7 +194,7 @@ public class NodeAnimationModelEditor extends ModelEditor {
 				float[] tbcFactor = timeline.getTbcFactor(0, 0.5f, 0);
 				timeline.calcNewTans(tbcFactor, entryOut, entryIn, entry, animationLength);
 
-				System.out.println("calc tans! " + entryIn + entryOut + entry);
+//				System.out.println("calc tans! " + entryIn + entryOut + entry);
 
 				return new AddFlagEntryAction<>(timeline, entry, sequence, null);
 			} else if (sequence != null) {
@@ -326,9 +326,9 @@ public class NodeAnimationModelEditor extends ModelEditor {
 			return null;
 		} else {
 
-			AnimFlag<?> timeline = node.getRotationFlag();
+			AnimFlag<?> timeline = node.find(MdlUtils.TOKEN_ROTATION);
 			if (timeline == null) {
-				timeline = new FloatAnimFlag(MdlUtils.TOKEN_ROTATION);
+				timeline = new FloatAnimFlag(MdlUtils.TOKEN_ROTATION, InterpolationType.LINEAR, globalSeq);
 				actions.add(new AddTimelineAction<>(node, timeline));
 			}
 			return timeline;

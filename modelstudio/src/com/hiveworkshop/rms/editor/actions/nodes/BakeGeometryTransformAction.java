@@ -21,12 +21,16 @@ public class BakeGeometryTransformAction implements UndoAction {
 
 	private final Mat4 locMat = new Mat4();
 	private final Vec3 translation = new Vec3();
-
+	private final Mat4 invRotMat = new Mat4();
+	private final Mat4 rotMat = new Mat4();
 
 	public BakeGeometryTransformAction(Collection<IdObject> nodeSelection,
 	                                   Collection<Geoset> geosets,
+	                                   Mat4 rotMat,
 	                                   ModelStructureChangeListener changeListener){
 		this.changeListener = changeListener;
+		this.rotMat.set(rotMat);
+		this.invRotMat.set(rotMat).invert();
 		topNodes.addAll(getTopNodes(nodeSelection));
 		fillTransformMap(topNodes);
 		fillVertexMaps(geosets);
@@ -34,9 +38,10 @@ public class BakeGeometryTransformAction implements UndoAction {
 
 	public BakeGeometryTransformAction(Collection<IdObject> nodeSelection,
 	                                   Collection<Geoset> geosets,
+	                                   Mat4 rotMat,
 	                                   Sequence sequence, int time,
 	                                   ModelStructureChangeListener changeListener){
-		this(nodeSelection, geosets, changeListener);
+		this(nodeSelection, geosets, rotMat, changeListener);
 
 		List<IdObject> sortedNodes = collectSortedNodes(topNodes);
 		Quat quat = new Quat();
@@ -69,7 +74,6 @@ public class BakeGeometryTransformAction implements UndoAction {
 
 	private void fillTransformMap(Collection<IdObject> topNodes){
 		for(IdObject node : topNodes){
-			System.out.println("topNode: " + node.getName());
 			fillTransformMap(node);
 		}
 	}
@@ -83,7 +87,6 @@ public class BakeGeometryTransformAction implements UndoAction {
 
 	private void fillVertexMaps(Collection<Geoset> geosets) {
 		for (Geoset geoset : geosets) {
-
 			for (GeosetVertex vertex : geoset.getVertices()){
 				for (Bone bone : vertex.getAllBones()){
 					if(nodeToWorldMat.containsKey(bone)){
@@ -114,10 +117,11 @@ public class BakeGeometryTransformAction implements UndoAction {
 		}
 	}
 
-
-	public BakeGeometryTransformAction updateTransform(Vec3 delta, Quat quat, IdObject node){
-		updateTransformMapNode(delta, quat, node);
-		calcAndApplyVertexLocs();
+	public BakeGeometryTransformAction calculateTransform(Vec3 delta, Quat quat, Collection<IdObject> nodes){
+		for(IdObject node : nodes) {
+			updateTransformMapNode(delta, quat, node);
+		}
+		calcVertexLocs();
 		return this;
 	}
 	public BakeGeometryTransformAction updateTransform(Vec3 delta, Quat quat, Collection<IdObject> nodes){
@@ -127,27 +131,15 @@ public class BakeGeometryTransformAction implements UndoAction {
 		calcAndApplyVertexLocs();
 		return this;
 	}
-	public BakeGeometryTransformAction updateTransformQuick(Vec3 delta, Quat quat, IdObject node){
-		updateTransformMapNode(delta, quat, node);
-		return this;
-	}
-	public BakeGeometryTransformAction updateTransformQuick(Vec3 delta, Quat quat, Collection<IdObject> nodes){
-		for(IdObject node : nodes) {
-			updateTransformMapNode(delta, quat, node);
-		}
+
+	public BakeGeometryTransformAction doSetup(){
+		applyVerticesTransforms(vertToLocNormTang);
 		return this;
 	}
 
 	@Override
 	public BakeGeometryTransformAction undo() {
-		for (GeosetVertex vertex : vertToOldLocNormTang.keySet()){
-			Vec3[] vec3s = vertToOldLocNormTang.get(vertex);
-			vertex.set(vec3s[0]);
-			vertex.setNormal(vec3s[1]);
-			if(vertex.getTangent() != null){
-				vertex.getTangent().set(vec3s[2]);
-			}
-		}
+		applyVerticesTransforms(vertToOldLocNormTang);
 		if(changeListener != null){
 			changeListener.nodesUpdated();
 		}
@@ -156,7 +148,14 @@ public class BakeGeometryTransformAction implements UndoAction {
 
 	@Override
 	public BakeGeometryTransformAction redo() {
+		applyVerticesTransforms(vertToLocNormTang);
+		if(changeListener != null){
+			changeListener.nodesUpdated();
+		}
+		return this;
+	}
 
+	private void applyVerticesTransforms(Map<GeosetVertex, Vec3[]> vertToLocNormTang) {
 		for (GeosetVertex vertex : vertToLocNormTang.keySet()){
 			Vec3[] vec3s = vertToLocNormTang.get(vertex);
 			vertex.set(vec3s[0]);
@@ -165,10 +164,6 @@ public class BakeGeometryTransformAction implements UndoAction {
 				vertex.getTangent().set(vec3s[2]);
 			}
 		}
-		if(changeListener != null){
-			changeListener.nodesUpdated();
-		}
-		return this;
 	}
 
 	@Override
@@ -176,8 +171,7 @@ public class BakeGeometryTransformAction implements UndoAction {
 		return "Bake Geometry Transform";
 	}
 	private void updateTransformMapNode(Vec3 delta, Quat quat, IdObject node) {
-//		this.translation.set(setTranslationHeap(node, delta));
-		updateTransform(node, setTranslationHeap(node, delta), quat);
+		updateTransform(node, setTranslationHeap(node.getPivotPoint(), delta), quat);
 	}
 
 	private void updateTransform(IdObject node, Vec3 transl, Quat rot){
@@ -192,16 +186,12 @@ public class BakeGeometryTransformAction implements UndoAction {
 	private void calcVertexLocs() {
 		for (GeosetVertex vertex : vertToLocNormTang.keySet()){
 			Vec3[] locNormTan = vertToLocNormTang.get(vertex);
-//			Vec3[] ogrLocNormTan = vertToOldLocNormTang.get(vertex);
-//			update(getTransform(vertex), ogrLocNormTan, locNormTan);
 			update(getTransform(vertex), locNormTan);
 		}
 	}
 	private void calcAndApplyVertexLocs() {
 		for (GeosetVertex vertex : vertToLocNormTang.keySet()){
 			Vec3[] locNormTan = vertToLocNormTang.get(vertex);
-//			Vec3[] ogrLocNormTan = vertToOldLocNormTang.get(vertex);
-//			update(getTransform(vertex), ogrLocNormTan, locNormTan);
 			update(getTransform(vertex), locNormTan);
 
 			applyVertTransform(vertex, locNormTan);
@@ -216,16 +206,6 @@ public class BakeGeometryTransformAction implements UndoAction {
 		}
 	}
 
-	private void update(Mat4 mat4, Vec3[] orgLocNormTan, Vec3[] locNormTan) {
-		locNormTan[0].set(orgLocNormTan[0]);
-		locNormTan[1].set(orgLocNormTan[1]);
-		locNormTan[2].set(orgLocNormTan[2]);
-		if (mat4 != null) {
-			locNormTan[0].transform(mat4);
-			locNormTan[1].transform(0, mat4).normalize();
-			locNormTan[2].transform(0, mat4).normalize();
-		}
-	}
 	private void update(Mat4 mat4, Vec3[] locNormTan) {
 		if (mat4 != null) {
 			locNormTan[0].transform(mat4);
@@ -274,18 +254,13 @@ public class BakeGeometryTransformAction implements UndoAction {
 		return matrixSumHeap.setIdentity();
 	}
 
-
-//	private final Mat4 invRotMat = new Mat4();
-//	private final Mat4 rotMat = new Mat4();
-	private Vec3 setTranslationHeap(IdObject idObject, Vec3 newDelta) {
-		translation.set(newDelta);
-//		translation.set(idObject.getPivotPoint())
-//				.transform(rotMat, 1, true)
-//				.add(newDelta)
-//				.transform(invRotMat, 1, true)
-//				.sub(idObject.getPivotPoint());
+	private Vec3 setTranslationHeap(Vec3 pivotPoint, Vec3 newDelta) {
+		translation.set(pivotPoint)
+				.transform(rotMat, 1, true)
+				.add(newDelta)
+				.transform(invRotMat, 1, true)
+				.sub(pivotPoint);
 
 		return translation;
 	}
-
 }

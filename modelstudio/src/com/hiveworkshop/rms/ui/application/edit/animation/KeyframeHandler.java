@@ -62,8 +62,10 @@ public class KeyframeHandler {
 		}
 		if(useAllKFs){
 			collectionToUse.addAll(modelHandler.getModelView().getEditableIdObjects());
+			collectionToUse.addAll(modelHandler.getModelView().getEditableCameraNodes());
 		} else {
 			collectionToUse.addAll(modelHandler.getModelView().getSelectedIdObjects());
+			collectionToUse.addAll(modelHandler.getModelView().getSelectedCameraNodes());
 		}
 		if(useAllKFs && visKFs){
 			for(Geoset geoset: modelHandler.getModelView().getEditableGeosets()){

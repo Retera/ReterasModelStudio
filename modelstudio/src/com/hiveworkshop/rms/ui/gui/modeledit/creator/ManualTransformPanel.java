@@ -237,7 +237,7 @@ public class ManualTransformPanel extends JPanel {
 		if(modelHandler == null){
 			return Vec3.ZERO;
 		} else {
-			return modelHandler.getModelView().getSelectionCenter();
+			return modelEditorManager.getSelectionView().getCenter();
 		}
 	}
 }

@@ -62,6 +62,7 @@ public class RecalculateTangentsAction implements UndoAction {
 	// copied from
 	// https://github.com/TaylorMouse/MaxScripts/blob/master/Warcraft%203%20Reforged/GriffonStudios/GriffonStudios_Warcraft_3_Reforged_Export.ms#L169
 	// and edited
+	// https://gamedev.stackexchange.com/questions/68612/how-to-compute-tangent-and-bitangent-vectors
 	public void recalculateTangents2(List<GeosetVertex> affectedVertices) {
 
 		Set<Triangle> triangles = new HashSet<>();
@@ -120,33 +121,22 @@ public class RecalculateTangentsAction implements UndoAction {
 			vertexTMap.computeIfAbsent(triangle.get(0), k -> new Vec3()).add(ttDir);
 			vertexTMap.computeIfAbsent(triangle.get(1), k -> new Vec3()).add(ttDir);
 			vertexTMap.computeIfAbsent(triangle.get(2), k -> new Vec3()).add(ttDir);
-
 		}
 
 		Vec3 tempNorm = new Vec3();
-		Vec3 temp = new Vec3();
-		Vec3 temp2 = new Vec3();
 		for(GeosetVertex vertex : affectedVertices){
-			Vec3 triSAcc = vertexSMap.get(vertex);
-			if(triSAcc == null){
-				triSAcc = new Vec3(0,0,1);
-			}
+			Vec4 tangent = new Vec4();
+			Vec3 triSAcc = vertexSMap.getOrDefault(vertex, Vec3.Z_AXIS);
 			Vec3 normal = vertex.getNormal();
 
-			tempNorm.set(normal).scale(normal.dot(triSAcc));
-			temp.set(triSAcc).sub(tempNorm).normalize();
+			tangent.set(triSAcc).addScaled(normal, normal.dot(triSAcc)).normalize();
 
-//			temp.set(normal).scale(-normal.dot(triSAcc)).add(triSAcc).normalize();
+			tempNorm.set(normal).cross(triSAcc);
 
-			temp2.set(normal).cross(triSAcc);
+			Vec3 triTAcc = vertexTMap.getOrDefault(vertex, Vec3.Z_AXIS);
+			tangent.w = tempNorm.dot(triTAcc) < 0.0f ? -1.0f : 1.0f;
 
-			Vec3 triTAcc = vertexTMap.get(vertex);
-			if(triTAcc == null){
-				triTAcc = new Vec3(0,0,1);
-			}
-			float w = temp2.dot(triTAcc) < 0.0f ? -1.0f : 1.0f;
-
-			newTangents.add(new Vec4(temp, w));
+			newTangents.add(tangent);
 		}
 	}
 }

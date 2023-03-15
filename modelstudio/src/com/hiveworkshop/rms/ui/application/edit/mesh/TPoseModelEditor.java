@@ -7,13 +7,10 @@ import com.hiveworkshop.rms.editor.actions.editor.AbstractTransformAction;
 import com.hiveworkshop.rms.editor.actions.editor.CompoundRotateAction;
 import com.hiveworkshop.rms.editor.actions.editor.CompoundScaleAction;
 import com.hiveworkshop.rms.editor.actions.editor.StaticMeshShrinkFattenAction;
-import com.hiveworkshop.rms.editor.actions.nodes.RotateNodesTPoseAction2;
+import com.hiveworkshop.rms.editor.actions.nodes.RotateNodesTPoseAction;
 import com.hiveworkshop.rms.editor.actions.nodes.TranslateNodesTPoseAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
-import com.hiveworkshop.rms.editor.model.AnimatedNode;
-import com.hiveworkshop.rms.editor.model.CameraNode;
-import com.hiveworkshop.rms.editor.model.GlobalSeq;
-import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.*;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode2;
@@ -48,10 +45,11 @@ public class TPoseModelEditor extends ModelEditor {
 	public UndoAction translate(Vec3 v, Mat4 rotMat) {
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
 		Set<CameraNode> camSelection = modelView.getSelectedCameraNodes();
+		List<Geoset> geosets = renderModel.getModel().getGeosets();
 
 //		CompoundAction setup = getSetupAction(selection, camSelection, ModelEditorActionType3.TRANSLATION);
 //		return new TranslateNodesTPoseAction(setup, selection, camSelection, renderModel, v, rotMat);
-		return new TranslateNodesTPoseAction(null, selection, camSelection, renderModel, v, rotMat);
+		return new TranslateNodesTPoseAction(null, selection, camSelection, geosets, v, rotMat, null);
 	}
 
 	@Override
@@ -66,10 +64,12 @@ public class TPoseModelEditor extends ModelEditor {
 	@Override
 	public UndoAction rotate(Vec3 center, Vec3 rotate, Mat4 rotMat) {
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
+		Set<CameraNode> camSelection = modelView.getSelectedCameraNodes();
+		List<Geoset> geosets = renderModel.getModel().getGeosets();
 		return new CompoundAction("rotate", changeListener::keyframesUpdated, null,
-				new RotateNodesTPoseAction2(null, selection, renderModel, center, Vec3.X_AXIS,          Math.toRadians(rotate.x), rotMat, null),
-				new RotateNodesTPoseAction2(null, selection, renderModel, center, Vec3.NEGATIVE_Y_AXIS, Math.toRadians(rotate.y), rotMat, null),
-				new RotateNodesTPoseAction2(null, selection, renderModel, center, Vec3.NEGATIVE_Z_AXIS, Math.toRadians(rotate.z), rotMat, null));
+				new RotateNodesTPoseAction(null, selection, camSelection, geosets, center, Vec3.X_AXIS,          Math.toRadians(rotate.x), rotMat, null),
+				new RotateNodesTPoseAction(null, selection, camSelection, geosets, center, Vec3.NEGATIVE_Y_AXIS, Math.toRadians(rotate.y), rotMat, null),
+				new RotateNodesTPoseAction(null, selection, camSelection, geosets, center, Vec3.NEGATIVE_Z_AXIS, Math.toRadians(rotate.z), rotMat, null));
 //		CompoundAction setup = getSetupAction(selection, ModelEditorActionType3.ROTATION);
 //		return new CompoundAction("rotate", changeListener::keyframesUpdated, setup,
 //				new RotationKeyframeAction(null, selection, renderModel, center, Vec3.X_AXIS, Math.toRadians(rotate.x), rotMat),
@@ -93,10 +93,11 @@ public class TPoseModelEditor extends ModelEditor {
 	public AbstractTransformAction beginTranslation(Mat4 rotMat) {
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
 		Set<CameraNode> camSelection = modelView.getSelectedCameraNodes();
+		List<Geoset> geosets = renderModel.getModel().getGeosets();
 
 //		CompoundAction setup = getSetupAction(selection, camSelection, ModelEditorActionType3.TRANSLATION);
 //		return new TranslateNodesTPoseAction(setup, selection, camSelection, renderModel, new Vec3(), rotMat).doSetup();
-		return new TranslateNodesTPoseAction(null, selection, camSelection, renderModel, new Vec3(), rotMat).doSetup();
+		return new TranslateNodesTPoseAction(null, selection, camSelection, geosets, new Vec3(), rotMat, null).doSetup();
 	}
 //	@Override
 	public AbstractTransformAction beginExtrude(Mat4 rotMat) {
@@ -121,10 +122,11 @@ public class TPoseModelEditor extends ModelEditor {
 	public AbstractTransformAction beginRotation(Vec3 center, Vec3 axis, Mat4 rotMat) {
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
 		Set<CameraNode> camSelection = modelView.getSelectedCameraNodes();
+		List<Geoset> geosets = renderModel.getModel().getGeosets();
 
 //		CompoundAction setup = getSetupAction(selection, camSelection, ModelEditorActionType3.ROTATION);
 //		return new RotateNodesTPoseAction2(setup, selection, camSelection, renderModel, center, axis, rotMat).doSetup();
-		return new RotateNodesTPoseAction2(null, selection, camSelection, renderModel, center, axis, rotMat).doSetup();
+		return new RotateNodesTPoseAction(null, selection, camSelection, geosets, center, axis, 0.0, rotMat, null).doSetup();
 	}
 
 	@Override

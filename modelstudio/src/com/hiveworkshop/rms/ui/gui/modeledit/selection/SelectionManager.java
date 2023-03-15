@@ -401,11 +401,10 @@ public class SelectionManager extends AbstractSelectionManager {
 		if (selectionMode == SelectionItemTypes.VERTEX
 				|| selectionMode == SelectionItemTypes.FACE
 				|| selectionMode == SelectionItemTypes.GROUP
-				|| selectionMode == SelectionItemTypes.CLUSTER
-				|| selectionMode == SelectionItemTypes.TPOSE) {
+				|| selectionMode == SelectionItemTypes.CLUSTER) {
 			return modelView.getSelectionCenter();
 		}
-		if (selectionMode == SelectionItemTypes.ANIMATE) {
+		if (selectionMode == SelectionItemTypes.ANIMATE || selectionMode == SelectionItemTypes.TPOSE) {
 			int tot = 0;
 			Vec3 centerOfGroupSumHeap = new Vec3(0, 0, 0);
 			for (IdObject object : modelView.getSelectedIdObjects()) {
