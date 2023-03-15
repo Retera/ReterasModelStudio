@@ -407,7 +407,7 @@ public class Layer extends TimelineContainer implements Named {
 
 		public BitmapAnimFlag getFlipbookTexture(){
 			AnimFlag<?> animFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
-			System.out.println("layerTexture flipbook: " + animFlag);
+//			System.out.println("layerTexture flipbook: " + animFlag);
 			if(animFlag instanceof BitmapAnimFlag) {
 				return (BitmapAnimFlag) animFlag;
 			}

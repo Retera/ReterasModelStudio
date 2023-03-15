@@ -194,7 +194,7 @@ public class AdaptingRangeModel implements BoundedRangeModel, Serializable {
 
 	public void setValueIsAdjusting(boolean b) {
 //		System.out.println("setValueIsAdjusting: " + b);
-		System.out.println("setValueIsAdjusting");
+//		System.out.println("setValueIsAdjusting");
 		setRangeProperties(value, extent, min, max, b);
 	}
 

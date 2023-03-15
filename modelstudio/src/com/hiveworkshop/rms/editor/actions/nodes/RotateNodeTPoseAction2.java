@@ -23,6 +23,7 @@ public class RotateNodeTPoseAction2 extends AbstractTransformAction {
 	private final IdObject node;
 	private final Vec3 oldPivot;
 	private final Vec3 newPivot;
+	private double radians;
 	private final Quat quat = new Quat();
 	private final Vec3 axis;
 	private final Vec3 center;
@@ -41,6 +42,7 @@ public class RotateNodeTPoseAction2 extends AbstractTransformAction {
 		this.changeListener = changeListener;
 		this.rotMat.set(rotMat);
 		this.invRotMat.set(rotMat).invert();
+		this.radians = radians;
 		this.axis = axis;
 		this.center = center;
 		this.node = node;
@@ -65,6 +67,7 @@ public class RotateNodeTPoseAction2 extends AbstractTransformAction {
 		this.rotMat.set(rotMat);
 		this.invRotMat.set(rotMat).invert();
 		this.axis = quat.getAxis();
+		this.radians = quat.getAxisAngle();
 		this.center = center;
 		this.node = node;
 		this.oldPivot = new Vec3(node.getPivotPoint());
@@ -128,12 +131,23 @@ public class RotateNodeTPoseAction2 extends AbstractTransformAction {
 	}
 
 	public RotateNodeTPoseAction2 updateRotation(double radians){
-
+		this.radians += radians;
 		for(RotateNodeChildTPoseAction action : rotChildActions){
 			action.updateRotation(radians);
 		}
 		System.out.println("rotating: " + radians);
 		rotate(-radians);
+		node.setPivotPoint(newPivot);
+		return this;
+	}
+	public RotateNodeTPoseAction2 setRotation(double radians){
+		double rotDiff = radians - this.radians;
+		this.radians = radians;
+		for(RotateNodeChildTPoseAction action : rotChildActions){
+			action.setRotation(radians);
+		}
+		System.out.println("rotating: " + radians);
+		rotate(-rotDiff);
 		node.setPivotPoint(newPivot);
 		return this;
 	}
@@ -146,9 +160,10 @@ public class RotateNodeTPoseAction2 extends AbstractTransformAction {
 
 	private void updateTimelines(double radians) {
 		quat.setFromAxisAngle(axis, (float) -radians);
-		for (Vec3AnimFlag newTranslation : newTranslations){
-			rotTranslations(quat, newTranslation);
-		}
+//		for (Vec3AnimFlag newTranslation : newTranslations){
+//			rotTranslations(quat, newTranslation);
+//		}
+
 //		Vec3 tempScaleMul = new Vec3(Vec3.ONE).rotate(Vec3.ZERO, quat);
 //		for (Vec3AnimFlag newScaling : newScalings){
 //			rotScalings(quat, tempScaleMul, newScaling);

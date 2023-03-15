@@ -2,7 +2,9 @@ package com.hiveworkshop.rms.editor.model.animflag;
 
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
+import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatTimeline;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
@@ -28,6 +30,12 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 
 	protected FloatAnimFlag(AnimFlag<Float> af) {
 		super(af);
+	}
+
+	public FloatAnimFlag(String title, InterpolationType interpolationType, GlobalSeq globalSeq) {
+		super(title);
+		this.interpolationType = interpolationType;
+		setGlobSeq(globalSeq);
 	}
 
 	public FloatAnimFlag(final MdlxFloatTimeline timeline, EditableModel model) {

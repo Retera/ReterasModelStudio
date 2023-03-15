@@ -378,7 +378,7 @@ public final class ModelComponentBrowserTree extends JTree {
 		return new MouseAdapter() {
 			@Override
 			public void mouseExited(final MouseEvent e) {
-				System.out.println("mouseExited");
+//				System.out.println("[MCBT]mouseExited");
 				modelHandler.getModelView().higthlight(null);
 			}
 

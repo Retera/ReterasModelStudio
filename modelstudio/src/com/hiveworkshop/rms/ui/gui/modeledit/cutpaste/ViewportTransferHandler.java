@@ -260,7 +260,7 @@ public class ViewportTransferHandler extends TransferHandler {
 		for (Camera object : pastedModel.getCameras()) {
 			pastedModelView.makeCameraEditable(object);
 		}
-		GeometryModelEditor listener = new GeometryModelEditor(new SelectionManager(modelHandler.getRenderModel(), pastedModelView, SelectionItemTypes.VERTEX), modelHandler, SelectionItemTypes.VERTEX);
+		GeometryModelEditor listener = new GeometryModelEditor(new SelectionManager(modelHandler.getRenderModel(), pastedModelView, SelectionItemTypes.VERTEX), modelHandler);
 		pastedModelView.selectAll();
 //		Double geomPoint = CoordSysUtils.geom(viewport.getCoordinateSystem(), dropPoint);
 		Vec3 pasteCenter = new Vec3(0, 0, 0);

@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.util;
 
 public class Mat4 {
+	public static Mat4 IDENTITY = new Mat4();
 //	public float
 //			m00 = 1.0f, m01 = 0.0f, m02 = 0.0f, m03 = 0.0f,
 //			m10 = 0.0f, m11 = 1.0f, m12 = 0.0f, m13 = 0.0f,
@@ -423,7 +424,7 @@ public class Mat4 {
 
 	// copied from ghostwolf and
 	// https://www.blend4web.com/api_doc/libs_gl-matrix2.js.html
-	public Mat4 fromRotationTranslationScaleOrigin(final Quat rot, final Vec3 loc, final Vec3 scale, final Vec3 pivot) {
+	public Mat4 fromRotationTranslationScaleOrigin(final Quat rot, final Vec3 transl, final Vec3 scale, final Vec3 pivot) {
 		final float xx = rot.x * rot.x * 2;
 		final float xy = rot.x * rot.y * 2;
 		final float xz = rot.x * rot.z * 2;
@@ -446,9 +447,9 @@ public class Mat4 {
 		m21 = (yz - wx)         * scale.z;
 		m22 = (1 - (xx + yy))   * scale.z;
 		m23 = 0;
-		m30 = (loc.x + pivot.x) - ((m00 * pivot.x) + (m10 * pivot.y) + (m20 * pivot.z));
-		m31 = (loc.y + pivot.y) - ((m01 * pivot.x) + (m11 * pivot.y) + (m21 * pivot.z));
-		m32 = (loc.z + pivot.z) - ((m02 * pivot.x) + (m12 * pivot.y) + (m22 * pivot.z));
+		m30 = (transl.x + pivot.x) - ((m00 * pivot.x) + (m10 * pivot.y) + (m20 * pivot.z));
+		m31 = (transl.y + pivot.y) - ((m01 * pivot.x) + (m11 * pivot.y) + (m21 * pivot.z));
+		m32 = (transl.z + pivot.z) - ((m02 * pivot.x) + (m12 * pivot.y) + (m22 * pivot.z));
 		m33 = 1;
 
 		return this;

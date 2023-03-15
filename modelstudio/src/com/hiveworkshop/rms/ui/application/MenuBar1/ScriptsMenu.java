@@ -43,7 +43,7 @@ public class ScriptsMenu extends JMenu {
 
 		add(new ExportStaticMesh().setMenuItemMnemonic(KeyEvent.VK_X).getMenuItem());
 		add(new ExportViewportFrame().setMenuItemMnemonic(KeyEvent.VK_P).getMenuItem());
-		add(createMenuItem("ExportFrame", KeyEvent.VK_P, e -> openModelDependentView(new ExportFrameViewCanvas("ExportFrame", false, false))));
+		add(createMenuItem("GIF Generator", KeyEvent.VK_P, e -> openModelDependentView(new ExportFrameViewCanvas("GIF Generator", false, false))));
 		add(KeyframeCopyPanel.getMenuItem());//KeyEvent.VK_K
 //		add(getMenuItem(ActionMapActions.BACK2BACK_ANIMATION, KeyEvent.VK_B));
 		add(new CombineAnimations().setMenuItemMnemonic(KeyEvent.VK_B).getMenuItem());

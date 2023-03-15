@@ -133,7 +133,7 @@ public class UVPanel extends JPanel {
 	private void mirror(Vec2 axis, Vec2 center) {
 		if (modelHandler != null) {
 			if(center == null) {
-				center = toolbar.getModelEditorManager().getSelectionView().getUVCenter(0);
+				center = toolbar.getModelEditorManager().getSelectionView().getUVCenter();
 			}
 			Collection<Vec2> tVertices = getTVertices(modelHandler.getModelView().getSelectedVertices(), 0);
 			modelHandler.getUndoManager().pushAction(new MirrorTVerticesAction(tVertices, center, axis, ModelStructureChangeListener.changeListener).redo());

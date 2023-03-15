@@ -31,6 +31,12 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 		super(af);
 	}
 
+	public Vec3AnimFlag(String title, InterpolationType interpolationType, GlobalSeq globalSeq) {
+		super(title);
+		this.interpolationType = interpolationType;
+		setGlobSeq(globalSeq);
+	}
+
 	public Vec3AnimFlag(final MdlxFloatArrayTimeline timeline, EditableModel model) {
 		super(timeline, model);
 
@@ -69,12 +75,6 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 			}
 //			System.out.println(name + " has " + outsideKFs.size() + " frames outside of animations");
 		}
-	}
-
-	public Vec3AnimFlag(String title, InterpolationType interpolationType, GlobalSeq globalSeq) {
-		super(title);
-		this.interpolationType = interpolationType;
-		setGlobSeq(globalSeq);
 	}
 
 	public AnimFlag<Vec3> getEmptyCopy() {

@@ -182,7 +182,7 @@ public class Select {
 
 	private static void selectLinked(ModelHandler modelHandler) {
 		ModelView modelView = modelHandler.getModelView();
-		boolean doNodes = true;
+		boolean doNodes = false;
 		
 		Set<GeosetVertex> expandedGeoSelection = new HashSet<>(modelView.getSelectedVertices());
 		for (GeosetVertex v : modelView.getSelectedVertices()) {

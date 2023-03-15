@@ -19,8 +19,8 @@ public class ModelTreeExpansionListener implements TreeExpansionListener {
 
 	@Override
 	public void treeExpanded(TreeExpansionEvent event) {
-		System.out.println("[MTEL][expand] event: " + event);
-		System.out.println("[MTEL]source: " + event.getSource());
+//		System.out.println("[MTEL][expand] event: " + event);
+//		System.out.println("[MTEL]source: " + event.getSource());
 
 //		if (event.getSource() instanceof ComponentThingTree) {
 //			printEventInfo(event);

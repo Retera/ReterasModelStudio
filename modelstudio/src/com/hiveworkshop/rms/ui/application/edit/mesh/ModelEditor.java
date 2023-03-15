@@ -31,7 +31,7 @@ public abstract class ModelEditor {
 
 	public abstract UndoAction rotate(Vec3 center, Vec3 rotate, Mat4 rotMat);
 
-	public abstract UndoAction shrinkFatten(float amount);
+	public abstract UndoAction shrinkFatten(float amount, boolean scaleApart);
 
 	public abstract AbstractTransformAction beginTranslation(Mat4 rotMat);
 
@@ -45,7 +45,7 @@ public abstract class ModelEditor {
 
 	public abstract AbstractTransformAction beginSquatTool(Vec3 center, Vec3 axis, Mat4 rotMat);
 
-	public abstract StaticMeshShrinkFattenAction beginShrinkFatten(float amount);
+	public abstract StaticMeshShrinkFattenAction beginShrinkFatten(float amount, boolean scaleApart);
 
 	// true if we conceptually are editing/operating on top of an animated model,
 	// instead of a static one

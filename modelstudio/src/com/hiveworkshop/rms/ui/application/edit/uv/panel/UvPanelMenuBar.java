@@ -115,7 +115,7 @@ public class UvPanelMenuBar extends JMenuBar {
 	private void mirror(Vec2 axis, Vec2 center) {
 		if (modelHandler != null) {
 			if(center == null){
-				center = tVertexEditorManager.getSelectionView().getUVCenter(0);
+				center = tVertexEditorManager.getSelectionView().getUVCenter();
 			}
 			Collection<Vec2> tVertices = getTVertices(modelHandler.getModelView().getSelectedVertices(), 0);
 			modelHandler.getUndoManager().pushAction(new MirrorTVerticesAction(tVertices, center, axis, ModelStructureChangeListener.changeListener).redo());

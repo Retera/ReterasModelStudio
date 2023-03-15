@@ -22,6 +22,7 @@ public class RotateNodeAction extends AbstractTransformAction {
 	private final Vec3 oldPivot;
 	private final Vec3 newPivot;
 	private final Quat quat = new Quat();
+	private double radians;
 	private final Vec3 axis;
 	private final Vec3 center;
 	private final List<AddTimelineAction<?>> timelineActions = new ArrayList<>();
@@ -33,6 +34,7 @@ public class RotateNodeAction extends AbstractTransformAction {
 	                        Vec3 axis, double radians, Vec3 center,
 	                        ModelStructureChangeListener changeListener){
 		this.changeListener = changeListener;
+		this.radians = radians;
 		this.axis = axis;
 		this.center = center;
 		this.node = node;
@@ -81,7 +83,16 @@ public class RotateNodeAction extends AbstractTransformAction {
 		}
 	}
 
+	public RotateNodeAction setRotation(double radians) {
+		double rotDiff = radians - this.radians;
+		this.radians = radians;
+		rotate(rotDiff);
+		node.setPivotPoint(newPivot);
+		return this;
+	}
+
 	public RotateNodeAction updateRotation(double radians){
+		this.radians += radians;
 		rotate(radians);
 		node.setPivotPoint(newPivot);
 		return this;

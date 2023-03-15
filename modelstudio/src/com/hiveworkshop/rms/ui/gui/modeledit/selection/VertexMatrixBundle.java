@@ -8,11 +8,12 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class VertexGroupBundle {
+// Bundels vertices that belongs to the same geoset and has the same (SD) bone list
+public class VertexMatrixBundle {
 	private final Geoset geoset;
 	private final Matrix matrix;
 
-	public VertexGroupBundle(Geoset geoset, Matrix vertexMatrix) {
+	public VertexMatrixBundle(Geoset geoset, Matrix vertexMatrix) {
 		this.geoset = geoset;
 		this.matrix = vertexMatrix;
 	}
@@ -54,8 +55,8 @@ public class VertexGroupBundle {
 		if (this == obj) {
 			return true;
 		}
-		if (obj instanceof VertexGroupBundle) {
-			VertexGroupBundle other = (VertexGroupBundle) obj;
+		if (obj instanceof VertexMatrixBundle) {
+			VertexMatrixBundle other = (VertexMatrixBundle) obj;
 			return Objects.equals(geoset, other.geoset) && Objects.equals(matrix, other.matrix);
 		}
 		return false;

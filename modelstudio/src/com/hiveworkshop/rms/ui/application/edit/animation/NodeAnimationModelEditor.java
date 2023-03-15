@@ -6,10 +6,7 @@ import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryAction
 import com.hiveworkshop.rms.editor.actions.editor.AbstractTransformAction;
 import com.hiveworkshop.rms.editor.actions.editor.StaticMeshShrinkFattenAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.CameraNode;
-import com.hiveworkshop.rms.editor.model.GlobalSeq;
-import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.*;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode2;
@@ -19,7 +16,6 @@ import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.util.Mat4;
@@ -35,8 +31,7 @@ public class NodeAnimationModelEditor extends ModelEditor {
 	private final RenderModel renderModel;
 	private final ModelStructureChangeListener changeListener;
 
-	public NodeAnimationModelEditor(SelectionManager selectionManager, ModelHandler modelHandler,
-	                                SelectionItemTypes selectionMode) {
+	public NodeAnimationModelEditor(SelectionManager selectionManager, ModelHandler modelHandler) {
 		super(selectionManager, modelHandler.getModelView());
 		this.changeListener = ModelStructureChangeListener.changeListener;
 		this.renderModel = modelHandler.getRenderModel();
@@ -230,6 +225,15 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		return null;
 	}
 
+	public UndoAction createTranslationKeyframe(CameraNode node, AnimFlag<Vec3> timeline, TimeEnvironmentImpl timeEnvironmentImpl) {
+		if(!timeline.hasEntryAt(timeEnvironmentImpl.getCurrentSequence(), timeEnvironmentImpl.getEnvTrackTime())){
+			int trackTime = timeEnvironmentImpl.getEnvTrackTime();
+			RenderNodeCamera renderNode = renderModel.getRenderNode(node);
+			return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Vec3(renderNode.getLocalLocation())), timeEnvironmentImpl);
+		}
+		return null;
+	}
+
 	public UndoAction createScalingKeyframe(IdObject node, AnimFlag<Vec3> timeline, TimeEnvironmentImpl timeEnvironmentImpl) {
 		if(!timeline.hasEntryAt(timeEnvironmentImpl.getCurrentSequence(), timeEnvironmentImpl.getEnvTrackTime())){
 			int trackTime = timeEnvironmentImpl.getEnvTrackTime();
@@ -244,45 +248,6 @@ public class NodeAnimationModelEditor extends ModelEditor {
 			int trackTime = timeEnvironmentImpl.getEnvTrackTime();
 			RenderNode2 renderNode = renderModel.getRenderNode(node);
 			return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Quat(renderNode.getLocalRotation())), timeEnvironmentImpl);
-		}
-		return null;
-	}
-
-	public AnimFlag<Vec3> getTranslationTimeline(IdObject node, List<UndoAction> actions, GlobalSeq globalSeq) {
-		AnimFlag<Vec3> timeline = node.getTranslationFlag();
-		if (timeline == null) {
-			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION, InterpolationType.HERMITE, globalSeq);
-
-			actions.add(new AddTimelineAction<>(node, timeline));
-		}
-		return timeline;
-	}
-
-	public AnimFlag<Vec3> getScalingTimeline(IdObject node, List<UndoAction> actions, GlobalSeq globalSeq) {
-		AnimFlag<Vec3> timeline = node.getScalingFlag();
-		if (timeline == null) {
-			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_SCALING, InterpolationType.HERMITE, globalSeq);
-
-			actions.add(new AddTimelineAction<>(node, timeline));
-		}
-		return timeline;
-	}
-
-	private AnimFlag<Quat> getRotationTimeline(IdObject node, List<UndoAction> actions, GlobalSeq globalSeq) {
-		AnimFlag<Quat> timeline = node.getRotationFlag();
-		if (timeline == null) {
-			timeline = new QuatAnimFlag(MdlUtils.TOKEN_ROTATION, InterpolationType.HERMITE, globalSeq);
-
-			actions.add(new AddTimelineAction<>(node, timeline));
-		}
-		return timeline;
-	}
-
-	public UndoAction createTranslationKeyframe(CameraNode node, AnimFlag<Vec3> timeline, TimeEnvironmentImpl timeEnvironmentImpl) {
-		if(!timeline.hasEntryAt(timeEnvironmentImpl.getCurrentSequence(), timeEnvironmentImpl.getEnvTrackTime())){
-			int trackTime = timeEnvironmentImpl.getEnvTrackTime();
-			RenderNodeCamera renderNode = renderModel.getRenderNode(node);
-			return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Vec3(renderNode.getLocalLocation())), timeEnvironmentImpl);
 		}
 		return null;
 	}
@@ -305,10 +270,51 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		return null;
 	}
 
+	public AnimFlag<Vec3> getTranslationTimeline(IdObject node, List<UndoAction> actions, GlobalSeq globalSeq) {
+		return getTranslationTimeline((AnimatedNode) node, actions, globalSeq);
+//		AnimFlag<Vec3> timeline = node.getTranslationFlag();
+//		if (timeline == null) {
+//			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION, InterpolationType.HERMITE, globalSeq);
+//
+//			actions.add(new AddTimelineAction<>(node, timeline));
+//		}
+//		return timeline;
+	}
+
 	public AnimFlag<Vec3> getTranslationTimeline(CameraNode node, List<UndoAction> actions, GlobalSeq globalSeq) {
+		return getTranslationTimeline((AnimatedNode) node, actions, globalSeq);
+//		AnimFlag<Vec3> timeline = node.getTranslationFlag();
+//		if (timeline == null) {
+//			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION, InterpolationType.HERMITE, globalSeq);
+//
+//			actions.add(new AddTimelineAction<>(node, timeline));
+//		}
+//		return timeline;
+	}
+	public AnimFlag<Vec3> getTranslationTimeline(AnimatedNode node, List<UndoAction> actions, GlobalSeq globalSeq) {
 		AnimFlag<Vec3> timeline = node.getTranslationFlag();
 		if (timeline == null) {
-			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION, InterpolationType.HERMITE, globalSeq);
+			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION, InterpolationType.LINEAR, globalSeq);
+
+			actions.add(new AddTimelineAction<>(node, timeline));
+		}
+		return timeline;
+	}
+
+	public AnimFlag<Vec3> getScalingTimeline(IdObject node, List<UndoAction> actions, GlobalSeq globalSeq) {
+		AnimFlag<Vec3> timeline = node.getScalingFlag();
+		if (timeline == null) {
+			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_SCALING, InterpolationType.LINEAR, globalSeq);
+
+			actions.add(new AddTimelineAction<>(node, timeline));
+		}
+		return timeline;
+	}
+
+	private AnimFlag<Quat> getRotationTimeline(IdObject node, List<UndoAction> actions, GlobalSeq globalSeq) {
+		AnimFlag<Quat> timeline = node.getRotationFlag();
+		if (timeline == null) {
+			timeline = new QuatAnimFlag(MdlUtils.TOKEN_ROTATION, InterpolationType.LINEAR, globalSeq);
 
 			actions.add(new AddTimelineAction<>(node, timeline));
 		}
@@ -329,10 +335,10 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		}
 	}
 
-	public UndoAction shrinkFatten(float amount) {
+	public UndoAction shrinkFatten(float amount, boolean scaleApart) {
 		return null;
 	}
-	public StaticMeshShrinkFattenAction beginShrinkFatten(float amount) {
+	public StaticMeshShrinkFattenAction beginShrinkFatten(float amount, boolean scaleApart) {
 		return null;
 	}
 }

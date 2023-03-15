@@ -78,7 +78,7 @@ public class TwiFocusListener extends FocusAdapter {
 	}
 
 	private void updateEditedTime(){
-		System.out.println("#Focus updating time");
+//		System.out.println("#Focus updating time");
 		lastEditedTime = LocalTime.now().plusNanos(lastEditedExtend * 1000000L);
 	}
 }

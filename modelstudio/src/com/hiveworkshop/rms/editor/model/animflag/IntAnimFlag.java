@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.editor.model.animflag;
 
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxUInt32Timeline;
@@ -26,6 +27,11 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 
 	protected IntAnimFlag(AnimFlag<Integer> af) {
 		super(af);
+	}
+	public IntAnimFlag(String title, InterpolationType interpolationType, GlobalSeq globalSeq) {
+		super(title);
+		this.interpolationType = interpolationType;
+		setGlobSeq(globalSeq);
 	}
 
 	public IntAnimFlag(final MdlxUInt32Timeline timeline, EditableModel model) {

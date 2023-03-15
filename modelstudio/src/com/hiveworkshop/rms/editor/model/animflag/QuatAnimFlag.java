@@ -31,6 +31,12 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 		super(af);
 	}
 
+	public QuatAnimFlag(String title, InterpolationType interpolationType, GlobalSeq globalSeq) {
+		super(title);
+		this.interpolationType = interpolationType;
+		setGlobSeq(globalSeq);
+	}
+
 	public QuatAnimFlag(final MdlxFloatArrayTimeline timeline, EditableModel model) {
 		super(timeline, model);
 
@@ -69,12 +75,6 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 			}
 //			System.out.println(name + " has " + outsideKFs.size() + " frames outside of animations");
 		}
-	}
-
-	public QuatAnimFlag(String title, InterpolationType interpolationType, GlobalSeq globalSeq) {
-		super(title);
-		this.interpolationType = interpolationType;
-		setGlobSeq(globalSeq);
 	}
 
 	public AnimFlag<Quat> getEmptyCopy() {

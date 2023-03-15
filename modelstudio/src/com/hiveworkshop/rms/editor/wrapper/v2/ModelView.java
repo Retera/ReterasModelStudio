@@ -790,25 +790,25 @@ public final class ModelView {
 //		System.out.println("ModelView#makeVisible: " + b);
 		if (b) {
 			if (obj instanceof Geoset) {
-				System.out.println("Geoset Visible!");
+//				System.out.println("Geoset Visible!");
 				makeGeosetVisible(b, (Geoset) obj);
 			} else if (obj instanceof IdObject) {
 //				System.out.println("IdObject Visible!");
 				makeIdObjectVisible((IdObject) obj);
 			} else if (obj instanceof Camera) {
-				System.out.println("Camera Visible!");
+//				System.out.println("Camera Visible!");
 				makeCameraVisible((Camera) obj);
 			}
 		} else {
 			if (obj instanceof Geoset) {
-				System.out.println("Geoset NotVisible!");
+//				System.out.println("Geoset NotVisible!");
 //				makeGeosetNotVisible((Geoset) obj);
 				makeGeosetVisible(b, (Geoset) obj);
 			} else if (obj instanceof IdObject) {
-				System.out.println("IdObject NotVisible!");
+//				System.out.println("IdObject NotVisible!");
 				makeIdObjectNotVisible((IdObject) obj);
 			} else if (obj instanceof Camera) {
-				System.out.println("Camera NotVisible!");
+//				System.out.println("Camera NotVisible!");
 				makeCameraNotVisible((Camera) obj);
 			}
 		}

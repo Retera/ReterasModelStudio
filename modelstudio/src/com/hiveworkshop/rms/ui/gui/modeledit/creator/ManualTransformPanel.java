@@ -118,7 +118,7 @@ public class ManualTransformPanel extends JPanel {
 			selectedVerts.setText("" + modelHandler.getModelView().getSelectedVertices().size());
 			selectedNodes.setText("" + modelHandler.getModelView().getSelectedIdObjects().size());
 			selectedCams.setText("" + modelHandler.getModelView().getSelectedCameraNodes().size());
-			selectionCenter.setText("" + modelHandler.getModelView().getSelectionCenter());
+			selectionCenter.setText("" + modelEditorManager.getSelectionView().getCenter());
 		}
 	}
 

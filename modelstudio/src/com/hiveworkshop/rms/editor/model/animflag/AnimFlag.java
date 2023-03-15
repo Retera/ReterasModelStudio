@@ -42,7 +42,7 @@ public abstract class AnimFlag<T> {
 		interpolationType = timeline.interpolationType;
 
 		if (this instanceof IntAnimFlag) {
-			System.out.println(name + ", glob seq id: " + timeline.globalSequenceId + ", model glob seq: " + model.getGlobalSeq(timeline.globalSequenceId));
+			System.out.println("[AnimFlag] " + name + ", glob seq id: " + timeline.globalSequenceId + ", model glob seq: " + model.getGlobalSeq(timeline.globalSequenceId));
 		}
 
 		setGlobSeq(model.getGlobalSeq(timeline.globalSequenceId));
@@ -618,7 +618,7 @@ public abstract class AnimFlag<T> {
 	 */
 	public T interpolateAt(final TimeEnvironmentImpl animatedRenderEnvironment) {
 		if (sequenceMap.isEmpty() || (animatedRenderEnvironment == null) || animatedRenderEnvironment.getCurrentSequence() == null) {
-//			System.out.println("Identity 1, seqMapEmpty: " + sequenceMap.isEmpty());
+//			System.out.println("[AnimFlag] Case 1, seqMapEmpty: " + sequenceMap.isEmpty());
 			return getIdentity();
 		}
 
@@ -631,7 +631,7 @@ public abstract class AnimFlag<T> {
 		TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(currentSequence);
 		if (entryMap == null || entryMap.isEmpty()) {
 			if (this instanceof IntAnimFlag) {
-				System.out.println("Identity 2: no entryMap or entryMap empty");
+				System.out.println("[AnimFlag] Case 2: no entryMap or entryMap empty");
 			}
 			return getIdentity();
 		}
@@ -640,30 +640,31 @@ public abstract class AnimFlag<T> {
 
 //		// no keyframes at nor after time
 //		if (hasGlobalSeq() && globalSeq.getLength() >= 0 && entryMap.ceilingKey(time) == null) {
-//			System.out.println("Identity 3, " + globalSeq + " " + time + ", " + entryMap.ceilingKey(time));
+//			System.out.println("[AnimFlag] Case 3, " + globalSeq + " " + time + ", " + entryMap.ceilingKey(time));
 //			return getIdentity(typeid);
 //		}
 
 		Integer lastKeyframeTime = entryMap.floorKey(sequenceLength);
 		Integer firstKeyframeTime = entryMap.ceilingKey(0);
 
-		// either no keyframes before animationEnd,
-		// no keyframes after animationStart,
-		// no keyframes in animation
-		// or time is outside of animation
+		// either:
+		// - no keyframes before animationEnd
+		// - no keyframes after animationStart
+		// - no keyframes in animation
+		// - time is outside of animation
 		if (lastKeyframeTime == null
 				|| firstKeyframeTime == null
 				|| lastKeyframeTime < firstKeyframeTime
 				|| sequenceLength < time
 				|| time < 0) {
-//			System.out.println("Identity 4");
+//			System.out.println("[AnimFlag] Case 4");
 			return getIdentity();
 		}
 		// only one keyframe in the animation
 		if (lastKeyframeTime.equals(firstKeyframeTime)) {
 			if (this instanceof IntAnimFlag) {
-//				System.out.println("Identity 2: no entryMap or entryMap empty");
-//			System.out.println("OneValue");
+//				System.out.println("[AnimFlag] Case 2: no entryMap or entryMap empty");
+//			    System.out.println("[AnimFlag] OneValue");
 				System.out.println("lastKeyframeTime: " + lastKeyframeTime + ", firstKeyframeTime: " + firstKeyframeTime + ", from time: " + time + " and seqLength: " + sequenceLength);
 			}
 			return entryMap.get(lastKeyframeTime).getValue();
@@ -671,24 +672,24 @@ public abstract class AnimFlag<T> {
 
 		Integer floorTime = entryMap.floorKey(time);
 		if (floorTime == null || floorTime < 0) {
-//			System.out.println("floorTime: " + floorTime + ", lKFt: " + lastKeyframeTime + ", from time: " + time);
+//			System.out.println("[AnimFlag] floorTime: " + floorTime + ", lKFt: " + lastKeyframeTime + ", from time: " + time);
 			floorTime = lastKeyframeTime;
 		}
 
 		Integer ceilTime = entryMap.ceilingKey(time);
 		if (ceilTime == null || ceilTime > sequenceLength) {
-//			System.out.println("ceilTime: " + ceilTime + ", fKFt: " + firstKeyframeTime + ", from time: " + time);
+//			System.out.println("[AnimFlag] ceilTime: " + ceilTime + ", fKFt: " + firstKeyframeTime + ", from time: " + time);
 			ceilTime = firstKeyframeTime;
 		}
 
 		if (floorTime.equals(ceilTime)) {
-//			System.out.println("on KF");
+//			System.out.println("[AnimFlag] on KF");
 			return entryMap.get(floorTime).getValue();
 		}
 
 		float timeFactor = getTimeFactor(time, sequenceLength, floorTime, ceilTime);
 
-//		System.out.println("interpolating!");
+//		System.out.println("[AnimFlag] interpolating!");
 		return getInterpolatedValue(floorTime, ceilTime, timeFactor, currentSequence);
 	}
 
@@ -696,7 +697,7 @@ public abstract class AnimFlag<T> {
 		int timeBetweenFrames = ceilTime - floorTime;
 
 		// if ceilTime wrapped, add animation length
-		if (timeBetweenFrames < 0) {
+		if (timeBetweenFrames <= 0) {
 			timeBetweenFrames = timeBetweenFrames + animationLength;
 		}
 

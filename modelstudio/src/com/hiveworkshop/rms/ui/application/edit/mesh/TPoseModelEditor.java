@@ -2,15 +2,15 @@ package com.hiveworkshop.rms.ui.application.edit.mesh;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.AddTimelineAction;
-import com.hiveworkshop.rms.editor.actions.animation.ScalingKeyframeAction;
-import com.hiveworkshop.rms.editor.actions.animation.SquatToolKeyframeAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.editor.AbstractTransformAction;
+import com.hiveworkshop.rms.editor.actions.editor.CompoundRotateAction;
+import com.hiveworkshop.rms.editor.actions.editor.CompoundScaleAction;
 import com.hiveworkshop.rms.editor.actions.editor.StaticMeshShrinkFattenAction;
 import com.hiveworkshop.rms.editor.actions.nodes.RotateNodesTPoseAction2;
 import com.hiveworkshop.rms.editor.actions.nodes.TranslateNodesTPoseAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
-import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.AnimatedNode;
 import com.hiveworkshop.rms.editor.model.CameraNode;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.IdObject;
@@ -24,7 +24,6 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.util.Mat4;
@@ -32,7 +31,6 @@ import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -40,8 +38,7 @@ public class TPoseModelEditor extends ModelEditor {
 	private final RenderModel renderModel;
 	private final ModelStructureChangeListener changeListener;
 
-	public TPoseModelEditor(SelectionManager selectionManager, ModelHandler modelHandler,
-	                        SelectionItemTypes selectionMode) {
+	public TPoseModelEditor(SelectionManager selectionManager, ModelHandler modelHandler) {
 		super(selectionManager, modelHandler.getModelView());
 		this.changeListener = ModelStructureChangeListener.changeListener;
 		this.renderModel = modelHandler.getRenderModel();
@@ -59,10 +56,11 @@ public class TPoseModelEditor extends ModelEditor {
 
 	@Override
 	public UndoAction scale(Vec3 center, Vec3 scale, Mat4 rotMat) {
-		Set<IdObject> selection = modelView.getSelectedIdObjects();
+//		Set<IdObject> selection = modelView.getSelectedIdObjects();
 
-		CompoundAction setup = getSetupAction(selection, ModelEditorActionType3.SCALING);
-		return new ScalingKeyframeAction(setup, selection, center, scale, renderModel, rotMat);
+//		CompoundAction setup = getSetupAction(selection, ModelEditorActionType3.SCALING);
+//		return new ScalingKeyframeAction(setup, selection, center, scale, renderModel, rotMat);
+		return new CompoundAction("Not Implemented", new ArrayList<>());
 	}
 
 	@Override
@@ -111,10 +109,12 @@ public class TPoseModelEditor extends ModelEditor {
 
 	@Override
 	public AbstractTransformAction beginScaling(Vec3 center, Mat4 rotMat) {
-		Set<IdObject> selection = modelView.getSelectedIdObjects();
-
-		CompoundAction setup = getSetupAction(selection, ModelEditorActionType3.SCALING);
-		return new ScalingKeyframeAction(setup, selection, center, renderModel, rotMat).doSetup();
+//		Set<IdObject> selection = modelView.getSelectedIdObjects();
+//
+//		CompoundAction setup = getSetupAction(selection, ModelEditorActionType3.SCALING);
+//		return new ScalingKeyframeAction(setup, selection, center, renderModel, rotMat).doSetup();
+//		return new CompoundAction("Not Implemented", new ArrayList<>());
+		return new CompoundScaleAction("Not Implemented", new ArrayList<>());
 	}
 
 	@Override
@@ -129,18 +129,19 @@ public class TPoseModelEditor extends ModelEditor {
 
 	@Override
 	public AbstractTransformAction beginSquatTool(Vec3 center, Vec3 axis, Mat4 rotMat) {
-		System.out.println("begin Squat!");
-		Set<IdObject> selection = new HashSet<>(modelView.getSelectedIdObjects());
-
-		for (IdObject idObject : modelView.getModel().getIdObjects()) {
-			if (modelView.getSelectedIdObjects().contains(idObject.getParent())
-					&& isBoneAndSameClass(idObject, idObject.getParent())) {
-				selection.add(idObject);
-			}
-		}
-
-		CompoundAction setup = getSetupAction(selection, ModelEditorActionType3.SQUAT);
-		return new SquatToolKeyframeAction(setup, modelView.getSelectedIdObjects(), renderModel, center, axis, rotMat).doSetup();
+//		System.out.println("begin Squat!");
+//		Set<IdObject> selection = new HashSet<>(modelView.getSelectedIdObjects());
+//
+//		for (IdObject idObject : modelView.getModel().getIdObjects()) {
+//			if (modelView.getSelectedIdObjects().contains(idObject.getParent())
+//					&& isBoneAndSameClass(idObject, idObject.getParent())) {
+//				selection.add(idObject);
+//			}
+//		}
+//
+//		CompoundAction setup = getSetupAction(selection, ModelEditorActionType3.SQUAT);
+//		return new SquatToolKeyframeAction(setup, modelView.getSelectedIdObjects(), renderModel, center, axis, rotMat).doSetup();
+		return new CompoundRotateAction("Not Implemented", new ArrayList<>());
 	}
 
 	public CompoundAction getSetupAction(Set<IdObject> selection, ModelEditorActionType3 actionType) {
@@ -154,12 +155,6 @@ public class TPoseModelEditor extends ModelEditor {
 		actions.addAll(createKeyframeC(renderModel.getTimeEnvironment(), actionType, camSelection));
 
 		return new CompoundAction("setup", actions, changeListener::keyframesUpdated);
-	}
-
-	private boolean isBoneAndSameClass(IdObject idObject1, IdObject idObject2) {
-		return idObject1 instanceof Bone
-				&& idObject2 instanceof Bone
-				&& idObject1.getClass() == idObject2.getClass();
 	}
 
 	public List<UndoAction> createKeyframe(TimeEnvironmentImpl timeEnvironmentImpl, ModelEditorActionType3 actionType, Set<IdObject> selection) {
@@ -260,36 +255,6 @@ public class TPoseModelEditor extends ModelEditor {
 		return null;
 	}
 
-	public AnimFlag<Vec3> getTranslationTimeline(IdObject node, List<UndoAction> actions, GlobalSeq globalSeq) {
-		AnimFlag<Vec3> timeline = node.getTranslationFlag();
-		if (timeline == null) {
-			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION, InterpolationType.HERMITE, globalSeq);
-
-			actions.add(new AddTimelineAction<>(node, timeline));
-		}
-		return timeline;
-	}
-
-	public AnimFlag<Vec3> getScalingTimeline(IdObject node, List<UndoAction> actions, GlobalSeq globalSeq) {
-		AnimFlag<Vec3> timeline = node.getScalingFlag();
-		if (timeline == null) {
-			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_SCALING, InterpolationType.HERMITE, globalSeq);
-
-			actions.add(new AddTimelineAction<>(node, timeline));
-		}
-		return timeline;
-	}
-
-	private AnimFlag<Quat> getRotationTimeline(IdObject node, List<UndoAction> actions, GlobalSeq globalSeq) {
-		AnimFlag<Quat> timeline = node.getRotationFlag();
-		if (timeline == null) {
-			timeline = new QuatAnimFlag(MdlUtils.TOKEN_ROTATION, InterpolationType.HERMITE, globalSeq);
-
-			actions.add(new AddTimelineAction<>(node, timeline));
-		}
-		return timeline;
-	}
-
 	public UndoAction createTranslationKeyframe(CameraNode node, AnimFlag<Vec3> timeline, TimeEnvironmentImpl timeEnvironmentImpl) {
 		if(!timeline.hasEntryAt(timeEnvironmentImpl.getCurrentSequence(), timeEnvironmentImpl.getEnvTrackTime())){
 			int trackTime = timeEnvironmentImpl.getEnvTrackTime();
@@ -317,10 +282,51 @@ public class TPoseModelEditor extends ModelEditor {
 		return null;
 	}
 
+	public AnimFlag<Vec3> getTranslationTimeline(IdObject node, List<UndoAction> actions, GlobalSeq globalSeq) {
+		return getTranslationTimeline((AnimatedNode) node, actions, globalSeq);
+//		AnimFlag<Vec3> timeline = node.getTranslationFlag();
+//		if (timeline == null) {
+//			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION, InterpolationType.LINEAR, globalSeq);
+//
+//			actions.add(new AddTimelineAction<>(node, timeline));
+//		}
+//		return timeline;
+	}
+
 	public AnimFlag<Vec3> getTranslationTimeline(CameraNode node, List<UndoAction> actions, GlobalSeq globalSeq) {
+		return getTranslationTimeline((AnimatedNode) node, actions, globalSeq);
+//		AnimFlag<Vec3> timeline = node.getTranslationFlag();
+//		if (timeline == null) {
+//			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION, InterpolationType.LINEAR, globalSeq);
+//
+//			actions.add(new AddTimelineAction<>(node, timeline));
+//		}
+//		return timeline;
+	}
+	public AnimFlag<Vec3> getTranslationTimeline(AnimatedNode node, List<UndoAction> actions, GlobalSeq globalSeq) {
 		AnimFlag<Vec3> timeline = node.getTranslationFlag();
 		if (timeline == null) {
-			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION, InterpolationType.HERMITE, globalSeq);
+			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION, InterpolationType.LINEAR, globalSeq);
+
+			actions.add(new AddTimelineAction<>(node, timeline));
+		}
+		return timeline;
+	}
+
+	public AnimFlag<Vec3> getScalingTimeline(IdObject node, List<UndoAction> actions, GlobalSeq globalSeq) {
+		AnimFlag<Vec3> timeline = node.getScalingFlag();
+		if (timeline == null) {
+			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_SCALING, InterpolationType.LINEAR, globalSeq);
+
+			actions.add(new AddTimelineAction<>(node, timeline));
+		}
+		return timeline;
+	}
+
+	private AnimFlag<Quat> getRotationTimeline(IdObject node, List<UndoAction> actions, GlobalSeq globalSeq) {
+		AnimFlag<Quat> timeline = node.getRotationFlag();
+		if (timeline == null) {
+			timeline = new QuatAnimFlag(MdlUtils.TOKEN_ROTATION, InterpolationType.LINEAR, globalSeq);
 
 			actions.add(new AddTimelineAction<>(node, timeline));
 		}
@@ -331,20 +337,19 @@ public class TPoseModelEditor extends ModelEditor {
 		if (node instanceof CameraNode.TargetNode){
 			return null;
 		} else {
-
 			AnimFlag<?> timeline = node.getRotationFlag();
 			if (timeline == null) {
-				timeline = new FloatAnimFlag(MdlUtils.TOKEN_ROTATION);
+				timeline = new FloatAnimFlag(MdlUtils.TOKEN_ROTATION, InterpolationType.LINEAR, globalSeq);
 				actions.add(new AddTimelineAction<>(node, timeline));
 			}
 			return timeline;
 		}
 	}
 
-	public UndoAction shrinkFatten(float amount) {
+	public UndoAction shrinkFatten(float amount, boolean scaleApart) {
 		return null;
 	}
-	public StaticMeshShrinkFattenAction beginShrinkFatten(float amount) {
+	public StaticMeshShrinkFattenAction beginShrinkFatten(float amount, boolean scaleApart) {
 		return null;
 	}
 }

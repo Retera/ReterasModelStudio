@@ -32,6 +32,10 @@ public abstract class AbstractSelectionManager {
 		return this;
 	}
 
+	public SelectionItemTypes getSelectionMode(){
+		return selectionMode;
+	}
+
 	public Collection<GeosetVertex> getSelectedVertices() {
 		return modelView.getSelectedVertices();
 	}
@@ -97,15 +101,15 @@ public abstract class AbstractSelectionManager {
 		return false;
 	}
 
-	public abstract double getCircumscribedSphereRadius(Vec3 sphereCenter, int tvertexLayerId);
+	public abstract double getCircumscribedSphereRadius(Vec3 sphereCenter);
 
-	public abstract double getCircumscribedSphereRadius(Vec2 center, int tvertexLayerId);
+	public abstract double getCircumscribedSphereRadius(Vec2 center);
 
 	public abstract Vec3 getCenter();
 
-	public abstract Vec2 getUVCenter(int tvertexLayerId);
+	public abstract Vec2 getUVCenter();
 
-	public abstract Collection<? extends Vec2> getSelectedTVertices(int tvertexLayerId);
+	public abstract Collection<? extends Vec2> getSelectedTVertices();
 
 	public abstract boolean selectableUnderCursor(Vec2 point, Mat4 viewPortAntiRotMat, double sizeAdj);
 

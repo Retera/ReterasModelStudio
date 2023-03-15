@@ -7,7 +7,6 @@ import com.hiveworkshop.rms.editor.actions.mesh.SplitTrisAndFillGap;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
@@ -15,20 +14,12 @@ import com.hiveworkshop.rms.util.Vec3;
 public class GeometryModelEditor extends ModelEditor {
 	protected final ModelStructureChangeListener changeListener;
 	protected ModelHandler modelHandler;
-	protected SelectionItemTypes selectionMode;
 
 	public GeometryModelEditor(SelectionManager selectionManager,
-	                           ModelHandler modelHandler,
-	                           SelectionItemTypes selectionMode) {
+	                           ModelHandler modelHandler) {
 		super(selectionManager, modelHandler.getModelView());
 		this.modelHandler = modelHandler;
 		this.changeListener = ModelStructureChangeListener.changeListener;
-		this.selectionMode = selectionMode;
-	}
-
-	public GeometryModelEditor setSelectionMode(SelectionItemTypes selectionMode) {
-		this.selectionMode = selectionMode;
-		return this;
 	}
 
 	@Override
@@ -42,8 +33,8 @@ public class GeometryModelEditor extends ModelEditor {
 		return new StaticMeshScaleAction(modelView, center, rotMat, scale);
 	}
 
-	public UndoAction shrinkFatten(float amount) {
-		return new StaticMeshShrinkFattenAction(modelView, amount);
+	public UndoAction shrinkFatten(float amount, boolean scaleApart) {
+		return new StaticMeshShrinkFattenAction(modelView, amount, scaleApart);
 	}
 
     @Override
@@ -93,7 +84,7 @@ public class GeometryModelEditor extends ModelEditor {
 		return new StaticMeshScaleAction(modelView, center, rotMat);
 	}
 
-	public StaticMeshShrinkFattenAction beginShrinkFatten(float amount) {
-		return new StaticMeshShrinkFattenAction(modelView, amount);
+	public StaticMeshShrinkFattenAction beginShrinkFatten(float amount, boolean scaleApart) {
+		return new StaticMeshShrinkFattenAction(modelView, amount, scaleApart);
 	}
 }

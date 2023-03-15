@@ -25,11 +25,12 @@ public class RotateNodeChildTPoseAction extends AbstractTransformAction {
 	private final Vec3 newPivot;
 	private final Quat quat = new Quat();
 	private final Vec3 axis;
+	private double radians;
 	private final Vec3 center;
 	private final Mat4 invRotMat = new Mat4();
 	private final Mat4 rotMat = new Mat4();
 	private final List<AddTimelineAction<?>> timelineActions = new ArrayList<>();
-//	private final List<Vec3AnimFlag> newTranslations = new ArrayList<>();
+	private final List<Vec3AnimFlag> newTranslations = new ArrayList<>();
 //	private final List<Vec3AnimFlag> newScalings = new ArrayList<>();
 	private final List<QuatAnimFlag> newRotations = new ArrayList<>();
 
@@ -41,10 +42,11 @@ public class RotateNodeChildTPoseAction extends AbstractTransformAction {
 		this.rotMat.set(rotMat);
 		this.invRotMat.set(rotMat).invert();
 		this.axis = quat.getAxis();
+		this.radians = quat.getAxisAngle();
 		this.center = center;
 		this.node = node;
 		this.oldPivot = new Vec3(node.getPivotPoint());
-		this.newPivot = new Vec3(node.getPivotPoint()).rotate(center, quat);
+		this.newPivot = new Vec3(node.getPivotPoint());
 
 		collectTimelines();
 		createTimelineActions();
@@ -58,6 +60,7 @@ public class RotateNodeChildTPoseAction extends AbstractTransformAction {
 		this.rotMat.set(rotMat);
 		this.invRotMat.set(rotMat).invert();
 		this.axis = axis;
+		this.radians = radians;
 		this.center = center;
 		this.node = node;
 		this.oldPivot = new Vec3(node.getPivotPoint());
@@ -69,10 +72,10 @@ public class RotateNodeChildTPoseAction extends AbstractTransformAction {
 	}
 
 	private void collectTimelines() {
-//		AnimFlag<?> translation = node.find(MdlUtils.TOKEN_TRANSLATION);
-//		if (translation instanceof Vec3AnimFlag) {
-//			newTranslations.add((Vec3AnimFlag)translation.deepCopy());
-//		}
+		AnimFlag<?> translation = node.find(MdlUtils.TOKEN_TRANSLATION);
+		if (translation instanceof Vec3AnimFlag) {
+			newTranslations.add((Vec3AnimFlag)translation.deepCopy());
+		}
 //		AnimFlag<?> scaling = node.find(MdlUtils.TOKEN_SCALING);
 //		if (scaling instanceof Vec3AnimFlag) {
 //			newScalings.add((Vec3AnimFlag)scaling.deepCopy());
@@ -93,9 +96,9 @@ public class RotateNodeChildTPoseAction extends AbstractTransformAction {
 
 	private void createTimelineActions() {
 		if(timelineActions.isEmpty()){
-//			for (Vec3AnimFlag newTranslation : newTranslations){
-//				timelineActions.add(new AddTimelineAction<>(node, newTranslation));
-//			}
+			for (Vec3AnimFlag newTranslation : newTranslations){
+				timelineActions.add(new AddTimelineAction<>(node, newTranslation));
+			}
 //			for (Vec3AnimFlag newScaling : newScalings){
 //				timelineActions.add(new AddTimelineAction<>(node, newScaling));
 //			}
@@ -106,7 +109,15 @@ public class RotateNodeChildTPoseAction extends AbstractTransformAction {
 	}
 
 	public RotateNodeChildTPoseAction updateRotation(double radians){
+		this.radians += radians;
 		rotate(radians);
+		node.setPivotPoint(newPivot);
+		return this;
+	}
+	public RotateNodeChildTPoseAction setRotation(double radians){
+		double rotDiff = radians - this.radians;
+		this.radians = radians;
+		rotate(rotDiff);
 		node.setPivotPoint(newPivot);
 		return this;
 	}
@@ -115,22 +126,13 @@ public class RotateNodeChildTPoseAction extends AbstractTransformAction {
 		System.out.println("rotating " + node.getName() + " \t" + ((float)Math.toDegrees(radians)) + " deg around " + axis);
 		quat.setFromAxisAngle(axis, (float) -radians);
 		newPivot.rotate(center, quat);
-		updateTimelines(radians);
+		updateTimelines(quat);
 	}
 
-	private void updateTimelines(double radians) {
-		quat.setFromAxisAngle(axis, (float) -radians);
-//		for (Vec3AnimFlag newTranslation : newTranslations){
-//			rotTranslation(quat, newTranslation);
-//		}
-
-//		if (!newScalings.isEmpty()) {
-//			Vec3 tempScaleMul = new Vec3(Vec3.ONE).rotate(Vec3.ZERO, quat);
-//			Vec3 tempScaleMul2 = new Vec3(Vec3.ONE).rotate(Vec3.ZERO, quat).multiply(tempScaleMul);
-//			Vec3 tempScaleMul3 = new Vec3(0.01,0.01,0.01).rotate(Vec3.ZERO, quat);
-//			Vec3 tempScaleMul4 = new Vec3(0.01,0.01,0.01).rotate(Vec3.ZERO, quat).multiply(tempScaleMul);
-//			System.out.println("tempScaleMul: " + tempScaleMul + ", tempScaleMul2: " + tempScaleMul2 + ", tempScaleMul3: " + tempScaleMul3 + ", tempScaleMul4: " + tempScaleMul4);
-//		}
+	private void updateTimelines(Quat quat) {
+		for (Vec3AnimFlag newTranslation : newTranslations){
+			rotTranslation(quat, newTranslation);
+		}
 
 //		Vec3 tempScaleMul = new Vec3(Vec3.ONE).rotate(Vec3.ZERO, quat);
 //		for (Vec3AnimFlag newScaling : newScalings){
@@ -146,28 +148,6 @@ public class RotateNodeChildTPoseAction extends AbstractTransformAction {
 		System.out.println("rotating " + node.getName() + " " + Math.toDegrees(quat.getAxisAngle()) + "deg around " + quat.getAxis());
 		newPivot.rotate(center, quat);
 		updateTimelines(quat);
-	}
-
-	private void updateTimelines(Quat quat) {
-//		for (Vec3AnimFlag newTranslation : newTranslations){
-//			rotTranslation(quat, newTranslation);
-//		}
-
-//		if (!newScalings.isEmpty()) {
-//			Vec3 tempScaleMul = new Vec3(Vec3.ONE).rotate(Vec3.ZERO, quat);
-//			Vec3 tempScaleMul2 = new Vec3(Vec3.ONE).rotate(Vec3.ZERO, quat).multiply(tempScaleMul);
-//			Vec3 tempScaleMul3 = new Vec3(0.01,0.01,0.01).rotate(Vec3.ZERO, quat);
-//			Vec3 tempScaleMul4 = new Vec3(0.01,0.01,0.01).rotate(Vec3.ZERO, quat).multiply(tempScaleMul);
-//			System.out.println("tempScaleMul: " + tempScaleMul + ", tempScaleMul2: " + tempScaleMul2 + ", tempScaleMul3: " + tempScaleMul3 + ", tempScaleMul4: " + tempScaleMul4);
-//		}
-//		Vec3 tempScaleMul = new Vec3(Vec3.ONE).rotate(Vec3.ZERO, quat);
-//		for (Vec3AnimFlag newScaling : newScalings){
-//			rotScaling(quat, tempScaleMul, newScaling);
-//		}
-		Vec3 tempAxis = new Vec3();
-		for (QuatAnimFlag newRotation : newRotations){
-			rotRotation(quat, tempAxis, newRotation);
-		}
 	}
 
 	private void rotTranslation(Quat quat, Vec3AnimFlag newTranslation) {

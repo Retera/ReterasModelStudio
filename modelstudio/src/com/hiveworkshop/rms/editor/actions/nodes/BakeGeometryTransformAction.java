@@ -1,10 +1,10 @@
 package com.hiveworkshop.rms.editor.actions.nodes;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.editor.AbstractTransformAction;
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
@@ -12,65 +12,54 @@ import com.hiveworkshop.rms.util.Vec3;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class TranslateNodesTPoseAction extends AbstractTransformAction {
-	private final UndoAction addingTimelinesOrKeyframesAction;
+public class BakeGeometryTransformAction implements UndoAction {
 	private final ModelStructureChangeListener changeListener;
-	private final List<TranslateNodeTPoseAction> translNodeActions = new ArrayList<>();
-	private final Vec3 translation = new Vec3();
 	private final Map<GeosetVertex, Vec3[]> vertToLocNormTang = new HashMap<>();
 	private final Map<GeosetVertex, Vec3[]> vertToOldLocNormTang = new HashMap<>();
 	private final Map<IdObject, Mat4> nodeToWorldMat = new LinkedHashMap<>();
 	private final Set<IdObject> topNodes = new LinkedHashSet<>();
 
-	private final Mat4 invRotMat = new Mat4();
-	private final Mat4 rotMat = new Mat4();
+	private final Mat4 locMat = new Mat4();
+	private final Vec3 translation = new Vec3();
 
-	public TranslateNodesTPoseAction(UndoAction addingTimelinesOrKeyframesAction,
-	                                 Collection<IdObject> nodeSelection,
-//	                               Collection<CameraNode> camSelection,
-                                     RenderModel editorRenderModel,
-                                     Vec3 translation,
-                                     Mat4 rotMat,
-                                     ModelStructureChangeListener changeListener){
-		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
+
+	public BakeGeometryTransformAction(Collection<IdObject> nodeSelection,
+	                                   Collection<Geoset> geosets,
+	                                   ModelStructureChangeListener changeListener){
 		this.changeListener = changeListener;
-		this.rotMat.set(rotMat);
-		this.invRotMat.set(rotMat).invert();
-		topNodes.addAll(getTopNodes(nodeSelection));
-
-		fillTransformMap(topNodes);
-		if(!translation.equalLocs(Vec3.ZERO)) {
-			updateTransformMap(translation, Quat.IDENTITY);
-		}
-
-		fillVertexMaps(editorRenderModel.getModel().getGeosets());
-		calcVertexLocs();
-		for (IdObject node2 : nodeSelection) {
-			translNodeActions.add(new TranslateNodeTPoseAction(node2, translation, rotMat, null));
-		}
-	}
-
-	public TranslateNodesTPoseAction(UndoAction addingTimelinesOrKeyframesAction,
-	                                 Collection<IdObject> nodeSelection,
-	                                 Collection<CameraNode> camSelection,
-	                                 RenderModel editorRenderModel,
-	                                 Vec3 translation,
-	                                 Mat4 rotMat){
-		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
-		this.changeListener = null;
-		this.rotMat.set(rotMat);
-		this.invRotMat.set(rotMat).invert();
 		topNodes.addAll(getTopNodes(nodeSelection));
 		fillTransformMap(topNodes);
-		if(!translation.equalLocs(Vec3.ZERO)) {
-			updateTransformMap(translation, Quat.IDENTITY);
-		}
-		fillVertexMaps(editorRenderModel.getModel().getGeosets());
-		calcVertexLocs();
-		for (IdObject node2 : nodeSelection) {
-			translNodeActions.add(new TranslateNodeTPoseAction(node2, translation, rotMat, null));
-		}
+		fillVertexMaps(geosets);
 	}
+
+	public BakeGeometryTransformAction(Collection<IdObject> nodeSelection,
+	                                   Collection<Geoset> geosets,
+	                                   Sequence sequence, int time,
+	                                   ModelStructureChangeListener changeListener){
+		this(nodeSelection, geosets, changeListener);
+
+		List<IdObject> sortedNodes = collectSortedNodes(topNodes);
+		Quat quat = new Quat();
+		Vec3 trans = new Vec3();
+		for (IdObject idObject : sortedNodes){
+			AnimFlag<Quat> rotAnimFlag = idObject.getRotationFlag();
+			if(rotAnimFlag != null){
+				quat.set(rotAnimFlag.interpolateAt(sequence, time));
+			} else {
+				quat.setIdentity();
+			}
+			AnimFlag<Vec3> translAnimFlag = idObject.getTranslationFlag();
+			if(translAnimFlag != null){
+				trans.set(translAnimFlag.interpolateAt(sequence, time));
+			} else {
+				trans.set(Vec3.ZERO);
+			}
+
+			updateTransformMapNode(trans, quat, idObject);
+		}
+		calcVertexLocs();
+	}
+
 
 	private List<IdObject> getTopNodes(Collection<IdObject> selection) {
 		return selection.stream()
@@ -80,7 +69,7 @@ public class TranslateNodesTPoseAction extends AbstractTransformAction {
 
 	private void fillTransformMap(Collection<IdObject> topNodes){
 		for(IdObject node : topNodes){
-//			System.out.println("topNode: " + node.getName());
+			System.out.println("topNode: " + node.getName());
 			fillTransformMap(node);
 		}
 	}
@@ -94,6 +83,7 @@ public class TranslateNodesTPoseAction extends AbstractTransformAction {
 
 	private void fillVertexMaps(Collection<Geoset> geosets) {
 		for (Geoset geoset : geosets) {
+
 			for (GeosetVertex vertex : geoset.getVertices()){
 				for (Bone bone : vertex.getAllBones()){
 					if(nodeToWorldMat.containsKey(bone)){
@@ -109,38 +99,47 @@ public class TranslateNodesTPoseAction extends AbstractTransformAction {
 			}
 		}
 	}
-	public TranslateNodesTPoseAction doSetup() {
-		if(addingTimelinesOrKeyframesAction != null){
-			addingTimelinesOrKeyframesAction.redo();
+
+	private List<IdObject> collectSortedNodes(Collection<IdObject> topNodes){
+		List<IdObject> sorted = new ArrayList<>();
+		for (IdObject node : topNodes){
+			collectSortedChildNodes(node, sorted);
 		}
-		calcAndApplyVertexLocs();
-		for(TranslateNodeTPoseAction action : translNodeActions){
-			action.doSetup();
+		return sorted;
+	}
+	private void collectSortedChildNodes(IdObject node, List<IdObject> sorted){
+		sorted.add(node);
+		for (IdObject child : node.getChildrenNodes()){
+			collectSortedChildNodes(child, sorted);
 		}
-		return this;
 	}
 
-	public TranslateNodesTPoseAction updateTranslation(Vec3 delta){
-		updateTransformMap(delta, Quat.IDENTITY);
+
+	public BakeGeometryTransformAction updateTransform(Vec3 delta, Quat quat, IdObject node){
+		updateTransformMapNode(delta, quat, node);
 		calcAndApplyVertexLocs();
-		for(TranslateNodeTPoseAction action : translNodeActions){
-			action.updateTranslation(delta);
+		return this;
+	}
+	public BakeGeometryTransformAction updateTransform(Vec3 delta, Quat quat, Collection<IdObject> nodes){
+		for(IdObject node : nodes) {
+			updateTransformMapNode(delta, quat, node);
+		}
+		calcAndApplyVertexLocs();
+		return this;
+	}
+	public BakeGeometryTransformAction updateTransformQuick(Vec3 delta, Quat quat, IdObject node){
+		updateTransformMapNode(delta, quat, node);
+		return this;
+	}
+	public BakeGeometryTransformAction updateTransformQuick(Vec3 delta, Quat quat, Collection<IdObject> nodes){
+		for(IdObject node : nodes) {
+			updateTransformMapNode(delta, quat, node);
 		}
 		return this;
 	}
-//	public TranslateNodesTPoseAction setTranslation(Vec3 delta) {
-//		double rotDiff = radians - this.radians;
-//		this.radians = radians;
-//		updateTransformMap(-rotDiff);
-//		calcAndApplyVertexLocs();
-//		for(TranslateNodeTPoseAction action : translNodeActions){
-//			action.updateRotation(rotDiff);
-//		}
-//		return this;
-//	}
 
 	@Override
-	public TranslateNodesTPoseAction undo() {
+	public BakeGeometryTransformAction undo() {
 		for (GeosetVertex vertex : vertToOldLocNormTang.keySet()){
 			Vec3[] vec3s = vertToOldLocNormTang.get(vertex);
 			vertex.set(vec3s[0]);
@@ -149,12 +148,6 @@ public class TranslateNodesTPoseAction extends AbstractTransformAction {
 				vertex.getTangent().set(vec3s[2]);
 			}
 		}
-		for(TranslateNodeTPoseAction action : translNodeActions){
-			action.undo();
-		}
-		if(addingTimelinesOrKeyframesAction != null){
-			addingTimelinesOrKeyframesAction.undo();
-		}
 		if(changeListener != null){
 			changeListener.nodesUpdated();
 		}
@@ -162,13 +155,7 @@ public class TranslateNodesTPoseAction extends AbstractTransformAction {
 	}
 
 	@Override
-	public TranslateNodesTPoseAction redo() {
-		if(addingTimelinesOrKeyframesAction != null){
-			addingTimelinesOrKeyframesAction.redo();
-		}
-		for(TranslateNodeTPoseAction action : translNodeActions){
-			action.redo();
-		}
+	public BakeGeometryTransformAction redo() {
 
 		for (GeosetVertex vertex : vertToLocNormTang.keySet()){
 			Vec3[] vec3s = vertToLocNormTang.get(vertex);
@@ -186,21 +173,16 @@ public class TranslateNodesTPoseAction extends AbstractTransformAction {
 
 	@Override
 	public String actionName() {
-		return "Rotate " + "node.getName()";
+		return "Bake Geometry Transform";
+	}
+	private void updateTransformMapNode(Vec3 delta, Quat quat, IdObject node) {
+//		this.translation.set(setTranslationHeap(node, delta));
+		updateTransform(node, setTranslationHeap(node, delta), quat);
 	}
 
-
-
-	Mat4 locMat = new Mat4();
-	private void updateTransformMap(Vec3 transl, Quat rot){
-		for(IdObject node : topNodes){
-			this.translation.set(setTranslationHeap(node, transl));
-			updateTransform(node, translation, rot);
-		}
-	}
-	private void updateTransform(IdObject node, Vec3 delta, Quat rot){
+	private void updateTransform(IdObject node, Vec3 transl, Quat rot){
 		Mat4 parentMat = nodeToWorldMat.getOrDefault(node.getParent(), Mat4.IDENTITY);
-		locMat.fromRotationTranslationScaleOrigin(rot, delta, Vec3.ONE, node.getPivotPoint());
+		locMat.fromRotationTranslationScaleOrigin(rot, transl, Vec3.ONE, node.getPivotPoint());
 		nodeToWorldMat.get(node).set(parentMat).mul(locMat);
 		for(IdObject child : node.getChildrenNodes()){
 			updateTransform(child, Vec3.ZERO, Quat.IDENTITY);
@@ -210,29 +192,30 @@ public class TranslateNodesTPoseAction extends AbstractTransformAction {
 	private void calcVertexLocs() {
 		for (GeosetVertex vertex : vertToLocNormTang.keySet()){
 			Vec3[] locNormTan = vertToLocNormTang.get(vertex);
-			Vec3[] ogrLocNormTan = vertToOldLocNormTang.get(vertex);
-			update(getTransform(vertex), ogrLocNormTan, locNormTan);
-//			update(getTransform(vertex), locNormTan);
+//			Vec3[] ogrLocNormTan = vertToOldLocNormTang.get(vertex);
+//			update(getTransform(vertex), ogrLocNormTan, locNormTan);
+			update(getTransform(vertex), locNormTan);
 		}
 	}
 	private void calcAndApplyVertexLocs() {
 		for (GeosetVertex vertex : vertToLocNormTang.keySet()){
 			Vec3[] locNormTan = vertToLocNormTang.get(vertex);
-			Vec3[] ogrLocNormTan = vertToOldLocNormTang.get(vertex);
-			update(getTransform(vertex), ogrLocNormTan, locNormTan);
-//			update(getTransform(vertex), locNormTan);
+//			Vec3[] ogrLocNormTan = vertToOldLocNormTang.get(vertex);
+//			update(getTransform(vertex), ogrLocNormTan, locNormTan);
+			update(getTransform(vertex), locNormTan);
 
 			applyVertTransform(vertex, locNormTan);
 		}
 	}
 
-	private void applyVertTransform(GeosetVertex vertex, Vec3[] locNormTan) {
-		vertex.set(locNormTan[0]);
-		vertex.setNormal(locNormTan[1]);
+	private void applyVertTransform(GeosetVertex vertex, Vec3[] locNormTang) {
+		vertex.set(locNormTang[0]);
+		vertex.setNormal(locNormTang[1]);
 		if(vertex.getTangent() != null){
-			vertex.getTangent().set(locNormTan[2]);
+			vertex.getTangent().set(locNormTang[2]);
 		}
 	}
+
 	private void update(Mat4 mat4, Vec3[] orgLocNormTan, Vec3[] locNormTan) {
 		locNormTan[0].set(orgLocNormTan[0]);
 		locNormTan[1].set(orgLocNormTan[1]);
@@ -292,15 +275,17 @@ public class TranslateNodesTPoseAction extends AbstractTransformAction {
 	}
 
 
-	Vec3 tempVec = new Vec3();
-
+//	private final Mat4 invRotMat = new Mat4();
+//	private final Mat4 rotMat = new Mat4();
 	private Vec3 setTranslationHeap(IdObject idObject, Vec3 newDelta) {
-		tempVec.set(idObject.getPivotPoint())
-				.transform(rotMat, 1, true)
-				.add(newDelta)
-				.transform(invRotMat, 1, true)
-				.sub(idObject.getPivotPoint());
+		translation.set(newDelta);
+//		translation.set(idObject.getPivotPoint())
+//				.transform(rotMat, 1, true)
+//				.add(newDelta)
+//				.transform(invRotMat, 1, true)
+//				.sub(idObject.getPivotPoint());
 
-		return tempVec;
+		return translation;
 	}
+
 }

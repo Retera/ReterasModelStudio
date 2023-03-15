@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.actions.editor.StaticMeshShrinkFattenAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatEditorJSpinner;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.util.uiFactories.CheckBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -15,6 +16,7 @@ public class ShrinkFattenPanel extends JPanel {
 	private final FloatEditorJSpinner shrinkFattenSpinner;
 	private float lastValue = 0;
 	private ModelHandler modelHandler;
+	private boolean keepSharp;
 
 	public ShrinkFattenPanel(){
 		super(new MigLayout("gap 0"));
@@ -28,6 +30,7 @@ public class ShrinkFattenPanel extends JPanel {
 		JButton button = new JButton("Shrink/Fatten");
 		button.addActionListener(e -> onShrinkFatten(shrinkFattenSpinner.getFloatValue()));
 		add(button, "wrap");
+		add(CheckBox.create("Keep sharp edges together", b -> keepSharp = b), "spanx,wrap");
 	}
 
 	public ShrinkFattenPanel setModel(ModelHandler modelHandler) {
@@ -50,7 +53,7 @@ public class ShrinkFattenPanel extends JPanel {
 				float newValue = getValue(slider.getValue());
 				float value = newValue - lastValue;
 				if(shrinkFattenAction == null) {
-					shrinkFattenAction = new StaticMeshShrinkFattenAction(modelHandler.getModelView().getSelectedVertices(), value);
+					shrinkFattenAction = new StaticMeshShrinkFattenAction(modelHandler.getModelView().getSelectedVertices(), value, !keepSharp);
 				} else {
 					shrinkFattenAction.updateAmount(value);
 				}
@@ -68,7 +71,7 @@ public class ShrinkFattenPanel extends JPanel {
 	private void onShrinkFatten(float amount){
 		if(modelHandler != null && !modelHandler.getModelView().isEmpty()){
 			Set<GeosetVertex> vertices = modelHandler.getModelView().getSelectedVertices();
-			StaticMeshShrinkFattenAction shrinkFattenAction = new StaticMeshShrinkFattenAction(vertices, amount);
+			StaticMeshShrinkFattenAction shrinkFattenAction = new StaticMeshShrinkFattenAction(vertices, amount, !keepSharp);
 			modelHandler.getUndoManager().pushAction(shrinkFattenAction.redo());
 		}
 	}

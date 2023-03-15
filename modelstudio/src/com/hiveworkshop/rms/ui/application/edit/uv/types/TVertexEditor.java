@@ -72,8 +72,7 @@ public class TVertexEditor extends ModelEditor {
 	}
 
 	public AbstractTransformAction beginScaling(Vec3 center, Mat4 rotMat) {
-		return new StaticMeshUVScaleAction(modelView.getSelectedVertices(), uvLayerIndex,
-				center, Vec3.ONE, rotMat);
+		return new StaticMeshUVScaleAction(modelView.getSelectedVertices(), uvLayerIndex, center, Vec3.ONE, rotMat);
 	}
 
 	@Override
@@ -121,10 +120,10 @@ public class TVertexEditor extends ModelEditor {
 		return false;
 	}
 
-	public UndoAction shrinkFatten(float amount) {
+	public UndoAction shrinkFatten(float amount, boolean scaleApart) {
 		return null;
 	}
-	public StaticMeshShrinkFattenAction beginShrinkFatten(float amount) {
+	public StaticMeshShrinkFattenAction beginShrinkFatten(float amount, boolean scaleApart) {
 		return null;
 	}
 }

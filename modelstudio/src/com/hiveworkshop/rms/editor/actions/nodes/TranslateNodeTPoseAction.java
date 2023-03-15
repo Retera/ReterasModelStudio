@@ -89,7 +89,7 @@ public class TranslateNodeTPoseAction extends AbstractTransformAction {
 
 
 	public TranslateNodeTPoseAction updateTranslation(Vec3 delta){
-		System.out.println("moving: " + delta);
+//		System.out.println("moving: " + delta);
 		move(setTranslationHeap(node, delta));
 		node.setPivotPoint(newPivot);
 		for (IdObject idObject : childToNewLoc.keySet()){
@@ -100,7 +100,7 @@ public class TranslateNodeTPoseAction extends AbstractTransformAction {
 
 	Vec3 tempDelta = new Vec3();
 	private void move(Vec3 delta) {
-		System.out.println("moving " + node.getName() + " " + delta);
+//		System.out.println("moving " + node.getName() + " " + delta);
 		newPivot.add(delta);
 		for (Vec3 loc : childToNewLoc.values()){
 			loc.add(delta);
