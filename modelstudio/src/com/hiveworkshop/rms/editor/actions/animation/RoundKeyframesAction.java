@@ -26,16 +26,16 @@ public class RoundKeyframesAction implements UndoAction {
 		for (AnimFlag<?> animFlag : animFlags) {
 			switch (animFlag.getName()){
 				case MdlUtils.TOKEN_TRANSLATION -> {
-					if (0 <= transClamp || transMagnitude != null) actions.add(new RoundFlagValuesAction<>(animFlag, transMagnitude, transClamp, null));
+					if (transClamp != null || transMagnitude != null) actions.add(new RoundFlagValuesAction<>(animFlag, transMagnitude, transClamp, null));
 				}
 				case MdlUtils.TOKEN_SCALING -> {
-					if (0 <= scaleClamp || scaleMagnitude != null) actions.add(new RoundFlagValuesAction<>(animFlag, scaleMagnitude, scaleClamp, null));
+					if (scaleClamp != null || scaleMagnitude != null) actions.add(new RoundFlagValuesAction<>(animFlag, scaleMagnitude, scaleClamp, null));
 				}
 				case MdlUtils.TOKEN_ROTATION -> {
-					if (0 <= rotClamp || rotMagnitude != null) actions.add(new RoundFlagValuesAction<>(animFlag, rotMagnitude, rotClamp, null));
+					if (rotClamp != null || rotMagnitude != null) actions.add(new RoundFlagValuesAction<>(animFlag, rotMagnitude, rotClamp, null));
 				}
 				default -> {
-					if (0 <= otherClamp || otherMagnitude != null) actions.add(new RoundFlagValuesAction<>(animFlag, otherMagnitude, otherClamp, null));
+					if (otherClamp != null || otherMagnitude != null) actions.add(new RoundFlagValuesAction<>(animFlag, otherMagnitude, otherClamp, null));
 				}
 			}
 		}

@@ -10,11 +10,10 @@ import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
-import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
+import com.hiveworkshop.rms.ui.application.tools.RemoveUnusedPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.language.TextKey;
-import com.hiveworkshop.rms.util.Pair;
-import net.miginfocom.swing.MigLayout;
+import com.hiveworkshop.rms.ui.util.TwiPopup;
 
 import javax.swing.*;
 import java.util.*;
@@ -25,27 +24,32 @@ public class RemoveUnusedBones extends ActionFunction {
 	}
 
 	public static void doRemove(ModelHandler modelHandler){
-		EditableModel model = modelHandler.getModel();
-		Set<Bone> usedBones = new HashSet<>();
-		model.getGeosets().forEach(geoset -> usedBones.addAll(geoset.getBoneMap().keySet()));
-		List<Sequence> allSequences = model.getAllSequences();
-		List<Animation> anims = model.getAnims();
 
-		Pair<Map<Class<? extends IdObject>, Boolean>, String> weedOptions = askTypes();
+		RemoveUnusedPanel removeUnusedPanel = new RemoveUnusedPanel();
+		int remove_unused_nodes = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), removeUnusedPanel, "Remove Unused Nodes", JOptionPane.OK_CANCEL_OPTION);
 
-		if (weedOptions != null) {
-			Map<Class<? extends IdObject>, Boolean> doWeedMap = weedOptions.getFirst();
-			String preserve = weedOptions.getSecond();
+		if (remove_unused_nodes == JOptionPane.OK_OPTION) {
+			EditableModel model = modelHandler.getModel();
+			Set<Bone> usedBones = new HashSet<>();
+			model.getGeosets().forEach(geoset -> usedBones.addAll(geoset.getBoneMap().keySet()));
+			List<Sequence> allSequences = model.getAllSequences();
+			List<Animation> anims = model.getAnims();
 
-			List<IdObject> sortedIdObjects = getSortedIdObjects(model);
-			Collections.reverse(sortedIdObjects);
+			Map<Class<? extends IdObject>, Boolean> doWeedMap = removeUnusedPanel.getDoMap();
+			String preserve = removeUnusedPanel.getBindJntName();
 
-			Set<IdObject> unusedObjects = getUnusedObjects(usedBones, allSequences, anims, doWeedMap, preserve, sortedIdObjects);
+			List<IdObject> sortedIdObjects = getSortedNodes(model.getIdObjects(), false);
+
+
+			Set<IdObject> unusedObjects = getUnusedObjects(usedBones, allSequences, anims, doWeedMap, preserve, removeUnusedPanel.keepParents(), sortedIdObjects);
 
 			System.out.println("bonesToRemove: " + unusedObjects.size());
 
 			if (!unusedObjects.isEmpty()) {
+				TwiPopup.quickDismissPopup(ProgramGlobals.getMainPanel(), unusedObjects.size() + " unused nodes removed", "Removed Unused Nodes");
 				modelHandler.getUndoManager().pushAction(new DeleteNodesAction(unusedObjects, ModelStructureChangeListener.changeListener, model).redo());
+			} else {
+				TwiPopup.quickDismissPopup(ProgramGlobals.getMainPanel(), "Found no unused nodes", "No Nodes Removed");
 			}
 		}
 	}
@@ -54,7 +58,7 @@ public class RemoveUnusedBones extends ActionFunction {
 	                                              List<Sequence> allSequences,
 	                                              List<Animation> anims,
 	                                              Map<Class<? extends IdObject>, Boolean> doWeedMap,
-	                                              String preserve,
+	                                              String preserve, boolean keepParents,
 	                                              List<IdObject> sortedIdObjects) {
 		Set<IdObject> unusedObjects = new HashSet<>();
 		Set<IdObject> bindJnts = new LinkedHashSet<>();
@@ -62,9 +66,8 @@ public class RemoveUnusedBones extends ActionFunction {
 			if (preserve != null && idObject.getName().toLowerCase().contains(preserve)) {
 				bindJnts.add(idObject);
 			}
-			if (doWeedMap.containsKey(idObject.getClass())
-					&& doWeedMap.get(idObject.getClass())
-					&& unusedObjects.containsAll(idObject.getChildrenNodes())) {
+			if (doWeedMap.getOrDefault(idObject.getClass(), false)
+					&& (unusedObjects.containsAll(idObject.getChildrenNodes()) || !keepParents && idObject.getAnimFlags().isEmpty())) {
 				// CollisionShapes and Attachments should not be weeded since
 				// there's no reliable way to check if they're unused
 				if (idObject instanceof Bone && !usedBones.contains(idObject)) {
@@ -116,39 +119,6 @@ public class RemoveUnusedBones extends ActionFunction {
 			unusedObjects.removeAll(faceBones);
 		}
 		return unusedObjects;
-	}
-
-	private static Pair<Map<Class<? extends IdObject>, Boolean>, String> askTypes(){
-		JPanel panel = new JPanel(new MigLayout());
-		panel.add(new JLabel("Choose types to weed"), "wrap");
-
-		Map<Class<? extends IdObject>, Boolean> doMap = new LinkedHashMap<>();
-		doMap.put(Bone.class, true);
-		doMap.put(Light.class, true);
-		doMap.put(Helper.class, true);
-		doMap.put(ParticleEmitter.class, true);
-		doMap.put(ParticleEmitter2.class, true);
-		doMap.put(ParticleEmitterPopcorn.class, true);
-		doMap.put(RibbonEmitter.class, true);
-		doMap.put(EventObject.class, true);
-		for (Class<? extends IdObject> ugg : doMap.keySet()) {
-			JCheckBox comp = new JCheckBox(ugg.getSimpleName(), doMap.get(ugg));
-			comp.addActionListener(e -> doMap.put(ugg, comp.isSelected()));
-			panel.add(comp, "wrap");
-		}
-
-		JCheckBox preserve = new JCheckBox("Preserve", true);
-		preserve.setToolTipText("Don't remove this node or it's children even if unused. Use this to ensure nodes used by FaceFX is kept.");
-		panel.add(preserve, "split");
-		String[] bindJntName = {"hd_anim_bind_jnt"};
-		panel.add(new TwiTextField(bindJntName[0], 12, s -> bindJntName[0] = s));
-
-		int remove_unused_nodes = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), panel, "Remove Unused Nodes", JOptionPane.OK_CANCEL_OPTION);
-		if (remove_unused_nodes == JOptionPane.OK_OPTION) {
-			return new Pair<>(doMap, preserve.isSelected() ? bindJntName[0] : null);
-		} else {
-			return null;
-		}
 	}
 
 	private static void collectChilds(IdObject idObject, Set<IdObject> childs){
@@ -221,4 +191,39 @@ public class RemoveUnusedBones extends ActionFunction {
 		}
 		return sortedIdObjects;
 	}
+
+	private static List<IdObject> getSortedNodes(List<IdObject> allIdObjects, boolean decending){
+		TreeMap<Integer, Set<IdObject>> sortedNodeMap = new TreeMap<>();
+		Set<IdObject> roots = new LinkedHashSet<>();
+		sortedNodeMap.put(0, roots);
+
+		allIdObjects.stream().filter(idObject -> idObject.getParent() == null).forEach(roots::add);
+		for (IdObject node : roots){
+			collectDepthSortedNodes(sortedNodeMap, node, 1);
+		}
+
+		List<IdObject> sortedNodes = new ArrayList<>();
+
+		if (decending) {
+			for (int i = sortedNodeMap.firstKey(); i <= sortedNodeMap.lastKey(); i++) {
+				sortedNodes.addAll(sortedNodeMap.get(i));
+			}
+		} else {
+			for (int i = sortedNodeMap.lastKey(); sortedNodeMap.firstKey() <= i; i--) {
+				sortedNodes.addAll(sortedNodeMap.get(i));
+			}
+		}
+
+		return sortedNodes;
+	}
+
+	private static void collectDepthSortedNodes(Map<Integer, Set<IdObject>> sortedObj, IdObject node, int depth) {
+		sortedObj.computeIfAbsent(depth, k -> new LinkedHashSet<>()).addAll(node.getChildrenNodes());
+		for (IdObject child : node.getChildrenNodes()){
+			collectDepthSortedNodes(sortedObj, child, depth+1);
+		}
+	}
+
+
+
 }

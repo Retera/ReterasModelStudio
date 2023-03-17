@@ -115,7 +115,9 @@ public class RotateNodeTPoseAction extends AbstractTransformAction {
 		quat.setFromAxisAngle(axis, (float) radians);
 		newPivot.rotate(center, quat);
 		quat.setFromAxisAngle(axis, (float) -radians);
-		rotRotations(quat, newRotation);
+		if(newRotation != null){
+			rotRotations(quat, newRotation);
+		}
 	}
 
 	private void rotTranslations(Quat quat, Vec3AnimFlag newTranslation) {

@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.util.TwiPopup;
 import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.SmartButtonGroup;
 import com.hiveworkshop.rms.util.TwiTextArea;
@@ -209,11 +210,10 @@ public class RenameNodesPanel extends JPanel {
 				if (!actions.isEmpty()){
 					modelHandler.getUndoManager().pushAction(new CompoundAction("Rename " + countRenamedNodes + " Nodes", actions, ModelStructureChangeListener.changeListener::nodesUpdated).redo());
 				}
-				JOptionPane.showMessageDialog(this, "Renamed " + countRenamedNodes + " nodes!", "Renamed Nodes", JOptionPane.INFORMATION_MESSAGE);
+				TwiPopup.quickDismissPopup(this, "Renamed " + countRenamedNodes + " nodes!", "Renamed Nodes");
 			} else {
 				String message = onlySelected ? "No nodes selected" : "No nodes found";
-				JOptionPane.showMessageDialog(this, message,
-						"Found no nodes", JOptionPane.INFORMATION_MESSAGE);
+				TwiPopup.quickDismissPopup(this, message, "Found no nodes");
 			}
 		}
 

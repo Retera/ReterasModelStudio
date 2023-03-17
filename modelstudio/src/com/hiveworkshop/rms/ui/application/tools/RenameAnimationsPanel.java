@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.util.TwiPopup;
 import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.TwiTextArea;
 import net.miginfocom.swing.MigLayout;
@@ -160,7 +161,7 @@ public class RenameAnimationsPanel extends JPanel {
 			if (!actions.isEmpty()){
 				modelHandler.getUndoManager().pushAction(new CompoundAction("Rename " + countRenamedAnims + " Animation(s)", actions, ModelStructureChangeListener.changeListener::animationParamsChanged).redo());
 			}
-			JOptionPane.showMessageDialog(this, "Renamed " + countRenamedAnims + " animations!", "Renamed Animations", JOptionPane.INFORMATION_MESSAGE);
+			TwiPopup.quickDismissPopup(this, "Renamed " + countRenamedAnims + " animations!", "Renamed Animations");
 
 		}
 

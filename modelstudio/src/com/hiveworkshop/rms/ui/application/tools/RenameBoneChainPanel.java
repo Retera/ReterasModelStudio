@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.util.TwiPopup;
 import com.hiveworkshop.rms.util.FramePopup;
 import net.miginfocom.swing.MigLayout;
 
@@ -72,11 +73,11 @@ public class RenameBoneChainPanel extends JPanel {
 				}
 
 				modelHandler.getUndoManager().pushAction(new CompoundAction("Rename Bone Chain", actions, ModelStructureChangeListener.changeListener::nodesUpdated).redo());
-				JOptionPane.showMessageDialog(this, "Renamed " + countRenamedBones + " bones/helpers!", "Renamed Bones", JOptionPane.INFORMATION_MESSAGE);
+				TwiPopup.quickDismissPopup(this, "Renamed " + countRenamedBones + " bones/helpers!", "Renamed Bones");
 			} else {
-				JOptionPane.showMessageDialog(this, "Selection not valid." +
+				TwiPopup.quickDismissPopup(this, "Selection not valid." +
 								"\nSelect one bone or helper to use this feature",
-						"Invalid selection", JOptionPane.INFORMATION_MESSAGE);
+						"Invalid selection");
 			}
 		}
 

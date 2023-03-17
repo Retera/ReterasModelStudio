@@ -8,28 +8,28 @@ public class CheckBox {
 	public static JCheckBox create(String text){
 		return new JCheckBox(text);
 	}
-	public static JCheckBox create(String text, boolean enabled){
-		return new JCheckBox(text, enabled);
+	public static JCheckBox create(String text, boolean selected){
+		return new JCheckBox(text, selected);
 	}
 	public static JCheckBox create(String text, Icon icon){
 		return new JCheckBox(text, icon);
 	}
-	public static JCheckBox create(String text, Icon icon, boolean enabled){
-		return new JCheckBox(text, icon, enabled);
+	public static JCheckBox create(String text, Icon icon, boolean selected){
+		return new JCheckBox(text, icon, selected);
 	}
 	public static JCheckBox create(Icon icon){
 		return new JCheckBox(icon);
 	}
-	public static JCheckBox create(Icon icon, boolean enabled){
-		return new JCheckBox(icon, enabled);
+	public static JCheckBox create(Icon icon, boolean selected){
+		return new JCheckBox(icon, selected);
 	}
 	public static JCheckBox create(String text, Consumer<Boolean> consumer){
 		JCheckBox checkBox = new JCheckBox(text);
 		if (consumer != null) checkBox.addActionListener(e -> consumer.accept(checkBox.isSelected()));
 		return checkBox;
 	}
-	public static JCheckBox create(String text, boolean enabled, Consumer<Boolean> consumer){
-		JCheckBox checkBox = new JCheckBox(text, enabled);
+	public static JCheckBox create(String text, boolean selected, Consumer<Boolean> consumer){
+		JCheckBox checkBox = new JCheckBox(text, selected);
 		if (consumer != null) checkBox.addActionListener(e -> consumer.accept(checkBox.isSelected()));
 		return checkBox;
 	}
@@ -38,8 +38,8 @@ public class CheckBox {
 		if (consumer != null) checkBox.addActionListener(e -> consumer.accept(checkBox.isSelected()));
 		return checkBox;
 	}
-	public static JCheckBox create(Icon icon, boolean enabled, Consumer<Boolean> consumer){
-		JCheckBox checkBox = new JCheckBox(icon, enabled);
+	public static JCheckBox create(Icon icon, boolean selected, Consumer<Boolean> consumer){
+		JCheckBox checkBox = new JCheckBox(icon, selected);
 		if (consumer != null) checkBox.addActionListener(e -> consumer.accept(checkBox.isSelected()));
 		return checkBox;
 	}
@@ -48,8 +48,19 @@ public class CheckBox {
 		if (consumer != null) checkBox.addActionListener(e -> consumer.accept(checkBox.isSelected()));
 		return checkBox;
 	}
-	public static JCheckBox create(String text, Icon icon, boolean enabled, Consumer<Boolean> consumer){
-		JCheckBox checkBox = new JCheckBox(text, icon);
+	public static JCheckBox create(String text, Icon icon, boolean selected, Consumer<Boolean> consumer){
+		JCheckBox checkBox = new JCheckBox(text, icon, selected);
+		if (consumer != null) checkBox.addActionListener(e -> consumer.accept(checkBox.isSelected()));
+		return checkBox;
+	}
+	public static JCheckBox create(String text, Icon icon, boolean selected, Consumer<Boolean> consumer, String tooltip){
+		JCheckBox checkBox = new JCheckBox(text, icon, selected);
+		checkBox.setToolTipText(tooltip);
+		if (consumer != null) checkBox.addActionListener(e -> consumer.accept(checkBox.isSelected()));
+		return checkBox;
+	}
+	public static JCheckBox create(String text, Icon icon, boolean selected, Consumer<Boolean> consumer, boolean enabled){
+		JCheckBox checkBox = new JCheckBox(text, icon, selected);
 		if (consumer != null) checkBox.addActionListener(e -> consumer.accept(checkBox.isSelected()));
 		checkBox.setEnabled(enabled);
 		return checkBox;
@@ -60,8 +71,8 @@ public class CheckBox {
 		checkBox.addActionListener(actionListener);
 		return checkBox;
 	}
-	public static JCheckBox createAL(String text, boolean enabled, ActionListener actionListener){
-		JCheckBox checkBox = new JCheckBox(text, enabled);
+	public static JCheckBox createAL(String text, boolean selected, ActionListener actionListener){
+		JCheckBox checkBox = new JCheckBox(text, selected);
 		checkBox.addActionListener(actionListener);
 		return checkBox;
 	}
@@ -70,8 +81,8 @@ public class CheckBox {
 		checkBox.addActionListener(actionListener);
 		return checkBox;
 	}
-	public static JCheckBox createAL(Icon icon, boolean enabled, ActionListener actionListener){
-		JCheckBox checkBox = new JCheckBox(icon, enabled);
+	public static JCheckBox createAL(Icon icon, boolean selected, ActionListener actionListener){
+		JCheckBox checkBox = new JCheckBox(icon, selected);
 		checkBox.addActionListener(actionListener);
 		return checkBox;
 	}
@@ -80,10 +91,13 @@ public class CheckBox {
 		checkBox.addActionListener(actionListener);
 		return checkBox;
 	}
-	public static JCheckBox createAL(String text, Icon icon, boolean enabled, ActionListener actionListener){
-		JCheckBox checkBox = new JCheckBox(text, icon);
+	public static JCheckBox createAL(String text, Icon icon, boolean selected, ActionListener actionListener){
+		JCheckBox checkBox = new JCheckBox(text, icon, selected);
 		checkBox.addActionListener(actionListener);
-		checkBox.setEnabled(enabled);
+		return checkBox;
+	}
+	public static JCheckBox setTooltip(JCheckBox checkBox, String text){
+		checkBox.setToolTipText(text);
 		return checkBox;
 	}
 }

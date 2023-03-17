@@ -15,6 +15,7 @@ public class DeleteNodesAction implements UndoAction {
 
 	private CompoundAction meshLinkDelete;
 
+	private final Map<IdObject, IdObject> baseParentMap = new HashMap<>();
 	private final Map<IdObject, IdObject> topParentMap = new HashMap<>();
 	private final Map<IdObject, Set<IdObject>> childMap = new HashMap<>();
 
@@ -31,9 +32,25 @@ public class DeleteNodesAction implements UndoAction {
 
 		this.model = model;
 
-		for (IdObject idObject : selectedObjects) {
-			topParentMap.put(idObject, topParent(idObject));
-			childMap.put(idObject, new HashSet<>(idObject.getChildrenNodes()));
+		Set<IdObject> topNodes = new LinkedHashSet<>();
+
+		for (IdObject nodeToRemove : selectedObjects) {
+			if(nodeToRemove.getParent() != null && !this.selectedObjects.contains(nodeToRemove.getParent())) {
+				baseParentMap.put(nodeToRemove, nodeToRemove.getParent());
+			}
+			if (!this.selectedObjects.containsAll(nodeToRemove.getChildrenNodes())) {
+				topNodes.add(nodeToRemove);
+			}
+		}
+
+		for (IdObject topNode : topNodes) {
+			topParentMap.put(topNode, topParentNotRemoved(topNode));
+			for (IdObject child : topNode.getChildrenNodes()) {
+				if(!this.selectedObjects.contains(child)) {
+					childMap.computeIfAbsent(topNode, k -> new LinkedHashSet<>()).add(child);
+//					System.out.println("adding remaining child \"" + child.getName() + "\" of node \"" + nodeToRemove.getName() + "\"");
+				}
+			}
 		}
 
 		size = selectedObjects.size() + selectedCameras.size();
@@ -56,30 +73,39 @@ public class DeleteNodesAction implements UndoAction {
 		this(Collections.emptySet(), Collections.singleton(selectedCamera), changeListener, model);
 	}
 
-	private IdObject topParent(IdObject idObject) {
+	private IdObject topParentNotRemoved(IdObject idObject) {
 		IdObject parent = idObject.getParent();
-		if (selectedObjects.contains(parent)) {
-			return topParent(parent);
+		if (!selectedObjects.contains(parent)) {
+			return parent;
 		}
-		return parent;
+		return topParentNotRemoved(parent);
 	}
 
 	private void removeFromParent() {
-		for(IdObject removedParent : childMap.keySet()){
-			for (IdObject affectedChild : childMap.get(removedParent)){
-				if (relink){
-					affectedChild.setParent(topParent(removedParent));
+		for (IdObject removedParent : childMap.keySet()) {
+			IdObject newParent = topParentMap.get(removedParent);
+			for (IdObject affectedChild : childMap.get(removedParent)) {
+				if (relink) {
+					String parentName = newParent == null ? "null" : newParent.getName();
+					System.out.println("changing parent of \"" + affectedChild.getName() + "\" of \"" + removedParent.getName() + "\" to \"" + parentName + "\"");
+					affectedChild.setParent(newParent);
 				} else {
 					affectedChild.setParent(null);
 				}
 			}
 		}
+		for (IdObject node : baseParentMap.keySet()) {
+			node.setParent(null);
+		}
 	}
-	private void addBackParent(){
-		for(IdObject removedParent : childMap.keySet()){
-			for (IdObject affectedChild : childMap.get(removedParent)){
+	private void addBackParent() {
+		for (IdObject removedParent : childMap.keySet()) {
+			for (IdObject affectedChild : childMap.get(removedParent)) {
 				affectedChild.setParent(removedParent);
 			}
+		}
+		for (IdObject node : baseParentMap.keySet()) {
+			node.setParent(baseParentMap.get(node));
 		}
 	}
 
@@ -120,7 +146,7 @@ public class DeleteNodesAction implements UndoAction {
 	}
 
 	private UndoAction getMeshLinkDeleteAction() {
-		if(meshLinkDelete == null) {
+		if (meshLinkDelete == null) {
 			Set<GeosetVertex> affectedVerts = new HashSet<>();
 			Set<Bone> vertBones = new HashSet<>();
 			Map<Bone, Set<GeosetVertex>> boneVertMap = new HashMap<>();

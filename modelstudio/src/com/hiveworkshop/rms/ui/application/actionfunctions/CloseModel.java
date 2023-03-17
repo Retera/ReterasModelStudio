@@ -101,10 +101,14 @@ public class CloseModel extends ActionFunction {
 			if (!modelHandler.getUndoManager().hasChangedSinceSave()) {
 				final Object[] options = {"Yes", "No", "Cancel"};
 				EditableModel model = modelHandler.getModel();
+				java.io.File file = model.getFile();
+				String fileName = file == null ? "" : " (\"" + file.getName() + "\")";
+//				if(model.getFile() != null)
 				final int n = JOptionPane.showOptionDialog(ProgramGlobals.getMainPanel(),
 						"Would you like to save " + model.getName()
-								+ " (\"" + model.getHeaderName() + "\") " +
-								"before closing?",
+//								+ " (\"" + model.getHeaderName() + "\")"
+								+ fileName
+								+ " before closing?",
 						"Warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
 						options[2]);
 				return switch (n) {

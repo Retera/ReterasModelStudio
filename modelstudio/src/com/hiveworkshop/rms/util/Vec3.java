@@ -303,7 +303,7 @@ public class Vec3 {
 		float newX = (mat4.m00 * x) + (mat4.m10 * y) + (mat4.m20 * z) + w * mat4.m30;
 		float newY = (mat4.m01 * x) + (mat4.m11 * y) + (mat4.m21 * z) + w * mat4.m31;
 		float newZ = (mat4.m02 * x) + (mat4.m12 * y) + (mat4.m22 * z) + w * mat4.m32;
-		if(fromHomo){
+		if(fromHomo && w != 0f){
 			float newW = (x * mat4.m03) + (y * mat4.m13) + (z * mat4.m23) + w * mat4.m33;
 			newX /= newW;
 			newY /= newW;

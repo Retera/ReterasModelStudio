@@ -95,10 +95,7 @@ public class TranslateNodeTPoseAction extends AbstractTransformAction {
 			loc.add(delta);
 		}
 		tempDelta.set(Vec3.ZERO).sub(delta);
-		updateTimelines(tempDelta);
-	}
 
-	private void updateTimelines(Vec3 delta) {
 		if (newTranslation != null) {
 			moveTranslations(delta, newTranslation);
 		}

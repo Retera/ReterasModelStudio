@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.editor.model.animflag;
 
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff.TTan;
 import com.hiveworkshop.rms.util.Quat;
@@ -217,6 +218,27 @@ public class AnimFlagUtils {
 				tTanDer.calcSplineParameters();
 				return tTanDer.getTCB();
 			}
+		}
+		return null;
+	}
+
+	public static <Q> Q getIdentityValue(AnimFlag<Q> animFlag) {
+		if (animFlag instanceof IntAnimFlag) {
+			return (Q) Integer.valueOf(0);
+		} else if (animFlag instanceof BitmapAnimFlag) {
+			return null;
+		} else if (animFlag instanceof FloatAnimFlag) {
+			return (Q) Float.valueOf(1);
+		} else if (animFlag instanceof Vec3AnimFlag) {
+			if (MdlUtils.TOKEN_TRANSLATION.equals(animFlag.getName())) {
+				return (Q) Vec3.ZERO;
+			} else if (MdlUtils.TOKEN_COLOR.equals(animFlag.getName())
+					|| MdlUtils.TOKEN_SCALING.equals(animFlag.getName())) {
+				return (Q) Vec3.ONE;
+			}
+			return (Q) Vec3.ZERO;
+		} else if (animFlag instanceof QuatAnimFlag) {
+			return (Q) Quat.IDENTITY;
 		}
 		return null;
 	}
