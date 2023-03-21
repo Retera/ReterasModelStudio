@@ -115,7 +115,7 @@ public class RibbonEmitterChunk {
 			out.writeFloat(heightAbove);
 			out.writeFloat(heightBelow);
 			out.writeFloat(alpha);
-			if ((color.length % 3) != 0) {
+			if (color.length % 3 != 0) {
 				throw new IllegalArgumentException(
 						"The array color needs either the length 3 or a multiple of this number. (got " + color.length
 								+ ")");
@@ -324,7 +324,7 @@ public class RibbonEmitterChunk {
 					}
 				}
 			}
-			if (alphaFound || (Math.abs(mdlEmitter.getAlpha() - (-1)) <= 0.001)) {
+			if (alphaFound || Math.abs(mdlEmitter.getAlpha() - (-1)) <= 0.001) {
 				alpha = 1.0f;
 			} else {
 				alpha = (float) mdlEmitter.getAlpha();

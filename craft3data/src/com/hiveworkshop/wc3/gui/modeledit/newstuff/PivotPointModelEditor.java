@@ -940,7 +940,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 								if (translation.tans()) {
 									final Vertex inTanData = (Vertex) translation.getInTans().get(i);
 									inTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
-									final Vertex outTanData = (Vertex) translation.getInTans().get(i);
+									final Vertex outTanData = (Vertex) translation.getOutTans().get(i);
 									outTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
 								}
 							}
@@ -973,7 +973,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 								if (translation.tans()) {
 									final Vertex inTanData = (Vertex) translation.getInTans().get(i);
 									inTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
-									final Vertex outTanData = (Vertex) translation.getInTans().get(i);
+									final Vertex outTanData = (Vertex) translation.getOutTans().get(i);
 									outTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
 								}
 							}

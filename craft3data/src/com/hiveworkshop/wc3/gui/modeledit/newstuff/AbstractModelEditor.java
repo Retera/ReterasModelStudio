@@ -17,7 +17,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.DeleteAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.ExtrudeAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.RecalculateExtentsAction;
-import com.hiveworkshop.wc3.gui.modeledit.actions.RecalculateNormalsAction2;
+import com.hiveworkshop.wc3.gui.modeledit.actions.RecalculateNormalsAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SnapAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SnapNormalsAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SpecialDeleteAction;
@@ -97,16 +97,15 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 					Arrays.fill(gv.getSkinBones(), null);
 					Arrays.fill(gv.getSkinBoneWeights(), (short) 0);
 					final int basicWeighting = 255 / bones.size();
-					final int offset = 255 - (basicWeighting * bones.size());
-					for (int i = 0; (i < bones.size()) && (i < 4); i++) {
+					final int offset = 255 - basicWeighting * bones.size();
+					for (int i = 0; i < bones.size() && i < 4; i++) {
 						gv.getSkinBones()[i] = mx.getBones().get(i);
 						gv.getSkinBoneWeights()[i] = (short) basicWeighting;
 						if (i == 0) {
 							gv.getSkinBoneWeights()[i] += offset;
 						}
 					}
-				}
-				else {
+				} else {
 					vertexToOldBoneReferences.put(gv, new ArrayList<>(gv.getBoneAttachments()));
 					gv.clearBoneAttachments();
 					gv.addBoneAttachments(mx.getBones());
@@ -150,7 +149,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 				} // else no normal to snap!!!
 			}
 		}
-		final RecalculateNormalsAction2 temp = new RecalculateNormalsAction2(selectedVertices, oldLocations, snapped);
+		final RecalculateNormalsAction temp = new RecalculateNormalsAction(selectedVertices, oldLocations, snapped);
 		temp.redo();// a handy way to do the snapping!
 		return temp;
 	}
@@ -162,8 +161,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 			for (final Geoset geoset : model.getEditableGeosets()) {
 				geosetsToIncorporate.add(geoset);
 			}
-		}
-		else {
+		} else {
 			for (final Geoset geoset : model.getModel().getGeosets()) {
 				geosetsToIncorporate.add(geoset);
 			}
@@ -213,8 +211,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		if (remGeosets.size() <= 0) {
 			final DeleteAction temp = new DeleteAction(selection, deletedTris, vertexSelectionHelper);
 			return temp;
-		}
-		else {
+		} else {
 			final SpecialDeleteAction temp = new SpecialDeleteAction(selection, deletedTris, vertexSelectionHelper,
 					remGeosets, model.getModel(), structureChangeListener);
 			structureChangeListener.geosetsRemoved(remGeosets);
@@ -290,8 +287,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 						selTris.add(temptr);
 					}
 				}
-			}
-			else {
+			} else {
 				copies.add(null);
 				// System.out.println("GeosetVertex " + i + " was not found.");
 			}
@@ -345,7 +341,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 					// }
 					for (int gvI = 0; gvI < tri.getAll().length; gvI++) {
 						final GeosetVertex gvTemp = tri.get(gvI);
-						if (!gvTemp.equalLocs(gv) && (gvTemp.getGeoset() == gv.getGeoset())) {
+						if (!gvTemp.equalLocs(gv) && gvTemp.getGeoset() == gv.getGeoset()) {
 							int ctCount = 0;
 							Triangle temptr = null;
 							boolean okay = false;
@@ -358,7 +354,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 									}
 								}
 							}
-							if (okay && (ctCount == 1) && selection.contains(gvTemp)) {
+							if (okay && ctCount == 1 && selection.contains(gvTemp)) {
 								final GeosetVertex gvCopy = copies.get(selection.indexOf(gv));
 								final GeosetVertex gvTempCopy = copies.get(selection.indexOf(gvTemp));
 								// if (gvCopy == null) {
@@ -373,8 +369,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 								final int indexB = temptr.indexOf(gvTemp);
 								int indexC = -1;
 
-								for (int i = 0; (i < 3) && (indexC == -1); i++) {
-									if ((i != indexA) && (i != indexB)) {
+								for (int i = 0; i < 3 && indexC == -1; i++) {
+									if (i != indexA && i != indexB) {
 										indexC = i;
 									}
 								}
@@ -502,8 +498,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 						selTris.add(temptr);
 					}
 				}
-			}
-			else {
+			} else {
 				// copies.add(null);
 				// System.out.println("GeosetVertex " + i + " was not found.");
 			}
@@ -530,8 +525,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 						if (gv == null) {
 							gv = a;
 							gvCopy = b;
-						}
-						else if (gvTemp == null) {
+						} else if (gvTemp == null) {
 							gvTemp = a;
 							gvTempCopy = b;
 						}
@@ -550,8 +544,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 					final int indexB = tri.indexOf(gvTempCopy);
 					int indexC = -1;
 
-					for (int i = 0; (i < 3) && (indexC == -1); i++) {
-						if ((i != indexA) && (i != indexB)) {
+					for (int i = 0; i < 3 && indexC == -1; i++) {
+						if (i != indexA && i != indexB) {
 							indexC = i;
 						}
 					}
@@ -635,8 +629,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				newVertices.add(new GeosetVertex(gv));
-			}
-			else {
+			} else {
 				newVertices.add(null);
 			}
 		}
@@ -826,8 +819,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		Geoset solidWhiteGeoset = null;
 		for (final Geoset geoset : geosets) {
 			final Layer firstLayer = geoset.getMaterial().firstLayer();
-			if ((geoset.getMaterial() != null) && (firstLayer != null)
-					&& (firstLayer.getFilterMode() == FilterMode.NONE) && "Textures\\white.blp".equalsIgnoreCase(
+			if (geoset.getMaterial() != null && firstLayer != null && firstLayer.getFilterMode() == FilterMode.NONE
+					&& "Textures\\white.blp".equalsIgnoreCase(
 							firstLayer.getShaderTextures().get(ShaderTextureTypeHD.Diffuse).getPath())) {
 				solidWhiteGeoset = geoset;
 			}
@@ -846,8 +839,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 					structureChangeListener);
 			action = new CompoundMoveAction("create plane",
 					ListView.Util.of(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
-		}
-		else {
+		} else {
 			action = drawVertexAction;
 		}
 		action.redo();
@@ -863,8 +855,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		Geoset solidWhiteGeoset = null;
 		for (final Geoset geoset : geosets) {
 			final Layer firstLayer = geoset.getMaterial().firstLayer();
-			if ((geoset.getMaterial() != null) && (firstLayer != null)
-					&& (firstLayer.getFilterMode() == FilterMode.NONE) && "Textures\\white.blp".equalsIgnoreCase(
+			if (geoset.getMaterial() != null && firstLayer != null && firstLayer.getFilterMode() == FilterMode.NONE
+					&& "Textures\\white.blp".equalsIgnoreCase(
 							firstLayer.getShaderTextures().get(ShaderTextureTypeHD.Diffuse).getPath())) {
 				solidWhiteGeoset = geoset;
 			}
@@ -883,8 +875,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 					structureChangeListener);
 			action = new CompoundMoveAction("create plane",
 					ListView.Util.of(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
-		}
-		else {
+		} else {
 			action = drawVertexAction;
 		}
 		action.redo();

@@ -13,6 +13,7 @@ import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public class RecalculateExtentsAction implements UndoAction {
+	private static boolean EACH_GEOSET_GETS_ITS_OWN_BOUNDS = false;
 	private final ModelView modelView;
 	private final Map<Geoset, ArrayList<Animation>> geosetToOldExtents = new HashMap<>();
 	private final Map<Animation, ExtLog> modelSequenceToOldExtents = new HashMap<>();
@@ -90,7 +91,11 @@ public class RecalculateExtentsAction implements UndoAction {
 	public void redo() {
 		for (final Map.Entry<Geoset, ArrayList<Animation>> entry : geosetToNewExtents.entrySet()) {
 			entry.getKey().setAnims(new ArrayList<>(entry.getValue()));
-			entry.getKey().setExtents(newModelExtents);
+			if (EACH_GEOSET_GETS_ITS_OWN_BOUNDS) {
+				entry.getKey().setExtents(entry.getKey().calculateExtent());
+			} else {
+				entry.getKey().setExtents(newModelExtents);
+			}
 		}
 		for (final Map.Entry<Animation, ExtLog> animationAndNewExtents : modelSequenceToNewExtents.entrySet()) {
 			final Animation anim = animationAndNewExtents.getKey();
