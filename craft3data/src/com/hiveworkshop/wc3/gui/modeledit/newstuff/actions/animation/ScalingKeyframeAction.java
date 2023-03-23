@@ -30,7 +30,7 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 		this.modelEditor = modelEditor;
 		nodeToLocalScale = new HashMap<>();
 		for (final IdObject node : nodeSelection) {
-			nodeToLocalScale.put(node, new Vector3f());
+			nodeToLocalScale.put(node, new Vector3f(1, 1, 1));
 		}
 		center = new Vertex(centerX, centerY, centerZ);
 	}
