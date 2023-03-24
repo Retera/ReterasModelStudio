@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.JFileChooser;
@@ -66,13 +68,16 @@ public class GoodSLKEdit extends JPanel {
 						final String firstItem = keySet.iterator().next();
 						final Element firstElement = dataTable.get(firstItem);
 						final Set<String> titlekeys = firstElement.keySet();
-						final String[] headers = titlekeys.toArray(new String[titlekeys.size()]);
-						final Object[][] values = new Object[keySet.size()][headers.length + 1];
+						final List<String> titles = new ArrayList<>();
+						titles.add("ID");
+						titles.addAll(titlekeys);
+						final String[] headers = titles.toArray(new String[titles.size()]);
+						final Object[][] values = new Object[keySet.size()][headers.length];
 						int index = 0;
 						for (final String element : keySet) {
 							values[index][0] = element;
-							for (int i = 0; i < headers.length; i++) {
-								values[index][i + 1] = dataTable.get(element).getField(headers[i]);
+							for (int i = 1; i < headers.length; i++) {
+								values[index][i] = dataTable.get(element).getField(headers[i]);
 							}
 							index++;
 						}
