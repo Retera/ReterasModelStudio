@@ -540,8 +540,8 @@ public class Material implements MaterialView {
 					for (final GeosetVertex vertex : geo.getVertices()) {
 						// hacky fake vertex shader-like thing (should closely match with code in vertex
 						// shader for HD previewing)
-						final Vector3f tangent = new Vector3f(vertex.getTangent()[0], vertex.getTangent()[1],
-								vertex.getTangent()[2]);
+						final Vector3f tangent = new Vector3f(getTangent(vertex)[0], getTangent(vertex)[1],
+								getTangent(vertex)[2]);
 						final Vector3f normal = new Vector3f((float) vertex.getNormal().x, (float) vertex.getNormal().y,
 								(float) vertex.getNormal().z);
 						temp.set(normal).scale(Vector3f.dot(tangent, normal));
@@ -553,7 +553,7 @@ public class Material implements MaterialView {
 						}
 						final Vector3f binormal = new Vector3f();
 						Vector3f.cross(normal, tangent, binormal);
-						binormal.scale(vertex.getTangent()[3]);
+						binormal.scale(getTangent(vertex)[3]);
 						if (binormal.length() != 0) {
 							binormal.normalise();
 						}
@@ -652,13 +652,13 @@ public class Material implements MaterialView {
 											(g0.z * b0) + (g1.z * b1) + (g2.z * b2));
 
 									bakingCells[iToUse][jToUse].barycentricTangent = new double[] {
-											(g0.getTangent()[0] * b0) + (g1.getTangent()[0] * b1)
-													+ (g2.getTangent()[0] * b2),
-											(g0.getTangent()[1] * b0) + (g1.getTangent()[1] * b1)
-													+ (g2.getTangent()[1] * b2),
-											(g0.getTangent()[2] * b0) + (g1.getTangent()[2] * b1)
-													+ (g2.getTangent()[2] * b2),
-											g0.getTangent()[3] };
+											(getTangent(g0)[0] * b0) + (getTangent(g1)[0] * b1)
+													+ (getTangent(g2)[0] * b2),
+											(getTangent(g0)[1] * b0) + (getTangent(g1)[1] * b1)
+													+ (getTangent(g2)[1] * b2),
+											(getTangent(g0)[2] * b0) + (getTangent(g1)[2] * b1)
+													+ (getTangent(g2)[2] * b2),
+											getTangent(g0)[3] };
 
 									bakingCells[iToUse][jToUse].tangentLightPos = new Vector3f(
 											(float) ((vertexData0.tangentLightPos.x * b0)
@@ -798,6 +798,16 @@ public class Material implements MaterialView {
 		else {
 			throw new RuntimeException("Failed to begin baking HD -> SD texture, did not find 6 layers!");
 		}
+	}
+
+	private static final float[] DEFAULT_TANGENT = { 0, 0, 1, 1 };
+
+	private static float[] getTangent(final GeosetVertex vertex) {
+		final float[] tangent = vertex.getTangent();
+		if (tangent == null) {
+			return DEFAULT_TANGENT;
+		}
+		return tangent;
 	}
 
 	/**
