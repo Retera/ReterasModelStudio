@@ -38,10 +38,13 @@ public class GeosetVertex extends Vertex {
 		normal = n;
 	}
 
-	public void initV900() {
+	public void initV900Skin() {
 		skinBoneIndexes = new byte[4];
 		skinBones = new Bone[4];
 		skinBoneWeights = new short[4];
+	}
+
+	public void initV900Tangent() {
 		tangent = new float[4];
 	}
 
@@ -65,7 +68,7 @@ public class GeosetVertex extends Vertex {
 			if (bones.isEmpty() && fallback) {
 				index = 0;
 				for (final Bone bone : skinBones) {
-					if (bone != null && skinBoneWeights[index] > 0) {
+					if ((bone != null) && (skinBoneWeights[index] > 0)) {
 						bones.add(bone);
 					}
 					index++;
@@ -109,9 +112,11 @@ public class GeosetVertex extends Vertex {
 	public TVertex getTVertex(final int i) {
 		try {
 			return tverts.get(i);
-		} catch (final ArrayIndexOutOfBoundsException e) {
+		}
+		catch (final ArrayIndexOutOfBoundsException e) {
 			return null;
-		} catch (final IndexOutOfBoundsException e) {
+		}
+		catch (final IndexOutOfBoundsException e) {
 			return null;
 		}
 	}
@@ -147,7 +152,8 @@ public class GeosetVertex extends Vertex {
 	public void updateMatrixRef(final ArrayList<Matrix> list) {
 		try {
 			matrixRef = list.get(VertexGroup);
-		} catch (final Exception e) {
+		}
+		catch (final Exception e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Error in Matrices: VertexGroup does not reference a real matrix id!");
 		}
@@ -173,19 +179,22 @@ public class GeosetVertex extends Vertex {
 		double z = 0;
 		try {
 			x = Double.parseDouble(entries[0].split("\\{")[1]);
-		} catch (final NumberFormatException e) {
+		}
+		catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
 		}
 		try {
 			y = Double.parseDouble(entries[1]);
-		} catch (final NumberFormatException e) {
+		}
+		catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
 		}
 		try {
 			z = Double.parseDouble(entries[2].split("}")[0]);
-		} catch (final NumberFormatException e) {
+		}
+		catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
 		}
@@ -307,20 +316,20 @@ public class GeosetVertex extends Vertex {
 			break;
 		}
 		final double dy = y1 - cy;
-		final double r = Math.sqrt(dx * dx + dy * dy);
+		final double r = Math.sqrt((dx * dx) + (dy * dy));
 		double verAng = Math.acos(dx / r);
 		if (dy < 0) {
 			verAng = -verAng;
 		}
 		// if( getDimEditable(dim1) )
-		double nextDim = Math.cos(verAng + radians) * r + cx;
+		double nextDim = (Math.cos(verAng + radians) * r) + cx;
 		if (!Double.isNaN(nextDim)) {
-			vertex[firstXYZ] = (float) (Math.cos(verAng + radians) * r + cx);
+			vertex[firstXYZ] = (float) ((Math.cos(verAng + radians) * r) + cx);
 		}
 		// if( getDimEditable(dim2) )
-		nextDim = Math.sin(verAng + radians) * r + cy;
+		nextDim = (Math.sin(verAng + radians) * r) + cy;
 		if (!Double.isNaN(nextDim)) {
-			vertex[secondXYZ] = (float) (Math.sin(verAng + radians) * r + cy);
+			vertex[secondXYZ] = (float) ((Math.sin(verAng + radians) * r) + cy);
 		}
 	}
 

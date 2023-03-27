@@ -6,9 +6,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import com.etheller.collections.SetView;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
-import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Normal;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
@@ -55,7 +55,8 @@ public class GetMeDatas7 {
 				for (final GeosetVertex gv : vertices) {
 					final Normal normal = gv.getNormal();
 					if (normal != null) {
-						gv.initV900();
+						gv.initV900Skin();
+						gv.initV900Tangent();
 						final float[] tangent = gv.getTangent();
 						for (int i = 0; i < 3; i++) {
 							tangent[i] = (float) normal.getCoord((byte) i);
@@ -87,7 +88,8 @@ public class GetMeDatas7 {
 //				}
 //			}
 			model.printTo(new File("D:\\NEEDS_ORGANIZING\\Scratch\\Gimli_by_Jhotam\\Gimli_LOTR_ByJhotam_900_bxd.mdx"));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			e.printStackTrace();
 		}
 	}

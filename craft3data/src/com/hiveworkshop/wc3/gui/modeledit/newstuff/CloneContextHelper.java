@@ -51,7 +51,8 @@ public class CloneContextHelper {
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				newVertices.add(new GeosetVertex(gv));
-			} else {
+			}
+			else {
 				newVertices.add(null);
 			}
 		}
@@ -112,6 +113,15 @@ public class CloneContextHelper {
 				newSelection.add(ver);
 				if (ver.getClass() == GeosetVertex.class) {
 					final GeosetVertex gv = (GeosetVertex) ver;
+					final Bone[] skinBones = gv.getSkinBones();
+					if (skinBones != null) {
+						for (int i = 0; i < skinBones.length; i++) {
+							final Bone b = skinBones[i];
+							if (selBones.contains(b)) {
+								skinBones[i] = (Bone) newBones.get(selBones.indexOf(b));
+							}
+						}
+					}
 					for (int i = 0; i < gv.getBones().size(); i++) {
 						final Bone b = gv.getBones().get(i);
 						if (selBones.contains(b)) {

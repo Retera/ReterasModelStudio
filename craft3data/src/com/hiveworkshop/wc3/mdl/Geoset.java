@@ -4,6 +4,7 @@ import java.awt.geom.Rectangle2D;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import javax.swing.JOptionPane;
 
@@ -111,12 +112,14 @@ public class Geoset implements Named, VisibilitySource {
 
 		if (mdxGeo.tangents.length > 0) {
 			// version 900
-			skin = new ArrayList<byte[]>();
 			tangents = new ArrayList<float[]>();
 			for (int i = 0; i < mdxGeo.tangents.length; i += 4) {
 				tangents.add(new float[] { mdxGeo.tangents[i], mdxGeo.tangents[i + 1], mdxGeo.tangents[i + 2],
 						mdxGeo.tangents[i + 3] });
 			}
+		}
+		if ((mdxGeo.skin != null) && (mdxGeo.skin.length > 0)) {
+			skin = new ArrayList<byte[]>();
 			for (int i = 0; i < mdxGeo.skin.length; i += 8) {
 				skin.add(new byte[] { mdxGeo.skin[i], mdxGeo.skin[i + 1], mdxGeo.skin[i + 2], mdxGeo.skin[i + 3],
 						mdxGeo.skin[i + 4], mdxGeo.skin[i + 5], mdxGeo.skin[i + 6], mdxGeo.skin[i + 7] });
@@ -565,33 +568,46 @@ public class Geoset implements Named, VisibilitySource {
 		}
 		for (int i = 0; i < sz; i++) {
 			final GeosetVertex gv = vertex.get(i);
-			if (ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion()) && (tangents != null)) {
-				gv.initV900();
-				for (int j = 0; j < 4; j++) {
-					short boneLookupId = skin.get(i)[j];
-					if (boneLookupId < 0) {
-						boneLookupId += 256;
+			if (ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion())) {
+				if (tangents != null) {
+					gv.initV900Tangent();
+					for (int j = 0; j < 4; j++) {
+						gv.getTangent()[j] = tangents.get(i)[j];
 					}
-					short boneWeight = skin.get(i)[j + 4];
-					if (boneWeight < 0) {
-						boneWeight += 256;
-					}
-					Bone bone;
-					if ((boneLookupId >= mdlr.getIdObjectsSize()) || (boneLookupId < 0)) {
-						bone = null;
-					}
-					else {
-						final IdObject idObject = mdlr.getIdObject(boneLookupId);
-						if (idObject instanceof Bone) {
-							bone = (Bone) idObject;
+				}
+				if (skin != null) {
+					gv.initV900Skin();
+					for (int j = 0; j < 4; j++) {
+						short boneLookupId = skin.get(i)[j];
+						if (boneLookupId < 0) {
+							boneLookupId += 256;
 						}
-						else {
+						short boneWeight = skin.get(i)[j + 4];
+						if (boneWeight < 0) {
+							boneWeight += 256;
+						}
+						Bone bone;
+						if ((boneLookupId >= matrix.size()) || (boneLookupId < 0)) {
 							bone = null;
 						}
+						else {
+							final Matrix hdMatrix = getMatrix(boneLookupId);
+							if ((hdMatrix == null) || (hdMatrix.size() == 0)) {
+								bone = null;
+							}
+							else {
+								final IdObject idObject = mdlr.getIdObject(hdMatrix.getBoneId(0));
+								if (idObject instanceof Bone) {
+									bone = (Bone) idObject;
+								}
+								else {
+									bone = null;
+								}
+							}
+						}
+						gv.getSkinBones()[j] = bone;
+						gv.getSkinBoneWeights()[j] = boneWeight;
 					}
-					gv.getSkinBones()[j] = bone;
-					gv.getSkinBoneWeights()[j] = boneWeight;
-					gv.getTangent()[j] = tangents.get(i)[j];
 				}
 			}
 			gv.clearTVerts();
@@ -782,32 +798,24 @@ public class Geoset implements Named, VisibilitySource {
 		}
 		// Clearing matrix list
 		matrix.clear();
+		final LinkedHashMap<Bone, Integer> usedBones = new LinkedHashMap<>();
 		for (int i = 0; i < vertex.size(); i++) {
 			final GeosetVertex geosetVertex = vertex.get(i);
 			if (geosetVertex.getSkinBones() != null) {
-				if (matrix.isEmpty()) {
-					final ArrayList<Bone> bones = mdlr.sortedIdObjects(Bone.class);
-					for (int j = 0; j < bones.size(); j++) {
-						final ArrayList<Bone> singleBoneList = new ArrayList<Bone>();
-						singleBoneList.add(bones.get(j));
-						final Matrix e = new Matrix(singleBoneList);
-						e.updateIds(mdlr);
-						matrix.add(e);
-					}
-				}
 				int skinIndex = 0;
 				for (final Bone bone : geosetVertex.getSkinBones()) {
 					if (bone != null) {
-						final ArrayList<Bone> singleBoneList = new ArrayList<Bone>();
-						singleBoneList.add(bone);
-						final Matrix newTemp = new Matrix(singleBoneList);
-						int index = -1;
-						for (int m = 0; (m < matrix.size()) && (index == -1); m++) {
-							if (newTemp.equals(matrix.get(m))) {
-								index = m;
-							}
+						Integer index = usedBones.get(bone);
+						if (index == null) {
+							index = matrix.size();
+							usedBones.put(bone, index);
+							final ArrayList<Bone> singleBoneList = new ArrayList<Bone>();
+							singleBoneList.add(bone);
+							final Matrix e = new Matrix(singleBoneList);
+							e.updateIds(mdlr);
+							matrix.add(e);
 						}
-						geosetVertex.getSkinBoneIndexes()[skinIndex++] = (byte) index;
+						geosetVertex.getSkinBoneIndexes()[skinIndex++] = index.byteValue();
 					}
 				}
 				geosetVertex.VertexGroup = -1;
@@ -831,8 +839,10 @@ public class Geoset implements Named, VisibilitySource {
 		}
 		final boolean printTangentsToFile = ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion())
 				&& (vertex.size() > 0) && (vertex.get(0).getTangent() != null);
+		final boolean printSkinToFile = ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion())
+				&& (vertex.size() > 0) && (vertex.get(0).getSkinBones() != null);
 		writer.println("\tVertexGroup {");
-		if (!printTangentsToFile) {
+		if (!printSkinToFile) {
 			for (int i = 0; i < vertex.size(); i++) {
 				final GeosetVertex geosetVertex = vertex.get(i);
 				writer.println(tabs + geosetVertex.VertexGroup + ",");
@@ -852,6 +862,8 @@ public class Geoset implements Named, VisibilitySource {
 				writer.println(tabs + "{ " + tangentBuilder.toString() + " },");
 			}
 			writer.println("\t}");
+		}
+		if (printSkinToFile) {
 			writer.println("\tSkinWeights " + vertex.size() + " {");
 			final StringBuilder skinBuilder = new StringBuilder();
 			for (int i = 0; i < vertex.size(); i++) {
@@ -971,32 +983,24 @@ public class Geoset implements Named, VisibilitySource {
 		}
 		// Clearing matrix list
 		matrix.clear();
+		final LinkedHashMap<Bone, Integer> usedBones = new LinkedHashMap<>();
 		for (int i = 0; i < vertex.size(); i++) {
 			final GeosetVertex geosetVertex = vertex.get(i);
 			if (geosetVertex.getSkinBones() != null) {
-				if (matrix.isEmpty()) {
-					final ArrayList<Bone> bones = mdlr.sortedIdObjects(Bone.class);
-					for (int j = 0; (j < bones.size()) && (j < 256); j++) {
-						final ArrayList<Bone> singleBoneList = new ArrayList<Bone>();
-						singleBoneList.add(bones.get(j));
-						final Matrix e = new Matrix(singleBoneList);
-						e.updateIds(mdlr);
-						matrix.add(e);
-					}
-				}
 				int skinIndex = 0;
 				for (final Bone bone : geosetVertex.getSkinBones()) {
 					if (bone != null) {
-						final ArrayList<Bone> singleBoneList = new ArrayList<Bone>();
-						singleBoneList.add(bone);
-						final Matrix newTemp = new Matrix(singleBoneList);
-						int index = -1;
-						for (int m = 0; (m < matrix.size()) && (index == -1); m++) {
-							if (newTemp.equals(matrix.get(m))) {
-								index = m;
-							}
+						Integer index = usedBones.get(bone);
+						if (index == null) {
+							index = matrix.size();
+							usedBones.put(bone, index);
+							final ArrayList<Bone> singleBoneList = new ArrayList<Bone>();
+							singleBoneList.add(bone);
+							final Matrix e = new Matrix(singleBoneList);
+							e.updateIds(mdlr);
+							matrix.add(e);
 						}
-						geosetVertex.getSkinBoneIndexes()[skinIndex++] = (byte) index;
+						geosetVertex.getSkinBoneIndexes()[skinIndex++] = index.byteValue();
 					}
 				}
 				geosetVertex.VertexGroup = -1;

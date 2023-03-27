@@ -3609,8 +3609,8 @@ public class EditableModel implements Named {
 			final ArrayList<GeosetVertex> vertices = geo.getVertices();
 			for (final GeosetVertex gv : vertices) {
 				final Normal normal = gv.getNormal();
+				gv.initV900Tangent();
 				if (normal != null) {
-					gv.initV900();
 					final float[] tangent = gv.getTangent();
 					for (int i = 0; i < 3; i++) {
 						tangent[i] = (float) normal.getCoord((byte) i);
@@ -3620,6 +3620,7 @@ public class EditableModel implements Named {
 				final int bones = Math.min(4, gv.getBoneAttachments().size());
 				final short weight = (short) (255 / bones);
 				final short offsetWeight = (short) (255 - (weight * bones));
+				gv.initV900Skin();
 				for (int i = 0; (i < bones) && (i < 4); i++) {
 					gv.getSkinBones()[i] = gv.getBoneAttachments().get(i);
 					gv.getSkinBoneWeights()[i] = weight;
@@ -3673,7 +3674,8 @@ public class EditableModel implements Named {
 			for (final Geoset theMesh : currentMDL.getGeosets()) {
 				for (final GeosetVertex gv : theMesh.getVertices()) {
 					if (gv.getSkinBones() == null) {
-						gv.initV900();
+						gv.initV900Skin();
+						gv.initV900Tangent();
 					}
 //					if (up.dotProduct(gv.getNormal()) < 0.99) {
 //						final Vertex tangent = gv.getNormal().crossProduct(up);
