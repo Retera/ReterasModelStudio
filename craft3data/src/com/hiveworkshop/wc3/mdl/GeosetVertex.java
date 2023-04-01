@@ -20,11 +20,8 @@ public class GeosetVertex extends Vertex {
 	private Normal normal;
 	public int VertexGroup = -1;
 	List<TVertex> tverts = new ArrayList<>();
-	List<Bone> bones = new ArrayList<>();
+	List<GeosetVertexBoneLink> bones = new ArrayList<>();
 	List<Triangle> triangles = new ArrayList<>();
-	private byte[] skinBoneIndexes;
-	private Bone[] skinBones;
-	private short[] skinBoneWeights;
 	private float[] tangent;
 
 	Geoset geoset;
@@ -39,8 +36,6 @@ public class GeosetVertex extends Vertex {
 	}
 
 	public void initV900Skin() {
-		skinBoneIndexes = new byte[4];
-		skinBones = new Bone[4];
 		skinBoneWeights = new short[4];
 	}
 
@@ -52,12 +47,12 @@ public class GeosetVertex extends Vertex {
 		if (tangent != null) {
 			tangent = null;
 		}
-		if (skinBones != null) {
+		if (skinBoneWeights != null) {
 			bones.clear();
 			int index = 0;
 			boolean fallback = false;
-			for (final Bone bone : skinBones) {
-				if (bone != null) {
+			for (final GeosetVertexBoneLink link : bones) {
+				if (link.bone != null) {
 					fallback = true;
 					if (skinBoneWeights[index] > 60) {
 						bones.add(bone);
