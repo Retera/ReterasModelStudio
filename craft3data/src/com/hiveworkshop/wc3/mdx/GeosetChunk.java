@@ -402,7 +402,7 @@ public class GeosetChunk {
 			}
 			materialId = mdlGeo.getMaterialID();
 			final int numVertices = mdlGeo.getVertices().size();
-			final boolean useSkin = (numVertices > 0) && (mdlGeo.getVertex(0).getSkinBones() != null);
+			final boolean useSkin = (numVertices > 0) && (mdlGeo.getVertex(0).getSkinBoneIndexes() != null);
 			final boolean useTang = (numVertices > 0) && (mdlGeo.getVertex(0).getTangent() != null);
 			nrOfTextureVertexGroups = mdlGeo.getUVLayers().size();
 			vertexPositions = new float[numVertices * 3];
@@ -504,7 +504,7 @@ public class GeosetChunk {
 					for (int j = 0; j < 4; j++) {
 						final GeosetVertex vertex = mdlGeo.getVertex(i);
 						skin[(i * 8) + j] = vertex.getSkinBoneIndexes()[j];
-						skin[(i * 8) + j + 4] = (byte) vertex.getSkinBoneWeights()[j];
+						skin[(i * 8) + j + 4] = (byte) vertex.getSkinBoneWeight(j);
 					}
 				}
 			}

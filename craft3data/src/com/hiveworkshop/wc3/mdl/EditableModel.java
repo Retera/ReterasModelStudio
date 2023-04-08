@@ -2685,51 +2685,25 @@ public class EditableModel implements Named {
 		for (final Geoset geoset : geosets) {
 			final GeosetVisitor geosetRenderer = renderer.beginGeoset(geosetId++, geoset.getMaterial(),
 					geoset.getGeosetAnim());
-			if (ModelUtils.isTangentAndSkinSupported(formatVersion) && (geoset.getVertices().size() > 0)
-					&& (geoset.getVertex(0).getSkinBones() != null)) {
-				for (final Triangle triangle : geoset.getTriangles()) {
-					final TriangleVisitor triangleRenderer = geosetRenderer.beginTriangle();
-					for (final GeosetVertex vertex : triangle.getVerts()) {
-						final VertexVisitor vertexRenderer;
-						// TODO redesign for nullable normals
-						if (vertex.getNormal() != null) {
-							vertexRenderer = triangleRenderer.hdVertex(vertex.x, vertex.y, vertex.z,
-									vertex.getNormal().x, vertex.getNormal().y, vertex.getNormal().z,
-									vertex.getSkinBones(), vertex.getSkinBoneWeights());
-						}
-						else {
-							vertexRenderer = triangleRenderer.hdVertex(vertex.x, vertex.y, vertex.z, 0, 0, 0,
-									vertex.getSkinBones(), vertex.getSkinBoneWeights());
-						}
-						for (final TVertex tvert : vertex.getTverts()) {
-							vertexRenderer.textureCoords(tvert.x, tvert.y);
-						}
-						vertexRenderer.vertexFinished();
+			for (final Triangle triangle : geoset.getTriangles()) {
+				final TriangleVisitor triangleRenderer = geosetRenderer.beginTriangle();
+				for (final GeosetVertex vertex : triangle.getVerts()) {
+					final VertexVisitor vertexRenderer;
+					// TODO redesign for nullable normals
+					if (vertex.getNormal() != null) {
+						vertexRenderer = triangleRenderer.vertex(vertex.x, vertex.y, vertex.z, vertex.getNormal().x,
+								vertex.getNormal().y, vertex.getNormal().z, vertex.getLinks());
 					}
-					triangleRenderer.triangleFinished();
-				}
-			}
-			else {
-				for (final Triangle triangle : geoset.getTriangles()) {
-					final TriangleVisitor triangleRenderer = geosetRenderer.beginTriangle();
-					for (final GeosetVertex vertex : triangle.getVerts()) {
-						final VertexVisitor vertexRenderer;
-						// TODO redesign for nullable normals
-						if (vertex.getNormal() != null) {
-							vertexRenderer = triangleRenderer.vertex(vertex.x, vertex.y, vertex.z, vertex.getNormal().x,
-									vertex.getNormal().y, vertex.getNormal().z, vertex.getBoneAttachments());
-						}
-						else {
-							vertexRenderer = triangleRenderer.vertex(vertex.x, vertex.y, vertex.z, 0, 0, 0,
-									vertex.getBoneAttachments());
-						}
-						for (final TVertex tvert : vertex.getTverts()) {
-							vertexRenderer.textureCoords(tvert.x, tvert.y);
-						}
-						vertexRenderer.vertexFinished();
+					else {
+						vertexRenderer = triangleRenderer.vertex(vertex.x, vertex.y, vertex.z, 0, 0, 0,
+								vertex.getLinks());
 					}
-					triangleRenderer.triangleFinished();
+					for (final TVertex tvert : vertex.getTverts()) {
+						vertexRenderer.textureCoords(tvert.x, tvert.y);
+					}
+					vertexRenderer.vertexFinished();
 				}
+				triangleRenderer.triangleFinished();
 			}
 			geosetRenderer.geosetFinished();
 		}
@@ -3210,8 +3184,8 @@ public class EditableModel implements Named {
 					heroGlow.getVertices().addAll(heroGlowPlane.getVertices());
 					for (final GeosetVertex gv : heroGlow.getVertices()) {
 						gv.setGeoset(heroGlow);
-						gv.getBones().clear();
-						gv.getBones().add(dummyHeroGlowNode);
+						gv.clearBoneAttachments();
+						gv.addBoneAttachment((short) 255, dummyHeroGlowNode);
 					}
 					heroGlow.getTriangles().addAll(heroGlowPlane.getTriangles());
 					heroGlow.addFlag("Unselectable");
@@ -3438,8 +3412,8 @@ public class EditableModel implements Named {
 					heroGlow.getVertices().addAll(heroGlowPlane2.getVertices());
 					for (final GeosetVertex gv : heroGlow.getVertices()) {
 						gv.setGeoset(heroGlow);
-						gv.getBones().clear();
-						gv.getBones().add(dummyHeroGlowNode);
+						gv.clearBoneAttachments();
+						gv.addBoneAttachment((short) 255, dummyHeroGlowNode);
 					}
 					heroGlow.getTriangles().addAll(heroGlowPlane.getTriangles());
 					heroGlow.getTriangles().addAll(heroGlowPlane2.getTriangles());
@@ -3617,17 +3591,7 @@ public class EditableModel implements Named {
 					}
 					tangent[3] = 1;
 				}
-				final int bones = Math.min(4, gv.getBoneAttachments().size());
-				final short weight = (short) (255 / bones);
-				final short offsetWeight = (short) (255 - (weight * bones));
-				gv.initV900Skin();
-				for (int i = 0; (i < bones) && (i < 4); i++) {
-					gv.getSkinBones()[i] = gv.getBoneAttachments().get(i);
-					gv.getSkinBoneWeights()[i] = weight;
-					if (i == 0) {
-						gv.getSkinBoneWeights()[i] += offsetWeight;
-					}
-				}
+				gv.equalizeWeights();
 			}
 		}
 		for (final Material m : model.getMaterials()) {
@@ -3673,7 +3637,7 @@ public class EditableModel implements Named {
 		if (true) {
 			for (final Geoset theMesh : currentMDL.getGeosets()) {
 				for (final GeosetVertex gv : theMesh.getVertices()) {
-					if (gv.getSkinBones() == null) {
+					if (gv.getSkinBoneIndexes() == null) {
 						gv.initV900Skin();
 						gv.initV900Tangent();
 					}
@@ -3684,13 +3648,6 @@ public class EditableModel implements Named {
 //						gv.setTangent(new float[] { 0, 1, 0, 1 });
 //					}
 					gv.setTangent(new float[] { 0, 0, 1, 1 });
-					if ((gv.getBones() != null) && !gv.getBones().isEmpty()) {
-						final int nBones = Math.min(4, gv.getBones().size());
-						for (int i = 0; i < nBones; i++) {
-							gv.getSkinBones()[i] = gv.getBones().get(i);
-							gv.getSkinBoneWeights()[i] = (short) (255 / nBones);
-						}
-					}
 				}
 			}
 			return;

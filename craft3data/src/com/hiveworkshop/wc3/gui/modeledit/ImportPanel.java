@@ -191,13 +191,15 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			importedModel.setFileRef(new File(
 					importedModel.getFile().getParent() + "/" + importedModel.getName() + " (Imported)" + ".mdl"));
 			frame = new JFrame("Importing " + currentModel.getName() + " into itself");
-		} else {
+		}
+		else {
 			frame = new JFrame("Importing " + importedModel.getName() + " into " + currentModel.getName());
 		}
 		currentModel.doSavePreps();
 		try {
 			frame.setIconImage(RMSIcons.MDLIcon.getImage());
-		} catch (final Exception e) {
+		}
+		catch (final Exception e) {
 			JOptionPane.showMessageDialog(null,
 					"Error: Image files were not found! Due to bad programming, this might break the program!");
 		}
@@ -450,7 +452,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		int panelid = 0;
 		for (int i = 0; i < importedModel.getIdObjects().size(); i++) {
 			final IdObject obj = importedModel.getIdObjects().get(i);
-			if (obj.getClass() != Bone.class && obj.getClass() != Helper.class) {
+			if ((obj.getClass() != Bone.class) && (obj.getClass() != Helper.class)) {
 
 				final ObjectPanel objPanel = new ObjectPanel(obj, getFutureBoneListExtended(true));
 
@@ -603,22 +605,26 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				final GeosetPanel geoPanel = (GeosetPanel) geosetTabs.getComponentAt(i);
 				geoPanel.setSelected(true);
 			}
-		} else if (e.getSource() == uncheckAllGeos) {
+		}
+		else if (e.getSource() == uncheckAllGeos) {
 			for (int i = 0; i < geosetTabs.getTabCount(); i++) {
 				final GeosetPanel geoPanel = (GeosetPanel) geosetTabs.getComponentAt(i);
 				geoPanel.setSelected(false);
 			}
-		} else if (e.getSource() == importAllAnims) {
+		}
+		else if (e.getSource() == importAllAnims) {
 			for (int i = 0; i < animTabs.getTabCount(); i++) {
 				final AnimPanel aniPanel = (AnimPanel) animTabs.getComponentAt(i);
 				aniPanel.setSelected(true);
 			}
-		} else if (e.getSource() == timescaleAllAnims) {
+		}
+		else if (e.getSource() == timescaleAllAnims) {
 			for (int i = 0; i < animTabs.getTabCount(); i++) {
 				final AnimPanel aniPanel = (AnimPanel) animTabs.getComponentAt(i);
 				aniPanel.importTypeBox.setSelectedIndex(2);
 			}
-		} else if (e.getSource() == renameAllAnims) {
+		}
+		else if (e.getSource() == renameAllAnims) {
 			final String newTagString = JOptionPane.showInputDialog(this,
 					"Choose additional naming (i.e. swim or alternate)");
 			if (newTagString != null) {
@@ -627,7 +633,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 					aniPanel.importTypeBox.setSelectedIndex(1);
 					final String oldName = aniPanel.anim.getName();
 					String baseName = oldName;
-					while (baseName.length() > 0 && baseName.contains(" ")) {
+					while ((baseName.length() > 0) && baseName.contains(" ")) {
 						final int lastSpaceIndex = baseName.lastIndexOf(' ');
 						final String lastWord = baseName.substring(lastSpaceIndex + 1);
 						boolean chunkHasInt = false;
@@ -637,9 +643,10 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 							}
 						}
 						if (lastWord.contains("-") || chunkHasInt || lastWord.toLowerCase().contains("alternate")
-								|| lastWord.length() <= 0) {
+								|| (lastWord.length() <= 0)) {
 							baseName = baseName.substring(0, baseName.lastIndexOf(' '));
-						} else {
+						}
+						else {
 							break;
 						}
 					}
@@ -648,22 +655,26 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 					aniPanel.newNameEntry.setText(newName);
 				}
 			}
-		} else if (e.getSource() == uncheckAllAnims) {
+		}
+		else if (e.getSource() == uncheckAllAnims) {
 			for (int i = 0; i < animTabs.getTabCount(); i++) {
 				final AnimPanel aniPanel = (AnimPanel) animTabs.getComponentAt(i);
 				aniPanel.setSelected(false);
 			}
-		} else if (e.getSource() == importAllBones) {
+		}
+		else if (e.getSource() == importAllBones) {
 			for (int i = 0; i < bonePanels.size(); i++) {
 				final BonePanel bonePanel = bonePanels.get(i);
 				bonePanel.setSelectedIndex(0);
 			}
-		} else if (e.getSource() == motionFromBones) {
+		}
+		else if (e.getSource() == motionFromBones) {
 			for (int i = 0; i < bonePanels.size(); i++) {
 				final BonePanel bonePanel = bonePanels.get(i);
 				bonePanel.setSelectedIndex(1);
 			}
-		} else if (e.getSource() == uncheckUnusedBones) {
+		}
+		else if (e.getSource() == uncheckUnusedBones) {
 			// Unselect all bones by iterating + setting to index 2 ("Do not
 			// import" index)
 			// Bones could be referenced by:
@@ -684,11 +695,11 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			}
 			for (int i = 0; i < objectPanels.size(); i++) {
 				final ObjectPanel objectPanel = objectPanels.get(i);
-				if (objectPanel.doImport.isSelected() && objectPanel.parentsList != null) {
+				if (objectPanel.doImport.isSelected() && (objectPanel.parentsList != null)) {
 					// System.out.println("Performing check on base:
 					// "+objectPanel.object.getName());
 					BoneShell shell = (BoneShell) objectPanel.parentsList.getSelectedValue();
-					if (shell != null && shell.bone != null) {
+					if ((shell != null) && (shell.bone != null)) {
 						BonePanel current = getPanelOf(shell.bone);
 						if (!usedBonePanels.contains(current)) {
 							// System.out.println(" @adding base:
@@ -699,7 +710,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 						boolean good = true;
 						int k = 0;
 						while (good) {
-							if (current == null || current.getSelectedIndex() == 1) {
+							if ((current == null) || (current.getSelectedIndex() == 1)) {
 								break;
 							}
 							shell = (BoneShell) current.futureBonesList.getSelectedValue();
@@ -708,11 +719,13 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 							if (shell == null)// current.getSelectedIndex() != 2
 							{
 								good = false;
-							} else {
+							}
+							else {
 								current = getPanelOf(shell.bone);
 								if (usedBonePanels.contains(current)) {
 									good = false;
-								} else {
+								}
+								else {
 									// System.out.println(" @Redirected +
 									// adding: "+current.bone.getName());
 									// current.setSelectedIndex(0);
@@ -751,7 +764,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 							boolean good = true;
 							int k = 0;
 							while (good) {
-								if (current == null || current.getSelectedIndex() == 1) {
+								if ((current == null) || (current.getSelectedIndex() == 1)) {
 									break;
 								}
 								shell = (BoneShell) current.futureBonesList.getSelectedValue();
@@ -762,11 +775,13 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 													// != 2
 								{
 									good = false;
-								} else {
+								}
+								else {
 									current = getPanelOf(shell.bone);
 									if (usedBonePanels.contains(current)) {
 										good = false;
-									} else {
+									}
+									else {
 										// System.out.println(" @Redirected +
 										// adding: "+current.bone.getName());
 										// current.setSelectedIndex(0);
@@ -794,7 +809,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 						boolean good = true;
 						int k = 0;
 						while (good) {
-							if (current == null || current.getSelectedIndex() == 1) {
+							if ((current == null) || (current.getSelectedIndex() == 1)) {
 								break;
 							}
 							final BoneShell shell = (BoneShell) current.futureBonesList.getSelectedValue();
@@ -803,11 +818,13 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 							if (shell == null)// current.getSelectedIndex() != 2
 							{
 								good = false;
-							} else {
+							}
+							else {
 								current = getPanelOf(shell.bone);
 								if (usedBonePanels.contains(current)) {
 									good = false;
-								} else {
+								}
+								else {
 									// System.out.println(" @Redirected +
 									// adding: "+current.bone.getName());
 									// current.setSelectedIndex(0);
@@ -829,53 +846,64 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				if (bonePanel.getSelectedIndex() != 1) {
 					if (usedBonePanels.contains(bonePanel)) {
 						bonePanel.setSelectedIndex(0);
-					} else {
+					}
+					else {
 						bonePanel.setSelectedIndex(2);
 					}
 				}
 			}
-		} else if (e.getSource() == uncheckAllBones) {
+		}
+		else if (e.getSource() == uncheckAllBones) {
 			for (int i = 0; i < bonePanels.size(); i++) {
 				final BonePanel bonePanel = bonePanels.get(i);
 				bonePanel.setSelectedIndex(2);
 			}
-		} else if (e.getSource() == importAllObjs) {
+		}
+		else if (e.getSource() == importAllObjs) {
 			for (int i = 0; i < objectPanels.size(); i++) {
 				final ObjectPanel objectPanel = objectPanels.get(i);
 				objectPanel.doImport.setSelected(true);
 			}
-		} else if (e.getSource() == uncheckAllObjs) {
+		}
+		else if (e.getSource() == uncheckAllObjs) {
 			for (int i = 0; i < objectPanels.size(); i++) {
 				final ObjectPanel objectPanel = objectPanels.get(i);
 				objectPanel.doImport.setSelected(false);
 			}
-		} else if (e.getSource() == allVisButton) {
+		}
+		else if (e.getSource() == allVisButton) {
 			for (int i = 0; i < allVisShellPanes.size(); i++) {
 				final VisibilityPane vPanel = allVisShellPanes.get(i);
 				if (vPanel.sourceShell.model == currentModel) {
 					vPanel.newSourcesBox.setSelectedItem(VisibilityPane.VISIBLE);
-				} else {
+				}
+				else {
 					vPanel.oldSourcesBox.setSelectedItem(VisibilityPane.VISIBLE);
 				}
 			}
-		} else if (e.getSource() == allInvisButton) {
+		}
+		else if (e.getSource() == allInvisButton) {
 			for (int i = 0; i < allVisShellPanes.size(); i++) {
 				final VisibilityPane vPanel = allVisShellPanes.get(i);
 				if (vPanel.sourceShell.model == currentModel) {
 					vPanel.newSourcesBox.setSelectedItem(VisibilityPane.NOTVISIBLE);
-				} else {
+				}
+				else {
 					vPanel.oldSourcesBox.setSelectedItem(VisibilityPane.NOTVISIBLE);
 				}
 			}
-		} else if (e.getSource() == selSimButton) {
+		}
+		else if (e.getSource() == selSimButton) {
 			for (int i = 0; i < allVisShellPanes.size(); i++) {
 				final VisibilityPane vPanel = allVisShellPanes.get(i);
 				vPanel.selectSimilarOptions();
 			}
-		} else if (e.getSource() == okayButton) {
+		}
+		else if (e.getSource() == okayButton) {
 			doImport();
 			frame.setVisible(false);
-		} else if (e.getSource() == cancelButton) {
+		}
+		else if (e.getSource() == cancelButton) {
 			final Object[] options = { "Yes", "No" };
 			final int n = JOptionPane.showOptionDialog(frame, "Really cancel this import?", "Confirmation",
 					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
@@ -883,21 +911,24 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				frame.setVisible(false);
 				frame = null;
 			}
-		} else if (e.getSource() == allMatrOriginal) {
+		}
+		else if (e.getSource() == allMatrOriginal) {
 			for (int i = 0; i < geosetAnimTabs.getTabCount(); i++) {
 				if (geosetAnimTabs.isEnabledAt(i)) {
 					final BoneAttachmentPane bap = (BoneAttachmentPane) geosetAnimTabs.getComponentAt(i);
 					bap.resetMatrices();
 				}
 			}
-		} else if (e.getSource() == allMatrSameName) {
+		}
+		else if (e.getSource() == allMatrSameName) {
 			for (int i = 0; i < geosetAnimTabs.getTabCount(); i++) {
 				if (geosetAnimTabs.isEnabledAt(i)) {
 					final BoneAttachmentPane bap = (BoneAttachmentPane) geosetAnimTabs.getComponentAt(i);
 					bap.setMatricesToSimilarNames();
 				}
 			}
-		} else if (e.getSource() == applySmartMapping) {
+		}
+		else if (e.getSource() == applySmartMapping) {
 			final SmartMappingChooserPanel smartMapChooserPanel = new SmartMappingChooserPanel(importedModelManager,
 					currentModelManager, getFutureBoneListExtended(true));
 			final int userResult = JOptionPane.showConfirmDialog(this, smartMapChooserPanel, "Apply Smart Mapping",
@@ -927,17 +958,19 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			if (boneTabs.getSelectedValuesList().toArray().length < 1) {
 				// listEnabledNow = listEnabled;
 				boneCardLayout.show(bonePanelCards, "blank");
-			} else if (boneTabs.getSelectedValuesList().toArray().length == 1) {
+			}
+			else if (boneTabs.getSelectedValuesList().toArray().length == 1) {
 				// listEnabledNow = true;
 				boneCardLayout.show(bonePanelCards, boneTabs.getSelectedIndex() + "");
 				((BonePanel) boneTabs.getSelectedValue()).updateSelectionPicks();
-			} else if (boneTabs.getSelectedValuesList().toArray().length > 1) {
+			}
+			else if (boneTabs.getSelectedValuesList().toArray().length > 1) {
 				boneCardLayout.show(bonePanelCards, "multiple");
 				// listEnabledNow = false;
 				final Object[] selected = boneTabs.getSelectedValuesList().toArray();
 				boolean dif = false;
 				int tempIndex = -99;
-				for (int i = 0; i < selected.length && !dif; i++) {
+				for (int i = 0; (i < selected.length) && !dif; i++) {
 					final BonePanel temp = (BonePanel) selected[i];
 					if (tempIndex == -99) {
 						tempIndex = temp.importTypeBox.getSelectedIndex();
@@ -948,7 +981,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				}
 				if (dif) {
 					multiBonePane.setMultiTypes();
-				} else {
+				}
+				else {
 					multiBonePane.setSelectedIndex(tempIndex);
 				}
 			}
@@ -962,24 +996,28 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			// }
 			// listEnabled = listEnabledNow;
 			// }
-		} else if (e.getSource() == objectTabs) {
+		}
+		else if (e.getSource() == objectTabs) {
 			if (objectTabs.getSelectedValuesList().toArray().length < 1) {
 				objectCardLayout.show(objectPanelCards, "blank");
-			} else if (objectTabs.getSelectedValuesList().toArray().length == 1) {
+			}
+			else if (objectTabs.getSelectedValuesList().toArray().length == 1) {
 				getFutureBoneListExtended(false);
 				objectCardLayout.show(objectPanelCards, objectTabs.getSelectedIndex() + "");// .title.getText()
-			} else if (objectTabs.getSelectedValuesList().toArray().length > 1) {
+			}
+			else if (objectTabs.getSelectedValuesList().toArray().length > 1) {
 				objectCardLayout.show(objectPanelCards, "multiple");
 				final Object[] selected = objectTabs.getSelectedValuesList().toArray();
 				boolean dif = false;
 				boolean set = false;
 				boolean selectedt = false;
-				for (int i = 0; i < selected.length && !dif; i++) {
+				for (int i = 0; (i < selected.length) && !dif; i++) {
 					final ObjectPanel temp = (ObjectPanel) selected[i];
 					if (set == false) {
 						set = true;
 						selectedt = temp.doImport.isSelected();
-					} else if (selectedt != temp.doImport.isSelected()) {
+					}
+					else if (selectedt != temp.doImport.isSelected()) {
 						dif = true;
 					}
 				}
@@ -987,12 +1025,15 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 					multiObjectPane.doImport.setSelected(selectedt);
 				}
 			}
-		} else if (e.getSource() == visTabs) {
+		}
+		else if (e.getSource() == visTabs) {
 			if (visTabs.getSelectedValuesList().toArray().length < 1) {
 				visCardLayout.show(visPanelCards, "blank");
-			} else if (visTabs.getSelectedValuesList().toArray().length == 1) {
+			}
+			else if (visTabs.getSelectedValuesList().toArray().length == 1) {
 				visCardLayout.show(visPanelCards, ((VisibilityPane) visTabs.getSelectedValue()).title.getText());
-			} else if (visTabs.getSelectedValuesList().toArray().length > 1) {
+			}
+			else if (visTabs.getSelectedValuesList().toArray().length > 1) {
 				visCardLayout.show(visPanelCards, "multiple");
 				final Object[] selected = visTabs.getSelectedValuesList().toArray();
 
@@ -1005,12 +1046,13 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				int tempIndexOld = -99;
 				int tempIndexNew = -99;
 
-				for (int i = 0; i < selected.length && !dif; i++) {
+				for (int i = 0; (i < selected.length) && !dif; i++) {
 					final VisibilityPane temp = (VisibilityPane) selected[i];
 					if (set == false) {
 						set = true;
 						selectedt = temp.favorOld.isSelected();
-					} else if (selectedt != temp.favorOld.isSelected()) {
+					}
+					else if (selectedt != temp.favorOld.isSelected()) {
 						dif = true;
 					}
 
@@ -1033,12 +1075,14 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				}
 				if (difBoxOld) {
 					multiVisPane.setMultipleOld();
-				} else {
+				}
+				else {
 					multiVisPane.oldSourcesBox.setSelectedIndex(tempIndexOld);
 				}
 				if (difBoxNew) {
 					multiVisPane.setMultipleNew();
-				} else {
+				}
+				else {
 					multiVisPane.newSourcesBox.setSelectedIndex(tempIndexNew);
 				}
 			}
@@ -1136,7 +1180,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 					futureBoneList.addElement(b);
 				}
 			}
-		} else {
+		}
+		else {
 			for (final BoneShell b : oldBones) {
 				if (futureBoneList.contains(b)) {
 					futureBoneList.removeElement(b);
@@ -1148,10 +1193,9 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				if (!futureBoneList.contains(b)) {
 					futureBoneList.addElement(b);
 				}
-			} else {
-				if (futureBoneList.contains(b)) {
-					futureBoneList.removeElement(b);
-				}
+			}
+			else if (futureBoneList.contains(b)) {
+				futureBoneList.removeElement(b);
 			}
 		}
 		return futureBoneList;
@@ -1294,7 +1338,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 					futureBoneListExQuickLookupSet.add(b);
 				}
 			}
-		} else {
+		}
+		else {
 			for (final BoneShell b : oldHelpers) {
 				if (futureBoneListExQuickLookupSet.remove(b)) {
 					final long startTime = System.nanoTime();
@@ -1317,23 +1362,22 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 						addCount++;
 						futureBoneListExQuickLookupSet.add(b);
 					}
-				} else {
-					if (futureBoneListExQuickLookupSet.remove(b)) {
-						final long startTime = System.nanoTime();
-						futureBoneListEx.removeElement(b);
-						final long endTime = System.nanoTime();
-						totalRemoveTime += endTime - startTime;
-						removeCount++;
-					}
+				}
+				else if (futureBoneListExQuickLookupSet.remove(b)) {
+					final long startTime = System.nanoTime();
+					futureBoneListEx.removeElement(b);
+					final long endTime = System.nanoTime();
+					totalRemoveTime += endTime - startTime;
+					removeCount++;
 				}
 			}
 		}
 		if (addCount != 0) {
-			System.out.println("average add time: " + totalAddTime / addCount);
+			System.out.println("average add time: " + (totalAddTime / addCount));
 			System.out.println("add count: " + addCount);
 		}
 		if (removeCount != 0) {
-			System.out.println("average remove time: " + totalRemoveTime / removeCount);
+			System.out.println("average remove time: " + (totalRemoveTime / removeCount));
 			System.out.println("remove count: " + removeCount);
 		}
 
@@ -1342,7 +1386,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			final DefaultListModel<BoneShell> futureBoneListReplica = new DefaultListModel<>();
 			futureBoneListExFixableItems.add(futureBoneListReplica);
 			listModelToReturn = futureBoneListReplica;
-		} else {
+		}
+		else {
 			listModelToReturn = futureBoneListExFixableItems.get(0);
 		}
 		// We CANT call clear, we have to preserve
@@ -1535,7 +1580,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			if (o.getClass() != GeosetAnim.class) {
 				visSourcesOld.add(shellFromObject(o));
 				System.out.println(shellFromObject(o).source.getName());
-			} else {
+			}
+			else {
 				visSourcesOld.add(shellFromObject(((GeosetAnim) o).getGeoset()));
 				System.out.println(shellFromObject(((GeosetAnim) o).getGeoset()).source.getName());
 			}
@@ -1545,7 +1591,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		for (final Object o : importedModel.getAllVisibilitySources()) {
 			if (o.getClass() != GeosetAnim.class) {
 				visSourcesNew.add(shellFromObject(o));
-			} else {
+			}
+			else {
 				visSourcesNew.add(shellFromObject(((GeosetAnim) o).getGeoset()));
 			}
 		}
@@ -1561,7 +1608,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			final GeosetPanel gp = (GeosetPanel) geosetTabs.getComponentAt(i);
 			for (final Layer l : gp.getSelectedMaterial().getLayers()) {
 				final VisibilityPane vs = visPaneFromObject(l);
-				if (!visComponents.contains(vs) && vs != null) {
+				if (!visComponents.contains(vs) && (vs != null)) {
 					visComponents.addElement(vs);
 				}
 			}
@@ -1571,7 +1618,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			if (gp.doImport.isSelected()) {
 				final Geoset ga = gp.geoset;
 				final VisibilityPane vs = visPaneFromObject(ga);
-				if (!visComponents.contains(vs) && vs != null) {
+				if (!visComponents.contains(vs) && (vs != null)) {
 					visComponents.addElement(vs);
 				}
 			}
@@ -1580,44 +1627,44 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		final EditableModel model = currentModel;
 		for (final Object l : model.sortedIdObjects(Light.class)) {
 			final VisibilityPane vs = visPaneFromObject(l);
-			if (!visComponents.contains(vs) && vs != null) {
+			if (!visComponents.contains(vs) && (vs != null)) {
 				visComponents.addElement(vs);
 			}
 		}
 		for (final Object a : model.sortedIdObjects(Attachment.class)) {
 			final VisibilityPane vs = visPaneFromObject(a);
-			if (!visComponents.contains(vs) && vs != null) {
+			if (!visComponents.contains(vs) && (vs != null)) {
 				visComponents.addElement(vs);
 			}
 		}
 		for (final Object x : model.sortedIdObjects(ParticleEmitter.class)) {
 			final VisibilityPane vs = visPaneFromObject(x);
-			if (!visComponents.contains(vs) && vs != null) {
+			if (!visComponents.contains(vs) && (vs != null)) {
 				visComponents.addElement(vs);
 			}
 		}
 		for (final Object x : model.sortedIdObjects(ParticleEmitter2.class)) {
 			final VisibilityPane vs = visPaneFromObject(x);
-			if (!visComponents.contains(vs) && vs != null) {
+			if (!visComponents.contains(vs) && (vs != null)) {
 				visComponents.addElement(vs);
 			}
 		}
 		for (final Object x : model.sortedIdObjects(RibbonEmitter.class)) {
 			final VisibilityPane vs = visPaneFromObject(x);
-			if (!visComponents.contains(vs) && vs != null) {
+			if (!visComponents.contains(vs) && (vs != null)) {
 				visComponents.addElement(vs);
 			}
 		}
 		for (final Object x : model.sortedIdObjects(ParticleEmitterPopcorn.class)) {
 			final VisibilityPane vs = visPaneFromObject(x);
-			if (!visComponents.contains(vs) && vs != null) {
+			if (!visComponents.contains(vs) && (vs != null)) {
 				visComponents.addElement(vs);
 			}
 		}
 
 		for (int i = 0; i < objectPanels.size(); i++) {
 			final ObjectPanel op = objectPanels.get(i);
-			if (op.doImport.isSelected() && op.object != null)// we don't touch
+			if (op.doImport.isSelected() && (op.object != null))// we don't touch
 																// camera
 																// "object"
 																// panels (which
@@ -1625,7 +1672,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 																// idobjects)
 			{
 				final VisibilityPane vs = visPaneFromObject(op.object);
-				if (!visComponents.contains(vs) && vs != null) {
+				if (!visComponents.contains(vs) && (vs != null)) {
 					visComponents.addElement(vs);
 				}
 			}
@@ -1720,7 +1767,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			for (int i = 0; i < geosetTabs.getTabCount(); i++) {
 				final GeosetPanel gp = (GeosetPanel) geosetTabs.getComponentAt(i);
 				gp.geoset.setMaterial(gp.getSelectedMaterial());
-				if (gp.doImport.isSelected() && gp.model == importedModel) {
+				if (gp.doImport.isSelected() && (gp.model == importedModel)) {
 					currentModel.add(gp.geoset);
 					// newGeosets.add(gp.geoset);//Just for 3d update
 					if (gp.geoset.getGeosetAnim() != null) {
@@ -1740,7 +1787,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			for (final AnimFlag af : impFlags) {
 				if (!af.hasGlobalSeq()) {
 					newImpFlags.add(AnimFlag.buildEmptyFrom(af));
-				} else {
+				}
+				else {
 					newImpFlags.add(new AnimFlag(af));
 				}
 			}
@@ -1856,7 +1904,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 					final BoneShell mbs = (BoneShell) bonePanel.futureBonesList.getSelectedValue();
 					if (mbs != null) {
 						b.setParent(mbs.bone);
-					} else {
+					}
+					else {
 						b.setParent(null);
 					}
 					break;
@@ -1888,15 +1937,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 					final BoneAttachmentPane bap = (BoneAttachmentPane) geosetAnimTabs.getComponentAt(i);
 					for (int l = 0; l < bap.oldBoneRefs.size(); l++) {
 						final MatrixShell ms = bap.oldBoneRefs.get(l);
-						if (ms.newBones.size() > 0) {
-							ms.matrix.getBones().clear();
-						} else {
-							// JOptionPane.showMessageDialog(null,"Warning: You
-							// left some matrices empty. Zero values will be
-							// inserted.");
-							ms.matrix.getBones().clear();
-							// ms.matrix.bones.add(bap.model.getBone(0));
-						}
+						ms.matrix.getBones().clear();
 						for (final BoneShell bs : ms.newBones) {
 							if (currentModel.contains(bs.bone)) {
 								if (bs.bone.getClass() == Helper.class) {
@@ -1904,7 +1945,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 											"Error: Holy fo shizzle my grizzle! A geoset is trying to attach to a helper, not a bone!");
 								}
 								ms.matrix.add(bs.bone);
-							} else {
+							}
+							else {
 								System.out.println("Boneshaving " + bs.bone.getName() + " out of use");
 							}
 						}
@@ -1949,7 +1991,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 						final BoneShell mbs = (BoneShell) objectPanel.parentsList.getSelectedValue();
 						if (mbs != null) {
 							objectPanel.object.setParent(mbs.bone);
-						} else {
+						}
+						else {
 							objectPanel.object.setParent(null);
 						}
 						// objectPanel.object.setName(importedModel.getName()+"
@@ -1957,18 +2000,18 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 						// later make a name field?
 						currentModel.add(objectPanel.object);
 						objectsAdded.add(objectPanel.object);
-					} else if (objectPanel.camera != null) {
+					}
+					else if (objectPanel.camera != null) {
 						// objectPanel.camera.setName(importedModel.getName()+"
 						// "+objectPanel.camera.getName());
 						currentModel.add(objectPanel.camera);
 						camerasAdded.add(objectPanel.camera);
 					}
-				} else {
-					if (objectPanel.object != null) {
-						objectPanel.object.setParent(null);
-						// Fix cross-model referencing issue (force clean parent node's list of
-						// children)
-					}
+				}
+				else if (objectPanel.object != null) {
+					objectPanel.object.setParent(null);
+					// Fix cross-model referencing issue (force clean parent node's list of
+					// children)
 				}
 			}
 
@@ -1983,7 +2026,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				if (visFlag != null) {
 					newVisFlag = AnimFlag.buildEmptyFrom(visFlag);
 					tans = visFlag.tans();
-				} else {
+				}
+				else {
 					newVisFlag = new AnimFlag(temp.visFlagName());
 				}
 				// newVisFlag = new AnimFlag(temp.visFlagName());
@@ -1993,19 +2037,22 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				if (oldSource.getClass() == String.class) {
 					if (oldSource == VisibilityPane.VISIBLE) {
 						// empty for visible
-					} else if (oldSource == VisibilityPane.NOTVISIBLE) {
+					}
+					else if (oldSource == VisibilityPane.NOTVISIBLE) {
 						flagOld = new AnimFlag("temp");
 						for (final Animation a : oldAnims) {
 							test = true;
 							if (tans) {
 								flagOld.addEntry(new Integer(a.getStart()), new Double(0), new Double(0),
 										new Double(0));
-							} else {
+							}
+							else {
 								flagOld.addEntry(new Integer(a.getStart()), new Double(0));
 							}
 						}
 					}
-				} else {
+				}
+				else {
 					flagOld = ((VisibilitySource) ((VisibilityShell) oldSource).source).getVisibilityFlag();
 				}
 				final Object newSource = vPanel.newSourcesBox.getSelectedItem();
@@ -2013,13 +2060,15 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				if (newSource.getClass() == String.class) {
 					if (newSource == VisibilityPane.VISIBLE) {
 						// empty for visible
-					} else if (newSource == VisibilityPane.NOTVISIBLE) {
+					}
+					else if (newSource == VisibilityPane.NOTVISIBLE) {
 						flagNew = new AnimFlag("temp");
 						for (final Animation a : newAnims) {
 							if (tans) {
 								flagNew.addEntry(new Integer(a.getStart()), new Double(0), new Double(0),
 										new Double(0));
-							} else {
+							}
+							else {
 								flagNew.addEntry(new Integer(a.getStart()), new Double(0));
 							}
 							// flagNew.times.add(new Integer(a.getStart()));
@@ -2031,11 +2080,12 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 							// }
 						}
 					}
-				} else {
+				}
+				else {
 					flagNew = ((VisibilitySource) ((VisibilityShell) newSource).source).getVisibilityFlag();
 				}
-				if (vPanel.favorOld.isSelected() && vPanel.sourceShell.model == currentModel && !clearAnims
-						|| !vPanel.favorOld.isSelected() && vPanel.sourceShell.model == importedModel) {
+				if ((vPanel.favorOld.isSelected() && (vPanel.sourceShell.model == currentModel) && !clearAnims)
+						|| (!vPanel.favorOld.isSelected() && (vPanel.sourceShell.model == importedModel))) {
 					// this is an element favoring existing animations over
 					// imported
 					for (final Animation a : oldAnims) {
@@ -2050,7 +2100,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 							}
 						}
 					}
-				} else {
+				}
+				else {
 					// this is an element not favoring existing over imported
 					for (final Animation a : newAnims) {
 						if (flagOld != null) {
@@ -2068,11 +2119,13 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				}
 				if (flagOld != null) {
 					newVisFlag.copyFrom(flagOld);
-				} else {
+				}
+				else {
 				}
 				if (flagNew != null) {
 					newVisFlag.copyFrom(flagNew);
-				} else {
+				}
+				else {
 				}
 				finalVisFlags.add(newVisFlag);
 			}
@@ -2082,7 +2135,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				final AnimFlag visFlag = finalVisFlags.get(i);// might be null
 				if (visFlag.size() > 0) {
 					temp.setVisibilityFlag(visFlag);
-				} else {
+				}
+				else {
 					temp.setVisibilityFlag(null);
 				}
 			}
@@ -2111,7 +2165,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			final List<Geoset> geosetsAdded = new ArrayList<>();
 			for (int i = 0; i < geosetTabs.getTabCount(); i++) {
 				final GeosetPanel gp = (GeosetPanel) geosetTabs.getComponentAt(i);
-				if (gp.doImport.isSelected() && gp.model == importedModel) {
+				if (gp.doImport.isSelected() && (gp.model == importedModel)) {
 					geosetsAdded.add(gp.geoset);
 				}
 			}
@@ -2123,7 +2177,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			for (final AnimFlag flag : currentModel.getAllAnimFlags()) {
 				flag.sort();
 			}
-		} catch (final Exception e) {
+		}
+		catch (final Exception e) {
 			e.printStackTrace();
 			ExceptionPopup.display(e);
 		}
@@ -2175,13 +2230,13 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 
 		// Iterate through new visibility sources, find a geoset with gutz
 		// material
-		for (int i = 0; i < visSourcesNew.size() && corpseShell == null; i++) {
+		for (int i = 0; (i < visSourcesNew.size()) && (corpseShell == null); i++) {
 			if (visSourcesNew.get(i) instanceof VisibilityShell) {
 				final VisibilityShell vs = (VisibilityShell) visSourcesNew.get(i);
 				if (vs.source instanceof Geoset) {
 					final Geoset g = (Geoset) vs.source;
-					if (g.getGeosetAnim() != null && g.getMaterial().firstLayer().firstTexture().getPath().toLowerCase()
-							.equals("textures\\gutz.blp")) {
+					if ((g.getGeosetAnim() != null) && g.getMaterial().firstLayer().firstTexture().getPath()
+							.toLowerCase().equals("textures\\gutz.blp")) {
 						corpseShell = vs;
 						// JOptionPane.showMessageDialog(null,"Anim file corpse
 						// found at index "+i);
@@ -2202,8 +2257,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 					final Geoset g = (Geoset) vp.sourceShell.source;
 					// JOptionPane.showMessageDialog(null,"Source file geo tex:
 					// "+g.material.firstLayer().firstTexture().getPath());
-					if (g.getGeosetAnim() != null && g.getMaterial().firstLayer().firstTexture().getPath().toLowerCase()
-							.equals("textures\\gutz.blp")) {
+					if ((g.getGeosetAnim() != null) && g.getMaterial().firstLayer().firstTexture().getPath()
+							.toLowerCase().equals("textures\\gutz.blp")) {
 						vp.newSourcesBox.setSelectedItem(corpseShell);
 						// JOptionPane.showMessageDialog(null,"Source file
 						// corpse set at index "+i);
@@ -2247,7 +2302,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 					}
 				}
 			}
-		} else {
+		}
+		else {
 			JOptionPane.showMessageDialog(null, "Bug in anim transfer: attempted unnecessary 2-part transfer");
 		}
 		for (int i = 0; i < visComponents.getSize(); i++) {
@@ -2298,7 +2354,8 @@ class GeosetPanel extends JPanel implements ChangeListener {
 		doImport.setSelected(true);
 		if (imported) {
 			doImport.addChangeListener(this);
-		} else {
+		}
+		else {
 			doImport.setEnabled(false);
 		}
 
@@ -2349,7 +2406,7 @@ class GeosetPanel extends JPanel implements ChangeListener {
 	public ImportPanel getImportPanel() {
 		if (impPanel == null) {
 			Container temp = getParent();
-			while (temp != null && temp.getClass() != ImportPanel.class) {
+			while ((temp != null) && (temp.getClass() != ImportPanel.class)) {
 				temp = temp.getParent();
 			}
 			impPanel = (ImportPanel) temp;
@@ -2394,7 +2451,8 @@ class MaterialListCellRenderer extends DefaultListCellRenderer {
 			}
 
 			setIcon(myIcon);
-		} else {
+		}
+		else {
 			super.getListCellRendererComponent(list, "Import: " + name, index, iss, chf);
 			ImageIcon myIcon = map.get(value);
 			if (myIcon == null) {
@@ -2490,7 +2548,7 @@ class AnimPanel extends JPanel implements ChangeListener, ItemListener, ListSele
 		// with the same name
 		// (although this should stop after the first one is picked)
 		animList.addListSelectionListener(this);
-		for (int i = 0; i < existingAnims.size() && animList.getSelectedIndex() == -1; i++) {
+		for (int i = 0; (i < existingAnims.size()) && (animList.getSelectedIndex() == -1); i++) {
 			final Animation iAnim = ((AnimShell) listModel.get(i)).anim;
 			if (iAnim.getName().toLowerCase().equals(anim.getName().toLowerCase())) {
 				animList.setSelectedValue(listModel.get(i), true);
@@ -2556,7 +2614,7 @@ class AnimPanel extends JPanel implements ChangeListener, ItemListener, ListSele
 		listModel.clear();
 		for (int i = 0; i < existingAnims.size(); i++) {
 			final Animation temp = ((AnimShell) existingAnims.get(i)).importAnim;
-			if (temp == null || temp == anim) {
+			if ((temp == null) || (temp == anim)) {
 				listModel.addElement(existingAnims.get(i));
 			}
 		}
@@ -2581,9 +2639,10 @@ class AnimPanel extends JPanel implements ChangeListener, ItemListener, ListSele
 		listenSelection = true;
 
 		Object[] newSelection;
-		if (doImport.isSelected() && importTypeBox.getSelectedIndex() == 2) {
+		if (doImport.isSelected() && (importTypeBox.getSelectedIndex() == 2)) {
 			newSelection = animList.getSelectedValuesList().toArray();
-		} else {
+		}
+		else {
 			newSelection = new Object[0];
 		}
 		// ImportPanel panel = getImportPanel();
@@ -2609,7 +2668,7 @@ class AnimPanel extends JPanel implements ChangeListener, ItemListener, ListSele
 
 	public ImportPanel getImportPanel() {
 		Container temp = getParent();
-		while (temp.getClass() != ImportPanel.class && temp != null) {
+		while ((temp.getClass() != ImportPanel.class) && (temp != null)) {
 			temp = temp.getParent();
 		}
 		return (ImportPanel) temp;
@@ -2743,7 +2802,7 @@ class BonePanel extends JPanel implements ListSelectionListener, ActionListener 
 		boneListPane = new JScrollPane(boneList);
 		for (int i = 0; i < listModel.size(); i++) {
 			final BoneShell bs = (BoneShell) listModel.get(i);
-			if (bs.bone.getName().equals(bone.getName()) && bs.importBone == null
+			if (bs.bone.getName().equals(bone.getName()) && (bs.importBone == null)
 					&& (!(bs.bone.getName().contains("Mesh") || bs.bone.getName().contains("Object")
 							|| bs.bone.getName().contains("Box"))
 							|| bs.bone.getPivotPoint().equalLocs(bone.getPivotPoint()))) {
@@ -2761,7 +2820,8 @@ class BonePanel extends JPanel implements ListSelectionListener, ActionListener 
 		futureBonesListPane = new JScrollPane(futureBonesList);
 		if (bone.getParent() != null) {
 			parentTitle = new JLabel("Parent:      (Old Parent: " + bone.getParent().getName() + ")");
-		} else {
+		}
+		else {
 			parentTitle = new JLabel("Parent:      (Old Parent: {no parent})");
 		}
 
@@ -2794,7 +2854,8 @@ class BonePanel extends JPanel implements ListSelectionListener, ActionListener 
 		listenSelection = false;
 		if (importTypeBox.getSelectedItem() == MOTIONFROM) {
 			cards.show(cardPanel, "boneList");
-		} else {
+		}
+		else {
 			cards.show(cardPanel, "blank");
 		}
 		listenSelection = pastListSelectionState;
@@ -2815,7 +2876,7 @@ class BonePanel extends JPanel implements ListSelectionListener, ActionListener 
 	public ImportPanel getImportPanel() {
 		if (impPanel == null) {
 			Container temp = getParent();
-			while (temp != null && temp.getClass() != ImportPanel.class) {
+			while ((temp != null) && (temp.getClass() != ImportPanel.class)) {
 				temp = temp.getParent();
 			}
 			impPanel = (ImportPanel) temp;
@@ -2848,7 +2909,7 @@ class BonePanel extends JPanel implements ListSelectionListener, ActionListener 
 		listModel.clear();
 		for (int i = 0; i < existingBones.size(); i++) {
 			final Bone temp = ((BoneShell) existingBones.get(i)).importBone;
-			if (temp == null || temp == bone) {
+			if ((temp == null) || (temp == bone)) {
 				listModel.addElement(existingBones.get(i));
 			}
 		}
@@ -2875,7 +2936,8 @@ class BonePanel extends JPanel implements ListSelectionListener, ActionListener 
 		Object[] newSelection;
 		if (importTypeBox.getSelectedIndex() == 1) {
 			newSelection = boneList.getSelectedValuesList().toArray();
-		} else {
+		}
+		else {
 			newSelection = new Object[0];
 		}
 		// ImportPanel panel = getImportPanel();
@@ -2994,7 +3056,7 @@ class MultiBonePanel extends BonePanel {
 	@Override
 	public ImportPanel getImportPanel() {
 		Container temp = getParent();
-		while (temp.getClass() != ImportPanel.class && temp != null) {
+		while ((temp.getClass() != ImportPanel.class) && (temp != null)) {
 			temp = temp.getParent();
 		}
 		return (ImportPanel) temp;
@@ -3035,7 +3097,8 @@ class MultiBonePanel extends BonePanel {
 		listenSelection = false;
 		if (importTypeBox.getSelectedItem() == MOTIONFROM) {
 			cards.show(cardPanel, "boneList");
-		} else {
+		}
+		else {
 			cards.show(cardPanel, "blank");
 		}
 		listenSelection = pastListSelectionState;
@@ -3072,7 +3135,7 @@ class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 
 		@Override
 		public boolean isAccepted(final GeosetVertex vertex) {
-			return vertex.getBoneAttachments().contains(boneShell.bone);
+			return vertex.isLinked(boneShell.bone);
 		}
 
 		@Override
@@ -3136,10 +3199,12 @@ class ParentToggleRenderer extends BoneShellListCellRenderer {
 		if (toggleBox.isSelected()) {
 			if (((BoneShell) value).bone.getParent() != null) {
 				comp.setText(value.toString() + "; " + ((BoneShell) value).bone.getParent().getName());
-			} else {
+			}
+			else {
 				comp.setText(value.toString() + "; (no parent)");
 			}
-		} else {
+		}
+		else {
 			super.getListCellRendererComponent(list, value, index, iss, chf);
 		}
 		return this;
@@ -3172,7 +3237,7 @@ class BonePanelListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 
 			@Override
 			public boolean isAccepted(final GeosetVertex vertex) {
-				return vertex.getBoneAttachments().contains(bone);
+				return vertex.isLinked(bone);
 			}
 
 			@Override
@@ -3257,7 +3322,7 @@ class GeosetAnimationPanel extends JTabbedPane {
 	public ImportPanel getImportPanel() {
 		if (impPanel == null) {
 			Container temp = getParent();
-			while (temp != null && temp.getClass() != ImportPanel.class) {
+			while ((temp != null) && (temp.getClass() != ImportPanel.class)) {
 				temp = temp.getParent();
 			}
 			impPanel = (ImportPanel) temp;
@@ -3375,19 +3440,21 @@ class BoneAttachmentPane extends JPanel implements ActionListener, ListSelection
 				}
 			}
 			refreshNewRefsList();
-		} else if (e.getSource() == removeNewRef) {
+		}
+		else if (e.getSource() == removeNewRef) {
 			for (final Object o : newRefsList.getSelectedValuesList()) {
 				int i = newRefsList.getSelectedIndex();
 				newRefs.removeElement(o);
-				if (i > newRefs.size() - 1) {
+				if (i > (newRefs.size() - 1)) {
 					i = newRefs.size() - 1;
 				}
 				newRefsList.setSelectedIndex(i);
 			}
 			refreshNewRefsList();
-		} else if (e.getSource() == moveUp) {
+		}
+		else if (e.getSource() == moveUp) {
 			final int[] indices = newRefsList.getSelectedIndices();
-			if (indices != null && indices.length > 0) {
+			if ((indices != null) && (indices.length > 0)) {
 				if (indices[0] > 0) {
 					for (int i = 0; i < indices.length; i++) {
 						final BoneShell bs = newRefs.get(indices[i]);
@@ -3398,10 +3465,11 @@ class BoneAttachmentPane extends JPanel implements ActionListener, ListSelection
 				}
 				newRefsList.setSelectedIndices(indices);
 			}
-		} else if (e.getSource() == moveDown) {
+		}
+		else if (e.getSource() == moveDown) {
 			final int[] indices = newRefsList.getSelectedIndices();
-			if (indices != null && indices.length > 0) {
-				if (indices[indices.length - 1] < newRefs.size() - 1) {
+			if ((indices != null) && (indices.length > 0)) {
+				if (indices[indices.length - 1] < (newRefs.size() - 1)) {
 					for (int i = indices.length - 1; i >= 0; i--) {
 						final BoneShell bs = newRefs.get(indices[i]);
 						newRefs.removeElement(bs);
@@ -3470,7 +3538,8 @@ class BoneAttachmentPane extends JPanel implements ActionListener, ListSelection
 	public void buildOldRefsList() {
 		if (oldBoneRefs == null) {
 			oldBoneRefs = new DefaultListModel<>();
-		} else {
+		}
+		else {
 			oldBoneRefs.clear();
 		}
 		for (final Matrix m : geoset.getMatrix()) {
@@ -3577,7 +3646,7 @@ class BoneAttachmentPane extends JPanel implements ActionListener, ListSelection
 	public ImportPanel getImportPanel() {
 		if (impPanel == null) {
 			Container temp = getParent();
-			while (temp != null && temp.getClass() != ImportPanel.class) {
+			while ((temp != null) && (temp.getClass() != ImportPanel.class)) {
 				temp = temp.getParent();
 			}
 			impPanel = (ImportPanel) temp;
@@ -3613,7 +3682,8 @@ class ObjectPanel extends JPanel {
 		parentLabel = new JLabel("Parent:");
 		if (object.getParent() != null) {
 			oldParentLabel = new JLabel("(Old Parent: " + object.getParent().getName() + ")");
-		} else {
+		}
+		else {
 			oldParentLabel = new JLabel("(Old Parent: {no parent})");
 		}
 
@@ -3705,7 +3775,7 @@ class MultiObjectPanel extends ObjectPanel implements ChangeListener {
 	public ImportPanel getImportPanel() {
 		if (impPanel == null) {
 			Container temp = getParent();
-			while (temp != null && temp.getClass() != ImportPanel.class) {
+			while ((temp != null) && (temp.getClass() != ImportPanel.class)) {
 				temp = temp.getParent();
 			}
 			impPanel = (ImportPanel) temp;
@@ -3738,7 +3808,8 @@ class VisPaneListCellRenderer extends DefaultListCellRenderer {
 				+ ((VisibilityPane) value).sourceShell.source.getName(), index, iss, chf);
 		if (current == ((VisibilityPane) value).sourceShell.model) {
 			setIcon(ImportPanel.greenIcon);
-		} else {
+		}
+		else {
 			setIcon(ImportPanel.orangeIcon);
 		}
 		return this;
@@ -3759,7 +3830,8 @@ class VisShellBoxCellRenderer extends javax.swing.plaf.basic.BasicComboBoxRender
 			super.getListCellRendererComponent(list,
 					((VisibilityShell) value).model.getName() + ": " + ((VisibilityShell) value).source.getName(),
 					index, iss, chf);
-		} else {
+		}
+		else {
 			super.getListCellRendererComponent(list, value, index, iss, chf);
 		}
 		return this;
@@ -3794,14 +3866,15 @@ class VisibilityPane extends JPanel {
 		oldSourcesBox.setMaximumSize(new Dimension(1000, 25));
 		oldSourcesBox.setRenderer(renderer);
 		boolean didContain = false;
-		for (int i = 0; i < oldSources.getSize() && !didContain; i++) {
+		for (int i = 0; (i < oldSources.getSize()) && !didContain; i++) {
 			if (sourceShell == oldSources.getElementAt(i)) {
 				didContain = true;
 			}
 		}
 		if (didContain) {
 			oldSourcesBox.setSelectedItem(sourceShell);
-		} else {
+		}
+		else {
 			oldSourcesBox.setSelectedItem(VISIBLE);
 		}
 
@@ -3811,14 +3884,15 @@ class VisibilityPane extends JPanel {
 		newSourcesBox.setMaximumSize(new Dimension(1000, 25));
 		newSourcesBox.setRenderer(renderer);
 		didContain = false;
-		for (int i = 0; i < newSources.getSize() && !didContain; i++) {
+		for (int i = 0; (i < newSources.getSize()) && !didContain; i++) {
 			if (sourceShell == newSources.getElementAt(i)) {
 				didContain = true;
 			}
 		}
 		if (didContain) {
 			newSourcesBox.setSelectedItem(sourceShell);
-		} else {
+		}
+		else {
 			newSourcesBox.setSelectedItem(VISIBLE);
 		}
 
@@ -3933,7 +4007,7 @@ class MultiVisibilityPane extends VisibilityPane implements ChangeListener, Item
 	public ImportPanel getImportPanel() {
 		if (impPanel == null) {
 			Container temp = getParent();
-			while (temp != null && temp.getClass() != ImportPanel.class) {
+			while ((temp != null) && (temp.getClass() != ImportPanel.class)) {
 				temp = temp.getParent();
 			}
 			impPanel = (ImportPanel) temp;

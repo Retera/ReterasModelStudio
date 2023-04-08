@@ -8,11 +8,12 @@ import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Bone;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.GeosetVertexBoneLink;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Layer;
-import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.Normal;
 import com.hiveworkshop.wc3.mdl.TVertex;
@@ -34,14 +35,14 @@ public class TestMain {
 		AnimFlag translation = new AnimFlag("Translation");
 		translation.setInterpType(InterpolationType.LINEAR);
 		for (int frame = 0; frame <= 1000; frame += 100) {
-			translation.addEntry(frame + 333, new Vertex(0, 0, Math.abs(frame - 500) / 500. * 128));
+			translation.addEntry(frame + 333, new Vertex(0, 0, (Math.abs(frame - 500) / 500.) * 128));
 		}
 		myRoot.add(translation);
 
 		final Geoset geoset = new Geoset();
 		geoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
 		final int nFaces = 42;
-		final double ang = Math.PI * 2 / nFaces;
+		final double ang = (Math.PI * 2) / nFaces;
 		for (int i = 0; i < nFaces; i++) {
 			final double iAng = i * ang;
 			final GeosetVertex vertex = new GeosetVertex(0, 0, 10, new Normal(0, 0, 1));
@@ -66,14 +67,14 @@ public class TestMain {
 			translation.setInterpType(InterpolationType.LINEAR);
 			for (int frame = 0; frame <= 1000; frame += 100) {
 				translation.addEntry(frame + 333,
-						new Vertex(0, 0, 64 + 64 * Math.cos(frame / 1000.0 * Math.PI * 2 + iAng)));
+						new Vertex(0, 0, 64 + (64 * Math.cos(((frame / 1000.0) * Math.PI * 2) + iAng))));
 			}
 			generateBone.add(translation);
-			vertex2.getBoneAttachments().add(generateBone);
-			vertex3.getBoneAttachments().add(generateBone);
+			vertex2.addBoneAttachment((short) 255, generateBone);
+			vertex3.addBoneAttachment((short) 255, generateBone);
 			myModel.add(generateBone);
 
-			vertex.getBoneAttachments().add(generateBone);
+			vertex.addBoneAttachment((short) 255, generateBone);
 		}
 		myModel.add(geoset);
 
@@ -85,12 +86,12 @@ public class TestMain {
 		final Map<IdObject, Integer> objToCount = new HashMap<>();
 		for (final Geoset g : twoCloud.getGeosets()) {
 			for (final GeosetVertex gv : g.getVertices()) {
-				for (final Bone bone : gv.getBoneAttachments()) {
-					Integer integer = objToCount.get(bone);
+				for (final GeosetVertexBoneLink link : gv.getLinks()) {
+					Integer integer = objToCount.get(link.bone);
 					if (integer == null) {
 						integer = 0;
 					}
-					objToCount.put(bone, integer + 1);
+					objToCount.put(link.bone, integer + 1);
 				}
 			}
 		}

@@ -21,6 +21,7 @@ import com.hiveworkshop.wc3.mdl.EventObject;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.GeosetVertexBoneLink;
 import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
@@ -78,7 +79,8 @@ public class ViewportModelRenderer implements ModelRenderer {
 		graphics.setColor(programPreferences.getTriangleColor());
 		if (modelView.getHighlightedGeoset() == modelView.getModel().getGeoset(geosetId)) {
 			graphics.setColor(programPreferences.getHighlighTriangleColor());
-		} else {
+		}
+		else {
 			final Geoset geoset = modelView.getModel().getGeoset(geosetId);
 			if (!modelView.getEditableGeosets().contains(geoset)) {
 				graphics.setColor(programPreferences.getVisibleUneditableColor());
@@ -193,7 +195,7 @@ public class ViewportModelRenderer implements ModelRenderer {
 
 		@Override
 		public VertexVisitor vertex(final double x, final double y, final double z, final double normalX,
-				final double normalY, final double normalZ, final List<Bone> bones) {
+				final double normalY, final double normalZ, final List<GeosetVertexBoneLink> bones) {
 			double firstCoord, secondCoord;
 			switch (xDimension) {
 			case 0:
@@ -270,12 +272,6 @@ public class ViewportModelRenderer implements ModelRenderer {
 				graphics.setColor(triangleColor);
 			}
 			return VertexVisitor.NO_ACTION;
-		}
-
-		@Override
-		public VertexVisitor hdVertex(final double x, final double y, final double z, final double normalX,
-				final double normalY, final double normalZ, final Bone[] skinBones, final short[] skinBoneWeights) {
-			return vertex(x, y, z, normalX, normalY, normalZ, null);
 		}
 
 		@Override

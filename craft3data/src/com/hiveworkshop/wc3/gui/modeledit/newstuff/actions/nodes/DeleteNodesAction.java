@@ -9,10 +9,10 @@ import java.util.Set;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.selection.VertexSelectionHelper;
-import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.GeosetVertexBoneLink;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -68,11 +68,11 @@ public class DeleteNodesAction implements UndoAction {
 			meshLinkDeleteOps = new ArrayList<>();
 			for (final Geoset geoset : model.getModel().getGeosets()) {
 				for (final GeosetVertex geosetVertex : geoset.getVertices()) {
-					for (int boneIndex = 0; boneIndex < geosetVertex.getBones().size(); boneIndex++) {
-						final Bone bone = geosetVertex.getBones().get(boneIndex);
-						if (quickHashSetRemovedObjects.contains(bone)) {
+					for (int boneIndex = 0; boneIndex < geosetVertex.getLinks().size(); boneIndex++) {
+						final GeosetVertexBoneLink link = geosetVertex.getLinks().get(boneIndex);
+						if (quickHashSetRemovedObjects.contains(link.bone)) {
 							final GeosetVertexNodeDeleteOperation deleteOp = new GeosetVertexNodeDeleteOperation(
-									geosetVertex, bone, boneIndex);
+									geosetVertex, link, boneIndex);
 							meshLinkDeleteOps.add(deleteOp);
 							deleteOp.redo();
 							boneIndex--;
@@ -80,7 +80,8 @@ public class DeleteNodesAction implements UndoAction {
 					}
 				}
 			}
-		} else {
+		}
+		else {
 			for (final GeosetVertexNodeDeleteOperation op : meshLinkDeleteOps) {
 				op.redo();
 			}
@@ -97,21 +98,22 @@ public class DeleteNodesAction implements UndoAction {
 
 	private static final class GeosetVertexNodeDeleteOperation {
 		private final GeosetVertex vertex;
-		private final Bone object;
+		private final GeosetVertexBoneLink object;
 		private final int bonesListIndex;
 
-		public GeosetVertexNodeDeleteOperation(final GeosetVertex vertex, final Bone object, final int bonesListIndex) {
+		public GeosetVertexNodeDeleteOperation(final GeosetVertex vertex, final GeosetVertexBoneLink object,
+				final int bonesListIndex) {
 			this.vertex = vertex;
 			this.object = object;
 			this.bonesListIndex = bonesListIndex;
 		}
 
 		public void undo() {
-			vertex.getBoneAttachments().add(bonesListIndex, object);
+			vertex.getLinks().add(bonesListIndex, object);
 		}
 
 		public void redo() {
-			vertex.getBoneAttachments().remove(object);
+			vertex.getLinks().remove(object);
 		}
 	}
 }

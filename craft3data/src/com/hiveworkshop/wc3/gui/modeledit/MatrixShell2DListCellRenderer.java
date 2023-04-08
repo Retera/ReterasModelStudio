@@ -22,7 +22,7 @@ public final class MatrixShell2DListCellRenderer extends AbstractSnapshottingLis
 
 		@Override
 		public boolean isAccepted(final GeosetVertex vertex) {
-			return vertex.getBoneAttachments().equals(matrix.getBones());
+			return vertex.isLinkingSameBones(matrix.getBones());
 		}
 
 	}

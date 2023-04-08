@@ -73,7 +73,7 @@ public class GenModels3 {
 				v.x += x;
 				v.y += y;
 				v.z += z;
-				v.addBoneAttachment(particleBone);
+				v.addBoneAttachment((short) 255, particleBone);
 			}
 			particleBone.setPivotPoint(new Vertex(x, y, z));
 

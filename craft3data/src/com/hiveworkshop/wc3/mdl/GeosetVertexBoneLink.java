@@ -1,19 +1,19 @@
 package com.hiveworkshop.wc3.mdl;
 
 public class GeosetVertexBoneLink {
-	private byte weight;
-	private Bone bone;
+	public short weight;
+	public Bone bone;
 
-	public GeosetVertexBoneLink(final byte weight, final Bone bone) {
+	public GeosetVertexBoneLink(final short weight, final Bone bone) {
 		this.weight = weight;
 		this.bone = bone;
 	}
 
-	public byte getWeight() {
+	public short getWeight() {
 		return weight;
 	}
 
-	public void setWeight(final byte weight) {
+	public void setWeight(final short weight) {
 		this.weight = weight;
 	}
 

@@ -25,10 +25,11 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.PivotPointModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.PivotPointSelectionManager;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.GeosetVertexBoneLink;
 import com.hiveworkshop.wc3.mdl.IdObject;
-import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -55,10 +56,12 @@ public class ViewportTransferHandler extends TransferHandler {
 		try {
 			data = (String) info.getTransferable().getTransferData(DataFlavor.stringFlavor);
 			pastedModel = EditableModel.read(new ByteArrayInputStream(data.getBytes()));
-		} catch (final UnsupportedFlavorException ufe) {
+		}
+		catch (final UnsupportedFlavorException ufe) {
 			System.out.println("importData: unsupported data flavor");
 			return false;
-		} catch (final IOException ioe) {
+		}
+		catch (final IOException ioe) {
 			System.out.println("importData: I/O exception");
 			return false;
 		}
@@ -68,7 +71,8 @@ public class ViewportTransferHandler extends TransferHandler {
 			final Point dropPoint = dl.getDropPoint();
 			pasteModelIntoViewport(pastedModel, list, dropPoint, list.getModelStructureChangeListener());
 			return true;
-		} else { // This is a paste
+		}
+		else { // This is a paste
 			pasteModelIntoViewport(pastedModel, list, list.getLastMouseMotion(),
 					list.getModelStructureChangeListener());
 			return true;
@@ -149,15 +153,15 @@ public class ViewportTransferHandler extends TransferHandler {
 			stringableModel.add(geoset);
 			verticesInNewMesh.addAll(geoset.getVertices());
 			for (final GeosetVertex geosetVertex : geoset.getVertices()) {
-				final List<Bone> bones = geosetVertex.getBones();
-				for (int i = bones.size() - 1; i >= 0; i--) {
-					final Bone bone = bones.get(i);
-					if (!copySelection.getIdObjects().contains(bone)) {
-						bones.remove(i);
+				final List<GeosetVertexBoneLink> links = geosetVertex.getLinks();
+				for (int i = links.size() - 1; i >= 0; i--) {
+					final GeosetVertexBoneLink link = links.get(i);
+					if (!copySelection.getIdObjects().contains(link.bone)) {
+						links.remove(i);
 					}
 				}
-				if (bones.isEmpty()) {
-					bones.add(dummyBone);
+				if (links.isEmpty()) {
+					geosetVertex.addBoneAttachment((short) 255, dummyBone);
 					if (!stringableModel.contains(dummyBone)) {
 						stringableModel.add(dummyBone);
 					}

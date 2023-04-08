@@ -13,11 +13,11 @@ import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.VertexFilter;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportView;
-import com.hiveworkshop.wc3.mdl.Bone;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
-import com.hiveworkshop.wc3.mdl.EditableModel;
+import com.hiveworkshop.wc3.mdl.GeosetVertexBoneLink;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.renderer.GeosetRenderer;
@@ -90,13 +90,7 @@ public class UVViewportModelRenderer implements MeshVisitor {
 
 		@Override
 		public VertexVisitor vertex(final double x, final double y, final double z, final double normalX,
-				final double normalY, final double normalZ, final List<Bone> bones) {
-			return vertexRenderer.reset();
-		}
-
-		@Override
-		public VertexVisitor hdVertex(final double x, final double y, final double z, final double normalX,
-				final double normalY, final double normalZ, final Bone[] skinBones, final short[] skinBoneWeights) {
+				final double normalY, final double normalZ, final List<GeosetVertexBoneLink> bones) {
 			return vertexRenderer.reset();
 		}
 
@@ -153,8 +147,9 @@ public class UVViewportModelRenderer implements MeshVisitor {
 	 * @param filter
 	 * @param extraHighlightPoint
 	 */
-	public static void drawFittedTriangles(final EditableModel model, final Graphics g, final Rectangle bounds, final byte a,
-			final byte b, final VertexFilter<? super GeosetVertex> filter, final Vertex extraHighlightPoint) {
+	public static void drawFittedTriangles(final EditableModel model, final Graphics g, final Rectangle bounds,
+			final byte a, final byte b, final VertexFilter<? super GeosetVertex> filter,
+			final Vertex extraHighlightPoint) {
 		final List<Triangle> triangles = new ArrayList<>();
 		double minX = Double.MAX_VALUE;
 		double maxX = Double.MIN_VALUE;

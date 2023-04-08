@@ -100,8 +100,10 @@ import javax.swing.tree.TreePath;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
+import org.lwjgl.util.vector.Matrix3f;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Quaternion;
+import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
@@ -175,6 +177,7 @@ import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.GeosetVertexBoneLink;
 import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Layer;
@@ -3151,11 +3154,14 @@ public class MainPanel extends JPanel
 					return;
 				}
 				final Vector4f vertexHeap = new Vector4f();
-				final Vector4f appliedVertexHeap = new Vector4f();
+				final Matrix4f skinBonesMatrixSumHeap = new Matrix4f();
+				final Matrix3f skinBonesMatrixSumHeap3 = new Matrix3f();
 				final Vector4f vertexSumHeap = new Vector4f();
 				final Vector4f normalHeap = new Vector4f();
+				final Vector3f normalHeap3 = new Vector3f();
 				final Vector4f appliedNormalHeap = new Vector4f();
 				final Vector4f normalSumHeap = new Vector4f();
+				final Vector3f normalSumHeap3 = new Vector3f();
 				final ModelPanel modelContext = currentModelPanel();
 				final RenderModel editorRenderModel = modelContext.getEditorRenderModel();
 				final EditableModel model = modelContext.getModel();
@@ -3168,59 +3174,78 @@ public class MainPanel extends JPanel
 					for (int vertexIndex = 0; vertexIndex < geoset.getVertices().size(); vertexIndex++) {
 						final GeosetVertex vertex = geoset.getVertex(vertexIndex);
 						final GeosetVertex snapshotVertex = snapshotGeoset.getVertex(vertexIndex);
-						final List<Bone> bones = vertex.getBones();
+						final List<GeosetVertexBoneLink> links = vertex.getLinks();
 						vertexHeap.x = (float) vertex.x;
 						vertexHeap.y = (float) vertex.y;
 						vertexHeap.z = (float) vertex.z;
 						vertexHeap.w = 1;
-						if (bones.size() > 0) {
-							vertexSumHeap.set(0, 0, 0, 0);
-							for (final Bone bone : bones) {
-								Matrix4f.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(), vertexHeap,
-										appliedVertexHeap);
-								Vector4f.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
-							}
-							final int boneCount = bones.size();
-							vertexSumHeap.x /= boneCount;
-							vertexSumHeap.y /= boneCount;
-							vertexSumHeap.z /= boneCount;
-							vertexSumHeap.w /= boneCount;
-						}
-						else if (vertex.getSkinBones() != null) {
+						skinBonesMatrixSumHeap.setZero();
+						if (links.size() > 0) {
+							for (final GeosetVertexBoneLink link : links) {
+								if (link.bone == null) {
+									continue;
+								}
+								final Matrix4f worldMatrix = editorRenderModel.getRenderNode(link.bone)
+										.getWorldMatrix();
 
+								skinBonesMatrixSumHeap.m00 += (worldMatrix.m00 * link.weight) / 255f;
+								skinBonesMatrixSumHeap.m01 += (worldMatrix.m01 * link.weight) / 255f;
+								skinBonesMatrixSumHeap.m02 += (worldMatrix.m02 * link.weight) / 255f;
+								skinBonesMatrixSumHeap.m03 += (worldMatrix.m03 * link.weight) / 255f;
+								skinBonesMatrixSumHeap.m10 += (worldMatrix.m10 * link.weight) / 255f;
+								skinBonesMatrixSumHeap.m11 += (worldMatrix.m11 * link.weight) / 255f;
+								skinBonesMatrixSumHeap.m12 += (worldMatrix.m12 * link.weight) / 255f;
+								skinBonesMatrixSumHeap.m13 += (worldMatrix.m13 * link.weight) / 255f;
+								skinBonesMatrixSumHeap.m20 += (worldMatrix.m20 * link.weight) / 255f;
+								skinBonesMatrixSumHeap.m21 += (worldMatrix.m21 * link.weight) / 255f;
+								skinBonesMatrixSumHeap.m22 += (worldMatrix.m22 * link.weight) / 255f;
+								skinBonesMatrixSumHeap.m23 += (worldMatrix.m23 * link.weight) / 255f;
+								skinBonesMatrixSumHeap.m30 += (worldMatrix.m30 * link.weight) / 255f;
+								skinBonesMatrixSumHeap.m31 += (worldMatrix.m31 * link.weight) / 255f;
+								skinBonesMatrixSumHeap.m32 += (worldMatrix.m32 * link.weight) / 255f;
+								skinBonesMatrixSumHeap.m33 += (worldMatrix.m33 * link.weight) / 255f;
+							}
 						}
 						else {
-							vertexSumHeap.set(vertexHeap);
+							skinBonesMatrixSumHeap.setIdentity();
 						}
+						Matrix4f.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
 						snapshotVertex.x = vertexSumHeap.x;
 						snapshotVertex.y = vertexSumHeap.y;
 						snapshotVertex.z = vertexSumHeap.z;
 
-						normalHeap.x = (float) vertex.getNormal().x;
-						normalHeap.y = (float) vertex.getNormal().y;
-						normalHeap.z = (float) vertex.getNormal().z;
-						normalHeap.w = 0;
-						if (bones.size() > 0) {
-							normalSumHeap.set(0, 0, 0, 0);
-							for (final Bone bone : bones) {
-								Matrix4f.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(), normalHeap,
-										appliedNormalHeap);
-								Vector4f.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
-							}
-
-							if (normalSumHeap.length() > 0) {
-								normalSumHeap.normalise();
-							}
-							else {
-								normalSumHeap.set(0, 1, 0, 0);
-							}
+						skinBonesMatrixSumHeap3.m00 = skinBonesMatrixSumHeap.m00;
+						skinBonesMatrixSumHeap3.m01 = skinBonesMatrixSumHeap.m01;
+						skinBonesMatrixSumHeap3.m02 = skinBonesMatrixSumHeap.m02;
+						skinBonesMatrixSumHeap3.m10 = skinBonesMatrixSumHeap.m10;
+						skinBonesMatrixSumHeap3.m11 = skinBonesMatrixSumHeap.m11;
+						skinBonesMatrixSumHeap3.m12 = skinBonesMatrixSumHeap.m12;
+						skinBonesMatrixSumHeap3.m20 = skinBonesMatrixSumHeap.m20;
+						skinBonesMatrixSumHeap3.m21 = skinBonesMatrixSumHeap.m21;
+						skinBonesMatrixSumHeap3.m22 = skinBonesMatrixSumHeap.m22;
+						if (vertex.getNormal() != null) {
+							normalHeap3.x = (float) vertex.getNormal().x;
+							normalHeap3.y = (float) vertex.getNormal().y;
+							normalHeap3.z = (float) vertex.getNormal().z;
+							Matrix3f.transform(skinBonesMatrixSumHeap3, normalHeap3, normalSumHeap3);
+						}
+						if (normalSumHeap3.length() > 0) {
+							normalSumHeap3.normalise();
 						}
 						else {
-							normalSumHeap.set(normalHeap);
+							normalSumHeap3.set(0, 1, 0);
 						}
-						snapshotVertex.getNormal().x = normalSumHeap.x;
-						snapshotVertex.getNormal().y = normalSumHeap.y;
-						snapshotVertex.getNormal().z = normalSumHeap.z;
+						snapshotVertex.getNormal().x = normalSumHeap3.x;
+						snapshotVertex.getNormal().y = normalSumHeap3.y;
+						snapshotVertex.getNormal().z = normalSumHeap3.z;
+
+						if (vertex.getTangent() != null) {
+							normalHeap3.set(vertex.getTangent()[0], vertex.getTangent()[1], vertex.getTangent()[2]);
+							Matrix3f.transform(skinBonesMatrixSumHeap3, normalHeap3, normalSumHeap3);
+
+							snapshotVertex.setTangent(new float[] { normalSumHeap3.x, normalSumHeap3.y,
+									normalSumHeap3.z, vertex.getTangent()[3] });
+						}
 					}
 				}
 				snapshotModel.getIdObjects().clear();
@@ -3229,8 +3254,8 @@ public class MainPanel extends JPanel
 				snapshotModel.add(boneRoot);
 				for (final Geoset geoset : snapshotModel.getGeosets()) {
 					for (final GeosetVertex vertex : geoset.getVertices()) {
-						vertex.getBones().clear();
-						vertex.getBones().add(boneRoot);
+						vertex.clearBoneAttachments();
+						vertex.addBoneAttachment((short) 255, boneRoot);
 					}
 				}
 				final Iterator<Geoset> geosetIterator = snapshotModel.getGeosets().iterator();
@@ -4288,72 +4313,37 @@ public class MainPanel extends JPanel
 		final List<Geoset> newGeosets = new ArrayList<>();
 		for (final Geoset geo : meshModel.getGeosets()) {
 			for (final GeosetVertex gv : geo.getVertices()) {
-				if (gv.getSkinBones() != null) {
-					for (int i = 0; i < gv.getSkinBones().length; i++) {
-						IdObject bone = gv.getSkinBones()[i];
-						if (bone != null) {
-							final String boneName = bone.getName();
-							Bone replacement = nameToNode.get(boneName);
-							int upwardDepth = 0;
-							while ((replacement == null) && (bone != null)) {
-								bone = bone.getParent();
-								upwardDepth++;
-								if (bone != null) {
-									replacement = nameToNode.get(bone.getName());
-								}
-								else {
-									replacement = null;
-								}
-							}
-							if (replacement == null) {
-								warnings.add("Failed to replace: " + boneName);
-								replacement = animationModel.getBone(0);
-//							throw new IllegalStateException("failed to replace: " + boneName);
+				final List<GeosetVertexBoneLink> links = gv.getLinks();
+				for (final GeosetVertexBoneLink link : links) {
+					IdObject bone = link.bone;
+					if (bone != null) {
+						final String boneName = bone.getName();
+						Bone replacement = nameToNode.get(boneName);
+						int upwardDepth = 0;
+						while ((replacement == null) && (bone != null)) {
+							bone = bone.getParent();
+							upwardDepth++;
+							if (bone != null) {
+								replacement = nameToNode.get(bone.getName());
 							}
 							else {
-								while ((upwardDepth > 0) && (replacement.getChildrenNodes().size() == 1)
-										&& (replacement.getChildrenNodes().get(0) instanceof Bone)) {
-									replacement = (Bone) replacement.getChildrenNodes().get(0);
-									upwardDepth--;
-								}
+								replacement = null;
 							}
-							gv.getSkinBones()[i] = replacement;
+						}
+						if (replacement == null) {
+							warnings.add("Failed to replace: " + boneName);
+							replacement = animationModel.getBone(0);
+//							throw new IllegalStateException("failed to replace: " + boneName);
+						}
+						else {
+							while ((upwardDepth > 0) && (replacement.getChildrenNodes().size() == 1)
+									&& (replacement.getChildrenNodes().get(0) instanceof Bone)) {
+								replacement = (Bone) replacement.getChildrenNodes().get(0);
+								upwardDepth--;
+							}
+						}
+						link.bone = replacement;
 
-						}
-					}
-				}
-				else {
-					final List<Bone> boneAttachments = gv.getBoneAttachments();
-					for (int i = 0; i < boneAttachments.size(); i++) {
-						IdObject bone = boneAttachments.get(i);
-						if (bone != null) {
-							final String boneName = bone.getName();
-							Bone replacement = null;
-							if ((bone != null) && bone.getName().toLowerCase().startsWith("bone_")) {
-								replacement = nameToGenericNode.get(boneName);
-							}
-							while ((replacement == null) && (bone != null)) {
-								bone = bone.getParent();
-								if ((bone != null) && bone.getName().toLowerCase().startsWith("bone_")) {
-									replacement = nameToGenericNode.get(bone.getName());
-								}
-								else {
-									replacement = null;
-								}
-							}
-							if (replacement == null) {
-								warnings.add("Failed to replace: " + boneName);
-								replacement = animationModel.getBone(0);
-//							throw new IllegalStateException("failed to replace: " + boneName);
-							}
-							else {
-								while ((replacement.getChildrenNodes().size() == 1)
-										&& (replacement.getChildrenNodes().get(0) instanceof Bone)) {
-									replacement = (Bone) replacement.getChildrenNodes().get(0);
-								}
-							}
-							boneAttachments.set(i, replacement);
-						}
 					}
 				}
 			}

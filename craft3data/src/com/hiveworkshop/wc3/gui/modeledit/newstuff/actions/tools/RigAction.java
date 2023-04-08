@@ -9,12 +9,13 @@ import java.util.Map;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.GeosetVertexBoneLink;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public class RigAction implements UndoAction {
 	private final List<Vertex> selectedVertices;
 	private final List<Bone> selectedBones;
-	private final Map<Vertex, List<Bone>> vertexToPriorBoneAttachment;
+	private final Map<Vertex, List<GeosetVertexBoneLink>> vertexToPriorBoneAttachment;
 
 	public RigAction(final Collection<? extends Vertex> selectedVertices,
 			final Collection<? extends Bone> selectedBones) {
@@ -38,7 +39,7 @@ public class RigAction implements UndoAction {
 	private void loadUndoData() {
 		for (final Vertex vertex : selectedVertices) {
 			if (vertex instanceof GeosetVertex) {
-				final List<Bone> boneAttachments = ((GeosetVertex) vertex).getBoneAttachments();
+				final List<GeosetVertexBoneLink> boneAttachments = ((GeosetVertex) vertex).getLinks();
 				vertexToPriorBoneAttachment.put(vertex, new ArrayList<>(boneAttachments));
 			}
 		}
@@ -47,10 +48,10 @@ public class RigAction implements UndoAction {
 	@Override
 	public void undo() {
 		for (final Vertex vertex : selectedVertices) {
-			final List<Bone> list = vertexToPriorBoneAttachment.get(vertex);
+			final List<GeosetVertexBoneLink> list = vertexToPriorBoneAttachment.get(vertex);
 			if (list != null) {
 				if (vertex instanceof GeosetVertex) {
-					((GeosetVertex) vertex).setBones(new ArrayList<>(list));
+					((GeosetVertex) vertex).setBoneAttachmentsRaw(new ArrayList<>(list));
 				}
 			}
 		}
@@ -60,7 +61,7 @@ public class RigAction implements UndoAction {
 	public void redo() {
 		for (final Vertex vertex : selectedVertices) {
 			if (vertex instanceof GeosetVertex) {
-				((GeosetVertex) vertex).setBones(new ArrayList<>(selectedBones));
+				((GeosetVertex) vertex).setBoneAttachments(selectedBones);
 			}
 		}
 	}

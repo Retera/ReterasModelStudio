@@ -955,7 +955,7 @@ public class BuildWLists implements BuilderInterface {
 				tverts.add(createdTVertex);
 				uvLayer.addTVertex(createdTVertex);
 				final GeosetVertex createdVertex = key.createVertex();
-				createdVertex.addBoneAttachment(groupBone);
+				createdVertex.addBoneAttachment((short) 255, groupBone);
 				createdVertex.setTverts(tverts);
 				geo.add(createdVertex);
 				attachedVertices.add(createdVertex);

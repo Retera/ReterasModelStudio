@@ -13,7 +13,7 @@ import javax.swing.JOptionPane;
  */
 public class Matrix {
 	ArrayList m_boneIds;
-	ArrayList<Bone> bones;
+	List<Bone> bones;
 
 	public Matrix() {
 		m_boneIds = new ArrayList();
@@ -27,7 +27,8 @@ public class Matrix {
 	public Matrix(final ArrayList boneIds, final boolean useIds) {
 		if (useIds) {
 			m_boneIds = boneIds;
-		} else {
+		}
+		else {
 			bones = boneIds;
 		}
 	}
@@ -40,16 +41,19 @@ public class Matrix {
 				for (int i = 1; i < bones.size(); i++) {
 					out = out + ", " + bones.get(i).getName();
 				}
-			} else {
+			}
+			else {
 				out = "Error bad bone list";
 			}
-		} else if (m_boneIds != null) {
+		}
+		else if (m_boneIds != null) {
 			if (m_boneIds.size() > 0) {
 				out = m_boneIds.get(0).toString();
 				for (int i = 1; i < m_boneIds.size(); i++) {
 					out = out + ", " + m_boneIds.get(i).toString();
 				}
-			} else {
+			}
+			else {
 				out = "Error bad bone ids";
 			}
 		}
@@ -62,14 +66,16 @@ public class Matrix {
 		final int sz1 = bones.size();
 		if (m_boneIds == null) {
 			m_boneIds = new ArrayList();
-		} else {
+		}
+		else {
 			m_boneIds.clear();
 		}
 		for (int i = 0; i < bones.size(); i++) {
 			final int newId = mdlr.getObjectId(bones.get(i));
 			if (newId >= 0) {
 				m_boneIds.add(newId);
-			} else {
+			}
+			else {
 				new Exception("Matrix error").printStackTrace();
 				if ((System.currentTimeMillis() - lastPopupTimeHack) > 2000) {
 					JOptionPane.showMessageDialog(null,
@@ -91,7 +97,8 @@ public class Matrix {
 	public void updateBones(final EditableModel mdlr) {
 		if (bones == null) {
 			bones = new ArrayList<>();
-		} else {
+		}
+		else {
 			bones.clear();
 		}
 		for (int i = 0; i < m_boneIds.size(); i++) {
@@ -104,15 +111,28 @@ public class Matrix {
 			// }
 			if (b != null) {
 				bones.add(b);
-			} else {
+			}
+			else {
 //				JOptionPane.showMessageDialog(null, "Error: A matrix's bone id was not referencing a real bone!");
 				System.err.println("Error: A matrix's bone id was not referencing a real bone! " + m_boneIds.get(i));
 			}
 		}
 	}
 
-	public Matrix(final List<Bone> newBones) {
-		bones = new ArrayList<>(newBones);
+	private Matrix(final List<Bone> newBones) {
+		bones = newBones;
+	}
+
+	public static Matrix create(final List<Bone> newBones) {
+		return new Matrix(new ArrayList<>(newBones));
+	}
+
+	public static Matrix fromBoneLinksSimpleSD(final List<GeosetVertexBoneLink> newBones) {
+		final List<Bone> bones = new ArrayList<>();
+		for (final GeosetVertexBoneLink link : newBones) {
+			bones.add(link.bone);
+		}
+		return new Matrix(bones);
 	}
 
 	public Matrix(final int[] boneIds) {
@@ -137,7 +157,8 @@ public class Matrix {
 	public int size() {
 		if ((m_boneIds != null) && (m_boneIds.size() > 0)) {
 			return m_boneIds.size();
-		} else if ((bones != null) && (bones.size() > 0)) {
+		}
+		else if ((bones != null) && (bones.size() > 0)) {
 			return bones.size();
 		}
 		// JOptionPane.showMessageDialog(null,"Warning: A matrix with no
@@ -156,21 +177,25 @@ public class Matrix {
 		if (size == 1) {
 			try {
 				boneId[0] = (int) Long.parseLong(entries[0].split("\\{")[1].split("}")[0].split(" ")[1]);
-			} catch (final NumberFormatException e) {
+			}
+			catch (final NumberFormatException e) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 						"Error \"" + input + "\": Matrix data could not be interpreted.");
 			}
-		} else {
+		}
+		else {
 			try {
 				boneId[0] = (int) Long.parseLong(entries[0].split("\\{")[1].split(" ")[1]);
-			} catch (final NumberFormatException e) {
+			}
+			catch (final NumberFormatException e) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 						"Error \"" + input + "\": Matrix data could not be interpreted.");
 			}
 			for (int i = 1; i < size; i++) {
 				try {
 					boneId[i] = (int) Long.parseLong(entries[i].split(" ")[1]);
-				} catch (final NumberFormatException e) {
+				}
+				catch (final NumberFormatException e) {
 					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 							"Error \"" + input + "\": Matrix data could not be interpreted.");
 				}
@@ -178,7 +203,8 @@ public class Matrix {
 		}
 		if ((boneId != null) && (boneId[0] != -1)) {
 			temp = new Matrix(boneId);
-		} else {
+		}
+		else {
 			temp = new Matrix();
 		}
 		return temp;
@@ -191,7 +217,8 @@ public class Matrix {
 		}
 		if (m_boneIds.size() > 0) {
 			writer.print(tabs + "Matrices { " + m_boneIds.get(0).toString());
-		} else {
+		}
+		else {
 			writer.print(tabs + "Matrices { -1");
 		}
 		// writer.print(tabs+"Matrices { "+bones.get(0).getClass().getName());
@@ -215,7 +242,7 @@ public class Matrix {
 		return same;
 	}
 
-	public ArrayList<Bone> getBones() {
+	public List<Bone> getBones() {
 		return bones;
 	}
 

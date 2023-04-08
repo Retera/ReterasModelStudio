@@ -12,6 +12,7 @@ import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.GeosetVertexBoneLink;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
@@ -113,19 +114,10 @@ public class CloneContextHelper {
 				newSelection.add(ver);
 				if (ver.getClass() == GeosetVertex.class) {
 					final GeosetVertex gv = (GeosetVertex) ver;
-					final Bone[] skinBones = gv.getSkinBones();
-					if (skinBones != null) {
-						for (int i = 0; i < skinBones.length; i++) {
-							final Bone b = skinBones[i];
-							if (selBones.contains(b)) {
-								skinBones[i] = (Bone) newBones.get(selBones.indexOf(b));
-							}
-						}
-					}
-					for (int i = 0; i < gv.getBones().size(); i++) {
-						final Bone b = gv.getBones().get(i);
-						if (selBones.contains(b)) {
-							gv.getBones().set(i, (Bone) newBones.get(selBones.indexOf(b)));
+					for (int i = 0; i < gv.getLinks().size(); i++) {
+						final GeosetVertexBoneLink link = gv.getLinks().get(i);
+						if (selBones.contains(link.bone)) {
+							link.bone = (Bone) newBones.get(selBones.indexOf(link.bone));
 						}
 					}
 				}

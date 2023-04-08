@@ -7,10 +7,10 @@ import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Bone;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Layer;
-import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.TextureAnim;
 import com.hiveworkshop.wc3.mdl.Vertex;
@@ -30,7 +30,7 @@ public class GenModels2 {
 		geoset.getVertices().addAll(planeMesh.getVertices());
 		final Bone dummy = new Bone("Bone_Root");
 		for (final GeosetVertex gv : geoset.getVertices()) {
-			gv.addBoneAttachment(dummy);
+			gv.addBoneAttachment((short) 255, dummy);
 		}
 		model.add(dummy);
 

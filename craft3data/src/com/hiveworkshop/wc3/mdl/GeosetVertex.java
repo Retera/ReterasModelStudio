@@ -20,8 +20,9 @@ public class GeosetVertex extends Vertex {
 	private Normal normal;
 	public int VertexGroup = -1;
 	List<TVertex> tverts = new ArrayList<>();
-	List<GeosetVertexBoneLink> bones = new ArrayList<>();
+	private List<GeosetVertexBoneLink> links = new ArrayList<>();
 	List<Triangle> triangles = new ArrayList<>();
+	private byte[] skinBoneIndexes;
 	private float[] tangent;
 
 	Geoset geoset;
@@ -35,50 +36,45 @@ public class GeosetVertex extends Vertex {
 		normal = n;
 	}
 
-	public void initV900Skin() {
-		skinBoneWeights = new short[4];
-	}
-
 	public void initV900Tangent() {
 		tangent = new float[4];
+	}
+
+	public void initV900Skin() {
+		skinBoneIndexes = new byte[4];
+		while (links.size() > 4) {
+			links.remove(links.size() - 1);
+		}
+		equalizeWeights();
+	}
+
+	public void equalizeWeights() {
+		if (links.isEmpty()) {
+			return;
+		}
+		final short weight = (short) (255 / links.size());
+		final short offsetWeight = (short) (255 - (weight * links.size()));
+		if (!links.isEmpty()) {
+			links.get(0).weight = (short) (weight + offsetWeight);
+			for (int i = 1; i < links.size(); i++) {
+				links.get(i).weight = (weight);
+			}
+		}
 	}
 
 	public void un900Heuristic() {
 		if (tangent != null) {
 			tangent = null;
 		}
-		if (skinBoneWeights != null) {
-			bones.clear();
-			int index = 0;
-			boolean fallback = false;
-			for (final GeosetVertexBoneLink link : bones) {
-				if (link.bone != null) {
-					fallback = true;
-					if (skinBoneWeights[index] > 60) {
-						bones.add(bone);
-					}
-				}
-				index++;
-			}
-			if (bones.isEmpty() && fallback) {
-				index = 0;
-				for (final Bone bone : skinBones) {
-					if ((bone != null) && (skinBoneWeights[index] > 0)) {
-						bones.add(bone);
-					}
-					index++;
-				}
-			}
-			skinBones = null;
-			skinBoneWeights = null;
-			skinBoneIndexes = null;
-		}
 	}
 
 	public GeosetVertex(final GeosetVertex old) {
 		super(old.x, old.y, old.z);
 		this.normal = new Normal(old.normal);
-		this.bones = new ArrayList<>(old.bones);
+		this.links = new ArrayList<>();
+		for (final GeosetVertexBoneLink link : old.links) {
+			this.links.add(new GeosetVertexBoneLink(link.weight, link.bone));
+		}
 		this.tverts = new ArrayList<>();
 		for (final TVertex tv : old.tverts) {
 			tverts.add(new TVertex(tv));
@@ -86,15 +82,6 @@ public class GeosetVertex extends Vertex {
 		// odd, but when writing
 		this.geoset = old.geoset;
 		// TODO copy triangles???????
-		if (old.skinBoneIndexes != null) {
-			this.skinBoneIndexes = old.skinBoneIndexes.clone();
-		}
-		if (old.skinBones != null) {
-			this.skinBones = old.skinBones.clone();
-		}
-		if (old.skinBoneWeights != null) {
-			this.skinBoneWeights = old.skinBoneWeights.clone();
-		}
 		if (old.tangent != null) {
 			this.tangent = old.tangent.clone();
 		}
@@ -125,23 +112,19 @@ public class GeosetVertex extends Vertex {
 	}
 
 	public void clearBoneAttachments() {
-		bones.clear();
+		links.clear();
 	}
 
 	public void clearTVerts() {
 		tverts.clear();
 	}
 
-	public void addBoneAttachment(final Bone b) {
-		bones.add(b);
+	public void addBoneAttachment(final short weight, final Bone b) {
+		links.add(new GeosetVertexBoneLink(weight, b));
 	}
 
-	public void addBoneAttachments(final ArrayList<Bone> b) {
-		bones.addAll(b);
-	}
-
-	public List<Bone> getBoneAttachments() {
-		return bones;
+	public List<GeosetVertexBoneLink> getLinks() {
+		return links;
 	}
 
 	public void updateMatrixRef(final ArrayList<Matrix> list) {
@@ -205,14 +188,6 @@ public class GeosetVertex extends Vertex {
 		this.tverts = tverts;
 	}
 
-	public List<Bone> getBones() {
-		return bones;
-	}
-
-	public void setBones(final List<Bone> bones) {
-		this.bones = bones;
-	}
-
 	public List<Triangle> getTriangles() {
 		return triangles;
 	}
@@ -225,33 +200,19 @@ public class GeosetVertex extends Vertex {
 		return geoset;
 	}
 
-	/**
-	 * @return
-	 * @deprecated for use only with saving functionalities inside the system
-	 */
-	@Deprecated
+	public float[] getTangent() {
+		return tangent;
+	}
+
 	public byte[] getSkinBoneIndexes() {
 		return skinBoneIndexes;
 	}
 
-	public Bone[] getSkinBones() {
-		return skinBones;
-	}
-
-	public void setSkinBones(final Bone[] skinBones) {
-		this.skinBones = skinBones;
-	}
-
-	public short[] getSkinBoneWeights() {
-		return skinBoneWeights;
-	}
-
-	public void setSkinBoneWeights(final short[] skinBoneWeights) {
-		this.skinBoneWeights = skinBoneWeights;
-	}
-
-	public float[] getTangent() {
-		return tangent;
+	public short getSkinBoneWeight(final int j) {
+		if ((j >= 0) && (j < links.size())) {
+			return links.get(j).weight;
+		}
+		return 0;
 	}
 
 	public void setTangent(final float[] tangent) {
@@ -371,4 +332,38 @@ public class GeosetVertex extends Vertex {
 		}
 		return sum;
 	}
+
+	public void setBoneAttachments(final List<Bone> bones2) {
+		clearBoneAttachments();
+		for (int i = 0; i < bones2.size(); i++) {
+			addBoneAttachment((short) 0, bones2.get(i));
+		}
+		equalizeWeights();
+	}
+
+	public void setBoneAttachmentsRaw(final List<GeosetVertexBoneLink> bones2) {
+		this.links = bones2;
+	}
+
+	public boolean isLinked(final IdObject bone) {
+		for (final GeosetVertexBoneLink link : links) {
+			if (link.bone == bone) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isLinkingSameBones(final List<Bone> bones) {
+		if (bones.size() != links.size()) {
+			return false;
+		}
+		for (int i = 0; i < links.size(); i++) {
+			if (bones.get(i) != links.get(i).bone) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 }

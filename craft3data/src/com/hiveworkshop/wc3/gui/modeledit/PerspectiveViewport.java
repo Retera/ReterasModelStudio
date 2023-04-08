@@ -74,6 +74,7 @@ import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.GeosetVertexBoneLink;
 import com.hiveworkshop.wc3.mdl.Layer;
 import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
 import com.hiveworkshop.wc3.mdl.LayerShader;
@@ -91,7 +92,6 @@ import com.hiveworkshop.wc3.mdl.render3d.RenderResourceAllocator;
 import com.hiveworkshop.wc3.mdl.render3d.RenderRibbonEmitter;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.util.MathUtils;
-import com.hiveworkshop.wc3.util.ModelUtils;
 
 public class PerspectiveViewport extends BetterAWTGLCanvas
 		implements MouseListener, ActionListener, MouseWheelListener, RenderResourceAllocator {
@@ -581,160 +581,97 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 				NGGLDP.pipeline.glColor3f(1f, 1f, 3f);
 				// if( wireframe.isSelected() )
 				for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
-					if (ModelUtils.isTangentAndSkinSupported(formatVersion) && (geo.getVertices().size() > 0)
-							&& (geo.getVertex(0).getSkinBones() != null)) {
-						for (final Triangle tri : geo.getTriangles()) {
-							for (final GeosetVertex v : tri.getVerts()) {
-								vertexHeap.x = (float) v.x;
-								vertexHeap.y = (float) v.y;
-								vertexHeap.z = (float) v.z;
-								vertexHeap.w = 1;
-								skinBonesMatrixSumHeap.setZero();
-								final Bone[] skinBones = v.getSkinBones();
-								final short[] skinBoneWeights = v.getSkinBoneWeights();
-								boolean processedBones = false;
-								for (int boneIndex = 0; boneIndex < 4; boneIndex++) {
-									final Bone skinBone = skinBones[boneIndex];
-									if (skinBone == null) {
-										continue;
-									}
-									processedBones = true;
-									final Matrix4f worldMatrix = editorRenderModel.getRenderNode(skinBone)
-											.getWorldMatrix();
-									skinBonesMatrixHeap.load(worldMatrix);
-
-									skinBonesMatrixSumHeap.m00 += (skinBonesMatrixHeap.m00 * skinBoneWeights[boneIndex])
-											/ 255f;
-									skinBonesMatrixSumHeap.m01 += (skinBonesMatrixHeap.m01 * skinBoneWeights[boneIndex])
-											/ 255f;
-									skinBonesMatrixSumHeap.m02 += (skinBonesMatrixHeap.m02 * skinBoneWeights[boneIndex])
-											/ 255f;
-									skinBonesMatrixSumHeap.m03 += (skinBonesMatrixHeap.m03 * skinBoneWeights[boneIndex])
-											/ 255f;
-									skinBonesMatrixSumHeap.m10 += (skinBonesMatrixHeap.m10 * skinBoneWeights[boneIndex])
-											/ 255f;
-									skinBonesMatrixSumHeap.m11 += (skinBonesMatrixHeap.m11 * skinBoneWeights[boneIndex])
-											/ 255f;
-									skinBonesMatrixSumHeap.m12 += (skinBonesMatrixHeap.m12 * skinBoneWeights[boneIndex])
-											/ 255f;
-									skinBonesMatrixSumHeap.m13 += (skinBonesMatrixHeap.m13 * skinBoneWeights[boneIndex])
-											/ 255f;
-									skinBonesMatrixSumHeap.m20 += (skinBonesMatrixHeap.m20 * skinBoneWeights[boneIndex])
-											/ 255f;
-									skinBonesMatrixSumHeap.m21 += (skinBonesMatrixHeap.m21 * skinBoneWeights[boneIndex])
-											/ 255f;
-									skinBonesMatrixSumHeap.m22 += (skinBonesMatrixHeap.m22 * skinBoneWeights[boneIndex])
-											/ 255f;
-									skinBonesMatrixSumHeap.m23 += (skinBonesMatrixHeap.m23 * skinBoneWeights[boneIndex])
-											/ 255f;
-									skinBonesMatrixSumHeap.m30 += (skinBonesMatrixHeap.m30 * skinBoneWeights[boneIndex])
-											/ 255f;
-									skinBonesMatrixSumHeap.m31 += (skinBonesMatrixHeap.m31 * skinBoneWeights[boneIndex])
-											/ 255f;
-									skinBonesMatrixSumHeap.m32 += (skinBonesMatrixHeap.m32 * skinBoneWeights[boneIndex])
-											/ 255f;
-									skinBonesMatrixSumHeap.m33 += (skinBonesMatrixHeap.m33 * skinBoneWeights[boneIndex])
-											/ 255f;
+					for (final Triangle tri : geo.getTriangles()) {
+						for (final GeosetVertex v : tri.getVerts()) {
+							vertexHeap.x = (float) v.x;
+							vertexHeap.y = (float) v.y;
+							vertexHeap.z = (float) v.z;
+							vertexHeap.w = 1;
+							skinBonesMatrixSumHeap.setZero();
+							final List<GeosetVertexBoneLink> boneAttachments = v.getLinks();
+							boolean processedBones = false;
+							float sumWeight = 0;
+							for (int boneIndex = 0; boneIndex < boneAttachments.size(); boneIndex++) {
+								final GeosetVertexBoneLink link = boneAttachments.get(boneIndex);
+								final Bone skinBone = link.bone;
+								if (skinBone == null) {
+									continue;
 								}
-								if (!processedBones) {
-									skinBonesMatrixSumHeap.setIdentity();
-								}
-								Matrix4f.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
-								if (v.getNormal() != null) {
-									normalHeap.x = (float) v.getNormal().x;
-									normalHeap.y = (float) v.getNormal().y;
-									normalHeap.z = (float) v.getNormal().z;
-									normalHeap.w = 0;
-									Matrix4f.transform(skinBonesMatrixSumHeap, normalHeap, normalSumHeap);
+								processedBones = true;
+								final Matrix4f worldMatrix = editorRenderModel.getRenderNode(skinBone).getWorldMatrix();
+								skinBonesMatrixHeap.load(worldMatrix);
 
-									if (normalSumHeap.length() > 0) {
-										normalSumHeap.normalise();
-									}
-									else {
-										normalSumHeap.set(0, 1, 0, 0);
-									}
-									if (Float.isNaN(normalSumHeap.x) || Float.isNaN(normalSumHeap.y)
-											|| Float.isNaN(normalSumHeap.z) || Float.isNaN(normalSumHeap.w)
-											|| Float.isInfinite(normalSumHeap.x) || Float.isInfinite(normalSumHeap.y)
-											|| Float.isInfinite(normalSumHeap.z) || Float.isInfinite(normalSumHeap.w)) {
-										continue;
-									}
-
-									NGGLDP.pipeline.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
-									NGGLDP.pipeline.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
-
-									NGGLDP.pipeline.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
-									NGGLDP.pipeline.glVertex3f(
-											vertexSumHeap.x
-													+ (normalSumHeap.x * NORMAL_RENDER_LENGTH * cameraManager.distance),
-											vertexSumHeap.y
-													+ (normalSumHeap.y * NORMAL_RENDER_LENGTH * cameraManager.distance),
-											vertexSumHeap.z + (normalSumHeap.z * NORMAL_RENDER_LENGTH
-													* cameraManager.distance));
-								}
+								sumWeight += link.weight;
+								skinBonesMatrixSumHeap.m00 += (skinBonesMatrixHeap.m00 * link.weight);
+								skinBonesMatrixSumHeap.m01 += (skinBonesMatrixHeap.m01 * link.weight);
+								skinBonesMatrixSumHeap.m02 += (skinBonesMatrixHeap.m02 * link.weight);
+								skinBonesMatrixSumHeap.m03 += (skinBonesMatrixHeap.m03 * link.weight);
+								skinBonesMatrixSumHeap.m10 += (skinBonesMatrixHeap.m10 * link.weight);
+								skinBonesMatrixSumHeap.m11 += (skinBonesMatrixHeap.m11 * link.weight);
+								skinBonesMatrixSumHeap.m12 += (skinBonesMatrixHeap.m12 * link.weight);
+								skinBonesMatrixSumHeap.m13 += (skinBonesMatrixHeap.m13 * link.weight);
+								skinBonesMatrixSumHeap.m20 += (skinBonesMatrixHeap.m20 * link.weight);
+								skinBonesMatrixSumHeap.m21 += (skinBonesMatrixHeap.m21 * link.weight);
+								skinBonesMatrixSumHeap.m22 += (skinBonesMatrixHeap.m22 * link.weight);
+								skinBonesMatrixSumHeap.m23 += (skinBonesMatrixHeap.m23 * link.weight);
+								skinBonesMatrixSumHeap.m30 += (skinBonesMatrixHeap.m30 * link.weight);
+								skinBonesMatrixSumHeap.m31 += (skinBonesMatrixHeap.m31 * link.weight);
+								skinBonesMatrixSumHeap.m32 += (skinBonesMatrixHeap.m32 * link.weight);
+								skinBonesMatrixSumHeap.m33 += (skinBonesMatrixHeap.m33 * link.weight);
 							}
-						}
-					}
-					else {
-						for (final Triangle tri : geo.getTriangles()) {
-							for (final GeosetVertex v : tri.getVerts()) {
+							if (!processedBones) {
+								skinBonesMatrixSumHeap.setIdentity();
+							}
+							else if (sumWeight > 0) {
+								skinBonesMatrixSumHeap.m00 /= sumWeight;
+								skinBonesMatrixSumHeap.m01 /= sumWeight;
+								skinBonesMatrixSumHeap.m02 /= sumWeight;
+								skinBonesMatrixSumHeap.m03 /= sumWeight;
+								skinBonesMatrixSumHeap.m10 /= sumWeight;
+								skinBonesMatrixSumHeap.m11 /= sumWeight;
+								skinBonesMatrixSumHeap.m12 /= sumWeight;
+								skinBonesMatrixSumHeap.m13 /= sumWeight;
+								skinBonesMatrixSumHeap.m20 /= sumWeight;
+								skinBonesMatrixSumHeap.m21 /= sumWeight;
+								skinBonesMatrixSumHeap.m22 /= sumWeight;
+								skinBonesMatrixSumHeap.m23 /= sumWeight;
+								skinBonesMatrixSumHeap.m30 /= sumWeight;
+								skinBonesMatrixSumHeap.m31 /= sumWeight;
+								skinBonesMatrixSumHeap.m32 /= sumWeight;
+								skinBonesMatrixSumHeap.m33 /= sumWeight;
+							}
+							Matrix4f.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
+							if (v.getNormal() != null) {
+								normalHeap.x = (float) v.getNormal().x;
+								normalHeap.y = (float) v.getNormal().y;
+								normalHeap.z = (float) v.getNormal().z;
+								normalHeap.w = 0;
+								Matrix4f.transform(skinBonesMatrixSumHeap, normalHeap, normalSumHeap);
 
-								vertexHeap.x = (float) v.x;
-								vertexHeap.y = (float) v.y;
-								vertexHeap.z = (float) v.z;
-								vertexHeap.w = 1;
-								final int boneCount = v.getBones().size();
-								if (boneCount > 0) {
-									vertexSumHeap.set(0, 0, 0, 0);
-									for (final Bone bone : v.getBones()) {
-										Matrix4f.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(),
-												vertexHeap, appliedVertexHeap);
-										Vector4f.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
-									}
-									vertexSumHeap.x /= boneCount;
-									vertexSumHeap.y /= boneCount;
-									vertexSumHeap.z /= boneCount;
-									vertexSumHeap.w /= boneCount;
+								if (normalSumHeap.length() > 0) {
+									normalSumHeap.normalise();
 								}
 								else {
-									vertexSumHeap.set(vertexHeap);
+									normalSumHeap.set(0, 1, 0, 0);
 								}
-								if (v.getNormal() != null) {
-									normalHeap.x = (float) v.getNormal().x;
-									normalHeap.y = (float) v.getNormal().y;
-									normalHeap.z = (float) v.getNormal().z;
-									normalHeap.w = 0;
-									if (boneCount > 0) {
-										normalSumHeap.set(0, 0, 0, 0);
-										for (final Bone bone : v.getBones()) {
-											Matrix4f.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(),
-													normalHeap, appliedNormalHeap);
-											Vector4f.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
-										}
-									}
-									else {
-										normalSumHeap.set(normalHeap);
-									}
-
-									if (normalSumHeap.length() > 0) {
-										normalSumHeap.normalise();
-									}
-									else {
-										normalSumHeap.set(0, 1, 0, 0);
-									}
-
-									NGGLDP.pipeline.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
-									NGGLDP.pipeline.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
-
-									NGGLDP.pipeline.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
-									NGGLDP.pipeline.glVertex3f(
-											vertexSumHeap.x
-													+ (normalSumHeap.x * NORMAL_RENDER_LENGTH * cameraManager.distance),
-											vertexSumHeap.y
-													+ (normalSumHeap.y * NORMAL_RENDER_LENGTH * cameraManager.distance),
-											vertexSumHeap.z + (normalSumHeap.z * NORMAL_RENDER_LENGTH
-													* cameraManager.distance));
+								if (Float.isNaN(normalSumHeap.x) || Float.isNaN(normalSumHeap.y)
+										|| Float.isNaN(normalSumHeap.z) || Float.isNaN(normalSumHeap.w)
+										|| Float.isInfinite(normalSumHeap.x) || Float.isInfinite(normalSumHeap.y)
+										|| Float.isInfinite(normalSumHeap.z) || Float.isInfinite(normalSumHeap.w)) {
+									continue;
 								}
+
+								NGGLDP.pipeline.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
+								NGGLDP.pipeline.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
+
+								NGGLDP.pipeline.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
+								NGGLDP.pipeline.glVertex3f(
+										vertexSumHeap.x
+												+ (normalSumHeap.x * NORMAL_RENDER_LENGTH * cameraManager.distance),
+										vertexSumHeap.y
+												+ (normalSumHeap.y * NORMAL_RENDER_LENGTH * cameraManager.distance),
+										vertexSumHeap.z
+												+ (normalSumHeap.z * NORMAL_RENDER_LENGTH * cameraManager.distance));
 							}
 						}
 					}
@@ -1000,157 +937,97 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 					NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
 				}
 				NGGLDP.pipeline.glBegin(GL11.GL_TRIANGLES);
-				if (ModelUtils.isTangentAndSkinSupported(formatVersion) && (geo.getVertices().size() > 0)
-						&& (geo.getVertex(0).getSkinBones() != null)) {
-					for (final Triangle tri : geo.getTriangles()) {
-						for (final GeosetVertex v : tri.getVerts()) {
-							vertexHeap.x = (float) v.x;
-							vertexHeap.y = (float) v.y;
-							vertexHeap.z = (float) v.z;
-							vertexHeap.w = 1;
-							skinBonesMatrixSumHeap.setZero();
-							final Bone[] skinBones = v.getSkinBones();
-							final short[] skinBoneWeights = v.getSkinBoneWeights();
-							vertexSumHeap.set(0, 0, 0, 0);
-							boolean processedBones = false;
-							for (int boneIndex = 0; boneIndex < 4; boneIndex++) {
-								final Bone skinBone = skinBones[boneIndex];
-								if (skinBone == null) {
-									continue;
-								}
-								processedBones = true;
-								final Matrix4f worldMatrix = editorRenderModel.getRenderNode(skinBone).getWorldMatrix();
-								skinBonesMatrixHeap.load(worldMatrix);
+				for (final Triangle tri : geo.getTriangles()) {
+					for (final GeosetVertex v : tri.getVerts()) {
+						vertexHeap.x = (float) v.x;
+						vertexHeap.y = (float) v.y;
+						vertexHeap.z = (float) v.z;
+						vertexHeap.w = 1;
+						skinBonesMatrixSumHeap.setZero();
+						final List<GeosetVertexBoneLink> boneAttachments = v.getLinks();
+						boolean processedBones = false;
+						float sumWeight = 0;
+						for (int boneIndex = 0; boneIndex < boneAttachments.size(); boneIndex++) {
+							final GeosetVertexBoneLink link = boneAttachments.get(boneIndex);
+							final Bone skinBone = link.bone;
+							if (skinBone == null) {
+								continue;
+							}
+							processedBones = true;
+							final Matrix4f worldMatrix = editorRenderModel.getRenderNode(skinBone).getWorldMatrix();
+							skinBonesMatrixHeap.load(worldMatrix);
 
-								skinBonesMatrixSumHeap.m00 += (skinBonesMatrixHeap.m00 * skinBoneWeights[boneIndex])
-										/ 255f;
-								skinBonesMatrixSumHeap.m01 += (skinBonesMatrixHeap.m01 * skinBoneWeights[boneIndex])
-										/ 255f;
-								skinBonesMatrixSumHeap.m02 += (skinBonesMatrixHeap.m02 * skinBoneWeights[boneIndex])
-										/ 255f;
-								skinBonesMatrixSumHeap.m03 += (skinBonesMatrixHeap.m03 * skinBoneWeights[boneIndex])
-										/ 255f;
-								skinBonesMatrixSumHeap.m10 += (skinBonesMatrixHeap.m10 * skinBoneWeights[boneIndex])
-										/ 255f;
-								skinBonesMatrixSumHeap.m11 += (skinBonesMatrixHeap.m11 * skinBoneWeights[boneIndex])
-										/ 255f;
-								skinBonesMatrixSumHeap.m12 += (skinBonesMatrixHeap.m12 * skinBoneWeights[boneIndex])
-										/ 255f;
-								skinBonesMatrixSumHeap.m13 += (skinBonesMatrixHeap.m13 * skinBoneWeights[boneIndex])
-										/ 255f;
-								skinBonesMatrixSumHeap.m20 += (skinBonesMatrixHeap.m20 * skinBoneWeights[boneIndex])
-										/ 255f;
-								skinBonesMatrixSumHeap.m21 += (skinBonesMatrixHeap.m21 * skinBoneWeights[boneIndex])
-										/ 255f;
-								skinBonesMatrixSumHeap.m22 += (skinBonesMatrixHeap.m22 * skinBoneWeights[boneIndex])
-										/ 255f;
-								skinBonesMatrixSumHeap.m23 += (skinBonesMatrixHeap.m23 * skinBoneWeights[boneIndex])
-										/ 255f;
-								skinBonesMatrixSumHeap.m30 += (skinBonesMatrixHeap.m30 * skinBoneWeights[boneIndex])
-										/ 255f;
-								skinBonesMatrixSumHeap.m31 += (skinBonesMatrixHeap.m31 * skinBoneWeights[boneIndex])
-										/ 255f;
-								skinBonesMatrixSumHeap.m32 += (skinBonesMatrixHeap.m32 * skinBoneWeights[boneIndex])
-										/ 255f;
-								skinBonesMatrixSumHeap.m33 += (skinBonesMatrixHeap.m33 * skinBoneWeights[boneIndex])
-										/ 255f;
-							}
-							if (!processedBones) {
-								skinBonesMatrixSumHeap.setIdentity();
-							}
-							Matrix4f.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
-							skinBonesMatrixSumHeap3.m00 = skinBonesMatrixSumHeap.m00;
-							skinBonesMatrixSumHeap3.m01 = skinBonesMatrixSumHeap.m01;
-							skinBonesMatrixSumHeap3.m02 = skinBonesMatrixSumHeap.m02;
-							skinBonesMatrixSumHeap3.m10 = skinBonesMatrixSumHeap.m10;
-							skinBonesMatrixSumHeap3.m11 = skinBonesMatrixSumHeap.m11;
-							skinBonesMatrixSumHeap3.m12 = skinBonesMatrixSumHeap.m12;
-							skinBonesMatrixSumHeap3.m20 = skinBonesMatrixSumHeap.m20;
-							skinBonesMatrixSumHeap3.m21 = skinBonesMatrixSumHeap.m21;
-							skinBonesMatrixSumHeap3.m22 = skinBonesMatrixSumHeap.m22;
-							if (v.getNormal() != null) {
-								normalHeap3.x = (float) v.getNormal().x;
-								normalHeap3.y = (float) v.getNormal().y;
-								normalHeap3.z = (float) v.getNormal().z;
-								Matrix3f.transform(skinBonesMatrixSumHeap3, normalHeap3, normalSumHeap3);
-
-								NGGLDP.pipeline.glNormal3f(normalSumHeap3.x, normalSumHeap3.y, normalSumHeap3.z);
-							}
-							if (v.getTangent() != null) {
-								normalHeap3.set(v.getTangent()[0], v.getTangent()[1], v.getTangent()[2]);
-								Matrix3f.transform(skinBonesMatrixSumHeap3, normalHeap3, normalSumHeap3);
-
-								NGGLDP.pipeline.glTangent4f(normalSumHeap3.x, normalSumHeap3.y, normalSumHeap3.z,
-										v.getTangent()[3]);
-							}
-							int coordId = layer.getCoordId();
-							if (coordId >= v.getTverts().size()) {
-								coordId = v.getTverts().size() - 1;
-							}
-							NGGLDP.pipeline.glTexCoord2f((float) v.getTverts().get(coordId).x,
-									(float) v.getTverts().get(coordId).y);
-							NGGLDP.pipeline.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
+							sumWeight += link.weight;
+							skinBonesMatrixSumHeap.m00 += (skinBonesMatrixHeap.m00 * link.weight);
+							skinBonesMatrixSumHeap.m01 += (skinBonesMatrixHeap.m01 * link.weight);
+							skinBonesMatrixSumHeap.m02 += (skinBonesMatrixHeap.m02 * link.weight);
+							skinBonesMatrixSumHeap.m03 += (skinBonesMatrixHeap.m03 * link.weight);
+							skinBonesMatrixSumHeap.m10 += (skinBonesMatrixHeap.m10 * link.weight);
+							skinBonesMatrixSumHeap.m11 += (skinBonesMatrixHeap.m11 * link.weight);
+							skinBonesMatrixSumHeap.m12 += (skinBonesMatrixHeap.m12 * link.weight);
+							skinBonesMatrixSumHeap.m13 += (skinBonesMatrixHeap.m13 * link.weight);
+							skinBonesMatrixSumHeap.m20 += (skinBonesMatrixHeap.m20 * link.weight);
+							skinBonesMatrixSumHeap.m21 += (skinBonesMatrixHeap.m21 * link.weight);
+							skinBonesMatrixSumHeap.m22 += (skinBonesMatrixHeap.m22 * link.weight);
+							skinBonesMatrixSumHeap.m23 += (skinBonesMatrixHeap.m23 * link.weight);
+							skinBonesMatrixSumHeap.m30 += (skinBonesMatrixHeap.m30 * link.weight);
+							skinBonesMatrixSumHeap.m31 += (skinBonesMatrixHeap.m31 * link.weight);
+							skinBonesMatrixSumHeap.m32 += (skinBonesMatrixHeap.m32 * link.weight);
+							skinBonesMatrixSumHeap.m33 += (skinBonesMatrixHeap.m33 * link.weight);
 						}
-					}
-				}
-				else {
-					for (final Triangle tri : geo.getTriangles()) {
-						for (final GeosetVertex v : tri.getVerts()) {
-
-							vertexHeap.x = (float) v.x;
-							vertexHeap.y = (float) v.y;
-							vertexHeap.z = (float) v.z;
-							vertexHeap.w = 1;
-							final int boneCount = v.getBones().size();
-							if (boneCount > 0) {
-								vertexSumHeap.set(0, 0, 0, 0);
-								for (final Bone bone : v.getBones()) {
-									Matrix4f.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(),
-											vertexHeap, appliedVertexHeap);
-									Vector4f.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
-								}
-								vertexSumHeap.x /= boneCount;
-								vertexSumHeap.y /= boneCount;
-								vertexSumHeap.z /= boneCount;
-								vertexSumHeap.w /= boneCount;
-							}
-							else {
-								vertexSumHeap.set(vertexHeap);
-							}
-							if (v.getNormal() != null) {
-								normalHeap.x = (float) v.getNormal().x;
-								normalHeap.y = (float) v.getNormal().y;
-								normalHeap.z = (float) v.getNormal().z;
-								normalHeap.w = 0;
-								if (boneCount > 0) {
-									normalSumHeap.set(0, 0, 0, 0);
-									for (final Bone bone : v.getBones()) {
-										Matrix4f.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(),
-												normalHeap, appliedNormalHeap);
-										Vector4f.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
-									}
-								}
-								else {
-									normalSumHeap.set(normalHeap);
-								}
-
-								if (normalSumHeap.length() > 0) {
-									normalSumHeap.normalise();
-								}
-								else {
-									normalSumHeap.set(0, 1, 0, 0);
-								}
-
-								NGGLDP.pipeline.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
-							}
-							int coordId = layer.getCoordId();
-							if (coordId >= v.getTverts().size()) {
-								coordId = v.getTverts().size() - 1;
-							}
-							NGGLDP.pipeline.glTexCoord2f((float) v.getTverts().get(coordId).x,
-									(float) v.getTverts().get(coordId).y);
-							NGGLDP.pipeline.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
+						if (!processedBones) {
+							skinBonesMatrixSumHeap.setIdentity();
 						}
+						else if (sumWeight > 0) {
+							skinBonesMatrixSumHeap.m00 /= sumWeight;
+							skinBonesMatrixSumHeap.m01 /= sumWeight;
+							skinBonesMatrixSumHeap.m02 /= sumWeight;
+							skinBonesMatrixSumHeap.m03 /= sumWeight;
+							skinBonesMatrixSumHeap.m10 /= sumWeight;
+							skinBonesMatrixSumHeap.m11 /= sumWeight;
+							skinBonesMatrixSumHeap.m12 /= sumWeight;
+							skinBonesMatrixSumHeap.m13 /= sumWeight;
+							skinBonesMatrixSumHeap.m20 /= sumWeight;
+							skinBonesMatrixSumHeap.m21 /= sumWeight;
+							skinBonesMatrixSumHeap.m22 /= sumWeight;
+							skinBonesMatrixSumHeap.m23 /= sumWeight;
+							skinBonesMatrixSumHeap.m30 /= sumWeight;
+							skinBonesMatrixSumHeap.m31 /= sumWeight;
+							skinBonesMatrixSumHeap.m32 /= sumWeight;
+							skinBonesMatrixSumHeap.m33 /= sumWeight;
+						}
+						Matrix4f.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
+						skinBonesMatrixSumHeap3.m00 = skinBonesMatrixSumHeap.m00;
+						skinBonesMatrixSumHeap3.m01 = skinBonesMatrixSumHeap.m01;
+						skinBonesMatrixSumHeap3.m02 = skinBonesMatrixSumHeap.m02;
+						skinBonesMatrixSumHeap3.m10 = skinBonesMatrixSumHeap.m10;
+						skinBonesMatrixSumHeap3.m11 = skinBonesMatrixSumHeap.m11;
+						skinBonesMatrixSumHeap3.m12 = skinBonesMatrixSumHeap.m12;
+						skinBonesMatrixSumHeap3.m20 = skinBonesMatrixSumHeap.m20;
+						skinBonesMatrixSumHeap3.m21 = skinBonesMatrixSumHeap.m21;
+						skinBonesMatrixSumHeap3.m22 = skinBonesMatrixSumHeap.m22;
+						if (v.getNormal() != null) {
+							normalHeap3.x = (float) v.getNormal().x;
+							normalHeap3.y = (float) v.getNormal().y;
+							normalHeap3.z = (float) v.getNormal().z;
+							Matrix3f.transform(skinBonesMatrixSumHeap3, normalHeap3, normalSumHeap3);
+
+							NGGLDP.pipeline.glNormal3f(normalSumHeap3.x, normalSumHeap3.y, normalSumHeap3.z);
+						}
+						if (v.getTangent() != null) {
+							normalHeap3.set(v.getTangent()[0], v.getTangent()[1], v.getTangent()[2]);
+							Matrix3f.transform(skinBonesMatrixSumHeap3, normalHeap3, normalSumHeap3);
+
+							NGGLDP.pipeline.glTangent4f(normalSumHeap3.x, normalSumHeap3.y, normalSumHeap3.z,
+									v.getTangent()[3]);
+						}
+						int coordId = layer.getCoordId();
+						if (coordId >= v.getTverts().size()) {
+							coordId = v.getTverts().size() - 1;
+						}
+						NGGLDP.pipeline.glTexCoord2f((float) v.getTverts().get(coordId).x,
+								(float) v.getTverts().get(coordId).y);
+						NGGLDP.pipeline.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
 					}
 				}
 				// if( texture != null )

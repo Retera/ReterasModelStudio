@@ -1,7 +1,6 @@
 package com.hiveworkshop.wc3.gui.modeledit.newstuff;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -49,6 +48,7 @@ import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.GeosetVertexBoneLink;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Layer;
 import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
@@ -85,36 +85,15 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		for (final Bone bone : bones) {
 			mx.add(bone);
 		}
-		final Map<GeosetVertex, List<Bone>> vertexToOldBoneReferences = new HashMap<>();
-		final Map<GeosetVertex, Bone[]> vertexToOldSkinBoneReferences = new HashMap<>();
-		final Map<GeosetVertex, short[]> vertexToOldSkinBoneWeightReferences = new HashMap<>();
+		final Map<GeosetVertex, List<GeosetVertexBoneLink>> vertexToOldSkinBoneReferences = new HashMap<>();
 		for (final Vertex vert : selectionManager.getSelectedVertices()) {
 			if (vert instanceof GeosetVertex) {
 				final GeosetVertex gv = (GeosetVertex) vert;
-				if (gv.getSkinBones() != null) {
-					vertexToOldSkinBoneReferences.put(gv, gv.getSkinBones().clone());
-					vertexToOldSkinBoneWeightReferences.put(gv, gv.getSkinBoneWeights().clone());
-					Arrays.fill(gv.getSkinBones(), null);
-					Arrays.fill(gv.getSkinBoneWeights(), (short) 0);
-					final int basicWeighting = 255 / bones.size();
-					final int offset = 255 - (basicWeighting * bones.size());
-					for (int i = 0; (i < bones.size()) && (i < 4); i++) {
-						gv.getSkinBones()[i] = mx.getBones().get(i);
-						gv.getSkinBoneWeights()[i] = (short) basicWeighting;
-						if (i == 0) {
-							gv.getSkinBoneWeights()[i] += offset;
-						}
-					}
-				}
-				else {
-					vertexToOldBoneReferences.put(gv, new ArrayList<>(gv.getBoneAttachments()));
-					gv.clearBoneAttachments();
-					gv.addBoneAttachments(mx.getBones());
-				}
+				vertexToOldSkinBoneReferences.put(gv, new ArrayList<>(gv.getLinks()));
+				gv.setBoneAttachments(mx.getBones());
 			}
 		}
-		return new SetMatrixAction(vertexToOldBoneReferences, vertexToOldSkinBoneReferences,
-				vertexToOldSkinBoneWeightReferences, bones);
+		return new SetMatrixAction(vertexToOldSkinBoneReferences, bones);
 	}
 
 	@Override
@@ -696,19 +675,10 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 				newSelection.add(ver);
 				if (ver.getClass() == GeosetVertex.class) {
 					final GeosetVertex gv = (GeosetVertex) ver;
-					final Bone[] skinBones = gv.getSkinBones();
-					if (skinBones != null) {
-						for (int i = 0; i < skinBones.length; i++) {
-							final Bone b = skinBones[i];
-							if (selBones.contains(b)) {
-								skinBones[i] = (Bone) newBones.get(selBones.indexOf(b));
-							}
-						}
-					}
-					for (int i = 0; i < gv.getBones().size(); i++) {
-						final Bone b = gv.getBones().get(i);
-						if (selBones.contains(b)) {
-							gv.getBones().set(i, (Bone) newBones.get(selBones.indexOf(b)));
+					for (int i = 0; i < gv.getLinks().size(); i++) {
+						final GeosetVertexBoneLink link = gv.getLinks().get(i);
+						if (selBones.contains(link.bone)) {
+							link.bone = (Bone) newBones.get(selBones.indexOf(link.bone));
 						}
 					}
 				}

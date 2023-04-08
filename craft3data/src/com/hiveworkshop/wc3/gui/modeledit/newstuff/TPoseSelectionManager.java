@@ -14,6 +14,7 @@ import com.hiveworkshop.wc3.gui.modeledit.viewport.NodeIconPalette;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.GeosetVertexBoneLink;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
@@ -90,7 +91,8 @@ public final class TPoseSelectionManager extends AbstractSelectionManager<IdObje
 						programPreferences.getAnimatedBoneSelectedColor(),
 						programPreferences.getAnimatedBoneSelectedColor());
 				drawnSelection.add(object);
-			} else {
+			}
+			else {
 				IdObject parent = object.getParent();
 				while (parent != null) {
 					if (selection.contains(parent)) {
@@ -142,8 +144,8 @@ public final class TPoseSelectionManager extends AbstractSelectionManager<IdObje
 		for (final Geoset geoset : modelView.getEditableGeosets()) {
 			for (final Triangle triangle : geoset.getTriangles()) {
 				for (final GeosetVertex geosetVertex : triangle.getVerts()) {
-					for (final Bone bone : geosetVertex.getBoneAttachments()) {
-						if (nodesToMove.contains(bone)) {
+					for (final GeosetVertexBoneLink link : geosetVertex.getLinks()) {
+						if (nodesToMove.contains(link.bone)) {
 							vertices.add(geosetVertex);
 						}
 					}

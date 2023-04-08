@@ -42,6 +42,7 @@ import com.hiveworkshop.wc3.mdl.EventObject;
 import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.GeosetVertexBoneLink;
 import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
@@ -396,7 +397,8 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 	private void toggleSelection(final Set<Vertex> selection, final Vertex position) {
 		if (selection.contains(position)) {
 			selection.remove(position);
-		} else {
+		}
+		else {
 			selection.add(position);
 		}
 	}
@@ -481,25 +483,15 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		final Set<Bone> usedBones = new HashSet<>();
 		for (final Geoset geoset : model.getEditableGeosets()) {
 			for (final GeosetVertex vertex : geoset.getVertices()) {
-				final Bone[] skinBones = vertex.getSkinBones();
-				if (skinBones != null) {
-					for (int i = 0; i < skinBones.length; i++) {
-						final Bone bone = skinBones[i];
-						if (bone != null) {
-							usedBones.add(bone);
-						}
-					}
-				} else {
-					for (final Bone bone : vertex.getBoneAttachments()) {
-						usedBones.add(bone);
-					}
+				for (final GeosetVertexBoneLink link : vertex.getLinks()) {
+					usedBones.add(link.bone);
 				}
 			}
 		}
 		final Set<Vertex> allSelection = new HashSet<>();
 		for (final IdObject node : model.getEditableIdObjects()) {
-			if (node instanceof Bone && !usedBones.contains(node) && !(node instanceof Helper)) {
-				if (node.getChildrenNodes() != null && !node.getChildrenNodes().isEmpty()) {
+			if ((node instanceof Bone) && !usedBones.contains(node) && !(node instanceof Helper)) {
+				if ((node.getChildrenNodes() != null) && !node.getChildrenNodes().isEmpty()) {
 					System.out.println("note: should maybe be helper: " + node.getName());
 				}
 				allSelection.add(node.getPivotPoint());
@@ -556,7 +548,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		final double x = coordinateSystem.convertX(vertexX);
 		final double vertexY = geosetVertex.getCoord(dim2);
 		final double y = coordinateSystem.convertY(vertexY);
-		if (distance(x, y, minX, minY) <= vertexSize / 2.0 || distance(x, y, maxX, maxY) <= vertexSize / 2.0
+		if ((distance(x, y, minX, minY) <= (vertexSize / 2.0)) || (distance(x, y, maxX, maxY) <= (vertexSize / 2.0))
 				|| area.contains(vertexX, vertexY)) {
 			selectedItems.add(geosetVertex);
 		}
@@ -568,13 +560,13 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		final double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
 		final double px = coordinateSystem.convertX(point.getX());
 		final double py = coordinateSystem.convertY(point.getY());
-		return Point2D.distance(px, py, x, y) <= vertexSize / 2.0;
+		return Point2D.distance(px, py, x, y) <= (vertexSize / 2.0);
 	}
 
 	public static double distance(final double vertexX, final double vertexY, final double x, final double y) {
 		final double dx = x - vertexX;
 		final double dy = y - vertexY;
-		return Math.sqrt(dx * dx + dy * dy);
+		return Math.sqrt((dx * dx) + (dy * dy));
 	}
 
 	@Override
@@ -739,7 +731,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 
 			for (final Vertex vertex : collisionShape.getVertices()) {
 				double objectClickRadius = IdObject.DEFAULT_CLICK_RADIUS;
-				if (collisionSphere && vertexIndex == 0 && collisionShape.getExtents() != null
+				if (collisionSphere && (vertexIndex == 0) && (collisionShape.getExtents() != null)
 						&& collisionShape.getExtents().hasBoundsRadius()) {
 					objectClickRadius = collisionShape.getExtents().getBoundsRadius() * 2;
 				}
@@ -851,7 +843,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 
 			for (final Vertex vertex : collisionShape.getVertices()) {
 				double objectClickRadius = IdObject.DEFAULT_CLICK_RADIUS;
-				if (collisionSphere && vertexIndex == 0 && collisionShape.getExtents() != null
+				if (collisionSphere && (vertexIndex == 0) && (collisionShape.getExtents() != null)
 						&& collisionShape.getExtents().hasBoundsRadius()) {
 					objectClickRadius = collisionShape.getExtents().getBoundsRadius() * 2;
 				}
@@ -954,7 +946,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 					@Override
 					public void collisionShape(final CollisionShape collisionShape) {
 						final ExtLog extents = collisionShape.getExtents();
-						if (extents != null && scaleX == scaleY && scaleY == scaleZ) {
+						if ((extents != null) && (scaleX == scaleY) && (scaleY == scaleZ)) {
 							extents.setBoundsRadius(extents.getBoundsRadius() * scaleX);
 						}
 					}
@@ -989,7 +981,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 	}
 
 	private boolean collisionShapeSelected(final IdObject b) {
-		return b instanceof CollisionShape && ((CollisionShape) b).getVertices().size() > 0
+		return (b instanceof CollisionShape) && (((CollisionShape) b).getVertices().size() > 0)
 				&& selectionManager.getSelection().contains(((CollisionShape) b).getVertices().get(0));
 	}
 
