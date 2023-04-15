@@ -18,6 +18,7 @@ import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
 import com.hiveworkshop.rms.ui.gui.modeledit.MaterialListRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.TwiComboBox;
+import com.hiveworkshop.rms.util.uiFactories.Label;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -26,6 +27,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 	private final JLabel geosetLabel = new JLabel("geoset name");
 	private final JLabel trisLabel = new JLabel("0");
 	private final JLabel vertLabel = new JLabel("0");
+	private final JLabel uvLayersLabel = new JLabel("0");
 	private JPanel lodPanel;
 	private final JPanel hdNamePanel;
 	private IntEditorJSpinner lodSpinner;
@@ -95,9 +97,13 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 		geosetInfoPanel.add(new JLabel("Vertices: "));
 		geosetInfoPanel.add(vertLabel, "wrap");
 
+		geosetInfoPanel.add(Label.create("UVLayers: ", this::uvLayersPopup));
+		geosetInfoPanel.add(uvLayersLabel, "wrap");
+
 		geosetInfoPanel.add(new JLabel("SelectionGroup: "));
 		selectionGroupSpinner = new IntEditorJSpinner(0, 0, 10000, this::setSelectionGroup);
 		geosetInfoPanel.add(selectionGroupSpinner, "wrap");
+
 		return geosetInfoPanel;
 	}
 
@@ -146,6 +152,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 
 		trisLabel.setText("" + geoset.getTriangles().size());
 		vertLabel.setText("" + geoset.getVertices().size());
+		uvLayersLabel.setText("" + geoset.numUVLayers());
 
 		selectionGroupSpinner.reloadNewValue(geoset.getSelectionGroup());
 		lodSpinner.reloadNewValue(geoset.getLevelOfDetail());
@@ -212,5 +219,13 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 	private void removeGeoset() {
 		UndoAction action = new DeleteGeosetAction(model, geoset, changeListener);
 		undoManager.pushAction(action.redo());
+	}
+
+	private void uvLayersPopup(){
+		UVLayerPanel uvLayerPanel = new UVLayerPanel(geoset, undoManager);
+		int ok_cancel = JOptionPane.showConfirmDialog(uvLayersLabel, uvLayerPanel, "UV Layers", JOptionPane.OK_CANCEL_OPTION);
+		if(ok_cancel == JOptionPane.OK_OPTION){
+			uvLayerPanel.applyEdit();
+		}
 	}
 }

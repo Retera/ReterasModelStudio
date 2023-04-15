@@ -426,7 +426,7 @@ public class TempSaveModelStuff {
 		mdlxTexture.path = bitmap.getPath();
 		mdlxTexture.replaceableId = bitmap.getReplaceableId();
 
-		for (Bitmap.flag flag : bitmap.getFlags()){
+		for (Bitmap.WrapFlag flag : bitmap.getWrapFlags()){
 			mdlxTexture.wrapFlag |= flag.getFlagBit();
 		}
 

@@ -2,31 +2,32 @@ package com.hiveworkshop.rms.util;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ItemEvent;
+import java.util.Objects;
 
 /**
  * A card panel that keeps track of its own CardLayout
  */
 public class TwiCardPanel extends JPanel {
-	CardLayout cardLayout = new CardLayout();
-	JComboBox<String> comboBox;
-	TwiComboBoxModel<String> comboBoxModel;
+	private final CardLayout cardLayout = new CardLayout();
+	private final TwiComboBox<String> comboBox;
 
 	public TwiCardPanel() {
-		setLayout(cardLayout);
-		comboBoxModel = new TwiComboBoxModel<>();
-		comboBox = new JComboBox<>(comboBoxModel);
-		comboBox.addItemListener(this::chooseCard);
+		this("PrototypePrototype");
 	}
 
-	private void chooseCard(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED) {
-			show(e.getItem().toString());
-		}
-
+	public TwiCardPanel(String comboBoxPrototype) {
+		setLayout(cardLayout);
+		comboBox = new TwiComboBox<>(comboBoxPrototype);
+		comboBox.addOnSelectItemListener(this::showCard);
 	}
 
 	public void show(String key) {
+		if (!Objects.equals(key, comboBox.getSelected())) {
+			comboBox.setSelectedItem(key);
+		}
+		showCard(key);
+	}
+	private void showCard(String key) {
 		cardLayout.show(this, key);
 	}
 
@@ -37,19 +38,19 @@ public class TwiCardPanel extends JPanel {
 	@Override
 	public void add(Component comp, Object constraints) {
 		super.add(comp, constraints);
-		comboBoxModel.addElement(constraints.toString());
+		comboBox.add(constraints.toString());
 	}
 
 	@Override
 	public void add(Component comp, Object constraints, int index) {
 		super.add(comp, constraints, index);
-		comboBoxModel.insertElementAt(constraints.toString(), index);
+		comboBox.add(constraints.toString(), index);
 	}
 
 	@Override
 	public void remove(int index) {
 		super.remove(index);
-		comboBoxModel.removeElementAt(index);
+		comboBox.remove(index);
 	}
 
 	@Override
@@ -64,10 +65,10 @@ public class TwiCardPanel extends JPanel {
 	@Override
 	public void removeAll() {
 		super.removeAll();
-		comboBoxModel.removeAllElements();
+		comboBox.removeAll();
 	}
 
-	public JComboBox<String> getCombobox() {
+	public JComboBox<String> getComboBox() {
 		return comboBox;
 	}
 }

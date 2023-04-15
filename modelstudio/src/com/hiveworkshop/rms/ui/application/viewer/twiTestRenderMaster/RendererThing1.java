@@ -54,6 +54,45 @@ public class RendererThing1 {
 		pipeline.doRender(GL11.GL_TRIANGLES);
 		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 	}
+	public static void renderRibbons(CameraManager cameraManager, ShaderPipeline pipeline,
+	                                 int width, int height,
+	                                 boolean wireFrame, boolean texture) {
+		pipeline.glEnableIfNeeded(GL11.GL_COLOR_MATERIAL);
+		pipeline.glEnableIfNeeded(GL11.GL_LIGHTING);
+		pipeline.glEnableIfNeeded(GL11.GL_LIGHT0);
+		pipeline.glEnableIfNeeded(GL11.GL_LIGHT1);
+		pipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
+
+		GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+
+		if (texture) {
+			pipeline.glEnableIfNeeded(GL11.GL_TEXTURE_2D);
+		} else {
+			pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+		}
+		if (wireFrame) {
+			GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
+			pipeline.setPolygonMode(GL11.GL_LINE);
+		} else {
+			GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
+			pipeline.setPolygonMode(GL11.GL_FILL);
+		}
+
+		pipeline.glViewport(width, height);
+
+
+		pipeline.glMatrixMode(GL11.GL_PROJECTION);
+		pipeline.glLoadIdentity();
+		pipeline.glMatrixMode(GL11.GL_MODELVIEW);
+		pipeline.glLoadIdentity();
+
+		pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
+		pipeline.glSetViewMatrix(cameraManager.getViewMat());
+		pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
+
+		pipeline.doRender(GL11.GL_TRIANGLES);
+		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+	}
 
 	public static void renderNormals(CameraManager cameraManager, ShaderPipeline pipeline, int width, int height) {
 		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
@@ -251,6 +290,6 @@ public class RendererThing1 {
 		// https://learnopengl.com/Advanced-OpenGL/Geometry-Shader
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glEnable(GL11.GL_BLEND);
-		pipeline.doRender(GL11.GL_LINES);
+		pipeline.doRender(GL11.GL_LINES, cameraManager);
 	}
 }

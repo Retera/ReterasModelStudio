@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.panel;
 
-import com.hiveworkshop.rms.editor.actions.uv.MirrorTVerticesAction;
 import com.hiveworkshop.rms.editor.actions.uv.UVRemapAction;
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
@@ -8,8 +7,8 @@ import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.OpenImages;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.WindowHandler2;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.PerspectiveViewUgg;
+import com.hiveworkshop.rms.ui.application.edit.uv.TVertexEditorManager;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.OldRenderer.AnimatedPerspectiveViewport;
 import com.hiveworkshop.rms.ui.application.viewer.UVPanelToolBar;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -22,21 +21,23 @@ import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.util.ModeButton;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.TwiComboBox;
-import com.hiveworkshop.rms.util.Vec2;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.util.List;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.Set;
 
 public class UVPanel extends JPanel {
 	private ModelHandler modelHandler;
 	private final JTextField[] mouseCoordDisplay = new JTextField[2];
 	private JPanel zoomPanel;
 	private JPanel navPanel;
+	private TwiComboBox<Integer> uvLayerChooser;
+	private int uvLayer;
 
 	private TwiComboBox<Bitmap> textureComboBox;
 	private final UVPanelToolBar toolbar;
@@ -81,11 +82,19 @@ public class UVPanel extends JPanel {
 			mouseCoordDisplay[i].setEditable(false);
 		}
 
+		uvLayerChooser = new TwiComboBox<>(1000);
+		uvLayerChooser.add(0);
+		uvLayerChooser.add(1);
+		uvLayerChooser.add(2);
+		uvLayerChooser.addOnSelectItemListener(this::setUvLayer);
+
+
 		JPanel bottomPanel = new JPanel(new MigLayout("gap 0, hidemode 2", "[][]120[]16[]"));
 		bottomPanel.add(mouseCoordDisplay[0], "aligny top");
 		bottomPanel.add(mouseCoordDisplay[1], "aligny top");
 		bottomPanel.add(navPanel);
 		bottomPanel.add(zoomPanel);
+		bottomPanel.add(uvLayerChooser);
 		return bottomPanel;
 	}
 
@@ -130,27 +139,6 @@ public class UVPanel extends JPanel {
 		return stuffPanel;
 	}
 
-	private void mirror(Vec2 axis, Vec2 center) {
-		if (modelHandler != null) {
-			if(center == null) {
-				center = toolbar.getModelEditorManager().getSelectionView().getUVCenter();
-			}
-			Collection<Vec2> tVertices = getTVertices(modelHandler.getModelView().getSelectedVertices(), 0);
-			modelHandler.getUndoManager().pushAction(new MirrorTVerticesAction(tVertices, center, axis, ModelStructureChangeListener.changeListener).redo());
-		}
-		repaint();
-	}
-
-	public static Collection<Vec2> getTVertices(Collection<GeosetVertex> vertexSelection, int uvLayerIndex) {
-		List<Vec2> tVertices = new ArrayList<>();
-		for (GeosetVertex vertex : vertexSelection) {
-			if (uvLayerIndex < vertex.getTverts().size()) {
-				tVertices.add(vertex.getTVertex(uvLayerIndex));
-			}
-		}
-		return tVertices;
-	}
-
 	private void unwrapFromView(UnwrapDirection unwrapDirection) {
 		if (unwrapDirection != null) {
 			Mat4 cam;
@@ -171,7 +159,7 @@ public class UVPanel extends JPanel {
 	protected void remap(Mat4 dim, Mat4 cam, String direction) {
 		if (modelHandler != null) {
 			Set<GeosetVertex> selectedVertices = modelHandler.getModelView().getSelectedVertices();
-			modelHandler.getUndoManager().pushAction(new UVRemapAction(selectedVertices, 0, dim, cam, direction, false).redo());
+			modelHandler.getUndoManager().pushAction(new UVRemapAction(selectedVertices, uvLayer, dim, cam, direction, false).redo());
 		}
 		repaint();
 	}
@@ -205,18 +193,8 @@ public class UVPanel extends JPanel {
 	}
 
 	public void init() {
-//		System.out.println("UVPanel: initiating");
 		uvViewport.init();
-//		System.out.println("Zoom: " + uvViewport.getCoordinateSystem().getZoom());
-//		uvViewport.getCoordinateSystem().zoomOut(1.5);
-
-//		uvViewport.getCoordinateSystem().doZoom(.5, .5, false);
-//		uvViewport.getCoordinateSystem().doZoom(.5, .5, false);
-
-//		System.out.println("UVPanel: vp initiated, setting controls visibility");
-
 		setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
-//		System.out.println("UVPanel: controls visibility set");
 	}
 
 
@@ -226,10 +204,12 @@ public class UVPanel extends JPanel {
 	}
 
 	AnimatedPerspectiveViewport viewport;
+	TVertexEditorManager uvModelEditorManager;
 	public UVPanel setModel(ModelPanel modelPanel) {
 		if (modelPanel != null){
 			this.modelHandler = modelPanel.getModelHandler();
-			transformPanel.setModel(modelHandler, modelPanel.getUvModelEditorManager());
+			uvModelEditorManager = modelPanel.getUvModelEditorManager();
+			transformPanel.setModel(modelHandler, uvModelEditorManager);
 			toolbar.setModelHandler(modelPanel);
 			menuBar.setModel(modelPanel);
 			uvViewport.setModel(this.modelHandler, modelPanel.getUVViewportActivityManager());
@@ -249,6 +229,7 @@ public class UVPanel extends JPanel {
 			}
 		} else {
 			modelHandler = null;
+			uvModelEditorManager = null;
 			transformPanel.setModel(null, null);
 			toolbar.setModelHandler(null);
 			menuBar.setModel(null);
@@ -259,29 +240,6 @@ public class UVPanel extends JPanel {
 
 		return this;
 	}
-//	public UVPanel setModel(ModelHandler modelHandler) {
-//		this.modelHandler = modelHandler;
-//		toolbar.setModelHandler(modelHandler);
-//		menuBar.setModel(modelHandler, toolbar.getModelEditorManager());
-//		uvViewport.setModel(this.modelHandler, toolbar.getViewportActivityManager());
-//
-//		textureComboBox.removeAllItems();
-//		textureComboBox.addAll(modelHandler.getModel().getTextures());
-//
-//		textureComboBox.setRenderer(new TextureListRenderer(modelHandler.getModel()));
-//		if (textureComboBox.getItemCount() > 0) {
-//			textureComboBox.setSelectedItem(null);
-//			textureComboBox.setSelectedIndex(0);
-//		}
-//
-//		PerspectiveViewUgg modelDependentView = (PerspectiveViewUgg) WindowHandler2.getAllViews().stream().filter(v -> v instanceof PerspectiveViewUgg).findFirst().orElse(null);
-//		if (modelDependentView != null && modelDependentView.getPerspectiveViewport() != null) {
-//			viewport = modelDependentView.getPerspectiveViewport();
-//
-//		}
-//
-//		return this;
-//	}
 
 	@Override
 	public void paintComponent(Graphics g) {
@@ -337,34 +295,23 @@ public class UVPanel extends JPanel {
 		return uvViewport.getBufferedImage();
 	}
 
-	/**
-	 * A method defining the currently selected UV layer.
-	 */
 	public int currentLayer() {
-		int uvLayerIndex = 0;
-		return uvLayerIndex;
+		return uvLayer;
 	}
 
+	public void setUvLayer(int layer) {
+		if(uvModelEditorManager != null){
+			uvLayer = layer;
+			uvModelEditorManager.setUVLayer(layer);
+			uvViewport.setUvLayer(layer);
+		}
+	}
 
 	public enum UnwrapDirection {
 		FRONT("Front", 0,1,0,0,0,-1),
 		RIGHT("Right", 1, 0, 0, 0, 0, -1),
 		BOTTOM("Bottom", 0, 1, 0, -1, 0, 0),
 		PERSPECTIVE("Perspective", 0,1,0,0,0,-1);
-//				case FRONT -> remap((byte) Y, (byte) -Z, unwrapDirection);
-//				case RIGHT -> remap((byte) X, (byte) -Z, unwrapDirection);
-//				case BOTTOM -> remap((byte) Y, (byte) X, unwrapDirection);
-
-//				case BACK -> remap((byte) -Y, (byte) -Z, unwrapDirection);
-//				case LEFT -> remap((byte) -X, (byte) -Z, unwrapDirection);
-//				case TOP -> remap((byte) Y, (byte) -X, unwrapDirection);
-
-//				case BOTTOM -> remap((byte) 1, (byte) 0, unwrapDirection);
-//				case FRONT -> remap((byte) 1, (byte) 2, unwrapDirection);
-//				case RIGHT -> remap((byte) 0, (byte) 2, unwrapDirection);
-//			case 0 -> centerX;
-//			case 1 -> centerY;
-//			case 2 -> centerZ;
 
 		private final String displayText;
 		private final Mat4 transDim;

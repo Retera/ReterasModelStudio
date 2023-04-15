@@ -62,7 +62,6 @@ public class File {
 	private static void onClickSave(ModelPanel modelPanel, EditableModel model) {
 		if (model != null && !model.isTemp() && model.getFile() != null) {
 			saveModel(model, model.getFile(), modelPanel);
-			// TODO reset been saved
 		} else {
 			onClickSaveAs(modelPanel, FileDialog.SAVE);
 		}
@@ -83,9 +82,7 @@ public class File {
 
 			if (modelPanel != null) {
 				modelPanel.getModelHandler().getUndoManager().resetActionsSinceSave();
-				modelPanel.updateMenuItem(modelFile);
-				// currentMDLDisp().resetBeenSaved();
-				// TODO reset been saved
+				modelPanel.updateMenuItem();
 			}
 			SaveProfile.get().addRecent(modelFile.getPath());
 			ProgramGlobals.getMenuBar().updateRecent();

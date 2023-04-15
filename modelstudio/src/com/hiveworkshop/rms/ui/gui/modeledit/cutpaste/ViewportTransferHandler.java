@@ -16,6 +16,7 @@ import com.hiveworkshop.rms.editor.model.util.TempSaveModelStuff;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.MdlLoadSave;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
+import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
@@ -82,7 +83,7 @@ public class ViewportTransferHandler extends TransferHandler {
 		// Fetch the data -- bail if this fails
 		try {
 			data = (String) info.getTransferable().getTransferData(DataFlavor.stringFlavor);
-			MdlxModel mdlxModel = new MdlxModel(ByteBuffer.wrap(data.getBytes()));
+			MdlxModel mdlxModel = MdxUtils.modelFrom(ByteBuffer.wrap(data.getBytes()));
 			pastedModel = TempOpenModelStuff.createEditableModel(mdlxModel);
 //			System.out.println("done reading model_______________________________________________________");
 		} catch (final UnsupportedFlavorException ufe) {

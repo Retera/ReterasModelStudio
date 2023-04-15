@@ -126,12 +126,12 @@ public class TextureLoader {
 			cache.put(filepath.toLowerCase(Locale.US), textureHelper);
 
 			return textureHelper;
-		} else if (filepath.toLowerCase().matches(".+_orm\\.\\w{3,4}")){
+		} else if (filepath.toLowerCase().matches("(.+[\\\\/])*(.+_)?orm\\.\\w{3,4}")){
 //			System.out.println("could not find ORM: \"" + filepath + "\"");
 
 			TextureHelper textureHelper = new TextureHelper(null, ormPlaceholder, false, bitmap);
 			cache.put(filepath.toLowerCase(Locale.US), textureHelper);
-		} else if (filepath.toLowerCase().matches(".+_normal\\.\\w{3,4}")){
+		} else if (filepath.toLowerCase().matches("(.+[\\\\/])*(.+_)?normal\\.\\w{3,4}")){
 //			System.out.println("could not find Normal: \"" + filepath + "\"");
 			BufferedImage bufferedImage = normalPlaceholder;
 			TextureHelper textureHelper = new TextureHelper(null, bufferedImage, false, bitmap);

@@ -17,17 +17,23 @@ public class LinkRenderer {
 	public LinkRenderer() {
 	}
 
-	public static void drawLink(Graphics2D graphics, CoordinateSystem coordinateSystem,
+
+	Vec2 pivPTemp = new Vec2();
+	Vec2 targPTemp = new Vec2();
+	Vec3 vertexHeap = new Vec3();
+	Vec3 vertexHeap2 = new Vec3();
+	public void drawLink(Graphics2D graphics, CoordinateSystem coordinateSystem,
 	                            Vec3 pivotPoint, Vec3 target,
 	                            Mat4 worldMatrix, Mat4 targetWorldMatrix) {
-		Vec3 vertexHeap = Vec3.getTransformed(pivotPoint, worldMatrix);
-		Vec3 vertexHeap2 = Vec3.getTransformed(target, targetWorldMatrix);
 
-		Vec2 pivP = coordinateSystem.viewV(vertexHeap);
-		Vec2 targP = coordinateSystem.viewV(vertexHeap2);
+		vertexHeap.set(pivotPoint).transform(worldMatrix);
+		vertexHeap2.set(target).transform(targetWorldMatrix);
 
-		graphics.setPaint(new GradientPaint(pivP.x, pivP.y, Color.WHITE, targP.x, targP.y, Color.BLACK));
-		graphics.drawLine((int) pivP.x, (int) pivP.y, (int) targP.x, (int) targP.y);
+		pivPTemp.set(coordinateSystem.viewV(vertexHeap));
+		targPTemp.set(coordinateSystem.viewV(vertexHeap2));
+
+		graphics.setPaint(new GradientPaint(pivPTemp.x, pivPTemp.y, Color.WHITE, targPTemp.x, targPTemp.y, Color.BLACK));
+		graphics.drawLine((int) pivPTemp.x, (int) pivPTemp.y, (int) targPTemp.x, (int) targPTemp.y);
 	}
 
 	public void renderLinks(Graphics2D graphics, CoordinateSystem coordinateSystem, ModelHandler modelHandler) {

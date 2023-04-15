@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
-import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.AbstractCamera;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import net.miginfocom.swing.MigLayout;
 
@@ -9,11 +9,11 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 
 public class VPButtonPanel extends JPanel {
-	private final CameraManager cameraManager;
+	private final AbstractCamera abstractCamera;
 
-	public VPButtonPanel(CameraManager cameraManager){
+	public VPButtonPanel(AbstractCamera abstractCamera){
 		super(new MigLayout("gap 0, ins 0, fill", "[][][]", "[][][][][]"));
-		this.cameraManager = cameraManager;
+		this.abstractCamera = abstractCamera;
 
 		JPanel arrowPanel = new JPanel(new MigLayout("gap 0, ins 0, fill", "[][][]", "[][][]"));
 		JButton plusZoom  = getButton(20, 20, "Plus.png",  e -> zoom(1/1.15));
@@ -55,11 +55,11 @@ public class VPButtonPanel extends JPanel {
 
 
 	public void zoom(double v) {
-		cameraManager.zoom(v);
+		abstractCamera.zoom(v);
 	}
 
 
 	public void pan(double x, double y) {
-		cameraManager.translate(x,y);
+		abstractCamera.translate(x,y);
 	}
 }

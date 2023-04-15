@@ -52,34 +52,37 @@ public class DrawBoneActivity extends ViewportActivity {
 
 	@Override
 	public void mousePressed(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
-		Vec2 point = getPoint(e);
-		mouseStartPoint.set(point);
-		this.inverseViewProjectionMatrix.set(viewProjectionMatrix).invert();
-		this.viewProjectionMatrix.set(viewProjectionMatrix);
-		halfScreenXY = halfScreenXY();
-		halfScreenX = halfScreenXY[0];
-		halfScreenY = halfScreenXY[1];
+		setPrefs();
+		if (MouseEventHelpers.matches(e, prefs.getModifyMouseButton(),prefs.getSnapTransformModifier())) {
+			Vec2 point = getPoint(e);
+			mouseStartPoint.set(point);
+			this.inverseViewProjectionMatrix.set(viewProjectionMatrix).invert();
+			this.viewProjectionMatrix.set(viewProjectionMatrix);
+			halfScreenXY = halfScreenXY();
+			halfScreenX = halfScreenXY[0];
+			halfScreenY = halfScreenXY[1];
 
-		Set<String> allBoneNames = new HashSet<>();
-		for (IdObject object : modelView.getModel().getIdObjects()) {
-			allBoneNames.add(object.getName());
-		}
-		int nameNumber = 1;
-		while (allBoneNames.contains(getNumberName("Bone", nameNumber))) {
-			nameNumber++;
-		}
-		Bone bone = new Bone(getNumberName("Bone", nameNumber));
-		bone.setPivotPoint(get3DPoint(mouseStartPoint));
+			Set<String> allBoneNames = new HashSet<>();
+			for (IdObject object : modelView.getModel().getIdObjects()) {
+				allBoneNames.add(object.getName());
+			}
+			int nameNumber = 1;
+			while (allBoneNames.contains(getNumberName("Bone", nameNumber))) {
+				nameNumber++;
+			}
+			Bone bone = new Bone(getNumberName("Bone", nameNumber));
+			bone.setPivotPoint(get3DPoint(mouseStartPoint));
 
-		AddNodeAction addNodeAction = new AddNodeAction(modelHandler.getModel(), bone, changeListener);
+			AddNodeAction addNodeAction = new AddNodeAction(modelHandler.getModel(), bone, changeListener);
 
-		undoManager.pushAction(addNodeAction.redo());
-		lastMousePoint.set(point);
-		if (lastEditorType != null && !MouseEventHelpers.hasModifier(e.getModifiersEx(), MouseEvent.CTRL_DOWN_MASK)) {
-			System.out.println("returning to prev action type!");
-			ProgramGlobals.getCurrentModelPanel().setEditorActionType(lastEditorType);
-		} else {
-			System.out.println("keep draw vertices!");
+			undoManager.pushAction(addNodeAction.redo());
+			lastMousePoint.set(point);
+			if (lastEditorType != null && !MouseEventHelpers.hasModifier(e.getModifiersEx(), MouseEvent.CTRL_DOWN_MASK)) {
+				System.out.println("returning to prev action type!");
+				ProgramGlobals.getCurrentModelPanel().setEditorActionType(lastEditorType);
+			} else {
+				System.out.println("keep draw vertices!");
+			}
 		}
 	}
 

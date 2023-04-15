@@ -20,11 +20,16 @@ public class UVViewportModelRenderer {
 	private static final Color FACE_NOT_SELECTED_COLOR = new Color(0.45f, 0.45f, 1f, 0.3f);
 	ProgramPreferences prefs;
 	private int vertexSize;
-	Vec2[] triV2 = new Vec2[3];
+	Vec2[] triV2 = new Vec2[] {new Vec2(), new Vec2(), new Vec2()};
+	private int uvLayer;
 
 	public UVViewportModelRenderer() {
 		prefs = ProgramGlobals.getPrefs();
 		vertexSize = prefs.getVertexSize();
+	}
+
+	public void setUvLayer(int uvLayer) {
+		this.uvLayer = uvLayer;
 	}
 
 	public void drawGeosetUVs(Graphics2D graphics,
@@ -53,9 +58,9 @@ public class UVViewportModelRenderer {
 	                       CoordinateSystem coordinateSystem,
 	                       ModelView modelView,
 	                       Triangle triangle) {
-		Vec2 pointA = convertToViewVec2(coordinateSystem, triangle.get(0).getTVertex(0));
-		Vec2 pointB = convertToViewVec2(coordinateSystem, triangle.get(1).getTVertex(0));
-		Vec2 pointC = convertToViewVec2(coordinateSystem, triangle.get(2).getTVertex(0));
+		triV2[0].set(convertToViewVec2(coordinateSystem, triangle.get(0).getTVertex(uvLayer)));
+		triV2[1].set(convertToViewVec2(coordinateSystem, triangle.get(1).getTVertex(uvLayer)));
+		triV2[2].set(convertToViewVec2(coordinateSystem, triangle.get(2).getTVertex(uvLayer)));
 
 		if(modelView.isEditable(triangle)){
 			if (triangleSelected(modelView, triangle)) {
@@ -66,7 +71,7 @@ public class UVViewportModelRenderer {
 		} else {
 			graphics.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.TRIANGLE_AREA_UNEDITABLE));
 		}
-		GU.fillPolygon(graphics, pointA, pointB, pointC);
+		GU.fillPolygon(graphics, triV2);
 
 		if (triangleSelected(modelView, triangle)) {
 			graphics.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.TRIANGLE_LINE_SELECTED));
@@ -82,7 +87,7 @@ public class UVViewportModelRenderer {
 		} else {
 			graphics.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.TRIANGLE_LINE_UNEDITABLE));
 		}
-		GU.drawPolygon(graphics, pointA, pointB, pointC);
+		GU.drawPolygon(graphics, triV2);
 	}
 
 	private boolean triangleSelected(ModelView modelView, Triangle triangle) {
@@ -97,7 +102,7 @@ public class UVViewportModelRenderer {
 	                         CoordinateSystem coordinateSystem,
 	                         ModelView modelView,
 	                         GeosetVertex vertex) {
-		Vec2 pointA = convertToViewVec2(coordinateSystem, vertex.getTVertex(0));
+		Vec2 pointA = convertToViewVec2(coordinateSystem, vertex.getTVertex(uvLayer));
 		if (modelView.isEditable(vertex)){
 			if (modelView.isSelected(vertex)) {
 				graphics.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.VERTEX_SELECTED));
@@ -110,8 +115,7 @@ public class UVViewportModelRenderer {
 		GU.fillCenteredSquare(graphics, pointA, vertexSize);
 	}
 
-	public static Vec2 convertToViewVec2(CoordinateSystem coordinateSystem, Vec2 vertex) {
-		Vec2 pointA = coordinateSystem.viewVN(vertex);
-		return pointA.set((1f +pointA.x)/2f * coordinateSystem.getParentWidth(), (1f-pointA.y)/2f * coordinateSystem.getParentHeight());
+	public Vec2 convertToViewVec2(CoordinateSystem coordinateSystem, Vec2 vertex) {
+		return coordinateSystem.viewV(vertex == null ? Vec2.ORIGIN : vertex);
 	}
 }

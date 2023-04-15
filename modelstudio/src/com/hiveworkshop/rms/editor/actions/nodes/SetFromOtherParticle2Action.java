@@ -18,20 +18,20 @@ public class SetFromOtherParticle2Action implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
+	public SetFromOtherParticle2Action undo() {
 		setSettings(old);
 		return this;
 	}
 
 	@Override
-	public UndoAction redo() {
+	public SetFromOtherParticle2Action redo() {
 		setSettings(other);
 		return this;
 	}
 
 	@Override
 	public String actionName() {
-		return "Edit Emitter" + emitter.getName();
+		return "Edit Emitter " + emitter.getName();
 	}
 
 	private void setSettings(ParticleEmitter2 emitter2) {
@@ -49,13 +49,14 @@ public class SetFromOtherParticle2Action implements UndoAction {
 
 
 		emitter.setFilterMode(emitter2.getFilterMode());
-		emitter.setHeadOrTail(emitter2.getHeadOrTail());
-		emitter.setUnshaded(emitter2.getUnshaded());
-		emitter.setSortPrimsFarZ(emitter2.getSortPrimsFarZ());
-		emitter.setLineEmitter(emitter2.getLineEmitter());
-		emitter.setUnfogged(emitter2.getUnfogged());
-		emitter.setModelSpace(emitter2.getModelSpace());
-		emitter.setXYQuad(emitter2.getXYQuad());
+		for(ParticleEmitter2.HeadTailFlag flag : ParticleEmitter2.HeadTailFlag.values()){
+			emitter.setFlag(flag, emitter2.isFlagSet(flag));
+		}
+
+		for(ParticleEmitter2.P2Flag flag : ParticleEmitter2.P2Flag.values()){
+			emitter.setFlag(flag, emitter2.isFlagSet(flag));
+		}
+
 		emitter.setSquirt(emitter2.getSquirt());
 
 		emitter.setSpeed(emitter2.getSpeed());

@@ -92,6 +92,7 @@ public enum TextKey {
 	SIMPLIFY_SELECTED_GEOMETRY("Simplify Selected Geometry"),
 	SORT_NODES("Sort Nodes"),
 	REMOVE_UNUSED_NODES("Remove Unused Nodes"),
+	REMOVE_LOOSE_VERTS("Remove Loose Verts"),
 	FIX_UNBOUND_VERTS("Fix Unskinned Verts"),
 	REMOVE_MATERIALS_DUPLICATES("Remove Materials Duplicates"),
 	VIEW_MATRICES("View Selected \"Matrices\""),

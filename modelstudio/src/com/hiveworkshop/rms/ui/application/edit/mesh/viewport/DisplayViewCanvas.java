@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
 import com.hiveworkshop.rms.ui.application.viewer.twiTestRenderMaster.ViewportCanvas;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.ModelDependentView;
@@ -29,6 +30,8 @@ public class DisplayViewCanvas extends ModelDependentView {
 		dudPanel = new JPanel(new MigLayout());
 		viewportPanel = new ViewportPanel(allowButtonPanel, true);
 		viewportPanel.getViewport().getCameraHandler().setOrtho(initOrtho);
+//		viewportPanel.getViewport().getCameraHandler().getXAngle()
+		setTitlebarProv(viewportPanel.getViewport().getCameraHandler());
 		this.setComponent(dudPanel);
 		setUpViewAngle();
 
@@ -74,13 +77,55 @@ public class DisplayViewCanvas extends ModelDependentView {
 
 	private void setUpViewAngle() {
 		switch (name) {
-			case "Front" -> viewportPanel.getViewport().getCameraHandler().setCameraRotation(0, 0);
-			case "Side" -> viewportPanel.getViewport().getCameraHandler().setCameraRotation(90, 0);
-			case "Top" -> viewportPanel.getViewport().getCameraHandler().setCameraRotation(0, 90);
+			case "Front" -> setCameraRot(0, 0);
+			case "Side" -> setCameraRot(90, 0);
+			case "Top" -> setCameraRot(0, -90);
 //			case "Front" -> displayPanel.setFrontView();
 //			case "Side" -> displayPanel.setLeftView();
 //			case "Top" -> displayPanel.setTopView();
 		}
+	}
+	public void setCameraRot(float right, float up) {
+		// Degrees
+		viewportPanel.getViewport().getCameraHandler().setCameraRotation(right, up, 0);
+	}
+	private void setTitlebarProv(CameraManager cameraManager){
+		getWindowProperties().setTitleProvider(arg0 -> {
+//			float xAngle = cameraManager.getXAngle();
+//			float yAngle = cameraManager.getYAngle();
+//			float zAngle = cameraManager.getZAngle();
+//			System.out.println(" ugg  ");
+//			getViewProperties().setTitle("uggabugga " + System.currentTimeMillis());
+			setTitle(cameraManager);
+			return "View";
+		});
+	}
+
+
+	private void setTitle(CameraManager cameraHandler){
+		String title = cameraHandler.isOrtho() ? "Orthographical" : "Perspective";
+
+		float zAngle = cameraHandler.getZAngle();
+		if (zAngle == (float) (Math.PI/2.0f)){
+			title = "Bottom " + title;
+		} else if (zAngle == (float) -(Math.PI/2.0f)) {
+			title = "Top " + title;
+		} else if (zAngle == 0f) {
+			float yAngle = cameraHandler.getYAngle();
+			if (yAngle == 0f) {
+				title = "Front " + title;
+			} else if(yAngle == (float) (Math.PI)) {
+				title = "Back " + title;
+			} else if(yAngle == (float) (Math.PI/2.0f)) {
+				title = "Right " + title;
+			} else if(yAngle == (float) -(Math.PI/2.0f)) {
+				title = "Left " + title;
+			}
+		}
+
+
+		getViewProperties().setTitle(title);
+
 	}
 
 	@Override

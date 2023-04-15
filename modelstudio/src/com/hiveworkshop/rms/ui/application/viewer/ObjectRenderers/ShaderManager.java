@@ -1,348 +1,189 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
+import java.util.EnumMap;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 public class ShaderManager {
-	private ShaderPipeline hdPipeline;
-	private ShaderPipeline sdPipeline;
-	private ShaderPipeline particlePipeline;
-	private ShaderPipeline colPipeline;
-	private ShaderPipeline bonePipeline;
-	private ShaderPipeline vertPipeline;
-	private ShaderPipeline normPipeline;
-	private ShaderPipeline gridPipeline;
-	private ShaderPipeline selectionPipeline;
-	private ShaderPipeline cameraPipeline;
-	private ShaderPipeline customHDShaderPipeline;
-	private ShaderPipeline customBonePipeline;
-	private ShaderPipeline customColPipeline;
-	private ShaderPipeline customGridPipeline;
-	private Runnable customShaderMaker;
-	private Runnable customColShaderMaker;
-	private Runnable customBoneShaderMaker;
-	private Runnable customGridShaderMaker;
+	private final EnumMap<PipelineType, PipelineTracker> pipelines = new EnumMap<>(PipelineType.class);
 
-	private Exception lastExeption;
-
-	public ShaderPipeline getCustomHDShaderPipeline() {
-		return customHDShaderPipeline;
-	}
-	public Exception getCustomShaderException() {
-		return lastExeption;
+	public ShaderManager(){
+		for(PipelineType pipelineType : PipelineType.values()){
+			pipelines.put(pipelineType, new PipelineTracker(pipelineType));
+		}
 	}
 
-	public ShaderManager clearLastException(){
-		lastExeption = null;
+	public ShaderPipeline getPipeline(PipelineType pipelineType){
+		return pipelines.get(pipelineType).getOrCreatePipeline();
+	}
+
+	public Exception getCustomShaderException(PipelineType pipelineType) {
+		return pipelines.get(pipelineType).getCustomShaderException();
+	}
+
+	public ShaderManager clearLastException(PipelineType pipelineType){
+		pipelines.get(pipelineType).clearLastException();
 		return this;
 	}
 
-	public void createCustomShader(String vertexShader, String fragmentShader, boolean isHD){
-		customShaderMaker = () -> makeCustomShader(vertexShader, fragmentShader, isHD);
-	}
-	public void makeCustomShader(String vertexShader, String fragmentShader, boolean isHD){
-		try {
-			ShaderPipeline newCustomPipeline;
-			if (isHD) {
-				newCustomPipeline = new HDDiffuseShaderPipeline(vertexShader, fragmentShader);
-			} else {
-				newCustomPipeline = new SimpleDiffuseShaderPipeline(vertexShader, fragmentShader);
-			}
-			if(customHDShaderPipeline != null){
-				customHDShaderPipeline.discard();
-			}
-			customHDShaderPipeline = newCustomPipeline;
-
-			customHDShaderPipeline.onGlobalPipelineSet();
-		} catch (Exception e){
-			e.printStackTrace();
-			System.out.println("adding Exception!");
-			lastExeption = e;
-		}
-		customShaderMaker = null;
+	public void createCustomShader(PipelineType pipelineType, String vertexShader, String fragmentShader, String geometryShader){
+		pipelines.get(pipelineType).createCustomShader(vertexShader, fragmentShader, geometryShader);
 	}
 
-	public ShaderManager removeCustomShader(){
-		customShaderMaker = this::doRemoveCustomShader;
+	public ShaderManager removeCustomShader(PipelineType pipelineType){
+		pipelines.get(pipelineType).removeCustomShader();
 		return this;
-	}
-
-	private void doRemoveCustomShader(){
-		if(customHDShaderPipeline != null){
-			customHDShaderPipeline.discard();
-			customHDShaderPipeline = null;
-			customShaderMaker = null;
-		}
-	}
-
-	public void createCustomBoneShader(String vertexShader, String fragmentShader, String geometryShader){
-		customBoneShaderMaker = () -> makeCustomBoneShader(vertexShader, fragmentShader, geometryShader);
-	}
-
-	public void makeCustomBoneShader(String vertexShader, String fragmentShader, String geometryShader){
-		try {
-			ShaderPipeline newCustomPipeline = new BoneMarkerShaderPipeline(vertexShader, fragmentShader, geometryShader);
-
-			if(customBonePipeline != null){
-				customBonePipeline.discard();
-			}
-			customBonePipeline = newCustomPipeline;
-
-		} catch (Exception e){
-			e.printStackTrace();
-			System.out.println("adding Exception!");
-			lastExeption = e;
-		}
-		customBoneShaderMaker = null;
-	}
-
-	public ShaderManager removeCustomBoneShader(){
-		customBoneShaderMaker = this::doRemoveCustomBoneShader;
-		return this;
-	}
-
-	private void doRemoveCustomBoneShader(){
-		if(customBonePipeline != null){
-			customBonePipeline.discard();
-			customBonePipeline = null;
-			customBoneShaderMaker = null;
-		}
-	}
-
-	public void createCustomColShader(String vertexShader, String fragmentShader, String geometryShader){
-		customColShaderMaker = () -> makeCustomColShader(vertexShader, fragmentShader, geometryShader);
-	}
-	public void makeCustomColShader(String vertexShader, String fragmentShader, String geometryShader){
-		try {
-			ShaderPipeline newCustomPipeline = new CollisionMarkerShaderPipeline(vertexShader, fragmentShader, geometryShader);
-
-			if(customColPipeline != null){
-				customColPipeline.discard();
-			}
-			customColPipeline = newCustomPipeline;
-
-		} catch (Exception e){
-			e.printStackTrace();
-			System.out.println("adding Exception!");
-			lastExeption = e;
-		}
-		customColShaderMaker = null;
-	}
-
-	public ShaderManager removeCustomColShader(){
-		customColShaderMaker = this::doRemoveCustomColShader;
-		return this;
-	}
-
-	private void doRemoveCustomColShader(){
-		if(customColPipeline != null){
-			customColPipeline.discard();
-			customColPipeline = null;
-			customColShaderMaker = null;
-		}
-	}
-
-
-
-	public void createCustomGridShader(String vertexShader, String fragmentShader, String geometryShader){
-		customGridShaderMaker = () -> makeCustomGridShader(vertexShader, fragmentShader, geometryShader);
-	}
-
-
-	public void makeCustomGridShader(String vertexShader, String fragmentShader, String geometryShader){
-		try {
-			ShaderPipeline newCustomPipeline = new GridShaderPipeline(vertexShader, fragmentShader, geometryShader);
-
-			if(customGridPipeline != null){
-				customGridPipeline.discard();
-			}
-			customGridPipeline = newCustomPipeline;
-
-		} catch (Exception e){
-			e.printStackTrace();
-			System.out.println("adding Exception!");
-			lastExeption = e;
-		}
-		customGridShaderMaker = null;
-	}
-
-	public ShaderManager removeCustomGridShader(){
-		customGridShaderMaker = this::doRemoveCustomGridShader;
-		return this;
-	}
-
-	private void doRemoveCustomGridShader(){
-		if(customGridPipeline != null){
-			customGridPipeline.discard();
-			customGridPipeline = null;
-			customGridShaderMaker = null;
-		}
-	}
-
-
-	public ShaderPipeline getOrCreatePipeline() {
-		if (customShaderMaker != null) {
-			customShaderMaker.run();
-		}
-		if(customHDShaderPipeline != null){
-			return customHDShaderPipeline;
-		} else if (hdPipeline == null) {
-//			if (model != null && ModelUtils.isShaderStringSupported(model.getFormatVersion())
-//					&& !model.getGeosets().isEmpty() && model.getGeoset(0).isHD()) {
-//				pipeline = new HDDiffuseShaderPipeline();
-//			}
-//			else {
-//				pipeline = new SimpleDiffuseShaderPipeline();
-//			}
-//			pipeline = new SimpleDiffuseShaderPipeline();
-//			hdPipeline = new SimpleDiffuseShaderPipeline();
-			hdPipeline = new HDDiffuseShaderPipeline();
-			hdPipeline.onGlobalPipelineSet();
-//			pipeline = new NormalLinesShaderPipeline();
-//			pipeline = new VertMarkerShaderPipeline();
-		}
-		return hdPipeline;
-	}
-
-	public ShaderPipeline getOrCreatePipeline(boolean hd) {
-		if (customShaderMaker != null) {
-			customShaderMaker.run();
-		}
-		if(customHDShaderPipeline != null){
-			return customHDShaderPipeline;
-//		} else if (hd) {
-//			return getOrCreateHdPipeline();
-//		} else {
-//			return getOrCreateSdPipeline();
-		}
-		return getOrCreateHdPipeline();
-	}
-
-	public ShaderPipeline getOrCreateHdPipeline() {
-		if (hdPipeline == null) {
-			hdPipeline = new HDDiffuseShaderPipeline();
-			hdPipeline.onGlobalPipelineSet();
-		}
-		return hdPipeline;
-	}
-	public ShaderPipeline getOrCreateSdPipeline() {
-		if (sdPipeline == null) {
-			sdPipeline = new SimpleDiffuseShaderPipeline();
-			sdPipeline.onGlobalPipelineSet();
-		}
-		return sdPipeline;
-	}
-
-	public ShaderPipeline getOrCreateVertPipeline() {
-		if (vertPipeline == null) {
-			vertPipeline = new VertMarkerShaderPipeline();
-		}
-		return vertPipeline;
-	}
-
-	public ShaderPipeline getOrCreateNormPipeline() {
-		if (normPipeline == null) {
-			normPipeline = new NormalLinesShaderPipeline();
-		}
-		return normPipeline;
-	}
-
-	public ShaderPipeline getOrCreateSelectionPipeline() {
-		if (selectionPipeline == null) {
-			selectionPipeline = new SelectionBoxShaderPipeline();
-		}
-		return selectionPipeline;
-	}
-
-	public ShaderPipeline getOrCreateGridPipeline() {
-		if (customGridShaderMaker != null) {
-			customGridShaderMaker.run();
-		}
-		if(customGridPipeline != null){
-			return customGridPipeline;
-		}
-
-		if (gridPipeline == null) {
-			gridPipeline = new GridShaderPipeline();
-		}
-		return gridPipeline;
-	}
-
-	public ShaderPipeline getOrCreateBoneMarkerShaderPipeline() {
-		if (customBoneShaderMaker != null) {
-			customBoneShaderMaker.run();
-		}
-		if(customBonePipeline != null){
-			return customBonePipeline;
-		}
-
-		if (bonePipeline == null) {
-			bonePipeline = new BoneMarkerShaderPipeline();
-		}
-		return bonePipeline;
-	}
-
-	public ShaderPipeline getOrCreateParticleShaderPipeline() {
-		if (particlePipeline == null) {
-			particlePipeline = new ParticleShaderPipeline();
-		}
-		return particlePipeline;
-	}
-	public ShaderPipeline getOrCreateColShaderPipeline() {
-		if (customColShaderMaker != null) {
-			customColShaderMaker.run();
-		}
-		if(customColPipeline != null){
-			return customColPipeline;
-		}
-		;
-		if (colPipeline == null) {
-			colPipeline = new CollisionMarkerShaderPipeline();
-		}
-		return colPipeline;
-	}
-
-	public ShaderPipeline getOrCreateCameraShaderPipeline() {
-		if (cameraPipeline == null) {
-			cameraPipeline = new CameraShaderPipeline();
-		}
-		return cameraPipeline;
 	}
 
 	public ShaderManager discardPipelines(){
 		System.out.println("discarding pipelines");
-		if (hdPipeline        != null) hdPipeline.discard();
-		if (sdPipeline        != null) sdPipeline.discard();
-		if (bonePipeline      != null) bonePipeline.discard();
-		if (vertPipeline      != null) vertPipeline.discard();
-		if (normPipeline      != null) normPipeline.discard();
-		if (selectionPipeline != null) selectionPipeline.discard();
-		if (gridPipeline      != null) gridPipeline.discard();
-		if (particlePipeline  != null) particlePipeline.discard();
-		if (colPipeline  != null) colPipeline.discard();
-		if (cameraPipeline    != null) cameraPipeline.discard();
 
-
-		hdPipeline          = null;
-		sdPipeline          = null;
-		bonePipeline        = null;
-		vertPipeline        = null;
-		normPipeline        = null;
-		selectionPipeline   = null;
-		gridPipeline        = null;
-		particlePipeline    = null;
-		colPipeline    = null;
-		cameraPipeline      = null;
-
-		if (customHDShaderPipeline != null) customHDShaderPipeline.discard();
-		customHDShaderPipeline = null;
-
-		if (customBonePipeline != null) customBonePipeline.discard();
-		customBonePipeline = null;
-
-		if (customGridPipeline != null) customGridPipeline.discard();
-		customGridPipeline = null;
-
-		if (customColPipeline != null) customColPipeline.discard();
-		customColPipeline = null;
-
+		for(PipelineType pipelineType : PipelineType.values()){
+			PipelineTracker pipelineTracker = pipelines.get(pipelineType);
+			if(pipelineTracker != null){
+				pipelineTracker.discard();
+			}
+		}
 		return this;
+	}
+
+
+
+
+
+
+	public static class PipelineTracker {
+		PipelineType pipelineType;
+		Supplier<ShaderPipeline> defaultSupplier;
+		TriFunction<String, String, String, ShaderPipeline> customFunction;
+		private ShaderPipeline pipeline;
+		private ShaderPipeline customPipeline;
+		private Runnable customShaderMaker;
+
+
+		private Exception lastException;
+
+		PipelineTracker(Supplier<ShaderPipeline> defaultSupplier, TriFunction<String, String, String, ShaderPipeline> customFunction){
+			this.defaultSupplier = defaultSupplier;
+			this.customFunction = customFunction;
+		}
+		PipelineTracker(PipelineType pipelineType){
+			this.pipelineType = pipelineType;
+			this.defaultSupplier = pipelineType.getDefaultSupplier();
+			this.customFunction = pipelineType.getCustomFunction();
+		}
+
+		public Exception getCustomShaderException() {
+			return lastException;
+		}
+
+		public PipelineTracker clearLastException(){
+			lastException = null;
+			return this;
+		}
+
+		public void createCustomShader(String vertexShader, String fragmentShader, String geometryShader){
+			System.out.println("setting custom shader for: " + pipelineType);
+			customShaderMaker = () -> makeCustomShader(vertexShader, fragmentShader, geometryShader);
+		}
+		public void makeCustomShader(String vertexShader, String fragmentShader, String geometryShader){
+			try {
+				ShaderPipeline newCustomPipeline = customFunction.apply(vertexShader, fragmentShader, geometryShader);
+
+				if(customPipeline != null){
+					customPipeline.discard();
+				}
+				customPipeline = newCustomPipeline;
+
+				customPipeline.onGlobalPipelineSet();
+			} catch (Exception e){
+				e.printStackTrace();
+				System.out.println("adding Exception!");
+				lastException = e;
+			}
+			customShaderMaker = null;
+		}
+
+		public PipelineTracker removeCustomShader(){
+			customShaderMaker = this::doRemoveCustomShader;
+			return this;
+		}
+
+		private void doRemoveCustomShader(){
+			if(customPipeline != null){
+				customPipeline.discard();
+				customPipeline = null;
+				customShaderMaker = null;
+			}
+		}
+		public ShaderPipeline getOrCreatePipeline() {
+			if (customShaderMaker != null) {
+				customShaderMaker.run();
+			}
+			if(customPipeline != null){
+				return customPipeline;
+			} else if (pipeline == null) {
+				pipeline = defaultSupplier.get();
+//				pipeline.onGlobalPipelineSet();
+			}
+			return pipeline;
+		}
+
+		public PipelineTracker discard(){
+			if (pipeline != null) pipeline.discard();
+			pipeline= null;
+
+			if (customPipeline != null) customPipeline.discard();
+			customPipeline = null;
+			return this;
+		}
+	}
+
+	@FunctionalInterface
+	interface TriFunction<T,U,V,R> {
+
+		R apply(T t, U u, V v);
+
+		default <K> TriFunction<T, U, V, K> andThen(Function<? super R, ? extends K> after) {
+//			Objects.requireNonNull(after);
+			return (T t, U u, V v) -> after.apply(apply(t, u, v));
+		}
+	}
+
+	public enum PipelineType {
+		SELECTION(3, ()-> new SelectionBoxShaderPipeline(), (v, f, g)-> new SelectionBoxShaderPipeline(v, f, g)),
+		MESH(2, ()-> new HDDiffuseShaderPipeline(), (v, f, g)-> new HDDiffuseShaderPipeline(v, f, g)),
+		BONE(3, ()-> new BoneMarkerShaderPipeline(), (v, f, g)-> new BoneMarkerShaderPipeline(v, f, g)),
+		VERT(3, ()-> new VertMarkerShaderPipeline(), (v, f, g)-> new VertMarkerShaderPipeline(v, f, g)),
+		NORM(3, ()-> new NormalLinesShaderPipeline(), (v, f, g)-> new NormalLinesShaderPipeline(v, f, g)),
+		GRID(3, ()-> new GridShaderPipeline(), (v, f, g)-> new GridShaderPipeline(v, f, g)),
+		COLLISION(3, ()-> new CollisionMarkerShaderPipeline(), (v, f, g)-> new CollisionMarkerShaderPipeline(v, f, g)),
+		CAMERA(3, ()-> new CameraShaderPipeline(), (v, f, g)-> new CameraShaderPipeline(v, f, g)),
+		PARTICLE2(3, ()-> new ParticleShaderPipeline(), (v, f, g)-> new ParticleShaderPipeline(v, f, g)),
+		RIBBON(2, ()-> new RibbonShaderPipeline(), (v, f, g)-> new RibbonShaderPipeline(v, f, g)),
+		;
+		int shadersPrograms;
+		Supplier<ShaderPipeline> defaultSupplier;
+		TriFunction<String, String, String, ShaderPipeline> customFunction;
+		PipelineType(){
+
+		}
+		PipelineType(int shadersPrograms, Supplier<ShaderPipeline> defaultSupplier, TriFunction<String, String, String, ShaderPipeline> customFunction){
+			this.shadersPrograms = shadersPrograms;
+			this.defaultSupplier = defaultSupplier;
+			this.customFunction = customFunction;
+		}
+
+		public int getNumShadersPrograms() {
+			return shadersPrograms;
+		}
+
+		public Supplier<ShaderPipeline> getDefaultSupplier() {
+			return defaultSupplier;
+		}
+
+		public TriFunction<String, String, String, ShaderPipeline> getCustomFunction() {
+			return customFunction;
+		}
 	}
 }

@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.parsers.mdlx;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,18 +50,6 @@ public class MdlxModel {
 
 	public MdlxModel() {
 
-	}
-
-	public MdlxModel(final ByteBuffer buffer) {
-		load(buffer);
-	}
-	public void load(final ByteBuffer buffer) {
-		// MDX files start with "MDLX".
-		if (buffer.get(0) == 'M' && buffer.get(1) == 'D' && buffer.get(2) == 'L' && buffer.get(3) == 'X') {
-			MdxLoadSave.loadMdx(this, buffer);
-		} else {
-			MdlLoadSave.loadMdl(this, buffer);
-		}
 	}
 
 }

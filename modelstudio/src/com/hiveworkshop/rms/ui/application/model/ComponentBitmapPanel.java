@@ -46,10 +46,10 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 		sizeLabel = new JLabel();
 
 		wrapWidthBox = new JCheckBox("Wrap Width");
-		wrapWidthBox.addActionListener(e -> setWrap(Bitmap.flag.WRAP_WIDTH, wrapWidthBox.isSelected()));
+		wrapWidthBox.addActionListener(e -> setWrap(Bitmap.WrapFlag.WIDTH, wrapWidthBox.isSelected()));
 
 		wrapHeightBox = new JCheckBox("Wrap Height");
-		wrapHeightBox.addActionListener(e -> setWrap(Bitmap.flag.WRAP_HEIGHT, wrapHeightBox.isSelected()));
+		wrapHeightBox.addActionListener(e -> setWrap(Bitmap.WrapFlag.HEIGHT, wrapHeightBox.isSelected()));
 
 		imagePreviewPanel = new ZoomableImagePreviewPanel(null);
 		previewPanel = new JPanel();
@@ -98,7 +98,7 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 		ExportTexture.onClickSaveAs(texture, suggestedName, FileDialog.SAVE_TEXTURE, fileDialog, ProgramGlobals.getMainPanel());
 	}
 
-	private void setWrap(Bitmap.flag flag, boolean set){
+	private void setWrap(Bitmap.WrapFlag flag, boolean set){
 		if (bitmap.isFlagSet(flag) != set) {
 			undoManager.pushAction(new SetBitmapWrapModeAction(bitmap, flag, set, changeListener).redo());
 		}

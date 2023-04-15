@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.viewer.OtherUtils;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -8,13 +9,19 @@ import com.hiveworkshop.rms.util.Vec4;
 import org.lwjgl.opengl.*;
 
 
-public class CustomHDShaderPipeline extends ShaderPipeline {
+public class RibbonShaderPipeline extends ShaderPipeline {
 	private static final int STRIDE = POSITION + NORMAL + UV + TANGENT + FRESNEL_COLOR + SELECTION_STATUS;
 
-	public CustomHDShaderPipeline(String vertexShader, String fragmentShader) {
+	public RibbonShaderPipeline() {
 		currentMatrix.setIdentity();
-//		vertexShader = OtherUtils.loadShader("HDDiffuse.vert");
-//		fragmentShader = OtherUtils.loadShader("HDDiffuse.frag");
+		vertexShader = OtherUtils.loadShader("HDDiffuseVertColor.vert");
+		fragmentShader = OtherUtils.loadShader("HDDiffuseVertColor.frag");
+		load();
+		setupUniforms();
+	}
+
+	public RibbonShaderPipeline(String vertexShader, String fragmentShader, String geometryShader) {
+		currentMatrix.setIdentity();
 		this.vertexShader = vertexShader;
 		this.fragmentShader = fragmentShader;
 		load();
@@ -91,18 +98,28 @@ public class CustomHDShaderPipeline extends ShaderPipeline {
 		glUniform("u_textureReflections", 5);
 		glUniform("u_textureUsed", textureUsed);
 
-		float[] colorHig = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.VERTEX_HIGHLIGHTED);
-		float[] colorSel = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.VERTEX_SELECTED);
-		float[] colorEdi = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.VERTEX);
-		float[] colorVis = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.VERTEX_UNEDITABLE);
+		float[] colorHig;
+		float[] colorSel;
+		float[] colorEdi;
+		float[] colorVis;
+		if(polygonMode == GL11.GL_FILL){
+			colorHig = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.TRIANGLE_AREA_HIGHLIGHTED);
+			colorSel = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.TRIANGLE_AREA_SELECTED);
+			colorEdi = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.TRIANGLE_AREA);
+			colorVis = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.TRIANGLE_AREA_UNEDITABLE);
+		} else {
+			colorHig = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.TRIANGLE_LINE_HIGHLIGHTED);
+			colorSel = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.TRIANGLE_LINE_SELECTED);
+			colorEdi = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.TRIANGLE_LINE);
+			colorVis = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.TRIANGLE_LINE_UNEDITABLE);
+		}
+
 		glUniform("u_vertColors[0]", colorHig[0], colorHig[1], colorHig[2], colorHig[3]);
 		glUniform("u_vertColors[1]", colorSel[0], colorSel[1], colorSel[2], colorSel[3]);
 		glUniform("u_vertColors[2]", colorEdi[0], colorEdi[1], colorEdi[2], colorEdi[3]);
 		glUniform("u_vertColors[3]", colorVis[0], colorVis[1], colorVis[2], colorVis[3]);
 
 
-		alphaTest = 0;
-//		lightingEnabled = 0;
 		glUniform("u_alphaTest", alphaTest);
 		glUniform("u_lightingEnabled", lightingEnabled);
 		tempVec3.set(30.4879f, -24.1937f, 444.411f);
@@ -119,6 +136,10 @@ public class CustomHDShaderPipeline extends ShaderPipeline {
 
 	private void setUpAndDraw(BufferSubInstance instance) {
 		instance.setUpInstance(this);
+//		System.out.println("drawInstance: " + instance);
+		if(textureUsed == 0){
+			GL11.glDisable(GL11.GL_CULL_FACE);
+		}
 		glUniform("u_fresnelTeamColor", instance.getFresnelTeamColor());
 		glUniform("u_fresnelColor", instance.getFresnelColor());
 		glUniform("u_geosetColor", instance.getLayerColor());
@@ -184,13 +205,11 @@ public class CustomHDShaderPipeline extends ShaderPipeline {
 		position.set(pos, 1);
 		normal.set(norm, 1).normalizeAsV3();
 		tangent.set(tang).normalizeAsV3();
-//		color.set(col);
 
 
 		addToBuffer(baseOffset, position);
 		addToBuffer(baseOffset, normal);
 		addToBuffer(baseOffset, uv);
-//		addToBuffer(baseOffset, color);
 		addToBuffer(baseOffset, tangent);
 		addToBuffer(baseOffset, fres);
 		addToBuffer(baseOffset, 0);

@@ -7,9 +7,7 @@ import com.hiveworkshop.rms.parsers.mdlx.MdlxGeosetAnimation;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public class GeosetToMdlx {
 
@@ -39,7 +37,7 @@ public class GeosetToMdlx {
 
 		mdlxGeoset.vertexGroups = new short[numVertices];
 		mdlxGeoset.uvSets = new float[nrOfTextureVertexGroups][numVertices * 2];
-		List<Matrix> matrices = new ArrayList<>(geoset.collectMatrices());
+		List<Matrix> matrices = getMatrices(model, geoset);
 
 		for (int vId = 0; vId < numVertices; vId++) {
 			final GeosetVertex vertex = geoset.getVertex(vId);
@@ -89,7 +87,7 @@ public class GeosetToMdlx {
 
 		mdlxGeoset.selectionGroup = geoset.getSelectionGroup();
 
-		if (matrices.isEmpty()){
+		if (matrices.isEmpty()) {
 			List<Bone> bones = model.getBones();
 			int size = bones.size();
 			mdlxGeoset.matrixIndices = new long[size];
@@ -122,7 +120,8 @@ public class GeosetToMdlx {
 		mdlxGeoset.lod = geoset.getLevelOfDetail();
 		mdlxGeoset.lodName = geoset.getLevelOfDetailName();
 
-		if ((numVertices > 0) && (geoset.getVertex(0).getSkinBoneBones() != null)) {
+		if (0 < numVertices && geoset.getVertex(0).getSkinBoneBones() != null) {
+			Map<Bone, Integer> matrixIndMap = getMatrixIndMap(matrices);
 			// v900
 			mdlxGeoset.vertexGroups = new short[0];
 			mdlxGeoset.skin = new short[8 * numVertices];
@@ -133,8 +132,7 @@ public class GeosetToMdlx {
 				short[] skinBoneWeights = vertex.getSkinBoneWeights();
 				Bone[] skinBoneBones = vertex.getSkinBoneBones();
 				for (int j = 0; j < 4; j++) {
-					int index = skinBoneBones[j] == null ? 0 : model.getObjectId(skinBoneBones[j]);
-					mdlxGeoset.skin[(i * 8) + j] = (short) index;
+					mdlxGeoset.skin[(i * 8) + j] = (short) matrixIndMap.getOrDefault(skinBoneBones[j], 0).intValue();
 					mdlxGeoset.skin[(i * 8) + j + 4] = skinBoneWeights[j];
 					mdlxGeoset.tangents[(i * 4) + j] = vertex.getTangent().toFloatArray()[j];
 				}
@@ -144,6 +142,30 @@ public class GeosetToMdlx {
 		}
 
 		return mdlxGeoset;
+	}
+
+	private static List<Matrix> getMatrices(EditableModel model, Geoset geoset) {
+		List<Matrix> matrices = new ArrayList<>(geoset.collectMatrices());
+		if (matrices.isEmpty()) {
+			boolean dontFilterBones = model.getBones().size() <= 256;
+
+			Map<Bone, List<GeosetVertex>> boneMap = dontFilterBones ? null : geoset.getBoneMap();
+			for (Bone bone : model.getBones()){
+				if (dontFilterBones || boneMap.containsKey(bone)) {
+					matrices.add(new Matrix(bone));
+				}
+			}
+		}
+
+		return matrices;
+	}
+	private static Map<Bone, Integer> getMatrixIndMap(List<Matrix> matrices){
+		Map<Bone, Integer> boneMatrixIndMap = new LinkedHashMap<>();
+
+		for (Matrix matrix : matrices) {
+			boneMatrixIndMap.put(matrix.get(0), boneMatrixIndMap.size());
+		}
+		return boneMatrixIndMap;
 	}
 
 	public static int getMatrixIndexesSize(Collection<Matrix> matrices) {

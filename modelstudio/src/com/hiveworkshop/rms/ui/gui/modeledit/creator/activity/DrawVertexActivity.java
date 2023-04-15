@@ -61,33 +61,35 @@ public class DrawVertexActivity extends ViewportActivity {
 
 	@Override
 	public void mousePressed(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
-		Vec2 point = getPoint(e);
-		mouseStartPoint.set(point);
-		this.inverseViewProjectionMatrix.set(viewProjectionMatrix).invert();
-		this.viewProjectionMatrix.set(viewProjectionMatrix);
-		halfScreenXY = halfScreenXY();
-		halfScreenX = halfScreenXY[0];
-		halfScreenY = halfScreenXY[1];
+		setPrefs();
+		if (MouseEventHelpers.matches(e, prefs.getModifyMouseButton(), prefs.getSnapTransformModifier())) {
+			Vec2 point = getPoint(e);
+			mouseStartPoint.set(point);
+			this.inverseViewProjectionMatrix.set(viewProjectionMatrix).invert();
+			this.viewProjectionMatrix.set(viewProjectionMatrix);
+			halfScreenXY = halfScreenXY();
+			halfScreenX = halfScreenXY[0];
+			halfScreenY = halfScreenXY[1];
 
 
-		GeosetVertex geosetVertex = new GeosetVertex(Vec3.ZERO, Vec3.Z_AXIS);
-		geosetVertex.addTVertex(new Vec2(0, 0));
-		Set<GeosetVertex> vertices = Collections.singleton(geosetVertex);
-		UndoAction setupAction = getSetupAction(vertices, Collections.emptySet());
+			GeosetVertex geosetVertex = new GeosetVertex(Vec3.ZERO, Vec3.Z_AXIS);
+			geosetVertex.addTVertex(new Vec2(0, 0));
+			Set<GeosetVertex> vertices = Collections.singleton(geosetVertex);
+			UndoAction setupAction = getSetupAction(vertices, Collections.emptySet());
 
-		Mat4 rotMat = getRotMat();
-		startPoint3d.set(get3DPoint(mouseStartPoint));
-		DrawGeometryAction geometryAction = new DrawGeometryAction("Draw Vertex", startPoint3d, rotMat, vertices, setupAction,
-				null).doSetup();
-		geometryAction.setScale(Vec3.ZERO);
+			Mat4 rotMat = getRotMat();
+			startPoint3d.set(get3DPoint(mouseStartPoint));
+			DrawGeometryAction geometryAction = new DrawGeometryAction("Draw Vertex", startPoint3d, rotMat, vertices, setupAction, null).doSetup();
+			geometryAction.setScale(Vec3.ZERO);
 
-		undoManager.pushAction(geometryAction);
-		lastMousePoint.set(point);
-		if (lastEditorType != null && !MouseEventHelpers.hasModifier(e.getModifiersEx(), MouseEvent.CTRL_DOWN_MASK)) {
-			System.out.println("returning to prev action type!");
-			ProgramGlobals.getCurrentModelPanel().setEditorActionType(lastEditorType);
-		} else {
-			System.out.println("keep draw vertices!");
+			undoManager.pushAction(geometryAction);
+			lastMousePoint.set(point);
+			if (lastEditorType != null && !MouseEventHelpers.hasModifier(e.getModifiersEx(), MouseEvent.CTRL_DOWN_MASK)) {
+				System.out.println("returning to prev action type!");
+				ProgramGlobals.getCurrentModelPanel().setEditorActionType(lastEditorType);
+			} else {
+				System.out.println("keep draw vertices!");
+			}
 		}
 	}
 

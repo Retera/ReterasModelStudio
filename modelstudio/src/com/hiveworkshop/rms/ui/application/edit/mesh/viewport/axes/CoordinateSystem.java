@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.Plane;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.SelectionBoxHelper;
 import com.hiveworkshop.rms.util.Mat4;
+import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -44,6 +45,16 @@ public final class CoordinateSystem extends AbstractCamera {
 		setDimensions(right, up);
 	}
 
+	public void resetCamera(){
+		setDimensions(Vec3.X_AXIS, Vec3.NEGATIVE_Y_AXIS);
+		resetZoom();
+//		setZoom(Math.min(getParentWidth(), getParentHeight()));
+		setPosition(.5,-.5);
+	}
+
+	public void resetZoom(){
+		setZoom(Math.min(getParentWidth(), getParentHeight()));
+	}
 	public CoordinateSystem setDimensions(Vec3 right, Vec3 up) {
 
 		cameraRight.set(right);
@@ -139,6 +150,11 @@ public final class CoordinateSystem extends AbstractCamera {
 		return this;
 	}
 
+	public void zoom(double amount) {
+		zoom *= amount;
+		updateCamera();
+	}
+
 	public CoordinateSystem zoomIn(double amount) {
 		zoom *= amount;
 		updateCamera();
@@ -151,11 +167,10 @@ public final class CoordinateSystem extends AbstractCamera {
 		return this;
 	}
 
-	public CoordinateSystem setPosition(double x, double y) {
+	public void setPosition(double x, double y) {
 		cameraX = x;
 		cameraY = y;
 		updateCamera();
-		return this;
 	}
 
 	public void rotate(double right, double up){
@@ -188,7 +203,8 @@ public final class CoordinateSystem extends AbstractCamera {
 	}
 	public Vec2 viewV(double x, double y, double z) {
 		tempV3.set(x, y, z).transform(viewProjectionMatrix, 1, true);
-		return new Vec2((1+tempV3.x)/2.0 * getParentWidth(), (1-tempV3.y)/2.0 * getParentHeight());
+//		return temp.set((1+tempV3.x)/2.0 * getParentWidth(), (1-tempV3.y)/2.0 * getParentHeight());
+		return temp.set((1.0+tempV3.x) * (.5 * getParentWidth()), (1.0-tempV3.y) * (.5 * getParentHeight()));
 	}
 
 	// Geometry to clip (normalized view space ([-1,1] to [1,-1] corresponding to [0,0] to [width, height] in parent component)
@@ -203,8 +219,11 @@ public final class CoordinateSystem extends AbstractCamera {
 	}
 	public Vec2 viewVN(double x, double y, double z) {
 		tempV3.set(x, y, z).transform(viewProjectionMatrix, 1, true);
-		return new Vec2(tempV3.x, tempV3.y);
+		return temp.set(tempV3.x, tempV3.y);
 	}
+
+
+
 
 	// Screen to geometry coordinates
 	public Vec2 geomV(Vec2 vec2) {
@@ -246,6 +265,42 @@ public final class CoordinateSystem extends AbstractCamera {
 	}
 	public Mat4 getViewProjectionMatrix() {
 		return viewProjectionMatrix;
+	}
+
+	public void setCameraRotation(float right, float up) {
+		setCameraRotation(right, up, 0);
+	}
+	boolean allowRotation = true;
+	public void setCameraRotation(float right, float up, float tilt) {
+		if (allowRotation) {
+			calculateCameraRotation(right, up, tilt);
+		}
+	}
+
+	protected void calculateCameraRotation(float rightA, float upA, float tiltA) {
+		Quat totRot = new Quat();
+		Quat upRot = new Quat();      // pitch
+		Quat sideRot = new Quat();    // yaw
+		Quat tilt = new Quat();       // roll
+		upRot.setFromAxisAngle(Vec3.Y_AXIS, (float) Math.toRadians(upA));
+		sideRot.setFromAxisAngle(Vec3.Z_AXIS, (float) Math.toRadians(rightA));
+		tilt.setFromAxisAngle(Vec3.X_AXIS, (float) Math.toRadians(tiltA));
+		totRot.set(tilt).mulLeft(upRot).mulLeft(sideRot);
+
+
+		cameraUp.set(0,0,1).transform(totRot);
+
+		camBackward.set(1,0,0).transform(totRot).normalize();
+
+		cameraRight.set(cameraUp).cross(camBackward).normalize();
+		cameraUp.set(camBackward).cross(cameraRight).normalize();
+//		camPosition.set(1,0,0).transform(totRot).add(target);
+//		Vec3 camUp = new Vec3(0,0,1).transform(totRot);
+//
+//		camBackward.set(camPosition).sub(target).normalize();
+//
+//		cameraRight.set(camUp).cross(camBackward).normalize();
+//		camUp.set(camBackward).cross(cameraRight).normalize();
 	}
 
 	public void updateCamera() {

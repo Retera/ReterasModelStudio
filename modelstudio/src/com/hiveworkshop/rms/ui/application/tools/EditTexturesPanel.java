@@ -134,11 +134,11 @@ public class EditTexturesPanel extends OverviewPanel {
 		JButton button = new JButton("...");
 		button.addActionListener(this::showTexturePopup);
 		pathFieldPanel.add(button, "right");
-		wrapWidthBox.addActionListener(e -> setWrap(Bitmap.flag.WRAP_WIDTH, wrapWidthBox.isSelected()));
+		wrapWidthBox.addActionListener(e -> setWrap(Bitmap.WrapFlag.WIDTH, wrapWidthBox.isSelected()));
 		wrapWidthBox.setHorizontalTextPosition(SwingConstants.LEADING);
 		wrapWidthBox.setToolTipText("Wrap Width");
 		pathFieldPanel.add(wrapWidthBox, "right");
-		wrapHeightBox.addActionListener(e -> setWrap(Bitmap.flag.WRAP_HEIGHT, wrapWidthBox.isSelected()));
+		wrapHeightBox.addActionListener(e -> setWrap(Bitmap.WrapFlag.HEIGHT, wrapWidthBox.isSelected()));
 		wrapHeightBox.setHorizontalTextPosition(SwingConstants.LEADING);
 		wrapHeightBox.setToolTipText("Wrap Height");
 		pathFieldPanel.add(wrapHeightBox, "right");
@@ -428,7 +428,7 @@ public class EditTexturesPanel extends OverviewPanel {
 		}
 	}
 
-	private void setWrap(Bitmap.flag flag, boolean set){
+	private void setWrap(Bitmap.WrapFlag flag, boolean set){
 		if (selectedImage != null && selectedImage.isFlagSet(flag) != set) {
 			undoManager.pushAction(new SetBitmapWrapModeAction(selectedImage, flag, set, changeListener).redo());
 		}

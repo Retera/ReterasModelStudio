@@ -7,13 +7,15 @@ import com.hiveworkshop.rms.util.Vec3;
 import javax.swing.*;
 
 /**
- * RibbonEmitter class, these are the things most people would think of as a
- * particle emitter, I think. Blizzard favored use of these over
- * ParticleEmitters and I do too simply because I so often recycle data and
- * there are more of these to use.
- *
- * Eric Theller 3/10/2012 3:32 PM
+ * RibbonEmitter specific animation tags
+ * 	KRHA - Ribbon emitter height above
+ * 	KRHB - Ribbon emitter height below
+ * 	KRAL - Ribbon emitter alpha
+ * 	KRCO - Ribbon emitter color
+ * 	KRTX - Ribbon emitter texture slot
+ * 	KRVS - Ribbon emitter visibility
  */
+
 public class RibbonEmitter extends EmitterIdObject {
 	double heightAbove = 0;
 	double heightBelow = 0;

@@ -101,8 +101,8 @@ public class GridPainter2 {
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		pipeline.prepare();
 
-//		float cameraPxSize1 = (float) (cameraHandler.sizeAdj()); // 1px
-		float cameraPxSize1 = (float) (1); // 1px
+		float cameraPxSize1 = (float) (cameraHandler.sizeAdj()); // 1px
+//		float cameraPxSize1 = (float) (1); // 1px
 		int gridLog = (int)Math.log10(cameraPxSize1*120);
 		double v = (int)Math.log10(cameraPxSize1);
 		float lineScaleMul = (float) Math.pow(10, v);

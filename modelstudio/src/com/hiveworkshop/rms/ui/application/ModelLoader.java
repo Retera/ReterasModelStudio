@@ -180,8 +180,9 @@ public class ModelLoader {
 					}
 				} catch (InterruptedException | ExecutionException e) {
 					throw new RuntimeException(e);
+				} finally {
+					loadingInfo.stop();
 				}
-				loadingInfo.stop();
 			}
 		};
 

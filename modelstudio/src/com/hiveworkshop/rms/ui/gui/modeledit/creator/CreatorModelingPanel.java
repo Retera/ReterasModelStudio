@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.ui.application.actionfunctions.CreateFace;
 import com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff.TSpline;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportPopupMenu;
-import com.hiveworkshop.rms.ui.application.model.nodepanels.AnimationChooser;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.*;
@@ -25,28 +24,15 @@ public class CreatorModelingPanel extends JPanel {
 
 	private ModelEditorManager modelEditorManager;
 	private final ProgramPreferences programPreferences;
-	private final AnimationChooser animationChooser;
-	//	private JComboBox<String> modelingOptionsBox;
-//	private CardLayout modelingOptionsCardLayout;
 	private TwiCardPanel modelingOptionsCardPanel;
 	private ModelHandler modelHandler;
-	//	private final CardLayout modeCardLayout;
-	private final TwiCardPanel modeCardPanel;
-	private ManualTransformPanel transformPanel;
 
 
 	private JPopupMenu contextMenu;
 
 	public CreatorModelingPanel() {
 		this.programPreferences = ProgramGlobals.getPrefs();
-		setLayout(new MigLayout("ins 0", "", "[grow][][]"));
-
-		animationChooser = new AnimationChooser(true, true, false);
-		JPanel animationPanel = new JPanel(new MigLayout("ins 0, fill", "[]", "[][grow]"));
-		animationPanel.add(animationChooser, "wrap, growx");
-//		animationPanel.add(getAnimationBasicsPanel(), "wrap, growx, growy");
-//		animationPanel.add(getAnimationBasicsPanel(), "wrap, growx");
-
+		setLayout(new MigLayout("ins 0, hidemode 2", "", "[grow][][]"));
 
 		modelingOptionsCardPanel = new TwiCardPanel();
 
@@ -56,24 +42,14 @@ public class CreatorModelingPanel extends JPanel {
 //		modelingOptionsCardPanel.add(getStandardPrimitivesPanel(), "Animation Nodes");
 
 
-		JPanel modelingPanel = new JPanel(new MigLayout("ins 0"));
-		modelingPanel.add(modelingOptionsCardPanel.getCombobox(), "wrap");
+		JPanel modelingPanel = new JPanel(new MigLayout("ins 0, hidemode 2"));
+		modelingPanel.add(modelingOptionsCardPanel.getComboBox(), "wrap");
 		modelingPanel.add(modelingOptionsCardPanel);
-
-
-		modeCardPanel = new TwiCardPanel();
-		modeCardPanel.add(animationPanel, "ANIM");
-		modeCardPanel.add(modelingPanel, "MESH");
-
-//		add(transformPanel, BorderLayout.CENTER);
 
 		JButton popupMenuButton = new JButton("show popup menu");
 		popupMenuButton.addActionListener(e -> showVPPopup(popupMenuButton));
 
-//		add(modeCardPanel, "wrap, growx, growy");
-		add(modeCardPanel, "wrap, growx");
-		transformPanel = new ManualTransformPanel();
-//		add(transformPanel, "wrap");
+		add(modelingPanel, "wrap, growx");
 		add(popupMenuButton, "");
 	}
 
@@ -217,7 +193,7 @@ public class CreatorModelingPanel extends JPanel {
 	}
 
 	public void setAnimationModeState(boolean animationModeState) {
-		modeCardPanel.show(animationModeState ? "ANIM" : "MESH");
+//		modeCardPanel.show(animationModeState ? "ANIM" : "MESH");
 	}
 
 	public void setModelPanel(ModelPanel modelPanel) {
@@ -227,18 +203,13 @@ public class CreatorModelingPanel extends JPanel {
 //			contextMenu = new ViewportPopupMenu(viewportListener.getViewport(), ProgramGlobals.getMainPanel(), modelPanel.getModelHandler(), modelPanel.getModelEditorManager());
 			contextMenu = new ViewportPopupMenu(null, ProgramGlobals.getMainPanel(), modelPanel.getModelHandler(), modelPanel.getModelEditorManager());
 
-			transformPanel.setModel(modelHandler, modelEditorManager);
-			animationChooser.setModel(modelHandler.getModel(), modelHandler.getRenderModel());
 		} else {
 			this.modelHandler = null;
 			this.modelEditorManager = null;
 			contextMenu = null;
-			transformPanel.setModel(null, null);
-			animationChooser.setModel(null, null);
 		}
 	}
 
 	public void updateAnimationList() {
-		animationChooser.updateAnimationList();
 	}
 }

@@ -16,7 +16,17 @@ public abstract class AbstractCamera {
 	public abstract SelectionBoxHelper getSelectionBoxHelper(Vec2 topRight, Vec2 bottomLeft);
 	public abstract double sizeAdj();
 	public abstract void doZoom(MouseWheelEvent e);
+	public abstract void zoom(double v);
 	public abstract void translate(double right, double up);
+	public abstract void setPosition(double right, double up);
 	public abstract void rotate(double right, double up);
+	public abstract void setCameraRotation(float right, float up);
+	public abstract void setCameraRotation(float right, float up, float tilt);
 	public abstract Vec3 getGeoPoint(double viewX, double viewY);
+	public abstract void resetCamera();
+	public abstract void resetZoom();
+	public AbstractCamera toggleOrtho(){return this;}
+	public void moveTargetDepth(double depth){}
+	public void setTargetPoint(Vec3 vec3){}
+
 }

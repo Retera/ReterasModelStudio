@@ -61,39 +61,42 @@ public class DrawFaceActivity extends ViewportActivity {
 
 	@Override
 	public void mousePressed(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
-		Vec2 point = getPoint(e);
-		scale.set(Vec3.ZERO);
-		if (transformAction == null) {
-			isActing = true;
+		setPrefs();
+		if (MouseEventHelpers.matches(e, prefs.getModifyMouseButton(), prefs.getSnapTransformModifier())) {
+			Vec2 point = getPoint(e);
+			scale.set(Vec3.ZERO);
+			if (transformAction == null) {
+				isActing = true;
 //			if(modelView.getSelectedVertices().size() <= 2){
 //          //need to check that all verts is in the same geoset, and then use that geoset
 //				vertices.addAll(modelView.getSelectedVertices());
 //			}
-			mouseStartPoint.set(point);
-			this.inverseViewProjectionMatrix.set(viewProjectionMatrix).invert();
-			this.viewProjectionMatrix.set(viewProjectionMatrix);
-			halfScreenXY = halfScreenXY();
-			halfScreenX = halfScreenXY[0];
-			halfScreenY = halfScreenXY[1];
-			GeosetVertex geosetVertex = new GeosetVertex(Vec3.ZERO, Vec3.Z_AXIS);
-			geosetVertex.addTVertex(new Vec2(0, 0));
-			vertices.add(geosetVertex);
-			Set<GeosetVertex> vertexSet = Collections.singleton(geosetVertex);
-			UndoAction setupAction = getSetupAction(vertexSet, Collections.emptySet()).redo();
-			if(vertices.size() == 3){
-				Triangle triangle = new Triangle(vertices.get(0), vertices.get(1), vertices.get(2));
-				AddTriangleAction addTriangleAction = new AddTriangleAction(geosetVertex.getGeoset(), Collections.singleton(triangle));
-				setupAction = new CompoundAction("Draw Face",  changeListener::geosetsUpdated, setupAction, addTriangleAction.redo());
+				mouseStartPoint.set(point);
+				this.inverseViewProjectionMatrix.set(viewProjectionMatrix).invert();
+				this.viewProjectionMatrix.set(viewProjectionMatrix);
+				halfScreenXY = halfScreenXY();
+				halfScreenX = halfScreenXY[0];
+				halfScreenY = halfScreenXY[1];
+				GeosetVertex geosetVertex = new GeosetVertex(Vec3.ZERO, Vec3.Z_AXIS);
+				geosetVertex.addTVertex(new Vec2(0, 0));
+				vertices.add(geosetVertex);
+				Set<GeosetVertex> vertexSet = Collections.singleton(geosetVertex);
+				UndoAction setupAction = getSetupAction(vertexSet, Collections.emptySet()).redo();
+				if(vertices.size() == 3){
+					Triangle triangle = new Triangle(vertices.get(0), vertices.get(1), vertices.get(2));
+					AddTriangleAction addTriangleAction = new AddTriangleAction(geosetVertex.getGeoset(), Collections.singleton(triangle));
+					setupAction = new CompoundAction("Draw Face",  changeListener::geosetsUpdated, setupAction, addTriangleAction.redo());
+				}
+
+				Mat4 rotMat = getRotMat();
+				startPoint3d.set(get3DPoint(mouseStartPoint));
+				transformAction = new DrawGeometryAction("Draw Face", startPoint3d, rotMat, vertexSet, setupAction, null);
+				scale.set(0, 0, 0);
+				transformAction.setScale(scale);
+
 			}
-
-			Mat4 rotMat = getRotMat();
-			startPoint3d.set(get3DPoint(mouseStartPoint));
-			transformAction = new DrawGeometryAction("Draw Face",startPoint3d, rotMat, vertexSet, setupAction,null);
-			scale.set(0, 0, 0);
-			transformAction.setScale(scale);
-
+			lastMousePoint.set(point);
 		}
-		lastMousePoint.set(point);
 	}
 
 	@Override

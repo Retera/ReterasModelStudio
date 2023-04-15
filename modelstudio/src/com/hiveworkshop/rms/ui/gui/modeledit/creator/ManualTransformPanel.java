@@ -22,7 +22,6 @@ public class ManualTransformPanel extends JPanel {
 	private final JPanel scalePanel;
 	private final JPanel rotatePanel;
 	private ShrinkFattenPanel shrinkFattenPanel;
-	private JPanel selectionPanel;
 	private final JLabel selectedVerts = new JLabel();
 	private final JLabel selectedNodes = new JLabel();
 	private final JLabel selectedCams = new JLabel();
@@ -34,7 +33,6 @@ public class ManualTransformPanel extends JPanel {
 		scalePanel = getScalePanel();
 		rotatePanel = getRotatePanel();
 
-		add(getSelectionInfoPanel(), "spanx, wrap");
 		add(movePanel);
 		add(scalePanel);
 		add(rotatePanel);
@@ -100,19 +98,6 @@ public class ManualTransformPanel extends JPanel {
 		return this;
 	}
 
-	JPanel getSelectionInfoPanel(){
-		JPanel selectionPanel = new JPanel(new MigLayout("gap 0", "[][][grow]"));
-		selectionPanel.add(new JLabel("Selection:"), "wrap");
-		selectionPanel.add(new JLabel("Vertices: "), "");
-		selectionPanel.add(selectedVerts, "right, wrap");
-		selectionPanel.add(new JLabel("Nodes: "), "");
-		selectionPanel.add(selectedNodes, "right, wrap");
-		selectionPanel.add(new JLabel("Camera Nodes: "), "");
-		selectionPanel.add(selectedCams, "right, wrap");
-		selectionPanel.add(new JLabel("Center: "), "wrap");
-		selectionPanel.add(selectionCenter, "spanx 3");
-		return selectionPanel;
-	}
 	void updateSelectionPanel(){
 		if(modelHandler != null){
 			selectedVerts.setText("" + modelHandler.getModelView().getSelectedVertices().size());

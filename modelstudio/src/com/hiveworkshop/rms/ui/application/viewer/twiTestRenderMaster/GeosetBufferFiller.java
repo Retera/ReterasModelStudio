@@ -69,11 +69,12 @@ public class GeosetBufferFiller {
 		if(renderModel != null){
 			int formatVersion = model.getFormatVersion();
 			boolean shaderStringSupported = ModelUtils.isShaderStringSupported(formatVersion);
-			shaderManager.getOrCreatePipeline(false).prepare();
+			shaderManager.getPipeline(ShaderManager.PipelineType.MESH).prepare();
 			for (Geoset geo : model.getGeosets()) {
 				if(correctLoD(formatVersion, geo) && modelView.shouldRender(geo)){
 					Material material = geo.getMaterial();
-					ShaderPipeline pipeline = shaderManager.getOrCreatePipeline(shaderStringSupported && material.getShaderString() != null && material.getShaderString().length() > 0);
+					boolean hd = shaderStringSupported && material.getShaderString() != null && material.getShaderString().length() > 0;
+					ShaderPipeline pipeline = shaderManager.getPipeline(ShaderManager.PipelineType.MESH);
 //					System.out.println("pipeline: " + pipeline.getClass());
 					if(renderTextures){
 						colorHeap.set(renderModel.getRenderGeoset(geo).getRenderColor());

@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.TreeMap;
 
 public class IdObjectFactory {
@@ -126,13 +127,10 @@ public class IdObjectFactory {
 		}
 
 		loadObject(particleEmitter2, mdlxEmitter, model);
-
-		particleEmitter2.setUnshaded((mdlxEmitter.flags & 0x8000) != 0);
-		particleEmitter2.setSortPrimsFarZ((mdlxEmitter.flags & 0x10000) != 0);
-		particleEmitter2.setLineEmitter((mdlxEmitter.flags & 0x20000) != 0);
-		particleEmitter2.setUnfogged((mdlxEmitter.flags & 0x40000) != 0);
-		particleEmitter2.setModelSpace((mdlxEmitter.flags & 0x80000) != 0);
-		particleEmitter2.setXYQuad((mdlxEmitter.flags & 0x100000) != 0);
+		EnumSet<ParticleEmitter2.P2Flag> p2Flags = ParticleEmitter2.P2Flag.fromBits(mdlxEmitter.flags);
+		for(ParticleEmitter2.P2Flag flag : p2Flags){
+			particleEmitter2.setFlag(flag, true);
+		}
 
 		particleEmitter2.setSpeed(mdlxEmitter.speed);
 		particleEmitter2.setVariation(mdlxEmitter.variation);
@@ -147,7 +145,8 @@ public class IdObjectFactory {
 		particleEmitter2.setRows((int) mdlxEmitter.rows);
 		particleEmitter2.setColumns((int) mdlxEmitter.columns);
 
-		particleEmitter2.setHeadOrTail(mdlxEmitter.headOrTail);
+		particleEmitter2.setHead((mdlxEmitter.headTailFlag & 0x1) != 0);
+		particleEmitter2.setTail((mdlxEmitter.headTailFlag & 0x2) != 0);
 
 		particleEmitter2.setTailLength(mdlxEmitter.tailLength);
 		particleEmitter2.setTime(mdlxEmitter.timeMiddle);

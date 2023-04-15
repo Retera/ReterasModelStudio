@@ -19,6 +19,14 @@ public class NormalLinesShaderPipeline extends ShaderPipeline {
 		load();
 		setupUniforms();
 	}
+	public NormalLinesShaderPipeline(String vertexShader, String fragmentShader, String geometryShader) {
+		currentMatrix.setIdentity();
+		this.geometryShader = geometryShader;
+		this.vertexShader = vertexShader;
+		this.fragmentShader = fragmentShader;
+		load();
+		setupUniforms();
+	}
 
 
 	protected void setupUniforms(){

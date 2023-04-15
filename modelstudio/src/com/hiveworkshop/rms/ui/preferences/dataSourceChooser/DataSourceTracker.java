@@ -71,10 +71,12 @@ public class DataSourceTracker {
 		List<DataSourceDescriptor> dataSourceDescriptors = new ArrayList<>();
 		if (Files.exists(installPathPath.resolve("Data/indices"))) {
 			// Is it a CASC war3
-			CascDataSourceDescriptor dataSourceDesc = new CascDataSourceDescriptor(installPathPath.toString(), new ArrayList<>());
-			dataSourceDescriptors.add(dataSourceDesc);
 			List<String> prefixes = CascPrefixChooser.addDefaultCASCPrefixes(installPathPath, allowPopup, popupParent);
-			dataSourceDesc.addPrefixes(prefixes);
+			if(!allowPopup || !prefixes.isEmpty()){
+				CascDataSourceDescriptor dataSourceDesc = new CascDataSourceDescriptor(installPathPath.toString(), new ArrayList<>());
+				dataSourceDescriptors.add(dataSourceDesc);
+				dataSourceDesc.addPrefixes(prefixes);
+			}
 		} else {
 			// Is it a MPQ war3
 			String[] mpqSubPaths = {"War3.mpq", "War3Local.mpq", "War3x.mpq", "War3xlocal.mpq", "war3patch.mpq", "Deprecated.mpq"};
@@ -115,7 +117,13 @@ public class DataSourceTracker {
 		File selectedFile = getFile(null, JFileChooser.DIRECTORIES_ONLY, popupParent);
 		if (selectedFile != null) {
 			Path installPathPath = selectedFile.toPath();
-			return addWarcraft3Installation(installPathPath, true);
+			List<DataSourceDescriptor> descriptors = addWarcraft3Installation(installPathPath, true);
+			if(descriptors.isEmpty()){
+				String message = "Did not find any installation on path \"" + installPathPath + "\"";
+				System.err.println(message);
+				JOptionPane.showMessageDialog(popupParent, message, "Error", JOptionPane.ERROR_MESSAGE);
+			}
+			return descriptors;
 		}
 		return Collections.emptyList();
 	}

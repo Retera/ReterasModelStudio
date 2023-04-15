@@ -27,7 +27,7 @@ public class CameraManager extends AbstractCamera {
 	protected float tiltAngle;  // roll
 	protected float distance;
 
-	protected float fieldOfView = 70;
+	protected float fieldOfViewR = (float) Math.toRadians(70);
 	protected float farClip = 20000f;
 	protected float nearClip = 1f;
 
@@ -64,14 +64,6 @@ public class CameraManager extends AbstractCamera {
 	private final Quat inverseCameraRotYSpinY = new Quat();
 	private final Quat inverseCameraRotZSpinX = new Quat();
 	private final Quat inverseCameraRotZSpinZ = new Quat();
-
-//	protected Vec3 camForward = new Vec3();
-//	private final Vec3 screenDimension = new Vec3();
-//	protected Quat quatHeap = new Quat();
-//	private final Quat quatHeap1 = new Quat();
-//	private final Quat quatHeap2 = new Quat();
-//	private final Vec3 scaleHeap = new Vec3();
-
 
 	private final Ray rayHeap = new Ray();
 	private final Plane planeHeap = new Plane();
@@ -124,7 +116,7 @@ public class CameraManager extends AbstractCamera {
 			projectionMatrix.setOrtho(-aspect*distance/2.0f, aspect*distance/2.0f, -distance/2.0f, distance/2.0f, -4000, 4000);
 		} else {
 //			projectionMatrix.setPerspective((float) Math.toRadians(70), aspect, 0.0001f, 200000f);
-			projectionMatrix.setPerspective((float) Math.toRadians(fieldOfView), aspect, nearClip, farClip);
+			projectionMatrix.setPerspective(fieldOfViewR, aspect, nearClip, farClip);
 		}
 		viewProjectionMatrix.set(projectionMatrix).mul(viewMatrix);
 	}
@@ -135,6 +127,9 @@ public class CameraManager extends AbstractCamera {
 
 	public Vec3 getTarget() {
 		return target;
+	}
+	public Vec3 getCamBackward() {
+		return camBackward;
 	}
 
 	// 1 px on screen to distance in world
@@ -159,6 +154,13 @@ public class CameraManager extends AbstractCamera {
 		System.out.println("{1.0, 0.0} -> " + worldScreenSpaceAsDeltaRay2);
 		System.out.println("pixelSize: " + worldScreenSpaceAsDeltaRay2.length() / ((double) viewport.getWidth()));
 	}
+
+	public CameraManager setFieldOfView(float fieldOfView) {
+		// Radians
+		this.fieldOfViewR = fieldOfView;
+		return this;
+	}
+
 	public void setPosition(double a, double b) {
 		printPixelSize();
 
@@ -273,7 +275,7 @@ public class CameraManager extends AbstractCamera {
 	}
 
 	public float getXAngle() {
-		return 0;
+		return tiltAngle;
 	}
 
 	public float getYAngle() {
@@ -284,10 +286,9 @@ public class CameraManager extends AbstractCamera {
 		return upAngle;
 	}
 
-	public CameraManager resetZoom(){
+	public void resetZoom(){
 //		distance = 1650;
 		distance = 1000;
-		return this;
 	}
 
 	public boolean isOrtho() {

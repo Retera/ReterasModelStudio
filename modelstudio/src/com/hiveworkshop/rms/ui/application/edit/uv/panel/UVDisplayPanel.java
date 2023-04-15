@@ -197,42 +197,22 @@ public class UVDisplayPanel extends JPanel {
 		map.put(TextKey.CUT, TransferHandler.getCutAction());
 		map.put(TextKey.COPY, TransferHandler.getCopyAction());
 		map.put(TextKey.PASTE, TransferHandler.getPasteAction());
-//		map.put(TransferHandler.getCutAction().getValue(Action.NAME), TransferHandler.getCutAction());
-//		map.put(TransferHandler.getCopyAction().getValue(Action.NAME), TransferHandler.getCopyAction());
-//		map.put(TransferHandler.getPasteAction().getValue(Action.NAME), TransferHandler.getPasteAction());
 		setFocusable(true);
 	}
 
 	public void setFrontView() {
-		vp2.getCameraHandler().setCameraRotation(0, 0);
+		setCameraRot(0, 0);
 	}
 
 	public void setLeftView() {
-		vp2.getCameraHandler().setCameraRotation(90, 0);
+		setCameraRot(90, 0);
 	}
 
 	public void setTopView() {
-		vp2.getCameraHandler().setCameraRotation(0, 90);
+		setCameraRot(0, 90);
 	}
 
-
-//	public UVDisplayPanel setRenderTextures(boolean renderTextures) {
-//		vp2.setRenderTextures(renderTextures);
-//		return this;
-//	}
-//
-//	public UVDisplayPanel setWireFrame(boolean wireFrame) {
-//		vp2.setWireFrame(wireFrame);
-//		return this;
-//	}
-//
-//	public UVDisplayPanel setShowNormals(boolean showNormals) {
-//		vp2.setShowNormals(showNormals);
-//		return this;
-//	}
-//
-//	public UVDisplayPanel setShow3dVerts(boolean show3dVerts) {
-//		vp2.setShow3dVerts(show3dVerts);
-//		return this;
-//	}
+	public void setCameraRot(float right, float up) {
+		vp2.getCameraHandler().setCameraRotation(right, up, 0);
+	}
 }

@@ -76,9 +76,14 @@ public class ModelPanel {
 	public JMenuItem getMenuItem() {
 		return menuItem;
 	}
-	public JMenuItem updateMenuItem(java.io.File file) {
-		menuItem.setName(file.getName().split("\\.")[0]);
-		menuItem.setToolTipText(file.getPath());
+
+	public JMenuItem updateMenuItem() {
+		menuItem.setText(modelHandler.getModel().getName());
+		if(modelHandler.getModel().getFile() != null){
+			menuItem.setToolTipText(modelHandler.getModel().getFile().getPath());
+		} else {
+			menuItem.setToolTipText(null);
+		}
 		return menuItem;
 	}
 

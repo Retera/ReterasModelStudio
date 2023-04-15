@@ -62,31 +62,33 @@ public class DrawBoxActivity extends ViewportActivity {
 
 	@Override
 	public void mousePressed(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
-		Vec2 point = getPoint(e);
-		scale.set(Vec3.ZERO);
-		if (drawingState == DrawingState.NOTHING) {
-			mouseStartPoint.set(point);
-			this.inverseViewProjectionMatrix.set(viewProjectionMatrix).invert();
-			this.viewProjectionMatrix.set(viewProjectionMatrix);
-			halfScreenXY = halfScreenXY();
-			halfScreenX = halfScreenXY[0];
-			halfScreenY = halfScreenXY[1];
+		setPrefs();
+		if (MouseEventHelpers.matches(e, prefs.getModifyMouseButton(),prefs.getSnapTransformModifier())) {
+			Vec2 point = getPoint(e);
+			scale.set(Vec3.ZERO);
+			if (drawingState == DrawingState.NOTHING) {
+				mouseStartPoint.set(point);
+				this.inverseViewProjectionMatrix.set(viewProjectionMatrix).invert();
+				this.viewProjectionMatrix.set(viewProjectionMatrix);
+				halfScreenXY = halfScreenXY();
+				halfScreenX = halfScreenXY[0];
+				halfScreenY = halfScreenXY[1];
 
 
-			drawingState = DrawingState.WANT_BEGIN_BASE;
-			Mesh mesh = ModelUtils.getBoxMesh2(numSegsX, numSegsY, numSegsZ);
-			UndoAction setupAction = getSetupAction(mesh.getVertices(), mesh.getTriangles());
+				drawingState = DrawingState.WANT_BEGIN_BASE;
+				Mesh mesh = ModelUtils.getBoxMesh2(numSegsX, numSegsY, numSegsZ);
+				UndoAction setupAction = getSetupAction(mesh.getVertices(), mesh.getTriangles());
 
 
-			startPoint3d.set(get3DPoint(mouseStartPoint));
+				startPoint3d.set(get3DPoint(mouseStartPoint));
 
-			Mat4 rotMat = getRotMat();
-			transformAction = new DrawGeometryAction("Draw Box", startPoint3d, rotMat, mesh.getVertices(), setupAction,
-					null).doSetup();
-			transformAction.setScale(scale);
+				Mat4 rotMat = getRotMat();
+				transformAction = new DrawGeometryAction("Draw Box", startPoint3d, rotMat, mesh.getVertices(), setupAction, null).doSetup();
+				transformAction.setScale(scale);
 
+			}
+			lastMousePoint.set(point);
 		}
-		lastMousePoint.set(point);
 	}
 
 	@Override

@@ -39,12 +39,15 @@ public class GeosetFactory {
 				IdObject idObject = infoHolder.idObjMap.get(matrixIndex);
 				if(idObject instanceof Bone){
 					m.add((Bone) idObject);
+				} else if (idObject != null) {
+					System.err.println("Node " + matrixIndex + " is not of type Bone, but of type " + idObject.getClass().getSimpleName() + "");
 				} else {
-					System.out.println("Node " + matrixIndex + " is not of type Bone, but of type " + idObject.getClass().getSimpleName() + "");
+					int totNodes = infoHolder.idObjMap.size();
+					long totBones = infoHolder.idObjMap.values().stream().filter(o -> o instanceof Bone).count();
+					System.err.println("Invalid " + matrixIndex + " model only contains " + totNodes + " nodes of which " + totBones + " is bones");
 				}
 				index++;
 			}
-//			geoset.addMatrix(m);
 			matrices.add(m);
 		}
 
@@ -61,6 +64,7 @@ public class GeosetFactory {
 		List<GeosetVertex> vertexList = new ArrayList<>();
 		List<Triangle> triangleList = new ArrayList<>();
 
+		int matrixMax = matrices.size();
 		for (int i = 0; i < vertices.length / 3; i++) {
 			GeosetVertex gv = new GeosetVertex(vertices[(i * 3)], vertices[(i * 3) + 1], vertices[(i * 3) + 2]);
 			vertexList.add(gv);
@@ -68,17 +72,6 @@ public class GeosetFactory {
 
 			geoset.add(gv);
 
-//			if (vertexGroups == null || i >= vertexGroups.length) {
-//				gv.setVertexGroup(-1);
-//			} else {
-//				gv.setVertexGroup((256 + vertexGroups[i]) % 256);
-//				Matrix matrix = geoset.getMatrix((256 + vertexGroups[i]) % 256);
-//				if (matrix != null) {
-//					for (Bone bone : matrix.getBones()) {
-//						gv.addBoneAttachment(bone);
-//					}
-//				}
-//			}
 			if (vertexGroups != null && i < vertexGroups.length) {
 				int matInd = (256 + vertexGroups[i]) % 256;
 //				System.out.println("vertGroup: " + vertexGroups[i] + ", -> " + matInd + "");
@@ -108,21 +101,21 @@ public class GeosetFactory {
 
 
 			if (skin != null) {
+				int skinInd = i * 8;
 				Bone[] bones = {
-						(Bone) infoHolder.idObjMap.get(((skin[(i * 8) + 0] + 256) % 256)),
-						(Bone) infoHolder.idObjMap.get(((skin[(i * 8) + 1] + 256) % 256)),
-						(Bone) infoHolder.idObjMap.get(((skin[(i * 8) + 2] + 256) % 256)),
-						(Bone) infoHolder.idObjMap.get(((skin[(i * 8) + 3] + 256) % 256))};
-
+						matrices.get(getValidIndex(((skin[skinInd + 0] + 256) % 256), matrixMax)).get(0),
+						matrices.get(getValidIndex(((skin[skinInd + 1] + 256) % 256), matrixMax)).get(0),
+						matrices.get(getValidIndex(((skin[skinInd + 2] + 256) % 256), matrixMax)).get(0),
+						matrices.get(getValidIndex(((skin[skinInd + 3] + 256) % 256), matrixMax)).get(0)};
 				short[] weights = {
-						(short)((skin[(i * 8) + 4] + 256) % 256),
-						(short)((skin[(i * 8) + 5] + 256) % 256),
-						(short)((skin[(i * 8) + 6] + 256) % 256),
-						(short)((skin[(i * 8) + 7] + 256) % 256)};
+						(short)((skin[skinInd + 4] + 256) % 256),
+						(short)((skin[skinInd + 5] + 256) % 256),
+						(short)((skin[skinInd + 6] + 256) % 256),
+						(short)((skin[skinInd + 7] + 256) % 256)};
 
 				gv.setSkinBones(bones, weights);
 
-				skinList.add(new short[] {skin[(i * 8)], skin[(i * 8) + 1], skin[(i * 8) + 2], skin[(i * 8) + 3], skin[(i * 8) + 4], skin[(i * 8) + 5], skin[(i * 8) + 6], skin[(i * 8) + 7]});
+				skinList.add(new short[] {skin[skinInd], skin[skinInd + 1], skin[skinInd + 2], skin[skinInd + 3], skin[skinInd + 4], skin[skinInd + 5], skin[skinInd + 6], skin[skinInd + 7]});
 			}
 		}
 		// guys, I didn't code this to allow experimental non-triangle faces that were suggested
@@ -144,5 +137,10 @@ public class GeosetFactory {
 		}
 
 		return geoset;
+	}
+
+	private static int getValidIndex(int ind, int max) {
+		if (ind < max) return ind;
+		return 0;
 	}
 }

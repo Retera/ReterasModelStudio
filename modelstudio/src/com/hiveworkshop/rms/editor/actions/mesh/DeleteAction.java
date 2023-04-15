@@ -8,7 +8,11 @@ import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Something to undo when you deleted something important.
@@ -17,8 +21,9 @@ import java.util.*;
  */
 public class DeleteAction implements UndoAction {
 	private final Set<GeosetVertex> affectedVerts;
+	private final Set<GeosetVertex> selectedVerts;
 	private final Set<Triangle> affectedTris;
-	private final List<Geoset> emptyGeosets;
+	private Map<Geoset, Integer> emptyGeosets;
 	private final ModelView modelView;
 	private final ModelStructureChangeListener changeListener;
 	private final EditableModel model;
@@ -31,8 +36,8 @@ public class DeleteAction implements UndoAction {
 
 		if(onlyTriangles){
 			Set<GeosetVertex> verts = new HashSet<>(selection);
-			this.affectedTris = getFullySelectedTris(getAllAffectedTris(verts), verts);
-			this.affectedVerts = getVertsOnlyInFullySelectedTris(affectedTris);
+			this.affectedTris = getFullySelectedTris(verts);
+			this.affectedVerts = verts.stream().filter(gv -> affectedTris.containsAll(gv.getTriangles())).collect(Collectors.toSet());
 			actionName = "Delete "
 					+ affectedTris.size()
 					+ (affectedTris.size() == 1 ? " Triangle" : " Triangles");
@@ -44,42 +49,29 @@ public class DeleteAction implements UndoAction {
 					+ (affectedVerts.size() == 1 ? " Vertex" : " Vertices");
 
 		}
-		this.emptyGeosets = new ArrayList<>();
+		this.selectedVerts = affectedVerts.stream().filter(modelView::isSelected).collect(Collectors.toSet());
 	}
 
 
 	private Set<Triangle> getAllAffectedTris(Set<GeosetVertex> selection) {
 		Set<Triangle> affectedTris = new HashSet<>();
-		for (GeosetVertex vertex : selection) {
-			affectedTris.addAll(vertex.getTriangles());
-		}
+		selection.forEach(gv -> affectedTris.addAll(gv.getTriangles()));
 		return affectedTris;
 	}
-	private Set<Triangle> getFullySelectedTris(Set<Triangle> affectedTris, Set<GeosetVertex> selection) {
-		Set<Triangle> fullySelectedTris = new HashSet<>();
-		for (Triangle triangle : affectedTris) {
-			if(selection.contains(triangle.get(0))
-					&& selection.contains(triangle.get(1))
-					&& selection.contains(triangle.get(2))){
-				fullySelectedTris.add(triangle);
-			}
-		}
-		return fullySelectedTris;
-	}
-	private Set<GeosetVertex> getVertsOnlyInFullySelectedTris(Set<Triangle> fullySelectedTris) {
-		Set<GeosetVertex> verts = new HashSet<>();
-		for (Triangle triangle : fullySelectedTris) {
-			for(GeosetVertex vertex : triangle.getVerts()){
-				if(fullySelectedTris.containsAll(vertex.getTriangles())){
-					verts.add(vertex);
-				}
-			}
-		}
-		return verts;
+	private Set<Triangle> getFullySelectedTris(Set<GeosetVertex> selection) {
+		Set<Triangle> affectedTris = getAllAffectedTris(selection);
+		return affectedTris.stream().filter(t -> triSelected(t, selection)).collect(Collectors.toSet());
 	}
 
+	private boolean triSelected(Triangle triangle, Set<GeosetVertex> selection){
+		return selection.contains(triangle.get(0))
+				&& selection.contains(triangle.get(1))
+				&& selection.contains(triangle.get(2));
+	}
+
+
 	@Override
-	public UndoAction redo() {
+	public DeleteAction redo() {
 		for (GeosetVertex gv : affectedVerts) {
 			gv.getGeoset().remove(gv);
 		}
@@ -91,7 +83,7 @@ public class DeleteAction implements UndoAction {
 		}
 		checkForEmptyGeosets();
 
-		for (Geoset geoset : emptyGeosets) {
+		for (Geoset geoset : emptyGeosets.keySet()) {
 			model.remove(geoset);
 		}
 		if(changeListener != null){
@@ -101,7 +93,7 @@ public class DeleteAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
+	public DeleteAction undo() {
 		for (GeosetVertex gv : affectedVerts) {
 			gv.getGeoset().addVertex(gv);
 		}
@@ -111,24 +103,22 @@ public class DeleteAction implements UndoAction {
 				vertex.addTriangle(t);
 			}
 		}
-		for (Geoset geoset : emptyGeosets) {
-			model.add(geoset);
+		for (Geoset geoset : emptyGeosets.keySet()) {
+			model.add(geoset, emptyGeosets.get(geoset));
 		}
 		if(changeListener != null){
 			changeListener.geosetsUpdated();
 		}
 
-		modelView.setSelectedVertices(affectedVerts);
+		modelView.addSelectedVertices(selectedVerts);
 		return this;
 	}
 
 	private void checkForEmptyGeosets() {
-		if (emptyGeosets.isEmpty()) {
-			for (Geoset geoset : model.getGeosets()) {
-				if (geoset.isEmpty()) {
-					emptyGeosets.add(geoset);
-				}
-			}
+		if (emptyGeosets == null) {
+			emptyGeosets = model.getGeosets().stream()
+					.filter(Geoset::isEmpty)
+					.collect(Collectors.toMap(geoset -> geoset, model::getGeosetId));
 		}
 	}
 

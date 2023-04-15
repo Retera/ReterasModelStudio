@@ -18,10 +18,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
 import com.hiveworkshop.rms.ui.util.colorchooser.ColorChooserIconLabel;
-import com.hiveworkshop.rms.util.SmartButtonGroup;
-import com.hiveworkshop.rms.util.SmartNumberSlider;
-import com.hiveworkshop.rms.util.TwiComboBox;
-import com.hiveworkshop.rms.util.Vec3SpinnerArray;
+import com.hiveworkshop.rms.util.*;
 import net.miginfocom.swing.MigLayout;
 import org.lwjgl.LWJGLException;
 
@@ -58,9 +55,8 @@ public class ParticleEditPanel extends JPanel {
 		viewportPanel.add(perspectiveViewport, BorderLayout.CENTER);
 		add(viewportPanel, "");
 
-		add(getHeadTailGroup().getButtonPanel(), "");
-		add(getFilterModeButtonGroup().getButtonPanel(), "");
-//		add(getFlagPanel(), "wrap");
+		add(getHeadTailGroup(), "");
+		add(getFilterModeButtonGroup(), "");
 		add(getFlagPanel(), "");
 		add(getTexturePanel(), "wrap");
 
@@ -86,7 +82,6 @@ public class ParticleEditPanel extends JPanel {
 	private JPanel getSpinnerPanel() {
 		JPanel spinnerPanel = new JPanel(new MigLayout("ins 0"));
 
-
 		spinnerPanel.add(getColorPanel(), SPINNER_CONSTRAINTS);
 
 		JPanel alphaPanel = new Vec3SpinnerArray(copy.getAlpha(), 0, .1f)
@@ -103,15 +98,12 @@ public class ParticleEditPanel extends JPanel {
 		spinnerPanel.add(getTailPanel(), SPINNER_CONSTRAINTS);
 		return spinnerPanel;
 	}
+	private EnumButtonGroup<ParticleEmitter2.HeadTailFlag> getHeadTailGroup() {
+		EnumButtonGroup<ParticleEmitter2.HeadTailFlag> bg2 = new EnumButtonGroup<>(ParticleEmitter2.HeadTailFlag.class, "Head/Tail", 1, copy::toggleFlag);
+		bg2.addPanelConst("gap 0", "ins 0");
 
-	private SmartButtonGroup getHeadTailGroup() {
-		SmartButtonGroup headTail = new SmartButtonGroup("Head/Tail");
-		headTail.addPanelConst("gap 0");
-		headTail.addJRadioButton("Head", e -> copy.setHeadOrTail(MdlxParticleEmitter2.HeadOrTail.HEAD));
-		headTail.addJRadioButton("Tail", e -> copy.setHeadOrTail(MdlxParticleEmitter2.HeadOrTail.TAIL));
-		headTail.addJRadioButton("Both", e -> copy.setHeadOrTail(MdlxParticleEmitter2.HeadOrTail.BOTH));
-		headTail.setSelectedIndex(copy.getHeadOrTail().ordinal());
-		return headTail;
+		bg2.setSelected(copy.getHeadTailFlags());
+		return bg2;
 	}
 
 	private JPanel getTailPanel() {
@@ -169,17 +161,19 @@ public class ParticleEditPanel extends JPanel {
 		flagPanel.add(getCheckBox("Squirt", copy.getSquirt(), (b) -> copy.setSquirt(b)), "wrap");
 		return flagPanel;
 	}
+	private EnumButtonGroup<ParticleEmitter2.P2Flag> getFlagPanel2() {
+		// if this gets used, a checkbox for "Squirt" needs to be added separately in a
+		// suitable location (under emission rate..?)
+		EnumButtonGroup<ParticleEmitter2.P2Flag> p2FlagEnumButtonGroup = new EnumButtonGroup<>(ParticleEmitter2.P2Flag.class, "Flags", EnumButtonGroupGroup.TYPE_CHECK, copy::toggleFlag);
+		p2FlagEnumButtonGroup.addPanelConst("ins 0", "gap 0");
+		return p2FlagEnumButtonGroup;
+	}
 
-	private SmartButtonGroup getFilterModeButtonGroup() {
-		SmartButtonGroup filterMode = new SmartButtonGroup("Filter Mode");
-		filterMode.addPanelConst("gap 0");
-		filterMode.addJRadioButton("Blend", e -> copy.setFilterMode(MdlxParticleEmitter2.FilterMode.BLEND));
-		filterMode.addJRadioButton("Additive", e -> copy.setFilterMode(MdlxParticleEmitter2.FilterMode.ADDITIVE));
-		filterMode.addJRadioButton("Modulate", e -> copy.setFilterMode(MdlxParticleEmitter2.FilterMode.MODULATE));
-		filterMode.addJRadioButton("Modulate2x", e -> copy.setFilterMode(MdlxParticleEmitter2.FilterMode.MODULATE2X));
-		filterMode.addJRadioButton("AlphaKey", e -> copy.setFilterMode(MdlxParticleEmitter2.FilterMode.ALPHAKEY));
-		filterMode.setSelectedIndex(copy.getFilterMode().ordinal());
-		return filterMode;
+	private EnumButtonGroup<MdlxParticleEmitter2.FilterMode> getFilterModeButtonGroup() {
+		EnumButtonGroup<MdlxParticleEmitter2.FilterMode> filterModeG = new EnumButtonGroup<>(MdlxParticleEmitter2.FilterMode.class, "Filter Mode", EnumButtonGroupGroup.TYPE_RADIO, copy::setFilterMode);
+		filterModeG.addPanelConst("gap 0", "ins 0");
+		filterModeG.setSelected(copy.getFilterMode());
+		return filterModeG;
 	}
 
 	public JCheckBox getCheckBox(String flagName, boolean selected, Consumer<Boolean> checkboxConsumer) {

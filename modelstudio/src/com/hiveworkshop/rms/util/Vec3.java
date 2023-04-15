@@ -373,8 +373,7 @@ public class Vec3 {
 	}
 
 	public double degAngleTo(Vec3 a) {
-
-		return (radAngleTo(a) * 180 / Math.PI);
+		return (radAngleTo(a) * 180.0 / Math.PI);
 	}
 
 	public double radAngleTo(Vec3 a) {

@@ -20,6 +20,7 @@ public abstract class AbstractSelectionManager {
 	protected ModelView modelView;
 	protected SelectionItemTypes selectionMode;
 	protected RenderModel editorRenderModel;
+	protected int uvLayerIndex = 0;
 
 	public AbstractSelectionManager(RenderModel editorRenderModel, ModelView modelView, SelectionItemTypes selectionMode) {
 		this.modelView = modelView;
@@ -29,6 +30,11 @@ public abstract class AbstractSelectionManager {
 
 	public AbstractSelectionManager setSelectionMode(SelectionItemTypes selectionMode) {
 		this.selectionMode = selectionMode;
+		return this;
+	}
+
+	public AbstractSelectionManager setUvLayerIndex(int uvLayerIndex) {
+		this.uvLayerIndex = uvLayerIndex;
 		return this;
 	}
 

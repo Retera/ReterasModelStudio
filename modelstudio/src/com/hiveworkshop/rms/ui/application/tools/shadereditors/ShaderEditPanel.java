@@ -3,6 +3,8 @@ package com.hiveworkshop.rms.ui.application.tools.shadereditors;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ShaderManager;
 import com.hiveworkshop.rms.ui.application.viewer.OtherUtils;
+import com.hiveworkshop.rms.ui.application.viewer.twiTestRenderMaster.BufferFiller;
+import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.ScreenInfo;
 import net.infonode.docking.TabWindow;
 import net.infonode.docking.View;
@@ -18,8 +20,9 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.function.Supplier;
 
-public abstract class ShaderEditPanel extends JPanel {
+public class ShaderEditPanel extends JPanel {
 
+	ShaderManager.PipelineType pipelineType;
 	AttributeSet redText;
 	AttributeSet whiteText;
 
@@ -30,9 +33,14 @@ public abstract class ShaderEditPanel extends JPanel {
 	JLabel loadedLabel = new JLabel();
 	JTextPane logPane;
 
-	public ShaderEditPanel(ShaderManager shaderManager, String... shaderFiles) {
+	public ShaderEditPanel(ShaderManager shaderManager, ShaderEditorType shaderEditorType){
+		this(shaderManager, shaderEditorType.pipelineType, shaderEditorType.shaders);
+	}
+
+	public ShaderEditPanel(ShaderManager shaderManager, ShaderManager.PipelineType pipelineType, String... shaderFiles) {
 		super(new MigLayout("gap 0, ins 0, fill, wrap 1", "[grow]", "[50%][50%][]"));
 		this.shaderManager = shaderManager;
+		this.pipelineType = pipelineType;
 		shaderTrackers = loadShaderStrings(shaderFiles);
 
 		StyleContext sc = StyleContext.getDefaultStyleContext();
@@ -66,11 +74,21 @@ public abstract class ShaderEditPanel extends JPanel {
 		timer.start();
 	}
 
-	protected abstract void createCustomShader();
-	protected abstract void removeCustomShader();
+	protected void createCustomShader(){
+		shaderManager.createCustomShader(pipelineType, shaderTrackers[0].getCurrShader(),
+				shaderTrackers.length == 3 ? shaderTrackers[2].getCurrShader() : shaderTrackers[1].getCurrShader(),
+				shaderTrackers.length == 3 ? shaderTrackers[1].getCurrShader() : "");
+		if(shaderTrackers.length == 2){
+			shaderManager.createCustomShader(pipelineType, shaderTrackers[0].getCurrShader(), shaderTrackers[1].getCurrShader(), "");
+		} else {
+			shaderManager.createCustomShader(pipelineType, shaderTrackers[0].getCurrShader(), shaderTrackers[2].getCurrShader(), shaderTrackers[1].getCurrShader());
+		}
+	}
+	protected void removeCustomShader(){
+		shaderManager.removeCustomShader(pipelineType);
+	}
 
 	private void useInternalShader(){
-//		shaderManager.removeCustomShader();
 		removeCustomShader();
 
 		try {
@@ -89,7 +107,7 @@ public abstract class ShaderEditPanel extends JPanel {
 	}
 
 	private void checkShader() {
-		Exception shaderException = shaderManager.getCustomShaderException();
+		Exception shaderException = shaderManager.getCustomShaderException(pipelineType);
 //		System.out.println("time: " + LocalTime.now().format(DateTimeFormatter.ISO_TIME));
 		LocalTime time = LocalTime.now().truncatedTo(ChronoUnit.SECONDS);
 		String text;
@@ -99,7 +117,7 @@ public abstract class ShaderEditPanel extends JPanel {
 			loadedLabel.setForeground(Color.RED.darker());
 			text = "Failed to load " + makePrettyMessage(shaderException);
 
-			shaderManager.clearLastException();
+			shaderManager.clearLastException(pipelineType);
 			for(ShaderTracker shaderTracker : shaderTrackers){
 				shaderTracker.setCurrShader(null);
 			}
@@ -304,4 +322,24 @@ public abstract class ShaderEditPanel extends JPanel {
 			return textArea;
 		}
 	}
+
+
+
+	public static void show2(JComponent parent, BufferFiller bufferFiller, String title, ShaderManager.PipelineType pipelineType, String... shaderFiles) {
+		ShaderEditPanel shaderEditPanel = new ShaderEditPanel(bufferFiller.getShaderManager(), pipelineType, shaderFiles);
+//		shaderEditPanel.setSize(1600, 900);
+		shaderEditPanel.setPreferredSize(ScreenInfo.getSmallWindow());
+		FramePopup.show(shaderEditPanel, parent, title);
+
+	}
+
+
+	public static void show2(JComponent parent, BufferFiller bufferFiller, ShaderEditorType shaderEditorType) {
+		ShaderEditPanel shaderEditPanel = new ShaderEditPanel(bufferFiller.getShaderManager(), shaderEditorType.getPipelineType(), shaderEditorType.getShaders());
+//		shaderEditPanel.setSize(1600, 900);
+		shaderEditPanel.setPreferredSize(ScreenInfo.getSmallWindow());
+		FramePopup.show(shaderEditPanel, parent, shaderEditorType.getTitle());
+
+	}
+
 }

@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.*;
 import com.hiveworkshop.rms.ui.application.tools.SkinningOptionPanel;
+import com.hiveworkshop.rms.ui.application.tools.shadereditors.ShaderEditorType;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 
 import javax.swing.*;
@@ -20,6 +21,7 @@ public class TwilacsTools extends JMenu {
 		super("Twilac's Beta Tools");
 		setMnemonic(KeyEvent.VK_I);
 		getAccessibleContext().setAccessibleDescription("Where Twilac puts new features during development before they find a permanent home.");
+//		add(getBakeMenu());
 		add(getSkinningMenu());
 		add(getFixFacesMenu());
 		add(getMergeWeightsMenu());
@@ -31,13 +33,15 @@ public class TwilacsTools extends JMenu {
 		add(ShowHideStuff.getHideVertsMenuItem());
 		add(ShowHideStuff.getShowVertsMenuItem());
 		add(TwilacStuff.getBridgeEdgesMenuItem());
+		add(TwilacStuff.getTPoseStuffMenuItem());
 
 		JMenu shaderEditorMenu = createMenu("Shader Editors", KeyEvent.VK_S);
 		add(shaderEditorMenu);
-		shaderEditorMenu.add(TwilacStuff.getTestShaderStuffMenuItem());
-		shaderEditorMenu.add(TwilacStuff.getTextShaderStuffNodeMenuItem());
-		shaderEditorMenu.add(TwilacStuff.getTextShaderStuffColMenuItem());
-		shaderEditorMenu.add(TwilacStuff.getTextShaderStuffGridMenuItem());
+		shaderEditorMenu.add(TwilacStuff.getShaderEditorMenuItem(ShaderEditorType.MESH));
+		shaderEditorMenu.add(TwilacStuff.getShaderEditorMenuItem(ShaderEditorType.BONE));
+		shaderEditorMenu.add(TwilacStuff.getShaderEditorMenuItem(ShaderEditorType.PARTICLE2));
+		shaderEditorMenu.add(TwilacStuff.getShaderEditorMenuItem(ShaderEditorType.COLLISION));
+		shaderEditorMenu.add(TwilacStuff.getShaderEditorMenuItem(ShaderEditorType.GRID));
 
 //		add(TwilacStuff.getSelectEdgeMenuItem());
 //		add(new JSeparator());
@@ -71,6 +75,11 @@ public class TwilacsTools extends JMenu {
 	private JMenuItem getSkinningMenu(){
 		JMenuItem menuItem = new JMenuItem("Skinning options");
 		menuItem.addActionListener(e -> SkinningOptionPanel.showPanel(null, ProgramGlobals.getCurrentModelPanel().getModelHandler()));
+		return menuItem;
+	}
+	private JMenuItem getBakeMenu(){
+		JMenuItem menuItem = new JMenuItem("Bake texture test");
+		menuItem.addActionListener(e -> ReteraBakeMaterial.drawStuff(ProgramGlobals.getCurrentModelPanel().getModelHandler()));
 		return menuItem;
 	}
 

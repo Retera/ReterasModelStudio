@@ -54,6 +54,7 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 		panel.add(speedPanel.getFlagPanel(), "wrap");
 		panel.add(alphaPanel.getFlagPanel(), "wrap");
 		panel.add(colorPanel.getFlagPanel(), "wrap");
+		panel.add(visPanel.getFlagPanel(), "wrap");
 
 		return panel;
 	}

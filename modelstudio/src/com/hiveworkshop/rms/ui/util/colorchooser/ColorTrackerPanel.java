@@ -87,10 +87,12 @@ public class ColorTrackerPanel extends JPanel {
 
 
 	public void addColorToLatest(Color color) {
-		colors.remove(color);
-		colors.add(color);
-		if (colors.size() > numSaved) {
-			colors.remove();
+		if(color != null){
+			colors.remove(color);
+			colors.add(color);
+			if (colors.size() > numSaved) {
+				colors.remove();
+			}
 		}
 	}
 }

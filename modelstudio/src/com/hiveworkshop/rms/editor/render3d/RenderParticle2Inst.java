@@ -12,20 +12,20 @@ public class RenderParticle2Inst {
 	public Vec3[] verticesV;
 	public float rgb;
 	public int[] lta_lba_rba_rta;
-	private int uv_iX;
-	private int uv_iY;
+	protected int uv_iX;
+	protected int uv_iY;
 
-	private final ParticleEmitter2 particleEmitter2;
-	private boolean head;
-	private final Vec3 location = new Vec3();
-	private final Vec3 worldLocation = new Vec3();
-	private final Vec3 velocity = new Vec3();
-	private final Quat rotation = new Quat();
-	private final Quat tempRotation = new Quat();
-	private final Vec3 scale = new Vec3();
-	private float gravity;
+	protected final ParticleEmitter2 particleEmitter2;
+	protected boolean head;
+	protected final Vec3 location = new Vec3();
+	protected final Vec3 worldLocation = new Vec3();
+	protected final Vec3 velocity = new Vec3();
+	protected final Quat rotation = new Quat();
+	protected final Quat tempRotation = new Quat();
+	protected final Vec3 scale = new Vec3();
+	protected float gravity;
 
-	private RenderNode2 node;
+	protected RenderNode2 node;
 
 	Vec4 color1Heap = new Vec4();
 	Vec4 color2Heap = new Vec4();
@@ -34,16 +34,16 @@ public class RenderParticle2Inst {
 
 	Vec3 tailLocation = new Vec3();
 	Vec3 tailHeap = new Vec3();
-	Vec3 normal = new Vec3();
+	Vec3 tempNormal = new Vec3();
 	float uniformScale = 1;
 
 
 	//RenderData
-	private Vec3[] verts = new Vec3[6];
-	private int[] uv = new int[6];
-	private Vec2[] uvs;
-	private float[] uv_u = new float[6];
-	private float[] uv_v = new float[6];
+	protected Vec3[] verts = new Vec3[6];
+	protected int[] uv = new int[6];
+	protected Vec2[] uvs;
+	protected float[] uv_u = new float[6];
+	protected float[] uv_v = new float[6];
 
 	public RenderParticle2Inst(ParticleEmitter2 particleEmitter2) {
 		this.particleEmitter2 = particleEmitter2;
@@ -122,7 +122,7 @@ public class RenderParticle2Inst {
 
 	//	@Override
 	Vec3 dLoc = new Vec3();
-	public void update(float dt, Sequence sequence, Vec3[] vectors, Vec3 normal) {
+	public void update(float dt, Sequence sequence, Vec3[] vectors, Vec3 camNormal) {
 
 		if(sequence instanceof Animation && !particleEmitter2.getModelSpace()){
 			dLoc.x = -((Animation) sequence).getMoveSpeed()*dt;
@@ -164,33 +164,57 @@ public class RenderParticle2Inst {
 			verticesV[1].set(vectors[1]).multiply(this.scale).scale(scale).add(worldLocation);
 			verticesV[2].set(vectors[2]).multiply(this.scale).scale(scale).add(worldLocation);
 			verticesV[3].set(vectors[3]).multiply(this.scale).scale(scale).add(worldLocation);
+			tailLocation.set(Vec3.ZERO);
 		} else {
 
-			// The start of the tail
-			tailLocation.set(worldLocation).addScaled(velocity, (float) -particleEmitter2.getTailLength());
+//			// The start of the tail
+//			tailLocation.set(worldLocation).addScaled(velocity, (float) -particleEmitter2.getTailLength());
+//
+//			// If this is a model space emitter, the start and end are in local space, so convert them to world space.
+//			if (particleEmitter2.getModelSpace()) {
+//
+//				tailLocation.transform(node.getWorldMatrix());
+//				worldLocation.transform(node.getWorldMatrix());
+//			}
+//
+//			// Get the camNormal to the tail in camera space
+//			// This allows to build a 2D rectangle around the 3D tail
+//			tempNormal.set(camNormal);
+//
+//			tailHeap.set(worldLocation).sub(tailLocation).normalize();
+//			tempNormal.cross(tailHeap).normalize().multiply(this.scale).scale(scale);
+//			verticesV[0].set(tailLocation).sub(tempNormal);
+//			verticesV[1].set(worldLocation).add(tempNormal);
+//			verticesV[2].set(worldLocation).sub(tempNormal);
+//			verticesV[3].set(tailLocation).add(tempNormal);
 
+
+			// The start of the tail
+			tailHeap.set(Vec3.ZERO).addScaled(velocity, -1f * (float) -particleEmitter2.getTailLength());
 			// If this is a model space emitter, the start and end are in local space, so convert them to world space.
 			if (particleEmitter2.getModelSpace()) {
-
-				tailLocation.transform(node.getWorldMatrix());
 				worldLocation.transform(node.getWorldMatrix());
+				tailHeap.transform(node.getWorldMatrix());
+
 			}
 
-			// Get the normal to the tail in camera space
+			tailLocation.set(tailHeap);
+			// Get the camNormal to the tail in camera space
 			// This allows to build a 2D rectangle around the 3D tail
-			normal.set(normal);
-
-			tailHeap.set(worldLocation).sub(tailLocation).normalize();
-			normal.cross(tailHeap).normalize().multiply(this.scale).scale(scale);
-			verticesV[0].set(tailLocation).sub(normal);
-			verticesV[1].set(worldLocation).add(normal);
-			verticesV[2].set(worldLocation).sub(normal);
-			verticesV[3].set(tailLocation).add(normal);
+			tempNormal.set(camNormal);
+			tempNormal.crossNorm(tailHeap).normalize().multiply(this.scale).scale(scale);
+			verticesV[0].set(worldLocation).sub(tailHeap).sub(tempNormal);
+			verticesV[1].set(worldLocation).add(tempNormal);
+			verticesV[2].set(worldLocation).sub(tempNormal);
+			verticesV[3].set(worldLocation).sub(tailHeap).add(tempNormal);
 		}
 	}
 
 	public Vec3 getWorldLocation() {
 		return worldLocation;
+	}
+	public Vec3 getTailLocation() {
+		return tailLocation;
 	}
 
 	public Vec3 getLocation() {

@@ -68,8 +68,9 @@ public class MdxLoadSave {
 //				+ "\nFAFX = " + FAFX
 //				+ "\nBPOS = " + BPOS);
 
-		if (reader.readTag() != MDLX) {
-			throw new IllegalStateException("WrongMagicNumber");
+		int readTag = reader.readTag();
+		if (readTag != MDLX) {
+			throw new IllegalStateException("WrongMagicNumber: \"" + readTag + "\"");
 		}
 		try {
 			System.out.println("bufferSize: " + reader.remaining());

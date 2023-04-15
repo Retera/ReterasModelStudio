@@ -322,6 +322,7 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 		scrollPane.setPreferredSize(size);
 		Dimension size2 = new Dimension(size.width, size.height + sizeDiff);
 		panel.setPreferredSize(size2);
+		panel.revalidate();
 	}
 	public void setPrefSize1(Dimension suitableSize, JScrollPane scrollPane) {
 //		System.out.println("\nKF heignt: " + keyframeTable.getHeight());

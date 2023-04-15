@@ -23,6 +23,7 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 	private final EditorHelpers.FloatEditor speedPanel;
 	private final EditorHelpers.FloatEditor gravityPanel;
 	private final EditorHelpers.FloatEditor emissionPanel;
+	private final EditorHelpers.FloatEditor lifeSpanPanel;
 	private final EditorHelpers.FloatEditor visibilityPanel;
 
 	private final TwiComboBox<Bitmap> textureChooser;
@@ -46,6 +47,7 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 		speedPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_SPEED, this::setSpeed);
 		gravityPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_GRAVITY, this::setGravity);
 		emissionPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_EMISSION_RATE, this::setEmissionRate);
+		lifeSpanPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_LIFE_SPAN, this::setLifeSpan);
 		visibilityPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_VISIBILITY, null);
 		topPanel.add(emissionPanel.getFlagPanel(), "spanx, growx, wrap");
 		topPanel.add(speedPanel.getFlagPanel(), "spanx, growx, wrap");
@@ -53,6 +55,7 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 		topPanel.add(variationPanel.getFlagPanel(), "spanx, growx, wrap");
 		topPanel.add(widthPanel.getFlagPanel(), "spanx, growx, wrap");
 		topPanel.add(lengthPanel.getFlagPanel(), "spanx, growx, wrap");
+		topPanel.add(lifeSpanPanel.getFlagPanel(), "spanx, growx, wrap");
 		topPanel.add(latitudePanel.getFlagPanel(), "spanx, growx, wrap");
 		add(visibilityPanel.getFlagPanel(), "spanx, growx, wrap");
 	}
@@ -66,6 +69,7 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 		speedPanel.update(idObject, (float) idObject.getSpeed());
 		gravityPanel.update(idObject, (float) idObject.getGravity());
 		emissionPanel.update(idObject, (float) idObject.getEmissionRate());
+		lifeSpanPanel.update(idObject, (float) idObject.getLifeSpan());
 		visibilityPanel.update(idObject, 1f);
 		textureChooser.setSelectedItem(idObject.getTexture());
 	}
@@ -121,6 +125,11 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 	private void setEmissionRate(float value){
 		if(value != idObject.getEmissionRate()){
 			undoManager.pushAction(new ConsumerAction<>(idObject::setEmissionRate, (double) value, idObject.getEmissionRate(), "EmissionRate").redo());
+		}
+	}
+	private void setLifeSpan(float value){
+		if(value != idObject.getLifeSpan()){
+			undoManager.pushAction(new ConsumerAction<>(idObject::setLifeSpan, (double) value, idObject.getLifeSpan(), "LifeSpan").redo());
 		}
 	}
 }

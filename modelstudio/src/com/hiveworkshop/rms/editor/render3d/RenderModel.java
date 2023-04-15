@@ -30,6 +30,8 @@ public final class RenderModel {
 	private final Map<Geoset, RenderGeoset> renderGeosetMap = new HashMap<>();
 	private final LinkedHashMap<ParticleEmitter2, RenderParticleEmitter2> emitterToRenderer2 = new LinkedHashMap<>();
 	private final List<RenderParticleEmitter2> renderParticleEmitters2 = new ArrayList<>();// TODO one per model, not instance
+	private final LinkedHashMap<RibbonEmitter, RenderRibbonEmitter> emitterToRenderer2Rib = new LinkedHashMap<>();
+	private final List<RenderRibbonEmitter> renderParticleEmitters2Rib = new ArrayList<>();// TODO one per model, not instance
 
 	private final RenderNode2 rootPosition2;
 	private final RenderNodeCamera rootPositionCam;
@@ -221,8 +223,18 @@ public final class RenderModel {
 			RenderParticleEmitter2 renderParticleEmitter2 = new RenderParticleEmitter2(particleEmitter2, getRenderNode(particleEmitter2), this);
 			renderParticleEmitters2.add(renderParticleEmitter2);
 			emitterToRenderer2.put(particleEmitter2, renderParticleEmitter2);
+			renderParticleEmitter2.updateBilllBoardVectors(getInverseCameraRotation());
 		}
 		renderParticleEmitters2.sort(Comparator.comparingInt(RenderParticleEmitter2::getPriorityPlane));
+
+		renderParticleEmitters2Rib.clear();
+		for (RibbonEmitter particleEmitter2 : model.getRibbonEmitters()) {
+			RenderRibbonEmitter renderParticleEmitter2 = new RenderRibbonEmitter(particleEmitter2, getRenderNode(particleEmitter2), this);
+			renderParticleEmitters2Rib.add(renderParticleEmitter2);
+			emitterToRenderer2Rib.put(particleEmitter2, renderParticleEmitter2);
+			renderParticleEmitter2.updateBilllBoardVectors(getInverseCameraRotation());
+		}
+		renderParticleEmitters2Rib.sort(Comparator.comparingInt(RenderRibbonEmitter::getPriorityPlane));
 	}
 
 	private void fetchCameraTargetNodes() {
@@ -429,6 +441,13 @@ public final class RenderModel {
 					}
 				}
 			}
+			if (objectVisible && renderParticles && idObject instanceof RibbonEmitter) {
+				if (emitterToRenderer2Rib.get(idObject) != null) {
+					if ((modelView == null) || modelView.getEditableIdObjects().contains(idObject) || vetoParticles) {
+						emitterToRenderer2Rib.get(idObject).fill();
+					}
+				}
+			}
 		}
 	}
 
@@ -573,6 +592,17 @@ public final class RenderModel {
 					&& (modelView == null || modelView.getEditableIdObjects().contains(renderParticleEmitter2.getParticleEmitter2()))) {
 				renderParticleEmitter2.fill();
 			}
+			renderParticleEmitter2.updateBilllBoardVectors(getInverseCameraRotation());
+			renderParticleEmitter2.update();
+		}
+
+		for (RenderRibbonEmitter renderParticleEmitter2 : renderParticleEmitters2Rib) {
+			if (allowInanimateParticles // not animating
+					&& (timeEnvironment == null || timeEnvironment.getCurrentSequence() == null)
+					&& (modelView == null || modelView.getEditableIdObjects().contains(renderParticleEmitter2.getRibbon()))) {
+				renderParticleEmitter2.fill();
+			}
+			renderParticleEmitter2.updateBilllBoardVectors(getInverseCameraRotation());
 			renderParticleEmitter2.update();
 		}
 	}
@@ -587,6 +617,10 @@ public final class RenderModel {
 
 	public List<RenderParticleEmitter2> getRenderParticleEmitters2() {
 		return renderParticleEmitters2;
+	}
+
+	public List<RenderRibbonEmitter> getRenderParticleEmitters2Rib() {
+		return renderParticleEmitters2Rib;
 	}
 
 	public boolean allowParticleSpawn() {

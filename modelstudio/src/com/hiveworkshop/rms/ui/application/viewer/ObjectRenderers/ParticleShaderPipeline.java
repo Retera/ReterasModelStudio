@@ -15,6 +15,15 @@ import java.nio.FloatBuffer;
 public class ParticleShaderPipeline extends ShaderPipeline {
 	private static final int STRIDE = POSITION + NORMAL + UV + COLOR + 1;
 
+	public ParticleShaderPipeline(String vert, String frag, String glsl) {
+		currentMatrix.setIdentity();
+		vertexShader = vert;
+		fragmentShader = frag;
+		geometryShader = glsl;
+		load();
+		setupUniforms();
+	}
+
 	public ParticleShaderPipeline() {
 		currentMatrix.setIdentity();
 		vertexShader = OtherUtils.loadShader("Particle.vert");

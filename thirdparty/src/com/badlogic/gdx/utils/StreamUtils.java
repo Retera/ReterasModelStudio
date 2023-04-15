@@ -19,6 +19,10 @@
 package com.badlogic.gdx.utils;
 
 import java.io.Closeable;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.lang.reflect.Method;
+import java.util.UUID;
 
 /**
  * Provides utility methods to copy streams.
@@ -35,5 +39,51 @@ public final class StreamUtils {
 			} catch (final Exception ignored) {
 			}
 		}
+	}
+
+	/**
+	 * Returns true if the parent directories of the file can be created and the
+	 * file can be written.
+	 */
+	public static boolean canWrite(final File file) {
+		final File parent = file.getParentFile();
+		final File testFile;
+		if (file.exists()) {
+			if (!file.canWrite() || !canExecute(file)) {
+				return false;
+			}
+			// Don't overwrite existing file just to check if we can write to directory.
+			testFile = new File(parent, UUID.randomUUID().toString());
+		} else {
+			parent.mkdirs();
+			if (!parent.isDirectory()) {
+				return false;
+			}
+			testFile = file;
+		}
+		try {
+			new FileOutputStream(testFile).close();
+			return canExecute(testFile);
+		} catch (final Throwable ex) {
+			return false;
+		} finally {
+			testFile.delete();
+		}
+	}
+
+	public static boolean canExecute(final File file) {
+		try {
+			final Method canExecute = File.class.getMethod("canExecute");
+			if ((Boolean) canExecute.invoke(file)) {
+				return true;
+			}
+
+			final Method setExecutable = File.class.getMethod("setExecutable", boolean.class, boolean.class);
+			setExecutable.invoke(file, true, false);
+
+			return (Boolean) canExecute.invoke(file);
+		} catch (final Exception ignored) {
+		}
+		return false;
 	}
 }

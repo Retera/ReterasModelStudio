@@ -129,6 +129,7 @@ public class ExceptionPopup {
 			// Make the exception popup not huge and scrollable
 			infoPanel.setPreferredSize(ScreenInfo.getSmallWindow());
 			jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+			SwingUtilities.invokeLater(() -> jScrollPane.getVerticalScrollBar().setValue(0));
 
 			clearStringsToShow();
 			JOptionPane.showMessageDialog(null, infoPanel, "Warning (" + ProgramVersion.get() + ")", JOptionPane.WARNING_MESSAGE, null);

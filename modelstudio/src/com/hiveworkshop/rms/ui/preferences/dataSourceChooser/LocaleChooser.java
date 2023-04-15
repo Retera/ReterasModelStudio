@@ -7,13 +7,11 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class LocaleChooser {
 
@@ -40,42 +38,12 @@ public class LocaleChooser {
 		if (confirmationResult == JOptionPane.OK_OPTION) {
 			int selectedIndex = buttonGroup.getSelectedIndex();
 			if (selectedIndex == -1) {
-				showMessage("User did not choose a locale! Aborting!");
+				showMessage("User did not choose a locale! Aborting!", parent);
 				return null;
 			}
 			return buttonGroup.getButton(selectedIndex).getText();
 		}
 		return null;
-	}
-
-	public static List<JRadioButton> getRadioButtons(WarcraftIIICASC tempCascReader, SupportedCascPatchFormat patchFormat, Set<String> localeOptions) throws IOException {
-		ButtonGroup buttonGroup = new ButtonGroup();
-		List<JRadioButton> buttons = new ArrayList<>();
-		boolean firstGoodButton = true;
-		for (String localeOptionString : localeOptions) {
-			JRadioButton radioButton = new JRadioButton(localeOptionString);
-			boolean isValid = true;
-			if(patchFormat != SupportedCascPatchFormat.UNKNOWN_FUTURE_PATCH){
-				String filePathToTest;
-				if (patchFormat != SupportedCascPatchFormat.PATCH130) {
-					filePathToTest = localeOptionString.toLowerCase() + "-war3local.mpq\\units\\campaignunitstrings.txt";
-				} else {
-					filePathToTest = "war3.w3mod\\_locales\\" + localeOptionString.toLowerCase() + ".w3mod\\units\\campaignunitstrings.txt";
-				}
-				if (!tempCascReader.getRootFileSystem().isFile(filePathToTest) || !tempCascReader.getRootFileSystem().isFileAvailable(filePathToTest)) {
-					radioButton.setForeground(Color.RED.darker());
-					isValid = false;
-				}
-			}
-
-			buttonGroup.add(radioButton);
-			buttons.add(radioButton);
-			if (isValid && (firstGoodButton || localeOptionString.equalsIgnoreCase("enus"))) {
-				firstGoodButton = false;
-				radioButton.setSelected(true);
-			}
-		}
-		return buttons;
 	}
 
 	public static SmartButtonGroup getLocaleGroup(WarcraftIIICASC tempCascReader, SupportedCascPatchFormat patchFormat, Set<String> localeOptions) throws IOException {
@@ -86,8 +54,7 @@ public class LocaleChooser {
 			if(!isValid){
 				radioButton.setForeground(Color.RED.darker());
 			} else if (localeGroup.getSelection() == null || localeOptionString.equalsIgnoreCase("enus")) {
-				localeGroup.setSelected(radioButton.getModel(), true);
-				radioButton.setSelected(true);
+				localeGroup.setSelectedName(localeOptionString);
 			}
 		}
 		return localeGroup;
@@ -101,41 +68,19 @@ public class LocaleChooser {
 			} else {
 				filePathToTest = "war3.w3mod\\_locales\\" + localeOptionString.toLowerCase() + ".w3mod\\units\\campaignunitstrings.txt";
 			}
-
-			return !(!tempCascReader.getRootFileSystem().isFile(filePathToTest) || !tempCascReader.getRootFileSystem().isFileAvailable(filePathToTest));
+			return tempCascReader.getRootFileSystem().isFile(filePathToTest) && tempCascReader.getRootFileSystem().isFileAvailable(filePathToTest);
 		}
 		return true;
 	}
 
 	public static Set<String> getLocaleOptions(WC3CascFileSystem rootFileSystem) throws IOException {
-		Set<String> localeOptions = new HashSet<>();
+		Set<String> localeOptions = new LinkedHashSet<>();
 		if (rootFileSystem.isFile("index") && rootFileSystem.isFileAvailable("index")) {
 			ByteBuffer buffer = rootFileSystem.readFileData("index");
-			Set<String> categories = new HashSet<>();
-			try (BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(buffer.array())))) {
-				String line;
-				while ((line = reader.readLine()) != null) {
-					String[] splitLine = line.split("\\|");
-					if (splitLine.length >= 3) {
-						String category = splitLine[2];
-						categories.add(category);
-					}
-				}
-			}
-			for (String category : categories) {
-				if (category.length() == 4) {
-					localeOptions.add(category);
-				}
-			}
-		}
-
-
-		if (rootFileSystem.isFile("index") && rootFileSystem.isFileAvailable("index")) {
-			ByteBuffer buffer = rootFileSystem.readFileData("index");
-			String[] lines = new String(buffer.array()).split("\n");
+			String[] lines = new String(buffer.array()).split("\\s+");
 			for(String line : lines){
 				String[] splitLine = line.split("\\|");
-				if (splitLine.length >= 3) {
+				if (3 <= splitLine.length) {
 					String category = splitLine[2];
 					if (category.length() == 4) {
 						localeOptions.add(category);

@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import org.lwjgl.opengl.Pbuffer;
 import org.lwjgl.opengl.PixelFormat;
 
@@ -362,7 +363,7 @@ public class ImageCreator {
 			return "Textures\\white.blp";
 		}
 		if (tex.getPath().length() == 0) {
-			String tcString = ("" + (100 + Material.teamColor)).substring(1);
+			String tcString = ("" + (100 + ProgramGlobals.getPrefs().getTeamColor())).substring(1);
 			return switch (tex.getReplaceableId()){
 				case 0 -> "";
 				case 1 -> "ReplaceableTextures\\TeamColor\\TeamColor" + tcString + ".blp";
@@ -377,7 +378,7 @@ public class ImageCreator {
 
 
 	private static String getReplaceableTexturePath(Bitmap bitmap) {
-		String tcString = ("" + (100 + Material.teamColor)).substring(1);
+		String tcString = ("" + (100 + ProgramGlobals.getPrefs().getTeamColor())).substring(1);
 //		System.out.println("replID: " + bitmap.getReplaceableId());
 		return switch (bitmap.getReplaceableId()){
 			case 0 -> "";

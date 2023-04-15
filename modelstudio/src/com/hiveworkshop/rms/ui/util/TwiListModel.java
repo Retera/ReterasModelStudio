@@ -90,9 +90,12 @@ public class TwiListModel<E> extends AbstractListModel<E> {
 	}
 
 	// implements javax.swing.ListModel
+	boolean sizeUpdate = false;
 	public int getSize() {
-		if(objects.size() != numItemsInList){
+		if (objects.size() != numItemsInList && !sizeUpdate) {
+			sizeUpdate = true;
 			updateStuff();
+			sizeUpdate = false;
 		}
 		return objects.size();
 	}
@@ -180,6 +183,15 @@ public class TwiListModel<E> extends AbstractListModel<E> {
 		if (index != -1) {
 			removeElementAt(index);
 		}
+	}
+	public void removeAll(Collection<E> anObject) {
+		for(E o : anObject){
+			remove(o);
+		}
+	}
+
+	public boolean contains(E o){
+		return objects.contains(o);
 	}
 
 	public boolean isEmpty(){

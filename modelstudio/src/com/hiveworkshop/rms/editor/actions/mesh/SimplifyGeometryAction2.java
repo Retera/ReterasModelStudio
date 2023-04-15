@@ -20,7 +20,7 @@ public class SimplifyGeometryAction2 implements UndoAction {
 	private final float norm_prec;
 	private final float uv_prec;
 	private final float tang_prec;
-	private Set<Triangle> trianglesToRemove = new HashSet<>();
+	private final Set<Triangle> trianglesToRemove = new HashSet<>();
 
 	public SimplifyGeometryAction2(Geoset geoset, Collection<GeosetVertex> selection,
 	                               int precision, boolean ign_skin,
@@ -55,9 +55,19 @@ public class SimplifyGeometryAction2 implements UndoAction {
 			}
 		}
 
+		Set<Triangle> affectedTris = new HashSet<>();
 		for (GeosetVertex vertexToRemove : oldToNew.keySet()) {
+			affectedTris.addAll(vertexToRemove.getTriangles());
+		}
 
-			for (Triangle triangle : vertexToRemove.getTriangles()) {
+		for (Triangle triangle : affectedTris){
+			GeosetVertex temp0 = oldToNew.getOrDefault(triangle.get(0), triangle.get(0));
+			GeosetVertex temp1 = oldToNew.getOrDefault(triangle.get(1), triangle.get(1));
+			GeosetVertex temp2 = oldToNew.getOrDefault(triangle.get(2), triangle.get(2));
+
+			if(temp0 == temp1 || temp0 == temp2 || temp1 == temp2){
+				trianglesToRemove.add(triangle);
+			} else {
 				triOrgVertMap.put(triangle, new GeosetVertex[]{triangle.get(0), triangle.get(1), triangle.get(2)});
 			}
 		}
@@ -77,21 +87,6 @@ public class SimplifyGeometryAction2 implements UndoAction {
 			}
 		}
 		return null;
-	}
-
-
-	private Set<Triangle> getTrianglesToRemove() {
-		Set<Triangle> trianglesToRemove = new HashSet<>();
-		for (Triangle triangle : triOrgVertMap.keySet()) {
-			if(!trianglesToRemove.contains(triangle)){
-				for (Triangle t : triOrgVertMap.keySet()) {
-					if(t != triangle && t.equalRefs(triangle)){
-						trianglesToRemove.add(t);
-					}
-				}
-			}
-		}
-		return trianglesToRemove;
 	}
 
 	private void replaceTriVerts() {
@@ -124,12 +119,9 @@ public class SimplifyGeometryAction2 implements UndoAction {
 	@Override
 	public UndoAction redo() {
 		geoset.remove(oldToNew.keySet());
+		geoset.removeTriangles(trianglesToRemove);
 
 		replaceTriVerts();
-		if(trianglesToRemove == null){
-			trianglesToRemove = getTrianglesToRemove();
-		}
-		geoset.removeTriangles(trianglesToRemove);
 
 		sanitize();
 
@@ -141,10 +133,10 @@ public class SimplifyGeometryAction2 implements UndoAction {
 
 	@Override
 	public UndoAction undo() {
+		geoset.addTriangles(trianglesToRemove);
 		geoset.addVerticies(oldToNew.keySet());
 
 		putBackTriVerts();
-		geoset.addTriangles(trianglesToRemove);
 
 		sanitize();
 

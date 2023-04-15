@@ -52,30 +52,32 @@ public class DrawPlaneActivity extends ViewportActivity {
 
 	@Override
 	public void mousePressed(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
-		Vec2 point = getPoint(e);
-		scale.set(Vec3.ZERO);
-		if (drawingState == DrawingState.NOTHING) {
-			mouseStartPoint.set(point);
-			this.inverseViewProjectionMatrix.set(viewProjectionMatrix).invert();
-			this.viewProjectionMatrix.set(viewProjectionMatrix);
-			halfScreenXY = halfScreenXY();
-			halfScreenX = halfScreenXY[0];
-			halfScreenY = halfScreenXY[1];
+		setPrefs();
+		if (MouseEventHelpers.matches(e, prefs.getModifyMouseButton(), prefs.getSnapTransformModifier())) {
+			Vec2 point = getPoint(e);
+			scale.set(Vec3.ZERO);
+			if (drawingState == DrawingState.NOTHING) {
+				mouseStartPoint.set(point);
+				this.inverseViewProjectionMatrix.set(viewProjectionMatrix).invert();
+				this.viewProjectionMatrix.set(viewProjectionMatrix);
+				halfScreenXY = halfScreenXY();
+				halfScreenX = halfScreenXY[0];
+				halfScreenY = halfScreenXY[1];
 
 
-			drawingState = DrawingState.WANT_BEGIN_BASE;
-			Mesh mesh = ModelUtils.getPlane(numSegsX, numSegsY);
-			UndoAction setupAction = getSetupAction(mesh.getVertices(), mesh.getTriangles());
+				drawingState = DrawingState.WANT_BEGIN_BASE;
+				Mesh mesh = ModelUtils.getPlane(numSegsX, numSegsY);
+				UndoAction setupAction = getSetupAction(mesh.getVertices(), mesh.getTriangles());
 
-			Mat4 rotMat = getRotMat();
-			startPoint3d.set(get3DPoint(mouseStartPoint));
-			transformAction = new DrawGeometryAction("Draw Plane",startPoint3d, rotMat, mesh.getVertices(), setupAction,
-					null).doSetup();
-			scale.set(0, 0, 0);
-			transformAction.setScale(scale);
+				Mat4 rotMat = getRotMat();
+				startPoint3d.set(get3DPoint(mouseStartPoint));
+				transformAction = new DrawGeometryAction("Draw Plane", startPoint3d, rotMat, mesh.getVertices(), setupAction, null).doSetup();
+				scale.set(0, 0, 0);
+				transformAction.setScale(scale);
 
+			}
+			lastMousePoint.set(point);
 		}
-		lastMousePoint.set(point);
 	}
 
 	@Override
@@ -94,6 +96,7 @@ public class DrawPlaneActivity extends ViewportActivity {
 
 	@Override
 	public void mouseDragged(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
+		setPrefs();
 		Vec2 mouseEnd = getPoint(e);
 		if (transformAction != null) {
 

@@ -14,8 +14,6 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 
 	public HDDiffuseShaderPipeline() {
 		currentMatrix.setIdentity();
-//		vertexShader = OtherUtils.loadShader("HDDiffuse.vert");
-//		fragmentShader = OtherUtils.loadShader("HDDiffuse.frag");
 		vertexShader = OtherUtils.loadShader("HDDiffuseVertColor.vert");
 		fragmentShader = OtherUtils.loadShader("HDDiffuseVertColor.frag");
 		load();
@@ -23,6 +21,14 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 	}
 
 	public HDDiffuseShaderPipeline(String vertexShader, String fragmentShader) {
+		currentMatrix.setIdentity();
+		this.vertexShader = vertexShader;
+		this.fragmentShader = fragmentShader;
+		load();
+		setupUniforms();
+	}
+
+	public HDDiffuseShaderPipeline(String vertexShader, String fragmentShader, String geometryShader) {
 		currentMatrix.setIdentity();
 		this.vertexShader = vertexShader;
 		this.fragmentShader = fragmentShader;

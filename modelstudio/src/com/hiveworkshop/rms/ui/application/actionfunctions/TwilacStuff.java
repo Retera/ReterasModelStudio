@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.actions.mesh.BridgeEdgeAction;
 import com.hiveworkshop.rms.editor.actions.mesh.SnapCloseVertsAction;
 import com.hiveworkshop.rms.editor.actions.nodes.BakeAndRebindAction;
 import com.hiveworkshop.rms.editor.actions.nodes.BakeAndRebindActionTwi2;
+import com.hiveworkshop.rms.editor.actions.nodes.TPoseFromPoseAction;
 import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.EditableModel;
@@ -20,12 +21,11 @@ import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ModelFromFile;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.CrudeSelectionUVMask;
 import com.hiveworkshop.rms.ui.application.tools.*;
-import com.hiveworkshop.rms.ui.application.tools.shadereditors.BoneShaderEditPanel;
-import com.hiveworkshop.rms.ui.application.tools.shadereditors.ColShaderEditPanel;
-import com.hiveworkshop.rms.ui.application.tools.shadereditors.GridShaderEditPanel;
-import com.hiveworkshop.rms.ui.application.tools.shadereditors.MeshShaderEditPanel;
+import com.hiveworkshop.rms.ui.application.tools.shadereditors.ShaderEditPanel;
+import com.hiveworkshop.rms.ui.application.tools.shadereditors.ShaderEditorType;
 import com.hiveworkshop.rms.ui.application.tools.twilacimport.ImportBoneChainAnimationPanel;
 import com.hiveworkshop.rms.ui.application.tools.twilacimport.ImportModelPartPanel;
 import com.hiveworkshop.rms.ui.application.tools.twilacimport.SpliceGeosetPanel;
@@ -237,6 +237,18 @@ public class TwilacStuff {
 		}
 	}
 
+	private static class TPoseStuff extends TwiFunction {
+
+		public TPoseStuff() {
+			super("Bake to T-Pose", TPoseStuff::doStuff);
+		}
+
+		private static void doStuff(ModelHandler modelHandler) {
+			TimeEnvironmentImpl editTimeEnv = modelHandler.getEditTimeEnv();
+			modelHandler.getUndoManager().pushAction(new TPoseFromPoseAction(modelHandler.getModel(), editTimeEnv.getCurrentSequence(), editTimeEnv.getEnvTrackTime(), ModelStructureChangeListener.getModelStructureChangeListener()).redo());
+		}
+	}
+
 	private static class SelectEdgeStuff extends TwiFunction {
 
 		public SelectEdgeStuff() {
@@ -248,54 +260,15 @@ public class TwilacStuff {
 		}
 	}
 
-	private static class MeshShaderEditor extends TwiFunction {
+	private static class ShaderEditor extends TwiFunction {
 
-		public MeshShaderEditor() {
-			super("Shader Editor", MeshShaderEditor::doStuff);
+		public ShaderEditor(ShaderEditorType shaderEditorType) {
+			super(shaderEditorType.getTitle(), (mh) -> ShaderEditor.doStuff(mh, shaderEditorType));
 		}
 
-		private static void doStuff(ModelHandler modelHandler) {
+		private static void doStuff(ModelHandler modelHandler, ShaderEditorType shaderEditorType) {
 			if(modelHandler != null && modelHandler.getPreviewRenderModel() != null){
-				MeshShaderEditPanel.show(ProgramGlobals.getMainPanel(), modelHandler.getPreviewRenderModel().getBufferFiller());
-			}
-		}
-	}
-
-	private static class NodeShaderEditor extends TwiFunction {
-
-		public NodeShaderEditor() {
-			super("Node Shader Editor", NodeShaderEditor::doStuff);
-		}
-
-		private static void doStuff(ModelHandler modelHandler) {
-			if(modelHandler != null && modelHandler.getRenderModel() != null){
-				BoneShaderEditPanel.show(ProgramGlobals.getMainPanel(), modelHandler.getRenderModel().getBufferFiller());
-			}
-		}
-	}
-
-	private static class ColShaderEditor extends TwiFunction {
-
-		public ColShaderEditor() {
-			super("Col Shader Editor", ColShaderEditor::doStuff);
-		}
-
-		private static void doStuff(ModelHandler modelHandler) {
-			if(modelHandler != null && modelHandler.getRenderModel() != null){
-				ColShaderEditPanel.show(ProgramGlobals.getMainPanel(), modelHandler.getRenderModel().getBufferFiller());
-			}
-		}
-	}
-
-	private static class GridShaderEditor extends TwiFunction {
-
-		public GridShaderEditor() {
-			super("Grid Shader Editor", GridShaderEditor::doStuff);
-		}
-
-		private static void doStuff(ModelHandler modelHandler) {
-			if(modelHandler != null && modelHandler.getRenderModel() != null){
-				GridShaderEditPanel.show(ProgramGlobals.getMainPanel(), modelHandler.getRenderModel().getBufferFiller());
+				ShaderEditPanel.show2(ProgramGlobals.getMainPanel(), modelHandler.getRenderModel().getBufferFiller(), shaderEditorType);
 			}
 		}
 	}
@@ -491,20 +464,14 @@ public class TwilacStuff {
 	public static JMenuItem getBridgeEdgesMenuItem() {
 		return new BridgeEdgeStuff().getMenuItem();
 	}
+	public static JMenuItem getTPoseStuffMenuItem() {
+		return new TPoseStuff().getMenuItem();
+	}
 	public static JMenuItem getSelectEdgeMenuItem() {
 		return new SelectEdgeStuff().getMenuItem();
 	}
-	public static JMenuItem getTestShaderStuffMenuItem() {
-		return new MeshShaderEditor().getMenuItem();
-	}
-	public static JMenuItem getTextShaderStuffNodeMenuItem() {
-		return new NodeShaderEditor().getMenuItem();
-	}
-	public static JMenuItem getTextShaderStuffColMenuItem() {
-		return new ColShaderEditor().getMenuItem();
-	}
-	public static JMenuItem getTextShaderStuffGridMenuItem() {
-		return new GridShaderEditor().getMenuItem();
+	public static JMenuItem getShaderEditorMenuItem(ShaderEditorType shaderEditorType) {
+		return new ShaderEditor(shaderEditorType).getMenuItem();
 	}
 	public static JMenuItem getDupeForAnimStuffMenuItem() {
 		return new DupeForAnimStuff().getMenuItem();
@@ -575,7 +542,7 @@ public class TwilacStuff {
 
 		private static void doStuff(ModelHandler modelHandler) {
 			AddAttachmentsPanel panel = new AddAttachmentsPanel(modelHandler);
-			JFrame jFrame = FramePopup.show(panel, null, "Rename Nodes");
+			JFrame jFrame = FramePopup.show(panel, null, "Add Attachment(s)");
 			panel.setOnFinished(() -> jFrame.dispose());
 			jFrame.setVisible(true);
 //			modelHandler.getUndoManager().pushAction(new SnapCloseVertsAction(modelHandler.getModelView().getSelectedVertices(), 1, ModelStructureChangeListener.changeListener).redo());

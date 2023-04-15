@@ -17,7 +17,7 @@ import java.awt.image.BufferedImage;
 import java.util.function.BiConsumer;
 
 public abstract class ViewportView extends JPanel {
-	protected CoordinateSystem coordinateSystem;
+	protected final CoordinateSystem coordinateSystem;
 	protected Point lastMouseMotion = new Point(0, 0);
 	protected ModelHandler modelHandler;
 	protected ViewportActivityManager viewportActivityManager;
@@ -129,61 +129,62 @@ public abstract class ViewportView extends JPanel {
 
 	private final Vec2 originInScreenSpace = new Vec2();
 	private final Vec2 stepSize = new Vec2();
-	private final Vec2 temp = new Vec2();
 	public void drawGrid(Graphics g) {
-		temp.set(getWidth()/2f, getHeight()/2f);
-		Vec2 worldOriginClip = coordinateSystem.viewVN(0, 0);
-		originInScreenSpace.set(1+worldOriginClip.x, 1-worldOriginClip.y).mul(temp);
+		originInScreenSpace.set(coordinateSystem.viewV(0,0));
 
-		Vec2 distClip = coordinateSystem.viewVN(1, 1);
-		stepSize.set(1+distClip.x, 1-distClip.y).mul(temp).sub(originInScreenSpace);
-
-		if(Math.abs(stepSize.x)<.0001){
-			stepSize.set(100, 100);
-		}
-
-		int v = (int)Math.log10(stepSize.x);
-
-		if(v != 2) {
-			stepSize.scale((float) Math.pow(10, 2-v));
-		}
-
-		temp.set(originInScreenSpace);
-		int stepDiffX = (int)(temp.x / stepSize.x)+1;
-		temp.x -= stepSize.x * stepDiffX;
-
-		int stepDiffY = (int)(temp.y / stepSize.y)+1;
-		temp.y -= stepSize.y * stepDiffY;
-
+		Vec2 stepSize = getFixedStepSize(coordinateSystem.viewV(1,1).sub(originInScreenSpace));
 
 		g.setColor(weakLineColor);
-		drawXLines(g, temp, stepSize.x/10f);
-		drawYLines(g, temp, stepSize.y/10f);
+		drawXLines(g, originInScreenSpace.x, stepSize.x/10f);
+		drawYLines(g, originInScreenSpace.y, stepSize.y/10f);
 
 		g.setColor(mediumLineColor);
-		drawXLines(g, temp, stepSize.x);
-		drawYLines(g, temp, stepSize.y);
+		drawXLines(g, originInScreenSpace.x, stepSize.x);
+		drawYLines(g, originInScreenSpace.y, stepSize.y);
 
 		g.setColor(strongLineColor);
-		drawXLines(g, temp, stepSize.x*10f);
-		drawYLines(g, temp, stepSize.y*10f);
+		drawXLines(g, originInScreenSpace.x, stepSize.x*10f);
+		drawYLines(g, originInScreenSpace.y, stepSize.y*10f);
 
 		g.setColor(xLineColor);
 		g.drawLine(0, (int) originInScreenSpace.y, getWidth(), (int) originInScreenSpace.y);
 		g.setColor(yLineColor);
 		g.drawLine((int) originInScreenSpace.x, 0, (int) originInScreenSpace.x, getHeight());
+
+//		System.out.println("--drawn grid");
 	}
 
-	private void drawXLines(Graphics g, Vec2 cameraOrigin, float distance) {
-		for (float x = 0; (cameraOrigin.x + x) < getWidth(); x += distance) {
-			g.drawLine((int) (cameraOrigin.x + x), 0, (int) (cameraOrigin.x + x), getHeight());
+	private Vec2 getFixedStepSize(Vec2 halfScreenSize) {
+		stepSize.set(Math.abs(halfScreenSize.x), Math.abs(halfScreenSize.y));
+
+		if (stepSize.x < .0001 || stepSize.y < .0001) {
+			stepSize.set(100, 100);
+		}
+
+		int v = (int)Math.log10(stepSize.x);
+		if (v != 2) {
+			stepSize.scale((float) Math.pow(10, 2-v));
+		}
+		return stepSize;
+	}
+
+	private void drawXLines(Graphics g, float startX, float distanceX) {
+		float startOffsetX = getStart(startX, distanceX);
+		for (float x = startOffsetX;  x < getWidth(); x += distanceX) {
+			g.drawLine((int)  x, 0, (int) x, getHeight());
 		}
 	}
 
-	private void drawYLines(Graphics g, Vec2 cameraOrigin, float distance) {
-		for (float y = 0; (cameraOrigin.y + y) < getHeight(); y += distance) {
-			g.drawLine(0, (int) (cameraOrigin.y + y), getWidth(), (int) (cameraOrigin.y + y));
+	private void drawYLines(Graphics g, float startY, float distanceY) {
+		float startOffsetY = getStart(startY, distanceY);
+		for (float y = startOffsetY; y < getHeight(); y += distanceY) {
+			g.drawLine(0, (int) y, getWidth(), (int) y);
 		}
+	}
+
+	private float getStart(float orign, float realStep){
+		int stepDiff = (int)(orign / realStep)+1;
+		return orign - realStep * stepDiff;
 	}
 
 	public BufferedImage getBufferedImage() {

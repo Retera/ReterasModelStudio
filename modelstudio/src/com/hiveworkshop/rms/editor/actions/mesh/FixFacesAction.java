@@ -28,8 +28,6 @@ public class FixFacesAction implements UndoAction {
 	private final int prec = 10000;
 
 	public FixFacesAction(Collection<Triangle> selectedTris){
-		System.out.println("selected tris: " + selectedTris.size());
-
 		fillEdgeMaps(selectedTris);
 		fixTriangles(new HashSet<>(triToEdges.keySet()));
 

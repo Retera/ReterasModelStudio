@@ -30,6 +30,13 @@ public class EditorColorPrefs {
 		return thing.getInternalColor().getComponents(null);
 	}
 
+	public float[] getColorComponents(ColorThing thing, float[] components) {
+		if (colorMap.get(thing) != null) {
+			return colorMap.get(thing).getComponents(components);
+		}
+		return thing.getInternalColor().getComponents(components);
+	}
+
 	public EditorColorPrefs setColor(ColorThing thing, Color color) {
 		colorMap.put(thing, color);
 		return this;

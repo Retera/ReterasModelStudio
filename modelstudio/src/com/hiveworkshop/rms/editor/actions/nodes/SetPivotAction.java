@@ -21,6 +21,10 @@ public class SetPivotAction implements UndoAction {
 	@Override
 	public UndoAction undo() {
 		node.setPivotPoint(oldPivot);
+		if(node.getBindPoseM4() != null){
+			Vec3 diff = new Vec3(oldPivot).sub(newPivot);
+			node.getBindPoseM4().translate(diff);
+		}
 		if(changeListener != null){
 			changeListener.nodesUpdated();
 		}
@@ -30,6 +34,10 @@ public class SetPivotAction implements UndoAction {
 	@Override
 	public UndoAction redo() {
 		node.setPivotPoint(newPivot);
+		if(node.getBindPoseM4() != null){
+			Vec3 diff = new Vec3(newPivot).sub(oldPivot);
+			node.getBindPoseM4().translate(diff);
+		}
 		if(changeListener != null){
 			changeListener.nodesUpdated();
 		}

@@ -26,8 +26,6 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 	private final Set<SelectionListener> listeners = new HashSet<>();
 	private boolean moveLinked;
 
-	private int uvLayerIndex = 0;
-
 	public TVertSelectionManager(RenderModel editorRenderModel, ModelView modelView, SelectionItemTypes selectionMode) {
 		super(editorRenderModel, modelView, selectionMode);
 	}

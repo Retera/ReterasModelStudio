@@ -29,13 +29,6 @@ public class Entry<T> {
 		this.outTan = cloneEntryValue(other.outTan);
 	}
 
-	public void set(Entry<T> other) {
-		time = other.time;
-		value = other.value;
-		inTan = other.inTan;
-		outTan = other.outTan;
-	}
-
 	public void cloneFrom(Entry<T> other) {
 		time = other.time;
 		value = cloneEntryValue(other.value);
@@ -60,22 +53,79 @@ public class Entry<T> {
 			throw new IllegalStateException(value.getClass().getName());
 		}
 	}
-
-	private void setValue(T value, T otherValue) {
-		if (value instanceof Integer || value instanceof Float) {
-			value = otherValue;
-		} else if (value instanceof Vec3 && otherValue instanceof Vec3) {
-			((Vec3) value).set((Vec3) otherValue);
-		} else if (value instanceof Quat && otherValue instanceof Quat) {
-			((Quat) value).set((Quat) otherValue);
+	public Entry<T> setSetValue(T oValue) {
+		if (value instanceof Integer || value instanceof Float || value instanceof Bitmap) {
+			value = oValue;
+		} else if (value instanceof Vec3 && oValue instanceof Vec3) {
+			((Vec3) value).set((Vec3) oValue);
+		} else if (value instanceof Quat && oValue instanceof Quat) {
+			((Quat) value).set((Quat) oValue);
 		} else {
 			throw new IllegalStateException(value.getClass().getName());
 		}
+		return this;
 	}
 
+
+	public Entry<T> setSetInTan(T oInTan) {
+		if (value instanceof Integer || value instanceof Float || value instanceof Bitmap) {
+			inTan = oInTan;
+		} else if (value instanceof Vec3) {
+			if (inTan != null && oInTan != null) {
+				((Vec3) inTan).set((Vec3) oInTan);
+			} else {
+				inTan = cloneEntryValue(oInTan);
+			}
+		} else if (value instanceof Quat) {
+			if (inTan != null && oInTan != null) {
+				((Quat) inTan).set((Quat) oInTan);
+			} else {
+				inTan = cloneEntryValue(oInTan);
+			}
+		} else {
+			throw new IllegalStateException(value.getClass().getName());
+		}
+		return this;
+	}
+
+	public Entry<T> setSetOutTan(T oOutTan) {
+		if (value instanceof Integer || value instanceof Float || value instanceof Bitmap) {
+			outTan = oOutTan;
+		} else if (value instanceof Vec3) {
+			if (outTan != null && oOutTan != null) {
+				((Vec3) outTan).set((Vec3) oOutTan);
+			} else {
+				outTan = cloneEntryValue(oOutTan);
+			}
+		} else if (value instanceof Quat) {
+			if (outTan != null && oOutTan != null) {
+				((Quat) outTan).set((Quat) oOutTan);
+			} else {
+				outTan = cloneEntryValue(oOutTan);
+			}
+		} else {
+			throw new IllegalStateException(value.getClass().getName());
+		}
+		return this;
+	}
+
+	private boolean setValue(T value, T otherValue) {
+		if (value instanceof Integer || value instanceof Float) {
+			return false;
+		} else if (value instanceof Vec3 && otherValue instanceof Vec3) {
+			((Vec3) value).set((Vec3) otherValue);
+			return true;
+		} else if (value instanceof Quat && otherValue instanceof Quat) {
+			((Quat) value).set((Quat) otherValue);
+			return true;
+		} else {
+			return false;
+//			throw new IllegalStateException(value.getClass().getName());
+		}
+	}
 	public Entry<T> setValues(Entry<T> other) {
 		time = other.time;
-		if (value instanceof Integer || value instanceof Float) {
+		if (value instanceof Integer || value instanceof Float || value instanceof Bitmap) {
 			value = other.value;
 			inTan = other.inTan;
 			outTan = other.outTan;

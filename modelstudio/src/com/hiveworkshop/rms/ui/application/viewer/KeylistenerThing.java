@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.application.viewer;
 
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.AbstractCamera;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.preferences.CameraControlPrefs;
 import com.hiveworkshop.rms.ui.preferences.CameraShortCut;
@@ -14,10 +14,10 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class KeylistenerThing extends KeyAdapter {
-	private final CameraManager cameraHandler;
+	private final AbstractCamera cameraHandler;
 	private ProgramPreferences prefs;
 
-	public KeylistenerThing(CameraManager cameraHandler, ProgramPreferences programPreferences) {
+	public KeylistenerThing(AbstractCamera cameraHandler, ProgramPreferences programPreferences) {
 		this.cameraHandler = cameraHandler;
 		this.prefs = programPreferences;
 	}
@@ -42,20 +42,20 @@ public class KeylistenerThing extends KeyAdapter {
 //		}
 		CameraControlPrefs cameraPrefs = prefs.getCameraControlPrefs();
 		if (keyStroke == cameraPrefs.getKeyStroke(CameraShortCut.TOP)) {
-			cameraHandler.setCameraRotation(0, -90);
+			cameraHandler.setCameraRotation(0, -90, 0);
 		} else if (keyStroke == cameraPrefs.getKeyStroke(CameraShortCut.BOTTOM)) {
 			// Top (0,90) / Bottom (0,-90)
-			cameraHandler.setCameraRotation(0,  90);
+			cameraHandler.setCameraRotation(0,  90, 0);
 		} else if (keyStroke == cameraPrefs.getKeyStroke(CameraShortCut.FRONT)) {
-			cameraHandler.setCameraRotation(0, 0);
+			cameraHandler.setCameraRotation(0, 0, 0);
 		} else if (keyStroke == cameraPrefs.getKeyStroke(CameraShortCut.BACK)) {
 			//Front (0,0) / Back (180,0)
-			cameraHandler.setCameraRotation(180, 0);
+			cameraHandler.setCameraRotation(180, 0, 0);
 		} else if (keyStroke == cameraPrefs.getKeyStroke(CameraShortCut.LEFT)) {
-			cameraHandler.setCameraRotation(90, 0);
+			cameraHandler.setCameraRotation(90, 0, 0);
 		} else if (keyStroke == cameraPrefs.getKeyStroke(CameraShortCut.RIGHT)) {
 			//Left (90,0) / Right (-90,0)
-			cameraHandler.setCameraRotation(-90, 0);
+			cameraHandler.setCameraRotation(-90, 0, 0);
 		} else if (keyStroke == cameraPrefs.getKeyStroke(CameraShortCut.ROTATE_RIGHT)) {
 			//Left (90,0) / Right (-90,0)
 			cameraHandler.rotate(-15.0, 0.0);
@@ -89,7 +89,6 @@ public class KeylistenerThing extends KeyAdapter {
 		} else if (keyStroke == cameraPrefs.getKeyStroke(CameraShortCut.LOC_ZOOM_RESET)) {
 			// resetCamera (ish)
 			cameraHandler.resetZoom();
-			cameraHandler.setPosition(0, 0);
 			cameraHandler.resetCamera();
 		} else if (keyStroke == KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, 0)) {
 			cameraHandler.moveTargetDepth(-10);

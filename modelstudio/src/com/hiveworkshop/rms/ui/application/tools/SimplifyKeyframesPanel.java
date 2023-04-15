@@ -1,12 +1,17 @@
 package com.hiveworkshop.rms.ui.application.tools;
 
+import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.SimplifyKeyframesAction;
+import com.hiveworkshop.rms.editor.actions.animation.animFlag.RemoveNoChangeKeyframesFlagAction;
+import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
 import com.hiveworkshop.rms.editor.render3d.EmitterIdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.ActionFunction;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.language.TextKey;
 import com.hiveworkshop.rms.util.CheckSpinner;
@@ -58,7 +63,9 @@ public class SimplifyKeyframesPanel extends JPanel {
 
 //		add(CheckBox.create("Keep keyframes at direction change", spareBool, b -> spareBool = b), "wrap");
 
-		add(Button.create("Simplify", e -> simplify()), "wrap");
+//		add(Button.create("Simplify", e -> simplify()), "wrap");
+		add(Button.create("Simplify", e -> simplify()), "split");
+		add(Button.create("Clear NoChangeSequences", e -> clearNoChange()), "wrap");
 	}
 
 	private CheckSpinner getCheckedSpinner(String name, LastState lastState, double stepSize){
@@ -134,6 +141,100 @@ public class SimplifyKeyframesPanel extends JPanel {
 		} else {
 			JOptionPane.showMessageDialog(this, "Found no animation data to simplify", "No Keyframes Removed", JOptionPane.WARNING_MESSAGE);
 		}
+	}
+
+	private void clearNoChange() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		EditableModel model = modelPanel.getModel();
+		ModelView modelView = modelPanel.getModelView();
+		List<AnimFlag<?>> animFlags = new ArrayList<>();
+
+
+		if(nodesBool){
+			Collection<IdObject> idObjects;
+			if(onlySBool){
+				idObjects = modelView.getSelectedIdObjects();
+			} else {
+				idObjects = model.getIdObjects();
+			}
+			for (IdObject idObject : idObjects) {
+				if(!(idObject instanceof EmitterIdObject) || (partiBool)){
+					animFlags.addAll(idObject.getAnimFlags());
+				}
+			}
+		}
+
+		if(camerBool){
+			Collection<Camera> cameras1;
+			if(onlySBool){
+				cameras1 = modelView.getSelectedCameras();
+			} else {
+				cameras1 = model.getCameras();
+			}
+			for (Camera x : cameras1) {
+				animFlags.addAll(x.getSourceNode().getAnimFlags());
+				animFlags.addAll(x.getTargetNode().getAnimFlags());
+			}
+		}
+
+		if(materBool){
+			for (Material m : model.getMaterials()) {
+				for (Layer lay : m.getLayers()) {
+					animFlags.addAll(lay.getAnimFlags());
+				}
+			}
+		}
+		if(textuBool){
+			for (TextureAnim texa : model.getTexAnims()) {
+				animFlags.addAll(texa.getAnimFlags());
+			}
+		}
+		if(geoseBool){
+			for (Geoset geoset : model.getGeosets()) {
+				animFlags.addAll(geoset.getAnimFlags());
+			}
+		}
+
+		if(!animFlags.isEmpty()){
+			Float trans     = getFixedFloat(transLastState.allowedDiff);
+			Float scale     = getFixedFloat(scaleLastState.allowedDiff);
+			Float rot       = getFixedFloat(rotChLastState.allowedDiff);
+			Float valueDiff = getFixedFloat(otherLastState.allowedDiff);
+			boolean allowRemovePeaks = !spareBool;
+
+			List<UndoAction> actions = new ArrayList<>();
+			int seqCleared = 0;
+			int tracksEffected = 0;
+			for (AnimFlag<?> animFlag : animFlags){
+				RemoveNoChangeKeyframesFlagAction<?> action = getAction(animFlag);
+				if (action != null) {
+					seqCleared += action.getNumberOfSequencesToClear();
+					tracksEffected++;
+					actions.add(action);
+				}
+			}
+			CompoundAction compoundAction = new CompoundAction("Clear No Change Sequences", actions, ModelStructureChangeListener.changeListener::animationParamsChanged);
+//			SimplifyKeyframesAction action = new SimplifyKeyframesAction(animFlags, model.getAllSequences(), trans, scale, rot, valueDiff, allowRemovePeaks);
+			modelPanel.getUndoManager().pushAction(compoundAction.redo());
+
+			JOptionPane.showMessageDialog(this, "Cleared " + seqCleared + " sequences over " + tracksEffected + " animation tracks", "Removed Keyframes", JOptionPane.PLAIN_MESSAGE);
+		} else {
+			JOptionPane.showMessageDialog(this, "Found no animation data to simplify", "No Keyframes Removed", JOptionPane.WARNING_MESSAGE);
+		}
+	}
+
+	private <Q> void addAction(AnimFlag<Q> animFlag, List<UndoAction> actions){
+		Q identityValue = AnimFlagUtils.getIdentityValue(animFlag);
+		if(identityValue != null){
+			actions.add(new RemoveNoChangeKeyframesFlagAction<>(animFlag, null, 0.001f, identityValue));
+		}
+	}
+	private <Q> RemoveNoChangeKeyframesFlagAction<Q> getAction(AnimFlag<Q> animFlag){
+		Q identityValue = AnimFlagUtils.getIdentityValue(animFlag);
+		if(identityValue != null){
+			return new RemoveNoChangeKeyframesFlagAction<>(animFlag, null, 0.001f, identityValue);
+		}
+		return null;
 	}
 
 	private Float getFixedFloat(Float value){

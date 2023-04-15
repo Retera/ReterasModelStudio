@@ -89,6 +89,8 @@ public class ModelStructureChangeListener {
 	public void texturesChanged() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
+			modelPanel.getModelHandler().getRenderModel().getBufferFiller().clearTextureMap();
+			modelPanel.getModelHandler().getPreviewRenderModel().getBufferFiller().clearTextureMap();
 			modelPanel.refreshFromEditor();
 			modelPanel.getThumbnailProvider().reload();
 		}
@@ -96,6 +98,10 @@ public class ModelStructureChangeListener {
 	}
 
 	public void headerChanged() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			modelPanel.updateMenuItem();
+		}
 		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 	}
 

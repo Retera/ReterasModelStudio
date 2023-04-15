@@ -26,9 +26,7 @@ public class SelectionManager extends AbstractSelectionManager {
 	private static final Color GROUP_SELECTED_COLOR = new Color(1f, 0.75f, 0.45f, 0.3f);
 	private static final Color GROUP_HIGHLIGHT_COLOR = new Color(0.45f, 1f, 0.45f, 0.3f);
 	private final Set<SelectionListener> listeners = new HashSet<>();
-	//	protected final Set<T> selection = new HashSet<>();
 	private boolean moveLinked;
-	private int uvLayerIndex = 0;
 
 	public SelectionManager(RenderModel editorRenderModel, ModelView modelView, SelectionItemTypes selectionMode) {
 		super(editorRenderModel, modelView, selectionMode);

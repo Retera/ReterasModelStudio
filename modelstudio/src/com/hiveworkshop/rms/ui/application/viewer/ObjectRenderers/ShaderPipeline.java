@@ -200,7 +200,11 @@ public abstract class ShaderPipeline {
 			switch (type) {
 				case GL11.GL_TRIANGLES:
 					break;
+				case GL11.GL_TRIANGLE_STRIP:
+					break;
 				case GL11.GL_QUADS:
+					break;
+				case GL11.GL_LINE_STRIP:
 					break;
 				case GL11.GL_LINES:
 					break;
@@ -212,6 +216,30 @@ public abstract class ShaderPipeline {
 			doRender();
 		}
 	}
+	public void doRender(int type, CameraManager cameraManager){
+		if (vertexCount > 0){
+			attributeArrayOffs = 0;
+			attributeArrayIndex = 0;
+			glBeginType = type;
+			switch (type) {
+				case GL11.GL_TRIANGLES:
+					break;
+				case GL11.GL_TRIANGLE_STRIP:
+					break;
+				case GL11.GL_QUADS:
+					break;
+				case GL11.GL_LINE_STRIP:
+					break;
+				case GL11.GL_LINES:
+					break;
+				case GL11.GL_POINTS:
+					break;
+				default:
+					throw new IllegalArgumentException(Integer.toString(type));
+			}
+			doRender(cameraManager);
+		}
+	}
 
 	public ShaderPipeline setPolygonMode(int polygonMode) {
 		this.polygonMode = polygonMode;
@@ -219,6 +247,8 @@ public abstract class ShaderPipeline {
 	}
 
 	public abstract void doRender();
+	public void doRender(CameraManager cameraManager) {
+	}
 
 	// Prepare setup
 	public void prepare() {

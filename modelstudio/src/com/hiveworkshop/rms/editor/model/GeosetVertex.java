@@ -69,13 +69,23 @@ public class GeosetVertex extends Vec3 {
 	public void addTVertex(Vec2 v) {
 		tverts.add(v);
 	}
+	public void addTVertex(Vec2 v, int i) {
+		tverts.add(i, v);
+	}
+
+	public void removeTVertex(Vec2 v) {
+		tverts.remove(v);
+	}
+
+	public void removeTVertex(int i) {
+		tverts.remove(i);
+	}
 
 	public Vec2 getTVertex(int i) {
-		try {
+		if(0 <= i && i <tverts.size()){
 			return tverts.get(i);
-		} catch (final IndexOutOfBoundsException e) {
-			return null;
 		}
+		return null;
 	}
 
 	public void clearTVerts() {
@@ -453,10 +463,6 @@ public class GeosetVertex extends Vec3 {
 			clearBoneAttachments();
 			addBoneAttachments(matrixBones);
 		} else {
-//            Arrays.fill(skinBones, null);
-//            Arrays.fill(skinBoneWeights, (short) 0);
-
-
 			int weight = 255 / matrixBones.size();
 			int offset = 255 - (weight * matrixBones.size());
 			for (int i = 1; i < 4; i++) {
@@ -480,71 +486,4 @@ public class GeosetVertex extends Vec3 {
 		return skinEntry;
 	}
 
-//	public static class SkinBone {
-//		short weight;
-//		Bone bone;
-//
-//		SkinBone() {
-//		}
-//
-//		SkinBone(SkinBone skinBone) {
-//			this.weight = skinBone.weight;
-//			this.bone = skinBone.bone;
-//		}
-//
-//		SkinBone(short weight, Bone bone) {
-//			this.weight = weight;
-//			this.bone = bone;
-//		}
-//
-//		SkinBone(short weight) {
-//			this.weight = weight;
-//			this.bone = null;
-//		}
-//
-//		SkinBone(Bone bone) {
-//			this.weight = 0;
-//			this.bone = bone;
-//		}
-//
-//		public SkinBone set(short weight, Bone bone) {
-//			this.bone = bone;
-//			this.weight = weight;
-//			return this;
-//		}
-//
-//		public Bone getBone() {
-//			return bone;
-//		}
-//
-//		public SkinBone setBone(Bone bone) {
-//			this.bone = bone;
-//			return this;
-//		}
-//
-//		public short getWeight() {
-//			return weight;
-//		}
-//		public float getWeightFraction() {
-//			return weight/255f;
-//		}
-//
-//		public SkinBone setWeight(short weight) {
-//			this.weight = weight;
-//			return this;
-//		}
-//
-//		int getBoneId(EditableModel model) {
-//			return model.getObjectId(bone);
-//		}
-//
-//		public SkinBone copy() {
-//			return new SkinBone(weight, bone);
-//		}
-//
-//		public boolean equals(SkinBone otherSkinBone) {
-////            return weight == otherSkinBone.weight && bone.equals(otherSkinBone.bone);
-//			return weight == otherSkinBone.weight && bone == otherSkinBone.bone;
-//		}
-//	}
 }

@@ -176,7 +176,9 @@ public class IdObjectToMdlx {
 		}
 
 		mdlxEmitter.filterMode = particleEmitter2.getFilterMode();
-		mdlxEmitter.headOrTail = particleEmitter2.getHeadOrTail();
+		for (ParticleEmitter2.HeadTailFlag flag : particleEmitter2.getHeadTailFlags()){
+			mdlxEmitter.headTailFlag |= flag.getFlagBit();
+		}
 
 		mdlxEmitter.speed = (float) particleEmitter2.getSpeed();
 		mdlxEmitter.variation = (float) particleEmitter2.getVariation();

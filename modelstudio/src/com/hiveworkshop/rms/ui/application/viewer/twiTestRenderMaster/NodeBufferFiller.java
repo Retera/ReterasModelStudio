@@ -38,7 +38,7 @@ public class NodeBufferFiller {
 				selStat.y = getSelectionStatus(idObject.getParent());
 
 
-				pipeline.addVert(renderNode.getPivot(), renderNode.getParentPivot(), renderNode.getWorldRotation(), selStat, null, renderNode.getWorldScale(), 0);
+				pipeline.addVert(renderNode.getPivot(), renderNode.getParentPivot(), renderNode.getWorldRotation(), selStat, null, renderNode.getWorldScale(), renderNode.getBillboardFlag());
 
 			}
 		}

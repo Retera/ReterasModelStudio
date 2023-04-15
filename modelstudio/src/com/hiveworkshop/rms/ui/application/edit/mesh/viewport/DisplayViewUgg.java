@@ -60,9 +60,9 @@ public class DisplayViewUgg extends ModelDependentView {
 
 	private void setUpViewAngle() {
 		switch (name) {
-			case "Front" -> displayPanel.setFrontView();
-			case "Side" -> displayPanel.setLeftView();
-			case "Top" -> displayPanel.setTopView();
+			case "Front" -> displayPanel.setCameraRot(0,0);
+			case "Side" -> displayPanel.setCameraRot(90,0);
+			case "Top" -> displayPanel.setCameraRot(0,90);
 		}
 	}
 

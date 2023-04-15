@@ -7,6 +7,8 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Something to undo when you deleted something important.
@@ -14,7 +16,7 @@ import java.util.List;
  * Eric Theller 6/11/2012
  */
 public class DeleteGeosetAction implements UndoAction {
-	private final List<Geoset> geosets;
+	private final Map<Geoset, Integer> geosets;
 	private final EditableModel model;
 	private final ModelStructureChangeListener changeListener;
 	private final String actionName;
@@ -24,7 +26,7 @@ public class DeleteGeosetAction implements UndoAction {
 	}
 
 	public DeleteGeosetAction(EditableModel model, List<Geoset> geosets, ModelStructureChangeListener changeListener) {
-		this.geosets = geosets;
+		this.geosets = geosets.stream().collect(Collectors.toMap(geoset -> geoset, model::getGeosetId));
 		this.model = model;
 		this.changeListener = changeListener;
 		actionName = "Delete "
@@ -32,8 +34,8 @@ public class DeleteGeosetAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
-		for (Geoset geoset : geosets) {
+	public DeleteGeosetAction redo() {
+		for (Geoset geoset : geosets.keySet()) {
 			model.remove(geoset);
 		}
 		if (changeListener != null) {
@@ -43,9 +45,9 @@ public class DeleteGeosetAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
-		for (Geoset geoset : geosets) {
-			model.add(geoset);
+	public DeleteGeosetAction undo() {
+		for (Geoset geoset : geosets.keySet()) {
+			model.add(geoset, geosets.get(geoset));
 		}
 		if (changeListener != null) {
 			changeListener.geosetsUpdated();

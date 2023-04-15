@@ -152,16 +152,9 @@ public class DisplayPanel extends JPanel {
 		setFocusable(true);
 	}
 
-	public void setFrontView() {
-		vp2.getCameraHandler().setCameraRotation(0, 0);
-	}
-
-	public void setLeftView() {
-		vp2.getCameraHandler().setCameraRotation(90, 0);
-	}
-
-	public void setTopView() {
-		vp2.getCameraHandler().setCameraRotation(0, 90);
+	public void setCameraRot(float right, float up) {
+		// Degrees
+		vp2.getCameraHandler().setCameraRotation(right, up, 0);
 	}
 
 

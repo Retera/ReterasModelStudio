@@ -25,24 +25,24 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 	private static final War3ID SKIN = War3ID.fromString("SKIN"); // skin
 	private static final War3ID UVAS = War3ID.fromString("UVAS"); // UV group
 	private static final War3ID UVBS = War3ID.fromString("UVBS"); // vertex UV position
-	
+
 	public float[] vertices;
 	public float[] normals;
-	public long[] faceTypeGroups; // unsigned int[]
-	public long[] faceGroups; // unsigned int[]
-	public int[] faces; // unsigned short[]
-	public short[] vertexGroups; // unsigned byte[]
-	public long[] matrixGroups; // unsigned int[]
-	public long[] matrixIndices; // unsigned int[]
+	public long[] faceTypeGroups;   // unsigned int[], 1: lines, 2: line loop, 3: line strip, 4: triangles, 5: triangle strip, 6: triangle fan
+	public long[] faceGroups;       // unsigned int[]
+	public int[] faces;             // unsigned short[]
+	public short[] vertexGroups;    // unsigned byte[], aka MatrixBindings
+	public long[] matrixGroups;     // unsigned int[]
+	public long[] matrixIndices;    // unsigned int[]
 	public long materialId = 0;
 	public long selectionGroup = 0;
 	public long selectionFlags = 0;
-	public int lod = 0; // @since 900
-	public String lodName = ""; // @since 900
+	public int lod = 0;             // @since 900
+	public String lodName = "";     // @since 900
 	public MdlxExtent extent = new MdlxExtent();
 	public List<MdlxExtent> sequenceExtents = new ArrayList<>();
-	public float[] tangents; // @since 900
-	public short[] skin; // @since 900
+	public float[] tangents;        // @since 900
+	public short[] skin;            // @since 900
 	public float[][] uvSets;
 
 	@Override

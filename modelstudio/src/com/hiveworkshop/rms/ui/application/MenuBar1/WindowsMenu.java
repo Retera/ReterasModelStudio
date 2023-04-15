@@ -67,6 +67,9 @@ public class WindowsMenu extends JMenu {
 
 	public void addModelPanelItem(ModelPanel modelPanel) {
 		JMenuItem menuItem = new JMenuItem(modelPanel.getModel().getName());
+		if(modelPanel.getModel().getFile() != null){
+			menuItem.setToolTipText(modelPanel.getModel().getFile().getPath());
+		}
 		menuItem.setIcon(modelPanel.getIcon());
 		menuItem.addActionListener(e -> ModelLoader.setCurrentModel(modelPanel));
 		modelPanel.setJMenuItem(menuItem);

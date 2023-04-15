@@ -520,6 +520,7 @@ public abstract class AnimFlag<T> {
 		TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
 		if (entryMap != null) {
 			entryMap.remove(trackTime);
+			timeKeysMap.remove(anim);
 		}
 	}
 

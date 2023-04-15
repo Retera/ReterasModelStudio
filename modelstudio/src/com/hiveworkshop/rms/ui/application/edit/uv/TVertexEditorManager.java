@@ -50,6 +50,10 @@ public final class TVertexEditorManager extends AbstractModelEditorManager {
 		}
 	}
 
+	public void setUVLayer(int uvLayerIndex){
+		tVertexEditor.setUVLayerIndex(uvLayerIndex);
+	}
+
 	private SelectionItemTypes transformSelectionMode(TVertexSelectionItemTypes selectionMode) {
 		if (selectionMode == TVertexSelectionItemTypes.FACE) {
 			return SelectionItemTypes.FACE;

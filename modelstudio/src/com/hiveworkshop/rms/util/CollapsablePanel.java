@@ -28,7 +28,7 @@ public class CollapsablePanel extends JPanel{
 	public CollapsablePanel(String title, JPanel collapsableContent, JPanel collapsedAdditionalInfoPanel) {
 		this.collapsedAdditionalInfoPanel = collapsedAdditionalInfoPanel;
 		this.collapsableContent = collapsableContent;
-		this.setLayout(new MigLayout("fill, hidemode 1, ins 0, gap 1", "[grow]", "[][grow]"));
+		this.setLayout(new MigLayout("fill, hidemode 2, ins 0, gap 1", "[grow]", "[][grow]"));
 		this.title = title;
 
 		titleLabel = new JLabel(title);

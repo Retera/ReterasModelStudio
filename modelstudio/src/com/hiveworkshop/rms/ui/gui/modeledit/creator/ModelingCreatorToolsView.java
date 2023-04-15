@@ -3,42 +3,63 @@ package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 import com.hiveworkshop.rms.ui.application.model.nodepanels.AnimationChooser;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.util.CollapsablePanel;
 import com.hiveworkshop.rms.util.ModelDependentView;
-import net.infonode.docking.DockingWindow;
-import net.infonode.docking.TabWindow;
 import net.infonode.docking.View;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
 public class ModelingCreatorToolsView extends ModelDependentView {
+	private final SelectionInfoPanel selectionPanel;
 	private final CreatorModelingPanel creatorModelingPanel;
 	private final ManualTransformPanel transformPanel;
-	private final TabWindow tabbedPanel;
-	private final View transformView;
-	private final View addView;
+	private final JPanel modelingPanel;
 	private final JPanel animationPanel;
 	private final AnimationChooser animationChooser;
 	private ModelHandler modelHandler;
 
-public ModelingCreatorToolsView() {
-	super("Modeling", null, new JPanel());
-	creatorModelingPanel = new CreatorModelingPanel();
-	transformPanel = new ManualTransformPanel();
-	animationChooser = new AnimationChooser(true, true, false);
-	animationPanel = new JPanel(new MigLayout("ins 0, fill", "[grow]", "[][grow]"));
-	animationPanel.add(animationChooser, "wrap");
-	transformView = getTitledView("Transform", transformPanel);
-	addView = getTitledView("Add", creatorModelingPanel);
-	tabbedPanel = new TabWindow(new DockingWindow[] {addView, transformView});
-	tabbedPanel.setSelectedTab(0);
-//	tabbedPanel.setC
-//	this.setComponent(creatorModelingPanel);
-	this.setComponent(tabbedPanel);
-}
+	public ModelingCreatorToolsView() {
+		super("Modeling", null, new JPanel());
+		selectionPanel = new SelectionInfoPanel();
+		creatorModelingPanel = new CreatorModelingPanel();
+		transformPanel = new ManualTransformPanel();
+		animationChooser = new AnimationChooser(true, true, false);
+//		animationPanel = new JPanel(new MigLayout("ins 0, fill", "[grow]", "[][grow]"));
+		animationPanel = new JPanel(new MigLayout("ins 0, gap 0, fill", "[grow]", "[][]"));
+		animationPanel.add(new JLabel("Animation"), "wrap");
+		animationPanel.add(animationChooser);
+
+
+		JPanel panel = new JPanel(new MigLayout("fill, ins 0, gap 0, hidemode 2", "", "[top][top][top][top][top, grow]"));
+		panel.add(animationPanel, "growx, spanx, wrap");
+		animationPanel.setVisible(false);
+
+		panel.add(getCP("Selection", selectionPanel), "top, growx, spanx, wrap");
+		panel.add(getCP("Add", creatorModelingPanel), "top, growx, spanx, wrap");
+
+		CollapsablePanel transformCP = getCP("Transform", transformPanel);
+		panel.add(transformCP, "top, growx, spanx, wrap");
+
+		panel.add(new JPanel(), "top, growx, growy, spanx, wrap");
+		JScrollPane scrollPane = new JScrollPane(panel);
+		scrollPane.getHorizontalScrollBar().setUnitIncrement(16);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+		// cheat to not show scrollbars while keeping the scroll pane scrollable
+		JPanel tempPanel = new JPanel();
+		tempPanel.add(scrollPane.getHorizontalScrollBar());
+		tempPanel.add(scrollPane.getVerticalScrollBar());
+
+		modelingPanel = panel;
+		this.setComponent(scrollPane);
+	}
 
 	public static View getTitledView(String title, JPanel panel) {
 		return new View(title, null, panel);
+	}
+	private CollapsablePanel getCP(String title, JPanel panel) {
+		return new CollapsablePanel(title, panel);
 	}
 
 	public CreatorModelingPanel getCreatorModelingPanel() {
@@ -54,21 +75,16 @@ public ModelingCreatorToolsView() {
 		creatorModelingPanel.setAnimationModeState(animationModeState);
 		transformPanel.setAnimationState(animationModeState);
 		if (animationModeState){
-			transformView.setComponent(null);
-			animationPanel.add(transformPanel);
-			this.setComponent(animationPanel);
+			animationPanel.setVisible(true);
 		} else {
-			if(animationPanel.getComponentCount()>1){
-				animationPanel.remove(1);
-			}
-			transformView.setComponent(transformPanel);
-			this.setComponent(tabbedPanel);
+			animationPanel.setVisible(false);
 		}
 		repaint();
 	}
 
 	@Override
 	public ModelingCreatorToolsView setModelPanel(ModelPanel modelPanel){
+		selectionPanel.setModelPanel(modelPanel);
 		creatorModelingPanel.setModelPanel(modelPanel);
 		transformPanel.setModelPanel(modelPanel);
 		if(modelPanel != null){

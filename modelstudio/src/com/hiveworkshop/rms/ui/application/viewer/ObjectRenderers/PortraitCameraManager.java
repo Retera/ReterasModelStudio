@@ -41,7 +41,7 @@ public class PortraitCameraManager extends CameraManager {
 			RenderNodeCamera renderCamera = renderModel.getRenderNode(cameraNode);
 			target.set(renderCamera.getTarget());
 			distance = renderCamera.getPivot().distance(renderCamera.getTarget());
-			fieldOfView = (float) Math.toDegrees(cameraNode.getParent().getFieldOfView());
+			fieldOfViewR = (float) cameraNode.getParent().getFieldOfView();
 			farClip = (float) cameraNode.getParent().getFarClip();
 			nearClip = (float) cameraNode.getParent().getNearClip();
 
@@ -49,7 +49,7 @@ public class PortraitCameraManager extends CameraManager {
 			vecHeap.sub(target).normalize();
 
 			upAngle = (float) vecHeap.getAngleToZaxis();
-			sideAngle = (float) -vecHeap.getZrotToYaxis();
+			sideAngle = (float) -vecHeap.getZrotToXaxis();
 			tiltAngle = renderCamera.getLocalRotationFloat();
 
 			calculateCameraRotation();

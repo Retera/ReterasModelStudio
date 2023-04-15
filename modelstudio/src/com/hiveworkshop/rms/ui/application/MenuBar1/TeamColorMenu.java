@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
-import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 
 import javax.swing.*;
@@ -41,15 +41,8 @@ public class TeamColorMenu extends JMenu {
 	}
 
 	private void setCurrentTeamColor(int teamColor) {
-		Material.teamColor = teamColor;
-//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-//		if (modelPanel != null) {
-//			modelPanel.getAnimationViewer().reloadAllTextures();
-//			modelPanel.getPerspArea().reloadAllTextures();
-//
-////			modelPanel.reloadComponentBrowser();
-//		}
-		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 		ProgramGlobals.getPrefs().setTeamColor(teamColor);
+		ModelStructureChangeListener.changeListener.texturesChanged();
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 	}
 }

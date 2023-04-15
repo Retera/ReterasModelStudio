@@ -2,12 +2,13 @@ package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.render3d.EmitterIdObject;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter2.FilterMode;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter2.HeadOrTail;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 import org.lwjgl.opengl.GL11;
+
+import java.util.EnumSet;
 
 /**
  * ParticleEmitter2 class, these are the things most people would think of as a
@@ -18,14 +19,9 @@ import org.lwjgl.opengl.GL11;
  * Eric Theller 3/10/2012 3:32 PM
  */
 public class ParticleEmitter2 extends EmitterIdObject {
+	private final EnumSet<HeadTailFlag> headTailFlags = EnumSet.noneOf(HeadTailFlag.class);
 	private FilterMode filterMode = FilterMode.BLEND;
-	private HeadOrTail headOrTail = HeadOrTail.HEAD;
-	private boolean unshaded = false;
-	private boolean sortPrimsFarZ = false;
-	private boolean lineEmitter = false;
-	private boolean unfogged = false;
-	private boolean modelSpace = false;
-	private boolean xYQuad = false;
+	private final EnumSet<P2Flag> p2Flags = EnumSet.noneOf(P2Flag.class);
 	private boolean squirt = false;
 	private double speed = 0;
 	private double variation = 0;
@@ -61,13 +57,9 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		super(emitter);
 
 		filterMode = emitter.filterMode;
-		headOrTail = emitter.headOrTail;
-		unshaded = emitter.unshaded;
-		sortPrimsFarZ = emitter.sortPrimsFarZ;
-		lineEmitter = emitter.lineEmitter;
-		unfogged = emitter.unfogged;
-		modelSpace = emitter.modelSpace;
-		xYQuad = emitter.xYQuad;
+		headTailFlags.addAll(emitter.headTailFlags);
+		p2Flags.addAll(emitter.p2Flags);
+
 		squirt = emitter.squirt;
 
 		speed = emitter.speed;
@@ -103,52 +95,76 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return new ParticleEmitter2(this);
 	}
 
+	public boolean isFlagSet(P2Flag flag){
+		return p2Flags.contains(flag);
+	}
+	public ParticleEmitter2 setFlag(P2Flag flag, boolean set){
+		if(set){
+			p2Flags.add(flag);
+		} else {
+			p2Flags.remove(flag);
+		}
+		return this;
+	}
+	public ParticleEmitter2 setFlags(EnumSet<P2Flag> flags){
+		p2Flags.addAll(flags);
+		return this;
+	}
+
+	public ParticleEmitter2 toggleFlag(P2Flag flag){
+		return setFlag(flag, !p2Flags.contains(flag));
+	}
+
+	public EnumSet<P2Flag> getP2Flags() {
+		return p2Flags;
+	}
+
 	public boolean getUnshaded() {
-		return unshaded;
+		return p2Flags.contains(P2Flag.UNSHADED);
 	}
 
 	public void setUnshaded(boolean unshaded) {
-		this.unshaded = unshaded;
+		setFlag(P2Flag.UNSHADED, unshaded);
 	}
 
 	public boolean getSortPrimsFarZ() {
-		return sortPrimsFarZ;
+		return p2Flags.contains(P2Flag.SORT_PRIMS_FAR_Z);
 	}
 
 	public void setSortPrimsFarZ(boolean sortPrimsFarZ) {
-		this.sortPrimsFarZ = sortPrimsFarZ;
+		setFlag(P2Flag.SORT_PRIMS_FAR_Z, sortPrimsFarZ);
 	}
 
 	public boolean getLineEmitter() {
-		return lineEmitter;
+		return p2Flags.contains(P2Flag.LINE_EMITTER);
 	}
 
 	public void setLineEmitter(boolean lineEmitter) {
-		this.lineEmitter = lineEmitter;
+		setFlag(P2Flag.LINE_EMITTER, lineEmitter);
 	}
 
 	public boolean getUnfogged() {
-		return unfogged;
+		return p2Flags.contains(P2Flag.UNFOGGED);
 	}
 
 	public void setUnfogged(boolean unfogged) {
-		this.unfogged = unfogged;
+		setFlag(P2Flag.UNFOGGED, unfogged);
 	}
 
 	public boolean getModelSpace() {
-		return modelSpace;
+		return p2Flags.contains(P2Flag.MODEL_SPACE);
 	}
 
 	public void setModelSpace(boolean modelSpace) {
-		this.modelSpace = modelSpace;
+		setFlag(P2Flag.MODEL_SPACE, modelSpace);
 	}
 
 	public boolean getXYQuad() {
-		return xYQuad;
+		return p2Flags.contains(P2Flag.XY_QUAD);
 	}
 
 	public void setXYQuad(boolean xYQuad) {
-		this.xYQuad = xYQuad;
+		setFlag(P2Flag.XY_QUAD, xYQuad);
 	}
 
 	public boolean getSquirt() {
@@ -159,52 +175,49 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		this.squirt = squirt;
 	}
 
-	public boolean isAdditive() {
-		return filterMode == FilterMode.ADDITIVE;
-	}
-
-	public boolean isModulate2x() {
-		return filterMode == FilterMode.MODULATE2X;
-	}
-
-	public boolean isModulate() {
-		return filterMode == FilterMode.MODULATE;
-	}
-
-	public boolean isAlphaKey() {
-		return filterMode == FilterMode.ALPHAKEY;
-	}
-
-	public boolean isBlend() {
-		return filterMode == FilterMode.BLEND;
-	}
-
-	public boolean isTail() {
-		return headOrTail == HeadOrTail.TAIL;
-	}
-
-	public boolean isHead() {
-		return headOrTail == HeadOrTail.HEAD;
-	}
-
-	public boolean isBoth() {
-		return headOrTail == HeadOrTail.BOTH;
-	}
-
-	public HeadOrTail getHeadOrTail() {
-		return headOrTail;
-	}
-
-	public void setHeadOrTail(HeadOrTail headOrTail) {
-		this.headOrTail = headOrTail;
-	}
-
 	public FilterMode getFilterMode() {
 		return filterMode;
 	}
 
 	public void setFilterMode(FilterMode filterMode) {
 		this.filterMode = filterMode;
+	}
+
+	public boolean isTail() {
+		return headTailFlags.contains(HeadTailFlag.EMIT_TAIL);
+	}
+
+	public boolean isHead() {
+		return headTailFlags.isEmpty() || headTailFlags.contains(HeadTailFlag.EMIT_HEAD);
+	}
+
+	public ParticleEmitter2 setHead(boolean b) {
+		return setFlag(HeadTailFlag.EMIT_HEAD, b);
+	}
+
+	public ParticleEmitter2 setTail(boolean b) {
+		return setFlag(HeadTailFlag.EMIT_TAIL, b);
+	}
+
+	public boolean isFlagSet(HeadTailFlag flag){
+		return headTailFlags.contains(flag);
+	}
+
+	public ParticleEmitter2 setFlag(HeadTailFlag flag, boolean set){
+		if(set){
+			headTailFlags.add(flag);
+		} else {
+			headTailFlags.remove(flag);
+		}
+		return this;
+	}
+
+	public ParticleEmitter2 toggleFlag(HeadTailFlag flag){
+		return setFlag(flag, !headTailFlags.contains(flag));
+	}
+
+	public EnumSet<HeadTailFlag> getHeadTailFlags() {
+		return headTailFlags;
 	}
 
 	public double getSpeed() {
@@ -296,7 +309,6 @@ public class ParticleEmitter2 extends EmitterIdObject {
 			case MODULATE -> GL11.GL_ZERO;
 			case MODULATE2X -> GL11.GL_DST_COLOR;
 		};
-
 	}
 
 	@Override
@@ -308,7 +320,6 @@ public class ParticleEmitter2 extends EmitterIdObject {
 			case MODULATE -> GL11.GL_SRC_COLOR;
 			case MODULATE2X -> GL11.GL_SRC_COLOR;
 		};
-
 	}
 
 	@Override
@@ -465,5 +476,75 @@ public class ParticleEmitter2 extends EmitterIdObject {
 
 	public double getRenderEmissionRate(TimeEnvironmentImpl animatedRenderEnvironment) {
 		return getInterpolatedFloat(animatedRenderEnvironment, MdlUtils.TOKEN_EMISSION_RATE, (float) getEmissionRate());
+	}
+
+	public enum HeadTailFlag {
+		EMIT_HEAD(MdlUtils.TOKEN_HEAD, 0x1),
+		EMIT_TAIL(MdlUtils.TOKEN_TAIL, 0x2);
+		final String name;
+		final int flagBit;
+		HeadTailFlag(String name, int flagBit){
+			this.name = name;
+			this.flagBit = flagBit;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
+
+		public int getFlagBit() {
+			return flagBit;
+		}
+		public static EnumSet<HeadTailFlag> fromBits(int bits){
+			EnumSet<HeadTailFlag> flagSet = EnumSet.noneOf(HeadTailFlag.class);
+			for (HeadTailFlag f : HeadTailFlag.values()){
+				if ((f.flagBit & bits) == f.flagBit){
+					flagSet.add(f);
+				}
+			}
+			return flagSet;
+		}
+	}
+
+	public enum P2Flag {
+		UNSHADED(MdlUtils.TOKEN_UNSHADED, 0x8000),
+		SORT_PRIMS_FAR_Z(MdlUtils.TOKEN_SORT_PRIMS_FAR_Z, 0x10000),
+		LINE_EMITTER(MdlUtils.TOKEN_LINE_EMITTER, 0x20000),
+		UNFOGGED(MdlUtils.TOKEN_UNFOGGED, 0x40000),
+		MODEL_SPACE(MdlUtils.TOKEN_MODEL_SPACE, 0x80000),
+		XY_QUAD(MdlUtils.TOKEN_XY_QUAD, 0x100000);
+		final String name;
+		final int flagBit;
+		P2Flag(String name, int flagBit){
+			this.name = name;
+			this.flagBit = flagBit;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
+
+		public int getFlagBit() {
+			return flagBit;
+		}
+		public static EnumSet<P2Flag> fromBits(int bits){
+			EnumSet<P2Flag> flagSet = EnumSet.noneOf(P2Flag.class);
+			for (P2Flag f : P2Flag.values()){
+				if ((f.flagBit & bits) == f.flagBit){
+					flagSet.add(f);
+				}
+			}
+			return flagSet;
+		}
 	}
 }

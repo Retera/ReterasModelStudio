@@ -14,7 +14,6 @@ public class Material implements Named {
 	public static final String SHADER_HD_CRYSTAL = "Shader_HD_Crystal";
 	public static final String SHADER_SD_FIXEDFUNCTION = "Shader_SD_FixedFunction";
 	public static final String SHADER_SD_LEGACY = "Shader_SD_Legacy";
-	public static int teamColor = 0;
 	private final List<Layer> layers = new ArrayList<>();
 	int priorityPlane = 0;
 	String shaderString = "";
@@ -40,10 +39,6 @@ public class Material implements Named {
 		flags.addAll(material.flags);
 		priorityPlane = material.priorityPlane;
 		shaderString = material.shaderString;
-//		constantColor = material.constantColor;
-//		sortPrimsFarZ = material.sortPrimsFarZ;
-//		fullResolution = material.fullResolution;
-//		twoSided = material.twoSided;
 	}
 
 	public String getName2() {

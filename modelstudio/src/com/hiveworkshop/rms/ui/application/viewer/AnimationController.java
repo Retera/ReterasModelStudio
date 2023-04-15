@@ -5,6 +5,8 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.nodepanels.AnimationChooser;
+import com.hiveworkshop.rms.util.EnumButtonGroup;
+import com.hiveworkshop.rms.util.EnumButtonGroupGroup;
 import com.hiveworkshop.rms.util.SmartButtonGroup;
 import com.hiveworkshop.rms.util.SmartNumberSlider;
 import net.miginfocom.swing.MigLayout;
@@ -18,6 +20,7 @@ public class AnimationController extends JPanel {
 	private final AnimationChooser animationChooser;
 	private final SmartNumberSlider speedSlider;
 	private final SmartButtonGroup loopTypePanel;
+	private final EnumButtonGroup<LoopType> loopTypePanel2;
 	private boolean allowUnanimated = true;
 
 	public AnimationController(Consumer<Integer> lodListener) {
@@ -31,7 +34,8 @@ public class AnimationController extends JPanel {
 		add(playAnimationButton, "wrap, gapbottom 16");
 
 		loopTypePanel = getLoopTypePanel();
-		add(loopTypePanel.getButtonPanel(), "wrap");
+		loopTypePanel2 = new EnumButtonGroup<>(LoopType.class, EnumButtonGroupGroup.TYPE_RADIO, this::setLoopType).setSelected(LoopType.DEFAULT_LOOP);
+		add(loopTypePanel2, "wrap");
 
 		speedSlider = getSpeedSlider();
 		add(speedSlider, "wrap, w 90%:90%:90%, gapbottom 16");
@@ -47,6 +51,7 @@ public class AnimationController extends JPanel {
 			renderEnv = renderModel.getTimeEnvironment();
 			renderEnv.setAnimationSpeed(speedSlider.getValue() / 100f);
 			loopTypePanel.setSelectedIndex(loopTypePanel.getSelectedIndex());
+			loopTypePanel2.setSelectedIndex(loopTypePanel2.getSelectedIndex());
 		} else {
 			animationChooser.setModel(null, null);
 		}

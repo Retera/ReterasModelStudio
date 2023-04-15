@@ -35,11 +35,22 @@ public class MdxUtils {
 		}
 	}
 	private static MdlxModel loadMdlx(final InputStream inputStream) throws IOException {
-		return new MdlxModel(ByteBuffer.wrap(inputStream.readAllBytes()));
+		return modelFrom(ByteBuffer.wrap(inputStream.readAllBytes()));
 	}
 
 	public static EditableModel loadEditable(final ByteBuffer buffer) {
-		return TempOpenModelStuff.createEditableModel(new MdlxModel(buffer));
+		return TempOpenModelStuff.createEditableModel(modelFrom(buffer));
+	}
+
+	public static MdlxModel modelFrom(final ByteBuffer buffer) {
+		// MDX files start with "MDLX".
+		MdlxModel mdlxModel = new MdlxModel();
+		if (buffer.get(0) == 'M' && buffer.get(1) == 'D' && buffer.get(2) == 'L' && buffer.get(3) == 'X') {
+			MdxLoadSave.loadMdx(mdlxModel, buffer);
+		} else {
+			MdlLoadSave.loadMdl(mdlxModel, buffer);
+		}
+		return mdlxModel;
 	}
 
 	public static void saveMdl(final MdlxModel model, final File file) throws IOException {

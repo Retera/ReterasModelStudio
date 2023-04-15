@@ -161,6 +161,13 @@ public class Vec2 {
 		return this;
 	}
 
+	public Vec2 addScaled(final Vec2 a, float s) {
+		x = x + (a.x * s);
+		y = y + (a.y * s);
+
+		return this;
+	}
+
 	public Vec2 sub(final Vec2 a) {
 		x = x - a.x;
 		y = y - a.y;

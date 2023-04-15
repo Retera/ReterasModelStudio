@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 
 import java.util.EnumSet;
 
@@ -12,7 +13,7 @@ import java.util.EnumSet;
 public class Bitmap implements Named {
 	private String imagePath = "";
 	private int replaceableId = 0;
-	private final EnumSet<flag> flags = EnumSet.noneOf(flag.class);
+	private final EnumSet<WrapFlag> wrapFlags = EnumSet.noneOf(WrapFlag.class);
 
 	public String getPath() {
 		return imagePath;
@@ -33,7 +34,7 @@ public class Bitmap implements Named {
 	public Bitmap(Bitmap other) {
 		imagePath = other.imagePath;
 		replaceableId = other.replaceableId;
-		flags.addAll(other.flags);
+		wrapFlags.addAll(other.wrapFlags);
 	}
 
 	public Bitmap() {
@@ -77,7 +78,7 @@ public class Bitmap implements Named {
 		int result = 1;
 		result = (prime * result) + ((imagePath == null) ? 0 : imagePath.hashCode());
 		result = (prime * result) + replaceableId;
-		result = (prime * result) + flags.hashCode();
+		result = (prime * result) + wrapFlags.hashCode();
 		return result;
 	}
 
@@ -103,51 +104,51 @@ public class Bitmap implements Named {
 		if (replaceableId != other.replaceableId) {
 			return false;
 		}
-		return flags.equals(other.flags);
+		return wrapFlags.equals(other.wrapFlags);
 	}
 
 	public boolean isWrapHeight() {
-		return flags.contains(flag.WRAP_HEIGHT);
-//		return (wrapMode == WrapMode.WRAP_HEIGHT) || (wrapMode == WrapMode.WRAP_BOTH);
+		return wrapFlags.contains(WrapFlag.HEIGHT);
 	}
 
 	public boolean isWrapWidth() {
-		return flags.contains(flag.WRAP_WIDTH);
+		return wrapFlags.contains(WrapFlag.WIDTH);
 	}
 
 	public Bitmap setWrapHeight(boolean wrap) {
-		boolean ugg = wrap ? flags.add(flag.WRAP_HEIGHT) : flags.remove(flag.WRAP_HEIGHT);
-		return this;
+		return setFlag(WrapFlag.HEIGHT, wrap);
 	}
 
 	public Bitmap setWrapWidth(boolean wrap) {
-		boolean ugg = wrap ? flags.add(flag.WRAP_WIDTH) : flags.remove(flag.WRAP_WIDTH);
-		return this;
+		return setFlag(WrapFlag.WIDTH, wrap);
 	}
 
-	public boolean isFlagSet(flag flag){
-		return flags.contains(flag);
+	public boolean isFlagSet(WrapFlag flag){
+		return wrapFlags.contains(flag);
 	}
-	public Bitmap setFlag(flag flag, boolean set){
+	public Bitmap setFlag(WrapFlag flag, boolean set){
 		if(set){
-			flags.add(flag);
+			wrapFlags.add(flag);
 		} else {
-			flags.remove(flag);
+			wrapFlags.remove(flag);
 		}
 		return this;
+	}
+	public Bitmap toggleFlag(WrapFlag flag){
+		return setFlag(flag, !isFlagSet(flag));
 	}
 
 	public Bitmap setPath(String imagePath) {
 		this.imagePath = imagePath;
 		return this;
 	}
-	public EnumSet<flag> getFlags() {
-		return flags;
+	public EnumSet<WrapFlag> getWrapFlags() {
+		return wrapFlags;
 	}
 
 	public String getRenderableTexturePath() {
 		if (imagePath.length() == 0) {
-			String tcString = ("" + (100 + Material.teamColor)).substring(1);
+			String tcString = ("" + (100 + ProgramGlobals.getPrefs().getTeamColor())).substring(1);
 			return switch (replaceableId) {
 				case 0 -> "";
 				case 1 -> "ReplaceableTextures\\TeamColor\\TeamColor" + tcString + ".blp";
@@ -175,12 +176,12 @@ public class Bitmap implements Named {
 		return imagePath;
 	}
 
-	public enum flag {
-		WRAP_WIDTH(MdlUtils.TOKEN_WRAP_WIDTH, 0x1),
-		WRAP_HEIGHT(MdlUtils.TOKEN_WRAP_HEIGHT, 0x2);
+	public enum WrapFlag {
+		WIDTH(MdlUtils.TOKEN_WRAP_WIDTH, 0x1),
+		HEIGHT(MdlUtils.TOKEN_WRAP_HEIGHT, 0x2);
 		final String name;
 		final int flagBit;
-		flag(String name, int flagBit){
+		WrapFlag(String name, int flagBit){
 			this.name = name;
 			this.flagBit = flagBit;
 		}
@@ -191,6 +192,16 @@ public class Bitmap implements Named {
 
 		public int getFlagBit() {
 			return flagBit;
+		}
+
+		public static EnumSet<WrapFlag> fromBits(int bits){
+			EnumSet<WrapFlag> flagSet = EnumSet.noneOf(WrapFlag.class);
+			for (WrapFlag f : WrapFlag.values()){
+				if ((f.flagBit & bits) == f.flagBit){
+					flagSet.add(f);
+				}
+			}
+			return flagSet;
 		}
 	}
 }

@@ -82,7 +82,7 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 	public FilterMode filterMode = FilterMode.BLEND;
 	public long rows = 0;
 	public long columns = 0;
-	public HeadOrTail headOrTail = HeadOrTail.HEAD;
+	public int headTailFlag = 0;
 	public float tailLength = 0;
 	public float timeMiddle = 0;
 	public final float[][] segmentColors = new float[3][3];
@@ -117,7 +117,7 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 		filterMode = FilterMode.fromId(reader.readInt32());
 		rows = reader.readUInt32();
 		columns = reader.readUInt32();
-		headOrTail = HeadOrTail.fromId(reader.readInt32());
+		headTailFlag = reader.readInt32();
 		tailLength = reader.readFloat32();
 		timeMiddle = reader.readFloat32();
 		reader.readFloat32Array(segmentColors[0]);
@@ -154,7 +154,7 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 		writer.writeInt32(filterMode.ordinal());
 		writer.writeUInt32(rows);
 		writer.writeUInt32(columns);
-		writer.writeInt32(headOrTail.ordinal());
+		writer.writeInt32(headTailFlag);
 		writer.writeFloat32(tailLength);
 		writer.writeFloat32(timeMiddle);
 		writer.writeFloat32Array(segmentColors[0]);
@@ -208,9 +208,9 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 				case MdlUtils.TOKEN_ALPHAKEY -> filterMode = FilterMode.ALPHAKEY;
 				case MdlUtils.TOKEN_ROWS -> rows = stream.readUInt32();
 				case MdlUtils.TOKEN_COLUMNS -> columns = stream.readUInt32();
-				case MdlUtils.TOKEN_HEAD -> headOrTail = HeadOrTail.HEAD;
-				case MdlUtils.TOKEN_TAIL -> headOrTail = HeadOrTail.TAIL;
-				case MdlUtils.TOKEN_BOTH -> headOrTail = HeadOrTail.BOTH;
+				case MdlUtils.TOKEN_HEAD -> headTailFlag |= 0x1;
+				case MdlUtils.TOKEN_TAIL -> headTailFlag |= 0x2;
+				case MdlUtils.TOKEN_BOTH -> headTailFlag |= 0x3;
 				case MdlUtils.TOKEN_TAIL_LENGTH -> tailLength = stream.readFloat();
 				case MdlUtils.TOKEN_TIME -> timeMiddle = stream.readFloat();
 				case MdlUtils.TOKEN_SEGMENT_COLOR -> {
@@ -303,7 +303,13 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 		stream.writeFlag(filterMode.toString());
 		stream.writeAttribUInt32(MdlUtils.TOKEN_ROWS, rows);
 		stream.writeAttribUInt32(MdlUtils.TOKEN_COLUMNS, columns);
-		stream.writeFlag(headOrTail.toString());
+		if (headTailFlag == 0x3) {
+			stream.writeFlag(MdlUtils.TOKEN_BOTH);
+		} else if(headTailFlag == 0x2) {
+			stream.writeFlag(MdlUtils.TOKEN_TAIL);
+		} else {
+			stream.writeFlag(MdlUtils.TOKEN_HEAD);
+		}
 		stream.writeFloatAttrib(MdlUtils.TOKEN_TAIL_LENGTH, tailLength);
 		stream.writeFloatAttrib(MdlUtils.TOKEN_TIME, timeMiddle);
 

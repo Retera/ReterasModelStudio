@@ -10,10 +10,12 @@ import com.hiveworkshop.rms.util.Vec3;
 
 public final class RenderNode2 extends RenderNode<IdObject> {
 	private boolean dontInheritScaling = false;
+	private boolean dontInheritRotation = false;
 	boolean billboarded;
 	boolean billboardedX;
 	boolean billboardedY;
 	boolean billboardedZ;
+	int billboardFlag = 0;
 
 	public RenderNode2(RenderModel renderModel, IdObject animatedNode) {
 		super(renderModel, animatedNode);
@@ -21,20 +23,38 @@ public final class RenderNode2 extends RenderNode<IdObject> {
 	}
 
 	public void refreshFromEditor() {
+		billboardFlag = 0;
 		dontInheritScaling = animatedNode.getDontInheritScaling();
+		dontInheritRotation = animatedNode.getDontInheritRotation();
 		billboarded = animatedNode.getBillboarded();
 		billboardedX = animatedNode.getBillboardLockX();
 		billboardedY = animatedNode.getBillboardLockY();
 		billboardedZ = animatedNode.getBillboardLockZ();
+
+		if (billboarded) billboardFlag |= 0x8;
+		if (billboardedX) billboardFlag |= 0x10;
+		if (billboardedY) billboardFlag |= 0x20;
+		if (billboardedZ) billboardFlag |= 0x40;
 	}
 
+	public int getBillboardFlag() {
+		return billboardFlag;
+	}
+
+	Vec3 computedScaling = new Vec3();
+	Quat computedRotation = new Quat();
 	public void recalculateTransformation() {
 		if (dirty) {
 //			dirty = false;
 			worldScale.set(localScale);
 			worldRotation.set(localRotation);
 			RenderNode2 parentNode = renderModel.getRenderNode(animatedNode.getParent());
-			Vec3 computedScaling = new Vec3();
+//			Vec3 computedScaling = new Vec3();
+			if(billboardFlag != 0 || dontInheritRotation){
+				computedRotation.set(localRotation).mulInverse(parentNode.worldRotation);
+			} else {
+				computedRotation.set(localRotation);
+			}
 
 			if (dontInheritScaling) {
 				computedScaling.set(localScale).divide(parentNode.worldScale);
@@ -43,11 +63,13 @@ public final class RenderNode2 extends RenderNode<IdObject> {
 				worldScale.multiply(parentNode.worldScale);
 			}
 
-			localMatrix.fromRotationTranslationScaleOrigin(localRotation, localLocation, computedScaling, animatedNode.getPivotPoint());
+			localMatrix.fromRotationTranslationScaleOrigin(computedRotation, localLocation, computedScaling, animatedNode.getPivotPoint());
 
 			worldMatrix.set(parentNode.worldMatrix).mul(localMatrix);
 
-			worldRotation.mul(parentNode.worldRotation);
+			if(billboardFlag == 0){
+				worldRotation.mul(parentNode.worldRotation);
+			}
 
 			// Inverse world rotation
 			inverseWorldRotation.set(worldRotation).invertRotation();

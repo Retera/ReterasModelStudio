@@ -52,6 +52,7 @@ public class ViewportModelRenderer {
 	private Map<GeosetVertex, Vec2> normalMap = new HashMap<>();
 	private Map<GeosetVertex, Vec2> vertsMap = new HashMap<>();
 
+	Vec3 tempV3 = new Vec3();
 
 
 	public ViewportModelRenderer(int vertexSize) {
@@ -113,13 +114,11 @@ public class ViewportModelRenderer {
 	private void renderGeoset2(Geoset geoset) {
 		RenderGeoset renderGeoset = renderModel.getRenderGeoset(geoset);
 		for (RenderGeoset.RenderVert vertex : renderGeoset.getRenderVerts()) {
-
-			Vec2 vert2 = convertToViewVec2(coordinateSystem, vertex.getRenderPos());
-			vertsMap.put(vertex.getVertex(), vert2);
+			vertsMap.computeIfAbsent(vertex.getVertex(), k -> new Vec2()).set(coordinateSystem.viewV(vertex.getRenderPos()));
 
 			if (ProgramGlobals.getPrefs().showNormals()) {
-				Vec3 normalPoint = Vec3.getScaled(vertex.getRenderNorm(), (float) (12 / coordinateSystem.getZoom())).add(vertex.getRenderPos());
-				normalMap.put(vertex.getVertex(), convertToViewVec2(coordinateSystem, normalPoint));
+				tempV3.set(vertex.getRenderNorm()).scale((float) (12 / coordinateSystem.getZoom())).add(vertex.getRenderPos());
+				normalMap.computeIfAbsent(vertex.getVertex(), k -> new Vec2()).set(coordinateSystem.viewV(tempV3));
 			}
 
 		}
@@ -165,11 +164,6 @@ public class ViewportModelRenderer {
 				}
 			}
 		}
-	}
-
-	public static Vec2 convertToViewVec2(CoordinateSystem coordinateSystem, Vec3 vertex) {
-		Vec2 pointA = coordinateSystem.viewVN(vertex);
-		return pointA.set(pointA.x * coordinateSystem.getParentWidth(), pointA.y * coordinateSystem.getParentHeight());
 	}
 
 	public void renderCamera(Camera camera) {

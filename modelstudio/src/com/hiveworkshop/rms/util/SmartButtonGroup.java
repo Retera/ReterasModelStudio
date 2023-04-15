@@ -3,9 +3,8 @@ package com.hiveworkshop.rms.util;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.util.HashMap;
 import java.util.function.Consumer;
 
 /**
@@ -14,16 +13,16 @@ import java.util.function.Consumer;
  * To get a grid of i columns use removeButtonConst("wrap").addPanelConst("wrap " + i)
  * To get a row use removeButtonConst("wrap")
  */
-public class SmartButtonGroup extends ButtonGroup {
-	private final HashMap<ButtonModel, Integer> modelIndexMap = new HashMap<>();
-	private final BiMap<Integer, AbstractButton> buttonIndexMap = new BiMap<>();
-	private final BiMap<String, AbstractButton> buttonNameMap = new BiMap<>();
+public class SmartButtonGroup extends JPanel {
+	SmartButtonGroupGroup bg = new SmartButtonGroupGroup();
 	private String title = "";
 	private String panelConstraints = "ins 0,";
 	private String buttonConstraints = "wrap,";
+	MigLayout layout = new MigLayout(panelConstraints);
 
 
 	public SmartButtonGroup() {
+		this("");
 	}
 
 	/**
@@ -33,120 +32,115 @@ public class SmartButtonGroup extends ButtonGroup {
 	 */
 	public SmartButtonGroup(String title) {
 		this.title = title;
+		if (title.length() != 0) {
+			setBorder(BorderFactory.createTitledBorder(title));
+			panelConstraints = panelConstraints.replaceFirst("ins 0,", "");
+
+		}
+		layout = new MigLayout(panelConstraints);
+		setLayout(layout);
+
+
+//		int size = buttonIndexMap.size();
+//		int maxSearch = buttonIndexMap.size() * 3;
+//		for (int i = 0; i < size && i < maxSearch; i++) {
+//			AbstractButton button = buttonIndexMap.get(i);
+//			if (button != null) {
+//				buttonPanel.add(button, buttonConstraints);
+//			} else {
+//				size++;
+//			}
+//		}
+	}
+
+	public ButtonModel getSelection() {
+		return bg.getSelection();
+	}
+	public void setSelected(ButtonModel m, boolean b) {
+		bg.setSelected(m, b);
 	}
 
 	public int getSelectedIndex() {
-		Integer selectedIndex = modelIndexMap.get(getSelection());
-		return selectedIndex == null ? -1 : selectedIndex;
+		return bg.getSelectedIndex();
 	}
 
 	public SmartButtonGroup setSelectedIndex(int index) {
-		setSelected(buttonIndexMap.get(index).getModel(), true);
+		bg.setSelectedIndex(index);
 		return this;
 	}
 
 	public SmartButtonGroup setSelectedName(String name) {
-		setSelected(buttonNameMap.get(name).getModel(), true);
+		bg.setSelectedName(name);
 		return this;
 	}
 
 	public SmartButtonGroup addButton(AbstractButton button) {
-		addNewButton(null, buttonIndexMap.size(), button);
+		bg.addButton(button);
+		addUIButton(button);
 		return this;
 	}
 
 	public SmartButtonGroup removeButton(AbstractButton button) {
-		remove(button);
-		modelIndexMap.remove(button.getModel());
-		buttonIndexMap.removeByValue(button);
-		buttonNameMap.removeByValue(button);
+		bg.removeButton(button);
 		return this;
 	}
 
 	public AbstractButton getButton(int i) {
-		return buttonIndexMap.get(i);
+		return bg.getButton(i);
 	}
 
 	public AbstractButton getButton(String name) {
-		return buttonNameMap.get(name);
+		return bg.getButton(name);
 	}
 
 	public JButton addJButton(String text, ActionListener actionListener) {
-		return addJButton(text, actionListener, buttonIndexMap.size());
+		return addUIButton(bg.addJButton(text, actionListener));
 	}
 
-	private JButton addJButton(String text, ActionListener actionListener, int index) {
-		JButton button = new JButton(text);
-		addNewButton(actionListener, index, button);
-		return button;
-	}
-
-	public SmartButtonGroup addJCheckBox(String text, ActionListener actionListener) {
-		return addJCheckBox(text, actionListener, buttonIndexMap.size());
-	}
-
-	private SmartButtonGroup addJCheckBox(String text, ActionListener actionListener, int index) {
-		JCheckBox button = new JCheckBox(text);
-		addNewButton(actionListener, index, button);
-		return this;
+	public JCheckBox addJCheckBox(String text, ActionListener actionListener) {
+		return addUIButton(bg.addJCheckBox(text, actionListener));
 	}
 
 	public JRadioButton addJRadioButton(String text, ActionListener actionListener) {
-		return addJRadioButton(text, actionListener, buttonIndexMap.size());
+		return addUIButton(bg.addJRadioButton(text, actionListener));
 	}
 	public JRadioButton addJRadioButton(String text, ActionListener actionListener, Consumer<Boolean> stateChangeListener) {
-		JRadioButton jRadioButton = addJRadioButton(text, actionListener, buttonIndexMap.size());
-		jRadioButton.addItemListener(e -> stateChangeListener.accept(e.getStateChange() == ItemEvent.SELECTED));
-		return jRadioButton;
+		return addUIButton(bg.addJRadioButton(text, actionListener, stateChangeListener));
 	}
 	public JRadioButton addJRadioToggleButton(String text, Consumer<Boolean> stateChangeListener) {
-		JRadioButton jRadioButton = addJRadioButton(text, null, buttonIndexMap.size());
-		jRadioButton.addItemListener(e -> stateChangeListener.accept(e.getStateChange() == ItemEvent.SELECTED));
-		return jRadioButton;
-	}
-
-	private JRadioButton addJRadioButton(String text, ActionListener actionListener, int index) {
-		JRadioButton button = new JRadioButton(text);
-		addNewButton(actionListener, index, button);
-		return button;
+		return addUIButton(bg.addJRadioToggleButton(text, stateChangeListener));
 	}
 
 	public JRadioButton addJRadioButtonMenuItem(String text, ActionListener actionListener) {
-		return addJRadioButton(text, actionListener, buttonIndexMap.size());
+		return addUIButton(bg.addJRadioButtonMenuItem(text, actionListener));
 	}
 
-	private SmartButtonGroup addJRadioButtonMenuItem(String text, ActionListener actionListener, int index) {
-		JRadioButtonMenuItem button = new JRadioButtonMenuItem(text);
-		addNewButton(actionListener, index, button);
-		return this;
-	}
-
-	private void addNewButton(ActionListener actionListener, int index, AbstractButton button) {
-		button.addActionListener(actionListener);
-		add(button);
-		modelIndexMap.put(button.getModel(), index);
-		buttonIndexMap.put(index, button);
-		buttonNameMap.put(button.getText(), button);
+	private <Q extends AbstractButton> Q addUIButton(Q button) {
+		if (button != null) {
+			add(button, buttonConstraints);
+		}
+		return button;
 	}
 
 	public JPanel getButtonPanel() {
-		JPanel buttonPanel = new JPanel(new MigLayout(panelConstraints));
-		if (title.length() != 0) {
-			buttonPanel.setBorder(BorderFactory.createTitledBorder(title));
-			panelConstraints = panelConstraints.replaceFirst("ins 0,", "");
-			buttonPanel.setLayout(new MigLayout(panelConstraints));
-		}
-		int size = buttonIndexMap.size();
-		int maxSearch = buttonIndexMap.size() * 3;
-		for (int i = 0; i < size && i < maxSearch; i++) {
-			AbstractButton button = buttonIndexMap.get(i);
-			if (button != null) {
-				buttonPanel.add(button, buttonConstraints);
-			} else {
-				size++;
-			}
-		}
-		return buttonPanel;
+//		JPanel buttonPanel = new JPanel(new MigLayout(panelConstraints));
+//		if (title.length() != 0) {
+//			buttonPanel.setBorder(BorderFactory.createTitledBorder(title));
+//			panelConstraints = panelConstraints.replaceFirst("ins 0,", "");
+//			buttonPanel.setLayout(new MigLayout(panelConstraints));
+//		}
+////		int size = buttonIndexMap.size();
+////		int maxSearch = buttonIndexMap.size() * 3;
+////		for (int i = 0; i < size && i < maxSearch; i++) {
+////			AbstractButton button = buttonIndexMap.get(i);
+////			if (button != null) {
+////				buttonPanel.add(button, buttonConstraints);
+////			} else {
+////				size++;
+////			}
+////		}
+//		return buttonPanel;
+		return this;
 	}
 
 	public SmartButtonGroup setPanelConst(String constraints) {
@@ -160,6 +154,7 @@ public class SmartButtonGroup extends ButtonGroup {
 			sb.append(s).append(",");
 		}
 		panelConstraints += sb;
+		layout.setLayoutConstraints(panelConstraints);
 		return this;
 	}
 
@@ -167,11 +162,13 @@ public class SmartButtonGroup extends ButtonGroup {
 		for (String s : constraints) {
 			panelConstraints = panelConstraints.replaceFirst(s + ",", "");
 		}
+		layout.setLayoutConstraints(panelConstraints);
 		return this;
 	}
 
 	public SmartButtonGroup setButtonConst(String constraints) {
 		buttonConstraints = constraints;
+		updateButtonConstraints();
 		return this;
 	}
 
@@ -181,6 +178,7 @@ public class SmartButtonGroup extends ButtonGroup {
 			sb.append(s).append(",");
 		}
 		buttonConstraints += sb;
+		updateButtonConstraints();
 		return this;
 	}
 
@@ -188,6 +186,13 @@ public class SmartButtonGroup extends ButtonGroup {
 		for (String s : constraints) {
 			buttonConstraints = buttonConstraints.replaceFirst(s + ",", "");
 		}
+		updateButtonConstraints();
 		return this;
+	}
+
+	private void updateButtonConstraints() {
+		for(Component comp : getComponents()){
+			layout.setComponentConstraints(comp, buttonConstraints);
+		}
 	}
 }

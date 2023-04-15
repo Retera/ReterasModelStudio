@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.viewer.twiTestRenderMaster;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderParticleEmitter2;
+import com.hiveworkshop.rms.editor.render3d.RenderRibbonEmitter;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
@@ -14,6 +15,7 @@ import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ShaderPipeline
 import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
 import com.hiveworkshop.rms.ui.application.viewer.ViewportHelpers;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
+import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import org.lwjgl.BufferUtils;
@@ -46,6 +48,7 @@ public class BufferFiller {
 	private int levelOfDetail;
 
 	GeosetBufferFiller geosetBufferFiller;
+	RibbonBufferFiller ribbonBufferFiller;
 	NodeBufferFiller nodeBufferFiller;
 	GridPainter2 gridPainter2;
 	ParticleBufferFiller particleBufferFiller;
@@ -72,6 +75,7 @@ public class BufferFiller {
 
 
 		geosetBufferFiller = new GeosetBufferFiller();
+		ribbonBufferFiller = new RibbonBufferFiller();
 		nodeBufferFiller = new NodeBufferFiller();
 		gridPainter2 = new GridPainter2();
 		particleBufferFiller = new ParticleBufferFiller();
@@ -113,6 +117,7 @@ public class BufferFiller {
 			modelView = null;
 		}
 		geosetBufferFiller.setModel(renderModel, modelView, textureThing);
+		ribbonBufferFiller.setModel(textureThing, renderModel);
 		nodeBufferFiller.setModel(renderModel, modelView);
 		particleBufferFiller.setModel(textureThing, renderModel);
 		cameraBufferFiller.setModel(renderModel, modelView);
@@ -149,7 +154,6 @@ public class BufferFiller {
 
 
 	public void initGL() {
-		ShaderPipeline pipeline = shaderManager.getOrCreatePipeline(isHD);
 		try {
 			if ((programPreferences == null) || programPreferences.textureModels()) {
 				forceReloadTextures();
@@ -210,24 +214,26 @@ public class BufferFiller {
 	}
 
 	private void fillBuffers(){
-
-		programPreferences.getPerspectiveBackgroundColor().getColorComponents(backgroundColor);
+		ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.BACKGROUND_COLOR).getColorComponents(backgroundColor);
 		if(renderModel != null){
-//			geosetBufferFiller.fillBuffer(shaderManager.getOrCreatePipeline(isHD), true);
 			geosetBufferFiller.fillBuffer(shaderManager, true);
 
-			nodeBufferFiller.fillBuffer(shaderManager.getOrCreateBoneMarkerShaderPipeline());
+			nodeBufferFiller.fillBuffer(shaderManager.getPipeline(ShaderManager.PipelineType.BONE));
 
-			nodeBufferFiller.fillCollBuffer(shaderManager.getOrCreateColShaderPipeline());
+			nodeBufferFiller.fillCollBuffer(shaderManager.getPipeline(ShaderManager.PipelineType.COLLISION));
 
-			geosetBufferFiller.fillNormalsBuffer(shaderManager.getOrCreateNormPipeline());
-			geosetBufferFiller.fillVertsBuffer(shaderManager.getOrCreateVertPipeline());
+			geosetBufferFiller.fillNormalsBuffer(shaderManager.getPipeline(ShaderManager.PipelineType.NORM));
+			geosetBufferFiller.fillVertsBuffer(shaderManager.getPipeline(ShaderManager.PipelineType.VERT));
 
-			if (programPreferences.showPerspectiveGrid()) {
-				gridPainter2.fillGridBuffer(shaderManager.getOrCreateGridPipeline());
+			cameraBufferFiller.fillBuffer(shaderManager.getPipeline(ShaderManager.PipelineType.CAMERA));
+
+
+			if (programPreferences != null && programPreferences.getRenderParticles()) {
+
+				for(RenderRibbonEmitter emitter2 : renderModel.getRenderParticleEmitters2Rib()) {
+					ribbonBufferFiller.fillParticleHeap(shaderManager.getPipeline(ShaderManager.PipelineType.RIBBON), emitter2);
+				}
 			}
-
-			cameraBufferFiller.fillBuffer(shaderManager.getOrCreateCameraShaderPipeline());
 
 //			if (programPreferences != null && programPreferences.getRenderParticles()) {
 //				particleBufferFiller.fillParticleHeap();
@@ -257,22 +263,22 @@ public class BufferFiller {
 
 		if(renderModel != null){
 			if(isHD){
-				ShaderPipeline pipeline = shaderManager.getOrCreatePipeline(isHD);
+				ShaderPipeline pipeline = shaderManager.getPipeline(ShaderManager.PipelineType.MESH);
 				RendererThing1.renderGeosets(cameraManager, pipeline, width, height, viewportSettings.isWireFrame(), viewportSettings.isRenderTextures());
 			}
-			ShaderPipeline pipeline = shaderManager.getOrCreatePipeline(false);
+			ShaderPipeline pipeline = shaderManager.getPipeline(ShaderManager.PipelineType.MESH);
 			RendererThing1.renderGeosets(cameraManager, pipeline, width, height, viewportSettings.isWireFrame(), viewportSettings.isRenderTextures());
 
 			if(viewportSettings.isShowNodes()){
-				ShaderPipeline boneMarkerShaderPipeline = shaderManager.getOrCreateBoneMarkerShaderPipeline();
+				ShaderPipeline boneMarkerShaderPipeline = shaderManager.getPipeline(ShaderManager.PipelineType.BONE);
 				RendererThing1.renderNodes(cameraManager, boneMarkerShaderPipeline, width, height);
 				if (viewportSettings.isShowNormals()) {
-					RendererThing1.renderCol(cameraManager, shaderManager.getOrCreateColShaderPipeline(), width, height);
+					RendererThing1.renderCol(cameraManager, shaderManager.getPipeline(ShaderManager.PipelineType.COLLISION), width, height);
 				}
 			}
 
 			if (viewportSettings.isShow3dVerts()) {
-				RendererThing1.renderCameras(cameraManager, shaderManager.getOrCreateCameraShaderPipeline(), width, height);
+				RendererThing1.renderCameras(cameraManager, shaderManager.getPipeline(ShaderManager.PipelineType.CAMERA), width, height);
 			}
 
 
@@ -281,24 +287,29 @@ public class BufferFiller {
 
 
 			if (viewportSettings.isShowNormals()) {
-				RendererThing1.renderNormals(cameraManager, shaderManager.getOrCreateNormPipeline(), width, height);
+				RendererThing1.renderNormals(cameraManager, shaderManager.getPipeline(ShaderManager.PipelineType.NORM), width, height);
 			}
 			if (viewportSettings.isShow3dVerts()) {
-				RendererThing1.render3DVerts(cameraManager, shaderManager.getOrCreateVertPipeline(), width, height);
+				RendererThing1.render3DVerts(cameraManager, shaderManager.getPipeline(ShaderManager.PipelineType.VERT), width, height);
 			}
 
 
 			if (mouseAdapter != null && mouseAdapter.isSelecting()) {
-				ShaderPipeline selectionPipeline = shaderManager.getOrCreateSelectionPipeline();
+				ShaderPipeline selectionPipeline = shaderManager.getPipeline(ShaderManager.PipelineType.SELECTION);
 				RendererThing1.fillSelectionBoxBuffer(mouseAdapter, selectionPipeline);
 				RendererThing1.paintSelectionBox(cameraManager, selectionPipeline, width, height);
 			}
 
 			if (programPreferences.showPerspectiveGrid()) {
-				RendererThing1.paintGrid(cameraManager, shaderManager.getOrCreateGridPipeline(), width, height);
+				RendererThing1.paintGrid(cameraManager, shaderManager.getPipeline(ShaderManager.PipelineType.GRID), width, height);
 			}
 
 			if (programPreferences != null && programPreferences.getRenderParticles()) {
+				RendererThing1.renderRibbons(cameraManager, shaderManager.getPipeline(ShaderManager.PipelineType.RIBBON), width, height, false, viewportSettings.isRenderTextures());
+				GL11.glDepthMask(false);
+				GL11.glEnable(GL11.GL_BLEND);
+				GL11.glEnable(GL11.GL_DEPTH_TEST);
+				GL11.glDisable(GL11.GL_CULL_FACE);
 				renderParticles(cameraManager, width, height);
 			}
 		}
@@ -314,7 +325,7 @@ public class BufferFiller {
 	}
 
 	private void renderParticles(CameraManager cameraManager, int width, int height) {
-		ShaderPipeline pipeline = shaderManager.getOrCreateParticleShaderPipeline();
+		ShaderPipeline pipeline = shaderManager.getPipeline(ShaderManager.PipelineType.PARTICLE2);
 		pipeline.glViewport(width, height);
 		pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
 		pipeline.glSetViewMatrix(cameraManager.getViewMat());

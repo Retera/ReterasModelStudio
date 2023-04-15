@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.preferences;
 
-import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.ui.preferences.listeners.ProgramPreferencesChangeListener;
 
 import java.awt.*;
@@ -113,7 +112,6 @@ public class ProgramPreference2 implements Serializable {
 		if (vertexSize == 0) {
 			vertexSize = 3;
 		}
-		Material.teamColor = teamColor;
 		if (threeDCameraSpinButton == null) {
 			threeDCameraSpinButton = MouseButtonPreference.LEFT;
 			threeDCameraPanButton = MouseButtonPreference.MIDDLE;

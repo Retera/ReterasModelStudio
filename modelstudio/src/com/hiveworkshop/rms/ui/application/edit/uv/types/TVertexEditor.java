@@ -112,6 +112,7 @@ public class TVertexEditor extends ModelEditor {
 
 	public void setUVLayerIndex(int uvLayerIndex) {
 		this.uvLayerIndex = uvLayerIndex;
+		selectionManager.setUvLayerIndex(uvLayerIndex);
 		// TODO deselect vertices with no such layer
 	}
 
