@@ -151,7 +151,9 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 	}
 
 	public ViewportCanvas setLevelOfDetail(int levelOfDetail){
-		bufferFiller.setLevelOfDetail(levelOfDetail);
+		if(bufferFiller != null){
+			bufferFiller.setLevelOfDetail(levelOfDetail);
+		}
 		return this;
 	}
 }

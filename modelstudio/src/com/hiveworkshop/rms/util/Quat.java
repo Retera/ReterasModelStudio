@@ -508,7 +508,7 @@ public class Quat extends Vec4 {
 		return this;
 	}
 	public Vec4 toAxisWithAngle() {
-		float angle = (float) Math.acos(w) * 2;
+		float angle = (float) Math.acos(MathUtils.clamp(w, -1f, 1f)) * 2;
 		float sinOfHalfAngle = (float) Math.sin(angle / 2.0);
 		float ax = x / sinOfHalfAngle;
 		float ay = y / sinOfHalfAngle;
@@ -516,7 +516,7 @@ public class Quat extends Vec4 {
 		return new Vec4(ax, ay, az, angle);
 	}
 	public Vec3 getAxis() {
-		float angle = (float) Math.acos(w) * 2;
+		float angle = (float) Math.acos(MathUtils.clamp(w, -1f, 1f)) * 2;
 		float sinOfHalfAngle = (float) Math.sin(angle / 2.0);
 		float ax = x / sinOfHalfAngle;
 		float ay = y / sinOfHalfAngle;
@@ -524,7 +524,7 @@ public class Quat extends Vec4 {
 		return new Vec3(ax, ay, az);
 	}
 	public float getAxisAngle() {
-		return (float) Math.acos(w) * 2;
+		return (float) Math.acos(MathUtils.clamp(w, -1f, 1f)) * 2;
 	}
 
 	public Quat setIdentity() {

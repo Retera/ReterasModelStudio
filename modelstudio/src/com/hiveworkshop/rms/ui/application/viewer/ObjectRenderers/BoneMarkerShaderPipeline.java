@@ -65,6 +65,7 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 //		enableAttribArray(NORMAL, STRIDE);
 		enableAttribArray(SELECTION_STATUS, STRIDE);
 		enableAttribArray(SELECTION_STATUS, STRIDE);
+		enableAttribArray(BILLBOARD_FLAGS, STRIDE);
 
 		GL11.glDisable(GL11.GL_CULL_FACE);
 		GL20.glUseProgram(shaderProgram);
@@ -154,6 +155,7 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 		addToBuffer(baseOffset, fres);
 		addToBuffer(baseOffset, uv.x);
 		addToBuffer(baseOffset, uv.y);
+		addToBuffer(baseOffset, selectionStatus); // billboarding
 
 		vertexCount++;
 	}

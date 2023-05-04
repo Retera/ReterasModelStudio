@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.blp.ImageUtils;
+import com.hiveworkshop.rms.parsers.twiImageStuff.DDS.DDSFile;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.MaterialListRenderer;
@@ -122,6 +123,9 @@ public class ExportTexture extends ActionFunction {
         }
     }
 
+	public static boolean onClickSaveAs(BufferedImage bufferedImage, String suggestedName, int operationType, Component parent) {
+		return onClickSaveAs(bufferedImage, suggestedName, operationType, new FileDialog(parent), parent);
+	}
 	public static boolean onClickSaveAs(BufferedImage bufferedImage, String suggestedName, int operationType, FileDialog fileDialog, Component parent) {
 		File file = fileDialog.getSaveFile(operationType, suggestedName);
 		if (file != null) {
@@ -149,7 +153,12 @@ public class ExportTexture extends ActionFunction {
 			if(fileExtension.equals("tga")){
 				TgaFile.writeTGA(bufferedImage, modelFile);
 				return true;
+			} else if(fileExtension.equals("dds")){
+				System.out.println("writing dds! " + "\"" + modelFile.getAbsolutePath() + "\"");
+				DDSFile.writeDDS(bufferedImage, modelFile);
+				return true;
 			} else {
+				System.out.println("writing " + fileExtension);
 				final boolean write = ImageIO.write(bufferedImage, fileExtension, modelFile);
 				SaveProfile.get().addRecent(modelFile.getPath());
 				if (!write) {

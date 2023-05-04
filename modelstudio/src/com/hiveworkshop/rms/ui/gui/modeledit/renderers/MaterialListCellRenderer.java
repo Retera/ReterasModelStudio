@@ -60,7 +60,8 @@ public class MaterialListCellRenderer extends DefaultListCellRenderer {
 		if (model.contains(material)) {
 			color = recModelColor.asIntColor();
 		} else {
-			name = "Import: " + name;
+//			name = "Import: " + name;
+//			name = name;
 			color = donModelColor.asIntColor();
 		}
 		super.getListCellRendererComponent(list, name, index, iss, chf);
@@ -68,14 +69,31 @@ public class MaterialListCellRenderer extends DefaultListCellRenderer {
 		setIcon(makeMaterialIcon(material, materialImage, color));
 		setFont(theFont);
 
-		if (geosetShell != null && geosetShell.getMaterial() == material) {
-			setBackground(bgColor);
-		} else if (geosetShells.stream().anyMatch(gs -> gs.getMaterial() == material)) {
-			setBackground(bgColor);
+		if(!geosetShells.isEmpty()){
+			long count = geosetShells.stream().filter(g -> g.getMaterial() == material).count();
+			if (count == geosetShells.size()) {
+				setBackground(bgColor);
+			} else if (count != 0) {
+				setBackground(bgColor.brighter());
+			} else {
+				setBackground(null);
+			}
+		} else {
+			if (geosetShell != null && geosetShell.getMaterial() == material) {
+				setBackground(bgColor);
+			} else {
+				setBackground(null);
+			}
 		}
-//		if (myMaterial == material) {
+
+//		if (geosetShell != null && geosetShell.getMaterial() == material) {
 //			setBackground(bgColor);
+//		} else if (geosetShells.stream().anyMatch(gs -> gs.getMaterial() == material)) {
+//			setBackground(bgColor);
+//		} else {
+//			setBackground(null);
 //		}
+
 
 		return this;
 	}

@@ -8,9 +8,10 @@ import java.util.List;
 
 public class AnimShell {
 	private final Animation anim;
-	private final List<AnimShell> animDataDests = new ArrayList<>();
-	private AnimShell animDataSrc; // animation to replace this animation
+	private final List<AnimShell> animDataDests = new ArrayList<>(); // animations in which bones lacking anim data should use data from this animation
+	private AnimShell animDataSrc; // animation to replace this animation where bones are missing anim data
 	private boolean reverse = false;
+	private boolean doImport = true;
 	private ImportType importType = ImportType.IMPORT_BASIC;
 	private String name;
 	private final String oldName;
@@ -30,11 +31,6 @@ public class AnimShell {
 	public Animation getAnim() {
 		return anim;
 	}
-
-//	public AnimShell setAnim(Animation anim) {
-//		this.anim = anim;
-//		return this;
-//	}
 
 	public Animation getAnimDataSrcAnim() {
 		if (animDataSrc == null) {
@@ -57,9 +53,9 @@ public class AnimShell {
 	}
 
 	public AnimShell setImportType(int importType) {
-		if(0 <= importType && importType < ImportType.values().length) {
-			this.importType = ImportType.fromInt(importType);
-		}
+//		if(0 <= importType && importType < ImportType.values().length) {
+//			this.importType = ImportType.fromInt(importType);
+//		}
 		return this;
 	}
 
@@ -68,8 +64,27 @@ public class AnimShell {
 		return this;
 	}
 
+	public AnimShell setDoImport(boolean doImport) {
+		this.doImport = doImport;
+		return this;
+	}
+
+	public boolean isDoImport() {
+		return doImport;
+	}
+
 	public String getName() {
 		return name;
+	}
+
+	public String getDisplayName() {
+//		String prefix = isFromDonating ? "& " : "# ";
+		String prefix = "";
+		if (oldName.equals(name)){
+			return prefix + name + " " + anim.getLength();
+		} else {
+			return prefix + name + " " + anim.getLength() + " (" + oldName + ")";
+		}
 	}
 
 	public AnimShell setName(String name) {
@@ -85,11 +100,12 @@ public class AnimShell {
 		if (!animDataDests.contains(animShell)) {
 			animDataDests.add(animShell);
 			animShell.setAnimDataSrc(this);
-			importType = ImportType.TIMESCALE_INTO;
-			if (animDataSrc != null) {
-				animDataSrc.removeAnimDataDest(this);
-				animDataSrc = null;
-			}
+//			importType = ImportType.TIMESCALE_INTO;
+
+//			if (animDataSrc != null) {
+//				animDataSrc.removeAnimDataDest(this);
+//				animDataSrc = null;
+//			}
 		}
 	}
 
@@ -98,7 +114,7 @@ public class AnimShell {
 		for (AnimShell animShell : animShells) {
 			animShell.setAnimDataSrc(this);
 		}
-		importType = ImportType.TIMESCALE_INTO;
+//		importType = ImportType.TIMESCALE_INTO;
 		if (animDataSrc != null) {
 			animDataSrc.removeAnimDataDest(this);
 			animDataSrc = null;
@@ -158,10 +174,10 @@ public class AnimShell {
 			this.animDataSrc = animDataSrc;
 			if (animDataSrc != null) {
 				animDataSrc.addAnimDataDest(this);
-				for (AnimShell animShell : animDataDests) {
-					animShell.setAnimDataSrc(null);
-				}
-				importType = ImportType.TIMESCALE_RECEIVE;
+//				for (AnimShell animShell : animDataDests) {
+//					animShell.setAnimDataSrc(null);
+//				}
+//				importType = ImportType.TIMESCALE_RECEIVE;
 			}
 		}
 		return this;

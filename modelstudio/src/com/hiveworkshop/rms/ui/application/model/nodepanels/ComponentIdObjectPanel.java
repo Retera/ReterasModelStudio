@@ -20,6 +20,7 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -27,6 +28,7 @@ import java.util.function.Supplier;
 public abstract class ComponentIdObjectPanel<T extends IdObject> extends ComponentPanel<T> {
 	protected TwiTextField nameField;
 	protected JLabel parentName;
+	protected JLabel bindPoseLabel;
 	protected IdObjectChooser parentChooser;
 	protected T idObject;
 	protected JPanel topPanel;
@@ -43,7 +45,6 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	protected JCheckBox dontInheritTranslationBox;
 	protected JCheckBox dontInheritRotationBox;
 	protected JCheckBox dontInheritScalingBox;
-
 
 	public ComponentIdObjectPanel(ModelHandler modelHandler) {
 		super(modelHandler);
@@ -65,6 +66,9 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 		parentName = new JLabel("Parent");
 		add(parentName);
 		add(getButton("change", e -> chooseParent()), "wrap");
+		bindPoseLabel = new JLabel("BP:{1111111111111111111111111111111111111111111111111111}");
+//		add(bindPoseLabel, "spanx");
+
 
 		pivotSpinner = new Vec3SpinnerArray().setVec3Consumer(this::setPivot);
 		add(new JLabel("pivot: "), "split, spanx 2");
@@ -97,6 +101,11 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 			this.parentName.setText(parent.getName());
 		} else {
 			parentName.setText("no parent");
+		}
+		if(itemToSelect.getBindPoseM4() != null){
+			bindPoseLabel.setText("BP: " + Arrays.toString(itemToSelect.getBindPoseM4().getBindPose()));
+		} else {
+			bindPoseLabel.setText("BP: null");
 		}
 
 		transPanel.update(idObject, (Vec3AnimFlag) idObject.find(MdlUtils.TOKEN_TRANSLATION), new Vec3(0, 0, 0));

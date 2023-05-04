@@ -99,7 +99,7 @@ public class ComponentParticlePanel extends ComponentIdObjectPanel<ParticleEmitt
 	private void export(){
 		String particlePath = ImportFileActions.convertPathToMDX(idObject.getPath());
 		if(!particlePath.isEmpty()){
-			ExportInternal.exportInternalFile3(particlePath, "Particle", this);
+			ExportInternal.exportInternalFile(particlePath, "Particle", this);
 		}
 	}
 }

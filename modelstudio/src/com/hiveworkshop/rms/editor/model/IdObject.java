@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.util.NodeUtils;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -22,8 +23,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	protected final Vec3 pivotPoint = new Vec3();
 	protected IdObject parent;
 	protected final List<IdObject> childrenNodes = new ArrayList<>();
-	protected float[] bindPose;
-	protected Mat4 bindPoseM4;
+	protected final Mat4 bindPoseM4 = new Mat4();
 
 	public IdObject() {
 	}
@@ -39,12 +39,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		billboardLockZ = other.billboardLockZ;
 		pivotPoint.set(other.pivotPoint);
 		setParent(other.parent);
-		if (other.bindPose != null) {
-			bindPose = other.bindPose.clone();
-		}
-		if (other.bindPoseM4 != null){
-			bindPoseM4 = new Mat4().set(other.bindPoseM4);
-		}
+		bindPoseM4.set(other.bindPoseM4);
 		copyTimelines(other);
 	}
 
@@ -74,7 +69,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	}
 
 	public void setParent(final IdObject p) {
-		if (p != this) {
+		if (NodeUtils.isValidHierarchy(this, p)) {
 			if (parent != null) {
 				parent.childrenNodes.remove(this);
 			}
@@ -156,31 +151,15 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return billboardLockZ;
 	}
 
-	public float[] getBindPose() {
-		return bindPose;
-	}
 	public Mat4 getBindPoseM4() {
 		return bindPoseM4;
 	}
 
-	public void setBindPose(float[] bindPose) {
-		this.bindPose = bindPose;
-		if(bindPose != null){
-			if(bindPoseM4 == null){
-				bindPoseM4 = new Mat4();
-			}
-			bindPoseM4.setFromBindPose(bindPose);
-		} else {
-			bindPoseM4 = null;
-		}
-	}
 	public void setBindPoseM4(Mat4 bindPose) {
-		bindPoseM4 = bindPose;
-		if(bindPose != null){
-			this.bindPose = bindPose.getBindPose();
-		} else {
-			this.bindPose = null;
-		}
+		bindPoseM4.set(bindPose);
+	}
+	public void setBindPoseM4(float[] bindPose) {
+		bindPoseM4.setFromBindPose(bindPose);
 	}
 
 	public void clearAnimation(Animation a) {

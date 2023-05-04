@@ -6,15 +6,12 @@ import javax.swing.*;
 import java.awt.*;
 
 class CameraPanel extends JPanel {
-	JLabel title;
-
-	JCheckBox doImport;
-	ModelHolderThing mht;
-
-	CameraShell selectedObject;
+	protected JLabel title;
+	protected TriCheckBox doImport;
+	protected ModelHolderThing mht;
+	private CameraShell selectedObject;
 
 	protected CameraPanel() {
-
 	}
 
 	public CameraPanel(ModelHolderThing mht) {
@@ -25,7 +22,7 @@ class CameraPanel extends JPanel {
 		title.setFont(new Font("Arial", Font.BOLD, 26));
 		add(title, "align center, wrap");
 
-		doImport = new JCheckBox("Import this object");
+		doImport = new TriCheckBox("Import");
 		doImport.setSelected(true);
 		doImport.addActionListener(e -> setImportStatus(doImport.isSelected()));
 		add(doImport, "left, wrap");
@@ -34,18 +31,9 @@ class CameraPanel extends JPanel {
 
 	public CameraPanel setSelectedObject(CameraShell selectedObject) {
 		this.selectedObject = selectedObject;
-		setTitles();
-		setCheckboxStatus(selectedObject.getShouldImport());
-		return this;
-	}
-
-
-	private void setTitles() {
 		title.setText(selectedObject.toString());
-	}
-
-	private void setCheckboxStatus(boolean isChecked) {
-		doImport.setSelected(isChecked);
+		doImport.setSelected(selectedObject.getShouldImport());
+		return this;
 	}
 
 	private void setImportStatus(boolean doImport) {

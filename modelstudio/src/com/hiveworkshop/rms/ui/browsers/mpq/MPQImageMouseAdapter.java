@@ -54,7 +54,7 @@ public final class MPQImageMouseAdapter extends MouseAdapter {
 		JPopupMenu contextMenu = new JPopupMenu();
 
 		contextMenu.add(getMenuItem("Open", e -> loadFileByType(getClickedPath())));
-		contextMenu.add(getMenuItem("Export", e -> ExportInternal.exportInternalFile3(getClickedPath(), "Texture", mpqBrowser)));
+		contextMenu.add(getMenuItem("Export", e -> ExportInternal.exportInternalFile(getClickedPath(), "Texture", mpqBrowser)));
 		contextMenu.addSeparator();
 		contextMenu.add(getMenuItem("Copy Path to Clipboard", e -> copyItemPathToClipboard(getClickedPath())));
 		contextMenu.add(getMenuItem("Use as Texture", e -> addTextureToCurrentModel(getClickedPath())));

@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.AnimationMap;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCamera;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
 
 /**
@@ -21,7 +22,7 @@ public class Camera implements Named {
 	private double nearClip;
 	private final CameraNode.SourceNode sourceNode;
 	private final CameraNode.TargetNode targetNode;
-	private float[] bindPose;
+	protected final Mat4 bindPoseM4 = new Mat4();
 
 	public Camera(MdlxCamera camera, EditableModel model) {
 		name = camera.name;
@@ -67,7 +68,7 @@ public class Camera implements Named {
 		for (AnimFlag<?> animFlag : camera.sourceNode.getAnimFlags()) {
 			sourceNode.add(animFlag.deepCopy());
 		}
-		bindPose = camera.bindPose.clone();
+		bindPoseM4.set(camera.bindPoseM4);
 	}
 
 	public MdlxCamera toMdlx(EditableModel model) {
@@ -135,12 +136,15 @@ public class Camera implements Named {
 		targetNode.setPosition(targetPosition);
 	}
 
-	public float[] getBindPose() {
-		return bindPose;
+	public Mat4 getBindPoseM4() {
+		return bindPoseM4;
 	}
 
-	public void setBindPose(float[] bindPose) {
-		this.bindPose = bindPose;
+	public void setBindPoseM4(Mat4 bindPose) {
+		bindPoseM4.set(bindPose);
+	}
+	public void setBindPoseM4(float[] bindPose) {
+		bindPoseM4.setFromBindPose(bindPose);
 	}
 
 	public CameraNode.SourceNode getSourceNode() {

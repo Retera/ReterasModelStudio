@@ -107,12 +107,14 @@ public abstract class TransformActivity extends ViewportActivity {
 	@Override
 	public void mouseMoved(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 		mousePoint.set(getPoint(e));
-		if (!selectionManager.isEmpty() && widgetOffersEdit(mousePoint, viewProjectionMatrix, e.getComponent(), selectionManager)) {
-			cursorManager.accept(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
-		} else if (selectionManager.selectableUnderCursor(mousePoint, viewProjectionMatrix, sizeAdj)) {
-			cursorManager.accept(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-		} else {
-			cursorManager.accept(null);
+		if(cursorManager != null) {
+			if (!selectionManager.isEmpty() && widgetOffersEdit(mousePoint, viewProjectionMatrix, e.getComponent(), selectionManager)) {
+				cursorManager.accept(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+			} else if (selectionManager.selectableUnderCursor(mousePoint, viewProjectionMatrix, sizeAdj)) {
+				cursorManager.accept(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+			} else {
+				cursorManager.accept(null);
+			}
 		}
 	}
 

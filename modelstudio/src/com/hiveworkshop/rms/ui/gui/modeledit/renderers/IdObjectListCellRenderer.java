@@ -7,11 +7,13 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Set;
 
 public class IdObjectListCellRenderer extends AbstractSnapshottingListCellRenderer2D<IdObject> {
 	boolean showParent = false;
 	IdObject selectedObject;
 	boolean showClass = false;
+	Set<IdObject> invalidObjects;
 
 	public IdObjectListCellRenderer() {
 		super(null, null);
@@ -33,6 +35,11 @@ public class IdObjectListCellRenderer extends AbstractSnapshottingListCellRender
 
 	public IdObjectListCellRenderer setSelectedObjectShell(IdObject objectShell) {
 		selectedObject = objectShell;
+		return this;
+	}
+
+	public IdObjectListCellRenderer setInvalidObjects(Set<IdObject> invalidObjects) {
+		this.invalidObjects = invalidObjects;
 		return this;
 	}
 
@@ -83,6 +90,10 @@ public class IdObjectListCellRenderer extends AbstractSnapshottingListCellRender
 		Vec3 fg = noOwnerFgCol;
 
 		if (value instanceof IdObject) {
+			if(invalidObjects != null && invalidObjects.contains(value)){
+				bg = otherOwnerBgCol;
+				fg = otherOwnerFgCol;
+			}
 			String name = ((IdObject) value).getName();
 			String stringToReturn = "";
 //			if (modelName != null && !modelName.equals("")) {

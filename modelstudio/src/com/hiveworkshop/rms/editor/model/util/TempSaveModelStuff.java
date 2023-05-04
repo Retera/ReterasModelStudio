@@ -279,20 +279,10 @@ public class TempSaveModelStuff {
 	private static BindPose getBindPoses(EditableModel model) {
 		BindPose bindPoseChunk = new BindPose();
 		for (IdObject obj : model.getIdObjects()) {
-			if (obj.getBindPose() != null) {
-				bindPoseChunk.addBindPose(obj.getBindPose());
-			}
+			bindPoseChunk.addBindPose(obj.getBindPoseM4().getBindPose());
 		}
 		for (Camera obj : model.getCameras()) {
-			if (obj.getBindPose() != null) {
-				bindPoseChunk.addBindPose(obj.getBindPose());
-			} else if (bindPoseChunk.getSize() == model.getIdObjects().size()){
-				bindPoseChunk.addBindPose(new float[] {
-						1, 0, 0,
-						0, 1, 0,
-						0, 0, 1,
-						obj.getPosition().x, obj.getPosition().y, obj.getPosition().z});
-			}
+			bindPoseChunk.addBindPose(obj.getBindPoseM4().getBindPose());
 		}
 		return bindPoseChunk;
 	}

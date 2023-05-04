@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.util.uiFactories;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
 
 public class Label {
@@ -88,6 +89,40 @@ public class Label {
 		return jLabel;
 	}
 
+	public static JTextField createSelectable(String text, Icon icon, String tooltip, Runnable runnable){
+		JTextField textField = new JTextField(text);
+		textField.setOpaque(false);
+		textField.setEditable(false);
+		textField.setBorder(null);
+		textField.setMinimumSize(new Dimension((int) textField.getPreferredSize().getWidth() + 1, (int) textField.getPreferredSize().getHeight()));
+//		JLabel jLabel = new JLabel(text, icon, SwingConstants.LEFT);
+//		jLabel.setEnabled(true);
+		textField.setToolTipText(tooltip);
+		if (runnable != null) {
+			textField.setFocusable(true);
+			textField.addMouseListener(getMouseAdapter(runnable, textField));
+			textField.addKeyListener(getKeyAdapter(runnable));
+		}
+		return textField;
+	}
+	public static JTextField createSelectable(String text, Font font, Icon icon, String tooltip, Runnable runnable){
+		JTextField textField = new JTextField(text);
+		textField.setOpaque(false);
+		textField.setEditable(false);
+		textField.setBorder(null);
+		textField.setFont(font);
+		textField.setMinimumSize(new Dimension((int) textField.getPreferredSize().getWidth() + 1, (int) textField.getPreferredSize().getHeight()));
+//		JLabel jLabel = new JLabel(text, icon, SwingConstants.LEFT);
+//		jLabel.setEnabled(true);
+		textField.setToolTipText(tooltip);
+		if (runnable != null) {
+			textField.setFocusable(true);
+			textField.addMouseListener(getMouseAdapter(runnable, textField));
+			textField.addKeyListener(getKeyAdapter(runnable));
+		}
+		return textField;
+	}
+
 	private static KeyAdapter getKeyAdapter(Runnable runnable) {
 		return new KeyAdapter() {
 			public void keyReleased(KeyEvent e) {
@@ -100,7 +135,7 @@ public class Label {
 		};
 	}
 
-	private static MouseAdapter getMouseAdapter(Runnable runnable, JLabel label) {
+	private static MouseAdapter getMouseAdapter(Runnable runnable, JComponent label) {
 		return new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent e) {

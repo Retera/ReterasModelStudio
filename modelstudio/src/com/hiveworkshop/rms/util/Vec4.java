@@ -50,7 +50,7 @@ public class Vec4 {
 	}
 
 	public Vec4 setAsAxisWithAngle(Quat quat){
-		float angle = (float) Math.acos(quat.w) * 2;
+		float angle = (float) Math.acos(MathUtils.clamp(quat.w, -1f, 1f)) * 2;
 		float sinOfHalfAngle = (float) Math.sin(angle / 2.0);
 		if(sinOfHalfAngle != 0) {
 			float ax = quat.x / sinOfHalfAngle;

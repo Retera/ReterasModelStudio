@@ -3,20 +3,20 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.util.IterableListModel;
+
+import java.util.List;
 
 public class GeosetShell {
 	private final String modelName;
 	private String name;
 	private int index;
-	private boolean isFromDonating;
+	private final boolean isFromDonating;
 	private final Geoset geoset;
-	private Geoset importGeoset;
 	private boolean doImport = true;
 	private Material oldMaterial;
 	private Material newMaterial;
-	private boolean isEnabled = true;
-	private IterableListModel<MatrixShell> matrixShells;
+	private boolean hasSkinBones = false;
+	private List<MatrixShell> matrixShells;
 
 	public GeosetShell(Geoset geoset, EditableModel model, boolean isFromDonating) {
 		this.geoset = geoset;
@@ -26,6 +26,7 @@ public class GeosetShell {
 			name = geoset.getName();
 			index = model.getGeosetId(geoset);
 			oldMaterial = geoset.getMaterial();
+			hasSkinBones = !geoset.getVertices().isEmpty() && geoset.getVertex(0).getSkinBones() != null;
 		}
 	}
 
@@ -64,19 +65,6 @@ public class GeosetShell {
 		return oldMaterial;
 	}
 
-	public GeosetShell setOldMaterial(Material oldMaterial) {
-		this.oldMaterial = oldMaterial;
-		return this;
-	}
-
-	public Geoset getImportGeoset() {
-		return importGeoset;
-	}
-
-	public GeosetShell setImportGeoset(Geoset importGeoset) {
-		this.importGeoset = importGeoset;
-		return this;
-	}
 
 	@Override
 	public String toString() {
@@ -84,15 +72,6 @@ public class GeosetShell {
 			return modelName + ": " + geoset.getName();
 		}
 		return modelName + ": none";
-	}
-
-	public boolean isEnabled() {
-		return isEnabled;
-	}
-
-	public GeosetShell setEnabled(boolean enabled) {
-		isEnabled = enabled;
-		return this;
 	}
 
 	public String getName() {
@@ -117,11 +96,6 @@ public class GeosetShell {
 		return isFromDonating;
 	}
 
-	public GeosetShell setFromDonating(boolean fromDonating) {
-		isFromDonating = fromDonating;
-		return this;
-	}
-
 	public Material getNewMaterial() {
 		return newMaterial;
 	}
@@ -135,11 +109,15 @@ public class GeosetShell {
 		return modelName;
 	}
 
-	public IterableListModel<MatrixShell> getMatrixShells() {
+	public boolean hasSkinBones() {
+		return hasSkinBones;
+	}
+
+	public List<MatrixShell> getMatrixShells() {
 		return matrixShells;
 	}
 
-	public GeosetShell setMatrixShells(IterableListModel<MatrixShell> matrixShells) {
+	public GeosetShell setMatrixShells(List<MatrixShell> matrixShells) {
 		this.matrixShells = matrixShells;
 		return this;
 	}

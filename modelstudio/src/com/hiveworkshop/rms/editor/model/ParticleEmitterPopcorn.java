@@ -12,6 +12,14 @@ import java.util.*;
  * what they represent. 2020-08: Changing the name to ParticleEmitterPopcorn to
  * match leaked Blizzard MDL. (one of the builds of the game included an MDL by
  * mistake or something)
+ *
+ * ParticleEmitterCorn specific animation tags
+ * 	KPPA - Popcorn emitter alpha
+ * 	KPPC - Popcorn emitter color
+ * 	KPPE - Popcorn emitter emission rate
+ * 	KPPL - Popcorn emitter lifespan
+ * 	KPPS - Popcorn emitter speed
+ * 	KPPV - Popcorn emitter visibility
  */
 public class ParticleEmitterPopcorn extends EmitterIdObject {
 	int replaceableId = 0;

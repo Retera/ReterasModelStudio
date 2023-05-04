@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.parsers.blp;
 
+import com.hiveworkshop.rms.util.ImageUtils.GU;
 import org.lwjgl.BufferUtils;
 
 import java.awt.*;
@@ -206,6 +207,18 @@ public class ImageUtils {
 		BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		bufferedImage.setRGB(0,0, width, height, pixels, 0, width);
 		return bufferedImage;
+	}
+
+	public static BufferedImage getXImage(int imageSize, int squareSize, Color color){
+		final BufferedImage image = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_INT_ARGB);
+		final Graphics2D g2 = image.createGraphics();
+		g2.setColor(color);
+		GU.drawCenteredSquare(g2, imageSize/2, imageSize/2, squareSize);
+		int dist1 = (imageSize - squareSize)/2;
+		int dist2 = imageSize-dist1;
+		GU.drawLines(g2, dist1, dist1, dist2, dist2, dist1, dist2, dist2, dist1);
+//			g2.drawString(exc.getClass().getSimpleName() + ": " + exc.getMessage(), 15, 15);
+		return image;
 	}
 
 	public enum ColorMode {

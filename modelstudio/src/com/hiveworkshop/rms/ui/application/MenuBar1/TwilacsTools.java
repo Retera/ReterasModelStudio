@@ -1,17 +1,28 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
+import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.mesh.FixFacesAction;
 import com.hiveworkshop.rms.editor.actions.tools.MergeSkinWeightsAction;
+import com.hiveworkshop.rms.editor.actions.util.BoolAction;
+import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
+import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
 import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.*;
 import com.hiveworkshop.rms.ui.application.tools.SkinningOptionPanel;
 import com.hiveworkshop.rms.ui.application.tools.shadereditors.ShaderEditorType;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.util.Mat4;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenu;
 
@@ -24,6 +35,7 @@ public class TwilacsTools extends JMenu {
 //		add(getBakeMenu());
 		add(getSkinningMenu());
 		add(getFixFacesMenu());
+		add(getBindPoseMenu());
 		add(getMergeWeightsMenu());
 
 		add(new WeldVerts().getMenuItem());
@@ -72,6 +84,32 @@ public class TwilacsTools extends JMenu {
 		add(TwilacStuff.getTextureCompositionMenuItem());
 	}
 
+
+
+	private JMenuItem getBindPoseMenu(){
+		JMenuItem menuItem = new JMenuItem("add BindPoses");
+		menuItem.addActionListener(e -> {
+			ModelPanel currentModelPanel = ProgramGlobals.getCurrentModelPanel();
+			if(currentModelPanel != null){
+				ModelHandler modelHandler = currentModelPanel.getModelHandler();
+				EditableModel model = modelHandler.getModel();
+				List<UndoAction> actions = new ArrayList<>();
+				for(IdObject idObject : model.getIdObjects()){
+					UndoAction a = new ConsumerAction<>(m -> idObject.setBindPoseM4(m), new Mat4().translate(idObject.getPivotPoint()), idObject.getBindPoseM4(), "");
+					actions.add(a);
+				}
+				for (Camera camera : model.getCameras()){
+					UndoAction a = new ConsumerAction<>(m -> camera.setBindPoseM4(m), new Mat4().translate(camera.getPosition()), camera.getBindPoseM4(), "");
+					actions.add(a);
+				}
+				if(!model.isUseBindPose()){
+					actions.add(new BoolAction(b -> model.setUseBindPose(b), true, "", null));
+				}
+				modelHandler.getUndoManager().pushAction(new CompoundAction("Add BindPoses", actions, null).redo());
+			}
+		});
+		return menuItem;
+	}
 	private JMenuItem getSkinningMenu(){
 		JMenuItem menuItem = new JMenuItem("Skinning options");
 		menuItem.addActionListener(e -> SkinningOptionPanel.showPanel(null, ProgramGlobals.getCurrentModelPanel().getModelHandler()));
@@ -79,7 +117,7 @@ public class TwilacsTools extends JMenu {
 	}
 	private JMenuItem getBakeMenu(){
 		JMenuItem menuItem = new JMenuItem("Bake texture test");
-		menuItem.addActionListener(e -> ReteraBakeMaterial.drawStuff(ProgramGlobals.getCurrentModelPanel().getModelHandler()));
+//		menuItem.addActionListener(e -> ReteraBakeMaterial.drawStuff(ProgramGlobals.getCurrentModelPanel().getModelHandler()));
 		return menuItem;
 	}
 

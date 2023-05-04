@@ -7,8 +7,10 @@ import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.blp.ImageUtils;
 import com.hiveworkshop.rms.ui.application.ExportInternal;
+import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.OpenImages;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.actionfunctions.ExportTexture;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.OverviewPanel;
@@ -19,7 +21,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
 import com.hiveworkshop.rms.ui.util.TwiList;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import com.hiveworkshop.rms.util.FramePopup;
-import com.hiveworkshop.rms.util.ImageUtils.GU;
 import com.hiveworkshop.rms.util.TwiComboBox;
 import com.hiveworkshop.rms.util.uiFactories.Button;
 import net.miginfocom.swing.MigLayout;
@@ -388,26 +389,11 @@ public class EditTexturesPanel extends OverviewPanel {
 	}
 
 	private BufferedImage getImage(Bitmap bitmap, DataSource workingDirectory){
-		BufferedImage texture = BLPHandler.getImage(bitmap, workingDirectory);
-		if(texture != null){
-			if(colorMode == ImageUtils.ColorMode.RGBA){
-				return texture;
-			} else {
-				return ImageUtils.getBufferedImageIsolateChannel(texture, colorMode);
-			}
-		} else {
-			int imageSize = 128;
-			final BufferedImage image = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_INT_ARGB);
-			final Graphics2D g2 = image.createGraphics();
-			g2.setColor(Color.BLACK);
-			int size = imageSize-6;
-			GU.drawCenteredSquare(g2, imageSize/2, imageSize/2, size);
-			int dist1 = (imageSize - size)/2;
-			int dist2 = imageSize-dist1;
-			GU.drawLines(g2, dist1, dist1, dist2, dist2, dist1, dist2, dist2, dist1);
-//			g2.drawString(exc.getClass().getSimpleName() + ": " + exc.getMessage(), 15, 15);
-			return image;
+		BufferedImage texture = BLPHandler.getImage(bitmap, workingDirectory, colorMode);
+		if(texture == null){
+			return ImageUtils.getXImage(128, 122, Color.BLACK);
 		}
+		return texture;
 	}
 
 	public static void showPanel() {
@@ -444,8 +430,32 @@ public class EditTexturesPanel extends OverviewPanel {
 
 	private void exportTexture() {
 		if (selectedImage != null) {
-			ExportInternal.exportInternalFile3(selectedImage.getRenderableTexturePath(), "Texture", this);
+			ImageUtils.ColorMode colorMode1 = getColorMode();
+			if(colorMode1 == ImageUtils.ColorMode.RGBA){
+				ExportInternal.exportInternalFile(selectedImage.getRenderableTexturePath(), "Texture", model.getWrappedDataSource(), this);
+			} else if (colorMode1 != null){
+				String[] nameParts = selectedImage.getRenderableTexturePath().split("\\.(?=.+$)");
+				String suggestedName = nameParts[0] + "_" + colorMode.name() + "." + nameParts[1];
+				ExportTexture.onClickSaveAs(getImage(selectedImage, model.getWrappedDataSource()), suggestedName, FileDialog.SAVE_TEXTURE, ProgramGlobals.getMainPanel());
+			}
 		}
+	}
+
+	private ImageUtils.ColorMode getColorMode(){
+		if(colorMode != ImageUtils.ColorMode.RGBA){
+			String[] tempStrings = new String[]{"Original", colorMode.name(), "Cancel"};
+			JOptionPane optionPane = new JOptionPane("Export Current Filtered Image?", JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_CANCEL_OPTION, null, tempStrings, tempStrings[0]);
+			JDialog export_option = optionPane.createDialog(this, "Export Option");
+			export_option.setVisible(true);
+			Object optionPaneValue = optionPane.getValue();
+
+			if(tempStrings[1].equals(optionPaneValue)){
+				return colorMode;
+			} else if(tempStrings[2].equals(optionPaneValue)){
+				return null;
+			}
+		}
+		return ImageUtils.ColorMode.RGBA;
 	}
 
 	private String getPath() {

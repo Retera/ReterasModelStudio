@@ -111,31 +111,36 @@ public final class StaticMeshRotateAction extends AbstractTransformAction {
 			}
 
 		}
+
 		for (IdObject b : selectedIdObjects) {
+			temp.set(b.getPivotPoint());
 			b.getPivotPoint().sub(center)
 					.transform(rotMat, 1, true)
 					.transform(rot)
 					.transform(invRotMat, 1, true)
 					.add(center);
 
-			float[] bindPose = b.getBindPose();
-			if (bindPose != null) {
-				bindPose[9] = b.getPivotPoint().x;
-				bindPose[10] = b.getPivotPoint().y;
-				bindPose[11] = b.getPivotPoint().z;
-				if(b.getBindPoseM4() != null){
-					b.getBindPoseM4().setFromBindPose(bindPose);
-				}
+			if (b.getBindPoseM4() != null){
+				temp.sub(b.getPivotPoint());
+				b.getBindPoseM4().translateScaled(temp, -1f);
 			}
 		}
 
 		for (CameraNode node : selectedCameraNodes) {
+			temp.set(node.getPosition());
 			node.getPosition()
 					.sub(center)
 					.transform(rotMat, 1, true)
 					.transform(rot)
 					.transform(invRotMat, 1, true)
 					.add(center);
+
+			if(node instanceof CameraNode.SourceNode){
+				if (node.getParent().getBindPoseM4() != null){
+					temp.sub(node.getPosition());
+					node.getParent().getBindPoseM4().translate(temp);
+				}
+			}
 		}
 		return this;
 	}

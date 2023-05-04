@@ -80,7 +80,7 @@ public class ComponentFaceEffectPanel extends ComponentPanel<FaceEffect> {
 	private void export(Supplier<String> pathSupplier){
 		String faceEffect = pathSupplier.get();
 		if(!faceEffect.isEmpty()){
-			ExportInternal.exportInternalFile3(faceEffect, "FaceEffect", this);
+			ExportInternal.exportInternalFile(faceEffect, "FaceEffect", this);
 		}
 	}
 }

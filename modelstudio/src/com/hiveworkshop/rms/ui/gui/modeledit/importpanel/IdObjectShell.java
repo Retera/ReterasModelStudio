@@ -16,8 +16,9 @@ public class IdObjectShell<T extends IdObject> {
 	private final boolean isFromDonating;
 
 	private IdObjectShell<?> motionSrcShell;
-	private List<IdObjectShell<?>> motionDestShells = new ArrayList<>(); // motion destinations
+	private final List<IdObjectShell<?>> motionDestShells = new ArrayList<>(); // motion destinations
 	private boolean shouldImport = true;
+	private boolean prioritizeMotionFromSelf = false;
 	private ImportType importStatus = ImportType.IMPORT;
 	private final IdObject oldParent;
 	private IdObjectShell<?> newParentShell;
@@ -107,12 +108,21 @@ public class IdObjectShell<T extends IdObject> {
 
 	public IdObjectShell<T> setShouldImport(boolean shouldImport) {
 		this.shouldImport = shouldImport;
-		if (shouldImport) {
-			importStatus = ImportType.IMPORT;
-		} else {
-			importStatus = ImportType.DONT_IMPORT;
-		}
+//		if (shouldImport) {
+//			importStatus = ImportType.IMPORT;
+//		} else {
+//			importStatus = ImportType.DONT_IMPORT;
+//		}
 		return this;
+	}
+
+	public IdObjectShell<T> setPrioritizeMotionFromSelf(boolean prioritizeMotionFromSelf) {
+		this.prioritizeMotionFromSelf = prioritizeMotionFromSelf;
+		return this;
+	}
+
+	public boolean isPrioritizeMotionFromSelf() {
+		return prioritizeMotionFromSelf;
 	}
 
 	public String getModelName() {
@@ -149,10 +159,10 @@ public class IdObjectShell<T extends IdObject> {
 			this.motionSrcShell = motionSrcShell;
 			if(motionSrcShell != null){
 				this.motionSrcShell.addMotionDest(this);
-				for (IdObjectShell<?> idObjectShell : motionDestShells) {
-					idObjectShell.setMotionSrcShell(null);
-				}
-				importStatus = ImportType.RECEIVE_MOTION;
+//				for (IdObjectShell<?> idObjectShell : motionDestShells) {
+//					idObjectShell.setMotionSrcShell(null);
+//				}
+//				importStatus = ImportType.RECEIVE_MOTION;
 			}
 		}
 		return this;
@@ -165,11 +175,11 @@ public class IdObjectShell<T extends IdObject> {
 			}
 			motionDestShells.add(boneShell);
 			boneShell.setMotionSrcShell(this);
-			importStatus = ImportType.MOTION_FROM;
-			if(motionSrcShell != null){
-				motionSrcShell.removeMotionDest(this);
-				motionSrcShell = null;
-			}
+//			importStatus = ImportType.MOTION_FROM;
+//			if(motionSrcShell != null){
+//				motionSrcShell.removeMotionDest(this);
+//				motionSrcShell = null;
+//			}
 		}
 		return this;
 	}
@@ -179,6 +189,10 @@ public class IdObjectShell<T extends IdObject> {
 			boneShell.setMotionSrcShell(null);
 		}
 		return this;
+	}
+
+	public List<IdObjectShell<?>> getMotionDestShells() {
+		return motionDestShells;
 	}
 
 	public boolean isFromDonating() {

@@ -208,9 +208,9 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 				case MdlUtils.TOKEN_ALPHAKEY -> filterMode = FilterMode.ALPHAKEY;
 				case MdlUtils.TOKEN_ROWS -> rows = stream.readUInt32();
 				case MdlUtils.TOKEN_COLUMNS -> columns = stream.readUInt32();
-				case MdlUtils.TOKEN_HEAD -> headTailFlag |= 0x1;
-				case MdlUtils.TOKEN_TAIL -> headTailFlag |= 0x2;
-				case MdlUtils.TOKEN_BOTH -> headTailFlag |= 0x3;
+				case MdlUtils.TOKEN_HEAD -> headTailFlag |= 0x0;
+				case MdlUtils.TOKEN_TAIL -> headTailFlag |= 0x1;
+				case MdlUtils.TOKEN_BOTH -> headTailFlag |= 0x2;
 				case MdlUtils.TOKEN_TAIL_LENGTH -> tailLength = stream.readFloat();
 				case MdlUtils.TOKEN_TIME -> timeMiddle = stream.readFloat();
 				case MdlUtils.TOKEN_SEGMENT_COLOR -> {
@@ -303,9 +303,9 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 		stream.writeFlag(filterMode.toString());
 		stream.writeAttribUInt32(MdlUtils.TOKEN_ROWS, rows);
 		stream.writeAttribUInt32(MdlUtils.TOKEN_COLUMNS, columns);
-		if (headTailFlag == 0x3) {
+		if (headTailFlag == 0x2) {
 			stream.writeFlag(MdlUtils.TOKEN_BOTH);
-		} else if(headTailFlag == 0x2) {
+		} else if(headTailFlag == 0x1) {
 			stream.writeFlag(MdlUtils.TOKEN_TAIL);
 		} else {
 			stream.writeFlag(MdlUtils.TOKEN_HEAD);

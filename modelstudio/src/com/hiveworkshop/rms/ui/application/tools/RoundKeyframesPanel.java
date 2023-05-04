@@ -19,7 +19,6 @@ import com.hiveworkshop.rms.util.uiFactories.CheckBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,7 +41,7 @@ public class RoundKeyframesPanel extends JPanel {
 
 
 	public RoundKeyframesPanel() {
-		super(new MigLayout("fill", "", ""));
+		super(new MigLayout("fill", "[grow]", ""));
 
 		JPanel typePanel = new JPanel(new MigLayout());
 		typePanel.setBorder(BorderFactory.createTitledBorder(""));
@@ -58,10 +57,10 @@ public class RoundKeyframesPanel extends JPanel {
 
 		add(CheckBox.create("Only selected nodes", onlySBool, b -> onlySBool = b), "wrap");
 
-		add(new RoundSpinners("Translation", transLastState, .01), "wrap");
-		add(new RoundSpinners("Scaling", scaleLastState, .01), "wrap");
-		add(new RoundSpinners("Rotation", rotChLastState, .01), "wrap");
-		add(new RoundSpinners("Other", otherLastState, .01), "wrap");
+		add(new RoundSpinners("Translation", transLastState, .01), "growx, wrap");
+		add(new RoundSpinners("Scaling", scaleLastState, .01), "growx, wrap");
+		add(new RoundSpinners("Rotation", rotChLastState, .01), "growx, wrap");
+		add(new RoundSpinners("Other", otherLastState, .01), "growx, wrap");
 
 		add(Button.create("Round values", e -> round()), "wrap");
 	}
@@ -147,20 +146,17 @@ public class RoundKeyframesPanel extends JPanel {
 		MagnitudePanel magnitudePanel;
 		ClampPanel clampPanel;
 		RoundSpinners(String checkboxLabel, LastState lastState, double stepSize) {
-			super(new MigLayout("ins 0, ", "", ""));
+			super(new MigLayout("ins 0, fill", "[][grow][]", ""));
 			setBorder(BorderFactory.createTitledBorder(checkboxLabel));
 			setName("RoundPanel" + checkboxLabel);
 
 			onCheckedConsumer = b -> lastState.isActive = b;
 
-			magnitudePanel = new MagnitudePanel("", i -> lastState.magnitude = i);
-			clampPanel = new ClampPanel("", stepSize, f -> lastState.clampValue = f);
+			magnitudePanel = new MagnitudePanel("", buttonGroup, i -> lastState.magnitude = i);
+			clampPanel = new ClampPanel("", stepSize, buttonGroup, f -> lastState.clampValue = f);
 
 			magnitudePanel.radioButton().addActionListener(e -> lastState.mode = buttonGroup.getSelectedIndex());
 			clampPanel.radioButton().addActionListener(e -> lastState.mode = buttonGroup.getSelectedIndex());
-
-			buttonGroup.addButton(magnitudePanel.radioButton());
-			buttonGroup.addButton(clampPanel.radioButton());
 
 
 //			add(CheckBox.create(null, null, lastState.isActive, this::setEnabled), "id box, pos (box.x - box.w/3) (box.y + box.h/2)");
@@ -170,8 +166,8 @@ public class RoundKeyframesPanel extends JPanel {
 			add(CheckBox.create(null, null, lastState.isActive, this::setEnabled), "");
 //			add(magnitudePanel, "gapleft (box.w*1.5)");
 
-			add(magnitudePanel, "");
-			add(clampPanel, "");
+			add(magnitudePanel, "sg mag, growx, left");
+			add(clampPanel, "sg clamp");
 			buttonGroup.setSelectedIndex(lastState.mode);
 			setEnabled(lastState.isActive);
 
@@ -197,20 +193,21 @@ public class RoundKeyframesPanel extends JPanel {
 		private final JLabel numberLabel;
 		private Consumer<Integer> valueConsumer;
 
-		MagnitudePanel(String checkboxLabel, Consumer<Integer> valueConsumer) {
-			super(new MigLayout("ins 0, ", "", ""));
+		MagnitudePanel(String checkboxLabel, SmartButtonGroup sbg, Consumer<Integer> valueConsumer) {
+			super(new MigLayout("ins 0 0 0 2, ", "", ""));
 			setBorder(BorderFactory.createTitledBorder(checkboxLabel));
-			radioButton = new JRadioButton();
-			radioButton.addItemListener(e -> setState(e.getStateChange() == ItemEvent.SELECTED));
+			radioButton = sbg.addJRadioButton(null, null, this::setState);
+//			radioButton = new JRadioButton();
+//			radioButton.addItemListener(e -> setState(e.getStateChange() == ItemEvent.SELECTED));
 			label = new JLabel("Rounding magnitude");
 			numberLabel = new JLabel("00000000000");
 			spinner = new IntEditorJSpinner(5, -10, 10, null);
 			setIntConsumer(valueConsumer, true);
 
-			add(radioButton, "");
-			add(label, "");
-			add(spinner, "");
-			add(numberLabel, "right");
+			add(radioButton, "sg sg1");
+			add(label, "sg sg2");
+			add(spinner, "sg sg3");
+			add(numberLabel, "sg sg4, right");
 			setState(false);
 		}
 
@@ -260,19 +257,20 @@ public class RoundKeyframesPanel extends JPanel {
 		private final FloatEditorJSpinner spinner;
 		private final JLabel label;
 		private Consumer<Float> valueConsumer;
-		ClampPanel(String checkboxLabel, double stepSize, Consumer<Float> valueConsumer) {
+		ClampPanel(String checkboxLabel, double stepSize, SmartButtonGroup sbg, Consumer<Float> valueConsumer) {
 			super(new MigLayout("ins 0, ", "", ""));
 			setBorder(BorderFactory.createTitledBorder(checkboxLabel));
-			radioButton = new JRadioButton();
-			radioButton.addItemListener(e -> setState(e.getStateChange() == ItemEvent.SELECTED));
+			radioButton = sbg.addJRadioButton(null, null, this::setState);
+//			radioButton = new JRadioButton();
+//			radioButton.addItemListener(e -> setState(e.getStateChange() == ItemEvent.SELECTED));
 
 			label = new JLabel("Set to 0 if smaller than \u00b1");
 			spinner = new FloatEditorJSpinner(0f, 0f, 10000.0f, (float) stepSize, null);
 			setFloatConsumer(valueConsumer, true);
 
-			add(radioButton, "");
-			add(label, "");
-			add(spinner, "");
+			add(radioButton, "sg sg5");
+			add(label, "sg sg6");
+			add(spinner, "sg sg7");
 			setState(false);
 		}
 

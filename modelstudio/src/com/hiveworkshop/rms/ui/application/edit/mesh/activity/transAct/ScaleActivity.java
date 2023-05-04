@@ -56,7 +56,7 @@ public class ScaleActivity extends TransformActivity {
 		double endDist = Math.sqrt((dxEnd * dxEnd) + (dyEnd * dyEnd));
 		double startDist = Math.sqrt((dxStart * dxStart) + (dyStart * dyStart));
 
-		int flipNeg = (int) Math.copySign(1, (dxEnd) * (dyEnd));
+		int flipNeg = (int) Math.copySign(1, (dxEnd*dxStart) + (dyEnd*dyStart));
 
 		return flipNeg * (endDist / startDist);
 	}

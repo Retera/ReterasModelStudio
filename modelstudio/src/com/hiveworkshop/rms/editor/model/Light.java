@@ -4,6 +4,17 @@ import com.hiveworkshop.rms.parsers.mdlx.MdlxLight.Type;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.util.Vec3;
 
+
+/**
+ * Light specific animation tags
+ *  KLAS - Light attenuation start
+ *  KLAE - Light attenuation end
+ *  KLAC - Light color
+ *  KLAI - Light intensity
+ *  KLBI - Light ambient intensity
+ *  KLBC - Light ambient color
+ *  KLAV - Light visibility
+ */
 public class Light extends IdObject {
 	Type type = Type.OMNIDIRECTIONAL;
 	float attenuationStart = 0;

@@ -61,6 +61,14 @@ public class BLPHandler {
 		return getTL().getImage(iconTexturePath, GameDataFileSystem.getDefault());
 	}
 
+	public static BufferedImage getImage(Bitmap bitmap, DataSource workingDirectory, ImageUtils.ColorMode colorMode){
+		BufferedImage texture = getTL().getImage(bitmap, workingDirectory);
+		if(colorMode != ImageUtils.ColorMode.RGBA && texture != null){
+			return ImageUtils.getBufferedImageIsolateChannel(texture, colorMode);
+		}
+		return texture;
+	}
+
 	public static BufferedImage getImage(Bitmap bitmap, DataSource workingDirectory) {
 //		if(bitmap != null){
 //			System.out.println("\tbitmap: \"" + bitmap + "\", path: \"" + bitmap.getPath() + "\", name: \"" + bitmap.getName() + "\"");

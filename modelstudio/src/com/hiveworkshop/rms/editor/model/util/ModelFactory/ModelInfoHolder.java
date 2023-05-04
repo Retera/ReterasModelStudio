@@ -59,8 +59,10 @@ public class ModelInfoHolder {
 
 		idObject.setPivotPoint(getPivot(mdlxObj.objectId));
 
-		if (bindPose != null && mdlxObj.objectId > -1) {
-			idObject.setBindPose(bindPose.getBindPose(mdlxObj.objectId));
+		if (bindPose != null && -1 < mdlxObj.objectId && mdlxObj.objectId < bindPose.getSize()) {
+			idObject.setBindPoseM4(bindPose.getBindPose(mdlxObj.objectId));
+		} else {
+			idObject.getBindPoseM4().translate(idObject.getPivotPoint());
 		}
 
 		if(idObject instanceof Bone && mdlxObj instanceof MdlxBone){
@@ -73,11 +75,10 @@ public class ModelInfoHolder {
 
 	public ModelInfoHolder add(Camera camera) {
 		cameras.add(camera);
-		if (bindPose != null) {
-			int cameraBindPose = cameras.size() - 1 + idObjMap.size();
-			if (cameraBindPose < bindPose.getSize()) {
-				camera.setBindPose(bindPose.getBindPose(cameraBindPose));
-			}
+		if (bindPose != null && cameras.size() + idObjMap.size() <= bindPose.getSize()) {
+			camera.setBindPoseM4(bindPose.getBindPose(cameras.size() - 1 + idObjMap.size()));
+		} else {
+			camera.getBindPoseM4().translate(camera.getPosition());
 		}
 		return this;
 	}

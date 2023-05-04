@@ -2,7 +2,8 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.MatrixShellListCellRenderer;
-import com.hiveworkshop.rms.ui.util.SearchableList;
+import com.hiveworkshop.rms.ui.util.SearchableTwiList;
+import com.hiveworkshop.rms.ui.util.TwiList;
 import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
@@ -10,18 +11,17 @@ import javax.swing.*;
 import java.util.List;
 
 class BoneAttachmentPanel extends JPanel {
-	private JLabel title;
 
 	// Old bone refs (matrices)
-	private SearchableList<MatrixShell> recModBoneRefsList;
+	private SearchableTwiList<MatrixShell> recModBoneRefsList;
 	private final MatrixShellListCellRenderer matrixListCellRenderer = new MatrixShellListCellRenderer();
 
 	// New refs
 	private final IterableListModel<IdObjectShell<?>> newRefs = new IterableListModel<>();
-	private JList<IdObjectShell<?>> newRefsList;
+	private TwiList<IdObjectShell<?>> newRefsList;
 
 	// Bones (all available -- NEW AND OLD)
-	private SearchableList<IdObjectShell<?>> bonesList;
+	private SearchableTwiList<IdObjectShell<?>> bonesList;
 
 	private final ModelHolderThing mht;
 
@@ -42,7 +42,7 @@ class BoneAttachmentPanel extends JPanel {
 		JPanel oldBonesPanel = new JPanel(new MigLayout("gap 0 0 0 0, insets 0 0 0 0, fill", "[grow]", "[][][grow]"));
 		oldBonesPanel.add(new JLabel("Old Bone References"), "wrap");
 
-		recModBoneRefsList = new SearchableList<>(this::matrixShellBoneNameFilter)
+		recModBoneRefsList = new SearchableTwiList<>(this::matrixShellBoneNameFilter)
 				.setRenderer(matrixListCellRenderer)
 				.addSelectionListener(e -> refreshLists());
 		recModBoneRefsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -73,7 +73,7 @@ class BoneAttachmentPanel extends JPanel {
 		JPanel newBonesPanel = new JPanel(new MigLayout("gap 0 0 0 0, insets 0 0 0 0, fill", "[grow]", "[][grow][]"));
 		newBonesPanel.add(new JLabel("New Refs"), "wrap");
 
-		newRefsList = new JList<>();
+		newRefsList = new TwiList<>();
 		newRefsList.setCellRenderer(renderer);
 		JScrollPane newRefsPane = new JScrollPane(newRefsList);
 		newBonesPanel.add(newRefsPane, "growy, growx, wrap");
@@ -88,7 +88,7 @@ class BoneAttachmentPanel extends JPanel {
 		JPanel bonesPanel = new JPanel(new MigLayout("gap 0 0 0 0, insets 0 0 0 0, fill", "[grow]", "[][][grow][]"));
 		bonesPanel.add(new JLabel("Bones"), "wrap");
 
-		bonesList = new SearchableList<>(this::idObjectShellNameFilter).setRenderer(renderer);
+		bonesList = new SearchableTwiList<>(this::idObjectShellNameFilter).setRenderer(renderer);
 		bonesPanel.add(bonesList.getSearchField(), "grow, wrap");
 		bonesPanel.add(bonesList.getScrollableList(), "growy, growx, wrap");
 
@@ -100,8 +100,8 @@ class BoneAttachmentPanel extends JPanel {
 
 	public void setGeoset(GeosetShell geosetShell) {
 		selectedGeoset = geosetShell;
-		bonesList.setListModel(mht.getFutureBoneList());
-		recModBoneRefsList.setListModel(geosetShell.getMatrixShells());
+		bonesList.setList(mht.getFutureBoneList());
+		recModBoneRefsList.setList(geosetShell.getMatrixShells());
 		reloadNewRefsList();
 	}
 

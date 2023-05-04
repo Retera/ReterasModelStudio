@@ -95,18 +95,10 @@ public final class StaticMeshMoveAction extends AbstractTransformAction {
 					.transform(rotMat, 1, true)
 					.add(vec3)
 					.transform(invRotMat, 1, true);
-			float[] bindPose = b.getBindPose();
-			if (bindPose != null) {
-				bindPose[ 9] = b.getPivotPoint().x;
-				bindPose[10] = b.getPivotPoint().y;
-				bindPose[11] = b.getPivotPoint().z;
-//				bindPose[9] += vec3.x;
-//				bindPose[10] += vec3.y;
-//				bindPose[11] += vec3.z;
-				if (b.getBindPoseM4() != null){
-					b.getBindPoseM4().translate(vec3); // todo check if this is correct...
-				}
-			}
+
+			b.getBindPoseM4().mul(rotMat)
+					.translate(vec3)
+					.mul(invRotMat);// todo check if this is correct...
 		}
 
 		for (CameraNode cameraNode : selectedCameraNodes) {
@@ -115,15 +107,11 @@ public final class StaticMeshMoveAction extends AbstractTransformAction {
 					.add(vec3)
 					.transform(invRotMat, 1, true);
 			if(cameraNode instanceof CameraNode.SourceNode){
-				float[] bindPose = cameraNode.getParent().getBindPose();
+				if (cameraNode.getParent().getBindPoseM4() != null) {
 
-				if (bindPose != null) {
-					bindPose[ 9] = cameraNode.getPivotPoint().x;
-					bindPose[10] = cameraNode.getPivotPoint().y;
-					bindPose[11] = cameraNode.getPivotPoint().z;
-//					if (cameraNode.getBindPoseM4() != null){
-//						cameraNode.getBindPoseM4().translate(vec3); // todo check if this is correct...
-//					}
+					cameraNode.getParent().getBindPoseM4().mul(rotMat)
+							.translate(vec3)
+							.mul(invRotMat);// todo check if this is correct...
 				}
 			}
 		}

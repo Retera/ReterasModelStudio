@@ -1,9 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
-import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.VisPaneListCellRenderer;
-import com.hiveworkshop.rms.ui.gui.modeledit.renderers.VisShellBoxCellRenderer;
+import com.hiveworkshop.rms.ui.util.TwiList;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -17,60 +15,66 @@ public class VisibilityEditPanel extends JPanel {
 
 	private final CardLayout cardLayout = new CardLayout();
 	private final JPanel panelCards = new JPanel(cardLayout);
-	private final MultiVisibilityPanel multiVisPanel;
+	private final VisibilityMultiPanel multiVisPanel;
 	private final ModelHolderThing mht;
 
-
-	public List<VisibilityShell> recModVisSourcesOld = new ArrayList<>();
-	public List<VisibilityShell> donModVisSourcesNew = new ArrayList<>();
-
-	public List<VisibilityShell> allVisShells = new ArrayList<>();
-
 	private final VisibilityPanel singleVisPanel;
+
+	private final List<VisibilityShell<?>> visibilityShells = new ArrayList<>();
+	private final TwiList<VisibilityShell<?>> visibilityShellJList = new TwiList<>(visibilityShells);
 
 	public VisibilityEditPanel(ModelHolderThing mht) {
 		setLayout(new MigLayout("gap 0, fill", "[grow]", "[][grow]"));
 		this.mht = mht;
 
-		mht.visibilityShellJList.setModel(mht.futureVisComponents);
-		mht.visibilityShellJList.setCellRenderer(new VisPaneListCellRenderer());
-		mht.visibilityShellJList.addListSelectionListener(e -> visTabsValueChanged(mht, e));
+		visibilityShells.addAll(mht.allVisShells);
+		visibilityShellJList.setCellRenderer(new VisPaneListCellRenderer());
+		visibilityShellJList.addListSelectionListener(e -> visTabsValueChanged(mht, e));
 
 		add(getTopPanel(), "spanx, align center, wrap");
 
-		initVisibilityList(mht);
-		mht.visibilityList();
-		mht.donModVisSourcesNew = donModVisSourcesNew;
-		mht.recModVisSourcesOld = recModVisSourcesOld;
-
-		VisShellBoxCellRenderer visRenderer = new VisShellBoxCellRenderer();
-		singleVisPanel = new VisibilityPanel(mht, visRenderer, recModVisSourcesOld, donModVisSourcesNew);
-		multiVisPanel = new MultiVisibilityPanel(mht, recModVisSourcesOld, donModVisSourcesNew, visRenderer);
+//		VisShellBoxCellRenderer visRenderer = new VisShellBoxCellRenderer();
+		singleVisPanel = new VisibilityPanel(mht);
+		multiVisPanel = new VisibilityMultiPanel(mht);
 
 		panelCards.add(new JPanel(), "blank");
 		panelCards.add(singleVisPanel, "single");
 		panelCards.add(multiVisPanel, "multiple");
 		panelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
 
-		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(mht.visibilityShellJList), panelCards);
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(visibilityShellJList), panelCards);
 		splitPane.getLeftComponent().setMinimumSize(new Dimension(100, 300));
 		add(splitPane, "wrap, growx, growy, spany");
 	}
 
 	private JPanel getTopPanel() {
-		JPanel topPanel = new JPanel(new MigLayout("gap 0", "", "[]8[]8[]"));
-
-//		JButton allInvisButton = createButton("All Invisible in Exotic Anims", e -> allVisButton(mht.allVisShells, mht.receivingModel, mht.alwaysVisible), "Forces everything to be always invisibile in animations other than their own original animations.");
-		JButton allInvisButton = createButton("All Invisible in Exotic Anims", e -> allVisButton(mht.allVisShells, mht.neverVisible), "Forces everything to be always invisibile in animations other than their own original animations.");
-		topPanel.add(allInvisButton, "align center, wrap");
-
-//		JButton allVisButton = createButton("All Visible in Exotic Anims", e -> allVisButton(mht.allVisShells, mht.receivingModel, mht.neverVisible), "Forces everything to be always visibile in animations other than their own original animations.");
-		JButton allVisButton = createButton("All Visible in Exotic Anims", e -> allVisButton(mht.allVisShells, mht.alwaysVisible), "Forces everything to be always visibile in animations other than their own original animations.");
-		topPanel.add(allVisButton, "align center, wrap");
-
-		JButton selSimButton = createButton("Select Similar Options", e -> mht.selectSimilarVisSources(), "Similar components will be selected as visibility sources in exotic animations.");
-		topPanel.add(selSimButton, "align center, wrap");
+		JPanel topPanel = new JPanel(new MigLayout("gap 0", "[][]", "[]"));
+		topPanel.add(getSetVisPanel(false));
+		topPanel.add(getSetVisPanel(true));
 		return topPanel;
+	}
+
+	private JPanel getSetVisPanel(boolean donMod){
+		JPanel panel = new JPanel(new MigLayout("gap 0, ins 0"));
+
+		String modelName = donMod ? mht.donatingModel.getName() : mht.receivingModel.getName();
+		panel.setBorder(BorderFactory.createTitledBorder(modelName));
+
+		List<VisibilityShell<?>> allVisShells = donMod ? mht.donModVisibilityShells : mht.recModVisibilityShells;
+		VisibilityShell<?> neverVisible = donMod ? mht.recNeverVis : mht.donNeverVis;
+		VisibilityShell<?> alwaysVisible = donMod ? mht.recAlwaysVis : mht.donAlwaysVis;
+
+		String otherModName = donMod ? "[#]" : "[&]";
+
+		JButton allInvisButton = createButton("All Invisible in " + otherModName, e -> allAsVisSource(allVisShells, neverVisible), "Forces everything to be always invisibile in animations other than their own original animations.");
+		JButton allVisButton = createButton("All Visible in " + otherModName, e -> allAsVisSource(allVisShells, alwaysVisible), "Forces everything to be always visibile in animations other than their own original animations.");
+		JButton selSimButton = createButton("Select Similar", e -> selectSimilarVisSources(donMod), "Similar components will be selected as visibility sources in exotic animations.");
+
+		panel.add(allInvisButton);
+		panel.add(allVisButton);
+		panel.add(selSimButton);
+
+		return panel;
 	}
 
 	public JButton createButton(String text, ActionListener actionListener, String toolTipText) {
@@ -82,12 +86,12 @@ public class VisibilityEditPanel extends JPanel {
 
 	private void visTabsValueChanged(ModelHolderThing mht, ListSelectionEvent e) {
 		if (e.getValueIsAdjusting()) {
-			List<VisibilityShell> selectedValuesList = mht.visibilityShellJList.getSelectedValuesList();
+			List<VisibilityShell<?>> selectedValuesList = visibilityShellJList.getSelectedValuesList();
 			if (selectedValuesList.size() < 1) {
 				cardLayout.show(panelCards, "blank");
 			} else if (selectedValuesList.size() == 1) {
 				cardLayout.show(panelCards, "single");
-				singleVisPanel.setSource(mht.visibilityShellJList.getSelectedValue());
+				singleVisPanel.setSource(visibilityShellJList.getSelectedValue());
 			} else {
 				multiVisPanel.updateMultiVisPanel(selectedValuesList);
 				cardLayout.show(panelCards, "multiple");
@@ -95,74 +99,27 @@ public class VisibilityEditPanel extends JPanel {
 		}
 	}
 
-	public void initVisibilityList(ModelHolderThing mht) {
-
-		List<Named> tempList = new ArrayList<>();
-
-		fetchUniqueVisShells(mht.receivingModel, tempList);
-		fetchUniqueVisShells(mht.donatingModel, tempList);
-
-		for (TimelineContainer visSource : ModelUtils.getAllVis(mht.receivingModel)) {
-			recModVisSourcesOld.add(visShellFromObject(visSource));
+	public void allAsVisSource(List<VisibilityShell<?>> allVisShellPanes, VisibilityShell<?> visibilityShell) {
+		for (VisibilityShell<?> shell : allVisShellPanes) {
+			shell.setVisSource(visibilityShell);
 		}
-		recModVisSourcesOld.add(mht.neverVisible);
-		recModVisSourcesOld.add(mht.alwaysVisible);
-
-		for (TimelineContainer visSource : ModelUtils.getAllVis(mht.donatingModel)) {
-			donModVisSourcesNew.add(visShellFromObject(visSource));
-		}
-		donModVisSourcesNew.add(mht.neverVisible);
-		donModVisSourcesNew.add(mht.alwaysVisible);
+		repaint();
 	}
 
-	public void fetchUniqueVisShells(EditableModel model, List<Named> tempList) {
-		for (Material mat : model.getMaterials()) {
-			for (Layer x : mat.getLayers()) {
-				VisibilityShell vs = visShellFromObject(x);
-				if (!tempList.contains(x)) {
-					tempList.add(x);
-					allVisShells.add(vs);
+
+	public void selectSimilarVisSources(boolean donMod) {
+		// this should maybe look for best match and check source type...
+
+		List<VisibilityShell<?>> visShells = donMod ? mht.donModVisibilityShells : mht.recModVisibilityShells;
+		List<VisibilityShell<?>> otherVisSources = donMod ? mht.recModVisibilityShells : mht.donModVisibilityShells;
+		for (final VisibilityShell<?> visibilityShell : visShells) {
+			for (VisibilityShell<?> vs : otherVisSources) {
+				if (visibilityShell.getNameSource().getName().equals(vs.getNameSource().getName())) {
+					visibilityShell.setVisSource(vs);
 				}
 			}
 		}
-		for (final Geoset x : model.getGeosets()) {
-			VisibilityShell vs = visShellFromObject(x);
-			if (!tempList.contains(x)) {
-				tempList.add(x);
-				allVisShells.add(vs);
-			}
-		}
-		fetchAndAddVisComp(tempList, model.getLights());
-		fetchAndAddVisComp(tempList, model.getAttachments());
-		fetchAndAddVisComp(tempList, model.getParticleEmitters());
-		fetchAndAddVisComp(tempList, model.getParticleEmitter2s());
-		fetchAndAddVisComp(tempList, model.getRibbonEmitters());
-		fetchAndAddVisComp(tempList, model.getPopcornEmitters());
+		repaint();
 	}
 
-	public void fetchAndAddVisComp(List<Named> tempList, List<? extends IdObject> idObjects) {
-		for (final IdObject x : idObjects) {
-			VisibilityShell vs = visShellFromObject(x);
-			if (!tempList.contains(x)) {
-				tempList.add(x);
-				allVisShells.add(vs);
-			}
-		}
-	}
-
-	public VisibilityShell visShellFromObject(TimelineContainer vs) {
-		return mht.allVisShellBiMap.get(vs);
-	}
-
-	// ToDo Fix this to check through all animShells
-	//  this might be more broken than
-	public void allVisButton(ArrayList<VisibilityShell> allVisShellPanes, VisibilityShell visibilityShell) {
-		for (VisibilityShell shell : allVisShellPanes) {
-			if (shell.isFromDonating()) {
-				shell.setRecModAnimsVisSource(visibilityShell);
-			} else {
-				shell.setDonModAnimsVisSource(visibilityShell);
-			}
-		}
-	}
 }

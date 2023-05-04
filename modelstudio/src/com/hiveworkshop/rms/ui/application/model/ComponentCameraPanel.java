@@ -20,11 +20,13 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ComponentCameraPanel extends ComponentPanel<Camera> {
 	private final TwiTextField nameField;
 	private Camera camera;
+	private JLabel bindPoseLabel;
 
 	private final FloatEditorJSpinner fieldOfViewSpinner;
 	private final FloatEditorJSpinner farClipSpinner;
@@ -51,6 +53,9 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 //		add(getDeleteButton(e -> removeCamera()), "skip 1, wrap");
 		add(getDeleteButton(e -> removeCamera()), "wrap");
 		add(getButton("Simplyfy keyframes", e -> simplifyKFs()), "wrap");
+
+		bindPoseLabel = new JLabel("BP:{1111111111111111111111111111111111111111111111111111}");
+//		add(bindPoseLabel, "spanx");
 
 
 		positionSpinner = new Vec3SpinnerArray().setVec3Consumer(this::setPosition);
@@ -122,6 +127,12 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 	public ComponentPanel<Camera> setSelectedItem(Camera itemToSelect) {
 		camera = itemToSelect;
 		nameField.setText(camera.getName());
+
+		if(itemToSelect.getBindPoseM4() != null){
+			bindPoseLabel.setText("BP: " + Arrays.toString(itemToSelect.getBindPoseM4().getBindPose()));
+		} else {
+			bindPoseLabel.setText("BP: null");
+		}
 
 		positionSpinner.setValues(camera.getPosition());
 		targetSpinner.setValues(camera.getTargetPosition());

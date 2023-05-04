@@ -3,9 +3,9 @@ package com.hiveworkshop.rms.editor.model;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
-import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.filesystem.sources.FolderDataSource;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
+import com.hiveworkshop.rms.util.Mat4;
 
 import javax.swing.*;
 import java.io.File;
@@ -35,7 +35,7 @@ public class EditableModel implements Named {
 	private final List<FaceEffect> faceEffects = new ArrayList<>();
 	private boolean useBindPose;
 	private boolean temporary;
-	private DataSource wrappedDataSource = GameDataFileSystem.getDefault();
+	private CompoundDataSource wrappedDataSource = GameDataFileSystem.getDefault();
 
 	private final ModelIdObjects modelIdObjects = new ModelIdObjects();
 
@@ -58,7 +58,7 @@ public class EditableModel implements Named {
 		return null;
 	}
 
-	public DataSource getWrappedDataSource() {
+	public CompoundDataSource getWrappedDataSource() {
 		return wrappedDataSource;
 	}
 
@@ -123,8 +123,6 @@ public class EditableModel implements Named {
 		if (fileRef != null) {
 			wrappedDataSource = new CompoundDataSource(
 					Arrays.asList(GameDataFileSystem.getDefault(), new FolderDataSource(file.getParentFile().toPath())));
-		} else {
-			wrappedDataSource = GameDataFileSystem.getDefault();
 		}
 	}
 
@@ -199,26 +197,30 @@ public class EditableModel implements Named {
 
 
 	public void add(final Animation x) {
-		if (x == null) {
-			JOptionPane.showMessageDialog(null,
-					"Tried to add null Anim component to model, which is really bad. Tell Retera you saw this once you have errors.");
-		} else {
+		if (notNull(x, "Animation")) {
 			anims.add(x);
 		}
 	}
 
+	public void add(final Animation x, int index) {
+		if (notNull(x, "Anim")) {
+			if (okIndex(index, anims)) {
+				anims.add(index, x);
+			} else {
+				anims.add(x);
+			}
+		}
+	}
+
 	public void add(final Bitmap x) {
-		if (x == null) {
-			JOptionPane.showMessageDialog(null,
-					"Tried to add null Bitmap component to model, which is really bad. Tell Retera you saw this once you have errors.");
-		} else {
+		if (notNull(x, "Bitmap")) {
 			textures.add(x);
 		}
 	}
 
 	public void add(final Bitmap x, int index) {
 		if (x != null) {
-			if(0 <= index && index !=textures.size()){
+			if (okIndex(index, textures)) {
 				textures.add(index, x);
 			} else {
 				textures.add(x);
@@ -227,113 +229,117 @@ public class EditableModel implements Named {
 	}
 
 	public void add(final Camera x) {
-		if (x == null) {
-			JOptionPane.showMessageDialog(null,
-					"Tried to add null Camera component to model, which is really bad. Tell Retera you saw this once you have errors.");
-		} else {
+		if (notNull(x, "Camera")) {
 			cameras.add(x);
-			if (ModelUtils.isBindPoseSupported(formatVersion) && useBindPose && x.getBindPose() == null) {
-				x.setBindPose(new float[] {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0});
+			if (ModelUtils.isBindPoseSupported(formatVersion) && useBindPose && x.getBindPoseM4() == null) {
+				x.setBindPoseM4(new Mat4().translate(x.getPosition()));
+			}
+		}
+	}
+
+	public void add(final Camera x, int index) {
+		if (notNull(x, "Camera")) {
+			if (okIndex(index, cameras)) {
+				cameras.add(index, x);
+			} else {
+				cameras.add(x);
+			}
+			if (ModelUtils.isBindPoseSupported(formatVersion) && useBindPose && x.getBindPoseM4() == null) {
+				x.setBindPoseM4(new Mat4().translate(x.getPosition()));
 			}
 		}
 	}
 
 	public void add(final GlobalSeq x) {
-		if (x == null) {
-			JOptionPane.showMessageDialog(null,
-					"Tried to add null GlobalSeq component to model, which is really bad. Tell Retera you saw this once you have errors.");
-		} else {
+		if (notNull(x, "GlobalSeq")) {
 			globalSeqs.add(x);
 		}
 	}
 
+	public void add(final GlobalSeq x, int index) {
+		if (notNull(x, "GlobalSeq")) {
+			if (okIndex(index, globalSeqs)) {
+				globalSeqs.add(index, x);
+			} else {
+				globalSeqs.add(x);
+			}
+		}
+	}
+
 	public void add(final Geoset x) {
-		if (x == null) {
-			JOptionPane.showMessageDialog(null,
-					"Tried to add null Geoset component to model, which is really bad. Tell Retera you saw this once you have errors.");
-		} else {
+		if (notNull(x, "Geoset")) {
 			x.setParentModel(this);
 			geosets.add(x);
 		}
 	}
 
-	public void add(final GeosetVertex x) {
-		if (x == null) {
-			JOptionPane.showMessageDialog(null,
-					"Tried to add null GeosetVertex component to model, which is really bad. Tell Retera you saw this once you have errors.");
-		} else {
-			if (!contains(x.getGeoset())) {
-				add(x.getGeoset());
+	public void add(final Geoset x, int index) {
+		if (notNull(x, "Geoset")) {
+			x.setParentModel(this);
+			if (okIndex(index, geosets)) {
+				geosets.add(index, x);
+			} else {
+				geosets.add(x);
 			}
-			x.getGeoset().add(x);
-		}
-	}
-
-	public void add(final Triangle x) {
-		if (x == null) {
-			JOptionPane.showMessageDialog(null,
-					"Tried to add null Triangle component to model, which is really bad. Tell Retera you saw this once you have errors.");
-		} else {
-			if (!contains(x.getGeoset())) {
-				add(x.getGeoset());
-			}
-			x.getGeoset().add(x);
 		}
 	}
 
 	public void add(final IdObject x) {
-		if (x == null) {
-			JOptionPane.showMessageDialog(null,
-					"Tried to add null IdObject component to model, which is really bad. Tell Retera you saw this once you have errors.");
-		} else {
+		if (notNull(x, "IdObject")) {
 			modelIdObjects.addIdObject(x);
-			if (ModelUtils.isBindPoseSupported(formatVersion) && useBindPose && x.getBindPose() == null) {
-				float xBP = x.pivotPoint.x;
-				float yBP = x.pivotPoint.y;
-				float zBP = x.pivotPoint.z;
-				x.setBindPose(new float[] {
-						1, 0, 0,
-						0, 1, 0,
-						0, 0, 1,
-						xBP, yBP, zBP});
+			if (ModelUtils.isBindPoseSupported(formatVersion) && useBindPose && x.getBindPoseM4() == null) {
+				x.setBindPoseM4(new Mat4().translate(x.getPivotPoint()));
 			}
 		}
 	}
-	public void add(final IdObject x, int pos) {
-		if (x == null) {
-			JOptionPane.showMessageDialog(null,
-					"Tried to add null IdObject component to model, which is really bad. Tell Retera you saw this once you have errors.");
-		} else {
-			modelIdObjects.addIdObject(x, pos);
-			if (ModelUtils.isBindPoseSupported(formatVersion) && useBindPose && x.getBindPose() == null) {
-				float xBP = x.pivotPoint.x;
-				float yBP = x.pivotPoint.y;
-				float zBP = x.pivotPoint.z;
-				x.setBindPose(new float[] {
-						1, 0, 0,
-						0, 1, 0,
-						0, 0, 1,
-						xBP, yBP, zBP});
+	public void add(final IdObject x, int index) {
+		if (notNull(x, "IdObject")) {
+			modelIdObjects.addIdObject(x, index);
+			if (ModelUtils.isBindPoseSupported(formatVersion) && useBindPose && x.getBindPoseM4() == null) {
+				x.setBindPoseM4(new Mat4().translate(x.getPivotPoint()));
 			}
 		}
 	}
 
 	public void add(final Material x) {
-		if (x == null) {
-			JOptionPane.showMessageDialog(null,
-					"Tried to add null Material component to model, which is really bad. Tell Retera you saw this once you have errors.");
-		} else {
+		if (notNull(x, "Material")) {
 			materials.add(x);
 		}
 	}
 
+	public void add(final Material x, int index) {
+		if (notNull(x, "Material")) {
+			if (okIndex(index, materials)) {
+				materials.add(index, x);
+			} else {
+				materials.add(x);
+			}
+		}
+	}
+
 	public void add(final TextureAnim x) {
-		if (x == null) {
-			JOptionPane.showMessageDialog(null,
-					"Tried to add null TextureAnim component to model, which is really bad. Tell Retera you saw this once you have errors.");
-		} else {
+		if (notNull(x, "TextureAnim")) {
 			texAnims.add(x);
 		}
+	}
+
+	public void add(final TextureAnim x, int index) {
+		if (notNull(x, "TextureAnim")) {
+			if(okIndex(index, texAnims)) {
+				texAnims.add(index, x);
+			} else {
+				texAnims.add(x);
+			}
+		}
+	}
+
+	private boolean notNull(Object x, String type){
+		if (x == null) {
+			JOptionPane.showMessageDialog(null,
+					"Tried to add null " + type + " to model, which is really bad. Tell Retera you saw this once you have errors.");
+			return false;
+		}
+		return true;
 	}
 
 	public void addFaceEffect(final FaceEffect faceEffect) {

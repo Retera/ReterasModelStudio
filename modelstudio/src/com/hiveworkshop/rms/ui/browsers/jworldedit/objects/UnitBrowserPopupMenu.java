@@ -108,7 +108,7 @@ public class UnitBrowserPopupMenu extends JPopupMenu {
 		MutableGameObject obj = objectSupplier.get();
 		if (obj != null) {
 			String filepath = getFilePath(id, portrait, obj);
-			ExportInternal.exportInternalFile3(filepath, "Unit", this);
+			ExportInternal.exportInternalFile(filepath, "Unit", this);
 		}
 	}
 	private String getFilePath(War3ID id, boolean portrait, MutableGameObject obj) {

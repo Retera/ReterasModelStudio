@@ -19,35 +19,8 @@ import java.util.Collections;
 
 public class ExportInternal {
 
-	FileDialog fileDialog;
-
-
-	public void exportInternalFile1(String internalPath) {
-		CompoundDataSource dataSource = GameDataFileSystem.getDefault();
-		if(dataSource.has(internalPath)){
-			String fileName = internalPath.replaceAll(".+[\\\\/](?=.+)", "");
-			File selectedFile = fileDialog.getSaveFile(FileDialog.SAVE, fileName);
-			if (selectedFile != null) {
-				String expExt = fileDialog.getExtensionOrNull(fileName);
-				String saveExt = fileDialog.getExtensionOrNull(selectedFile);
-				if(expExt != null && saveExt != null
-//						&& (fileDialog.isSupModel(expExt) || fileDialog.isSupTexture(expExt))
-						&& (fileDialog.isSavableModelExt(saveExt) || fileDialog.isSavableTextureExt(saveExt))
-						&& !expExt.equalsIgnoreCase(saveExt)) {
-					exportConvert(internalPath, selectedFile, dataSource, expExt, saveExt, fileDialog);
-				} else {
-					if(saveExt == null && expExt != null){
-						selectedFile = new File(selectedFile.getPath() + "." + expExt);
-					}
-					exportExact(internalPath, selectedFile, dataSource);
-				}
-			}
-		} else {
-			JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(), "Could not find \"" + internalPath + "\"", "File not found", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-
-	private static void exportConvert(String internalPath, File selectedFile, CompoundDataSource dataSource, String expExt, String saveExt, FileDialog fileDialog) {
+	private static void exportConvert(String internalPath, File selectedFile, CompoundDataSource dataSource,
+	                                  String expExt, String saveExt, FileDialog fileDialog) {
 		if(expExt.equalsIgnoreCase("mdl") || expExt.equalsIgnoreCase("mdx")){
 			try {
 				MdlxModel model = MdxUtils.loadMdlx(internalPath, dataSource);
@@ -65,9 +38,13 @@ public class ExportInternal {
 		}
 	}
 
-	public static void exportInternalFile3(String internalPath, String type, JComponent parent) {
+	public static void exportInternalFile(String internalPath, String type, JComponent parent) {
+		exportInternalFile(internalPath, type, GameDataFileSystem.getDefault(), parent);
+	}
+
+	public static void exportInternalFile(String internalPath, String type, CompoundDataSource dataSource, JComponent parent) {
 		FileDialog fileDialog = new FileDialog(parent);
-		CompoundDataSource dataSource = GameDataFileSystem.getDefault();
+
 		if(dataSource.has(internalPath)){
 			String extension = fileDialog.getExtension(internalPath);
 			if(fileDialog.isSupModel(extension)){

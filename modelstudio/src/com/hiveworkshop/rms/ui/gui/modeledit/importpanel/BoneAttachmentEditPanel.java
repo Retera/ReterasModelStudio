@@ -3,13 +3,14 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.Matrix;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
-import com.hiveworkshop.rms.util.IterableListModel;
+import com.hiveworkshop.rms.util.ScreenInfo;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class BoneAttachmentEditPanel extends JPanel {
@@ -56,28 +57,49 @@ public class BoneAttachmentEditPanel extends JPanel {
 	}
 
 	private JPanel getTopPanel() {
-		JPanel topPanel = new JPanel(new MigLayout("gap 0", "[][][]"));
 
-		JButton allMatrOriginal = new JButton("Reset all Matrices");
-		allMatrOriginal.addActionListener(e -> allMatrOriginal());
-		topPanel.add(allMatrOriginal);
+		JPanel topPanel = new JPanel(new MigLayout("gap 0", "[][]", "[align center][align center]"));
+		topPanel.setOpaque(true);
 
-		JButton allMatrSameName = new JButton("Set all to available, original names");
-//		allMatrSameName.setToolTipText("matches matrix bones in the receiving model to bones with the same name (ignoring case) in the donating model");
-		allMatrSameName.setToolTipText("matches matrices bones to bones with the same name (ignoring case)");
-		allMatrSameName.addActionListener(e -> allMatrSameName());
-		topPanel.add(allMatrSameName);
-
-		JButton allMatrSameishName = new JButton("Set all to similar names");
-		allMatrSameishName.setToolTipText("ignores \"bone\", \"helper\", \"_\" and space.");
-		allMatrSameishName.addActionListener(e -> allMatrSameishName());
-		topPanel.add(allMatrSameishName, "wrap");
+		topPanel.add(getMatchBonesPanel(mht.receivingModel.getName(), mht.donatingModel.getName(), false), "");
+		topPanel.add(getMatchBonesPanel(mht.donatingModel.getName(), mht.receivingModel.getName(), true), "wrap");
 
 		displayParents = new JCheckBox("Display parent names");
 		displayParents.addActionListener(e -> showParents(renderer, displayParents));
 		topPanel.add(displayParents, "spanx, align center, wrap");
 
 		return topPanel;
+	}
+
+	private JPanel getMatchBonesPanel(String modelName, String otherModelName, boolean donModel){
+		JPanel panel = new JPanel(new MigLayout("gap 0, ins 0", "[][][]", "[align center]"));
+		panel.setOpaque(true);
+		panel.setBorder(BorderFactory.createTitledBorder(modelName));
+
+		JButton allMatrOriginal = new JButton("Reset all Matrices");
+		allMatrOriginal.setToolTipText("Resets all matrices to original bones, regardless of their import status.");
+		allMatrOriginal.addActionListener(e -> matrOriginal(donModel));
+		panel.add(allMatrOriginal);
+
+		JButton prioOther = new JButton("Auto match, prioritizing other");
+
+		int width = (int) ScreenInfo.getSuitableSize(1500, 800, .4).getWidth();
+		String toolTip1 = "Matches matrices' <code>[original bones]</code> to <code>[bones to be imported]</code> by name (ignoring CaSe).";
+		String toolTip2 = "<br><i>(if no match is found, an other try is made ignoring \"<code>bone</code>\", \"<code>helper</code>\", \"<code>_</code>\" and \"<code> </code>\".)</i>";
+		String toolTipOther = "<br>Prioritizing bones from \"" + otherModelName + "\"";
+		prioOther.setToolTipText("<html><p max-width=\"" + width + "\">" + toolTip1 + toolTipOther + toolTip2 + "</p></html>");
+		ToolTipManager.sharedInstance().setDismissDelay(1000*60);
+		prioOther.addActionListener(e -> allMatrSameNameStrictFirst(donModel, !donModel));
+		panel.add(prioOther);
+
+		JButton prioSelf = new JButton("Auto match, prioritizing self");
+		String toolTip2Alt = "<br><i>(if no match is found, an other try is made ignoring \"<code>bone</code>\", \"<code>helper</code>\", \"<code>_</code>\" and \"<code> </code>\".)</i>";
+		String toolTipSelf = "<br>Prioritizing bones from \"" + modelName + "\"";
+		prioSelf.setToolTipText("<html><p max-width=\"" + width + "\">" + toolTip1 + toolTipSelf + toolTip2Alt + "</p></html>");
+		prioSelf.addActionListener(e -> allMatrSameNameStrictFirst(donModel, donModel));
+		panel.add(prioSelf);
+
+		return panel;
 	}
 
 	private void showParents(BoneShellListCellRenderer renderer, JCheckBox checkBox) {
@@ -94,72 +116,82 @@ public class BoneAttachmentEditPanel extends JPanel {
 			}
 		}
 	}
-
-	public void allMatrSameName() {
-		IterableListModel<IdObjectShell<?>> futureBoneList = mht.getFutureBoneList();
-
-		Map<String, IdObjectShell<?>> nameMap = new HashMap<>();
-		for (IdObjectShell<?> boneShell : futureBoneList) {
-			if (boneShell.getShouldImport()) {
-				nameMap.put(boneShell.getName(), boneShell);
-			}
-		}
-
-		for (GeosetShell geosetShell : mht.allGeoShells) {
+	public void matrOriginal(boolean donModel) {
+		List<GeosetShell> geoShells = donModel ? mht.donModGeoShells : mht.recModGeoShells;
+		for (GeosetShell geosetShell : geoShells) {
 			if (geosetShell.isDoImport()) {
-				for (MatrixShell matrixShell : geosetShell.getMatrixShells()) {
-					matrixShell.clearNewBones();
-					final Matrix matrix = matrixShell.getMatrix();
-					// For look to find similarly named stuff and add it
-					for (final Bone bone : matrix.getBones()) {
-						final String mName = bone.getName();
-						if (nameMap.get(mName) != null) {
-							matrixShell.addNewBone(nameMap.get(mName));
-						}
-					}
+				for (MatrixShell ms : geosetShell.getMatrixShells()) {
+					ms.resetMatrix();
 				}
 			}
 		}
 	}
-	public void allMatrSameishName() {
-		// this will disregard some parts of bone names, increasing numbers of matched for some models
-		// placeholder "UGG" is used to make sure words isn't  merged and potentially losing more parts than necessary
-		// "ShelpBoneEric" -> "shelpUGGeric" -> "shelperic" and not "ShelpBoneEric" -> "shelperic" -> "sic"
-		IterableListModel<IdObjectShell<?>> futureBoneList = mht.getFutureBoneList();
+
+
+	public void allMatrSameNameStrictFirst(boolean donModel, boolean prioDonBones) {
+		List<IdObjectShell<?>> prioBoneList = prioDonBones ? mht.donModBoneShells : mht.recModBoneShells;
+		List<IdObjectShell<?>> secBoneList = prioDonBones ? mht.recModBoneShells : mht.donModBoneShells;
+		List<GeosetShell> geoShells = donModel ? mht.donModGeoShells : mht.recModGeoShells;
 
 		Map<String, IdObjectShell<?>> nameMap = new HashMap<>();
-		String placeholder = "UGG";
-		for (IdObjectShell<?> boneShell : futureBoneList) {
+		for (IdObjectShell<?> boneShell : secBoneList) {
 			if (boneShell.getShouldImport()) {
-				String name = boneShell.getName().toLowerCase()
-						.replaceAll("bone", placeholder)
-						.replaceAll("helper", placeholder)
-						.replaceAll("_", "")
-						.replaceAll(" ", "")
-						.replaceAll(placeholder, "");
+				String name = boneShell.getName();
 				nameMap.put(name, boneShell);
+				nameMap.put(getFuzzyName(name), boneShell);
+			}
+		}
+		// this will overwrite names that exist in both bone lists
+		for (IdObjectShell<?> boneShell : prioBoneList) {
+			if (boneShell.getShouldImport()) {
+				String name = boneShell.getName();
+				nameMap.put(name, boneShell);
+				nameMap.put(getFuzzyName(name), boneShell);
 			}
 		}
 
-		for (GeosetShell geosetShell : mht.allGeoShells) {
+		int totFailedMatches = 0;
+		int totFailedInGeos = 0;
+		int totFailedInMatrices = 0;
+
+		for (GeosetShell geosetShell : geoShells) {
 			if (geosetShell.isDoImport()) {
+				int failedInMatrices = 0;
 				for (MatrixShell matrixShell : geosetShell.getMatrixShells()) {
 					matrixShell.clearNewBones();
 					final Matrix matrix = matrixShell.getMatrix();
 					// For look to find similarly named stuff and add it
+					int failedMatches = 0;
 					for (final Bone bone : matrix.getBones()) {
-						final String mName = bone.getName().toLowerCase()
-								.replaceAll("bone", placeholder)
-								.replaceAll("helper", placeholder)
-								.replaceAll("_", "")
-								.replaceAll(" ", "")
-								.replaceAll(placeholder, "");
+						final String mName = bone.getName();
 						if (nameMap.get(mName) != null) {
 							matrixShell.addNewBone(nameMap.get(mName));
+						} else {
+							String fuzzyName = getFuzzyName(mName);
+							if (nameMap.get(fuzzyName) != null) {
+								matrixShell.addNewBone(nameMap.get(fuzzyName));
+							} else {
+								failedMatches++;
+							}
 						}
 					}
+					totFailedMatches += failedMatches;
+					failedInMatrices += failedMatches == 0 ? 0 : 1;
 				}
+				totFailedInMatrices += failedInMatrices;
+				totFailedInGeos += failedInMatrices == 0 ? 0 : 1;
 			}
 		}
+	}
+
+
+	String placeholder = "UGG";
+	private String getFuzzyName(String boneShellName) {
+		return boneShellName.toLowerCase()
+				.replaceAll("bone", placeholder)
+				.replaceAll("helper", placeholder)
+				.replaceAll("_", "")
+				.replaceAll(" ", "")
+				.replaceAll(placeholder, "") + "FUZZY";
 	}
 }

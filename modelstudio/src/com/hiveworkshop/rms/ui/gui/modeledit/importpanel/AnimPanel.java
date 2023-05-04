@@ -1,165 +1,120 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.AnimListCellRenderer;
-import com.hiveworkshop.rms.util.IterableListModel;
+import com.hiveworkshop.rms.ui.util.TwiList;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
-class AnimPanel extends JPanel {
+public class AnimPanel extends JPanel {
 
-	protected JLabel title;
+	protected JLabel oldName;
 	private JLabel animInfo;
-	protected JCheckBox inReverse;
+	protected TriCheckBox inReverse;
+	protected TriCheckBox doImportBox;
 
-	private final JComboBox<String> importTypeBox = new JComboBox<>(AnimShell.ImportType.getDispList());
+//	String timeScaleDonInfo = "All bones set to receive motion will have the animation data of the following animation(s) replaced by this animation";
+	String timeScaleDonInfo = "<html><p>Use the animation data of this animation in the<br>following animations, where applicable:";
 
-	private final JPanel cardPane = new JPanel();
-
-	private JPanel blankCardImp = new JPanel();
-	private JPanel dontImport = new JPanel();
-	private JPanel doImport = new JPanel();
-	private JPanel blankCardGS = new JPanel();
-
-	private JLabel dontImportL = new JLabel();
-	private JLabel doImportL = new JLabel();
-	private JLabel timeScaleInfo = new JLabel("All bones set to receive motion will have the animation data of the following animation(s) replaced by this animation");
-	private String reciveText = "All bones set to receive motion will have the animation data of this animation replaced by: ";
-	private JLabel timeScaleRecInfo = new JLabel(reciveText);
+//	private String reciveText = "All bones set to receive motion will have the animation data of this animation replaced by: ";
+	private String reciveText = "<html><p>Use the animation data of the following animation<br>in this animation, where applicable:";
 
 
-	private final JTextField newNameEntry = new JTextField("", 40);
+	protected TwiTextField nameField;
 
-	private IterableListModel<AnimShell> possibleAnimDataDests;
-	private IterableListModel<AnimShell> sortedAnimDataDests;
-	private JList<AnimShell> animDataDestJList;
-
-	private IterableListModel<AnimShell> sortedAnimDataSrcs;
-	private JList<AnimShell> animDataSrcJList;
-
-	private ModelHolderThing mht;
+	protected ModelHolderThing mht;
 
 	protected AnimShell selectedAnim;
-	protected JList<AnimShell> animJList;
-	private AnimListCellRenderer animRenderer;
+	protected TwiList<AnimShell> animJList;
 
-	private final CardLayout animCardLayout = new CardLayout();
+	protected SearchListPanel<AnimShell> destList;
+	protected SearchListPanel<AnimShell> sourceList;
 
-	public AnimPanel() {
+	protected AnimListCellRenderer animDestRenderer;
+	protected AnimListCellRenderer animSrcRenderer;
+
+
+	public AnimPanel(ModelHolderThing mht, TwiList<AnimShell> animJList) {
+		this.mht = mht;
+		this.animJList = animJList;
 	}
 
-	public AnimPanel(ModelHolderThing mht, JList<AnimShell> animJList, final AnimListCellRenderer renderer) {
+	public AnimPanel(ModelHolderThing mht, TwiList<AnimShell> animJList, final AnimListCellRenderer renderer) {
 		this.mht = mht;
-		setLayout(new MigLayout("gap 0, fill", "[]", "[][][][][grow]"));
+		setLayout(new MigLayout("gap 0, fill", "[][]", "[][][][][grow]"));
 		this.animJList = animJList;
-		animRenderer = renderer;
-		this.possibleAnimDataDests = mht.recModAnims;
-		sortedAnimDataDests = new IterableListModel<>(mht.recModAnims);
-		sortedAnimDataSrcs = new IterableListModel<>(mht.recModAnims);
 
-		title = new JLabel("Select an Animation");
-		title.setFont(new Font("Arial", Font.BOLD, 20));
+		animDestRenderer = new AnimListCellRenderer().setMarkDontImp(true).setDestList(true);
+		animSrcRenderer = new AnimListCellRenderer();
+
+		sourceList = new SearchListPanel<>(reciveText, this::search)
+				.setRenderer(animSrcRenderer)
+				.setSelectionConsumer(this::onSourceSelected)
+				.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+//		destList = new SearchListPanel<>(timeScaleDonInfo, this::search)
+//				.setRenderer(animDestRenderer)
+//				.setSelectionConsumer(this::onDestSelected)
+//				.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+
+		nameField = new TwiTextField(24, this::renameAnim);
+		nameField.setFont(new Font("Arial", Font.BOLD, 18));
+		add(nameField, "align center, spanx, wrap");
+		oldName = new JLabel("Select an Animation");
 
 		animInfo = new JLabel("");
 
-		add(title, "align center, spanx, wrap");
+		add(oldName, "align center, spanx, wrap");
 		add(animInfo, "align center, spanx, wrap");
 
-		add(getReverseCheckBox(), "left, wrap");
-		add(getImportTypeBox(), "wrap");
+		add(getImportCheckBox(this::setImport), "align center, split");
+		add(getReverseCheckBox(this::setInReverse), "wrap");
 
-		JPanel nameCard = new JPanel(new MigLayout("ins 0, fill", "", "[][grow]"));
-		nameCard.add(newNameEntry, "wrap");
-//		nameCard.add(new JPanel(new MigLayout("fill")), "growx, growy");
-
-		JPanel blankCard = new JPanel(new MigLayout("fill", "", "[][grow]"));
-//		blankCard.add(new JPanel(new MigLayout("fill")), "growx, growy");
-
-		cardPane.setLayout(animCardLayout);
-//		cardPane.add(dontImport, AnimShell.ImportType.DONTIMPORT.getDispText());
-//		cardPane.add(getPanelWithText("This animation will not be imported/will be removed"), AnimShell.ImportType.DONTIMPORT.getDispText());
-		cardPane.add(blankCard, "blank");
-		cardPane.add(getPanelWithLabel(dontImportL), AnimShell.ImportType.DONT_IMPORT.getDispText());
-//		cardPane.add(doImport, AnimShell.ImportType.IMPORTBASIC.getDispText());
-//		cardPane.add(doImport, AnimShell.ImportType.IMPORTBASIC.getDispText());
-		cardPane.add(getPanelWithLabel(doImportL), AnimShell.ImportType.IMPORT_BASIC.getDispText());
-		cardPane.add(nameCard, AnimShell.ImportType.CHANGE_NAME.getDispText());
-//		cardPane.add(newNameEntry, AnimShell.ImportType.CHANGE_NAME.getDispText());
-		cardPane.add(getTimeScaleIntoPane(), AnimShell.ImportType.TIMESCALE_INTO.getDispText());
-		cardPane.add(getTimeScaleRecPane(), AnimShell.ImportType.TIMESCALE_RECEIVE.getDispText());
-//		cardPane.add(blankCardGS, AnimShell.ImportType.GLOBALSEQ.getDispText());
-		cardPane.add(getPanelWithText(""), AnimShell.ImportType.GLOBALSEQ.getDispText());
-//		animCardLayout.invalidateLayout(cardPane);
-		animCardLayout.show(cardPane, "blank");
-		add(cardPane, "growx, growy");
+		add(sourceList, "spanx, growx, growy");
 	}
 
-	private JCheckBox getReverseCheckBox() {
-		inReverse = new JCheckBox("Reverse");
+	protected JCheckBox getReverseCheckBox(Consumer<Boolean> boolConsumer) {
+		inReverse = new TriCheckBox("Reverse");
 		inReverse.setSelected(false);
-		inReverse.addActionListener(e -> setInReverse());
-		inReverse.setEnabled(false);
+		inReverse.addActionListener(e -> boolConsumer.accept(inReverse.isSelected()));
 		return inReverse;
 	}
-
-	private JComboBox<String> getImportTypeBox() {
-		importTypeBox.setEditable(false);
-		importTypeBox.addItemListener(this::showCorrectCard);
-		importTypeBox.setMaximumSize(new Dimension(200, 20));
-		importTypeBox.setEnabled(false);
-		return importTypeBox;
+	protected JCheckBox getImportCheckBox(Consumer<Boolean> boolConsumer) {
+		doImportBox = new TriCheckBox("Import");
+		doImportBox.setSelected(true);
+		doImportBox.addActionListener(e -> boolConsumer.accept(doImportBox.isSelected()));
+		return doImportBox;
 	}
 
-	private JPanel getTimeScaleIntoPane() {
-		animDataDestJList = new JList<>(sortedAnimDataDests);
-		animDataDestJList.setCellRenderer(animRenderer);
-//		animDataDestJList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		animDataDestJList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-		animDataDestJList.addListSelectionListener(this::selectAnimDataDest);
-		animDataDestJList.setSelectedValue(null, false);
-		JScrollPane animListPane = new JScrollPane(animDataDestJList);
-		JPanel timescaleIntoPanel = new JPanel(new MigLayout("ins 0, fill", "", "[][grow]"));
-		timescaleIntoPanel.add(timeScaleInfo, "wrap");
-		timescaleIntoPanel.add(animListPane, "growx, growy");
-		return timescaleIntoPanel;
-	}
-
-	private JPanel getTimeScaleRecPane() {
-		animDataSrcJList = new JList<>(sortedAnimDataSrcs);
-		animDataSrcJList.setCellRenderer(animRenderer);
-		animDataSrcJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		animDataSrcJList.addListSelectionListener(this::selectAnimDataSrc);
-		animDataSrcJList.setSelectedValue(null, false);
-		JScrollPane animListPane = new JScrollPane(animDataSrcJList);
-		JPanel timescaleRecPanel = new JPanel(new MigLayout("ins 0, fill", "", "[][grow]"));
-		timescaleRecPanel.add(timeScaleRecInfo, "wrap");
-		timescaleRecPanel.add(animListPane, "growx, growy");
-		return timescaleRecPanel;
+	protected boolean search(AnimShell animShell, String text){
+		return animShell.getDisplayName().matches("(?i).*" + text + ".*");
 	}
 
 	public void setSelectedAnim(AnimShell animShell) {
 		selectedAnim = animShell;
-		animRenderer.setSelectedAnim(selectedAnim);
-		updateRecModAnimList();
-		updateAnimDataSrcList();
-		title.setText(animShell.getName());
+//		animRenderer.setSelectedAnim(selectedAnim);
+//		animDestRenderer.setSelectedAnim(selectedAnim);
+		animSrcRenderer.setSelectedAnim(selectedAnim);
+
+		updateAnimDataSrcList(animShell.isFromDonating());
+		nameField.setText(animShell.getName());
+		oldName.setText(animShell.getOldName());
+
 		animInfo.setText(getInfoText());
-		dontImportL.setText(animShell.isFromDonating() ? "This animation will not be imported" : "This animation will be removed");
-		doImportL.setText(animShell.isFromDonating() ? "This animation will be imported" : "This animation will remain");
-		newNameEntry.setText(animShell.getName());
-		importTypeBox.setEnabled(true);
-		importTypeBox.setSelectedIndex(animShell.getImportType().ordinal());
-//		if(animShell.getImportAnimShell() != null){
-//			timeScaleRecInfo.setText(reciveText + animShell.getImportAnimShell().getName());
-//		} else {
-//
-//		}
+
+		inReverse.setSelected(animShell.isReverse());
+		doImportBox.setSelected(animShell.isDoImport());
+	}
+
+	private void renameAnim(String newName){
+		if(selectedAnim != null){
+			selectedAnim.setName(newName);
+		}
 	}
 
 	private String getInfoText() {
@@ -173,116 +128,66 @@ class AnimPanel extends JPanel {
 		return "";
 	}
 
-	private JPanel getPanelWithText(String... strings) {
-		JPanel panel = new JPanel(new MigLayout("fill", "", "[][grow]"));
-		for (String string : strings) {
-			panel.add(new JLabel(string), "wrap");
+	private void setInReverse(boolean inReverse) {
+		selectedAnim.setReverse(inReverse);
+	}
+	private void setImport(boolean doImport) {
+		selectedAnim.setDoImport(doImport);
+		animJList.repaint();
+	}
+
+
+	private void updateRecModAnimList(boolean fromDonating) {
+		destList.clearAndReset();
+
+		List<AnimShell> othersAnimShells = fromDonating ? mht.recModAnims : mht.donModAnims;
+		List<AnimShell> selfAnimShells = fromDonating ? mht.donModAnims : mht.recModAnims;
+
+		destList.addAll(othersAnimShells);
+		destList.addAll(selfAnimShells);
+		destList.remove(selectedAnim);
+
+		if(!selectedAnim.getAnimDataDests().isEmpty()){
+			destList.scrollToReveal(selectedAnim.getAnimDataDests().get(0));
 		}
-		panel.add(new JPanel(new MigLayout("fill")), "growx, growy");
-
-		return panel;
+		destList.repaint();
 	}
 
-	private JPanel getPanelWithLabel(JLabel label) {
-		JPanel panel = new JPanel(new MigLayout("fill", "", "[][grow]"));
-		panel.add(label, "wrap");
-//		panel.add(new JPanel(new MigLayout("fill")), "growx, growy");
+	private void updateAnimDataSrcList(boolean fromDonating) {
+		sourceList.clearAndReset();
 
-		return panel;
-	}
+		List<AnimShell> othersAnimShells = fromDonating ? mht.recModAnims : mht.donModAnims;
+		List<AnimShell> selfAnimShells = fromDonating ? mht.donModAnims : mht.recModAnims;
 
-	private void setInReverse() {
-		selectedAnim.setReverse(inReverse.isSelected());
-	}
+		sourceList.addAll(othersAnimShells);
+		sourceList.addAll(selfAnimShells);
+		sourceList.remove(selectedAnim);
 
-	private void showCorrectCard(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED) {
-			animCardLayout.show(cardPane, (String) e.getItem());
-			System.out.println("StateChange: " + e.getStateChange() + ", selected Index: " + importTypeBox.getSelectedIndex());
-			selectedAnim.setImportType(importTypeBox.getSelectedIndex());
-			inReverse.setEnabled(selectedAnim.getImportType() != AnimShell.ImportType.DONT_IMPORT);
-			updateRecModAnimList();
-			updateAnimDataSrcList();
+		if(selectedAnim.getAnimDataSrc() != null){
+			sourceList.scrollToReveal(selectedAnim.getAnimDataSrc());
 		}
+
+		sourceList.repaint();
 	}
 
-	private void updateRecModAnimList() {
-		sortedAnimDataDests.clear();
-		List<AnimShell> usedAnims = new ArrayList<>();
-
-		for (AnimShell as : possibleAnimDataDests) {
-			if (as.getAnimDataSrc() == null) {
-				sortedAnimDataDests.addElement(as);
-			} else if (as.getAnimDataSrc() == selectedAnim) {
-				sortedAnimDataDests.add(0, as);
-			} else if (as != selectedAnim) {
-				usedAnims.add(as);
+	private void onSourceSelected(AnimShell animShell){
+		if(selectedAnim != null && animShell != null) {
+			if (selectedAnim.getAnimDataSrc() == animShell) {
+				selectedAnim.setAnimDataSrc(null);
+			} else {
+				selectedAnim.setAnimDataSrc(animShell);
 			}
-		}
-		sortedAnimDataDests.addAll(usedAnims);
-	}
-
-	private void updateAnimDataSrcList() {
-		sortedAnimDataSrcs.clear();
-		List<AnimShell> impAnims = new ArrayList<>();
-		List<AnimShell> dontImpAnims = new ArrayList<>();
-		List<AnimShell> timeScaleRecAnims = new ArrayList<>();
-		List<AnimShell> glSeqAnims = new ArrayList<>();
-		List<AnimShell> chNameAnims = new ArrayList<>();
-
-		for (AnimShell as : possibleAnimDataDests) {
-			if ((as != selectedAnim)) {
-				if (as.getImportType() == AnimShell.ImportType.TIMESCALE_INTO) {
-					if (selectedAnim.getAnimDataSrc() == as) {
-						sortedAnimDataSrcs.add(0, as);
-					} else {
-						sortedAnimDataSrcs.addElement(as);
-					}
-				} else if (as.getImportType() == AnimShell.ImportType.TIMESCALE_RECEIVE) {
-					timeScaleRecAnims.add(as);
-				} else if (as.getImportType() == AnimShell.ImportType.IMPORT_BASIC) {
-					impAnims.add(as);
-				} else if (as.getImportType() == AnimShell.ImportType.DONT_IMPORT) {
-					dontImpAnims.add(as);
-				} else if (as.getImportType() == AnimShell.ImportType.GLOBALSEQ) {
-					glSeqAnims.add(as);
-				} else if (as.getImportType() == AnimShell.ImportType.CHANGE_NAME) {
-					chNameAnims.add(as);
-				}
-			}
-		}
-		sortedAnimDataSrcs.addAll(impAnims);
-		sortedAnimDataSrcs.addAll(dontImpAnims);
-		sortedAnimDataSrcs.addAll(chNameAnims);
-		sortedAnimDataSrcs.addAll(timeScaleRecAnims);
-		sortedAnimDataSrcs.addAll(glSeqAnims);
-	}
-
-	private void selectAnimDataDest(ListSelectionEvent e) {
-		if (e.getValueIsAdjusting()) {
-			for (AnimShell animShell : animDataDestJList.getSelectedValuesList()) {
-				if (animShell.getAnimDataSrc() == selectedAnim) {
-					animShell.setAnimDataSrc(null);
-				} else {
-					animShell.setAnimDataSrc(selectedAnim);
-				}
-			}
-			animDataDestJList.setSelectedValue(null, false);
-			animJList.repaint();
+			SwingUtilities.invokeLater(animJList::repaint);
 		}
 	}
-
-	private void selectAnimDataSrc(ListSelectionEvent e) {
-		if (e.getValueIsAdjusting()) {
-			for (AnimShell animShell : animDataSrcJList.getSelectedValuesList()) {
-				if (selectedAnim.getAnimDataSrc() == animShell) {
-					selectedAnim.setAnimDataSrc(null);
-				} else {
-					selectedAnim.setAnimDataSrc(animShell);
-				}
+	private void onDestSelected(AnimShell animShell){
+		if(selectedAnim != null && animShell != null) {
+			if (animShell.getAnimDataSrc() == selectedAnim) {
+				animShell.setAnimDataSrc(null);
+			} else {
+				animShell.setAnimDataSrc(selectedAnim);
 			}
-			animDataSrcJList.setSelectedValue(null, false);
-			animJList.repaint();
+			SwingUtilities.invokeLater(animJList::repaint);
 		}
 	}
 }

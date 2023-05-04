@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.editor.model.util;
 import com.hiveworkshop.rms.editor.actions.model.RecalculateExtentsAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
@@ -17,6 +18,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.*;
+import java.util.stream.Collectors;
 
 // Should probably get a better name.. Just thought "AiSceneParser" sounded a bit too much like it were
 // from the jassimp lib...
@@ -65,10 +67,11 @@ public class TwiAiSceneParser {
 		}
 
 		AiNode sceneRoot = scene.getSceneRoot(aiBuiltInWrapperProvider);
+//		printMetadata(sceneRoot);
 
 
 		AiMatrix4f transform = sceneRoot.getTransform(aiBuiltInWrapperProvider);
-		System.out.println("sceneRoot: " + sceneRoot.getName() + ", " + transform);
+		System.out.println("sceneRoot: " + sceneRoot.getName() + ", \n\t" + transform);
 //		AiMatrix4f offsetMatrix = nameAiBoneMap.get(sceneRoot.getName()).getOffsetMatrix(aiBuiltInWrapperProvider);
 //		if(offsetMatrix != null){
 ////					pivotPoint = new Vec3(-offsetMatrix.get(0, 3), -offsetMatrix.get(1, 3), -offsetMatrix.get(2, 3));
@@ -94,9 +97,203 @@ public class TwiAiSceneParser {
 		System.out.println("\n");
 
 		System.out.println("sceneRoot: " + sceneRoot);
+//		reduceIdenticalAnims();
 
 		new RecalculateExtentsAction(editableModel, editableModel.getGeosets()).redo();
 
+	}
+
+	private void printMetadata(AiNode node) {
+		Map<String, AiMetadataEntry> metadata = node.getMetadata();
+		if(!metadata.isEmpty()){
+			System.out.println("~~~~ metadata for " + node.getName() + " ~~~~");
+			for(String s : metadata.keySet()){
+				AiMetadataEntry aiMetadataEntry = metadata.get(s);
+//			aiMetadataEntry.getMetaDataType();
+				System.out.println(s + " (" + aiMetadataEntry.getMetaDataType() + ")" + ": " + aiMetadataEntry.getData());
+			}
+			System.out.println("~~~~ ~~~~~~~~ ~~~~");
+		}
+	}
+	private void printMetadata(Map<String, AiMetadataEntry> metadata) {
+		if(!metadata.isEmpty()){
+			System.out.println("~~~~ metadata for ~~~~");
+			for(String s : metadata.keySet()){
+				AiMetadataEntry aiMetadataEntry = metadata.get(s);
+//			aiMetadataEntry.getMetaDataType();
+				System.out.println(s + " (" + aiMetadataEntry.getMetaDataType() + ")" + ": " + aiMetadataEntry.getData());
+			}
+			System.out.println("~~~~ ~~~~~~~~ ~~~~");
+		}
+	}
+
+	private void reduceIdenticalAnims(){
+		List<IdObject> rootObjects = editableModel.getIdObjects().stream().filter(idObject -> idObject.getParent() == null).collect(Collectors.toList());
+
+		List<Animation> anims = editableModel.getAnims();
+		List<Animation> potIdenticalAnims = new ArrayList<>();
+
+		Map<Animation, Set<Animation>> animToIdenticalAnims = new HashMap<>();
+		Map<Animation, Set<Animation>> animToNotIdenticalAnims = new HashMap<>();
+
+//		int identicalAnims1 = 0;
+//		for (int i = 0; i < anims.size()-1; i++) {
+//			Animation animToCheck = anims.get(i);
+//			for (int j = i; j < anims.size(); j++) {
+//				Animation potIdenticalAnim = anims.get(j);
+//				if(animToCheck.getLength() == potIdenticalAnim.getLength()){
+//					if(animToIdenticalAnims.computeIfAbsent(animToCheck, k -> new HashSet<>()).add(potIdenticalAnim)) identicalAnims1++;
+//				}
+//			}
+//		}
+
+		Set<Animation> tempAnims = new HashSet<>();
+		int identicalAnims = 0;
+		for(IdObject idObject : rootObjects){
+			for(AnimFlag<?> animFlag: idObject.getAnimFlags()){
+				for (int i = 0; i < anims.size()-1; i++) {
+					Animation animToCheck = anims.get(i);
+					String nameStart = animToCheck.getName().substring(0,17);
+					for (int j = i+1; j < anims.size(); j++) {
+						Animation potIdenticalAnim = anims.get(j);
+						String potName = potIdenticalAnim.getName().substring(0,17);
+						if(animToCheck.getLength() == potIdenticalAnim.getLength() && (animToNotIdenticalAnims.get(potIdenticalAnim) == null || !animToNotIdenticalAnims.get(potIdenticalAnim).contains(animToCheck))) {
+							TreeMap<Integer, ? extends Entry<?>> entryMap1 = animFlag.getEntryMap(animToCheck);
+							TreeMap<Integer, ? extends Entry<?>> entryMap2 = animFlag.getEntryMap(potIdenticalAnim);
+							if (entryMap1.equals(entryMap2)) {
+//							animToIdenticalAnims.computeIfAbsent(anims.get(i), k -> new HashSet<>()).add(anims.get(j));
+								if(animToIdenticalAnims.computeIfAbsent(animToCheck, k -> new HashSet<>()).add(potIdenticalAnim)) identicalAnims++;
+							} else if (mapEquals(entryMap1, entryMap2)) {
+								if(nameStart.equals(potName)){
+									System.out.println("custom equals o.O");
+								}
+								if(animToIdenticalAnims.computeIfAbsent(animToCheck, k -> new HashSet<>()).add(potIdenticalAnim)) identicalAnims++;
+							} else {
+//								TreeMap<Integer, ? extends Entry<?>> entryMap1 = entryMap1;
+//								TreeMap<Integer, ? extends Entry<?>> entryMap2 = entryMap2;
+								boolean equals = entryMap1.equals(entryMap2);
+
+								if(nameStart.equals(potName)){
+									System.out.println(equals + " - marking " + potIdenticalAnim.getName() + " as not similar to " + animToCheck.getName() + " (" + idObject.getName() + ")" + entryMap1.lastEntry().getValue().equals(entryMap2.lastEntry().getValue()));
+									System.out.println("\tEM1: " + entryMap1.size() + ", first: " + entryMap1.firstEntry() + ", last: " + entryMap1.lastEntry());
+									System.out.println("\tEM2: " + entryMap2.size() + ", first: " + entryMap2.firstEntry() + ", last: " + entryMap2.lastEntry());
+								}
+								animToNotIdenticalAnims.computeIfAbsent(potIdenticalAnim, k -> new HashSet<>()).add(animToCheck);
+								animToNotIdenticalAnims.computeIfAbsent(animToCheck, k -> new HashSet<>()).add(potIdenticalAnim);
+								if (animToIdenticalAnims.containsKey(animToCheck)) {
+//								animToIdenticalAnims.get(animToCheck).remove(potIdenticalAnim);
+									if(animToIdenticalAnims.get(animToCheck).remove(potIdenticalAnim)) identicalAnims--;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+
+		for(Animation animation : animToIdenticalAnims.keySet()) {
+			if(animToIdenticalAnims.get(animation) == null || animToIdenticalAnims.get(animation).isEmpty()){
+				tempAnims.add(animation);
+			}
+		}
+		tempAnims.forEach(animToIdenticalAnims::remove);
+		tempAnims.clear();
+//		for(animToIdenticalAnims)
+
+		for(Animation animation : animToIdenticalAnims.keySet()) {
+			System.out.println(animation.getName() + " matchin: " + animToIdenticalAnims.get(animation).size() + " animatins");
+			tempAnims.addAll(animToIdenticalAnims.get(animation));
+		}
+
+		System.out.println("potIdenticalAnims: " + identicalAnims + "/" + tempAnims.size() + " of " + anims.size());
+
+		tempAnims.clear();
+
+		for (Animation animation : animToIdenticalAnims.keySet()){
+
+			for(IdObject idObject : editableModel.getIdObjects()){
+				for(AnimFlag<?> animFlag: idObject.getAnimFlags()){
+					TreeMap<Integer, ? extends Entry<?>> entryMap1 = animFlag.getEntryMap(animation);
+					for(Animation animToCheck : animToIdenticalAnims.get(animation)) {
+						if(!tempAnims.contains(animToCheck) && !Objects.equals(entryMap1, animFlag.getEntryMap(animToCheck))){
+							tempAnims.add(animToCheck);
+						}
+					}
+					animToIdenticalAnims.get(animation).removeAll(tempAnims);
+					tempAnims.clear();
+				}
+			}
+		}
+
+		Set<Animation> keysToRemove = new HashSet<>();
+		for(Animation animation : animToIdenticalAnims.keySet()) {
+			if(animToIdenticalAnims.get(animation) == null || animToIdenticalAnims.get(animation).isEmpty()){
+				tempAnims.add(animation);
+			} else if(!keysToRemove.contains(animation)){
+				keysToRemove.addAll(animToIdenticalAnims.get(animation));
+			}
+		}
+		tempAnims.forEach(animToIdenticalAnims::remove);
+		keysToRemove.removeAll(tempAnims);
+		keysToRemove.forEach(animToIdenticalAnims::remove);
+		tempAnims.clear();
+
+		for(Animation animation : animToIdenticalAnims.keySet()) {
+//			System.out.println(animation.getName() + " matchin: " + animToIdenticalAnims.get(animation).size() + " animatins");
+			tempAnims.addAll(animToIdenticalAnims.get(animation));
+		}
+
+		Set<String> realAnims = new HashSet<>();
+		for (Animation animation : anims){
+			realAnims.add(animation.getName().replaceAll(" grunt\\.?\\d*$", ""));
+		}
+
+		System.out.println("\t culled identical anims: " + animToIdenticalAnims.size() + " mapped to tot " + tempAnims.size() + " of " + anims.size() + " (" + realAnims.size() + ")");
+	}
+
+	private boolean mapEquals(Map<?, ?> map, Object o){
+		if (o == map) return true;
+
+		if(o instanceof Map<?, ?>){
+			Map<?, ?> m = (Map<?, ?>) o;
+			if (m.size() != map.size())
+				return false;
+			for(Object key : map.keySet()){
+				Object value = map.get(key);
+
+				if (!Objects.equals(m.get(key), value) || !m.containsKey(key)) {
+					return false;
+				}
+
+//				if(value == null){
+//					if (!m.containsKey(key) || m.get(key) != null){
+//						return false;
+//					}
+//				} else if (!Objects.equals(m.get(key), value)) {
+//					return false;
+//				}
+			}
+
+//			try {
+//				for (Map.Entry<?, ?> e : map.entrySet()) {
+//					Object key = e.getKey();
+//					Object value = e.getValue();
+//					if (value == null) {
+//						if (!(m.get(key) == null && m.containsKey(key)))
+//							return false;
+//					} else {
+//						if (!value.equals(m.get(key)))
+//							return false;
+//					}
+//				}
+//			} catch (ClassCastException | NullPointerException unused) {
+//				return false;
+//			}
+
+			return true;
+		}
+		return false;
 	}
 
 	private void collectAndAddGeosetBones() {
@@ -120,6 +317,64 @@ public class TwiAiSceneParser {
 	}
 
 	public static Material createMaterial(AiMaterial aiMaterial, EditableModel model) {
+//		System.out.println("aiMaterial: " + aiMaterial);
+////		if(aiMaterial.getTextureFile(AiTextureType.NONE, 0) != null) System.out.println("NONE:              " + aiMaterial.getNumTextures(AiTextureType.NONE));
+//		if(aiMaterial.getTextureFile(AiTextureType.DIFFUSE, 0) != null) System.out.println("DIFFUSE:           " + aiMaterial.getNumTextures(AiTextureType.DIFFUSE));
+//		if(aiMaterial.getTextureFile(AiTextureType.SPECULAR, 0) != null) System.out.println("SPECULAR:          " + aiMaterial.getNumTextures(AiTextureType.SPECULAR));
+//		if(aiMaterial.getTextureFile(AiTextureType.AMBIENT, 0) != null) System.out.println("AMBIENT:           " + aiMaterial.getNumTextures(AiTextureType.AMBIENT));
+//		if(aiMaterial.getTextureFile(AiTextureType.EMISSIVE, 0) != null) System.out.println("EMISSIVE:          " + aiMaterial.getNumTextures(AiTextureType.EMISSIVE));
+//		if(aiMaterial.getTextureFile(AiTextureType.HEIGHT, 0) != null) System.out.println("HEIGHT:            " + aiMaterial.getNumTextures(AiTextureType.HEIGHT));
+//		if(aiMaterial.getTextureFile(AiTextureType.NORMALS, 0) != null) System.out.println("NORMALS:           " + aiMaterial.getNumTextures(AiTextureType.NORMALS));
+//		if(aiMaterial.getTextureFile(AiTextureType.SHININESS, 0) != null) System.out.println("SHININESS:         " + aiMaterial.getNumTextures(AiTextureType.SHININESS));
+//		if(aiMaterial.getTextureFile(AiTextureType.OPACITY, 0) != null) System.out.println("OPACITY:           " + aiMaterial.getNumTextures(AiTextureType.OPACITY));
+//		if(aiMaterial.getTextureFile(AiTextureType.DISPLACEMENT, 0) != null) System.out.println("DISPLACEMENT:      " + aiMaterial.getNumTextures(AiTextureType.DISPLACEMENT));
+//		if(aiMaterial.getTextureFile(AiTextureType.LIGHTMAP, 0) != null) System.out.println("LIGHTMAP:          " + aiMaterial.getNumTextures(AiTextureType.LIGHTMAP));
+//		if(aiMaterial.getTextureFile(AiTextureType.REFLECTION, 0) != null) System.out.println("REFLECTION:        " + aiMaterial.getNumTextures(AiTextureType.REFLECTION));
+//		if(aiMaterial.getTextureFile(AiTextureType.BASE_COLOR, 0) != null) System.out.println("BASE_COLOR:        " + aiMaterial.getNumTextures(AiTextureType.BASE_COLOR));
+//		if(aiMaterial.getTextureFile(AiTextureType.NORMAL_CAMERA, 0) != null) System.out.println("NORMAL_CAMERA:     " + aiMaterial.getNumTextures(AiTextureType.NORMAL_CAMERA));
+//		if(aiMaterial.getTextureFile(AiTextureType.EMISSION_COLOR, 0) != null) System.out.println("EMISSION_COLOR:    " + aiMaterial.getNumTextures(AiTextureType.EMISSION_COLOR));
+//		if(aiMaterial.getTextureFile(AiTextureType.METALNESS, 0) != null) System.out.println("METALNESS:         " + aiMaterial.getNumTextures(AiTextureType.METALNESS));
+//		if(aiMaterial.getTextureFile(AiTextureType.DIFFUSE_ROUGHNESS, 0) != null) System.out.println("DIFFUSE_ROUGHNESS: " + aiMaterial.getNumTextures(AiTextureType.DIFFUSE_ROUGHNESS));
+//		if(aiMaterial.getTextureFile(AiTextureType.AMBIENT_OCCLUSION, 0) != null) System.out.println("AMBIENT_OCCLUSION: " + aiMaterial.getNumTextures(AiTextureType.AMBIENT_OCCLUSION));
+////		if(aiMaterial.getTextureFile(AiTextureType.UNKNOWN, 0) != null) System.out.println("UNKNOWN:           " + aiMaterial.getNumTextures(AiTextureType.UNKNOWN));
+
+		Material material = new Material();
+		Layer layer = new Layer();
+		for(HD_Material_Layer hd_layer : HD_Material_Layer.values()){
+			Bitmap texture = loadTexture(model, getTextureFile(aiMaterial, hd_layer), hd_layer);
+			layer.setTexture(hd_layer.ordinal(), texture);
+		}
+		layer.setStaticAlpha(aiMaterial.getOpacity());
+		material.addLayer(layer);
+		return material;
+	}
+
+	private static String getTextureFile(AiMaterial aiMaterial, HD_Material_Layer hd_layer){
+		return switch (hd_layer){
+			case DIFFUSE -> aiMaterial.getTextureFile(AiTextureType.DIFFUSE, 0);
+			case VERTEX -> aiMaterial.getTextureFile(AiTextureType.NORMALS, 0);
+			case ORM -> aiMaterial.getTextureFile(AiTextureType.SPECULAR, 0);
+			case EMISSIVE -> aiMaterial.getTextureFile(AiTextureType.EMISSIVE, 0);
+			case TEAM_COLOR -> aiMaterial.getTextureFile(AiTextureType.BASE_COLOR, 0);
+			case REFLECTIONS -> aiMaterial.getTextureFile(AiTextureType.REFLECTION, 0);
+		};
+	}
+
+	public static Bitmap loadTexture(EditableModel model, String path, HD_Material_Layer hd_layer) {
+		if(path == null || path.isBlank()){
+			path = hd_layer.getPlaceholderBitmap().getPath();
+		}
+		for (Bitmap texture : model.getTextures()) {
+			if (texture.getPath().equals(path)) {
+				return texture;
+			}
+		}
+		Bitmap texture = new Bitmap(path);
+		model.add(texture);
+		return texture;
+	}
+
+	public static Material createMaterial1(AiMaterial aiMaterial, EditableModel model) {
 		Material material = new Material();
 		Bitmap texture = loadTexture(model, aiMaterial.getTextureFile(AiTextureType.DIFFUSE, 0));
 		final Layer diffuseLayer = new Layer(texture);
@@ -137,7 +392,6 @@ public class TwiAiSceneParser {
 
 		return material;
 	}
-
 	public static Bitmap loadTexture(EditableModel model, String path) {
 		for (Bitmap texture : model.getTextures()) {
 			if (texture.getPath().equals(path)) {
@@ -156,22 +410,34 @@ public class TwiAiSceneParser {
 
 	private void fetchAnims() {
 		int nextStart = 10;
-		List<Animation> animations = new ArrayList<>();
+//		List<Animation> animations = new ArrayList<>();
+		Set<Animation> animations = new TreeSet<>();
+		Map<Animation, Animation> animToAddedAnim = new HashMap<>();
 		for (AiAnimation aiAnimation : scene.getAnimations()) {
-//			System.out.println("adding aiAnim: " + aiAnimation.getName());
+
+//			System.out.println("adding aiAnim: " + aiAnimation.getName() + " with " + aiAnimation.getNumChannels() + "/" + aiAnimation.getChannels().size() + " channels");
 			int duration = (int) (aiAnimation.getDuration()/aiAnimation.getTicksPerSecond() * 1000.0);
 			Animation animation = new Animation(aiAnimation.getName(), nextStart, nextStart + duration);
 			nextStart += duration + 20;
-			animations.add(animation);
-			animationMap.put(aiAnimation, animation);
+			if(animations.contains(animation)){
+				animationMap.put(aiAnimation, animToAddedAnim.get(animation));
+			} else {
+				animations.add(animation);
+				animToAddedAnim.put(animation, animation);
+				animationMap.put(aiAnimation, animation);
+			}
 
+			int nodesWOkeys = 0;
 			for (AiNodeAnim aiNodeAnim : aiAnimation.getChannels()) {
 				nameAiNodeAnimMap.computeIfAbsent(aiNodeAnim.getNodeName(), k -> aiNodeAnim);
 				if(aiNodeAnim.getNumPosKeys() != 0){
 					nameAiNodeAnimWKFsMap.computeIfAbsent(aiNodeAnim.getNodeName(), k -> aiNodeAnim);
 					aiNodeAnimsWithKFs.add(aiNodeAnim);
+				} else {
+					nodesWOkeys++;
 				}
 			}
+//			System.out.println("\t" + nodesWOkeys + " nodes withoute PosKeys found!");
 //			fetchNodeTransformations(aiAnimation, animation);
 		}
 		if (animations.isEmpty()) {
@@ -212,7 +478,7 @@ public class TwiAiSceneParser {
 					AiMatrix4f offsetMatrix = aiBone.getOffsetMatrix(aiBuiltInWrapperProvider);
 					if(offsetMatrix != null) {
 						float[] matNums = getAsArray2(offsetMatrix);
-						System.out.println("\nfound AiBone \"" + aiBone.getName() + "\" offs:\n" + aiBone.getOffsetMatrix(aiBuiltInWrapperProvider));
+//						System.out.println("\nfound AiBone \"" + aiBone.getName() + "\" offs:\n" + aiBone.getOffsetMatrix(aiBuiltInWrapperProvider));
 						tempMat.set(matNums).invert();
 					}
 				}
@@ -220,7 +486,7 @@ public class TwiAiSceneParser {
 					AiMatrix4f offsetMatrix = aiBoneParent.getOffsetMatrix(aiBuiltInWrapperProvider);
 					if(offsetMatrix != null) {
 						float[] matNums = getAsArray2(offsetMatrix);
-						System.out.println("found AiBoneParent \"" + aiBoneParent.getName() + "\" offs:\n" + aiBoneParent.getOffsetMatrix(aiBuiltInWrapperProvider));
+//						System.out.println("found AiBoneParent \"" + aiBoneParent.getName() + "\" offs:\n" + aiBoneParent.getOffsetMatrix(aiBuiltInWrapperProvider));
 						tempMat.set(matNums).invert();
 					}
 				}
@@ -231,7 +497,7 @@ public class TwiAiSceneParser {
 					AiMatrix4f offsetMatrix = aiNode.getTransform(aiBuiltInWrapperProvider);
 					if(offsetMatrix != null) {
 						float[] matNums = getAsArray(offsetMatrix);
-						System.out.println("found AiBone \"" + aiNode.getName() + "\" transf:\n" + aiNode.getTransform(aiBuiltInWrapperProvider));
+//						System.out.println("found AiBone \"" + aiNode.getName() + "\" transf:\n" + aiNode.getTransform(aiBuiltInWrapperProvider));
 						tempMat.set(matNums);
 					}
 				}
@@ -262,9 +528,10 @@ public class TwiAiSceneParser {
 //					tempMat2.set(tempMat).translate(loc);
 //					loc.set(tempMat2.m03, tempMat2.m13, tempMat2.m23);
 //					Vec3 loc = new Vec3(posKeyVector.getX(), posKeyVector.getY(), posKeyVector.getZ());
-					if(i == 0){
-						System.out.println("loc for \"" + node.getName() + "\": " + loc + ", loc1: "  + loc1 + ", piv: " + node.getPivotPoint() + ", temp: " + temp);
-					}
+
+//					if(i == 0){
+//						System.out.println("loc for \"" + node.getName() + "\": " + loc + ", loc1: "  + loc1 + ", piv: " + node.getPivotPoint() + ", temp: " + temp);
+//					}
 					AnimFlag<Vec3> translationFlag = node.getTranslationFlag();
 					if(translationFlag == null){
 						translationFlag = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION);
@@ -300,17 +567,17 @@ public class TwiAiSceneParser {
 					rotationFlag.addEntry((int) time, rot, animation);
 				}
 			} else {
-				System.out.println("Intermediat Node!");
-				if(aiNodeAnim.getNumPosKeys()>0){
-					System.out.println("\tloc: " + aiNodeAnim.getPosKeyX(0) + ", " + aiNodeAnim.getPosKeyY(0) + ", " + aiNodeAnim.getPosKeyZ(0) + ", ");
-				}
-				if(aiNodeAnim.getNumScaleKeys()>0){
-					System.out.println("\tsca: " + aiNodeAnim.getScaleKeyX(0) + ", " + aiNodeAnim.getScaleKeyY(0) + ", " + aiNodeAnim.getScaleKeyZ(0) + ", ");
-				}
-
-				if(aiNodeAnim.getNumRotKeys()>0){
-					System.out.println("\trot: " + aiNodeAnim.getRotKeyX(0) + ", " + aiNodeAnim.getRotKeyY(0) + ", " + aiNodeAnim.getRotKeyZ(0) + ", " + aiNodeAnim.getRotKeyW(0) + ", ");
-				}
+//				System.out.println("Intermediat Node!");
+//				if(aiNodeAnim.getNumPosKeys()>0){
+//					System.out.println("\tloc: " + aiNodeAnim.getPosKeyX(0) + ", " + aiNodeAnim.getPosKeyY(0) + ", " + aiNodeAnim.getPosKeyZ(0) + ", ");
+//				}
+//				if(aiNodeAnim.getNumScaleKeys()>0){
+//					System.out.println("\tsca: " + aiNodeAnim.getScaleKeyX(0) + ", " + aiNodeAnim.getScaleKeyY(0) + ", " + aiNodeAnim.getScaleKeyZ(0) + ", ");
+//				}
+//
+//				if(aiNodeAnim.getNumRotKeys()>0){
+//					System.out.println("\trot: " + aiNodeAnim.getRotKeyX(0) + ", " + aiNodeAnim.getRotKeyY(0) + ", " + aiNodeAnim.getRotKeyZ(0) + ", " + aiNodeAnim.getRotKeyW(0) + ", ");
+//				}
 			}
 		}
 	}
@@ -337,6 +604,7 @@ public class TwiAiSceneParser {
 
 	private void checkAllNodes(AiNode node) {
 		Mat4 offMat = new Mat4().setIdentity();
+//		printMetadata(node);
 
 		Bone parent = nameBoneMap.get(node.getName());
 		Mat4 parBPMat = new Mat4().setIdentity();
@@ -389,10 +657,10 @@ public class TwiAiSceneParser {
 				bone.setPivotPoint(pivotPoint);
 				editableModel.add(bone);
 			} else {
-				if(!childNode.getName().endsWith("end")){
-					System.out.println("odd bone!" + childNode.getName() + ", aiNode: " + nameAiBoneMap.get(childNode.getName()));
-					System.out.println(childNode.getTransform(aiBuiltInWrapperProvider));
-				}
+//				if(!childNode.getName().endsWith("end")){
+//					System.out.println("odd bone!" + childNode.getName() + ", aiNode: " + nameAiBoneMap.get(childNode.getName()));
+//					System.out.println(childNode.getTransform(aiBuiltInWrapperProvider));
+//				}
 				AiMatrix4f transformMatrix = childNode.getTransform(aiBuiltInWrapperProvider);
 				offMat.set(getAsArray2(transformMatrix));
 				boneToBindPoseMat.put(childNode, offMat);
@@ -445,7 +713,7 @@ public class TwiAiSceneParser {
 						gv.setSkinBone((short) 0, j);
 					}
 				}
-				if (skinBoneList.size() > 4) System.out.println("bones size: " + skinBoneList.size());
+//				if (skinBoneList.size() > 4) System.out.println("bones size: " + skinBoneList.size());
 				gv.normalizeBoneWeights();
 			}
 
@@ -477,7 +745,7 @@ public class TwiAiSceneParser {
 //
 //			coord.x = uvSet.get();
 //			coord.y = uvSet.get();
-			Vec2 coord = new Vec2(uvSet.get(), uvSet.get());
+			Vec2 coord = new Vec2(uvSet.get(), 1f-uvSet.get());
 
 			gv.addTVertex(coord);
 		}

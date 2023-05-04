@@ -54,9 +54,9 @@ public class Mat4 {
 
 	public Mat4 set(final float[] a) {
 		set(
-				a[0], a[1], a[2], a[3],
-				a[4], a[5], a[6], a[7],
-				a[8], a[9], a[10], a[11],
+				a[0],   a[1],  a[2],  a[3],
+				a[4],   a[5],  a[6],  a[7],
+				a[8],   a[9], a[10], a[11],
 				a[12], a[13], a[14], a[15]);
 		return this;
 	}
@@ -214,6 +214,20 @@ public class Mat4 {
 		m31 += m01 * a.x + m11 * a.y + m21 * a.z;
 		m32 += m02 * a.x + m12 * a.y + m22 * a.z;
 		m33 += m03 * a.x + m13 * a.y + m23 * a.z;
+		return this;
+	}
+	public Mat4 translateScaled(Vec3 a, float scale) {
+		m30 += (m00 * a.x + m10 * a.y + m20 * a.z) * scale;
+		m31 += (m01 * a.x + m11 * a.y + m21 * a.z) * scale;
+		m32 += (m02 * a.x + m12 * a.y + m22 * a.z) * scale;
+		m33 += (m03 * a.x + m13 * a.y + m23 * a.z) * scale;
+		return this;
+	}
+
+	public Mat4 setLocation(Vec3 loc) {
+		m30 = loc.x;
+		m31 = loc.y;
+		m32 = loc.z;
 		return this;
 	}
 

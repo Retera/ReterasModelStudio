@@ -3,12 +3,12 @@ package com.hiveworkshop.rms.ui.application.tools.twilacimport;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.AnimShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.TriCheckBox;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.AnimListCellRenderer;
 import com.hiveworkshop.rms.ui.util.TwiList;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
@@ -18,95 +18,152 @@ public class AnimationMappingPanel extends JPanel {
 	Animation prototypeAnim = new Animation("An Extra Empty Animation", 0, 1000);
 	AnimShell prototypeAnimShell = new AnimShell(prototypeAnim);
 
-	AnimShell asNewAnim = new AnimShell(new Animation("as New Anim", 0, 1));
-
-	AnimListCellRenderer donRenderer = new AnimListCellRenderer(true); //ToDo: make a new renderer and only use Animation
-	List<AnimShell> donAnimations = new ArrayList<>();
-	TwiList<AnimShell> donAnimList = new TwiList<>(donAnimations);
-
-	AnimListCellRenderer recRenderer = new AnimListCellRenderer(true); //ToDo: make a new renderer and only use Animation
-	List<AnimShell> recAnimations = new ArrayList<>();
-	TwiList<AnimShell> recAnimList = new TwiList<>(recAnimations);
-
-
+	List<AnimShell> donAnimations;
+	List<AnimShell> recAnimations;
 
 	public AnimationMappingPanel(List<Animation> donAnims, List<Animation> recAnims){
 		super(new MigLayout("ins 0, fill, wrap 2", "[sgx anim][sgx anim]", "[][grow][]"));
 
+		donAnimations = getShellList(donAnims, true, false);
+		recAnimations = getShellList(recAnims, false, true);
+
+		TwiList<AnimShell> donAnimList = new TwiList<>(donAnimations);
 		donAnimList.setPrototypeCellValue(prototypeAnimShell);
-		recAnimList.setPrototypeCellValue(prototypeAnimShell);
+		AnimListCellRenderer donRenderer = new AnimListCellRenderer(true).setMarkDontImp(true);
+		donAnimList.setCellRenderer(donRenderer);
 
 		JButton autoMatchAnimations = new JButton("Auto match animations");
 		autoMatchAnimations.addActionListener(e -> matchAnimsByName());
 		add(autoMatchAnimations, "wrap");
-		add(new JLabel("Map motion from:"), "");
-		add(new JLabel("Into existing animation:"), "wrap");
 
-		add(new JScrollPane(donAnimList), "growy, growx");
-		add(new JScrollPane(recAnimList), "growy, growx");
+		JPanel donAnimPanel = new JPanel(new MigLayout("ins 0, gap 0, fill", "[]", "[][grow]"));
+		donAnimPanel.add(new JLabel("Map motion from:"), "wrap");
+		donAnimPanel.add(new JScrollPane(donAnimList), "growy, growx");
 
-//		animMapPanel.add(new JScrollPane(donAnimList), "growy, growx, gpy 200");
-//		animMapPanel.add(new JScrollPane(recAnimList), "growy, growx, gpy 200, wrap");
-		fillLists(donAnims, recAnims);
-		donAnimList.addListSelectionListener(this::donAnimationSelectionChanged);
-		recAnimList.addListSelectionListener(this::recAnimationSelectionChanged);
 
-	}
+		AnimP recAnimPanel = new AnimP(recAnimations, donAnimPanel::repaint);
 
-	public List<AnimShell> getDonAnimations() {
-		return donAnimations;
+		add(donAnimPanel, "growy, growx");
+		add(recAnimPanel, "growy, growx");
+
+		donAnimList.addMultiSelectionListener(recAnimPanel::setSelectedDonAnims);
+
 	}
 
 	protected Map<Sequence, Sequence> getRecToDonSequenceMap() {
 		Map<Sequence, Sequence> recToDonSequenceMap = new HashMap<>(); // receiving animations to donating animations
-//		for (AnimShell animShell : recAnimations) {
-//			if (animShell.getAnimDataSrc() != null && animShell.getAnimDataSrc().getImportType() == AnimShell.ImportType.TIMESCALE_INTO) {
-//				if (animShell == asNewAnim) {
-//					recToDonSequenceMap.put(animShell.getAnimDataSrc().getAnim().deepCopy(), animShell.getAnimDataSrc().getAnim());
-//				} else {
-//					recToDonSequenceMap.put(animShell.getAnim(), animShell.getAnimDataSrc().getAnim());
-//				}
-//			}
-//		}
+
 		for (AnimShell animShell : donAnimations) {
-			if (animShell.getImportType() == AnimShell.ImportType.IMPORT_BASIC) {
+			if (animShell.isDoImport()) {
 				recToDonSequenceMap.put(animShell.getAnim().deepCopy(), animShell.getAnim());
-			} else if (animShell.getImportType() == AnimShell.ImportType.TIMESCALE_INTO){
-				List<AnimShell> animDataDests = animShell.getAnimDataDests();
-				for (AnimShell animDataDest : animDataDests){
-					recToDonSequenceMap.put(animDataDest.getAnim(), animShell.getAnim());
-				}
+			}
+		}
+
+		for (AnimShell animShell : recAnimations) {
+			if (animShell.getAnimDataSrc() != null) {
+				recToDonSequenceMap.put(animShell.getAnim(), animShell.getAnimDataSrc().getAnim());
 			}
 		}
 		return recToDonSequenceMap;
 	}
 
-	protected void fillLists(List<Animation> donAnims, List<Animation> recAnims) {
-		for (Animation animation : donAnims) {
-			AnimShell animShell = new AnimShell(animation);
-			animShell.setImportType(AnimShell.ImportType.DONT_IMPORT);
-			donAnimations.add(animShell);
+	protected List<AnimShell> getShellList(List<Animation> anims, boolean fromDonating, boolean doImp) {
+		ArrayList<AnimShell> animShells = new ArrayList<>();
+		for (Animation animation : anims) {
+			AnimShell animShell = new AnimShell(animation, fromDonating);
+			animShell.setDoImport(doImp);
+			animShells.add(animShell);
 		}
-		donAnimList.setCellRenderer(donRenderer);
-
-		recAnimations.add(asNewAnim);
-		for (Animation animation : recAnims) {
-			recAnimations.add(new AnimShell(animation));
-		}
-		recAnimList.setCellRenderer(recRenderer);
+		return animShells;
 	}
 
-
-	private void donAnimationSelectionChanged(ListSelectionEvent e) {
-		if (e.getValueIsAdjusting() && donAnimList.getSelectedValue() != null) {
-			recAnimList.setSelectedValue(null, false);
-			scrollToRevealFirstChosen(donAnimList.getSelectedValue());
-			recRenderer.setSelectedAnim(donAnimList.getSelectedValue());
+	private void matchAnimsByName() {
+		for (AnimShell recAnimShell : recAnimations) {
+			for (AnimShell donAnimShell : donAnimations) {
+				if (recAnimShell.getName().equals(donAnimShell.getName())) {
+					recAnimShell.setAnimDataSrc(donAnimShell);
+					break;
+				} else if (recAnimShell.getName().startsWith(donAnimShell.getName().split(" ")[0])) {
+					if (recAnimShell.getAnimDataSrcAnim() == null) {
+						recAnimShell.setAnimDataSrc(donAnimShell);
+					} else {
+						int orgLength = recAnimShell.getAnim().getLength();
+						int lengthDiffCurr = Math.abs(recAnimShell.getAnimDataSrcAnim().getLength() - orgLength);
+						int lengthDiffNew = Math.abs(donAnimShell.getAnim().getLength() - orgLength);
+						if (lengthDiffNew < lengthDiffCurr) {
+							recAnimShell.setAnimDataSrc(donAnimShell);
+						}
+					}
+				}
+			}
 		}
+		repaint();
 	}
 
-	private void scrollToRevealFirstChosen(AnimShell animShell) {
-		if (animShell.getImportType() == AnimShell.ImportType.TIMESCALE_INTO) {
+	private static class AnimP extends JPanel {
+		AnimListCellRenderer recRenderer;
+		List<AnimShell> recAnimations;
+		TwiList<AnimShell> recAnimList;
+		TriCheckBox impBox;
+		AnimShell donAnim;
+		Collection<AnimShell> donAnims;
+		Runnable updateUi;
+
+		AnimP(List<AnimShell> recAnimations, Runnable updateUi){
+			super(new MigLayout("ins 0, fill"));
+			this.recAnimations = recAnimations;
+			this.updateUi = updateUi;
+			recAnimList = new TwiList<>(recAnimations).addMultiSelectionListener(this::onSelection);
+
+			recAnimList.setPrototypeCellValue(new AnimShell(new Animation("An Extra Empty Animation", 0, 1000), false));
+
+			recRenderer = new AnimListCellRenderer(true);
+			recRenderer.setDestList(true);
+			recAnimList.setRenderer(recRenderer);
+			impBox = new TriCheckBox("Import as new Animation");
+			impBox.addActionListener(e -> onImpToggle(impBox.isSelected()));
+
+			add(impBox, "wrap");
+			add(new JLabel("Into existing animation:"), "wrap");
+			add(new JScrollPane(recAnimList), "growy, growx");
+		}
+
+		void onSelection(Collection<AnimShell> recAnims){
+			if(!recAnims.isEmpty()){
+				if(donAnim != null){
+					for (AnimShell anim : recAnims){
+						if (anim.getAnimDataSrc() == donAnim){
+							anim.setAnimDataSrc(null);
+						} else {
+							anim.setAnimDataSrc(donAnim);
+						}
+					}
+				}
+				recAnimList.setSelectedValue(null, false);
+			}
+		}
+
+		void onImpToggle(boolean imp){
+			if(donAnim != null){
+				donAnim.setDoImport(imp);
+			} else if (donAnims != null){
+				for(AnimShell donAnim : donAnims){
+					donAnim.setDoImport(imp);
+				}
+			}
+		}
+
+		AnimP setSelectedDonAnim(AnimShell donAnim){
+			this.donAnims = null;
+			this.donAnim = null;
+			impBox.setSelected(donAnim.isDoImport());
+			recRenderer.setSelectedAnim(donAnim);
+			scrollToRevealFirstChosen(donAnim);
+			this.donAnim = donAnim;
+
+			return this;
+		}
+		private void scrollToRevealFirstChosen(AnimShell animShell) {
 			for (int indexOfFirst = 0; indexOfFirst < recAnimations.size(); indexOfFirst++) {
 				if (recAnimations.get(indexOfFirst).getAnimDataSrc() == animShell) {
 					Rectangle cellBounds = recAnimList.getCellBounds(indexOfFirst, indexOfFirst);
@@ -117,88 +174,25 @@ public class AnimationMappingPanel extends JPanel {
 				}
 			}
 		}
-	}
+		AnimP setSelectedDonAnims(Collection<AnimShell> donAnims){
+			AnimShell firstAnimShell = donAnims.stream().findFirst().orElse(null);
+			if(donAnims.size() == 1){
+				setSelectedDonAnim(firstAnimShell);
+			} else {
+				this.donAnim = null;
+				this.donAnims = null;
 
-	// todo make use of "animShellsToTimeScaleInto" in AnimShell to facilitate
-	//  importing into animation and importing animation at the same time
-	private void recAnimationSelectionChanged(ListSelectionEvent e) {
-		if (e.getValueIsAdjusting()) {
-			AnimShell donAnimShell = donAnimList.getSelectedValue();
-
-			Set<AnimShell> donAnimsToCheck = new HashSet<>();
-			for (AnimShell as : recAnimList.getSelectedValuesList()) {
-				if (as == asNewAnim && recAnimList.getSelectedValuesList().size() == 1) {
-					if (donAnimShell.getImportType() == AnimShell.ImportType.IMPORT_BASIC) {
-						donAnimShell.setImportType(AnimShell.ImportType.DONT_IMPORT);
-					} else {
-						donAnimShell.setImportType(AnimShell.ImportType.IMPORT_BASIC);
-					}
-				} else if (as != asNewAnim){
-					if (donAnimShell.getAnimDataDests().contains(as)) {
-						donAnimShell.removeAnimDataDest(as);
-
-					} else {
-						donAnimShell.addAnimDataDest(as);
-					}
+				boolean firstImp = firstAnimShell == null || firstAnimShell.isDoImport();
+				if (donAnims.stream().anyMatch(as -> as.isDoImport() != firstImp)) {
+					impBox.setIndeterminate(true);
+				} else {
+					impBox.setSelected(firstImp);
 				}
+				recRenderer.setSelectedAnims(donAnims);
+				this.donAnims = donAnims;
 			}
-			recAnimList.setSelectedValue(null, false);
-
-			fixImportType(donAnimsToCheck);
+			repaint();
+			return this;
 		}
-	}
-
-
-
-
-	private void matchAnimsByName() {
-		Set<AnimShell> donAnimsToCheck = new HashSet<>();
-		for (AnimShell recAnimShell : recAnimations) {
-			for (AnimShell donAnimShell : donAnimations) {
-				if (recAnimShell.getName().equals(donAnimShell.getName())) {
-					recAnimShell.setAnimDataSrc(donAnimShell);
-					donAnimsToCheck.add(donAnimShell);
-					donAnimShell.setImportType(AnimShell.ImportType.TIMESCALE_INTO);
-					break;
-				} else if (recAnimShell.getName().startsWith(donAnimShell.getName().split(" ")[0])) {
-					if (recAnimShell.getAnimDataSrcAnim() == null) {
-						recAnimShell.setAnimDataSrc(donAnimShell);
-						donAnimsToCheck.add(donAnimShell);
-						donAnimShell.setImportType(AnimShell.ImportType.TIMESCALE_INTO);
-					} else {
-						int orgLength = recAnimShell.getAnim().getLength();
-						int lengthDiffCurr = Math.abs(recAnimShell.getAnimDataSrcAnim().getLength() - orgLength);
-						int lengthDiffNew = Math.abs(donAnimShell.getAnim().getLength() - orgLength);
-						if (lengthDiffNew < lengthDiffCurr) {
-							donAnimsToCheck.add(recAnimShell.getAnimDataSrc());
-							recAnimShell.setAnimDataSrc(donAnimShell);
-							donAnimsToCheck.add(donAnimShell);
-							donAnimShell.setImportType(AnimShell.ImportType.TIMESCALE_INTO);
-						}
-					}
-				}
-			}
-		}
-		fixImportType(donAnimsToCheck);
-		recAnimList.repaint();
-
-	}
-
-
-
-	private void fixImportType(Set<AnimShell> donAnimsToCheck) {
-		for (AnimShell animShell : donAnimsToCheck) {
-			boolean isImp = false;
-			for (AnimShell as : recAnimations) {
-				isImp = as.getAnimDataSrc() == animShell;
-				if (isImp) {
-					break;
-				}
-			}
-			if (!isImp) {
-				animShell.setImportType(AnimShell.ImportType.DONT_IMPORT);
-			}
-		}
-		donAnimList.repaint();
 	}
 }

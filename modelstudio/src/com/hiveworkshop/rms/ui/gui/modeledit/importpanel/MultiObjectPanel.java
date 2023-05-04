@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
+import com.hiveworkshop.rms.ui.util.TwiList;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -34,7 +35,7 @@ class MultiObjectPanel extends ObjectPanel {
 	}
 
 	private JScrollPane getParentListPane(BoneShellListCellRenderer bonePanelRenderer) {
-		parentsList = new JList<>();
+		parentsList = new TwiList<>();
 		parentsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		parentsList.setCellRenderer(bonePanelRenderer);
 		parentsPane = new JScrollPane(parentsList);

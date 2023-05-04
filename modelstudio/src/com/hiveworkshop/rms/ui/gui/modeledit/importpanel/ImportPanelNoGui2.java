@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
-import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.util.TempSaveModelStuff;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -50,30 +49,33 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 		newModel.setBlendTime(mht.receivingModel.getBlendTime());
 		newModel.setExtents(mht.receivingModel.getExtents());
 		try {
-			Map<GeosetShell, Geoset> newGeosetsMap = getNewGeosetsMap();
-			for (Geoset geoset : newGeosetsMap.values()) {
-				newModel.add(geoset);
-				if (!newModel.contains(geoset.getMaterial())) {
-					Material material = geoset.getMaterial().deepCopy();
-					geoset.setMaterial(material);
-					newModel.add(material);
+			Map<AnimShell, Animation> animsToAdd = getAnimsToAdd();
+			animsToAdd.values().forEach(newModel::add);
+
+			Map<IdObjectShell<?>, IdObject> newObjectsMap = getNewIdObjectsMap(animsToAdd);
+			newObjectsMap.values().forEach(newModel::add);
+
+			Map<Material, Material> materialMap = getMaterialMap();
+			materialMap.values().forEach(newModel::add);
+
+			Map<GeosetShell, Geoset> newGeosetsMap = getNewGeosetsMap(materialMap, newObjectsMap);
+			newGeosetsMap.values().forEach(newModel::add);
+
+			System.out.println("VisShell mappings: " + mht.allVisShellBiMap.size());
+			for(TimelineContainer tc : mht.allVisShellBiMap.keys()){
+				VisibilityShell<?> visibilityShell = mht.allVisShellBiMap.get(tc);
+				if(tc instanceof Named) {
+					System.out.println("VisShell for \"" + ((Named) tc).getName() + "\": " + visibilityShell);
+				} else if (tc != null){
+					System.out.println("VisShell for \"" + tc.getClass().getSimpleName() + "\": " + visibilityShell);
 				}
 			}
 
-			Map<IdObjectShell<?>, IdObject> newObjectsMap = getNewIdObjectsMap();
-			for (IdObject bone : newObjectsMap.values()) {
-				newModel.add(bone);
-			}
-			collectIdObjectAnims(newObjectsMap);
+			newGeosetsMap.keySet().forEach(g -> doVisStuff(g.getGeoset(), newGeosetsMap.get(g), animsToAdd));
+//			newGeosetsMap.values().forEach(g -> doVisStuff(g, animsToAdd));
 
-			fixGeosetBones(newGeosetsMap, newObjectsMap);
+			materialMap.values().forEach(m -> m.getLayers().forEach(l -> doVisStuff(l, animsToAdd)));
 
-			for (AnimShell animShell : mht.allAnimShells) {
-				if (animShell.getImportType() == AnimShell.ImportType.IMPORT_BASIC
-						|| animShell.getImportType() == AnimShell.ImportType.TIMESCALE_RECEIVE) {
-					newModel.add(animShell.getAnim());
-				}
-			}
 
 			for (CameraShell cameraShell : mht.allCameraShells) {
 				if (cameraShell.getShouldImport()) {
@@ -103,11 +105,10 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 	 *
 	 * @return A map from BoneShell to a copy of the bone to import
 	 */
-	private Map<IdObjectShell<?>, IdObject> getNewIdObjectsMap() {
+	private Map<IdObjectShell<?>, IdObject> getNewIdObjectsMap(Map<AnimShell, Animation> animsToAdd) {
 		Map<IdObjectShell<?>, IdObject> newBoneMap = new HashMap<>();
 		for (IdObjectShell<?> shell : mht.allBoneShells) {
-			if (shell.getImportStatus() == IdObjectShell.ImportType.IMPORT
-					|| shell.getImportStatus() == IdObjectShell.ImportType.RECEIVE_MOTION) {
+			if (shell.getShouldImport()) {
 				newBoneMap.put(shell, shell.getIdObject().copy()); // todo check instance of?
 				if (!shell.getName().equals(shell.getIdObject().getName())) {
 					System.out.println("shell: " + shell.getName() + " maps to " + shell.getIdObject().getName());
@@ -115,8 +116,7 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 			}
 		}
 		for (IdObjectShell<?> shell : mht.allObjectShells) {
-			if (shell.getImportStatus() == IdObjectShell.ImportType.IMPORT
-					|| shell.getImportStatus() == IdObjectShell.ImportType.RECEIVE_MOTION) {
+			if (shell.getShouldImport()) {
 				newBoneMap.put(shell, shell.getIdObject().copy()); // todo check instance of?
 			}
 		}
@@ -124,71 +124,54 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 			IdObject newObject = newBoneMap.get(idObjectShell);
 			newObject.setParent(newBoneMap.get(idObjectShell.getNewParentShell()));
 			newObject.clearAnimFlags();
+			copyAnims(newObject, idObjectShell, animsToAdd);
 		}
 		return newBoneMap;
 	}
 
-	private void collectIdObjectAnims(Map<IdObjectShell<?>, IdObject> newBoneMap) {
-		for (IdObjectShell<?> idObjectShell : newBoneMap.keySet()) {
-			IdObject newObject = newBoneMap.get(idObjectShell);
-
-			for (AnimShell animShell : mht.allAnimShells) {
-				if (animShell.getImportType() == AnimShell.ImportType.DONT_IMPORT) {
-				} else {
-					IdObjectShell<?> motionSrcShell = idObjectShell.getMotionSrcShell();
-
-					if (animShell.getImportType() == AnimShell.ImportType.IMPORT_BASIC) {
-						if (motionSrcShell != null && animShell.isFromDonating() == motionSrcShell.isFromDonating()) {
-							addIdObjectAnim(newObject, animShell, motionSrcShell, animShell.getAnim());
-						} else if (animShell.isFromDonating() == idObjectShell.isFromDonating()) {
-							addIdObjectAnim(newObject, animShell, idObjectShell, animShell.getAnim());
-						}
-
-					} else if (animShell.getImportType() == AnimShell.ImportType.TIMESCALE_RECEIVE) {
-						AnimShell animDataSrc = animShell.getAnimDataSrc();
-						// ToDo can be null! Match button not working!
-						if (animDataSrc != null && motionSrcShell != null && animDataSrc.isFromDonating() == motionSrcShell.isFromDonating()) {
-							addIdObjectAnim(newObject, animDataSrc, motionSrcShell, animShell.getAnim());
-						} else if (animDataSrc != null && animDataSrc.isFromDonating() == idObjectShell.isFromDonating()) {
-							addIdObjectAnim(newObject, animDataSrc, idObjectShell, animShell.getAnim());
-						} else {
-							if (motionSrcShell != null && animShell.isFromDonating() == motionSrcShell.isFromDonating()) {
-								addIdObjectAnim(newObject, animShell, idObjectShell, animShell.getAnim());
-							} else if (animShell.isFromDonating() == idObjectShell.isFromDonating()) {
-								addIdObjectAnim(newObject, animShell, idObjectShell, animShell.getAnim());
-							}
-						}
-					} else if (animShell.getImportType() == AnimShell.ImportType.CHANGE_NAME) {
-					} else if (animShell.getImportType() == AnimShell.ImportType.TIMESCALE_INTO) {
-					} else if (animShell.getImportType() == AnimShell.ImportType.GLOBALSEQ) {
-
-					}
-				}
+	private Map<AnimShell, Animation> getAnimsToAdd(){
+		Map<AnimShell, Animation> animationMap = new LinkedHashMap<>();
+		for (AnimShell animShell : mht.allAnimShells){
+			if(animShell.isDoImport()){
+				animationMap.put(animShell, animShell.getAnim().deepCopy());
 			}
 		}
+		return animationMap;
 	}
 
+	private void copyAnims(IdObject newObject, IdObjectShell<?> idObjectShell, Map<AnimShell, Animation> animsToAdd){
+		boolean prioSelf = idObjectShell.isPrioritizeMotionFromSelf();
+		for (AnimShell animShell : animsToAdd.keySet()) {
+			Animation anim = animsToAdd.get(animShell);
 
-	private void collectVisAnims() {
-		for (VisibilityShell visibilityShell : mht.allVisShells) {
+			IdObjectShell<?> node = getNodeToUse(idObjectShell, animShell);
 
-			for (AnimShell animShell : mht.allAnimShells) {
-				if (animShell.getImportType() == AnimShell.ImportType.DONT_IMPORT) {
-				} else {
+			AnimShell animSrc = animShell.getAnimDataSrc();
 
-					if (animShell.getImportType() == AnimShell.ImportType.IMPORT_BASIC) {
-
-
-					} else if (animShell.getImportType() == AnimShell.ImportType.TIMESCALE_RECEIVE) {
-
-					} else if (animShell.getImportType() == AnimShell.ImportType.CHANGE_NAME) {
-					} else if (animShell.getImportType() == AnimShell.ImportType.TIMESCALE_INTO) {
-					} else if (animShell.getImportType() == AnimShell.ImportType.GLOBALSEQ) {
-
-					}
-				}
+			if (sameModel(node, animSrc)) {
+				addIdObjectAnim(newObject, animSrc, node, anim);
+			} else if(sameModel(node, animShell)) {
+				addIdObjectAnim(newObject, animShell, node, anim);
 			}
+
 		}
+	}
+	private IdObjectShell<?> getNodeToUse(IdObjectShell<?> idObjectShell, AnimShell animShell){
+		boolean prioSelf = idObjectShell.isPrioritizeMotionFromSelf();
+		IdObjectShell<?> prioNode = prioSelf ? idObjectShell : idObjectShell.getMotionSrcShell();
+		IdObjectShell<?> altNode = prioSelf ? idObjectShell.getMotionSrcShell() : idObjectShell;
+
+		AnimShell animSrc = animShell.getAnimDataSrc();
+		if(sameModel(prioNode, animSrc) || sameModel(prioNode, animShell)){
+			return prioNode;
+		} else if (sameModel(altNode, animSrc) || sameModel(altNode, animShell)){
+			return altNode;
+		} else {
+			return idObjectShell;
+		}
+	}
+	private boolean sameModel(IdObjectShell<?> idObjectShell, AnimShell animShell){
+		return idObjectShell != null && animShell != null && idObjectShell.isFromDonating() == animShell.isFromDonating();
 	}
 
 	private void addIdObjectAnim(IdObject newBone, AnimShell animShell, IdObjectShell<?> motionSrcShell, Animation anim) {
@@ -203,7 +186,7 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 		}
 	}
 
-	private Map<GeosetShell, Geoset> getNewGeosetsMap() {
+	private Map<GeosetShell, Geoset> getNewGeosetsMap(Map<Material, Material> materialMap, Map<IdObjectShell<?>, IdObject> newBoneMap) {
 		Map<GeosetShell, Geoset> newGeosetsMap = new HashMap<>();
 
 		for (GeosetShell geoShell : mht.allGeoShells) {
@@ -211,12 +194,174 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 			System.out.println("checking geoset: " + geoShell.getName() + ", should import: " + geoShell.isDoImport());
 			if (geoShell.isDoImport()) {
 				Geoset geoset = geoShell.getGeoset().deepCopy();
-				geoset.setMaterial(geoShell.getMaterial());
+				geoset.setMaterial(materialMap.get(geoShell.getMaterial()));
 
 				newGeosetsMap.put(geoShell, geoset);
+
+				if (geoShell.hasSkinBones()) {
+					Map<IdObject, IdObject> replacementBoneMap = getReplacementBoneMap(geoShell, newBoneMap);
+
+					for (GeosetVertex vertex : geoset.getVertices()) {
+						vertex.replaceBones(replacementBoneMap);
+					}
+				} else {
+					Map<Matrix, List<Bone>> matrixMap = getMatrixListMap(geoShell, newBoneMap);
+
+					for (GeosetVertex vertex : geoset.getVertices()) {
+						List<Bone> newBones = matrixMap.get(vertex.getMatrix());
+						vertex.clearBoneAttachments();
+						vertex.addBoneAttachments(newBones);
+					}
+				}
 			}
 		}
 		return newGeosetsMap;
+	}
+
+	private Map<Matrix, List<Bone>> getMatrixListMap(GeosetShell geosetShell, Map<IdObjectShell<?>, IdObject> newBoneMap) {
+		Map<Matrix, List<Bone>> matrixMap = new HashMap<>();
+		System.out.println("geo matrixes: " + geosetShell.getMatrixShells().size());
+		for (MatrixShell matrixShell : geosetShell.getMatrixShells()) {
+//			System.out.println("matrixShell: " + matrixShell);
+//			System.out.println("matrixShell-NewBones: " + matrixShell.getNewBones().size());
+//			System.out.println("matrixShell-OldBones: " + matrixShell.getOrgBones().size());
+			List<Bone> newBones = new ArrayList<>();
+			for(IdObjectShell<?> shell : matrixShell.getNewBones()){
+				if (newBoneMap.get(shell) instanceof Bone){
+					newBones.add((Bone) newBoneMap.get(shell));
+				}
+			}
+			matrixMap.put(matrixShell.getMatrix(), newBones);
+			if (matrixShell.getOrgBones().size() == 0) {
+				System.out.println("no org bones!");
+			}
+			if (matrixShell.getNewBones().size() == 0) {
+				System.out.println("no new bones!");
+			}
+			if (newBones.size() == 0) {
+				System.out.println("new bones empty!");
+			}
+		}
+		return matrixMap;
+	}
+
+	private Map<IdObject, IdObject> getReplacementBoneMap(GeosetShell geosetShell, Map<IdObjectShell<?>, IdObject> newBoneMap) {
+		Map<IdObject, IdObject> replacementBoneMap = new HashMap<>(); // <original bone, new Bone>
+		for (MatrixShell matrixShell : geosetShell.getMatrixShells()) {
+			IdObjectShell<?> replacementBone = matrixShell.getHdBoneToUse();
+			IdObjectShell<?> orgBone = matrixShell.getHdBoneToMapFrom();
+			if (matrixShell.isHd() && replacementBone != null && orgBone != null && newBoneMap.get(replacementBone) != null) {
+				replacementBoneMap.put(orgBone.getIdObject(), newBoneMap.get(replacementBone));
+			} else {
+				for (IdObjectShell<?> boneShell : matrixShell.getOrgBones()) {
+					if (newBoneMap.get(boneShell) != null) {
+						replacementBoneMap.put(boneShell.getIdObject(), newBoneMap.get(boneShell));
+					} else {
+						System.out.println("couldn't find replacement bone for: " + boneShell.getName());
+					}
+				}
+				for (IdObjectShell<?> boneShell : matrixShell.getNewBones()) {
+					if (newBoneMap.get(boneShell) != null) {
+						replacementBoneMap.put(boneShell.getIdObject(), newBoneMap.get(boneShell));
+					} else {
+						System.out.println("couldn't find replacement bone for: " + boneShell.getName());
+					}
+				}
+			}
+		}
+		return replacementBoneMap;
+	}
+
+
+
+	private void doVisStuff(TimelineContainer visDest, Map<AnimShell, Animation> animsToAdd){
+		VisibilityShell<?> visibilityShell = mht.allVisShellBiMap.get(visDest);
+
+		if (visibilityShell != null) {
+			System.out.println(visDest + " vis binding");
+			for (AnimShell animShell : animsToAdd.keySet()) {
+				Animation anim = animsToAdd.get(animShell);
+
+				VisibilityShell<?> visToUse = getVisToUse(visibilityShell, animShell);
+
+				AnimShell animSrc = animShell.getAnimDataSrc();
+				if (sameModel(visToUse, animSrc)) {
+					addVisAnim(visDest, animSrc, visToUse, anim);
+				} else if(sameModel(visToUse, animShell)) {
+					addVisAnim(visDest, animShell, visToUse, anim);
+				}
+
+			}
+		} else {
+			System.out.println(visDest + " had no vis binding");
+		}
+
+
+	}
+	private void doVisStuff(TimelineContainer orgObj, TimelineContainer visDest, Map<AnimShell, Animation> animsToAdd){
+		VisibilityShell<?> visibilityShell = mht.allVisShellBiMap.get(orgObj);
+
+		if (visibilityShell != null) {
+			System.out.println(visDest + " vis binding");
+			for (AnimShell animShell : animsToAdd.keySet()) {
+				Animation anim = animsToAdd.get(animShell);
+
+				VisibilityShell<?> visToUse = getVisToUse(visibilityShell, animShell);
+
+				AnimShell animSrc = animShell.getAnimDataSrc();
+				if (sameModel(visToUse, animSrc)) {
+					addVisAnim(visDest, animSrc, visToUse, anim);
+				} else if(sameModel(visToUse, animShell)) {
+					addVisAnim(visDest, animShell, visToUse, anim);
+				}
+
+			}
+		} else {
+			System.out.println(visDest + " had no vis binding");
+		}
+
+
+	}
+
+	private VisibilityShell<?> getVisToUse(VisibilityShell<?> visibilityShell, AnimShell animShell){
+		boolean prioSelf = visibilityShell.isFavorOld();
+		VisibilityShell<?> prioVis = prioSelf ? visibilityShell : visibilityShell.getVisSource();
+		VisibilityShell<?> altVis = prioSelf ? visibilityShell.getVisSource() : visibilityShell;
+
+		AnimShell animSrc = animShell.getAnimDataSrc();
+		if(sameModel(prioVis, animSrc) || sameModel(prioVis, animShell)){
+			return prioVis;
+		} else if (sameModel(altVis, animSrc) || sameModel(altVis, animShell)){
+			return altVis;
+		} else {
+			return visibilityShell;
+		}
+	}
+	private boolean sameModel(VisibilityShell<?> idObjectShell, AnimShell animShell){
+		return idObjectShell != null && animShell != null && idObjectShell.isFromDonating() == animShell.isFromDonating();
+	}
+
+	private void addVisAnim(TimelineContainer visDest, AnimShell animShell, VisibilityShell<?> motionSrcShell, Animation anim) {
+		AnimFlag<Float> visibilityFlag = motionSrcShell.getSource().getVisibilityFlag();
+		if(visibilityFlag != null && visibilityFlag.hasSequence(animShell.getAnim())){
+			if (!visDest.has(visDest.visFlagName())) {
+				AnimFlag<Float> emptyCopy = visibilityFlag.getEmptyCopy();
+				emptyCopy.setName(visDest.visFlagName());
+				visDest.add(emptyCopy);
+			}
+			AnimFlag<?> destFlag = visDest.find(visDest.visFlagName());
+			AnimFlagUtils.copyFrom(destFlag, visibilityFlag, animShell.getAnim(), anim);
+		}
+	}
+
+	private Map<Material, Material> getMaterialMap() {
+		Map<Material, Material> materialMap = new HashMap<>();
+		for (GeosetShell geoShell : mht.allGeoShells) {
+			if (geoShell.isDoImport()) {
+				materialMap.computeIfAbsent(geoShell.getMaterial(), k -> geoShell.getMaterial().deepCopy());
+			}
+		}
+		return materialMap;
 	}
 
 	private void fixGeosetBones(Map<GeosetShell, Geoset> newGeosetsMap, Map<IdObjectShell<?>, IdObject> newBoneMap) {
@@ -225,9 +370,9 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 			if (geosetShell.getName().contains("Face")) {
 				System.out.println("doing Face!");
 			}
+			Geoset geoset = newGeosetsMap.get(geosetShell);
 			Map<Matrix, List<Bone>> matrixMap = new HashMap<>();
 			Map<IdObject, IdObject> replacementBoneMap = new HashMap<>(); // <original bone, new Bone>
-			Geoset geoset = newGeosetsMap.get(geosetShell);
 
 			System.out.println("importing geoset: " + geosetShell.getName() + ", MatShells: " + geosetShell.getMatrixShells().size());
 			for (MatrixShell matrixShell : geosetShell.getMatrixShells()) {
@@ -263,23 +408,6 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 						}
 					}
 				}
-
-//				for(int i = 0; i < matrixShell.getOrgBones().size(); i++){
-//					IterableListModel<IdObjectShell<?>> shellNewBones = matrixShell.getNewBones();
-//					if(!shellNewBones.isEmpty()) {
-//						IdObjectShell<?> newShell = shellNewBones.get(Math.min(i, shellNewBones.size() - 1));
-//						if(newShell != null){
-//							replacementBoneMap.put(matrixShell.getOrgBones().get(i).getIdObject(), newBoneMap.get(newShell));
-//						}
-//					}
-////					else if(replacementBoneMap.get(matrixShell.getOrgBones().get(i).getIdObject()) == null){
-////						replacementBoneMap.put(matrixShell.getOrgBones().get(i).getIdObject(), newBoneMap.get(newBoneMap.keySet().stream().findAny().get()));
-////					}
-
-
-//				}
-//				if (matrixShell.getNewBones().size() == matrixShell.getOrgBones().size()){
-//				}
 
 			}
 //			System.out.println("replacement bone map size: " + replacementBoneMap.size() + ", newBones size: " + );
@@ -409,85 +537,6 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 		mht.receivingModel.clearAnimations();
 	}
 
-	private void setNewVisSources(List<Animation> oldAnims, boolean clearAnims, List<Animation> newAnims) {
-		final List<AnimFlag<Float>> finalVisFlags = new ArrayList<>();
-		for (VisibilityShell visibilityShell : mht.futureVisComponents) {
-			TimelineContainer temp = ((TimelineContainer) visibilityShell.getSource());
-			AnimFlag<Float> visFlag = temp.getVisibilityFlag();// might be null
-			AnimFlag<Float> newVisFlag;
-
-			if (visFlag != null) {
-				newVisFlag = visFlag.getEmptyCopy();
-			} else {
-				newVisFlag = new FloatAnimFlag(temp.visFlagName());
-			}
-			// newVisFlag = new AnimFlag(temp.visFlagName());
-
-			FloatAnimFlag flagOld = getFloatAnimFlag(newVisFlag.tans(), oldAnims, visibilityShell.getDonModAnimsVisSource());
-			FloatAnimFlag flagNew = getFloatAnimFlag(newVisFlag.tans(), newAnims, visibilityShell.getRecModAnimsVisSource());
-
-			if (flagNew != null &&
-					((visibilityShell.isFavorOld() && !visibilityShell.isFromDonating() && !clearAnims)
-							|| !visibilityShell.isFavorOld() && (visibilityShell.isFromDonating()))) {
-				// this is an element favoring existing animations over imported
-				for (Animation a : oldAnims) {
-					flagNew.deleteAnim(a);
-				}
-			} else if (flagOld != null) {
-				// this is an element not favoring existing over imported
-				for (Animation a : newAnims) {
-					flagOld.deleteAnim(a);
-				}
-			}
-			if (flagOld != null) {
-				AnimFlagUtils.copyFrom(newVisFlag, flagOld);
-			}
-			if (flagNew != null) {
-				AnimFlagUtils.copyFrom(newVisFlag, flagNew);
-			}
-			finalVisFlags.add(newVisFlag);
-		}
-		for (int i = 0; i < mht.futureVisComponents.size(); i++) {
-			TimelineContainer visSource = ((TimelineContainer) mht.futureVisComponents.get(i).getSource());
-			AnimFlag<Float> visFlag = finalVisFlags.get(i);// might be null
-			if (visFlag.size() > 0) {
-				visSource.setVisibilityFlag(visFlag);
-			} else {
-				visSource.setVisibilityFlag(null);
-			}
-		}
-	}
-
-	private FloatAnimFlag getFloatAnimFlag(boolean tans, List<Animation> anims, VisibilityShell source) {
-		if (source != null) {
-			if (source.isNeverVisible()) {
-				FloatAnimFlag tempFlag = new FloatAnimFlag("temp");
-
-				Entry<Float> invisEntry = new Entry<>(0, 0f);
-				if (tans) invisEntry.unLinearize();
-
-				for (Animation a : anims) {
-					tempFlag.setOrAddEntryT(a.getStart(), invisEntry.deepCopy().setTime(a.getStart()), a);
-				}
-				return tempFlag;
-			} else if (!source.isAlwaysVisible()) {
-				return (FloatAnimFlag) ((TimelineContainer) source.getSource()).getVisibilityFlag();
-			}
-		}
-		return null;
-	}
-
-	private List<Camera> addChosenCameras(EditableModel newModel) {
-		List<Camera> camerasAdded = new ArrayList<>();
-		for (CameraShell cameraShell : mht.allCameraShells) {
-			if (cameraShell.getShouldImport() && cameraShell.getCamera() != null) {
-				Camera camera = cameraShell.getCamera();
-				newModel.add(camera);
-				camerasAdded.add(camera);
-			}
-		}
-		return camerasAdded;
-	}
 
 	private void applyNewMatrixBones(Map<GeosetShell, Geoset> geosetsAdded, Map<IdObjectShell<?>, IdObject> bonesAdded, EditableModel model) {
 		Bone dummyBone = null;
@@ -568,154 +617,6 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 //		}
 //	}
 
-	private void copyMotionFromBones() {
-		for (IdObjectShell<?> bs : mht.recModBoneShells) {
-			if (bs.getMotionSrcShell() != null && bs.getMotionSrcShell().getImportStatus() == IdObjectShell.ImportType.MOTION_FROM) {
-				copyMotionFrom3(bs.getIdObject(), bs.getMotionSrcShell().getIdObject());
-			}
-		}
-	}
-	public void copyMotionFrom3(IdObject receiving, IdObject donating) {
-		for (AnimFlag<?> donFlag : donating.getAnimFlags()) {
-			AnimFlag<?> recFlag = receiving.find(donFlag.getName());
-			if(recFlag != null && (!donFlag.hasGlobalSeq() && !recFlag.hasGlobalSeq()
-					|| donFlag.hasGlobalSeq() && donFlag.getGlobalSeq().equals(recFlag.getGlobalSeq()))){
-				AnimFlagUtils.copyFrom(recFlag, donFlag);
-			} else {
-				receiving.add(donFlag.deepCopy());
-			}
-		}
-	}
-
-	private Map<IdObjectShell<?>, IdObject> addChosenNewBones(EditableModel newModel) {
-		Map<IdObjectShell<?>, IdObject> bonesAdded = new HashMap<>();
-		for (IdObjectShell<?> boneShell : mht.allBoneShells) {
-			// we will go through all bone shells for this
-			// Fix cross-model referencing issue (force clean parent node's list of children)
-			if (boneShell.isFromDonating() || !mht.clearExistingBones.isSelected()) {
-				switch (boneShell.getImportStatus()) {
-					case IMPORT -> {
-						System.out.println("adding bone: " + boneShell);
-						Bone copy = (Bone) boneShell.getIdObject().copy(); // todo check instance of?
-						copy.clearAnimFlags();
-						newModel.add(copy);
-						bonesAdded.put(boneShell, copy);
-//						if (boneShell.getNewParentBs() != null) {
-//							copy.setParent(boneShell.getNewParentBs().getBone());
-//						} else {
-//							copy.setParent(null);
-//						}
-					}
-//					case MOTIONFROM -> {
-//						Bone copy = boneShell.getBone().copy();
-//						copy.clearAnimFlags();
-//						bonesAdded.put(boneShell, copy);
-//					}
-//					case DONTIMPORT -> boneShell.getBone().setParent(null);
-
-				}
-			}
-		}
-
-		for (IdObjectShell<?> boneShell : bonesAdded.keySet()) {
-			IdObject idObject = bonesAdded.get(boneShell);
-			if (boneShell.getNewParentShell() != null) {
-				idObject.setParent(bonesAdded.get(boneShell.getNewParentShell()));
-			} else {
-				idObject.setParent(null);
-			}
-		}
-
-		return bonesAdded;
-	}
-
-	private Map<AnimShell, Animation> getAddedAnims(EditableModel newModel) {
-		Map<AnimShell, Animation> addedAnims = new HashMap<>();
-		for (AnimShell animShell : mht.allAnimShells) {
-//			System.out.println("Anim: " + animShell.getName() + " should be dealt with " + animShell.getImportType() + " (" + animShell.getImportAnim() + ")");
-			if (animShell.getImportType() != AnimShell.ImportType.DONT_IMPORT && animShell.getImportType() != AnimShell.ImportType.TIMESCALE_INTO) {
-				Animation copy = animShell.getAnim().deepCopy();
-				if (animShell.getImportType() == AnimShell.ImportType.IMPORT_BASIC) {
-					addedAnims.put(animShell, copy);
-				} else if (animShell.getImportType() == AnimShell.ImportType.CHANGE_NAME) {
-					copy.setName(animShell.getName());
-				}
-				newModel.add(copy);
-				addedAnims.put(animShell, copy);
-			}
-		}
-		return addedAnims;
-	}
-
-
-	private void animCopyToInterv1(List<AnimFlag<?>> animFlags, List<EventObject> eventObjects, List<AnimFlag<?>> newImpFlags, List<EventObject> newImpEventObjs, Animation anim1, Animation importAnim) {
-//		importAnim.copyToInterval(start, start + length, anim1, animFlags, eventObjects, newImpFlags, newImpEventObjs);
-		for (AnimFlag<?> af : newImpFlags) {
-			if (!af.hasGlobalSeq()) {
-				AnimFlag<?> source = animFlags.get(newImpFlags.indexOf(af));
-				AnimFlagUtils.copyFrom(af, source, importAnim, anim1);
-			}
-		}
-		for (EventObject e : newImpEventObjs) {
-			if (!e.hasGlobalSeq()) {
-				EventObject source = eventObjects.get(newImpEventObjs.indexOf(e));
-				e.copyFrom(source, importAnim, anim1);
-			}
-		}
-	}
-
-	private void animCopyToInterv1(Map<AnimFlag<?>, AnimFlag<?>> flagMap, Map<EventObject, EventObject> eventMap, Animation anim1, Animation importAnim) {
-		for (AnimFlag<?> source : flagMap.keySet()) {
-			AnimFlag<?> af = flagMap.get(source);
-			if (af != null && !af.hasGlobalSeq()) {
-				AnimFlagUtils.copyFrom(af, source, importAnim, anim1);
-			}
-		}
-		for (EventObject source : eventMap.keySet()) {
-			EventObject e = eventMap.get(source);
-			if (e != null && !e.hasGlobalSeq()) {
-				e.copyFrom(source, importAnim, anim1);
-			}
-		}
-	}
-
-	private Map<GeosetShell, Geoset> addChosenGeosets(EditableModel newModel) {
-		Map<GeosetShell, Geoset> geosetsAdded = new HashMap<>();
-		Map<Material, Material> materials = new HashMap<>();
-
-		for (GeosetShell geoShell : mht.allGeoShells) {
-
-			System.out.println("checking geoset: " + geoShell.getName() + ", should import: " + geoShell.isDoImport());
-			if (geoShell.isDoImport()) {
-				Geoset geoset = geoShell.getGeoset().deepCopy();
-				Material material = materials.computeIfAbsent(geoShell.getMaterial(), k -> geoShell.getMaterial().deepCopy());
-				geoset.setMaterial(material);
-				newModel.add(geoset);
-
-				geosetsAdded.put(geoShell, geoset);
-			}
-		}
-
-		for (Material material : materials.values()) {
-			newModel.add(material);
-		}
-		return geosetsAdded;
-	}
-
-	private List<Geoset> getGeosetsRemoved() {
-		List<Geoset> geosetsRemoved = new ArrayList<>();
-
-		for (GeosetShell geoShell : mht.recModGeoShells) {
-
-			if (!geoShell.isDoImport()) {
-				geosetsRemoved.add(geoShell.getGeoset());
-				mht.receivingModel.remove(geoShell.getGeoset());
-			} else {
-				geoShell.getGeoset().setMaterial(geoShell.getMaterial());
-			}
-		}
-		return geosetsRemoved;
-	}
 
 	public boolean importSuccessful() {
 		return importSuccess;

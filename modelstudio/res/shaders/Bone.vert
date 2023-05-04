@@ -5,6 +5,7 @@ layout (location = 2) in vec4 a_rotation;
 layout (location = 3) in vec3 a_scaling;
 layout (location = 4) in float a_selectionStatus1;
 layout (location = 5) in float a_selectionStatus2;
+layout (location = 6) in float a_billboarded;
 
 uniform vec4 u_vertColors[4];
 

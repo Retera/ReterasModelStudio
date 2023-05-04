@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.blp.ImageUtils;
+import com.hiveworkshop.rms.ui.application.ExportInternal;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.ExportTexture;
@@ -14,7 +15,6 @@ import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextFiel
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
-import com.hiveworkshop.rms.util.ImageUtils.GU;
 import com.hiveworkshop.rms.util.TwiComboBox;
 import net.miginfocom.swing.MigLayout;
 
@@ -33,13 +33,11 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 	private final JCheckBox wrapHeightBox;
 	private final JPanel previewPanel;
 	private final ZoomableImagePreviewPanel imagePreviewPanel;
-	private final FileDialog fileDialog;
 	private ImageUtils.ColorMode colorMode = ImageUtils.ColorMode.RGBA;
 
 	public ComponentBitmapPanel(ModelHandler modelHandler) {
 		super(modelHandler);
 		texturePathField = new ComponentEditorTextField(24, this::texturePathField);
-		fileDialog = new FileDialog(this);
 
 		replaceableIdSpinner = new IntEditorJSpinner(-1, -1, this::replaceableIdSpinner);
 
@@ -90,12 +88,31 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 	}
 
 	private void exportTextureImageFile() {
-		DataSource workingDirectory = modelHandler.getModel().getWrappedDataSource();
-		BufferedImage texture = BLPHandler.getImage(bitmap, workingDirectory);
-		String suggestedName = texturePathField.getText();
-		suggestedName = suggestedName.substring(suggestedName.lastIndexOf("\\") + 1);
-		suggestedName = suggestedName.substring(suggestedName.lastIndexOf("/") + 1);
-		ExportTexture.onClickSaveAs(texture, suggestedName, FileDialog.SAVE_TEXTURE, fileDialog, ProgramGlobals.getMainPanel());
+		ImageUtils.ColorMode colorMode1 = getColorMode();
+		if(colorMode1 == ImageUtils.ColorMode.RGBA){
+			ExportInternal.exportInternalFile(bitmap.getRenderableTexturePath(), "Texture", model.getWrappedDataSource(), this);
+		} else if (colorMode1 != null){
+			String[] nameParts = bitmap.getRenderableTexturePath().split("\\.(?=.+$)");
+			String suggestedName = nameParts[0] + "_" + colorMode.name() + "." + nameParts[1];
+			ExportTexture.onClickSaveAs(getImage(bitmap, model.getWrappedDataSource()), suggestedName, FileDialog.SAVE_TEXTURE, ProgramGlobals.getMainPanel());
+		}
+	}
+
+	private ImageUtils.ColorMode getColorMode(){
+		if(colorMode != ImageUtils.ColorMode.RGBA){
+			String[] tempStrings = new String[]{"Original", colorMode.name(), "Cancel"};
+			JOptionPane optionPane = new JOptionPane("Export Current Filtered Image?", JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_CANCEL_OPTION, null, tempStrings, tempStrings[0]);
+			JDialog export_option = optionPane.createDialog(this, "Export Option");
+			export_option.setVisible(true);
+			Object optionPaneValue = optionPane.getValue();
+
+			if(tempStrings[1].equals(optionPaneValue)){
+				return colorMode;
+			} else if(tempStrings[2].equals(optionPaneValue)){
+				return null;
+			}
+		}
+		return ImageUtils.ColorMode.RGBA;
 	}
 
 	private void setWrap(Bitmap.WrapFlag flag, boolean set){
@@ -131,7 +148,7 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 
 	private void loadBitmapPreview(Bitmap bitmap) {
 		if (bitmap != null) {
-			DataSource workingDirectory = modelHandler.getModel().getWrappedDataSource();
+			DataSource workingDirectory = model.getWrappedDataSource();
 			imagePreviewPanel.setImage(getImage(bitmap, workingDirectory));
 			previewPanel.repaint();
 		}
@@ -150,26 +167,10 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 	}
 
 	private BufferedImage getImage(Bitmap bitmap, DataSource workingDirectory){
-		BufferedImage texture = BLPHandler.getImage(bitmap, workingDirectory);
-		if(texture != null){
-			sizeLabel.setText(texture.getWidth() + " px * " + texture.getHeight() + " px");
-			if(colorMode == ImageUtils.ColorMode.RGBA){
-				return texture;
-			} else {
-				return ImageUtils.getBufferedImageIsolateChannel(texture, colorMode);
-			}
-		} else {
-			int imageSize = 256;
-			final BufferedImage image = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_INT_ARGB);
-			final Graphics2D g2 = image.createGraphics();
-			g2.setColor(Color.RED);
-			int size = 220;
-			GU.drawCenteredSquare(g2, imageSize/2, imageSize/2, size);
-			int dist1 = (imageSize - size)/2;
-			int dist2 = imageSize-dist1;
-			GU.drawLines(g2, dist1, dist1, dist2, dist2, dist1, dist2, dist2, dist1);
-//			g2.drawString(exc.getClass().getSimpleName() + ": " + exc.getMessage(), 15, 15);
-			return image;
+		BufferedImage texture = BLPHandler.getImage(bitmap, workingDirectory, colorMode);
+		if(texture == null){
+			return ImageUtils.getXImage(256, 220, Color.RED);
 		}
+		return texture;
 	}
 }

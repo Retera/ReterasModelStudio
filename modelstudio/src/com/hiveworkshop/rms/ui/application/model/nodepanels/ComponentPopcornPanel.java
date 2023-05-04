@@ -163,7 +163,7 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 	private void export(){
 		String particlePath = idObject.getPath();
 		if(!particlePath.isEmpty()){
-			ExportInternal.exportInternalFile3(particlePath, "Popcorn", this);
+			ExportInternal.exportInternalFile(particlePath, "Popcorn", this);
 		}
 	}
 }

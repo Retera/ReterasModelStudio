@@ -45,12 +45,16 @@ public abstract class BufferSubInstance {
 	protected Layer diffuseLayer;
 	protected Material material;
 	protected ParticleEmitter2 particleEmitter2;
+	protected boolean shouldDraw = true;
 
 	public BufferSubInstance(EditableModel model, TextureThing textureThing){
 		this.model = model;
 		this.textureThing = textureThing;
 	}
 
+	public boolean shouldDraw(){
+		return shouldDraw;
+	}
 	public Vec4 getLayerColor() {
 		return layerColor;
 	}

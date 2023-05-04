@@ -70,9 +70,7 @@ public class IdObjectTypeChanger {
 		newNode.setName(oldNode.getName());
 		newNode.setParent(oldNode.getParent());
 		newNode.setPivotPoint(oldNode.getPivotPoint());
-		if(oldNode.getBindPose() != null){
-			newNode.setBindPose(oldNode.getBindPose().clone());
-		}
+		newNode.setBindPoseM4(oldNode.getBindPoseM4());
 
 		newNode.setBillboarded(oldNode.getBillboarded());
 		newNode.setBillboardLockX(oldNode.getBillboardLockX());

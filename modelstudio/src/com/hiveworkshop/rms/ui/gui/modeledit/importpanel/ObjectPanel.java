@@ -1,12 +1,14 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
-import com.hiveworkshop.rms.util.IterableListModel;
+import com.hiveworkshop.rms.ui.util.TwiList;
+import com.hiveworkshop.rms.ui.util.TwiListModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
+import java.util.List;
 
 class ObjectPanel extends JPanel {
 	ModelHolderThing mht;
@@ -15,8 +17,8 @@ class ObjectPanel extends JPanel {
 	JCheckBox doImport;
 	JLabel parentLabel;
 	JLabel oldParentLabel;
-	IterableListModel<IdObjectShell<?>> parents;
-	JList<IdObjectShell<?>> parentsList;
+	List<IdObjectShell<?>> parents;
+	TwiList<IdObjectShell<?>> parentsList;
 	JScrollPane parentsPane;
 	BoneShellListCellRenderer bonePanelRenderer;
 
@@ -52,7 +54,7 @@ class ObjectPanel extends JPanel {
 	}
 
 	private JScrollPane getParentListPane(BoneShellListCellRenderer bonePanelRenderer) {
-		parentsList = new JList<>();
+		parentsList = new TwiList<>();
 		parentsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		parentsList.setCellRenderer(bonePanelRenderer);
 		parentsList.addListSelectionListener(this::setParent);
@@ -87,7 +89,7 @@ class ObjectPanel extends JPanel {
 
 
 	private void setParentListModel() {
-		parentsList.setModel(parents);
+		parentsList.setListModel(new TwiListModel<>(parents));
 	}
 
 	private void setParent(ListSelectionEvent e) {

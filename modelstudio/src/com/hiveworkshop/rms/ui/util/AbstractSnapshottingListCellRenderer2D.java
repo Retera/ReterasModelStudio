@@ -26,6 +26,8 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 	protected static final Vec3 noOwnerBgCol = new Vec3(255, 255, 255);
 	protected static final Vec3 noOwnerFgCol = new Vec3(0, 0, 0);
 	protected static final Vec3 hLAdjBgCol = new Vec3(0, 0, 50);
+	protected static final Vec3 bg = new Vec3();
+	protected static final Vec3 fg = new Vec3();
 
 	private static final int SIZE = 32;
 	private static final int QUARTER_SIZE = SIZE / 4;
@@ -58,7 +60,7 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 		return this;
 	}
 
-	private ImageIcon getImageIcon(TYPE valueTyped) {
+	public ImageIcon getImageIcon(TYPE valueTyped) {
 		ImageIcon myIcon = matrixShellToCachedRenderer.get(valueTyped);
 		if (myIcon == null) {
 			try {
@@ -111,8 +113,6 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 
 	private BufferedImage getModelOutlineImage(Color backgroundColor, EditableModel model) {
 		if (modelOutlineImageMap.containsKey(model)) {
-//			System.out.println("fetching icon for model: " + model.getName());
-//			System.out.println("nr geosets: " + model.getGeosets().size());
 			return modelOutlineImageMap.get(model);
 		} else {
 			BufferedImage image = ModelThumbnailMaker.getBufferedImage(backgroundColor, model, SIZE, getModelBoundsSize(model));
@@ -120,25 +120,6 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 			return image;
 		}
 	}
-
-//	private BufferedImage getBufferedImage(Color backgroundColor, EditableModel model) {
-//		BufferedImage image = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
-//		Graphics graphics = image.getGraphics();
-//		graphics.setColor(backgroundColor);
-//		graphics.fill3DRect(0, 0, SIZE, SIZE, true);
-//		graphics.setColor(backgroundColor.brighter());
-//		graphics.fill3DRect(EIGHTH_SIZE, EIGHTH_SIZE, SIZE - QUARTER_SIZE, SIZE - QUARTER_SIZE, true);
-//
-//
-////			System.out.println("creating icon for model: " + model.getName());
-////			System.out.println("nr geosets: " + model.getGeosets().size());
-////			System.out.println("bounds: " + Arrays.toString(getModelBoundsSize(model)));
-//		ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
-//
-//		ModelThumbnailMaker.drawGeosetsFlat(model, graphics, (byte) 1, (byte) 2, Color.GRAY);
-//		graphics.dispose();
-//		return image;
-//	}
 
 	private Color getBackgroundColor(TYPE valueType) {
 		if (isFromDonating(valueType)) {

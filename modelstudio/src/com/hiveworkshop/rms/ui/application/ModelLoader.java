@@ -62,10 +62,10 @@ public class ModelLoader {
 
 	public static EditableModel getImagePlaneModel(File file, int version) {
 		String fileName = file.getName();
-		System.out.println("fileName: " + fileName);
+		System.out.println("fileName: \"" + fileName+ "\"");
 		//        File fileRef = new File(file.getPath().replaceAll("\\.[^.]+$", "") + ".mdl");
 		File fileRef = new File(file.getPath());
-		System.out.println("fileRef: " + fileRef + ", fileRefPath: " + fileRef.getPath());
+		System.out.println("fileRef: \"" + fileRef + "\", fileRefPath: \"" + fileRef.getPath() + "\"");
 
 		EditableModel blankTextureModel = new EditableModel(fileName);
 		blankTextureModel.setFileRef(fileRef);

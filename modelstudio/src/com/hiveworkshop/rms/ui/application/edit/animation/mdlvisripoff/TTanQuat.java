@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
+import com.hiveworkshop.rms.util.MathUtils;
 import com.hiveworkshop.rms.util.Quat;
 
 /**
@@ -64,7 +65,7 @@ public class TTanQuat extends TTan<Quat> {
 		if (q.w > 0.99999) {
 			q.w = 0.99999f;
 		}
-		float sinT = (float) (Math.acos(q.w) / Math.sqrt(1 - (q.w * q.w)));
+		float sinT = (float) (Math.acos(MathUtils.clamp(q.w, -1f, 1f)) / Math.sqrt(1 - (q.w * q.w)));
 		q.scale(sinT);
 		q.w = 0;
 		return q;

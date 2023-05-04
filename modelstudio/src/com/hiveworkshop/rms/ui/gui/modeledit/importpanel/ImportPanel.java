@@ -276,8 +276,8 @@ public class ImportPanel extends JTabbedPane {
 
 	private void setNewVisSources(List<Animation> oldAnims, boolean clearAnims, List<Animation> newAnims) {
 		final List<AnimFlag<Float>> finalVisFlags = new ArrayList<>();
-		for (VisibilityShell visibilityShell : mht.futureVisComponents) {
-			TimelineContainer temp = ((TimelineContainer) visibilityShell.getSource());
+		for (VisibilityShell<?> visibilityShell : mht.futureVisComponents) {
+			TimelineContainer temp = visibilityShell.getSource();
 			AnimFlag<Float> visFlag = temp.getVisibilityFlag();// might be null
 			AnimFlag<Float> newVisFlag;
 
@@ -313,7 +313,7 @@ public class ImportPanel extends JTabbedPane {
 			finalVisFlags.add(newVisFlag);
 		}
 		for (int i = 0; i < mht.futureVisComponents.size(); i++) {
-			TimelineContainer visSource = ((TimelineContainer) mht.futureVisComponents.get(i).getSource());
+			TimelineContainer visSource = mht.futureVisComponents.get(i).getSource();
 			AnimFlag<Float> visFlag = finalVisFlags.get(i);// might be null
 			if (visFlag.size() > 0) {
 				visSource.setVisibilityFlag(visFlag);
@@ -323,12 +323,12 @@ public class ImportPanel extends JTabbedPane {
 		}
 	}
 
-	private FloatAnimFlag getFloatAnimFlag(boolean tans, List<Animation> anims, VisibilityShell source) {
+	private FloatAnimFlag getFloatAnimFlag(boolean tans, List<Animation> anims, VisibilityShell<?> source) {
 		if (source != null) {
 			if (source.isNeverVisible()) {
 				return getNeverVisFlag(tans, anims);
 			} else if (!source.isAlwaysVisible()) {
-				return (FloatAnimFlag) ((TimelineContainer) source.getSource()).getVisibilityFlag();
+				return (FloatAnimFlag) source.getSource().getVisibilityFlag();
 			}
 		}
 		return null;
@@ -783,9 +783,9 @@ public class ImportPanel extends JTabbedPane {
 
 		// Try assuming it's a unit with a corpse; they'll tend to be that way
 		// Iterate through new visibility sources, find a geoset with gutz material
-		for (VisibilityShell donVis : mht.donModVisSourcesNew) {
+		for (VisibilityShell<?> donVis : mht.donModVisibilityShells) {
 			if (isGutz(donVis)) {
-				for (VisibilityShell impVis : mht.futureVisComponents) {
+				for (VisibilityShell<?> impVis : mht.futureVisComponents) {
 					if (isGutz(impVis)) {
 						impVis.setRecModAnimsVisSource(donVis);
 					}
@@ -810,9 +810,9 @@ public class ImportPanel extends JTabbedPane {
 //
 //		// Try assuming it's a unit with a corpse; they'll tend to be that way
 //		// Iterate through new visibility sources, find a geoset with gutz material
-//		for (VisibilityShell donVis : mht.donModVisSourcesNew) {
+//		for (VisibilityShell<?> donVis : mht.donModVisSourcesNew) {
 //			if (isGutz(donVis)) {
-//				for (VisibilityShell impVis : mht.futureVisComponents) {
+//				for (VisibilityShell<?> impVis : mht.futureVisComponents) {
 //					if (isGutz(impVis)) {
 //						impVis.setNewVisSource(donVis);
 //					}
@@ -837,17 +837,20 @@ public class ImportPanel extends JTabbedPane {
 
 	private void prepareModelHolderThing(IdObjectShell.ImportType importType, boolean singleAnim) {
 //		mht.setImportAllGeos(false);
-		mht.setImportAllDonGeos(false);
+		mht.donModGeoShells.forEach(g -> g.setDoImport(false));
+
 		mht.setImportStatusForAllDonBones(importType);
-		mht.setImportAllDonObjs(false);
+
+		mht.donModObjectShells.forEach(shell -> shell.setShouldImport(false));
+//		mht.setImportAllDonObjs(false);
 		mht.visibilityList();
 		mht.selectSimilarVisSources();
 		if (singleAnim) {
-			mht.setImportTypeForAllDonAnims(AnimShell.ImportType.DONT_IMPORT);
+			mht.donModAnims.forEach(shell -> shell.setImportType(AnimShell.ImportType.DONT_IMPORT));
 		}
 	}
 
-	private boolean isGutz(VisibilityShell donVis) {
+	private boolean isGutz(VisibilityShell<?> donVis) {
 		boolean isGeoset = donVis.getSource() instanceof Geoset;
 		if(isGeoset){
 			boolean hasGeoAnim = ((Geoset) donVis.getSource()).hasAnim();
@@ -866,7 +869,7 @@ public class ImportPanel extends JTabbedPane {
 
 		for (AnimShell animShell : mht.allAnimShells) {
 //		for (AnimShell animShell : mht.donModAnims) {
-			if (animShell.getOldName().equals(visFromAnim.getName())) {
+			if (visFromAnim == null || animShell.getOldName().equals(visFromAnim.getName())) {
 				animShell.setImportType(AnimShell.ImportType.TIMESCALE_INTO); // Time scale
 
 				for (AnimShell shell : mht.allAnimShells) {
@@ -879,7 +882,7 @@ public class ImportPanel extends JTabbedPane {
 			}
 		}
 
-		for (VisibilityShell vs : mht.futureVisComponents) {
+		for (VisibilityShell<?> vs : mht.futureVisComponents) {
 			vs.setFavorOld(false);
 		}
 

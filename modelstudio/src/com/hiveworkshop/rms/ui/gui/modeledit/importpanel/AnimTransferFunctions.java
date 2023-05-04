@@ -31,9 +31,9 @@ public class AnimTransferFunctions {
 
 		// Try assuming it's a unit with a corpse; they'll tend to be that way
 		// Iterate through new visibility sources, find a geoset with gutz material
-		for (VisibilityShell donVis : mht.donModVisSourcesNew) {
+		for (VisibilityShell<?> donVis : mht.donModVisibilityShells) {
 			if (isGutz(donVis)) {
-				for (VisibilityShell impVis : mht.futureVisComponents) {
+				for (VisibilityShell<?> impVis : mht.futureVisComponents) {
 					if (isGutz(impVis)) {
 						impVis.setRecModAnimsVisSource(donVis);
 					}
@@ -48,17 +48,17 @@ public class AnimTransferFunctions {
 	}
 
 	private void initStates(IdObjectShell.ImportType importType, boolean singleAnim) {
-		mht.setImportAllGeos(false);
+		mht.allGeoShells.forEach(g -> g.setDoImport(false));
 		mht.setImportStatusForAllDonBones(importType);
-		mht.setImportAllDonObjs(false);
+		mht.donModObjectShells.forEach(shell -> shell.setShouldImport(false));
 		mht.visibilityList();
 		mht.selectSimilarVisSources();
 		if (singleAnim) {
-			mht.setImportTypeForAllAnims(AnimShell.ImportType.DONT_IMPORT);
+			mht.allAnimShells.forEach(shell -> shell.setImportType(AnimShell.ImportType.DONT_IMPORT));
 		}
 	}
 
-	private boolean isGutz(VisibilityShell donVis) {
+	private boolean isGutz(VisibilityShell<?> donVis) {
 		boolean isGeoset = donVis.getSource() instanceof Geoset;
 		boolean hasGeoAnim = ((Geoset) donVis.getSource()).hasAnim();
 		if (isGeoset && hasGeoAnim) {
@@ -82,9 +82,9 @@ public class AnimTransferFunctions {
 
 		// Try assuming it's a unit with a corpse; they'll tend to be that way
 		// Iterate through new visibility sources, find a geoset with gutz material
-		for (VisibilityShell donVis : mht.donModVisSourcesNew) {
+		for (VisibilityShell<?> donVis : mht.donModVisibilityShells) {
 			if (isGutz(donVis)) {
-				for (VisibilityShell impVis : mht.futureVisComponents) {
+				for (VisibilityShell<?> impVis : mht.futureVisComponents) {
 					if (isGutz(impVis)) {
 						impVis.setRecModAnimsVisSource(donVis);
 					}
@@ -105,7 +105,7 @@ public class AnimTransferFunctions {
 
 		importSingleAnim1(pickedAnim, visFromAnim);
 
-		for (VisibilityShell vs : mht.futureVisComponents) {
+		for (VisibilityShell<?> vs : mht.futureVisComponents) {
 			vs.setFavorOld(false);
 		}
 
@@ -620,8 +620,8 @@ public class AnimTransferFunctions {
 
 	private void setNewVisSources(List<Animation> oldAnims, boolean clearAnims, List<Animation> newAnims) {
 		final List<AnimFlag<Float>> finalVisFlags = new ArrayList<>();
-		for (VisibilityShell visibilityShell : mht.futureVisComponents) {
-			TimelineContainer temp = ((TimelineContainer) visibilityShell.getSource());
+		for (VisibilityShell<?> visibilityShell : mht.futureVisComponents) {
+			TimelineContainer temp = visibilityShell.getSource();
 			AnimFlag<Float> visFlag = temp.getVisibilityFlag();// might be null
 			AnimFlag<Float> newVisFlag;
 
@@ -657,7 +657,7 @@ public class AnimTransferFunctions {
 			finalVisFlags.add(newVisFlag);
 		}
 		for (int i = 0; i < mht.futureVisComponents.size(); i++) {
-			TimelineContainer visSource = ((TimelineContainer) mht.futureVisComponents.get(i).getSource());
+			TimelineContainer visSource = mht.futureVisComponents.get(i).getSource();
 			AnimFlag<Float> visFlag = finalVisFlags.get(i);// might be null
 			if (visFlag.size() > 0) {
 				visSource.setVisibilityFlag(visFlag);
@@ -667,7 +667,7 @@ public class AnimTransferFunctions {
 		}
 	}
 
-	private FloatAnimFlag getFloatAnimFlag(boolean tans, List<Animation> anims, VisibilityShell source) {
+	private FloatAnimFlag getFloatAnimFlag(boolean tans, List<Animation> anims, VisibilityShell<?> source) {
 		if (source != null) {
 			if (source.isNeverVisible()) {
 				FloatAnimFlag tempFlag = new FloatAnimFlag("temp");
@@ -680,7 +680,7 @@ public class AnimTransferFunctions {
 				}
 				return tempFlag;
 			} else if (!source.isAlwaysVisible()) {
-				return (FloatAnimFlag) ((TimelineContainer) source.getSource()).getVisibilityFlag();
+				return (FloatAnimFlag) source.getSource().getVisibilityFlag();
 			}
 		}
 		return null;

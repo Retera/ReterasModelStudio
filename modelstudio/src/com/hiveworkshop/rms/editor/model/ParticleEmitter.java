@@ -5,12 +5,14 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 
 /**
- * ParticleEmitter2 class, these are the things most people would think of as a
- * particle emitter, I think. Blizzard favored use of these over
- * ParticleEmitters and I do too simply because I so often recycle data and
- * there are more of these to use.
- *
- * Eric Theller 3/10/2012 3:32 PM
+ * ParticleEmitter specific animation tags
+ * 	KPEE - Particle emitter emission rate
+ * 	KPEG - Particle emitter gravity
+ * 	KPLN - Particle emitter longitude
+ * 	KPLT - Particle emitter latitude
+ * 	KPEL - Particle emitter lifespan
+ * 	KPES - Particle emitter initial velocity
+ * 	KPEV - Particle emitter visibility
  */
 public class ParticleEmitter extends EmitterIdObject {
 	double emissionRate = 0;

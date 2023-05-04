@@ -20,6 +20,7 @@ public abstract class ShaderPipeline {
 	protected static final int FRESNEL_COLOR = 3;
 	protected static final int ROTATION = 4;
 	protected static final int SELECTION_STATUS = 1;
+	protected static final int BILLBOARD_FLAGS = 1;
 	protected static final int VEC2 = 2;
 	protected static final int VEC3 = 3;
 	protected static final int VEC4 = 4;

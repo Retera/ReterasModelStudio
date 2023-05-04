@@ -170,7 +170,7 @@ public class KeyframeCopyPanel extends JPanel {
 	private void doCopy() {
 		Integer donStart = (Integer) donTimeSpinner.getValue();
 		Integer recStart = (Integer) recTimeSpinner.getValue();
-		int times = (Integer) donTimeEndSpinner.getValue() - donStart + 1;
+		int times = (Integer) donTimeEndSpinner.getValue() - donStart;
 		if(onlySelectedNodes){
 			copyKeyframeSelected(donAnim, donStart, recAnim, recStart, times);
 		} else {
@@ -273,12 +273,18 @@ public class KeyframeCopyPanel extends JPanel {
 		if(times < 0){
 			donAdj = -1;
 		}
-		for (int j = 0; j < Math.abs(times); j++) {
+		for (int j = 0; j <= Math.abs(times); j++) {
 			if(animFlag.hasEntryAt(recAnimation, recKeyframe + j)){
 				removeTimes.add(recKeyframe + j);
 			}
 			if(animFlag.hasEntryAt(donAnimation, donKeyframe + j*donAdj)){
-				addEntries.add(animFlag.getEntryAt(donAnim, donKeyframe + j*donAdj).deepCopy().setTime(recKeyframe + j));
+				Entry<T> entry = animFlag.getEntryAt(donAnim, donKeyframe + j * donAdj);
+				Entry<T> newEntry = entry.deepCopy().setTime(recKeyframe + j);
+				if(donAdj < 0 && entry.isTangential()){
+					newEntry.setOutTan(entry.getInTan());
+					newEntry.setInTan(entry.getOutTan());
+				}
+				addEntries.add(newEntry);
 			}
 		}
 		if(!removeTimes.isEmpty()){

@@ -17,6 +17,16 @@ import java.util.EnumSet;
  * there are more of these to use.
  *
  * Eric Theller 3/10/2012 3:32 PM
+ *
+ * ParticleEmitter2 specific animation tags
+ * 	KP2S - Particle emitter 2 speed
+ * 	KP2R - Particle emitter 2 variation
+ * 	KP2L - Particle emitter 2 latitude
+ * 	KP2G - Particle emitter 2 gravity
+ * 	KP2E - Particle emitter 2 emission rate
+ * 	KP2N - Particle emitter 2 length
+ * 	KP2W - Particle emitter 2 width
+ * 	KP2V - Particle emitter 2 visibility
  */
 public class ParticleEmitter2 extends EmitterIdObject {
 	private final EnumSet<HeadTailFlag> headTailFlags = EnumSet.noneOf(HeadTailFlag.class);

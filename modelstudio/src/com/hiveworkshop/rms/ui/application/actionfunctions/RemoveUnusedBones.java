@@ -26,7 +26,7 @@ public class RemoveUnusedBones extends ActionFunction {
 	public static void doRemove(ModelHandler modelHandler){
 
 		RemoveUnusedPanel removeUnusedPanel = new RemoveUnusedPanel();
-		int remove_unused_nodes = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), removeUnusedPanel, "Remove Unused Nodes", JOptionPane.OK_CANCEL_OPTION);
+		int remove_unused_nodes = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), removeUnusedPanel, TextKey.REMOVE_UNUSED_NODES.toString(), JOptionPane.OK_CANCEL_OPTION);
 
 		if (remove_unused_nodes == JOptionPane.OK_OPTION) {
 			EditableModel model = modelHandler.getModel();

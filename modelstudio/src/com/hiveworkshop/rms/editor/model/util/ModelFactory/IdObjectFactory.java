@@ -145,8 +145,8 @@ public class IdObjectFactory {
 		particleEmitter2.setRows((int) mdlxEmitter.rows);
 		particleEmitter2.setColumns((int) mdlxEmitter.columns);
 
-		particleEmitter2.setHead((mdlxEmitter.headTailFlag & 0x1) != 0);
-		particleEmitter2.setTail((mdlxEmitter.headTailFlag & 0x2) != 0);
+		particleEmitter2.setHead((mdlxEmitter.headTailFlag+1 & 0x1) != 0);
+		particleEmitter2.setTail((mdlxEmitter.headTailFlag+1 & 0x2) != 0);
 
 		particleEmitter2.setTailLength(mdlxEmitter.tailLength);
 		particleEmitter2.setTime(mdlxEmitter.timeMiddle);

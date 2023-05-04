@@ -89,6 +89,7 @@ public class EditMenu extends JMenu {
 		optimizeMenu.add(new SimplifyGeometry().getMenuItem());
 		optimizeMenu.add(new SortNodes().getMenuItem());
 		optimizeMenu.add(new RemoveUnusedBones().getMenuItem());
+		optimizeMenu.add(new RemoveLooseVerts().getMenuItem());
 
 		optimizeMenu.add(new RemoveMaterialDuplicates().getMenuItem());
 		return optimizeMenu;

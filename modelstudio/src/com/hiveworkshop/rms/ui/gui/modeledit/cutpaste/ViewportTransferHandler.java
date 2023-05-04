@@ -328,10 +328,7 @@ public class ViewportTransferHandler extends TransferHandler {
 
 		dummyBone.getPivotPoint().scale(1f / count);
 		if (800 < currentModel.getFormatVersion()) {
-			Mat4 mat4 = new Mat4().fromRotationTranslationScaleOrigin(new Quat(), new Vec3(), new Vec3(1, 1, 1), dummyBone.getPivotPoint());
-
-//			dummyBone.setBindPose(new float[] {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f});
-			dummyBone.setBindPose(mat4.getBindPose());
+			dummyBone.getBindPoseM4().translate(dummyBone.getPivotPoint());
 		}
 
 		final MdlxModel mdlx = TempSaveModelStuff.toMdlx(stringableModel);

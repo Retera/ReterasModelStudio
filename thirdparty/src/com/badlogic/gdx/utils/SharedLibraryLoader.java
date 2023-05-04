@@ -19,7 +19,6 @@
 package com.badlogic.gdx.utils;
 
 import java.io.*;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -102,7 +101,7 @@ public class SharedLibraryLoader {
 	 *                    prefix (eg lib) or suffix (eg .dll).
 	 */
 	public void load(final String libraryName) {
-		// in case of iOS, things have been linked statically to the executable, bail out.
+//		// in case of iOS, things have been linked statically to the executable, bail out.
 //		if (isIos) {
 //			return;
 //		}
@@ -136,8 +135,7 @@ public class SharedLibraryLoader {
 		}
 
 		// Read from JAR.
-		try {
-			final ZipFile file = new ZipFile(nativesJar);
+		try (final ZipFile file = new ZipFile(nativesJar)){
 			final ZipEntry entry = file.getEntry(path);
 			if (entry == null) {
 				throw new RuntimeException("Couldn't find '" + path + "' in JAR: " + nativesJar);
@@ -159,8 +157,9 @@ public class SharedLibraryLoader {
 	 * @return The extracted file.
 	 */
 	public File extractFile(final String sourcePath, String dirName) throws IOException {
-		try {
-			final String sourceCrc = crc(readFile(sourcePath));
+		try (InputStream input = readFile(sourcePath);) {
+
+			final String sourceCrc = crc(input);
 			if (dirName == null) {
 				dirName = sourceCrc;
 			}
@@ -184,7 +183,6 @@ public class SharedLibraryLoader {
 			}
 			System.out.println("\t\tfile not found");
 			throw new RuntimeException("Could not extract \"" + sourcePath + "\"", ex);
-//			throw ex;
 		}
 	}
 
@@ -197,7 +195,9 @@ public class SharedLibraryLoader {
 	 * @param dir        The location where the extracted file will be written.
 	 */
 	public void extractFileTo(final String sourcePath, final File dir) throws IOException {
-		extractFile(sourcePath, crc(readFile(sourcePath)), new File(dir, new File(sourcePath).getName()));
+		try (InputStream input = readFile(sourcePath)) {
+			extractFile(sourcePath, crc(input), new File(dir, new File(sourcePath).getName()));
+		}
 	}
 
 	/**
@@ -207,17 +207,24 @@ public class SharedLibraryLoader {
 	 * @return null if a writable path could not be found.
 	 */
 	private File getExtractedFile(final String dirName, final String fileName) {
-		String dir1 = System.getProperty("java.io.tmpdir") + "/libgdx" + System.getProperty("user.name") + "/" + dirName; // Temp directory with username in path.
-		String dir2 = getSystemTempFile(dirName); // System provided temp directory.
-		String dir3 = System.getProperty("user.home") + "/.libgdx/" + dirName; // User home.
-		String dir4 = ".temp/" + dirName; // Relative directory.
+		String[] dirs = getTempDirsToTry(dirName);
 
-		File firstWritebleFile = getFirstWritebleFile(fileName, dir1, dir2, dir3, dir4);
+		File firstWritebleFile = getFirstWritebleFile(fileName, dirs);
 
 		if(firstWritebleFile == null && System.getenv("APP_SANDBOX_CONTAINER_ID") != null){
-			return new File(dir1, fileName);
+			String dir5 = System.getProperty("java.library.path");
+			return new File(dir5, fileName);
 		}
 		return firstWritebleFile;
+	}
+
+	private String[] getTempDirsToTry(final String dirName){
+		String[] dirs = new String[4];
+		dirs[0] = System.getProperty("java.io.tmpdir") + "/libgdx" + System.getProperty("user.name") + "/" + dirName; // Temp directory with username in path.
+		dirs[1] = getSystemTempFile(dirName); // System provided temp directory.
+		dirs[2] = System.getProperty("user.home") + "/.libgdx/" + dirName; // User home.
+		dirs[3] = ".temp/" + dirName; // Relative directory.
+		return dirs;
 	}
 
 	private File getFirstWritebleFile(String fileName, String... testDir){
@@ -225,7 +232,7 @@ public class SharedLibraryLoader {
 			if(dir != null){
 				File file = new File(dir, fileName);
 				System.out.println("Checking filepath: \"" + file.getPath() + "\"");
-				if (canWrite(file)) {
+				if (StreamUtils.canWrite(file)) {
 					System.out.println("\tvalid path!");
 					return file;
 				}
@@ -235,69 +242,15 @@ public class SharedLibraryLoader {
 		return null;
 	}
 
-	/**
-	 * Returns true if the parent directories of the file can be created and the
-	 * file can be written.
-	 */
-	private boolean canWrite(final File file) {
-		final File parent = file.getParentFile();
-		final File testFile;
-		if (file.exists()) {
-			if (!file.canWrite() || !canExecute(file)) {
-				return false;
-			}
-			// Don't overwrite existing file just to check if we can write to directory.
-			testFile = new File(parent, UUID.randomUUID().toString());
-		} else {
-			parent.mkdirs();
-			if (!parent.isDirectory()) {
-				return false;
-			}
-			testFile = file;
-		}
-		try {
-			new FileOutputStream(testFile).close();
-			return canExecute(testFile);
-		} catch (final Throwable ex) {
-			return false;
-		} finally {
-			testFile.delete();
-		}
-	}
-
-	private boolean canExecute(final File file) {
-		try {
-			final Method canExecute = File.class.getMethod("canExecute");
-			if ((Boolean) canExecute.invoke(file)) {
-				return true;
-			}
-
-			final Method setExecutable = File.class.getMethod("setExecutable", boolean.class, boolean.class);
-			setExecutable.invoke(file, true, false);
-
-			return (Boolean) canExecute.invoke(file);
-		} catch (final Exception ignored) {
-		}
-		return false;
-	}
-
-	private File extractFile(final String sourcePath, final String sourceCrc, final File extractedFile) throws IOException {
-		String extractedCrc = null;
-		if (extractedFile.exists()) {
-			try {
-				extractedCrc = crc(new FileInputStream(extractedFile));
-			} catch (final FileNotFoundException ignored) {
-			}
-		}
+	private File extractFile(final String sourcePath, final String sourceCrc, final File extractedFile) {
+		String extractedCrc = getFileCrC(extractedFile);
 
 		// If file doesn't exist or the CRC doesn't match, extract it to the temp dir.
 		if (extractedCrc == null || !extractedCrc.equals(sourceCrc)) {
-			try {
-				final InputStream input = readFile(sourcePath);
+			try (final InputStream input = readFile(sourcePath);){
 				extractedFile.getParentFile().mkdirs();
 				System.out.println("Extracting \"" + sourcePath + "\" to \"" + extractedFile.getPath() + "\"");
 				writeStreamTo(extractedFile, input);
-				input.close();
 			} catch (final IOException ex) {
 				throw new RuntimeException(
 						"Error extracting file: " + sourcePath + "\nTo: " + extractedFile.getAbsolutePath(), ex);
@@ -307,14 +260,26 @@ public class SharedLibraryLoader {
 		return extractedFile;
 	}
 
-	private void writeStreamTo(File extractedFile, InputStream input) throws IOException {
-		final FileOutputStream output = new FileOutputStream(extractedFile);
-		final byte[] buffer = new byte[4096];
-		int length;
-		while ((length = input.read(buffer)) != -1) {
-			output.write(buffer, 0, length);
+	private String getFileCrC(File extractedFile) {
+		if (extractedFile.exists()) {
+			try (InputStream input = new FileInputStream(extractedFile)){
+				return crc(input);
+			} catch (final FileNotFoundException ignored) {
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
-		output.close();
+		return null;
+	}
+
+	private void writeStreamTo(File extractedFile, InputStream input) throws IOException {
+		try (final FileOutputStream output = new FileOutputStream(extractedFile)) {
+			final byte[] buffer = new byte[4096];
+			int length;
+			while ((length = input.read(buffer)) != -1) {
+				output.write(buffer, 0, length);
+			}
+		}
 	}
 
 	/**
@@ -322,26 +287,27 @@ public class SharedLibraryLoader {
 	 * from multiple locations. Throws runtime exception if all fail.
 	 */
 	private void loadFile(final String sourcePath) {
-		final String sourceCrc = crc(readFile(sourcePath));
-		final String fileName = new File(sourcePath).getName();
+		try (InputStream input = readFile(sourcePath)) {
+			final String sourceCrc = crc(input);
+			final String fileName = new File(sourcePath).getName();
 
-		String dir1 = System.getProperty("java.io.tmpdir") + "/libgdx" + System.getProperty("user.name") + "/" + sourceCrc;// Temp directory with username in path.
-		String dir2 = getSystemTempFile(sourceCrc);// System provided temp directory.
-		String dir3 = System.getProperty("user.home") + "/.libgdx/" + sourceCrc;// User home.
-		String dir4 = ".temp/" + sourceCrc; // Relative directory.
+			String[] dirs = getTempDirsToTry(sourceCrc);
 
-		List<Throwable> throwables = tryLoadFileFrom(fileName, sourcePath, sourceCrc, dir1, dir2, dir3, dir4);
+			List<Throwable> throwables = tryLoadFileFrom(fileName, sourcePath, sourceCrc, dirs);
 
-		if(throwables != null){
-			// Fallback to java.library.path location, eg for applets.
-			String dir5 = System.getProperty("java.library.path");
-			File file = new File(dir5, sourcePath);
-			if (file.exists()) {
-				System.load(file.getAbsolutePath());
-				return;
+			if(throwables != null){
+				// Fallback to java.library.path location, eg for applets.
+				String dir5 = System.getProperty("java.library.path");
+				File file = new File(dir5, sourcePath);
+				if (file.exists()) {
+					System.load(file.getAbsolutePath());
+					return;
+				}
+
+				throw new RuntimeException(throwables.get(0));
 			}
+		} catch (IOException e){
 
-			throw new RuntimeException(throwables.get(0));
 		}
 	}
 

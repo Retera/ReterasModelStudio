@@ -43,9 +43,7 @@ public class SetFromOtherParticle2Action implements UndoAction {
 		emitter.setBillboardLockY(emitter2.getBillboardLockY());
 		emitter.setBillboardLockZ(emitter2.getBillboardLockZ());
 		emitter.setPivotPoint(emitter2.getPivotPoint());
-		if (emitter2.getBindPose() != null) {
-			emitter.setBindPose(emitter2.getBindPose().clone());
-		}
+		emitter.setBindPoseM4(emitter2.getBindPoseM4());
 
 
 		emitter.setFilterMode(emitter2.getFilterMode());
