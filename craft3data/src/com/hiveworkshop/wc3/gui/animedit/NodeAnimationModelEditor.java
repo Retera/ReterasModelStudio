@@ -946,4 +946,9 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		throw new WrongModeException("Unable to add bone in Animation Editor");
 	}
 
+	@Override
+	public UndoAction deleteDownToOneTVerticesLayer() {
+		throw new WrongModeException("Unable to delete mesh in Animation Editor");
+	}
+
 }

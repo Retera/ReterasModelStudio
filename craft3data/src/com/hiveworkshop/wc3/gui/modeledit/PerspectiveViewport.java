@@ -1012,6 +1012,12 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 							normalHeap3.z = (float) v.getNormal().z;
 							Matrix3f.transform(skinBonesMatrixSumHeap3, normalHeap3, normalSumHeap3);
 
+							if (normalSumHeap3.length() > 0) {
+								normalSumHeap3.normalise();
+							}
+							else {
+								normalSumHeap3.set(0, 0, 1);
+							}
 							NGGLDP.pipeline.glNormal3f(normalSumHeap3.x, normalSumHeap3.y, normalSumHeap3.z);
 						}
 						if (v.getTangent() != null) {

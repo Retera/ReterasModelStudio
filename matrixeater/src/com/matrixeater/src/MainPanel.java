@@ -3611,6 +3611,25 @@ public class MainPanel extends JPanel
 		});
 		scriptsMenu.add(selectHDUnused);
 
+		final JMenuItem deleteDownToOneTVerticesLayer = new JMenuItem("Delete all TVertices layers beyond the first");
+		deleteDownToOneTVerticesLayer.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final int userResult = JOptionPane.showConfirmDialog(MainPanel.this,
+						"Are you sure? Deleting TVertices layers beyond the first can help to open the file in Magos War3ModelEditor\nif a software glitch added an extra layer,\n but it can also lose art information for some files.\n\nAlso, this action only applies to selected vertices.",
+						"Confirmation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+				if (userResult == JOptionPane.OK_OPTION) {
+					final ModelPanel mpanel = currentModelPanel();
+					if (mpanel != null) {
+						mpanel.getUndoManager().pushAction(
+								mpanel.getModelEditorManager().getModelEditor().deleteDownToOneTVerticesLayer());
+					}
+					repaint();
+				}
+			}
+		});
+		scriptsMenu.add(deleteDownToOneTVerticesLayer);
+
 		final JMenuItem jokebutton = new JMenuItem("Load Retera Land");
 		jokebutton.setMnemonic(KeyEvent.VK_A);
 		jokebutton.addActionListener(new ActionListener() {

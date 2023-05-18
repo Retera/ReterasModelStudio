@@ -46,6 +46,8 @@ import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
@@ -214,6 +216,7 @@ public class UVPanel extends JPanel
 	private final List<ModeButton> selectionModeButtons = new ArrayList<>();
 	private final Map<TVertexEditorActivityDescriptor, ModeButton> typeToButton = new HashMap<>();
 	private final Map<SelectionMode, ModeButton> modeToButton = new HashMap<>();
+	private final JSpinner uvLayerIndexSpinner;
 
 	public UVPanel(final ModelPanel dispMDL, final ProgramPreferences prefs,
 			final ModelStructureChangeListener modelStructureChangeListener) {
@@ -308,6 +311,21 @@ public class UVPanel extends JPanel
 		buttons.add(loadImage);
 		buttons.add(unwrapButton);
 
+		final JLabel uvLayerIndexLabel = new JLabel("UV Layer Index:");
+		uvLayerIndexSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 9999, 1));
+		uvLayerIndexSpinner.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
+				final Object value = uvLayerIndexSpinner.getValue();
+				if (value instanceof Number) {
+					modelEditorManager.getModelEditor().setUVLayerIndex(((Number) value).intValue());
+					repaint();
+				}
+			}
+		});
+		uvLayerIndexSpinner.setMaximumSize(new Dimension(100, 35));
+		add(uvLayerIndexSpinner);
+
 		unwrapDirectionBox.setMaximumSize(new Dimension(100, 35));
 		unwrapDirectionBox.setMinimumSize(new Dimension(90, 15));
 		unwrapDirectionBox.addActionListener(this);
@@ -390,7 +408,8 @@ public class UVPanel extends JPanel
 								.addComponent(divider[0]).addComponent(selectButton).addComponent(addButton)
 								.addComponent(deselectButton).addComponent(divider[1]).addComponent(moveButton)
 								.addComponent(rotateButton).addComponent(scaleButton).addComponent(divider[2])
-								.addComponent(unwrapDirectionBox).addComponent(unwrapButton)));
+								.addComponent(unwrapDirectionBox).addComponent(unwrapButton)
+								.addComponent(uvLayerIndexLabel).addComponent(uvLayerIndexSpinner)));
 		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(toolbar)
 				.addGroup(layout.createParallelGroup()
 						.addGroup(layout.createSequentialGroup().addComponent(vp).addGroup(layout.createParallelGroup()
@@ -412,7 +431,8 @@ public class UVPanel extends JPanel
 								.addComponent(divider[1]).addGap(8).addComponent(moveButton).addGap(8)
 								.addComponent(rotateButton).addGap(8).addComponent(scaleButton).addGap(8)
 								.addComponent(divider[2]).addGap(8).addComponent(unwrapDirectionBox).addGap(8)
-								.addComponent(unwrapButton).addGap(8).addGap(8))));
+								.addComponent(unwrapButton).addGap(8).addComponent(uvLayerIndexLabel)
+								.addComponent(uvLayerIndexSpinner).addGap(8))));
 
 		setLayout(layout);
 		selectionModeGroup.addToolbarButtonListener(new ToolbarButtonListener<SelectionMode>() {
@@ -450,6 +470,10 @@ public class UVPanel extends JPanel
 //					ModelEditorManager.MOVE_LINKED = moveLinked;
 //				}
 				modelEditorManager.setSelectionItemType(newType);
+				final Object value = uvLayerIndexSpinner.getValue();
+				if (value instanceof Number) {
+					modelEditorManager.getModelEditor().setUVLayerIndex(((Number) value).intValue());
+				}
 				repaint();
 			}
 		});
@@ -921,8 +945,12 @@ public class UVPanel extends JPanel
 	}
 
 	public void setViewport(final ModelPanel dispModel) {
+		if (vp != null) {
+			modelEditorChangeNotifier.unsubscribe(vp);
+		}
 		vp = new UVViewport(dispModel.getModelViewManager(), this, prefs, viewportActivityManager, this,
 				modelEditorManager.getModelEditor());
+		modelEditorChangeNotifier.subscribe(vp);
 		add(vp);
 	}
 

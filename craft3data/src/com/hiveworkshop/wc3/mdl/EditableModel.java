@@ -1666,6 +1666,13 @@ public class EditableModel implements Named {
 				writer.println("\tMatrices " + bindPoseChunk.bindPose.length + " {");
 				final StringBuilder matrixStringBuilder = new StringBuilder();
 				for (int i = 0; i < bindPoseChunk.bindPose.length; i++) {
+					Named matrixPredictedParent = null;
+					if (i < idObjects.size()) {
+						matrixPredictedParent = idObjects.get(i);
+					}
+					else if (i < (idObjects.size() + cameras.size())) {
+						matrixPredictedParent = cameras.get(i - idObjects.size());
+					}
 					final float[] matrix = bindPoseChunk.bindPose[i];
 					matrixStringBuilder.setLength(0);
 					matrixStringBuilder.append("{ ");
@@ -1676,8 +1683,11 @@ public class EditableModel implements Named {
 						matrixStringBuilder.append(MDLReader.doubleToString(matrix[k]));
 					}
 					matrixStringBuilder.append(" },");
-//					matrixStringBuilder.append(" // ");
-//					matrixStringBuilder.append(i);
+					if (matrixPredictedParent != null) {
+						matrixStringBuilder.append("// for \"");
+						matrixStringBuilder.append(matrixPredictedParent.getName());
+						matrixStringBuilder.append("\"");
+					}
 					writer.println("\t\t" + matrixStringBuilder.toString());
 				}
 				writer.println("\t}");

@@ -18,7 +18,8 @@ public class ExceptionPopup {
 				final Document doc = pane.getDocument();
 				try {
 					doc.insertString(doc.getLength(), s, null);
-				} catch (final BadLocationException e) {
+				}
+				catch (final BadLocationException e) {
 					JOptionPane.showMessageDialog(null, "MDL open error popup failed to create info popup.");
 					e.printStackTrace();
 				}
@@ -45,7 +46,7 @@ public class ExceptionPopup {
 		JOptionPane.showMessageDialog(null, pane);
 	}
 
-	public static void display(final String s, final Exception e) {
+	public static void display(final String s, final Throwable e) {
 
 		final JTextPane pane = new JTextPane();
 		final OutputStream stream = new OutputStream() {
@@ -53,7 +54,8 @@ public class ExceptionPopup {
 				final Document doc = pane.getDocument();
 				try {
 					doc.insertString(doc.getLength(), s, null);
-				} catch (final BadLocationException e) {
+				}
+				catch (final BadLocationException e) {
 					JOptionPane.showMessageDialog(null, "MDL open error popup failed to create info popup.");
 					e.printStackTrace();
 				}

@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
@@ -55,7 +56,8 @@ public class OldBLPHandler {
 				if (newImage2 != null) {
 					return newImage2;
 				}
-			} catch (final Exception exc3) {
+			}
+			catch (final Exception exc3) {
 			}
 			final String lastHopePath = workingDirectory + File.separator
 					+ filepath.substring(filepath.lastIndexOf(File.separatorChar) + 1);
@@ -65,7 +67,8 @@ public class OldBLPHandler {
 			}
 			return null;
 //			throw new RuntimeException("Failed to load game texture: " + filepath + " (in " + workingDirectory + ")");
-		} catch (final Exception exc2) {
+		}
+		catch (final Exception exc2) {
 			throw new RuntimeException("Failed to load game texture: " + filepath + " (in " + workingDirectory + ")",
 					exc2);
 		}
@@ -103,7 +106,8 @@ public class OldBLPHandler {
 		final Graphics2D graphic = lRGB.createGraphics();
 		try {
 			graphic.drawImage(in, 0, 0, null);
-		} finally {
+		}
+		finally {
 			graphic.dispose();
 		}
 
@@ -132,7 +136,8 @@ public class OldBLPHandler {
 			if (alpha) {
 				return rawCache.get(filepath);
 			}
-		} else {
+		}
+		else {
 			final InputStream blpFile = MpqCodebase.get().getResourceAsStream(filepath);
 			if (blpFile == null) {
 				return null;
@@ -152,7 +157,8 @@ public class OldBLPHandler {
 //				}
 					return null;
 				}
-			} catch (final IOException e) {
+			}
+			catch (final IOException e) {
 				// we return null here, swallow exception, be very careful with this
 			}
 			// final File blpFile = MpqCodebase.get().getFile(filepath);
@@ -187,7 +193,7 @@ public class OldBLPHandler {
 
 		final Iterator iter = ImageIO.getImageReaders(stream);
 		if (!iter.hasNext()) {
-			if (file.getName().toLowerCase().endsWith(".tga")) {
+			if (file.getName().toLowerCase(Locale.US).endsWith(".tga")) {
 				return TgaFile.readTGA(file);
 			}
 			return null;
@@ -199,7 +205,8 @@ public class OldBLPHandler {
 		BufferedImage bi;
 		try {
 			bi = reader.read(0, param);
-		} finally {
+		}
+		finally {
 			reader.dispose();
 			stream.close();
 		}
@@ -217,7 +224,7 @@ public class OldBLPHandler {
 		final File blpFile = new File(filepath);
 		final File tga;
 		try {
-			if (filepath.toLowerCase().endsWith(".blp")) {
+			if (filepath.toLowerCase(Locale.US).endsWith(".blp")) {
 				final BufferedImage rawImage = readCustom(blpFile);
 				if (alpha) {
 					return rawImage;
@@ -229,13 +236,15 @@ public class OldBLPHandler {
 				// System.out.println(tga.getPath());
 				// //mpqlib.TestMPQ.draw(mpqlib.TargaReader.getImage(tga.getPath()));
 				// return TargaReader.getImage(tga.getPath());//ImageIO.read(tga);
-			} else {
+			}
+			else {
 				if (!blpFile.exists()) {
 					return null;
 				}
 				return ImageIO.read(blpFile);
 			}
-		} catch (final IOException e1) {
+		}
+		catch (final IOException e1) {
 			e1.printStackTrace();
 		}
 		return null;
@@ -253,7 +262,8 @@ public class OldBLPHandler {
 			try {
 				Runtime.getRuntime().exec(new String[] { "blplabcl/blplabcl.exe", "\"" + blpFile.getPath() + "\"",
 						"\"" + fileTGA.getPath() + "\"", "-type0", "-q256", "-opt2" }).waitFor();
-			} catch (final InterruptedException e) {
+			}
+			catch (final InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -265,7 +275,8 @@ public class OldBLPHandler {
 				fileTGA.deleteOnExit();
 			}
 			return fileTGA;
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -279,10 +290,12 @@ public class OldBLPHandler {
 								"\"" + blpOutput.getPath() + "\"", "-type0", "-q25", generateMipMaps ? "-mm8" : "",
 								"-opt1", "-opt2" })
 						.waitFor();
-			} catch (final InterruptedException e) {
+			}
+			catch (final InterruptedException e) {
 				e.printStackTrace();
 			}
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -292,10 +305,12 @@ public class OldBLPHandler {
 			try {
 				Runtime.getRuntime().exec(new String[] { "blplabcl/blplabcl.exe", "\"" + blpFile.getPath() + "\"",
 						"\"" + blpOutput.getPath() + "\"", "-type0" }).waitFor();
-			} catch (final InterruptedException e) {
+			}
+			catch (final InterruptedException e) {
 				e.printStackTrace();
 			}
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -305,7 +320,8 @@ public class OldBLPHandler {
 			try {
 				Runtime.getRuntime().exec(new String[] { "blplabcl/blplabcl.exe", "\"" + blpFile.getPath() + "\"",
 						"\"" + fileTGA.getPath() + "\"", "-type0", "-q256", "-opt2" }).waitFor();
-			} catch (final InterruptedException e) {
+			}
+			catch (final InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -317,7 +333,8 @@ public class OldBLPHandler {
 				fileTGA.deleteOnExit();
 			}
 			return fileTGA;
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -328,7 +345,8 @@ public class OldBLPHandler {
 			try {
 				Runtime.getRuntime().exec(new String[] { "blplabcl/blplabcl.exe", "\"" + blpFile.getPath() + "\"",
 						"\"" + fileTGA.getPath() + "\"", "-type0", "-q100", "-mm8" }).waitFor();
-			} catch (final InterruptedException e) {
+			}
+			catch (final InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -337,7 +355,8 @@ public class OldBLPHandler {
 
 			// new TestMPQ().drawBlp(bi);//myBLP.getBufferedImage());
 			return fileTGA;
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			e.printStackTrace();
 		}
 		return null;

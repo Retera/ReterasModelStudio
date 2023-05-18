@@ -31,6 +31,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.StaticMeshMove
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.StaticMeshRotateAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.StaticMeshScaleAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.CloneAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.DeleteDownToOneTVerticesLayerAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.FlipFacesAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.FlipNormalsAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.MirrorModelAction;
@@ -56,6 +57,7 @@ import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.Matrix;
 import com.hiveworkshop.wc3.mdl.Normal;
 import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
+import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -879,5 +881,28 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 	@Override
 	public UndoAction addBone(final double x, final double y, final double z) {
 		throw new WrongModeException("Unable to add bone outside of pivot point editor");
+	}
+
+	@Override
+	public UndoAction deleteDownToOneTVerticesLayer() {
+		final Collection<? extends Vertex> selectedVertices = selectionManager.getSelectedVertices();
+		final Map<GeosetVertex, List<TVertex>> vertexToRemovedTVertices = new HashMap<>();
+		for (final Vertex v : selectedVertices) {
+			if (v instanceof GeosetVertex) {
+				final GeosetVertex gv = (GeosetVertex) v;
+				final List<TVertex> vertexSpecificTVerts = gv.getTverts();
+				final List<TVertex> tVerticesToRemove = new ArrayList<>(vertexSpecificTVerts.size() - 1);
+				for (int i = 1; i < vertexSpecificTVerts.size(); i++) {
+					tVerticesToRemove.add(vertexSpecificTVerts.get(i));
+				}
+				if (!tVerticesToRemove.isEmpty()) {
+					vertexToRemovedTVertices.put(gv, tVerticesToRemove);
+				}
+			}
+		}
+		final DeleteDownToOneTVerticesLayerAction action = new DeleteDownToOneTVerticesLayerAction(
+				vertexToRemovedTVertices);
+		action.redo();
+		return action;
 	}
 }

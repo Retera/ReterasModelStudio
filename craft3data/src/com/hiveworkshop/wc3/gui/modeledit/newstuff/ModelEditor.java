@@ -141,4 +141,6 @@ public interface ModelEditor extends ComponentVisibilityListener {
 	boolean editorWantsAnimation();
 
 	UndoAction createFaceFromSelection(Vertex preferredFacingVector);
+
+	UndoAction deleteDownToOneTVerticesLayer();
 }

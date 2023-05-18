@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +51,7 @@ import net.infonode.gui.laf.InfoNodeLookAndFeelThemes;
  * @version (a version number or a date)
  */
 public class MainFrame extends JFrame {
-	private static final String RETERA_MODEL_STUDIO_VERSION = "Retera Model Studio v0.04.5";
+	private static final String RETERA_MODEL_STUDIO_VERSION = "Retera Model Studio v0.04.5c";
 	static MainFrame frame;
 	static MainPanel panel;
 	static JMenuBar menuBar;
@@ -483,5 +484,16 @@ public class MainFrame extends JFrame {
 
 		setLocationRelativeTo(null);
 		setVisible(true);
+
+		final Thread currentThread = Thread.currentThread();
+		final UncaughtExceptionHandler defaultExceptionHandler = currentThread.getUncaughtExceptionHandler();
+		currentThread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+			@Override
+			public void uncaughtException(final Thread t, final Throwable e) {
+				ExceptionPopup.display("Uncaught exception on Thread \"" + t.getName() + "\"", e);
+				System.err.println("Uncaught exception on thread: " + t.getName());
+				e.printStackTrace();
+			}
+		});
 	}
 }

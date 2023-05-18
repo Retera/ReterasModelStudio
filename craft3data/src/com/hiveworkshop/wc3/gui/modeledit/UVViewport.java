@@ -205,14 +205,16 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 								(int) (convertX(x + 1) - convertX(x)), (int) (convertY(y + 1) - convertY(y)), null);
 					}
 				}
-			} else {
+			}
+			else {
 				g.drawImage(backgrounds.get(i), (int) convertX(0), (int) convertY(0), (int) (convertX(1) - convertX(0)),
 						(int) (convertY(1) - convertY(0)), null);
 			}
 		}
 		final Graphics2D graphics2d = (Graphics2D) g;
 //		dispMDL.drawGeosets(g, this, vertexSize);
-		viewportModelRenderer.reset(graphics2d, programPreferences, this, this, modelView);
+		viewportModelRenderer.reset(graphics2d, programPreferences, this, this, modelView,
+				this.editor.getUVLayerIndex());
 		modelView.visitMesh(viewportModelRenderer);
 		activityListener.renderStatic(graphics2d, this);
 
@@ -296,7 +298,8 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 					((my - (getHeight() / 2)) / m_zoom) - m_b);
 
 			repaint();
-		} else if (e.getSource() == placeholderButton) {
+		}
+		else if (e.getSource() == placeholderButton) {
 			JOptionPane.showMessageDialog(null, "Placeholder code.");
 		}
 	}
@@ -328,11 +331,13 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 	public void mousePressed(final MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON2) {
 			lastClick = new Point(e.getX(), e.getY());
-		} else if (e.getButton() == MouseEvent.BUTTON1) {
+		}
+		else if (e.getButton() == MouseEvent.BUTTON1) {
 			activityListener.viewportChanged(cursorManager);
 			requestFocus();
 			activityListener.mousePressed(e, this);
-		} else if (e.getButton() == MouseEvent.BUTTON3) {
+		}
+		else if (e.getButton() == MouseEvent.BUTTON3) {
 			activityListener.viewportChanged(cursorManager);
 			requestFocus();
 			activityListener.mousePressed(e, this);
@@ -351,7 +356,8 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 			m_a += (e.getX() - lastClick.x) / m_zoom;
 			m_b += (e.getY() - lastClick.y) / m_zoom;
 			lastClick = null;
-		} else if (e.getButton() == MouseEvent.BUTTON1/* && selectStart != null */) {
+		}
+		else if (e.getButton() == MouseEvent.BUTTON1/* && selectStart != null */) {
 			activityListener.mouseReleased(e, this);
 			// final Point selectEnd = new Point(e.getX(), e.getY());
 			// final Rectangle2D.Double area = pointsToGeomRect(selectStart,
@@ -360,7 +366,8 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 			// dispMDL.selectVerteces(area, m_d1, m_d2,
 			// dispMDL.getProgramPreferences().currentSelectionType());
 			// selectStart = null;
-		} else if (e.getButton() == MouseEvent.BUTTON3/* && actStart != null */) {
+		}
+		else if (e.getButton() == MouseEvent.BUTTON3/* && actStart != null */) {
 			// final Point actEnd = new Point(e.getX(), e.getY());
 			// final Point2D.Double convertedStart = new
 			// Point2D.Double(geomX(actStart.x), geomY(actStart.y));
@@ -408,7 +415,8 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 				m_a -= ((mx - (getWidth() / 2)) / aspectRatio) * ((1 / m_zoom) - (1 / (m_zoom * 1.15)));
 				m_b -= (my - (getHeight() / 2)) * ((1 / m_zoom) - (1 / (m_zoom * 1.15)));
 				m_zoom *= 1.15;
-			} else {
+			}
+			else {
 				m_zoom /= 1.15;
 				m_a -= ((mx - (getWidth() / 2)) / aspectRatio) * ((1 / (m_zoom * 1.15)) - (1 / m_zoom));
 				m_b -= (my - (getHeight() / 2)) * ((1 / (m_zoom * 1.15)) - (1 / m_zoom));

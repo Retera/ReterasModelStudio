@@ -86,7 +86,8 @@ public class MDLReader {
 		double out = 0;
 		try {
 			out = Double.parseDouble(ex[ex.length - 1].split(",")[0]);
-		} catch (final NumberFormatException e) {
+		}
+		catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Error while parsing: Could not interpret double from: " + line);
 		}
@@ -139,7 +140,8 @@ public class MDLReader {
 		{
 			if (j == -1) {
 				done = true;
-			} else {
+			}
+			else {
 				n++;
 				index = j;
 			}
@@ -193,7 +195,8 @@ public class MDLReader {
 		try {
 			output = reader.readLine();
 //             System.out.println(output);
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "Error reading file.");
 		}
 		if (output == null) {
@@ -207,14 +210,18 @@ public class MDLReader {
 		String output = "";
 		try {
 			output = reader.readLine();
-//             System.out.println(output);
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "Error reading file.");
 		}
 		if (output == null) {
 			output = "COMPLETED PARSING";
-		} else if (output.contains("//")) {
-			output = output.split("//")[0];
+		}
+		else {
+			output = output.replace("    ", "\t");
+			if (output.contains("//")) {
+				output = output.split("//")[0];
+			}
 		}
 		return output;
 	}
@@ -224,7 +231,8 @@ public class MDLReader {
 		if ((c == (markc + 1)) && (markc == lastMark)) {
 			lastMark = markc;
 			followMarks++;
-		} else {
+		}
+		else {
 			followMarks = 0;
 		}
 //		if (followMarks > 30) {
@@ -233,7 +241,8 @@ public class MDLReader {
 //		}
 		try {
 			reader.reset();
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Critical error in IO: Maybe length between line " + markc + " and line " + c
 							+ " got longer than expected?\nPortions of model data will be lost.");
@@ -247,7 +256,8 @@ public class MDLReader {
 		markc = c;
 		try {
 			reader.mark(m);
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Critical error: Read/write abilities lost. Loading will possibly be severely damaged and disfunctional.");
 			System.out.println("Mark error: " + e);
@@ -295,7 +305,8 @@ public class MDLReader {
 							clone[i] = outputs[i];
 						}
 						outputs = clone;
-					} else {
+					}
+					else {
 						outputs = new int[1];
 					}
 					final String tempStr = s.substring(lastIndex, index);
@@ -307,32 +318,37 @@ public class MDLReader {
 							outint *= Integer.parseInt(bits[x]);
 						}
 						outputs[outputs.length - 1] = outint;
-					} else if (tempStr.contains("/")) {
+					}
+					else if (tempStr.contains("/")) {
 						final String[] bits = tempStr.split("/");
 						outint = Integer.parseInt(bits[0]);
 						for (int x = 1; x < bits.length; x++) {
 							outint /= Integer.parseInt(bits[x]);
 						}
 						outputs[outputs.length - 1] = outint;
-					} else if (tempStr.contains("+")) {
+					}
+					else if (tempStr.contains("+")) {
 						final String[] bits = tempStr.split("\\+");
 						outint = Integer.parseInt(bits[0]);
 						for (int x = 1; x < bits.length; x++) {
 							outint += Integer.parseInt(bits[x]);
 						}
 						outputs[outputs.length - 1] = outint;
-					} else if (tempStr.contains("-")) {
+					}
+					else if (tempStr.contains("-")) {
 						final String[] bits = tempStr.split("-");
 						outint = Integer.parseInt(bits[0]);
 						for (int x = 1; x < bits.length; x++) {
 							outint -= Integer.parseInt(bits[x]);
 						}
 						outputs[outputs.length - 1] = outint;
-					} else {
+					}
+					else {
 						outputs[outputs.length - 1] = Integer.parseInt(tempStr);
 					}
 				}
-			} else if (!wasInt) {
+			}
+			else if (!wasInt) {
 				lastIndex = index;
 			}
 			wasInt = isInt;
@@ -345,7 +361,8 @@ public class MDLReader {
 					clone[i] = outputs[i];
 				}
 				outputs = clone;
-			} else {
+			}
+			else {
 				outputs = new int[1];
 			}
 			final String tempStr = s.substring(lastIndex, index);
@@ -357,28 +374,32 @@ public class MDLReader {
 					outint *= Integer.parseInt(bits[x]);
 				}
 				outputs[outputs.length - 1] = outint;
-			} else if (tempStr.contains("/")) {
+			}
+			else if (tempStr.contains("/")) {
 				final String[] bits = tempStr.split("/");
 				outint = Integer.parseInt(bits[0]);
 				for (int x = 1; x < bits.length; x++) {
 					outint /= Integer.parseInt(bits[x]);
 				}
 				outputs[outputs.length - 1] = outint;
-			} else if (tempStr.contains("+")) {
+			}
+			else if (tempStr.contains("+")) {
 				final String[] bits = tempStr.split("\\+");
 				outint = Integer.parseInt(bits[0]);
 				for (int x = 1; x < bits.length; x++) {
 					outint += Integer.parseInt(bits[x]);
 				}
 				outputs[outputs.length - 1] = outint;
-			} else if (tempStr.contains("-")) {
+			}
+			else if (tempStr.contains("-")) {
 				final String[] bits = tempStr.split("-");
 				outint = Integer.parseInt(bits[0]);
 				for (int x = 1; x < bits.length; x++) {
 					outint -= Integer.parseInt(bits[x]);
 				}
 				outputs[outputs.length - 1] = outint;
-			} else {
+			}
+			else {
 				outputs[outputs.length - 1] = Integer.parseInt(tempStr);
 			}
 		}
@@ -412,20 +433,23 @@ public class MDLReader {
 							clone[i] = outputs[i];
 						}
 						outputs = clone;
-					} else {
+					}
+					else {
 						outputs = new int[1];
 					}
 					final String tempStr = s.substring(lastIndex, index);
 					final int outint = 0;
 					try {
 						outputs[outputs.length - 1] = Integer.parseInt(tempStr);
-					} catch (final NumberFormatException exc) {
+					}
+					catch (final NumberFormatException exc) {
 						// This happens if the stuff contains a really long set of numbers or something
 						// like that
 						outputs[outputs.length - 1] = (int) Long.parseLong(tempStr);
 					}
 				}
-			} else if (!wasInt) {
+			}
+			else if (!wasInt) {
 				lastIndex = index;
 			}
 			wasInt = isInt;
@@ -438,14 +462,16 @@ public class MDLReader {
 					clone[i] = outputs[i];
 				}
 				outputs = clone;
-			} else {
+			}
+			else {
 				outputs = new int[1];
 			}
 			final String tempStr = s.substring(lastIndex, index);
 			final int outint = 0;
 			try {
 				outputs[outputs.length - 1] = Integer.parseInt(tempStr);
-			} catch (final NumberFormatException exc) {
+			}
+			catch (final NumberFormatException exc) {
 				outputs[outputs.length - 1] = (int) Long.parseLong(tempStr);
 			}
 		}
@@ -467,57 +493,67 @@ public class MDLReader {
 				final String c = bits[0].substring(i - 1, i);
 				if (c.equals("0")) {
 					bits[0] = bits[0].substring(0, i - 1);
-				} else if (c.equals(".")) {
+				}
+				else if (c.equals(".")) {
 					bits[0] = bits[0].substring(0, i - 1);
 					done = true;
-				} else {
+				}
+				else {
 					done = true;
 				}
 			}
 			int btln = bits[1].length();
 			if (btln > 3) {
 				bits[1] = "999";
-			} else if (btln < 3) {
+			}
+			else if (btln < 3) {
 				btln = 3 - btln;
 				for (int i = 0; i < btln; i++) {
 					bits[1] = "0" + bits[1];
 				}
 			}
 			out = bits[0] + "e-" + bits[1];
-		} else if (base.contains("e")) {
+		}
+		else if (base.contains("e")) {
 			final String[] bits = base.split("e");
 			boolean done = false;
 			for (int i = bits[0].length(); (i > 0) && !done; i--) {
 				final String c = bits[0].substring(i - 1, i);
 				if (c.equals("0")) {
 					bits[0] = bits[0].substring(0, i - 1);
-				} else if (c.equals(".")) {
+				}
+				else if (c.equals(".")) {
 					bits[0] = bits[0].substring(0, i - 1);
 					done = true;
-				} else {
+				}
+				else {
 					done = true;
 				}
 			}
 			int btln = bits[1].length();
 			if (btln > 3) {
 				bits[1] = "999";
-			} else if (btln < 3) {
+			}
+			else if (btln < 3) {
 				btln = 3 - btln;
 				for (int i = 0; i < btln; i++) {
 					bits[1] = "0" + bits[1];
 				}
 			}
 			out = bits[0] + "e+" + bits[1];
-		} else if (base.contains(".")) {
+		}
+		else if (base.contains(".")) {
 			boolean done = false;
 			for (int i = base.length(); (i > 0) && !done; i--) {
 				final String c = base.substring(i - 1, i);
 				if (c.equals("0")) {
 					base = base.substring(0, i - 1);
-				} else if (c.equals(".")) {
+				}
+				else if (c.equals(".")) {
 					base = base.substring(0, i - 1);
 					done = true;
-				} else {
+				}
+				else {
 					done = true;
 				}
 			}

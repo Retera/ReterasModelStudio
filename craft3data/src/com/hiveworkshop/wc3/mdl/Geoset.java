@@ -590,6 +590,9 @@ public class Geoset implements Named, VisibilitySource {
 						if (boneWeight < 0) {
 							boneWeight += 256;
 						}
+						if (boneWeight == 0) {
+							continue;
+						}
 						Bone bone;
 						if ((boneLookupId >= matrix.size()) || (boneLookupId < 0)) {
 							bone = null;

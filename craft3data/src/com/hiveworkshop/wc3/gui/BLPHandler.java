@@ -50,7 +50,7 @@ public class BLPHandler {
 	private static final int BYTES_PER_PIXEL = 4;
 
 	public GPUReadyTexture loadTexture(final DataSource dataSource, final String filepath) {
-		final String lowerFilePath = filepath.toLowerCase();
+		final String lowerFilePath = filepath.toLowerCase(Locale.US);
 		GPUReadyTexture gpuReadyTexture = gpuBufferCache.get(lowerFilePath);
 		if (gpuReadyTexture != null) {
 			return gpuReadyTexture;
@@ -172,7 +172,7 @@ public class BLPHandler {
 		if (filepath.length() < extension.length()) {
 			return false;
 		}
-		return filepath.substring(filepath.length() - extension.length()).toLowerCase().equals(extension);
+		return filepath.substring(filepath.length() - extension.length()).toLowerCase(Locale.US).equals(extension);
 	}
 
 	/**
@@ -222,7 +222,7 @@ public class BLPHandler {
 
 		final Iterator iter = ImageIO.getImageReaders(stream);
 		if (!iter.hasNext()) {
-			if (file.getName().toLowerCase().endsWith(".tga")) {
+			if (file.getName().toLowerCase(Locale.US).endsWith(".tga")) {
 				return TgaFile.readTGA(file);
 			}
 			return null;
@@ -253,7 +253,7 @@ public class BLPHandler {
 		final File blpFile = new File(filepath);
 		final File tga;
 		try {
-			if (filepath.toLowerCase().endsWith(".blp")) {
+			if (filepath.toLowerCase(Locale.US).endsWith(".blp")) {
 				final BufferedImage rawImage = readCustom(blpFile);
 				final BufferedImage img = forceBufferedImagesRGB(rawImage);
 				return img;// BlpFile.read(filepath, new FileInputStream(blpFile));
@@ -326,7 +326,7 @@ public class BLPHandler {
 			fileExtension = "blp";
 		}
 		boolean directExport = false;
-		if (selectedValue.getPath().toLowerCase().endsWith(fileExtension)) {
+		if (selectedValue.getPath().toLowerCase(Locale.US).endsWith(fileExtension)) {
 			final MpqCodebase mpqCodebase = MpqCodebase.get();
 			if (mpqCodebase.has(selectedValue.getPath())) {
 				final InputStream mpqFile = mpqCodebase.getResourceAsStream(selectedValue.getPath());

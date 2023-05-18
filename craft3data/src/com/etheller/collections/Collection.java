@@ -2,8 +2,7 @@ package com.etheller.collections;
 
 public interface Collection<T> extends CollectionView<T> {
 	/**
-	 * @param what
-	 *            The thing to add
+	 * @param what The thing to add
 	 * @return true if collection was changed
 	 */
 	boolean add(T what);

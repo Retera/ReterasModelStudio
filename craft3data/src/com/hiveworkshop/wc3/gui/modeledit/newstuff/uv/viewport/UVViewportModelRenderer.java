@@ -43,12 +43,14 @@ public class UVViewportModelRenderer implements MeshVisitor {
 	}
 
 	public UVViewportModelRenderer reset(final Graphics2D graphics, final ProgramPreferences programPreferences,
-			final ViewportView viewportView, final CoordinateSystem coordinateSystem, final ModelView modelView) {
+			final ViewportView viewportView, final CoordinateSystem coordinateSystem, final ModelView modelView,
+			final int uvLayerIndex) {
 		this.graphics = graphics;
 		this.programPreferences = programPreferences;
 		this.viewportView = viewportView;
 		this.coordinateSystem = coordinateSystem;
 		this.modelView = modelView;
+		this.uvLayerIndex = uvLayerIndex;
 		return this;
 	}
 

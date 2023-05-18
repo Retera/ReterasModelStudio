@@ -554,4 +554,18 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 		}
 		return mergeActions(actions);
 	}
+
+	@Override
+	public UndoAction deleteDownToOneTVerticesLayer() {
+		final List<UndoAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			try {
+				actions.add(handler.deleteDownToOneTVerticesLayer());
+			}
+			catch (final WrongModeException e) {
+				// don't add actions for unsupported operations
+			}
+		}
+		return mergeActions(actions);
+	}
 }

@@ -6,12 +6,10 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
@@ -22,10 +20,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
@@ -324,16 +322,19 @@ public class DataSourceChooserPanel extends JPanel {
 					final File selectedFile = fileChooser.getSelectedFile();
 					if (selectedFile != null) {
 						CascDataSource.Product product = Product.WARCRAFT_III;
-						int optionChoice = JOptionPane.showOptionDialog(DataSourceChooserPanel.this, "Choose version", "Version", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, new Object[] {"Warcraft III", "Warcraft III Public Test"},  "Warcraft III Public Test");
-						if(optionChoice < 0 || optionChoice > 1) {
+						final int optionChoice = JOptionPane.showOptionDialog(DataSourceChooserPanel.this,
+								"Choose version", "Version", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
+								null, new Object[] { "Warcraft III", "Warcraft III Public Test" },
+								"Warcraft III Public Test");
+						if ((optionChoice < 0) || (optionChoice > 1)) {
 							return;
 						}
-						if(optionChoice == 1) {
+						if (optionChoice == 1) {
 							product = Product.WARCRAFT_III_PUBLIC_TEST;
 						}
-						
-						dataSourceDescriptors
-								.add(new CascDataSourceDescriptor(selectedFile.getPath(), new ArrayList<String>(), product));
+
+						dataSourceDescriptors.add(
+								new CascDataSourceDescriptor(selectedFile.getPath(), new ArrayList<String>(), product));
 						reloadTree();
 					}
 				}
@@ -471,11 +472,14 @@ public class DataSourceChooserPanel extends JPanel {
 					final DataSourceDescriptor descriptor = ((DataSourceDescTreeNode) value).getDescriptor();
 					if (descriptor instanceof CascDataSourceDescriptor) {
 						label.setIcon(CASCIcon);
-					} else if (descriptor instanceof MpqDataSourceDescriptor) {
+					}
+					else if (descriptor instanceof MpqDataSourceDescriptor) {
 						label.setIcon(MPQIcon);
-					} else if (descriptor instanceof FolderDataSourceDescriptor) {
+					}
+					else if (descriptor instanceof FolderDataSourceDescriptor) {
 						label.setIcon(FolderIcon);
-					} else {
+					}
+					else {
 						label.setIcon(null);
 					}
 				}
@@ -495,11 +499,13 @@ public class DataSourceChooserPanel extends JPanel {
 				cascDataSourceDescriptor.deletePrefix(4);
 				cascDataSourceDescriptor.deletePrefix(3);
 				reloadTree();
-			} else {
+			}
+			else {
 				JOptionPane.showMessageDialog(this, "Your Warcraft III data CASC configuration is not in the HD mode.",
 						"Error", JOptionPane.ERROR_MESSAGE);
 			}
-		} else {
+		}
+		else {
 			JOptionPane.showMessageDialog(this,
 					"Your Warcraft III data configuration is not a standard Reforged CASC setup, so this automation feature is unavailable.\nTo use this feature, please press 'Clear All' and then 'Add War3 Install Directory' to choose a Reforged installation.",
 					"Error", JOptionPane.ERROR_MESSAGE);
@@ -522,16 +528,19 @@ public class DataSourceChooserPanel extends JPanel {
 					cascDataSourceDescriptor.addPrefix("war3.w3mod\\_hd.w3mod");
 					cascDataSourceDescriptor.addPrefix(localesMod.replace("_locales", "_hd.w3mod\\_locales"));
 					reloadTree();
-				} else {
+				}
+				else {
 					JOptionPane.showMessageDialog(this,
 							"Your Warcraft III data CASC configuration is not in the SD mode or is not configured in the expected way. You will need to apply HD mode manually by adding the appropriate CASC mods.",
 							"Error", JOptionPane.ERROR_MESSAGE);
 				}
-			} else {
+			}
+			else {
 				JOptionPane.showMessageDialog(this, "Your Warcraft III data CASC configuration is not in the SD mode.",
 						"Error", JOptionPane.ERROR_MESSAGE);
 			}
-		} else {
+		}
+		else {
 			JOptionPane.showMessageDialog(this,
 					"Your Warcraft III data configuration is not a standard Reforged CASC setup, so this automation feature is unavailable.\nTo use this feature, please press 'Clear All' and then 'Add War3 Install Directory' to choose a Reforged installation.",
 					"Error", JOptionPane.ERROR_MESSAGE);
@@ -541,12 +550,14 @@ public class DataSourceChooserPanel extends JPanel {
 	private void addWarcraft3Installation(final Path installPathPath, final boolean allowPopup) {
 		if (Files.exists(installPathPath.resolve("Data/indices"))) {
 			CascDataSource.Product product = Product.WARCRAFT_III;
-			if(allowPopup) {
-				int optionChoice = JOptionPane.showOptionDialog(this, "Choose version", "Version", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, new Object[] {"Warcraft III", "Warcraft III Public Test"},  "Warcraft III Public Test");
-				if(optionChoice < 0 || optionChoice > 1) {
+			if (allowPopup) {
+				final int optionChoice = JOptionPane.showOptionDialog(this, "Choose version", "Version",
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
+						new Object[] { "Warcraft III", "Warcraft III Public Test" }, "Warcraft III Public Test");
+				if ((optionChoice < 0) || (optionChoice > 1)) {
 					return;
 				}
-				if(optionChoice == 1) {
+				if (optionChoice == 1) {
 					product = Product.WARCRAFT_III_PUBLIC_TEST;
 				}
 			}
@@ -554,7 +565,8 @@ public class DataSourceChooserPanel extends JPanel {
 					new ArrayList<String>(), product);
 			dataSourceDescriptors.add(dataSourceDesc);
 			addDefaultCASCPrefixes(installPathPath, dataSourceDesc, allowPopup);
-		} else {
+		}
+		else {
 			if (Files.exists(installPathPath.resolve("War3.mpq"))) {
 				dataSourceDescriptors.add(new MpqDataSourceDescriptor(installPathPath.resolve("War3.mpq").toString()));
 			}
@@ -606,7 +618,8 @@ public class DataSourceChooserPanel extends JPanel {
 			if (wcDirectory != null) {
 				addWarcraft3Installation(Paths.get(wcDirectory), false);
 			}
-		} else {
+		}
+		else {
 			for (final DataSourceDescriptor dataSourceDescriptor : dataSourceDescriptorDefaults) {
 				dataSourceDescriptors.add(dataSourceDescriptor.duplicate());
 			}
@@ -664,7 +677,10 @@ public class DataSourceChooserPanel extends JPanel {
 	}
 
 	private static enum SupportedCascPatchFormat {
-		PATCH130, PATCH131, PATCH132, UNKNOWN_FUTURE_PATCH;
+		PATCH130,
+		PATCH131,
+		PATCH132,
+		UNKNOWN_FUTURE_PATCH;
 	}
 
 	public static void main(final String[] args) {
@@ -680,7 +696,8 @@ public class DataSourceChooserPanel extends JPanel {
 	private void addSpecificCASCPrefix(final Path installPathPath, final CascDataSourceDescriptor dataSourceDesc) {
 		// It's CASC. Now the question: what prefixes do we use?
 		try {
-			final WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true, dataSourceDesc.getProduct().getKey());
+			final WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true,
+					dataSourceDesc.getProduct().getKey());
 			final DefaultComboBoxModel<String> prefixes = new DefaultComboBoxModel<String>();
 			try {
 				final FileSystem rootFileSystem = tempCascReader.getRootFileSystem();
@@ -690,7 +707,8 @@ public class DataSourceChooserPanel extends JPanel {
 						prefixes.addElement(file);
 					}
 				}
-			} finally {
+			}
+			finally {
 				tempCascReader.close();
 			}
 			final JComboBox<String> prefixChoiceComboBox = new JComboBox<>(prefixes);
@@ -706,7 +724,8 @@ public class DataSourceChooserPanel extends JPanel {
 					dataSourceDesc.addPrefix(newPrefixName);
 				}
 			}
-		} catch (final Exception e1) {
+		}
+		catch (final Exception e1) {
 			ExceptionPopup.display(e1);
 			e1.printStackTrace();
 		}
@@ -721,7 +740,8 @@ public class DataSourceChooserPanel extends JPanel {
 		List<String> launcherDBLang = null;
 		try {
 			launcherDBLang = Files.readAllLines(installPathPath.resolve("Launcher.db"));
-		} catch (final Exception e1) {
+		}
+		catch (final Exception e1) {
 		}
 		if (launcherDBLang != null) {
 			if (launcherDBLang.size() > 0) {
@@ -732,7 +752,8 @@ public class DataSourceChooserPanel extends JPanel {
 			}
 		}
 		try {
-			final WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true, dataSourceDesc.getProduct().getKey());
+			final WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true,
+					dataSourceDesc.getProduct().getKey());
 			try {
 				final String tags = tempCascReader.getBuildInfo().getField(tempCascReader.getActiveRecordIndex(),
 						"Tags");
@@ -762,12 +783,15 @@ public class DataSourceChooserPanel extends JPanel {
 				final FileSystem rootFileSystem = tempCascReader.getRootFileSystem();
 				if (rootFileSystem.isFile("war3.mpq\\units\\unitdata.slk")) {
 					patchFormat = SupportedCascPatchFormat.PATCH130;
-				} else if (tempCascReader.getRootFileSystem()
+				}
+				else if (tempCascReader.getRootFileSystem()
 						.isFile("war3.w3mod\\_hd.w3mod\\units\\human\\footman\\footman.mdx")) {
 					patchFormat = SupportedCascPatchFormat.PATCH132;
-				} else if (tempCascReader.getRootFileSystem().isFile("war3.w3mod\\units\\unitdata.slk")) {
+				}
+				else if (tempCascReader.getRootFileSystem().isFile("war3.w3mod\\units\\unitdata.slk")) {
 					patchFormat = SupportedCascPatchFormat.PATCH131;
-				} else {
+				}
+				else {
 					patchFormat = SupportedCascPatchFormat.UNKNOWN_FUTURE_PATCH;
 				}
 				// Now, we really want to know the locale.
@@ -816,7 +840,7 @@ public class DataSourceChooserPanel extends JPanel {
 						boolean bad = false;
 						switch (patchFormat) {
 						case PATCH130: {
-							final String filePathToTest = localeOptionString.toLowerCase()
+							final String filePathToTest = localeOptionString.toLowerCase(Locale.US)
 									+ "-war3local.mpq\\units\\campaignunitstrings.txt";
 							if (!tempCascReader.getRootFileSystem().isFile(filePathToTest)
 									|| !tempCascReader.getRootFileSystem().isFileAvailable(filePathToTest)) {
@@ -827,7 +851,8 @@ public class DataSourceChooserPanel extends JPanel {
 						}
 						case PATCH132:
 						case PATCH131: {
-							final String filePathToTest = "war3.w3mod\\_locales\\" + localeOptionString.toLowerCase()
+							final String filePathToTest = "war3.w3mod\\_locales\\"
+									+ localeOptionString.toLowerCase(Locale.US)
 									+ ".w3mod\\units\\campaignunitstrings.txt";
 							if (!tempCascReader.getRootFileSystem().isFile(filePathToTest)
 									|| !tempCascReader.getRootFileSystem().isFileAvailable(filePathToTest)) {
@@ -842,7 +867,7 @@ public class DataSourceChooserPanel extends JPanel {
 						userChooseLocalePanel.add(radioButton);
 						buttonGroup.add(radioButton);
 						buttons.add(radioButton);
-						if (!bad && (firstGoodButton || localeOptionString.toLowerCase().equals("enus"))) {
+						if (!bad && (firstGoodButton || localeOptionString.toLowerCase(Locale.US).equals("enus"))) {
 							firstGoodButton = false;
 							radioButton.setSelected(true);
 						}
@@ -867,7 +892,7 @@ public class DataSourceChooserPanel extends JPanel {
 					}
 					locale = selectedButton.getText();
 				}
-				final String lowerLocale = locale.toLowerCase();
+				final String lowerLocale = locale.toLowerCase(Locale.US);
 				final List<String> defaultPrefixes;
 				switch (patchFormat) {
 				case PATCH130: {
@@ -908,10 +933,12 @@ public class DataSourceChooserPanel extends JPanel {
 				for (final String prefix : defaultPrefixes) {
 					dataSourceDesc.addPrefix(prefix);
 				}
-			} finally {
+			}
+			finally {
 				tempCascReader.close();
 			}
-		} catch (final Exception e1) {
+		}
+		catch (final Exception e1) {
 			ExceptionPopup.display(e1);
 			e1.printStackTrace();
 		}
@@ -965,14 +992,18 @@ public class DataSourceChooserPanel extends JPanel {
 		// select the Look and Feel
 		try {
 			UIManager.setLookAndFeel(
-					"com.jtattoo.plaf." + jtattooTheme.toLowerCase() + "." + jtattooTheme + "LookAndFeel");
-		} catch (final ClassNotFoundException e) {
+					"com.jtattoo.plaf." + jtattooTheme.toLowerCase(Locale.US) + "." + jtattooTheme + "LookAndFeel");
+		}
+		catch (final ClassNotFoundException e) {
 			throw new RuntimeException(e);
-		} catch (final InstantiationException e) {
+		}
+		catch (final InstantiationException e) {
 			throw new RuntimeException(e);
-		} catch (final IllegalAccessException e) {
+		}
+		catch (final IllegalAccessException e) {
 			throw new RuntimeException(e);
-		} catch (final UnsupportedLookAndFeelException e) {
+		}
+		catch (final UnsupportedLookAndFeelException e) {
 			throw new RuntimeException(e);
 		}
 	}

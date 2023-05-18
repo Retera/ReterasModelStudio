@@ -66,6 +66,16 @@ public class GeosetVertex extends Vertex {
 		if (tangent != null) {
 			tangent = null;
 		}
+		if (skinBoneIndexes != null) {
+			skinBoneIndexes = null;
+		}
+		for (int i = links.size() - 1; i >= 0; i--) {
+			final GeosetVertexBoneLink link = links.get(i);
+			if ((link.bone == null) || (link.weight == 0)) {
+				links.remove(i);
+			}
+		}
+		equalizeWeights();
 	}
 
 	public GeosetVertex(final GeosetVertex old) {
