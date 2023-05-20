@@ -402,9 +402,17 @@ public class SelectionManager extends AbstractSelectionManager {
 				|| selectionMode == SelectionItemTypes.CLUSTER) {
 			return modelView.getSelectionCenter();
 		}
+//		boolean allowSelectVerts = false;
+		boolean allowSelectVerts = true;
 		if (selectionMode == SelectionItemTypes.ANIMATE || selectionMode == SelectionItemTypes.TPOSE) {
 			int tot = 0;
 			Vec3 centerOfGroupSumHeap = new Vec3(0, 0, 0);
+			if(selectionMode != SelectionItemTypes.TPOSE && allowSelectVerts){
+				for (GeosetVertex object : modelView.getSelectedVertices()) {
+					centerOfGroupSumHeap.add(editorRenderModel.getRenderGeoset(object.getGeoset()).getRenderVert(object).getRenderPos());
+					tot++;
+				}
+			}
 			for (IdObject object : modelView.getSelectedIdObjects()) {
 				centerOfGroupSumHeap.add(editorRenderModel.getRenderNode(object).getPivot());
 				tot++;
