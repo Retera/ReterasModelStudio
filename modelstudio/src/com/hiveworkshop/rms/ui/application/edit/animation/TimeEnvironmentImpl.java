@@ -192,7 +192,7 @@ public class TimeEnvironmentImpl {
 			} else {
 				globalSeqTime = (int) (globalSeqTime + (long) (timeSkip * animationSpeed));
 				if (animationTime >= length) {
-					live = false;
+//					live = false;
 					globalSeqTime = 0;
 				}
 				animationTime = Math.min(length, (int) (animationTime + (timeSkip * animationSpeed)));

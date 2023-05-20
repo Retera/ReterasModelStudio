@@ -1,15 +1,8 @@
 package com.hiveworkshop.rms.ui.application.viewer.twiTestRenderMaster;
 
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.render3d.RenderNode2;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.viewer.MouseListenerThing;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ShaderPipeline;
-import com.hiveworkshop.rms.util.Vec2;
-import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
 import org.lwjgl.opengl.GL11;
 
@@ -77,6 +70,9 @@ public class RendererThing1 {
 			GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
 			pipeline.setPolygonMode(GL11.GL_FILL);
 		}
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glEnable(GL11.GL_DEPTH_TEST);
+		GL11.glDisable(GL11.GL_CULL_FACE);
 
 		pipeline.glViewport(width, height);
 
@@ -92,6 +88,18 @@ public class RendererThing1 {
 
 		pipeline.doRender(GL11.GL_TRIANGLES);
 		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+	}
+
+	public static void renderParticles(CameraManager cameraManager, ShaderPipeline pipeline, int width, int height) {
+		GL11.glDepthMask(false);
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glEnable(GL11.GL_DEPTH_TEST);
+		GL11.glDisable(GL11.GL_CULL_FACE);
+		pipeline.glViewport(width, height);
+		pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
+		pipeline.glSetViewMatrix(cameraManager.getViewMat());
+		pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
+		pipeline.doRender(GL11.GL_TRIANGLES);
 	}
 
 	public static void renderNormals(CameraManager cameraManager, ShaderPipeline pipeline, int width, int height) {
@@ -195,52 +203,6 @@ public class RendererThing1 {
 
 //		pipeline.doRender(GL11.GL_POINTS);
 		pipeline.doRender(GL11.GL_LINES);
-	}
-
-	public static void fillNodeBuffer(ShaderPipeline bonePipeline, ModelView modelView, RenderModel renderModel) {
-		bonePipeline.prepare();
-
-		Vec4 colorHeap = new Vec4(0.0f, 0.0f, 1.0f, 1.0f);
-		for (IdObject v : modelView.getVisibleIdObjects()) {
-			if(modelView.shouldRender(v)){
-				RenderNode2 renderNode = renderModel.getRenderNode(v);
-
-				bonePipeline.addVert(renderNode.getPivot(), Vec3.Z_AXIS, colorHeap, Vec2.ORIGIN, colorHeap, Vec3.ZERO, getSelectionStatus(v, modelView));
-			}
-		}
-	}
-
-
-
-
-	private static int getSelectionStatus(GeosetVertex vertex, ModelView modelView){
-		if(modelView.getHighlightedGeoset() != null && modelView.getHighlightedGeoset() == vertex.getGeoset()) {
-			return 0;
-		} else if(modelView.isEditable(vertex)){
-			if (modelView.isSelected(vertex)) {
-				return 1;
-			} else {
-				return 2;
-			}
-		}
-//		else if (!modelView.isHidden(vertex)){
-//		}
-		return 3;
-	}
-
-	private static int getSelectionStatus(IdObject idObject, ModelView modelView){
-		if(modelView.getHighlightedNode() != null && modelView.getHighlightedNode() == idObject) {
-			return 0;
-		} else if(modelView.isEditable(idObject)){
-			if (modelView.isSelected(idObject)) {
-				return 1;
-			} else {
-				return 2;
-			}
-		}
-//		else if (!modelView.isHidden(idObject)){
-//		}
-		return 3;
 	}
 
 	public static void paintSelectionBox(CameraManager cameraManager, ShaderPipeline pipeline, int width, int height) {

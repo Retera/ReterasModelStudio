@@ -43,7 +43,6 @@ public class ParticleShaderPipeline extends ShaderPipeline {
 	}
 
 	public void doRender() {
-//		System.out.println("glEnd");
 		//https://github.com/flowtsohg/mdx-m3-viewer/tree/827d1bda1731934fb8e1a5cf68d39786f9cb857d/src/viewer/handlers/w3x/shaders
 		GL30.glBindVertexArray(glVertexArrayId);
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, glVertexBufferId);
@@ -66,7 +65,6 @@ public class ParticleShaderPipeline extends ShaderPipeline {
 		for (BufferSubInstance instance : instances){
 			setUpAndDraw(instance);
 		}
-//		setUpAndDraw();
 		textureUsed = 0;
 
 
@@ -94,15 +92,12 @@ public class ParticleShaderPipeline extends ShaderPipeline {
 		fillMatrixBuffer(antiRotBuffer, antiRotMat);
 		GL20.glUniformMatrix4(getUniformLocation("u_transform"), false, antiRotBuffer);
 
-
-//		GL11.glDrawArrays(glBeginType, 0, vertexCount);
 		GL11.glDrawArrays(GL11.GL_POINTS, 0, vertexCount);
 	}
 
 	public void glEnableIfNeeded(int glEnum) {
 		if (glEnum == GL11.GL_TEXTURE_2D) {
 			textureUsed = 1;
-//			GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureUnit);
 		}
 		else if ((glEnum == GL11.GL_ALPHA_TEST) && (textureUnit == 0)) {
 			alphaTest = 1;
@@ -163,17 +158,19 @@ public class ParticleShaderPipeline extends ShaderPipeline {
 	}
 	public void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres, float uniformScale){
 		int baseOffset = prepareAddVertex(STRIDE);
-		position.set(pos, 1);
+		position.set(pos, 1);                   // Loc
 		normal.set(norm, 1).normalizeAsV3();
-		tangent.set(tang).normalizeAsV3();
-		color.set(col);
+//		tangent.set(tang).normalizeAsV3();
+		tangent.set(tang);                      // [[Tail loc] or [0,0,0], isTail]
+		color.set(col);                         // Color
 
 
 		addToBuffer(baseOffset, position);
-		addToBuffer(baseOffset, normal);
-		addToBuffer(baseOffset, uv);
+//		addToBuffer(baseOffset, normal);
+		addToBuffer(baseOffset, tang);          // [[Tail loc], isTail(=1)] or [0,0,0, isTail(=0)]
+		addToBuffer(baseOffset, uv);            // [UV indexX, UV indexY]
 		addToBuffer(baseOffset, color);
-		addToBuffer(baseOffset, uniformScale);
+		addToBuffer(baseOffset, uniformScale);  // scale
 
 
 		vertexCount++;

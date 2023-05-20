@@ -65,6 +65,7 @@ public class ComponentRibbonPanel extends ComponentIdObjectPanel<RibbonEmitter> 
 		topPanel.add(lifeSpanPanel.getFlagPanel(), "spanx, growx, wrap");
 		topPanel.add(gravityPanel.getFlagPanel(), "spanx, growx, wrap");
 		topPanel.add(heightAbovePanel.getFlagPanel(), "spanx, growx, wrap");
+		topPanel.add(heightBelowPanel.getFlagPanel(), "spanx, growx, wrap");
 		topPanel.add(emissionRatePanel.getFlagPanel(), "spanx, growx, wrap");
 		topPanel.add(colorPanel.getFlagPanel(), "spanx, growx, wrap");
 		topPanel.add(visibilityPanel, "spanx, growx, wrap");

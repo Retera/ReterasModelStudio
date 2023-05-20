@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.editor.render3d;
 
+import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.RibbonEmitter;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
@@ -57,26 +58,16 @@ public class RenderParticleRibbonInst {
 		this.uvAdv.set(uvAdv);
 
 		scale.set(node.getWorldScale());
-		location.set(Vec3.ZERO).transform(node.getWorldMatrix());
+		location.set(ribbon.getPivotPoint()).transform(node.getWorldMatrix());
 		rotation.setIdentity().mul(node.getWorldRotation());
 
 		float f_above = ribbon.getInterpolatedFloat(timeEnvironment, MdlUtils.TOKEN_HEIGHT_ABOVE, (float) ribbon.getHeightAbove());
 		float f_below = ribbon.getInterpolatedFloat(timeEnvironment, MdlUtils.TOKEN_HEIGHT_BELOW, (float) ribbon.getHeightBelow());
-//		System.out.println("avove: " + f_above + ", below: " + f_below);
-		above.set(0, f_above,0);
-		below.set(0, -f_below,0);
+		above.set(0, f_above, 0);
+		below.set(0, -f_below, 0);
 
 		uvAbove.set(0,0).mul(uvScale);
 		uvBelow.set(0,1).mul(uvScale);
-
-//		above.transform(node.worldRotation).multiply(scale);
-//		below.transform(node.worldRotation).multiply(scale);
-
-//		above.transform(node.getWorldMatrix());
-//		below.transform(node.getWorldMatrix());
-
-//		worldAbove.set(above).add(location);
-//		worldBelow.set(below).add(location);
 
 		worldAbove.set(above).add(ribbon.getPivotPoint()).transform(node.getWorldMatrix());
 		worldBelow.set(below).add(ribbon.getPivotPoint()).transform(node.getWorldMatrix());
@@ -92,14 +83,18 @@ public class RenderParticleRibbonInst {
 
 	private void fillColorHeaps(TimeEnvironmentImpl timeEnvironment) {
 //		colorHeap.set(ribbon.getInterpolatedVector(timeEnvironment, MdlUtils.TOKEN_COLOR, ribbon.getStaticColor()), ribbon.getInterpolatedFloat(timeEnvironment, MdlUtils.TOKEN_ALPHA, (float) ribbon.getAlpha()));;
-		colorHeap.set(1,0,1,1);
+//		colorHeap.set(1,0,1,1);
 	}
 
 	//	@Override
 	Vec3 dLoc = new Vec3();
 	public void update(float dt, Sequence sequence) {
 
-//		dLoc.x = -((Animation) sequence).getMoveSpeed()*dt;
+		if(sequence instanceof Animation){
+			dLoc.x = -((Animation) sequence).getMoveSpeed()*dt;
+		} else {
+			dLoc.x = 0;
+		}
 
 
 		health -= dt;
@@ -110,12 +105,16 @@ public class RenderParticleRibbonInst {
 		uniformScale = 1f;
 
 		worldLocation.set(location);
+		if(health <= 0){
+			worldAbove.set(Vec3.ZERO);
+			worldBelow.set(Vec3.ZERO);
+		} else {
+			worldAbove.addScaled(velocity, dt).add(dLoc);
+			worldBelow.addScaled(velocity, dt).add(dLoc);
 
-		worldAbove.add(dLoc);
-		worldBelow.add(dLoc);
-
-		uvAbove.add(uvAdv);
-		uvBelow.add(uvAdv);
+			uvAbove.addScaled(uvAdv, dt);
+			uvBelow.addScaled(uvAdv, dt);
+		}
 
 	}
 

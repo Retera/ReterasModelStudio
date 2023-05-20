@@ -1,16 +1,13 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.OldRenderer;
 
-import com.hiveworkshop.rms.editor.model.Bitmap;
-import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.render3d.RenderParticle2Inst;
-import com.hiveworkshop.rms.editor.render3d.RenderParticleEmitter2;
+import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.render3d.*;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter2;
 import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
 import org.lwjgl.opengl.GL11;
-
-import java.util.Queue;
 
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.glBegin;
@@ -32,17 +29,31 @@ public class ParticleRenderer {
 		renderParticles(emitter);
 	}
 
+	public void render(RenderRibbonEmitter emitter) {
+		renderRibbon(emitter);
+	}
+
 	private void renderParticles(RenderParticleEmitter2 emitter) {
 		ParticleEmitter2 particleEmitter2 = emitter.getParticleEmitter2();
-		int blendSrc = particleEmitter2.getBlendSrc();
-		int blendDst = particleEmitter2.getBlendDst();
+		int[] blend = getBlend(particleEmitter2.getFilterMode());
 
 		bind(particleEmitter2);
-		GL11.glBlendFunc(blendSrc, blendDst);
+		GL11.glBlendFunc(blend[0], blend[1]);
 		GL11.glBegin(GL11.GL_TRIANGLES);
 
-		Queue<RenderParticle2Inst> aliveQueue = emitter.getAliveQueue();
-		for (RenderParticle2Inst inst : aliveQueue) {
+		for (RenderParticle2Inst inst : emitter.getAliveHeadQueue()) {
+			Vec4 color = inst.getColorV();
+			if(inst.getVert(0) != null){
+				GL11.glColor4f(color.x, color.y, color.z, color.w);
+				for (int j = 0; j<6; j++){
+					GL11.glTexCoord2f(inst.getUv_u(j), inst.getUv_v(j));
+
+					Vec3 vert = inst.getVert(j);
+					GL11.glVertex3f(vert.x, vert.y, vert.z);
+				}
+			}
+		}
+		for (RenderParticle2Inst inst : emitter.getAliveTailQueue()) {
 			Vec4 color = inst.getColorV();
 			if(inst.getVert(0) != null){
 				GL11.glColor4f(color.x, color.y, color.z, color.w);
@@ -55,8 +66,87 @@ public class ParticleRenderer {
 			}
 		}
 		GL11.glEnd();
+	}
+	private void renderParticles1(RenderParticleEmitter2 emitter) {
+		ParticleEmitter2 particleEmitter2 = emitter.getParticleEmitter2();
+		int[] blend = getBlend(particleEmitter2.getFilterMode());
 
-//		drawTestTriangle();
+		bind(particleEmitter2);
+		GL11.glBlendFunc(blend[0], blend[1]);
+		GL11.glBegin(GL11.GL_TRIANGLES);
+
+		for (RenderParticle2Inst inst : emitter.getAliveQueue()) {
+			Vec4 color = inst.getColorV();
+			if(inst.getVert(0) != null){
+				GL11.glColor4f(color.x, color.y, color.z, color.w);
+				for (int j = 0; j<6; j++){
+					GL11.glTexCoord2f(inst.getUv_u(j), inst.getUv_v(j));
+
+					Vec3 vert = inst.getVert(j);
+					GL11.glVertex3f(vert.x, vert.y, vert.z);
+				}
+			}
+		}
+		GL11.glEnd();
+	}
+	private void renderRibbon(RenderRibbonEmitter emitter) {
+		RibbonEmitter particleEmitter2 = emitter.getRibbon();
+		int[] blend = getBlend(MdlxParticleEmitter2.FilterMode.BLEND);
+
+		bind(particleEmitter2);
+		GL11.glBlendFunc(blend[0], blend[1]);
+		GL11.glBegin(GL11.GL_TRIANGLE_STRIP);
+
+		for (RenderParticleRibbonInst inst : emitter.getAliveQueue()) {
+			Vec4 color = inst.getColorV();
+			GL11.glColor4f(color.x, color.y, color.z, color.w);
+			Vec3 above = inst.getWorldAbove();
+			GL11.glVertex3f(above.x, above.y, above.z);
+			Vec2 uvAbove = inst.getUvAbove();
+			GL11.glTexCoord2f(uvAbove.x, uvAbove.y);
+			Vec3 below = inst.getWorldBelow();
+			GL11.glVertex3f(below.x, below.y, below.z);
+			Vec2 uvBelow = inst.getUvBelow();
+			GL11.glTexCoord2f(uvBelow.x, uvBelow.y);
+
+		}
+		GL11.glEnd();
+	}
+
+	public int getBlendSrc(MdlxParticleEmitter2.FilterMode filterMode) {
+		return switch (filterMode) {
+			case BLEND -> GL11.GL_SRC_ALPHA;
+			case ADDITIVE -> GL11.GL_SRC_ALPHA;
+			case ALPHAKEY -> GL11.GL_SRC_ALPHA;
+			case MODULATE -> GL11.GL_ZERO;
+			case MODULATE2X -> GL11.GL_DST_COLOR;
+		};
+	}
+	public int[] getBlend(MdlxParticleEmitter2.FilterMode filterMode) {
+		return switch (filterMode) {
+			case BLEND -> new int[]{
+				GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA
+			};
+			case ADDITIVE, ALPHAKEY -> new int[]{
+				GL11.GL_SRC_ALPHA, GL11.GL_ONE
+			};
+			case MODULATE -> new int[]{
+				GL11.GL_ZERO, GL11.GL_SRC_COLOR
+			};
+			case MODULATE2X -> new int[]{
+				GL11.GL_DST_COLOR, GL11.GL_SRC_COLOR
+			};
+		};
+	}
+
+	public int getBlendDst(MdlxParticleEmitter2.FilterMode filterMode) {
+		return switch (filterMode) {
+			case BLEND -> GL11.GL_ONE_MINUS_SRC_ALPHA;
+			case ADDITIVE -> GL11.GL_ONE;
+			case ALPHAKEY -> GL11.GL_ONE;
+			case MODULATE -> GL11.GL_SRC_COLOR;
+			case MODULATE2X -> GL11.GL_SRC_COLOR;
+		};
 	}
 
 	private void drawTestTriangle() {
@@ -79,5 +169,13 @@ public class ParticleRenderer {
 		Bitmap bitmap = particleEmitter2.getTexture();
 		textureThing.loadToTexMap(renderModel.getModel(), bitmap);
 		textureThing.bindParticleTexture(particleEmitter2, bitmap);
+	}
+
+	public void bind(RibbonEmitter particleEmitter2) {
+		Material material = particleEmitter2.getMaterial();
+		Layer layer = material.getLayer(0);
+		Bitmap bitmap = layer.getTexture(0);
+		textureThing.loadToTexMap(renderModel.getModel(), bitmap);
+//		textureThing.bindLayerTexture(layer, layer.getTexture(0), 800, material);
 	}
 }

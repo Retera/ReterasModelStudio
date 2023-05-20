@@ -96,7 +96,7 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 
 	@Override
 	protected Float getIdentity() {
-		if(name.equals(MdlUtils.TOKEN_ALPHA)){
+		if(name.equals(MdlUtils.TOKEN_ALPHA) || name.equals(MdlUtils.TOKEN_VISIBILITY)){
 			return 1f;
 		} else {
 			return 0f;

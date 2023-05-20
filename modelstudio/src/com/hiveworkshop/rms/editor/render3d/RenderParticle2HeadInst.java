@@ -4,61 +4,18 @@ import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.util.*;
+import com.hiveworkshop.rms.util.MathUtils;
+import com.hiveworkshop.rms.util.Quat;
+import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.Vec4;
 
-//public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
-public class RenderParticle2Inst {
-	public float health;
-	public Vec3[] verticesV;
-	public float rgb;
-	public int[] lta_lba_rba_rta;
-	protected int uv_iX;
-	protected int uv_iY;
+public class RenderParticle2HeadInst extends RenderParticle2Inst {
 
-	protected final ParticleEmitter2 particleEmitter2;
-	protected boolean head;
-	protected final Vec3 location = new Vec3();
-	protected final Vec3 worldLocation = new Vec3();
-	protected final Vec3 velocity = new Vec3();
-	protected final Quat rotation = new Quat();
-	protected final Quat tempRotation = new Quat();
-	protected final Vec3 scale = new Vec3();
-	protected float gravity;
-
-	protected RenderNode2 node;
-
-	protected final Vec4 color1Heap = new Vec4();
-	protected final Vec4 color2Heap = new Vec4();
-	protected final Vec4 color3Heap = new Vec4();
-	protected final Vec4 colorHeap = new Vec4();
-
-	protected final Vec3 tailLocation = new Vec3();
-	protected final Vec4 tailLocationV4 = new Vec4();
-	protected final Vec3 tailHeap = new Vec3();
-	protected final Vec3 tempNormal = new Vec3();
-	protected float uniformScale = 1;
-	protected final Vec3 dLoc = new Vec3();
-
-
-	//RenderData
-	protected Vec3[] verts = new Vec3[6];
-	protected int[] uv = new int[6];
-	protected Vec2[] uvs;
-	protected float[] uv_u = new float[6];
-	protected float[] uv_v = new float[6];
-
-	public RenderParticle2Inst(ParticleEmitter2 particleEmitter2) {
-		this.particleEmitter2 = particleEmitter2;
-		health = 0;
-		head = true;
-		gravity = 0;
-
-		verticesV = new Vec3[] {new Vec3(), new Vec3(), new Vec3(), new Vec3()};
-		rgb = 0;
-		lta_lba_rba_rta = new int[]{0, 1, 1, 0};
+	public RenderParticle2HeadInst(ParticleEmitter2 particleEmitter2) {
+		super(particleEmitter2);
 	}
 
-	public RenderParticle2Inst reset(RenderNode2 node, boolean isHead, TimeEnvironmentImpl timeEnvironment) {
+	public RenderParticle2HeadInst reset(RenderNode2 node, boolean isHead, TimeEnvironmentImpl timeEnvironment) {
 		double latitude = Math.toRadians(particleEmitter2.getRenderLatitude(timeEnvironment));
 		this.node = node;
 		verts[0] = null;
@@ -70,7 +27,6 @@ public class RenderParticle2Inst {
 		fillColorHeaps();
 
 		health = (float) particleEmitter2.getLifeSpan();
-		head = isHead;
 		this.gravity = (float) (particleEmitter2.getRenderGravity(timeEnvironment) * scale.z);
 
 
@@ -109,10 +65,12 @@ public class RenderParticle2Inst {
 
 	private void resetLocation(double width, double length) {
 		// Local location
-		location.set(MathUtils.randomSym(width/ 2), MathUtils.randomSym(length/ 2), 0).add(particleEmitter2.getPivotPoint());
+		location.set(MathUtils.randomSym(width/ 2), MathUtils.randomSym(length/ 2), 0);
 		// World location
 		if (!particleEmitter2.getModelSpace()) {
-			location.transform(node.getWorldMatrix());
+			location.add(particleEmitter2.getPivotPoint()).transform(node.getWorldMatrix());
+		} else {
+			location.add(node.getPivot());
 		}
 	}
 
@@ -121,8 +79,73 @@ public class RenderParticle2Inst {
 		color2Heap.set(particleEmitter2.getSegmentColors()[1], particleEmitter2.getAlpha().y);
 		color3Heap.set(particleEmitter2.getSegmentColors()[2], particleEmitter2.getAlpha().z);
 	}
+	private static final Vec3[] SPACIAL_VECTORS = {
+			new Vec3(-1, 1, 0),
+			new Vec3(1, 1, 0),
+			new Vec3(1, -1, 0),
+			new Vec3(-1, -1, 0),
+			new Vec3(1, 0, 0),
+			new Vec3(0, 1, 0),
+			new Vec3(0, 0, 1)};
+	private final Vec3[] billboardVectors = {
+			new Vec3(0, 1, -1),
+			new Vec3(0, -1, -1),
+			new Vec3(0, -1, 1),
+			new Vec3(0, 1, 1),
+			new Vec3(0, 1, 0),
+			new Vec3(0, 0, 1),
+			new Vec3(1, 0, 0)};
+
+	public void update(float dt, Sequence sequence, Vec3[] vectors, Vec3 normal, Quat inverseCameraRotation) {
+
+		if(sequence instanceof Animation && !particleEmitter2.getModelSpace()){
+			dLoc.x = -((Animation) sequence).getMoveSpeed()*dt;
+		} else {
+			dLoc.x = 0;
+		}
+
+		health -= dt;
+		velocity.z -= gravity * dt;
+		location.addScaled(velocity, dt);
+		location.add(dLoc);
+
+		float lifeFactor = (float) ((particleEmitter2.getLifeSpan() - health) / particleEmitter2.getLifeSpan());
+		float timeMiddle = (float) particleEmitter2.getTime();
+		boolean isDecaying = !(lifeFactor < timeMiddle);
+
+		float factor = getTimeFactor(lifeFactor, timeMiddle);
+
+		setColor(factor, isDecaying);
 
 
+		factor = Math.min(factor, 1);
+
+		updateFlipBookTexture(factor, getTextureInterval(isDecaying, head));
+
+
+		float scale = getScale(factor, isDecaying);
+		uniformScale = scale;
+		worldLocation.set(location);
+
+		if (particleEmitter2.getModelSpace()) {
+			worldLocation.transform(node.getWorldMatrix());
+		}
+
+		tailLocation.set(0,0,0);
+
+		if(particleEmitter2.getXYQuad()){
+
+			verticesV[0].set(-1,  1, 0).multiply(this.scale).scale(scale).add(worldLocation);
+			verticesV[1].set( 1,  1, 0).multiply(this.scale).scale(scale).add(worldLocation);
+			verticesV[2].set( 1, -1, 0).multiply(this.scale).scale(scale).add(worldLocation);
+			verticesV[3].set(-1, -1, 0).multiply(this.scale).scale(scale).add(worldLocation);
+		} else {
+			verticesV[0].set(0,  1, -1).transform(inverseCameraRotation).multiply(this.scale).scale(scale).add(worldLocation);
+			verticesV[1].set(0, -1, -1).transform(inverseCameraRotation).multiply(this.scale).scale(scale).add(worldLocation);
+			verticesV[2].set(0, -1,  1).transform(inverseCameraRotation).multiply(this.scale).scale(scale).add(worldLocation);
+			verticesV[3].set(0,  1,  1).transform(inverseCameraRotation).multiply(this.scale).scale(scale).add(worldLocation);
+		}
+	}
 	public void update(float dt, Sequence sequence, Quat inverseCameraRotation) {
 
 		if(sequence instanceof Animation && !particleEmitter2.getModelSpace()){
@@ -154,51 +177,27 @@ public class RenderParticle2Inst {
 		uniformScale = scale;
 		worldLocation.set(location);
 
-		if (head) {
-			if (particleEmitter2.getModelSpace()) {
-				worldLocation.transform(node.getWorldMatrix());
-			}
-
-			tailLocation.set(0,0,0);
-
-			if(particleEmitter2.getXYQuad()){
-
-				verticesV[0].set(-1,  1, 0).multiply(this.scale).scale(scale).add(worldLocation);
-				verticesV[1].set( 1,  1, 0).multiply(this.scale).scale(scale).add(worldLocation);
-				verticesV[2].set( 1, -1, 0).multiply(this.scale).scale(scale).add(worldLocation);
-				verticesV[3].set(-1, -1, 0).multiply(this.scale).scale(scale).add(worldLocation);
-			} else {
-				verticesV[0].set(0,  1, -1).transform(inverseCameraRotation).multiply(this.scale).scale(scale).add(worldLocation);
-				verticesV[1].set(0, -1, -1).transform(inverseCameraRotation).multiply(this.scale).scale(scale).add(worldLocation);
-				verticesV[2].set(0, -1,  1).transform(inverseCameraRotation).multiply(this.scale).scale(scale).add(worldLocation);
-				verticesV[3].set(0,  1,  1).transform(inverseCameraRotation).multiply(this.scale).scale(scale).add(worldLocation);
-			}
-		} else {
-			// The (relative) start of the tail
-			tailHeap.set(Vec3.ZERO).addScaled(velocity, -1f * (float) -particleEmitter2.getTailLength());
-
-			// If this is a model space emitter, the start and end are in local space, so convert them to world space.
-			if (particleEmitter2.getModelSpace()) {
-				worldLocation.transform(node.getWorldMatrix());
-				tailHeap.transform(node.getWorldMatrix());
-			}
-			tailLocation.set(tailHeap);
-
-			// Get the camNormal to the tail in camera space
-			// This allows to build a 2D rectangle around the 3D tail
-			tempNormal.set(Vec3.X_AXIS).transform(inverseCameraRotation);
-			tempNormal.crossNorm(tailHeap).normalize().multiply(this.scale).scale(scale);
-			verticesV[0].set(worldLocation).sub(tempNormal).sub(tailHeap);
-			verticesV[1].set(worldLocation).add(tempNormal);
-			verticesV[2].set(worldLocation).sub(tempNormal);
-			verticesV[3].set(worldLocation).add(tempNormal).sub(tailHeap);
+		if (particleEmitter2.getModelSpace()) {
+			worldLocation.transform(node.getWorldMatrix());
 		}
 
+		tailLocation.set(0,0,0);
 
+		if(particleEmitter2.getXYQuad()){
 
+			verticesV[0].set(-1,  1, 0).multiply(this.scale).scale(scale).add(worldLocation);
+			verticesV[1].set( 1,  1, 0).multiply(this.scale).scale(scale).add(worldLocation);
+			verticesV[2].set( 1, -1, 0).multiply(this.scale).scale(scale).add(worldLocation);
+			verticesV[3].set(-1, -1, 0).multiply(this.scale).scale(scale).add(worldLocation);
+		} else {
+			verticesV[0].set(0,  1, -1).transform(inverseCameraRotation).multiply(this.scale).scale(scale).add(worldLocation);
+			verticesV[1].set(0, -1, -1).transform(inverseCameraRotation).multiply(this.scale).scale(scale).add(worldLocation);
+			verticesV[2].set(0, -1,  1).transform(inverseCameraRotation).multiply(this.scale).scale(scale).add(worldLocation);
+			verticesV[3].set(0,  1,  1).transform(inverseCameraRotation).multiply(this.scale).scale(scale).add(worldLocation);
+		}
 	}
 
-	public void update(float dt, Sequence sequence, Vec3[] vectors, Vec3 camNormal) {
+	public void update(float dt, Sequence sequence, Vec3[] vectors, Vec3 normal) {
 
 		if(sequence instanceof Animation && !particleEmitter2.getModelSpace()){
 			dLoc.x = -((Animation) sequence).getMoveSpeed()*dt;
@@ -227,75 +226,20 @@ public class RenderParticle2Inst {
 
 		float scale = getScale(factor, isDecaying);
 		uniformScale = scale;
-
 		worldLocation.set(location);
 
-		if (head) {
-			// If this is a model space emitter, the particle location is in local space, so convert it now to world space.
-			if (particleEmitter2.getModelSpace()) {
-				worldLocation.transform(node.getWorldMatrix());
-			}
-
-			verticesV[0].set(vectors[0]).multiply(this.scale).scale(scale).add(worldLocation);
-			verticesV[1].set(vectors[1]).multiply(this.scale).scale(scale).add(worldLocation);
-			verticesV[2].set(vectors[2]).multiply(this.scale).scale(scale).add(worldLocation);
-			verticesV[3].set(vectors[3]).multiply(this.scale).scale(scale).add(worldLocation);
-			tailLocation.set(Vec3.ZERO);
-			tailLocationV4.set(Vec3.ZERO, 0);
-		} else {
-
-//			// The start of the tail
-//			tailLocation.set(worldLocation).addScaled(velocity, (float) -particleEmitter2.getTailLength());
-//
-//			// If this is a model space emitter, the start and end are in local space, so convert them to world space.
-//			if (particleEmitter2.getModelSpace()) {
-//
-//				tailLocation.transform(node.getWorldMatrix());
-//				worldLocation.transform(node.getWorldMatrix());
-//			}
-//
-//			// Get the camNormal to the tail in camera space
-//			// This allows to build a 2D rectangle around the 3D tail
-//			tempNormal.set(camNormal);
-//
-//			tailHeap.set(worldLocation).sub(tailLocation).normalize();
-//			tempNormal.cross(tailHeap).normalize().multiply(this.scale).scale(scale);
-//			verticesV[0].set(tailLocation).sub(tempNormal);
-//			verticesV[1].set(worldLocation).add(tempNormal);
-//			verticesV[2].set(worldLocation).sub(tempNormal);
-//			verticesV[3].set(tailLocation).add(tempNormal);
-
-
-			// The start of the tail
-			tailHeap.set(Vec3.ZERO).addScaled(velocity, -1f * (float) -particleEmitter2.getTailLength());
-			// If this is a model space emitter, the start and end are in local space, so convert them to world space.
-			if (particleEmitter2.getModelSpace()) {
-				worldLocation.transform(node.getWorldMatrix());
-				tailHeap.transform(node.getWorldMatrix());
-
-			}
-
-			tailLocation.set(tailHeap);
-			tailLocationV4.set(tailHeap, 1);
-			// Get the camNormal to the tail in camera space
-			// This allows to build a 2D rectangle around the 3D tail
-			tempNormal.set(camNormal);
-			tempNormal.crossNorm(tailHeap).normalize().multiply(this.scale).scale(scale);
-			verticesV[0].set(worldLocation).sub(tailHeap).sub(tempNormal);
-			verticesV[1].set(worldLocation).add(tempNormal);
-			verticesV[2].set(worldLocation).sub(tempNormal);
-			verticesV[3].set(worldLocation).sub(tailHeap).add(tempNormal);
+		if (particleEmitter2.getModelSpace()) {
+			worldLocation.transform(node.getWorldMatrix());
 		}
+
+		verticesV[0].set(vectors[0]).multiply(this.scale).scale(scale).add(worldLocation);
+		verticesV[1].set(vectors[1]).multiply(this.scale).scale(scale).add(worldLocation);
+		verticesV[2].set(vectors[2]).multiply(this.scale).scale(scale).add(worldLocation);
+		verticesV[3].set(vectors[3]).multiply(this.scale).scale(scale).add(worldLocation);
 	}
 
 	public Vec3 getWorldLocation() {
 		return worldLocation;
-	}
-	public Vec3 getTailLocation() {
-		return tailLocation;
-	}
-	public Vec4 getTailLocationV4() {
-		return tailLocationV4;
 	}
 
 	public Vec3 getLocation() {
@@ -307,14 +251,10 @@ public class RenderParticle2Inst {
 	}
 
 	private Vec3 getTextureInterval(boolean isDecaying, boolean isHead) {
-		if(isDecaying && isHead){
+		if(isDecaying){
 			return particleEmitter2.getHeadDecayUVAnim();
-		} else if (isDecaying){
-			return particleEmitter2.getTailDecayUVAnim();
-		} else if(isHead){
-			return particleEmitter2.getHeadUVAnim();
 		} else {
-			return particleEmitter2.getTailUVAnim();
+			return particleEmitter2.getHeadUVAnim();
 		}
 	}
 
@@ -414,7 +354,7 @@ public class RenderParticle2Inst {
 	}
 
 
-	public RenderParticle2Inst setRenderData(int i, Vec3 v, int uv, int cols, int rows) {
+	public RenderParticle2HeadInst setRenderData(int i, Vec3 v, int uv, int cols, int rows) {
 		this.verts[i] = v;
 		this.uv[i] = uv;
 

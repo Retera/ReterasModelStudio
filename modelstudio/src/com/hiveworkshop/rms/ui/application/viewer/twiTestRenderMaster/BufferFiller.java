@@ -2,8 +2,6 @@ package com.hiveworkshop.rms.ui.application.viewer.twiTestRenderMaster;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.render3d.RenderParticleEmitter2;
-import com.hiveworkshop.rms.editor.render3d.RenderRibbonEmitter;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
@@ -229,15 +227,9 @@ public class BufferFiller {
 
 
 			if (programPreferences != null && programPreferences.getRenderParticles()) {
-
-				for(RenderRibbonEmitter emitter2 : renderModel.getRenderParticleEmitters2Rib()) {
-					ribbonBufferFiller.fillParticleHeap(shaderManager.getPipeline(ShaderManager.PipelineType.RIBBON), emitter2);
-				}
+				ribbonBufferFiller.fillBuffer(shaderManager.getPipeline(ShaderManager.PipelineType.RIBBON));
+				particleBufferFiller.fillBuffer(shaderManager.getPipeline(ShaderManager.PipelineType.PARTICLE2));
 			}
-
-//			if (programPreferences != null && programPreferences.getRenderParticles()) {
-//				particleBufferFiller.fillParticleHeap();
-//			}
 		}
 	}
 
@@ -262,6 +254,12 @@ public class BufferFiller {
 
 
 		if(renderModel != null){
+
+			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
+			if (programPreferences.showPerspectiveGrid()) {
+				RendererThing1.paintGrid(cameraManager, shaderManager.getPipeline(ShaderManager.PipelineType.GRID), width, height);
+			}
 			if(isHD){
 				ShaderPipeline pipeline = shaderManager.getPipeline(ShaderManager.PipelineType.MESH);
 				RendererThing1.renderGeosets(cameraManager, pipeline, width, height, viewportSettings.isWireFrame(), viewportSettings.isRenderTextures());
@@ -300,17 +298,9 @@ public class BufferFiller {
 				RendererThing1.paintSelectionBox(cameraManager, selectionPipeline, width, height);
 			}
 
-			if (programPreferences.showPerspectiveGrid()) {
-				RendererThing1.paintGrid(cameraManager, shaderManager.getPipeline(ShaderManager.PipelineType.GRID), width, height);
-			}
-
 			if (programPreferences != null && programPreferences.getRenderParticles()) {
 				RendererThing1.renderRibbons(cameraManager, shaderManager.getPipeline(ShaderManager.PipelineType.RIBBON), width, height, false, viewportSettings.isRenderTextures());
-				GL11.glDepthMask(false);
-				GL11.glEnable(GL11.GL_BLEND);
-				GL11.glEnable(GL11.GL_DEPTH_TEST);
-				GL11.glDisable(GL11.GL_CULL_FACE);
-				renderParticles(cameraManager, width, height);
+				RendererThing1.renderParticles(cameraManager, shaderManager.getPipeline(ShaderManager.PipelineType.PARTICLE2), width, height);
 			}
 		}
 		GL11.glDepthMask(false);
@@ -322,19 +312,6 @@ public class BufferFiller {
 	private void clearViewport() {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		GL11.glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 0.0f);
-	}
-
-	private void renderParticles(CameraManager cameraManager, int width, int height) {
-		ShaderPipeline pipeline = shaderManager.getPipeline(ShaderManager.PipelineType.PARTICLE2);
-		pipeline.glViewport(width, height);
-		pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
-		pipeline.glSetViewMatrix(cameraManager.getViewMat());
-		pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
-		for(RenderParticleEmitter2 emitter2 : renderModel.getRenderParticleEmitters2()) {
-			pipeline.prepare();
-			particleBufferFiller.fillParticleHeap(pipeline, emitter2);
-			pipeline.doRender(GL11.GL_TRIANGLES);
-		}
 	}
 
 	public ByteBuffer paintGL2(CameraManager cameraManager, ViewportSettings viewportSettings, int width, int height) {

@@ -58,7 +58,7 @@ public class PreviewViewCanv extends ModelDependentView {
 //			previewPanel.setModel(modelPanel.getModelHandler(), true, modelPanel.getViewportActivityManager());
 			ModelHandler modelHandler = modelPanel.getModelHandler();
 			RenderModel previewRenderModel = modelHandler.getPreviewRenderModel();
-			previewRenderModel.setVetoOverrideParticles(true);
+//			previewRenderModel.setVetoOverrideParticles(true);
 			TimeEnvironmentImpl renderEnv = previewRenderModel.getTimeEnvironment();
 			renderEnv.setAnimationTime(0);
 			renderEnv.setLive(true);
