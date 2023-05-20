@@ -406,12 +406,12 @@ public class SelectionManager extends AbstractSelectionManager {
 			int tot = 0;
 			Vec3 centerOfGroupSumHeap = new Vec3(0, 0, 0);
 			for (IdObject object : modelView.getSelectedIdObjects()) {
-				centerOfGroupSumHeap.add(editorRenderModel.getRenderNode(object).getRenderPivot());
+				centerOfGroupSumHeap.add(editorRenderModel.getRenderNode(object).getPivot());
 				tot++;
 			}
-			for (CameraNode cameraNode : modelView.getEditableCameraNodes()) {
+			for (CameraNode cameraNode : modelView.getSelectedCameraNodes()) {
 				if(cameraNode instanceof CameraNode.SourceNode){
-					centerOfGroupSumHeap.add(editorRenderModel.getRenderNode(cameraNode).getRenderPivot());
+					centerOfGroupSumHeap.add(editorRenderModel.getRenderNode(cameraNode).getPivot());
 					tot++;
 				} else if (cameraNode instanceof CameraNode.TargetNode) {
 					centerOfGroupSumHeap.add(editorRenderModel.getRenderNode(cameraNode).getTarget());

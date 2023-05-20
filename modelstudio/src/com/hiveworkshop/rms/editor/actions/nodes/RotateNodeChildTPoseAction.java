@@ -10,7 +10,6 @@ import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.util.Debug;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
@@ -124,7 +123,7 @@ public class RotateNodeChildTPoseAction extends AbstractTransformAction {
 	}
 
 	private void rotate(double radians) {
-		Debug.print("rotating " + node.getName() + " \t" + ((float)Math.toDegrees(radians)) + " deg around " + axis);
+//		Debug.print("rotating " + node.getName() + " \t" + ((float)Math.toDegrees(radians)) + " deg around " + axis);
 		quat.setFromAxisAngle(axis, (float) -radians);
 		newPivot.rotate(center, quat);
 		updateTimelines(quat);
@@ -146,7 +145,7 @@ public class RotateNodeChildTPoseAction extends AbstractTransformAction {
 	}
 
 	private void rotate(Quat quat) {
-		Debug.print("rotating " + node.getName() + " " + Math.toDegrees(quat.getAxisAngle()) + "deg around " + quat.getAxis());
+//		Debug.print("rotating " + node.getName() + " " + Math.toDegrees(quat.getAxisAngle()) + "deg around " + quat.getAxis());
 		newPivot.rotate(center, quat);
 		updateTimelines(quat);
 	}
@@ -182,7 +181,7 @@ public class RotateNodeChildTPoseAction extends AbstractTransformAction {
 	private void rotRotation(Quat quat, Vec3 tempAxis, QuatAnimFlag newRotation) {
 		for (TreeMap<Integer, Entry<Quat>> entryMap : newRotation.getAnimMap().values()) {
 			if (entryMap != null) {
-				Debug.print("\tadjusting rot! : " + quat);
+//				Debug.print("\tadjusting rot! : " + quat);
 				for (Entry<Quat> entry : entryMap.values()) {
 //						Debug.print("\t\ttempAxis: " + tempAxis + " (entry: " + entry.getValue() + ")");
 					tempAxis.setAsAxis(entry.getValue());
