@@ -705,9 +705,28 @@ public class Geoset implements Named, VisibilitySource {
 	public void applyVerticesToMatrices(final EditableModel mdlr) {
 		matrix.clear();
 		final LinkedHashMap<Bone, Integer> usedBones = new LinkedHashMap<>();
+		boolean anyVerticesSkinned = false;
+		boolean anyVerticesCantBeSkinned = false;
 		for (int i = 0; i < vertex.size(); i++) {
 			final GeosetVertex geosetVertex = vertex.get(i);
 			if (geosetVertex.getSkinBoneIndexes() != null) {
+				anyVerticesSkinned = true;
+			}
+			if (geosetVertex.getLinks().size() > 4) {
+				anyVerticesCantBeSkinned = true;
+			}
+		}
+		if (anyVerticesCantBeSkinned && anyVerticesSkinned) {
+			throw new IllegalStateException("Geoset \"" + getUIName(mdlr)
+					+ "\": Both complex SD matrices that cannot convert to HD, and also HD weights that cannot be expressed in SD, have been used. This merged geoset cannot save this way without losing data. Please Split Geoset or reduce complexity and retry.");
+		}
+		for (int i = 0; i < vertex.size(); i++) {
+			final GeosetVertex geosetVertex = vertex.get(i);
+			if (anyVerticesSkinned) {
+				if (geosetVertex.getSkinBoneIndexes() == null) {
+					// some SD thing
+					geosetVertex.initV900Skin();
+				}
 				int skinIndex = 0;
 				for (final GeosetVertexBoneLink link : geosetVertex.getLinks()) {
 					if (link.bone != null) {

@@ -85,6 +85,10 @@ public class GeosetVertex extends Vertex {
 		for (final GeosetVertexBoneLink link : old.links) {
 			this.links.add(new GeosetVertexBoneLink(link.weight, link.bone));
 		}
+		if (old.skinBoneIndexes != null) {
+			this.skinBoneIndexes = new byte[old.skinBoneIndexes.length];
+			System.arraycopy(old.skinBoneIndexes, 0, this.skinBoneIndexes, 0, this.skinBoneIndexes.length);
+		}
 		this.tverts = new ArrayList<>();
 		for (final TVertex tv : old.tverts) {
 			tverts.add(new TVertex(tv));
