@@ -2,14 +2,14 @@ package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.ui.util.AbstractSnapshottingListCellRenderer2D;
+import com.hiveworkshop.rms.ui.util.AbstractObject2DThumbnailListCellRenderer;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Set;
 
-public class IdObjectListCellRenderer extends AbstractSnapshottingListCellRenderer2D<IdObject> {
+public class IdObjectListCellRenderer extends AbstractObject2DThumbnailListCellRenderer<IdObject> {
 	boolean showParent = false;
 	IdObject selectedObject;
 	boolean showClass = false;
@@ -41,44 +41,6 @@ public class IdObjectListCellRenderer extends AbstractSnapshottingListCellRender
 	public IdObjectListCellRenderer setInvalidObjects(Set<IdObject> invalidObjects) {
 		this.invalidObjects = invalidObjects;
 		return this;
-	}
-
-	@Override
-	protected boolean isFromDonating(IdObject value) {
-		if (value != null && other != null) {
-			return other.contains(value);
-		} else if (value != null && model != null){
-			return !model.contains(value);
-		}
-		return false;
-	}
-
-	@Override
-	protected boolean isFromReceiving(IdObject value) {
-		if (value != null && model != null) {
-			return model.contains(value);
-		} else if (value != null && other != null){
-			return !other.contains(value);
-		}
-		return false;
-	}
-
-	@Override
-	protected IdObject valueToTyped(Object value) {
-		return (IdObject) value;
-	}
-
-	@Override
-	protected Vec3 getRenderVertex(IdObject value) {
-		return value.getPivotPoint();
-	}
-
-	@Override
-	protected boolean contains(EditableModel model, IdObject object) {
-		if (model != null) {
-			return model.contains(object);
-		}
-		return false;
 	}
 
 	@Override

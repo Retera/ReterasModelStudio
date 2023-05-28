@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.CameraShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.CameraShell;
 
 import javax.swing.*;
 import java.awt.*;

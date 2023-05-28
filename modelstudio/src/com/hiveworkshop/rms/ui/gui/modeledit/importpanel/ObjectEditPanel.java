@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.IdObjectShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.ObjectShellListCellRenderer;
 import com.hiveworkshop.rms.ui.util.TwiList;

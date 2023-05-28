@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.tools.uielement;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.GeosetShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.GeosetShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.GeosetListCellRenderer2D;
 import com.hiveworkshop.rms.ui.util.SearchableList;
 import net.miginfocom.swing.MigLayout;

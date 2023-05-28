@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
+package com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells;
 
 import com.hiveworkshop.rms.editor.model.Animation;
 
@@ -6,26 +6,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class AnimShell {
+public class AnimShell extends AbstractShell {
 	private final Animation anim;
 	private final List<AnimShell> animDataDests = new ArrayList<>(); // animations in which bones lacking anim data should use data from this animation
 	private AnimShell animDataSrc; // animation to replace this animation where bones are missing anim data
 	private boolean reverse = false;
 	private boolean doImport = true;
-	private ImportType importType = ImportType.IMPORT_BASIC;
+//	private ImportType importType = ImportType.IMPORT_BASIC;
 	private String name;
 	private final String oldName;
-	private final boolean isFromDonating;
 
 	public AnimShell(final Animation anim) {
 		this(anim, false);
 	}
 
 	public AnimShell(final Animation anim, boolean isFromDonating) {
+		super(isFromDonating);
 		this.anim = anim;
 		name = anim.getName();
 		oldName = anim.getName();
-		this.isFromDonating = isFromDonating;
 	}
 
 	public Animation getAnim() {
@@ -48,9 +47,9 @@ public class AnimShell {
 		return this;
 	}
 
-	public ImportType getImportType() {
-		return importType;
-	}
+//	public ImportType getImportType() {
+//		return importType;
+//	}
 
 	public AnimShell setImportType(int importType) {
 //		if(0 <= importType && importType < ImportType.values().length) {
@@ -59,10 +58,10 @@ public class AnimShell {
 		return this;
 	}
 
-	public AnimShell setImportType(ImportType importType) {
-		this.importType = importType;
-		return this;
-	}
+//	public AnimShell setImportType(ImportType importType) {
+//		this.importType = importType;
+//		return this;
+//	}
 
 	public AnimShell setDoImport(boolean doImport) {
 		this.doImport = doImport;
@@ -150,17 +149,17 @@ public class AnimShell {
 		return oldName;
 	}
 
-	public String displName() {
-		String dispName = "";
-		switch (importType) {
-			case DONT_IMPORT -> dispName += "\u2297";
-			case IMPORT_BASIC -> dispName += "\u24BE";
-			case CHANGE_NAME -> dispName += "\u24C3";
-			case TIMESCALE_INTO -> dispName += "\u24C9";
-			case GLOBALSEQ -> dispName += "\u24BC";
-		}
-		return dispName + "  " + oldName;
-	}
+//	public String displName() {
+//		String dispName = "";
+//		switch (importType) {
+//			case DONT_IMPORT -> dispName += "\u2297";
+//			case IMPORT_BASIC -> dispName += "\u24BE";
+//			case CHANGE_NAME -> dispName += "\u24C3";
+//			case TIMESCALE_INTO -> dispName += "\u24C9";
+//			case GLOBALSEQ -> dispName += "\u24BC";
+//		}
+//		return dispName + "  " + oldName;
+//	}
 
 	public AnimShell getAnimDataSrc() {
 		return animDataSrc;
@@ -181,10 +180,6 @@ public class AnimShell {
 			}
 		}
 		return this;
-	}
-
-	public boolean isFromDonating() {
-		return isFromDonating;
 	}
 
 	public enum ImportType {

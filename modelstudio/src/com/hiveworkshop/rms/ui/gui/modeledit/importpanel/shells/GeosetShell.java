@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
+package com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
@@ -6,11 +6,10 @@ import com.hiveworkshop.rms.editor.model.Material;
 
 import java.util.List;
 
-public class GeosetShell {
+public class GeosetShell extends AbstractShell {
 	private final String modelName;
 	private String name;
 	private int index;
-	private final boolean isFromDonating;
 	private final Geoset geoset;
 	private boolean doImport = true;
 	private Material oldMaterial;
@@ -19,8 +18,8 @@ public class GeosetShell {
 	private List<MatrixShell> matrixShells;
 
 	public GeosetShell(Geoset geoset, EditableModel model, boolean isFromDonating) {
+		super(isFromDonating);
 		this.geoset = geoset;
-		this.isFromDonating = isFromDonating;
 		modelName = model.getName();
 		if (geoset != null) {
 			name = geoset.getName();
@@ -31,8 +30,8 @@ public class GeosetShell {
 	}
 
 	public GeosetShell(Geoset geoset, String modelName, int index, boolean isFromDonating) {
+		super(isFromDonating);
 		this.geoset = geoset;
-		this.isFromDonating = isFromDonating;
 		this.modelName = modelName;
 		if (geoset != null) {
 			name = geoset.getName();
@@ -90,10 +89,6 @@ public class GeosetShell {
 	public GeosetShell setIndex(int index) {
 		this.index = index;
 		return this;
-	}
-
-	public boolean isFromDonating() {
-		return isFromDonating;
 	}
 
 	public Material getNewMaterial() {

@@ -1,15 +1,14 @@
-package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
+package com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells;
 
 import com.hiveworkshop.rms.editor.model.Matrix;
 import com.hiveworkshop.rms.util.IterableListModel;
 
 import java.util.ArrayList;
 
-public class MatrixShell {
+public class MatrixShell extends AbstractShell {
 	private final Matrix matrix;
 	private final ArrayList<IdObjectShell<?>> orgBones;
 	private final IterableListModel<IdObjectShell<?>> newBones;
-	private final boolean isFromDonating;
 	private final boolean isHd;
 
 	public MatrixShell(final Matrix m) {
@@ -26,10 +25,10 @@ public class MatrixShell {
 	}
 
 	public MatrixShell(final Matrix m, ArrayList<IdObjectShell<?>> orgBones, boolean isFromDonating, boolean isHd) {
+		super(isFromDonating);
 		matrix = m;
 		this.orgBones = orgBones;
 		newBones = new IterableListModel<>(orgBones);
-		this.isFromDonating = isFromDonating;
 		this.isHd = isHd;
 	}
 
@@ -110,9 +109,5 @@ public class MatrixShell {
 			return (newIndex);
 		}
 		return 0;
-	}
-
-	public boolean isFromDonating() {
-		return isFromDonating;
 	}
 }

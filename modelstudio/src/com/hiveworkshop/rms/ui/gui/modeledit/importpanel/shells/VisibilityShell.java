@@ -1,13 +1,12 @@
-package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
+package com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells;
 
 import com.hiveworkshop.rms.editor.model.Named;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 
-public class VisibilityShell<T extends TimelineContainer & Named> {
+public class VisibilityShell<T extends TimelineContainer & Named> extends AbstractShell {
 	private final T item;
 	private final String modelName;
 
-	private final boolean isFromDonating;
 	private boolean favorOld = true;
 	private VisibilityShell<?> visSource;
 	private VisibilityShell<?> recModAnimsVisSource;
@@ -18,9 +17,9 @@ public class VisibilityShell<T extends TimelineContainer & Named> {
 	private boolean multipleSelected = false;
 
 	public VisibilityShell(T vs, String modelName, boolean isFromDonating) {
+		super(isFromDonating);
 		item = vs;
 		this.modelName = modelName;
-		this.isFromDonating = isFromDonating;
 		if (item != null && item.getVisibilityFlag() != null) {
 			if (isFromDonating) {
 				recModAnimsVisSource = this;
@@ -31,11 +30,11 @@ public class VisibilityShell<T extends TimelineContainer & Named> {
 	}
 
 	public VisibilityShell(boolean alwaysVisible) {
+		super(false);
 		this.alwaysVisible = alwaysVisible;
 		this.neverVisible = !alwaysVisible;
 		item = null;
 		modelName = null;
-		this.isFromDonating = false;
 	}
 
 	public VisibilityShell<T> setMultiple(){
@@ -59,10 +58,6 @@ public class VisibilityShell<T extends TimelineContainer & Named> {
 	public VisibilityShell<T> setFavorOld(boolean favorOld) {
 		this.favorOld = favorOld;
 		return this;
-	}
-
-	public boolean isFromDonating() {
-		return isFromDonating;
 	}
 
 	public VisibilityShell<?> getVisSource() {

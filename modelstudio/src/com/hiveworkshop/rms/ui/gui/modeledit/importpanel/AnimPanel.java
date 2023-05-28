@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.AnimShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.AnimListCellRenderer;
 import com.hiveworkshop.rms.ui.util.TwiList;
 import net.miginfocom.swing.MigLayout;

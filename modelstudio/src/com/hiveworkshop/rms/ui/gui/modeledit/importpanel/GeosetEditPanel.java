@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.GeosetShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.GeosetListCellRenderer2D;
 import com.hiveworkshop.rms.ui.util.TwiList;
 import com.hiveworkshop.rms.util.uiFactories.Button;

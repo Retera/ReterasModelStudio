@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.MatrixShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.MatrixShell;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;

@@ -2,6 +2,9 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.Matrix;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.GeosetShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.IdObjectShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.MatrixShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
 import com.hiveworkshop.rms.util.ScreenInfo;
 import net.miginfocom.swing.MigLayout;

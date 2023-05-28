@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.ui.application.tools.TwiRenamingPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.AnimShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.AnimListCellRenderer;
 import com.hiveworkshop.rms.ui.util.TwiList;
 import com.hiveworkshop.rms.util.uiFactories.Button;
@@ -155,9 +156,9 @@ public class AnimEditPanel extends JPanel {
 
 	private void doSomeRenaming(ModelHolderThing mht, Pattern pattern, String replaceString) {
 		for (AnimShell animShell : mht.allAnimShells) {
-			if (animShell.getImportType() == AnimShell.ImportType.CHANGE_NAME) {
-				animShell.setName(pattern.matcher(animShell.getOldName()).replaceAll(replaceString));
-			}
+//			if (animShell.getImportType() == AnimShell.ImportType.CHANGE_NAME) {
+//			}
+			animShell.setName(pattern.matcher(animShell.getOldName()).replaceAll(replaceString));
 		}
 	}
 

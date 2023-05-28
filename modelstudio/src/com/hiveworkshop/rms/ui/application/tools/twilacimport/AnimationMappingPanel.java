@@ -2,8 +2,8 @@ package com.hiveworkshop.rms.ui.application.tools.twilacimport;
 
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.AnimShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.TriCheckBox;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.AnimShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.AnimListCellRenderer;
 import com.hiveworkshop.rms.ui.util.TwiList;
 import net.miginfocom.swing.MigLayout;

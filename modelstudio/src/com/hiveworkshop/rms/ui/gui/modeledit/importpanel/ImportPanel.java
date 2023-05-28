@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.util.TempSaveModelStuff;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.*;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Vec3;
@@ -542,75 +543,127 @@ public class ImportPanel extends JTabbedPane {
 
 		List<Animation> newAnims = new ArrayList<>();
 		for (AnimShell animShell : mht.allAnimShells) {
-			if (animShell.getImportType() != AnimShell.ImportType.DONT_IMPORT) {
+			if (animShell.isDoImport()) {
 				int newStart = ModelUtils.animTrackEnd(mht.receivingModel) + 300;
 
 				Animation anim1 = animShell.getAnim();
 				if (animShell.isReverse()) {
 					reverseAnim(donModFlags, donModEventObjs, anim1);
 				}
-				switch (animShell.getImportType()) {
-					case IMPORT_BASIC:
-					case CHANGE_NAME:
-
-						//todo things here is probably broken...
-						anim1.setStart(newStart);
+				//todo things here is probably broken...
+				anim1.setStart(newStart);
 //						animCopyToInterv1(donModFlags, donModEventObjs, newImpFlags, newImpEventObjs, anim1, anim1);
-						animCopyToInterv1(flagMap, eventMap, anim1, anim1);
-						if (animShell.getImportType() == AnimShell.ImportType.CHANGE_NAME) {
-							anim1.setName(animShell.getName());
-						}
-						if(!mht.receivingModel.contains(anim1)){
-							mht.receivingModel.add(anim1);
-							newAnims.add(anim1);
-						}
-						break;
-					case TIMESCALE_INTO:
-						if (!mht.clearRecModAnims.isSelected()) {
-							for (AnimShell recAnimShell : mht.recModAnims) {
-								AnimShell importAnimShell = recAnimShell.getAnimDataSrc();
-								if (importAnimShell == animShell) {
-									Animation importAnim = importAnimShell.getAnim();
-									animCopyToInterv1(flagMap, eventMap, anim1, importAnim);
+				animCopyToInterv1(flagMap, eventMap, anim1, anim1);
 
-									newAnims.add(new Animation("temp", anim1.getStart(), anim1.getEnd()));
+				anim1.setName(animShell.getName());
+				if(!mht.receivingModel.contains(anim1)){
+					mht.receivingModel.add(anim1);
+					newAnims.add(anim1);
+				}
+			}
+			if(!animShell.getAnimDataDests().isEmpty()) {
+				if (!mht.clearRecModAnims.isSelected()) {
 
-									if (!mht.clearExistingBones.isSelected()) {
-										for (IdObjectShell<?> bs : mht.recModBoneShells) {
-											if (bs.getMotionSrcShell() != null && bs.getMotionSrcShell().getImportStatus() == IdObjectShell.ImportType.MOTION_FROM) {
-												System.out.println("Attempting to clear animation for " + bs.getIdObject().getName() + " values " + anim1.getStart() + ", " + anim1.getEnd());
-												bs.getIdObject().clearAnimation(anim1);
-											}
-										}
+					Animation anim1 = animShell.getAnim();
+					for (AnimShell recAnimShell : mht.recModAnims) {
+						AnimShell importAnimShell = recAnimShell.getAnimDataSrc();
+						if (importAnimShell == animShell) {
+							Animation importAnim = importAnimShell.getAnim();
+							animCopyToInterv1(flagMap, eventMap, anim1, importAnim);
+
+							newAnims.add(new Animation("temp", anim1.getStart(), anim1.getEnd()));
+
+							if (!mht.clearExistingBones.isSelected()) {
+								for (IdObjectShell<?> bs : mht.recModBoneShells) {
+									if (bs.getMotionSrcShell() != null && bs.getMotionSrcShell().getImportStatus() == IdObjectShell.ImportType.MOTION_FROM) {
+										System.out.println("Attempting to clear animation for " + bs.getIdObject().getName() + " values " + anim1.getStart() + ", " + anim1.getEnd());
+										bs.getIdObject().clearAnimation(anim1);
 									}
 								}
 							}
 						}
-//						AnimShell importAnimShell = animShell.getImportAnimShell();
+					}
+				}
+			}
+			if(false){
+				Animation anim1 = animShell.getAnim();
+				buildGlobSeqFrom(mht.donatingModel, anim1, donModFlags);
+			}
+		}
+
+
+//		for (AnimShell animShell : mht.allAnimShells) {
+//			if (animShell.getImportType() != AnimShell.ImportType.DONT_IMPORT) {
+//				int newStart = ModelUtils.animTrackEnd(mht.receivingModel) + 300;
 //
-//						if (importAnimShell != null && importAnimShell.getImportType() == AnimShell.ImportType.TIMESCALE) {
+//				Animation anim1 = animShell.getAnim();
+//				if (animShell.isReverse()) {
+//					reverseAnim(donModFlags, donModEventObjs, anim1);
+//				}
+//				switch (animShell.getImportType()) {
+//					case IMPORT_BASIC:
+//					case CHANGE_NAME:
 //
-//							Animation importAnim = importAnimShell.getAnim();
-//							animCopyToInterv1(flagMap, eventMap, anim1, importAnim);
+//						//todo things here is probably broken...
+//						anim1.setStart(newStart);
+////						animCopyToInterv1(donModFlags, donModEventObjs, newImpFlags, newImpEventObjs, anim1, anim1);
+//						animCopyToInterv1(flagMap, eventMap, anim1, anim1);
+//						if (animShell.getImportType() == AnimShell.ImportType.CHANGE_NAME) {
+//							anim1.setName(animShell.getName());
+//						}
+//						if(!mht.receivingModel.contains(anim1)){
+//							mht.receivingModel.add(anim1);
+//							newAnims.add(anim1);
+//						}
+//						break;
+//					case TIMESCALE_INTO:
+//						if (!mht.clearRecModAnims.isSelected()) {
+//							for (AnimShell recAnimShell : mht.recModAnims) {
+//								AnimShell importAnimShell = recAnimShell.getAnimDataSrc();
+//								if (importAnimShell == animShell) {
+//									Animation importAnim = importAnimShell.getAnim();
+//									animCopyToInterv1(flagMap, eventMap, anim1, importAnim);
 //
-//							newAnims.add(new Animation("temp", anim1.getStart(), anim1.getEnd()));
+//									newAnims.add(new Animation("temp", anim1.getStart(), anim1.getEnd()));
 //
-//							if (!mht.clearExistingBones.isSelected()) {
-//								for (BoneShell bs : mht.recModBoneShells) {
-//									if (bs.getImportBoneShell() != null && bs.getImportBoneShell().getImportStatus() == BoneShell.ImportType.MOTIONFROM) {
-//										System.out.println("Attempting to clear animation for " + bs.getBone().getName() + " values " + anim1.getStart() + ", " + anim1.getEnd());
-//										bs.getBone().clearAnimation(anim1);
+//									if (!mht.clearExistingBones.isSelected()) {
+//										for (IdObjectShell<?> bs : mht.recModBoneShells) {
+//											if (bs.getMotionSrcShell() != null && bs.getMotionSrcShell().getImportStatus() == IdObjectShell.ImportType.MOTION_FROM) {
+//												System.out.println("Attempting to clear animation for " + bs.getIdObject().getName() + " values " + anim1.getStart() + ", " + anim1.getEnd());
+//												bs.getIdObject().clearAnimation(anim1);
+//											}
+//										}
 //									}
 //								}
 //							}
 //						}
-						break;
-					case GLOBALSEQ:
-						buildGlobSeqFrom(mht.donatingModel, anim1, donModFlags);
-						break;
-				}
-			}
-		}
+////						AnimShell importAnimShell = animShell.getImportAnimShell();
+////
+////						if (importAnimShell != null && importAnimShell.getImportType() == AnimShell.ImportType.TIMESCALE) {
+////
+////							Animation importAnim = importAnimShell.getAnim();
+////							animCopyToInterv1(flagMap, eventMap, anim1, importAnim);
+////
+////							newAnims.add(new Animation("temp", anim1.getStart(), anim1.getEnd()));
+////
+////							if (!mht.clearExistingBones.isSelected()) {
+////								for (BoneShell bs : mht.recModBoneShells) {
+////									if (bs.getImportBoneShell() != null && bs.getImportBoneShell().getImportStatus() == BoneShell.ImportType.MOTIONFROM) {
+////										System.out.println("Attempting to clear animation for " + bs.getBone().getName() + " values " + anim1.getStart() + ", " + anim1.getEnd());
+////										bs.getBone().clearAnimation(anim1);
+////									}
+////								}
+////							}
+////						}
+//						break;
+//					case GLOBALSEQ:
+//						buildGlobSeqFrom(mht.donatingModel, anim1, donModFlags);
+//						break;
+//				}
+//			}
+//		}
+
+
 //		if (!mht.clearRecModAnims.isSelected()) {
 //			addNewAnimsIntoOldAnims(donModFlags, donModEventObjs, newImpFlags, newImpEventObjs, newAnims);
 //		}
@@ -655,7 +708,7 @@ public class ImportPanel extends JTabbedPane {
 		for (AnimShell animShell : mht.recModAnims) {
 
 			AnimShell importAnimShell = animShell.getAnimDataSrc();
-			if (importAnimShell != null && importAnimShell.getImportType() == AnimShell.ImportType.TIMESCALE_INTO) {
+			if (importAnimShell != null) {
 				Animation anim1 = animShell.getAnim();
 
 				Animation importAnim = importAnimShell.getAnim();
@@ -774,7 +827,7 @@ public class ImportPanel extends JTabbedPane {
 		if (singleAnimation) {
 			for (AnimShell animShell : mht.allAnimShells) {
 				if (animShell.getOldName().equals(pickedAnim.getName())) {
-					animShell.setImportType(AnimShell.ImportType.IMPORT_BASIC);
+					animShell.setDoImport(false);
 				}
 			}
 			mht.clearRecModAnims.setSelected(false);
@@ -846,7 +899,7 @@ public class ImportPanel extends JTabbedPane {
 		mht.visibilityList();
 		mht.selectSimilarVisSources();
 		if (singleAnim) {
-			mht.donModAnims.forEach(shell -> shell.setImportType(AnimShell.ImportType.DONT_IMPORT));
+			mht.donModAnims.forEach(shell -> shell.setDoImport(false));
 		}
 	}
 
@@ -862,7 +915,7 @@ public class ImportPanel extends JTabbedPane {
 		return false;
 	}
 
-	public void animTransferPartTwo(Animation pickedAnim, Animation visFromAnim, boolean show) {
+	public void animTransferPartTwo(Animation pickedAnim, AnimShell visFromAnim, boolean show) {
 		// This should be an import from self
 		// This seems to be a stupid hack to put back lost stuff...
 		prepareModelHolderThing(IdObjectShell.ImportType.DONT_IMPORT, true);
@@ -870,7 +923,6 @@ public class ImportPanel extends JTabbedPane {
 		for (AnimShell animShell : mht.allAnimShells) {
 //		for (AnimShell animShell : mht.donModAnims) {
 			if (visFromAnim == null || animShell.getOldName().equals(visFromAnim.getName())) {
-				animShell.setImportType(AnimShell.ImportType.TIMESCALE_INTO); // Time scale
 
 				for (AnimShell shell : mht.allAnimShells) {
 //				for (AnimShell shell : mht.recModAnims) {

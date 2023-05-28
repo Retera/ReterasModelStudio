@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.AnimShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.AnimShell;
 import com.hiveworkshop.rms.ui.util.colorchooser.CharIcon;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -80,9 +80,9 @@ public class AnimListCellRenderer extends DefaultListCellRenderer {
 			} else if (!animShell.isDoImport() && markDontImp) {
 				bg.set(dontImpBgCol);
 				fg.set(otherOwnerFgCol);
-			} else if (animShell.getImportType() == AnimShell.ImportType.TIMESCALE_INTO) {
-				bg.set(timeScaleBgCol);
-				fg.set(noOwnerFgCol);
+//			} else if (animShell.getImportType() == AnimShell.ImportType.TIMESCALE_INTO) {
+//				bg.set(timeScaleBgCol);
+//				fg.set(noOwnerFgCol);
 			} else {
 				bg.set(noOwnerBgCol);
 				fg.set(noOwnerFgCol);

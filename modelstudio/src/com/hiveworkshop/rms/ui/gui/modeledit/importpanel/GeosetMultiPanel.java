@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.GeosetShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.MaterialListCellRenderer;
 import com.hiveworkshop.rms.ui.util.TwiList;
 import net.miginfocom.swing.MigLayout;

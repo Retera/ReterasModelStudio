@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
+package com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells;
 
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.util.BiMap;
@@ -8,12 +8,11 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class IdObjectShell<T extends IdObject> {
+public class IdObjectShell<T extends IdObject> extends AbstractShell {
 	private final T idObject;
 	private String name;
 	private final String modelName;
 	private boolean showClass;
-	private final boolean isFromDonating;
 
 	private IdObjectShell<?> motionSrcShell;
 	private final List<IdObjectShell<?>> motionDestShells = new ArrayList<>(); // motion destinations
@@ -37,6 +36,7 @@ public class IdObjectShell<T extends IdObject> {
 	}
 
 	public IdObjectShell(T object, boolean isFromDonating, String modelName, boolean showClass) {
+		super(isFromDonating);
 		idObject = object;
 		if (object != null) {
 			oldParent = idObject.getParent();
@@ -45,7 +45,6 @@ public class IdObjectShell<T extends IdObject> {
 			oldParent = null;
 			name = "none";
 		}
-		this.isFromDonating = isFromDonating;
 		this.modelName = modelName;
 		this.showClass = showClass;
 	}
@@ -193,10 +192,6 @@ public class IdObjectShell<T extends IdObject> {
 
 	public List<IdObjectShell<?>> getMotionDestShells() {
 		return motionDestShells;
-	}
-
-	public boolean isFromDonating() {
-		return isFromDonating;
 	}
 
 	@Override

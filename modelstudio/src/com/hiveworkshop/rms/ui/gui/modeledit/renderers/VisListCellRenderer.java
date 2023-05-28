@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.VisibilityShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.VisibilityShell;
 import com.hiveworkshop.rms.ui.util.colorchooser.CharIcon;
 import com.hiveworkshop.rms.util.Vec3;
 

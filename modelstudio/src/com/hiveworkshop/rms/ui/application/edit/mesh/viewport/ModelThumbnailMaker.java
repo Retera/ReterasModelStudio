@@ -6,9 +6,8 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ModelThumbnailMaker {
 
@@ -29,15 +28,11 @@ public class ModelThumbnailMaker {
 
 		scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), boundSize);
 
-		drawGeosetsFlat(model, graphics, Vec3.Y_AXIS, Vec3.Z_AXIS, Color.GRAY);
+		for (Geoset geo : model.getGeosets()) {
+			drawGeosetFlat(graphics, Vec3.Y_AXIS, Vec3.Z_AXIS, geo, Color.GRAY);
+		}
 		graphics.dispose();
 		return image;
-	}
-
-	public static void drawGeosetsFlat(EditableModel model, Graphics g, Vec3 right, Vec3 up, Color color) {
-		for (Geoset geo : model.getGeosets()) {
-			drawGeosetFlat(g, right, up, geo, color);
-		}
 	}
 
 	public static void drawGeosetFlat(Graphics g, Vec3 right, Vec3 up, Geoset geo, Color color) {
@@ -119,16 +114,17 @@ public class ModelThumbnailMaker {
 		return output;
 	}
 
-	public static void drawBoneMarker(Graphics g, Vec3 right, Vec3 up, Vec3 boneMarker) {
+	public static void drawBoneMarker(Graphics g, Vec3 right, Vec3 up, Vec3 location) {
 		g.setColor(Color.YELLOW);
-		if (boneMarker != null) {
-			drawCrossHair(g, right, up, boneMarker);
+		if (location != null) {
+			drawCrossHair(g, Color.YELLOW, right, up, location);
 		}
 	}
 
-	public static void drawCrossHair(Graphics g, Vec3 right, Vec3 up, Vec3 extraHighlightPoint) {
-		int x = (int) extraHighlightPoint.dot(right);
-		int y = (int) -extraHighlightPoint.dot(up);
+	public static void drawCrossHair(Graphics g, Color color, Vec3 right, Vec3 up, Vec3 location) {
+		g.setColor(color);
+		int x = (int) location.dot(right);
+		int y = (int) -location.dot(up);
 		g.drawOval(x - 5, y - 5, 10, 10);
 		g.drawLine(x, y - 10, x, y + 10);
 		g.drawLine(x - 10, y, x + 10, y);

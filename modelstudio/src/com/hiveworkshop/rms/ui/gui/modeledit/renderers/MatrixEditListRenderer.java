@@ -3,8 +3,8 @@ package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.IdObjectShell;
-import com.hiveworkshop.rms.ui.util.AbstractSnapshottingListCellRenderer2D;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.IdObjectShell;
+import com.hiveworkshop.rms.ui.util.AbstractObject2DThumbnailListCellRenderer;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MatrixEditListRenderer extends AbstractSnapshottingListCellRenderer2D<Bone> {
+public class MatrixEditListRenderer extends AbstractObject2DThumbnailListCellRenderer<Bone> {
 	boolean showParent = false;
 
 	Bone selectedBone;
@@ -44,46 +44,6 @@ public class MatrixEditListRenderer extends AbstractSnapshottingListCellRenderer
 	public void setSelectedObjectShell(Bone object) {
 		selectedObject = object;
 	}
-
-
-	@Override
-	protected boolean isFromDonating(Bone value) {
-		if (value != null && other != null) {
-			return other.contains(value);
-		} else if (value != null && model != null){
-			return !model.contains(value);
-		}
-		return false;
-	}
-
-	@Override
-	protected boolean isFromReceiving(Bone value) {
-		if (value != null && model != null) {
-			return model.contains(value);
-		} else if (value != null && other != null){
-			return !other.contains(value);
-		}
-		return false;
-	}
-
-	@Override
-	protected Bone valueToTyped(final Object value) {
-		return (Bone) value;
-	}
-
-	@Override
-	protected boolean contains(EditableModel model, final Bone object) {
-		if (model != null) {
-			return model.contains(object);
-		}
-		return false;
-	}
-
-	@Override
-	protected Vec3 getRenderVertex(final Bone value) {
-		return value.getPivotPoint();
-	}
-
 
 	public void addInAllBone(Bone boneShell) {
 		bonesInAllMatricies.add(boneShell);

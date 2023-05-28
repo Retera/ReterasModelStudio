@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.VisibilityShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.VisibilityShell;
 
 import javax.swing.*;
 import java.awt.*;

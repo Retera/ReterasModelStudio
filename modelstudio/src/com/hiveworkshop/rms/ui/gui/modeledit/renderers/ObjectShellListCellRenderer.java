@@ -1,14 +1,14 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.IdObjectShell;
-import com.hiveworkshop.rms.ui.util.AbstractSnapshottingListCellRenderer2D;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.IdObjectShell;
+import com.hiveworkshop.rms.ui.util.AbstractObject2DThumbnailListCellRenderer;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class ObjectShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<IdObjectShell<?>> {
+public class ObjectShellListCellRenderer extends AbstractObject2DThumbnailListCellRenderer<IdObjectShell<?>> {
 	boolean showParent = false;
 	IdObjectShell<?> selectedObject;
 	boolean showClass = false;
@@ -34,40 +34,6 @@ public class ObjectShellListCellRenderer extends AbstractSnapshottingListCellRen
 	public ObjectShellListCellRenderer setSelectedObjectShell(IdObjectShell<?> objectShell) {
 		selectedObject = objectShell;
 		return this;
-	}
-
-	@Override
-	protected boolean isFromDonating(IdObjectShell<?> value) {
-		if (value != null) {
-			return value.isFromDonating();
-		}
-		return false;
-	}
-
-	@Override
-	protected boolean isFromReceiving(IdObjectShell<?> value) {
-		if (value != null) {
-			return !value.isFromDonating();
-		}
-		return false;
-	}
-
-	@Override
-	protected IdObjectShell<?> valueToTyped(Object value) {
-		return (IdObjectShell<?>) value;
-	}
-
-	@Override
-	protected Vec3 getRenderVertex(IdObjectShell<?> value) {
-		return value.getIdObject().getPivotPoint();
-	}
-
-	@Override
-	protected boolean contains(EditableModel model, IdObjectShell<?> object) {
-		if (model != null) {
-			return model.contains(object.getIdObject());
-		}
-		return false;
 	}
 
 	@Override

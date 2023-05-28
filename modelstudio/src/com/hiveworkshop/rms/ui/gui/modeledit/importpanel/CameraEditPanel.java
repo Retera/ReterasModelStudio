@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.CameraShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.CameraShellListCellRenderer;
 import com.hiveworkshop.rms.ui.util.TwiList;
 import com.hiveworkshop.rms.util.uiFactories.Button;

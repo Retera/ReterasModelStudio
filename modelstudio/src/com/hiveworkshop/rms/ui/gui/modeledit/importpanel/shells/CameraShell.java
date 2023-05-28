@@ -1,24 +1,20 @@
-package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
+package com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells;
 
 import com.hiveworkshop.rms.editor.model.Camera;
 
-public class CameraShell {
+public class CameraShell extends AbstractShell {
 	private String name;
 	private final Camera camera;
 	private String modelName;
 	private boolean showClass = true;
-	private boolean isFromDonating;
 
 	private boolean shouldImport = true;
 	private int importStatus = 0;
 
-	public CameraShell(final Camera c) {
-		camera = c;
-	}
 
 	public CameraShell(final Camera c, boolean isFromDonating) {
+		super(isFromDonating);
 		camera = c;
-		this.isFromDonating = isFromDonating;
 		name = camera.getName();
 	}
 
