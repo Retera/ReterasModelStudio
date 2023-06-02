@@ -54,7 +54,7 @@ public final class SquishWar3 {
 					model.simplifyKeyframes();
 					// model.printTo(target);
 					try (BlizzardDataOutputStream out = new SquishingBlizzardDataOutputStream(target)) {
-						new MdxModel(model).save(out);
+						new MdxModel(model, false).save(out);
 					} catch (final Exception e) {
 						throw new RuntimeException(e);
 					}

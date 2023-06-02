@@ -39,7 +39,7 @@ public class FtlopMaker3 {
 						emitter.setPath(path.replace('/', '\\'));
 					}
 				}
-				model.printTo(file);
+				model.printTo(file, false);
 			}
 		}
 	}

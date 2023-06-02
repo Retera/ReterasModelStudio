@@ -28,7 +28,7 @@ public class CopyTheModels {
 				final String wc3Path = file.getPath().substring(input.getPath().length());
 				final File outputMDX = new File(output.getPath() + wc3Path);
 				outputMDX.getParentFile().mkdirs();
-				model.printTo(outputMDX);
+				model.printTo(outputMDX, false);
 			}
 		}
 	}

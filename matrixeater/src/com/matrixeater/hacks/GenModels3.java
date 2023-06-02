@@ -65,7 +65,7 @@ public class GenModels3 {
 			geoset.getTriangles().addAll(planeMesh.getTriangles());
 			geoset.getVertices().addAll(planeMesh.getVertices());
 			final double randomAngle = Math.random() * Math.PI * 2;
-			final double depth = 97 + (Math.random() * 16);
+			final double depth = 97 + Math.random() * 16;
 			final double x = Math.cos(randomAngle) * depth;
 			final double y = Math.sin(randomAngle) * depth;
 			final int z = 240;
@@ -81,7 +81,7 @@ public class GenModels3 {
 			final AnimFlag translationData = new AnimFlag("Translation");
 			final int inwardTravelTime = 7000;
 			final int timeOfInwardBegin = startUsed
-					+ (int) (Math.random() * (((endUsed - startUsed) * 0.7) - inwardTravelTime));
+					+ (int) (Math.random() * ((endUsed - startUsed) * 0.7 - inwardTravelTime));
 			if (timeOfInwardBegin != startUsed) {
 				translationData.addEntry(startUsed, new Vertex(0, 0, 0), new Vertex(0, 0, 0), new Vertex(0, 0, 0));
 				scalingData.addEntry(startUsed, new Vertex(0, 0, 0));
@@ -123,8 +123,8 @@ public class GenModels3 {
 			final ArrayList<AnimFlag> flags = new ArrayList<>();
 			final AnimFlag translationData = new AnimFlag("Translation");
 			for (int i = 0; i < 16; i++) {
-				translationData.addEntry(0 + (i * 100),
-						new Vertex(((i + geosetId) % 4) * 0.25, (((i + geosetId) % particleCount) / 4) * 0.25, 0));
+				translationData.addEntry(0 + i * 100,
+						new Vertex((i + geosetId) % 4 * 0.25, (i + geosetId) % particleCount / 4 * 0.25, 0));
 			}
 			translationData.setGlobSeq(1600);
 			flags.add(translationData);
@@ -136,8 +136,7 @@ public class GenModels3 {
 			for (final Animation anim : model.getAnims()) {
 				if (anim == existingMorph) {
 					alphaData.addEntry(anim.getStart(), 1);
-				}
-				else {
+				} else {
 					alphaData.addEntry(anim.getStart(), 0);
 				}
 			}
@@ -147,12 +146,12 @@ public class GenModels3 {
 		final AnimFlag spinData = new AnimFlag("Rotation");
 		spinData.setInterpType(InterpolationType.LINEAR);
 		for (int i = 0; i < 9; i++) {
-			spinData.addEntry(startUsed + ((i * (endUsed - startUsed)) / 8),
-					new QuaternionRotation(new Vertex(0, 0, 1), (Math.PI / 2) * i));
+			spinData.addEntry(startUsed + i * (endUsed - startUsed) / 8,
+					new QuaternionRotation(new Vertex(0, 0, 1), Math.PI / 2 * i));
 		}
 		particleRoot.add(spinData);
 
-		model.printTo(new File(source.getParentFile().getPath() + "\\Generated.mdx"));
+		model.printTo(new File(source.getParentFile().getPath() + "\\Generated.mdx"), false);
 	}
 
 	private static class Particle {

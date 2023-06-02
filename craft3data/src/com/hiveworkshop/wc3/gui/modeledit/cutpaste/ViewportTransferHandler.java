@@ -56,12 +56,10 @@ public class ViewportTransferHandler extends TransferHandler {
 		try {
 			data = (String) info.getTransferable().getTransferData(DataFlavor.stringFlavor);
 			pastedModel = EditableModel.read(new ByteArrayInputStream(data.getBytes()));
-		}
-		catch (final UnsupportedFlavorException ufe) {
+		} catch (final UnsupportedFlavorException ufe) {
 			System.out.println("importData: unsupported data flavor");
 			return false;
-		}
-		catch (final IOException ioe) {
+		} catch (final IOException ioe) {
 			System.out.println("importData: I/O exception");
 			return false;
 		}
@@ -71,8 +69,7 @@ public class ViewportTransferHandler extends TransferHandler {
 			final Point dropPoint = dl.getDropPoint();
 			pasteModelIntoViewport(pastedModel, list, dropPoint, list.getModelStructureChangeListener());
 			return true;
-		}
-		else { // This is a paste
+		} else { // This is a paste
 			pasteModelIntoViewport(pastedModel, list, list.getLastMouseMotion(),
 					list.getModelStructureChangeListener());
 			return true;
@@ -132,7 +129,7 @@ public class ViewportTransferHandler extends TransferHandler {
 		}
 		modelStructureChangeListener.camerasAdded(pastedModel.getCameras());
 		for (final Geoset pastedGeoset : pastedModel.getGeosets()) {
-			pastedGeoset.applyVerticesToMatrices(currentModelView.getModel());
+			pastedGeoset.applyVerticesToMatrices(currentModelView.getModel(), false);
 		}
 		modelStructureChangeListener.geosetsAdded(geosetsAdded);
 	}
@@ -178,7 +175,7 @@ public class ViewportTransferHandler extends TransferHandler {
 		}
 		dummyBone.setPivotPoint(Vertex.centerOfGroup(verticesInNewMesh));
 		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		stringableModel.printTo(outputStream);
+		stringableModel.printTo(outputStream, false);
 		final byte[] byteArray = outputStream.toByteArray();
 		final String value = new String(byteArray);
 		return new StringSelection(value);

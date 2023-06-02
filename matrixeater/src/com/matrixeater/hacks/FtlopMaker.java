@@ -31,7 +31,7 @@ public class FtlopMaker {
 		final int targetLevelOfDetail = 3;
 		System.out.println("Going to attempt to port " + betterList.size() + " items");
 		for (int i = 0; i < betterList.size(); i++) {
-			if ((i % 100) == 0) {
+			if (i % 100 == 0) {
 				System.out.println("Processed 100 items... now at " + i);
 			}
 			final String item = betterList.get(i);
@@ -54,7 +54,7 @@ public class FtlopMaker {
 					final EditableModel model = new EditableModel(MdxUtils
 							.loadModel(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream(item))));
 					EditableModel.convertToV800(targetLevelOfDetail, model);
-					model.printTo(outputFile);
+					model.printTo(outputFile, false);
 				} catch (final Exception e) {
 					e.printStackTrace();
 				}

@@ -23,9 +23,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
-import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
@@ -119,7 +119,7 @@ public class RigbornRotator extends JPanel {
 
 					model.add(rootRotation);
 
-					model.printTo(new File(outputField.getText()));
+					model.printTo(new File(outputField.getText()), false);
 				} catch (final Exception exc) {
 					exc.printStackTrace();
 					ExceptionPopup.display(exc);
@@ -171,7 +171,7 @@ public class RigbornRotator extends JPanel {
 				rotationAnimation.setInterpType(InterpolationType.LINEAR);
 				for (final Animation anim : model.getAnims()) {
 					rotationAnimation.addKeyframe(anim.getIntervalStart(),
-							new QuaternionRotation(new Vertex(0, 0, 1), ang * ((2 * Math.PI) / 36)));
+							new QuaternionRotation(new Vertex(0, 0, 1), ang * (2 * Math.PI / 36)));
 				}
 
 				for (final IdObject node : model.getIdObjects()) {
@@ -184,7 +184,8 @@ public class RigbornRotator extends JPanel {
 				model.add(rootRotation);
 
 				model.printTo(new File(
-						"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\CaptainOutput" + ang + ".mdx"));
+						"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\CaptainOutput" + ang + ".mdx"),
+						false);
 			} catch (final IOException e) {
 				e.printStackTrace();
 			}

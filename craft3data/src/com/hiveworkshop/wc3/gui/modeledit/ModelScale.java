@@ -6,9 +6,9 @@ import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.CollisionShape;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.Geoset;
-import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
@@ -20,15 +20,16 @@ public class ModelScale {
 		final EditableModel model = EditableModel.read(santaFile);
 		scale(model, 0.35, 0.35, 0.35);
 		model.printTo(new File(
-				"C:\\Users\\Eric\\Documents\\Warcraft\\Models\\Hayate\\Warcraft_Santa\\Warcraft Santa\\SantaClausFull_scaled.mdx"));
+				"C:\\Users\\Eric\\Documents\\Warcraft\\Models\\Hayate\\Warcraft_Santa\\Warcraft Santa\\SantaClausFull_scaled.mdx"),
+				false);
 	}
 
 	public static void scale(final EditableModel mdl, final double x, final double y, final double z) {
 		scale(mdl, x, y, z, 0, 0, 0);
 	}
 
-	public static void scale(final EditableModel mdl, final double x, final double y, final double z, final double centerX,
-			final double centerY, final double centerZ) {
+	public static void scale(final EditableModel mdl, final double x, final double y, final double z,
+			final double centerX, final double centerY, final double centerZ) {
 		final double avgScale = (x + y + z) / 3;
 		for (final AnimFlag flag : mdl.getAllAnimFlags()) {
 			if (flag.getTypeId() == AnimFlag.TRANSLATION) {

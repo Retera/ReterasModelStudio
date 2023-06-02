@@ -57,21 +57,21 @@ public class MdxModel {
 
 	// Conversion helpers:
 	private static Vertex vertex3f(final float[] array) {
-		if ((array == null) || (array.length < 3)) {
+		if (array == null || array.length < 3) {
 			return null;
 		}
 		return new Vertex(array[0], array[1], array[2]);
 	}
 
 	private static Vertex vertex3f(final byte[] array) {
-		if ((array == null) || (array.length < 3)) {
+		if (array == null || array.length < 3) {
 			return null;
 		}
 		return new Vertex((256 + array[0]) % 256, (256 + array[1]) % 256, (256 + array[2]) % 256);
 	}
 
 	private static QuaternionRotation vertex4f(final float[] array) {
-		if ((array == null) || (array.length < 3)) {
+		if (array == null || array.length < 3) {
 			return null;
 		}
 		return new QuaternionRotation(array[0], array[1], array[2], array[3]);
@@ -94,10 +94,10 @@ public class MdxModel {
 
 	}
 
-	public MdxModel(final EditableModel mdl) {
-		mdl.doSavePreps(); // restores all GeosetID, ObjectID, TextureID,
-							// MaterialID stuff all based on object references
-							// in the Java
+	public MdxModel(final EditableModel mdl, final boolean alwaysUseMinimalMatricesHD) {
+		mdl.doSavePreps(alwaysUseMinimalMatricesHD); // restores all GeosetID, ObjectID, TextureID,
+		// MaterialID stuff all based on object references
+		// in the Java
 		// (this is so that you can write a program that does something like
 		// "mdl.add(new Bone())" without
 		// a problem, or even "mdl.add(otherMdl.getGeoset(5))" and have the
@@ -180,8 +180,8 @@ public class MdxModel {
 			for (int i = 0; i < mdl.getGeosetAnims().size(); i++) {
 				final GeosetAnim geosetAnim = mdl.getGeosetAnim(i);
 				if (!geosetAnim.getAnimFlags().isEmpty() || !geosetAnim.isDropShadow()
-						|| (Math.abs(geosetAnim.getStaticAlpha() - 1.0f) > 0.0001f)
-						|| (geosetAnim.getStaticColor() != null)) {
+						|| Math.abs(geosetAnim.getStaticAlpha() - 1.0f) > 0.0001f
+						|| geosetAnim.getStaticColor() != null) {
 					nonEmptyGeosetAnimations.add(geosetAnim);
 				}
 			}
@@ -314,96 +314,73 @@ public class MdxModel {
 				versionChunk = new VersionChunk();
 				versionChunk.load(in);
 				version = versionChunk.version;
-			}
-			else if (MdxUtils.checkOptionalId(in, ModelChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, ModelChunk.key)) {
 				modelChunk = new ModelChunk();
 				modelChunk.load(in, version);
-			}
-			else if (MdxUtils.checkOptionalId(in, SequenceChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, SequenceChunk.key)) {
 				sequenceChunk = new SequenceChunk();
 				sequenceChunk.load(in);
-			}
-			else if (MdxUtils.checkOptionalId(in, GlobalSequenceChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, GlobalSequenceChunk.key)) {
 				globalSequenceChunk = new GlobalSequenceChunk();
 				globalSequenceChunk.load(in);
-			}
-			else if (MdxUtils.checkOptionalId(in, MaterialChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, MaterialChunk.key)) {
 				materialChunk = new MaterialChunk();
 				materialChunk.load(in, version);
-			}
-			else if (MdxUtils.checkOptionalId(in, TextureChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, TextureChunk.key)) {
 				textureChunk = new TextureChunk();
 				textureChunk.load(in);
-			}
-			else if (MdxUtils.checkOptionalId(in, TextureAnimationChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, TextureAnimationChunk.key)) {
 				textureAnimationChunk = new TextureAnimationChunk();
 				textureAnimationChunk.load(in);
-			}
-			else if (MdxUtils.checkOptionalId(in, GeosetChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, GeosetChunk.key)) {
 				geosetChunk = new GeosetChunk();
 				geosetChunk.load(in, version);
-			}
-			else if (MdxUtils.checkOptionalId(in, GeosetAnimationChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, GeosetAnimationChunk.key)) {
 				geosetAnimationChunk = new GeosetAnimationChunk();
 				geosetAnimationChunk.load(in);
-			}
-			else if (MdxUtils.checkOptionalId(in, BoneChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, BoneChunk.key)) {
 				boneChunk = new BoneChunk();
 				boneChunk.load(in);
-			}
-			else if (MdxUtils.checkOptionalId(in, LightChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, LightChunk.key)) {
 				lightChunk = new LightChunk();
 				lightChunk.load(in);
-			}
-			else if (MdxUtils.checkOptionalId(in, HelperChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, HelperChunk.key)) {
 				helperChunk = new HelperChunk();
 				helperChunk.load(in);
-			}
-			else if (MdxUtils.checkOptionalId(in, AttachmentChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, AttachmentChunk.key)) {
 				attachmentChunk = new AttachmentChunk();
 				attachmentChunk.load(in);
-			}
-			else if (MdxUtils.checkOptionalId(in, PivotPointChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, PivotPointChunk.key)) {
 				pivotPointChunk = new PivotPointChunk();
 				pivotPointChunk.load(in);
-			}
-			else if (MdxUtils.checkOptionalId(in, ParticleEmitterChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, ParticleEmitterChunk.key)) {
 				particleEmitterChunk = new ParticleEmitterChunk();
 				particleEmitterChunk.load(in);
-			}
-			else if (MdxUtils.checkOptionalId(in, ParticleEmitter2Chunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, ParticleEmitter2Chunk.key)) {
 				particleEmitter2Chunk = new ParticleEmitter2Chunk();
 				particleEmitter2Chunk.load(in);
-			}
-			else if (MdxUtils.checkOptionalId(in, CornChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, CornChunk.key)) {
 				cornChunk = new CornChunk();
 				cornChunk.load(in);
-			}
-			else if (MdxUtils.checkOptionalId(in, RibbonEmitterChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, RibbonEmitterChunk.key)) {
 				ribbonEmitterChunk = new RibbonEmitterChunk();
 				ribbonEmitterChunk.load(in);
-			}
-			else if (MdxUtils.checkOptionalId(in, EventObjectChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, EventObjectChunk.key)) {
 				eventObjectChunk = new EventObjectChunk();
 				eventObjectChunk.load(in);
-			}
-			else if (MdxUtils.checkOptionalId(in, CameraChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, CameraChunk.key)) {
 				cameraChunk = new CameraChunk();
 				cameraChunk.load(in);
-			}
-			else if (MdxUtils.checkOptionalId(in, CollisionShapeChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, CollisionShapeChunk.key)) {
 				collisionShapeChunk = new CollisionShapeChunk();
 				collisionShapeChunk.load(in);
-			}
-			else if (MdxUtils.checkOptionalId(in, FaceEffectsChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, FaceEffectsChunk.key)) {
 				faceEffectsChunk = new FaceEffectsChunk();
 				faceEffectsChunk.load(in);
-			}
-			else if (MdxUtils.checkOptionalId(in, BindPoseChunk.key)) {
+			} else if (MdxUtils.checkOptionalId(in, BindPoseChunk.key)) {
 				bindPoseChunk = new BindPoseChunk();
 				bindPoseChunk.load(in);
-			}
-			else {
+			} else {
 				final int available = in.available();
 				if (available > 0) {
 					boolean alpha = true;

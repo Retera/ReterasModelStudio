@@ -36,7 +36,8 @@ public class GetMeDatas9 {
 				}
 
 				model.printTo(new File(
-						"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Requests\\Wazzz\\WispGrove50.mdx"));
+						"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Requests\\Wazzz\\WispGrove50.mdx"),
+						false);
 			} catch (final IOException e) {
 				e.printStackTrace();
 			}

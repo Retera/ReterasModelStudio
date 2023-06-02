@@ -44,29 +44,33 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		final JCheckBox renderParticles = new JCheckBox();
 		final JCheckBox autoPopulateMdlTextEditor = new JCheckBox();
 		final JCheckBox disableDirectXToPreventArtifacts = new JCheckBox();
-		if (programPreferences.isInvertedDisplay() != null && programPreferences.isInvertedDisplay()) {
+		final JCheckBox alwaysUseMinimalMatricesInHD = new JCheckBox();
+		if (programPreferences.isInvertedDisplay() == null || programPreferences.isInvertedDisplay()) {
 			invertedDisplay.setSelected(true);
 		}
-		if (programPreferences.getUseBoxesForPivotPoints() != null && programPreferences.getUseBoxesForPivotPoints()) {
+		if (programPreferences.getUseBoxesForPivotPoints() == null || programPreferences.getUseBoxesForPivotPoints()) {
 			useBoxesForNodes.setSelected(true);
 		}
-		if (programPreferences.getQuickBrowse() != null && programPreferences.getQuickBrowse()) {
+		if (programPreferences.getQuickBrowse() == null || programPreferences.getQuickBrowse()) {
 			quickBrowse.setSelected(true);
 		}
-		if (programPreferences.getAllowLoadingNonBlpTextures() != null
-				&& programPreferences.getAllowLoadingNonBlpTextures()) {
+		if (programPreferences.getAllowLoadingNonBlpTextures() == null
+				|| programPreferences.getAllowLoadingNonBlpTextures()) {
 			allowLoadingNonBlpTextures.setSelected(true);
 		}
 		if (programPreferences.getRenderParticles() == null || programPreferences.getRenderParticles()) {
 			renderParticles.setSelected(true);
 		}
-		if (programPreferences.getAutoPopulateMdlTextEditor() == null
-				|| programPreferences.getAutoPopulateMdlTextEditor()) {
+		if (programPreferences.getAutoPopulateMdlTextEditor() != null
+				&& programPreferences.getAutoPopulateMdlTextEditor()) {
 			autoPopulateMdlTextEditor.setSelected(true);
 		}
-		if (programPreferences.getDisableDirectXToSolveVisualArtifacts() == null
-				|| programPreferences.getDisableDirectXToSolveVisualArtifacts()) {
+		if (programPreferences.getDisableDirectXToSolveVisualArtifacts() != null
+				&& programPreferences.getDisableDirectXToSolveVisualArtifacts()) {
 			disableDirectXToPreventArtifacts.setSelected(true);
+		}
+		if (programPreferences.isAlwaysUseMinimalMatricesInHD()) {
+			alwaysUseMinimalMatricesInHD.setSelected(true);
 		}
 		final ActionListener viewModeUpdater = new ActionListener() {
 			@Override
@@ -103,6 +107,8 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		generalPrefsPanel.add(autoPopulateMdlTextEditor, "cell 1 8");
 		generalPrefsPanel.add(new JLabel("Force Use OpenGL (may fix Windows UI bugs):"), "cell 0 9");
 		generalPrefsPanel.add(disableDirectXToPreventArtifacts, "cell 1 9");
+		generalPrefsPanel.add(new JLabel("Always use minimal Matrices in HD (the \"4.5\" save format):"), "cell 0 10");
+		generalPrefsPanel.add(alwaysUseMinimalMatricesInHD, "cell 1 10");
 		// final BoxLayout boxLayout = new BoxLayout(generalPrefsPanel,
 		// BoxLayout.PAGE_AXIS);
 
@@ -142,6 +148,12 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 			public void actionPerformed(final ActionEvent e) {
 				programPreferences
 						.setDisableDirectXToSolveVisualArtifacts(disableDirectXToPreventArtifacts.isSelected());
+			}
+		});
+		alwaysUseMinimalMatricesInHD.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				programPreferences.setAlwaysUseMinimalMatricesInHD(alwaysUseMinimalMatricesInHD.isSelected());
 			}
 		});
 		useBoxesForNodes.addActionListener(new ActionListener() {

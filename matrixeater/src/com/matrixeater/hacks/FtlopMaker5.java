@@ -73,7 +73,7 @@ public class FtlopMaker5 {
 							}
 							EditableModel.convertToV800BakingTextures(targetLevelOfDetail, model, new File(outputDump),
 									relativePath);
-							model.printTo(outputFile);
+							model.printTo(outputFile, false);
 						} catch (final Exception e) {
 							e.printStackTrace();
 						}

@@ -41,7 +41,7 @@ public class MakeVersions {
 							+ "\\ReteraCube_" + interpType.name().charAt(0)
 							+ interpType.name().toLowerCase().substring(1) + flagName + ".mdx");
 			outputFile.getParentFile().mkdirs();
-			modelData.printTo(outputFile);
+			modelData.printTo(outputFile, false);
 		}
 	}
 

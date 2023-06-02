@@ -45,8 +45,10 @@ public class GetMeDatas4 {
 //			}
 
 			final EditableModel model = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
-			model.printTo(new File(
-					"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III Beta\\Models\\SoftwareHellscream.mdx"));
+			model.printTo(
+					new File(
+							"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III Beta\\Models\\SoftwareHellscream.mdx"),
+					false);
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}

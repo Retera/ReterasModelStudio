@@ -8,8 +8,8 @@ import java.io.InputStream;
 
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
-import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.EditableModel;
+import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 
 import de.wc3data.stream.BlizzardDataInputStream;
@@ -25,7 +25,8 @@ public class GetMeDatas11 {
 			try {
 
 				final EditableModel model = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
-				final EditableModel modelBase = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(footmanBase)));
+				final EditableModel modelBase = new EditableModel(
+						MdxUtils.loadModel(new BlizzardDataInputStream(footmanBase)));
 
 				for (final IdObject node : model.getIdObjects()) {
 					IdObject baseNode = null;
@@ -46,7 +47,8 @@ public class GetMeDatas11 {
 				}
 
 				model.printTo(new File(
-						"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\TCContest14\\UndeadArthas4.mdx"));
+						"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\TCContest14\\UndeadArthas4.mdx"),
+						false);
 			} catch (final IOException e) {
 				e.printStackTrace();
 			}

@@ -60,7 +60,7 @@ public class RenderRibbon extends EmittedObject<RenderRibbonEmitterView> {
 		// render.
 		// This allows the emitter to always work with quads, and therefore it can work
 		// with many views, because the ribbon chains are implicit.
-		if ((lastEmit != null) && (lastEmit.health > 0)) {
+		if (lastEmit != null && lastEmit.health > 0) {
 			final RibbonEmitter modelObject = emitter.modelObject;
 			final RenderNode node = emitterView.instance.getRenderNode(modelObject);
 			final Vertex pivotPoint = modelObject.getPivotPoint();
@@ -93,8 +93,7 @@ public class RenderRibbon extends EmittedObject<RenderRibbonEmitterView> {
 			vertices[9] = lastVertices[0];
 			vertices[10] = lastVertices[1];
 			vertices[11] = lastVertices[2];
-		}
-		else {
+		} else {
 			for (int i = 0; i < 12; i++) {
 				vertices[i] = 0;
 			}
@@ -106,12 +105,12 @@ public class RenderRibbon extends EmittedObject<RenderRibbonEmitterView> {
 		final float dt = AnimatedRenderEnvironment.FRAMES_PER_UPDATE * 0.001f;
 		// TODO some older ghostwolf code I'm copying from indicates animated gravity
 		// might not exist, but i load it from a string map so i put it in anyway
-		final double gravity = emitterView.getGravity() * dt * dt;
+		final double gravity = emitterView.getGravity() * dt;
 		final Vector3f animatedColor = emitterView.getColor();
 		double animatedAlpha = emitterView.getAlpha();
 		final int animatedSlot = emitterView.getTextureSlot();
 		final float chainLengthFactor = 1 / (float) emitterView.ribbonCount;
-		final int locationInChain = (emitterView.currentRibbon - this.index - 1);
+		final int locationInChain = emitterView.currentRibbon - this.index - 1;
 
 		this.health -= dt;
 
@@ -122,10 +121,9 @@ public class RenderRibbon extends EmittedObject<RenderRibbonEmitterView> {
 
 		if (this.health <= 0) {
 			emitterView.ribbonCount--;
-		}
-		else {
+		} else {
 			final int columns = emitter.getEmitter().getColumns();
-			float left = (animatedSlot % columns) + (locationInChain * chainLengthFactor);
+			float left = animatedSlot % columns + locationInChain * chainLengthFactor;
 			float top = (float) Math.floor(animatedSlot / (float) columns);
 			float right = left + chainLengthFactor;
 			float bottom = top + 1;

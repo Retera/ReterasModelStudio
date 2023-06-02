@@ -46,7 +46,7 @@ public class TestMain2 {
 				try {
 					final EditableModel model = EditableModel.read(file);
 					destFile.getParentFile().mkdirs();
-					model.printTo(destFile);
+					model.printTo(destFile, false);
 				} catch (final Exception e) {
 					e.printStackTrace();
 				}

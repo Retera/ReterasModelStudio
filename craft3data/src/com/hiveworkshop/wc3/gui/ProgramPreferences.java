@@ -27,6 +27,7 @@ public class ProgramPreferences implements Serializable {
 	private Boolean renderStaticPoseParticles = true;
 	private Boolean autoPopulateMdlTextEditor = false;
 	private Boolean disableDirectXToSolveVisualArtifacts = false;
+	private Boolean alwaysUseMinimalMatricesInHD = false;
 	Color activeRColor1 = new Color(200, 255, 200);
 	Color activeRColor2 = new Color(60, 170, 0);
 	Color activeColor1 = new Color(255, 200, 200);
@@ -82,6 +83,9 @@ public class ProgramPreferences implements Serializable {
 		}
 		if (disableDirectXToSolveVisualArtifacts == null) {
 			disableDirectXToSolveVisualArtifacts = false;
+		}
+		if (alwaysUseMinimalMatricesInHD == null) {
+			alwaysUseMinimalMatricesInHD = false;
 		}
 		if (vertexColor == null || normalsColor == null || pivotPointsColor == null) {
 			vertexColor = new Color(0, 0, 255);// new Color(0, 0, 0)
@@ -169,6 +173,7 @@ public class ProgramPreferences implements Serializable {
 		this.renderStaticPoseParticles = other.renderStaticPoseParticles;
 		this.autoPopulateMdlTextEditor = other.autoPopulateMdlTextEditor;
 		this.disableDirectXToSolveVisualArtifacts = other.disableDirectXToSolveVisualArtifacts;
+		this.alwaysUseMinimalMatricesInHD = other.alwaysUseMinimalMatricesInHD;
 		SaveProfile.save();
 		firePrefsChanged();
 
@@ -545,6 +550,14 @@ public class ProgramPreferences implements Serializable {
 		return disableDirectXToSolveVisualArtifacts;
 	}
 
+	public Boolean getAlwaysUseMinimalMatricesInHD() {
+		return alwaysUseMinimalMatricesInHD;
+	}
+
+	public boolean isAlwaysUseMinimalMatricesInHD() {
+		return getAlwaysUseMinimalMatricesInHD() != null && getAlwaysUseMinimalMatricesInHD();
+	}
+
 	public void setAllowLoadingNonBlpTextures(final Boolean allowLoadingNonBlpTextures) {
 		this.allowLoadingNonBlpTextures = allowLoadingNonBlpTextures;
 		SaveProfile.save();
@@ -571,6 +584,12 @@ public class ProgramPreferences implements Serializable {
 
 	public void setDisableDirectXToSolveVisualArtifacts(final Boolean disableDirectXToSolveVisualArtifacts) {
 		this.disableDirectXToSolveVisualArtifacts = disableDirectXToSolveVisualArtifacts;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	public void setAlwaysUseMinimalMatricesInHD(final Boolean alwaysUseMinimalMatricesInHD) {
+		this.alwaysUseMinimalMatricesInHD = alwaysUseMinimalMatricesInHD;
 		SaveProfile.save();
 		firePrefsChanged();
 	}

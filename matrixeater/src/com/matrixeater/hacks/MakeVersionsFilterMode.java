@@ -2,10 +2,10 @@ package com.matrixeater.hacks;
 
 import java.io.File;
 
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
-import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Normal;
 
 public class MakeVersionsFilterMode {
@@ -40,7 +40,8 @@ public class MakeVersionsFilterMode {
 			model.getTexture(0).setPath("Textures\\Doodads0.blp");
 			model.printTo(new File(
 					"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\ReteraCubes\\Work\\ReteraCube_"
-							+ filterMode.getMdlText() + ".mdx"));
+							+ filterMode.getMdlText() + ".mdx"),
+					false);
 		}
 
 	}

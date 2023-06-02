@@ -21,7 +21,7 @@ public class FixAllTheModelsInMyMapSir {
 			System.out.println(file.getPath());
 			if (model.getFormatVersion() != 900) {
 				model.setFormatVersion(900);
-				model.printTo(file);
+				model.printTo(file, false);
 			}
 		}
 	}

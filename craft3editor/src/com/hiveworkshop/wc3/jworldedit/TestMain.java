@@ -35,14 +35,14 @@ public class TestMain {
 		AnimFlag translation = new AnimFlag("Translation");
 		translation.setInterpType(InterpolationType.LINEAR);
 		for (int frame = 0; frame <= 1000; frame += 100) {
-			translation.addEntry(frame + 333, new Vertex(0, 0, (Math.abs(frame - 500) / 500.) * 128));
+			translation.addEntry(frame + 333, new Vertex(0, 0, Math.abs(frame - 500) / 500. * 128));
 		}
 		myRoot.add(translation);
 
 		final Geoset geoset = new Geoset();
 		geoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
 		final int nFaces = 42;
-		final double ang = (Math.PI * 2) / nFaces;
+		final double ang = Math.PI * 2 / nFaces;
 		for (int i = 0; i < nFaces; i++) {
 			final double iAng = i * ang;
 			final GeosetVertex vertex = new GeosetVertex(0, 0, 10, new Normal(0, 0, 1));
@@ -67,7 +67,7 @@ public class TestMain {
 			translation.setInterpType(InterpolationType.LINEAR);
 			for (int frame = 0; frame <= 1000; frame += 100) {
 				translation.addEntry(frame + 333,
-						new Vertex(0, 0, 64 + (64 * Math.cos(((frame / 1000.0) * Math.PI * 2) + iAng))));
+						new Vertex(0, 0, 64 + 64 * Math.cos(frame / 1000.0 * Math.PI * 2 + iAng)));
 			}
 			generateBone.add(translation);
 			vertex2.addBoneAttachment((short) 255, generateBone);
@@ -78,7 +78,8 @@ public class TestMain {
 		}
 		myModel.add(geoset);
 
-		myModel.printTo(new File("C:/users/micro/onedrive/documents/warcraft III/models/Generated43Matrices.mdx"));
+		myModel.printTo(new File("C:/users/micro/onedrive/documents/warcraft III/models/Generated43Matrices.mdx"),
+				false);
 //		for(int i = 0; i < )
 
 		final EditableModel twoCloud = EditableModel

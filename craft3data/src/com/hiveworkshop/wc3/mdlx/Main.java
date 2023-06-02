@@ -12,7 +12,6 @@ import com.hiveworkshop.wc3.mdx.MdxUtils;
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
 
-
 public class Main {
 
 	/**
@@ -37,10 +36,11 @@ public class Main {
 			final BlizzardDataOutputStream out = new BlizzardDataOutputStream(new File("PackHorse_modified.mdx"));
 			packHorse.save(out);
 			out.close();
-			final MdxModel packHorse2 = MdxUtils.loadModel(new BlizzardDataInputStream(new FileInputStream("PackHorse_modified.mdx")));
+			final MdxModel packHorse2 = MdxUtils
+					.loadModel(new BlizzardDataInputStream(new FileInputStream("PackHorse_modified.mdx")));
 			final EditableModel model = packHorse.toMDL();
 			model.setName("PackHorse_MDLified");
-			final MdxModel packHorseMdx = new MdxModel(model);
+			final MdxModel packHorseMdx = new MdxModel(model, false);
 			final BlizzardDataOutputStream out2 = new BlizzardDataOutputStream(new File("PackHorse_MXfied.mdx"));
 			packHorseMdx.save(out2);
 			out2.close();

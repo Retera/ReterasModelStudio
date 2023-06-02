@@ -23,6 +23,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
+import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.gui.modeledit.ImportPanel;
 import com.hiveworkshop.wc3.mdl.Animation;
@@ -113,11 +114,13 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 				"Opens the traditional MatrixEater Import window responsible for this Simple Import, so that you can micro-manage particular settings before finishing the operation.");
 
 		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(
-				layout.createSequentialGroup().addGap(12)
-						.addGroup(
-								layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-										.addGroup(layout.createParallelGroup().addGroup(layout.createSequentialGroup()
+		layout.setHorizontalGroup(layout.createSequentialGroup().addGap(12).addGroup(layout
+				.createParallelGroup(
+						GroupLayout.Alignment.CENTER)
+				.addGroup(
+						layout.createParallelGroup()
+								.addGroup(
+										layout.createSequentialGroup()
 												.addGroup(layout.createParallelGroup().addComponent(baseFileLabel)
 														.addComponent(animFileLabel).addComponent(outFileLabel))
 												.addGap(16)
@@ -126,18 +129,14 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 												.addGap(16)
 												.addGroup(layout.createParallelGroup().addComponent(baseBrowse)
 														.addComponent(animBrowse).addComponent(outBrowse)))
-												.addGroup(layout.createSequentialGroup().addComponent(transSingleLabel)
-														.addComponent(transferSingleAnimation)))
-										.addGroup(layout.createSequentialGroup().addGap(48)
-												.addGroup(layout.createParallelGroup().addComponent(pickAnimLabel)
-														.addComponent(visFromLabel))
-												.addGap(16)
-												.addGroup(layout.createParallelGroup().addComponent(pickAnimBox)
-														.addComponent(visFromBox)))
-										.addGroup(layout.createSequentialGroup().addComponent(transfer)
-												.addComponent(done))
-										.addComponent(goAdvanced))
-						.addGap(12));
+								.addGroup(layout.createSequentialGroup().addComponent(transSingleLabel).addComponent(
+										transferSingleAnimation)))
+				.addGroup(layout.createSequentialGroup().addGap(48)
+						.addGroup(layout.createParallelGroup().addComponent(pickAnimLabel).addComponent(visFromLabel))
+						.addGap(16)
+						.addGroup(layout.createParallelGroup().addComponent(pickAnimBox).addComponent(visFromBox)))
+				.addGroup(layout.createSequentialGroup().addComponent(transfer).addComponent(done))
+				.addComponent(goAdvanced)).addGap(12));
 		layout.setVerticalGroup(layout.createSequentialGroup().addGap(12)
 				.addGroup(layout.createSequentialGroup()
 						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(baseFileLabel)
@@ -333,9 +332,10 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 	public void doTransfer(final boolean show) {
 		final EditableModel sourceFile = EditableModel.read(new File(baseFileInput.getText()));
 		final EditableModel animFile = EditableModel.read(new File(animFileInput.getText()));
+		final ProgramPreferences preferences = SaveProfile.get().getPreferences();
 
 		if (!transferSingleAnimation.isSelected()) {
-			final ImportPanel importPanel = new ImportPanel(sourceFile, animFile, show);
+			final ImportPanel importPanel = new ImportPanel(sourceFile, animFile, preferences, show);
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
@@ -382,7 +382,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 							if (!filepath.toLowerCase().endsWith(".mdl") && !filepath.toLowerCase().endsWith(".mdx")) {
 								filepath += ".mdl";
 							}
-							sourceFile.printTo(new File(filepath));
+							sourceFile.printTo(new File(filepath), preferences.isAlwaysUseMinimalMatricesInHD());
 							JOptionPane.showMessageDialog(null, "Animation transfer done!");
 						}
 					}
@@ -394,7 +394,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 			final Thread watcher = new Thread(new Runnable() {
 				@Override
 				public void run() {
-					final ImportPanel importPanel = new ImportPanel(sourceFile, animFile, show);
+					final ImportPanel importPanel = new ImportPanel(sourceFile, animFile, preferences, show);
 					importPanel.animTransfer(transferSingleAnimation.isSelected(),
 							pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
 							visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
@@ -438,8 +438,8 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 						// transfer 99% done!");
 
 						if (importPanel.importSuccessful()) {
-							final ImportPanel importPanel2 = new ImportPanel(sourceFile, EditableModel.read(sourceFile.getFile()),
-									show);
+							final ImportPanel importPanel2 = new ImportPanel(sourceFile,
+									EditableModel.read(sourceFile.getFile()), preferences, show);
 							importPanel2.animTransferPartTwo(transferSingleAnimation.isSelected(),
 									pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
 									visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
@@ -484,7 +484,8 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 
 								if (importPanel2.importSuccessful()) {
 									JOptionPane.showMessageDialog(null, "Animation transfer done!");
-									sourceFile.printTo(new File(outFileInput.getText()));
+									sourceFile.printTo(new File(outFileInput.getText()),
+											preferences.isAlwaysUseMinimalMatricesInHD());
 
 									// forceRefreshModels();
 								}
@@ -513,7 +514,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 
 		final JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setIconImage((new ImageIcon(RMSIcons.AnimIcon.getImage())).getImage());
+		frame.setIconImage(new ImageIcon(RMSIcons.AnimIcon.getImage()).getImage());
 		final AnimationTransfer transfer = new AnimationTransfer(frame);
 		frame.setContentPane(transfer);
 		frame.pack();

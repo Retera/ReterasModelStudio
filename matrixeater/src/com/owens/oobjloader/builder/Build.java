@@ -153,12 +153,11 @@ public class Build implements BuilderInterface {
 			if (vertexIndex < 0) {
 				vertexIndex = vertexIndex + verticesG.size();
 			}
-			if (((vertexIndex - 1) >= 0) && ((vertexIndex - 1) < verticesG.size())) {
+			if (vertexIndex - 1 >= 0 && vertexIndex - 1 < verticesG.size()) {
 				// Note: vertex indices are 1-indexed, i.e. they start at
 				// one, so we offset by -1 for the 0-indexed array lists.
 				fv.v = verticesG.get(vertexIndex - 1);
-			}
-			else {
+			} else {
 				log.log(SEVERE,
 						"Index for geometric vertex=" + vertexIndex
 								+ " is out of the current range of geometric vertex values 1 to " + verticesG.size()
@@ -175,12 +174,11 @@ public class Build implements BuilderInterface {
 					// 5th vertice before now"
 					vertexIndex = vertexIndex + verticesT.size();
 				}
-				if (((vertexIndex - 1) >= 0) && ((vertexIndex - 1) < verticesT.size())) {
+				if (vertexIndex - 1 >= 0 && vertexIndex - 1 < verticesT.size()) {
 					// Note: vertex indices are 1-indexed, i.e. they start at
 					// one, so we offset by -1 for the 0-indexed array lists.
 					fv.t = verticesT.get(vertexIndex - 1);
-				}
-				else {
+				} else {
 					log.log(SEVERE,
 							"Index for texture vertex=" + vertexIndex
 									+ " is out of the current range of texture vertex values 1 to " + verticesT.size()
@@ -198,12 +196,11 @@ public class Build implements BuilderInterface {
 					// 5th vertice before now"
 					vertexIndex = vertexIndex + verticesN.size();
 				}
-				if (((vertexIndex - 1) >= 0) && ((vertexIndex - 1) < verticesN.size())) {
+				if (vertexIndex - 1 >= 0 && vertexIndex - 1 < verticesN.size()) {
 					// Note: vertex indices are 1-indexed, i.e. they start at
 					// one, so we offset by -1 for the 0-indexed array lists.
 					fv.n = verticesN.get(vertexIndex - 1);
-				}
-				else {
+				} else {
 					log.log(SEVERE,
 							"Index for vertex normal=" + vertexIndex
 									+ " is out of the current range of vertex normal values 1 to " + verticesN.size()
@@ -226,8 +223,7 @@ public class Build implements BuilderInterface {
 				faceVerticeMap.put(key, fv);
 				fv.index = faceVerticeList.size();
 				faceVerticeList.add(fv);
-			}
-			else {
+			} else {
 				fv = fv2;
 			}
 
@@ -249,11 +245,9 @@ public class Build implements BuilderInterface {
 		// collect some stats for laughs
 		if (face.vertices.size() == 3) {
 			faceTriCount++;
-		}
-		else if (face.vertices.size() == 4) {
+		} else if (face.vertices.size() == 4) {
 			faceQuadCount++;
-		}
-		else {
+		} else {
 			facePolyCount++;
 		}
 	}
@@ -485,11 +479,9 @@ public class Build implements BuilderInterface {
 		ReflectivityTransmiss rt = currentMaterialBeingParsed.ka;
 		if (type == MTL_KD) {
 			rt = currentMaterialBeingParsed.kd;
-		}
-		else if (type == MTL_KS) {
+		} else if (type == MTL_KS) {
 			rt = currentMaterialBeingParsed.ks;
-		}
-		else if (type == MTL_TF) {
+		} else if (type == MTL_TF) {
 			rt = currentMaterialBeingParsed.tf;
 		}
 
@@ -505,11 +497,9 @@ public class Build implements BuilderInterface {
 		ReflectivityTransmiss rt = currentMaterialBeingParsed.ka;
 		if (type == MTL_KD) {
 			rt = currentMaterialBeingParsed.kd;
-		}
-		else if (type == MTL_KS) {
+		} else if (type == MTL_KS) {
 			rt = currentMaterialBeingParsed.ks;
-		}
-		else if (type == MTL_TF) {
+		} else if (type == MTL_TF) {
 			rt = currentMaterialBeingParsed.tf;
 		}
 
@@ -552,26 +542,19 @@ public class Build implements BuilderInterface {
 	public void setMapDecalDispBump(final int type, final String filename) {
 		if (type == MTL_MAP_KA) {
 			currentMaterialBeingParsed.mapKaFilename = filename;
-		}
-		else if (type == MTL_MAP_KD) {
+		} else if (type == MTL_MAP_KD) {
 			currentMaterialBeingParsed.mapKdFilename = filename;
-		}
-		else if (type == MTL_MAP_KS) {
+		} else if (type == MTL_MAP_KS) {
 			currentMaterialBeingParsed.mapKsFilename = filename;
-		}
-		else if (type == MTL_MAP_NS) {
+		} else if (type == MTL_MAP_NS) {
 			currentMaterialBeingParsed.mapNsFilename = filename;
-		}
-		else if (type == MTL_MAP_D) {
+		} else if (type == MTL_MAP_D) {
 			currentMaterialBeingParsed.mapDFilename = filename;
-		}
-		else if (type == MTL_DECAL) {
+		} else if (type == MTL_DECAL) {
 			currentMaterialBeingParsed.decalFilename = filename;
-		}
-		else if (type == MTL_DISP) {
+		} else if (type == MTL_DISP) {
 			currentMaterialBeingParsed.dispFilename = filename;
-		}
-		else if (type == MTL_BUMP) {
+		} else if (type == MTL_BUMP) {
 			currentMaterialBeingParsed.bumpFilename = filename;
 		}
 	}
@@ -643,8 +626,7 @@ public class Build implements BuilderInterface {
 				normX = normal.z;
 				normY = normal.x;
 				normZ = normal.y;
-			}
-			else {
+			} else {
 				normX = 0.0f;
 				normY = 0.0f;
 				normZ = 1.0f;
@@ -655,8 +637,7 @@ public class Build implements BuilderInterface {
 			if (uv != null) {
 				uvU = uv.u;
 				uvV = 1.0f - uv.v;
-			}
-			else {
+			} else {
 				uvU = 0.01f;
 				uvV = 0.01f;
 			}
@@ -678,14 +659,14 @@ public class Build implements BuilderInterface {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = (prime * result) + Float.floatToIntBits(normX);
-			result = (prime * result) + Float.floatToIntBits(normY);
-			result = (prime * result) + Float.floatToIntBits(normZ);
-			result = (prime * result) + Float.floatToIntBits(posX);
-			result = (prime * result) + Float.floatToIntBits(posY);
-			result = (prime * result) + Float.floatToIntBits(posZ);
-			result = (prime * result) + Float.floatToIntBits(uvU);
-			result = (prime * result) + Float.floatToIntBits(uvV);
+			result = prime * result + Float.floatToIntBits(normX);
+			result = prime * result + Float.floatToIntBits(normY);
+			result = prime * result + Float.floatToIntBits(normZ);
+			result = prime * result + Float.floatToIntBits(posX);
+			result = prime * result + Float.floatToIntBits(posY);
+			result = prime * result + Float.floatToIntBits(posZ);
+			result = prime * result + Float.floatToIntBits(uvU);
+			result = prime * result + Float.floatToIntBits(uvV);
 			return result;
 		}
 
@@ -755,7 +736,7 @@ public class Build implements BuilderInterface {
 	public EditableModel createMDL() {
 		try {
 			final EditableModel mdl = new EditableModel(new File(objFilename).getName());
-			if ((faces.size() >= 10000) || (verticesG.size() >= 10000)) {
+			if (faces.size() >= 10000 || verticesG.size() >= 10000) {
 				loadbar.show();
 			}
 			final Set<Face> processedFaces = new HashSet<>();
@@ -786,7 +767,7 @@ public class Build implements BuilderInterface {
 				loadbar.setPercent(0f);
 				loadbar.setText("Collapsing MatrixEater MDL representation");
 			}
-			mdl.doSavePreps();
+			mdl.doSavePreps(false);
 			if (loadbar.isVisible()) {
 				loadbar.setPercent(0.5f);
 				loadbar.setText("Preparing model for editing...");
@@ -805,14 +786,13 @@ public class Build implements BuilderInterface {
 			}
 			for (final Geoset geo : mdl.getGeosets()) {
 				for (final GeosetVertex gv : geo.getVertices()) {
-					if ((Math.abs(gv.x) > sizeLimit) || (Math.abs(gv.y) > sizeLimit) || (Math.abs(gv.z) > sizeLimit)) {
+					if (Math.abs(gv.x) > sizeLimit || Math.abs(gv.y) > sizeLimit || Math.abs(gv.z) > sizeLimit) {
 						allLessThan2 = false;
 					}
 				}
 			}
 			for (final Vertex pivot : mdl.getPivots()) {
-				if ((Math.abs(pivot.x) > sizeLimit) || (Math.abs(pivot.y) > sizeLimit)
-						|| (Math.abs(pivot.z) > sizeLimit)) {
+				if (Math.abs(pivot.x) > sizeLimit || Math.abs(pivot.y) > sizeLimit || Math.abs(pivot.z) > sizeLimit) {
 					allLessThan2 = false;
 				}
 			}
@@ -826,7 +806,7 @@ public class Build implements BuilderInterface {
 				// model might be a WoW model, or peculiarly small. Would you
 				// like to increase its size?","WoW
 				// Scaling",JOptionPane.YES_NO_OPTION);
-				if ((option != JOptionPane.CLOSED_OPTION) && (option != 3)) {
+				if (option != JOptionPane.CLOSED_OPTION && option != 3) {
 					final int factor = (int) (32 * Math.pow(2, option));
 					for (final Geoset geo : mdl.getGeosets()) {
 						for (final GeosetVertex gv : geo.getVertices()) {
@@ -891,19 +871,19 @@ public class Build implements BuilderInterface {
 						if (userWantsSwapToBLP) {
 							File imageFilePNG = new File(objFolder.getPath() + "/" + name);
 							try {
-								if (!imageFilePNG.exists() && (name.indexOf("_") >= 0)) {
+								if (!imageFilePNG.exists() && name.indexOf("_") >= 0) {
 									imageFilePNG = new File(
 											objFolder.getPath() + "/" + name.substring(name.indexOf("_") + 1));
 								}
 								if (!imageFilePNG.exists()) {
 									imageFilePNG = new File(objFolder.getPath() + "/textures/" + name);
 								}
-								if (!imageFilePNG.exists() && (name.indexOf("_") >= 0)) {
+								if (!imageFilePNG.exists() && name.indexOf("_") >= 0) {
 									imageFilePNG = new File(
 											objFolder.getPath() + "/textures/" + name.substring(name.indexOf("_") + 1));
 								}
 								BufferedImage imageData = ImageIO.read(imageFilePNG);
-								if ((imageData == null) && imageFilePNG.getPath().toLowerCase().endsWith(".tga")) {
+								if (imageData == null && imageFilePNG.getPath().toLowerCase().endsWith(".tga")) {
 									imageData = TargaReader.getImage(imageFilePNG.getPath());
 								}
 								if (imageData == null) {
@@ -917,8 +897,7 @@ public class Build implements BuilderInterface {
 								BlpFile.writeJpgBLP(imageData, imageFileBLP, true, 0.90f);
 								// BlpFile.writePalettedBLP(imageData,
 								// imageFileBLP, true, true, false);
-							}
-							catch (final Exception e) {
+							} catch (final Exception e) {
 								ExceptionPopup.display("Unable to convert PNG to BLP: " + imageFilePNG.toString(), e);
 							}
 						}
@@ -937,14 +916,12 @@ public class Build implements BuilderInterface {
 					loadbar.setPercent(0);
 					loadbar.setText("Saving file...");
 				}
-				mdl.saveFile();
+				mdl.saveFile(false);
 			}
 			return mdl;
-		}
-		catch (final Exception e) {
+		} catch (final Exception e) {
 			throw e;
-		}
-		finally {
+		} finally {
 			loadbar.hide();
 		}
 	}
@@ -959,7 +936,7 @@ public class Build implements BuilderInterface {
 				continue;
 			}
 			processedFaces.add(face);
-			for (int subTriangleIndex = 0; subTriangleIndex < (face.vertices.size() - 2); subTriangleIndex++) {
+			for (int subTriangleIndex = 0; subTriangleIndex < face.vertices.size() - 2; subTriangleIndex++) {
 				Subgroup subgroup = materialToSubgroup.get(face.material);
 				if (subgroup == null) {
 					subgroup = new Subgroup(new HashMap<VertexKey, Integer>(), new Geoset());
@@ -970,7 +947,7 @@ public class Build implements BuilderInterface {
 				// final GeosetVertex[] geoVertices = new GeosetVertex[3];
 				final int[] vertexIndices = new int[3];
 				for (int i = 0; i < 3; i++) {
-					final FaceVertex faceVertex = face.vertices.get(i == 0 ? 0 : (subTriangleIndex + i));
+					final FaceVertex faceVertex = face.vertices.get(i == 0 ? 0 : subTriangleIndex + i);
 					if (faceVertex == null) {
 						continue FaceIteration;
 					}
@@ -992,7 +969,7 @@ public class Build implements BuilderInterface {
 				geo.add(triangle);
 			}
 			final int facesProcessedCount = processedFaces.size();
-			if (loadbar.isVisible() && ((facesProcessedCount % 100) == 0)) {
+			if (loadbar.isVisible() && facesProcessedCount % 100 == 0) {
 				loadbar.setPercent((float) facesProcessedCount / (float) faces.size());
 			}
 		}
@@ -1023,8 +1000,8 @@ public class Build implements BuilderInterface {
 				final ArrayList<TVertex> tverts = new ArrayList<>();
 				final TVertex createdTVertex = key.createTVertex();
 
-				if ((createdTVertex.getX() > 1.0) || (createdTVertex.getX() < 0) || (createdTVertex.getY() > 1.0)
-						|| (createdTVertex.getY() < 0)) {
+				if (createdTVertex.getX() > 1.0 || createdTVertex.getX() < 0 || createdTVertex.getY() > 1.0
+						|| createdTVertex.getY() < 0) {
 					noteForMatrixEaterAboutWrapHeights = true;
 				}
 				tverts.add(createdTVertex);
@@ -1059,13 +1036,12 @@ public class Build implements BuilderInterface {
 			geo.setMaterial(mdlMaterial);
 			if (!geo.getVertices().isEmpty()) {
 				mdl.add(geo);
-				geo.applyVerticesToMatrices(mdl);
+				geo.applyVerticesToMatrices(mdl, false);
 			}
 		}
 		if (!attachedVertices.isEmpty()) {
 			groupBone.setPivotPoint(Vertex.centerOfGroup(attachedVertices));
-		}
-		else {
+		} else {
 			mdl.remove(groupBone);
 		}
 
@@ -1146,13 +1122,12 @@ public class Build implements BuilderInterface {
 			if (transparent) {
 				if (layer.getFilterModeString().equals("Additive")) {
 					layer.setFilterMode("AddAlpha");
-				}
-				else {
+				} else {
 					layer.setFilterMode("Transparent");
 				}
 			}
 			final double staticAlpha = material.dFactor;
-			if ((staticAlpha != 1.0) && (staticAlpha != 0.0)) {
+			if (staticAlpha != 1.0 && staticAlpha != 0.0) {
 				layer.setStaticAlpha(staticAlpha);
 			}
 		}
@@ -1162,7 +1137,7 @@ public class Build implements BuilderInterface {
 			final List<ReflectivityTransmiss> transmisses = new ArrayList<>();
 			ReflectivityTransmiss max = null;
 			for (final ReflectivityTransmiss transmiss : transmisses) {
-				if ((transmiss.bz + transmiss.gy + transmiss.rx) > (max.bz + max.rx + max.gy)) {
+				if (transmiss.bz + transmiss.gy + transmiss.rx > max.bz + max.rx + max.gy) {
 					max = transmiss;
 				}
 			}
@@ -1190,7 +1165,7 @@ public class Build implements BuilderInterface {
 
 	private void addLayerByName(final List<Layer> layers, final String name, final ReflectivityTransmiss rt,
 			final String filterMode) {
-		if ((name != null) && !name.equals("")) {
+		if (name != null && !name.equals("")) {
 			final Bitmap bitmap = new Bitmap(name, -1);
 			final Layer layer = new Layer(filterMode, bitmap);
 			layers.add(layer);

@@ -50,7 +50,7 @@ public final class RecompileModelsDirectory {
 					// MDXHandler.compile(target);
 					final File mdxFile = new File(
 							target.getPath().substring(0, target.getPath().lastIndexOf('.')) + ".mdx");
-					EditableModel.read(target).printTo(mdxFile);
+					EditableModel.read(target).printTo(mdxFile, false);
 					passed.add(target.getPath());
 					target.delete();
 				} catch (final Exception e) {

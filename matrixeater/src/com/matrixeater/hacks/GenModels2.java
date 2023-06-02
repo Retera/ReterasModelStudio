@@ -51,12 +51,12 @@ public class GenModels2 {
 		final ArrayList<AnimFlag> flags = new ArrayList<>();
 		final AnimFlag translationData = new AnimFlag("Translation");
 		for (int i = 0; i < 16; i++) {
-			translationData.addEntry(333 + (i * 1000), new Vertex((i % 4) * 0.25, (i / 4) * 0.25, 0));
+			translationData.addEntry(333 + i * 1000, new Vertex(i % 4 * 0.25, i / 4 * 0.25, 0));
 		}
 		flags.add(translationData);
 		final TextureAnim textureAnim = new TextureAnim(flags);
 		material.getLayers().get(0).setTextureAnim(textureAnim);
 
-		model.printTo(new File(dest.getPath() + "\\ParticleTest.mdl"));
+		model.printTo(new File(dest.getPath() + "\\ParticleTest.mdl"), false);
 	}
 }

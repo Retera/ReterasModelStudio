@@ -46,7 +46,8 @@ public class GetMeDatas {
 
 			final EditableModel model = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
 			model.printTo(
-					new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III Beta\\Models\\SoftwareGrunt.mdx"));
+					new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III Beta\\Models\\SoftwareGrunt.mdx"),
+					false);
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
