@@ -99,6 +99,39 @@ public class ModelThumbnailMaker {
 		return new Vec2[]{minBoundV2, maxBoundV2};
 	}
 
+	private static Set<Triangle> getBoneParentedTriangles(Map<Geoset, Map<Bone, List<GeosetVertex>>> boneMap, Bone bone) {
+		Set<Triangle> triangles = new LinkedHashSet<>();
+		for (Geoset geo : boneMap.keySet()) {
+			List<GeosetVertex> boneVerts = boneMap.get(geo).get(bone);
+			if (boneVerts != null) {
+				for (GeosetVertex vertex : boneVerts) {
+					for (Triangle t : vertex.getTriangles()) {
+						triangles.add(t);
+					}
+				}
+			}
+		}
+		return triangles;
+	}
+	public static Vec2[] getBoundBoxSize(Collection<Geoset> geosets, Vec3 right, Vec3 up) {
+		Vec3 maxBound = new Vec3(-Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE);
+		Vec3 minBound = new Vec3(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
+
+		for (Geoset geo : geosets) {
+			for (Triangle t : geo.getTriangles()) {
+				for (Vec3 v : t.getVerts()) {
+					minBound.minimize(v);
+					maxBound.maximize(v);
+				}
+			}
+		}
+
+		Vec2 maxBoundV2 = new Vec2(maxBound.dot(right), maxBound.dot(up));
+		Vec2 minBoundV2 = new Vec2(minBound.dot(right), minBound.dot(up));
+
+		return new Vec2[]{minBoundV2, maxBoundV2};
+	}
+
 	private static void drawTriangle(Graphics g, Vec3 right, Vec3 up, Triangle t) {
 		int[] xInt = getTriPoints(t, right, 1);
 		int[] yInt = getTriPoints(t, up, -1);

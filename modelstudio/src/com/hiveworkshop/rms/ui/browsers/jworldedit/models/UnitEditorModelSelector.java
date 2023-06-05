@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.WarcraftData;
 import com.hiveworkshop.rms.parsers.slk.WarcraftObject;
-import com.hiveworkshop.rms.ui.application.ImportFileActions;
+import com.hiveworkshop.rms.ui.application.InternalFileLoader;
 import com.hiveworkshop.rms.ui.application.viewer.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
@@ -125,7 +125,7 @@ public class UnitEditorModelSelector extends JSplitPane {
 			currentUnit = unitData.get("hpea");
 		}
 		if (currentUnit != null) {
-			String filepath = ImportFileActions.convertPathToMDX(currentUnit.getField("file"));
+			String filepath = InternalFileLoader.convertPathToMDX(currentUnit.getField("file"));
 
 			try {
 				ModelHandler modelHandler = new ModelHandler(MdxUtils.loadEditable(filepath, null));

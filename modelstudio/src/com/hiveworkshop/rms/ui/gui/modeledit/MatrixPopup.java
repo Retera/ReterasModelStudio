@@ -3,8 +3,8 @@ package com.hiveworkshop.rms.ui.gui.modeledit;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.MatrixEditListRenderer;
+import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.util.SearchableList;
 import net.miginfocom.swing.MigLayout;
 
@@ -52,7 +52,7 @@ public class MatrixPopup extends JPanel {
 		bonesPane.setPreferredSize(new Dimension(400, 500));
 		bonePanel.add(bonesPane, "wrap");
 
-		JButton useBone = new JButton("Use Bone(s)", ImportPanel.greenArrowIcon);
+		JButton useBone = new JButton("Use Bone(s)", RMSIcons.greenArrowIcon);
 		useBone.addActionListener(e -> useBone());
 		bonePanel.add(useBone, "wrap");
 
@@ -65,17 +65,17 @@ public class MatrixPopup extends JPanel {
 		newRefsPane.setPreferredSize(new Dimension(400, 500));
 		newRefsPanel.add(newRefsPane, "wrap");
 
-		JButton removeNewRef = new JButton("Remove", ImportPanel.redXIcon);
+		JButton removeNewRef = new JButton("Remove", RMSIcons.redXIcon);
 		removeNewRef.addActionListener(e -> removeNewRef());
 		newRefsPanel.add(removeNewRef, "wrap");
 
 		JPanel arrowPanel = new JPanel(new MigLayout("gap 0, ins 0", "[]5", "[align center]16[align center]"));
 
-		JButton moveUp = new JButton(ImportPanel.moveUpIcon);
+		JButton moveUp = new JButton(RMSIcons.moveUpIcon);
 		moveUp.addActionListener(e -> moveUp());
 		arrowPanel.add(moveUp, "wrap");
 
-		JButton moveDown = new JButton(ImportPanel.moveDownIcon);
+		JButton moveDown = new JButton(RMSIcons.moveDownIcon);
 		moveDown.addActionListener(e -> moveDown());
 		arrowPanel.add(moveDown, "wrap");
 

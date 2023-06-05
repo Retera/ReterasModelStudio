@@ -106,6 +106,6 @@ public class ConvertToSkinBonesAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "Convert Geoset Matrices to SkinBones";
+		return "Convert Geoset Matrices to SkinWeights";
 	}
 }

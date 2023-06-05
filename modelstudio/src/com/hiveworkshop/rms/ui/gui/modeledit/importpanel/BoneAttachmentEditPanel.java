@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.GeosetShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.IdObjectShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.MatrixShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
+import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.util.ScreenInfo;
 import net.miginfocom.swing.MigLayout;
 
@@ -34,9 +35,9 @@ public class BoneAttachmentEditPanel extends JPanel {
 		for (GeosetShell geosetShell : mht.allGeoShells) {
 			final BoneAttachmentPanel geoPanel = new BoneAttachmentPanel(mht, renderer);
 			geoPanel.setGeoset(geosetShell);
-			ImageIcon imageIcon = ImportPanel.greenIcon;
+			ImageIcon imageIcon = RMSIcons.greenIcon;
 			if (geosetShell.isFromDonating()) {
-				imageIcon = ImportPanel.orangeIcon;
+				imageIcon = RMSIcons.orangeIcon;
 			}
 			geosetAnimTabs.addTab(geosetShell.getModelName() + " " + (geosetShell.getIndex() + 1), imageIcon, geoPanel, "Click to modify animation data for Geoset " + geosetShell.getIndex() + " from " + geosetShell.getModelName() + ".");
 		}

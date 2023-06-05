@@ -424,8 +424,10 @@ public class GeosetVertex extends Vec3 {
 	}
 
 	public void setTangent(Vec4 tangent) {
-		if(this.tangent == null){
+		if (this.tangent == null) {
 			this.tangent = new Vec4(tangent);
+		} else if (tangent == null){
+			this.tangent = null;
 		} else {
 			this.tangent.set(tangent);
 		}

@@ -13,7 +13,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.ModeButton;
-import com.hiveworkshop.rms.util.TwiCardPanel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -24,7 +23,6 @@ public class CreatorModelingPanel extends JPanel {
 
 	private ModelEditorManager modelEditorManager;
 	private final ProgramPreferences programPreferences;
-	private TwiCardPanel modelingOptionsCardPanel;
 	private ModelHandler modelHandler;
 
 
@@ -34,23 +32,12 @@ public class CreatorModelingPanel extends JPanel {
 		this.programPreferences = ProgramGlobals.getPrefs();
 		setLayout(new MigLayout("ins 0, hidemode 2", "", "[grow][][]"));
 
-		modelingOptionsCardPanel = new TwiCardPanel();
-
-		modelingOptionsCardPanel.add(getStandardPrimitivesPanel(), "Standard Primitives");
-		modelingOptionsCardPanel.add(getMeshBasicsPanel(), "Mesh Basics");
-//		modelingOptionsCardPanel.add(getStandardPrimitivesPanel(), "Extended Primitives");
-//		modelingOptionsCardPanel.add(getStandardPrimitivesPanel(), "Animation Nodes");
-
-
-		JPanel modelingPanel = new JPanel(new MigLayout("ins 0, hidemode 2"));
-		modelingPanel.add(modelingOptionsCardPanel.getComboBox(), "wrap");
-		modelingPanel.add(modelingOptionsCardPanel);
-
 		JButton popupMenuButton = new JButton("show popup menu");
 		popupMenuButton.addActionListener(e -> showVPPopup(popupMenuButton));
 
-		add(modelingPanel, "wrap, growx");
-		add(popupMenuButton, "");
+		add(popupMenuButton, "wrap");
+		add(getDrawToolsPanel(), "wrap, growx");
+		add(getStandardPrimitivesPanel(), "wrap, growx");
 	}
 
 	private JPanel getStandardPrimitivesPanel() {

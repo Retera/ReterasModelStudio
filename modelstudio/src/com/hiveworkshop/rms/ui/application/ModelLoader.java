@@ -106,6 +106,11 @@ public class ModelLoader {
 		return blankTextureModel;
 	}
 
+	public static void loadModel(EditableModel model){
+		ModelPanel modelPanel = new ModelPanel(new ModelHandler(model));
+		ModelLoader.loadModel(true, true, modelPanel);
+	}
+
 	public static void loadModel(boolean temporary, boolean showModel, ModelPanel modelPanel) {
 		if (temporary) {
 			modelPanel.getModelView().getModel().setTemp(true);

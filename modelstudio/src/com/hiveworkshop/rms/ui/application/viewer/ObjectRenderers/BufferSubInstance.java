@@ -35,6 +35,7 @@ public abstract class BufferSubInstance {
 	protected final Vec2 flipBookSize = new Vec2(1,1);
 	protected int textureSlot = 0;
 	protected Vec4 layerColor = new Vec4();
+	protected float emissiveGain = 1;
 	protected float fresnelTeamColor = 0;
 	protected Vec4 fresnelColor = new Vec4();
 	protected Mat4 uvTransform = new Mat4();
@@ -83,6 +84,10 @@ public abstract class BufferSubInstance {
 	public BufferSubInstance setVertCount(int vertCount) {
 		this.vertCount = vertCount;
 		return this;
+	}
+
+	public float getEmissiveGain() {
+		return emissiveGain;
 	}
 
 	public float getFresnelTeamColor() {

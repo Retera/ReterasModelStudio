@@ -53,6 +53,11 @@ public class FileDialog {
         this.parent = parent;
     }
 
+    public FileDialog setParent(Component parent) {
+        this.parent = parent;
+        return this;
+    }
+
     public static void setCurrentPath(File file) {
         profile.setPath(file.getParent());
     }

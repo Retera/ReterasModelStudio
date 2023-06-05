@@ -228,7 +228,12 @@ public class AnimFlagUtils {
 		} else if (animFlag instanceof BitmapAnimFlag) {
 			return null;
 		} else if (animFlag instanceof FloatAnimFlag) {
-			return (Q) Float.valueOf(1);
+			if (MdlUtils.TOKEN_VISIBILITY.equals(animFlag.getName())
+					|| MdlUtils.TOKEN_ALPHA.equals(animFlag.getName())) {
+				return (Q) Float.valueOf(1);
+			} else {
+				return (Q) Float.valueOf(0);
+			}
 		} else if (animFlag instanceof Vec3AnimFlag) {
 			if (MdlUtils.TOKEN_TRANSLATION.equals(animFlag.getName())) {
 				return (Q) Vec3.ZERO;

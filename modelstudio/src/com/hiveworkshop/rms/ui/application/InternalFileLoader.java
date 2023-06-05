@@ -49,7 +49,7 @@ public class InternalFileLoader {
 	}
 
 	public static EditableModel getEditableModel(String filepath, boolean doCheckExist) {
-		String path = ImportFileActions.convertPathToMDX(filepath);
+		String path = convertPathToMDX(filepath);
 		if (!doCheckExist || GameDataFileSystem.getDefault().has(path)) {
 			System.err.println("loading: " + path);
 			try {
@@ -63,5 +63,17 @@ public class InternalFileLoader {
 			}
 		}
 		return null;
+	}
+
+
+	public static String convertPathToMDX(String filepath) {
+		if (filepath != null && filepath.toLowerCase().endsWith(".mdl")) {
+			filepath = filepath.replaceAll("\\.(M|m)(D|d)(L|l)", ".mdx");
+//			filepath = filepath.replaceAll("(?-i)\\.mdl", ".mdx");
+			System.out.println("to: " + filepath);
+		} else if (filepath != null && !filepath.toLowerCase().endsWith(".mdx")) {
+			filepath = filepath.concat(".mdx");
+		}
+		return filepath;
 	}
 }

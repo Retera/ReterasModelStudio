@@ -21,11 +21,14 @@ import com.hiveworkshop.rms.ui.application.actionfunctions.ViewSkinning;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
+import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
+import com.hiveworkshop.rms.ui.application.tools.ModelIconHandler;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.OldRenderer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.MatrixPopup;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.SkinPopup;
 import com.hiveworkshop.rms.util.Mat4;
+import com.hiveworkshop.rms.util.ScreenInfo;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec3SpinnerArray;
 import net.miginfocom.swing.MigLayout;
@@ -112,8 +115,8 @@ public class ViewportPopupMenu extends JPopupMenu {
 
 		addMenuItem("Set Parent", e -> setParent(this.parent), nodeMenu);
 		addMenuItem("Auto-Center Bone(s)", e -> modelHandler.getUndoManager().pushAction(autoCenterSelectedBones(modelHandler.getModelView())), nodeMenu);
-		addMenuItem("Rename Bone", e -> renameBone(this.parent), nodeMenu);
-		addMenuItem("Append Bone Suffix", e -> appendBoneBone(this.parent), nodeMenu);
+		addMenuItem("Rename Nodes", e -> renameNodes(this.parent), nodeMenu);
+		addMenuItem("Append Bone Suffix", e -> appendBoneSuffix(this.parent), nodeMenu);
 	}
 
 //	public Viewport getViewport() {
@@ -218,13 +221,13 @@ public class ViewportPopupMenu extends JPopupMenu {
 		}
 	}
 
-	void appendBoneBone(Component parent) {
+	void appendBoneSuffix(Component parent) {
 		if (!modelHandler.getModelView().getSelectedIdObjects().isEmpty()) {
-			String name = JOptionPane.showInputDialog(parent, "Enter bone suffix:");
-			if (name != null && !modelHandler.getModelView().getSelectedIdObjects().isEmpty()) {
+			String suffix = JOptionPane.showInputDialog(parent, "Enter bone suffix:");
+			if (suffix != null && !suffix.isBlank() && !modelHandler.getModelView().getSelectedIdObjects().isEmpty()) {
 				List<UndoAction> actions = new ArrayList<>();
-				for (IdObject bone : modelHandler.getModelView().getSelectedIdObjects()) {
-					actions.add(new NameChangeAction(bone, name, null));
+				for (IdObject node : modelHandler.getModelView().getSelectedIdObjects()) {
+					actions.add(new NameChangeAction(node, node.getName() + suffix, null));
 				}
 				modelHandler.getUndoManager().pushAction(new CompoundAction("add selected bone suffix", actions, ModelStructureChangeListener.changeListener::nodesUpdated).redo());
 			}
@@ -233,20 +236,48 @@ public class ViewportPopupMenu extends JPopupMenu {
 		}
 	}
 
-	void renameBone(Component parent) {
+	void renameNodes(Component parent) {
 		Set<IdObject> selectedIdObjects = modelHandler.getModelView().getSelectedIdObjects();
-		if (selectedIdObjects.size() > 1) {
-			JOptionPane.showMessageDialog(parent, "Only one node can be renamed at a time.");
-		} else if (selectedIdObjects.size() == 0) {
+		if (selectedIdObjects.size() == 0) {
 			JOptionPane.showMessageDialog(parent, "No node is selected");
 		} else {
-			IdObject node = new ArrayList<>(selectedIdObjects).get(0);
-			if (node == null) {
-				throw new IllegalStateException("Selection is not a node");
+			Map<IdObject, String> nodeToNewName = new HashMap<>();
+			ModelIconHandler modelIconHandler = new ModelIconHandler();
+
+			JPanel renamePanel = new JPanel(new MigLayout());
+			for(IdObject idObject : selectedIdObjects) {
+				nodeToNewName.put(idObject, idObject.getName());
+				renamePanel.add(new JLabel(idObject.getName(), modelIconHandler.getImageIcon(idObject, modelHandler.getModel()), SwingConstants.LEFT));
+				renamePanel.add(new TwiTextField(idObject.getName(), 24, s -> nodeToNewName.put(idObject, s)), "wrap");
 			}
-			String name = JOptionPane.showInputDialog(parent, "Enter bone name:", node.getName());
-			if (name != null) {
-				modelHandler.getUndoManager().pushAction(new NameChangeAction(node, name, ModelStructureChangeListener.changeListener).redo());
+
+			JScrollPane scrollPane = new JScrollPane(renamePanel);
+			scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+			int panelSize = Math.min(renamePanel.getPreferredSize().height+5, ScreenInfo.getSmallWindow().height);
+			JPanel panel = new JPanel(new MigLayout("fill, gap 0", "[grow][]", "[grow," + panelSize + "]"));
+			panel.add(scrollPane, "growx, growy");
+			if(ScreenInfo.getSmallWindow().height<=panelSize){
+				panel.add(scrollPane.getVerticalScrollBar(), "growy");
+			} else {
+				// this makes sure that the vertical scrollbar won't become visible without blocking scrolling
+				new JPanel().add(scrollPane.getVerticalScrollBar());
+			}
+			int option = JOptionPane.showConfirmDialog(parent, panel, "Rename Nodes", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null);
+
+			if(option == JOptionPane.OK_OPTION){
+				List<UndoAction> undoActions = new ArrayList<>();
+				for (IdObject idObject : nodeToNewName.keySet()){
+					String newName = nodeToNewName.get(idObject);
+					if(!newName.isBlank() && !idObject.getName().equals(newName)){
+						undoActions.add(new NameChangeAction(idObject, newName, null));
+					}
+				}
+				if (undoActions.size() == 1){
+					modelHandler.getUndoManager().pushAction(new CompoundAction(undoActions.get(0).actionName(), undoActions, ModelStructureChangeListener.changeListener::nodeHierarchyChanged).redo());
+				} else if(!undoActions.isEmpty()) {
+					modelHandler.getUndoManager().pushAction(new CompoundAction("Rename " + undoActions.size() + " Nodes", undoActions, ModelStructureChangeListener.changeListener::nodeHierarchyChanged).redo());
+				}
 			}
 		}
 

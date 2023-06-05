@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.ui.application.ExportInternal;
-import com.hiveworkshop.rms.ui.application.ImportFileActions;
 import com.hiveworkshop.rms.ui.application.InternalFileLoader;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
@@ -69,7 +68,7 @@ public class UnitBrowserPopupMenu extends JPopupMenu {
 					projectile2Exp.setEnabled(proj2Exists);
 
 					String portraitPath = ModelUtils.getPortrait(obj.getFieldAsString(WE_Field.MODEL_FILE.getId(), 0));
-					portraitPath = ImportFileActions.convertPathToMDX(portraitPath);
+					portraitPath = InternalFileLoader.convertPathToMDX(portraitPath);
 					boolean portraitExists = GameDataFileSystem.getDefault().has(portraitPath);
 					portraitMenu.setEnabled(portraitExists);
 					portraitExp.setEnabled(portraitExists);

@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.browsers.model;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
-import com.hiveworkshop.rms.ui.application.ImportFileActions;
+import com.hiveworkshop.rms.ui.application.InternalFileLoader;
 import com.hiveworkshop.rms.ui.application.MainFrame;
 import com.hiveworkshop.rms.ui.application.ModelLoader;
 import com.hiveworkshop.rms.ui.application.model.editors.TwiFocusListener;
@@ -165,7 +165,7 @@ public class ModelOptionPanel extends JPanel {
 
 	private void showModel(String filepath) {
 		try {
-			filepath = ImportFileActions.convertPathToMDX(filepath);
+			filepath = InternalFileLoader.convertPathToMDX(filepath);
 			EditableModel editableModel = MdxUtils.loadEditable(filepath, null);
 			setModel(editableModel);
 			if (editableModel == null) {
@@ -218,7 +218,7 @@ public class ModelOptionPanel extends JPanel {
 	public static boolean isValidFilepath(String filepath) {
 		try {
 			//check model by converting its path
-			ImportFileActions.convertPathToMDX(filepath);
+			InternalFileLoader.convertPathToMDX(filepath);
 		} catch (final Exception exc) {
 			exc.printStackTrace();
 			JOptionPane.showMessageDialog(MainFrame.frame,

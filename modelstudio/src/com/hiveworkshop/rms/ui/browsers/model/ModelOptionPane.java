@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.browsers.model;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.ui.application.ImportFileActions;
+import com.hiveworkshop.rms.ui.application.InternalFileLoader;
 import com.hiveworkshop.rms.ui.application.MainFrame;
 
 import javax.swing.*;
@@ -77,7 +77,7 @@ public class ModelOptionPane {
 	private static boolean isValidFilepath(String filepath) {
 		try {
 			//check model by converting its path
-			ImportFileActions.convertPathToMDX(filepath);
+			InternalFileLoader.convertPathToMDX(filepath);
 		} catch (final Exception exc) {
 			exc.printStackTrace();
 			JOptionPane.showMessageDialog(MainFrame.frame,

@@ -7,9 +7,9 @@ import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.AnimShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.AnimListCellRenderer;
+import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
@@ -62,11 +62,11 @@ public class ReorderAnimationsPanel extends JPanel {
 	private JPanel getArrowPanel() {
 		JPanel arrowPanel = new JPanel(new MigLayout("gap 0, ins 0", "[]5", "[align center]16[align center]"));
 
-		JButton moveUp = new JButton(ImportPanel.moveUpIcon);
+		JButton moveUp = new JButton(RMSIcons.moveUpIcon);
 		moveUp.addActionListener(e -> moveUp());
 		arrowPanel.add(moveUp, "wrap");
 
-		JButton moveDown = new JButton(ImportPanel.moveDownIcon);
+		JButton moveDown = new JButton(RMSIcons.moveDownIcon);
 		moveDown.addActionListener(e -> moveDown());
 		arrowPanel.add(moveDown, "wrap");
 		return arrowPanel;

@@ -91,10 +91,6 @@ public class WindowsMenu extends JMenu {
 	private JMenu getViewsMenu() {
 		JMenu viewsMenu = createMenu("Views", KeyEvent.VK_V);
 
-		RootWindowUgg rootWindow = ProgramGlobals.getRootWindowUgg();
-		WindowHandler2 windowHandler2 = rootWindow.getWindowHandler2();
-
-
 		viewsMenu.add(createMenuItem("Animation Preview", KeyEvent.VK_A, e -> openModelDependentView(new PreviewViewCanv())));
 		viewsMenu.add(createMenuItem("Camera Preview", KeyEvent.VK_C, e -> openModelDependentView(new CameraPreviewView())));
 		viewsMenu.add(createMenuItem("Modeling", KeyEvent.VK_M, e -> openModelDependentView(new ModelingCreatorToolsView())));
@@ -104,10 +100,10 @@ public class WindowsMenu extends JMenu {
 		viewsMenu.add(createMenuItem("Side", KeyEvent.VK_S, e -> openModelDependentView(new DisplayViewCanvas("Side", true, true))));
 		viewsMenu.add(createMenuItem("Bottom", KeyEvent.VK_B, e -> openModelDependentView(new DisplayViewCanvas("Bottom", true, true))));
 
-		viewsMenu.add(createMenuItem("Edit UV's", KeyEvent.VK_U, e -> openEditUVsView(rootWindow)));
+		viewsMenu.add(createMenuItem("Edit UV's", KeyEvent.VK_U, e -> openEditUVsView(ProgramGlobals.getRootWindowUgg())));
 
-		viewsMenu.add(createMenuItem("Contents", KeyEvent.VK_T, e -> rootWindow.newWindow(new ModelComponentsView().setModelPanel(ProgramGlobals.getCurrentModelPanel()))));
-		viewsMenu.add(createMenuItem("Footer", KeyEvent.VK_F, e -> FloatingWindowFactory.openNewWindowWithKB(windowHandler2.getTimeSliderView(), rootWindow)));
+		viewsMenu.add(createMenuItem("Contents", KeyEvent.VK_T, e -> ProgramGlobals.getRootWindowUgg().newWindow(new ModelComponentsView().setModelPanel(ProgramGlobals.getCurrentModelPanel()))));
+		viewsMenu.add(createMenuItem("Footer", KeyEvent.VK_F, e -> FloatingWindowFactory.openNewWindowWithKB(ProgramGlobals.getRootWindowUgg().getWindowHandler2().getTimeSliderView(), ProgramGlobals.getRootWindowUgg())));
 
 		viewsMenu.add(createMenuItem("Matrix Eater Script", KeyEvent.VK_H, KeyStroke.getKeyStroke("control P"), e -> ScriptView.openScriptView()));
 		return viewsMenu;

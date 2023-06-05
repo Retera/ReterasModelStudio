@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.actionfunctions;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.ui.application.ModelLoader;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -15,7 +16,7 @@ public class ImportWC3Model extends ActionFunction{
 	public static void importGameModelActionRes(ModelHandler modelHandler){
 		EditableModel animationSource = fetchModel();
 		if (animationSource != null) {
-			ImportPanelGui importPanel = new ImportPanelGui(modelHandler.getModel(), animationSource);
+			new ImportPanelGui(modelHandler.getModel(), animationSource, ModelLoader::loadModel);
 		}
 		if (ProgramGlobals.getCurrentModelPanel() != null) {
 			ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();

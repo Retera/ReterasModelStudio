@@ -71,4 +71,14 @@ public class Button {
 		button.addActionListener(e -> buttonConsumer.accept(button));
 		return button;
 	}
+
+	public static JButton forceSize(JButton button, int width, int height){
+		return forceSize(button, new Dimension(width, height));
+	}
+	public static JButton forceSize(JButton button, Dimension dimension){
+		button.setMaximumSize(dimension);
+		button.setMinimumSize(dimension);
+		button.setPreferredSize(dimension);
+		return button;
+	}
 }

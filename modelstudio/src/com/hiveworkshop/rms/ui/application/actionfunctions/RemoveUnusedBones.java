@@ -163,11 +163,13 @@ public class RemoveUnusedBones extends ActionFunction {
 		if (flag instanceof FloatAnimFlag && 0 < flag.size()) {
 			AnimFlag<Float> emissionFlag = (FloatAnimFlag) flag;
 			for (Sequence sequence : allSequences){
-				for (Entry<Float> entry : emissionFlag.getEntryMap(sequence).values()) {
-					if (entry.getValue() != null && entry.getValue() != 0
-							|| entry.getInTan() != null && entry.getInTan() != 0
-							|| entry.getOutTan() != null && entry.getOutTan() != 0) {
-						return false;
+				if(emissionFlag.getEntryMap(sequence) != null){
+					for (Entry<Float> entry : emissionFlag.getEntryMap(sequence).values()) {
+						if (entry.getValue() != null && entry.getValue() != 0
+								|| entry.getInTan() != null && entry.getInTan() != 0
+								|| entry.getOutTan() != null && entry.getOutTan() != 0) {
+							return false;
+						}
 					}
 				}
 			}

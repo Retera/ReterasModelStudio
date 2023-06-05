@@ -19,7 +19,7 @@ public class FileMenu extends JMenu {
 		getAccessibleContext().setAccessibleDescription("Allows the user to open, save, close, and manipulate files.");
 
 		add(new CreateNewModel().setMenuItemMnemonic(KeyEvent.VK_N).getMenuItem());
-		add(new File.Open().setMenuItemMnemonic(KeyEvent.VK_O).getMenuItem());
+		add(new FileActions.Open().setMenuItemMnemonic(KeyEvent.VK_O).getMenuItem());
 
 		recentMenu = new RecentMenu();
 		add(recentMenu);
@@ -55,8 +55,8 @@ public class FileMenu extends JMenu {
 		importMenu.add(new ImportFromWorkspace().setMenuItemMnemonic(KeyEvent.VK_W).getMenuItem());
 
 
-		add(new File.Save().setMenuItemMnemonic(KeyEvent.VK_S).getMenuItem());
-		add(new File.SaveAs().setMenuItemMnemonic(KeyEvent.VK_A).getMenuItem());
+		add(new FileActions.Save().setMenuItemMnemonic(KeyEvent.VK_S).getMenuItem());
+		add(new FileActions.SaveAs().setMenuItemMnemonic(KeyEvent.VK_A).getMenuItem());
 
 		add(new JSeparator());
 

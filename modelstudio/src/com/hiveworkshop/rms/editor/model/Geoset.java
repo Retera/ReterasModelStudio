@@ -332,8 +332,14 @@ public class Geoset extends TimelineContainer implements Named {
 	}
 
 	public boolean isHD() {
-//		return getParentModel().getFormatVersion() >= 900 && !getVertices().isEmpty() && (getVertex(0).getTangent() != null);
-		return getParentModel().getFormatVersion() >= 900 && !getVertices().isEmpty() && (getVertex(0).getTangent() != null || getVertex(0).getSkinBones() != null);
+//		return 900 <= getParentModel().getFormatVersion() && !getVertices().isEmpty() && (getVertex(0).getTangent() != null);
+		return 900 <= getParentModel().getFormatVersion() && !getVertices().isEmpty() && (getVertex(0).getTangent() != null || getVertex(0).getSkinBones() != null);
+	}
+	public boolean hasSkin() {
+		return !getVertices().isEmpty() && getVertex(0).getSkinBones() != null;
+	}
+	public boolean hasTangents() {
+		return !getVertices().isEmpty() && getVertex(0).getTangent() != null;
 	}
 
 	public Map<Bone, List<GeosetVertex>> getBoneMap() {
@@ -354,6 +360,11 @@ public class Geoset extends TimelineContainer implements Named {
 		}
 
 		return boneMap;
+	}
+	public Set<Bone> getBones() {
+		Set<Bone> bones = new HashSet<>();
+		vertices.forEach(v -> bones.addAll(v.getAllBones()));
+		return bones;
 	}
 
 	public Geoset deepCopy(){

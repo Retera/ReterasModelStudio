@@ -36,10 +36,9 @@ public class ModelingCreatorToolsView extends ModelDependentView {
 		animationPanel.setVisible(false);
 
 		panel.add(getCP("Selection", selectionPanel), "top, growx, spanx, wrap");
+		panel.add(getCP("Transform", transformPanel), "top, growx, spanx, wrap");
 		panel.add(getCP("Add", creatorModelingPanel), "top, growx, spanx, wrap");
 
-		CollapsablePanel transformCP = getCP("Transform", transformPanel);
-		panel.add(transformCP, "top, growx, spanx, wrap");
 
 		panel.add(new JPanel(), "top, growx, growy, spanx, wrap");
 		JScrollPane scrollPane = new JScrollPane(panel);

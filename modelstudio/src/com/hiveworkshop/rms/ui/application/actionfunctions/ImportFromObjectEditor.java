@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.actionfunctions;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.ui.application.ModelLoader;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterUnitEditorModelSelector;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
@@ -18,7 +19,7 @@ public class ImportFromObjectEditor extends ActionFunction{
 	public static void importGameObjectActionRes(ModelHandler modelHandler){
 		EditableModel animationSource = fetchObjectModel();
 		if (animationSource != null) {
-			ImportPanelGui importPanel = new ImportPanelGui(modelHandler.getModel(), animationSource);
+			new ImportPanelGui(modelHandler.getModel(), animationSource, ModelLoader::loadModel);
 		}
 		if (ProgramGlobals.getCurrentModelPanel() != null) {
 			ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();

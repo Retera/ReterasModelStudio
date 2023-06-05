@@ -8,16 +8,15 @@ import com.hiveworkshop.rms.util.Vec3;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class ModelIconHandler {
 	private final Map<EditableModel, Map<Geoset, Map<Bone, List<GeosetVertex>>>> geosetBoneMap = new HashMap<>();
 	private final Map<IdObject, ImageIcon> idObjectToCachedRenderer = new HashMap<>();
 	private final Map<Geoset, ImageIcon> geosetToCachedRenderer = new HashMap<>();
-	private final Map<Set<Geoset>, ImageIcon> geosetsToCachedRenderer = new HashMap<>();
 	private final Map<Geoset, BufferedImage> geosetToCachedHL = new HashMap<>();
 	private final Map<EditableModel, BufferedImage> modelOutlineImageMap = new HashMap<>();
 	private final Map<EditableModel, ImageIcon> modelImageMap = new HashMap<>();
@@ -142,37 +141,6 @@ public class ModelIconHandler {
 		}
 	}
 
-	public ImageIcon getImageIcon(Set<Geoset> geoset, EditableModel model) {
-		return getImageIcon(Color.white, geoset, model);
-	}
-
-	public ImageIcon getImageIcon(Color backgroundColor, Set<Geoset> geosets, EditableModel model) {
-		ImageIcon myIcon = geosetsToCachedRenderer.get(geosets);
-		if (myIcon == null) {
-			try {
-				final BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
-				final Graphics graphics = image.getGraphics();
-
-				BufferedImage modelOutline = getModelOutlineImage(backgroundColor, model);
-				graphics.drawImage(modelOutline, 0, 0, null);
-
-				for(Geoset geoset : geosets){
-					if (geoset != null) {
-						BufferedImage geosetTransparentIcon = getGeosetTransparentIcon(geoset, model);
-						graphics.drawImage(geosetTransparentIcon, 0, 0, null);
-					}
-				}
-
-				graphics.dispose();
-				myIcon = new ImageIcon(image);
-			} catch (final Exception e) {
-				throw new RuntimeException(e);
-			}
-			geosetsToCachedRenderer.put(geosets, myIcon);
-		}
-		return myIcon;
-	}
-
 	public BufferedImage getGeosetTransparentIcon(Geoset geoset, EditableModel model) {
 		BufferedImage image = geosetToCachedHL.get(geoset);
 		if (image == null) {
@@ -233,6 +201,68 @@ public class ModelIconHandler {
 			}
 			geosetBoneMap.put(model, boneMap);
 			return boneMap;
+		}
+	}
+
+	public void modelChanged(EditableModel model){
+		geosetBoneMap.remove(model);
+		modelOutlineImageMap.remove(model);
+		modelImageMap.remove(model);
+		modelBoundsSizeMap.remove(model);
+
+		for (IdObject idObject : model.getIdObjects()) {
+			idObjectToCachedRenderer.remove(idObject);
+		}
+
+		for (Geoset geoset : model.getGeosets()) {
+			geosetToCachedRenderer.remove(geoset);
+			geosetToCachedHL.remove(geoset);
+		}
+	}
+	public void skinningChanged(EditableModel model, Collection<Geoset> geosets){
+		Map<Geoset, Map<Bone, List<GeosetVertex>>> geosetSkinMap = geosetBoneMap.get(model);
+		if(geosetSkinMap != null) {
+			for (Geoset geoset : geosets) {
+				geosetSkinMap.remove(geoset);
+			}
+		}
+
+		for (Geoset geoset : geosets) {
+			for (IdObject idObject : geoset.getBones()) {
+				idObjectToCachedRenderer.remove(idObject);
+			}
+		}
+	}
+	public void geometryChanged(EditableModel model, Collection<Geoset> geosets){
+		geosetBoneMap.remove(model);
+		modelOutlineImageMap.remove(model);
+		modelImageMap.remove(model);
+		modelBoundsSizeMap.remove(model);
+
+		for (Geoset geoset : geosets) {
+			geosetToCachedRenderer.remove(geoset);
+			geosetToCachedHL.remove(geoset);
+
+			for (IdObject idObject : geoset.getBones()) {
+				idObjectToCachedRenderer.remove(idObject);
+			}
+		}
+	}
+	public void NodeMoved(EditableModel model, Collection<IdObject> idObjects){
+		for (IdObject idObject : idObjects) {
+			idObjectToCachedRenderer.remove(idObject);
+		}
+
+		Map<Geoset, Map<Bone, List<GeosetVertex>>> geosetSkinMap = geosetBoneMap.get(model);
+		if(geosetSkinMap != null) {
+			for (Geoset geoset : geosetSkinMap.keySet()) {
+				Map<Bone, List<GeosetVertex>> boneListMap = geosetSkinMap.get(geoset);
+				if(boneListMap != null){
+					for (IdObject idObject : idObjects) {
+						boneListMap.remove(idObject);
+					}
+				}
+			}
 		}
 	}
 

@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.ui.application.actionfunctions.CreateNewModel;
-import com.hiveworkshop.rms.ui.application.actionfunctions.File;
+import com.hiveworkshop.rms.ui.application.actionfunctions.FileActions;
 import com.hiveworkshop.rms.ui.application.windowStuff.RootWindowListener;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 
@@ -17,8 +17,8 @@ public class ToolBar extends JToolBar {
 
 		add(getToolbarButton("New", "new.png", e -> CreateNewModel.newModel()));
 //		System.out.println("loaded [New]");
-		add(getToolbarButton("Open", "open.png", e -> File.onClickOpen(FileDialog.OPEN_FILE)));
-		add(getToolbarButton("Save", "save.png", e -> File.onClickSave(ProgramGlobals.getCurrentModelPanel())));
+		add(getToolbarButton("Open", "open.png", e -> FileActions.onClickOpen(FileDialog.OPEN_FILE)));
+		add(getToolbarButton("Save", "save.png", e -> FileActions.onClickSave(ProgramGlobals.getCurrentModelPanel())));
 
 		addSeparator();
 

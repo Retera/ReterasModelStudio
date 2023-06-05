@@ -98,7 +98,7 @@ public class ExportStaticMesh extends ActionFunction {
 		frozenModel.add(stand);
 		setSingeEntryForRemaining(stand, frozenRenderEnv, frozenModel);
 
-		File.onClickSaveAs(null, FileDialog.SAVE_MODEL, frozenModel);
+		FileActions.onClickSaveAs(null, FileDialog.SAVE_MODEL, frozenModel);
 	}
 
 	private static void removeNotVisibleNodes(EditableModel frozenModel, TimeEnvironmentImpl frozenRenderEnv) {

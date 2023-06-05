@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.ExportInternal;
-import com.hiveworkshop.rms.ui.application.ImportFileActions;
+import com.hiveworkshop.rms.ui.application.InternalFileLoader;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.TwiTextEditor.EditorHelpers;
@@ -97,7 +97,7 @@ public class ComponentParticlePanel extends ComponentIdObjectPanel<ParticleEmitt
 	}
 
 	private void export(){
-		String particlePath = ImportFileActions.convertPathToMDX(idObject.getPath());
+		String particlePath = InternalFileLoader.convertPathToMDX(idObject.getPath());
 		if(!particlePath.isEmpty()){
 			ExportInternal.exportInternalFile(particlePath, "Particle", this);
 		}

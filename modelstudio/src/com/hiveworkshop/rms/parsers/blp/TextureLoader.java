@@ -101,8 +101,10 @@ public class TextureLoader {
 		String ddsFilepath = filepath.replaceAll("(\\.blp$)|(\\.tif$)", ".dds");
 		String blpFilepath = filepath.replaceAll("(\\.dds$)|(\\.tif$)", ".blp");
 		String nameOnly = filepath.replaceAll(".*[/\\\\]", "");
+		String ddsNameOnly = ddsFilepath.replaceAll(".*[/\\\\]", "");
+		String blpNameOnly = blpFilepath.replaceAll(".*[/\\\\]", "");
 
-		String[] filePaths = new String[] {ddsFilepath, nameOnly, filepath, blpFilepath};
+		String[] filePaths = new String[] {ddsFilepath, nameOnly, ddsNameOnly, blpNameOnly, filepath, blpFilepath};
 //		System.out.println("getNewTextureHelper for filepath: \"" + filepath + "\"");
 
 		for (String path : filePaths) {

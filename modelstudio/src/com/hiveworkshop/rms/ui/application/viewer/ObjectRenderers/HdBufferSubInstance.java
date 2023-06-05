@@ -58,6 +58,7 @@ public class HdBufferSubInstance extends BufferSubInstance {
 		}
 
 		float fresnelOpacity = diffuseLayer.getInterpolatedFloat(timeEnvironment, MdlUtils.TOKEN_FRESNEL_OPACITY, 0.0f);
+		emissiveGain = diffuseLayer.getInterpolatedFloat(timeEnvironment, MdlUtils.TOKEN_EMISSIVE_GAIN, 1);
 		fresnelColor.set(diffuseLayer.getInterpolatedVector(timeEnvironment, MdlUtils.TOKEN_FRESNEL_COLOR, Vec3.ZERO), fresnelOpacity);
 		fresnelTeamColor = diffuseLayer.getInterpolatedFloat(timeEnvironment, MdlUtils.TOKEN_FRESNEL_TEAM_COLOR, 0);
 

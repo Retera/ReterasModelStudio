@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.browsers.unit;
 import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.ObjectData;
-import com.hiveworkshop.rms.ui.application.ImportFileActions;
+import com.hiveworkshop.rms.ui.application.InternalFileLoader;
 import com.hiveworkshop.rms.ui.application.MainFrame;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableAbilityData;
@@ -313,7 +313,7 @@ public class UnitOptionPanel extends JPanel {
 	private static boolean isValidFilepath(String filepath) {
 		try {
 			//check model by converting its path
-			ImportFileActions.convertPathToMDX(filepath);
+			InternalFileLoader.convertPathToMDX(filepath);
 		} catch (final Exception exc) {
 			exc.printStackTrace();
 			JOptionPane.showMessageDialog(MainFrame.frame,

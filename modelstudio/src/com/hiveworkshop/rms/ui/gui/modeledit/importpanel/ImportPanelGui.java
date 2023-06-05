@@ -1,9 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ModelLoader;
-import com.hiveworkshop.rms.ui.application.actionfunctions.File;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
@@ -12,6 +10,7 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.function.Consumer;
 
 public class ImportPanelGui extends JTabbedPane {
 	public static final ImageIcon animIcon = RMSIcons.animIcon;// new ImageIcon(ImportPanel.class.getClassLoader().getResource("ImageBin/anim_small.png"));
@@ -30,17 +29,16 @@ public class ImportPanelGui extends JTabbedPane {
 	private JFrame frame;
 	private final ModelHolderThing mht;
 
-	//	private final ImportPanel2 importPanel2;
 	private final ImportPanelNoGui2 importPanel2;
+	Consumer<EditableModel> modelConsumer;
 
-
-	public ImportPanelGui(final EditableModel receivingModel, final EditableModel donatingModel) {
-		this(new ModelHolderThing(receivingModel, donatingModel));
+	public ImportPanelGui(final EditableModel receivingModel, final EditableModel donatingModel, Consumer<EditableModel> modelConsumer) {
+		this(new ModelHolderThing(receivingModel, donatingModel), modelConsumer);
 	}
 
-	public ImportPanelGui(ModelHolderThing mht) {
+	public ImportPanelGui(ModelHolderThing mht, Consumer<EditableModel> modelConsumer) {
 		this.mht = mht;
-//		importPanel2 = new ImportPanel2(mht);
+		this.modelConsumer = modelConsumer;
 		importPanel2 = new ImportPanelNoGui2(mht);
 		makeTabs();
 
@@ -130,11 +128,12 @@ public class ImportPanelGui extends JTabbedPane {
 	private void applyImport(JFrame frame) {
 		EditableModel editableModel = importPanel2.doImport();
 		frame.setVisible(false);
-//		saveModel(mht.receivingModel);
-//		saveModel(editableModel);
-		ModelPanel modelPanel = new ModelPanel(new ModelHandler(editableModel));
-		ModelLoader.loadModel(true, true, modelPanel);
-//		saveModel(editableModel);
+		if(modelConsumer != null){
+			modelConsumer.accept(editableModel);
+		} else {
+			ModelPanel modelPanel = new ModelPanel(new ModelHandler(editableModel));
+			ModelLoader.loadModel(true, true, modelPanel);
+		}
 		frame.dispose();
 	}
 
@@ -146,11 +145,5 @@ public class ImportPanelGui extends JTabbedPane {
 			frame.dispose();
 			frame = null;
 		}
-	}
-
-
-	private void saveModel(EditableModel model) {
-		File.onClickSaveAs(null, FileDialog.SAVE_MODEL, model);
-		JOptionPane.showMessageDialog(null, "Animation transfer done!");
 	}
 }

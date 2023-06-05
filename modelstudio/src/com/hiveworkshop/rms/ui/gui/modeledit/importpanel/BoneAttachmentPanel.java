@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.IdObjectShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.MatrixShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.MatrixShellListCellRenderer;
+import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.util.SearchableTwiList;
 import com.hiveworkshop.rms.ui.util.TwiList;
 import com.hiveworkshop.rms.util.IterableListModel;
@@ -62,11 +63,11 @@ class BoneAttachmentPanel extends JPanel {
 
 	private JPanel getUpDownPanel() {
 		JPanel upDownPanel = new JPanel(new MigLayout("gap 0 0 0 0"));
-		JButton moveUp = new JButton(ImportPanel.moveUpIcon);
+		JButton moveUp = new JButton(RMSIcons.moveUpIcon);
 		moveUp.addActionListener(e -> moveBone(-1));
 		upDownPanel.add(moveUp, "wrap");
 
-		JButton moveDown = new JButton(ImportPanel.moveDownIcon);
+		JButton moveDown = new JButton(RMSIcons.moveDownIcon);
 		moveDown.addActionListener(e -> moveBone(1));
 		upDownPanel.add(moveDown, "wrap");
 		return upDownPanel;
@@ -81,7 +82,7 @@ class BoneAttachmentPanel extends JPanel {
 		JScrollPane newRefsPane = new JScrollPane(newRefsList);
 		newBonesPanel.add(newRefsPane, "growy, growx, wrap");
 
-		JButton removeNewRef = new JButton("Remove", ImportPanel.redXIcon);
+		JButton removeNewRef = new JButton("Remove", RMSIcons.redXIcon);
 		removeNewRef.addActionListener(e -> removeNewRef());
 		newBonesPanel.add(removeNewRef, "alignx center");
 		return newBonesPanel;
@@ -95,7 +96,7 @@ class BoneAttachmentPanel extends JPanel {
 		bonesPanel.add(bonesList.getSearchField(), "grow, wrap");
 		bonesPanel.add(bonesList.getScrollableList(), "growy, growx, wrap");
 
-		JButton useBone = new JButton("Use Bone(s)", ImportPanel.greenArrowIcon);
+		JButton useBone = new JButton("Use Bone(s)", RMSIcons.greenArrowIcon);
 		useBone.addActionListener(e -> useBone());
 		bonesPanel.add(useBone, "alignx center");
 		return bonesPanel;

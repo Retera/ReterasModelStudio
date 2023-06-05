@@ -9,7 +9,6 @@ import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.editor.actions.model.material.ChangeMaterialAction;
 import com.hiveworkshop.rms.editor.actions.tools.ConvertToMatricesAction;
 import com.hiveworkshop.rms.editor.actions.tools.ConvertToSkinBonesAction;
-import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
@@ -18,6 +17,7 @@ import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
 import com.hiveworkshop.rms.ui.gui.modeledit.MaterialListRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.TwiComboBox;
+import com.hiveworkshop.rms.util.uiFactories.Button;
 import com.hiveworkshop.rms.util.uiFactories.Label;
 import net.miginfocom.swing.MigLayout;
 
@@ -33,6 +33,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 	private IntEditorJSpinner lodSpinner;
 	private TwiTextField nameTextField;
 	private final JButton toggleSdHd;
+	private final JButton recalculatTangents;
 	private IntEditorJSpinner selectionGroupSpinner;
 	private Geoset geoset;
 
@@ -60,9 +61,11 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 
 		JButton editUvButton = new JButton("Edit Geoset UVs");
 
-		toggleSdHd = new JButton("Make Geoset HD");
-		toggleSdHd.addActionListener(e -> toggleSdHd());
+		toggleSdHd = Button.create("Make Geoset HD", e -> toggleSdHd());
 		add(toggleSdHd, "wrap");
+
+		recalculatTangents = Button.create("Recalculate Tangents", e -> recalculateTangents());
+		add(recalculatTangents, "wrap");
 
 		visPanel = new GeosetVisPanel(modelHandler);
 		add(visPanel, "wrap, spanx");
@@ -182,16 +185,10 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 
 	private void toggleSdHd() {
 		if (geoset != null) {
-			if (geoset.isHD()) {
+			if (900 <= model.getFormatVersion() && geoset.hasSkin()) {
 				undoManager.pushAction(new ConvertToMatricesAction(geoset, changeListener).redo());
 			} else {
-				UndoAction convertToSkinBones = new ConvertToSkinBonesAction(geoset, null);
-				UndoAction recalculateTangs = new RecalculateTangentsAction(geoset.getVertices());
-				CompoundAction action = new CompoundAction("Make Geoset HD",
-						changeListener::geosetsUpdated,
-						convertToSkinBones,
-						recalculateTangs);
-				undoManager.pushAction(action.redo());
+				undoManager.pushAction(new ConvertToSkinBonesAction(geoset, changeListener).redo());
 			}
 			setToggleButtonText();
 		}
@@ -199,13 +196,24 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 
 	private void setToggleButtonText() {
 		toggleSdHd.setVisible(900 <= modelHandler.getModel().getFormatVersion());
-		if (geoset.isHD()) {
-			toggleSdHd.setText("Make Geoset SD");
+		recalculatTangents.setVisible(900 <= modelHandler.getModel().getFormatVersion());
+		if (geoset.hasSkin()) {
+			toggleSdHd.setText("Convert SkinWeights to Matrices");
 		} else {
-			toggleSdHd.setText("Make Geoset HD");
+			toggleSdHd.setText("Convert Matrices to SkinWeights");
+		}
+		if (geoset.hasTangents()) {
+			recalculatTangents.setText("Recalculate Tangents");
+		} else {
+			recalculatTangents.setText("Calculate Tangents");
 		}
 	}
 
+	private void recalculateTangents() {
+		if (900 <= model.getFormatVersion()) {
+			undoManager.pushAction(new RecalculateTangentsAction(geoset.getVertices()).redo());
+		}
+	}
 	private void setLoDName(String newName) {
 		if (!newName.equals(geoset.getLevelOfDetailName())) {
 			undoManager.pushAction(new ChangeLoDNameAction(newName, geoset, changeListener).redo());

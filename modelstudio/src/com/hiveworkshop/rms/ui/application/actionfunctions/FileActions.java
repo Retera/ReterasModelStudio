@@ -11,9 +11,12 @@ import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.ImageUtils.ImageCreator;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
-public class File {
+public class FileActions {
 	private static final FileDialog fileDialog = new FileDialog();
 
 	public static class Save extends ActionFunction{
@@ -37,13 +40,13 @@ public class File {
 
 
 	public static void onClickOpen(int operationType) {
-		java.io.File file = fileDialog.openFile(operationType);
+		File file = fileDialog.openFile(operationType);
 
 		if (file != null) {
 			openFile(file);
 		}
 	}
-	public static void openFile(final java.io.File file) {
+	public static void openFile(final File file) {
 		if (file != null) {
 			SaveProfile.get().setPath(file.getParent());
 
@@ -51,6 +54,45 @@ public class File {
 			ProgramGlobals.getMenuBar().updateRecent();
 			ModelLoader.loadFile(file);
 		}
+	}
+
+	public static EditableModel onClickOpenGetModel(int operationType) {
+		File file = fileDialog.openFile(operationType);
+
+		if (file != null) {
+			try {
+				MdxUtils.loadEditable(file);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			SaveProfile.get().setPath(file.getParent());
+
+			SaveProfile.get().addRecent(file.getPath());
+			ProgramGlobals.getMenuBar().updateRecent();
+		}
+		return null;
+	}
+	public static File onClickOpenGetFile(int operationType) {
+		File file = fileDialog.openFile(operationType);
+
+		if (file != null) {
+			SaveProfile.get().setPath(file.getParent());
+			SaveProfile.get().addRecent(file.getPath());
+			ProgramGlobals.getMenuBar().updateRecent();
+			return file;
+		}
+		return null;
+	}
+	public static File onClickOpenGetFile(int operationType, Component parent) {
+		File file = fileDialog.setParent(parent).openFile(operationType);
+
+		if (file != null) {
+			SaveProfile.get().setPath(file.getParent());
+			SaveProfile.get().addRecent(file.getPath());
+			ProgramGlobals.getMenuBar().updateRecent();
+			return file;
+		}
+		return null;
 	}
 
 	public static void onClickSave(ModelPanel modelPanel) {
@@ -68,7 +110,7 @@ public class File {
 	}
 
 
-	private static void saveModel(EditableModel model, java.io.File modelFile, ModelPanel modelPanel) {
+	private static void saveModel(EditableModel model, File modelFile, ModelPanel modelPanel) {
 		String ext = fileDialog.getExtension(modelFile);
 
 		try {
@@ -107,7 +149,7 @@ public class File {
 			}
 		}
 
-		java.io.File file = fileDialog.getSaveFile(operationType, fileName);
+		File file = fileDialog.getSaveFile(operationType, fileName);
 
 		if (file != null) {
 			String ext = fileDialog.getExtension(file).toLowerCase();

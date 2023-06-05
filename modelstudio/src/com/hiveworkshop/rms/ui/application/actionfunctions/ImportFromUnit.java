@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.actionfunctions;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.ui.application.InternalFileLoader;
+import com.hiveworkshop.rms.ui.application.ModelLoader;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -19,7 +20,7 @@ public class ImportFromUnit extends ActionFunction{
 	public static void importUnitActionRes(ModelHandler modelHandler){
 		EditableModel animationSource = getFileModel();
 		if (animationSource != null) {
-			ImportPanelGui importPanel = new ImportPanelGui(modelHandler.getModel(), animationSource);
+			new ImportPanelGui(modelHandler.getModel(), animationSource, ModelLoader::loadModel);
 		}
 		if (ProgramGlobals.getCurrentModelPanel() != null) {
 			ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();

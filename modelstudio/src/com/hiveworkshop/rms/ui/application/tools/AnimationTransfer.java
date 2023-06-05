@@ -1,17 +1,25 @@
 package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
+import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.ModelLoader;
 import com.hiveworkshop.rms.ui.application.actionfunctions.ActionFunction;
+import com.hiveworkshop.rms.ui.application.actionfunctions.FileActions;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.RMSFileChooser;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanelGui;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ModelHolderThing;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.IdObjectShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.VisibilityShell;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.language.TextKey;
-import com.hiveworkshop.rms.ui.preferences.SaveProfile;
-import com.hiveworkshop.rms.ui.util.ExceptionPopup;
+import com.hiveworkshop.rms.ui.util.TwiPopup;
 import com.hiveworkshop.rms.util.TwiComboBox;
+import com.hiveworkshop.rms.util.uiFactories.Button;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -21,30 +29,32 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 public class AnimationTransfer extends JPanel {
-	private String outFilePath;
-	private final List<Animation> animsToTransfer = new ArrayList<>();
-	private final List<Animation> orgAnims = new ArrayList<>();
 	private Animation animToTransfer;
 	private Animation visAnim;
 
-	private final RMSFileChooser fc = new RMSFileChooser();
-	private EditableModel receivingModel;
-	private EditableModel animModel;
 	private JFrame parentFrame;
 
 	private boolean singleAnimation;
+	private boolean clearExistingAnimations;
 
-	public AnimationTransfer(String path, final JFrame parentFrame) {
-		this(path);
+	private final ModelTracker recModelTracker;
+	private final ModelTracker donModelTracker;
+
+	public AnimationTransfer(final JFrame parentFrame) {
+		this();
 		this.parentFrame = parentFrame;
 	}
 
-	public AnimationTransfer(String path) {
+	public AnimationTransfer() {
 		setLayout(new MigLayout("gap 0"));
-		setCurrentPath(path);
+		recModelTracker = new ModelTracker(this);
+		donModelTracker = new ModelTracker(this);
 
 		add(getFileFieldsPanel(), "growx, spanx, wrap");
 
@@ -55,11 +65,10 @@ public class AnimationTransfer extends JPanel {
 
 	private JPanel getButtonPanel() {
 		JPanel buttonPanel = new JPanel(new MigLayout());
-		buttonPanel.add(getSpecialButton("Transfer", e -> doTransfer(false, singleAnimation), new Dimension(200, 35), KeyEvent.VK_T));
-		buttonPanel.add(getSpecialButton("Close", e -> done(), new Dimension(80, 35), KeyEvent.VK_D), "wrap");
-//		buttonPanel.add(getSpecialButton("Save", e -> done(), new Dimension(80, 35), KeyEvent.VK_D));
+		buttonPanel.add(getSpecialButton("Transfer", e -> doTransferSimple(), new Dimension(200, 35), KeyEvent.VK_T));
+		buttonPanel.add(getSpecialButton("Close", e -> close(), new Dimension(80, 35), KeyEvent.VK_D), "wrap");
 
-		JButton goAdvanced = getSpecialButton("Go Advanced", e -> doTransfer(true, singleAnimation), null, KeyEvent.VK_G);
+		JButton goAdvanced = getSpecialButton("Go Advanced", e -> goAdvanced(), null, KeyEvent.VK_G);
 		goAdvanced.setToolTipText(
 				"Opens the traditional MatrixEater Import window responsible for this Simple Import, " +
 						"so that you can micro-manage particular settings before finishing the operation.");
@@ -71,37 +80,15 @@ public class AnimationTransfer extends JPanel {
 		JPanel fileFieldsPanel = new JPanel(new MigLayout("gap 0, wrap 3", "[grow]8[align right]8[align right]"));
 
 		fileFieldsPanel.add(new JLabel("Base file:"), "growx");
-		TwiTextField modelField = new TwiTextField(24, fp -> setReceivingModel(getModel(receivingModel, fp)));
-		fileFieldsPanel.add(modelField);
-		fileFieldsPanel.add(getBrowseButton(e -> modelField.setTextAndRun(openAction())));
+		fileFieldsPanel.add(recModelTracker.getTextField());
+		fileFieldsPanel.add(recModelTracker.getBrowseButton());
 
 
 		fileFieldsPanel.add(new JLabel("Animation file:"), "growx");
-		TwiTextField animField = new TwiTextField(24, fp -> setAnimModel(getModel(animModel, fp)));
-		fileFieldsPanel.add(animField);
-		fileFieldsPanel.add(getBrowseButton(e -> animField.setTextAndRun(openAction())));
+		fileFieldsPanel.add(donModelTracker.getTextField());
+		fileFieldsPanel.add(donModelTracker.getBrowseButton());
 
-//		fileFieldsPanel.add(new JLabel("Output file:"), "growx");
-//		TwiTextField outField = new TwiTextField(24, fp -> outFilePath = fp);
-//		fileFieldsPanel.add(outField);
-//		fileFieldsPanel.add(getBrowseButton(e -> outField.setTextAndRun(openAction())));
-//		// TODO: remove save field and make "transfer" (and finished in ImportPanel) open save dialog
 		return fileFieldsPanel;
-	}
-
-	private void setReceivingModel(EditableModel model){
-		orgAnims.clear();
-		receivingModel = model;
-		if (receivingModel != null) {
-			orgAnims.addAll(receivingModel.getAnims());
-		}
-	}
-	private void setAnimModel(EditableModel model){
-		animsToTransfer.clear();
-		animModel = model;
-		if (animModel != null) {
-			animsToTransfer.addAll(animModel.getAnims());
-		}
 	}
 
 	private JPanel getAnimTransferPanel() {
@@ -109,15 +96,18 @@ public class AnimationTransfer extends JPanel {
 
 		JLabel animLabel = new JLabel("Animation to transfer:");
 		animLabel.setEnabled(false);
-		TwiComboBox<Animation> pickAnimBox = new TwiComboBox<>(animsToTransfer, new Animation("PrototypePrototypePrototype", 0, 1));
-		pickAnimBox.addOnSelectItemListener(a -> animToTransfer = a);
+		TwiComboBox<Animation> pickAnimBox = donModelTracker.getAnimBox(a -> animToTransfer = a);
 		pickAnimBox.setEnabled(false);
 
 		JLabel visLabel = new JLabel("Get visibility from:");
 		visLabel.setEnabled(false);
-		TwiComboBox<Animation> visFromBox = new TwiComboBox<>(orgAnims, new Animation("PrototypePrototypePrototype", 0, 1));
-		visFromBox.addOnSelectItemListener(a -> visAnim = a);
+		TwiComboBox<Animation> visFromBox = recModelTracker.getAnimBox(a -> visAnim = a);
 		visFromBox.setEnabled(false);
+
+
+		JCheckBox clearExistingAnimations = new JCheckBox("Clear Existing Animations", false);
+		clearExistingAnimations.addActionListener(e -> this.clearExistingAnimations = clearExistingAnimations.isSelected());
+		animTransferPanel.add(clearExistingAnimations, "spanx, wrap");
 
 		JCheckBox transferSingleAnimation = new JCheckBox("Transfer single animation:", false);
 		transferSingleAnimation.addActionListener(e -> {
@@ -127,7 +117,6 @@ public class AnimationTransfer extends JPanel {
 			visFromBox.setEnabled(singleAnimation);
 			visLabel.setEnabled(singleAnimation);
 		});
-//		transferSingleAnimation.setHorizontalTextPosition(SwingConstants.LEADING);
 		animTransferPanel.add(transferSingleAnimation, "spanx, wrap");
 
 		animTransferPanel.add(animLabel);
@@ -136,9 +125,6 @@ public class AnimationTransfer extends JPanel {
 		animTransferPanel.add(visLabel);
 		animTransferPanel.add(visFromBox, "growx");
 		return animTransferPanel;
-	}
-	private void setCurrentPath(String path) {
-		fc.setCurrentDirectory(new File(path));
 	}
 
 	private JButton getSpecialButton(String text, ActionListener actionListener, Dimension minimumSize, int mnem) {
@@ -159,7 +145,7 @@ public class AnimationTransfer extends JPanel {
 				| ClassNotFoundException
 				| InstantiationException
 				| IllegalAccessException e) {
-			// handle exception
+			e.printStackTrace();
 		}
 		AnimationTransfer.showWindow();
 
@@ -168,7 +154,7 @@ public class AnimationTransfer extends JPanel {
 	public static void showWindow() {
 		JFrame parentFrame = new JFrame("Animation Transferer");
 		parentFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		AnimationTransfer contentPane = new AnimationTransfer(SaveProfile.get().getPath(), parentFrame);
+		AnimationTransfer contentPane = new AnimationTransfer(parentFrame);
 		parentFrame.setContentPane(contentPane);
 		parentFrame.setIconImage(RMSIcons.AnimIcon.getImage());
 		parentFrame.pack();
@@ -176,156 +162,225 @@ public class AnimationTransfer extends JPanel {
 		parentFrame.setVisible(true);
 	}
 
-	public JButton getBrowseButton(ActionListener actionListener) {
-		final Dimension dim = new Dimension(28, 18);
-		JButton baseBrowse = new JButton("...");
-		baseBrowse.setMaximumSize(dim);
-		baseBrowse.setMinimumSize(dim);
-		baseBrowse.setPreferredSize(dim);
-		baseBrowse.addActionListener(actionListener);
-		return baseBrowse;
-	}
-
-	private String openAction() {
-		fc.setDialogTitle("Open");
-		int returnValue = fc.showOpenDialog(this);
-
-		if (returnValue == JFileChooser.APPROVE_OPTION) {
-			String filepath = fc.getSelectedFile().getPath();
-			if (!filepath.toLowerCase().endsWith(".mdl") && !filepath.toLowerCase().endsWith(".mdx")) {
-				filepath += ".mdl";
-			}
-			return filepath;
-		}
-		return "";
-	}
-
-	private EditableModel getModel(EditableModel modelToSet, String newPath) {
-		if (newPath.length() > 0
-				&& (modelToSet == null
-				|| modelToSet.getFile() == null
-				|| !newPath.equals(modelToSet.getFile().getPath()))) {
-			try {
-				File file = new File(newPath);
-				EditableModel model = MdxUtils.loadEditable(file);
-				model.setFileRef(file);
-				return model;
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return modelToSet;
-	}
-
-	private void doTransfer(boolean show, boolean transferSingleAnim) {
-		EditableModel receivingModel = this.receivingModel;
-		EditableModel donatingModel = animModel;
-
-		if (receivingModel != null) {
-			if (!transferSingleAnim) {
-				new Thread(() -> doImportIngStuff(show, false, receivingModel, donatingModel, () -> saveModel(receivingModel))).start();
-			} else {
-				new Thread(() -> doImportIngStuff(show, true, receivingModel, donatingModel, () -> doImportThings2(show, receivingModel))).start();
-			}
+	private void doTransferSimple() {
+		EditableModel receivingModel = recModelTracker.model;
+		EditableModel donatingModel = donModelTracker.model;
+		System.out.println("doTransfer");
+		if (receivingModel != null && donatingModel != null) {
+			receivingModel.setFilePath(getNewPath(receivingModel.getFile().getPath()));
+			new Thread(() -> doImportSimple(receivingModel, donatingModel)).start();
 		}
 	}
 
-	private void doImportIngStuff(boolean show, boolean transferSingleAnim, EditableModel receivingModel, EditableModel donatingModel, Runnable runnable) {
-		ImportPanel importPanel = new ImportPanel(receivingModel, donatingModel, show);
-		importPanel.animTransfer(transferSingleAnim, animToTransfer, visAnim, show);
-		waitWhileVisible(importPanel);
+	private void doImportSimple(EditableModel receivingModel, EditableModel donatingModel) {
+		AnimTransferFunction importPanel = new AnimTransferFunction(receivingModel, donatingModel);
 
-		if (importPanel.importStarted()) {
-			waitForPanel(importPanel);
+		List<Sequence> anims = new ArrayList<>();
 
-			if (importPanel.importSuccessful()) {
-				runnable.run();
-			}
+
+		if(!clearExistingAnimations) {
+			anims.addAll(receivingModel.getAllSequences());
+		} else {
+			anims.addAll(receivingModel.getGlobalSeqs());
+		}
+
+		System.out.println("visAnim: " + visAnim);
+		if(singleAnimation) {
+			anims.add(animToTransfer);
+		} else {
+			anims.addAll(donatingModel.getAnims());
+			visAnim = null;
+		}
+
+		importPanel.animTransfer(anims, visAnim);
+		onImportDone(receivingModel, donatingModel, receivingModel);
+	}
+
+	private void goAdvanced() {
+		EditableModel receivingModel = recModelTracker.model;
+		EditableModel donatingModel = donModelTracker.model;
+		System.out.println("doTransfer");
+		if (receivingModel != null && donatingModel != null) {
+			receivingModel.setFilePath(getNewPath(receivingModel.getFile().getPath()));
+			new Thread(() -> doImportWithUI(receivingModel, donatingModel)).start();
 		}
 	}
 
-
-	private EditableModel getEditableModel(String filePath) {
-		try {
-			File modelFile = new File(filePath);
-			EditableModel model = MdxUtils.loadEditable(modelFile);
-			model.setFileRef(modelFile);
-			return model;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
+	private String getNewPath(String orgRecModelPath){
+		String[] split = orgRecModelPath.split("(?=\\.\\w\\w\\w$)");
+		if (singleAnimation && animToTransfer != null){
+			return split[0] + "_" + animToTransfer.getName() + split[1];
+		} else {
+			return split[0] + "_IMP" + split[1];
 		}
 	}
 
-	private void doImportThings2(boolean show, EditableModel receivingModel) {
-		EditableModel newDonatingModel = getEditableModel(receivingModel.getFile().getPath());
-		ImportPanel importPanel2 = new ImportPanel(receivingModel, newDonatingModel, show);
+	private void doImportWithUI(EditableModel receivingModel, EditableModel donatingModel) {
+		ModelHolderThing mht = new ModelHolderThing(receivingModel, donatingModel);
+		mht.recModAnims.forEach(g -> g.setDoImport(false));
+		mht.donModGeoShells.forEach(g -> g.setDoImport(false));
 
-		importPanel2.animTransferPartTwo(animToTransfer, visAnim, show);
-		saveModel(receivingModel);
-	}
+//		mht.setImportStatusForAllDonBones(IdObjectShell.ImportType.MOTION_FROM);
+		mht.donModBoneShells.forEach(shell -> shell.setShouldImport(false));
 
-	private void saveModel(EditableModel model) {
-		if(saveAction(model)) {
-			JOptionPane.showMessageDialog(null, "Animation transfer done!");
-		}
-	}
+		mht.donModObjectShells.forEach(shell -> shell.setShouldImport(false));
 
-	private boolean saveAction(EditableModel model) {
-		fc.setDialogTitle("Save");
-		fc.setSelectedFile(model.getFile());
-		int returnValue = fc.showSaveDialog(this);
+		mht.visibilityList();
+		mht.selectSimilarVisSources();
+		matchMotionBones(mht.donModBoneShells, mht.recModBoneShells);
 
-		if (returnValue == JFileChooser.APPROVE_OPTION) {
-			File file = fc.getSelectedFile();
-			if (file != null) {
-				String filepath = file.getPath();
-				String ext = filepath.substring(filepath.lastIndexOf('.') + 1);
-
-				try {
-					if (ext.equals("mdl")) {
-						MdxUtils.saveMdl(model, file);
-					} else {
-						MdxUtils.saveMdx(model, file);
+		// Try assuming it's a unit with a corpse; they'll tend to be that way
+		// Iterate through new visibility sources, find a geoset with gutz material
+		for (VisibilityShell<?> donVis : mht.donModVisibilityShells) {
+			if (isGutz(donVis)) {
+				for (VisibilityShell<?> impVis : mht.futureVisComponents) {
+					if (isGutz(impVis)) {
+						impVis.setRecModAnimsVisSource(donVis);
 					}
-					model.setFileRef(file);
-					SaveProfile.get().addRecent(file.getPath());
-					return true;
-				} catch (final Exception exc) {
-					exc.printStackTrace();
-					ExceptionPopup.display(exc);
 				}
+				break;
+			}
+		}
+
+		new ImportPanelGui(mht, model -> onImportDone(receivingModel, donatingModel, model));
+	}
+
+	public void matchMotionBones(List<IdObjectShell<?>> othersBoneShells, List<IdObjectShell<?>> selfBoneShells) {
+		Map<String, IdObjectShell<?>> nameMap = new HashMap<>();
+
+		for (IdObjectShell<?> boneShell : othersBoneShells) {
+			nameMap.put(boneShell.getName(), boneShell);
+		}
+
+		for (IdObjectShell<?> boneShell : selfBoneShells) {
+			if (nameMap.containsKey(boneShell.getName()) && (boneShell.getMotionSrcShell() == null)) {
+				boneShell.setMotionSrcShell(nameMap.get(boneShell.getName()));
+			}
+		}
+		repaint();
+	}
+	private boolean isGutz(VisibilityShell<?> donVis) {
+		boolean isGeoset = donVis.getSource() instanceof Geoset;
+		if(isGeoset){
+			boolean hasGeoAnim = ((Geoset) donVis.getSource()).hasAnim();
+			if(hasGeoAnim){
+				Bitmap bitmap = ((Geoset) donVis.getSource()).getMaterial().firstLayer().firstTexture();
+				return bitmap.getPath().equalsIgnoreCase("textures\\gutz.blp");
 			}
 		}
 		return false;
 	}
 
-	private void waitForPanel(ImportPanel importPanel) {
-		while (!importPanel.importEnded()) {
-			trySleep();
+
+	private void onImportDone(EditableModel receivingModel, EditableModel donatingModel, EditableModel model) {
+		String[] open_save = new String[]{"Open Model", "Save Model", "Cancel Import"};
+//		int option = JOptionPane.showOptionDialog(this,  "Imported from [" + donatingModel.getName() + "] into [" + receivingModel.getName() + "]", "Import Done", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, open_save, open_save[0]);
+		int option = JOptionPane.showOptionDialog(this,  "Imported from [" + donatingModel.getName() + "] into [" + receivingModel.getName() + "]", "Import Done", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, open_save, open_save[0]);
+		System.out.println("import done! opt: " + option);
+		if(option == 0){
+			ModelLoader.loadModel(model);
+			parentFrame.setVisible(false);
+			parentFrame.dispose();
+		} else if (option == 2){
+			recModelTracker.reloadModel();
+		} else {
+			saveModel(receivingModel, donatingModel, model);
 		}
 	}
 
-	private void waitWhileVisible(ImportPanel importPanel) {
-		while (importPanel.getParentFrame().isVisible()
-				&& (!importPanel.importStarted()
-				|| importPanel.importEnded())) {
-			trySleep();
+	private void saveModel(EditableModel receivingModel, EditableModel donatingModel, EditableModel model) {
+		if(FileActions.onClickSaveAs(null, FileDialog.SAVE_MODEL, model)) {
+			TwiPopup.quickDismissPopup(this, "Animation transfer done!", "Animation Transfer Done");
+			recModelTracker.reloadModel();
+		} else {
+			onImportDone(receivingModel, donatingModel, model);
 		}
 	}
 
-	private void trySleep() {
-		try {
-			Thread.sleep(1);
-		} catch (final Exception e) {
-			ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
-		}
-	}
-
-	private void done() {
+	private void close() {
 		parentFrame.setVisible(false);
 		parentFrame.dispose();
 	}
+
+	private static class ModelTracker {
+		Component parent;
+		EditableModel model;
+		String path;
+		private final List<Animation> anims = new ArrayList<>();
+		TwiTextField modelField;
+		Color orgBGColor;
+		Color errorBGColor = new Color(200, 180, 180);
+		TwiComboBox<Animation> pickAnimBox;
+
+//		private final RMSFileChooser fc = new RMSFileChooser();
+
+		ModelTracker(Component parent){
+			this.parent = parent;
+			modelField = new TwiTextField(24, fp -> setModel(getModel(path, fp)));
+			orgBGColor = modelField.getBackground();
+			pickAnimBox = new TwiComboBox<>(anims, new Animation("PrototypePrototypePrototype", 0, 1));
+		}
+
+		TwiTextField getTextField(){
+			return modelField;
+		}
+
+		public JButton getBrowseButton() {
+			return Button.forceSize(Button.create("...", e -> openAction()), 28, 18);
+		}
+
+		public TwiComboBox<Animation> getAnimBox(Consumer<Animation> animConsumer){
+			if(animConsumer != null){
+				pickAnimBox.addOnSelectItemListener(animConsumer);
+			}
+			return pickAnimBox;
+		}
+
+		public void reloadModel(){
+			setModel(getModel("", path));
+		}
+
+		private void openAction() {
+			File file = FileActions.onClickOpenGetFile(FileDialog.OPEN_WC_MODEL, parent);
+			if(file != null){
+				modelField.setTextAndRun(file.getPath());
+			}
+		}
+
+		private void setModel(EditableModel model){
+			if(model != this.model){
+				Animation selected = pickAnimBox.getSelected();
+				anims.clear();
+				this.model = model;
+				if (model != null) {
+					anims.addAll(model.getAnims());
+					path = model.getFile().getPath();
+					modelField.setBackground(orgBGColor);
+				} else {
+					modelField.setBackground(errorBGColor);
+				}
+				pickAnimBox.selectOrFirstWithListener(selected);
+			}
+		}
+
+		private EditableModel getModel(String oldPath, String newPath) {
+			if (0 < newPath.length() && (!newPath.equals(oldPath))) {
+				try {
+					File file = new File(newPath);
+					if(file.exists()){
+						EditableModel model = MdxUtils.loadEditable(file);
+						model.setFileRef(file);
+						return model;
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+
+			return null;
+		}
+	}
+
 
 	private static class AnimTransfer extends ActionFunction {
 		AnimTransfer(){

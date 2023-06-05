@@ -112,7 +112,7 @@ public class CloseModel extends ActionFunction {
 						"Warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
 						options[2]);
 				return switch (n) {
-					case JOptionPane.YES_OPTION -> File.onClickSaveAs(modelPanel, FileDialog.SAVE);
+					case JOptionPane.YES_OPTION -> FileActions.onClickSaveAs(modelPanel, FileDialog.SAVE);
 					case JOptionPane.NO_OPTION -> true;
 					default -> false;
 				};
@@ -133,7 +133,7 @@ public class CloseModel extends ActionFunction {
 					"Warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
 					options[2]);
 			return switch (n) {
-				case JOptionPane.YES_OPTION -> File.onClickSaveAs(modelPanel, FileDialog.SAVE);
+				case JOptionPane.YES_OPTION -> FileActions.onClickSaveAs(modelPanel, FileDialog.SAVE);
 				case JOptionPane.NO_OPTION -> true;
 				default -> false;
 			};
