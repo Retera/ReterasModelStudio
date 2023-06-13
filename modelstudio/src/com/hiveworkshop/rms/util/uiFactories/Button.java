@@ -72,6 +72,10 @@ public class Button {
 		return button;
 	}
 
+	public static JButton setTooltip(JButton button, String text){
+		button.setToolTipText(text);
+		return button;
+	}
 	public static JButton forceSize(JButton button, int width, int height){
 		return forceSize(button, new Dimension(width, height));
 	}

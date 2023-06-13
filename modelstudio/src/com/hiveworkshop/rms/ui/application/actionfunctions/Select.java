@@ -29,6 +29,7 @@ public class Select {
 	private static SelectNodeGeometry selectNodeGeometry;
 	private static SelectGeometryNodes selectGeometryNodes;
 	private static SelectLinkedGeometry selectLinkedGeometry;
+	private static DeselectRandom deselectRandom;
 
 	private static class SelectAll extends ActionFunction {
 
@@ -78,6 +79,12 @@ public class Select {
 		}
 	}
 
+	private static class DeselectRandom extends ActionFunction{
+		DeselectRandom() {
+			super(TextKey.DESELECT_RANDOM, Select::deselectEveryOtherVert);
+		}
+	}
+
 
 
 //	public static JMenuItem getSelectAllMenuItem(){
@@ -117,6 +124,9 @@ public class Select {
 	}
 	public static JMenuItem getSelectLinkedGeometryMenuItem(){
 		return getSelectLinkedGeometry().getMenuItem();
+	}
+	public static JMenuItem getDeselectRandomMenuItem(){
+		return getDeselectRandom().getMenuItem();
 	}
 
 
@@ -161,6 +171,12 @@ public class Select {
 			selectLinkedGeometry = new SelectLinkedGeometry();
 		}
 		return selectLinkedGeometry;
+	}
+	public static ActionFunction getDeselectRandom(){
+		if(deselectRandom == null){
+			deselectRandom = new DeselectRandom();
+		}
+		return deselectRandom;
 	}
 
 	private static void selectAll(ModelHandler modelHandler) {
@@ -371,6 +387,27 @@ public class Select {
 		}
 	}
 
+	private static void deselectEveryOtherVert(ModelHandler modelHandler) {
+		ModelView modelView = modelHandler.getModelView();
+
+
+		Set<GeosetVertex> selectedVertices = modelView.getSelectedVertices();
+		Set<GeosetVertex> newSelection = new HashSet<>();
+		boolean isOdd = true;
+		for (GeosetVertex vertex : selectedVertices) {
+			if(isOdd) {
+				newSelection.add(vertex);
+			}
+			isOdd = !isOdd;
+		}
+
+
+		if(!modelView.sameSelection(newSelection, modelView.getSelectedIdObjects(), modelView.getSelectedCameraNodes())) {
+			SelectionBundle bundle = new SelectionBundle(newSelection, modelView.getSelectedIdObjects(), modelView.getSelectedCameraNodes());
+			UndoAction action = new SetSelectionUggAction(bundle, modelView, "shrink selection", ModelStructureChangeListener.changeListener);
+			modelHandler.getUndoManager().pushAction(action.redo());
+		}
+	}
 
 	private static class ModAddSelect extends ActionFunction {
 

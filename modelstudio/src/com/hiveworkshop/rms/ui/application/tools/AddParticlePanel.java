@@ -73,6 +73,7 @@ public class AddParticlePanel extends JPanel{
 		super(new MigLayout());
 		particle = getParticleEmitter2(particleInformation);
 		if (particle == null) return;
+		particle.setParent(null);
 		String name = particleInformation.getName();
 
 		add(new JLabel(new ImageIcon(particleInformation.getImage().getScaledInstance(128, 128, Image.SCALE_SMOOTH))));

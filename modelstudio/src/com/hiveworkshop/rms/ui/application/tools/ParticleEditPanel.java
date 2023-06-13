@@ -1,9 +1,13 @@
 package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddAnimFlagAction;
 import com.hiveworkshop.rms.editor.actions.nodes.AddNodeAction;
 import com.hiveworkshop.rms.editor.actions.nodes.SetFromOtherParticle2Action;
+import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
@@ -26,8 +30,11 @@ import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
+import java.util.List;
+import java.util.Timer;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class ParticleEditPanel extends JPanel {
 	private final static String SLIDER_CONSTRAINTS = "wrap, growx, spanx";
@@ -36,12 +43,23 @@ public class ParticleEditPanel extends JPanel {
 	private final PerspectiveViewport perspectiveViewport;
 	private final ParticleEmitter2 particleEmitter2;
 	private ParticleEmitter2 copy;
+	Map<String, Function<ParticleEmitter2, Double>> nameToValueGetter = new HashMap<>();
+	{
+		nameToValueGetter.put(MdlUtils.TOKEN_WIDTH, ParticleEmitter2::getWidth);
+		nameToValueGetter.put(MdlUtils.TOKEN_LENGTH, ParticleEmitter2::getLength);
+		nameToValueGetter.put(MdlUtils.TOKEN_LATITUDE, ParticleEmitter2::getLatitude);
+		nameToValueGetter.put(MdlUtils.TOKEN_VARIATION, ParticleEmitter2::getVariation);
+		nameToValueGetter.put(MdlUtils.TOKEN_SPEED, ParticleEmitter2::getSpeed);
+		nameToValueGetter.put(MdlUtils.TOKEN_GRAVITY, ParticleEmitter2::getGravity);
+		nameToValueGetter.put(MdlUtils.TOKEN_EMISSION_RATE, ParticleEmitter2::getEmissionRate);
+		nameToValueGetter.put(MdlUtils.TOKEN_LIFE_SPAN, ParticleEmitter2::getLifeSpan);
+	}
 
 	public ParticleEditPanel(ParticleEmitter2 particleEmitter2) {
 		super(new MigLayout("", "[]", ""));
 		this.particleEmitter2 = particleEmitter2;
 
-		copy = particleEmitter2.copy();
+		copy = getCopyForEditing(particleEmitter2);
 		tempModelHandler = getModelHandler(copy);
 		perspectiveViewport = getViewport(tempModelHandler);
 
@@ -77,6 +95,7 @@ public class ParticleEditPanel extends JPanel {
 		JButton addAsNew = new JButton("Add as new Emitter");
 		addAsNew.addActionListener(e -> addAsNew());
 		add(addAsNew, "wrap");
+		updateSquirtTimer(copy.getSquirt());
 	}
 
 	private JPanel getSpinnerPanel() {
@@ -141,7 +160,7 @@ public class ParticleEditPanel extends JPanel {
 		sliderPanel.add(new SmartNumberSlider("Width", copy.getWidth(), 400, (i) -> copy.setWidth(i)).addLabelTooltip("Width of the spawn plane"), SLIDER_CONSTRAINTS + ", gaptop 5");
 		sliderPanel.add(new SmartNumberSlider("Length", copy.getLength(), 400, (i) -> copy.setLength(i)).addLabelTooltip("Length of the spawn plane"), SLIDER_CONSTRAINTS);
 
-		sliderPanel.add(new SmartNumberSlider("LifeSpan (~ 0.1 s)", copy.getLifeSpan() * 10, 200, (i) -> copy.setLifeSpan(i / 10d)).setMinLowerLimit(0).setMaxUpperLimit(1000), SLIDER_CONSTRAINTS);
+		sliderPanel.add(new SmartNumberSlider("LifeSpan (~ 0.1 s)", copy.getLifeSpan() * 10, 200, (i) -> {copy.setLifeSpan(i / 10d); updateSquirtTimer(copy.getSquirt());}).setMinLowerLimit(0).setMaxUpperLimit(1000), SLIDER_CONSTRAINTS);
 		sliderPanel.add(new SmartNumberSlider("TailLength", copy.getTailLength(), 100, (i) -> copy.setTailLength(i)), SLIDER_CONSTRAINTS);
 		sliderPanel.add(new SmartNumberSlider("Time (%)", copy.getTime() * 100, 0, 100, (i) -> copy.setTime(i / 100d), false, false).addLabelTooltip("Fraction of lifespan at which to start decaying"), SLIDER_CONSTRAINTS);
 
@@ -158,8 +177,31 @@ public class ParticleEditPanel extends JPanel {
 		flagPanel.add(getCheckBox("SortPrimsFarZ", copy.getSortPrimsFarZ(), (b) -> copy.setSortPrimsFarZ(b)), "wrap");
 		flagPanel.add(getCheckBox("ModelSpace", copy.getModelSpace(), (b) -> copy.setModelSpace(b)), "wrap");
 		flagPanel.add(getCheckBox("XYQuad", copy.getXYQuad(), (b) -> copy.setXYQuad(b)), "wrap");
-		flagPanel.add(getCheckBox("Squirt", copy.getSquirt(), (b) -> copy.setSquirt(b)), "wrap");
+//		flagPanel.add(getCheckBox("Squirt", copy.getSquirt(), (b) -> copy.setSquirt(b)), "wrap");
+
+
+		flagPanel.add(getCheckBox("Squirt", copy.getSquirt(), (b) -> {copy.setSquirt(b);updateSquirtTimer(b);}), "wrap");
+
 		return flagPanel;
+	}
+
+	Timer[] timer = new Timer[1];
+	private void updateSquirtTimer(boolean isSquirt){
+		if(timer[0] != null) {
+			timer[0].cancel();
+			timer[0] = null;
+		}
+
+		if (isSquirt) {
+			int delay = Math.max((int)(1300 * copy.getLifeSpan()), 2500);
+			timer[0] = new Timer();
+			TimerTask task = new TimerTask(){
+				public void run() {
+					tempModelHandler.getPreviewRenderModel().refreshFromEditor();
+				}
+			};
+			timer[0].schedule(task, delay, delay);
+		}
 	}
 	private EnumButtonGroup<ParticleEmitter2.P2Flag> getFlagPanel2() {
 		// if this gets used, a checkbox for "Squirt" needs to be added separately in a
@@ -188,17 +230,69 @@ public class ParticleEditPanel extends JPanel {
 		if (modelPanel != null) {
 			ParticleEmitter2 emitter2 = this.copy.copy();
 			emitter2.setParent(null);
+
+			for(AnimFlag<?> animFlag : particleEmitter2.getAnimFlags()){
+				if (animFlag != null){
+					emitter2.add(animFlag.deepCopy());
+				}
+			}
+
+			List<String> affectedAnims = getAffectedAnims(emitter2);
+			if(checkShouldScaleAnims(affectedAnims)){
+				for (String s : affectedAnims) {
+					AnimFlag<?> animFlag = emitter2.find(s);
+					if(animFlag instanceof FloatAnimFlag) {
+						double maxValue = nameToValueGetter.get(s).apply(emitter2);
+						scaleAnimAmplitude(animFlag, (float) maxValue);
+					}
+				}
+			}
 			UndoAction action = new AddNodeAction(modelPanel.getModel(), emitter2, ModelStructureChangeListener.changeListener);
 			modelPanel.getModelHandler().getUndoManager().pushAction(action.redo());
 		}
 	}
 
-	private void doApply() {
+	private void doApply1() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null && modelPanel.getModel().contains(particleEmitter2)) {
 			UndoAction action1 = new SetFromOtherParticle2Action(particleEmitter2, copy);
 			modelPanel.getModelHandler().getUndoManager().pushAction(action1.redo());
 		}
+	}
+	private void doApply() {
+
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null && modelPanel.getModel().contains(particleEmitter2)) {
+			UndoAction action1 = new SetFromOtherParticle2Action(particleEmitter2, copy);
+			List<String> affectedAnims = getAffectedAnims(particleEmitter2);
+			if(checkShouldScaleAnims(affectedAnims)){
+				List<UndoAction> undoActions = new ArrayList<>();
+				undoActions.add(action1);
+				for (String s : affectedAnims) {
+					UndoAction scaleAmplitudeAction = getScaleAmplitudeAction(particleEmitter2, s, nameToValueGetter.get(s).apply(copy));
+					if(scaleAmplitudeAction != null){
+						undoActions.add(scaleAmplitudeAction);
+					}
+				}
+				modelPanel.getModelHandler().getUndoManager().pushAction(new CompoundAction(action1.actionName(), undoActions).redo());
+			} else {
+				modelPanel.getModelHandler().getUndoManager().pushAction(action1.redo());
+			}
+		}
+	}
+
+	private boolean checkShouldScaleAnims(List<String> affectedAnims){
+		if(!affectedAnims.isEmpty()){
+			StringBuilder sb = new StringBuilder("The following is animated:\n");
+			for (String affectedAnim : affectedAnims) {
+				sb.append("    ").append(affectedAnim).append("\n");
+
+			}
+			sb.append("Scale animated values to match edited values?");
+			int opt = JOptionPane.showConfirmDialog(this, sb.toString(), "Values Animated", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE);
+			return opt == JOptionPane.YES_OPTION;
+		}
+		return false;
 	}
 
 	private JPanel getTexturePanel(){
@@ -217,6 +311,7 @@ public class ParticleEditPanel extends JPanel {
 		TwiComboBox<Bitmap> textureChooser = new TwiComboBox<>(model.getTextures(), new Bitmap("", 1));
 		textureChooser.setRenderer(new TextureListRenderer(model).setImageSize(16));
 //		textureChooser.addOnSelectItemListener(copy::setTexture);
+		textureChooser.selectOrFirst(copy.getTexture());
 		textureChooser.addOnSelectItemListener(bitmap -> changeTexture(bitmap, imageLabel));
 		panel.add(textureChooser, "spanx, growx, wrap");
 
@@ -282,9 +377,6 @@ public class ParticleEditPanel extends JPanel {
 		return rowColor;
 	}
 
-//	private void changeColor() {
-//		copy.setSegmentColor(currentColorIndex, selectedColor);
-//	}
 	private void changeColor(int i, Color color) {
 		System.out.println("Setting color " + i + " to: " + color);
 		copy.setSegmentColor(i, clampColorVector(color.getComponents(null)));
@@ -311,7 +403,7 @@ public class ParticleEditPanel extends JPanel {
 		EditableModel tempModel = new EditableModel();
 
 		tempModel.setExtents(new ExtLog(100));
-		Animation animation = new Animation("stand", 100, 1100);
+		Animation animation = new Animation("stand", 100, 5100);
 		animation.setNonLooping(false);
 		tempModel.add(animation);
 
@@ -321,8 +413,8 @@ public class ParticleEditPanel extends JPanel {
 		copy.setParent(null);
 		if (copy.getVisibilityFlag() != null) {
 			FloatAnimFlag flag = new FloatAnimFlag(MdlUtils.TOKEN_VISIBILITY);
-			flag.addEntry(100, 1f, animation);
-			flag.addEntry(1100, 1f, animation);
+			flag.addEntry(0, 1f, animation);
+			flag.addEntry(animation.getLength(), 1f, animation);
 			copy.setVisibilityFlag(flag);
 		}
 		System.out.println("copy name: " + copy.getName());
@@ -338,6 +430,115 @@ public class ParticleEditPanel extends JPanel {
 
 		return modelHandler;
 	}
+
+	private UndoAction getScaleAmplitudeAction(ParticleEmitter2 emitter, String flagName, double newMaxValue) {
+		AnimFlag<?> animFlag = emitter.find(flagName);
+		if(animFlag instanceof FloatAnimFlag) {
+			AnimFlag<?> newAnimFlag = animFlag.deepCopy();
+			scaleAnimAmplitude(newAnimFlag, (float) newMaxValue);
+			return new AddAnimFlagAction<>(emitter, newAnimFlag, null);
+		}
+		return null;
+	}
+
+	private void scaleAnimAmplitude(AnimFlag<?> animFlag, float newMaxValue){
+		if (animFlag instanceof FloatAnimFlag) {
+			FloatAnimFlag floatAnimFlag = (FloatAnimFlag) animFlag;
+			float staticValue = getStaticValue(floatAnimFlag, newMaxValue);
+			if(staticValue != 0 && staticValue != newMaxValue){
+				float scaleFactor = newMaxValue/staticValue;
+				for (TreeMap<Integer, Entry<Float>> seqMap : floatAnimFlag.getAnimMap().values()) {
+					for (Entry<Float> entry : seqMap.values()){
+						entry.setValue(entry.getValue() * scaleFactor);
+						if(entry.isTangential()){
+							entry.setInTan(entry.getInTan() * scaleFactor);
+							entry.setOutTan(entry.getOutTan() * scaleFactor);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private List<String> getAffectedAnims(ParticleEmitter2 emitter) {
+		List<String> animatedStuff = new ArrayList<>();
+		String[] flagNames = new String[] {
+				MdlUtils.TOKEN_WIDTH,
+				MdlUtils.TOKEN_LENGTH,
+				MdlUtils.TOKEN_LATITUDE,
+				MdlUtils.TOKEN_VARIATION,
+				MdlUtils.TOKEN_SPEED,
+				MdlUtils.TOKEN_GRAVITY,
+				MdlUtils.TOKEN_EMISSION_RATE,
+				MdlUtils.TOKEN_LIFE_SPAN};
+		for(String flagName : flagNames) {
+//			System.out.println("Has \"" + flagName + "\": " + emitter.has("flagName"));
+			if (emitter.has(flagName)){
+				animatedStuff.add(flagName);
+			}
+		}
+		return animatedStuff;
+	}
+
+	private ParticleEmitter2 getCopyForEditing(ParticleEmitter2 emitter){
+		ParticleEmitter2 copy = emitter.copy();
+
+		setStaticValue(copy, MdlUtils.TOKEN_WIDTH, copy::setWidth);
+		setStaticValue(copy, MdlUtils.TOKEN_LENGTH, copy::setLength);
+		setStaticValue(copy, MdlUtils.TOKEN_LATITUDE, copy::setLatitude);
+		setStaticValue(copy, MdlUtils.TOKEN_VARIATION, copy::setVariation);
+		setStaticValue(copy, MdlUtils.TOKEN_SPEED, copy::setSpeed);
+		setStaticValue(copy, MdlUtils.TOKEN_GRAVITY, copy::setGravity);
+		setStaticValue(copy, MdlUtils.TOKEN_EMISSION_RATE, copy::setEmissionRate);
+		setStaticValue(copy, MdlUtils.TOKEN_LIFE_SPAN, copy::setLifeSpan);
+
+		copy.clearAnimFlags();
+
+//		copy.setWidth(getStaticValue(copy, MdlUtils.TOKEN_WIDTH, copy.getWidth()));
+//		copy.setLength(getStaticValue(copy, MdlUtils.TOKEN_LENGTH, copy.getLength()));
+//		copy.setLatitude(getStaticValue(copy, MdlUtils.TOKEN_LATITUDE, copy.getLatitude()));
+//		copy.setVariation(getStaticValue(copy, MdlUtils.TOKEN_VARIATION, copy.getVariation()));
+//		copy.setSpeed(getStaticValue(copy, MdlUtils.TOKEN_SPEED, copy.getSpeed()));
+//		copy.setGravity(getStaticValue(copy, MdlUtils.TOKEN_GRAVITY, copy.getGravity()));
+//		copy.setEmissionRate(getStaticValue(copy, MdlUtils.TOKEN_EMISSION_RATE, copy.getEmissionRate()));
+//		copy.setLifeSpan(getStaticValue(copy, MdlUtils.TOKEN_LIFE_SPAN, copy.getLifeSpan()));
+//
+//
+//		copy.setWidth(getStaticValue(copy.find(MdlUtils.TOKEN_WIDTH), copy.getWidth()));
+//		copy.setLength(getStaticValue(copy.find(MdlUtils.TOKEN_LENGTH), copy.getLength()));
+//		copy.setLatitude(getStaticValue(copy.find(MdlUtils.TOKEN_LATITUDE), copy.getLatitude()));
+//		copy.setVariation(getStaticValue(copy.find(MdlUtils.TOKEN_VARIATION), copy.getVariation()));
+//		copy.setSpeed(getStaticValue(copy.find(MdlUtils.TOKEN_SPEED), copy.getSpeed()));
+//		copy.setGravity(getStaticValue(copy.find(MdlUtils.TOKEN_GRAVITY), copy.getGravity()));
+//		copy.setEmissionRate(getStaticValue(copy.find(MdlUtils.TOKEN_EMISSION_RATE), copy.getEmissionRate()));
+//		copy.setLifeSpan(getStaticValue(copy.find(MdlUtils.TOKEN_LIFE_SPAN), copy.getLifeSpan()));
+
+
+		return copy;
+	}
+	private void setStaticValue(ParticleEmitter2 emitter, String timelineTitle, Consumer<Float> valueConsumer){
+		AnimFlag<?> animFlag = emitter.find(timelineTitle);
+		if (animFlag instanceof FloatAnimFlag) {
+			Float maxFloat = getStaticValue((FloatAnimFlag) animFlag, null);
+			if(maxFloat != null){
+				valueConsumer.accept(maxFloat);
+			}
+		}
+	}
+
+	private Float getStaticValue(FloatAnimFlag animFlag, Float value){
+		Float maxFloat = null;
+		for (TreeMap<Integer, Entry<Float>> seqMap : animFlag.getAnimMap().values()) {
+			for (Entry<Float> entry : seqMap.values()){
+				maxFloat = maxFloat == null ? entry.getValue() : Math.max(maxFloat, entry.getValue());
+			}
+		}
+		if(maxFloat != null){
+			return maxFloat;
+		}
+		return value;
+	}
+
 
 	private PerspectiveViewport getViewport(ModelHandler modelHandler) {
 		try {

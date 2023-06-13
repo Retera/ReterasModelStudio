@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.tools.ParticleEditPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
@@ -25,6 +26,7 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 	private final EditorHelpers.FloatEditor emissionPanel;
 	private final EditorHelpers.FloatEditor lifeSpanPanel;
 	private final EditorHelpers.FloatEditor visibilityPanel;
+	private final IntEditorJSpinner replIdSpinner;
 
 	private final TwiComboBox<Bitmap> textureChooser;
 
@@ -39,6 +41,9 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 		JButton editParticle = new JButton("editParticle");
 		editParticle.addActionListener(e -> viewParticlePanel());
 		topPanel.add(editParticle, "spanx, growx, wrap");
+		replIdSpinner = new IntEditorJSpinner(0, 0, this::setReplId);
+		topPanel.add(new JLabel(MdlUtils.TOKEN_REPLACEABLE_ID + ": "), "spanx 2, split 2");
+		topPanel.add(replIdSpinner, "wrap");
 
 		widthPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_WIDTH, this::setWidth);
 		lengthPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_LENGTH, this::setLength);
@@ -62,6 +67,7 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 
 	@Override
 	public void updatePanels() {
+		replIdSpinner.reloadNewValue(idObject.getReplaceableId());
 		widthPanel.update(idObject, (float) idObject.getWidth());
 		lengthPanel.update(idObject, (float) idObject.getLength());
 		latitudePanel.update(idObject, (float) idObject.getLatitude());
@@ -89,6 +95,12 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 	private void setWidth(float value){
 		if(value != idObject.getWidth()){
 			undoManager.pushAction(new ConsumerAction<>(idObject::setWidth, (double) value, idObject.getWidth(), "Width").redo());
+		}
+	}
+
+	private void setReplId(int value){
+		if(value != idObject.getReplaceableId()){
+			undoManager.pushAction(new ConsumerAction<>(idObject::setReplaceableId, value, idObject.getReplaceableId(), "ReplacebleId").redo());
 		}
 	}
 

@@ -136,6 +136,8 @@ public class MPQBrowser extends JPanel {
 		filters.add(new Filter("Maps", new String[] {".w3m", ".w3x", ".w3n"}));
 		filters.add(new Filter("Sounds", new String[] {".wav"}));
 		filters.add(new Filter("Music", new String[] {".mp3", ".mid"}));
+		filters.add(new Filter("Popcorn", new String[] {".pkb"}));
+		filters.add(new Filter("FaceFx", new String[] {".facefx", ".facefx_ingame"}));
 		otherFilter = new Filter("Other", true);
 		filters.add(otherFilter);
 

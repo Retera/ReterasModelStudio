@@ -101,6 +101,16 @@ public class TwiAiSceneParser {
 
 		new RecalculateExtentsAction(editableModel, editableModel.getGeosets()).redo();
 
+		if(editableModel.getBones().isEmpty() && !editableModel.getGeosets().isEmpty()){
+			Bone noBones = new Bone("Found no Bones");
+			editableModel.add(noBones);
+			for(Geoset geoset : editableModel.getGeosets()){
+				for(GeosetVertex vertex : geoset.getVertices()){
+					vertex.setSkinBone(noBones, (short) 255, 0);
+				}
+			}
+		}
+
 	}
 
 	private void printMetadata(AiNode node) {

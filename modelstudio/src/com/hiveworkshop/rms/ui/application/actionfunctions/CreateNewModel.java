@@ -1,11 +1,13 @@
 package com.hiveworkshop.rms.ui.application.actionfunctions;
 
+import com.hiveworkshop.rms.editor.actions.mesh.RecalculateTangentsAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.Mesh;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ModelLoader;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
@@ -26,6 +28,11 @@ public class CreateNewModel extends ActionFunction{
 		newModelPanel.add(new JLabel("Model Name: "), "");
 		JTextField newModelNameField = new JTextField("MrNew", 25);
 		newModelPanel.add(newModelNameField, "wrap");
+
+		newModelPanel.add(new JLabel("Format Version: "), "");
+		IntEditorJSpinner formatVersionSpinner = new IntEditorJSpinner(800, 0, null);
+		newModelPanel.add(formatVersionSpinner, "wrap");
+
 
 		JPanel optionPanel = new JPanel(new MigLayout("ins 0","",""));
 		optionPanel.add(new JLabel("Segments"));
@@ -51,7 +58,7 @@ public class CreateNewModel extends ActionFunction{
 
 			type selected = type.values()[typeGroup.getSelectedIndex()];
 			Mesh mesh = getMesh(selected, new Vec3(64, 64, 0), new Vec3(-64, -64, 128), segments);
-			createModel(newModelNameField.getText(), mesh, selected.getName());
+			createModel(newModelNameField.getText(), formatVersionSpinner.getIntValue(), mesh, selected.getName());
 		}
 	}
 
@@ -63,17 +70,18 @@ public class CreateNewModel extends ActionFunction{
 		};
 	}
 
-	public static void newEmptyModel(){
-		createModel("New Empty", null, "Empty");
-	}
+//	public static void newEmptyModel(){
+//		createModel("New Empty", null, "Empty");
+//	}
 
-	private static void createModel(String name, Mesh mesh, String geosetName) {
+	private static void createModel(String name, int formatVersion, Mesh mesh, String geosetName) {
 		EditableModel model = new EditableModel(name);
+		model.setFormatVersion(formatVersion);
 		Bone bone = new Bone("Root");
 		model.add(bone);
 
 		if(mesh != null){
-			Geoset geoset = getGeoset(bone, mesh);
+			Geoset geoset = getGeoset(bone, formatVersion, mesh);
 			geoset.setName(geosetName);
 			geoset.setMaterial(ModelUtils.getWhiteMaterial(model));
 
@@ -85,17 +93,24 @@ public class CreateNewModel extends ActionFunction{
 		ModelLoader.loadModel(true, true, temp);
 	}
 
-	private static Geoset getGeoset(Bone bone, Mesh mesh) {
+	private static Geoset getGeoset(Bone bone, int formatVersion, Mesh mesh) {
 		Geoset geoset = new Geoset();
 
 		for (GeosetVertex vertex : mesh.getVertices()) {
 			vertex.setGeoset(geoset);
-			vertex.addBoneAttachment(bone);
+			if (formatVersion < 900) {
+				vertex.addBoneAttachment(bone);
+			} else {
+				vertex.setSkinBone(bone, (short) 255, 0);
+			}
 			geoset.add(vertex);
 		}
 		for (Triangle triangle : mesh.getTriangles()) {
 			triangle.setGeoset(geoset);
 			geoset.add(triangle);
+		}
+		if (formatVersion < 900) {
+			new RecalculateTangentsAction(mesh.getVertices()).redo();
 		}
 		return geoset;
 	}

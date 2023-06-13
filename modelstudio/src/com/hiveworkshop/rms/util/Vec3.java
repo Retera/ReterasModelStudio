@@ -674,6 +674,14 @@ public class Vec3 {
 		return result;
 	}
 
+	public Vec3 setAsLocationFromMat(Mat4 mat4) {
+		x = mat4.m30;
+		y = mat4.m31;
+		z = mat4.m32;
+
+		return this;
+	}
+
 	public Vec3 setAsLocationFromMat(Mat4 mat4, Vec3 pivot) {
 		x = mat4.m30 + ((mat4.m00 * pivot.x) + (mat4.m10 * pivot.y) + (mat4.m20 * pivot.z)) - pivot.x;
 		y = mat4.m31 + ((mat4.m01 * pivot.x) + (mat4.m11 * pivot.y) + (mat4.m21 * pivot.z)) - pivot.y;

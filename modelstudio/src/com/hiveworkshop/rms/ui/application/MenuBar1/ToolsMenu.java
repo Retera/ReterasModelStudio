@@ -27,6 +27,7 @@ public class ToolsMenu extends JMenu {
 		add(new ViewSkinning().getMenuItem());
 		add(new FlipFaces().getMenuItem());
 		add(new FlipNormals().getMenuItem());
+		add(new FlipTriangles().getMenuItem());
 
 		add(new JSeparator());
 
