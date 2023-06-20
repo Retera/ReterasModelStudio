@@ -34,44 +34,20 @@ public class RotationKeyframeAction extends AbstractTransformAction {
 
 	// ToDo should maybe consider center and make a rotation around a point; ie do a combined rotation and translation
 	//  maybe also have an option for individual origins
-	public RotationKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
-	                              Collection<IdObject> nodeSelection,
-	                              RenderModel editorRenderModel,
-	                              Vec3 center,
-	                              Vec3 axis, double radians, Mat4 rotMat) {
-		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
-		this.editorRenderModel = editorRenderModel;
-		this.trackTime = editorRenderModel.getTimeEnvironment().getEnvTrackTime();
-		this.anim = editorRenderModel.getTimeEnvironment().getCurrentSequence();
-		this.rotMat.set(rotMat);
-		this.invRotMat.set(rotMat).invert();
-
-		nodeToLocalRotation = new HashMap<>();
-		for (IdObject node : nodeSelection) {
-			nodeToLocalRotation.put(node, new Quat());
-		}
-		this.center = new Vec3(center);
-		this.axis = axis;
-		for (AnimatedNode node : nodeToLocalRotation.keySet()) {
-			if (nodeToLocalRotation.get(node) != null) {
-				Quat rotation = getRotation(node, axis, (float) radians);
-				nodeToLocalRotation.get(node).mul(rotation);
-			}
-		}
-	}
 
 	public RotationKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
 	                              Collection<IdObject> nodeSelection,
 	                              Collection<CameraNode> camSelection,
 	                              RenderModel editorRenderModel,
 	                              Vec3 center,
-	                              Vec3 axis, Mat4 rotMat) {
-		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
+	                              Vec3 axis, double radians, Mat4 rotMat) {
 		this.editorRenderModel = editorRenderModel;
 		this.trackTime = editorRenderModel.getTimeEnvironment().getEnvTrackTime();
 		this.anim = editorRenderModel.getTimeEnvironment().getCurrentSequence();
 		this.rotMat.set(rotMat);
 		this.invRotMat.set(rotMat).invert();
+		this.radians = radians;
+		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
 
 		nodeToLocalRotation = new HashMap<>();
 		for (IdObject node : nodeSelection) {
@@ -82,6 +58,12 @@ public class RotationKeyframeAction extends AbstractTransformAction {
 		}
 		this.center = new Vec3(center);
 		this.axis = axis;
+		for (AnimatedNode node : nodeToLocalRotation.keySet()) {
+			if (nodeToLocalRotation.get(node) != null) {
+				Quat rotation = getRotation(node, axis, (float) radians);
+				nodeToLocalRotation.get(node).mul(rotation);
+			}
+		}
 	}
 
 

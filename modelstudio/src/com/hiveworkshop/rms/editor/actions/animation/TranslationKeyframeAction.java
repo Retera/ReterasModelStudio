@@ -31,11 +31,12 @@ public class TranslationKeyframeAction extends AbstractTransformAction {
 	                                 Collection<IdObject> nodeSelection,
 	                                 Collection<CameraNode> camSelection,
 	                                 RenderModel editorRenderModel,
+	                                 Vec3 translation,
 	                                 Mat4 rotMat) {
-		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
 		this.editorRenderModel = editorRenderModel;
 		this.trackTime = editorRenderModel.getTimeEnvironment().getEnvTrackTime();
 		this.anim = editorRenderModel.getTimeEnvironment().getCurrentSequence();
+		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
 
 		nodeToLocalTranslation = new HashMap<>();
 		for (AnimatedNode node : nodeSelection) {
@@ -46,21 +47,12 @@ public class TranslationKeyframeAction extends AbstractTransformAction {
 		}
 		this.rotMat.set(rotMat);
 		this.invRotMat.set(rotMat).invert();
-	}
 
-	public TranslationKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
-	                                 Collection<IdObject> nodeSelection,
-	                                 Collection<CameraNode> camSelection,
-	                                 RenderModel editorRenderModel,
-	                                 Vec3 translation,
-	                                 Mat4 rotMat) {
-		this(addingTimelinesOrKeyframesAction, nodeSelection, camSelection, editorRenderModel, rotMat);
-
-		Vec3 translationHeap2 = new Vec3();
-		for (AnimatedNode idObject : nodeToLocalTranslation.keySet()) {
-			if (nodeToLocalTranslation.get(idObject) != null) {
-				setTranslationHeap(idObject, translation, translationHeap2);
-				nodeToLocalTranslation.get(idObject).add(translationHeap2);
+		if(translation != Vec3.ZERO && !translation.equalLocs(Vec3.ZERO)){
+			for (AnimatedNode idObject : nodeToLocalTranslation.keySet()) {
+				if (nodeToLocalTranslation.get(idObject) != null) {
+					nodeToLocalTranslation.get(idObject).add(getTranslationHeap(idObject, translation));
+				}
 			}
 		}
 	}
@@ -95,7 +87,6 @@ public class TranslationKeyframeAction extends AbstractTransformAction {
 		return "Edit Translation";
 	}
 
-
 	public TranslationKeyframeAction doSetup(){
 		if(addingTimelinesOrKeyframesAction != null){
 			addingTimelinesOrKeyframesAction.redo();
@@ -105,22 +96,22 @@ public class TranslationKeyframeAction extends AbstractTransformAction {
 
 	@Override
 	public TranslationKeyframeAction updateTranslation(Vec3 delta) {
-		Vec3 translationHeap2 = new Vec3();
 		for (AnimatedNode idObject : nodeToLocalTranslation.keySet()) {
-			setTranslationHeap(idObject, delta, translationHeap2);
+			Vec3 translationHeap = getTranslationHeap(idObject, delta);
 
 			if (nodeToLocalTranslation.get(idObject) != null) {
-				nodeToLocalTranslation.get(idObject).add(translationHeap2);
+				nodeToLocalTranslation.get(idObject).add(translationHeap);
 			}
-			updateLocalTranslationKeyframe(idObject, translationHeap2);
+			updateLocalTranslationKeyframe(idObject, translationHeap);
 		}
 		return this;
 	}
 
-	Vec3 tempVec = new Vec3();
-	Mat4 tempMat = new Mat4();
+	private final Vec3 tempVec = new Vec3();
+	private final Mat4 tempMat = new Mat4();
+	private final Vec3 translationHeap = new Vec3();
 
-	private Vec3 setTranslationHeap(AnimatedNode idObject, Vec3 newDelta, Vec3 translationHeap) {
+	private Vec3 getTranslationHeap(AnimatedNode idObject, Vec3 newDelta) {
 		translationHeap.set(0, 0, 0);
 		RenderNode<AnimatedNode> renderNode = editorRenderModel.getRenderNode(idObject);
 		if(renderNode != null){

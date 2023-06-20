@@ -15,6 +15,7 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 public class ScalingKeyframeAction extends AbstractTransformAction {
@@ -23,15 +24,10 @@ public class ScalingKeyframeAction extends AbstractTransformAction {
 	private final List<IdObject> nodeList;
 	private final Vec3 scale;
 	private final Sequence anim;
+	private final HashMap<AnimatedNode, Entry<Vec3>> nodeToOrgScale;
 	private final RenderModel editorRenderModel;
 	private final Mat4 invRotMat = new Mat4();
 	private final Mat4 rotMat = new Mat4();
-
-	public ScalingKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
-	                             Collection<IdObject> nodeSelection,
-	                             Vec3 center, RenderModel editorRenderModel, Mat4 rotMat) {
-		this(addingTimelinesOrKeyframesAction, nodeSelection, center, new Vec3(1,1,1), editorRenderModel, rotMat);
-	}
 
 	public ScalingKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
 	                             Collection<IdObject> nodeSelection,
@@ -45,13 +41,27 @@ public class ScalingKeyframeAction extends AbstractTransformAction {
 		this.scale = new Vec3(scale);
 		this.rotMat.set(rotMat);
 		this.invRotMat.set(rotMat).invert();
+		nodeToOrgScale = new HashMap<>();
+		for (AnimatedNode node : nodeSelection) {
+			Vec3AnimFlag animFlag = (Vec3AnimFlag) node.find(MdlUtils.TOKEN_SCALING);
+			if (animFlag != null && (anim instanceof GlobalSeq || animFlag.getGlobalSeq() != anim)) {
+				nodeToOrgScale.put(node, animFlag.getEntryAt(anim, trackTime).deepCopy());
+			}
+		}
 	}
 
 	@Override
 	public ScalingKeyframeAction undo() {
-		Vec3 tempInverse = new Vec3(1, 1, 1).divide(scale);
-		for (IdObject node : nodeList) {
-			updateScalingKeyframe(node, trackTime, tempInverse);
+//		Vec3 tempInverse = new Vec3(1, 1, 1).divide(scale);
+//		for (IdObject node : nodeList) {
+//			updateScalingKeyframe(node, trackTime, tempInverse);
+//		}
+		for (AnimatedNode node : nodeToOrgScale.keySet()) {
+			Entry<Vec3> orgScale = nodeToOrgScale.get(node);
+			if(orgScale != null){
+				Vec3AnimFlag animFlag = (Vec3AnimFlag) node.find(MdlUtils.TOKEN_SCALING);
+				animFlag.getEntryAt(anim, orgScale.getTime()).setValues(orgScale);
+			}
 		}
 		if(addingTimelinesOrKeyframesAction != null){
 			addingTimelinesOrKeyframesAction.undo();
