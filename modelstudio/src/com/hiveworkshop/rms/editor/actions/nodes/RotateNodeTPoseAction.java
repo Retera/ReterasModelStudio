@@ -5,9 +5,7 @@ import com.hiveworkshop.rms.editor.actions.editor.AbstractTransformAction;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
-import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
-import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
@@ -27,22 +25,22 @@ public class RotateNodeTPoseAction extends AbstractTransformAction {
 	private final Vec3 axis;
 	private final Vec3 center;
 	private final Mat4 rotMat = new Mat4();
-	private final QuatAnimFlag newRotation;
-	private final AddTimelineAction<?> timelineAction;
+	private final AnimFlag<Quat> newRotation;
+	private final AnimFlag<Vec3> newTranslation;
+	private AddTimelineAction<Quat> rotTimelineAction;
+	private AddTimelineAction<Vec3> translTimelineAction;
 	private final List<RotateNodeChildTPoseAction> rotChildActions = new ArrayList<>();
-
-	public RotateNodeTPoseAction(IdObject node,
-	                             Quat quat, Vec3 center,
-	                             Mat4 rotMat,
-	                             ModelStructureChangeListener changeListener){
-		this(node, quat.getAxis(), quat.getAxisAngle(), center, rotMat, changeListener);
-	}
+	boolean preserveAnimations;
 
 	public RotateNodeTPoseAction(IdObject node,
 	                             Vec3 axis, double radians, Vec3 center,
 	                             Mat4 rotMat,
-	                             ModelStructureChangeListener changeListener){
+	                             boolean preserveAnimations,
+	                             AnimFlag<Quat> newRotation,
+	                             AnimFlag<Vec3> newTranslation,
+	                             ModelStructureChangeListener changeListener) {
 		this.changeListener = changeListener;
+		this.preserveAnimations = preserveAnimations;
 		this.rotMat.set(rotMat);
 		this.radians = radians;
 		this.axis = axis;
@@ -52,17 +50,20 @@ public class RotateNodeTPoseAction extends AbstractTransformAction {
 		quat.setFromAxisAngle(axis, (float) radians);
 		this.newPivot = new Vec3(node.getPivotPoint()).rotate(center, quat);
 
-		for (IdObject child : node.getChildrenNodes()) {
-			collectRotActions(child, node.getPivotPoint(), axis, -radians);
-		}
-		newRotation = getTimeline();
+		this.newRotation = newRotation;
 		if (newRotation != null) {
-			timelineAction = new AddTimelineAction<>(node, newRotation);
-		} else {
-			timelineAction = null;
+			rotTimelineAction = new AddTimelineAction<>(node, newRotation);
+		}
+		this.newTranslation = newTranslation;
+		if (newTranslation != null) {
+			translTimelineAction = new AddTimelineAction<>(node, newTranslation);
+		}
+
+		for (IdObject child : node.getChildrenNodes()) {
+			collectRotActions(child, center, axis, -radians);
 		}
 		quat.setIdentity().mulInverse(new Quat(axis, (float) radians)).normalize();
-		rotate(quat.getAxisAngle());
+		rotate(-quat.getAxisAngle());
 	}
 
 	private void collectRotActions(IdObject node, Vec3 pivot, Vec3 axis, double radians) {
@@ -72,51 +73,69 @@ public class RotateNodeTPoseAction extends AbstractTransformAction {
 		}
 	}
 
-	private QuatAnimFlag getTimeline() {
-		AnimFlag<?> rotation = node.find(MdlUtils.TOKEN_ROTATION);
-		if (rotation instanceof QuatAnimFlag) {
-			return  (QuatAnimFlag) rotation.deepCopy();
-		}
-		return null;
-	}
-
 	public RotateNodeTPoseAction doSetup() {
 		node.setPivotPoint(newPivot);
 		for (RotateNodeChildTPoseAction action : rotChildActions) {
 			action.redo();
 		}
-		if (timelineAction != null) {
-			timelineAction.redo();
+		if (rotTimelineAction != null) {
+			rotTimelineAction.redo();
+		}
+		if (translTimelineAction != null) {
+			translTimelineAction.redo();
 		}
 		return this;
 	}
 
-	public RotateNodeTPoseAction updateRotation(double radians){
+	public RotateNodeTPoseAction updateRotation(double radians) {
 		this.radians += radians;
 		for (RotateNodeChildTPoseAction action : rotChildActions) {
 			action.updateRotation(radians);
 		}
-		rotate(-radians);
+		rotate(radians);
 		node.setPivotPoint(newPivot);
 		return this;
 	}
-	public RotateNodeTPoseAction setRotation(double radians){
+	public RotateNodeTPoseAction setRotation(double radians) {
 		double rotDiff = radians - this.radians;
 		this.radians = radians;
 		for (RotateNodeChildTPoseAction action : rotChildActions) {
 			action.setRotation(radians);
 		}
-		rotate(-rotDiff);
+		rotate(rotDiff);
 		node.setPivotPoint(newPivot);
 		return this;
 	}
 
+	private final Vec3 tempDelta = new Vec3();
 	private void rotate(double radians) {
-		quat.setFromAxisAngle(axis, (float) radians);
-		newPivot.rotate(center, quat);
 		quat.setFromAxisAngle(axis, (float) -radians);
-		if(newRotation != null){
+
+		newPivot.set(node.getPivotPoint());
+		tempDelta.set(newPivot);
+		newPivot.rotate(center, quat);
+		tempDelta.sub(newPivot);
+
+		if (newTranslation != null) {
+			moveTranslations(tempDelta, newTranslation);
+		}
+		quat.setFromAxisAngle(axis, (float) radians);
+		if (newRotation != null) {
 			rotRotations(quat, newRotation);
+		}
+	}
+
+	private void moveTranslations(Vec3 dist, AnimFlag<Vec3> newTranslation) {
+		for (TreeMap<Integer, Entry<Vec3>> entryMap : newTranslation.getAnimMap().values()) {
+			if (entryMap != null) {
+				for (Entry<Vec3> entry : entryMap.values()) {
+					entry.getValue().add(dist);
+					if (newTranslation.tans()) {
+						entry.getInTan().add(dist);
+						entry.getOutTan().add(dist);
+					}
+				}
+			}
 		}
 	}
 
@@ -148,10 +167,45 @@ public class RotateNodeTPoseAction extends AbstractTransformAction {
 		}
 	}
 
-	private void rotRotations(Quat quat, QuatAnimFlag newRotation) {
+	private void rotRotations(Quat quat, AnimFlag<Quat> newRotation) {
+//		rotRotationsRotAxis(quat, newRotation);
+		rotRotationsQuatMul(quat, newRotation);
+	}
+	private void rotRotationsRotAxis(Quat quat, AnimFlag<Quat> newRotation) {
 		for (TreeMap<Integer, Entry<Quat>> entryMap : newRotation.getAnimMap().values()) {
 			if (entryMap != null) {
 				for (Entry<Quat> entry : entryMap.values()) {
+//					if(entry.time == 0) {
+//						Quat tempQ1 = new Quat(entry.getValue()).rotateAxis(quat);
+//						Quat tempQ2 = new Quat(entry.getValue()).mul(quat);
+//						System.out.println(
+//								"\norg:    " + entry.getValue() +
+//								"\nrotAxis:" + tempQ1 +
+//								"\nmul:    " + tempQ2);
+//					}
+					entry.getValue().rotateAxis(quat);
+					if (newRotation.tans()) {
+						entry.getInTan().rotateAxis(quat);
+						entry.getOutTan().rotateAxis(quat);
+					}
+				}
+
+			}
+		}
+	}
+
+	private void rotRotationsQuatMul(Quat quat, AnimFlag<Quat> newRotation) {
+		for (TreeMap<Integer, Entry<Quat>> entryMap : newRotation.getAnimMap().values()) {
+			if (entryMap != null) {
+				for (Entry<Quat> entry : entryMap.values()) {
+//					if(entry.time == 0) {
+//						Quat tempQ1 = new Quat(entry.getValue()).rotateAxis(quat);
+//						Quat tempQ2 = new Quat(entry.getValue()).mul(quat);
+//						System.out.println(
+//								"\norg:    " + entry.getValue() +
+//								"\nrotAxis:" + tempQ1 +
+//								"\nmul:    " + tempQ2);
+//					}
 					entry.getValue().mul(quat);
 					if (newRotation.tans()) {
 						entry.getInTan().mul(quat);
@@ -165,8 +219,11 @@ public class RotateNodeTPoseAction extends AbstractTransformAction {
 
 	@Override
 	public RotateNodeTPoseAction undo() {
-		if (timelineAction != null) {
-			timelineAction.undo();
+		if (rotTimelineAction != null) {
+			rotTimelineAction.undo();
+		}
+		if (translTimelineAction != null) {
+			translTimelineAction.undo();
 		}
 		for (RotateNodeChildTPoseAction action : rotChildActions) {
 			action.undo();
@@ -184,8 +241,11 @@ public class RotateNodeTPoseAction extends AbstractTransformAction {
 		for (RotateNodeChildTPoseAction action : rotChildActions) {
 			action.redo();
 		}
-		if (timelineAction != null) {
-			timelineAction.redo();
+		if (rotTimelineAction != null) {
+			rotTimelineAction.redo();
+		}
+		if (translTimelineAction != null) {
+			translTimelineAction.redo();
 		}
 		if (changeListener != null) {
 			changeListener.nodesUpdated();
