@@ -67,6 +67,7 @@ public abstract class ShaderPipeline {
 	protected final Mat4 tempMat4 = new Mat4();
 
 	protected float fresnelTeamColor = 0f;
+	protected float emissiveGain = 1f;
 
 	protected final Vec2 viewPortSize = new Vec2(1,1);
 
@@ -428,6 +429,9 @@ public abstract class ShaderPipeline {
 	public void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres, int selectionStatus) {};
 	public void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres, float uniformScale) {};
 
+	public void glEmissiveGain1f(float v) {
+		this.emissiveGain = v;
+	}
 	public void glFresnelTeamColor1f(float v) {
 		this.fresnelTeamColor = v;
 	}

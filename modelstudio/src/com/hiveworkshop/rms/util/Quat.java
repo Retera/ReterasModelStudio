@@ -516,8 +516,8 @@ public class Quat extends Vec4 {
 		return new Vec4(ax, ay, az, angle);
 	}
 	public Vec3 getAxis() {
-		float angle = (float) Math.acos(MathUtils.clamp(w, -1f, 1f)) * 2;
-		float sinOfHalfAngle = (float) Math.sin(angle / 2.0);
+		float halfAngle = (float) Math.acos(MathUtils.clamp(w, -1f, 1f));
+		float sinOfHalfAngle = (float) Math.sin(halfAngle);
 		float ax = x / sinOfHalfAngle;
 		float ay = y / sinOfHalfAngle;
 		float az = z / sinOfHalfAngle;
@@ -525,6 +525,35 @@ public class Quat extends Vec4 {
 	}
 	public float getAxisAngle() {
 		return (float) Math.acos(MathUtils.clamp(w, -1f, 1f)) * 2;
+	}
+
+	public Quat rotateAxis(Quat quat) {
+		float halfAngle = (float) Math.acos(MathUtils.clamp(w, -1f, 1f));
+		if(halfAngle != 0f){
+			float sinOfHalfAngle = (float) Math.sin(halfAngle);
+			float ax = x / sinOfHalfAngle;
+			float ay = y / sinOfHalfAngle;
+			float az = z / sinOfHalfAngle;
+//			System.out.println("angle: " + (halfAngle*2f) + ", sinOfHalfAngle: " + sinOfHalfAngle + ", ax: " + ax + ", ay: " + ay + ", az: " + az);
+
+			float uvx = quat.y * az - quat.z * ay;
+			float uvy = quat.z * ax - quat.x * az;
+			float uvz = quat.x * ay - quat.y * ax;
+			float uuvx = quat.y * uvz - quat.z * uvy;
+			float uuvy = quat.z * uvx - quat.x * uvz;
+			float uuvz = quat.x * uvy - quat.y * uvx;
+			float w2 = quat.w * 2;
+
+			float newX = ax + (uvx * w2) + (uuvx * 2);
+			float newY = ay + (uvy * w2) + (uuvy * 2);
+			float newZ = az + (uvz * w2) + (uuvz * 2);
+
+			x = newX * sinOfHalfAngle;
+			y = newY * sinOfHalfAngle;
+			z = newZ * sinOfHalfAngle;
+			w = (float) Math.cos(halfAngle);
+		}
+		return this;
 	}
 
 	public Quat setIdentity() {

@@ -9,6 +9,7 @@ uniform sampler2D u_textureReflections;
 
 uniform int u_textureUsed;
 uniform int u_alphaTest;
+uniform float u_emissiveGain;
 uniform int u_lightingEnabled;
 uniform float u_fresnelTeamColor;
 uniform vec4 u_fresnelColor;

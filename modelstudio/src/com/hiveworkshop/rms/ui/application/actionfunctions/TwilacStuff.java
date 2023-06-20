@@ -497,7 +497,7 @@ public class TwilacStuff {
 		return new TempNone().getMenuItem();
 	}
 
-	private static class TwiFunction{
+	private static class TwiFunction {
 		public final String name;
 		private final JMenuItem menuItem;
 
@@ -519,7 +519,7 @@ public class TwilacStuff {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-					if(modelPanel != null){
+					if (modelPanel != null) {
 						consumer.accept(modelPanel.getModelHandler());
 					}
 				}
@@ -535,7 +535,7 @@ public class TwilacStuff {
 		}
 	}
 
-	private static class AddNewAttatchment  extends TwiFunction{
+	private static class AddNewAttatchment extends TwiFunction {
 		public AddNewAttatchment() {
 			super("add New Attachment", AddNewAttatchment::doStuff);
 		}

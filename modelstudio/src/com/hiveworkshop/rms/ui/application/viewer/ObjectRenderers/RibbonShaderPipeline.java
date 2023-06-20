@@ -37,6 +37,7 @@ public class RibbonShaderPipeline extends ShaderPipeline {
 		createUniform("u_textureReflections");
 		createUniform("u_textureUsed");
 		createUniform("u_alphaTest");
+		createUniform("u_emissiveGain");
 		createUniform("u_lightingEnabled");
 		createUniform("u_lightDirection");
 		createUniform("u_viewPos");
@@ -140,6 +141,7 @@ public class RibbonShaderPipeline extends ShaderPipeline {
 		if(textureUsed == 0){
 			GL11.glDisable(GL11.GL_CULL_FACE);
 		}
+		glUniform("u_emissiveGain", instance.getEmissiveGain());
 		glUniform("u_fresnelTeamColor", instance.getFresnelTeamColor());
 		glUniform("u_fresnelColor", instance.getFresnelColor());
 		glUniform("u_geosetColor", instance.getLayerColor());
