@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.util.sound;
 
-public class Sound {
+public class Sound extends EventTarget {
 	private String soundName;
 	private String tag;
 	private String[] fileNames;
@@ -88,6 +88,9 @@ public class Sound {
 	}
 
 	public String getSoundName() {
+		return soundName;
+	}
+	public String getName() {
 		return soundName;
 	}
 
