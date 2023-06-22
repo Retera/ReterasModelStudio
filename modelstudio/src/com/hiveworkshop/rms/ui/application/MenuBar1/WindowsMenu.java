@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
 import com.hiveworkshop.rms.ui.application.*;
+import com.hiveworkshop.rms.ui.application.actionfunctions.ReloadTextures;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayViewCanvas;
 import com.hiveworkshop.rms.ui.application.viewer.CameraPreviewView;
 import com.hiveworkshop.rms.ui.application.viewer.EditUVsView;
@@ -38,6 +39,7 @@ public class WindowsMenu extends JMenu {
 		JMenuItem resetViewButton = new JMenuItem("Reset Layout");
 		resetViewButton.addActionListener(e -> ProgramGlobals.getRootWindowUgg().resetView());
 		add(resetViewButton);
+		add(new ReloadTextures().getMenuItem());
 
 //		JMenuItem saveViewButton = new JMenuItem("Save Layout");
 ////		resetViewButton.addActionListener(e -> WindowHandler.resetView());

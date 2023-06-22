@@ -128,6 +128,7 @@ public enum TextKey {
 
 	MERGE_BONES_WITH_HELPERS("Merge unnecessary Helpers with Child Bones"),
 	REORDER_ANIMATIONS("Reorder Animations"),
+	RELOAD_TEXTURES("Reload Textures"),
 
 	;
 	String defaultTranslation;
