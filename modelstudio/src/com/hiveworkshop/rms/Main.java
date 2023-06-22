@@ -90,8 +90,13 @@ public class Main {
 
 	private static void tryStartup(List<String> startupModelPaths, boolean dataPromptForced) {
 		try {
-			MainFrame.create(startupModelPaths, dataPromptForced);
-//			justTestFiles(startupModelPaths);
+//			boolean testFilesNoGUI = true;
+			boolean testFilesNoGUI = false;
+			if(testFilesNoGUI) {
+				justTestFiles(startupModelPaths);
+			} else {
+				MainFrame.create(startupModelPaths, dataPromptForced);
+			}
 		} catch (final Throwable th) {
 			System.err.println("Failed to start");
 			th.printStackTrace();

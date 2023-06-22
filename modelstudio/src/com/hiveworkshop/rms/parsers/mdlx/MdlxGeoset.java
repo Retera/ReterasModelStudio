@@ -32,8 +32,8 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 	public long[] faceGroups;       // unsigned int[]
 	public int[] faces;             // unsigned short[]
 	public short[] vertexGroups;    // unsigned byte[], aka MatrixBindings
-	public long[] matrixGroups;     // unsigned int[]
-	public long[] matrixIndices;    // unsigned int[]
+	public long[] matrixGroups;     // unsigned int[], list of matrix sizes
+	public long[] matrixIndices;    // unsigned int[], a list of Bone ids - the actual matrix groups
 	public long materialId = 0;
 	public long selectionGroup = 0;
 	public long selectionFlags = 0;
@@ -68,6 +68,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 //		// 7: quads
 //		// 8: quad strip
 //		// 9: polygons
+
 		int ptyp = reader.readInt32(); // skip PTYP
 		int faceTypeGroupsCount = reader.readInt32();
 		faceTypeGroups = reader.readUInt32Array(faceTypeGroupsCount);
@@ -78,24 +79,10 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 		int faceCount = reader.readInt32();
 		faces = reader.readUInt16Array(faceCount);
 
+
 		int gndx = reader.readInt32(); // skip GNDX
 		int vertexGroupsCount = reader.readInt32();
 		vertexGroups = reader.readUInt8Array(vertexGroupsCount);
-
-
-
-//		System.out.println("Read: vertexCount: " + vertexCount);
-//		System.out.println("Read: normalCount: " + normalCount);
-//		System.out.println("Read: ptyp: " + Integer.reverseBytes(ptyp));
-//		System.out.println("Read: faceTypeGroupsCount: " + faceTypeGroupsCount);
-//		System.out.println("Read: faceTypeGroups: " + Arrays.toString(faceTypeGroups));
-//		System.out.println("Read: pcnt: " + Integer.reverseBytes(pcnt));
-//		System.out.println("Read: faceGroupCount: " + faceGroupCount);
-//		System.out.println("Read: faceGroups: " + Arrays.toString(faceGroups));
-//		System.out.println("Read: pvtx: " + Integer.reverseBytes(pvtx));
-//		System.out.println("Read: faceCount: " + faceCount);
-//		System.out.println("Read: faces: " + Arrays.toString(faces));
-//		System.out.println("Read: VGCount: " + vertexGroupsCount);
 
 
 		int mtgc = reader.readInt32(); // skip MTGC
@@ -222,7 +209,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 
 		writer.writeTag(UVAS.getValue());
 		writer.writeUInt32(uvSets.length);
-		
+
 		for (final float[] uvSet : uvSets) {
 			writer.writeTag(UVBS.getValue());
 			writer.writeUInt32(uvSet.length / 2);
@@ -279,8 +266,8 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 					} else {
 						faces = new int[]{};
 						faceGroups = new long[]{};
-						if (stream.read().equals("{")){
-							if (stream.read().equals("{")){
+						if (stream.read().equals("{")) {
+							if (stream.read().equals("{")) {
 								stream.read(); // }
 							}
 							stream.read(); // }
@@ -339,7 +326,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 				default -> ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Geoset: " + token);
 			}
 		}
-		if(vertexGroups == null){
+		if (vertexGroups == null) {
 			vertexGroups = new short[0];
 		}
 	}

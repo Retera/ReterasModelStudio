@@ -718,6 +718,10 @@ public class Mat4 {
 		return this;
 	}
 
+	public Mat4 setOrtho(Vec3 nearLeftBottom, Vec3 farRightTop) {
+		return setOrtho(nearLeftBottom.y, farRightTop.y, nearLeftBottom.z, farRightTop.z, nearLeftBottom.x, farRightTop.x);
+	}
+
 	public Mat4 setOrtho(final float left, final float right, final float bottom, final float top, final float near, final float far) {
 		final float lr = 1 / (left - right);
 		final float bt = 1 / (bottom - top);
@@ -753,15 +757,10 @@ public class Mat4 {
 
 	public void printMatrix(){
 		String s = "" +
-		"\u23A1" + m00 + "\t" + m01 + "\t" + m02 + "\t" + m03 + "\u23A4\n" +
-		"\u23A2" + m10 + "\t" + m11 + "\t" + m12 + "\t" + m13 + "\u23A5\n" +
-		"\u23A2" + m20 + "\t" + m21 + "\t" + m22 + "\t" + m23 + "\u23A5\n" +
-		"\u23A3" + m30 + "\t" + m31 + "\t" + m32 + "\t" + m33 + "\u23A6\n";
-		String s2 = "" +
-		"\u23A1" + m00 + "\t" + m10 + "\t" + m20 + "\t" + m30 + "\u23A4\n" +
-		"\u23A2" + m01 + "\t" + m11 + "\t" + m21 + "\t" + m31 + "\u23A5\n" +
-		"\u23A2" + m02 + "\t" + m12 + "\t" + m22 + "\t" + m32 + "\u23A5\n" +
-		"\u23A3" + m03 + "\t" + m13 + "\t" + m23 + "\t" + m33 + "\u23A6\n";
+		"| " + m00 + "\t" + m01 + "\t" + m02 + "\t" + m03 + " |\n" +
+		"| " + m10 + "\t" + m11 + "\t" + m12 + "\t" + m13 + " |\n" +
+		"| " + m20 + "\t" + m21 + "\t" + m22 + "\t" + m23 + " |\n" +
+		"| " + m30 + "\t" + m31 + "\t" + m32 + "\t" + m33 + " |";
 		System.out.println(s);
 	}
 

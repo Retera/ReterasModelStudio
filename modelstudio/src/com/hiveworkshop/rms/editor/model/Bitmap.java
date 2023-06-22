@@ -154,19 +154,26 @@ public class Bitmap implements Named {
 				case 1 -> "ReplaceableTextures\\TeamColor\\TeamColor" + tcString + ".blp";
 				case 2 -> "ReplaceableTextures\\TeamGlow\\TeamGlow" + tcString + ".blp";
 				case 11 -> "ReplaceableTextures\\Cliff\\Cliff0" + ".blp";
+				// "ReplaceableTextures\Cliff\Cliff0.tga",
+				// "ReplaceableTextures\Cliff\Cliff1.tga"
 				case 31 -> "ReplaceableTextures\\LordaeronTree\\LordaeronSummerTree" + ".blp";
-				//"ReplaceableTextures\LordaeronTree\LordaeronSummerTree",
+				// "ReplaceableTextures\LordaeronTree\LordaeronSummerTree",
 				// "ReplaceableTextures\LordaeronTree\LordaeronFallTree",
-				// "ReplaceableTextures\DalaranRuinsTree\DalaranRuinsTree"
-				//"ReplaceableTextures\LordaeronTree\LordaeronWinterTree",
+				// "ReplaceableTextures\LordaeronTree\LordaeronWinterTree",
 				// "ReplaceableTextures\LordaeronTree\LordaeronSnowTree",
 				// "ReplaceableTextures\LordaeronTree\LordaeronFallTree"
+				// "ReplaceableTextures\DalaranRuinsTree\DalaranRuinsTree"
 				case 32 -> "ReplaceableTextures\\AshenvaleTree\\AshenTree" + ".blp";
-				//"ReplaceableTextures\AshenvaleTree\FelwoodTree","ReplaceableTextures\AshenvaleTree\Ice_Tree",
-				// "ReplaceableTextures\AshenvaleTree\AshenCanopyTree"
+				// "ReplaceableTextures\AshenvaleTree\FelwoodTree",
+				// "ReplaceableTextures\AshenvaleTree\Ice_Tree",
+				// "ReplaceableTextures\AshenvaleTree\AshenCanopyTree",
+				// "ReplaceableTextures\BarrensTree\BarrensTree",
+				// "ReplaceableTextures\NorthrendTree\NorthTree",
+				// "ReplaceableTextures\RuinsTree\RuinsTree"
 				case 33 -> "ReplaceableTextures\\BarrensTree\\BarrensTree" + ".blp";
 				case 34 -> "ReplaceableTextures\\NorthrendTree\\NorthTree" + ".blp";
 				case 35 -> "ReplaceableTextures\\Mushroom\\MushroomTree" + ".blp"; //tga?,
+				// "ReplaceableTextures\Mushroom\MushroomTree.tga"
 				// "ReplaceableTextures\UndergroundTree\UnderMushroomTree"
 				case 36 -> "ReplaceableTextures\\RuinsTree\\RuinsTree" + ".blp";
 				case 37 -> "ReplaceableTextures\\OutlandMushroomTree\\MushroomTree" + ".blp";

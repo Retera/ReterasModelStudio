@@ -45,24 +45,25 @@ public class SaveProfile implements Serializable {
 
 	public static SaveProfile get() {
 		if (currentProfile == null) {
-			try {
-				String homeProfile = System.getProperty("user.home");
-				File profileDir = new File(homeProfile + getProfilePath());
-				File profileFile = getProfileFile(profileDir);
-				if (!profileFile.exists()) {
-					profileFile = getOldProfileFile(profileDir);
+			File profileFile = getProfileFile();
+			if(profileFile != null){
+				try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(profileFile))) {
+					Object loadedObject = ois.readObject();
+					ois.close();
+					if(loadedObject instanceof SaveProfile){
+						currentProfile = (SaveProfile) loadedObject;
+						currentProfile.getPreferences().setNullToDefaults();
+					} else {
+						System.out.println("Will try to load old preferences");
+						tryToLoadOldPrefs(profileFile);
+					}
+
+				} catch (final Exception e) {
+//					e.printStackTrace();
+					System.err.println("Failed to load preferences;\nWill try to load preferences from older version!");
+					System.out.println("Will try to load old preferences");
+					tryToLoadOldPrefs(profileFile);
 				}
-
-				final ObjectInputStream ois = new ObjectInputStream(new FileInputStream(profileFile));
-				currentProfile = (SaveProfile) ois.readObject();
-				currentProfile.getPreferences().setNullToDefaults();
-				ois.close();
-
-			} catch (final Exception e) {
-				Exception e3 = new Exception("Failed to load new style preferences;\nWill try to load as old style!\n", e);
-				e3.printStackTrace();
-				System.out.println("Will try to load old preferences");
-				tryToLoadOldPrefs();
 			}
 			if (currentProfile == null) {
 				currentProfile = new SaveProfile();
@@ -74,77 +75,55 @@ public class SaveProfile implements Serializable {
 		return currentProfile;
 	}
 
-	private static void tryToLoadOldPrefs() {
-		try {
-			String homeProfile = System.getProperty("user.home");
-			File profileDir = new File(homeProfile + getProfilePath());
-			File profileFile = getProfileFile(profileDir);
-			if (!profileFile.exists()) {
-				profileFile = getOldProfileFile(profileDir);
-			}
-			File tempFile = new File(profileFile.getPath() + "_temp");
+	private static File getProfileFile() {
+		String profileDirPath = getProfileDirPath();
+		File profileFile = getProfileFile(profileDirPath, "user.profileNew");
+		if (!profileFile.exists()) {
+			profileFile = getProfileFile(profileDirPath, "user.profile");
+		}
+		if (profileFile.exists()){
+			return profileFile;
+		} else {
+			return null;
+		}
+	}
 
-			if (tempFile.createNewFile()) {
-				FileInputStream fis = new FileInputStream(profileFile);
-				final FileOutputStream fos = new FileOutputStream(tempFile);
-				byte[] bytes = fis.readAllBytes();
+	private static void tryToLoadOldPrefs(File profileFile) {
+		byte[] inputBytes = getFixedFileBytes(profileFile);
+		if (0 < inputBytes.length) {
+			try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(inputBytes))) {
+				Object loadedObject = ois.readObject();
+				if(loadedObject instanceof SaveProfil2) {
+					SaveProfil2 oldSaveProf = (SaveProfil2) loadedObject;
 
-				ArrayList<Byte> byteList = new ArrayList<>();
-				String prefClass = "ProgramPreferences";
-				String saveClass = "SaveProfile";
-
-				for (byte b : bytes) {
-					if (byteList.size() < prefClass.length() && b == prefClass.charAt(byteList.size())) {
-						byteList.add(b);
-					} else if (byteList.size() < saveClass.length() && b == saveClass.charAt(byteList.size())) {
-						byteList.add(b);
-					} else if (byteList.size() != 0) {
-						if (byteList.size() == prefClass.length() || byteList.size() == saveClass.length()) {
-							byteList.set(byteList.size() - 1, (byte) '2');
-						}
-						for (byte b2 : byteList) {
-							fos.write(b2);
-						}
-						byteList.clear();
-						fos.write(b);
-					} else {
-						fos.write(b);
+					SaveProfile saveProfile = new SaveProfile();
+					saveProfile.setPreferences(oldSaveProf.getPreferences().getAsNewPrefs());
+					saveProfile.setDataSources(oldSaveProf.getDataSources());
+					saveProfile.setPath(oldSaveProf.getPath());
+					for (String s : saveProfile.getRecent()) {
+						saveProfile.addRecent(s);
 					}
+
+					currentProfile = saveProfile;
+
+					System.out.println("Seems to successfully loaded old preferences");
 				}
-				fos.close();
-
-				final ObjectInputStream ois = new ObjectInputStream(new FileInputStream(tempFile));
-				SaveProfil2 oldSaveProf = (SaveProfil2) ois.readObject();
-
-				SaveProfile saveProfile = new SaveProfile();
-				saveProfile.setPreferences(oldSaveProf.getPreferences().getAsNewPrefs());
-				saveProfile.setDataSources(oldSaveProf.getDataSources());
-				saveProfile.setPath(oldSaveProf.getPath());
-				for (String s : saveProfile.getRecent()) {
-					saveProfile.addRecent(s);
-				}
-
-				currentProfile = saveProfile;
-
-				ois.close();
-				tempFile.delete();
-				System.out.println("seems to successfully loaded new setting");
+			} catch (Exception e2) {
+				System.err.println("Failed to load old preferences");
+//				e2.printStackTrace();
 			}
-		} catch (Exception e2) {
-			System.out.println("failed to load old settings");
-			e2.printStackTrace();
+		} else {
+			System.err.println("Failed to load old preferences");
 		}
 	}
 
 	public static void save() {
 		if (currentProfile != null) {
-			final String homeProfile = System.getProperty("user.home");
-			String profilePath = getProfilePath();
-			final File profileDir = new File(homeProfile + profilePath);
+			String profileDirPath = getProfileDirPath();
+			final File profileDir = new File(profileDirPath);
 			profileDir.mkdirs();
-			File profileFile = getProfileFile(profileDir);
+			File profileFile = getProfileFile(profileDirPath, "user.profileNew");
 			System.out.println(profileFile.getPath());
-			// profileFile.delete();
 
 			try {
 				profileFile.createNewFile();
@@ -197,24 +176,6 @@ public class SaveProfile implements Serializable {
 		save();
 	}
 
-	public static File getProfileFile(File profileDir) {
-		File profileFile = new File(profileDir.getPath() + "\\user.profileNew");
-		if (!System.getProperty("os.name").toLowerCase().contains("win")) {
-			profileFile = new File(profileFile.getPath().replace('\\', '/'));
-		}
-		return profileFile;
-	}
-
-	// To not overwrite old prefs
-	// (mostly for twilacs convinience; makes it possible to open old snapshots without specifying the game path)
-	public static File getOldProfileFile(File profileDir) {
-		File profileFile = new File(profileDir.getPath() + "\\user.profile");
-		if (!System.getProperty("os.name").toLowerCase().contains("win")) {
-			profileFile = new File(profileFile.getPath().replace('\\', '/'));
-		}
-		return profileFile;
-	}
-
 	private void reload() {
 		dataSourceChangeNotifier = new WarcraftDataSourceChangeListener();
 		isHD = computeIsHd(dataSources);
@@ -245,25 +206,20 @@ public class SaveProfile implements Serializable {
 		return hd;
 	}
 
-	public static String getProfilePath() {
-		String profilePath = "\\AppData\\Roaming\\ReteraStudioBeta";
+	private static String getProfileDirPath() {
+		final String homeProfile = System.getProperty("user.home");
 		if (!System.getProperty("os.name").toLowerCase().contains("win")) {
-			profilePath = "/.reteraStudioBeta";
+			return homeProfile + "/.reteraStudioBeta";
 		}
-		return profilePath;
+		return homeProfile + "\\AppData\\Roaming\\ReteraStudioBeta";
 	}
 
-	public static boolean testTargetFolderReadOnly(final String wcDirectory) {
-		final File temp = new File(wcDirectory + "war3.mpq");
-		final File datat = new File(wcDirectory + "/Data");
-		if (!temp.exists() && !datat.exists()) {
-			JOptionPane.showMessageDialog(null,
-					"Could not find war3.mpq. Please choose a valid Warcraft III installation.",
-					"WARNING: Needs WC3 Installation", JOptionPane.WARNING_MESSAGE);
-			// requestNewWc3Directory();
-			return false;
+	public static File getProfileFile(String dirPath, String fileName) {
+		String profilePath = dirPath + "\\" + fileName;
+		if (!System.getProperty("os.name").toLowerCase().contains("win")) {
+			return new File(profilePath.replace('\\', '/'));
 		}
-		return true;
+		return new File(profilePath);
 	}
 
 	public void addRecent(final String fp) {
@@ -297,5 +253,67 @@ public class SaveProfile implements Serializable {
 
 	public boolean isHd() {
 		return isHD;
+	}
+
+	private static byte[] getFixedFileBytes(File profileFile) {
+		// Change occurrences of "ProgramPreferences" and "SaveProfile" in the file content
+		// to "ProgramPreference2" and "SaveProfil2" to allow loading of
+		// old settings into renamed classes
+		byte[] bytes;
+		try (FileInputStream fis = new FileInputStream(profileFile)) {
+			bytes = fis.readAllBytes();
+		} catch (Exception e){
+			bytes = new byte[0];
+		}
+
+		String prefClassName = "ProgramPreferences";
+		String saveClassName = "SaveProfile";
+
+		boolean readingPref = false;
+		boolean readingSProf = false;
+		int numSavedBytes = 0;
+
+		for (int i = 0; i < bytes.length; i++) {
+			byte b = bytes[i];
+			if (readingPref && prefClassName.length() <= numSavedBytes
+					|| readingSProf && saveClassName.length() <= numSavedBytes) {
+				// text in byteList matches either "ProgramPreferences" or "SaveProfile".
+				// Change last letter to a "2"
+				bytes[i-1] = (byte) '2';
+				numSavedBytes = 0;
+				readingPref = false;
+				readingSProf = false;
+			} else if (readingPref && b == prefClassName.charAt(numSavedBytes)
+					|| readingSProf && b == saveClassName.charAt(numSavedBytes)) {
+				numSavedBytes++;
+			} else {
+				numSavedBytes = 0;
+				readingPref = false;
+				readingSProf = false;
+			}
+
+			if (!readingPref && !readingSProf && b == prefClassName.charAt(0)) {
+				numSavedBytes = 1;
+				readingPref = true;
+			} else if (!readingPref && !readingSProf && b == saveClassName.charAt(0)) {
+				numSavedBytes = 1;
+				readingSProf = true;
+			}
+		}
+
+		return bytes;
+	}
+
+	public static boolean testTargetFolderReadOnly(final String wcDirectory) {
+		final File temp = new File(wcDirectory + "war3.mpq");
+		final File datat = new File(wcDirectory + "/Data");
+		if (!temp.exists() && !datat.exists()) {
+			JOptionPane.showMessageDialog(null,
+					"Could not find war3.mpq. Please choose a valid Warcraft III installation.",
+					"WARNING: Needs WC3 Installation", JOptionPane.WARNING_MESSAGE);
+			// requestNewWc3Directory();
+			return false;
+		}
+		return true;
 	}
 }

@@ -25,11 +25,11 @@ public class ProgramGlobals {
 	private static final KeyBindingPrefs keyBindingPrefs;
 	private static final EditorColorPrefs editorColorPrefs;
 	private static final List<ModelPanel> modelPanels;
-	private static final RootWindowUgg rootWindowUgg;
-	private static final MainPanel mainPanel;
+	private static RootWindowUgg rootWindowUgg;
+	private static MainPanel mainPanel;
 	private static final JToolBar toolbar;
 	private static final UndoHandler undoHandler;
-	private static final SoundMappings soundMappings;
+	private static SoundMappings soundMappings;
 	private static final MenuBar menuBar;
 	private static ModelPanel currentModelPanel;
 
@@ -65,9 +65,8 @@ public class ProgramGlobals {
 		actionTypeGroup = new ToolbarButtonGroup2<>(toolbar, ModelEditorActionType3.values());
 		actionTypeGroup.setActiveButton(ModelEditorActionType3.TRANSLATION);
 
-		rootWindowUgg = new RootWindowUgg(prefs.getViewMap());
-		mainPanel = new MainPanel(toolbar, rootWindowUgg);
-		soundMappings = new SoundMappings();
+//		rootWindowUgg = new RootWindowUgg(prefs.getViewMap());
+//		mainPanel = new MainPanel(toolbar, rootWindowUgg);
 
 		selectionItemTypeGroup.addToolbarButtonListener(ProgramGlobals::setSelectionItemType);
 		actionTypeGroup.addToolbarButtonListener(ProgramGlobals::setEditorActionType);
@@ -127,10 +126,16 @@ public class ProgramGlobals {
 //	}
 
 	public static MainPanel getMainPanel() {
+		if(mainPanel == null) {
+			mainPanel = new MainPanel(toolbar, getRootWindowUgg());
+		}
 		return mainPanel;
 	}
 
 	public static RootWindowUgg getRootWindowUgg(){
+		if(rootWindowUgg == null){
+			rootWindowUgg = new RootWindowUgg(prefs.getViewMap());
+		}
 		return rootWindowUgg;
 	}
 
@@ -145,7 +150,7 @@ public class ProgramGlobals {
 	public static void setCurrentModelPanel(ModelPanel currentModelPanel) {
 		if(ProgramGlobals.currentModelPanel != null) ProgramGlobals.currentModelPanel.deFocus();
 		ProgramGlobals.currentModelPanel = currentModelPanel;
-		rootWindowUgg.getWindowHandler2().setModelPanel(currentModelPanel);
+		getRootWindowUgg().getWindowHandler2().setModelPanel(currentModelPanel);
 		if (!modelPanels.contains(currentModelPanel) && currentModelPanel != null) {
 			modelPanels.add(currentModelPanel);
 		}
@@ -187,6 +192,9 @@ public class ProgramGlobals {
 	}
 
 	public static SoundMappings getSoundMappings() {
+		if(soundMappings == null){
+			soundMappings = new SoundMappings();
+		}
 		return soundMappings;
 	}
 

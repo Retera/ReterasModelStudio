@@ -21,7 +21,7 @@ public class FlipUVs {
 			super(TextKey.MIRROR_ALL_UVS_X, FlipUVsX::flip);
 			setMenuItemMnemonic(KeyEvent.VK_X);
 		}
-		private static void flip(ModelHandler m){
+		private static void flip(ModelHandler m) {
 			flipAllUVsDim(m, Vec2.X_AXIS, new Vec2(0.5, 0.5));
 		}
 	}
@@ -33,7 +33,7 @@ public class FlipUVs {
 		}
 
 
-		private static void flip(ModelHandler m){
+		private static void flip(ModelHandler m) {
 			flipAllUVsDim(m, Vec2.Y_AXIS, new Vec2(0.5, 0.5));
 		}
 	}
@@ -43,7 +43,7 @@ public class FlipUVs {
 		}
 
 
-		private static void flip(ModelHandler m){
+		private static void flip(ModelHandler m) {
 			flipSelectedUVsDim(m, Vec2.X_AXIS, null, 0);
 		}
 	}
@@ -54,7 +54,7 @@ public class FlipUVs {
 		}
 
 
-		private static void flip(ModelHandler m){
+		private static void flip(ModelHandler m) {
 			flipSelectedUVsDim(m, Vec2.Y_AXIS, null, 0);
 		}
 	}
@@ -66,25 +66,29 @@ public class FlipUVs {
 		}
 
 		public static void inverseAllUVs(ModelHandler modelHandler) {
-			Set<Vec2> tVerts = new HashSet<>();
-			for (final Geoset geo : modelHandler.getModel().getGeosets()) {
-				for (final GeosetVertex vertex : geo.getVertices()) {
-					tVerts.addAll(vertex.getTverts());
+			if (modelHandler != null) {
+				Set<Vec2> tVerts = new HashSet<>();
+				for (final Geoset geo : modelHandler.getModel().getGeosets()) {
+					for (final GeosetVertex vertex : geo.getVertices()) {
+						tVerts.addAll(vertex.getTverts());
+					}
 				}
+				modelHandler.getUndoManager().pushAction(new SwapXYTVerticesAction(tVerts, ModelStructureChangeListener.changeListener).redo());
 			}
-			modelHandler.getUndoManager().pushAction(new SwapXYTVerticesAction(tVerts, ModelStructureChangeListener.changeListener).redo());
 		}
 	}
 
 	public static void flipAllUVsDim(ModelHandler modelHandler, Vec2 axis, Vec2 center) {
-		Set<Vec2> tVerts = new HashSet<>();
-		for (Geoset geo : modelHandler.getModel().getGeosets()) {
-			for (GeosetVertex vertex : geo.getVertices()) {
-				tVerts.addAll(vertex.getTverts());
+		if (modelHandler != null) {
+			Set<Vec2> tVerts = new HashSet<>();
+			for (Geoset geo : modelHandler.getModel().getGeosets()) {
+				for (GeosetVertex vertex : geo.getVertices()) {
+					tVerts.addAll(vertex.getTverts());
+				}
 			}
+			UndoAction action = new MirrorTVerticesAction(tVerts, center, axis, ModelStructureChangeListener.changeListener);
+			modelHandler.getUndoManager().pushAction(action.redo());
 		}
-		UndoAction action = new MirrorTVerticesAction(tVerts, center, axis, ModelStructureChangeListener.changeListener);
-		modelHandler.getUndoManager().pushAction(action.redo());
 	}
 
 	public static void flipSelectedUVsDim(ModelHandler modelHandler, Vec2 axis, Vec2 center, int uvLayerIndex) {
@@ -99,7 +103,7 @@ public class FlipUVs {
 		for (GeosetVertex vertex : selectedVertices) {
 			tVerts.add(vertex.getTVertex(uvLayerIndex));
 		}
-		if(center == null){
+		if (center == null) {
 			center = Vec2.centerOfGroup(tVerts);
 		}
 		return new MirrorTVerticesAction(tVerts, center, axis, ModelStructureChangeListener.changeListener);

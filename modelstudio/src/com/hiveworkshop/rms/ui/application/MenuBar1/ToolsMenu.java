@@ -1,10 +1,11 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.RootWindowUgg;
 import com.hiveworkshop.rms.ui.application.actionfunctions.*;
 import com.hiveworkshop.rms.ui.application.tools.EditTexturesPanel;
 import com.hiveworkshop.rms.ui.application.viewer.EditUVsView;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -31,9 +32,7 @@ public class ToolsMenu extends JMenu {
 
 		add(new JSeparator());
 
-//		add(createMenuItem("Edit UV Mapping", KeyEvent.VK_U, e -> EditUVsPanel.showEditUVs()));
-		RootWindowUgg rootWindow = ProgramGlobals.getRootWindowUgg();
-		add(createMenuItem("Edit UV Mapping", KeyEvent.VK_U, e -> rootWindow.newWindow(new EditUVsView().setModelPanel(ProgramGlobals.getCurrentModelPanel()))));
+		add(createMenuItem("Edit UV Mapping", KeyEvent.VK_U, e -> ProgramGlobals.getRootWindowUgg().newWindow(new EditUVsView().setModelPanel(getCurrModelPanel()))));
 
 //		add(createMenuItem("Edit UV Mapping2", KeyEvent.VK_A, e -> rootWindow.newWindow(new UVView("Edit UV Mapping").setModelPanel(ProgramGlobals.getCurrentModelPanel()))));
 
@@ -49,13 +48,13 @@ public class ToolsMenu extends JMenu {
 		tweaksSubmenu.getAccessibleContext().setAccessibleDescription("Allows the user to tweak conversion mistakes.");
 		add(tweaksSubmenu);
 
-		tweaksSubmenu.add(createMenuItem("Flip All UVs U", KeyEvent.VK_U, e -> FlipUVs.flipAllUVsDim(ProgramGlobals.getCurrentModelPanel().getModelHandler(), Vec2.X_AXIS, new Vec2(0.5, 0.5))));
-		tweaksSubmenu.add(createMenuItem("Flip All UVs V", KeyEvent.VK_V, e -> FlipUVs.flipAllUVsDim(ProgramGlobals.getCurrentModelPanel().getModelHandler(), Vec2.Y_AXIS, new Vec2(0.5, 0.5))));
+		tweaksSubmenu.add(createMenuItem("Flip All UVs U", KeyEvent.VK_U, e -> FlipUVs.flipAllUVsDim(getCurrModelHandler(), Vec2.X_AXIS, new Vec2(0.5, 0.5))));
+		tweaksSubmenu.add(createMenuItem("Flip All UVs V", KeyEvent.VK_V, e -> FlipUVs.flipAllUVsDim(getCurrModelHandler(), Vec2.Y_AXIS, new Vec2(0.5, 0.5))));
 
 		tweaksSubmenu.add(new FlipUVs.FlipUVsX().getMenuItem());
 		tweaksSubmenu.add(new FlipUVs.FlipUVsY().getMenuItem());
 
-		tweaksSubmenu.add(createMenuItem("Swap All UVs U for V", KeyEvent.VK_S, e -> FlipUVs.InvertAllUVs.inverseAllUVs(ProgramGlobals.getCurrentModelPanel().getModelHandler())));
+		tweaksSubmenu.add(createMenuItem("Swap All UVs U for V", KeyEvent.VK_S, e -> FlipUVs.InvertAllUVs.inverseAllUVs(getCurrModelHandler())));
 
 		JMenu mirrorSubmenu = new JMenu("Mirror");
 		mirrorSubmenu.setMnemonic(KeyEvent.VK_M);
@@ -65,25 +64,21 @@ public class ToolsMenu extends JMenu {
 		JCheckBoxMenuItem mirrorFlip = new JCheckBoxMenuItem("Automatically flip after mirror (preserves surface)", true);
 		mirrorFlip.setMnemonic(KeyEvent.VK_A);
 
-		mirrorSubmenu.add(createMenuItem("Mirror X", KeyEvent.VK_X, e -> MirrorSelection.mirrorAxis(ProgramGlobals.getCurrentModelPanel().getModelHandler(), Vec3.X_AXIS, mirrorFlip.isSelected(), null)));
-		mirrorSubmenu.add(createMenuItem("Mirror Y", KeyEvent.VK_Y, e -> MirrorSelection.mirrorAxis(ProgramGlobals.getCurrentModelPanel().getModelHandler(), Vec3.Y_AXIS, mirrorFlip.isSelected(), null)));
-		mirrorSubmenu.add(createMenuItem("Mirror Z", KeyEvent.VK_Z, e -> MirrorSelection.mirrorAxis(ProgramGlobals.getCurrentModelPanel().getModelHandler(), Vec3.Z_AXIS, mirrorFlip.isSelected(), null)));
+		mirrorSubmenu.add(createMenuItem("Mirror X", KeyEvent.VK_X, e -> MirrorSelection.mirrorAxis(getCurrModelHandler(), Vec3.X_AXIS, mirrorFlip.isSelected(), null)));
+		mirrorSubmenu.add(createMenuItem("Mirror Y", KeyEvent.VK_Y, e -> MirrorSelection.mirrorAxis(getCurrModelHandler(), Vec3.Y_AXIS, mirrorFlip.isSelected(), null)));
+		mirrorSubmenu.add(createMenuItem("Mirror Z", KeyEvent.VK_Z, e -> MirrorSelection.mirrorAxis(getCurrModelHandler(), Vec3.Z_AXIS, mirrorFlip.isSelected(), null)));
 
 		mirrorSubmenu.add(new JSeparator());
 
 		mirrorSubmenu.add(mirrorFlip);
 	}
 
-	private void openEditUVsView(RootWindowUgg rootWindow) {
-//		ModelDependentView view = new EditUVsView();
-//		System.out.println("sat model panel, opening window");
-//		rootWindow.newWindow(view);
-//		view.setModelPanel(ProgramGlobals.getCurrentModelPanel());
-//		System.out.println("done opening window");
+	private ModelPanel getCurrModelPanel() {
+		return ProgramGlobals.getCurrentModelPanel();
+	}
 
-
-		System.out.println("sat model panel, opening window");
-		rootWindow.newWindow(new EditUVsView().setModelPanel(ProgramGlobals.getCurrentModelPanel()));
-		System.out.println("done opening window");
+	private ModelHandler getCurrModelHandler() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		return modelPanel == null ? null : modelPanel.getModelHandler();
 	}
 }

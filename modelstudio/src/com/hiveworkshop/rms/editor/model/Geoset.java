@@ -122,7 +122,7 @@ public class Geoset extends TimelineContainer implements Named {
 	}
 
 	public int numUVLayers() {
-		return vertices.get(0).getTverts().size();
+		return vertices.isEmpty() ? 0 : vertices.get(0).getTverts().size();
 	}
 
 	public Geoset addTriangle(final Triangle p) {

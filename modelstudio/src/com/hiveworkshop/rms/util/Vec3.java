@@ -690,6 +690,23 @@ public class Vec3 {
 		return this;
 	}
 
+	public Vec3 toDeg(){
+		set(Math.toDegrees(x), Math.toDegrees(y), Math.toDegrees(z));
+		return this;
+	}
+
+	public Vec3 toRad(){
+		set(Math.toRadians(x), Math.toRadians(y), Math.toRadians(z));
+		return this;
+	}
+
+	public Vec3 intify(){
+		x = (int) x;
+		y = (int) y;
+		z = (int) z;
+		return this;
+	}
+
 	public String toRoundedString(){
 		int roundX = Math.round(x);
 		int roundY = Math.round(y);
