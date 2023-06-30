@@ -101,6 +101,7 @@ public class CreateNewModel extends ActionFunction{
 			if (formatVersion < 900) {
 				vertex.addBoneAttachment(bone);
 			} else {
+				vertex.initSkinBones();
 				vertex.setSkinBone(bone, (short) 255, 0);
 			}
 			geoset.add(vertex);
@@ -109,7 +110,7 @@ public class CreateNewModel extends ActionFunction{
 			triangle.setGeoset(geoset);
 			geoset.add(triangle);
 		}
-		if (formatVersion < 900) {
+		if (900 <= formatVersion) {
 			new RecalculateTangentsAction(mesh.getVertices()).redo();
 		}
 		return geoset;

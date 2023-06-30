@@ -11,6 +11,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public class FolderDataSource implements DataSource {
 
@@ -75,8 +76,11 @@ public class FolderDataSource implements DataSource {
 		if(listfile == null){
 			listfile = new HashSet<>();
 			if(folderPath.toFile().exists()){
-				try {
-					Files.walk(folderPath).filter(Files::isRegularFile).forEach(t -> listfile.add(folderPath.relativize(t).toString()));
+				// to add this folder to the relative path the paths need to be relativized against this folders parent;
+				Path parent = folderPath.getParent() != null ? folderPath.getParent() : folderPath;
+				try (Stream<Path> folderStream = Files.walk(folderPath)) {
+//					folderStream.filter(Files::isRegularFile).forEach(t -> listfile.add(folderPath.relativize(t).toString()));
+					folderStream.filter(Files::isRegularFile).forEach(t -> listfile.add(parent.relativize(t).toString()));
 				} catch (final IOException e) {
 					throw new RuntimeException(e);
 				}

@@ -51,6 +51,10 @@ public class TwiList<T> extends JList<T> {
 		return this;
 	}
 
+	public T get(int i) {
+		return listModel.getElementAt(i);
+	}
+
 	public TwiList<T> clear() {
 		listModel.clear();
 		return this;
@@ -58,6 +62,16 @@ public class TwiList<T> extends JList<T> {
 
 	public TwiList<T> remove(T t) {
 		listModel.remove(t);
+		return this;
+	}
+
+	public TwiList<T> removeElementAt(int i) {
+		listModel.removeElementAt(i);
+		return this;
+	}
+
+	public TwiList<T> moveElement(int index, int steps){
+		listModel.moveElementAt(index, steps);
 		return this;
 	}
 

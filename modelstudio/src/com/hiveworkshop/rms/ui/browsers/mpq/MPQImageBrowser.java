@@ -51,7 +51,7 @@ public class MPQImageBrowser extends JPanel {
 		iconMap = new HashMap<>();
 
 		mergedListFile = GameDataFileSystem.getDefault().getMergedListfile();
-		String imageRegexFilter = ".+(\\.bmp|\\.tga|\\.jpg|\\.jpeg|\\.pcx|\\.blp|\\.dds)";
+		String imageRegexFilter = ".+(\\.bmp|\\.tga|\\.tif|\\.jpg|\\.jpeg|\\.pcx|\\.blp|\\.dds)";
 		mergedListFile.removeIf(o -> !o.matches(imageRegexFilter));
 		fetchImageIcons();
 
@@ -276,6 +276,9 @@ public class MPQImageBrowser extends JPanel {
 			public void keyReleased(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER && stillPressed) {
 					stillPressed = false;
+				} else if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN) {
+					TreePath treePath = tree.getSelectionPath();
+					openTreePath(treePath);
 				}
 			}
 		};

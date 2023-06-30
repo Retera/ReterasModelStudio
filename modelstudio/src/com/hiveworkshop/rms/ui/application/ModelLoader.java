@@ -171,7 +171,7 @@ public class ModelLoader {
 		loadingInfo.start();
 		SwingWorker<EditableModel, String> loaderThing = new SwingWorker<>() {
 			@Override
-			protected EditableModel doInBackground() throws Exception {
+			protected EditableModel doInBackground() {
 				return getEditableModel(f, temporary);
 			}
 
@@ -184,7 +184,12 @@ public class ModelLoader {
 						loadModel(showModel, tempModelPanel);
 					}
 				} catch (InterruptedException | ExecutionException e) {
-					throw new RuntimeException(e);
+					Throwable cause = e.getCause();
+					if(cause instanceof RuntimeException) {
+						throw (RuntimeException) cause;
+					} else {
+						throw new RuntimeException("Failed to load \"" + f + "\"", e);
+					}
 				} finally {
 					loadingInfo.stop();
 				}

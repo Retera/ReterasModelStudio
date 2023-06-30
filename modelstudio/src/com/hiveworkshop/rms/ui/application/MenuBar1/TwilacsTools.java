@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.*;
 import com.hiveworkshop.rms.ui.application.tools.AnimationExporter;
 import com.hiveworkshop.rms.ui.application.tools.BindPoseWizard;
+import com.hiveworkshop.rms.ui.application.tools.ReorderGeosetsPanel;
 import com.hiveworkshop.rms.ui.application.tools.SkinningOptionPanel;
 import com.hiveworkshop.rms.ui.application.tools.shadereditors.ShaderEditorType;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -60,6 +61,7 @@ public class TwilacsTools extends JMenu {
 		add(TwilacStuff.getSpliceGeosetMenuItem());
 		add(new JSeparator());
 		add(new ReorderAnimations().getMenuItem());
+		add(getReorderGeosMenu());
 		add(new JSeparator());
 		add(TwilacStuff.getLinearizeSelectedMenuItem());
 		add(TwilacStuff.getRenameBoneChainMenuItem());
@@ -74,6 +76,12 @@ public class TwilacsTools extends JMenu {
 		add(AnimationExporter.getMenuItem2());
 		add(TwilacStuff.getExportUVMaskMenuItem());
 		add(TwilacStuff.getTextureCompositionMenuItem());
+	}
+
+	private JMenuItem getReorderGeosMenu(){
+		JMenuItem menuItem = new JMenuItem("Reorder Geosets");
+		menuItem.addActionListener(e -> ReorderGeosetsPanel.showPanel(ProgramGlobals.getMainPanel(), ProgramGlobals.getCurrentModelPanel().getModelHandler()));
+		return menuItem;
 	}
 
 	private JMenuItem getSkinningMenu(){

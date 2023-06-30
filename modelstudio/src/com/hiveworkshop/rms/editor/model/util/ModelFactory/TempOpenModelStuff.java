@@ -143,6 +143,9 @@ public class TempOpenModelStuff {
 		}
 
 		// Step 8: Geoset
+		if (model.getBones().isEmpty() && !mdlxModel.geosets.isEmpty()) {
+			model.add(new Bone("Found No Bones"));
+		}
 		for (final MdlxGeoset mdlxGeoset : mdlxModel.geosets) {
 			Geoset x = GeosetFactory.createGeoset(mdlxGeoset, infoHolder, model);
 			x.setParentModel(model);

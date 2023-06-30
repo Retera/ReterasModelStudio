@@ -171,6 +171,15 @@ public class TwiListModel<E> extends AbstractListModel<E> {
 		fireIntervalRemoved(this, index, index);
 	}
 
+	public void moveElementAt(int index, int steps) {
+		if (0 <= index+steps && index + steps < objects.size()) {
+			E item = objects.remove(index);
+			objects.add(index + steps, item);
+
+			fireContentsChanged(this, index, index+steps);
+		}
+	}
+
 	// implements javax.swing.MutableComboBoxModel
 	public void removeElement(Object anObject) {
 		int index = objects.indexOf(anObject);

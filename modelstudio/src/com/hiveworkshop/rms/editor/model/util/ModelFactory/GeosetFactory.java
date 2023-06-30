@@ -50,6 +50,9 @@ public class GeosetFactory {
 			}
 			matrices.add(m);
 		}
+		if(matrices.isEmpty()){
+			matrices.add(new Matrix(model.getBones().get(0)));
+		}
 
 
 		final short[] vertexGroups = mdlxGeoset.vertexGroups;
@@ -100,22 +103,11 @@ public class GeosetFactory {
 			}
 
 
-			if (skin != null) {
-				int skinInd = i * 8;
-				Bone[] bones = {
-						matrices.get(getValidIndex(((skin[skinInd + 0] + 256) % 256), matrixMax)).get(0),
-						matrices.get(getValidIndex(((skin[skinInd + 1] + 256) % 256), matrixMax)).get(0),
-						matrices.get(getValidIndex(((skin[skinInd + 2] + 256) % 256), matrixMax)).get(0),
-						matrices.get(getValidIndex(((skin[skinInd + 3] + 256) % 256), matrixMax)).get(0)};
-				short[] weights = {
-						(short)((skin[skinInd + 4] + 256) % 256),
-						(short)((skin[skinInd + 5] + 256) % 256),
-						(short)((skin[skinInd + 6] + 256) % 256),
-						(short)((skin[skinInd + 7] + 256) % 256)};
-
-				gv.setSkinBones(bones, weights);
-
-				skinList.add(new short[] {skin[skinInd], skin[skinInd + 1], skin[skinInd + 2], skin[skinInd + 3], skin[skinInd + 4], skin[skinInd + 5], skin[skinInd + 6], skin[skinInd + 7]});
+			if (skin != null && !matrices.isEmpty()) {
+				short[] vertSkin = getSkin(matrices, skin, matrixMax, i, gv);
+				skinList.add(vertSkin);
+			} else if (gv.getBones().isEmpty() && !matrices.isEmpty()){
+				gv.addBoneAttachment(matrices.get(0).get(0));
 			}
 		}
 		// guys, I didn't code this to allow experimental non-triangle faces that were suggested
@@ -137,6 +129,24 @@ public class GeosetFactory {
 		}
 
 		return geoset;
+	}
+
+	private static short[] getSkin(List<Matrix> matrices, short[] skin, int matrixMax, int i, GeosetVertex gv) {
+		int skinInd = i * 8;
+		Bone[] bones = {
+				matrices.get(getValidIndex(((skin[skinInd + 0] + 256) % 256), matrixMax)).get(0),
+				matrices.get(getValidIndex(((skin[skinInd + 1] + 256) % 256), matrixMax)).get(0),
+				matrices.get(getValidIndex(((skin[skinInd + 2] + 256) % 256), matrixMax)).get(0),
+				matrices.get(getValidIndex(((skin[skinInd + 3] + 256) % 256), matrixMax)).get(0)};
+		short[] weights = {
+				(short)((skin[skinInd + 4] + 256) % 256),
+				(short)((skin[skinInd + 5] + 256) % 256),
+				(short)((skin[skinInd + 6] + 256) % 256),
+				(short)((skin[skinInd + 7] + 256) % 256)};
+
+		gv.setSkinBones(bones, weights);
+
+		return new short[] {skin[skinInd], skin[skinInd + 1], skin[skinInd + 2], skin[skinInd + 3], skin[skinInd + 4], skin[skinInd + 5], skin[skinInd + 6], skin[skinInd + 7]};
 	}
 
 	private static int getValidIndex(int ind, int max) {
