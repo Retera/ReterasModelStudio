@@ -31,7 +31,7 @@ public final class RenderNode2 extends RenderNode<IdObject> {
 		billboardedY = animatedNode.getBillboardLockY();
 		billboardedZ = animatedNode.getBillboardLockZ();
 
-		if (billboarded) billboardFlag |= 0x8;
+		if (billboarded)  billboardFlag |= 0x08;
 		if (billboardedX) billboardFlag |= 0x10;
 		if (billboardedY) billboardFlag |= 0x20;
 		if (billboardedZ) billboardFlag |= 0x40;
@@ -47,14 +47,14 @@ public final class RenderNode2 extends RenderNode<IdObject> {
 		if (dirty) {
 //			dirty = false;
 			worldScale.set(localScale);
-			worldRotation.set(localRotation);
 			RenderNode2 parentNode = renderModel.getRenderNode(animatedNode.getParent());
 //			Vec3 computedScaling = new Vec3();
 			if(billboardFlag != 0 || dontInheritRotation){
-				computedRotation.set(localRotation).mulInverse(parentNode.worldRotation);
+				computedRotation.set(parentNode.inverseWorldRotation).mul(localRotation);
 			} else {
 				computedRotation.set(localRotation);
 			}
+			worldRotation.set(computedRotation);
 
 			if (dontInheritScaling) {
 				computedScaling.set(localScale).divide(parentNode.worldScale);
@@ -68,7 +68,7 @@ public final class RenderNode2 extends RenderNode<IdObject> {
 			worldMatrix.set(parentNode.worldMatrix).mul(localMatrix);
 
 			if(billboardFlag == 0){
-				worldRotation.mul(parentNode.worldRotation);
+				worldRotation.set(parentNode.worldRotation).mul(computedRotation);
 			}
 
 			// Inverse world rotation

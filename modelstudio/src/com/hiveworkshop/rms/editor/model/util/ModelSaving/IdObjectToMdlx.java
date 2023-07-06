@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.parsers.mdlx.*;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -153,24 +154,11 @@ public class IdObjectToMdlx {
 
 		objectToMdlx(particleEmitter2, mdlxEmitter, model);
 
-		if (particleEmitter2.getUnshaded()) {
-			mdlxEmitter.flags |= 0x8000;
+		EnumSet<ParticleEmitter2.P2Flag> p2Flags = particleEmitter2.getP2Flags();
+		for (ParticleEmitter2.P2Flag flag : p2Flags){
+			mdlxEmitter.flags |= flag.getFlagBit();
 		}
-		if (particleEmitter2.getSortPrimsFarZ()) {
-			mdlxEmitter.flags |= 0x10000;
-		}
-		if (particleEmitter2.getLineEmitter()) {
-			mdlxEmitter.flags |= 0x20000;
-		}
-		if (particleEmitter2.getUnfogged()) {
-			mdlxEmitter.flags |= 0x40000;
-		}
-		if (particleEmitter2.getModelSpace()) {
-			mdlxEmitter.flags |= 0x80000;
-		}
-		if (particleEmitter2.getXYQuad()) {
-			mdlxEmitter.flags |= 0x100000;
-		}
+
 		if (particleEmitter2.getSquirt()) {
 			mdlxEmitter.squirt = 1;
 		}
@@ -259,35 +247,11 @@ public class IdObjectToMdlx {
 	public static void objectToMdlx(IdObject idObject, MdlxGenericObject mdlxObject, EditableModel model) {
 		mdlxObject.name = idObject.getName();
 		mdlxObject.objectId = model.getObjectId(idObject);
-//		mdlxObject.parentId = getParent() == null ? -1 : model.getObjectId(getParent());
 		mdlxObject.parentId = model.getObjectId(idObject.getParent());
 
-		if (idObject.getDontInheritTranslation()) {
-			mdlxObject.flags |= 0x1;
-		}
 
-		if (idObject.getDontInheritRotation()) {
-			mdlxObject.flags |= 0x2;
-		}
-
-		if (idObject.getDontInheritScaling()) {
-			mdlxObject.flags |= 0x4;
-		}
-
-		if (idObject.getBillboarded()) {
-			mdlxObject.flags |= 0x8;
-		}
-
-		if (idObject.getBillboardLockX()) {
-			mdlxObject.flags |= 0x10;
-		}
-
-		if (idObject.getBillboardLockY()) {
-			mdlxObject.flags |= 0x20;
-		}
-
-		if (idObject.getBillboardLockZ()) {
-			mdlxObject.flags |= 0x40;
+		for (IdObject.NodeFlag flag : idObject.getNodeFlags()){
+			mdlxObject.flags |= flag.getFlagBit();
 		}
 
 		idObject.timelinesToMdlx(mdlxObject, model);

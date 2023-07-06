@@ -29,6 +29,9 @@ public class MathUtils {
 	public static float clamp(float value, float min, float max){
 		return Math.min(Math.max(min, value), max);
 	}
+	public static double clamp(double value, double min, double max){
+		return Math.min(Math.max(min, value), max);
+	}
 
 	public static float lerp(float floorValue, float ceilValue, float timeFraction) {
 		return floorValue + (timeFraction * (ceilValue - floorValue));

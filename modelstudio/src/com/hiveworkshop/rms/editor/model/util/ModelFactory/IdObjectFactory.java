@@ -12,7 +12,7 @@ import java.util.TreeMap;
 public class IdObjectFactory {
 	public static Bone createBone(MdlxBone mdlxBone, EditableModel model) {
 		Bone bone = new Bone();
-		if ((mdlxBone.flags & 256) != 256) {
+		if ((mdlxBone.flags & 0x100) != 0x100) {
 			System.err.println("MDX -> MDL error: A bone '" + mdlxBone.name + "' not flagged as bone in MDX!");
 		}
 
@@ -24,12 +24,11 @@ public class IdObjectFactory {
 
 	public static void loadObject(IdObject idObject, final MdlxGenericObject object, EditableModel model) {
 		idObject.setName(object.name);
-//		idObject.setObjectId(object.objectId);
-//		idObject.setParentId(object.parentId);
 
-		idObject.setDontInheritTranslation((object.flags & 0x1) != 0);
-		idObject.setDontInheritRotation((object.flags & 0x2) != 0);
-		idObject.setDontInheritScaling((object.flags & 0x4) != 0);
+		EnumSet<IdObject.NodeFlag> nodeFlags = IdObject.NodeFlag.fromBits(object.flags);
+		for(IdObject.NodeFlag flag : nodeFlags){
+			idObject.setFlag(flag, true);
+		}
 
 		if (idObject.getDontInheritTranslation()) {
 			System.out.println(idObject.getName() + " dontInheritTranslation!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -41,17 +40,12 @@ public class IdObjectFactory {
 			System.out.println(idObject.getName() + " dontInheritScaling!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		}
 
-		idObject.setBillboarded((object.flags & 0x8) != 0);
-		idObject.setBillboardLockX((object.flags & 0x10) != 0);
-		idObject.setBillboardLockY((object.flags & 0x20) != 0);
-		idObject.setBillboardLockZ((object.flags & 0x40) != 0);
-
 		idObject.loadTimelines(object, model);
 	}
 
 	public static Light createLight(MdlxLight mdlxLight, EditableModel model) {
 		Light light = new Light();
-		if ((mdlxLight.flags & 512) != 512) {
+		if ((mdlxLight.flags & 0x200) != 0x200) {
 			System.err.println("MDX -> MDL error: A light '" + mdlxLight.name + "' not flagged as light in MDX!");
 		}
 
@@ -79,7 +73,7 @@ public class IdObjectFactory {
 
 	public static Attachment createAttachment(MdlxAttachment mdlxAttachment, EditableModel model) {
 		Attachment attachment = new Attachment();
-		if ((mdlxAttachment.flags & 2048) != 2048) {
+		if ((mdlxAttachment.flags & 0x800) != 0x800) {
 			System.err.println("MDX -> MDL error: A light '" + mdlxAttachment.name + "' not flagged as light in MDX!");
 		}
 
@@ -92,7 +86,7 @@ public class IdObjectFactory {
 
 	public static ParticleEmitter createParticleEmitter(MdlxParticleEmitter mdlxEmitter, EditableModel model) {
 		ParticleEmitter particleEmitter = new ParticleEmitter();
-		if ((mdlxEmitter.flags & 4096) != 4096) {
+		if ((mdlxEmitter.flags & 0x1000) != 0x1000) {
 			System.err.println("MDX -> MDL error: A particle emitter '" + mdlxEmitter.name
 					+ "' not flagged as particle emitter in MDX!");
 		}
@@ -121,7 +115,7 @@ public class IdObjectFactory {
 
 	public static ParticleEmitter2 createParticleEmitter2(MdlxParticleEmitter2 mdlxEmitter, EditableModel model) {
 		ParticleEmitter2 particleEmitter2 = new ParticleEmitter2();
-		if ((mdlxEmitter.flags & 4096) != 4096) {
+		if ((mdlxEmitter.flags & 0x1000) != 0x1000) {
 			System.err.println("MDX -> MDL error: A particle emitter '" + mdlxEmitter.name
 					+ "' not flagged as particle emitter in MDX!");
 		}
@@ -203,7 +197,7 @@ public class IdObjectFactory {
 
 	public static RibbonEmitter createRibbonEmitter(MdlxRibbonEmitter mdlxEmitter, ModelInfoHolder infoHolder, EditableModel model) {
 		RibbonEmitter ribbonEmitter = new RibbonEmitter();
-		if ((mdlxEmitter.flags & 16384) != 16384) {
+		if ((mdlxEmitter.flags & 0x4000) != 0x4000) {
 			System.err.println("MDX -> MDL error: A ribbon emitter '" + mdlxEmitter.name
 					+ "' not flagged as ribbon emitter in MDX!");
 		}
@@ -233,7 +227,7 @@ public class IdObjectFactory {
 
 	public static EventObject createEventObject(MdlxEventObject mdlxObject, EditableModel model) {
 		EventObject eventObject = new EventObject();
-		if ((mdlxObject.flags & 1024) != 1024) {
+		if ((mdlxObject.flags & 0x400) != 0x400) {
 			System.err.println("MDX -> MDL error: An eventobject '" + mdlxObject.name
 					+ "' not flagged as eventobject in MDX!");
 		}
@@ -264,7 +258,7 @@ public class IdObjectFactory {
 
 	public static CollisionShape createCollisionShape(MdlxCollisionShape mdlxShape, EditableModel model) {
 		CollisionShape collisionShape = new CollisionShape(mdlxShape.type);
-		if ((mdlxShape.flags & 8192) != 8192) {
+		if ((mdlxShape.flags & 0x2000) != 0x2000) {
 			System.err.println("MDX -> MDL error: A collisionshape '" + mdlxShape.name
 					+ "' not flagged as collisionshape in MDX!");
 		}
