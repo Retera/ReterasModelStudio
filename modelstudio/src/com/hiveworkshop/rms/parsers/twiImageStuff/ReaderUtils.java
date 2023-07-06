@@ -128,6 +128,51 @@ public class ReaderUtils {
 		return new byte[0];
 	}
 
+	public static int[] getIntArray(InputStream stream, int size){
+		if(size == -1){
+			try {
+				byte[] bytes = stream.readAllBytes();
+				byte[] tempBytes = new byte[4];
+				int intsInStream = (bytes.length + 3) / 4;
+				int[] ints = new int[intsInStream];
+				for (int i = 0; i< intsInStream; i++){
+					for (int j = 0; j<4; j++){
+						if((i*4) + j<bytes.length){
+							tempBytes[j] = bytes[(i*4) + j];
+						} else {
+							tempBytes[j] = 0;
+						}
+					}
+					ints[i] = intFromBytes(tempBytes);
+				}
+				return ints;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			int[] array = new int[size];
+			byte[] tempBytes = new byte[4];
+
+			try {
+				for(int i = 0; i < size; i++){
+					int read = stream.read(tempBytes);
+
+					for(int j = Math.max(0, read); j < 4; j++){
+						tempBytes[i] = 0;
+					}
+					array[i] = intFromBytes(tempBytes);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				for(int i = 0; i < size; i++){
+					array[i] = 0;
+				}
+			}
+			return array;
+		}
+		return new int[0];
+	}
+
 	public static InputStream getFileInputStream(String path) throws FileNotFoundException {
 		File file = new File(path);
 		if(file.exists()){
