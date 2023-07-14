@@ -19,6 +19,7 @@ import com.hiveworkshop.rms.ui.util.SearchableList;
 import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.MathUtils;
 import com.hiveworkshop.rms.util.StringPadder;
+import com.hiveworkshop.rms.util.uiFactories.Button;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -87,20 +88,44 @@ public class SkinningOptionPanel extends JPanel {
 	public JPanel getSkinBonePanel(){
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		for(Integer key : skinboneMap.keySet()){
-			JPanel sbInfoPanel = new JPanel(new MigLayout("gap 0, ins 0, wrap 1"));
-			sbInfoPanel.add(new JLabel(skinboneVertMap.get(key).size() + " vertices:"));
-			for (String sbS : getHDDescription(key)){
+			JPanel sbWrapperPanel = new JPanel(new MigLayout("gap 0, ins 0", "10[]10[]10", "2[][]2"));
+			sbWrapperPanel.setBorder(BorderFactory.createTitledBorder(""));
+			JPanel sbInfoPanel = new JPanel(new MigLayout("gap 0, ins 0, fill, wrap 2", "[grow, left]10[right]"));
+			JPanel sbButtonsPanel = new JPanel(new MigLayout("gap 0, ins 0, wrap 1"));
+			sbWrapperPanel.add(new JLabel(skinboneVertMap.get(key).size() + " vertices:"), "wrap");
+//			sbWrapperPanel.setBorder(BorderFactory.createTitledBorder(skinboneVertMap.get(key).size() + " vertices:"));
+			for (String sbS : getHDDescription2(key)){
 				sbInfoPanel.add(new JLabel(sbS));
 			}
-			JPanel sbPanel = new JPanel();
-			sbPanel.add(sbInfoPanel);
-			JButton edit = new JButton("Edit");
-			edit.addActionListener(e -> changeSkinBoneSetup(skinboneVertMap.get(key), skinboneMap.get(key)));
-			sbInfoPanel.add(edit);
-			JButton useForSelected = new JButton("Use for selected");
-			useForSelected.addActionListener(e -> useForVertices(modelView.getSelectedVertices(), skinboneMap.get(key)));
-			sbInfoPanel.add(useForSelected);
-			panel.add(sbInfoPanel, "wrap");
+//			JPanel sbPanel = new JPanel();
+//			sbPanel.add(sbInfoPanel);
+
+//			JButton edit = new JButton("Edit");
+//			edit.addActionListener(e -> changeSkinBoneSetup(skinboneVertMap.get(key), skinboneMap.get(key)));
+//			sbButtonsPanel.add(edit);
+//
+//			JButton useForSelected = new JButton("Use for selected");
+//			useForSelected.addActionListener(e -> useForVertices(modelView.getSelectedVertices(), skinboneMap.get(key)));
+//			sbButtonsPanel.add(useForSelected);
+
+			sbButtonsPanel.add(Button.create("Edit", e -> changeSkinBoneSetup(skinboneVertMap.get(key), skinboneMap.get(key))));
+			sbButtonsPanel.add(Button.create("Use for selected", e -> useForVertices(modelView.getSelectedVertices(), skinboneMap.get(key))));
+
+			sbButtonsPanel.add(Button.create("Select Vertices", e -> selectVertices(skinboneMap.get(key))));
+			sbButtonsPanel.add(Button.create("Select Vertices (Subset of selection)", e -> selectVerticesSubset(skinboneVertMap.get(key))));
+			sbWrapperPanel.add(sbInfoPanel);
+			sbWrapperPanel.add(sbButtonsPanel);
+			panel.add(sbWrapperPanel, "wrap");
+
+//			JPanel sbPanel = new JPanel();
+//			sbPanel.add(sbInfoPanel);
+//			JButton edit = new JButton("Edit");
+//			edit.addActionListener(e -> changeSkinBoneSetup(skinboneVertMap.get(key), skinboneMap.get(key)));
+//			sbInfoPanel.add(edit);
+//			JButton useForSelected = new JButton("Use for selected");
+//			useForSelected.addActionListener(e -> useForVertices(modelView.getSelectedVertices(), skinboneMap.get(key)));
+//			sbInfoPanel.add(useForSelected);
+//			panel.add(sbInfoPanel, "wrap");
 		}
 		return panel;
 	}
@@ -118,6 +143,25 @@ public class SkinningOptionPanel extends JPanel {
 				String weightString = StringPadder.padStringStart(skinBones[i].getWeight() + "", " ", 3);
 
 				strings[i] = nameString + weightString;
+			}
+		}
+		return strings;
+	}
+	public String[] getHDDescription2(Integer sbId){
+		SkinBone[] skinBones = skinboneMap.get(sbId);
+		String[] strings = new String[skinBones.length*2];
+
+		for (int i = 0; i < skinBones.length; i++) {
+			if (skinBones[i] == null) {
+				strings[i*2] = "null";
+				strings[i*2+1] = "0";
+			} else {
+				String nameString = skinBones[i].getBone() == null ? "null" : skinBones[i].getBone().getName();
+//				nameString = StringPadder.padStringEnd(nameString + ":", " ", 29);
+				String weightString = StringPadder.padStringStart(skinBones[i].getWeight() + "", " ", 3);
+
+				strings[i*2] = nameString;
+				strings[i*2+1] =  weightString;
 			}
 		}
 		return strings;
