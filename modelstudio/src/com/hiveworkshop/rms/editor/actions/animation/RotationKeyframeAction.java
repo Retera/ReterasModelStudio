@@ -23,6 +23,7 @@ public class RotationKeyframeAction extends AbstractTransformAction {
 	private final UndoAction addingTimelinesOrKeyframesAction;
 	private final int trackTime;
 	private final HashMap<AnimatedNode, Quat> nodeToLocalRotation;
+	private final HashMap<AnimatedNode, Entry<?>> nodeToOrgRotation;
 	private final Vec3 center;
 	private final Vec3 axis;
 	private final Sequence anim;
@@ -49,11 +50,20 @@ public class RotationKeyframeAction extends AbstractTransformAction {
 		this.radians = radians;
 		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
 
+		nodeToOrgRotation = new HashMap<>();
 		nodeToLocalRotation = new HashMap<>();
 		for (IdObject node : nodeSelection) {
+			AnimFlag<?> rotationFlag = node.find(MdlUtils.TOKEN_ROTATION);
+			if (rotationFlag != null && rotationFlag.hasEntryAt(anim, trackTime)) {
+				nodeToOrgRotation.put(node, rotationFlag.getEntryAt(anim, trackTime).deepCopy());
+			}
 			nodeToLocalRotation.put(node, new Quat());
 		}
 		for (CameraNode node : camSelection) {
+			AnimFlag<?> rotationFlag = node.find(MdlUtils.TOKEN_ROTATION);
+			if (rotationFlag != null && rotationFlag.hasEntryAt(anim, trackTime)) {
+				nodeToOrgRotation.put(node, rotationFlag.getEntryAt(anim, trackTime).deepCopy());
+			}
 			nodeToLocalRotation.put(node, new Quat());
 		}
 		this.center = new Vec3(center);
@@ -69,11 +79,14 @@ public class RotationKeyframeAction extends AbstractTransformAction {
 
 	@Override
 	public RotationKeyframeAction undo() {
-		Quat localRotation = new Quat();
-		for (AnimatedNode node : nodeToLocalRotation.keySet()) {
-			localRotation.set(nodeToLocalRotation.get(node)).invertRotation();
-			updateLocalRotationKeyframe(node, localRotation);
+		for (AnimatedNode node : nodeToOrgRotation.keySet()) {
+			Entry<?> entry = nodeToOrgRotation.get(node);
+			AnimFlag<?> animFlag = node.find(MdlUtils.TOKEN_ROTATION);
+			if (entry != null && animFlag != null) {
+				animFlag.setOrAddEntryT(entry.getTime(), entry.deepCopy(), anim);
+			}
 		}
+
 		if(addingTimelinesOrKeyframesAction != null){
 			addingTimelinesOrKeyframesAction.undo();
 		}
@@ -82,9 +95,7 @@ public class RotationKeyframeAction extends AbstractTransformAction {
 
 	@Override
 	public RotationKeyframeAction redo() {
-		if(addingTimelinesOrKeyframesAction != null){
-			addingTimelinesOrKeyframesAction.redo();
-		}
+		doSetup();
 		for (AnimatedNode node : nodeToLocalRotation.keySet()) {
 			Quat localRotation = nodeToLocalRotation.get(node);
 			updateLocalRotationKeyframe(node, localRotation);

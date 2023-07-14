@@ -12,6 +12,8 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.GUITheme;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.uiFactories.Button;
+import com.hiveworkshop.rms.util.uiFactories.CheckBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -34,7 +36,7 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 	private static final Stroke WIDTH_1_STROKE = new BasicStroke(1);
 
 	private final TimeSlider timeSlider;
-	private final TimeBarPainter timeBarPainter;
+//	private final TimeBarPainter timeBarPainter;
 
 	private boolean keyframeModeActive;
 //	private int tickStep = 300;
@@ -53,6 +55,7 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 	private final KeyframeHandler keyframeHandler;
 
 	private final TimeLineMouseListener mouseAdapter;
+	TimeLinePanel timelinePanel;
 
 	public TimeSliderPanel(ProgramPreferences preferences) {
 //		this.changeListener = ModelStructureChangeListener.changeListener;
@@ -60,32 +63,39 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 		theme = preferences.getTheme();
 		setLayout(new MigLayout("fill, gap 0, ins 0, aligny top", "3[]3[grow]3", "[]"));
 		JPanel buttonPanel = new JPanel(new MigLayout("ins 0"));
-		playButton = new JButton(RMSIcons.PLAY);
-		playButton.addActionListener(e -> pausePlayAnimation());
-//		JButton playButton = new JButton("||>");
-		playButton.setPreferredSize(PLAY_BUTTON_DIMENSION);
-		playButton.setSize(PLAY_BUTTON_DIMENSION);
+//		Button.forceSize(Button.create(RMSIcons.PLAY, e -> pausePlayAnimation()), PLAY_BUTTON_DIMENSION);
+//		playButton = new JButton(RMSIcons.PLAY);
+//		playButton.addActionListener(e -> pausePlayAnimation());
+////		JButton playButton = new JButton("||>");
+//		playButton.setPreferredSize(PLAY_BUTTON_DIMENSION);
+//		playButton.setSize(PLAY_BUTTON_DIMENSION);
+//		playButton = Button.forceSize(Button.create(RMSIcons.PLAY, e -> pausePlayAnimation()), PLAY_BUTTON_DIMENSION);
+		playButton = Button.forceSize(Button.create(RMSIcons.PLAY, e -> pausePlayAnimation()), 40, 40);
 		buttonPanel.add(playButton, "spany 2");
-		allKF = new JCheckBox("All KF");
-		allKF.addActionListener(e -> setShowAllKFs(allKF.isSelected()));
 
 
-		setKeyframe = createSetKeyframeButton();
+		setKeyframe = Button.setTooltip(Button.create(RMSIcons.setKeyframeIcon, e -> createKeyframe()), "Create Keyframe");
 		buttonPanel.add(setKeyframe, "wrap");
-		setTimeBounds = createSetTimeBoundsButton();
+		setTimeBounds = Button.setTooltip(Button.create(RMSIcons.setTimeBoundsIcon, e -> timeBoundsChooserPanel()), "Choose Time Bounds");
 		buttonPanel.add(setTimeBounds, "wrap");
 
+		allKF = CheckBox.create("All KF", this::setShowAllKFs);
 		buttonPanel.add(allKF, "wrap");
 		buttonPanel.setOpaque(true);
 		add(buttonPanel, "aligny top, shrink");
 
 //		JPanel timelinePanel = new TimeLinePanel_test();
-		JPanel timelinePanel = getTimelinePanel();
+//		JPanel timelinePanel = getTimelinePanel();
+		timelinePanel = new TimeLinePanel(this);
 		timelinePanel.setOpaque(true);
-		add(timelinePanel, "growx, growy, aligny top");
+//		add(timelinePanel, "growx, growy, aligny top");
 
-		timeSlider = new TimeSlider(timelinePanel);
-		timeBarPainter = new TimeBarPainter(timeSlider);
+		JScrollPane scrollPane = new JScrollPane(timelinePanel);
+		add(scrollPane, "growx, growy, aligny top");
+		new JPanel().add(scrollPane.getVerticalScrollBar());
+
+		timeSlider = timelinePanel.getTimeSlider();
+//		timeBarPainter = timelinePanel.getTimeBarPainter();
 
 		setForeground(Color.WHITE);
 		setFont(new Font("Courier New", Font.PLAIN, 12));
@@ -94,13 +104,31 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 
 		liveAnimationTimer = new Timer(16, e -> liveAnimationTimerListener());
 
-		timelinePanel.addComponentListener(getComponentAdapter());
+		keyframeHandler = timelinePanel.getKeyframeHandler();
+		mouseAdapter = timelinePanel.getMouseAdapter();
+//		timelinePanel.addComponentListener(getComponentAdapter());
 
-		keyframeHandler = new KeyframeHandler(timelinePanel);
-
-		mouseAdapter = new TimeLineMouseListener(this, keyframeHandler, timeSlider);
-		timelinePanel.addMouseListener(mouseAdapter);
-		timelinePanel.addMouseMotionListener(mouseAdapter);
+//		JPanel timelinePanel = getTimelinePanel();
+//		timelinePanel.setOpaque(true);
+//		add(timelinePanel, "growx, growy, aligny top");
+//
+//		timeSlider = new TimeSlider(timelinePanel);
+//		timeBarPainter = new TimeBarPainter(timeSlider);
+//
+//		setForeground(Color.WHITE);
+//		setFont(new Font("Courier New", Font.PLAIN, 12));
+//
+////		copiedKeyframes = new ArrayList<>();
+//
+//		liveAnimationTimer = new Timer(16, e -> liveAnimationTimerListener());
+//
+//		timelinePanel.addComponentListener(getComponentAdapter());
+//
+//		keyframeHandler = new KeyframeHandler(timelinePanel);
+//
+//		mouseAdapter = new TimeLineMouseListener(this, keyframeHandler, timeSlider);
+//		timelinePanel.addMouseListener(mouseAdapter);
+//		timelinePanel.addMouseMotionListener(mouseAdapter);
 
 		TimeSkip.getPlayItem();
 		TimeSkip.getFfw1Item();
@@ -115,13 +143,6 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 		return keyframeHandler;
 	}
 
-	public JButton createSetKeyframeButton() {
-		JButton setKeyframe = new JButton(RMSIcons.setKeyframeIcon);
-		setKeyframe.setMargin(new Insets(0, 0, 0, 0));
-		setKeyframe.setToolTipText("Create Keyframe");
-		setKeyframe.addActionListener(e -> createKeyframe());
-		return setKeyframe;
-	}
 
 	private void createKeyframe() {
 		if (modelHandler != null) {
@@ -131,14 +152,6 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 					ProgramGlobals.getEditorActionType());
 			modelHandler.getUndoManager().pushAction(undoAction.redo());
 		}
-	}
-
-	public JButton createSetTimeBoundsButton() {
-		JButton setTimeBounds = new JButton(RMSIcons.setTimeBoundsIcon);
-		setTimeBounds.setMargin(new Insets(0, 0, 0, 0));
-		setTimeBounds.setToolTipText("Choose Time Bounds");
-		setTimeBounds.addActionListener(e -> timeBoundsChooserPanel());
-		return setTimeBounds;
 	}
 
 
@@ -181,16 +194,18 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 	}
 
 	public void setModelHandler(ModelHandler modelHandler) {
-		keyframeHandler.setModelHandler(modelHandler);
-		mouseAdapter.setModelHandler(modelHandler);
+//		keyframeHandler.setModelHandler(modelHandler);
+//		mouseAdapter.setModelHandler(modelHandler);
 		this.modelHandler = modelHandler;
+		timelinePanel.setModelHandler(modelHandler);
 		if(modelHandler != null) {
 			timeEnvironment = modelHandler.getRenderModel().getTimeEnvironment();
 			timeEnvironment.addChangeListener(this);
-			timeBarPainter.setTimeEnvironment(timeEnvironment);
-		} else {
-			timeBarPainter.setTimeEnvironment(null);
+//			timeBarPainter.setTimeEnvironment(timeEnvironment);
 		}
+//		else {
+//			timeBarPainter.setTimeEnvironment(null);
+//		}
 	}
 
 	public void jumpToPreviousTime() {
@@ -247,33 +262,33 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 		repaint();
 	}
 
-	private JPanel getTimelinePanel() {
-		return new JPanel(new MigLayout("fill")) {
-			@Override
-			protected void paintComponent(final Graphics g) {
-				super.paintComponent(g);
-				if (!drawing || timeEnvironment == null) {
-					return;
-				}
-				int width = getWidth();
-				timeBarPainter.drawTimeBar(g, width);
-				if (SLIDING_TIME_CHOOSER_WIDTH <= width) {
-					// keyframes
-					keyframeHandler.drawKeyframeMarkers(g);
-					// time label of dragged keyframe
-					if (mouseAdapter.isDraggingKeyframe()) {
-						mouseAdapter.getDraggingFrame().drawFloatingTime(g, Color.WHITE, mouseAdapter.getDraggingTimeDiffString());
-					} else if (mouseAdapter.isHoveringKeyframe()) {
-						mouseAdapter.getHoveringFrame().drawFloatingTime(g);
-					}
-					// time slider and glass covering current tick
-					timeSlider.drawTimeSlider(g, timeEnvironment.getEnvTrackTime(), keyframeHandler.hasKeyFrameAt(timeEnvironment.getEnvTrackTime()));
-				}
-
-			}
-
-		};
-	}
+//	private JPanel getTimelinePanel() {
+//		return new JPanel(new MigLayout("fill")) {
+//			@Override
+//			protected void paintComponent(final Graphics g) {
+//				super.paintComponent(g);
+//				if (!drawing || timeEnvironment == null) {
+//					return;
+//				}
+//				int width = getWidth();
+//				timeBarPainter.drawTimeBar(g, width);
+//				if (SLIDING_TIME_CHOOSER_WIDTH <= width) {
+//					// keyframes
+//					keyframeHandler.drawKeyframeMarkers(g);
+//					// time label of dragged keyframe
+//					if (mouseAdapter.isDraggingKeyframe()) {
+//						mouseAdapter.getDraggingFrame().drawFloatingTime(g, Color.WHITE, mouseAdapter.getDraggingTimeDiffString());
+//					} else if (mouseAdapter.isHoveringKeyframe()) {
+//						mouseAdapter.getHoveringFrame().drawFloatingTime(g);
+//					}
+//					// time slider and glass covering current tick
+//					timeSlider.drawTimeSlider(g, timeEnvironment.getEnvTrackTime(), keyframeHandler.hasKeyFrameAt(timeEnvironment.getEnvTrackTime()));
+//				}
+//
+//			}
+//
+//		};
+//	}
 
 	public void play() {
 		if (liveAnimationTimer.isRunning()) {
@@ -307,8 +322,9 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 	}
 
 	public void setDrawing(final boolean drawing) {
+		timelinePanel.setDrawing(drawing);
 		this.drawing = drawing;
-		mouseAdapter.setTimelineVisible(drawing);
+//		mouseAdapter.setTimelineVisible(drawing);
 		System.out.println("is drawing: " + drawing);
 		for (Component component : getComponents()) {
 			component.setEnabled(drawing);

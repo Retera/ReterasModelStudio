@@ -1,20 +1,26 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
+import com.hiveworkshop.rms.editor.actions.mesh.CutEdgeAction;
 import com.hiveworkshop.rms.editor.actions.mesh.FixFacesAction;
 import com.hiveworkshop.rms.editor.actions.tools.MergeSkinWeightsAction;
 import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.*;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.tools.AnimationExporter;
 import com.hiveworkshop.rms.ui.application.tools.BindPoseWizard;
 import com.hiveworkshop.rms.ui.application.tools.ReorderGeosetsPanel;
 import com.hiveworkshop.rms.ui.application.tools.SkinningOptionPanel;
 import com.hiveworkshop.rms.ui.application.tools.shadereditors.ShaderEditorType;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 
 import javax.swing.*;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.function.Consumer;
 
 import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenu;
 
@@ -25,6 +31,8 @@ public class TwilacsTools extends JMenu {
 		setMnemonic(KeyEvent.VK_I);
 		getAccessibleContext().setAccessibleDescription("Where Twilac puts new features during development before they find a permanent home.");
 //		add(getBakeMenu());
+//		add(EventObjectPanel.getMenuItem());
+//		add(getCutEdgeMenu());
 		add(getSkinningMenu());
 		add(getFixFacesMenu());
 		add(getBindPoseMenu());
@@ -124,6 +132,40 @@ public class TwilacsTools extends JMenu {
 				currentModelPanel.getModelHandler().getUndoManager().pushAction(new MergeSkinWeightsAction(modelView.getSelectedVertices(), boneForZero, true).redo());
 			}
 		});
+		return menuItem;
+	}
+
+	private JMenuItem getCutEdgeMenu(){
+		JMenuItem menuItem = new JMenuItem("Cut Edge");
+		menuItem.addActionListener(e -> {
+			ModelPanel currentModelPanel = ProgramGlobals.getCurrentModelPanel();
+			ModelView modelView = currentModelPanel.getModelView();
+			GeosetVertex v1 = null;
+			GeosetVertex v2 = null;
+			for(GeosetVertex vertex : modelView.getSelectedVertices()){
+				if(v1 == null) {
+					v1 = vertex;
+				} else {
+					v2 = vertex;
+					break;
+				}
+			}
+			if(v1 != null && v2 != null && v1.getGeoset() == v2.getGeoset()){
+				currentModelPanel.getModelHandler().getUndoManager().pushAction(new CutEdgeAction(v1, v2, ModelStructureChangeListener.changeListener).redo());
+			}
+		});
+		return menuItem;
+	}
+
+	private JMenuItem getMenuItemC(String s, Consumer<ModelHandler> consumer) {
+		return getMenuItem(s, e -> {if(ProgramGlobals.getCurrentModelPanel().getModelHandler() != null) consumer.accept(ProgramGlobals.getCurrentModelPanel().getModelHandler());});
+	}
+	private JMenuItem getMenuItemR(String s, Runnable runnable) {
+		return getMenuItem(s, e -> runnable.run());
+	}
+	private JMenuItem getMenuItem(String s, ActionListener l) {
+		JMenuItem menuItem = new JMenuItem(s);
+		menuItem.addActionListener(l);
 		return menuItem;
 	}
 }

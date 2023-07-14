@@ -1,12 +1,14 @@
 package com.hiveworkshop.rms.util.TestTimeline;
 
 import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.edit.animation.KeyframeHandler;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -34,20 +36,27 @@ public class TimeLineHolder extends JPanel {
 	private SelectionManager nodeSelectionManager;
 	private SelectionListener selectionListener = this::updateKeyframeDisplay;
 	private Sequence sequence;
+	KeyframeHandler keyframeHandler;
 
 	//	public TimeLineHolder(ComPerspRenderEnv renderEnv, ModelView modelView){
 //		this(renderEnv);
 //		this.modelView = modelView;
 //	}
-	public TimeLineHolder(TimeEnvironmentImpl renderEnv) {
+	public TimeLineHolder(ModelHandler modelHandler) {
 		setLayout(new MigLayout("fill, ins 0, gap 0", "[grow]", "[][grow]"));
 		add(getButtonPanel(), "wrap");
 
 		liveAnimationTimer = new Timer(16, e -> liveAnimationTimerListener());
-		timeLinePanel = new TimeLinePanel();
 
-		this.renderEnv = renderEnv;
-		addTestingStuff();
+		timeLinePanel = new TimeLinePanel();
+		keyframeHandler = new KeyframeHandler(timeLinePanel);
+		keyframeHandler.setModelHandler(modelHandler);
+
+		this.renderEnv = modelHandler.getEditTimeEnv();
+
+		if (renderEnv == null) {
+			addTestingStuff();
+		}
 
 		if (renderEnv != null) {
 			sequence = renderEnv.getCurrentSequence();
@@ -264,4 +273,31 @@ public class TimeLineHolder extends JPanel {
 	}
 
 
+	public static void main(final String[] args) {
+		try {
+			// Set cross-platform Java L&F (also called "Metal")
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (final UnsupportedLookAndFeelException
+		               | ClassNotFoundException
+		               | InstantiationException
+		               | IllegalAccessException e) {
+			// handle exception
+		}
+
+		final JFrame frame = new JFrame();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		Animation animation = new Animation("Stand", 0, 1500);
+		TimeEnvironmentImpl timeEnvironment = new TimeEnvironmentImpl();
+		timeEnvironment.setSequence(animation);
+		EditableModel model = new EditableModel("Temp Model");
+		model.add(animation);
+		ModelHandler modelHandler = new ModelHandler(model);
+		TimeLineHolder timeLineHolder = new TimeLineHolder(modelHandler);
+//		TimeLineHolder timeLineHolder = new TimeLineHolder(timeEnvironment);
+//		final TempMainGraphEditorTest transfer = new TempMainGraphEditorTest(frame);
+		frame.setContentPane(timeLineHolder);
+		frame.pack();
+		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
+	}
 }

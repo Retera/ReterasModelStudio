@@ -7,6 +7,7 @@ package com.hiveworkshop.rms.parsers.mdlx.mdl;
  * since TOKEN_INTREVAL does not exist.
  */
 public class MdlUtils {
+	public static final String TOKEN_RENDER_MODE        = "RenderMode"; //found this here https://github.com/4eb0da/war3-model/blob/master/mdl/parse.ts#L509
 	public static final String TOKEN_VERSION            = "Version";
 	public static final String TOKEN_MODEL              = "Model";
 	public static final String TOKEN_SEQUENCES          = "Sequences";

@@ -18,7 +18,7 @@ public class TimeBarPainter {
 	private static final int SIDE_OFFSETS = SLIDING_TIME_CHOOSER_WIDTH / 2;
 	private static final Stroke WIDTH_2_STROKE = new BasicStroke(2);
 	private static final Stroke WIDTH_1_STROKE = new BasicStroke(1);
-	private int tickStep = 300;
+	private float tickStep = 300;
 	private TimeEnvironmentImpl timeEnvironment;
 	private final TimeSlider timeSlider;
 
@@ -27,7 +27,7 @@ public class TimeBarPainter {
 
 	}
 
-	public void setTickStep(int tickStep) {
+	public void setTickStep(float tickStep) {
 		this.tickStep = tickStep;
 	}
 
@@ -68,21 +68,33 @@ public class TimeBarPainter {
 
 			final int timeSpan = timeEnvironment.getLength();
 
-			int numberOfTicks = timeSpan / tickStep;
-			int startOffset = tickStep;
+//			int numberOfTicks = timeSpan / tickStep;
+//			int startOffset = tickStep;
 
-			// draw first time marker
-			drawMajorTick(g, fontMetrics, 0);
-			// draw even (time%tickStep==0) time markers
-			for (int i = 0; i < numberOfTicks; i++) {
-				int time = startOffset + tickStep * i;
+//			// draw first time marker
+////			drawMajorTick(g, fontMetrics, 0);
+//			// draw even (time%tickStep==0) time markers
+//			for (int i = 0; i < numberOfTicks; i++) {
+////				int time = startOffset + tickStep * i;
+//				int time = tickStep * i;
+//
+//				boolean majorTick = (i % 2) == 0;
+//				if (majorTick) {
+//					drawMajorTick(g, fontMetrics, time);
+//				} else {
+//					drawMinorTick(g, computeXFromTime(time));
+//				}
+//			}
+			boolean majorTick = true;
+			for (float time = 0; time < timeSpan; time += tickStep) {
 
-				boolean majorTick = (i % 2) == 0;
-				if (majorTick) {
-					drawMajorTick(g, fontMetrics, time);
+//				majorTick = (i % 2) == 0;
+				if (majorTick || tickStep<1) {
+					drawMajorTick(g, fontMetrics, (int) time);
 				} else {
-					drawMinorTick(g, computeXFromTime(time));
+					drawMinorTick(g, computeXFromTime((int) time));
 				}
+				majorTick = !majorTick;
 			}
 			// draw last time marker
 			drawMajorTick(g, fontMetrics, timeEnvironment.getLength());

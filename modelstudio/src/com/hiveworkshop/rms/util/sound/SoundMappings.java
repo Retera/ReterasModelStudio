@@ -8,28 +8,26 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.util.*;
 
-public class SoundMappings {
+public class SoundMappings extends EventMapping<Sound> {
 	private final Map<String, List<String>> nameToTags = new HashMap<>();
-	private final Map<String, Sound> tagToSoundMap = new HashMap<>();
 
 	public SoundMappings() {
-		updateSoundMappings();
+		updateMappings();
 	}
 
-	public void updateSoundMappings() {
+	public void updateMappings() {
 		nameToTags.clear();
-		tagToSoundMap.clear();
-		readAnimLookups();
-		readAnimSounds();
-		System.out.println("SoundMap created! " + nameToTags.size() + " names, " + tagToSoundMap.size() + " tags");
+		tagToEvent.clear();
+		readAnimLookups("war3.w3mod\\ui\\soundinfo\\animlookups.slk");
+		fillSoundData("war3.w3mod\\ui\\soundinfo\\animsounds.slk");
+		System.out.println("SoundMap created! " + nameToTags.size() + " names, " + tagToEvent.size() + " tags");
 	}
 
-	private void readAnimLookups() {
-		String animLookUpsPath = "war3.w3mod\\ui\\soundinfo\\animlookups.slk";
+	protected void readAnimLookups(String lookUpsPath) {
 		CompoundDataSource source = GameDataFileSystem.getDefault();
 
-		if (source.has(animLookUpsPath)) {
-			try (BufferedReader r = new BufferedReader(new InputStreamReader(source.getResourceAsStream(animLookUpsPath)))) {
+		if (source.has(lookUpsPath)) {
+			try (BufferedReader r = new BufferedReader(new InputStreamReader(source.getResourceAsStream(lookUpsPath)))) {
 				r.lines().forEach(this::processMappingLine);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -37,11 +35,26 @@ public class SoundMappings {
 		}
 	}
 
-	private void readAnimSounds() {
-		String animSoundsPath = "war3.w3mod\\ui\\soundinfo\\animsounds.slk";
+	Sound currSound;
+	protected void processMappingLine(String s) {
+		if (s.startsWith("C;X1;Y") && !s.startsWith("C;X1;Y1;")) {
+			String[] strings = s.split("\"");
+			if (1 < strings.length) {
+				currSound = tagToEvent.computeIfAbsent(strings[1], k -> new Sound(strings[1]));
+			} else {
+				currSound = null;
+			}
+		} else if (currSound != null) {
+			currSound.setFromSklLine(s);
+		}
+	}
+
+	private void fillSoundData(String animSoundsPath) {
 		CompoundDataSource source = GameDataFileSystem.getDefault();
 
 		try (BufferedReader r = new BufferedReader(new InputStreamReader(source.getResourceAsStream(animSoundsPath)))) {
+			Map<String, List<String>> nameToTags = new HashMap<>();
+			tagToEvent.forEach((t, e) -> nameToTags.computeIfAbsent(e.getName(), k -> new ArrayList<>()).add(t));
 			Set<String> tags = new HashSet<>();
 			r.lines().forEach(l -> {
 				if (l.startsWith("C;X1;Y")) {
@@ -52,8 +65,8 @@ public class SoundMappings {
 					}
 				} else {
 					for (String tag : tags) {
-						if (tagToSoundMap.containsKey(tag)) {
-							tagToSoundMap.get(tag).setFromSklLine(l);
+						if (tagToEvent.containsKey(tag)) {
+							tagToEvent.get(tag).setFromSklLine2(l);
 						}
 					}
 				}
@@ -61,38 +74,8 @@ public class SoundMappings {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
-	public Sound getSound(String eventCode) {
-//		System.out.println("has \"" + eventCode + "\" (\"" + eventCode.substring(4) + "\") " + tagToSoundMap.containsKey(eventCode.substring(4)));
-		return tagToSoundMap.get(eventCode.substring(4));
-	}
-
-	String[] tag_name_inBeta = new String[3];
-
-	private void processMappingLine(String s) {
-		if (s.startsWith("C;X1;Y")) {
-			String[] strings = s.split("\"");
-			if (strings.length > 1) {
-				tag_name_inBeta[0] = strings[1];
-			}
-
-		} else if (s.startsWith("C;X2;K")) {
-			String[] strings = s.split("\"");
-			if (strings.length > 1) {
-				tag_name_inBeta[1] = strings[1];
-			}
-		} else if (s.startsWith("C;X3;K0") || s.startsWith("C;X3;K1")) {
-			String[] strings = s.split(";K");
-			if (!strings[1].contains("\"")) {
-				tag_name_inBeta[2] = strings[1];
-//				System.out.println(Arrays.toString(tag_name_inBeta));
-				Sound sound = tagToSoundMap.computeIfAbsent(tag_name_inBeta[0], k -> new Sound(tag_name_inBeta));
-				nameToTags.computeIfAbsent(sound.getSoundName(), k -> new ArrayList<>()).add(sound.getTag());
-			}
-		}
-	}
 
 	private File getFile(String filePath) {
 		String local = "enus.w3mod";

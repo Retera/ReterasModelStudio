@@ -1,46 +1,51 @@
 package com.hiveworkshop.rms.util.sound;
 
-import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
-import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SpawnMappings {
-	private final Map<String, Spawn> tagToSpawn = new HashMap<>();
+public class SpawnMappings extends EventMapping<SpawnMappings.Spawn> {
+	private final Map<String, Spawn> tagToEvent = new HashMap<>();
 
 	public SpawnMappings(){
-		tagToSpawn.clear();
-		readAnimLookups();
+		tagToEvent.clear();
+		updateMappings();
 	}
 
-	public Spawn getSplat(String eventCode){
-		return tagToSpawn.get(eventCode.substring(4));
+	public Spawn getEvent(String eventCode){
+		return tagToEvent.get(eventCode.substring(4));
+	}
+	public Collection<Spawn> getEvents(){
+		return tagToEvent.values();
 	}
 
-	private void readAnimLookups() {
-		String splatLookUpsPath = "war3.w3mod\\splats\\spawndata.slk";
-		CompoundDataSource source = GameDataFileSystem.getDefault();
-
-		if (source.has(splatLookUpsPath)) {
-			try (BufferedReader r = new BufferedReader(new InputStreamReader(source.getResourceAsStream(splatLookUpsPath)))) {
-				r.lines().forEach(this::processMappingLine);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+	public void updateMappings() {
+		tagToEvent.clear();
+		readLookups("war3.w3mod\\splats\\spawndata.slk");
 		currentSpawn = null;
+		System.out.println("SpawnMap created! " + tagToEvent.size() + " names, " + tagToEvent.size() + " tags");
 	}
+
+//	protected void readLookups(String lookUpsPath) {
+//		CompoundDataSource source = GameDataFileSystem.getDefault();
+//
+//		if (source.has(lookUpsPath)) {
+//			try (BufferedReader r = new BufferedReader(new InputStreamReader(source.getResourceAsStream(lookUpsPath)))) {
+//				r.lines().forEach(this::processMappingLine);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		currentSpawn = null;
+//	}
 
 	Spawn currentSpawn;
 
-	private void processMappingLine(String s) {
-		if (s.startsWith("C;X1;Y") && !s.startsWith("C;X1;Y1")) {
+	protected void processMappingLine(String s) {
+		if (s.startsWith("C;X1;Y") && !s.startsWith("C;X1;Y1;")) {
 			String[] strings = s.split("\"");
 			if (1 < strings.length) {
-				currentSpawn = tagToSpawn.computeIfAbsent(strings[1], k -> new Spawn());
+				currentSpawn = tagToEvent.computeIfAbsent(strings[1], k -> new Spawn(strings[1]));
 			} else {
 				currentSpawn = null;
 			}
@@ -57,10 +62,14 @@ public class SpawnMappings {
 		private int version;
 		private int inBeta;
 
+		Spawn(String tag) {
+			this.tag = tag;
+		}
+
 		Spawn setFromSklLine(String lineString) {
 
 			String[] split = lineString.split(";");
-			if (split.length > 1) {
+			if (1 < split.length) {
 				switch (split[1]) {
 					case "X1" -> tag = getString(split[2]);
 					case "X2" -> file = getString(split[2]);
@@ -71,22 +80,23 @@ public class SpawnMappings {
 			return this;
 		}
 
-		private int getInt(String s) {
-			return Integer.parseInt(s.split("K")[1]);
-		}
-
-		private float getFloat(String s) {
-			return Float.parseFloat(s.split("K")[1]);
-		}
-
-		private String getString(String s) {
-			return s.split("\"")[1];
-		}
+//		private int getInt(String s) {
+//			return Integer.parseInt(s.split("K")[1]);
+//		}
+//
+//		private float getFloat(String s) {
+//			return Float.parseFloat(s.split("K")[1]);
+//		}
+//
+//		private String getString(String s) {
+//			return s.split("\"")[1];
+//		}
 
 		public String getName() {
-			if(name == null && file != null){
+//			System.out.println("name: " + name + ", file: " + file);
+			if (name == null && file != null) {
 				name = file.replaceAll("^(.*\\\\)+", "").replaceAll("(\\.\\w\\w\\w)?$", "");
-			} else {
+			} else if (name == null) {
 				name = tag;
 			}
 			return name;
@@ -94,6 +104,9 @@ public class SpawnMappings {
 
 		public String getTag() {
 			return tag;
+		}
+		public String[] getFileNames() {
+			return new String[] {file};
 		}
 	}
 }

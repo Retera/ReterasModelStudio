@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.model.AnimatedNode;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.CameraNode;
 import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
@@ -23,6 +24,7 @@ public class TranslationKeyframeAction extends AbstractTransformAction {
 	private final int trackTime;
 	private final Sequence anim;
 	private final HashMap<AnimatedNode, Vec3> nodeToLocalTranslation;
+	private final HashMap<AnimatedNode, Entry<Vec3>> nodeToOrgTranslation;
 	private final RenderModel editorRenderModel;
 	private final Mat4 invRotMat = new Mat4();
 	private final Mat4 rotMat = new Mat4();
@@ -39,10 +41,19 @@ public class TranslationKeyframeAction extends AbstractTransformAction {
 		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
 
 		nodeToLocalTranslation = new HashMap<>();
+		nodeToOrgTranslation = new HashMap<>();
 		for (AnimatedNode node : nodeSelection) {
+			AnimFlag<Vec3> translationFlag = node.getTranslationFlag();
+			if (translationFlag != null && translationFlag.hasEntryAt(anim, trackTime)) {
+				nodeToOrgTranslation.put(node, translationFlag.getEntryAt(anim, trackTime).deepCopy());
+			}
 			nodeToLocalTranslation.put(node, new Vec3());
 		}
 		for (AnimatedNode node : camSelection) {
+			AnimFlag<Vec3> translationFlag = node.getTranslationFlag();
+			if (translationFlag != null && translationFlag.hasEntryAt(anim, trackTime)) {
+				nodeToOrgTranslation.put(node, translationFlag.getEntryAt(anim, trackTime).deepCopy());
+			}
 			nodeToLocalTranslation.put(node, new Vec3());
 		}
 		this.rotMat.set(rotMat);
@@ -59,11 +70,20 @@ public class TranslationKeyframeAction extends AbstractTransformAction {
 
 	@Override
 	public TranslationKeyframeAction undo() {
-		Vec3 localTranslation = new Vec3();
-		for (AnimatedNode node : nodeToLocalTranslation.keySet()) {
-			localTranslation.set(nodeToLocalTranslation.get(node)).scale( -1);
-			updateLocalTranslationKeyframe(node, localTranslation);
+//		Vec3 localTranslation = new Vec3();
+//		for (AnimatedNode node : nodeToLocalTranslation.keySet()) {
+//			localTranslation.set(nodeToLocalTranslation.get(node)).scale( -1);
+//			updateLocalTranslationKeyframe(node, localTranslation);
+//		}
+
+		for (AnimatedNode node : nodeToOrgTranslation.keySet()) {
+			Entry<Vec3> entry = nodeToOrgTranslation.get(node);
+			AnimFlag<Vec3> translationFlag = node.getTranslationFlag();
+			if (entry != null && translationFlag != null) {
+				translationFlag.setOrAddEntryT(entry.getTime(), entry.deepCopy(), anim);
+			}
 		}
+
 		if(addingTimelinesOrKeyframesAction != null){
 			addingTimelinesOrKeyframesAction.undo();
 		}

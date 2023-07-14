@@ -7,6 +7,7 @@ public class MdlTokenInputStream {
 	private final ByteBuffer buffer;
 	private int index;
 	private int line = 0;
+	private String lastComment;
 
 	public MdlTokenInputStream(final ByteBuffer buffer) {
 		this.buffer = buffer;
@@ -14,6 +15,14 @@ public class MdlTokenInputStream {
 	}
 
 	public String read() {
+//		return read1();
+//		return read2();
+		return read3();
+//		return read4();
+//		return read5();
+	}
+
+	public String read1() {
 		boolean inComment = false;
 		boolean inString = false;
 		final StringBuilder token = new StringBuilder();
@@ -26,6 +35,7 @@ public class MdlTokenInputStream {
 
 			if (inComment) {
 				if (c == '\n') {
+					printToke(token, line);
 					inComment = false;
 					line++;
 					return token.toString();
@@ -35,6 +45,7 @@ public class MdlTokenInputStream {
 			}
 			else if (inString) {
 				if (c == '"') {
+					printToke(token, line);
 					return token.toString();
 				}
 				else {
@@ -45,26 +56,30 @@ public class MdlTokenInputStream {
 				if (c == '\n') {
 					line++;
 				}
-				if (token.length() > 0) {
+				if (0 < token.length()) {
+					printToke(token, line);
 					return token.toString();
 				}
 			} else if (c == '{' || c == '}') {
-				if (token.length() > 0) {
+				printToke(token, line);
+				if (0 < token.length()) {
 					index--;
 					return token.toString();
 				} else {
 					return Character.toString(c);
 				}
 			} else if ((c == '/') && (buffer.get(buffer.position() + index) == '/')) {
-				if (token.length() > 0) {
+				if (0 < token.length()) {
 					index--;
+					printToke(token, line);
 					return token.toString();
 				} else {
 					inComment = true;
 					token.append(c);
 				}
 			} else if (c == '"') {
-				if (token.length() > 0) {
+				if (0 < token.length()) {
+					printToke(token, line);
 					index--;
 					return token.toString();
 				} else {
@@ -77,44 +92,239 @@ public class MdlTokenInputStream {
 		return null;
 	}
 
+	private void printToke(StringBuilder token, int line) {
+		if(759 <= line && line <= 761 || 18870 <= line && line <= 18900  || 251067 <= line && line <= 251070 ){
+			System.out.println(line + " current token: " + token);
+		}
+	}
+
+	public String read2() {
+		boolean inComment = false;
+		boolean inString = false;
+		final StringBuilder token = new StringBuilder();
+		final StringBuilder comment = new StringBuilder();
+		final int length = buffer.remaining();
+
+		while (index < length) {
+			// Note: cast from 'byte' to 'char' will cause Java incompatibility with Chinese and Russian/Cyrillic and others
+			final char c = (char) buffer.get(buffer.position() + index++);
+
+			if (c == '\n') {
+				line++;
+			}
+
+			if(c == '"'){
+				if (0 < token.length()) {
+					index--;
+					printToke(token, line);
+					return token.toString();
+				} else if (inString) {
+					printToke(token, line);
+					return token.toString();
+				} else {
+					inString = true;
+				}
+			} else if (c == '{' || c == '}') {
+				if (0 < token.length()) {
+					index--;
+					printToke(token, line);
+					return token.toString();
+				} else {
+					comment.append(c);
+					printToke(comment, line);
+					return Character.toString(c);
+				}
+			} else if ((c == '/') && (buffer.get(buffer.position() + index) == '/')) {
+				if (0 < token.length()) {
+					index--;
+					printToke(token, line);
+					return token.toString();
+				} else {
+					inComment = true;
+					token.append(c);
+				}
+			}
+			else if (!inString && !inComment && (c == ' ' || c == ',' || c == ':' || c == '\t' || c == '\r') || !inString && c == '\n') {
+				if (0 < token.length()) {
+					printToke(token, line);
+					return token.toString();
+				}
+			} else {
+				token.append(c);
+			}
+
+		}
+		return null;
+	}
+	public String read3() {
+		final StringBuilder token = new StringBuilder();
+		final int length = buffer.remaining();
+
+		while (index < length) {
+			// Note: cast from 'byte' to 'char' will cause Java incompatibility with Chinese and Russian/Cyrillic and others
+			final char c = (char) buffer.get(buffer.position() + index++);
+
+			if (c == '\n') {
+				line++;
+			}
+
+			if(c == '"'){
+				if (0 < token.length()) {
+					index--;
+				} else {
+//					char sc = (char) buffer.get(buffer.position() + index++);
+					char sc;
+					while (index < length && (sc = (char) buffer.get(buffer.position() + index++)) != '"'){
+						token.append(sc);
+					}
+
+				}
+				printToke(token, line);
+				return token.toString();
+			} else if (c == '{' || c == '}') {
+				if (0 < token.length()) {
+					index--;
+					printToke(token, line);
+					return token.toString();
+				} else {
+					final StringBuilder comment = new StringBuilder();
+					comment.append(c);
+					printToke(comment, line);
+					return Character.toString(c);
+				}
+			} else if (c == '/' && buffer.get(buffer.position() + index) == '/') {
+				if (0 < token.length()) {
+					index--;
+					printToke(token, line);
+					return token.toString();
+				} else {
+					final StringBuilder comment = new StringBuilder();
+					comment.append(c);
+//					char cc = (char) buffer.get(buffer.position() + index++);
+					char cc = ' ';
+					while (index < length && (cc = (char) buffer.get(buffer.position() + index++)) != '\n'){
+						comment.append(cc);
+					}
+					if(cc == '\n'){
+						line++;
+					}
+					lastComment = comment.toString();
+					printToke(comment, line);
+//					return comment.toString();
+				}
+			} else if (c == ' ' || c == ',' || c == ':' || c == '\t' || c == '\r' || c == '\n') {
+				if (0 < token.length()) {
+					printToke(token, line);
+					return token.toString();
+				}
+			} else {
+				token.append(c);
+			}
+
+		}
+		return null;
+	}
+	public String read4() {
+		final StringBuilder token = new StringBuilder();
+		final int length = buffer.remaining();
+
+		while (index < length) {
+			// Note: cast from 'byte' to 'char' will cause Java incompatibility with Chinese and Russian/Cyrillic and others
+			final char c = (char) buffer.get(buffer.position() + index++);
+
+			if (c == '\n') {
+				line++;
+			}
+
+
+			if (c == '"' && 0 < token.length()) {
+				index--;
+				return token.toString();
+			} else if (c == '"') {
+				char sc = (char) buffer.get(buffer.position() + index++);
+				while (index < length && sc != '"'){
+					token.append(sc);
+				}
+				return token.toString();
+
+			} else if ((c == '{' || c == '}') && 0 < token.length()) {
+				index--;
+				return token.toString();
+			} else if (c == '{' || c == '}') {
+				return Character.toString(c);
+			} else if (c == '/' && buffer.get(buffer.position() + index) == '/' && 0 < token.length()) {
+				index--;
+				return token.toString();
+			} else if (c == '/' && buffer.get(buffer.position() + index) == '/') {
+				final StringBuilder comment = new StringBuilder();
+				comment.append(c);
+				char cc = (char) buffer.get(buffer.position() + index++);
+				while (index < length && cc != '\n'){
+					comment.append(cc);
+					index++;
+				}
+				lastComment = comment.toString();
+					return comment.toString();
+			} else if (c == ' ' || c == ',' || c == ':' || c == '\t' || c == '\r' || c == '\n') {
+				if (0 < token.length()) {
+					return token.toString();
+				}
+			} else {
+				token.append(c);
+			}
+		}
+		return null;
+	}
+
+	public String readValue(){
+		String value;
+		while ((value = read()) != null){
+			if (!value.startsWith("//")){
+				return value;
+			}
+		}
+		return null;
+	}
 	public String peek() {
 		final int index = this.index;
-		final String value = read();
+		final int line = this.line;
+		final String value = readValue();
 
 		this.index = index;
+		this.line = line;
 		return value;
 	}
 
 	public long readUInt32() {
-		return Long.parseLong(read());
+		return Long.parseLong(readValue());
 	}
 
 	public int readInt() {
-		return Integer.parseInt(read());
+		return Integer.parseInt(readValue());
 	}
 
 	public float readFloat() {
-		return Float.parseFloat(read());
+		return Float.parseFloat(readValue());
 	}
 
 	public void readIntArray(final long[] values) {
-		read(); // {
+		skipToken("{"); // {
 
 		for (int i = 0, l = values.length; i < l; i++) {
 			values[i] = readInt();
 		}
 
-		read(); // }
+		skipToken("}"); // }
 	}
 
 	public float[] readFloatArray(final float[] values) {
-		read(); // {
+		skipToken("{"); // {
 
 		for (int i = 0, l = values.length; i < l; i++) {
 			values[i] = readFloat();
 		}
 
-		read(); // }
+		skipToken("}"); // }
 		return values;
 	}
 
@@ -134,19 +344,19 @@ public class MdlTokenInputStream {
 	}
 
 	public float[] readVectorArray(final float[] array, final int vectorLength) {
-		read(); // {
+		skipToken("{"); // {
 
 		for (int i = 0, l = array.length / vectorLength; i < l; i++) {
-			read(); // {
+			skipToken("{");; // {
 
 			for (int j = 0; j < vectorLength; j++) {
 				array[(i * vectorLength) + j] = readFloat();
 			}
 
-			read(); // }
+			skipToken("}"); // }
 		}
 
-		read(); // }
+		skipToken("}"); // }
 		return array;
 	}
 
@@ -202,7 +412,7 @@ public class MdlTokenInputStream {
 	}
 
 	public short[] readUInt8Array(final short[] values, final int vectorLength) {
-		read(); // {
+		skipToken("{"); // {
 
 //		for (int i = 0, l = values.length; i < l; i++) {
 //			values[i] = Short.parseShort(read());
@@ -226,20 +436,26 @@ public class MdlTokenInputStream {
 
 	private void skipToken(String token) {
 		int index = this.index;
-		String peek = read();
+		int line = this.line;
+		String peek = readValue();
 		if (!peek.equals(token)) {
+			System.out.println(line + " did not skip, " + peek + " != " + token);
 			this.index = index;
+			this.line = line;
+		} else {
+
+			System.out.println(line + " skipped, " + peek + " == " + token);
 		}
 	}
 
 	public void readColor(final float[] color) {
-		read(); // {
+		skipToken("{");; // {
 
 		color[2] = readFloat();
 		color[1] = readFloat();
 		color[0] = readFloat();
 
-		read(); // }
+		skipToken("}"); // }
 	}
 
 	public int getLineNumber() {

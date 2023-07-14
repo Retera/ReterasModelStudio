@@ -466,4 +466,73 @@ public class ImageCreator {
 
 		return new BufferedImage(sRGBModel, lRGB.getRaster(), false, null);
 	}
+
+
+
+	public static BufferedImage getSubImage(BufferedImage image, int xOff, int yOff, int width, int height) {
+		try {
+			final BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+			for (int i = 0; i < width; i++) {
+				for (int j = 0; j < height; j++) {
+					newImage.setRGB(i, j, image.getRGB(i+xOff, j+yOff));
+				}
+			}
+
+			return newImage;
+		} catch (final Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	public static BufferedImage getMarkSubImages(BufferedImage image, int rows, int cols, int lStart, int lEnd, int dStart, int dEnd) {
+		try {
+			final BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+
+
+			for (int i = 0; i < image.getWidth(); i++) {
+				for (int j = 0; j < image.getHeight(); j++) {
+					newImage.setRGB(i, j, image.getRGB(i, j));
+				}
+			}
+
+			int width = image.getWidth() / cols;
+			int height = image.getHeight() / rows;
+
+
+			Graphics graphics = newImage.getGraphics();
+
+			graphics.setColor(Color.CYAN.darker());
+			for (int i = lStart; i <= lEnd; i++) {
+				int xi = i % rows;
+				int yi = i / rows;
+				int x1 = xi * width;
+				int y1 = yi * height;
+				int x2 = (xi + 1) * width - 3;
+				int y2 = (yi + 1) * height - 3;
+				graphics.drawLine(x1, y1, x2, y1);
+				graphics.drawLine(x1, y2, x2, y2);
+				graphics.drawLine(x1, y1, x1, y2);
+				graphics.drawLine(x2, y1, x2, y2);
+			}
+
+			graphics.setColor(Color.BLUE);
+			for (int i = dStart; i <= dEnd; i++) {
+				int xi = i % rows;
+				int yi = i / rows;
+				int x1 = xi * width + 2;
+				int y1 = yi * height + 2;
+				int x2 = (xi + 1) * width-1;
+				int y2 = (yi + 1) * height-1;
+				graphics.drawLine(x1, y1, x2, y1);
+				graphics.drawLine(x1, y2, x2, y2);
+				graphics.drawLine(x1, y1, x1, y2);
+				graphics.drawLine(x2, y1, x2, y2);
+			}
+			graphics.dispose();
+
+			return newImage;
+		} catch (final Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

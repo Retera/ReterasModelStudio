@@ -78,7 +78,8 @@ public class TwiWriteGif {
 			meta.setFromTree(metaFormat, root);
 		} catch (IIOInvalidTreeException e) {
 			//shouldn't happen
-			throw new Error(e);
+			throw new Error("Failed to set GIF metadata for image: "
+					+ imageIndex + " (delayTime: " + delayTime +")", e);
 		}
 	}
 

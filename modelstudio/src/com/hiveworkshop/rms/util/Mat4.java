@@ -865,4 +865,104 @@ public class Mat4 {
 		m33 = 1.0f;
 		return this;
 	}
+	public Mat4 set(Vec4 right, Vec4 up, Vec4 dir){
+		setIdentity();
+//		m00 = right.x;
+//		m01 = right.y;
+//		m02 = right.z;
+//		m10 = up.x;
+//		m11 = up.y;
+//		m12 = up.z;
+//		m20 = dir.x;
+//		m21 = dir.y;
+//		m22 = dir.z;
+		m00 = right.x;
+		m10 = right.y;
+		m20 = right.z;
+		m01 = up.x;
+		m11 = up.y;
+		m21 = up.z;
+		m02 = dir.x;
+		m12 = dir.y;
+		m22 = dir.z;
+
+		return this;
+	}
+	public Mat4 rot(final Quat q) {
+		final float xx = q.x * q.x * 2;
+		final float yx = q.y * q.x * 2;
+		final float yy = q.y * q.y * 2;
+		final float zx = q.z * q.x * 2;
+		final float zy = q.z * q.y * 2;
+		final float zz = q.z * q.z * 2;
+		final float wx = q.w * q.x * 2;
+		final float wy = q.w * q.y * 2;
+		final float wz = q.w * q.z * 2;
+
+		float a_m00 = 1 - yy - zz;
+		float a_m01 = yx + wz;
+		float a_m02 = zx - wy;
+		float a_m10 = yx - wz;
+		float a_m11 = 1 - xx - zz;
+		float a_m12 = zy + wx;
+		float a_m20 = zx + wy;
+		float a_m21 = zy - wx;
+		float a_m22 = 1 - xx - yy;
+
+
+		float tmp00 = m00 * a_m00 + m10 * a_m01 + m20 * a_m02;
+		float tmp01 = m01 * a_m00 + m11 * a_m01 + m21 * a_m02;
+		float tmp02 = m02 * a_m00 + m12 * a_m01 + m22 * a_m02;
+		float tmp03 = m03 * a_m00 + m13 * a_m01 + m23 * a_m02;
+		float tmp10 = m00 * a_m10 + m10 * a_m11 + m20 * a_m12;
+		float tmp11 = m01 * a_m10 + m11 * a_m11 + m21 * a_m12;
+		float tmp12 = m02 * a_m10 + m12 * a_m11 + m22 * a_m12;
+		float tmp13 = m03 * a_m10 + m13 * a_m11 + m23 * a_m12;
+		float tmp20 = m00 * a_m20 + m10 * a_m21 + m20 * a_m22;
+		float tmp21 = m01 * a_m20 + m11 * a_m21 + m21 * a_m22;
+		float tmp22 = m02 * a_m20 + m12 * a_m21 + m22 * a_m22;
+		float tmp23 = m03 * a_m20 + m13 * a_m21 + m23 * a_m22;
+		float tmp30 = m30;
+		float tmp31 = m31;
+		float tmp32 = m32;
+		float tmp33 = m33;
+		return set(
+				tmp00, tmp01, tmp02, tmp03,
+				tmp10, tmp11, tmp12, tmp13,
+				tmp20, tmp21, tmp22, tmp23,
+				tmp30, tmp31, tmp32, tmp33);
+	}
+
+
+
+	public Mat4 fromQuat1(final Quat q) {
+		final float xx = q.x * q.x * 2;
+		final float yx = q.y * q.x * 2;
+		final float yy = q.y * q.y * 2;
+		final float zx = q.z * q.x * 2;
+		final float zy = q.z * q.y * 2;
+		final float zz = q.z * q.z * 2;
+		final float wx = q.w * q.x * 2;
+		final float wy = q.w * q.y * 2;
+		final float wz = q.w * q.z * 2;
+
+		float a_m00 = 1 - yy - zz;
+		float a_m01 = yx + wz;
+		float a_m02 = zx - wy;
+		float a_m03 = 0;
+		float a_m10 = yx - wz;
+		float a_m11 = 1 - xx - zz;
+		float a_m12 = zy + wx;
+		float a_m13 = 0;
+		float a_m20 = zx + wy;
+		float a_m21 = zy - wx;
+		float a_m22 = 1 - xx - yy;
+		float a_m23 = 0;
+		float a_m30 = 0;
+		float a_m31 = 0;
+		float a_m32 = 0;
+		float a_m33 = 1;
+
+		return this;
+	}
 }

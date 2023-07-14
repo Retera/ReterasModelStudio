@@ -29,8 +29,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.rms.util.Mat4;
-import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
@@ -352,18 +350,26 @@ public class ViewportTransferHandler extends TransferHandler {
 		Vec3 vertPosSum = new Vec3(0,0,0);
 		for (GeosetVertex geosetVertex : geoset.getVertices()) {
 			vertPosSum.add(geosetVertex);
-			List<Bone> bones = geosetVertex.getBones();
-			for (int i = bones.size() - 1; i >= 0; i--) {
-				Bone bone = bones.get(i);
-				if (!stringableModel.contains(bone)) {
-					geosetVertex.removeBone(bone);
+			if (geosetVertex.getSkinBones() != null){
+				for (SkinBone skinBone : geosetVertex.getSkinBones()) {
+					if (skinBone != null && skinBone.getBone() != null && !stringableModel.contains(skinBone.getBone())) {
+						skinBone.setBone(dummyBone);
+					}
 				}
-			}
-			if (geosetVertex.getMatrix().isEmpty()) {
-				if (!stringableModel.contains(dummyBone)) {
-					stringableModel.add(dummyBone);
+			} else {
+				List<Bone> bones = geosetVertex.getBones();
+				for (int i = bones.size() - 1; i >= 0; i--) {
+					Bone bone = bones.get(i);
+					if (!stringableModel.contains(bone)) {
+						geosetVertex.removeBone(bone);
+					}
 				}
-				geosetVertex.addBoneAttachment(dummyBone);
+				if (geosetVertex.getMatrix().isEmpty()) {
+					if (!stringableModel.contains(dummyBone)) {
+						stringableModel.add(dummyBone);
+					}
+					geosetVertex.addBoneAttachment(dummyBone);
+				}
 			}
 		}
 		return vertPosSum;

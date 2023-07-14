@@ -52,7 +52,7 @@ public class TwiFocusListener extends FocusAdapter {
 			@Override
 			public void run() {
 				if (LocalTime.now().isAfter(lastEditedTime)) {
-					System.out.println("#Focus timerTask save");
+//					System.out.println("#Focus timerTask save");
 					editingStoppedListener.run();
 				}
 			}
@@ -61,14 +61,14 @@ public class TwiFocusListener extends FocusAdapter {
 
 	@Override
 	public void focusGained(FocusEvent e) {
-		System.out.println("#Focus gained");
+//		System.out.println("#Focus gained");
 		textField.addCaretListener(ec -> updateEditedTime());
 		startTimer();
 	}
 
 	@Override
 	public void focusLost(FocusEvent e) {
-		System.out.println("#Focus lost -> save");
+//		System.out.println("#Focus lost -> save");
 		removeTimer();
 		for (CaretListener cl : textField.getCaretListeners()) {
 			textField.removeCaretListener(cl);

@@ -49,6 +49,10 @@ public class Attachment extends IdObject {
 //		}
 //		return attachmentID;
 	}
+	public int getRealAttachmentID() {
+		return attachmentID;
+	}
+
 
 	public void setAttachmentID(int attachmentID) {
 		this.attachmentID = attachmentID;

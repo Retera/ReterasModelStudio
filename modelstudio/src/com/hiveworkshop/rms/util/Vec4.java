@@ -119,6 +119,9 @@ public class Vec4 {
 	public float length() {
 		return (float) Math.sqrt(lengthSquared());
 	}
+	public float v3Length() {
+		return (float) Math.sqrt((x * x) + (y * y) + (z * z));
+	}
 
 	public static Vec4 getScaled(final Vec4 a, final float factor) {
 		return new Vec4(a).scale(factor);

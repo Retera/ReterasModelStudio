@@ -6,33 +6,36 @@ import com.hiveworkshop.rms.editor.actions.animation.RemoveEventSequenceAction;
 import com.hiveworkshop.rms.editor.actions.animation.RemoveEventTrackAction;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EventObject;
+import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.SequenceComboBoxRenderer;
 import com.hiveworkshop.rms.util.TwiComboBox;
-import com.hiveworkshop.rms.util.sound.Sound;
-import com.hiveworkshop.rms.util.sound.SoundPlayer;
+import com.hiveworkshop.rms.util.sound.*;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.awt.image.BufferedImage;
 import java.util.TreeSet;
 
 public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 	private final JPanel soundsPanel;
 	private final JLabel eventName;
 	private final JPanel tracksPanel;
+	private final EventMappings eventMappings;
 
 	public ComponentEventPanel(ModelHandler modelHandler) {
 		super(modelHandler);
-		soundsPanel = new JPanel(new MigLayout());
+		soundsPanel = new JPanel(new MigLayout(""));
 		eventName = new JLabel("");
 		topPanel.add(eventName, "wrap");
 		topPanel.add(soundsPanel, "wrap");
 
 		tracksPanel = new JPanel(new MigLayout());
 		topPanel.add(tracksPanel, "spanx, wrap");
+		eventMappings = new EventMappings(null);
 //		trackPanel = new IntegerValuePanel(modelHandler, "EventTrack");
 //		topPanel.add(trackPanel, "spanx, growx, wrap");
 	}
@@ -40,15 +43,94 @@ public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 	@Override
 	public void updatePanels() {
 		soundsPanel.removeAll();
-		Sound sound = ProgramGlobals.getSoundMappings().getSound(idObject.getName());
+		EventTarget event = eventMappings.getEvent(idObject.getName());
+		if (event instanceof Sound) {
+			soundsPanel.add(new JLabel("Name: " + event.getName()), "wrap, gapbottom 10");
+			String[][] soundNameAndPaths = ((Sound) event).getFileNameAndPaths();
+			for (String[] soundNameAndPath : soundNameAndPaths) {
+				makeSoundButton(soundNameAndPath[1], soundNameAndPath[0]);
+			}
+			soundsPanel.repaint();
+		} else if (event instanceof SplatMappings.Splat) {
+//			soundsPanel.add(new JLabel("Name: " + event.getName()), "wrap, gapbottom 10");
+			SplatMappings.Splat splat = (SplatMappings.Splat) event;
+			String[][] soundNameAndPaths = splat.getFileNameAndPaths();
+			for (String[] soundNameAndPath : soundNameAndPaths) {
+
+				System.out.println("SplatPath: " + soundNameAndPath[1] + ".blp");
+				BufferedImage image = BLPHandler.getImage(soundNameAndPath[1] + ".blp");
+				if(image != null){
+					soundsPanel.add(new JLabel(SplatImageGenerator.generateIcon2(splat)), "split 3");
+					soundsPanel.add(new JLabel("File:"), "");
+					soundsPanel.add(new JLabel(soundNameAndPath[1]), "wrap");
+
+//					soundsPanel.add(new JLabel("File:"), "split 2");
+//					soundsPanel.add(new JLabel(soundNameAndPath[1]), "wrap");
+//					soundsPanel.add(new JLabel(SplatImageGenerator.generateIcon2(splat)), "wrap");
+
+//					int width = image.getWidth()/splat.getColumns();
+//					int height = image.getHeight()/splat.getRows();
+//					int xOff = (splat.getuVLifespanEnd() % splat.getRows()) * width;
+//					int yOff = ((int)(splat.getuVLifespanEnd()/splat.getRows())) * height;
+//					soundsPanel.add(new JLabel(new ImageIcon(ImageCreator.getSubImage(image, xOff, yOff, width, height))), "wrap");
+//					soundsPanel.add(new JLabel(new ImageIcon(ImageCreator.getMarkSubImages(image,
+//							splat.getRows(), splat.getColumns(),
+//							splat.getuVLifespanStart(), splat.getuVLifespanEnd(),
+//							splat.getuVDecayStart(), splat.getuVDecayEnd()))), "wrap");
+				} else {
+					soundsPanel.add(new JLabel(new ImageIcon(BLPHandler.getBlankImage())), "wrap");
+				}
+			}
+
+		} else if (event instanceof UberSplatMappings.UberSplat) {
+
+//			soundsPanel.add(new JLabel("Name: " + event.getName()), "wrap, gapbottom 10");
+			UberSplatMappings.UberSplat splat = (UberSplatMappings.UberSplat) event;
+			String[][] soundNameAndPaths = splat.getFileNameAndPaths();
+			for (String[] soundNameAndPath : soundNameAndPaths) {
+
+				System.out.println("SplatPath: " + soundNameAndPath[1] + ".blp");
+				BufferedImage image = BLPHandler.getImage(soundNameAndPath[1] + ".blp");
+				if(image != null){
+
+					soundsPanel.add(new JLabel(SplatImageGenerator.generateIcon2(splat)), "split 3");
+					soundsPanel.add(new JLabel("File:"), "");
+					soundsPanel.add(new JLabel(soundNameAndPath[1]), "wrap");
+
+//					soundsPanel.add(new JLabel("File:"), "split 2");
+//					soundsPanel.add(new JLabel(soundNameAndPath[1]), "wrap");
+//					soundsPanel.add(new JLabel(SplatImageGenerator.generateIcon2(splat)), "wrap");
+
+//					int width = image.getWidth();
+//					int height = image.getHeight();
+//					int xOff = 0;
+//					int yOff = 0;
+//					soundsPanel.add(new JLabel(new ImageIcon(ImageCreator.getSubImage(image, xOff, yOff, width, height))), "wrap");
+//					soundsPanel.add(new JLabel(new ImageIcon(ImageCreator.getMarkSubImages(image,
+//							1, 1,
+//							0, 0,
+//							0, 0))), "wrap");
+				} else {
+					soundsPanel.add(new JLabel(new ImageIcon(BLPHandler.getBlankImage())), "wrap");
+				}
+			}
+
+		}
+
+		eventName.setText(EventObject.getEventName(idObject.getName()));
+		updateTracksPanel();
+	}
+	public void updatePanels1() {
+		soundsPanel.removeAll();
+		Sound sound = ProgramGlobals.getSoundMappings().getEvent(idObject.getName());
 		if (sound != null) {
 			soundsPanel.add(new JLabel("Name: " + sound.getSoundName()), "wrap, gapbottom 10");
 			String[][] soundNameAndPaths = sound.getFileNameAndPaths();
 			for (String[] soundNameAndPath : soundNameAndPaths) {
 				makeSoundButton(soundNameAndPath[1], soundNameAndPath[0]);
 
-				soundsPanel.add(new JLabel(soundNameAndPath[0]));
-				soundsPanel.add(getButton("play", e -> SoundPlayer.play(soundNameAndPath[1])), "wrap");
+//				soundsPanel.add(new JLabel(soundNameAndPath[0]));
+//				soundsPanel.add(getButton("play", e -> SoundPlayer.play(soundNameAndPath[1])), "wrap");
 			}
 			soundsPanel.repaint();
 		}
@@ -58,7 +140,10 @@ public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 
 	private void makeSoundButton(String path, String name) {
 		soundsPanel.add(new JLabel(name));
-		soundsPanel.add(getButton("play", e -> SoundPlayer.play(path)), "wrap");
+		JButton button = new JButton("play");
+		button.addActionListener(e -> SoundPlayer.play(path, button));
+		soundsPanel.add(button, "wrap");
+//		soundsPanel.add(getButton("play", e -> SoundPlayer.play(path)), "wrap");
 //		System.out.println("got sound: " + path);
 	}
 

@@ -85,6 +85,7 @@ public enum TextKey {
 	SNAP_NORMALS("Snap Normals"),
 	SCALE_MODEL("Scale Model"),
 	ROTATE_MODEL("Rotate Model"),
+	ROTATE_NODE_IN_SEQ("Rotate Node In Anim"),
 	LINEARIZE_ANIMATIONS("Linearize Animations"),
 	SIMPLIFY_KEYFRAMES("Simplify Keyframes"),
 	SIMPLIFY_KEYFRAMES_OF_SELECTED_NODES("Simplify Keyframes of Selected Nodes"),

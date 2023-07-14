@@ -522,12 +522,12 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	}
 
 	public enum P2Flag {
-		UNSHADED(MdlUtils.TOKEN_UNSHADED, 0x8000),
-		SORT_PRIMS_FAR_Z(MdlUtils.TOKEN_SORT_PRIMS_FAR_Z, 0x10000),
-		LINE_EMITTER(MdlUtils.TOKEN_LINE_EMITTER, 0x20000),
-		UNFOGGED(MdlUtils.TOKEN_UNFOGGED, 0x40000),
-		MODEL_SPACE(MdlUtils.TOKEN_MODEL_SPACE, 0x80000),
-		XY_QUAD(MdlUtils.TOKEN_XY_QUAD, 0x100000);
+		UNSHADED(           MdlUtils.TOKEN_UNSHADED,            0x008000),
+		SORT_PRIMS_FAR_Z(   MdlUtils.TOKEN_SORT_PRIMS_FAR_Z,    0x010000),
+		LINE_EMITTER(       MdlUtils.TOKEN_LINE_EMITTER,        0x020000),
+		UNFOGGED(           MdlUtils.TOKEN_UNFOGGED,            0x040000),
+		MODEL_SPACE(        MdlUtils.TOKEN_MODEL_SPACE,         0x080000),
+		XY_QUAD(            MdlUtils.TOKEN_XY_QUAD,             0x100000);
 		final String name;
 		final int flagBit;
 		P2Flag(String name, int flagBit){

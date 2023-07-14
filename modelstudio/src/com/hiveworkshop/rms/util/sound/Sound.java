@@ -23,12 +23,28 @@ public class Sound extends EventTarget {
 		soundName = tag_name_inBeta[1];
 		inBeta = Integer.parseInt(tag_name_inBeta[2]);
 	}
-
+	Sound(String tag) {
+		this.tag = tag;
+	}
 	Sound setFromSklLine(String lineString) {
+		String[] split = lineString.split(";");
+//		System.out.println(Arrays.toString(split));
+		if (1 < split.length) {
+			switch (split[1]) {
+				case "X1" -> tag = getString(split[2]);
+				case "X2" -> soundName = getString(split[2]);
+				case "X3" -> inBeta = getInt(split[2]);
+			}
+		}
+		return this;
+	}
+
+
+	Sound setFromSklLine2(String lineString) {
 
 		String[] split = lineString.split(";");
 //		System.out.println(Arrays.toString(split));
-		if (split.length > 1) {
+		if (1 < split.length) {
 			switch (split[1]) {
 				case "X2" -> fileNames = getString(split[2]).split(",");
 				case "X3" -> directoryBase = getString(split[2]);
@@ -49,17 +65,17 @@ public class Sound extends EventTarget {
 		return this;
 	}
 
-	private int getInt(String s) {
-		return Integer.parseInt(s.split("K")[1]);
-	}
-
-	private float getFloat(String s) {
-		return Float.parseFloat(s.split("K")[1]);
-	}
-
-	private String getString(String s) {
-		return s.split("\"")[1];
-	}
+//	private int getInt(String s) {
+//		return Integer.parseInt(s.split("K")[1]);
+//	}
+//
+//	private float getFloat(String s) {
+//		return Float.parseFloat(s.split("K")[1]);
+//	}
+//
+//	private String getString(String s) {
+//		return s.split("\"")[1];
+//	}
 
 	public String[] getFileNames() {
 		return fileNames;

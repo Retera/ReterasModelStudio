@@ -15,18 +15,18 @@ public class EventMappings {
 	public EventTarget getEvent(String eventCode) {
 		String typeCode = eventCode.substring(0, 3);
 		return switch (typeCode){
-			case "SND" -> getSoundMappings().getSound(eventCode);
-			case "SPN" -> getSpawnMappings().getSplat(eventCode);
-			case "UBR" -> getUberSplatMappings().getSplat(eventCode);
-			case "SPL", "FPT" -> getSplatMappings().getSplat(eventCode);
+			case "SND" -> getSoundMappings().getEvent(eventCode);
+			case "SPN" -> getSpawnMappings().getEvent(eventCode);
+			case "UBR" -> getUberSplatMappings().getEvent(eventCode);
+			case "SPL", "FPT" -> getSplatMappings().getEvent(eventCode);
 			default -> {
-				EventTarget obj = getSoundMappings().getSound(eventCode);
+				EventTarget obj = getSoundMappings().getEvent(eventCode);
 				if(obj != null) yield obj;
-				obj = getSpawnMappings().getSplat(eventCode);
+				obj = getSpawnMappings().getEvent(eventCode);
 				if(obj != null) yield obj;
-				obj = getUberSplatMappings().getSplat(eventCode);
+				obj = getUberSplatMappings().getEvent(eventCode);
 				if(obj != null) yield obj;
-				yield getSplatMappings().getSplat(eventCode);
+				yield getSplatMappings().getEvent(eventCode);
 			}
 		};
 	}

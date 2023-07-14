@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.tools.ReplaceBonesAction;
 import com.hiveworkshop.rms.editor.actions.tools.SetHdSkinAction;
 import com.hiveworkshop.rms.editor.actions.tools.SetMatrixAction3;
@@ -13,6 +14,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.MatrixPopup;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.SkinPopup;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.IdObjectListCellRenderer;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 import com.hiveworkshop.rms.ui.util.SearchableList;
 import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.MathUtils;
@@ -201,6 +203,51 @@ public class SkinningOptionPanel extends JPanel {
 
 	public void useForVertices(Collection<GeosetVertex> vertices, Collection<Bone> bones){
 		modelHandler.getUndoManager().pushAction(new SetMatrixAction3(vertices, bones, Collections.emptySet()).redo());
+	}
+
+	public void selectVerticesSubset(Collection<GeosetVertex> vertices){
+		if (!modelView.sameSelection(vertices, Collections.emptySet(), Collections.emptySet())) {
+			SelectionBundle bundle = new SelectionBundle(vertices);
+			UndoAction action = new SetSelectionUggAction(bundle, modelView, "select skin vertices", ModelStructureChangeListener.changeListener);
+			modelHandler.getUndoManager().pushAction(action.redo());
+		}
+	}
+
+	public void selectVertices(SkinBone[] skinBones){
+		Set<GeosetVertex> vertices = new LinkedHashSet<>();
+		int hashCode = Arrays.hashCode(skinBones);
+		for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (GeosetVertex vertex : geoset.getVertices()) {
+				if (modelView.isEditable(vertex)) {
+					if (vertex.getSkinBones() != null && hashCode == Arrays.hashCode(vertex.getSkinBones())) {
+						vertices.add(vertex);
+					}
+				}
+			}
+		}
+		if (!vertices.isEmpty() && !modelView.sameSelection(vertices, Collections.emptySet(), Collections.emptySet())) {
+			SelectionBundle bundle = new SelectionBundle(vertices);
+			UndoAction action = new SetSelectionUggAction(bundle, modelView, "select skin vertices", ModelStructureChangeListener.changeListener);
+			modelHandler.getUndoManager().pushAction(action.redo());
+		}
+	}
+
+	public void selectVertices(Matrix matrix){
+		Set<GeosetVertex> vertices = new LinkedHashSet<>();
+		for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (GeosetVertex vertex : geoset.getVertices()) {
+				if (modelView.isEditable(vertex)) {
+					if (matrix.equals(vertex.getMatrix())) {
+						vertices.add(vertex);
+					}
+				}
+			}
+		}
+		if (!vertices.isEmpty() && !modelView.sameSelection(vertices, Collections.emptySet(), Collections.emptySet())) {
+			SelectionBundle bundle = new SelectionBundle(vertices);
+			UndoAction action = new SetSelectionUggAction(bundle, modelView, "select skin vertices", ModelStructureChangeListener.changeListener);
+			modelHandler.getUndoManager().pushAction(action.redo());
+		}
 	}
 
 	public void replaceBones1(Map<IdObject, IdObject> bonesToReplace){

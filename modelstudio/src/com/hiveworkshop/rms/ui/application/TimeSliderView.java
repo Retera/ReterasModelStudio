@@ -16,6 +16,7 @@ public class TimeSliderView extends ModelDependentView {
 		super("Timeline", null, new JPanel());
 		timeSliderPanel = createTimeSliderPanel();
 		setComponent(timeSliderPanel);
+		validate();
 
 //		JMenu filtersMenu = new JMenu("Options");
 //		filtersMenu.add(new JCheckBoxMenuItem("All Transform Keyframes", true));
