@@ -131,10 +131,7 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	private int convertPossiblyBuggedShort(final short x) {
-		if (x < 0) {
-			return x - Short.MIN_VALUE;
-		}
-		return x;
+		return x & 0xFFFF;
 	}
 
 	@Override
