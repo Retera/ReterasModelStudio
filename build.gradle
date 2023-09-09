@@ -7,7 +7,7 @@ buildscript {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://maven.nikr.net/" }
-        jcenter()
+        gradlePluginPortal()
         maven { url 'https://jitpack.io' }
     }
 }
@@ -19,7 +19,7 @@ allprojects {
     version = '1.0'
     ext {
         appName = "retera-jwc3"
-        jtattooVersion = '1.6.11'
+        jtattooVersion = '1.6.12'
         miglayoutVersion = '4.2'
 		lwjglVersion = '2.9.3'
 		image4jVersion = '0.7'
@@ -37,36 +37,36 @@ allprojects {
 }
 
 project(":modelstudio") {
-    apply plugin: "java"
+    apply plugin: "java-library"
 
 
     dependencies {
-        compile project(":thirdparty")
-        compile "com.fifesoft:rsyntaxtextarea:$rsyntaxtextareaVersion"
-        compile "org.jclarion:image4j:$image4jVersion"
+        api project(":thirdparty")
+        api "com.fifesoft:rsyntaxtextarea:$rsyntaxtextareaVersion"
+        api "org.jclarion:image4j:$image4jVersion"
 
-        compile "com.github.inwc3:JMPQ3:1.7.14"
-        compile "org.json:json:20200518"
+        api "com.github.inwc3:JMPQ3:1.7.14"
+        api "org.json:json:20200518"
     }
 }
 
 
 project(":thirdparty") {
-    apply plugin: "java"
+    apply plugin: "java-library"
 
 
     dependencies {
-        compile "com.jtattoo:JTattoo:$jtattooVersion"
-        compile "com.miglayout:miglayout-swing:$miglayoutVersion"
-        compile "org.lwjgl.lwjgl:lwjgl:${lwjglVersion}"
-        compile "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-windows"
-        compile "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-linux"
-        compile "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-osx"
-        compile "org.lwjgl.lwjgl:lwjgl_util:${lwjglVersion}"
-        compile "net.nikr:dds:1.0.0"
-//        compile "com.github.ebourg:infonode:master"
-//        compile "com.github.DrSuperGood:blp-iio-plugin:master"
-        compile files(fileTree(dir: '../jars', includes: ['*.jar']))
+        api "com.jtattoo:JTattoo:$jtattooVersion"
+        api "com.miglayout:miglayout-swing:$miglayoutVersion"
+        api "org.lwjgl.lwjgl:lwjgl:${lwjglVersion}"
+        api "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-windows"
+        api "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-linux"
+        api "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-osx"
+        api "org.lwjgl.lwjgl:lwjgl_util:${lwjglVersion}"
+        api "net.nikr:dds:1.0.0"
+//        api "com.github.ebourg:infonode:master"
+//        api "com.github.DrSuperGood:blp-iio-plugin:master"
+        api files(fileTree(dir: '../jars', includes: ['*.jar']))
 
         implementation "org.lwjgl.lwjgl:lwjgl:${lwjglVersion}"
         implementation "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-windows"

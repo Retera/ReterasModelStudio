@@ -18,10 +18,17 @@ public class MdlxGeosetAnimation extends MdlxAnimatedObject {
 	public void readMdx(final BinaryReader reader, final int version) {
 		final long size = reader.readUInt32();
 
-		alpha = reader.readFloat32();
-		flags = reader.readInt32();
-		reader.readFloat32Array(color);
-		geosetId = reader.readInt32();
+		if(version == 1300 ) {
+			geosetId = reader.readInt32();
+			alpha = reader.readFloat32();
+			reader.readFloat32Array(color);
+			flags = reader.readInt32();
+		} else {
+			alpha = reader.readFloat32();
+			flags = reader.readInt32();
+			reader.readFloat32Array(color);
+			geosetId = reader.readInt32();
+		}
 
 		readTimelines(reader, size - 28, version);
 	}

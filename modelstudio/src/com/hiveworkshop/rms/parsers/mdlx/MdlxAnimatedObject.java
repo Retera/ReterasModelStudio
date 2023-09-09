@@ -20,8 +20,12 @@ public abstract class MdlxAnimatedObject implements MdlxChunk, MdlxBlock {
 
 	public void readTimelines(final BinaryReader reader, long size, int version) {
 		while (size > 0) {
-			final War3ID name = new War3ID(reader.readTag());
-			System.out.println("Timeline loading: " + name);
+			int readTag = reader.readTag();
+			if(version == 1300 && readTag==0) {
+				continue;
+			}
+			final War3ID name = new War3ID(readTag);
+			System.out.println("Timeline loading: " + name + " (" +size +" remaining)");
 			final MdlxTimeline<?> timeline = AnimationMap.ID_TO_TAG.get(name).getImplementation().createTimeline();
 
 			timeline.readMdx(reader, name, version);

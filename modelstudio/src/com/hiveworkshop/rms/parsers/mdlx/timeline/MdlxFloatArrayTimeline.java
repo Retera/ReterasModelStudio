@@ -65,7 +65,4 @@ public final class MdlxFloatArrayTimeline extends MdlxTimeline<float[]> {
 		stream.writeKeyframe(prefix, value);
 	}
 
-	public int getArraySize() {
-		return arraySize;
-	}
 }

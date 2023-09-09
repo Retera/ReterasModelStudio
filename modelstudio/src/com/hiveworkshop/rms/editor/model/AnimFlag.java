@@ -326,6 +326,7 @@ public class AnimFlag {
 			case MdlUtils.TOKEN_LENGTH: return AnimationMap.KP2N;
 			case MdlUtils.TOKEN_WIDTH: return AnimationMap.KP2W;
 			case MdlUtils.TOKEN_VISIBILITY: return AnimationMap.KP2V;
+			case MdlUtils.TOKEN_LIFE_SPAN: return AnimationMap.KLIF;
 			}
 		} else if (container instanceof ParticleEmitterPopcorn) {
 			switch (name) {

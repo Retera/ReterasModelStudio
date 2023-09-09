@@ -126,6 +126,10 @@ public enum AnimationMap {
 	KPEV(MdlUtils.TOKEN_VISIBILITY, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	// ParticleEmitter2
 	/**
+	 * Particle emitter lifespan
+	 */
+	KLIF(MdlUtils.TOKEN_LIFE_SPAN, MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	/**
 	 * Particle emitter 2 speed
 	 */
 	KP2S("Speed", MdlxTimelineDescriptor.FLOAT_TIMELINE),
@@ -157,6 +161,10 @@ public enum AnimationMap {
 	 * Particle emitter 2 visibility
 	 */
 	KP2V("Visibility", MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	/**
+	 * Particle emitter 2 visibility
+	 */
+	KVIS("Visibility", MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	// ParticleEmitterCorn
 	/**
 	 * Popcorn emitter alpha

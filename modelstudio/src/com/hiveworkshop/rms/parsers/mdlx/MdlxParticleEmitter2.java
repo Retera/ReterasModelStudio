@@ -73,7 +73,9 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 	public float speed = 0;
 	public float variation = 0;
 	public float latitude = 0;
+	public float longitude = 0;
 	public float gravity = 0;
+	public float zSource = 0;
 	public float lifeSpan = 0;
 	public float emissionRate = 0;
 	public float length = 0;
@@ -94,26 +96,69 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 	public int priorityPlane = 0;
 	public long replaceableId = 0;
 
+	public long emitterSize;
+	public long emitterType;
+	public byte[] geometryMdl = new byte[104];
+	public byte[] recursionMdl = new byte[104];
+	public float twinkleFPS;           // default is 10.0
+	public float twinkleOnOff;         // boolean, twinkle applies additional scaling to make a shrink and grow effect
+	public float twinkleScaleMin;      // twinkle is not applied if twinkleScaleMax - twinkleScaleMin == 0.0
+	public float twinkleScaleMax;
+	public float ivelScale;            // instant velocity scale, multiplier for each particle's intial velocity
+	public float tumblexMin;           // tumble adds a randomised rotation to each particle
+	public float tumblexMax;
+	public float tumbleyMin;
+	public float tumbleyMax;
+	public float tumblezMin;
+	public float tumblezMax;
+	public float drag;                 // decreases particle velocity over time
+	public float spin;
+	public float[] windVector = new float[3];
+	public float windTime;
+	public float followSpeed1;
+	public float followScale1;
+	public float followSpeed2;
+	public float followScale2;
+	public int numSplines;
+	public float[] splineData;
+
 	public MdlxParticleEmitter2() {
 		super(0x1000);
 	}
 
 	@Override
 	public void readMdx(final BinaryReader reader, final int version) {
-		final int position = reader.position();
-		final long size = reader.readUInt32();
+		int position = reader.position();
+		long size = reader.readUInt32();
 
 		super.readMdx(reader, version);
 
+		int posAfterEmitterSize;
+		if(version == 1300) {
+			emitterSize = reader.readUInt32();
+			posAfterEmitterSize = reader.position();
+//			size = emitterSize;
+			emitterType = reader.readUInt32();
+		} else {
+			posAfterEmitterSize = 0;
+		}
 		speed = reader.readFloat32();
 		variation = reader.readFloat32();
 		latitude = reader.readFloat32();
+		if(version == 1300) {
+			longitude = reader.readFloat32();
+		}
 		gravity = reader.readFloat32();
+		if(version == 1300) {
+			zSource = reader.readFloat32();
+		}
 		lifeSpan = reader.readFloat32();
 		emissionRate = reader.readFloat32();
 		length = reader.readFloat32();
 		width = reader.readFloat32();
-		filterMode = FilterMode.fromId(reader.readInt32());
+		if(version != 1300) {
+			filterMode = FilterMode.fromId(reader.readInt32());
+		}
 		rows = reader.readUInt32();
 		columns = reader.readUInt32();
 		headOrTail = HeadOrTail.fromId(reader.readInt32());
@@ -128,10 +173,47 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 		reader.readUInt32Array(headIntervals[1]);
 		reader.readUInt32Array(tailIntervals[0]);
 		reader.readUInt32Array(tailIntervals[1]);
+		if(version == 1300) {
+			filterMode = FilterMode.fromId(reader.readInt32());
+		}
 		textureId = reader.readInt32();
-		squirt = reader.readUInt32();
+		if(version != 1300) {
+			squirt = reader.readUInt32();
+		}
 		priorityPlane = reader.readInt32();
 		replaceableId = reader.readUInt32();
+
+		if(version == 1300) {
+			reader.readInt8Array(geometryMdl);
+			reader.readInt8Array(recursionMdl);
+			twinkleFPS = reader.readFloat32();
+			twinkleOnOff= reader.readFloat32();
+			twinkleScaleMin= reader.readFloat32();
+			twinkleScaleMax= reader.readFloat32();
+			ivelScale = reader.readFloat32();
+			tumblexMin = reader.readFloat32();
+			tumblexMax = reader.readFloat32();
+			tumbleyMin = reader.readFloat32();
+			tumbleyMax = reader.readFloat32();
+			tumblezMin = reader.readFloat32();
+			tumblezMax = reader.readFloat32();
+			drag = reader.readFloat32();
+			spin = reader.readFloat32();
+			reader.readFloat32Array(windVector);
+			windTime = reader.readFloat32();
+			followSpeed1 = reader.readFloat32();
+			followScale1 = reader.readFloat32();
+			followSpeed2 = reader.readFloat32();
+			followScale2 = reader.readFloat32();
+			numSplines = reader.readInt32();
+			splineData = new float[numSplines * 3];
+			reader.readFloat32Array(splineData);
+			squirt = reader.readUInt32();
+
+			while(reader.position() - posAfterEmitterSize < emitterSize) {
+				reader.readFloat32();
+			}
+		}
 
 		readTimelines(reader, size - (reader.position() - position), version);
 	}
@@ -426,6 +508,10 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 
 	@Override
 	public long getByteLength(final int version) {
-		return 175 + super.getByteLength(version);
+		int extra = 0;
+		if(version == 1300) {
+			extra = 12 + 296 + (numSplines * 12);
+		}
+		return 175 + extra + super.getByteLength(version);
 	}
 }

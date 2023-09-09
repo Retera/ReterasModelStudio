@@ -18,6 +18,8 @@ public class MdlxRibbonEmitter extends MdlxGenericObject {
 	public long columns = 0;
 	public int materialId = 0;
 	public float gravity = 0;
+	
+	public long emitterSize = 0;
 
 	public MdlxRibbonEmitter() {
 		super(0x4000);
@@ -30,6 +32,14 @@ public class MdlxRibbonEmitter extends MdlxGenericObject {
 
 		super.readMdx(reader, version);
 
+
+		int posAfterEmitterSize;
+		if(version == 1300) {
+			emitterSize = reader.readUInt32();
+			posAfterEmitterSize = reader.position();
+		} else {
+			posAfterEmitterSize = 0;
+		}
 		heightAbove = reader.readFloat32();
 		heightBelow = reader.readFloat32();
 		alpha = reader.readFloat32();
@@ -42,6 +52,7 @@ public class MdlxRibbonEmitter extends MdlxGenericObject {
 		materialId = reader.readInt32();
 		gravity = reader.readFloat32();
 
+		
 		readTimelines(reader, size - (reader.position() - position), version);
 	}
 
@@ -171,6 +182,6 @@ public class MdlxRibbonEmitter extends MdlxGenericObject {
 
 	@Override
 	public long getByteLength(final int version) {
-		return 56 + super.getByteLength(version);
+		return 56 + super.getByteLength(version) + (version == 1300 ? 4 : 0);
 	}
 }

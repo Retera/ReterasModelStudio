@@ -171,7 +171,12 @@ public class MdlxModel {
 				}
 				break;
 			case GEOA:
-				loadDynamicObjects(geosetAnimations, MdlxBlockDescriptor.GEOSET_ANIMATION, reader, size);
+				if(version == 1300) {
+					long numGeoAs = reader.readUInt32();
+					loadNDynamicObjects(geosetAnimations, MdlxBlockDescriptor.GEOSET_ANIMATION, reader, numGeoAs);
+				} else {
+					loadDynamicObjects(geosetAnimations, MdlxBlockDescriptor.GEOSET_ANIMATION, reader, size);
+				}
 				break;
 			case BONE:
 				if(version == 1300) {
