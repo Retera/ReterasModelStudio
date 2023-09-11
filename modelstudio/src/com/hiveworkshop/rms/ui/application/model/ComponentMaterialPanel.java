@@ -35,8 +35,8 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 	private final JButton addLayerButton;
 	private JButton copyMaterialAnim;
 
-	public ComponentMaterialPanel(ModelHandler modelHandler) {
-		super(modelHandler);
+	public ComponentMaterialPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
+		super(modelHandler, componentsPanel);
 
 		setLayout(new MigLayout("fill, hidemode 2", "[][][grow]", "[][][grow]"));
 		materialFlagsPanel = new MaterialFlagsPanel(modelHandler);
@@ -70,7 +70,7 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 		layersHolderPanel.removeAll();
 		for (int i = 0; i < material.getLayers().size(); i++) {
 			int finalI = i;
-			ComponentLayerPanel componentLayer = layerPanelTreeMap.computeIfAbsent(i, k -> new ComponentLayerPanel(modelHandler, "Layer " + finalI));
+			ComponentLayerPanel componentLayer = layerPanelTreeMap.computeIfAbsent(i, k -> new ComponentLayerPanel(modelHandler, componentsPanel, "Layer " + finalI));
 			componentLayer.setMaterial(material);
 			componentLayer.setSelectedItem(material.getLayer(i));
 			layersHolderPanel.add(componentLayer, "growx, wrap");
@@ -125,7 +125,7 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 	}
 
 	protected void setShaderString(String newShader) {
-		if(!material.getShaderString().equals(newShader)){
+		if (!material.getShaderString().equals(newShader)) {
 			undoManager.pushAction(new SetMaterialShaderStringAction(model, material, newShader, changeListener).redo());
 		}
 	}
@@ -142,7 +142,7 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 		}
 	}
 
-	protected void duplicateMaterial(){
+	protected void duplicateMaterial() {
 		Material newMaterial = this.material.deepCopy();
 		undoManager.pushAction(new AddMaterialAction(newMaterial, model, ModelStructureChangeListener.changeListener).redo());
 	}

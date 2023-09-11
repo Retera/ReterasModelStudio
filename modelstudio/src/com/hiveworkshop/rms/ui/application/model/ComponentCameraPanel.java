@@ -43,8 +43,8 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 
 	protected FlagPanel<Vec3> targetTransPanel;
 
-	public ComponentCameraPanel(ModelHandler modelHandler) {
-		super(modelHandler);
+	public ComponentCameraPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
+		super(modelHandler, componentsPanel);
 
 		setLayout(new MigLayout("fill, gap 0, hidemode 3", "[]5[]5[grow]", "[][][][][][][grow][grow][grow]"));
 		nameField = new TwiTextField(24, this::changeName1);
@@ -95,10 +95,10 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 		add(targetTransPanel, "spanx, growx, wrap");
 	}
 
-	private Vec3 parseVec3(String s){
+	private Vec3 parseVec3(String s) {
 		return Vec3.parseVec3(ValueParserUtil.getString(3,s));
 	}
-	private Quat parseQuat(String s){
+	private Quat parseQuat(String s) {
 		return Quat.parseQuat(ValueParserUtil.getString(4,s));
 	}
 	private Float parseFloat(String s) {
@@ -128,7 +128,7 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 		camera = itemToSelect;
 		nameField.setText(camera.getName());
 
-		if(itemToSelect.getBindPoseM4() != null){
+		if (itemToSelect.getBindPoseM4() != null) {
 			bindPoseLabel.setText("BP: " + Arrays.toString(itemToSelect.getBindPoseM4().getBindPose()));
 		} else {
 			bindPoseLabel.setText("BP: null");
@@ -154,7 +154,7 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 
 	private void updateCameraRotationPanels() {
 		AnimFlag<?> rotationFlag = camera.getSourceNode().find(MdlUtils.TOKEN_ROTATION);
-		if(rotationFlag instanceof QuatAnimFlag) {
+		if (rotationFlag instanceof QuatAnimFlag) {
 			rotPanelQuat.update(camera.getSourceNode(), (QuatAnimFlag) rotationFlag, new Quat(0, 0, 0, 1));
 		} else {
 			rotPanelQuat.update(camera.getSourceNode(), null, new Quat(0, 0, 0, 1));
@@ -178,7 +178,7 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 	}
 	private void updateCameraRotationPanels1() {
 		AnimFlag<?> rotationFlag = camera.getSourceNode().find(MdlUtils.TOKEN_ROTATION);
-		if(rotationFlag instanceof QuatAnimFlag) {
+		if (rotationFlag instanceof QuatAnimFlag) {
 			rotPanelQuat.update(camera.getSourceNode(), (QuatAnimFlag) rotationFlag, new Quat(0, 0, 0, 1));
 			rotPanelFloat.update(camera.getSourceNode(), null, 0.0f);
 			rotPanelInt.update(camera.getSourceNode(), null, 0);
@@ -213,7 +213,7 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 		List<AnimFlag<?>> animFlags = new ArrayList<>();
 		animFlags.addAll(camera.getTargetNode().getAnimFlags());
 		animFlags.addAll(camera.getSourceNode().getAnimFlags());
-		if(!animFlags.isEmpty()){
+		if (!animFlags.isEmpty()) {
 			undoManager.pushAction(new SimplifyKeyframesAction(animFlags, model.getAllSequences(), 0.1f, -1f, 0.1f, -1f, true).redo());
 		}
 	}

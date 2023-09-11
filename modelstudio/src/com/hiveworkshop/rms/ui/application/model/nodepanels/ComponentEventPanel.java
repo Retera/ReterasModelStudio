@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
+import com.hiveworkshop.rms.ui.application.model.ComponentsPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.SequenceComboBoxRenderer;
@@ -26,8 +27,8 @@ public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 	private final JPanel tracksPanel;
 	private final EventMappings eventMappings;
 
-	public ComponentEventPanel(ModelHandler modelHandler) {
-		super(modelHandler);
+	public ComponentEventPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
+		super(modelHandler, componentsPanel);
 		soundsPanel = new JPanel(new MigLayout(""));
 		eventName = new JLabel("");
 		topPanel.add(eventName, "wrap");
@@ -59,7 +60,7 @@ public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 
 				System.out.println("SplatPath: " + soundNameAndPath[1] + ".blp");
 				BufferedImage image = BLPHandler.getImage(soundNameAndPath[1] + ".blp");
-				if(image != null){
+				if (image != null) {
 					soundsPanel.add(new JLabel(SplatImageGenerator.generateIcon2(splat)), "split 3");
 					soundsPanel.add(new JLabel("File:"), "");
 					soundsPanel.add(new JLabel(soundNameAndPath[1]), "wrap");
@@ -91,7 +92,7 @@ public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 
 				System.out.println("SplatPath: " + soundNameAndPath[1] + ".blp");
 				BufferedImage image = BLPHandler.getImage(soundNameAndPath[1] + ".blp");
-				if(image != null){
+				if (image != null) {
 
 					soundsPanel.add(new JLabel(SplatImageGenerator.generateIcon2(splat)), "split 3");
 					soundsPanel.add(new JLabel("File:"), "");
@@ -189,7 +190,7 @@ public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 		animationBox.addAll(model.getAnims());
 		animationBox.addAll(model.getGlobalSeqs());
 		animationBox.removeItem(idObject.getGlobalSeq());
-		for (Sequence sequence : idObject.getEventTrackAnimMap().keySet()){
+		for (Sequence sequence : idObject.getEventTrackAnimMap().keySet()) {
 			animationBox.removeItem(sequence);
 		}
 		animationBox.selectOrFirst(null);
@@ -204,7 +205,7 @@ public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 	}
 
 	private void editTrack(Sequence sequence, int track, int newValue) {
-		if(track != newValue){
+		if (track != newValue) {
 			undoManager.pushAction(new EditEventTrackAction(idObject, sequence, track, newValue, changeListener).redo());
 		}
 	}

@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.ExportInternal;
+import com.hiveworkshop.rms.ui.application.model.ComponentsPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.TwiTextEditor.EditorHelpers;
@@ -24,8 +25,8 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 	private EditorHelpers.ColorEditor colorPanel;
 
 
-	public ComponentPopcornPanel(ModelHandler modelHandler) {
-		super(modelHandler);
+	public ComponentPopcornPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
+		super(modelHandler, componentsPanel);
 
 		popcornPathField = new ComponentEditorTextField(24, this::texturePathField);
 		topPanel.add(popcornPathField, "");
@@ -100,9 +101,7 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 		JPopupMenu popupMenu = new JPopupMenu();
 		for (ParticleEmitterPopcorn.State state : ParticleEmitterPopcorn.State.values()) {
 			JMenuItem menuItem = new JMenuItem(state.name());
-			menuItem.addActionListener(e -> {
-				setAnimState(animation, parent, state);
-			});
+			menuItem.addActionListener(e -> setAnimState(animation, parent, state));
 			popupMenu.add(menuItem);
 		}
 		popupMenu.show(parent, parent.getWidth(), 0);
@@ -111,7 +110,7 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 
 	private void setAnimState(Animation animation, JButton parent, ParticleEmitterPopcorn.State state) {
 		ParticleEmitterPopcorn.State orgState = idObject.getAnimVisState(animation);
-		if(state != orgState){
+		if (state != orgState) {
 			undoManager.pushAction(new ConsumerAction<>(s -> idObject.setAnimVisState(animation, s), state, orgState, "").redo());
 			parent.setText(state.name());
 		}
@@ -123,7 +122,7 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 		for (ParticleEmitterPopcorn.State state : ParticleEmitterPopcorn.State.values()) {
 			JMenuItem menuItem = new JMenuItem(state.name());
 			menuItem.addActionListener(e -> {
-				if(state != orgState){
+				if (state != orgState) {
 					undoManager.pushAction(new ConsumerAction<>(s -> idObject.setAlwaysState(s), state, orgState, "").redo());
 					parent.setText(state.name());
 				}
@@ -134,35 +133,35 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 		return ParticleEmitterPopcorn.State.none;
 	}
 
-	private void setLifeSpan(float value){
-		if(idObject.getLifeSpan() != value){
+	private void setLifeSpan(float value) {
+		if (idObject.getLifeSpan() != value) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setLifeSpan, value, idObject.getLifeSpan(), "LifeSpan").redo());
 		}
 	}
-	private void setEmissionRate(float value){
-		if(idObject.getEmissionRate() != value){
+	private void setEmissionRate(float value) {
+		if (idObject.getEmissionRate() != value) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setEmissionRate, value, idObject.getEmissionRate(), "EmissionRate").redo());
 		}
 	}
-	private void setInitVelocity(float value){
-		if(idObject.getInitVelocity() != value){
+	private void setInitVelocity(float value) {
+		if (idObject.getInitVelocity() != value) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setInitVelocity, value, idObject.getInitVelocity(), "InitVelocity").redo());
 		}
 	}
-	private void setAlpha(float value){
-		if(idObject.getAlpha() != value){
+	private void setAlpha(float value) {
+		if (idObject.getAlpha() != value) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setAlpha, value, idObject.getAlpha(), "Alpha").redo());
 		}
 	}
-	private void setColor(Vec3 color){
-		if(!idObject.getColor().equalLocs(color)){
+	private void setColor(Vec3 color) {
+		if (!idObject.getColor().equalLocs(color)) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setColor, color, idObject.getColor(), "Color").redo());
 		}
 	}
 
-	private void export(){
+	private void export() {
 		String particlePath = idObject.getPath();
-		if(!particlePath.isEmpty()){
+		if (!particlePath.isEmpty()) {
 			ExportInternal.exportInternalFile(particlePath, "Popcorn", this);
 		}
 	}

@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
+import com.hiveworkshop.rms.ui.application.model.ComponentsPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.ValueParserUtil;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.Quat;
@@ -21,8 +22,8 @@ public class ComponentTextureAnimPanel extends ComponentPanel<TextureAnim> {
 	private final FlagPanel<Vec3> scalePanel;
 	private final FlagPanel<Quat> rotPanel;
 
-	public ComponentTextureAnimPanel(ModelHandler modelHandler) {
-		super(modelHandler);
+	public ComponentTextureAnimPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
+		super(modelHandler, componentsPanel);
 		setLayout(new MigLayout("fillx, gap 0", "[grow]", "[]"));
 
 		transPanel = new FlagPanel<>(MdlUtils.TOKEN_TRANSLATION, this::parseVec3, new Vec3(0,0,0), modelHandler);
@@ -36,10 +37,10 @@ public class ComponentTextureAnimPanel extends ComponentPanel<TextureAnim> {
 		add(topPanel);
 	}
 
-	private Vec3 parseVec3(String s){
+	private Vec3 parseVec3(String s) {
 		return Vec3.parseVec3(ValueParserUtil.getString(3,s));
 	}
-	private Quat parseQuat(String s){
+	private Quat parseQuat(String s) {
 		return Quat.parseQuat(ValueParserUtil.getString(4,s));
 	}
 

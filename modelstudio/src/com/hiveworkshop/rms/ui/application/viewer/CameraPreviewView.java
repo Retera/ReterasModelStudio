@@ -19,7 +19,7 @@ import java.awt.event.ComponentEvent;
 public class CameraPreviewView extends ModelDependentView {
 	private final AnimationController animationController;
 	private JScrollPane scrollPane;
-	private final ViewportPanel viewportPanel;;
+	private final ViewportPanel viewportPanel;
 	private final JPanel smartPanel;
 	private final JPanel topLeftPanel;
 	private final JPanel viewMainPanel;
@@ -55,10 +55,10 @@ public class CameraPreviewView extends ModelDependentView {
 			animationController.setModel(renderModel, renderModel.getTimeEnvironment().getCurrentAnimation(), true);
 			topLeftPanel.add(viewportPanel, "wrap");
 			topLeftPanel.add(getCameraChooserPanel(modelHandler.getModel()), "spanx, growx, wrap");
-			cameraPanel = new ComponentCameraPanel(modelHandler);
+			cameraPanel = new ComponentCameraPanel(modelHandler, null);
 
 			chosenCamera = modelHandler.getModel().getCameras().get(0);
-			if(chosenCamera != null) {
+			if (chosenCamera != null) {
 				cameraPanel.setSelectedItem(chosenCamera);
 //				cameraHandler.setCamera(renderModel.getRenderNode(chosenCamera.getSourceNode()));
 				cameraHandler.setCamera(renderModel, chosenCamera.getSourceNode());
@@ -74,7 +74,7 @@ public class CameraPreviewView extends ModelDependentView {
 		return this;
 	}
 
-	private TwiComboBox<Camera> getCameraChooserPanel(EditableModel model){
+	private TwiComboBox<Camera> getCameraChooserPanel(EditableModel model) {
 		TwiComboBox<Camera> cameraComboBox = new TwiComboBox<>(model.getCameras());
 		cameraComboBox.addOnSelectItemListener(this::setChoosenCamera);
 		cameraComboBox.setStringFunctionRender(this::getCameraName);
@@ -82,8 +82,8 @@ public class CameraPreviewView extends ModelDependentView {
 		return cameraComboBox;
 	}
 
-	private String getCameraName(Object object){
-		if (object instanceof Camera){
+	private String getCameraName(Object object) {
+		if (object instanceof Camera) {
 			return ((Camera) object).getName();
 		}
 		return "null";
@@ -91,14 +91,13 @@ public class CameraPreviewView extends ModelDependentView {
 
 	private void setChoosenCamera(Camera chosenCamera) {
 		this.chosenCamera = chosenCamera;
-//		cameraHandler.setCamera(renderModel.getRenderNode(chosenCamera.getSourceNode()));
 		cameraHandler.setCamera(renderModel, chosenCamera.getSourceNode());
-		if (cameraPanel != null){
+		if (cameraPanel != null) {
 			cameraPanel.setSelectedItem(chosenCamera);
 		}
 	}
 
-	private JPanel getSpecialPane(){
+	private JPanel getSpecialPane() {
 		JPanel panel = new JPanel(new MigLayout("fill, gap 0, ins 0"));
 		scrollPane = new JScrollPane(new JPanel());
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -123,7 +122,7 @@ public class CameraPreviewView extends ModelDependentView {
 		if (viewportPanel != null) {
 			viewportPanel.reload().repaint();
 		}
-		if (cameraPanel != null && chosenCamera != null){
+		if (cameraPanel != null && chosenCamera != null) {
 			cameraPanel.setSelectedItem(chosenCamera);
 		}
 		return this;

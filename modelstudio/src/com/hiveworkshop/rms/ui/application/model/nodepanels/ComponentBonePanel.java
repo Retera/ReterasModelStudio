@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.actions.tools.RemoveBoneFromGeoAction;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.ui.application.model.ComponentsPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
 import java.util.ArrayList;
@@ -12,8 +13,8 @@ import java.util.List;
 
 public class ComponentBonePanel extends ComponentIdObjectPanel<Bone> {
 
-	public ComponentBonePanel(ModelHandler modelHandler) {
-		super(modelHandler);
+	public ComponentBonePanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
+		super(modelHandler, componentsPanel);
 		topPanel.add(getButton("Remove from all vertices", e -> removeGeoBindings()));
 	}
 

@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
+import com.hiveworkshop.rms.ui.application.model.ComponentsPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
 import com.hiveworkshop.rms.ui.application.model.editors.ValueParserUtil;
 import com.hiveworkshop.rms.ui.application.tools.IdObjectTypeChanger;
@@ -46,8 +47,8 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	protected JCheckBox dontInheritRotationBox;
 	protected JCheckBox dontInheritScalingBox;
 
-	public ComponentIdObjectPanel(ModelHandler modelHandler) {
-		super(modelHandler);
+	public ComponentIdObjectPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
+		super(modelHandler, componentsPanel);
 
 		parentChooser = new IdObjectChooser(model, true);
 
@@ -78,7 +79,7 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 		add(getInheritingPanel(), "spanx, wrap");
 
 		topPanel = new JPanel(new MigLayout("fill, ins 0", "[]5[]5[grow]"));
-		add(topPanel, "spanx, wrap");
+		add(topPanel, "spanx, growx, wrap");
 
 		transPanel = new FlagPanel<>(MdlUtils.TOKEN_TRANSLATION, this::parseVec3, new Vec3(0,0,0), modelHandler);
 		scalePanel = new FlagPanel<>(MdlUtils.TOKEN_SCALING, this::parseVec3, new Vec3(1,1,1), modelHandler);
@@ -102,7 +103,7 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 		} else {
 			parentName.setText("no parent");
 		}
-		if(itemToSelect.getBindPoseM4() != null){
+		if (itemToSelect.getBindPoseM4() != null) {
 			bindPoseLabel.setText("BP: " + Arrays.toString(itemToSelect.getBindPoseM4().getBindPose()));
 		} else {
 			bindPoseLabel.setText("BP: null");
@@ -127,10 +128,10 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 		return this;
 	}
 
-	private Vec3 parseVec3(String s){
+	private Vec3 parseVec3(String s) {
 		return Vec3.parseVec3(ValueParserUtil.getString(3,s));
 	}
-	private Quat parseQuat(String s){
+	private Quat parseQuat(String s) {
 		return Quat.parseQuat(ValueParserUtil.getString(4,s));
 	}
 
@@ -179,7 +180,7 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 
 	private void chooseParent() {
 		IdObject newParent = parentChooser.chooseObject(idObject, this.getRootPane());
-		if(idObject.getParent() != newParent){
+		if (idObject.getParent() != newParent) {
 			undoManager.pushAction(new ParentChangeAction(idObject, newParent, changeListener).redo());
 		}
 		repaint();

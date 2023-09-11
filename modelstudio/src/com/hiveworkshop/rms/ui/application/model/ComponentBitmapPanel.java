@@ -35,8 +35,8 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 	private final ZoomableImagePreviewPanel imagePreviewPanel;
 	private ImageUtils.ColorMode colorMode = ImageUtils.ColorMode.RGBA;
 
-	public ComponentBitmapPanel(ModelHandler modelHandler) {
-		super(modelHandler);
+	public ComponentBitmapPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
+		super(modelHandler, componentsPanel);
 		texturePathField = new ComponentEditorTextField(24, this::texturePathField);
 
 		replaceableIdSpinner = new IntEditorJSpinner(-1, -1, this::replaceableIdSpinner);
@@ -89,46 +89,46 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 
 	private void exportTextureImageFile() {
 		ImageUtils.ColorMode colorMode1 = getColorMode();
-		if(colorMode1 == ImageUtils.ColorMode.RGBA){
+		if (colorMode1 == ImageUtils.ColorMode.RGBA) {
 			ExportInternal.exportInternalFile(bitmap.getRenderableTexturePath(), "Texture", model.getWrappedDataSource(), this);
-		} else if (colorMode1 != null){
+		} else if (colorMode1 != null) {
 			String[] nameParts = bitmap.getRenderableTexturePath().split("\\.(?=.+$)");
 			String suggestedName = nameParts[0] + "_" + colorMode.name() + "." + nameParts[1];
 			ExportTexture.onClickSaveAs(getImage(bitmap, model.getWrappedDataSource()), suggestedName, FileDialog.SAVE_TEXTURE, ProgramGlobals.getMainPanel());
 		}
 	}
 
-	private ImageUtils.ColorMode getColorMode(){
-		if(colorMode != ImageUtils.ColorMode.RGBA){
+	private ImageUtils.ColorMode getColorMode() {
+		if (colorMode != ImageUtils.ColorMode.RGBA) {
 			String[] tempStrings = new String[]{"Original", colorMode.name(), "Cancel"};
 			JOptionPane optionPane = new JOptionPane("Export Current Filtered Image?", JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_CANCEL_OPTION, null, tempStrings, tempStrings[0]);
 			JDialog export_option = optionPane.createDialog(this, "Export Option");
 			export_option.setVisible(true);
 			Object optionPaneValue = optionPane.getValue();
 
-			if(tempStrings[1].equals(optionPaneValue)){
+			if (tempStrings[1].equals(optionPaneValue)) {
 				return colorMode;
-			} else if(tempStrings[2].equals(optionPaneValue)){
+			} else if (tempStrings[2].equals(optionPaneValue)) {
 				return null;
 			}
 		}
 		return ImageUtils.ColorMode.RGBA;
 	}
 
-	private void setWrap(Bitmap.WrapFlag flag, boolean set){
+	private void setWrap(Bitmap.WrapFlag flag, boolean set) {
 		if (bitmap.isFlagSet(flag) != set) {
 			undoManager.pushAction(new SetBitmapWrapModeAction(bitmap, flag, set, changeListener).redo());
 		}
 	}
 
 	private void replaceableIdSpinner(int newValue) {
-		if(bitmap.getReplaceableId() != newValue){
+		if (bitmap.getReplaceableId() != newValue) {
 			undoManager.pushAction(new SetBitmapReplaceableIdAction(bitmap, newValue, changeListener).redo());
 		}
 	}
 
 	private void texturePathField(String newPath) {
-		if(!bitmap.getPath().equals(newPath)){
+		if (!bitmap.getPath().equals(newPath)) {
 			undoManager.pushAction(new SetBitmapPathAction(bitmap, newPath, changeListener).redo());
 		}
 	}
@@ -161,16 +161,17 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 		return colorModeGroup;
 	}
 
-	private void setColorMode(ImageUtils.ColorMode colorMode){
+	private void setColorMode(ImageUtils.ColorMode colorMode) {
 		this.colorMode = colorMode;
 		loadBitmapPreview(bitmap);
 	}
 
-	private BufferedImage getImage(Bitmap bitmap, DataSource workingDirectory){
+	private BufferedImage getImage(Bitmap bitmap, DataSource workingDirectory) {
 		BufferedImage texture = BLPHandler.getImage(bitmap, workingDirectory, colorMode);
-		if(texture == null){
+		if (texture == null) {
 			return ImageUtils.getXImage(256, 220, Color.RED);
 		}
+		sizeLabel.setText(texture.getWidth() + " px * " + texture.getHeight() + " px");
 		return texture;
 	}
 }

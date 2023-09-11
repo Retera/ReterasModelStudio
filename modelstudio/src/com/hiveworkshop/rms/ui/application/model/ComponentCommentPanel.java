@@ -14,8 +14,8 @@ import java.util.List;
 public class ComponentCommentPanel extends ComponentPanel<List<String>> {
 	private final JTextPane textPane;
 
-	public ComponentCommentPanel(ModelHandler modelHandler) {
-		super(modelHandler);
+	public ComponentCommentPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
+		super(modelHandler, componentsPanel);
 
 		textPane = new JTextPane();
 		setLayout(new BorderLayout());

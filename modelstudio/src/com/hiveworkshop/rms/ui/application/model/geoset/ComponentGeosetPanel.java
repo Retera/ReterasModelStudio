@@ -12,10 +12,12 @@ import com.hiveworkshop.rms.editor.actions.tools.ConvertToSkinBonesAction;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
+import com.hiveworkshop.rms.ui.application.model.ComponentsPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
 import com.hiveworkshop.rms.ui.gui.modeledit.MaterialListRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree.DisplayElementType;
 import com.hiveworkshop.rms.util.TwiComboBox;
 import com.hiveworkshop.rms.util.uiFactories.Button;
 import com.hiveworkshop.rms.util.uiFactories.Label;
@@ -42,8 +44,8 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 
 	private TwiComboBox<Material> materialChooser;
 
-	public ComponentGeosetPanel(ModelHandler modelHandler) {
-		super(modelHandler);
+	public ComponentGeosetPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
+		super(modelHandler, componentsPanel);
 		setLayout(new MigLayout("hidemode 1", "[][][grow]", "[]"));
 
 		add(geosetLabel, "");
@@ -81,9 +83,9 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 		materialChooser = getMaterialChooser();
 		materialPanelHolder.add(materialChooser, "wrap");
 
-		JButton cloneMaterial = new JButton("Clone This Material");
-		cloneMaterial.addActionListener(e -> cloneMaterial());
-		materialPanelHolder.add(cloneMaterial);
+		materialPanelHolder.add(Button.create("Clone This Material", e -> cloneMaterial()));
+		materialPanelHolder.add(Button.create("View Material", e -> componentsPanel.setSelectedPanel(geoset.getMaterial(), DisplayElementType.MATERIAL)));
+
 
 		return materialPanelHolder;
 	}
@@ -178,7 +180,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 
 
 	private void setLoD(int newLod) {
-		if (newLod != geoset.getLevelOfDetail()){
+		if (newLod != geoset.getLevelOfDetail()) {
 			undoManager.pushAction(new ChangeLoDAction(newLod, geoset, changeListener).redo());
 		}
 	}
@@ -229,10 +231,10 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 		undoManager.pushAction(action.redo());
 	}
 
-	private void uvLayersPopup(){
+	private void uvLayersPopup() {
 		UVLayerPanel uvLayerPanel = new UVLayerPanel(geoset, undoManager);
 		int ok_cancel = JOptionPane.showConfirmDialog(uvLayersLabel, uvLayerPanel, "UV Layers", JOptionPane.OK_CANCEL_OPTION);
-		if(ok_cancel == JOptionPane.OK_OPTION){
+		if (ok_cancel == JOptionPane.OK_OPTION) {
 			uvLayerPanel.applyEdit();
 		}
 	}

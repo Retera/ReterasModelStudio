@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
 import com.hiveworkshop.rms.editor.model.Light;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLight;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.application.model.ComponentsPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.TwiComboBox;
 import com.hiveworkshop.rms.util.TwiTextEditor.EditorHelpers;
@@ -19,8 +20,8 @@ public class ComponentLightPanel extends ComponentIdObjectPanel<Light> {
 	private final EditorHelpers.ColorEditor ambColorPanel;
 	private final TwiComboBox<MdlxLight.Type> typeTwiComboBox;
 
-	public ComponentLightPanel(ModelHandler modelHandler) {
-		super(modelHandler);
+	public ComponentLightPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
+		super(modelHandler, componentsPanel);
 		visibilityPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_VISIBILITY, null);
 		attenuationStartPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_ATTENUATION_START, this::setAttenuationStart);
 		attenuationEndPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_ATTENUATION_END, this::setAttenuationEnd);
@@ -53,44 +54,44 @@ public class ComponentLightPanel extends ComponentIdObjectPanel<Light> {
 		ambColorPanel.update(idObject, idObject.getStaticAmbColor());
 	}
 
-	private void setType(MdlxLight.Type type){
-		if(idObject.getType() != type){
+	private void setType(MdlxLight.Type type) {
+		if (idObject.getType() != type) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setType, type, idObject.getType(), "Type").redo());
 		}
 	}
 
-	private void setAttenuationStart(float value){
-		if(idObject.getAttenuationStart() != value) {
+	private void setAttenuationStart(float value) {
+		if (idObject.getAttenuationStart() != value) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setAttenuationStart, value, idObject.getAttenuationStart(), MdlUtils.TOKEN_ATTENUATION_START).redo());
 		}
 	}
 
-	private void setAttenuationEnd(float value){
-		if(idObject.getAttenuationEnd() != value) {
+	private void setAttenuationEnd(float value) {
+		if (idObject.getAttenuationEnd() != value) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setAttenuationEnd, value, idObject.getAttenuationEnd(), MdlUtils.TOKEN_ATTENUATION_END).redo());
 		}
 	}
 
-	private void setIntensity(float value){
-		if(idObject.getIntensity() != value) {
+	private void setIntensity(float value) {
+		if (idObject.getIntensity() != value) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setIntensity, (double) value, idObject.getIntensity(), MdlUtils.TOKEN_INTENSITY).redo());
 		}
 	}
 
-	private void setColor(Vec3 value){
-		if(!idObject.getStaticColor().equalLocs(value)) {
+	private void setColor(Vec3 value) {
+		if (!idObject.getStaticColor().equalLocs(value)) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setStaticColor, value, idObject.getStaticColor(), MdlUtils.TOKEN_STATIC_COLOR).redo());
 		}
 	}
 
-	private void setAmbIntensity(float value){
-		if(idObject.getAmbIntensity() != value) {
+	private void setAmbIntensity(float value) {
+		if (idObject.getAmbIntensity() != value) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setAmbIntensity, (double) value, idObject.getAmbIntensity(), MdlUtils.TOKEN_AMB_INTENSITY).redo());
 		}
 	}
 
-	private void setAmbColor(Vec3 value){
-		if(!idObject.getStaticAmbColor().equalLocs(value)) {
+	private void setAmbColor(Vec3 value) {
+		if (!idObject.getStaticAmbColor().equalLocs(value)) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setStaticAmbColor, value, idObject.getStaticAmbColor(), MdlUtils.TOKEN_STATIC_AMB_COLOR).redo());
 		}
 	}

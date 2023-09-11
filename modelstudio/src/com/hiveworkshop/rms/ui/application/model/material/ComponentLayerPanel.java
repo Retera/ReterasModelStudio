@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
+import com.hiveworkshop.rms.ui.application.model.ComponentsPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
@@ -46,8 +47,8 @@ public class ComponentLayerPanel extends ComponentPanel<Layer> {
 	private EditorHelpers.FloatEditor fresnelOpacityPanel;
 	private EditorHelpers.FloatEditor fresnelTeamColor;
 
-	public ComponentLayerPanel(ModelHandler modelHandler, String title) {
-		super(modelHandler);
+	public ComponentLayerPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel, String title) {
+		super(modelHandler, componentsPanel);
 		setLayout(new MigLayout("fill", "[][][grow]", "[][fill]"));
 		Border lineBorder = BorderFactory.createLineBorder(Color.LIGHT_GRAY);
 		setBorder(BorderFactory.createTitledBorder(lineBorder, title));
@@ -124,7 +125,7 @@ public class ComponentLayerPanel extends ComponentPanel<Layer> {
 				|| !isHDMaterial();
 	}
 
-	private boolean isHDMaterial(){
+	private boolean isHDMaterial() {
 		return material.getShaderString().equals(Material.SHADER_HD_DEFAULT_UNIT)
 				|| material.getShaderString().equals(Material.SHADER_HD_CRYSTAL);
 	}
@@ -153,17 +154,17 @@ public class ComponentLayerPanel extends ComponentPanel<Layer> {
 	}
 
 	protected void updateTexturePanels(Layer itemToSelect) {
-		for(int i = itemToSelect.getTextures().size()-1; i < texturePanels.size(); i++){
+		for (int i = itemToSelect.getTextures().size()-1; i < texturePanels.size(); i++) {
 			leftHandSettingsPanel.remove(texturePanels.get(i).getFlagPanel());
 		}
 
-		for(int i = 0; i < selectedItem.getTextures().size(); i++){
+		for (int i = 0; i < selectedItem.getTextures().size(); i++) {
 			EditorHelpers.TextureEditor texturePanel = getTexturePanel(i);
 			texturePanel.update(itemToSelect.getTextureSlot(i), itemToSelect.getTexture(i));
 			leftHandSettingsPanel.add(texturePanel.getFlagPanel(), "wrap, growx");
 		}
 	}
-	protected void updateFlagPanels(Layer itemToSelect){
+	protected void updateFlagPanels(Layer itemToSelect) {
 		alphaPanel.update(itemToSelect, (float) itemToSelect.getStaticAlpha());
 		fresnelTeamColor.update(itemToSelect, (float) itemToSelect.getFresnelTeamColor());
 		fresnelOpacityPanel.update(itemToSelect, (float) itemToSelect.getFresnelOpacity());
@@ -177,7 +178,7 @@ public class ComponentLayerPanel extends ComponentPanel<Layer> {
 		fresnelOpacityPanel.getFlagPanel().setVisible(is1000);
 		fresnelTeamColor.getFlagPanel().setVisible(is1000);
 	}
-	protected void setupFlagPanels(){
+	protected void setupFlagPanels() {
 		alphaPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_ALPHA, this::setStaticAlpha);
 		emissiveGainPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_EMISSIVE_GAIN, this::setEmissive);
 		fresnelColorPanel = new EditorHelpers.ColorEditor(modelHandler, MdlUtils.TOKEN_FRESNEL_COLOR, this::setFresnelColor);
@@ -185,7 +186,7 @@ public class ComponentLayerPanel extends ComponentPanel<Layer> {
 		fresnelTeamColor = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_FRESNEL_TEAM_COLOR, this::setFresnelTeamColor);
 	}
 
-	protected JPanel getInnerSettingsPanel(){
+	protected JPanel getInnerSettingsPanel() {
 		JPanel innerSettingsPanel = new JPanel(new MigLayout("ins 0"));
 		innerSettingsPanel.add(alphaPanel.getFlagPanel(), valuePanelConstraints);
 		innerSettingsPanel.add(emissiveGainPanel.getFlagPanel(), valuePanelConstraints);
@@ -216,7 +217,7 @@ public class ComponentLayerPanel extends ComponentPanel<Layer> {
 		return topSettingsPanel;
 	}
 
-	protected void updateTextureAnimBox(TextureAnim textureAnim){
+	protected void updateTextureAnimBox(TextureAnim textureAnim) {
 		textureAnims.clear();
 		textureAnims.add(0, null);
 		textureAnims.addAll(model.getTexAnims());
@@ -232,20 +233,20 @@ public class ComponentLayerPanel extends ComponentPanel<Layer> {
 		return "None";
 	}
 
-	protected void setTexture(Bitmap texture, int slot){
-		if(texture != null && selectedItem.getTexture(slot) != texture) {
+	protected void setTexture(Bitmap texture, int slot) {
+		if (texture != null && selectedItem.getTexture(slot) != texture) {
 			undoManager.pushAction(new SetLayerTextureAction(texture, slot, selectedItem, changeListener).redo());
 		}
 	}
 
-	protected void setStaticAlpha(double value){
-		if(selectedItem.getStaticAlpha() != value) {
+	protected void setStaticAlpha(double value) {
+		if (selectedItem.getStaticAlpha() != value) {
 			undoManager.pushAction(new SetLayerAlphaAction(selectedItem, value, changeListener).redo());
 		}
 	}
 
 	protected void setTextureAnim(TextureAnim textureAnim) {
-		if(textureAnim != selectedItem.getTextureAnim()){
+		if (textureAnim != selectedItem.getTextureAnim()) {
 			undoManager.pushAction(new SetLayerTextureAnimAction(selectedItem, textureAnim, changeListener).redo());
 		}
 	}
@@ -262,35 +263,35 @@ public class ComponentLayerPanel extends ComponentPanel<Layer> {
 		}
 	}
 
-	protected void setFresnelTeamColor(double value){
-		if(selectedItem.getFresnelTeamColor() != value) {
+	protected void setFresnelTeamColor(double value) {
+		if (selectedItem.getFresnelTeamColor() != value) {
 			undoManager.pushAction(new ConsumerAction<>(selectedItem::setFresnelTeamColor, value, selectedItem.getFresnelTeamColor(), "FresnelTeamColor").redo());
 		}
 	}
 
-	protected void setFresnelOpacity(double value){
-		if(selectedItem.getFresnelOpacity() != value) {
+	protected void setFresnelOpacity(double value) {
+		if (selectedItem.getFresnelOpacity() != value) {
 			undoManager.pushAction(new ConsumerAction<>(selectedItem::setFresnelOpacity, value, selectedItem.getFresnelOpacity(), "FresnelOpacity").redo());
 		}
 	}
 
-	protected void setFresnelColor(Vec3 color){
-		if(!selectedItem.getFresnelColor().equalLocs(color)) {
+	protected void setFresnelColor(Vec3 color) {
+		if (!selectedItem.getFresnelColor().equalLocs(color)) {
 			undoManager.pushAction(new ConsumerAction<>(selectedItem::setFresnelColor, color, new Vec3(selectedItem.getFresnelColor()), "FresnelColor").redo());
 		}
 	}
 
-	protected void setEmissive(double value){
-		if(selectedItem.getEmissive() != value) {
+	protected void setEmissive(double value) {
+		if (selectedItem.getEmissive() != value) {
 			undoManager.pushAction(new ConsumerAction<>(selectedItem::setEmissive, value, selectedItem.getEmissive(), "Emissive").redo());
 		}
 	}
 
-	protected EditorHelpers.TextureEditor getTexturePanel(int slot){
-		if(texturePanels.size()<=slot){
-			for(int i = texturePanels.size(); i <= slot; i++) {
+	protected EditorHelpers.TextureEditor getTexturePanel(int slot) {
+		if (texturePanels.size()<=slot) {
+			for (int i = texturePanels.size(); i <= slot; i++) {
 				int finalI = i;
-				if(selectedItem.getTextures().size() == 6){
+				if (selectedItem.getTextures().size() == 6) {
 					texturePanels.add(new EditorHelpers.TextureEditor(HD_Material_Layer.values()[i].getLayerName(), modelHandler, MdlUtils.TOKEN_TEXTURE_ID, b -> setTexture(b, finalI)));
 				} else {
 					texturePanels.add(new EditorHelpers.TextureEditor(modelHandler, MdlUtils.TOKEN_TEXTURE_ID, b -> setTexture(b, finalI)));

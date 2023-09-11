@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.model.RibbonEmitter;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.application.model.ComponentsPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.ValueParserUtil;
 import com.hiveworkshop.rms.ui.gui.modeledit.MaterialListRenderer;
@@ -31,8 +32,8 @@ public class ComponentRibbonPanel extends ComponentIdObjectPanel<RibbonEmitter> 
 	private final TwiComboBox<Material> materialChooser;
 
 
-	public ComponentRibbonPanel(ModelHandler modelHandler) {
-		super(modelHandler);
+	public ComponentRibbonPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
+		super(modelHandler, componentsPanel);
 
 		topPanel.add(new JLabel("Material:"), "");
 		materialChooser = getMaterialChooser();
@@ -94,65 +95,65 @@ public class ComponentRibbonPanel extends ComponentIdObjectPanel<RibbonEmitter> 
 		visibilityPanel.update(idObject, idObject.getVisibilityFlag());
 
 	}
-	private void setHeightAbove(float value){
-		if(value != idObject.getHeightAbove()){
+	private void setHeightAbove(float value) {
+		if (value != idObject.getHeightAbove()) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setHeightAbove, (double) value, idObject.getHeightAbove(), "HeightAbove").redo());
 		}
 	}
 
-	private void setHeightBelow(float value){
-		if(value != idObject.getHeightBelow()){
+	private void setHeightBelow(float value) {
+		if (value != idObject.getHeightBelow()) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setHeightBelow, (double) value, idObject.getHeightBelow(), "HeightBelow").redo());
 		}
 	}
 
-	private void setAlpha(float value){
-		if(idObject.getAlpha() != value){
+	private void setAlpha(float value) {
+		if (idObject.getAlpha() != value) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setAlpha, (double) value, idObject.getAlpha(), "Alpha").redo());
 		}
 	}
-	private void setRows(int value){
-		if(idObject.getRows() != value){
+	private void setRows(int value) {
+		if (idObject.getRows() != value) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setRows, value, idObject.getRows(), "Rows").redo());
 		}
 	}
-	private void setColumns(int value){
-		if(idObject.getColumns() != value){
+	private void setColumns(int value) {
+		if (idObject.getColumns() != value) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setColumns, value, idObject.getColumns(), "Columns").redo());
 		}
 	}
-	private void setLifeSpan(float value){
-		if(idObject.getLifeSpan() != value){
+	private void setLifeSpan(float value) {
+		if (idObject.getLifeSpan() != value) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setLifeSpan, (double) value, idObject.getLifeSpan(), "LifeSpan").redo());
 		}
 	}
 
-	private void setTextureSlot(int value){
-		if(value != idObject.getTextureSlot()){
+	private void setTextureSlot(int value) {
+		if (value != idObject.getTextureSlot()) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setTextureSlot, value, idObject.getTextureSlot(), "TextureSlot").redo());
 		}
 	}
 
-	private void setMaterial(Material value){
-		if(value != idObject.getMaterial()){
+	private void setMaterial(Material value) {
+		if (value != idObject.getMaterial()) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setMaterial, value, idObject.getMaterial(), "Material").redo());
 		}
 	}
 
-	private void setStaticColor(Vec3 value){
-		if(value != idObject.getStaticColor()){
+	private void setStaticColor(Vec3 value) {
+		if (value != idObject.getStaticColor()) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setStaticColor, value, idObject.getStaticColor(), "StaticColor").redo());
 		}
 	}
 
-	private void setGravity(float value){
-		if(value != idObject.getGravity()){
+	private void setGravity(float value) {
+		if (value != idObject.getGravity()) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setGravity, (double) value, idObject.getGravity(), "Gravity").redo());
 		}
 	}
 
-	private void setEmissionRate(int value){
-		if(value != idObject.getEmissionRate()){
+	private void setEmissionRate(int value) {
+		if (value != idObject.getEmissionRate()) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setEmissionRate, value, idObject.getEmissionRate(), "EmissionRate").redo());
 		}
 	}

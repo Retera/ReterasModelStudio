@@ -11,13 +11,15 @@ import java.awt.event.ActionListener;
 
 public abstract class ComponentPanel<T> extends JPanel {
 	protected final ModelHandler modelHandler;
+	protected final ComponentsPanel componentsPanel;
 	protected final EditableModel model;
 	protected final UndoManager undoManager;
 	protected final ModelStructureChangeListener changeListener;
 	protected T selectedItem;
 
-	public ComponentPanel(ModelHandler modelHandler) {
+	public ComponentPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
 		this.modelHandler = modelHandler;
+		this.componentsPanel = componentsPanel;
 		this.model = modelHandler.getModel();
 		this.undoManager = modelHandler.getUndoManager();
 		this.changeListener = ModelStructureChangeListener.changeListener;

@@ -15,8 +15,8 @@ public class ComponentGlobalSequencePanel extends ComponentPanel<GlobalSeq> {
 	private final IntEditorJSpinner lengthSpinner;
 	private GlobalSeq globalSeq;
 
-	public ComponentGlobalSequencePanel(ModelHandler modelHandler) {
-		super(modelHandler);
+	public ComponentGlobalSequencePanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
+		super(modelHandler, componentsPanel);
 
 		setLayout(new MigLayout());
 		lengthSpinner = new IntEditorJSpinner(0, 0, this::setLength);
@@ -32,7 +32,7 @@ public class ComponentGlobalSequencePanel extends ComponentPanel<GlobalSeq> {
 	}
 
 	private void setLength(int newLength) {
-		if(newLength != globalSeq.getLength()){
+		if (newLength != globalSeq.getLength()) {
 			UndoAction action = new SetSequenceLengthAction(globalSeq, newLength, changeListener);
 			undoManager.pushAction(action.redo());
 		}

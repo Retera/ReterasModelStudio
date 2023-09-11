@@ -5,13 +5,16 @@ import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.application.model.ComponentsPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.tools.ParticleEditPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
+import com.hiveworkshop.rms.util.CollapsablePanel;
 import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.TwiComboBox;
 import com.hiveworkshop.rms.util.TwiTextEditor.EditorHelpers;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
@@ -30,8 +33,8 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 
 	private final TwiComboBox<Bitmap> textureChooser;
 
-	public ComponentParticle2Panel(ModelHandler modelHandler) {
-		super(modelHandler);
+	public ComponentParticle2Panel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
+		super(modelHandler, componentsPanel);
 
 		textureChooser = new TwiComboBox<>(modelHandler.getModel().getTextures(), new Bitmap("", 1));
 		textureChooser.setRenderer(new TextureListRenderer(model).setImageSize(64));
@@ -40,7 +43,8 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 
 		JButton editParticle = new JButton("editParticle");
 		editParticle.addActionListener(e -> viewParticlePanel());
-		topPanel.add(editParticle, "spanx, growx, wrap");
+//		topPanel.add(editParticle, "spanx, growx, wrap");
+		topPanel.add(editParticle, "spanx, wrap");
 		replIdSpinner = new IntEditorJSpinner(0, 0, this::setReplId);
 		topPanel.add(new JLabel(MdlUtils.TOKEN_REPLACEABLE_ID + ": "), "spanx 2, split 2");
 		topPanel.add(replIdSpinner, "wrap");
@@ -54,15 +58,19 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 		emissionPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_EMISSION_RATE, this::setEmissionRate);
 		lifeSpanPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_LIFE_SPAN, this::setLifeSpan);
 		visibilityPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_VISIBILITY, null);
-		topPanel.add(emissionPanel.getFlagPanel(), "spanx, growx, wrap");
-		topPanel.add(speedPanel.getFlagPanel(), "spanx, growx, wrap");
-		topPanel.add(gravityPanel.getFlagPanel(), "spanx, growx, wrap");
-		topPanel.add(variationPanel.getFlagPanel(), "spanx, growx, wrap");
-		topPanel.add(widthPanel.getFlagPanel(), "spanx, growx, wrap");
-		topPanel.add(lengthPanel.getFlagPanel(), "spanx, growx, wrap");
-		topPanel.add(lifeSpanPanel.getFlagPanel(), "spanx, growx, wrap");
-		topPanel.add(latitudePanel.getFlagPanel(), "spanx, growx, wrap");
-		add(visibilityPanel.getFlagPanel(), "spanx, growx, wrap");
+
+		CollapsablePanel particleSettings = new CollapsablePanel("Particle settings", new JPanel(new MigLayout("gap 0, ins 0, hidemode 3")));
+		JPanel contentPanel = particleSettings.getCollapsableContentPanel();
+		contentPanel.add(emissionPanel.getFlagPanel(), "spanx, growx, wrap");
+		contentPanel.add(speedPanel.getFlagPanel(), "spanx, growx, wrap");
+		contentPanel.add(gravityPanel.getFlagPanel(), "spanx, growx, wrap");
+		contentPanel.add(variationPanel.getFlagPanel(), "spanx, growx, wrap");
+		contentPanel.add(widthPanel.getFlagPanel(), "spanx, growx, wrap");
+		contentPanel.add(lengthPanel.getFlagPanel(), "spanx, growx, wrap");
+		contentPanel.add(lifeSpanPanel.getFlagPanel(), "spanx, growx, wrap");
+		contentPanel.add(latitudePanel.getFlagPanel(), "spanx, growx, wrap");
+		contentPanel.add(visibilityPanel.getFlagPanel(), "spanx, growx, wrap");
+		topPanel.add(particleSettings, "spanx, growx, wrap");
 	}
 
 	@Override
@@ -92,55 +100,55 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 		}
 	}
 
-	private void setWidth(float value){
-		if(value != idObject.getWidth()){
+	private void setWidth(float value) {
+		if (value != idObject.getWidth()) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setWidth, (double) value, idObject.getWidth(), "Width").redo());
 		}
 	}
 
-	private void setReplId(int value){
-		if(value != idObject.getReplaceableId()){
+	private void setReplId(int value) {
+		if (value != idObject.getReplaceableId()) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setReplaceableId, value, idObject.getReplaceableId(), "ReplacebleId").redo());
 		}
 	}
 
-	private void setLength(float value){
-		if(value != idObject.getLength()){
+	private void setLength(float value) {
+		if (value != idObject.getLength()) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setLength, (double) value, idObject.getLength(), "Length").redo());
 		}
 	}
 
-	private void setLatitude(float value){
-		if(value != idObject.getLatitude()){
+	private void setLatitude(float value) {
+		if (value != idObject.getLatitude()) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setLatitude, (double) value, idObject.getLatitude(), "Latitude").redo());
 		}
 	}
 
-	private void setVariation(float value){
-		if(value != idObject.getVariation()){
+	private void setVariation(float value) {
+		if (value != idObject.getVariation()) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setVariation, (double) value, idObject.getVariation(), "Variation").redo());
 		}
 	}
 
-	private void setSpeed(float value){
-		if(value != idObject.getSpeed()){
+	private void setSpeed(float value) {
+		if (value != idObject.getSpeed()) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setSpeed, (double) value, idObject.getSpeed(), "Speed").redo());
 		}
 	}
 
-	private void setGravity(float value){
-		if(value != idObject.getGravity()){
+	private void setGravity(float value) {
+		if (value != idObject.getGravity()) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setGravity, (double) value, idObject.getGravity(), "Gravity").redo());
 		}
 	}
 
-	private void setEmissionRate(float value){
-		if(value != idObject.getEmissionRate()){
+	private void setEmissionRate(float value) {
+		if (value != idObject.getEmissionRate()) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setEmissionRate, (double) value, idObject.getEmissionRate(), "EmissionRate").redo());
 		}
 	}
-	private void setLifeSpan(float value){
-		if(value != idObject.getLifeSpan()){
+	private void setLifeSpan(float value) {
+		if (value != idObject.getLifeSpan()) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setLifeSpan, (double) value, idObject.getLifeSpan(), "LifeSpan").redo());
 		}
 	}

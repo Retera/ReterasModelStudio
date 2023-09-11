@@ -20,8 +20,8 @@ public class ComponentFaceEffectPanel extends ComponentPanel<FaceEffect> {
 	private final JButton exportInGameButton;
 
 
-	public ComponentFaceEffectPanel(ModelHandler modelHandler) {
-		super(modelHandler);
+	public ComponentFaceEffectPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
+		super(modelHandler, componentsPanel);
 		setLayout(new MigLayout("fill", "[][50%:50%:50%, grow][grow]", "[][][][][grow]"));
 		targetField = new JTextField();
 		targetField.addFocusListener(setEffectTarget());
@@ -77,9 +77,9 @@ public class ComponentFaceEffectPanel extends ComponentPanel<FaceEffect> {
 		};
 	}
 
-	private void export(Supplier<String> pathSupplier){
+	private void export(Supplier<String> pathSupplier) {
 		String faceEffect = pathSupplier.get();
-		if(!faceEffect.isEmpty()){
+		if (!faceEffect.isEmpty()) {
 			ExportInternal.exportInternalFile(faceEffect, "FaceEffect", this);
 		}
 	}

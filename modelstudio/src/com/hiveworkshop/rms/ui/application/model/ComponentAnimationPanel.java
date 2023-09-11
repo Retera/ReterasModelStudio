@@ -21,8 +21,8 @@ public class ComponentAnimationPanel extends ComponentPanel<Animation> {
 	private final ExtLogEditor extLogEditor;
 	private Animation animation;
 
-	public ComponentAnimationPanel(ModelHandler modelHandler) {
-		super(modelHandler);
+	public ComponentAnimationPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
+		super(modelHandler, componentsPanel);
 		setLayout(new MigLayout());
 
 		add(new JLabel("Name: "), "");
@@ -60,37 +60,37 @@ public class ComponentAnimationPanel extends ComponentPanel<Animation> {
 	}
 
 	private void nonLoopingChooser(boolean b) {
-		if(animation.isNonLooping() != b){
+		if (animation.isNonLooping() != b) {
 			undoManager.pushAction(new SetAnimationNonLoopingAction(b, animation, changeListener).redo());
 		}
 	}
 
 	private void moveSpeedChooser(float value) {
-		if(animation.getMoveSpeed() != value){
+		if (animation.getMoveSpeed() != value) {
 			undoManager.pushAction(new SetAnimationMoveSpeedAction(value, animation, changeListener).redo());
 		}
 	}
 
 	private void rarityChooser(float value) {
-		if(animation.getRarity() != value){
+		if (animation.getRarity() != value) {
 			undoManager.pushAction(new SetAnimationRarityAction(value, animation, changeListener).redo());
 		}
 	}
 
 	private void setAnimLength(int value) {
-		if(animation.getLength() != value){
+		if (animation.getLength() != value) {
 			undoManager.pushAction(new SetSequenceLengthAction(animation, value, changeListener).redo());
 		}
 	}
 
 	private void nameField(String text) {
-		if(!animation.getName().equals(text)){
+		if (!animation.getName().equals(text)) {
 			undoManager.pushAction(new SetAnimationNameAction(text, animation, changeListener).redo());
 		}
 	}
 
 	private void setAnimTimeStart(int value) {
-		if(animation.getStart() != value){
+		if (animation.getStart() != value) {
 			undoManager.pushAction(new SetAnimationStartAction(animation, value, changeListener).redo());
 		}
 	}

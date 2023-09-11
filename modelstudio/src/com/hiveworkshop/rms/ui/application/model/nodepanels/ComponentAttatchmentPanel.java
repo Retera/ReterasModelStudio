@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.model.nodepanels;
 import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
 import com.hiveworkshop.rms.editor.model.Attachment;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.application.model.ComponentsPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.TwiTextEditor.EditorHelpers;
@@ -14,8 +15,8 @@ public class ComponentAttatchmentPanel extends ComponentIdObjectPanel<Attachment
 	private final EditorHelpers.FloatEditor visibilityPanel;
 	private final TwiTextField pathField;
 
-	public ComponentAttatchmentPanel(ModelHandler modelHandler) {
-		super(modelHandler);
+	public ComponentAttatchmentPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
+		super(modelHandler, componentsPanel);
 		pathField = new TwiTextField(24, this::texturePathField);
 		topPanel.add(new JLabel("Path"), "split 2");
 		topPanel.add(pathField, "wrap");
