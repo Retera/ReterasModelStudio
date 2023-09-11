@@ -29,6 +29,8 @@ public class TimelineTextEditor<T> {
 	private final Function<String, T> parseFunction;
 	private final DocumentUndoManager undoManager;
 	private final ModelStructureChangeListener changeListener;
+	private String valueRegex = "[eE\\d-.]+";
+	private String weedingRegex = "[^-\\d,.eE]";
 
 	public TimelineTextEditor(AnimFlag<T> animFlag, Sequence sequence, Function<String, T> parseFunction, TimelineContainer node, ModelHandler modelHandler){
 		this.animFlag = animFlag;
@@ -70,7 +72,8 @@ public class TimelineTextEditor<T> {
 	}
 
 	private void apply() {
-		TreeMap<Integer, Entry<T>> newEntryMap = stringToEntryMap(editorPane.getText(), animFlag.tans(), parseFunction, getVectorSize());
+//		TreeMap<Integer, Entry<T>> newEntryMap = stringToEntryMap(editorPane.getText(), animFlag.tans(), parseFunction, getVectorSize());
+		TreeMap<Integer, Entry<T>> newEntryMap = stringToEntryMap(editorPane.getText(), animFlag.tans(), parseFunction, valueRegex, weedingRegex);
 		SetFlagEntryMapAction<T> action = new SetFlagEntryMapAction<>(animFlag, sequence, newEntryMap, changeListener);
 		if(modelHandler != null){
 			modelHandler.getUndoManager().pushAction(action.redo());
@@ -83,6 +86,12 @@ public class TimelineTextEditor<T> {
 	private void reset() {
 		TreeMap<Integer, Entry<T>> entryMap = animFlag.getEntryMap(sequence);
 		editorPane.setText(entryMapToString(entryMap, animFlag.tans()));
+	}
+
+	public TimelineTextEditor<T> setRegexStuff(String valueRegex, String weedingRegex){
+		this.valueRegex = valueRegex;
+		this.weedingRegex = weedingRegex;
+		return this;
 	}
 
 	public void show(){
@@ -105,6 +114,18 @@ public class TimelineTextEditor<T> {
 		ugg.getRootPane().setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, inputMap);
 	}
 
+	public void setFrameKeybinds(JFrame frame){
+		ActionMap actionMap = new ActionMap();
+		actionMap.put(undoManager.getRedoAction().toString(), undoManager.getRedoAction());
+		actionMap.put(undoManager.getUndoAction().toString(), undoManager.getUndoAction());
+		frame.getRootPane().setActionMap(actionMap);
+
+		InputMap inputMap = new InputMap();
+		inputMap.put((KeyStroke) undoManager.getRedoAction().getValue(Action.ACCELERATOR_KEY), undoManager.getRedoAction().toString());
+		inputMap.put((KeyStroke) undoManager.getUndoAction().getValue(Action.ACCELERATOR_KEY), undoManager.getUndoAction().toString());
+		frame.getRootPane().setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, inputMap);
+	}
+
 	private static <Q> String entryMapToString(TreeMap<Integer, Entry<Q>> entryMap, boolean tans){
 		StringBuilder stringBuilder = new StringBuilder();
 		if(entryMap != null && !entryMap.isEmpty()){
@@ -123,7 +144,8 @@ public class TimelineTextEditor<T> {
 
 	public static <Q> TreeMap<Integer, Entry<Q>> stringToEntryMap(String text, boolean tans, Function<String, Q> parseFunction, int vectorSize){
 		TreeMap<Integer, Entry<Q>> entryMap = new TreeMap<>();
-		String[] entries = text.strip().split("\\s*\n+\\s*(?=\\d)");
+//		String[] entries = text.strip().split("\\s*\n+\\s*(?=\\d)");
+		String[] entries = text.strip().split("\\s*(?=\\d)");
 
 		String timeAndValue = "[\\s\\S]*\\d+:.*\\d[\\s\\S]*"; // quick check has time and at least one digit as value
 
@@ -175,6 +197,184 @@ public class TimelineTextEditor<T> {
 
 		return entryMap;
 	}
+	public static <Q> TreeMap<Integer, Entry<Q>> stringToEntryMap(String text, boolean tans, Function<String, Q> parseFunction,
+	                                                              int vectorSize,
+	                                                              String valueRegex, String quickValueRegex, String weedingRegex){
+		TreeMap<Integer, Entry<Q>> entryMap = new TreeMap<>();
+//		String[] entries = text.strip().split("\\s*\n+\\s*(?=\\d)");
+		String[] entries = text.strip().split("\\s+(?=\\d)");
+
+		String timeAndValue = "[\\s\\S]*\\d+:.*" + quickValueRegex + "[\\s\\S]*"; // quick check has time and at least one digit as value
+
+		String regex = "\\s*\\d+:" +
+				"(\\w*\\s*" +
+					"[\\{\\[\\(]?" +
+						"(\\s*[eE\\d-.,\\s]+,?\\s*)+" +
+					"[\\}\\]\\)]?" +
+				"\\s*,?\\s*\\n?)+";
+
+		String timeChunk = "\\s*\\d+:";
+		String maybeStartBracket = "[\\{\\[\\(]?";
+		String maybeEndBracket = "[\\}\\]\\)]?";
+		String validValue = "[eE\\d-.]+";
+//		String weedingRegex = "[^-\\d,.eE]";
+		String valueChunk = "\\s*\\w*\\s*" + maybeStartBracket + "(\\s*" + valueRegex + "\\s*,?)+" + maybeEndBracket + "\\s*,?\\n?";
+
+		String regex2 = timeChunk + "(" + valueChunk + ")+";
+//		System.out.println("~~~~~  regex2  ~~~~~");
+//		System.out.println(regex2);
+//		System.out.println("~~~~~  ~~~~~~  ~~~~~");
+		Pattern pattern2 = Pattern.compile(regex2);
+		Pattern pattern = Pattern.compile(regex);
+		System.out.println("\nturning " + entries.length + " string entries into entry map");
+		for(String sEntry : entries){
+			if(sEntry.matches(timeAndValue) && pattern2.matcher(sEntry).matches()){
+				String[] eLines = sEntry.split("\n");
+				if(tans && eLines.length<3){
+					eLines = sEntry.split("(,\\s*\\{)|([Tt][Aa][Nn])");
+				}
+				String[] time_value = eLines[0].strip().split(":");
+				if (1 < time_value.length){
+					int time = Integer.parseInt("0" + time_value[0].replaceAll("\\D", ""));
+					Q value = parseFunction.apply(time_value[1].replaceAll(weedingRegex, ""));
+					Entry<Q> entry = new Entry<>(time, value);
+					if(tans){
+//						System.out.println("tans");
+						entry.unLinearize();
+						if(eLines.length>2){
+							entry.setInTan(parseFunction.apply(eLines[1].replaceAll(weedingRegex, "")));
+							entry.setOutTan(parseFunction.apply(eLines[2].replaceAll(weedingRegex, "")));
+						}
+					}
+					entryMap.put(entry.time, entry);
+				}
+			}
+		}
+
+		System.out.println("made EntryMap with: " + entryMap.size() + " entries");
+
+		return entryMap;
+	}
+
+	public static <Q> TreeMap<Integer, Entry<Q>> stringToEntryMap(String text, boolean tans, Function<String, Q> parseFunction,
+	                                                              String valueRegex, String weedingRegex){
+		TreeMap<Integer, Entry<Q>> entryMap = new TreeMap<>();
+//		String[] entries = text.strip().split("\\s*\n+\\s*(?=\\d)");
+		String[] entries = text.strip().split("\\s+(?=\\d+\\s*:)");
+
+//		String timeAndValue = "[\\s\\S]*\\d+:.*" + quickValueRegex + "[\\s\\S]*"; // quick check has time and at least one digit as value
+//
+//		String regex = "\\s*\\d+:" +
+//				"(\\w*\\s*" +
+//					"[\\{\\[\\(]?" +
+//						"(\\s*[eE\\d-.,\\s]+,?\\s*)+" +
+//					"[\\}\\]\\)]?" +
+//				"\\s*,?\\s*\\n?)+";
+
+		String timeChunk = "\\s*\\d+:";
+		String maybeStartBracket = "[\\{\\[\\(]?";
+		String maybeEndBracket = "[\\}\\]\\)]?";
+//		String validValue = "[eE\\d-.]+";
+//		String weedingRegex = "[^-\\d,.eE]";
+		String valueChunk = "\\s*\\w*\\s*" + maybeStartBracket + "(\\s*" + valueRegex + "\\s*,?)+" + maybeEndBracket + "\\s*,?\\n?";
+
+		String regex2 = timeChunk + "(" + valueChunk + ")+";
+		System.out.println("~~~~~  regex2  ~~~~~");
+		System.out.println(regex2);
+		System.out.println("~~~~~  ~~~~~~  ~~~~~");
+		Pattern pattern2 = Pattern.compile(regex2);
+		System.out.println("\nturning " + entries.length + " string entries into entry map");
+		for(String sEntry : entries){
+			System.out.println(sEntry);
+			if(pattern2.matcher(sEntry).matches()){
+				String[] eLines = sEntry.split("\n");
+				if(tans && eLines.length<3){
+					eLines = sEntry.split("(,\\s*\\{)|([Tt][Aa][Nn])");
+				}
+				String[] time_value = eLines[0].strip().split(":");
+				System.out.println("time: " + time_value[0]);
+				if (1 < time_value.length){
+					System.out.println("value: " + time_value[1]);
+					int time = Integer.parseInt("0" + time_value[0].replaceAll("\\D", ""));
+					Q value = parseFunction.apply(time_value[1].replaceAll(weedingRegex, ""));
+					Entry<Q> entry = new Entry<>(time, value);
+					if(tans){
+//						System.out.println("tans");
+						entry.unLinearize();
+						if(eLines.length>2){
+							entry.setInTan(parseFunction.apply(eLines[1].replaceAll(weedingRegex, "")));
+							entry.setOutTan(parseFunction.apply(eLines[2].replaceAll(weedingRegex, "")));
+						}
+					}
+					entryMap.put(entry.time, entry);
+				}
+			}
+		}
+
+		System.out.println("made EntryMap with: " + entryMap.size() + " entries");
+
+		return entryMap;
+	}
+
+
+//	public static <Q> TreeMap<Integer, Entry<Q>> stringToEntryMap(String text, boolean tans, Function<String, Q> parseFunction,
+//	                                                              int vectorSize,
+//	                                                              String valueRegex, String quickValueRegex, String weedingRegex){
+//		TreeMap<Integer, Entry<Q>> entryMap = new TreeMap<>();
+////		String[] entries = text.strip().split("\\s*\n+\\s*(?=\\d)");
+//		String[] entries = text.strip().split("\\s+(?=\\d)");
+//
+//		String timeAndValue = "[\\s\\S]*\\d+:.*" + quickValueRegex + "[\\s\\S]*"; // quick check has time and at least one digit as value
+//
+//		String regex = "\\s*\\d+:" +
+//				"(\\w*\\s*" +
+//					"[\\{\\[\\(]?" +
+//						"(\\s*[eE\\d-.,\\s]+,?\\s*)+" +
+//					"[\\}\\]\\)]?" +
+//				"\\s*,?\\s*\\n?)+";
+//
+//		String timeChunk = "\\s*\\d+:";
+//		String maybeStartBracket = "[\\{\\[\\(]?";
+//		String maybeEndBracket = "[\\}\\]\\)]?";
+//		String validValue = "[eE\\d-.]+";
+////		String weedingRegex = "[^-\\d,.eE]";
+//		String valueChunk = "\\s*\\w*\\s*" + maybeStartBracket + "(\\s*" + valueRegex + "\\s*,?)+" + maybeEndBracket + "\\s*,?\\n?";
+//
+//		String regex2 = timeChunk + "(" + valueChunk + ")+";
+////		System.out.println("~~~~~  regex2  ~~~~~");
+////		System.out.println(regex2);
+////		System.out.println("~~~~~  ~~~~~~  ~~~~~");
+//		Pattern pattern2 = Pattern.compile(regex2);
+//		Pattern pattern = Pattern.compile(regex);
+//		System.out.println("\nturning " + entries.length + " string entries into entry map");
+//		for(String sEntry : entries){
+//			if(sEntry.matches(timeAndValue) && pattern2.matcher(sEntry).matches()){
+//				String[] eLines = sEntry.split("\n");
+//				if(tans && eLines.length<3){
+//					eLines = sEntry.split("(,\\s*\\{)|([Tt][Aa][Nn])");
+//				}
+//				String[] time_value = eLines[0].strip().split(":");
+//				if (1 < time_value.length){
+//					int time = Integer.parseInt("0" + time_value[0].replaceAll("\\D", ""));
+//					Q value = parseFunction.apply(ValueParserUtil.getString(vectorSize, time_value[1].replaceAll(weedingRegex, "")));
+//					Entry<Q> entry = new Entry<>(time, value);
+//					if(tans){
+////						System.out.println("tans");
+//						entry.unLinearize();
+//						if(eLines.length>2){
+//							entry.setInTan(parseFunction.apply(eLines[1].replaceAll(weedingRegex, "")));
+//							entry.setOutTan(parseFunction.apply(eLines[2].replaceAll(weedingRegex, "")));
+//						}
+//					}
+//					entryMap.put(entry.time, entry);
+//				}
+//			}
+//		}
+//
+//		System.out.println("made EntryMap with: " + entryMap.size() + " entries");
+//
+//		return entryMap;
+//	}
 
 	private int getVectorSize(){
 		if(animFlag instanceof QuatAnimFlag){

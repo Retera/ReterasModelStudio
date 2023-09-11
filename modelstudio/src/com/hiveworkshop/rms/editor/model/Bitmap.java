@@ -183,6 +183,11 @@ public class Bitmap implements Named {
 		return imagePath;
 	}
 
+	@Override
+	public String toString() {
+		return getRenderableTexturePath();
+	}
+
 	public enum WrapFlag {
 		WIDTH(MdlUtils.TOKEN_WRAP_WIDTH, 0x1),
 		HEIGHT(MdlUtils.TOKEN_WRAP_HEIGHT, 0x2);

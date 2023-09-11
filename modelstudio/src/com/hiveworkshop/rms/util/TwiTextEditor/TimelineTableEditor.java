@@ -39,6 +39,8 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 	private TwiTableModel<T> dataModel;
 	private final Function<String, T> parseFunction;
 	private final T defaultValue;
+	private String valueRegex = "[eE\\d-.]+";
+	private String weedingRegex = "[^-\\d,.eE]";
 	private final Map<Integer, Integer> columnSizes = new HashMap<>();
 //	private final ModelStructureChangeListener changeListener = null;
 	private final ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
@@ -50,6 +52,33 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 		this.modelHandler = modelHandler;
 		this.parseFunction = parseFunction;
 		this.defaultValue = defaultValue;
+
+		keyframeTable = new TwiTable();
+		keyframeTable.setDefaultEditor(defaultValue.getClass(), new TwiTableCellEditor<>(parseFunction, defaultValue));
+		TwiTableDefaultRenderer renderer = new TwiTableDefaultRenderer(sequence);
+		keyframeTable.setDefaultRenderer(Integer.class, renderer);
+		keyframeTable.setDefaultRenderer(String.class, renderer);
+
+
+//		editorPane.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+
+		keyframeTable.addMouseListener(getMouseAdapter());
+		keyframeTable.addKeyListener(getKeyAdapter());
+
+		columnSizes.put(-1, keyframeTable.getRowHeight());
+		columnSizes.put(0, keyframeTable.getRowHeight()*4);
+
+		fillEditorPanel();
+	}
+
+	public TimelineTableEditor(Sequence sequence, Function<String, T> parseFunction, T defaultValue, String valueRegex, String weedingRegex, ModelHandler modelHandler){
+		super(sequence + " (" + sequence.getLength() + ") ", new JPanel(new MigLayout("fill, gap 0, ins 0", "[grow]", "[grow][]")));
+		this.sequence = sequence;
+		this.modelHandler = modelHandler;
+		this.parseFunction = parseFunction;
+		this.defaultValue = defaultValue;
+		this.valueRegex = valueRegex;
+		this.weedingRegex = weedingRegex;
 
 		keyframeTable = new TwiTable();
 		keyframeTable.setDefaultEditor(defaultValue.getClass(), new TwiTableCellEditor<>(parseFunction, defaultValue));
@@ -201,9 +230,16 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 		}
 	}
 
+	public TimelineTableEditor<T> setRegexStuff(String valueRegex, String weedingRegex){
+		this.valueRegex = valueRegex;
+		this.weedingRegex = weedingRegex;
+		return this;
+	}
 	private void editAsText(){
-		TimelineTextEditor<T> editor = new TimelineTextEditor<>(animFlag, sequence, parseFunction, node, modelHandler);
-		editor.show();
+		AltTimelineTextEditor<T> editor = new AltTimelineTextEditor<>(sequence, animFlag, parseFunction, node, modelHandler);
+		editor.setRegexStuff(valueRegex, weedingRegex).showWindow();
+//		TimelineTextEditor<T> editor = new TimelineTextEditor<>(animFlag, sequence, parseFunction, node, modelHandler);
+//		editor.setRegexStuff(valueRegex, weedingRegex).show();
 	}
 
 	private void clearAnimation(){

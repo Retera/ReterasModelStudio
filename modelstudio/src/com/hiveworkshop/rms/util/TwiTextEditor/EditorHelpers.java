@@ -18,6 +18,7 @@ import com.hiveworkshop.rms.util.TwiTextEditor.table.TwiTableColorRenderer;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class EditorHelpers {
@@ -265,6 +266,9 @@ public class EditorHelpers {
 		Consumer<Bitmap> staticConsumer;
 		String flagToken;
 
+		private String valueRegex = "[\\S][^\\n\\r]+";
+		private String weedingRegex = "[\\n\\r]";
+
 		public TextureEditor(ModelHandler modelHandler){
 			this(modelHandler, MdlUtils.TOKEN_TEXTURE_ID, null);
 		}
@@ -286,7 +290,8 @@ public class EditorHelpers {
 			textureChooser = new TwiComboBox<>(modelHandler.getModel().getTextures(), new Bitmap("", 1));
 			textureChooser.setRenderer(new TextureListRenderer(modelHandler.getModel()));
 
-			flagPanel = new FlagPanel<>(flagToken, title, null, modelHandler.getModel().getTexture(0), modelHandler);
+//			flagPanel = new FlagPanel<>(flagToken, title, null, modelHandler.getModel().getTexture(0), modelHandler);
+			flagPanel = new FlagPanel<>(flagToken, title, s -> parseBitmap(s, modelHandler.getModel().getTextures()), modelHandler.getModel().getTexture(0), valueRegex, weedingRegex, modelHandler);
 			flagPanel.setTableRenderer(new TextureTableCellRenderer(modelHandler.getModel()));
 			flagPanel.setTableEditor(new TableComboBoxEditor<>(textureChooser));
 			flagPanel.setStaticComponent(staticTextureChooser);
@@ -332,6 +337,32 @@ public class EditorHelpers {
 		public FlagPanel<Bitmap> getFlagPanel() {
 			return flagPanel;
 		}
+	}
+
+
+	private static Bitmap parseBitmap(String s, List<Bitmap> modelTextures) {
+		for (Bitmap bitmap : modelTextures) {
+			if (s.equalsIgnoreCase(bitmap.getRenderableTexturePath())){
+				return bitmap;
+			}
+		}
+		String fileExt = "\\.\\w[0-4]$";
+		String s2 = s.replaceFirst(fileExt, "");
+		for (Bitmap bitmap : modelTextures) {
+			if (s2.equalsIgnoreCase(bitmap.getRenderableTexturePath().replaceFirst(fileExt, ""))){
+				return bitmap;
+			}
+		}
+		if (s.matches("\\d+")) {
+//			System.out.println("5 \"(-?\\d+\\.+)\" - " + s);
+			int i = Integer.parseInt(s);
+			if (i < modelTextures.size()){
+				return modelTextures.get(i);
+			}
+		} else if (!modelTextures.isEmpty()) {
+			return modelTextures.get(0);
+		}
+		return null;
 	}
 
 

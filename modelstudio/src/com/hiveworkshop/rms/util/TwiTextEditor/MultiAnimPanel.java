@@ -24,6 +24,8 @@ public class MultiAnimPanel<T> extends JPanel {
 	private TimelineContainer node;
 	private final Function<String, T> parseFunction;
 	private final T defaultValue;
+	private String valueRegex = "[eE\\d-.]+";
+	private String weedingRegex = "[^-\\d,.eE]";
 	private final Map<Sequence, TimelineTableEditor<T>> sequencePanelMap = new HashMap<>();
 	private TableCellRenderer renderer;
 	private TableCellEditor editor;
@@ -34,6 +36,15 @@ public class MultiAnimPanel<T> extends JPanel {
 		this.model = modelHandler.getModel();
 		this.parseFunction = parseFunction;
 		this.defaultValue = defaultValue;
+	}
+	public MultiAnimPanel(Function<String, T> parseFunction, T defaultValue, String valueRegex, String weedingRegex, ModelHandler modelHandler){
+		super(new MigLayout("fill, wrap 1"));
+		this.modelHandler = modelHandler;
+		this.model = modelHandler.getModel();
+		this.parseFunction = parseFunction;
+		this.defaultValue = defaultValue;
+		this.valueRegex = valueRegex;
+		this.weedingRegex = weedingRegex;
 	}
 
 	public MultiAnimPanel<T> setNode(TimelineContainer node, AnimFlag<T> animFlag){
@@ -64,7 +75,9 @@ public class MultiAnimPanel<T> extends JPanel {
 		int compCount = 0;
 		for (Sequence sequence : allSequences) {
 			if (animFlag.hasSequence(sequence) || !animFlag.hasGlobalSeq() && sequence instanceof Animation) {
-				TimelineTableEditor<T> tableEditor = sequencePanelMap.computeIfAbsent(sequence, k -> new TimelineTableEditor<>(sequence, parseFunction, defaultValue, modelHandler));
+//				TimelineTableEditor<T> tableEditor = sequencePanelMap.computeIfAbsent(sequence, k -> new TimelineTableEditor<>(sequence, parseFunction, defaultValue, modelHandler));
+				TimelineTableEditor<T> tableEditor = sequencePanelMap.computeIfAbsent(sequence,
+						k -> new TimelineTableEditor<>(sequence, parseFunction, defaultValue, valueRegex, weedingRegex, modelHandler));
 				tableEditor.setVisible(true);
 				if(renderer != null){
 					tableEditor.setDefaultRenderer(defaultValue.getClass(), renderer);

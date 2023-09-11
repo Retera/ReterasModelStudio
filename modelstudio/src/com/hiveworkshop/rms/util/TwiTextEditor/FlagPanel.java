@@ -82,6 +82,18 @@ public class FlagPanel<T> extends CollapsablePanel {
 		multiAnimPanel = new MultiAnimPanel<>(parseFunction, defaultValue, modelHandler);
 		getCollapsableContentPanel().add(multiAnimPanel);
 	}
+	public FlagPanel(String flagToken, String title, Function<String, T> parseFunction, T defaultValue, String valueRegex, String weedingRegex, ModelHandler modelHandler){
+		super(title, new JPanel(new MigLayout("gap 0, ins 0, hidemode 3")));
+		this.flagToken = flagToken;
+		this.title = title;
+		this.parseFunction = parseFunction;
+		this.defaultValue = defaultValue;
+		this.modelHandler = modelHandler;
+		topPanel = new JPanel(new MigLayout("fill, gap 0, ins 0"));
+		getCollapsableContentPanel().add(topPanel, "growx, wrap");
+		multiAnimPanel = new MultiAnimPanel<>(parseFunction, defaultValue, valueRegex, weedingRegex, modelHandler);
+		getCollapsableContentPanel().add(multiAnimPanel);
+	}
 
 	public FlagPanel<T> update(TimelineContainer node, AnimFlag<T> animFlag, T staticValue){
 //		timeLogger = new TimeLogger().start();
