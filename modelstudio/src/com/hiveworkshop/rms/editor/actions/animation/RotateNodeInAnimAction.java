@@ -248,11 +248,11 @@ public class RotateNodeInAnimAction extends AbstractTransformAction {
 
 	@Override
 	public RotateNodeInAnimAction undo() {
-		for(UndoAction action : timelineActions2){
+		for (UndoAction action : timelineActions2) {
 			action.undo();
 		}
 //		node.setPivotPoint(oldPivot);
-		if(changeListener != null){
+		if (changeListener != null) {
 			changeListener.nodesUpdated();
 		}
 		return this;
@@ -261,10 +261,10 @@ public class RotateNodeInAnimAction extends AbstractTransformAction {
 	@Override
 	public RotateNodeInAnimAction redo() {
 //		node.setPivotPoint(newPivot);
-		for(UndoAction action : timelineActions2){
+		for (UndoAction action : timelineActions2) {
 			action.redo();
 		}
-		if(changeListener != null){
+		if (changeListener != null) {
 			changeListener.nodesUpdated();
 		}
 		return this;

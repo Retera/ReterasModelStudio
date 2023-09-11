@@ -326,7 +326,7 @@ public abstract class AnimFlag<T> {
 	}
 
 	public void addEntry(Entry<T> entry, Sequence animation) {
-		if (tans()) {
+		if (!tans()) {
 			entry.unLinearize();
 		}
 		sequenceMap.computeIfAbsent(animation, k -> new TreeMap<>()).put(entry.getTime(), entry);
@@ -428,24 +428,6 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-
-	List<T> deepCopy(List<T> source) {
-
-		List<T> copy = new ArrayList<>();
-		for (T item : source) {
-			T toAdd = item;
-			if (item instanceof Vec3) {
-				Vec3 v = (Vec3) item;
-				toAdd = (T) v;
-			} else if (item instanceof Quat) {
-				Quat r = (Quat) item;
-				toAdd = (T) r;
-			}
-			copy.add(toAdd);
-		}
-		return copy;
-	}
-
 	public String getName() {
 		return name;
 	}
@@ -490,6 +472,29 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
+	public void bezToHerm() {
+		if (!interpolationType.tangential()) {
+			interpolationType = InterpolationType.HERMITE;
+			for (Sequence anim : sequenceMap.keySet()) {
+				TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
+				for (Entry<T> entry : entryMap.values()) {
+					entry.bezToHerm();
+				}
+			}
+		}
+	}
+	public void hermToBez() {
+		if (!interpolationType.tangential()) {
+			interpolationType = InterpolationType.BEZIER;
+			for (Sequence anim : sequenceMap.keySet()) {
+				TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
+				for (Entry<T> entry : entryMap.values()) {
+					entry.hermToBez();
+				}
+			}
+		}
+	}
+
 	public void setInterpolationType(InterpolationType interpolationType) {
 		this.interpolationType = interpolationType;
 		if (interpolationType.tangential()) {
@@ -497,6 +502,23 @@ public abstract class AnimFlag<T> {
 		} else {
 			linearize();
 		}
+	}
+	public void setInterpolationType2(InterpolationType interpolationType) {
+		if(interpolationType != this.interpolationType){
+			if (interpolationType.tangential() && this.interpolationType.tangential()){
+				if(this.interpolationType == InterpolationType.BEZIER){
+					bezToHerm();
+				} else if (this.interpolationType == InterpolationType.HERMITE) {
+					hermToBez();
+				}
+			} else if (interpolationType.tangential()) {
+				unLinearize();
+			} else if (this.interpolationType.tangential()) {
+				linearize();
+			}
+		}
+
+		this.interpolationType = interpolationType;
 	}
 
 	public void setInterpType(InterpolationType interpolationType) {
@@ -508,20 +530,25 @@ public abstract class AnimFlag<T> {
 		this.interpolationType = interpolationType;
 	}
 
-	public void deleteAnim(Sequence anim) {
-		sequenceMap.remove(anim);
+	public void quickSetInterpType(InterpolationType interpolationType) {
+		this.interpolationType = interpolationType;
+	}
+
+	public TreeMap<Integer, Entry<T>> deleteAnim(Sequence anim) {
 		timeKeysMap.remove(anim);
 		if (anim == globalSeq) {
 			globalSeq = null;
 		}
+		return sequenceMap.remove(anim);
 	}
 
-	public void removeKeyframe(int trackTime, Sequence anim) {
+	public Entry<T> removeKeyframe(int trackTime, Sequence anim) {
 		TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
 		if (entryMap != null) {
-			entryMap.remove(trackTime);
 			timeKeysMap.remove(anim);
+			return entryMap.remove(trackTime);
 		}
+		return null;
 	}
 
 
@@ -768,6 +795,7 @@ public abstract class AnimFlag<T> {
 
 	public AnimFlag<T> setSequenceMap(Map<Sequence, TreeMap<Integer, Entry<T>>> otherMap) {
 		sequenceMap = otherMap; // ToDo copy entries!
+		timeKeysMap.clear();
 		return this;
 	}
 

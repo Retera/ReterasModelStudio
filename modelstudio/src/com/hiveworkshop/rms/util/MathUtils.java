@@ -61,6 +61,19 @@ public class MathUtils {
 		return (floorValue * factor1) + (floorOutTan * factor2) + (ceilInTan * factor3) + (ceilValue * factor4);
 	}
 
+	public static float[] hermToBez(float floorValue, float floorOutTan, float ceilInTan, float ceilValue){
+		float newFloorOutTan =  floorValue + floorOutTan/3f;
+		float newCeilInTan   =  ceilValue  - ceilInTan/3f;
+
+		return new float[] {floorValue, newFloorOutTan, newCeilInTan, ceilValue};
+	}
+	public static float[] bezToHerm(float floorValue, float floorOutTan, float ceilInTan, float ceilValue){
+		float newFloorOutTan = -3.0f * floorValue + 3.0f * floorOutTan;
+		float newCeilInTan   = -3.0f * ceilInTan  + 3.0f * ceilValue;
+
+		return new float[] {floorValue, newFloorOutTan, newCeilInTan, ceilValue};
+	}
+
 	public static float randomInRange(double min, double max) {
 		return (float) (min + (Math.random() * (max - min)));
 	}

@@ -207,6 +207,68 @@ public class Entry<T> {
 		return this;
 	}
 
+	public Entry<T> bezToHerm() {
+		if (inTan != null) {
+			if (value instanceof Integer) {
+				inTan = (T)(Integer)(((Integer)inTan)*-3 +  ((Integer)value) * 3);
+			} else if (value instanceof Float) {
+				inTan = (T)(Float)(((Float)inTan)*-3 +  ((Float)value) * 3);
+			} else if (value instanceof Vec3) {
+				((Vec3)inTan).scale(-3f).addScaled((Vec3) value, 3f);
+//			} else if (value instanceof Quat) {
+//				((Quat)inTan).scale(-3).addScaled((Quat) value, 3f);
+			}
+		} else {
+			inTan = getZeroValue();
+
+		}
+		if (outTan != null) {
+			if (value instanceof Integer) {
+				outTan = (T)(Integer)(((Integer)outTan)*3 +  ((Integer)value) * -3);
+			} else if (value instanceof Float) {
+				outTan = (T)(Float)(((Float)outTan)*3 +  ((Float)value) * -3);
+			} else if (value instanceof Vec3) {
+				((Vec3)outTan).scale(3f).addScaled((Vec3) value, -3f);
+//			} else if (value instanceof Quat) {
+//				((Quat)outTan).scale(3).addScaled((Quat) value, -3f);
+			}
+		} else {
+			outTan = getZeroValue();
+		}
+		return this;
+	}
+
+	public Entry<T> hermToBez() {
+		if (inTan != null) {
+			if (value instanceof Integer) {
+				inTan = (T)(Integer)(((Integer)inTan)/-3 +  ((Integer)value));
+			} else if (value instanceof Float) {
+				inTan = (T)(Float)(((Float)inTan)/-3f +  ((Float)value));
+			} else if (value instanceof Vec3) {
+				((Vec3)inTan).scale(-1/3f).add((Vec3) value);
+//			} else if (value instanceof Quat) {
+//				((Quat)inTan).scale(-3).add((Quat) value);
+			}
+		} else {
+			inTan = getZeroValue();
+
+		}
+		if (outTan != null) {
+			if (value instanceof Integer) {
+				outTan = (T)(Integer)(((Integer)outTan)/3 +  ((Integer)value));
+			} else if (value instanceof Float) {
+				outTan = (T)(Float)(((Float)outTan)/3f +  ((Float)value));
+			} else if (value instanceof Vec3) {
+				((Vec3)outTan).scale(1/3f).add((Vec3) value);
+//			} else if (value instanceof Quat) {
+//				((Quat)outTan).scale(3).add((Quat) value);
+			}
+		} else {
+			outTan = getZeroValue();
+		}
+		return this;
+	}
+
 	public boolean isTangential() {
 		return inTan != null && outTan != null;
 	}

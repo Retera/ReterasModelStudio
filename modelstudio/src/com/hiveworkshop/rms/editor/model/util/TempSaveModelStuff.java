@@ -13,8 +13,10 @@ import com.hiveworkshop.rms.editor.model.util.ModelSaving.MaterialToMdlx;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTexture;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTextureAnimation;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class TempSaveModelStuff {
 	public static boolean DISABLE_BONE_GEO_ID_VALIDATOR = false;
@@ -139,9 +141,15 @@ public class TempSaveModelStuff {
 		// MatrixEater at runtime in doPostRead() in favor of each vertex
 		// having its own attachments list, no vertex groups)
 
-		model.sortIdObjects();
+		sortNodes(model, false);
 		removeEmptyGeosets(model);
-		rebuildLists(model);
+
+		rebuildMaterialList(model, true);
+		rebuildTextureAnimList(model, true);
+		rebuildTextureList(model, true);
+		rebuildGlobalSeqList(model, true);
+//		rebuildLists(model);
+
 		// If rebuilding the lists is to crash, then we want to crash the thread
 		// BEFORE clearing the file
 
@@ -156,17 +164,28 @@ public class TempSaveModelStuff {
 			for (final GeosetVertex geosetVertex : geoset.getVertices()) {
 				if (geosetVertex.getSkinBoneBones() == null) {
 					geosetVertex.getMatrix().cureBones(model.getBones());
-
 				}
 			}
 			for (Triangle triangle : geoset.getTriangles()) {
 				triangle.setGeoset(geoset);
 			}
 		}
+	}
+
+	private static void sortNodes(EditableModel model, boolean realSort){
+		NodeUtils.getNodeCircles(model.getIdObjects()).forEach(c -> c.get(0).setParent(null));
+		if (realSort) {
+			List<IdObject> topNodes = model.getIdObjects().stream().filter(n -> n.getParent() == null).collect(Collectors.toList());
+			Set<IdObject> idObjects = NodeUtils.collectChildren(topNodes, null, true);
+			model.clearAllIdObjects();
+			idObjects.forEach(model::add);
+		}
+		model.sortIdObjects();
 
 	}
 
 	private static void removeEmptyGeosets(EditableModel model) {
+//		new ArrayList<>(model.getGeosets()).stream().filter(Geoset::isEmpty).forEach(model::remove);
 		List<Geoset> emptyGeosets = new ArrayList<>();
 		for (Geoset geoset : model.getGeosets()) {
 			if (geoset.isEmpty()) {
@@ -189,34 +208,26 @@ public class TempSaveModelStuff {
 		model.getAnims().sort(Animation::compareTo);
 	}
 
-	public static void rebuildMaterialList(EditableModel model) {
+	public static void rebuildMaterialList(EditableModel model, boolean clearUnused) {
+		LinkedHashSet<Material> materials = new LinkedHashSet<>();
+		if (!clearUnused) materials.addAll(model.getMaterials());
+		model.getGeosets().forEach(g -> materials.add(g.getMaterial()));
+		model.getRibbonEmitters().forEach(r -> materials.add(r.getMaterial()));
+		materials.remove(null);
 		model.clearMaterials();
-		for (final Geoset geoset : model.getGeosets()) {
-			if ((geoset.getMaterial() != null) && !model.contains(geoset.getMaterial())) {
-				model.add(geoset.getMaterial());
-			}
-		}
-		final List<RibbonEmitter> ribbons = model.getRibbonEmitters();
-		for (final RibbonEmitter r : ribbons) {
-			if ((r.getMaterial() != null) && !model.contains(r.getMaterial())) {
-				model.add(r.getMaterial());
-			} else {
-				// JOptionPane.showMessageDialog(null,"Null material found for
-				// ribbon at temporary object id: "+m_idobjects.indexOf(r));
-			}
-		}
+		materials.forEach(model::add);
 	}
 
 	public static void rebuildLists(EditableModel model) {
-		rebuildMaterialList(model);
-		rebuildTextureList(model);// texture anims handled inside textures
-//		rebuildGlobalSeqList(model);
+		rebuildMaterialList(model, true);
+		rebuildTextureAnimList(model, true);
+		rebuildTextureList(model, true);
+//		rebuildGlobalSeqList(model, true);
 	}
 
-	public static void rebuildTextureList(EditableModel model) {
-		rebuildTextureAnimList(model);
-		model.clearTextures();
+	public static void rebuildTextureList(EditableModel model, boolean clearUnused) {
 		Set<Bitmap> bitmapSet = new LinkedHashSet<>();
+		if (!clearUnused) bitmapSet.addAll(model.getTextures());
 		for (final Material m : model.getMaterials()) {
 			for (final Layer layer : m.getLayers()) {
 				for (Layer.Texture texture : layer.getTextureSlots()){
@@ -235,45 +246,45 @@ public class TempSaveModelStuff {
 				}
 			}
 		}
-		bitmapSet.remove(null);
-		for (final Bitmap bitmap : bitmapSet) {
-			if (!model.contains(bitmap)) {
-				model.add(bitmap);
-			}
-		}
 		final List<ParticleEmitter2> particles = model.getParticleEmitter2s();
 		for (final ParticleEmitter2 pe : particles) {
-			if ((pe.getTexture() != null) && !model.contains(pe.getTexture())) {
-				model.add(pe.getTexture());
-			}
+			bitmapSet.add(pe.getTexture());
 		}
+		bitmapSet.remove(null);
+		model.clearTextures();
+		bitmapSet.forEach(model::add);
 	}
 
-	public static void rebuildTextureAnimList(EditableModel model) {
-		model.clearTexAnims();
+	public static void rebuildTextureAnimList(EditableModel model, boolean clearUnused) {
+		Set<TextureAnim> textureAnimSet = new LinkedHashSet<>();
+		if (!clearUnused) textureAnimSet.addAll(model.getTexAnims());
 		for (final Material m : model.getMaterials()) {
 			for (final Layer lay : m.getLayers()) {
-				if (lay.getTextureAnim() != null && !model.contains(lay.getTextureAnim())) {
-					model.add(lay.getTextureAnim());
-				}
+				textureAnimSet.add(lay.getTextureAnim());
 			}
 		}
+		textureAnimSet.remove(null);
+		model.clearTexAnims();
+		textureAnimSet.forEach(model::add);
 	}
 
-	public static void rebuildGlobalSeqList(EditableModel model) {
+
+	public static void rebuildGlobalSeqList(EditableModel model, boolean clearUnused) {
+		Set<GlobalSeq> globalSeqSet = new TreeSet<>();
+		if (!clearUnused) globalSeqSet.addAll(model.getGlobalSeqs());
+
+		ModelUtils.doForAnimFlags(model, animFlag -> {
+			if(animFlag.hasGlobalSeq()) {
+				globalSeqSet.add(animFlag.getGlobalSeq());
+			}
+		});
+
+		model.getEvents().forEach(e -> globalSeqSet.add(e.getGlobalSeq()));
+
 		model.clearGlobalSeqs();
-		final List<AnimFlag<?>> animFlags = ModelUtils.getAllAnimFlags(model);// laggggg!
-		final List<EventObject> evtObjs = model.getEvents();
-		for (final AnimFlag<?> af : animFlags) {
-			if (af.getGlobalSeq() != null && !model.contains(af.getGlobalSeq())) {
-				model.add(af.getGlobalSeq());
-			}
-		}
-		for (final EventObject af : evtObjs) {
-			if (af.getGlobalSeq() != null && !model.contains(af.getGlobalSeq())) {
-				model.add(af.getGlobalSeq());
-			}
-		}
+		globalSeqSet.remove(null);
+		globalSeqSet.stream().sorted().forEach(model::add);
+
 	}
 
 	private static BindPose getBindPoses(EditableModel model) {
@@ -314,7 +325,7 @@ public class TempSaveModelStuff {
 				for (final Bone bone : matrix.getBones()) {
 					boneToGeosets.computeIfAbsent(bone, k -> new HashSet<>()).add(geoset);
 					IdObject parent = bone.getParent();
-					int maxDepth = 200; // to not get stuck in a loop if there's cyclic parenting
+					int maxDepth = 500; // to not get stuck in a loop if there's cyclic parenting
 					while (parent != null && 0 < maxDepth){
 						if(parent instanceof Bone){
 							boneToGeosets.computeIfAbsent((Bone) parent, k -> new HashSet<>()).add(geoset);
@@ -325,6 +336,7 @@ public class TempSaveModelStuff {
 				}
 			}
 		}
+
 		Map<Bone, BoneGeosets> boneGeosetsMap = new HashMap<>();
 		for (final Bone bone : boneToGeosets.keySet()) {
 			Set<Geoset> geosets = boneToGeosets.get(bone);
@@ -356,22 +368,112 @@ public class TempSaveModelStuff {
 		return boneGeosetsMap;
 	}
 
-	public static Geoset getMostVisible(Geoset geoAnim1, Geoset geoAnim2) {
-		if(geoAnim1 == geoAnim2){
-			return geoAnim1;
-		} if (geoAnim1 != null && geoAnim2 != null) {
-			FloatAnimFlag visFlag1 = (FloatAnimFlag) geoAnim1.getVisibilityFlag();
-			FloatAnimFlag visFlag2 = (FloatAnimFlag) geoAnim2.getVisibilityFlag();
+	public static Map<Bone, BoneGeosets> getBoneGeosetMap2(List<Geoset> modelGeosets, List<Bone> modelBones) {
+		if (DISABLE_BONE_GEO_ID_VALIDATOR) {
+			return new HashMap<>();
+		}
+		Map<Bone, Set<Geoset>> boneToGeosets = new HashMap<>();
+		for (final Geoset geoset : modelGeosets) {
+			for (final Matrix matrix : geoset.collectMatrices()) {
+				for (final Bone bone : matrix.getBones()) {
+					boneToGeosets.computeIfAbsent(bone, k -> new HashSet<>()).add(geoset);
+					IdObject parent = bone.getParent();
+					int maxDepth = 500; // to not get stuck in a loop if there's cyclic parenting
+					while (parent != null && 0 < maxDepth){
+						if(parent instanceof Bone){
+							boneToGeosets.computeIfAbsent((Bone) parent, k -> new HashSet<>()).add(geoset);
+						}
+						parent = parent.getParent();
+						maxDepth--;
+					}
+				}
+			}
+		}
+
+		Map<Set<Geoset>, BoneGeosets> setToGeosetsMap = new HashMap<>();
+		for (Set<Geoset> geosets : boneToGeosets.values()) {
+			if (!setToGeosetsMap.containsKey(geosets)){
+				boolean multiGeo = false;
+				Geoset animatedGeoset = null;
+				Geoset mainGeoset = null;
+				for(Geoset geoset : geosets){
+					if (!multiGeo && mainGeoset == null) {
+						// The bone has been found by no prior matrices
+						animatedGeoset = geoset;
+						mainGeoset = geoset;
+					} else if (!multiGeo && mainGeoset != geoset) {
+						// The bone has only been found by ONE matrix
+						multiGeo = true;
+						mainGeoset = null;
+						animatedGeoset = getMostVisible(geoset, animatedGeoset);
+						if (animatedGeoset != null) {
+							mainGeoset = animatedGeoset;
+							multiGeo = false;
+						}
+
+					} else if (multiGeo) {
+						// The bone has been found by more than one matrix
+						animatedGeoset = getMostVisible(geoset, animatedGeoset);
+					}
+				}
+				setToGeosetsMap.put(geosets, new BoneGeosets().setGeoset(mainGeoset).setAnimatedGeoset(animatedGeoset));
+			}
+		}
+
+		Map<Bone, BoneGeosets> boneGeosetsMap = new HashMap<>();
+		for (final Bone bone : boneToGeosets.keySet()) {
+			boneGeosetsMap.put(bone, setToGeosetsMap.get(boneToGeosets.get(bone)));
+		}
+		return boneGeosetsMap;
+	}
+
+	public static Geoset getMostVisible(Geoset geoset1, Geoset geoset2) {
+		if(geoset1 == geoset2){
+			return geoset1;
+		} if (geoset1 != null && geoset2 != null) {
+			FloatAnimFlag visFlag1 = (FloatAnimFlag) geoset1.getVisibilityFlag();
+			FloatAnimFlag visFlag2 = (FloatAnimFlag) geoset2.getVisibilityFlag();
 			if (visFlag1 != null && visFlag2 != null) {
-				FloatAnimFlag result = visFlag1.getMostVisible(visFlag2);
+				FloatAnimFlag result = getMostVissibleAnimFlag(visFlag1, visFlag2);
 				if (result == visFlag1) {
-					return geoAnim1;
+					return geoset1;
 				} else if (result == visFlag2) {
-					return geoAnim2;
+					return geoset2;
 				}
 			}
 		}
 		return null;
+	}
+
+	private static FloatAnimFlag getMostVissibleAnimFlag(FloatAnimFlag aFlag, FloatAnimFlag bFlag) {
+		FloatAnimFlag mostVisible = null;
+		for (Sequence anim : aFlag.getAnimMap().keySet()) {
+			final TreeMap<Integer, Entry<Float>> aEntryMap = aFlag.getEntryMap(anim);
+			final TreeMap<Integer, Entry<Float>> bEntryMap = bFlag.getEntryMap(anim);
+
+			TreeSet<Integer> timeSet = new TreeSet<>();
+			if (aEntryMap != null) {
+				timeSet.addAll(aEntryMap.keySet());
+			}
+			if (bEntryMap != null) {
+				timeSet.addAll(bEntryMap.keySet());
+			}
+
+			for (int time : timeSet) {
+				Float aVal = aFlag.interpolateAt(anim, time);
+				Float bVal = bFlag.interpolateAt(anim, time);
+
+				if(aVal<bVal && mostVisible == null){
+					mostVisible = bFlag;
+				} else if (bVal<aVal && mostVisible == null) {
+					mostVisible = aFlag;
+				} else if (!bVal.equals(aVal)) {
+					return null;
+				}
+			}
+		}
+
+		return mostVisible;
 	}
 
 	public static class BoneGeosets{
@@ -408,6 +510,20 @@ public class TempSaveModelStuff {
 				}
 			}
 		}
+	}
+
+	public static void purifyFaces2(Geoset geoset) {
+		List<Triangle> triangles = geoset.getTriangles();
+		for (int i = 0; i < triangles.size(); i++) {
+			Triangle refTri = triangles.get(i);
+			for(int j = triangles.size()-1; i < j; j--){
+				Triangle triToCheck = triangles.get(j);
+				if(refTri.equalRefs(triToCheck)) {
+					triangles.remove(triToCheck);
+				}
+			}
+		}
+
 	}
 
 	public static MdlxTexture toMdlx(Bitmap bitmap) {

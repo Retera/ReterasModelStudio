@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.ui.application.actionfunctions;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.ChangeInterpTypeAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
@@ -27,12 +26,9 @@ public class LinearizeAnimations extends ActionFunction {
 						"\n\nContinue and simplify animations?",
 				"Warning: Linearize Animations", JOptionPane.OK_CANCEL_OPTION);
 		if (x == JOptionPane.OK_OPTION) {
-			List<AnimFlag<?>> allAnimFlags = ModelUtils.getAllAnimFlags(modelHandler.getModel());
 			List<UndoAction> interpTypActions = new ArrayList<>();
-			for (AnimFlag<?> flag : allAnimFlags) {
-				interpTypActions.add(new ChangeInterpTypeAction<>(flag, InterpolationType.LINEAR, null));
-//                flag.linearize();
-			}
+			ModelUtils.doForAnimFlags(modelHandler.getModel(), flag ->
+					interpTypActions.add(new ChangeInterpTypeAction<>(flag, InterpolationType.LINEAR, null)));
 
 			UndoAction action = new CompoundAction("Liniarize Animations", interpTypActions, ModelStructureChangeListener.changeListener::materialsListChanged);
 			modelHandler.getUndoManager().pushAction(action.redo());

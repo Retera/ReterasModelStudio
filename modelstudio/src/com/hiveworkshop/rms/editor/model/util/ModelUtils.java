@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.util.*;
 
 import javax.swing.*;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public final class ModelUtils {
@@ -214,6 +215,8 @@ public final class ModelUtils {
 	}
 
 	public static List<AnimFlag<?>> getAllAnimFlags(EditableModel model) {
+		ModelUtils.doForAnimFlags(model, animFlag -> {
+		});
 		// Probably will cause a bunch of lag, be wary
 		List<AnimFlag<?>> allFlags = Collections.synchronizedList(new ArrayList<>());
 		for (Material m : model.getMaterials()) {
@@ -246,6 +249,31 @@ public final class ModelUtils {
 		}
 
 		return allFlags;
+	}
+
+	public static void doForAnimFlags(EditableModel model, Consumer<AnimFlag<?>> flagConsumer) {
+		for (Material m : model.getMaterials()) {
+			for (Layer lay : m.getLayers()) {
+				lay.getAnimFlags().forEach(flagConsumer);
+				for (Layer.Texture texture: lay.getTextureSlots()) {
+					texture.getAnimFlags().forEach(flagConsumer);
+				}
+			}
+		}
+		for (TextureAnim texa : model.getTexAnims()) {
+			texa.getAnimFlags().forEach(flagConsumer);
+		}
+		for (Geoset geoset : model.getGeosets()) {
+			geoset.getAnimFlags().forEach(flagConsumer);
+		}
+		for (IdObject idObject : model.getIdObjects()) {
+			idObject.getAnimFlags().forEach(flagConsumer);
+		}
+		for (Camera x : model.getCameras()) {
+			x.getSourceNode().getAnimFlags().forEach(flagConsumer);
+			x.getTargetNode().getAnimFlags().forEach(flagConsumer);
+		}
+
 	}
 
 	/**

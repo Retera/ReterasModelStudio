@@ -23,16 +23,14 @@ public class DuplicateAnimationAction implements UndoAction {
 		Sequence newSequence = sequenceToCopy.deepCopy();
 
 		if(newSequence instanceof Animation && name != null){
-			((Animation) newSequence).setName(name);
+			newSequence.setName(name);
 		}
 
-
-		for (AnimFlag<?> animFlag : ModelUtils.getAllAnimFlags(model)) {
-			if(animFlag.hasSequence(sequenceToCopy)){
-				AddFlagEntryMapAction<?> addAction = getAddEntryMapAction(sequenceToCopy, newSequence, animFlag);
+		ModelUtils.doForAnimFlags(model, a -> {
+			if(a.hasSequence(sequenceToCopy)){
+				AddFlagEntryMapAction<?> addAction = getAddEntryMapAction(sequenceToCopy, newSequence, a);
 				undoActions.add(addAction);
-			}
-		}
+		}});
 
 		for (EventObject e : model.getEvents()) {
 			if (e.hasSequence(sequenceToCopy)) {

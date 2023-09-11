@@ -192,12 +192,11 @@ public class ExportStaticMesh extends ActionFunction {
 	}
 
 	private static void setSingeEntryForRemaining(Animation stand, TimeEnvironmentImpl renderEnv, EditableModel frozenModel) {
-		List<AnimFlag<?>> allAnimFlags = ModelUtils.getAllAnimFlags(frozenModel);
-		for (AnimFlag<?> flag : allAnimFlags) {
-			if (!flag.hasGlobalSeq() && flag.size() > 0) {
+		ModelUtils.doForAnimFlags(frozenModel, flag -> {
+			if (!flag.hasGlobalSeq() && 0 < flag.size()) {
 				addFlagEntry(renderEnv, stand, flag);
 			}
-		}
+		});
 	}
 
 	private static <Q> void addFlagEntry(TimeEnvironmentImpl renderEnv, Animation stand, AnimFlag<Q> flag) {

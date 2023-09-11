@@ -1,27 +1,27 @@
 package com.hiveworkshop.rms.editor.actions.animation;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.animation.animFlag.SetFlagEntryMapAction;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public final class ScaleSequencesLengthsAction implements UndoAction {
-	private final EditableModel mdl;
 	private final Map<Sequence, Integer> sequenceToNewLength;
 	private final Map<Sequence, Integer> sequenceToOldLength = new HashMap<>();
 	private final ModelStructureChangeListener changeListener;
+	private final List<UndoAction> undoActions = new ArrayList<>();
 
 	public ScaleSequencesLengthsAction(EditableModel mdl, Map<Sequence, Integer> sequenceToNewLength, ModelStructureChangeListener changeListener) {
-		this.mdl = mdl;
 		this.sequenceToNewLength = sequenceToNewLength;
 		this.changeListener = changeListener;
 
@@ -31,11 +31,19 @@ public final class ScaleSequencesLengthsAction implements UndoAction {
 		for (GlobalSeq globalSeq : mdl.getGlobalSeqs()) {
 			sequenceToOldLength.put(globalSeq, globalSeq.getLength());
 		}
+
+
+		ModelUtils.doForAnimFlags(mdl, af -> addChangeLengthAction(sequenceToNewLength, undoActions, af));
+
+		for (final EventObject e : mdl.getEvents()) {
+			addChangeLengthAction(sequenceToNewLength, undoActions, e);
+		}
 	}
 
 	@Override
 	public UndoAction undo() {
-		setSequenceLengths(sequenceToOldLength);
+		undoActions.forEach(UndoAction::undo);
+		sequenceToOldLength.forEach(Sequence::setLength);
 		if (changeListener != null) {
 			changeListener.animationParamsChanged();
 		}
@@ -44,32 +52,37 @@ public final class ScaleSequencesLengthsAction implements UndoAction {
 
 	@Override
 	public UndoAction redo() {
-		setSequenceLengths(sequenceToNewLength);
+		sequenceToNewLength.forEach(Sequence::setLength);
+		undoActions.forEach(UndoAction::redo);
 		if (changeListener != null) {
 			changeListener.animationParamsChanged();
 		}
 		return this;
 	}
 
-	private void setSequenceLengths(Map<Sequence, Integer> animLengthMap) {
-		for (final AnimFlag<?> af : ModelUtils.getAllAnimFlags(mdl)) {
-			for (Sequence sequence : af.getAnimMap().keySet()) {
-				Integer newLength = animLengthMap.get(sequence);
-				if (newLength != null && newLength != sequence.getLength()) {
-					AnimFlagUtils.timeScale2(af, sequence, newLength, 0);
-				}
+	private void addChangeLengthAction(Map<Sequence, Integer> animLengthMap, List<UndoAction> undoActions, EventObject e) {
+		for (Sequence sequence : e.getEventTrackAnimMap().keySet()) {
+			Integer newLength = animLengthMap.get(sequence);
+			if (newLength != null && newLength != sequence.getLength()) {
+				TreeSet<Integer> entryMapCopy = new TreeSet<>();
+				TreeSet<Integer> eventTrack = e.getEventTrack(sequence);
+				double ratio = newLength / ((double)sequence.getLength());
+				eventTrack.forEach(i -> entryMapCopy.add((int)(i*ratio)));
+				undoActions.add(new SetEventTrackAction(e, sequence, entryMapCopy, null));
 			}
 		}
+	}
 
-		for (final EventObject e : mdl.getEvents()) {
-			for (Sequence sequence : e.getEventTrackAnimMap().keySet()) {
-				Integer newLength = animLengthMap.get(sequence);
-				if (newLength != null && newLength != sequence.getLength()) {
-					e.timeScale(sequence, newLength, 0);
-				}
+	private <Q> void addChangeLengthAction(Map<Sequence, Integer> animLengthMap, List<UndoAction> undoActions, AnimFlag<Q> af) {
+		for (Sequence sequence : af.getAnimMap().keySet()) {
+			Integer newLength = animLengthMap.get(sequence);
+			if (newLength != null && newLength != sequence.getLength()) {
+				TreeMap<Integer, Entry<Q>> entryMapCopy = af.getSequenceEntryMapCopy(sequence);
+				double ratio = newLength / ((double)sequence.getLength());
+				AnimFlagUtils.scaleMapEntries(ratio, entryMapCopy);
+				undoActions.add(new SetFlagEntryMapAction<>(af, sequence, entryMapCopy, null));
 			}
 		}
-		animLengthMap.forEach(Sequence::setLength);
 	}
 
 	@Override

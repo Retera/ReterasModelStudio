@@ -13,7 +13,6 @@ import com.hiveworkshop.rms.util.MathUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 /**
  * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or
@@ -191,94 +190,6 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 //		mdlxTimeline.outTans = tempOutTans;
 //
 //		return mdlxTimeline;
-	}
-
-	public FloatAnimFlag getMostVisible(final FloatAnimFlag partner) {
-		if (partner != null) {
-			return getMostVissibleAnimFlag(this, partner, null);
-//			if ((name.equals(MdlUtils.TOKEN_ALPHA) || name.equals(MdlUtils.TOKEN_VISIBILITY))
-//					&& (partner.name.equals(MdlUtils.TOKEN_ALPHA) || partner.name.equals(MdlUtils.TOKEN_VISIBILITY))) {
-//
-////				FloatAnimFlag self = this;
-////				FloatAnimFlag mostVisible = getMostVissibleAnimFlag(self, partner, null);
-////				if (mostVisible == null) return null;
-////
-////				// partner has priority!
-////				return getMostVissibleAnimFlag(partner, self, mostVisible);
-//				return getMostVissibleAnimFlag(this, partner, null);
-//
-//			} else {
-//				JOptionPane.showMessageDialog(null,
-//						"Error: Program attempted to compare visibility with non-visibility animation component." +
-//								"\nThis... probably means something is horribly wrong. Save your work, if you can.");
-//			}
-		}
-		return null;
-	}
-
-	private FloatAnimFlag getMostVissibleAnimFlag(FloatAnimFlag aFlag, FloatAnimFlag bFlag, FloatAnimFlag mostVisible) {
-		for (Sequence anim : aFlag.getAnimMap().keySet()) {
-			final TreeMap<Integer, Entry<Float>> aEntryMap = aFlag.getEntryMap(anim);
-			final TreeMap<Integer, Entry<Float>> bEntryMap = bFlag.getEntryMap(anim);
-
-			TreeSet<Integer> timeSet = new TreeSet<>();
-			if (aEntryMap != null) {
-				timeSet.addAll(aEntryMap.keySet());
-			}
-			if (bEntryMap != null) {
-				timeSet.addAll(bEntryMap.keySet());
-			}
-
-			for (int time : timeSet) {
-				Float aVal = aFlag.valueAt(anim, time);
-				Float bVal = bFlag.valueAt(anim, time);
-
-				if (bVal == null && aVal != null && aVal < 1
-						|| aVal != null && bVal != null && bVal > aVal) {
-					if (mostVisible == null) {
-						mostVisible = bFlag;
-					} else if (mostVisible == aFlag) {
-						return null;
-					}
-				} else if (aVal == null && bVal != null && bVal < 1
-						|| aVal != null && bVal != null && bVal < aVal) {
-					if (mostVisible == null) {
-						mostVisible = aFlag;
-					} else if (mostVisible == bFlag) {
-						return null;
-					}
-				}
-			}
-		}
-
-//
-//		for (int time = aEntryMap.ceilingKey(aEntryMap.firstKey()); time <= aEntryMap.floorKey(aEntryMap.lastKey()); time = aEntryMap.higherKey(time)) {
-//			Float aVal = aEntryMap.get(time).getValue();
-//			if(bEntryMap.containsKey(time)){
-//				Float bVal = bEntryMap.get(time).getValue();
-//				if (bVal > aVal) {
-//					if (mostVisible == null) {
-//						mostVisible = bFlag;
-//					} else if (mostVisible == aFlag) {
-//						return null;
-//					}
-//				} else if (bVal < aVal) {
-//					if (mostVisible == null) {
-//						mostVisible = aFlag;
-//					} else if (mostVisible == bFlag) {
-//						return null;
-//					}
-//				}
-//			} else if (aVal < 1) {
-//				if (mostVisible == null) {
-//					mostVisible = bFlag;
-//				} else if (mostVisible == aFlag) {
-//					return null;
-//				}
-//			}
-//		}
-
-		return mostVisible;
 	}
 
 	@Override
