@@ -7,6 +7,8 @@ buildscript {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://maven.nikr.net/" }
+//        maven { url "https://central.sonatype.com/artifact/" }
+        maven { url "https://central.sonatype.com/" }
         maven { url "https://mvnrepository.com/artifact/" }
         maven { url "https://mvnrepository.com/" }
 //        jcenter()
@@ -25,7 +27,7 @@ allprojects {
         miglayoutVersion = '4.2'
 		lwjglVersion = '2.9.3'
 		image4jVersion = '0.7'
-		rsyntaxtextareaVersion = '3.0.2'
+		rsyntaxtextareaVersion = '3.3.4'
         nashornVersion = '15.2'
     }
 
@@ -35,6 +37,8 @@ allprojects {
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://maven.nikr.net/" }
         maven { url "https://mvnrepository.com/artifact/" }
+//        maven { url "https://central.sonatype.com/artifact/" }
+        maven { url "https://central.sonatype.com/" }
         maven { url "https://mvnrepository.com/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
         maven { url 'https://jitpack.io' }

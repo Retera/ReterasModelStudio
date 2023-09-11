@@ -2,7 +2,7 @@ import java.text.SimpleDateFormat
 
 apply plugin: "java"
 
-sourceCompatibility = 1.14
+sourceCompatibility = 1.16
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 sourceSets.main.java.srcDirs = [ "src/" ]
