@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.language.TextKey;
@@ -51,7 +52,7 @@ public class MinimizeGeosets extends ActionFunction {
 				&& Math.abs(retainedGeoset.getStaticAlpha() - geoset.getStaticAlpha()) < 0.001
 				&& retainedGeoset.getStaticColor().equalLocs(geoset.getStaticColor())
 				&& equalFlags(retainedGeoset.getVisibilityFlag(), geoset.getVisibilityFlag())
-				&& equalFlags(retainedGeoset.find("Color"), geoset.find("Color"));
+				&& equalFlags(retainedGeoset.find(MdlUtils.TOKEN_COLOR), geoset.find(MdlUtils.TOKEN_COLOR));
 	}
 
 	private static boolean equalFlags(AnimFlag<?> flag1, AnimFlag<?> flag2) {

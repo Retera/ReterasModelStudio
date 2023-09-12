@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxMaterial;
+import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
 
 public class MaterialToMdlx {
 	public static MdlxMaterial toMdlx(Material material, EditableModel model) {
@@ -27,7 +28,7 @@ public class MaterialToMdlx {
 					if(animFlag != null && 0 < animFlag.size()){
 						mdlxLayer.hdTextureIds.add(0);
 						mdlxLayer.hdTextureSlots.add(0);
-						mdlxLayer.timelines.add(animFlag.toMdlx(layer, model));
+						layer.getTextureSlot(slot).timelinesToMdlx(mdlxLayer, model);
 					} else {
 						mdlxLayer.hdTextureIds.add(model.getTextureId(layer.getTexture(slot)));
 						mdlxLayer.hdTextureSlots.add(slot);
@@ -44,9 +45,15 @@ public class MaterialToMdlx {
 				for (int slot = 0; slot < layer.getTextureSlots().size(); slot++) {
 					AnimFlag<?> animFlag = layer.getFlipbookTexture(slot);
 					if (animFlag != null && 0 < animFlag.size()) {
-						mdlxLayer.hdTextureIds.add(0);
-						mdlxLayer.hdTextureSlots.add(0);
-						mdlxLayer.textureIdTimelineMap.put(slot, animFlag.toMdlx(layer, model));
+						MdlxTimeline<?> mdlxTimeline = animFlag.toMdlx(layer, model);
+						if (0 < mdlxTimeline.frames.length) {
+							mdlxLayer.hdTextureIds.add(0);
+							mdlxLayer.hdTextureSlots.add(0);
+							mdlxLayer.textureIdTimelineMap.put(slot, mdlxTimeline);
+						} else {
+							mdlxLayer.hdTextureIds.add(model.getTextureId(layer.getTexture(slot)));
+							mdlxLayer.hdTextureSlots.add(slot);
+						}
 					} else {
 						mdlxLayer.hdTextureIds.add(model.getTextureId(layer.getTexture(slot)));
 						mdlxLayer.hdTextureSlots.add(slot);
@@ -102,12 +109,9 @@ public class MaterialToMdlx {
 	public static MdlxLayer toMdlx(Layer layer, int slot, EditableModel model) {
 		MdlxLayer mdlxLayer = getMdlxLayer(layer, slot, model);
 		if(slot == 0) {
-			mdlxLayer.timelines.addAll(layer.timelinesToMdlx(model));
+			layer.timelinesToMdlx(mdlxLayer, model);
 		}
-		AnimFlag<?> animFlag = layer.getFlipbookTexture(slot);
-		if(animFlag != null && 0 < animFlag.size()){
-			mdlxLayer.timelines.add(animFlag.toMdlx(layer, model));
-		}
+		layer.getTextureSlot(slot).timelinesToMdlx(mdlxLayer, model);
 
 		return mdlxLayer;
 	}
@@ -134,7 +138,7 @@ public class MaterialToMdlx {
 		mdlxLayer.fresnelTeamColor = (float) layer.getFresnelTeamColor();
 
 		if(slot == 0) {
-			mdlxLayer.timelines.addAll(layer.timelinesToMdlx(model));
+			layer.timelinesToMdlx(mdlxLayer, model);
 		}
 		return mdlxLayer;
 	}

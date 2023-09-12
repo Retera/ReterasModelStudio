@@ -163,7 +163,7 @@ public abstract class AnimFlag<T> {
 	public <Q> MdlxTimeline<Q> toMdlx3(MdlxTimeline<Q> mdlxTimeline, TimelineContainer container, EditableModel model) {
 		mdlxTimeline.name = FlagUtils.getWar3ID(name, container);
 		mdlxTimeline.interpolationType = interpolationType;
-		mdlxTimeline.globalSequenceId = getGlobalSeqId(model);
+		mdlxTimeline.globalSequenceId = model.getGlobalSeqId(globalSeq);
 
 		Pair<ArrayList<Integer>, ArrayList<Entry<T>>> entrySavingPair = getEntrySavingPair(model);
 		ArrayList<Integer> tempFrames = entrySavingPair.getFirst();

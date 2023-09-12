@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit;
 
 import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -93,6 +94,7 @@ public class ModelStructureChangeListener {
 			modelPanel.getModelHandler().getPreviewRenderModel().getBufferFiller().clearTextureMap();
 			modelPanel.refreshFromEditor();
 			modelPanel.getThumbnailProvider().reload();
+			resetMaterialTempNames();
 		}
 		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 	}
@@ -106,6 +108,7 @@ public class ModelStructureChangeListener {
 	}
 
 	public void materialsListChanged() {
+		resetMaterialTempNames();
 		updateElementsAndRefreshFromEditor();
 	}
 
@@ -116,13 +119,13 @@ public class ModelStructureChangeListener {
 
 	public void selectionChanged() {
 		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reValidateKeyframes();
-		for(Runnable listener : selectionListeners.values()){
+		for (Runnable listener : selectionListeners.values()) {
 			listener.run();
 		}
 	}
 	public void stateChanged() {
 //		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reValidateKeyframes();
-		for(Runnable listener : stateChangeListeners.values()){
+		for (Runnable listener : stateChangeListeners.values()) {
 			listener.run();
 		}
 	}
@@ -134,6 +137,14 @@ public class ModelStructureChangeListener {
 				geoset.resetTempName();
 			}
 
+		}
+	}
+	private void resetMaterialTempNames() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			for (Material material : modelPanel.getModel().getMaterials()) {
+				material.resetTempName();
+			}
 		}
 	}
 

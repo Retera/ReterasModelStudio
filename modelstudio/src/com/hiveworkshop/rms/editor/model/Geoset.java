@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -421,7 +422,7 @@ public class Geoset extends TimelineContainer implements Named {
 
 	@Override
 	public String visFlagName() {
-		return "Alpha";
+		return MdlUtils.TOKEN_ALPHA;
 	}
 
 	public double getStaticAlpha() {
@@ -452,6 +453,6 @@ public class Geoset extends TimelineContainer implements Named {
 	}
 
 	public Vec3 getRenderColor(TimeEnvironmentImpl animatedRenderEnvironment) {
-		return getInterpolatedVector(animatedRenderEnvironment, "Color", staticColor);
+		return getInterpolatedVector(animatedRenderEnvironment, MdlUtils.TOKEN_COLOR, staticColor);
 	}
 }

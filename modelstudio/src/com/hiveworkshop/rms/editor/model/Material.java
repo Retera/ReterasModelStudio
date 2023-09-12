@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
+import com.hiveworkshop.rms.editor.model.animflag.BitmapAnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 
 import java.util.*;
@@ -18,6 +20,7 @@ public class Material implements Named {
 	int priorityPlane = 0;
 	String shaderString = "";
 	private final EnumSet<flag> flags = EnumSet.noneOf(flag.class);
+	private String tempName;
 
 	public Material() {
 
@@ -32,7 +35,6 @@ public class Material implements Named {
 	}
 
 	private Material(final Material material) {
-		// copying the layers so the new material don't have to share them with the old one
 		for (Layer layer : material.layers) {
 			this.layers.add(layer.deepCopy());
 		}
@@ -41,89 +43,74 @@ public class Material implements Named {
 		shaderString = material.shaderString;
 	}
 
-	public String getName2() {
-		StringBuilder name = new StringBuilder();
-		if (layers.size() > 0) {
-			if (SHADER_HD_DEFAULT_UNIT.equals(shaderString)) {
-				try {
-					name.append(" over ").append(layers.get(0).getTexture(0).getName());
-					if (layers.get(0).find("Alpha") != null) {
-						name.append(" (animated Alpha)");
-					}
-				} catch (final NullPointerException e) {
-					name.append(" over ").append("animated texture layers (").append(layers.get(0).getTextures().get(0).getName()).append(")");
-				}
-			} else {
-				if (layers.get(layers.size() - 1).getTexture(0) != null) {
-					name = new StringBuilder(layers.get(layers.size() - 1).getTexture(0).getName());
-					if (layers.get(layers.size() - 1).find("Alpha") != null) {
-						name.append(" (animated Alpha)");
-					}
-				} else {
-					name = new StringBuilder("animated texture layers");
-				}
-				for (int i = layers.size() - 2; i >= 0; i--) {
-					try {
-						name.append(" over ").append(layers.get(i).getTexture(0).getName());
-						if (layers.get(i).find("Alpha") != null) {
-							name.append(" (animated Alpha)");
-						}
-					} catch (final NullPointerException e) {
-						name.append(" over ").append("animated texture layers (").append(layers.get(i).getTextures().get(0).getName()).append(")");
-					}
-				}
-			}
-		}
-		return name.toString();
+	public void resetTempName(){
+		tempName = null;
 	}
 
 	public String getName() {
-		StringBuilder name = new StringBuilder();
-		String over = " /\u21E9 "; //\u226F ≯,\u21B8 ↸, \u21B8↸, /\u02C5 /˅, /\u21E9 /⇩, /\u23F7 /⏷, /\u25BC /▼, /\u2304 /⌄, \u2215\u2304
-//		"\u226F ≯,\u21B8 ↸, \u21B8↸, /\u02C5 /˅, /\u21E9 /⇩, /\u23F7 /⏷, /\u25BC /▼, /\u2304 /⌄, \u2215\u2304 Pessant /↘ Team color"
-		String alpha = "\u25A8"; //\u2237 ∷, \u25A8▨
-		String animated = " \u23E9"; //\u23EF ⏯, \u21DD⇝, \u23ED ⏭, \u23F5\u23F8⏵⏸, \u25B6\u23F8▶⏸, \u23E9⏩, \u23F2⏲
-		String texture = "\u25A3"; //\u22A2 ⊢, 22A1⊡, \u25A3 ▣
-		if (layers.size() > 0) {
-			if (SHADER_HD_DEFAULT_UNIT.equals(shaderString)) {
-				try {
-					name.append(over).append(layers.get(0).getTexture(0).getName());
-					if (layers.get(0).find("Alpha") != null) {
-						name.append(animated + alpha);
+		if (tempName == null) {
+			StringBuilder name = new StringBuilder();
+
+			String alpha = "\ud83c\udd30"; //🄰
+			String a_alpha = "\ud83c\udd70"; //🅰
+			String tv_anim = "\uD83C\uDD83"; //🆃
+			String flip_book = "\uD83C\uDD75"; //🅵
+
+			if (0 < layers.size()) {
+				for (int i = layers.size() - 1; 0 <= i; i--) {
+					Layer layer = layers.get(i);
+					if (layer != null) {
+						StringBuilder prefix = new StringBuilder();
+						try {
+							if(layer.getVisibilityFlag() != null){
+								prefix.append(a_alpha);
+							} else if (layer.getStaticAlpha() != 1) {
+								prefix.append(alpha);
+							}
+							if (layer.hasTexAnim()) {
+								prefix.append(tv_anim);
+							}
+							layer.getTextureSlots().stream()
+									.filter(t -> t.getFlipbookTexture() != null && !t.getFlipbookTexture().getAnimMap().isEmpty())
+									.findFirst()
+									.flatMap(
+											animTexture -> animTexture.getFlipbookTexture().getAnimMap().values().stream()
+													.filter(tm -> !tm.isEmpty())
+													.findFirst())
+									.ifPresent(entryTreeMap -> prefix.append(flip_book));
+
+							BitmapAnimFlag flipbookTexture = layer.getTextureSlot(0).getFlipbookTexture();
+							String textureName = layer.getTexture(0).getName();
+							if(flipbookTexture != null && !flipbookTexture.getAnimMap().isEmpty()) {
+								TreeMap<Integer, Entry<Bitmap>> entryTreeMap = flipbookTexture.getAnimMap().values().stream()
+										.filter(tm -> !tm.isEmpty())
+										.findFirst().orElse(null);
+								if (entryTreeMap != null && entryTreeMap.firstEntry().getValue().value != null) {
+									textureName = entryTreeMap.firstEntry().getValue().value.getName();
+
+								}
+							}
+
+							if (!name.isEmpty()) name.append(" / ");
+//							if (!prefix.isEmpty()) name.append(prefix).append(" ");
+							name.append(textureName);
+							if (!prefix.isEmpty()) name.append(" ").append(prefix);
+						} catch (final NullPointerException e) {
+							if (layer.getTextures().get(0) != null){
+								name.append("(").append(layer.getTextures().get(0).getName()).append(")");
+							} else {
+								name.append("No Texture");
+							}
+						}
 					}
-				} catch (final NullPointerException e) {
-//					name.append(over).append(animated + texture).append("animated texture layers (").append(layers.get(0).textures.get(0).getName()).append(")");
-					name.append(over).append(animated + texture).append("(").append(layers.get(0).getTextures().get(0).getName()).append(")");
 				}
 			} else {
-				if (layers.get(layers.size() - 1).getTexture(0) != null) {
-					name = new StringBuilder(layers.get(layers.size() - 1).getTexture(0).getName());
-					if (layers.get(layers.size() - 1).find("Alpha") != null) {
-						name.append(animated + alpha);
-					}
-				} else {
-					name = new StringBuilder(animated + texture);
-				}
-				for (int i = layers.size() - 2; i >= 0; i--) {
-					Layer layer = layers.get(i);
-					try {
-						Bitmap textureBitmap = layer.getTexture(0);
-						if(textureBitmap != null){
-							name.append(over).append(textureBitmap.getName());
-						}
-						if (layer.find("Alpha") != null) {
-							name.append(animated + alpha);
-						}
-					} catch (final NullPointerException e) {
-//						name.append(over).append(animated + texture).append("animated texture layers (").append(layers.get(i).textures.get(0).getName()).append(")");
-						name.append(over).append(animated + texture).append("(").append(layer.getTextures().get(0).getName()).append(")");
-					}
-				}
+				name.append("This material got no layers!");
 			}
-		} else {
-			name.append("This material got no layers!");
+
+			tempName = name.toString();
 		}
-		return name.toString();
+		return tempName;
 	}
 
 

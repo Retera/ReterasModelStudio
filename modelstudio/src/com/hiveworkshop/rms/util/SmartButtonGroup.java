@@ -53,6 +53,12 @@ public class SmartButtonGroup extends JPanel {
 //		}
 	}
 
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		bg.setEnabled(enabled);
+	}
+
 	public ButtonModel getSelection() {
 		return bg.getSelection();
 	}

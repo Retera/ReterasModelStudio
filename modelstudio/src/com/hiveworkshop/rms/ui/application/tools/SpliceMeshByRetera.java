@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ModelFromFile;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
@@ -80,7 +81,7 @@ public class SpliceMeshByRetera {
 				geosets.forEach(geoset -> geoset.setStaticAlpha(geosetAnim.getStaticAlpha()));
 			}
 
-			AnimFlag<?> animFlag = geosetAnim.find("Color");
+			AnimFlag<?> animFlag = geosetAnim.find(MdlUtils.TOKEN_COLOR);
 			if(animFlag != null) {
 				geosets.forEach(geoset -> geoset.add(animFlag.deepCopy()));
 			} else {

@@ -24,6 +24,7 @@ public class NodeAnimationModelEditor extends ModelEditor {
 	private final RenderModel renderModel;
 	private final TimeEnvironmentImpl timeEnvironment;
 	private final ModelStructureChangeListener changeListener;
+	private final boolean worldSpace = true;
 
 	public NodeAnimationModelEditor(SelectionManager selectionManager, ModelHandler modelHandler) {
 		super(selectionManager, modelHandler.getModelView());
@@ -38,7 +39,7 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		Set<CameraNode> camSelection = modelView.getSelectedCameraNodes();
 
 		CompoundAction setup = KeyframeActionHelpers.getTranslSetupAction(nodeSelection, camSelection, timeEnvironment.getCurrentSequence(), timeEnvironment.getEnvTrackTime());
-		return new TranslationKeyframeAction(setup, nodeSelection, camSelection, renderModel, v, rotMat);
+		return new TranslationKeyframeAction(setup, nodeSelection, camSelection, renderModel, v, worldSpace, rotMat);
 	}
 
 	@Override
@@ -55,9 +56,9 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		Set<CameraNode> camSelection = modelView.getSelectedCameraNodes();
 		CompoundAction setup = KeyframeActionHelpers.getRotSetupAction(nodeSelection, camSelection, timeEnvironment.getCurrentSequence(), timeEnvironment.getEnvTrackTime());
 		return new CompoundAction("radAngles", changeListener::keyframesUpdated, setup,
-				new RotationKeyframeAction(null, nodeSelection, camSelection, renderModel, center, Vec3.X_AXIS, Math.toRadians(radAngles.x), rotMat),
-				new RotationKeyframeAction(null, nodeSelection, camSelection, renderModel, center, Vec3.NEGATIVE_Y_AXIS, Math.toRadians(radAngles.y), rotMat),
-				new RotationKeyframeAction(null, nodeSelection, camSelection, renderModel, center, Vec3.NEGATIVE_Z_AXIS, Math.toRadians(radAngles.z), rotMat));
+				new RotationKeyframeAction(null, nodeSelection, camSelection, renderModel, center, Vec3.X_AXIS, Math.toRadians(radAngles.x), worldSpace, rotMat),
+				new RotationKeyframeAction(null, nodeSelection, camSelection, renderModel, center, Vec3.NEGATIVE_Y_AXIS, Math.toRadians(radAngles.y), worldSpace, rotMat),
+				new RotationKeyframeAction(null, nodeSelection, camSelection, renderModel, center, Vec3.NEGATIVE_Z_AXIS, Math.toRadians(radAngles.z), worldSpace, rotMat));
 	}
 
 	@Override
@@ -77,7 +78,7 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		Set<CameraNode> camSelection = modelView.getSelectedCameraNodes();
 
 		CompoundAction setup = KeyframeActionHelpers.getTranslSetupAction(nodeSelection, camSelection, timeEnvironment.getCurrentSequence(), timeEnvironment.getEnvTrackTime());
-		return new TranslationKeyframeAction(setup, nodeSelection, camSelection, renderModel, Vec3.ZERO, rotMat).doSetup();
+		return new TranslationKeyframeAction(setup, nodeSelection, camSelection, renderModel, Vec3.ZERO, worldSpace, rotMat).doSetup();
 	}
 //	@Override
 	public AbstractTransformAction beginExtrude(Mat4 rotMat) {
@@ -102,7 +103,7 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		Set<CameraNode> camSelection = modelView.getSelectedCameraNodes();
 
 		CompoundAction setup = KeyframeActionHelpers.getRotSetupAction(nodeSelection, camSelection, timeEnvironment.getCurrentSequence(), timeEnvironment.getEnvTrackTime());
-		return new RotationKeyframeAction(setup, nodeSelection, camSelection, renderModel, center, axis, 0, rotMat).doSetup();
+		return new RotationKeyframeAction(setup, nodeSelection, camSelection, renderModel, center, axis, 0, worldSpace, rotMat).doSetup();
 	}
 
 	@Override

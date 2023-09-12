@@ -34,9 +34,10 @@ public class MirrorNodeAction implements UndoAction {
 		this.mirrorPoint = mirrorPoint;
 		this.node = node;
 		this.oldPivot = new Vec3(node.getPivotPoint());
-		this.newPivot = new Vec3(node.getPivotPoint()).scale(mirrorPoint, this.mirrorAxis);
+		Vec3 tempMirror = new Vec3(Vec3.ONE).addScaled(mirrorAxis, -2f);
+		this.newPivot = new Vec3(node.getPivotPoint()).scale(mirrorPoint, tempMirror);
 
-		collectTimelineActions(node, this.mirrorAxis);
+		collectTimelineActions(node, tempMirror);
 	}
 
 	public void collectTimelineActions(AnimatedNode node, Vec3 scale) {
@@ -57,7 +58,7 @@ public class MirrorNodeAction implements UndoAction {
 			timelineActions.add(new AddTimelineAction<>(node, newTranslation));
 		}
 		Vec4 temp = new Vec4();
-		Vec4 axisScale = new Vec4(scale, 1);
+		Vec4 axisScale = new Vec4(scale, -1);
 		QuatAnimFlag rotation = (QuatAnimFlag) node.find(MdlUtils.TOKEN_ROTATION);
 		if (rotation != null) {
 			AnimFlag<Quat> newRotation = rotation.deepCopy();
@@ -105,6 +106,6 @@ public class MirrorNodeAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "Rotate " + node.getName();
+		return "Mirror " + node.getName();
 	}
 }

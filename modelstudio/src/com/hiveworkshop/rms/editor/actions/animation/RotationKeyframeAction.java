@@ -32,6 +32,7 @@ public class RotationKeyframeAction extends AbstractTransformAction {
 	private final Mat4 invRotMat = new Mat4();
 	private final Mat4 rotMat = new Mat4();
 	private double radians;
+	private final boolean worldSpace;
 
 	// ToDo should maybe consider center and make a rotation around a point; ie do a combined rotation and translation
 	//  maybe also have an option for individual origins
@@ -42,12 +43,22 @@ public class RotationKeyframeAction extends AbstractTransformAction {
 	                              RenderModel editorRenderModel,
 	                              Vec3 center,
 	                              Vec3 axis, double radians, Mat4 rotMat) {
+		this(addingTimelinesOrKeyframesAction, nodeSelection, camSelection, editorRenderModel, center, axis, radians, true, rotMat);
+	}
+
+	public RotationKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
+	                              Collection<IdObject> nodeSelection,
+	                              Collection<CameraNode> camSelection,
+	                              RenderModel editorRenderModel,
+	                              Vec3 center,
+	                              Vec3 axis, double radians, boolean worldSpace, Mat4 rotMat) {
 		this.editorRenderModel = editorRenderModel;
 		this.trackTime = editorRenderModel.getTimeEnvironment().getEnvTrackTime();
 		this.anim = editorRenderModel.getTimeEnvironment().getCurrentSequence();
 		this.rotMat.set(rotMat);
 		this.invRotMat.set(rotMat).invert();
 		this.radians = radians;
+		this.worldSpace = worldSpace;
 		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
 
 		nodeToOrgRotation = new HashMap<>();
@@ -249,6 +260,22 @@ public class RotationKeyframeAction extends AbstractTransformAction {
 	Vec3 tempAxis2 = new Vec3();
 	Mat4 tempMat = new Mat4();
 	private Quat getRotation(AnimatedNode idObject, Vec3 axis, float radians) {
+		RenderNode<?> renderNode = editorRenderModel.getRenderNode(idObject);
+		tempAxis.set(axis).transform(invRotMat, 1, true);
+		if(renderNode != null){
+			if (worldSpace) {
+				tempMat.set(renderNode.getWorldMatrix()).invert();
+
+				tempAxis.add(renderNode.getPivot()).transform(tempMat, 1, true);
+				tempAxis2.set(renderNode.getPivot()).transform(tempMat, 1, true);
+				tempAxis.sub(tempAxis2);
+			}
+
+			return tempQuat.setFromAxisAngle(tempAxis.normalize(), -radians).normalize();
+		}
+		return tempQuat.setIdentity();
+	}
+	private Quat getRotationORG(AnimatedNode idObject, Vec3 axis, float radians) {
 		RenderNode<?> renderNode = editorRenderModel.getRenderNode(idObject);
 		tempAxis.set(axis).transform(invRotMat, 1, true);
 		if(renderNode != null){

@@ -18,6 +18,12 @@ public class SmartButtonGroupGroup extends ButtonGroup {
 	public SmartButtonGroupGroup() {
 	}
 
+	public void setEnabled(boolean enabled) {
+		for (AbstractButton button : buttonIndexMap.values()) {
+			button.setEnabled(enabled);
+		}
+	}
+
 	public int getSelectedIndex() {
 		Integer selectedIndex = modelIndexMap.get(getSelection());
 		return selectedIndex == null ? -1 : selectedIndex;

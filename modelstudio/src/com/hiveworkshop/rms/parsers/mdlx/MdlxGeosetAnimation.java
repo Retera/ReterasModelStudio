@@ -75,8 +75,7 @@ public class MdlxGeosetAnimation extends MdlxAnimatedObject {
 		}
 
 		if ((flags & 0x2) != 0) {
-			if (!writeTimeline(stream, AnimationMap.KGAC)
-					&& ((color[0] != 0) || (color[1] != 0) || (color[2] != 0))) {
+			if (!writeTimeline(stream, AnimationMap.KGAC)) {
 				stream.writeColor(MdlUtils.TOKEN_STATIC_COLOR, color);
 			}
 		}

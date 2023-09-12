@@ -28,6 +28,7 @@ public class TranslationKeyframeAction extends AbstractTransformAction {
 	private final RenderModel editorRenderModel;
 	private final Mat4 invRotMat = new Mat4();
 	private final Mat4 rotMat = new Mat4();
+	private final boolean worldSpace;
 
 	public TranslationKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
 	                                 Collection<IdObject> nodeSelection,
@@ -35,10 +36,20 @@ public class TranslationKeyframeAction extends AbstractTransformAction {
 	                                 RenderModel editorRenderModel,
 	                                 Vec3 translation,
 	                                 Mat4 rotMat) {
+		this(addingTimelinesOrKeyframesAction, nodeSelection, camSelection, editorRenderModel, translation, true, rotMat);
+	}
+
+	public TranslationKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
+	                                 Collection<IdObject> nodeSelection,
+	                                 Collection<CameraNode> camSelection,
+	                                 RenderModel editorRenderModel,
+	                                 Vec3 translation, boolean worldSpace,
+	                                 Mat4 rotMat) {
 		this.editorRenderModel = editorRenderModel;
 		this.trackTime = editorRenderModel.getTimeEnvironment().getEnvTrackTime();
 		this.anim = editorRenderModel.getTimeEnvironment().getCurrentSequence();
 		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
+		this.worldSpace = worldSpace;
 
 		nodeToLocalTranslation = new HashMap<>();
 		nodeToOrgTranslation = new HashMap<>();
@@ -132,6 +143,32 @@ public class TranslationKeyframeAction extends AbstractTransformAction {
 	private final Vec3 translationHeap = new Vec3();
 
 	private Vec3 getTranslationHeap(AnimatedNode idObject, Vec3 newDelta) {
+		translationHeap.set(0, 0, 0);
+		RenderNode<AnimatedNode> renderNode = editorRenderModel.getRenderNode(idObject);
+		if(renderNode != null){
+			tempVec.set(renderNode.getPivot())
+					.transform(rotMat, 1, true)
+					.add(newDelta)
+					.transform(invRotMat, 1, true)
+					.sub(renderNode.getPivot());
+
+			if(worldSpace){
+				Mat4 worldMatrix = renderNode.getParentWorldMatrix();
+				tempMat.set(worldMatrix).invert();
+				translationHeap.add(idObject.getPivotPoint());
+				translationHeap.transform(worldMatrix, 1, true);
+				translationHeap.add(tempVec);
+				translationHeap.transform(tempMat, 1, true);
+				translationHeap.sub(idObject.getPivotPoint());
+			} else {
+				translationHeap.add(tempVec);
+			}
+		}
+
+		return translationHeap;
+	}
+
+	private Vec3 getTranslationHeapOrg(AnimatedNode idObject, Vec3 newDelta) {
 		translationHeap.set(0, 0, 0);
 		RenderNode<AnimatedNode> renderNode = editorRenderModel.getRenderNode(idObject);
 		if(renderNode != null){

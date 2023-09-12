@@ -82,7 +82,8 @@ public class EditMenu extends JMenu {
 
 	private JMenu getOptimizeMenu() {
 		final JMenu optimizeMenu = createMenu("Optimize", KeyEvent.VK_O);
-		optimizeMenu.add(new LinearizeAnimations().getMenuItem());
+//		optimizeMenu.add(new LinearizeAnimations().getMenuItem());
+		optimizeMenu.add(new SmartLinearizeAnimations().getMenuItem());
 
 		optimizeMenu.add(SimplifyKeyframesPanel.getMenuItem());
 		optimizeMenu.add(RoundKeyframesPanel.getMenuItem());

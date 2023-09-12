@@ -45,7 +45,7 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 		emissionRatePanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_EMISSION_RATE, this::setEmissionRate);
 		speedPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_SPEED, this::setInitVelocity);
 		alphaPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_ALPHA, this::setAlpha);
-		visPanel = new EditorHelpers.FloatEditor(modelHandler, "Visibility", null);
+		visPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_VISIBILITY, null);
 
 		colorPanel = new EditorHelpers.ColorEditor(modelHandler, MdlUtils.TOKEN_COLOR, this::setColor);
 
@@ -135,27 +135,27 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 
 	private void setLifeSpan(float value) {
 		if (idObject.getLifeSpan() != value) {
-			undoManager.pushAction(new ConsumerAction<>(idObject::setLifeSpan, value, idObject.getLifeSpan(), "LifeSpan").redo());
+			undoManager.pushAction(new ConsumerAction<>(idObject::setLifeSpan, value, idObject.getLifeSpan(), MdlUtils.TOKEN_LIFE_SPAN).redo());
 		}
 	}
 	private void setEmissionRate(float value) {
 		if (idObject.getEmissionRate() != value) {
-			undoManager.pushAction(new ConsumerAction<>(idObject::setEmissionRate, value, idObject.getEmissionRate(), "EmissionRate").redo());
+			undoManager.pushAction(new ConsumerAction<>(idObject::setEmissionRate, value, idObject.getEmissionRate(), MdlUtils.TOKEN_EMISSION_RATE).redo());
 		}
 	}
 	private void setInitVelocity(float value) {
 		if (idObject.getInitVelocity() != value) {
-			undoManager.pushAction(new ConsumerAction<>(idObject::setInitVelocity, value, idObject.getInitVelocity(), "InitVelocity").redo());
+			undoManager.pushAction(new ConsumerAction<>(idObject::setInitVelocity, value, idObject.getInitVelocity(), MdlUtils.TOKEN_INIT_VELOCITY).redo());
 		}
 	}
 	private void setAlpha(float value) {
 		if (idObject.getAlpha() != value) {
-			undoManager.pushAction(new ConsumerAction<>(idObject::setAlpha, value, idObject.getAlpha(), "Alpha").redo());
+			undoManager.pushAction(new ConsumerAction<>(idObject::setAlpha, value, idObject.getAlpha(), MdlUtils.TOKEN_ALPHA).redo());
 		}
 	}
 	private void setColor(Vec3 color) {
 		if (!idObject.getColor().equalLocs(color)) {
-			undoManager.pushAction(new ConsumerAction<>(idObject::setColor, color, idObject.getColor(), "Color").redo());
+			undoManager.pushAction(new ConsumerAction<>(idObject::setColor, color, idObject.getColor(), MdlUtils.TOKEN_COLOR).redo());
 		}
 	}
 

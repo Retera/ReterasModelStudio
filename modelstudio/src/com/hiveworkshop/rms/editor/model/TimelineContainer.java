@@ -22,7 +22,10 @@ public abstract class TimelineContainer {
 	public void timelinesToMdlx(MdlxAnimatedObject mdlxObject, EditableModel model) {
 		for (AnimFlag<?> timeline : animFlags.values()) {
 			if (!timeline.getAnimMap().isEmpty()) {
-				mdlxObject.timelines.add(timeline.toMdlx(this, model));
+				MdlxTimeline<?> mdlxTimeline = timeline.toMdlx(this, model);
+				if (0 < mdlxTimeline.frames.length) {
+					mdlxObject.timelines.add(mdlxTimeline);
+				}
 			}
 		}
 	}
@@ -31,7 +34,10 @@ public abstract class TimelineContainer {
 		List<MdlxTimeline<?>> timelines = new ArrayList<>();
 		for (AnimFlag<?> timeline : animFlags.values()) {
 			if (!timeline.getAnimMap().isEmpty()) {
-				timelines.add(timeline.toMdlx(this, model));
+				MdlxTimeline<?> mdlxTimeline = timeline.toMdlx(this, model);
+				if (0 < mdlxTimeline.frames.length) {
+					timelines.add(mdlxTimeline);
+				}
 			}
 		}
 		return timelines;

@@ -123,7 +123,7 @@ public class Main {
 			loader.load("jassimp-natives");
 		} catch (final Exception e) {
 			e.printStackTrace();
-			String message =
+			String oldMessage =
 					"The C++ natives to parse FBX models failed to load. " +
 							"You will not be able to open FBX until you install the necessary software" +
 							"\nand restart Retera Model Studio." +
@@ -133,8 +133,28 @@ public class Main {
 							"\nin case you want to copy them and ask for help. " +
 							"Once you press OK on that error popup, you can probably still use" +
 							"\nRetera Model Studio just fine for everything else.";
-			JOptionPane.showMessageDialog(null, message, "Error " + ProgramVersion.getSurrounded(), JOptionPane.ERROR_MESSAGE);
-			ExceptionPopup.display(e);
+//			JOptionPane.showMessageDialog(null, message, "Error " + ProgramVersion.getSurrounded(), JOptionPane.ERROR_MESSAGE);
+//			ExceptionPopup.display(e);
+
+
+			String rt = System.getProperty("java.runtime.name") + " " + System.getProperty("java.runtime.version");
+			String comp = System.getProperty("os.name") + " " + System.getProperty("os.arch");
+			JLabel message = new JLabel("<html>"
+					+ "<p>The C++ natives to parse FBX models failed to load;</p>"
+					+ "<p>You will not be able to open FBX until you install the necessary software<br>"
+					+ "and restart Retera Model Studio.</p>"
+					+ "<p>Maybe you are missing some Visual Studio Runtime dependency?</p><br>"
+					+ "<p><i>System information</i><br>"
+					+ "<code>"
+					+ rt + "<br>"
+					+ comp
+					+ "</code></p><br>"
+					+ "<p>View stacktrace?</p>"
+					+ "</html>");
+			int showError = JOptionPane.showConfirmDialog(null, message, "Failed to load JAssimp natives " + ProgramVersion.getSurrounded(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+			if (showError == JOptionPane.OK_OPTION) {
+				ExceptionPopup.display(e);
+			}
 		}
 	}
 

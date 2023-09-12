@@ -4,6 +4,7 @@ package com.hiveworkshop.rms.editor.model.util.ModelSaving;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGeoset;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGeosetAnimation;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -192,15 +193,15 @@ public class GeosetToMdlx {
 		if (geoset.isDropShadow()) {
 			animation.flags |= 1;
 		}
-		if (geoset.find("Color") != null || !geoset.getStaticColor().equals(new Vec3(1, 1, 1))) {
+
+		animation.alpha = (float) geoset.getStaticAlpha();
+
+		if (geoset.find(MdlUtils.TOKEN_COLOR) != null || !geoset.getStaticColor().equals(new Vec3(1, 1, 1))) {
 			animation.flags |= 0x2;
 		}
-
-//		animation.color = ModelUtils.flipRGBtoBGR(geosetAnim.getStaticColor().toFloatArray());
 		animation.color = geoset.getStaticColor().toFloatArray();
 
 		geoset.timelinesToMdlx(animation, model);
-
 		return animation;
 	}
 }
