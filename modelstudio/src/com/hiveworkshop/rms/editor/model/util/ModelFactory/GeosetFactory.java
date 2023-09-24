@@ -37,7 +37,7 @@ public class GeosetFactory {
 			for (int i = 0; i < size; i++) {
 				int matrixIndex = (int) mdlxGeoset.matrixIndices[index];
 				IdObject idObject = infoHolder.idObjMap.get(matrixIndex);
-				if(idObject instanceof Bone){
+				if (idObject instanceof Bone) {
 					m.add((Bone) idObject);
 				} else if (idObject != null) {
 					System.err.println("Node " + matrixIndex + " is not of type Bone, but of type " + idObject.getClass().getSimpleName() + "");
@@ -50,7 +50,7 @@ public class GeosetFactory {
 			}
 			matrices.add(m);
 		}
-		if(matrices.isEmpty()){
+		if (matrices.isEmpty()) {
 			matrices.add(new Matrix(model.getBones().get(0)));
 		}
 
@@ -78,7 +78,7 @@ public class GeosetFactory {
 			if (vertexGroups != null && i < vertexGroups.length) {
 				int matInd = (256 + vertexGroups[i]) % 256;
 //				System.out.println("vertGroup: " + vertexGroups[i] + ", -> " + matInd + "");
-				if(matInd < matrices.size()){
+				if (matInd < matrices.size()) {
 					Matrix matrix = matrices.get(matInd);
 					if (matrix != null) {
 						for (Bone bone : matrix.getBones()) {
@@ -106,7 +106,7 @@ public class GeosetFactory {
 			if (skin != null && !matrices.isEmpty()) {
 				short[] vertSkin = getSkin(matrices, skin, matrixMax, i, gv);
 				skinList.add(vertSkin);
-			} else if (gv.getBones().isEmpty() && !matrices.isEmpty()){
+			} else if (gv.getBones().isEmpty() && !matrices.isEmpty()) {
 				gv.addBoneAttachment(matrices.get(0).get(0));
 			}
 		}
@@ -115,15 +115,15 @@ public class GeosetFactory {
 		final int[] facesVertIndices = mdlxGeoset.faces;
 
 		for (int i = 0; i < facesVertIndices.length; i += 3) {
-			if(facesVertIndices[i] < 0 || facesVertIndices[i + 1] < 0 || facesVertIndices[i + 2] < 0 ||
-					facesVertIndices[i] > vertexList.size() || facesVertIndices[i + 1] > vertexList.size() || facesVertIndices[i + 2] > vertexList.size()){
+			if (facesVertIndices[i] < 0 || facesVertIndices[i + 1] < 0 || facesVertIndices[i + 2] < 0
+					|| vertexList.size() < facesVertIndices[i] || vertexList.size() < facesVertIndices[i + 1] || vertexList.size() < facesVertIndices[i + 2]) {
 				continue;
 			}
 			Triangle triangle = new Triangle(
 					vertexList.get(facesVertIndices[i]),
 					vertexList.get(facesVertIndices[i + 1]),
 					vertexList.get(facesVertIndices[i + 2]),
-					geoset);
+					geoset).addToVerts();
 			triangleList.add(triangle);
 			geoset.add(triangle);
 		}

@@ -10,39 +10,33 @@ import com.hiveworkshop.rms.util.Vec4;
 import java.util.*;
 
 public class CutEdgeAction implements UndoAction {
-	ModelStructureChangeListener changeListener;
-	Set<GeosetVertex> affectedVerts = new HashSet<>();
-	Geoset geoset;
-	GeosetVertex v1;
-	GeosetVertex v2;
-	GeosetVertex v3;
-	List<Triangle> orgTris = new ArrayList<>();
-	List<Triangle> newTris = new ArrayList<>();
+	private final ModelStructureChangeListener changeListener;
+	private final Geoset geoset;
+	private final GeosetVertex cutPoint;
+	private final List<Triangle> orgTris = new ArrayList<>();
+	private final List<Triangle> newTris = new ArrayList<>();
 
 	public CutEdgeAction(GeosetVertex v1, GeosetVertex v2, ModelStructureChangeListener changeListener) {
 		this.changeListener = changeListener;
-		this.v1 = v1;
-		this.v2 = v2;
 		this.geoset = v1.getGeoset();
 
 		for (Triangle triangle : v1.getTriangles()) {
 			if (triangle.containsRef(v2)) {
 				orgTris.add(triangle);
-				affectedVerts.addAll(Arrays.asList(triangle.getVerts()));
 			}
 		}
 
-		this.v3 = getVertex(v1, v2);
+		this.cutPoint = getVertex(v1, v2);
 
 		for (Triangle triangle : orgTris) {
 //			Triangle tri1 = new Triangle(triangle.get(0), triangle.get(1), triangle.get(2));
 			Triangle tri1 = new Triangle(geoset);
 			tri1.setVerts(triangle.getVerts());
-			tri1.replace(v2, v3);
+			tri1.replace(v2, cutPoint);
 			newTris.add(tri1);
 			Triangle tri2 = new Triangle(geoset);
 			tri2.setVerts(triangle.getVerts());
-			tri2.replace(v1, v3);
+			tri2.replace(v1, cutPoint);
 			newTris.add(tri2);
 		}
 
@@ -51,7 +45,7 @@ public class CutEdgeAction implements UndoAction {
 	private GeosetVertex getVertex(GeosetVertex v1, GeosetVertex v2) {
 		Vec3 newPos = new Vec3(v1).add(v2).scale(.5f);
 		Vec3 newNorm = new Vec3(v1.getNormal()).add(v2.getNormal()).normalize();
-		if (newNorm.length() < .5){
+		if (newNorm.length() < .5) {
 			newNorm.set(v1.getNormal());
 		}
 
@@ -63,7 +57,7 @@ public class CutEdgeAction implements UndoAction {
 				newTang.add(newTang).scale(.5f);
 				newTang.normalizeAsV3();
 
-				if (newTang.length()<.5) {
+				if (newTang.length() < .5) {
 					newTang.set(v1.getTang());
 				} else if (Math.abs(newTang.w) < .9 || 1.1 < Math.abs(newTang.w)) {
 					newTang.w = v1.getTangent().w;
@@ -111,14 +105,14 @@ public class CutEdgeAction implements UndoAction {
 
 	@Override
 	public CutEdgeAction undo() {
-		for (Triangle triangle : newTris){
-			geoset.removeExtended(triangle);
+		for (Triangle triangle : newTris) {
+			geoset.remove(triangle.removeFromVerts());
 		}
-		for (Triangle triangle : orgTris){
-			geoset.addExtended(triangle);
+		for (Triangle triangle : orgTris) {
+			geoset.add(triangle.addToVerts());
 		}
-		geoset.remove(v3);
-		if(changeListener != null){
+		geoset.remove(cutPoint);
+		if (changeListener != null) {
 			changeListener.geosetsUpdated();
 		}
 		return this;
@@ -126,14 +120,14 @@ public class CutEdgeAction implements UndoAction {
 
 	@Override
 	public CutEdgeAction redo() {
-		geoset.add(v3);
-		for (Triangle triangle : orgTris){
-			geoset.removeExtended(triangle);
+		geoset.add(cutPoint);
+		for (Triangle triangle : orgTris) {
+			geoset.remove(triangle.removeFromVerts());
 		}
-		for (Triangle triangle : newTris){
-			geoset.addExtended(triangle);
+		for (Triangle triangle : newTris) {
+			geoset.add(triangle.addToVerts());
 		}
-		if(changeListener != null){
+		if (changeListener != null) {
 			changeListener.geosetsUpdated();
 		}
 		return this;
@@ -141,6 +135,6 @@ public class CutEdgeAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "CutEdgeAction";
+		return "Cut Edge Action";
 	}
 }

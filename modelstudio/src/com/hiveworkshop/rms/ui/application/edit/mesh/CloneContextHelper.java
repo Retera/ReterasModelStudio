@@ -61,7 +61,7 @@ public class CloneContextHelper {
 			for (Triangle tri : vert.getGeoset().getTriangles()) {
 				if (tri.containsLoc(vert)) {
 					boolean good = true;
-					for (Vec3 vTemp : tri.getAll()) {
+					for (Vec3 vTemp : tri.getVerts()) {
 						if (!sourceNonPivots.contains(vTemp)) {
 							good = false;
 							break;
@@ -82,7 +82,7 @@ public class CloneContextHelper {
 			GeosetVertex a = newVertices.get(sourceNonPivots.indexOf(tri.get(0)));
 			GeosetVertex b = newVertices.get(sourceNonPivots.indexOf(tri.get(1)));
 			GeosetVertex c = newVertices.get(sourceNonPivots.indexOf(tri.get(2)));
-			Triangle newTriangle = new Triangle(a, b, c, a.getGeoset());
+			Triangle newTriangle = new Triangle(a, b, c, a.getGeoset()).addToVerts();
 			newTriangles.add(newTriangle);
 //			a.addTriangle(newTriangle);
 //			b.addTriangle(newTriangle);
@@ -122,7 +122,6 @@ public class CloneContextHelper {
 				selBones,
 				newVerticesWithoutNulls, newTriangles, newBones, newSelection, newSelectionPivots);
 
-		cloneAction.redo();
-		return cloneAction;
+		return cloneAction.redo();
 	}
 }

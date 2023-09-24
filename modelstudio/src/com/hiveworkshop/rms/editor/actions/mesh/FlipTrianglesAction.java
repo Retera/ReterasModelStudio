@@ -11,16 +11,15 @@ import java.util.*;
 public class FlipTrianglesAction implements UndoAction {
 	private final List<Triangle> oldTriangles = new ArrayList<>();
 	private final List<Triangle> newTriangles = new ArrayList<>();
-	private final Vec3 tempV = new Vec3();
 	private final Vec3 tempN = new Vec3();
 
-	public FlipTrianglesAction(Set<Triangle> selectedTriangles){
+	public FlipTrianglesAction(Set<Triangle> selectedTriangles) {
 		if (!selectedTriangles.isEmpty()) {
 			List<Set<Triangle>> strips = getStrips(selectedTriangles);
 			Vec3 tempOrgN = new Vec3();
-			for (Set<Triangle> strip : strips){
+			for (Set<Triangle> strip : strips) {
 				List<Triangle[]> triPairs = getTriPairs(strip);
-				for (Triangle[] triPair : triPairs){
+				for (Triangle[] triPair : triPairs) {
 					GeosetVertex[][] edges = getEdges(triPair[0], triPair[1]);
 					if (edges != null) {
 						oldTriangles.add(triPair[0]);
@@ -35,38 +34,36 @@ public class FlipTrianglesAction implements UndoAction {
 		}
 	}
 
-	public int getNewTriCount(){
+	public int getNewTriCount() {
 		return newTriangles.size();
 	}
 
-	private Triangle[] getNewTris(GeosetVertex[] commonEdge, GeosetVertex[] newEdge, Vec3 orgTriNorm, Geoset geoset){
+	private Triangle[] getNewTris(GeosetVertex[] commonEdge, GeosetVertex[] newEdge, Vec3 orgTriNorm, Geoset geoset) {
 		Triangle tri1 = new Triangle(newEdge[0], commonEdge[1], newEdge[1], geoset);
 		Triangle tri2 = new Triangle(newEdge[0], newEdge[1], commonEdge[0], geoset);
-		// ensure the new triangle are facing the same way as the old ones
+		// ensure the new triangles are facing the same way as the old ones
 		if (orgTriNorm.dot(getTriNormal(tri1)) < 0) tri1.flip(false);
 		if (orgTriNorm.dot(getTriNormal(tri2)) < 0) tri2.flip(false);
 		return new Triangle[] {tri1, tri2};
 	}
 
-	private Vec3 getTriNormal(Triangle triangle){
-		tempN.set(triangle.get(1)).sub(triangle.get(0));
-		tempV.set(triangle.get(2)).sub(triangle.get(1));
-		return tempN.cross(tempV);
+	private Vec3 getTriNormal(Triangle triangle) {
+		return tempN.setAsPlaneNorm(triangle.get(0), triangle.get(1), triangle.get(2));
 	}
 
-	private List<Triangle[]> getTriPairs(Set<Triangle> strip){
+	private List<Triangle[]> getTriPairs(Set<Triangle> strip) {
 		List<Triangle[]> triPairs = new ArrayList<>();
 		Map<Triangle, Set<Triangle>> triToNeighbours = getTriToNeighbours(strip);
 
 		for (int i = 0; i < (strip.size() * 10) && !triToNeighbours.isEmpty(); i++) {
 			Triangle tri1 = getTriOnEdgeOrFirst(triToNeighbours);
-			if (tri1 != null){
+			if (tri1 != null) {
 				Triangle tri2 = getFirstNeighbour(triToNeighbours, tri1);
 
 				removeFromOthers(triToNeighbours, tri1);
 				removeFromOthers(triToNeighbours, tri2);
 
-				if(tri2 != null){
+				if (tri2 != null) {
 					triPairs.add(new Triangle[]{tri1, tri2});
 				}
 			}
@@ -75,8 +72,8 @@ public class FlipTrianglesAction implements UndoAction {
 	}
 
 	private Triangle getTriOnEdgeOrFirst(Map<Triangle, Set<Triangle>> triToNeighbour) {
-		for (Triangle triangle : triToNeighbour.keySet()){
-			if(triToNeighbour.get(triangle).size() == 1){
+		for (Triangle triangle : triToNeighbour.keySet()) {
+			if (triToNeighbour.get(triangle).size() == 1) {
 				return triangle;
 			}
 		}
@@ -85,7 +82,7 @@ public class FlipTrianglesAction implements UndoAction {
 
 	private Triangle getFirstNeighbour(Map<Triangle, Set<Triangle>> triToNeighbours, Triangle currTri) {
 		Set<Triangle> currNeighbours = triToNeighbours.get(currTri);
-		if(currNeighbours != null && !currNeighbours.isEmpty()){
+		if (currNeighbours != null && !currNeighbours.isEmpty()) {
 			return currNeighbours.stream().findFirst().get();
 		}
 		return null;
@@ -93,20 +90,20 @@ public class FlipTrianglesAction implements UndoAction {
 
 	private void removeFromOthers(Map<Triangle, Set<Triangle>> triToNeighbours, Triangle currTri) {
 		Set<Triangle> currNeighbours2 = triToNeighbours.remove(currTri);
-		if(currNeighbours2 != null){
-			for(Triangle t : currNeighbours2){
+		if (currNeighbours2 != null) {
+			for (Triangle t : currNeighbours2) {
 				triToNeighbours.get(t).remove(currTri);
 			}
 		}
 	}
 
-	private Map<Triangle, Set<Triangle>> getTriToNeighbours(Set<Triangle> strip){
+	private Map<Triangle, Set<Triangle>> getTriToNeighbours(Set<Triangle> strip) {
 		Map<Triangle, Set<Triangle>> triToNeighbours = new LinkedHashMap<>();
-		for(Triangle tri : strip){
+		for (Triangle tri : strip) {
 			Set<Triangle> neighbours = new HashSet<>();
 			for (GeosetVertex vertex : tri.getVerts()) {
-				for (Triangle neighbourTri : vertex.getTriangles()){
-					if(neighbourTri != tri && strip.contains(neighbourTri) && shareOneEdge(tri, neighbourTri)){
+				for (Triangle neighbourTri : vertex.getTriangles()) {
+					if (neighbourTri != tri && strip.contains(neighbourTri) && shareOneEdge(tri, neighbourTri)) {
 						neighbours.add(neighbourTri);
 					}
 				}
@@ -117,11 +114,11 @@ public class FlipTrianglesAction implements UndoAction {
 	}
 
 
-	private List<Set<Triangle>> getStrips(Set<Triangle> selectedTris){
+	private List<Set<Triangle>> getStrips(Set<Triangle> selectedTris) {
 		Set<Triangle> sortedTris = new HashSet<>();
 		List<Set<Triangle>> triStrips = new ArrayList<>();
-		for(Triangle tri : selectedTris){
-			if(!sortedTris.contains(tri)){
+		for (Triangle tri : selectedTris) {
+			if (!sortedTris.contains(tri)) {
 				Set<Triangle> currentStrip = new LinkedHashSet<>();
 				collectConnected(tri, currentStrip, sortedTris, selectedTris);
 				triStrips.add(currentStrip);
@@ -130,12 +127,12 @@ public class FlipTrianglesAction implements UndoAction {
 		return triStrips;
 	}
 
-	private void collectConnected(Triangle triToCheck, Set<Triangle> currentStrip, Set<Triangle> sortedTris, Set<Triangle> selectedTris){
+	private void collectConnected(Triangle triToCheck, Set<Triangle> currentStrip, Set<Triangle> sortedTris, Set<Triangle> selectedTris) {
 		currentStrip.add(triToCheck);
 		sortedTris.add(triToCheck);
-		for (GeosetVertex vertex : triToCheck.getVerts()){
-			for (Triangle neighbourTri : vertex.getTriangles()){
-				if(neighbourTri != triToCheck
+		for (GeosetVertex vertex : triToCheck.getVerts()) {
+			for (Triangle neighbourTri : vertex.getTriangles()) {
+				if (neighbourTri != triToCheck
 						&& !sortedTris.contains(neighbourTri)
 						&& selectedTris.contains(neighbourTri)
 						&& shareOneEdge(triToCheck, neighbourTri)) {
@@ -145,10 +142,10 @@ public class FlipTrianglesAction implements UndoAction {
 		}
 	}
 
-	private boolean shareOneEdge(Triangle tri1, Triangle tri2){
+	private boolean shareOneEdge(Triangle tri1, Triangle tri2) {
 		int commonVerts = 0;
-		for(GeosetVertex vertex : tri2.getVerts()){
-			if(tri1.containsRef(vertex)){
+		for (GeosetVertex vertex : tri2.getVerts()) {
+			if (tri1.containsRef(vertex)) {
 				commonVerts++;
 			}
 		}
@@ -160,22 +157,22 @@ public class FlipTrianglesAction implements UndoAction {
 		GeosetVertex[] newEdge = new GeosetVertex[2];
 		int ceI = 0;
 		int neI = 0;
-		for(GeosetVertex geosetVertex : tri1.getVerts()){
-			if (tri2.containsRef(geosetVertex)){
+		for (GeosetVertex geosetVertex : tri1.getVerts()) {
+			if (tri2.containsRef(geosetVertex)) {
 				commonEdge[ceI++] = geosetVertex;
 			} else {
 				newEdge[neI++] = geosetVertex;
 			}
 		}
 
-		for(GeosetVertex geosetVertex : tri2.getVerts()){
-			if (!tri1.containsRef(geosetVertex)){
+		for (GeosetVertex geosetVertex : tri2.getVerts()) {
+			if (!tri1.containsRef(geosetVertex)) {
 				newEdge[neI++] = geosetVertex;
 				break;
 			}
 		}
 
-		if(ceI == 2 && neI == 2){
+		if (ceI == 2 && neI == 2) {
 			return new GeosetVertex[][]{commonEdge, newEdge};
 		}
 
@@ -187,9 +184,9 @@ public class FlipTrianglesAction implements UndoAction {
 		GeosetVertex[] newEdge = new GeosetVertex[2];
 		int ceI = 0;
 		int index = 3;
-		for(GeosetVertex geosetVertex : tri1.getVerts()){
+		for (GeosetVertex geosetVertex : tri1.getVerts()) {
 			int i = tri2.indexOf(geosetVertex);
-			if (i != -1){
+			if (i != -1) {
 				commonEdge[ceI++] = geosetVertex;
 				index -= i;
 			} else {
@@ -198,7 +195,7 @@ public class FlipTrianglesAction implements UndoAction {
 		}
 		newEdge[1] = tri2.get(index);
 
-		if(ceI == 2){
+		if (ceI == 2) {
 			return new GeosetVertex[][]{commonEdge, newEdge};
 		}
 
@@ -208,16 +205,10 @@ public class FlipTrianglesAction implements UndoAction {
 	@Override
 	public FlipTrianglesAction undo() {
 		for (Triangle triangle : newTriangles) {
-			triangle.getGeoset().remove(triangle);
-			for (GeosetVertex geosetVertex : triangle.getVerts()) {
-				geosetVertex.removeTriangle(triangle);
-			}
+			triangle.getGeoset().remove(triangle.removeFromVerts());
 		}
 		for (Triangle t : oldTriangles) {
-			t.getGeoset().addTriangle(t);
-			for (GeosetVertex vertex : t.getAll()) {
-				vertex.addTriangle(t);
-			}
+			t.getGeoset().addTriangle(t.addToVerts());
 		}
 		return this;
 	}
@@ -225,19 +216,11 @@ public class FlipTrianglesAction implements UndoAction {
 	@Override
 	public FlipTrianglesAction redo() {
 		for (Triangle t : oldTriangles) {
-			t.getGeoset().removeTriangle(t);
-			for (GeosetVertex vertex : t.getAll()) {
-				vertex.removeTriangle(t);
-			}
+			t.getGeoset().removeTriangle(t.removeFromVerts());
 		}
 
 		for (Triangle triangle : newTriangles) {
-			triangle.getGeoset().add(triangle);
-			for (GeosetVertex geosetVertex : triangle.getVerts()) {
-				if (!geosetVertex.hasTriangle(triangle)) {
-					geosetVertex.addTriangle(triangle);
-				}
-			}
+			triangle.getGeoset().add(triangle.addToVerts());
 		}
 		return this;
 	}

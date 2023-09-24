@@ -25,14 +25,14 @@ public class EditableModel implements Named {
 	private int formatVersion = 800;
 	private final ArrayList<String> header = new ArrayList<>();
 	private final ArrayList<String> comments = new ArrayList<>();
-	private final List<Animation> anims = new ArrayList<>();
-	private final List<GlobalSeq> globalSeqs = new ArrayList<>();
-	private final List<Bitmap> textures = new ArrayList<>();
-	private final List<Material> materials = new ArrayList<>();
-	private final List<TextureAnim> texAnims = new ArrayList<>();
-	private final List<Geoset> geosets = new ArrayList<>();
-	private final List<Camera> cameras = new ArrayList<>();
-	private final List<FaceEffect> faceEffects = new ArrayList<>();
+	private final ArrayList<Animation> anims = new ArrayList<>();
+	private final ArrayList<GlobalSeq> globalSeqs = new ArrayList<>();
+	private final ArrayList<Bitmap> textures = new ArrayList<>();
+	private final ArrayList<Material> materials = new ArrayList<>();
+	private final ArrayList<TextureAnim> texAnims = new ArrayList<>();
+	private final ArrayList<Geoset> geosets = new ArrayList<>();
+	private final ArrayList<Camera> cameras = new ArrayList<>();
+	private final ArrayList<FaceEffect> faceEffects = new ArrayList<>();
 	private boolean useBindPose;
 	private boolean temporary;
 	private CompoundDataSource wrappedDataSource = GameDataFileSystem.getDefault();
@@ -103,7 +103,7 @@ public class EditableModel implements Named {
 		modelIdObjects.clearAll();
 	}
 
-	public <T extends IdObject> List<? extends IdObject> listForIdObjects(final Class<T> objectClass) {
+	public <T extends IdObject> ArrayList<? extends IdObject> listForIdObjects(final Class<T> objectClass) {
 		return modelIdObjects.getListByClass(objectClass);
 	}
 
@@ -556,85 +556,85 @@ public class EditableModel implements Named {
 		return -1;
 	}
 
-	public List<Animation> getAnims() {
+	public ArrayList<Animation> getAnims() {
 		return anims;
 	}
 
-	public List<GlobalSeq> getGlobalSeqs() {
+	public ArrayList<GlobalSeq> getGlobalSeqs() {
 		return globalSeqs;
 	}
 
-	public List<Sequence> getAllSequences() {
+	public ArrayList<Sequence> getAllSequences() {
 		ArrayList<Sequence> sequences = new ArrayList<>(globalSeqs);
 		sequences.addAll(anims);
 		return sequences;
 	}
 
-	public List<Camera> getCameras() {
+	public ArrayList<Camera> getCameras() {
 		return cameras;
 	}
 
-	public List<Geoset> getGeosets() {
+	public ArrayList<Geoset> getGeosets() {
 		return geosets;
 	}
 
-	public List<Material> getMaterials() {
+	public ArrayList<Material> getMaterials() {
 		return materials;
 	}
 
-	public List<Bitmap> getTextures() {
+	public ArrayList<Bitmap> getTextures() {
 		return textures;
 	}
 
-	public List<TextureAnim> getTexAnims() {
+	public ArrayList<TextureAnim> getTexAnims() {
 		return texAnims;
 	}
 
-	public List<FaceEffect> getFaceEffects() {
+	public ArrayList<FaceEffect> getFaceEffects() {
 		return faceEffects;
 	}
 
-	public List<IdObject> getIdObjects() {
+	public ArrayList<IdObject> getIdObjects() {
 		return new ArrayList<>(modelIdObjects.allObjects);
 	}
 
-	public List<Bone> getBones() {
+	public ArrayList<Bone> getBones() {
 		return new ArrayList<>(modelIdObjects.bones);
 	}
 
-	public List<Light> getLights() {
+	public ArrayList<Light> getLights() {
 		return new ArrayList<>(modelIdObjects.lights);
 	}
 
-	public List<Helper> getHelpers() {
+	public ArrayList<Helper> getHelpers() {
 		return new ArrayList<>(modelIdObjects.helpers);
 	}
 
-	public List<Attachment> getAttachments() {
+	public ArrayList<Attachment> getAttachments() {
 		return new ArrayList<>(modelIdObjects.attachments);
 	}
 
-	public List<ParticleEmitter> getParticleEmitters() {
+	public ArrayList<ParticleEmitter> getParticleEmitters() {
 		return new ArrayList<>(modelIdObjects.particleEmitters);
 	}
 
-	public List<ParticleEmitter2> getParticleEmitter2s() {
+	public ArrayList<ParticleEmitter2> getParticleEmitter2s() {
 		return new ArrayList<>(modelIdObjects.particleEmitter2s);
 	}
 
-	public List<ParticleEmitterPopcorn> getPopcornEmitters() {
+	public ArrayList<ParticleEmitterPopcorn> getPopcornEmitters() {
 		return new ArrayList<>(modelIdObjects.popcornEmitters);
 	}
 
-	public List<RibbonEmitter> getRibbonEmitters() {
+	public ArrayList<RibbonEmitter> getRibbonEmitters() {
 		return new ArrayList<>(modelIdObjects.ribbonEmitters);
 	}
 
-	public List<EventObject> getEvents() {
+	public ArrayList<EventObject> getEvents() {
 		return new ArrayList<>(modelIdObjects.events);
 	}
 
-	public List<CollisionShape> getColliders() {
+	public ArrayList<CollisionShape> getColliders() {
 		return new ArrayList<>(modelIdObjects.colliders);
 	}
 
@@ -647,17 +647,17 @@ public class EditableModel implements Named {
 	}
 
 	private static class ModelIdObjects {
-		final List<IdObject> allObjects;
-		final List<Bone> bones;
-		final List<Light> lights;
-		final List<Helper> helpers;
-		final List<Attachment> attachments;
-		final List<ParticleEmitter> particleEmitters;
-		final List<ParticleEmitter2> particleEmitter2s;
-		final List<ParticleEmitterPopcorn> popcornEmitters;
-		final List<RibbonEmitter> ribbonEmitters;
-		final List<EventObject> events;
-		final List<CollisionShape> colliders;
+		final ArrayList<IdObject> allObjects;
+		final ArrayList<Bone> bones;
+		final ArrayList<Light> lights;
+		final ArrayList<Helper> helpers;
+		final ArrayList<Attachment> attachments;
+		final ArrayList<ParticleEmitter> particleEmitters;
+		final ArrayList<ParticleEmitter2> particleEmitter2s;
+		final ArrayList<ParticleEmitterPopcorn> popcornEmitters;
+		final ArrayList<RibbonEmitter> ribbonEmitters;
+		final ArrayList<EventObject> events;
+		final ArrayList<CollisionShape> colliders;
 
 		Map<Integer, IdObject> idToIdObjectMap;
 		Map<IdObject, Integer> idObjectToIdMap;
@@ -881,7 +881,7 @@ public class EditableModel implements Named {
 			return false;
 		}
 
-		public <T extends IdObject> List<? extends IdObject> getListByClass(final Class<T> objectClass) {
+		public <T extends IdObject> ArrayList<? extends IdObject> getListByClass(final Class<T> objectClass) {
 			if (objectClass.equals(Light.class)) {
 				return new ArrayList<>(lights);
 			} else if (objectClass.equals(Helper.class)) {

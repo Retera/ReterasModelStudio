@@ -17,8 +17,6 @@ public final class CloneAction2 implements UndoAction {
 	private final Set<GeosetVertex> selectedVertices = new HashSet<>();
 	private final Set<IdObject> selectedIdObjects = new HashSet<>();
 	private final Set<Camera> selectedCameras = new HashSet<>();
-	private final Map<IdObject, IdObject> oldToNewObjMap = new HashMap<>();
-	private final Map<GeosetVertex, GeosetVertex> oldToNewVertMap = new HashMap<>();
 	private final Map<Geoset, Geoset> oldToNewGeosetsMap = new HashMap<>();
 	private final boolean vertsToNewGeoset = false;
 
@@ -34,6 +32,7 @@ public final class CloneAction2 implements UndoAction {
 		selectedIdObjects.addAll(idObjects);
 		selectedCameras.addAll(cameras);
 
+		Map<IdObject, IdObject> oldToNewObjMap = new HashMap<>();
 		for (IdObject idObject : selectedIdObjects) {
 			IdObject copy = idObject.copy();
 			copy.setName(getCopyName(copy.getName()));
@@ -44,6 +43,7 @@ public final class CloneAction2 implements UndoAction {
 			idObject.setParent(oldToNewObjMap.get(idObject.getParent()));
 		}
 
+		Map<GeosetVertex, GeosetVertex> oldToNewVertMap = new HashMap<>();
 		for (GeosetVertex vertex : selectedVertices) {
 			GeosetVertex newVert = vertex.deepCopy();
 			newVertices.add(newVert);
@@ -67,13 +67,14 @@ public final class CloneAction2 implements UndoAction {
 				}
 			}
 		}
-		for(Triangle triangle : selectedTriangles){
+		for (Triangle triangle : selectedTriangles) {
 			Triangle newTriangle = new Triangle(
 					oldToNewVertMap.get(triangle.get(0)),
 					oldToNewVertMap.get(triangle.get(1)),
-					oldToNewVertMap.get(triangle.get(2)));
+					oldToNewVertMap.get(triangle.get(2)))
+					.addToVerts();
 			newTriangles.add(newTriangle);
-			if(vertsToNewGeoset){
+			if (vertsToNewGeoset) {
 				Geoset geoset = oldToNewGeosetsMap.get(triangle.get(0).getGeoset());
 				newTriangle.setGeoset(geoset);
 				geoset.add(newTriangle);
@@ -100,10 +101,10 @@ public final class CloneAction2 implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
+	public CloneAction2 undo() {
 		EditableModel model = modelView.getModel();
-		if(vertsToNewGeoset){
-			for(Geoset geoset : oldToNewGeosetsMap.values()){
+		if (vertsToNewGeoset) {
+			for (Geoset geoset : oldToNewGeosetsMap.values()) {
 				model.remove(geoset);
 			}
 		} else {
@@ -124,17 +125,17 @@ public final class CloneAction2 implements UndoAction {
 		modelView.setSelectedIdObjects(selectedIdObjects);
 		modelView.setSelectedCameras(selectedCameras);
 
-		if(changeListener != null){
+		if (changeListener != null) {
 			changeListener.nodesUpdated();
 		}
 		return this;
 	}
 
 	@Override
-	public UndoAction redo() {
+	public CloneAction2 redo() {
 		EditableModel model = modelView.getModel();
-		if(vertsToNewGeoset){
-			for(Geoset geoset : oldToNewGeosetsMap.values()){
+		if (vertsToNewGeoset) {
+			for (Geoset geoset : oldToNewGeosetsMap.values()) {
 				model.add(geoset);
 			}
 		} else {
@@ -155,7 +156,7 @@ public final class CloneAction2 implements UndoAction {
 		modelView.setSelectedIdObjects(newIdObjects);
 		modelView.setSelectedCameras(newCameras);
 
-		if(changeListener != null){
+		if (changeListener != null) {
 			changeListener.nodesUpdated();
 		}
 		return this;

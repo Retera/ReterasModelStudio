@@ -167,9 +167,9 @@ public class ViewportPopupMenu extends JPopupMenu {
 
 
 	public void addTeamColor(ModelHandler modelHandler) {
-		if(modelHandler != null){
+		if (modelHandler != null) {
 			ModelView modelView = modelHandler.getModelView();
-			UndoAction action = new TeamColorAddAction(modelView.getSelectedVertices(), modelView, ModelStructureChangeListener.changeListener);
+			UndoAction action = new TeamColorAddAction(modelView.getSelectedVertices(), modelHandler.getModel(), ModelStructureChangeListener.changeListener);
 			modelHandler.getUndoManager().pushAction(action.redo());
 		}
 	}
@@ -245,7 +245,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 			ModelIconHandler modelIconHandler = new ModelIconHandler();
 
 			JPanel renamePanel = new JPanel(new MigLayout());
-			for(IdObject idObject : selectedIdObjects) {
+			for (IdObject idObject : selectedIdObjects) {
 				nodeToNewName.put(idObject, idObject.getName());
 				renamePanel.add(new JLabel(idObject.getName(), modelIconHandler.getImageIcon(idObject, modelHandler.getModel()), SwingConstants.LEFT));
 				renamePanel.add(new TwiTextField(idObject.getName(), 24, s -> nodeToNewName.put(idObject, s)), "wrap");
@@ -257,7 +257,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 			int panelSize = Math.min(renamePanel.getPreferredSize().height+5, ScreenInfo.getSmallWindow().height);
 			JPanel panel = new JPanel(new MigLayout("fill, gap 0", "[grow][]", "[grow," + panelSize + "]"));
 			panel.add(scrollPane, "growx, growy");
-			if(ScreenInfo.getSmallWindow().height<=panelSize){
+			if (ScreenInfo.getSmallWindow().height<=panelSize) {
 				panel.add(scrollPane.getVerticalScrollBar(), "growy");
 			} else {
 				// this makes sure that the vertical scrollbar won't become visible without blocking scrolling
@@ -265,17 +265,17 @@ public class ViewportPopupMenu extends JPopupMenu {
 			}
 			int option = JOptionPane.showConfirmDialog(parent, panel, "Rename Nodes", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null);
 
-			if(option == JOptionPane.OK_OPTION){
+			if (option == JOptionPane.OK_OPTION) {
 				List<UndoAction> undoActions = new ArrayList<>();
-				for (IdObject idObject : nodeToNewName.keySet()){
+				for (IdObject idObject : nodeToNewName.keySet()) {
 					String newName = nodeToNewName.get(idObject);
-					if(!newName.isBlank() && !idObject.getName().equals(newName)){
+					if (!newName.isBlank() && !idObject.getName().equals(newName)) {
 						undoActions.add(new NameChangeAction(idObject, newName, null));
 					}
 				}
-				if (undoActions.size() == 1){
+				if (undoActions.size() == 1) {
 					modelHandler.getUndoManager().pushAction(new CompoundAction(undoActions.get(0).actionName(), undoActions, ModelStructureChangeListener.changeListener::nodeHierarchyChanged).redo());
-				} else if(!undoActions.isEmpty()) {
+				} else if (!undoActions.isEmpty()) {
 					modelHandler.getUndoManager().pushAction(new CompoundAction("Rename " + undoActions.size() + " Nodes", undoActions, ModelStructureChangeListener.changeListener::nodeHierarchyChanged).redo());
 				}
 			}

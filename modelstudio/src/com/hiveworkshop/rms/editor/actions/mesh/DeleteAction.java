@@ -34,7 +34,7 @@ public class DeleteAction implements UndoAction {
 		this.changeListener = changeListener;
 		this.modelView = modelView;
 
-		if(onlyTriangles){
+		if (onlyTriangles) {
 			Set<GeosetVertex> verts = new HashSet<>(selection);
 			this.affectedTris = getFullySelectedTris(verts);
 			this.affectedVerts = verts.stream().filter(gv -> affectedTris.containsAll(gv.getTriangles())).collect(Collectors.toSet());
@@ -63,7 +63,7 @@ public class DeleteAction implements UndoAction {
 		return affectedTris.stream().filter(t -> triSelected(t, selection)).collect(Collectors.toSet());
 	}
 
-	private boolean triSelected(Triangle triangle, Set<GeosetVertex> selection){
+	private boolean triSelected(Triangle triangle, Set<GeosetVertex> selection) {
 		return selection.contains(triangle.get(0))
 				&& selection.contains(triangle.get(1))
 				&& selection.contains(triangle.get(2));
@@ -77,7 +77,7 @@ public class DeleteAction implements UndoAction {
 		}
 		for (Triangle t : affectedTris) {
 			t.getGeoset().removeTriangle(t);
-			for (GeosetVertex vertex : t.getAll()) {
+			for (GeosetVertex vertex : t.getVerts()) {
 				vertex.removeTriangle(t);
 			}
 		}
@@ -86,7 +86,7 @@ public class DeleteAction implements UndoAction {
 		for (Geoset geoset : emptyGeosets.keySet()) {
 			model.remove(geoset);
 		}
-		if(changeListener != null){
+		if (changeListener != null) {
 			changeListener.geosetsUpdated();
 		}
 		return this;
@@ -99,14 +99,14 @@ public class DeleteAction implements UndoAction {
 		}
 		for (Triangle t : affectedTris) {
 			t.getGeoset().addTriangle(t);
-			for (GeosetVertex vertex : t.getAll()) {
+			for (GeosetVertex vertex : t.getVerts()) {
 				vertex.addTriangle(t);
 			}
 		}
 		for (Geoset geoset : emptyGeosets.keySet()) {
 			model.add(geoset, emptyGeosets.get(geoset));
 		}
-		if(changeListener != null){
+		if (changeListener != null) {
 			changeListener.geosetsUpdated();
 		}
 

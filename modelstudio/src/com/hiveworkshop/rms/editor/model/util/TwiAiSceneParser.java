@@ -743,7 +743,7 @@ public class TwiAiSceneParser {
 
 		for (int i = 0, l = mesh.getNumFaces(); i < l; i++) {
 //			geoset.add(new Triangle(indices.get(), indices.get(), indices.get(), geoset));
-			geoset.add(new Triangle(geosetVertices.get(indices.get()), geosetVertices.get(indices.get()), geosetVertices.get(indices.get()), geoset));
+			geoset.add(new Triangle(geosetVertices.get(indices.get()), geosetVertices.get(indices.get()), geosetVertices.get(indices.get()), geoset).addToVerts());
 		}
 //
 		geoset.setMaterial(editableModel.getMaterial(mesh.getMaterialIndex()));

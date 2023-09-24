@@ -55,7 +55,7 @@ public final class SplitForUVAction implements UndoAction {
 			b = oldVertToNewVert.get(tri.get(1));
 			c = oldVertToNewVert.get(tri.get(2));
 			Geoset newGeoset = oldGeoToNewGeo.get(tri.getGeoset());
-			Triangle newTriangle = new Triangle(a, b, c, newGeoset);
+			Triangle newTriangle = new Triangle(a, b, c, newGeoset).addToVerts();
 			newGeoset.add(newTriangle);
 //			a.addTriangle(newTriangle);
 //			b.addTriangle(newTriangle);
@@ -65,7 +65,7 @@ public final class SplitForUVAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
+	public SplitForUVAction undo() {
 		for (Triangle tri : trisToSeparate) {
 			Geoset geoset = tri.getGeoset();
 			for (GeosetVertex gv : tri.getVerts()) {
@@ -81,7 +81,7 @@ public final class SplitForUVAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public SplitForUVAction redo() {
 		for (Triangle tri : trisToSeparate) {
 			Geoset geoset = tri.getGeoset();
 			for (GeosetVertex gv : tri.getVerts()) {

@@ -15,23 +15,31 @@ public class Triangle {
 	}
 
 	public Triangle(GeosetVertex a, GeosetVertex b, GeosetVertex c, Geoset geoRef) {
-		verts[0] = a.addTriangle(this);
-		verts[1] = b.addTriangle(this);
-		verts[2] = c.addTriangle(this);
+		verts[0] = a;
+		verts[1] = b;
+		verts[2] = c;
 		geoset = geoRef;
 	}
 
 	public Triangle(GeosetVertex a, GeosetVertex b, GeosetVertex c) {
-		verts[0] = a.addTriangle(this);
-		verts[1] = b.addTriangle(this);
-		verts[2] = c.addTriangle(this);
+		verts[0] = a;
+		verts[1] = b;
+		verts[2] = c;
 		geoset = null;
 	}
 
-	public void forceVertsUpdate() {
+	public Triangle addToVerts() {
 		verts[0].addTriangle(this);
 		verts[1].addTriangle(this);
 		verts[2].addTriangle(this);
+		return this;
+	}
+
+	public Triangle removeFromVerts() {
+		verts[0].removeTriangle(this);
+		verts[1].removeTriangle(this);
+		verts[2].removeTriangle(this);
+		return this;
 	}
 
 	public boolean containsRef(GeosetVertex v) {
@@ -41,29 +49,6 @@ public class Triangle {
 	public boolean containsLoc(GeosetVertex v) {
 		return verts[0].equalLocs(v) || verts[1].equalLocs(v) || verts[2].equalLocs(v);
 	}
-
-	public GeosetVertex get(int index) {
-		return verts[index];
-	}
-
-	public int getId(int index) {
-		return geoset.getVertexId(verts[index]);
-	}
-
-	public void set(int index, GeosetVertex v) {
-		verts[index] = v;
-	}
-
-	public Triangle replace(GeosetVertex oldV, GeosetVertex newV) {
-		for (int i = 0; i < verts.length; i++) {
-			if (verts[i] == oldV) {
-				verts[i] = newV;
-				break;
-			}
-		}
-		return this;
-	}
-
 	public int indexOf(GeosetVertex v) {
 		for (int i = 0; i < verts.length; i++) {
 			if (verts[i] == v) {
@@ -73,13 +58,12 @@ public class Triangle {
 		return -1;
 	}
 	public int indexOfLoc(GeosetVertex v) {
-		int out = -1;
-		for (int i = 0; i < verts.length && out == -1; i++) {
+		for (int i = 0; i < verts.length; i++) {
 			if (verts[i].equalLocs(v)) {
-				out = i;
+				return i;
 			}
 		}
-		return out;
+		return -1;
 	}
 
 	public boolean equalLocs(Triangle t) {
@@ -102,53 +86,18 @@ public class Triangle {
 
 	public boolean sameVerts(Triangle t) {
 		for (int i = 0; i < 3; i++) {
-			if (!(verts[0] == t.verts[i]
-					|| verts[1] == t.verts[i]
-					|| verts[2] == t.verts[i])) {
+			if (!containsRef(t.verts[i])) {
 				return false;
 			}
 		}
-		return true;
-	}
-
-	public int indexOfRef(GeosetVertex v) {
-		for (int i = 0; i < verts.length; i++) {
-			if (verts[i] == v) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	public boolean equalRefsNoIds(Triangle t) {
-		for (int i = 0; i < 3; i++) {
-			if (t.verts[i] != verts[i]) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	public boolean containsSameVerts(Triangle t) {
-		for (int i = 0; i < 3; i++) {
-			if(!(t.verts[i] == verts[0]
-					|| t.verts[i] == verts[1]
-					|| t.verts[i] == verts[2])){
-				return false;
-			}
-		}
-
 		return true;
 	}
 	public boolean containsSameVerts(GeosetVertex[] vertices) {
 		for (int i = 0; i < 3; i++) {
-			if(!(vertices[i] == verts[0]
-					|| vertices[i] == verts[1]
-					|| vertices[i] == verts[2])){
+			if(!containsRef(vertices[i])){
 				return false;
 			}
 		}
-
 		return true;
 	}
 
@@ -198,31 +147,50 @@ public class Triangle {
 		}
 	}
 
+	public GeosetVertex get(int index) {
+		return verts[index];
+	}
+
+	public Triangle set(int index, GeosetVertex v) {
+		verts[index] = v;
+		return this;
+	}
+
+	public Triangle replace(GeosetVertex oldV, GeosetVertex newV) {
+		for (int i = 0; i < verts.length; i++) {
+			if (verts[i] == oldV) {
+				verts[i] = newV;
+				break;
+			}
+		}
+		return this;
+	}
+
+	public int getId(int index) {
+		return geoset.getVertexId(verts[index]);
+	}
+
 	public Geoset getGeoset() {
 		return geoset;
 	}
 
-	public void setGeoset(Geoset geoset) {
+	public Triangle setGeoset(Geoset geoset) {
 		this.geoset = geoset;
-	}
-
-	public GeosetVertex[] getAll() {
-		return verts;
+		return this;
 	}
 
 	public GeosetVertex[] getVerts() {
 		return verts;
 	}
 
-	public void setVerts(GeosetVertex[] verts) {
+	public Triangle setVerts(GeosetVertex[] verts) {
 		this.verts[0] = verts[0];
 		this.verts[1] = verts[1];
 		this.verts[2] = verts[2];
+		return this;
 	}
 
 	public Vec3 getNormal() {
-		Vec3 edge1 = Vec3.getDiff(verts[1], verts[0]);
-		Vec3 edge2 = Vec3.getDiff(verts[2], verts[1]);
-		return Vec3.getCross(edge1, edge2);
+		return Vec3.getPlaneNorm(verts[0], verts[1], verts[2]);
 	}
 }

@@ -76,7 +76,7 @@ public class CreateFace extends ActionFunction {
 			Triangle newTriangle = new Triangle(verticesArray[0], verticesArray[1], verticesArray[2], geoset);
 			Vec3 facingVector = newTriangle.getNormal();
 
-			if (preferredFacingVector == null){
+			if (preferredFacingVector == null) {
 				preferredFacingVector = verticesArray[0].getNormal();
 			}
 			double cosine = facingVector.dot(preferredFacingVector) / (facingVector.length() * preferredFacingVector.length());

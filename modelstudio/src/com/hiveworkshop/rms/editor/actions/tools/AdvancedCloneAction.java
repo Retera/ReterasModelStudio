@@ -47,7 +47,7 @@ public final class AdvancedCloneAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
+	public AdvancedCloneAction undo() {
 		for (final GeosetVertex gv : newVertices) {
 			gv.getGeoset().remove(gv);
 		}
@@ -64,7 +64,7 @@ public final class AdvancedCloneAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public AdvancedCloneAction redo() {
 		for (final GeosetVertex gv : newVertices) {
 			gv.getGeoset().add(gv);
 		}

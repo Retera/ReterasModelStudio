@@ -83,7 +83,7 @@ public class DrawFaceActivity extends ViewportActivity {
 				Set<GeosetVertex> vertexSet = Collections.singleton(geosetVertex);
 				UndoAction setupAction = getSetupAction(vertexSet, Collections.emptySet()).redo();
 				if(vertices.size() == 3){
-					Triangle triangle = new Triangle(vertices.get(0), vertices.get(1), vertices.get(2));
+					Triangle triangle = new Triangle(vertices.get(0), vertices.get(1), vertices.get(2)).addToVerts();
 					AddTriangleAction addTriangleAction = new AddTriangleAction(geosetVertex.getGeoset(), Collections.singleton(triangle));
 					setupAction = new CompoundAction("Draw Face",  changeListener::geosetsUpdated, setupAction, addTriangleAction.redo());
 				}

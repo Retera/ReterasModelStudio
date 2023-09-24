@@ -119,6 +119,24 @@ public class Vec3 {
 	public static Vec3 getCross(final Vec3 a, final Vec3 b) {
 		return new Vec3(a).cross(b);
 	}
+	public static Vec3 getPlaneNorm(final Vec3 v0, final Vec3 v1, final Vec3 v2) {
+		return new Vec3().setAsPlaneNorm(v0, v1, v2);
+	}
+	public Vec3 setAsPlaneNorm(final Vec3 v0, final Vec3 v1, final Vec3 v2) {
+		float e1_x = v1.x - v0.x;
+		float e1_y = v1.y - v0.y;
+		float e1_z = v1.z - v0.z;
+
+		float e2_x = v2.x - v1.x;
+		float e2_y = v2.y - v1.y;
+		float e2_z = v2.z - v1.z;
+
+		float newX = (e2_y * e1_z) - (e1_y * e2_z);
+		float newY = (e1_x * e2_z) - (e2_x * e1_z);
+		float newZ = (e2_x * e1_y) - (e1_x * e2_y);
+
+		return set(newX, newY, newZ);
+	}
 
 	public static Vec3 getLerped(final Vec3 from, final Vec3 toward, final float t) {
 		return new Vec3(from).lerp(toward, t);

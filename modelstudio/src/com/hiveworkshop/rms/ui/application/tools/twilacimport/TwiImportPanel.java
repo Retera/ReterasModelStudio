@@ -40,11 +40,11 @@ public abstract class TwiImportPanel extends JPanel {
 		recBoneChooserButton = new IdObjectChooserButton(recModel, this).setClasses(Bone.class, Helper.class);
 	}
 
-	protected JPanel getBoneOptionPanel(){
+	protected JPanel getBoneOptionPanel() {
 		SmartButtonGroup extraBonesOption = new SmartButtonGroup("Handle bones of geometry found outside of bone chain");
 //		SmartButtonGroup extraBonesOption = new SmartButtonGroup();
 		extraBonesOption.setButtonConst("");
-		for(BoneOption option : BoneOption.values()){
+		for (BoneOption option : BoneOption.values()) {
 			extraBonesOption.addJRadioButton(option.getText(), e -> boneOption = option).setToolTipText(option.getTooltip());
 		}
 		extraBonesOption.setSelectedIndex(BoneOption.rebindGeometry.ordinal());
@@ -60,7 +60,7 @@ public abstract class TwiImportPanel extends JPanel {
 		return animationMappingPanel.getRecToDonSequenceMap();
 	}
 
-	protected Map<IdObject, IdObject> getChainMap(IdObject mapToBone, EditableModel mapToModel, IdObject mapFromBone, EditableModel mapFromModel, int depth, boolean presentParent){
+	protected Map<IdObject, IdObject> getChainMap(IdObject mapToBone, EditableModel mapToModel, IdObject mapFromBone, EditableModel mapFromModel, int depth, boolean presentParent) {
 		return new BoneChainMapWizard(this, mapToModel, mapFromModel).getChainMap2(mapToBone, mapFromBone, depth, presentParent);
 	}
 
@@ -89,7 +89,7 @@ public abstract class TwiImportPanel extends JPanel {
 			verticesToCull.removeAll(vertexSet);
 			newGeoset.remove(verticesToCull);
 
-			trianglesToRemove.forEach(newGeoset::removeExtended);
+			trianglesToRemove.forEach(triangle -> newGeoset.remove(triangle.removeFromVerts()));
 		}
 		selectedBones.addAll(extraBones);
 		return newGeosets;
@@ -134,7 +134,7 @@ public abstract class TwiImportPanel extends JPanel {
 		Set<GeosetVertex> vertexSet = new HashSet<>();
 		for (IdObject idObject : selectedBones) {
 			System.out.println("Bone: " + idObject.getName());
-			if(idObject instanceof Bone) {
+			if (idObject instanceof Bone) {
 				List<GeosetVertex> vertices = newGeoset.getBoneMap().get(idObject);
 				if (vertices != null) {
 					System.out.println("\tfound " + vertices.size() + " verts!");
@@ -158,7 +158,7 @@ public abstract class TwiImportPanel extends JPanel {
 				}
 
 			} else {
-				if(!selectedBones.containsAll(vertex.getBones())){
+				if (!selectedBones.containsAll(vertex.getBones())) {
 					verticesToPurge.add(vertex);
 				}
 			}
@@ -179,7 +179,7 @@ public abstract class TwiImportPanel extends JPanel {
 					}
 				}
 				for (SkinBone skinBone : vertex.getSkinBones()) {
-					if (skinBone != null && skinBone.getBone() != null && skinBone.getWeight() != 0){
+					if (skinBone != null && skinBone.getBone() != null && skinBone.getWeight() != 0) {
 						skinBone.setWeight((short) (skinBone.getWeight() + extraWeight));
 						break;
 					}
@@ -208,7 +208,7 @@ public abstract class TwiImportPanel extends JPanel {
 		importBonesExtra("Import Bones and Extra Geometry", "Import bones which has vertices to be imported bound to them, and extra vertices bound only to these bones");
 		String text;
 		String tooltip;
-		BoneOption(String text, String tooltip){
+		BoneOption(String text, String tooltip) {
 			this.text = text;
 			this.tooltip = tooltip;
 		}

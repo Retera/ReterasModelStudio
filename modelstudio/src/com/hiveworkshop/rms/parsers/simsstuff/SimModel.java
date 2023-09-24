@@ -117,7 +117,7 @@ public class SimModel {
 			GeosetVertex vertex0 = this.newVertMap.get(simsVert0);
 			GeosetVertex vertex1 = this.newVertMap.get(simsVert1);
 			GeosetVertex vertex2 = this.newVertMap.get(simsVert2);
-			this.newFaceMap.put(face, new Triangle(vertex0, vertex1, vertex2));
+			this.newFaceMap.put(face, new Triangle(vertex0, vertex1, vertex2).addToVerts());
 		}
 
 		return this;

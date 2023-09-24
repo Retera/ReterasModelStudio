@@ -203,12 +203,12 @@ public class SelectionManager extends AbstractSelectionManager {
 		Vec2[] triPoints = new Vec2[] {new Vec2(), new Vec2(), new Vec2()};
 		for (Geoset geoset : modelView.getVisEdGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
-				if (modelView.isEditable(triangle)){
+				if (modelView.isEditable(triangle)) {
 					triPoints[0].setAsProjection(triangle.get(0), viewPortMat);
 					triPoints[1].setAsProjection(triangle.get(1), viewPortMat);
 					triPoints[2].setAsProjection(triangle.get(2), viewPortMat);
 					if (HitTestStuff.triangleOverlapArea(min, max, triPoints)) {
-						newSelection.addAll(Arrays.asList(triangle.getAll()));
+						newSelection.addAll(Arrays.asList(triangle.getVerts()));
 					}
 				}
 			}
@@ -226,9 +226,9 @@ public class SelectionManager extends AbstractSelectionManager {
 		for (Geoset geoset : modelView.getVisEdGeosets()) {
 			RenderGeoset renderGeoset = editorRenderModel.getRenderGeoset(geoset);
 			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
-				if (modelView.isEditable(renderVert.getVertex())){
+				if (modelView.isEditable(renderVert.getVertex())) {
 					vertexV2.setAsProjection(renderVert.getRenderPos(), viewPortAntiRotMat);
-					if (HitTestStuff.hitTest(min, max, vertexV2, vertSize)){
+					if (HitTestStuff.hitTest(min, max, vertexV2, vertSize)) {
 						newSelection.add(renderVert.getVertex());
 					}
 				}
@@ -246,7 +246,7 @@ public class SelectionManager extends AbstractSelectionManager {
 
 				RenderNodeCamera renderNode = editorRenderModel.getRenderNode(node.getParent());
 				Vec3 pivot = node instanceof CameraNode.SourceNode ? renderNode.getPivot() : renderNode.getTarget();
-				if(viewBox.pointInBox(pivot, vertexSize)) {
+				if (viewBox.pointInBox(pivot, vertexSize)) {
 					selectedCamNodes.add(node);
 				}
 			}
@@ -261,7 +261,7 @@ public class SelectionManager extends AbstractSelectionManager {
 				float vertSize = (float) (object.getClickRadius() / 5.0);
 
 				RenderNode2 renderNode = editorRenderModel.getRenderNode(object);
-				if(viewBox.pointInBox(renderNode.getPivot(), vertSize)) {
+				if (viewBox.pointInBox(renderNode.getPivot(), vertSize)) {
 					selectedItems.add(object);
 				}
 //				if (object instanceof CollisionShape) {
@@ -286,12 +286,12 @@ public class SelectionManager extends AbstractSelectionManager {
 		for (Geoset geoset : modelView.getVisEdGeosets()) {
 			RenderGeoset renderGeoset = editorRenderModel.getRenderGeoset(geoset);
 			for (Triangle triangle : geoset.getTriangles()) {
-				if (modelView.isEditable(triangle)){
+				if (modelView.isEditable(triangle)) {
 					Vec3 renderPos0 = renderGeoset.getRenderVert(triangle.get(0)).getRenderPos();
 					Vec3 renderPos1 = renderGeoset.getRenderVert(triangle.get(1)).getRenderPos();
 					Vec3 renderPos2 = renderGeoset.getRenderVert(triangle.get(2)).getRenderPos();
-					if(viewBox.anyPointInBox(vertSize, renderPos0, renderPos1, renderPos2)
-							|| viewBox.triIntersectBox(renderPos0, renderPos1, renderPos2)){
+					if (viewBox.anyPointInBox(vertSize, renderPos0, renderPos1, renderPos2)
+							|| viewBox.triIntersectBox(renderPos0, renderPos1, renderPos2)) {
 //						System.out.println("point in box!");
 						newSelection.add(triangle.get(0));
 						newSelection.add(triangle.get(1));
@@ -311,8 +311,8 @@ public class SelectionManager extends AbstractSelectionManager {
 		for (Geoset geoset : modelView.getVisEdGeosets()) {
 			RenderGeoset renderGeoset = editorRenderModel.getRenderGeoset(geoset);
 			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
-				if (modelView.isEditable(renderVert.getVertex())){
-					if(viewBox.pointInBox(renderVert.getRenderPos(), vertSize)) {
+				if (modelView.isEditable(renderVert.getVertex())) {
+					if (viewBox.pointInBox(renderVert.getRenderPos(), vertSize)) {
 						newSelection.add(renderVert.getVertex());
 					}
 				}
@@ -407,7 +407,7 @@ public class SelectionManager extends AbstractSelectionManager {
 		if (selectionMode == SelectionItemTypes.ANIMATE || selectionMode == SelectionItemTypes.TPOSE) {
 			int tot = 0;
 			Vec3 centerOfGroupSumHeap = new Vec3(0, 0, 0);
-			if(selectionMode != SelectionItemTypes.TPOSE && allowSelectVerts){
+			if (selectionMode != SelectionItemTypes.TPOSE && allowSelectVerts) {
 				for (GeosetVertex object : modelView.getSelectedVertices()) {
 					centerOfGroupSumHeap.add(editorRenderModel.getRenderGeoset(object.getGeoset()).getRenderVert(object).getRenderPos());
 					tot++;
@@ -418,7 +418,7 @@ public class SelectionManager extends AbstractSelectionManager {
 				tot++;
 			}
 			for (CameraNode cameraNode : modelView.getSelectedCameraNodes()) {
-				if(cameraNode instanceof CameraNode.SourceNode){
+				if (cameraNode instanceof CameraNode.SourceNode) {
 					centerOfGroupSumHeap.add(editorRenderModel.getRenderNode(cameraNode).getPivot());
 					tot++;
 				} else if (cameraNode instanceof CameraNode.TargetNode) {
@@ -626,7 +626,7 @@ public class SelectionManager extends AbstractSelectionManager {
 				float vertSize = (float) (object.getClickRadius() / 5.0);
 
 				RenderNode2 renderNode = editorRenderModel.getRenderNode(object);
-				if(viewBox.pointInBox(renderNode.getPivot(), vertSize)) {
+				if (viewBox.pointInBox(renderNode.getPivot(), vertSize)) {
 					return true;
 				}
 //				if (object instanceof CollisionShape) {
@@ -648,7 +648,7 @@ public class SelectionManager extends AbstractSelectionManager {
 
 				RenderNodeCamera renderNode = editorRenderModel.getRenderNode(node.getParent());
 				Vec3 pivot = node instanceof CameraNode.SourceNode ? renderNode.getPivot() : renderNode.getTarget();
-				if(viewBox.pointInBox(pivot, vertexSize)) {
+				if (viewBox.pointInBox(pivot, vertexSize)) {
 					return true;
 				}
 			}
@@ -662,8 +662,8 @@ public class SelectionManager extends AbstractSelectionManager {
 		for (Geoset geoset : modelView.getVisEdGeosets()) {
 			RenderGeoset renderGeoset = editorRenderModel.getRenderGeoset(geoset);
 			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
-				if (modelView.isEditable(renderVert.getVertex())){
-					if(viewBox.pointInBox(renderVert.getRenderPos(), vertSize)) {
+				if (modelView.isEditable(renderVert.getVertex())) {
+					if (viewBox.pointInBox(renderVert.getRenderPos(), vertSize)) {
 						return true;
 					}
 				}
@@ -677,18 +677,18 @@ public class SelectionManager extends AbstractSelectionManager {
 		for (Geoset geoset : modelView.getVisEdGeosets()) {
 			RenderGeoset renderGeoset = editorRenderModel.getRenderGeoset(geoset);
 			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
-				if (modelView.isEditable(renderVert.getVertex())){
-					if(viewBox.pointInBox(renderVert.getRenderPos(), vertSize)) {
+				if (modelView.isEditable(renderVert.getVertex())) {
+					if (viewBox.pointInBox(renderVert.getRenderPos(), vertSize)) {
 						return true;
 					}
 				}
 			}
 			for (Triangle triangle : geoset.getTriangles()) {
-				if (modelView.isEditable(triangle)){
+				if (modelView.isEditable(triangle)) {
 					Vec3 renderPos0 = renderGeoset.getRenderVert(triangle.get(0)).getRenderPos();
 					Vec3 renderPos1 = renderGeoset.getRenderVert(triangle.get(1)).getRenderPos();
 					Vec3 renderPos2 = renderGeoset.getRenderVert(triangle.get(2)).getRenderPos();
-					if(viewBox.triIntersectBox(renderPos0, renderPos1, renderPos2)){
+					if (viewBox.triIntersectBox(renderPos0, renderPos1, renderPos2)) {
 						return true;
 					}
 				}
@@ -703,12 +703,12 @@ public class SelectionManager extends AbstractSelectionManager {
 		for (Geoset geoset : modelView.getVisEdGeosets()) {
 			RenderGeoset renderGeoset = editorRenderModel.getRenderGeoset(geoset);
 			for (Triangle triangle : geoset.getTriangles()) {
-				if (modelView.isEditable(triangle)){
+				if (modelView.isEditable(triangle)) {
 					Vec3 renderPos0 = renderGeoset.getRenderVert(triangle.get(0)).getRenderPos();
 					Vec3 renderPos1 = renderGeoset.getRenderVert(triangle.get(1)).getRenderPos();
 					Vec3 renderPos2 = renderGeoset.getRenderVert(triangle.get(2)).getRenderPos();
-					if(viewBox.anyPointInBox(vertSize, renderPos0, renderPos1, renderPos2)
-							|| viewBox.triIntersectBox(renderPos0, renderPos1, renderPos2)){
+					if (viewBox.anyPointInBox(vertSize, renderPos0, renderPos1, renderPos2)
+							|| viewBox.triIntersectBox(renderPos0, renderPos1, renderPos2)) {
 						return true;
 					}
 				}

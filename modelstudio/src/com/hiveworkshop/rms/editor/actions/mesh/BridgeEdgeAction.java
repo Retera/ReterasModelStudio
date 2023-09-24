@@ -9,38 +9,38 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import java.util.*;
 
 public class BridgeEdgeAction implements UndoAction {
-	ModelStructureChangeListener changeListener;
-	List<Triangle> addedTriangles = new ArrayList<>();
-	List<LinkedList<GeosetVertex>> edges = new ArrayList<>();
-	Geoset geoset;
+	private final ModelStructureChangeListener changeListener;
+	private final List<Triangle> addedTriangles;
+	private List<LinkedList<GeosetVertex>> edges = new ArrayList<>();
+	private Geoset geoset;
 
 	public BridgeEdgeAction(Collection<GeosetVertex> selection, ModelStructureChangeListener changeListener) {
 		this.changeListener = changeListener;
 
-		if(!selection.isEmpty()){
+		if (!selection.isEmpty()) {
 			geoset = selection.stream().findFirst().get().getGeoset();
 			edges = collectEdges(selection);
 
-			if(edges.size() > 1 && edges.get(0).size()>1 && edges.get(1).size()>1){
+			if (1 < edges.size() && 1 < edges.get(0).size() && 1 < edges.get(1).size()) {
 				LinkedList<GeosetVertex> firstEdge = edges.get(0);
 				LinkedList<GeosetVertex> secondEdge = edges.get(1);
-				if(firstEdge.getFirst().getGeoset() == secondEdge.getFirst().getGeoset()){
+				if (firstEdge.getFirst().getGeoset() == secondEdge.getFirst().getGeoset()) {
 					alignEdges();
 				}
 			}
 		}
 
-
+		addedTriangles = getFillTris();
 	}
 
 	private List<LinkedList<GeosetVertex>> collectEdges(Collection<GeosetVertex> selection) {
 		Set<GeosetVertex> vertexPool = new HashSet<>(selection);
 		List<LinkedList<GeosetVertex>> edges = new ArrayList<>();
-		while (!vertexPool.isEmpty()){
+		while (!vertexPool.isEmpty()) {
 			GeosetVertex entryVertex = vertexPool.stream().findFirst().get();
 			vertexPool.remove(entryVertex);
 
-			if(entryVertex.getGeoset() == geoset){
+			if (entryVertex.getGeoset() == geoset) {
 				LinkedList<GeosetVertex> currEdge = new LinkedList<>();
 				edges.add(currEdge);
 
@@ -49,7 +49,7 @@ public class BridgeEdgeAction implements UndoAction {
 				GeosetVertex validNeighbour;
 				do {
 					validNeighbour = getValidNeighbour(vertexPool, currEdge.getLast());
-					if(validNeighbour != null){
+					if (validNeighbour != null) {
 						currEdge.addLast(validNeighbour);
 						vertexPool.remove(validNeighbour);
 					}
@@ -57,7 +57,7 @@ public class BridgeEdgeAction implements UndoAction {
 
 				do {
 					validNeighbour = getValidNeighbour(vertexPool, currEdge.getFirst());
-					if(validNeighbour != null){
+					if (validNeighbour != null) {
 						currEdge.addFirst(validNeighbour);
 						vertexPool.remove(validNeighbour);
 					}
@@ -68,9 +68,9 @@ public class BridgeEdgeAction implements UndoAction {
 	}
 
 	private GeosetVertex getValidNeighbour(Set<GeosetVertex> vertexPool, GeosetVertex vertex) {
-		for(Triangle triangle : vertex.getTriangles()){
-			for(GeosetVertex vert : triangle.getVerts()){
-				if(vertexPool.contains(vert)){
+		for (Triangle triangle : vertex.getTriangles()) {
+			for (GeosetVertex vert : triangle.getVerts()) {
+				if (vertexPool.contains(vert)) {
 					return vert;
 				}
 			}
@@ -81,13 +81,13 @@ public class BridgeEdgeAction implements UndoAction {
 	private void alignEdges() {
 		LinkedList<GeosetVertex> firstEdge = edges.get(0);
 		LinkedList<GeosetVertex> secondEdge = edges.get(1);
-		if (isCircular(secondEdge)){
+		if (isCircular(secondEdge)) {
 			alignStart(firstEdge.getFirst(), secondEdge);
-		} else if (isCircular(firstEdge)){
+		} else if (isCircular(firstEdge)) {
 			alignStart(secondEdge.getFirst(), firstEdge);
 		}
 
-		if (firstEdge.get(1).distance(secondEdge.getLast()) < firstEdge.get(1).distance(secondEdge.get(1))){
+		if (firstEdge.get(1).distance(secondEdge.getLast()) < firstEdge.get(1).distance(secondEdge.get(1))) {
 			LinkedList<GeosetVertex> tempList = new LinkedList<>();
 
 			for (GeosetVertex vertex : secondEdge) {
@@ -118,23 +118,23 @@ public class BridgeEdgeAction implements UndoAction {
 	}
 
 
-	private void getFillTris(){
-		if(edges.size()>1){
+	private List<Triangle> getFillTris() {
+		List<Triangle> addedTriangles = new ArrayList<>();
+		if (1 < edges.size()) {
 			LinkedList<GeosetVertex> firstEdge = edges.get(0);
 			LinkedList<GeosetVertex> secondEdge = edges.get(1);
 			GeosetVertex last_e1 = firstEdge.pollFirst();
 			GeosetVertex last_e2 = secondEdge.pollFirst();
 			GeosetVertex cand_e1 = firstEdge.pollFirst();
 			GeosetVertex cand_e2 = secondEdge.pollFirst();
+			while (last_e1 != null && last_e2 != null || !firstEdge.isEmpty() && !secondEdge.isEmpty()) {
 
-			while (last_e1 != null && last_e2 != null || !firstEdge.isEmpty() && !secondEdge.isEmpty()){
-
-				if(cand_e2 != null && (cand_e1 == null || last_e1.distance(cand_e2) < last_e2.distance(cand_e1))){
-					addedTriangles.add(new Triangle(last_e1, last_e2, cand_e2));
+				if (cand_e2 != null && (cand_e1 == null || last_e1.distance(cand_e2) < last_e2.distance(cand_e1))) {
+					addedTriangles.add(new Triangle(last_e1, last_e2, cand_e2, geoset));
 					last_e2 = cand_e2;
 					cand_e2 = secondEdge.pollFirst();
 				} else if (cand_e1 != null) {
-					addedTriangles.add(new Triangle(last_e1, last_e2, cand_e1));
+					addedTriangles.add(new Triangle(last_e1, last_e2, cand_e1, geoset));
 					last_e1 = cand_e1;
 					cand_e1 = firstEdge.pollFirst();
 				} else {
@@ -142,19 +142,14 @@ public class BridgeEdgeAction implements UndoAction {
 				}
 			}
 		}
-
+		return addedTriangles;
 	}
 
 	@Override
-	public UndoAction redo() {
-		if(geoset != null){
-			if(addedTriangles.isEmpty()){
-				getFillTris();
-				geoset.addTriangles(addedTriangles);
-			} else {
-				for (Triangle triangle : addedTriangles){
-					geoset.addExtended(triangle);
-				}
+	public BridgeEdgeAction redo() {
+		if (geoset != null) {
+			for (Triangle triangle : addedTriangles) {
+				geoset.add(triangle.addToVerts());
 			}
 
 			if (changeListener != null) {
@@ -165,10 +160,10 @@ public class BridgeEdgeAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
-		if(geoset != null){
-			for (Triangle triangle : addedTriangles){
-				geoset.removeExtended(triangle);
+	public BridgeEdgeAction undo() {
+		if (geoset != null) {
+			for (Triangle triangle : addedTriangles) {
+				geoset.remove(triangle.removeFromVerts());
 			}
 
 			if (changeListener != null) {

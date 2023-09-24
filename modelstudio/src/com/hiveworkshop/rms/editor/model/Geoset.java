@@ -29,8 +29,8 @@ public class Geoset extends TimelineContainer implements Named {
 
 	@Override
 	public String getName() {
-		if(tempName == null){
-			if(parentModel != null){
+		if (tempName == null) {
+			if (parentModel != null) {
 				tempName = "# " + (parentModel.getGeosetId(this)) + ": ";
 			} else {
 				tempName = "# ? ";
@@ -51,26 +51,8 @@ public class Geoset extends TimelineContainer implements Named {
 		return tempName;
 	}
 
-	public void resetTempName(){
+	public void resetTempName() {
 		tempName = null;
-	}
-
-	public String getName11() {
-		if(parentModel != null){
-			if (levelOfDetailName.equals("")) {
-				Map<Bone, List<GeosetVertex>> boneMap = getBoneMap();
-				if (!boneMap.isEmpty()) {
-					Set<Bone> bones = boneMap.keySet();
-					bones.removeIf(Objects::isNull);
-					String name = ModelUtils.sdGetMostCommonUniqueBoneName(bones);
-					return "# " + (parentModel.getGeosetId(this)) + ": " + name;
-				}
-				return "# " + (parentModel.getGeosetId(this));
-			} else {
-				return "# " + (parentModel.getGeosetId(this)) + ": " + levelOfDetailName;
-			}
-		}
-		return "Geosets";
 	}
 
 	@Override
@@ -195,7 +177,7 @@ public class Geoset extends TimelineContainer implements Named {
 	}
 
 	public Geoset add(Animation a, ExtLog e) {
-		if (e != null){
+		if (e != null) {
 			animExts.put(a, e);
 		} else {
 			animExts.remove(a);
@@ -234,14 +216,14 @@ public class Geoset extends TimelineContainer implements Named {
 		LinkedHashSet<Matrix> matrixSet = new LinkedHashSet<>();
 		for (GeosetVertex vertex : vertices) {
 			Matrix matrix = vertex.getMatrix();
-			if(!matrix.isEmpty()){
+			if (!matrix.isEmpty()) {
 				matrixSet.add(matrix);
 			}
 		}
 		return matrixSet;
 	}
 
-	public Set<Bone> collectBones(){
+	public Set<Bone> collectBones() {
 		Set<Bone> boneSet = new HashSet<>();
 		for (GeosetVertex vertex : vertices) {
 			boneSet.addAll(vertex.getAllBones());
@@ -249,7 +231,7 @@ public class Geoset extends TimelineContainer implements Named {
 		return boneSet;
 	}
 
-	public void reMakeMatrixList(){
+	public void reMakeMatrixList() {
 //		matrices.clear();
 //		for (GeosetVertex vertex : vertices) {
 //			if (!matrices.contains(vertex.getMatrix())) {
@@ -308,26 +290,10 @@ public class Geoset extends TimelineContainer implements Named {
 		return this;
 	}
 
-	public Geoset removeExtended(final Triangle tri) {
-		triangles.remove(tri);
-		for (GeosetVertex vertex : tri.getVerts()) {
-			vertex.removeTriangle(tri);
-		}
-		return this;
-	}
-
 	public Geoset cureVertTries() {
 		Set<Triangle> triangleSet = new HashSet<>(triangles);
 		for (GeosetVertex vertex : vertices) {
 			vertex.getTriangles().removeIf(t -> !triangleSet.contains(t));
-		}
-		return this;
-	}
-
-	public Geoset addExtended(final Triangle tri) {
-		triangles.add(tri);
-		for (GeosetVertex vertex : tri.getVerts()) {
-			vertex.addTriangle(tri);
 		}
 		return this;
 	}
@@ -368,31 +334,31 @@ public class Geoset extends TimelineContainer implements Named {
 		return bones;
 	}
 
-	public Geoset deepCopy(){
+	public Geoset deepCopy() {
 		Geoset geoset = emptyCopy();
 
 		Map<GeosetVertex, GeosetVertex> oldToNew = new HashMap<>();
-		for(GeosetVertex geosetVertex : vertices){
+		for (GeosetVertex geosetVertex : vertices) {
 			GeosetVertex newVertex = oldToNew.computeIfAbsent(geosetVertex, k -> geosetVertex.deepCopy());
 			newVertex.clearTriangles();
 			newVertex.setGeoset(geoset);
 			geoset.add(newVertex);
 		}
-		for(Triangle triangle : triangles){
+		for (Triangle triangle : triangles) {
 			GeosetVertex v0 = oldToNew.get(triangle.get(0));
 			GeosetVertex v1 = oldToNew.get(triangle.get(1));
 			GeosetVertex v2 = oldToNew.get(triangle.get(2));
-			geoset.add(new Triangle(v0, v1, v2, geoset));
+			geoset.add(new Triangle(v0, v1, v2, geoset).addToVerts());
 		}
 		return geoset;
 	}
 
-	public Geoset emptyCopy(){
+	public Geoset emptyCopy() {
 		Geoset geoset = new Geoset();
 		geoset.setExtents(extents.deepCopy());
 
 		geoset.setLevelOfDetailName(levelOfDetailName);
-		for(Animation anim : animExts.keySet()){
+		for (Animation anim : animExts.keySet()) {
 			geoset.add(anim, animExts.get(anim).deepCopy());
 		}
 		geoset.setMaterial(material);
@@ -412,7 +378,7 @@ public class Geoset extends TimelineContainer implements Named {
 		return geoset;
 	}
 
-	public boolean hasAnim(){
+	public boolean hasAnim() {
 		return !animFlags.isEmpty() || staticAlpha != 1f || !staticColor.equalLocs(Vec3.ONE);
 	}
 

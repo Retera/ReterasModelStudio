@@ -31,7 +31,7 @@ public class TwilacsHandWizard {
 		HandBones rm_L = new HandBones(recModel, side_L);
 		LocRotScale leftHandAdj = getHandAdj(hm_L, rm_L);
 		Set<Geoset> leftHandGeos = getNewGeosets(hm_L.allHandBones);
-		for(Geoset geoset : leftHandGeos){
+		for (Geoset geoset : leftHandGeos) {
 			translateVertices(geoset, nameToNode, leftHandAdj, rm_L);
 		}
 
@@ -41,15 +41,15 @@ public class TwilacsHandWizard {
 		HandBones rm_R = new HandBones(recModel, side_R);
 		LocRotScale rightHandAdj = getHandAdj(hm_R, rm_R);
 		Set<Geoset> rightHandGeos = getNewGeosets(hm_R.allHandBones);
-		for(Geoset geoset : rightHandGeos){
+		for (Geoset geoset : rightHandGeos) {
 			translateVertices(geoset, nameToNode, rightHandAdj, rm_R);
 		}
 
 
-		for(Geoset geoset : leftHandGeos){
+		for (Geoset geoset : leftHandGeos) {
 			actions.add(new AddGeosetAction(geoset, recModel, null));
 		}
-		for(Geoset geoset : rightHandGeos){
+		for (Geoset geoset : rightHandGeos) {
 			actions.add(new AddGeosetAction(geoset, recModel, null));
 		}
 
@@ -59,9 +59,9 @@ public class TwilacsHandWizard {
 
 	private void translateVertices(Geoset geoset, Map<String, Bone> nameToNode, LocRotScale handAdj, HandBones rm) {
 		Vec3 pivotPoint = rm.hand.getPivotPoint();
-		for(GeosetVertex vertex : geoset.getVertices()){
+		for (GeosetVertex vertex : geoset.getVertices()) {
 			vertex.add(handAdj.loc).scale(pivotPoint, handAdj.scale).rotate(pivotPoint, handAdj.rot);
-			if(vertex.getSkinBones() != null){
+			if (vertex.getSkinBones() != null) {
 				replaceHDBones((Bone) rm.hand, nameToNode, vertex);
 			} else {
 				replaceSDBones((Bone) rm.hand, nameToNode, vertex);
@@ -91,7 +91,7 @@ public class TwilacsHandWizard {
 			verticesToCull.removeAll(vertexSet);
 			newGeoset.remove(verticesToCull);
 
-			trianglesToRemove.forEach(newGeoset::removeExtended);
+			trianglesToRemove.forEach(triangle -> newGeoset.remove(triangle.removeFromVerts()));
 		}
 		return newGeosets;
 	}
@@ -140,7 +140,7 @@ public class TwilacsHandWizard {
 		return extraBones;
 	}
 
-	private Map<String, Bone> getBoneNameMap(EditableModel model){
+	private Map<String, Bone> getBoneNameMap(EditableModel model) {
 		Map<String, Bone> nameToNode = new HashMap<>();
 		for (Bone bone : model.getBones()) {
 			nameToNode.put(bone.getName(), bone);
@@ -148,7 +148,7 @@ public class TwilacsHandWizard {
 		return nameToNode;
 	}
 
-	private LocRotScale getHandAdj(HandBones hm, HandBones rm){
+	private LocRotScale getHandAdj(HandBones hm, HandBones rm) {
 //		IdObject hm_hand = handModel.getObject("bone_hand_left");
 //		IdObject hm_tmb = handModel.getObject("L_tmb_01_bind_jnt");
 //		IdObject hm_mid = handModel.getObject("L_mid_finger_01_bind_jnt");
@@ -188,7 +188,7 @@ public class TwilacsHandWizard {
 		return new LocRotScale(locDiff, totRot, scaleDiff);
 //		return new LocRotScale(locDiff, new Quat(), 1);
 	}
-	private LocRotScale getHandAdjTmb(HandBones hm, HandBones rm){
+	private LocRotScale getHandAdjTmb(HandBones hm, HandBones rm) {
 //		IdObject hm_hand = handModel.getObject("bone_hand_left");
 //		IdObject hm_tmb = handModel.getObject("L_tmb_01_bind_jnt");
 //		IdObject hm_mid = handModel.getObject("L_mid_finger_01_bind_jnt");
@@ -251,7 +251,7 @@ public class TwilacsHandWizard {
 					replacement = fallBackBone;
 //							throw new IllegalStateException("failed to replace: " + boneName);
 				} else {
-					while ((upwardDepth > 0) && (replacement.getChildrenNodes().size() == 1)
+					while ((0 < upwardDepth) && (replacement.getChildrenNodes().size() == 1)
 							&& (replacement.getChildrenNodes().get(0) instanceof Bone)) {
 						replacement = (Bone) replacement.getChildrenNodes().get(0);
 						upwardDepth--;
@@ -283,7 +283,7 @@ public class TwilacsHandWizard {
 					replacement = fallBackBone;
 //							throw new IllegalStateException("failed to replace: " + boneName);
 				} else {
-					while ((upwardDepth > 0) && (replacement.getChildrenNodes().size() == 1)
+					while ((0 < upwardDepth) && (replacement.getChildrenNodes().size() == 1)
 							&& (replacement.getChildrenNodes().get(0) instanceof Bone)) {
 						replacement = (Bone) replacement.getChildrenNodes().get(0);
 						upwardDepth--;
@@ -299,7 +299,7 @@ public class TwilacsHandWizard {
 		Vec3 loc;
 		Quat rot;
 		float scale;
-		LocRotScale(Vec3 loc, Quat rot, float scale){
+		LocRotScale(Vec3 loc, Quat rot, float scale) {
 			this.loc = loc;
 			this.rot = rot;
 			this.scale = scale;
@@ -313,7 +313,7 @@ public class TwilacsHandWizard {
 		IdObject mid;
 		Set<Bone> allHandBones;
 
-		HandBones(EditableModel model, String side){
+		HandBones(EditableModel model, String side) {
 			hand = model.getObject("bone_hand_" + side);
 			tmb = model.getObject(side.toUpperCase(Locale.ROOT).charAt(0) + "_tmb_01_bind_jnt");
 			ind = model.getObject(side.toUpperCase(Locale.ROOT).charAt(0) + "_ind_finger_01_bind_jnt");
@@ -325,11 +325,11 @@ public class TwilacsHandWizard {
 
 
 
-		private void collectAllChildren(IdObject parent, Set<Bone> collected){
-			if(parent instanceof Bone && !(parent instanceof Helper)){
+		private void collectAllChildren(IdObject parent, Set<Bone> collected) {
+			if (parent instanceof Bone && !(parent instanceof Helper)) {
 				collected.add((Bone) parent);
 			}
-			for(IdObject child : parent.getChildrenNodes()){
+			for (IdObject child : parent.getChildrenNodes()) {
 				collectAllChildren(child, collected);
 			}
 		}

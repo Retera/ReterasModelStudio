@@ -92,7 +92,7 @@ public class ViewportTransferHandler extends TransferHandler {
 			return false;
 		}
 
-//		if(viewport != null){
+//		if (viewport != null) {
 //			if (info.isDrop()) { // This is a drop
 ////				System.out.println("drop Viewport_______________________________________________________");
 //				Viewport.DropLocation dl = (Viewport.DropLocation) info.getDropLocation();
@@ -136,7 +136,7 @@ public class ViewportTransferHandler extends TransferHandler {
 
 		Set<IdObject> validIdObjects = new HashSet<>();
 		for (IdObject idObject : pastedModel.getIdObjects()) {
-			if(!idObject.getName().endsWith(PLACEHOLDER_TAG)){
+			if (!idObject.getName().endsWith(PLACEHOLDER_TAG)) {
 				for (AnimFlag<?> animFlag : idObject.getAnimFlags()) {
 					replaceAnimations(animFlag, sequenceMap);
 				}
@@ -147,8 +147,8 @@ public class ViewportTransferHandler extends TransferHandler {
 				placeHolderBones.put(idObject.getName().replaceAll(PLACEHOLDER_TAG, ""), idObject);
 			}
 		}
-		for(Bone bone : currentModel.getBones()){
-			if(placeHolderBones.containsKey(bone.getName())){
+		for (Bone bone : currentModel.getBones()) {
+			if (placeHolderBones.containsKey(bone.getName())) {
 				placeHolderBonesToModelBones.put(placeHolderBones.get(bone.getName()), bone);
 			}
 		}
@@ -159,7 +159,7 @@ public class ViewportTransferHandler extends TransferHandler {
 			for (AnimFlag<?> animFlag : pastedGeoset.getAnimFlags()) {
 				replaceAnimations(animFlag, sequenceMap);
 			}
-			for (GeosetVertex vertex : pastedGeoset.getVertices()){
+			for (GeosetVertex vertex : pastedGeoset.getVertices()) {
 				if (vertex.getSkinBones() != null) {
 					for (SkinBone skinBone : vertex.getSkinBones()) {
 						Bone bone = skinBone.getBone();
@@ -175,14 +175,14 @@ public class ViewportTransferHandler extends TransferHandler {
 			undoActions.add(new AddGeosetAction(pastedGeoset, currentModel, null));
 		}
 
-		for (Material material : pastedModel.getMaterials()){
-			for(Layer layer : material.getLayers()){
+		for (Material material : pastedModel.getMaterials()) {
+			for (Layer layer : material.getLayers()) {
 				for (AnimFlag<?> animFlag : layer.getAnimFlags()) {
 					replaceAnimations(animFlag, sequenceMap);
 				}
 			}
 
-			if(!currentModel.contains(material)){
+			if (!currentModel.contains(material)) {
 				undoActions.add(new AddMaterialAction(material, currentModel, null));
 			}
 		}
@@ -214,9 +214,9 @@ public class ViewportTransferHandler extends TransferHandler {
 		undoManager.pushAction(pasteAndSelectAction.redo());
 	}
 
-	private <Q> void replaceAnimations(AnimFlag<Q> animFlag, Map<Sequence, Sequence> sequenceMap){
-		for(Sequence sequence : sequenceMap.keySet()){
-			if(animFlag.getEntryMap(sequence) != null && sequenceMap.get(sequence) != null){
+	private <Q> void replaceAnimations(AnimFlag<Q> animFlag, Map<Sequence, Sequence> sequenceMap) {
+		for (Sequence sequence : sequenceMap.keySet()) {
+			if (animFlag.getEntryMap(sequence) != null && sequenceMap.get(sequence) != null) {
 				System.out.println("replacing " + sequence + " with " + sequenceMap.get(sequence));
 				TreeMap<Integer, Entry<Q>> entryMap = animFlag.getEntryMap(sequence);
 				animFlag.deleteAnim(sequence);
@@ -225,10 +225,10 @@ public class ViewportTransferHandler extends TransferHandler {
 		}
 	}
 
-	private  Map<Sequence, Sequence> getSequenceMap(List<Sequence> pastedModelSequences, List<Sequence> sequences){
+	private  Map<Sequence, Sequence> getSequenceMap(List<Sequence> pastedModelSequences, List<Sequence> sequences) {
 		Map<Sequence, Sequence> sequenceMap = new HashMap<>();
 		for (Sequence pSequence : pastedModelSequences) {
-			for (Sequence sequence : sequences){
+			for (Sequence sequence : sequences) {
 				if (pSequence.getLength() == sequence.getLength()) {
 					if (pSequence instanceof Animation && sequence instanceof Animation) {
 						if (((Animation) pSequence).getName().equals(((Animation) sequence).getName())) {
@@ -285,9 +285,9 @@ public class ViewportTransferHandler extends TransferHandler {
 
 		for (Sequence sequence : currentModel.getAllSequences()) {
 			// Need to be original instances to not mess timeline saving
-			if (sequence instanceof Animation){
+			if (sequence instanceof Animation) {
 				stringableModel.add((Animation) sequence);
-			} else if (sequence instanceof GlobalSeq){
+			} else if (sequence instanceof GlobalSeq) {
 				stringableModel.add((GlobalSeq) sequence);
 			}
 		}
@@ -318,7 +318,7 @@ public class ViewportTransferHandler extends TransferHandler {
 
 		for (Material material : stringableModel.getMaterials()) {
 			for (Layer layer : material.getLayers()) {
-				if (layer.getTextureAnim() != null){
+				if (layer.getTextureAnim() != null) {
 					stringableModel.add(layer.getTextureAnim());
 				}
 			}
@@ -350,7 +350,7 @@ public class ViewportTransferHandler extends TransferHandler {
 		Vec3 vertPosSum = new Vec3(0,0,0);
 		for (GeosetVertex geosetVertex : geoset.getVertices()) {
 			vertPosSum.add(geosetVertex);
-			if (geosetVertex.getSkinBones() != null){
+			if (geosetVertex.getSkinBones() != null) {
 				for (SkinBone skinBone : geosetVertex.getSkinBones()) {
 					if (skinBone != null && skinBone.getBone() != null && !stringableModel.contains(skinBone.getBone())) {
 						skinBone.setBone(dummyBone);
@@ -458,8 +458,8 @@ public class ViewportTransferHandler extends TransferHandler {
 				Triangle newTriangle = new Triangle(
 						vertToCopiedVert.get(triangle.get(0)),
 						vertToCopiedVert.get(triangle.get(1)),
-						vertToCopiedVert.get(triangle.get(2)));
-				newTriangle.setGeoset(newGeoset);
+						vertToCopiedVert.get(triangle.get(2)),
+						newGeoset).addToVerts();
 				newGeoset.add(newTriangle);
 			}
 		}
@@ -472,16 +472,16 @@ public class ViewportTransferHandler extends TransferHandler {
 				for (SkinBone skinBone : vertex.getSkinBones()) {
 					Bone bone = skinBone.getBone();
 					if (bone != null) {
-						if(nodesToClonedNodes.get(bone) != null){
+						if (nodesToClonedNodes.get(bone) != null) {
 							skinBone.setBone((Bone) nodesToClonedNodes.get(bone));
-						}else {
+						} else {
 							Bone copy = getPlaceholderBone(bone);
 							nodesToClonedNodes.put(bone, copy);
 						}
 					}
 				}
 			} else if (!vertex.getBones().isEmpty()) {
-				for (Bone bone : vertex.getBones()){
+				for (Bone bone : vertex.getBones()) {
 					nodesToClonedNodes.computeIfAbsent(bone, k -> getPlaceholderBone(bone));
 				}
 				vertex.replaceBones(nodesToClonedNodes);

@@ -101,7 +101,7 @@ public class Generator {
 		}
 
 		for (int[] face : simModel2.getFaces()) {
-			Triangle triangle = new Triangle(realVerts.get(face[0]), realVerts.get(face[1]), realVerts.get(face[2]));
+			Triangle triangle = new Triangle(realVerts.get(face[0]), realVerts.get(face[1]), realVerts.get(face[2])).addToVerts();
 			faces.add(triangle);
 		}
 	}
@@ -180,7 +180,7 @@ public class Generator {
 		}
 
 		for (int[] face : simModel2.getFaces()) {
-			Triangle triangle = new Triangle(realVerts.get(face[0]), realVerts.get(face[1]), realVerts.get(face[2]));
+			Triangle triangle = new Triangle(realVerts.get(face[0]), realVerts.get(face[1]), realVerts.get(face[2])).addToVerts();
 			faces.add(triangle);
 		}
 	}

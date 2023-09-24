@@ -49,8 +49,8 @@ public final class ModelUtils {
 				GeosetVertex lowerL = vertexGrid[y + 1][x];
 				GeosetVertex lowerR = vertexGrid[y + 1][x + 1];
 
-				mesh.add(new Triangle(lowerL, upperL, upperR));
-				mesh.add(new Triangle(lowerR, lowerL, upperR));
+				mesh.add(new Triangle(lowerL, upperL, upperR).addToVerts());
+				mesh.add(new Triangle(lowerR, lowerL, upperR).addToVerts());
 			}
 		}
 
