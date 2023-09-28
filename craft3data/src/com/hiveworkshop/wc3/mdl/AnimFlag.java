@@ -2619,6 +2619,9 @@ public class AnimFlag {
 			time = animation.getStart() + animatedRenderEnvironment.getAnimationTime();
 			final int floorAnimStartIndex = Math.max(0, floorIndex(animation.getStart() + 1));
 			final int floorAnimEndIndex = Math.max(0, floorIndex(animation.getEnd()));
+			if (floorAnimStartIndex == floorAnimEndIndex) {
+				return values.get(floorAnimStartIndex);
+			}
 			floorIndex = floorIndex(time);
 			ceilIndex = ceilIndex(time);
 			if (ceilIndex < floorIndex) {
