@@ -41,6 +41,7 @@ public abstract class BufferSubInstance {
 	protected Mat4 uvTransform = new Mat4();
 	protected boolean twoSided = false;
 	protected boolean renderTextures = false;
+	protected boolean opaque = false;
 	protected final TextureThing textureThing;
 	protected final EditableModel model;
 	protected Layer diffuseLayer;
@@ -206,5 +207,12 @@ public abstract class BufferSubInstance {
 		return twoSided;
 	}
 
+	public BufferSubInstance setOpaque(boolean opaque) {
+		this.opaque = opaque;
+		return this;
+	}
 
+	public boolean isOpaque() {
+		return opaque;
+	}
 }

@@ -17,6 +17,7 @@ import com.hiveworkshop.rms.ui.preferences.EditorColorPrefs;
 import com.hiveworkshop.rms.util.*;
 import org.lwjgl.opengl.GL11;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GeosetBufferFiller {
@@ -65,37 +66,38 @@ public class GeosetBufferFiller {
 		return this;
 	}
 
+	private List<Geoset> sortedGeos = new ArrayList<>();
+	private List<Geoset> opaqueGeos = new ArrayList<>();
+	private List<Geoset> transperentGeos = new ArrayList<>();
 	public void fillBuffer(ShaderManager shaderManager, boolean renderTextures) {
+
+
+		opaqueGeos.clear();
+		transperentGeos.clear();
+		sortedGeos.clear();
 		if(renderModel != null){
 			int formatVersion = model.getFormatVersion();
 			boolean shaderStringSupported = ModelUtils.isShaderStringSupported(formatVersion);
 			shaderManager.getPipeline(ShaderManager.PipelineType.MESH).prepare();
+
 			for (Geoset geo : model.getGeosets()) {
+				if (correctLoD(formatVersion, geo) && modelView.shouldRender(geo)) {
+					if (geo.isOpaque()) {
+						opaqueGeos.add(geo);
+					} else {
+						transperentGeos.add(geo);
+					}
+				}
+			}
+			sortedGeos.addAll(transperentGeos);
+			sortedGeos.addAll(opaqueGeos);
+
+			for (Geoset geo : sortedGeos) {
 				if(correctLoD(formatVersion, geo) && modelView.shouldRender(geo)){
 					Material material = geo.getMaterial();
 					boolean hd = shaderStringSupported && material.getShaderString() != null && material.getShaderString().length() > 0;
 					ShaderPipeline pipeline = shaderManager.getPipeline(ShaderManager.PipelineType.MESH);
 //					System.out.println("pipeline: " + pipeline.getClass());
-					if(renderTextures){
-						colorHeap.set(renderModel.getRenderGeoset(geo).getRenderColor());
-					} else {
-						colorHeap.set(1,1,1,1);
-					}
-					if(colorHeap.w > RenderModel.MAGIC_RENDER_SHOW_CONSTANT){
-						renderInst(pipeline, geo, formatVersion, renderTextures);
-//					} else {
-//						System.out.println("invis!");
-					}
-				}
-			}
-		}
-	}
-	public void fillBuffer(ShaderPipeline pipeline, boolean renderTextures) {
-		if(renderModel != null){
-			int formatVersion = model.getFormatVersion();
-			pipeline.prepare();
-			for (Geoset geo : model.getGeosets()) {
-				if(correctLoD(formatVersion, geo) && modelView.shouldRender(geo)){
 					if(renderTextures){
 						colorHeap.set(renderModel.getRenderGeoset(geo).getRenderColor());
 					} else {
@@ -133,6 +135,7 @@ public class GeosetBufferFiller {
 				instance.setRenderTextures(renderTextures);
 				instance.setMaterial(material, i, renderModel.getTimeEnvironment());
 				instance.setLayerColor(renderModel.getRenderGeoset(geo).getRenderColor());
+				instance.setOpaque(geo.isOpaque());
 				if(lastAddedLayer == null || layer.getCoordId() != lastAddedLayer.getCoordId()){
 					lastAddedLayer = layer;
 					pipeline.startInstance(instance);

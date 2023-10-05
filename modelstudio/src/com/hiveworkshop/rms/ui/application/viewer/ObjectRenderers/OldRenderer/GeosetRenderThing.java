@@ -18,6 +18,7 @@ import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.*;
 import org.lwjgl.opengl.GL11;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.glColor4f;
@@ -71,23 +72,35 @@ public class GeosetRenderThing {
 		return this;
 	}
 
+	private List<Geoset> sortedGeos = new ArrayList<>();
+	private List<Geoset> opaqueGeos = new ArrayList<>();
+	private List<Geoset> transperentGeos = new ArrayList<>();
 	public void render(ShaderPipeline pipeline, boolean renderTextures) {
 		if(renderModel != null){
+			opaqueGeos.clear();
+			transperentGeos.clear();
+			sortedGeos.clear();
 			int formatVersion = model.getFormatVersion();
 			pipeline.prepare();
 			for (Geoset geo : model.getGeosets()) {
-				if(correctLoD(formatVersion, geo) && modelView.shouldRender(geo)){
-					if(renderTextures){
-						colorHeap.set(renderModel.getRenderGeoset(geo).getRenderColor());
+				if (correctLoD(formatVersion, geo) && modelView.shouldRender(geo)) {
+					if (geo.isOpaque()) {
+						opaqueGeos.add(geo);
 					} else {
-						colorHeap.set(1,1,1,1);
+						transperentGeos.add(geo);
 					}
-					if(colorHeap.w > RenderModel.MAGIC_RENDER_SHOW_CONSTANT){
-//						render(pipeline, geo, formatVersion, renderTextures);
-						renderInst(pipeline, geo, formatVersion, renderTextures);
-					} else {
-//						System.out.println("invis!");
-					}
+				}
+			}
+			sortedGeos.addAll(transperentGeos);
+			sortedGeos.addAll(opaqueGeos);
+			for (Geoset geo : sortedGeos) {
+				if(renderTextures){
+					colorHeap.set(renderModel.getRenderGeoset(geo).getRenderColor());
+				} else {
+					colorHeap.set(1,1,1,1);
+				}
+				if(colorHeap.w > RenderModel.MAGIC_RENDER_SHOW_CONSTANT){
+					renderInst(pipeline, geo, formatVersion, renderTextures);
 				}
 			}
 		}
@@ -111,27 +124,7 @@ public class GeosetRenderThing {
 
 			Layer diffuseLayer = material.getLayer(0);
 			setRenderColor(diffuseLayer);
-//			fresnelColorHeap.set(diffuseLayer.getInterpolatedVector(renderModel.getTimeEnvironment(), MdlUtils.TOKEN_FRESNEL_COLOR, Vec3.ZERO));
-//			boolean twoSided = diffuseLayer.getTwoSided() || (ModelUtils.isShaderStringSupported(formatVersion) && material.getTwoSided());
 
-//			for (int i = 0; i < numLayers; i++) {
-//				Layer layer = material.getLayers().get(i);
-//				pipeline.glActiveHDTexture(i);
-//
-//				Bitmap tex = layer.getRenderTexture(renderModel.getTimeEnvironment(), model);
-//				if(renderTextures){
-//					pipeline.prepareToBindTexture();
-////					textureThing.loadAndBindLayerTexture(pipeline, model, layer, i == 0, i, twoSided, tex);
-//
-//
-//
-//					textureThing.loadAndBindTexture(model, tex, i);
-//
-//					if (i == 0) {
-//						textureThing.setUpFilterMode(pipeline, layer, twoSided);
-//					}
-//				}
-//			}
 			drawGeo(pipeline, geo, material.getLayer(numLayers - 1), renderTextures);
 			pipeline.endInstance();
 //			pipeline.glEnd();
@@ -151,16 +144,6 @@ public class GeosetRenderThing {
 						pipeline.startInstance(instance);
 						setRenderColor(layer);
 						lastInstance = instance;
-//				fresnelColorHeap.set(0f,0f,0f);
-//				boolean twoSided = layer.getTwoSided() || (ModelUtils.isShaderStringSupported(formatVersion) && material.getTwoSided());
-//				Bitmap tex = layer.getRenderTexture(renderModel.getTimeEnvironment(), model);
-//				if(renderTextures){
-//					pipeline.prepareToBindTexture();
-//
-//
-//					textureThing.loadAndBindTexture(model, tex, i);
-//					textureThing.setUpFilterMode(pipeline, layer, twoSided);
-//				}
 
 						drawGeo(pipeline, geo, layer, renderTextures);
 						pipeline.endInstance();
@@ -178,86 +161,6 @@ public class GeosetRenderThing {
 
 	}
 
-
-
-//	public void render2(ShaderPipeline pipeline, boolean renderTextures) {
-//		if(renderModel != null){
-//			int formatVersion = model.getFormatVersion();
-//
-//			pipeline.glBegin(GL11.GL_TRIANGLES);
-//			for (Geoset geo : model.getGeosets()) {
-//				if(correctLoD(formatVersion, geo) && modelView.shouldRender(geo)){
-//					if(renderTextures){
-//						colorHeap.set(renderModel.getRenderGeoset(geo).getRenderColor());
-//					} else {
-//						colorHeap.set(1,1,1,1);
-//					}
-//					if(colorHeap.w > RenderModel.MAGIC_RENDER_SHOW_CONSTANT){
-//						render2(pipeline, geo, formatVersion, renderTextures);
-//					} else {
-//						System.out.println("invis!");
-//					}
-//				}
-//			}
-//			pipeline.glEnd();
-//		}
-//	}
-//	private void render2(ShaderPipeline pipeline, Geoset geo, int formatVersion, boolean renderTextures) {
-//		Material material = geo.getMaterial();
-////		System.out.println("\ngeoset: " + geo.getName());
-//		fresnelColorHeap.set(0f,0f,0f);
-//		for (int i = 0; i < material.getLayers().size(); i++) {
-//			Layer layer = material.getLayers().get(i);
-//			boolean hdTextureOnlyLayer = false;
-//			boolean isHD = false;
-//			boolean hdNoMetaDataLayer = false;
-//			boolean doSetUpFilterMode = true;
-//			if (ModelUtils.isShaderStringSupported(formatVersion) && material.getShaderString() != null && material.getShaderString().length() > 0) {
-//				pipeline.glActiveHDTexture(i);
-//				hdTextureOnlyLayer = i != (material.getLayers().size() - 1);
-//				hdNoMetaDataLayer = i != 0;
-//				isHD = true;
-//				doSetUpFilterMode = i == 0;
-//			}
-//
-//			if (doSetUpFilterMode) {
-//				setRenderColor(layer);
-//				if (hdTextureOnlyLayer) {
-////				if (!hdNoMetaDataLayer) {
-//					// (this branch assures it's HD, if you hate this code paradigm change it to "isHD()" for the check)
-//					fresnelColorHeap.set(layer.getInterpolatedVector(renderModel.getTimeEnvironment(), MdlUtils.TOKEN_FRESNEL_COLOR, Vec3.ZERO));
-////					fresnelColorHeap.set(layer.getInterpolatedVector(renderModel.getTimeEnvironment(), MdlUtils.TOKEN_FRESNEL_COLOR, Vec3.ONE));
-//					fresnelTeamColor = layer.getInterpolatedFloat(renderModel.getTimeEnvironment(), MdlUtils.TOKEN_FRESNEL_TEAM_COLOR, 0);
-//					fresnelOpacity = layer.getInterpolatedFloat(renderModel.getTimeEnvironment(), MdlUtils.TOKEN_FRESNEL_OPACITY, 0.0f);
-////					pipeline.glFresnelColor3f(fresnelColorHeap);
-//					pipeline.glFresnelTeamColor1f(fresnelTeamColor);
-//					pipeline.glFresnelOpacity1f(fresnelOpacity);
-//				} else {
-//					fresnelColorHeap.set(0f,0f,0f);
-//				}
-////				fresnelColorHeap.set(1f,1f,1f);
-//			}
-//
-//			boolean twoSided = layer.getTwoSided() || (ModelUtils.isShaderStringSupported(formatVersion) && material.getTwoSided());
-//			Bitmap tex = layer.getRenderTexture(renderModel.getTimeEnvironment(), model);
-////			periodicOut.print("texture: " + tex.getName() + ", geoset: " + geo.getName() + ", slot: " + i);
-////			System.out.println("texture: " + tex.getName() + ", geoset: " + geo.getName() + ", slot: " + i);
-//			if(renderTextures){
-//				pipeline.prepareToBindTexture();
-//				textureThing.bindLayerTexture(pipeline, layer, doSetUpFilterMode, i, twoSided, tex);
-//			}
-////			if (!hdTextureOnlyLayer) {
-//			if (!isHD || i == 0) {
-////			if (!hdNoMetaDataLayer) {
-////				pipeline.glBegin(GL11.GL_TRIANGLES);
-////				drawGeo(pipeline, geo, layer);
-//			}
-//			if(!isHD || i == material.getLayers().size() - 1){
-//				drawGeo(pipeline, geo, layer, renderTextures);
-//			}
-//		}
-//
-//	}
 
 	Vec4 triColor = new Vec4();
 	private void drawGeo(ShaderPipeline pipeline, Geoset geo, Layer layer, boolean renderTextures) {

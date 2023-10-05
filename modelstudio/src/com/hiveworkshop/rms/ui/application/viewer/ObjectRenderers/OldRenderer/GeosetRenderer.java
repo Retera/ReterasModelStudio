@@ -21,6 +21,7 @@ import com.hiveworkshop.rms.util.Vec3;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -96,6 +97,10 @@ public class GeosetRenderer {
 	}
 
 	// ToDo investigate why transparent Geosets don't render when renderTextures is false
+
+	private List<Geoset> sortedGeos = new ArrayList<>();
+	private List<Geoset> opaqueGeos = new ArrayList<>();
+	private List<Geoset> transperentGeos = new ArrayList<>();
 	private void renderGeosets(Iterable<Geoset> geosets, int formatVersion, boolean overriddenColors, boolean renderTextures, boolean wireFrame) {
 		GL11.glDepthMask(true);
 		glShadeModel(GL11.GL_FLAT);
@@ -125,12 +130,28 @@ public class GeosetRenderer {
 			glDisable(GL_TEXTURE_2D);
 			glShadeModel(GL11.GL_FLAT);
 		}
+
+		opaqueGeos.clear();
+		transperentGeos.clear();
+		sortedGeos.clear();
 		for (Geoset geo : geosets) {
+			if (correctLoD(geo, formatVersion) && modelView.shouldRender(geo)) {
+				if (geo.isOpaque()) {
+					opaqueGeos.add(geo);
+				} else {
+					transperentGeos.add(geo);
+				}
+			}
+		}
+		sortedGeos.addAll(transperentGeos);
+		sortedGeos.addAll(opaqueGeos);
+
+		for (Geoset geo : opaqueGeos) {
 			if (modelView.shouldRender(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
 				renderGeoset(geo, true, formatVersion, overriddenColors, renderTextures);
 			}
 		}
-		for (Geoset geo : geosets) {
+		for (Geoset geo : transperentGeos) {
 			if (modelView.shouldRender(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
 //			if (modelView.getEditableGeosets().contains(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
 				renderGeoset(geo, false, formatVersion, overriddenColors, renderTextures);
