@@ -1,30 +1,37 @@
-package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
+package com.hiveworkshop.rms.util.TwiTreeStuff;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-public class ModelTreeExpansionListener implements TreeExpansionListener {
-	private boolean controlDown = false;
+public class TwiTreeExpansionListener implements TreeExpansionListener {
+	private final Set<TreePath> expandedPaths = new HashSet<>();
+	private final Set<TreePath> collapsedPaths = new HashSet<>();
+	private boolean expansionPropagateKeyDown = false;
 	private boolean isPropagating = false;
 
-	public ModelTreeExpansionListener setControlDown(boolean controlDown) {
-//		System.out.println("[MTEL] controllDown: " + controlDown);
-		this.controlDown = controlDown;
+	public TwiTreeExpansionListener setExpansionPropagateKeyDown(boolean expansionPropagateKeyDown) {
+		this.expansionPropagateKeyDown = expansionPropagateKeyDown;
 		return this;
+	}
+
+	public void clear() {
+		expandedPaths.clear();
+		collapsedPaths.clear();
+		expansionPropagateKeyDown = false;
+		isPropagating = false;
 	}
 
 	@Override
 	public void treeExpanded(TreeExpansionEvent event) {
-//		System.out.println("[MTEL][expand] event: " + event);
-//		System.out.println("[MTEL]source: " + event.getSource());
-
-//		if (event.getSource() instanceof ComponentThingTree) {
-//			printEventInfo(event);
-//		}
+		expandedPaths.add(event.getPath());
+		collapsedPaths.remove(event.getPath());
+//		System.out.println("treeExpanded, path: " + event.getPath());
 
 		propagateExpansion(event, true);
 	}
@@ -53,19 +60,23 @@ public class ModelTreeExpansionListener implements TreeExpansionListener {
 
 	@Override
 	public void treeCollapsed(TreeExpansionEvent event) {
-		System.out.println("[MTEL][collapse] event: " + event);
+		expandedPaths.remove(event.getPath());
+		collapsedPaths.add(event.getPath());
+//		System.out.println("treeCollapsed, path: " + event.getPath());
 		propagateExpansion(event, false);
 	}
 
 	private void propagateExpansion(TreeExpansionEvent event, boolean expand) {
-		if (controlDown && (!isPropagating)) {
+		if (expansionPropagateKeyDown && (!isPropagating)) {
 			isPropagating = true;
-			System.out.println("[MTEL] Control was down!");
 			Object source = event.getSource();
 			TreePath path = event.getPath();
-			if (path.getLastPathComponent() instanceof DefaultMutableTreeNode) {
-				DefaultMutableTreeNode lastPathComponent = (DefaultMutableTreeNode) path.getLastPathComponent();
+			if (path.getLastPathComponent() instanceof TreeNode) {
+				TreeNode lastPathComponent = (TreeNode) path.getLastPathComponent();
+				System.out.println("Expanding tree");
+				long l = System.currentTimeMillis();
 				expandAllChildren(source, lastPathComponent, path, expand);
+				System.out.println("\ttook: " + (System.currentTimeMillis() - l) + " ms");
 			}
 			isPropagating = false;
 		}
@@ -73,19 +84,75 @@ public class ModelTreeExpansionListener implements TreeExpansionListener {
 
 
 	private void expandAllChildren(Object source, TreeNode node, TreePath path, boolean expand) {
+		Set<TreePath> childrenToExpand = getChildrenToExpand(node, path);
+		if (source instanceof JTree) {
+			if (expand) {
+//				System.out.println("expanding " + childrenToExpand.size() + " treePaths");
+				for (TreePath treePath : childrenToExpand) {
+					((JTree)source).expandPath(treePath);
+				}
+			} else {
+//				System.out.println("collapsing " + childrenToExpand.size() + " treePaths");
+				for (TreePath treePath : childrenToExpand) {
+					((JTree)source).collapsePath(treePath);
+				}
+			}
+		}
+	}
+	private void expandAllChildren1(Object source, TreeNode node, TreePath path, boolean expand) {
 		for (int i = 0; i < node.getChildCount(); i++) {
 			TreeNode child = node.getChildAt(i);
-			expandAllChildren(source, child, path.pathByAddingChild(child), expand);
+			if (!child.isLeaf()) {
+				expandAllChildren1(source, child, path.pathByAddingChild(child), expand);
+			}
 		}
-		if(source instanceof JTree){
+		if (source instanceof JTree) {
 			if (expand) {
 				((JTree)source).expandPath(path);
 			} else {
 				((JTree)source).collapsePath(path);
 			}
-		} else {
-			System.out.println("[MTEL] Source not JTree: " + source);
 		}
 	}
 
+
+	private final Set<TreePath> pathsToExpand = new LinkedHashSet<>();
+	private Set<TreePath> getChildrenToExpand(TreeNode node, TreePath path) {
+		pathsToExpand.clear();
+		collectChildrenToExpand(node, path, pathsToExpand);
+		return pathsToExpand;
+	}
+	private void collectChildrenToExpand(TreeNode node, TreePath path, Set<TreePath> pathsToExpand) {
+		for (int i = 0; i < node.getChildCount(); i++) {
+			TreeNode child = node.getChildAt(i);
+			if (!child.isLeaf()) {
+				collectChildrenToExpand(child, path.pathByAddingChild(child), pathsToExpand);
+			}
+		}
+		pathsToExpand.add(path);
+	}
+
+
+	public void openTree(JTree tree) {
+		if (!expandedPaths.isEmpty()) {
+			isPropagating = true;
+			for (TreePath path : collapsedPaths) {
+				expandedPaths.removeIf(path::isDescendant);
+			}
+			collapsedPaths.clear();
+
+			for (TreePath treePath : expandedPaths) {
+				try {
+					tree.makeVisible(treePath);
+					if (tree.isVisible(treePath) && tree.isCollapsed(treePath)) {
+						tree.expandPath(treePath);
+					}
+				} catch (Exception e) {
+					System.out.println("faild on: " + treePath);
+					e.printStackTrace();
+				}
+			}
+			isPropagating = false;
+		}
+	}
 }

@@ -21,18 +21,18 @@ public class ExportInternal {
 
 	private static void exportConvert(String internalPath, File selectedFile, CompoundDataSource dataSource,
 	                                  String expExt, String saveExt, FileDialog fileDialog) {
-		if(expExt.equalsIgnoreCase("mdl") || expExt.equalsIgnoreCase("mdx")){
+		if (expExt.equalsIgnoreCase("mdl") || expExt.equalsIgnoreCase("mdx")) {
 			try {
 				MdlxModel model = MdxUtils.loadMdlx(internalPath, dataSource);
-				if(saveExt.equalsIgnoreCase("mdl")){
+				if (saveExt.equalsIgnoreCase("mdl")) {
 					MdxUtils.saveMdl(model, selectedFile);
-				} else if(saveExt.equalsIgnoreCase("mdx")){
+				} else if (saveExt.equalsIgnoreCase("mdx")) {
 					MdxUtils.saveMdx(model, selectedFile);
 				}
 			} catch (IOException ioException) {
 				ioException.printStackTrace();
 			}
-		} else if(fileDialog.isSavableTextureExt(saveExt)){
+		} else if (fileDialog.isSavableTextureExt(saveExt)) {
 			BufferedImage gameTex = BLPHandler.getImage(internalPath);
 			ExportTexture.saveTexture(gameTex, selectedFile, saveExt, ProgramGlobals.getMainPanel());
 		}
@@ -44,18 +44,32 @@ public class ExportInternal {
 
 	public static void exportInternalFile(String internalPath, String type, CompoundDataSource dataSource, JComponent parent) {
 		FileDialog fileDialog = new FileDialog(parent);
+		// only filename
+		String internalPath2 = internalPath.replaceAll("^(.+[\\\\/])*", "");
 
-		if(dataSource.has(internalPath)){
+		if (dataSource.has(internalPath)) {
+			System.out.println("exporting, path: \"" + internalPath + "\"");
 			String extension = fileDialog.getExtension(internalPath);
-			if(fileDialog.isSupModel(extension)){
+			if (fileDialog.isSupModel(extension)) {
 				saveModel(internalPath, fileDialog, dataSource, extension);
-			} else if(fileDialog.isSupTexture(extension)){
+			} else if (fileDialog.isSupTexture(extension)) {
 				saveTexture(internalPath, fileDialog, dataSource, extension);
 			} else {
 				saveOther(internalPath, type, fileDialog, dataSource, extension);
 			}
 
+		} else if (dataSource.has(internalPath2)) {
+			System.out.println("exporting, alt path: \"" + internalPath2 + "\" (org path: \""  + internalPath + "\")");
+			String extension = fileDialog.getExtension(internalPath2);
+			if (fileDialog.isSupModel(extension)) {
+				saveModel(internalPath2, fileDialog, dataSource, extension);
+			} else if (fileDialog.isSupTexture(extension)) {
+				saveTexture(internalPath2, fileDialog, dataSource, extension);
+			} else {
+				saveOther(internalPath2, type, fileDialog, dataSource, extension);
+			}
 		} else {
+			System.out.println("Could not find \"" + internalPath + "\" nor \"" + internalPath2 + "\"");
 			JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(), "Could not find \"" + internalPath + "\"", "File not found", JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -74,7 +88,7 @@ public class ExportInternal {
 		File selectedFile = fileDialog.getSaveFile(FileDialog.SAVE_TEXTURE, fileName);
 		if (selectedFile != null) {
 			String saveExt = fileDialog.getExtensionOrNull(selectedFile);
-			if(!extension.equalsIgnoreCase(saveExt) && (fileDialog.isSavableTextureExt(saveExt))) {
+			if (!extension.equalsIgnoreCase(saveExt) && (fileDialog.isSavableTextureExt(saveExt))) {
 				BufferedImage gameTex = BLPHandler.getImage(internalPath);
 				ExportTexture.saveTexture(gameTex, selectedFile, saveExt, ProgramGlobals.getMainPanel());
 			} else {
@@ -88,12 +102,12 @@ public class ExportInternal {
 		File selectedFile = fileDialog.getSaveFile(FileDialog.SAVE_MODEL, fileName);
 		if (selectedFile != null) {
 			String saveExt = fileDialog.getExtensionOrNull(selectedFile);
-			if(!extension.equalsIgnoreCase(saveExt) && (fileDialog.isSavableModelExt(saveExt))) {
+			if (!extension.equalsIgnoreCase(saveExt) && (fileDialog.isSavableModelExt(saveExt))) {
 				try {
 					MdlxModel model = MdxUtils.loadMdlx(internalPath, dataSource);
-					if(saveExt.equalsIgnoreCase("mdl")){
+					if (saveExt.equalsIgnoreCase("mdl")) {
 						MdxUtils.saveMdl(model, selectedFile);
-					} else if(saveExt.equalsIgnoreCase("mdx")){
+					} else if (saveExt.equalsIgnoreCase("mdx")) {
 						MdxUtils.saveMdx(model, selectedFile);
 					}
 				} catch (IOException ioException) {
@@ -108,7 +122,7 @@ public class ExportInternal {
 	private static void exportExact(String internalPath, File selectedFile, CompoundDataSource dataSource) {
 		System.out.println("Exporting from internal path: " + dataSource.getFile(internalPath).getName());
 		InputStream resourceAsStream = dataSource.getResourceAsStream(internalPath);
-		if(resourceAsStream != null){
+		if (resourceAsStream != null) {
 			try {
 				Files.copy(resourceAsStream, selectedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			} catch (IOException ioException) {

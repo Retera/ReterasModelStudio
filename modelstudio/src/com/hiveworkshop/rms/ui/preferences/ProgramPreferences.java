@@ -6,7 +6,6 @@ import com.hiveworkshop.rms.ui.preferences.listeners.ProgramPreferencesChangeLis
 import net.infonode.docking.View;
 
 import java.awt.*;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.Serial;
 import java.io.Serializable;
@@ -74,10 +73,6 @@ public class ProgramPreferences implements Serializable {
 	private transient EditorColorPrefs editorColorsPrefs;
 	private transient CameraControlPrefs cameraShortcutsPrefs;
 
-
-	private MouseButtonPreference threeDCameraSpinButton = MouseButtonPreference.LEFT;
-	private MouseButtonPreference threeDCameraPanButton = MouseButtonPreference.MIDDLE;
-
 	private Integer threeDCameraSpinMouseEx = MouseEvent.BUTTON2_DOWN_MASK;
 	private Integer threeDCameraPanMouseEx = MouseEvent.SHIFT_DOWN_MASK | MouseEvent.BUTTON2_DOWN_MASK;
 	private Integer selectMouseButton = MouseEvent.BUTTON1_DOWN_MASK;
@@ -87,17 +82,6 @@ public class ProgramPreferences implements Serializable {
 	private Integer transformPrecisionModifier = MouseEvent.SHIFT_DOWN_MASK;
 	private Integer addSelectModifier = MouseEvent.SHIFT_DOWN_MASK;
 	private Integer removeSelectModifier = MouseEvent.CTRL_DOWN_MASK;
-
-	private Integer cameraOppositeKB = KeyEvent.CTRL_DOWN_MASK;
-	private Integer cameraFrontKB = KeyEvent.VK_NUMPAD1;
-	private Integer cameraSideKB = KeyEvent.VK_NUMPAD3;
-	private Integer cameraTopKB = KeyEvent.VK_NUMPAD7;
-	private Integer cameraLocZoomReset = KeyEvent.VK_NUMPAD0;
-	private Integer cameraRotateSidePosKB = KeyEvent.VK_NUMPAD4;
-	private Integer cameraRotateSideNegKB = KeyEvent.VK_NUMPAD6;
-	private Integer cameraRotateUpKB = KeyEvent.VK_NUMPAD8;
-	private Integer cameraRotateDownKB = KeyEvent.VK_NUMPAD2;
-	private Integer cameraToggleOrtho = KeyEvent.VK_O;
 
 	private Integer maxNumbersOfUndo = 200;
 
@@ -557,25 +541,6 @@ public class ProgramPreferences implements Serializable {
 		saveAndFireListeners();
 	}
 
-	public MouseButtonPreference getThreeDCameraSpinButton() {
-		return threeDCameraSpinButton;
-	}
-
-	public void setThreeDCameraSpinButton(final MouseButtonPreference threeDCameraSpinButton) {
-		this.threeDCameraSpinButton = threeDCameraSpinButton;
-		saveAndFireListeners();
-	}
-
-	public MouseButtonPreference getThreeDCameraPanButton() {
-		return threeDCameraPanButton;
-	}
-
-	public void setThreeDCameraPanButton(final MouseButtonPreference threeDCameraPanButton) {
-		this.threeDCameraPanButton = threeDCameraPanButton;
-		saveAndFireListeners();
-	}
-
-
 	public Integer getThreeDCameraSpinMouseEx() {
 		return threeDCameraSpinMouseEx;
 	}
@@ -593,102 +558,6 @@ public class ProgramPreferences implements Serializable {
 		this.threeDCameraPanMouseEx = threeDCameraPanMouseEx;
 
 		saveAndFireListeners();
-	}
-
-	public Integer getCameraFrontKB() {
-		return cameraFrontKB;
-	}
-
-	public ProgramPreferences setCameraFrontKB(Integer cameraFrontKB) {
-		this.cameraFrontKB = cameraFrontKB;
-		saveAndFireListeners();
-		return this;
-	}
-
-	public Integer getCameraSideKB() {
-		return cameraSideKB;
-	}
-
-	public ProgramPreferences setCameraSideKB(Integer cameraSideKB) {
-		this.cameraSideKB = cameraSideKB;
-		saveAndFireListeners();
-		return this;
-	}
-
-	public Integer getCameraTopKB() {
-		return cameraTopKB;
-	}
-
-	public ProgramPreferences setCameraTopKB(Integer cameraTopKB) {
-		this.cameraTopKB = cameraTopKB;
-		saveAndFireListeners();
-		return this;
-	}
-
-	public Integer getCameraLocZoomReset() {
-		return cameraLocZoomReset;
-	}
-
-	public ProgramPreferences setCameraLocZoomReset(Integer cameraLocZoomReset) {
-		this.cameraLocZoomReset = cameraLocZoomReset;
-		saveAndFireListeners();
-		return this;
-	}
-
-	public Integer getCameraOppositeKB() {
-		return cameraOppositeKB;
-	}
-
-	public ProgramPreferences setCameraOppositeKB(Integer cameraOppositeKB) {
-		this.cameraOppositeKB = cameraOppositeKB;
-		saveAndFireListeners();
-		return this;
-	}
-	public Integer getCameraRotateSideNegKB() {
-		return cameraRotateSideNegKB;
-	}
-
-	public ProgramPreferences setCameraRotateSideNegKB(Integer cameraRotateSideNegKB) {
-		this.cameraRotateSideNegKB = cameraRotateSideNegKB;
-		saveAndFireListeners();
-		return this;
-	}
-	public Integer getCameraRotateSidePosKB() {
-		return cameraRotateSidePosKB;
-	}
-
-	public ProgramPreferences setCameraRotateSidePosKB(Integer cameraRotateSidePosKB) {
-		this.cameraRotateSidePosKB = cameraRotateSidePosKB;
-		saveAndFireListeners();
-		return this;
-	}
-	public Integer getCameraRotateUpKB() {
-		return cameraRotateUpKB;
-	}
-
-	public ProgramPreferences setCameraRotateUpKB(Integer cameraRotateUpKB) {
-		this.cameraRotateUpKB = cameraRotateUpKB;
-		saveAndFireListeners();
-		return this;
-	}
-	public Integer getCameraRotateDownKB() {
-		return cameraRotateDownKB;
-	}
-
-	public ProgramPreferences setCameraRotateDownKB(Integer cameraRotateDownKB) {
-		this.cameraRotateDownKB = cameraRotateDownKB;
-		saveAndFireListeners();
-		return this;
-	}
-
-	public Integer getCameraToggleOrtho() {
-		return cameraToggleOrtho;
-	}
-
-	public ProgramPreferences setCameraToggleOrtho(Integer cameraToggleOrtho) {
-		this.cameraToggleOrtho = cameraToggleOrtho;
-		saveAndFireListeners();
-		return this;
 	}
 
 	public Integer getSelectMouseButton() {

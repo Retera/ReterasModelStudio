@@ -55,7 +55,7 @@ public class EditTexturesPanel extends OverviewPanel {
 	private final JPopupMenu texturePopupMenu;
 
 	public EditTexturesPanel(ModelHandler modelHandler) {
-		super(modelHandler, new MigLayout("fill", "[][grow]", "[grow][]"));
+		super(modelHandler, new MigLayout("fill, ins 0", "[grow]", "[grow][]"));
 		this.undoManager = modelHandler.getUndoManager();
 		this.model = modelHandler.getModel();
 		bitmapJList = new TwiList<>(modelHandler.getModel().getTextures());
@@ -63,12 +63,13 @@ public class EditTexturesPanel extends OverviewPanel {
 		pathField = new TwiTextField(24, this::editTexturePath);
 		texturePopupMenu = getTexturePopupMenu();
 
-		add(getTexturesListPanel(), "growy, growx 90");
-
 		imageViewerPanel = getImageViewerPanel();
-		add(imageViewerPanel, "growy, growx, wrap");
+		JPanel texturesListPanel = getTexturesListPanel();
 
-		if(!bitmapJList.isEmpty()){
+		JSplitPane jSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, texturesListPanel, imageViewerPanel);
+		add(jSplitPane, "growx, growy, wrap");
+
+		if (!bitmapJList.isEmpty()) {
 			System.out.println("select 0");
 			bitmapJList.setSelectedIndex(0);
 			selectedImage = bitmapJList.getSelectedValue();
@@ -80,7 +81,7 @@ public class EditTexturesPanel extends OverviewPanel {
 	private JPanel getImageViewerPanel() {
 		JPanel texturePanel = new JPanel(new MigLayout("fill", "[][]", "[][grow][]"));
 		texturePanel.setBorder(new TitledBorder(null, "Texture", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		texturePanel.add(getPathFieldPanel(), "spanx, wrap");
+		texturePanel.add(getPathFieldPanel(), "growx, spanx, wrap");
 
 		JPanel imageViewerPanel = new JPanel();
 		imageViewerPanel.setBorder(new TitledBorder(null, "Preview", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -106,13 +107,13 @@ public class EditTexturesPanel extends OverviewPanel {
 		return colorModeGroup;
 	}
 
-	private void setColorMode(ImageUtils.ColorMode colorMode){
+	private void setColorMode(ImageUtils.ColorMode colorMode) {
 		this.colorMode = colorMode;
 		loadBitmap(selectedImage);
 	}
 
-	private void showTexturePopup(ActionEvent event){
-		if(event.getSource() instanceof Component){
+	private void showTexturePopup(ActionEvent event) {
+		if (event.getSource() instanceof Component) {
 			texturePopupMenu.show((Component) event.getSource(), 0,((Component) event.getSource()).getHeight());
 		}
 
@@ -129,12 +130,11 @@ public class EditTexturesPanel extends OverviewPanel {
 
 
 	private JPanel getPathFieldPanel() {
-		JPanel pathFieldPanel = new JPanel(new MigLayout("fill, ins 0", "[]"));
-		pathFieldPanel.add(pathField, "grow");
+		JPanel pathFieldPanel = new JPanel(new MigLayout("fill, ins 0", "[grow][][][][][][]"));
+		pathFieldPanel.add(pathField, "growx");
 
-		JButton button = new JButton("...");
-		button.addActionListener(this::showTexturePopup);
-		pathFieldPanel.add(button, "right");
+
+		pathFieldPanel.add(Button.create("...", this::showTexturePopup), "right");
 		wrapWidthBox.addActionListener(e -> setWrap(Bitmap.WrapFlag.WIDTH, wrapWidthBox.isSelected()));
 		wrapWidthBox.setHorizontalTextPosition(SwingConstants.LEADING);
 		wrapWidthBox.setToolTipText("Wrap Width");
@@ -232,7 +232,7 @@ public class EditTexturesPanel extends OverviewPanel {
 
 	private void onListSelection(Bitmap bitmap) {
 		selectedImage = bitmap;
-		System.out.println("onListSelection");
+		System.out.println("selected bitmap: " + bitmap);
 		if (bitmap != null) {
 			pathField.setText(bitmap.getPath());
 			replaceableIdSpinner.reloadNewValue(bitmap.getReplaceableId());
@@ -286,36 +286,15 @@ public class EditTexturesPanel extends OverviewPanel {
 	}
 
 
-	private MouseAdapter getMA(){
+	private MouseAdapter getMA() {
 		return new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				super.mouseClicked(e);
-//				System.out.println("mouseClicked: " + e);
-//				System.out.println("\tisPopupTrigger: " + e.isPopupTrigger());
-//				System.out.println("\tsource: " + e.getSource());
-//				System.out.println("popup visible: " + popupMenu.isVisible());
-//				System.out.println("popup location: " + popupMenu.getLocation());
 				int clickedIndex = bitmapJList.locationToIndex(e.getPoint());
-//				System.out.println("clicked index: " + clickedIndex);
-				if (!bitmapJList.isSelectedIndex(clickedIndex)){
+				if (!bitmapJList.isSelectedIndex(clickedIndex)) {
 					bitmapJList.setSelectedIndex(clickedIndex);
 				}
-				System.out.println();
-//				if(e.getSource() instanceof TwiList){
-//
-//					TwiList<?> source = (TwiList<?>) e.getSource();
-//					System.out.println("\tcompAt: " + source.getComponentAt(e.getX(), e.getY()));
-//					int index = source.locationToIndex(e.getPoint());
-//					System.out.println("\tcompAt: " + index);
-//					System.out.println("\tbounds: " + source.getCellBounds(index, index));
-//					System.out.println("\tboundsContains: " + source.getCellBounds(index, index).contains(e.getPoint()));
-//					if(index < bitmapJList.getComponentCount()){
-//
-//					}
-////					System.out.println("\tcompAt: " + ((TwiList<?>) e.getSource()).(e.getPoint()));
-//				}
-//				showPopup(e);
 			}
 
 			@Override
@@ -370,7 +349,7 @@ public class EditTexturesPanel extends OverviewPanel {
 
 		int option = JOptionPane.showConfirmDialog(this, panel, "Replace Texture Uses", JOptionPane.OK_CANCEL_OPTION);
 		Bitmap replacement;
-		if(option == JOptionPane.OK_OPTION){
+		if (option == JOptionPane.OK_OPTION) {
 			replacement = textureChooser.getSelected();
 		} else {
 			replacement = null;
@@ -388,9 +367,9 @@ public class EditTexturesPanel extends OverviewPanel {
 		}
 	}
 
-	private BufferedImage getImage(Bitmap bitmap, DataSource workingDirectory){
+	private BufferedImage getImage(Bitmap bitmap, DataSource workingDirectory) {
 		BufferedImage texture = BLPHandler.getImage(bitmap, workingDirectory, colorMode);
-		if(texture == null){
+		if (texture == null) {
 			return ImageUtils.getXImage(128, 122, Color.BLACK);
 		}
 		return texture;
@@ -398,7 +377,7 @@ public class EditTexturesPanel extends OverviewPanel {
 
 	public static void showPanel() {
 		EditTexturesPanel textureManager = new EditTexturesPanel(ProgramGlobals.getCurrentModelPanel().getModelHandler());
-		textureManager.setSize(new Dimension(800, 650));
+		textureManager.setPreferredSize(new Dimension(800, 650));
 		FramePopup.show(textureManager, ProgramGlobals.getMainPanel(), "Edit Textures");
 	}
 
@@ -408,13 +387,13 @@ public class EditTexturesPanel extends OverviewPanel {
 	}
 
 
-	private void setReplaceableId(int newId){
+	private void setReplaceableId(int newId) {
 		if (selectedImage != null && newId != selectedImage.getReplaceableId()) {
 			undoManager.pushAction(new SetBitmapReplaceableIdAction(selectedImage, newId, changeListener).redo());
 		}
 	}
 
-	private void setWrap(Bitmap.WrapFlag flag, boolean set){
+	private void setWrap(Bitmap.WrapFlag flag, boolean set) {
 		if (selectedImage != null && selectedImage.isFlagSet(flag) != set) {
 			undoManager.pushAction(new SetBitmapWrapModeAction(selectedImage, flag, set, changeListener).redo());
 		}
@@ -431,9 +410,9 @@ public class EditTexturesPanel extends OverviewPanel {
 	private void exportTexture() {
 		if (selectedImage != null) {
 			ImageUtils.ColorMode colorMode1 = getColorMode();
-			if(colorMode1 == ImageUtils.ColorMode.RGBA){
+			if (colorMode1 == ImageUtils.ColorMode.RGBA) {
 				ExportInternal.exportInternalFile(selectedImage.getRenderableTexturePath(), "Texture", model.getWrappedDataSource(), this);
-			} else if (colorMode1 != null){
+			} else if (colorMode1 != null) {
 				String[] nameParts = selectedImage.getRenderableTexturePath().split("\\.(?=.+$)");
 				String suggestedName = nameParts[0] + "_" + colorMode.name() + "." + nameParts[1];
 				ExportTexture.onClickSaveAs(getImage(selectedImage, model.getWrappedDataSource()), suggestedName, FileDialog.SAVE_TEXTURE, ProgramGlobals.getMainPanel());
@@ -441,17 +420,17 @@ public class EditTexturesPanel extends OverviewPanel {
 		}
 	}
 
-	private ImageUtils.ColorMode getColorMode(){
-		if(colorMode != ImageUtils.ColorMode.RGBA){
+	private ImageUtils.ColorMode getColorMode() {
+		if (colorMode != ImageUtils.ColorMode.RGBA) {
 			String[] tempStrings = new String[]{"Original", colorMode.name(), "Cancel"};
 			JOptionPane optionPane = new JOptionPane("Export Current Filtered Image?", JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_CANCEL_OPTION, null, tempStrings, tempStrings[0]);
 			JDialog export_option = optionPane.createDialog(this, "Export Option");
 			export_option.setVisible(true);
 			Object optionPaneValue = optionPane.getValue();
 
-			if(tempStrings[1].equals(optionPaneValue)){
+			if (tempStrings[1].equals(optionPaneValue)) {
 				return colorMode;
-			} else if(tempStrings[2].equals(optionPaneValue)){
+			} else if (tempStrings[2].equals(optionPaneValue)) {
 				return null;
 			}
 		}
@@ -477,7 +456,8 @@ public class EditTexturesPanel extends OverviewPanel {
 
 	private void addTexture(String path) {
 		if (path != null) {
-			undoManager.pushAction(new AddBitmapAction(new Bitmap(path), model, changeListener).redo());
+			int replId = path.isEmpty() ? 1 : 0;
+			undoManager.pushAction(new AddBitmapAction(new Bitmap(path, replId), model, changeListener).redo());
 			bitmapJList.setSelectedIndex(bitmapJList.listSize() - 1);
 		}
 	}

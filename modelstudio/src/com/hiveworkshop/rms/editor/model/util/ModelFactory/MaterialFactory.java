@@ -20,10 +20,10 @@ public class MaterialFactory {
 	public static Material createMaterial(MdlxMaterial mdlxMaterial, EditableModel model) {
 
 		List<Layer> layers = new ArrayList<>();
-		if(model.getFormatVersion() < 900
+		if (model.getFormatVersion() < 900
 				|| 1000 < model.getFormatVersion()
 				|| !mdlxMaterial.shader.equals(Material.SHADER_HD_DEFAULT_UNIT)
-				&& !mdlxMaterial.shader.equals(Material.SHADER_HD_CRYSTAL)){
+				&& !mdlxMaterial.shader.equals(Material.SHADER_HD_CRYSTAL)) {
 			for (final MdlxLayer mdlxLayer : mdlxMaterial.layers) {
 				layers.add(createLayer(Collections.singletonList(mdlxLayer), model));
 			}
@@ -54,8 +54,8 @@ public class MaterialFactory {
 //		}
 
 		material.setShaderString(mdlxMaterial.shader);
-		if(1000 < model.getFormatVersion() && mdlxMaterial.layers.get(0).hdFlag != 0){
-			if(mdlxMaterial.layers.get(0).hdFlag == 2){
+		if (1000 < model.getFormatVersion() && mdlxMaterial.layers.get(0).hdFlag != 0) {
+			if (mdlxMaterial.layers.get(0).hdFlag == 2) {
 				material.setShaderString(Material.SHADER_HD_CRYSTAL);
 			} else {
 				material.setShaderString(Material.SHADER_HD_DEFAULT_UNIT);
@@ -69,12 +69,12 @@ public class MaterialFactory {
 		Layer layer = new Layer();
 		for (int slot = 0; slot < mdlxLayers.size(); slot++) {
 			MdlxLayer mdlxLayer = mdlxLayers.get(slot);
-			for (int i = 0; i < mdlxLayer.hdTextureIds.size(); i++){
+			for (int i = 0; i < mdlxLayer.hdTextureIds.size(); i++) {
 				layer.setTexture(slot+i, model.getTexture(mdlxLayer.hdTextureIds.get(i)));
 				MdlxTimeline<?> timeline = mdlxLayer.textureIdTimelineMap.get(i);
-				if(timeline != null){
+				if (timeline != null) {
 					AnimFlag<?> animFlag = AnimFlag.createFromTimeline(timeline, model);
-					if(animFlag instanceof BitmapAnimFlag){
+					if (animFlag instanceof BitmapAnimFlag) {
 						layer.setFlipbookTexture(slot+i, (BitmapAnimFlag) animFlag);
 					}
 				}
@@ -113,9 +113,7 @@ public class MaterialFactory {
 	}
 
 	public static Bitmap createBitmap(MdlxTexture texture) {
-		Bitmap bitmap = new Bitmap();
-		bitmap.setPath(texture.path);
-		bitmap.setReplaceableId(texture.replaceableId);
+		Bitmap bitmap = new Bitmap(texture.path, texture.replaceableId);
 
 		bitmap.setWrapWidth((texture.wrapFlag & 0x1) != 0);
 		bitmap.setWrapHeight((texture.wrapFlag & 0x2) != 0);

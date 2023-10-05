@@ -22,7 +22,10 @@ public class TempSaveModelStuff {
 	public static boolean DISABLE_BONE_GEO_ID_VALIDATOR = false;
 
 	public static MdlxModel toMdlx(EditableModel model) {
-		doSavePreps(model);
+		return toMdlx(model, true);
+	}
+	public static MdlxModel toMdlx(EditableModel model, boolean clearUnused) {
+		doSavePreps(model, clearUnused);
 		Map<Bone, BoneGeosets> boneGeosetsMap = getBoneGeosetMap(model.getGeosets());
 		// restores all GeosetID, ObjectID, TextureID, MaterialID stuff
 		// all based on object references in the Java
@@ -131,10 +134,13 @@ public class TempSaveModelStuff {
 	}
 
 	public static void doSavePreps(EditableModel model) {
-		// restores all GeosetID, ObjectID, TextureID, MaterialID stuff,
-		// all based on object references in the Java (this is so that you
-		// can write a program that does something like  "mdl.add(new Bone())" without a problem,
-		// or even "mdl.add(otherMdl.getGeoset(5))" and have the geoset's textures and
+		doSavePreps(model, true);
+	}
+	public static void doSavePreps(EditableModel model, boolean clearUnused) {
+
+
+		// restores all GeosetID, ObjectID, TextureID, MaterialID stuff, all based on object references in the Java
+		// (this is so that you can write a program that does something like  "mdl.add(new Bone())" without a problem, or even "mdl.add(otherMdl.getGeoset(5))" and have the geoset's textures and
 		// materials all be carried over with it via object references in java
 
 		// also this re-creates all matrices, which are consumed by the
@@ -142,12 +148,16 @@ public class TempSaveModelStuff {
 		// having its own attachments list, no vertex groups)
 
 		sortNodes(model, false);
-		removeEmptyGeosets(model);
+		model.getGeosets().removeIf(Geoset::isEmpty);
 
-		rebuildMaterialList(model, true);
-		rebuildTextureAnimList(model, true);
-		rebuildTextureList(model, true);
-		rebuildGlobalSeqList(model, true);
+		if (clearUnused) {
+			removeUnusedEvents(model);
+			model.getEvents().removeIf(eventObject -> model.getAllSequences().stream().noneMatch(eventObject::usedIn));
+		}
+		rebuildMaterialList(model, clearUnused);
+		rebuildTextureAnimList(model, clearUnused);
+		rebuildTextureList(model, clearUnused);
+		rebuildGlobalSeqList(model, clearUnused);
 //		rebuildLists(model);
 
 		// If rebuilding the lists is to crash, then we want to crash the thread
@@ -184,15 +194,8 @@ public class TempSaveModelStuff {
 
 	}
 
-	private static void removeEmptyGeosets(EditableModel model) {
-//		new ArrayList<>(model.getGeosets()).stream().filter(Geoset::isEmpty).forEach(model::remove);
-		List<Geoset> emptyGeosets = new ArrayList<>();
-		for (Geoset geoset : model.getGeosets()) {
-			if (geoset.isEmpty()) {
-				emptyGeosets.add(geoset);
-			}
-		}
-		emptyGeosets.forEach(model::remove);
+	private static void removeUnusedEvents(EditableModel model) {
+		model.getEvents().removeIf(eventObject -> model.getAllSequences().stream().noneMatch(eventObject::usedIn));
 	}
 
 	private static void fixAnimIntervals(EditableModel model) {
@@ -288,7 +291,6 @@ public class TempSaveModelStuff {
 		model.getEvents().stream().filter(EventObject::hasGlobalSeq).forEach(e -> globalSeqSet.add(e.getGlobalSeq()));
 
 		model.clearGlobalSeqs();
-//		globalSeqSet.remove(null);
 		globalSeqSet.stream().sorted().forEach(model::add);
 
 	}

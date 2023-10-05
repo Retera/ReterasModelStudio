@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.editor.actions.model.material.ChangeMaterialAction;
 import com.hiveworkshop.rms.editor.actions.tools.ConvertToMatricesAction;
 import com.hiveworkshop.rms.editor.actions.tools.ConvertToSkinBonesAction;
+import com.hiveworkshop.rms.editor.actions.util.BoolAction;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
@@ -20,6 +21,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree.DisplayElementType;
 import com.hiveworkshop.rms.util.TwiComboBox;
 import com.hiveworkshop.rms.util.uiFactories.Button;
+import com.hiveworkshop.rms.util.uiFactories.CheckBox;
 import com.hiveworkshop.rms.util.uiFactories.Label;
 import net.miginfocom.swing.MigLayout;
 
@@ -37,6 +39,8 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 	private final JButton toggleSdHd;
 	private final JButton recalculatTangents;
 	private IntEditorJSpinner selectionGroupSpinner;
+	private final JCheckBox unselectableBox;
+	private final JCheckBox dropShadow;
 	private Geoset geoset;
 
 	private final GeosetVisPanel visPanel;
@@ -52,6 +56,10 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 		add(getDeleteButton(e -> removeGeoset()), "spanx, right, wrap");
 		hdNamePanel = getHdNamePanel();
 		add(hdNamePanel, "wrap, growx, spanx");
+		unselectableBox = CheckBox.create("Unselectable", this::setUnSelectable);
+		add(unselectableBox, "spanx, wrap");
+		dropShadow = CheckBox.create("Treat geoset as drop shadow", this::setDropShadow);
+		add(dropShadow, "spanx, wrap");
 
 		JPanel topPanel = new JPanel(new MigLayout("hidemode 1, ins 0", "[][grow][grow]", "[]"));
 		add(topPanel, "wrap");
@@ -151,6 +159,8 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 	public ComponentPanel<Geoset> setSelectedItem(final Geoset geoset) {
 		this.geoset = geoset;
 		geosetLabel.setText(geoset.getName());
+		dropShadow.setSelected(geoset.isDropShadow());
+		unselectableBox.setSelected(geoset.getUnselectable());
 
 		setToggleButtonText();
 		materialChooser.setSelectedItem(geoset.getMaterial());
@@ -216,6 +226,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 			undoManager.pushAction(new RecalculateTangentsAction(geoset.getVertices()).redo());
 		}
 	}
+
 	private void setLoDName(String newName) {
 		if (!newName.equals(geoset.getLevelOfDetailName())) {
 			undoManager.pushAction(new ChangeLoDNameAction(newName, geoset, changeListener).redo());
@@ -224,6 +235,20 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 
 	private void editUVs() {
 
+	}
+
+	private void setDropShadow(boolean b) {
+		if (geoset.isDropShadow() != b) {
+			String actionName = b ? "Set Geoset as DropDhadow" : "Set Geoset as not DropDhadow";
+			undoManager.pushAction(new BoolAction(geoset::setDropShadow, b, actionName, null));
+		}
+	}
+
+	private void setUnSelectable(boolean b) {
+		if (geoset.getUnselectable() != b) {
+			String actionName = b ? "Set Geoset Unselectable" : "Set Geoset Selectable";
+			undoManager.pushAction(new BoolAction(geoset::setUnselectable, b, actionName, null));
+		}
 	}
 
 	private void removeGeoset() {

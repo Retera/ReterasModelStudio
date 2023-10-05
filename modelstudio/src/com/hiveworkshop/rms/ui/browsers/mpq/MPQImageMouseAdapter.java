@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.TwiComboBox;
+import com.hiveworkshop.rms.util.TwiTreeStuff.TwiTreeMouseAdapter;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -17,19 +18,20 @@ import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
-public final class MPQImageMouseAdapter extends MouseAdapter {
-	private final MPQImageBrowser mpqBrowser;
+public final class MPQImageMouseAdapter extends TwiTreeMouseAdapter {
+	private final MPQFilterableBrowser mpqBrowser;
 	private final JPopupMenu contextMenu;
 	private TreePath clickedPath;
 	JComponent popupParent;
 
-	MPQImageMouseAdapter(MPQImageBrowser mpqBrowser, JComponent popupParent) {
+	MPQImageMouseAdapter(MPQFilterableBrowser mpqBrowser, Consumer<Boolean> controlDown, JComponent popupParent) {
+		super(controlDown);
 		this.mpqBrowser = mpqBrowser;
 		this.contextMenu = getContextMenu();
 		this.popupParent = popupParent;
@@ -37,6 +39,7 @@ public final class MPQImageMouseAdapter extends MouseAdapter {
 
 	@Override
 	public void mouseClicked(final MouseEvent e) {
+		super.mouseClicked(e);
 		clickedPath = mpqBrowser.getPathForLocation(e.getX(), e.getY());
 		if (SwingUtilities.isRightMouseButton(e)) {
 			contextMenu.show(popupParent, e.getX(), e.getY());
@@ -53,7 +56,8 @@ public final class MPQImageMouseAdapter extends MouseAdapter {
 	private JPopupMenu getContextMenu() {
 		JPopupMenu contextMenu = new JPopupMenu();
 
-		contextMenu.add(getMenuItem("Open", e -> loadFileByType(getClickedPath())));
+//		contextMenu.add(getMenuItem("Open", e -> loadFileByType(getClickedPath())));
+		contextMenu.add(getMenuItem("Open", e -> ModelLoader.loadFile(GameDataFileSystem.getDefault().getFile(getClickedPath()), true)));
 		contextMenu.add(getMenuItem("Export", e -> ExportInternal.exportInternalFile(getClickedPath(), "Texture", mpqBrowser)));
 		contextMenu.addSeparator();
 		contextMenu.add(getMenuItem("Copy Path to Clipboard", e -> copyItemPathToClipboard(getClickedPath())));
@@ -67,36 +71,11 @@ public final class MPQImageMouseAdapter extends MouseAdapter {
 		return openItem;
 	}
 
-	private static void loadFileByType(String filepath) {
-		ModelLoader.loadFile(GameDataFileSystem.getDefault().getFile(filepath), true);
-	}
-//	private static void loadFileByType(String filepath) {
-//		System.out.println("MouseAdapter - loading file");
-//		File file = GameDataFileSystem.getDefault().getFile(filepath);
-//		if(file != null){
-//			ModelLoader.loadFile(file, true);
-//			System.out.println("File path: \"" + filepath + "\"");
-//
-//			if (filepath.endsWith(".slk")){
-//				System.out.println("opening SKL frame?");
-//				String fileName = filepath.replaceAll(".*\\\\", "");
-////				new SklViewer().createAndShowHTMLPanel(filepath, "View SKL " + fileName);
-//				new SklViewer().createAndShowHTMLPanel(filepath, fileName);
-//			} else if (filepath.endsWith(".txt")){
-//				System.out.println("opening TXT frame?");
-//				String fileName = filepath.replaceAll(".*\\\\", "");
-////				new TxtViewer().createAndShowHTMLPanel(filepath, "View txt " + fileName);
-//				new TxtViewer().createAndShowHTMLPanel(filepath, fileName);
-//			}
-//		}
-//	}
-
 	private void copyItemPathToClipboard(String filepath) {
 		StringSelection selection = new StringSelection(filepath);
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		clipboard.setContents(selection, selection);
 	}
-
 
 
 	private void addTextureToCurrentModel(String path) {
@@ -143,14 +122,15 @@ public final class MPQImageMouseAdapter extends MouseAdapter {
 		for (Integer i : models.keySet()) {
 			ModelPanel m = models.get(i);
 			names[i] = m.getModel().getName();
-			if(m == ProgramGlobals.getCurrentModelPanel()){
+			if (m == ProgramGlobals.getCurrentModelPanel()) {
 				currentModelPanel = i;
 				names[i] += " (current)";
 			}
 		}
 
 		TwiComboBox<String> modelsBox = new TwiComboBox<>(names, "Prototype Prototype");
-		if(currentModelPanel < names.length){
+		modelsBox.addMouseWheelListener(e -> modelsBox.incIndex(e.getWheelRotation()));
+		if (currentModelPanel < names.length) {
 			modelsBox.setSelectedIndex(currentModelPanel);
 		}
 		return modelsBox;

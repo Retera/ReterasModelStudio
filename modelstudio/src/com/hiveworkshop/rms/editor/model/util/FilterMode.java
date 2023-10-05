@@ -9,7 +9,7 @@ public enum FilterMode {
 	MODULATE("Modulate"),
 	MODULATE2X("Modulate2x");
 
-	String token;
+	private final String token;
 
 	FilterMode(final String token) {
 		this.token = token;

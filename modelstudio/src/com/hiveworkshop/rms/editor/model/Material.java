@@ -43,7 +43,11 @@ public class Material implements Named {
 		shaderString = material.shaderString;
 	}
 
-	public void resetTempName(){
+	public boolean isOpaque() {
+		return layers.stream().anyMatch(Layer::isOpaque);
+	}
+
+	public void resetTempName() {
 		tempName = null;
 	}
 
@@ -62,7 +66,7 @@ public class Material implements Named {
 					if (layer != null) {
 						StringBuilder prefix = new StringBuilder();
 						try {
-							if(layer.getVisibilityFlag() != null){
+							if (layer.getVisibilityFlag() != null) {
 								prefix.append(a_alpha);
 							} else if (layer.getStaticAlpha() != 1) {
 								prefix.append(alpha);
@@ -81,7 +85,7 @@ public class Material implements Named {
 
 							BitmapAnimFlag flipbookTexture = layer.getTextureSlot(0).getFlipbookTexture();
 							String textureName = layer.getTexture(0).getName();
-							if(flipbookTexture != null && !flipbookTexture.getAnimMap().isEmpty()) {
+							if (flipbookTexture != null && !flipbookTexture.getAnimMap().isEmpty()) {
 								TreeMap<Integer, Entry<Bitmap>> entryTreeMap = flipbookTexture.getAnimMap().values().stream()
 										.filter(tm -> !tm.isEmpty())
 										.findFirst().orElse(null);
@@ -96,7 +100,7 @@ public class Material implements Named {
 							name.append(textureName);
 							if (!prefix.isEmpty()) name.append(" ").append(prefix);
 						} catch (final NullPointerException e) {
-							if (layer.getTextures().get(0) != null){
+							if (layer.getTextures().get(0) != null) {
 								name.append("(").append(layer.getTextures().get(0).getName()).append(")");
 							} else {
 								name.append("No Texture");
@@ -137,8 +141,8 @@ public class Material implements Named {
 		return layers;
 	}
 
-	public Layer getLayer(int i){
-		if(i<layers.size()){
+	public Layer getLayer(int i) {
+		if (i<layers.size()) {
 			return layers.get(i);
 		}
 		return null;
@@ -253,21 +257,21 @@ public class Material implements Named {
 		return flags;
 	}
 
-	public void setFlag(flag flag, boolean on){
-		if (on){
+	public void setFlag(flag flag, boolean on) {
+		if (on) {
 			flags.add(flag);
 		} else {
 			flags.remove(flag);
 		}
 	}
-	public boolean isFlagSet(flag flag){
+	public boolean isFlagSet(flag flag) {
 		return flags.contains(flag);
 	}
-	public Material deepCopy(){
+	public Material deepCopy() {
 		return new Material(this);
 	}
 
-	public boolean isHD(){
+	public boolean isHD() {
 		return shaderString.equals(SHADER_HD_DEFAULT_UNIT);
 	}
 
@@ -286,7 +290,7 @@ public class Material implements Named {
 		FULL_RESOLUTION(MdlUtils.TOKEN_FULL_RESOLUTION, 0x20);
 		final String name;
 		final int flagBit;
-		flag(String name, int flagBit){
+		flag(String name, int flagBit) {
 			this.name = name;
 			this.flagBit = flagBit;
 		}
@@ -299,18 +303,18 @@ public class Material implements Named {
 			return flagBit;
 		}
 
-		public static flag getFromFlagBit(int flagBit){
-			for(flag flag : flag.values()){
-				if((flagBit&flag.getFlagBit()) == flag.getFlagBit()){
+		public static flag getFromFlagBit(int flagBit) {
+			for (flag flag : flag.values()) {
+				if ((flagBit&flag.getFlagBit()) == flag.getFlagBit()) {
 					return flag;
 				}
 			}
 			return null;
 		}
-		public static Set<flag> getFlags(int flagBits){
+		public static Set<flag> getFlags(int flagBits) {
 			Set<flag> flags = new HashSet<>();
-			for(flag flag : flag.values()){
-				if((flagBits&flag.getFlagBit()) == flag.getFlagBit()){
+			for (flag flag : flag.values()) {
+				if ((flagBits&flag.getFlagBit()) == flag.getFlagBit()) {
 					flags.add(flag);
 				}
 			}

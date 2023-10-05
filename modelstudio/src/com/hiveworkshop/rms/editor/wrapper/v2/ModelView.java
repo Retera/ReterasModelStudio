@@ -130,27 +130,27 @@ public final class ModelView {
 		return highlightedCamera;
 	}
 
-	public Set<GeosetVertex> getHiddenVertices(){
+	public Set<GeosetVertex> getHiddenVertices() {
 		return geosetTracker.getHiddenVertices();
 	}
 
 
-	public void makeGeosetEditable(boolean editable, Geoset... geosets){
+	public void makeGeosetEditable(boolean editable, Geoset... geosets) {
 		geosetTracker.makeGeosetEditable(editable, geosets);
 		ProgramGlobals.getMainPanel().repaint();
 	}
 
-	public void makeGeosetVisible(boolean visible, Geoset... geosets){
+	public void makeGeosetVisible(boolean visible, Geoset... geosets) {
 		geosetTracker.makeGeosetVisible(visible, geosets);
 		ProgramGlobals.getMainPanel().repaint();
 	}
 
-	public void makeGeosetEditable(boolean editable, Collection<Geoset> geosets){
+	public void makeGeosetEditable(boolean editable, Collection<Geoset> geosets) {
 		geosetTracker.makeGeosetEditable(editable, geosets);
 		ProgramGlobals.getMainPanel().repaint();
 	}
 
-	public void makeGeosetVisible(boolean visible, Collection<Geoset> geosets){
+	public void makeGeosetVisible(boolean visible, Collection<Geoset> geosets) {
 		geosetTracker.makeGeosetVisible(visible, geosets);
 		ProgramGlobals.getMainPanel().repaint();
 	}
@@ -276,7 +276,7 @@ public final class ModelView {
 			if (!visibleIdObjects.contains(object)
 					&& !hiddenIdObjects.contains(object)
 					&& !editableIdObjects.contains(object)
-					&& !notEditableIdObjects.contains(object)){
+					&& !notEditableIdObjects.contains(object)) {
 				visibleIdObjects.add(object);
 				editableIdObjects.add(object);
 			}
@@ -304,7 +304,7 @@ public final class ModelView {
 			if (!visibleCameras.contains(camera)
 					&& !hiddenCameras.contains(camera)
 					&& !editableCameras.contains(camera)
-					&& !notEditableCameras.contains(camera)){
+					&& !notEditableCameras.contains(camera)) {
 				visibleCameras.add(camera);
 				editableCameras.add(camera);
 				editableCameraNodes.add(camera.getSourceNode());
@@ -494,9 +494,9 @@ public final class ModelView {
 //		return selectedCameras;
 		if (!camerasEditable || !camerasVisible) return Collections.emptySet();
 		selEdCameras.clear();
-		for (CameraNode node : selectedCameraNodes){
+		for (CameraNode node : selectedCameraNodes) {
 			Camera camera = node.getParent();
-			if(editableCameras.contains(camera) && visibleCameras.contains(camera)){
+			if (editableCameras.contains(camera) && visibleCameras.contains(camera)) {
 				selEdCameras.add(camera);
 			}
 		}
@@ -728,7 +728,7 @@ public final class ModelView {
 		geosetTracker.selectAllTVerts();
 	}
 
-	public Vec2 getTSelectionCenter(){
+	public Vec2 getTSelectionCenter() {
 		return geosetTracker.getTSelectionCenter();
 	}
 
@@ -817,7 +817,7 @@ public final class ModelView {
 
 	public <T> ModelView makeVisible(Collection<T> obj, boolean b) {
 		System.out.println("ModelView#makeVisible: " + b);
-		if(!obj.isEmpty()){
+		if (!obj.isEmpty()) {
 			T t = obj.stream().findAny().get();
 		}
 		if (b) {
@@ -853,7 +853,7 @@ public final class ModelView {
 				System.out.println("Geoset Editable!");
 				makeGeosetEditable(b, (Geoset) obj);
 			} else if (obj instanceof IdObject) {
-				System.out.println("IdObject Editable!");
+				System.out.println("IdObject Editable!  " + ((IdObject) obj).getName());
 				makeIdObjectEditable((IdObject) obj);
 			} else if (obj instanceof Camera) {
 				System.out.println("Camera Editable!");
@@ -865,7 +865,7 @@ public final class ModelView {
 				makeGeosetEditable(b, (Geoset) obj);
 //				makeGeosetNotEditable((Geoset) obj);
 			} else if (obj instanceof IdObject) {
-				System.out.println("IdObject NotEditable!");
+				System.out.println("IdObject NotEditable!  " + ((IdObject) obj).getName());
 				makeIdObjectNotEditable((IdObject) obj);
 			} else if (obj instanceof Camera) {
 				System.out.println("Camera NotEditable!");

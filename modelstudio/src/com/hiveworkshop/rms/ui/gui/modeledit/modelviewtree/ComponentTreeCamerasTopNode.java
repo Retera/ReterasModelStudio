@@ -60,4 +60,27 @@ public class ComponentTreeCamerasTopNode extends NodeThing<String> {
 		return treeRenderComponent;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ComponentTreeCamerasTopNode) {
+			if (this == obj) {
+				return true;
+			}
+//			System.out.println("ComponentTreeCamerasTopNode equals " + this.getClass().getSimpleName() + " " + this.getClass().isInstance(obj));
+			return this.getClass().isInstance(obj)
+					&& this.modelHandler == ((ComponentTreeCamerasTopNode) obj).modelHandler
+					&& this.item.equals(((ComponentTreeCamerasTopNode) obj).item);
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		int prime = 31;
+		int result = 1;
+		result = (prime * result) + this.getClass().hashCode();
+		result = (prime * result) + modelHandler.hashCode();
+		result = (prime * result) + item.hashCode();
+		return result;
+	}
 }

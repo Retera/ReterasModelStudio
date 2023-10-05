@@ -27,7 +27,7 @@ public class ExtFilter {
 			new ExtInfo("PNG Image", FileType.IMAGE, true, false, "png"),
 			new ExtInfo("JPG Image", FileType.IMAGE, true, false, "jpg", "jpeg"),
 			new ExtInfo("BMP Image", FileType.IMAGE, true, false, "bmp"),
-			new ExtInfo("TIF Image", FileType.IMAGE, true, false, "tif")
+			new ExtInfo("TIF Image", FileType.IMAGE, true, false, "tif", "tiff")
 	);
 
 	public ExtFilter() {

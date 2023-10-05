@@ -55,6 +55,10 @@ public class Geoset extends TimelineContainer implements Named {
 		tempName = null;
 	}
 
+	public boolean isOpaque() {
+		return  staticAlpha == 1 && (getVisibilityFlag() == null || getVisibilityFlag().size() == 0) && material.isOpaque();
+	}
+
 	@Override
 	public void setName(String text) {
 		if (getParentModel() != null && getParentModel().getFormatVersion() > 900) {

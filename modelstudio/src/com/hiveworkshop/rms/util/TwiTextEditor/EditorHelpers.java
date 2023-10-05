@@ -29,23 +29,23 @@ public class EditorHelpers {
 		Consumer<Float> staticConsumer;
 		String flagToken;
 
-		public AlphaEditor(ModelHandler modelHandler, Consumer<Float> staticConsumer){
+		public AlphaEditor(ModelHandler modelHandler, Consumer<Float> staticConsumer) {
 			alphaSpinner = new FloatEditorJSpinner(1.0f, (float) Integer.MIN_VALUE, 0.01f, staticConsumer);
 			flagPanel = new FlagPanel<>(MdlUtils.TOKEN_ALPHA, EditorHelpers::parseFloat, 1.0f, modelHandler).setStaticComponent(alphaSpinner);
 		}
-		public AlphaEditor(ModelHandler modelHandler, String flagToken, Consumer<Float> staticConsumer){
+		public AlphaEditor(ModelHandler modelHandler, String flagToken, Consumer<Float> staticConsumer) {
 			this.flagToken = flagToken;
 			this.staticConsumer = staticConsumer;
 			alphaSpinner = new FloatEditorJSpinner(1.0f, (float) Integer.MIN_VALUE, 0.01f, staticConsumer);
 			flagPanel = new FlagPanel<>(flagToken, EditorHelpers::parseFloat, 1.0f, modelHandler).setStaticComponent(alphaSpinner);
 		}
 
-		public AlphaEditor update(TimelineContainer node, FloatAnimFlag alphaFlag, float staticAlpha){
+		public AlphaEditor update(TimelineContainer node, FloatAnimFlag alphaFlag, float staticAlpha) {
 			flagPanel.update(node, alphaFlag, 0f);
 			alphaSpinner.reloadNewValue(staticAlpha);
 			return this;
 		}
-		public AlphaEditor update(TimelineContainer node, float staticAlpha){
+		public AlphaEditor update(TimelineContainer node, float staticAlpha) {
 			flagPanel.update(node, (FloatAnimFlag) node.find(MdlUtils.TOKEN_ALPHA), 0f);
 			alphaSpinner.reloadNewValue(staticAlpha);
 			return this;
@@ -61,7 +61,7 @@ public class EditorHelpers {
 		Consumer<Float> staticConsumer;
 		String flagToken;
 
-		public FloatEditor(ModelHandler modelHandler, String flagToken, Consumer<Float> staticConsumer){
+		public FloatEditor(ModelHandler modelHandler, String flagToken, Consumer<Float> staticConsumer) {
 //			TimeLogger timeLogger = new TimeLogger().start();
 			this.flagToken = flagToken;
 			this.staticConsumer = staticConsumer;
@@ -73,12 +73,12 @@ public class EditorHelpers {
 //			timeLogger.print();
 		}
 
-		public FloatEditor update(TimelineContainer node, FloatAnimFlag alphaFlag, float staticAlpha){
+		public FloatEditor update(TimelineContainer node, FloatAnimFlag alphaFlag, float staticAlpha) {
 			flagPanel.update(node, alphaFlag, 0f);
 			floatSpinner.reloadNewValue(staticAlpha);
 			return this;
 		}
-		public FloatEditor update(TimelineContainer node, float staticAlpha){
+		public FloatEditor update(TimelineContainer node, float staticAlpha) {
 			flagPanel.update(node, (FloatAnimFlag) node.find(flagToken), 0f);
 			floatSpinner.reloadNewValue(staticAlpha);
 			return this;
@@ -94,19 +94,19 @@ public class EditorHelpers {
 		Consumer<Integer> staticConsumer;
 		String flagToken;
 
-		public IntegerEditor(ModelHandler modelHandler, String flagToken, Consumer<Integer> staticConsumer){
+		public IntegerEditor(ModelHandler modelHandler, String flagToken, Consumer<Integer> staticConsumer) {
 			this.flagToken = flagToken;
 			this.staticConsumer = staticConsumer;
 			intSpinner = new IntEditorJSpinner(0, Integer.MIN_VALUE, staticConsumer);
 			flagPanel = new FlagPanel<>(flagToken, EditorHelpers::parseInt, 0, modelHandler).setStaticComponent(intSpinner);
 		}
 
-		public IntegerEditor update(TimelineContainer node, IntAnimFlag alphaFlag, int staticValue){
+		public IntegerEditor update(TimelineContainer node, IntAnimFlag alphaFlag, int staticValue) {
 			flagPanel.update(node, alphaFlag, staticValue);
 			intSpinner.reloadNewValue(staticValue);
 			return this;
 		}
-		public IntegerEditor update(TimelineContainer node, int staticValue){
+		public IntegerEditor update(TimelineContainer node, int staticValue) {
 			flagPanel.update(node, (IntAnimFlag) node.find(flagToken), staticValue);
 			intSpinner.reloadNewValue(staticValue);
 			return this;
@@ -123,20 +123,20 @@ public class EditorHelpers {
 		Consumer<Vec3> staticConsumer;
 		String flagToken;
 
-		public TranslationEditor(ModelHandler modelHandler){
+		public TranslationEditor(ModelHandler modelHandler) {
 			this(modelHandler, MdlUtils.TOKEN_TRANSLATION, null);
 		}
-		public TranslationEditor(ModelHandler modelHandler, String flagToken, Consumer<Vec3> staticConsumer){
+		public TranslationEditor(ModelHandler modelHandler, String flagToken, Consumer<Vec3> staticConsumer) {
 			this.flagToken = flagToken;
 			this.staticConsumer = staticConsumer;
 			flagPanel = new FlagPanel<>(flagToken, EditorHelpers::parseVec3, new Vec3(0,0,0), modelHandler);
 		}
 
-		public TranslationEditor update(TimelineContainer node, Vec3AnimFlag alphaFlag){
+		public TranslationEditor update(TimelineContainer node, Vec3AnimFlag alphaFlag) {
 			flagPanel.update(node, alphaFlag, new Vec3(0,0,0));
 			return this;
 		}
-		public TranslationEditor update(TimelineContainer node){
+		public TranslationEditor update(TimelineContainer node) {
 			flagPanel.update(node, (Vec3AnimFlag) node.find(flagToken), new Vec3(0,0,0));
 			return this;
 		}
@@ -150,20 +150,20 @@ public class EditorHelpers {
 		Consumer<Vec3> staticConsumer;
 		String flagToken;
 
-		public ScalingEditor(ModelHandler modelHandler){
+		public ScalingEditor(ModelHandler modelHandler) {
 			this(modelHandler, MdlUtils.TOKEN_SCALING, null);
 		}
-		public ScalingEditor(ModelHandler modelHandler, String flagToken, Consumer<Vec3> staticConsumer){
+		public ScalingEditor(ModelHandler modelHandler, String flagToken, Consumer<Vec3> staticConsumer) {
 			this.flagToken = flagToken;
 			this.staticConsumer = staticConsumer;
 			flagPanel = new FlagPanel<>(flagToken, EditorHelpers::parseVec3, new Vec3(1,1,1), modelHandler);
 		}
 
-		public ScalingEditor update(TimelineContainer node, Vec3AnimFlag alphaFlag){
+		public ScalingEditor update(TimelineContainer node, Vec3AnimFlag alphaFlag) {
 			flagPanel.update(node, alphaFlag, new Vec3(1,1,1));
 			return this;
 		}
-		public ScalingEditor update(TimelineContainer node){
+		public ScalingEditor update(TimelineContainer node) {
 			flagPanel.update(node, (Vec3AnimFlag) node.find(flagToken), new Vec3(1,1,1));
 			return this;
 		}
@@ -177,20 +177,20 @@ public class EditorHelpers {
 		Consumer<Quat> staticConsumer;
 		String flagToken;
 
-		public RotationEditor(ModelHandler modelHandler){
+		public RotationEditor(ModelHandler modelHandler) {
 			this(modelHandler, MdlUtils.TOKEN_ROTATION, null);
 		}
-		public RotationEditor(ModelHandler modelHandler, String flagToken, Consumer<Quat> staticConsumer){
+		public RotationEditor(ModelHandler modelHandler, String flagToken, Consumer<Quat> staticConsumer) {
 			this.flagToken = flagToken;
 			this.staticConsumer = staticConsumer;
 			flagPanel = new FlagPanel<>(MdlUtils.TOKEN_ROTATION, EditorHelpers::parseQuat, new Quat(0,0,0,1), modelHandler);
 		}
 
-		public RotationEditor update(TimelineContainer node, QuatAnimFlag alphaFlag){
+		public RotationEditor update(TimelineContainer node, QuatAnimFlag alphaFlag) {
 			flagPanel.update(node, alphaFlag, new Quat(0,0,0,1));
 			return this;
 		}
-		public RotationEditor update(TimelineContainer node){
+		public RotationEditor update(TimelineContainer node) {
 			flagPanel.update(node, (QuatAnimFlag) node.find(MdlUtils.TOKEN_ROTATION), new Quat(0,0,0,1));
 			return this;
 		}
@@ -209,17 +209,17 @@ public class EditorHelpers {
 		Consumer<Vec3> staticConsumer;
 		String flagToken;
 
-		public ColorEditor(ModelHandler modelHandler){
+		public ColorEditor(ModelHandler modelHandler) {
 			this(modelHandler, MdlUtils.TOKEN_COLOR, null);
 		}
-		public ColorEditor(ModelHandler modelHandler, Consumer<Vec3> consumer){
+		public ColorEditor(ModelHandler modelHandler, Consumer<Vec3> consumer) {
 			this(modelHandler, MdlUtils.TOKEN_COLOR, consumer);
 		}
-		public ColorEditor(ModelHandler modelHandler, String flagToken, Consumer<Vec3> staticConsumer){
+		public ColorEditor(ModelHandler modelHandler, String flagToken, Consumer<Vec3> staticConsumer) {
 
 			this(flagToken, modelHandler, flagToken, staticConsumer);
 		}
-		public ColorEditor(String title, ModelHandler modelHandler, String flagToken, Consumer<Vec3> staticConsumer){
+		public ColorEditor(String title, ModelHandler modelHandler, String flagToken, Consumer<Vec3> staticConsumer) {
 			this.flagToken = flagToken;
 			this.staticConsumer = staticConsumer;
 			button = new ColorChooserButton(Color.WHITE, this::colorSelected);
@@ -232,22 +232,22 @@ public class EditorHelpers {
 			selectedColor = new Vec3(DEFAULT_COLOR);
 		}
 
-		private void colorSelected(Color color){
+		private void colorSelected(Color color) {
 			selectedColor.set(color.getColorComponents(null));
-			if(staticConsumer != null) {
+			if (staticConsumer != null) {
 				staticConsumer.accept(new Vec3(selectedColor));
 			}
 		}
 
-		public ColorEditor update(TimelineContainer node, Vec3AnimFlag alphaFlag){
+		public ColorEditor update(TimelineContainer node, Vec3AnimFlag alphaFlag) {
 			flagPanel.update(node, alphaFlag, new Vec3(1,1,1));
 			return this;
 		}
-		public ColorEditor update(TimelineContainer node){
+		public ColorEditor update(TimelineContainer node) {
 			flagPanel.update(node, (Vec3AnimFlag) node.find(flagToken), new Vec3(1,1,1));
 			return this;
 		}
-		public ColorEditor update(TimelineContainer node, Vec3 color){
+		public ColorEditor update(TimelineContainer node, Vec3 color) {
 			flagPanel.update(node, (Vec3AnimFlag) node.find(flagToken), color);
 			button.setCurrentColor(color.asFloatColor());
 			return this;
@@ -269,16 +269,16 @@ public class EditorHelpers {
 		private String valueRegex = "[\\S][^\\n\\r]+";
 		private String weedingRegex = "[\\n\\r]";
 
-		public TextureEditor(ModelHandler modelHandler){
+		public TextureEditor(ModelHandler modelHandler) {
 			this(modelHandler, MdlUtils.TOKEN_TEXTURE_ID, null);
 		}
-		public TextureEditor(ModelHandler modelHandler, Consumer<Bitmap> consumer){
+		public TextureEditor(ModelHandler modelHandler, Consumer<Bitmap> consumer) {
 			this(modelHandler, MdlUtils.TOKEN_TEXTURE_ID, consumer);
 		}
-		public TextureEditor(ModelHandler modelHandler, String flagToken, Consumer<Bitmap> staticConsumer){
+		public TextureEditor(ModelHandler modelHandler, String flagToken, Consumer<Bitmap> staticConsumer) {
 			this("Texture", modelHandler, MdlUtils.TOKEN_TEXTURE_ID, staticConsumer);
 		}
-		public TextureEditor(String title, ModelHandler modelHandler, String flagToken, Consumer<Bitmap> staticConsumer){
+		public TextureEditor(String title, ModelHandler modelHandler, String flagToken, Consumer<Bitmap> staticConsumer) {
 			this.flagToken = flagToken;
 			this.staticConsumer = staticConsumer;
 
@@ -297,17 +297,17 @@ public class EditorHelpers {
 			flagPanel.setStaticComponent(staticTextureChooser);
 		}
 
-		public TextureEditor update(TimelineContainer node, BitmapAnimFlag alphaFlag){
+		public TextureEditor update(TimelineContainer node, BitmapAnimFlag alphaFlag) {
 //			flagPanel.update(node, alphaFlag, new Bitmap(""));
 			flagPanel.update(node, alphaFlag);
 			return this;
 		}
-		public TextureEditor update(TimelineContainer node){
+		public TextureEditor update(TimelineContainer node) {
 //			flagPanel.update(node, (BitmapAnimFlag) node.find(flagToken), new Bitmap(""));
 			flagPanel.update(node, (BitmapAnimFlag) node.find(flagToken));
 			return this;
 		}
-		public TextureEditor update(TimelineContainer node, Bitmap bitmap){
+		public TextureEditor update(TimelineContainer node, Bitmap bitmap) {
 //			flagPanel.update(node, (BitmapAnimFlag) node.find(flagToken), bitmap);
 //			TimeLogger timeLogger = new TimeLogger().start();
 			flagPanel.update(node, (BitmapAnimFlag) node.find(flagToken));
@@ -320,7 +320,7 @@ public class EditorHelpers {
 //			timeLogger.print();
 			return this;
 		}
-		public TextureEditor update(Layer node, int slot, Bitmap bitmap){
+		public TextureEditor update(Layer node, int slot, Bitmap bitmap) {
 //			flagPanel.update(node, (BitmapAnimFlag) node.find(flagToken), bitmap);
 			TimeLogger timeLogger = new TimeLogger().start();
 			flagPanel.update(node, node.getFlipbookTexture(slot));
@@ -342,21 +342,21 @@ public class EditorHelpers {
 
 	private static Bitmap parseBitmap(String s, List<Bitmap> modelTextures) {
 		for (Bitmap bitmap : modelTextures) {
-			if (s.equalsIgnoreCase(bitmap.getRenderableTexturePath())){
+			if (s.equalsIgnoreCase(bitmap.getRenderableTexturePath())) {
 				return bitmap;
 			}
 		}
-		String fileExt = "\\.\\w[0-4]$";
+		String fileExt = "\\.\\w{0,4}$";
 		String s2 = s.replaceFirst(fileExt, "");
 		for (Bitmap bitmap : modelTextures) {
-			if (s2.equalsIgnoreCase(bitmap.getRenderableTexturePath().replaceFirst(fileExt, ""))){
+			if (s2.equalsIgnoreCase(bitmap.getRenderableTexturePath().replaceFirst(fileExt, ""))) {
 				return bitmap;
 			}
 		}
 		if (s.matches("\\d+")) {
 //			System.out.println("5 \"(-?\\d+\\.+)\" - " + s);
 			int i = Integer.parseInt(s);
-			if (i < modelTextures.size()){
+			if (i < modelTextures.size()) {
 				return modelTextures.get(i);
 			}
 		} else if (!modelTextures.isEmpty()) {
@@ -385,13 +385,13 @@ public class EditorHelpers {
 
 
 	private static Integer parseInt(String s) {
-		return Integer.parseInt(s.replaceAll("[\\D]", ""));
+		return Integer.parseInt(s.replaceAll("\\D", ""));
 	}
 
-	private static Vec3 parseVec3(String s){
+	private static Vec3 parseVec3(String s) {
 		return Vec3.parseVec3(ValueParserUtil.getString(3,s));
 	}
-	private static Quat parseQuat(String s){
+	private static Quat parseQuat(String s) {
 		return Quat.parseQuat(ValueParserUtil.getString(4,s));
 	}
 }

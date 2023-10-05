@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextFiel
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.TwiTextEditor.EditorHelpers;
 import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.uiFactories.Button;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -29,10 +30,9 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 		super(modelHandler, componentsPanel);
 
 		popcornPathField = new ComponentEditorTextField(24, this::texturePathField);
-		topPanel.add(popcornPathField, "");
-		JButton exportButton = new JButton("Export");
-		exportButton.addActionListener(e -> export());
-		topPanel.add(exportButton, "wrap");
+		topPanel.add(popcornPathField, "split 3");
+		topPanel.add(Button.create("Export", e -> export()), "");
+		topPanel.add(Button.create("Export .pkb", e -> exportPkb()), "wrap");
 
 		visGuidPanel = new JPanel(new MigLayout("gap 0", "[]8[]"));
 		topPanel.add(visGuidPanel, "wrap");
@@ -163,6 +163,13 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 		String particlePath = idObject.getPath();
 		if (!particlePath.isEmpty()) {
 			ExportInternal.exportInternalFile(particlePath, "Popcorn", this);
+		}
+	}
+
+	private void exportPkb() {
+		String particlePath = idObject.getPath().replaceAll("\\.\\w{2,4}$", ".pkb");
+		if (!particlePath.isEmpty()) {
+			ExportInternal.exportInternalFile(particlePath, "Popcorn", model.getWrappedDataSource(), (JComponent) this.getParent());
 		}
 	}
 }

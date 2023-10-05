@@ -109,7 +109,7 @@ public class FileDialog {
         }
     }
 
-    public String getExtensionOrNull(File file){
+    public String getExtensionOrNull(File file) {
         return getExtensionOrNull(file.getName());
     }
 
@@ -124,7 +124,7 @@ public class FileDialog {
         return fileChooser;
     }
 
-    public File getSaveFile(int operationType, String fileName){
+    public File getSaveFile(int operationType, String fileName) {
         List<FileNameExtensionFilter> filter = getFilter(operationType);
         return getSaveFile(fileName, filter);
     }
@@ -186,11 +186,27 @@ public class FileDialog {
         }
         return null;
     }
+    public File openFile(List<FileNameExtensionFilter> filter) {
+        fileChooser.setDialogTitle("Open");
+        setFilter(filter);
+        fileChooser.setCurrentDirectory(getCurrentDirectory());
+
+        final int returnValue = fileChooser.showOpenDialog(getParent());
+        File file = fileChooser.getSelectedFile();
+        fileChooser.setSelectedFile(null);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            if (file != null) {
+                setCurrentPath(file);
+                return file;
+            }
+        }
+        return null;
+    }
     public File chooseDir(int operationType) {
         fileChooser.setDialogTitle("Open");
 //        setFilter(operationType);
         fileChooser.resetChoosableFileFilters();
-        fileChooser.addChoosableFileFilter(new FileFilter(){
+        fileChooser.addChoosableFileFilter(new FileFilter() {
             @Override
             public boolean accept(File f) {
                 return f.isDirectory();
@@ -254,17 +270,17 @@ public class FileDialog {
         }
     }
 
-    public boolean isSavableModelExt(File file){
+    public boolean isSavableModelExt(File file) {
         String ext = getExtension(file).toLowerCase();
         return isSavableModelExt(ext);
     }
-    public boolean isSavableModelExt(String ext){
+    public boolean isSavableModelExt(String ext) {
         return extFilter.isSavableModelExt(ext);
     }
-    public boolean isSupModel(String ext){
+    public boolean isSupModel(String ext) {
         return extFilter.isSupModel(ext);
     }
-    public boolean isSavableTextureExt(File file){
+    public boolean isSavableTextureExt(File file) {
         String ext = getExtension(file).toLowerCase();
         return isSavableTextureExt(ext);
     }

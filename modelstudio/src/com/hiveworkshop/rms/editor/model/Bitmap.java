@@ -14,17 +14,23 @@ public class Bitmap implements Named {
 	private String imagePath = "";
 	private int replaceableId = 0;
 	private final EnumSet<WrapFlag> wrapFlags = EnumSet.noneOf(WrapFlag.class);
+	private String tempName;
+	private String tempFileName;
+	private String tempExt;
 
 	public String getPath() {
 		return imagePath;
 	}
 
 	public Bitmap(String imagePath, int replaceableId) {
-		this.imagePath = imagePath;
 		this.replaceableId = replaceableId;
-		if(imagePath == null){
+		if (imagePath == null) {
 			System.err.println("Bitmap Path is null!");
+			this.imagePath = "";
+		} else {
+			this.imagePath = imagePath;
 		}
+		updateTempName();
 	}
 
 	public Bitmap(String imagePath) {
@@ -32,8 +38,7 @@ public class Bitmap implements Named {
 	}
 
 	public Bitmap(Bitmap other) {
-		imagePath = other.imagePath;
-		replaceableId = other.replaceableId;
+		this(other.imagePath, other.replaceableId);
 		wrapFlags.addAll(other.wrapFlags);
 	}
 
@@ -46,29 +51,56 @@ public class Bitmap implements Named {
 	}
 
 	public String getName() {
+		return tempName;
+	}
+
+	public String getFileName() {
+		return tempFileName;
+	}
+
+	public String getExtension() {
+		return tempExt;
+	}
+
+	public void updateTempName() {
 		if (!imagePath.equals("")) {
 			try {
-				String[] bits = imagePath.split("[\\\\/]");
-				return bits[bits.length - 1].split("\\.")[0];
+				tempFileName = imagePath.replaceAll(".+[\\\\/](?=.+)", "");
+				tempExt = tempFileName.replaceAll(".+\\.(?=\\w{0,4}$)", "");
+				String name = tempFileName.replaceAll("\\.\\w{0,4}$", "");
+				if (imagePath.matches("^(\\w:|\\W).+") // starts with disc letter (C:) or a non-word character
+						|| imagePath.matches(".*(\\W)\\1.*") // contains two identical non-word characters in sequence
+						|| imagePath.toLowerCase().matches(".*(\\.blp|\\.dds|\\.png|\\.tga|\\.tif).*(\\.blp|\\.dds|\\.png|\\.tga|\\.tif).*")) {
+					tempName = "\u25b2 " + name;
+				} else {
+					tempName = name;
+				}
 			} catch (final Exception e) {
-				return "bad blp path";
+				e.printStackTrace();
+				tempName = "bad blp path";
+				tempFileName = "";
+				tempExt = "";
 			}
 		} else {
 			if (replaceableId == 1) {
-				return "Team Color";
+				tempName = "Team Color";
 			} else if (replaceableId == 2) {
-				return "Team Glow";
+				tempName = "Team Glow";
 			} else {
-				return "Replaceable" + replaceableId;
+				tempName = "Replaceable" + replaceableId;
 			}
+			tempFileName = "";
+			tempExt = "";
 		}
 	}
+
 	@Override
 	public void setName(String text) {
 	}
 
 	public Bitmap setReplaceableId(int replaceableId) {
 		this.replaceableId = replaceableId;
+		updateTempName();
 		return this;
 	}
 
@@ -123,23 +155,31 @@ public class Bitmap implements Named {
 		return setFlag(WrapFlag.WIDTH, wrap);
 	}
 
-	public boolean isFlagSet(WrapFlag flag){
+	public boolean isFlagSet(WrapFlag flag) {
 		return wrapFlags.contains(flag);
 	}
-	public Bitmap setFlag(WrapFlag flag, boolean set){
-		if(set){
+
+	public Bitmap setFlag(WrapFlag flag, boolean set) {
+		if (set) {
 			wrapFlags.add(flag);
 		} else {
 			wrapFlags.remove(flag);
 		}
 		return this;
 	}
-	public Bitmap toggleFlag(WrapFlag flag){
+
+	public Bitmap toggleFlag(WrapFlag flag) {
 		return setFlag(flag, !isFlagSet(flag));
 	}
 
 	public Bitmap setPath(String imagePath) {
-		this.imagePath = imagePath;
+		if (imagePath == null) {
+			System.err.println("Bitmap Path is null!");
+			this.imagePath = "";
+		} else {
+			this.imagePath = imagePath;
+		}
+		updateTempName();
 		return this;
 	}
 	public EnumSet<WrapFlag> getWrapFlags() {
@@ -193,7 +233,7 @@ public class Bitmap implements Named {
 		HEIGHT(MdlUtils.TOKEN_WRAP_HEIGHT, 0x2);
 		final String name;
 		final int flagBit;
-		WrapFlag(String name, int flagBit){
+		WrapFlag(String name, int flagBit) {
 			this.name = name;
 			this.flagBit = flagBit;
 		}
@@ -206,10 +246,10 @@ public class Bitmap implements Named {
 			return flagBit;
 		}
 
-		public static EnumSet<WrapFlag> fromBits(int bits){
+		public static EnumSet<WrapFlag> fromBits(int bits) {
 			EnumSet<WrapFlag> flagSet = EnumSet.noneOf(WrapFlag.class);
-			for (WrapFlag f : WrapFlag.values()){
-				if ((f.flagBit & bits) == f.flagBit){
+			for (WrapFlag f : WrapFlag.values()) {
+				if ((f.flagBit & bits) == f.flagBit) {
 					flagSet.add(f);
 				}
 			}

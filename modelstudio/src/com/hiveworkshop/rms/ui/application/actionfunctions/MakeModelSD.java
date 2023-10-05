@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class MakeModelSD extends ActionFunction {
-	public MakeModelSD(){
+	public MakeModelSD() {
 		super(TextKey.HD_TO_SD, (modelHandler) -> convertToV800(modelHandler, 1));
 	}
 
@@ -38,7 +38,7 @@ public class MakeModelSD extends ActionFunction {
 	 * Please, for the love of Pete, don't actually do this.
 	 */
 	public static void convertToV800(ModelHandler modelHandler, int targetLevelOfDetail) {
-		if(modelHandler != null && modelHandler.getModel().getFormatVersion() != 800){
+		if (modelHandler != null && modelHandler.getModel().getFormatVersion() != 800) {
 			List<UndoAction> undoActions = new ArrayList<>();
 			EditableModel model = modelHandler.getModel();
 			// Things to fix:
@@ -59,7 +59,7 @@ public class MakeModelSD extends ActionFunction {
 					.collect(Collectors.toList());
 			for (Geoset geoset : model.getGeosets()) {
 				// Try to use targetLevelOfDetail, but if no geosets with lod = targetLevelOfDetail is found use all geosets
-				if (geoset.getLevelOfDetail() == targetLevelOfDetail || wrongLOD.size() == model.getGeosets().size()){
+				if (geoset.getLevelOfDetail() == targetLevelOfDetail || wrongLOD.size() == model.getGeosets().size()) {
 					undoActions.add(new ConvertToMatricesAction(geoset, null));
 				}
 			}
@@ -69,7 +69,7 @@ public class MakeModelSD extends ActionFunction {
 			}
 			// 4.) remove popcorn
 			// - add hero glow from popcorn if necessary
-			for(ParticleEmitterPopcorn popcorn : model.getPopcornEmitters()){
+			for (ParticleEmitterPopcorn popcorn : model.getPopcornEmitters()) {
 				if (popcorn.getPath().toLowerCase().contains("hero_glow")) {
 					undoActions.add(replaceHeroGlowEffect(model));
 				}
@@ -91,7 +91,7 @@ public class MakeModelSD extends ActionFunction {
 					undoActions.add(new SetAttachmentPathAction(emitter, path, null));
 				}
 			}
-			if(model.isUseBindPose()){
+			if (model.isUseBindPose()) {
 				undoActions.add(new BoolAction(model::setUseBindPose, false, "", null));
 			}
 
@@ -116,8 +116,7 @@ public class MakeModelSD extends ActionFunction {
 		heroGlow.getTriangles().addAll(heroGlowPlane.getTriangles());
 		heroGlow.setUnselectable(true);
 
-		Bitmap heroGlowBitmap = new Bitmap("");
-		heroGlowBitmap.setReplaceableId(2);
+		Bitmap heroGlowBitmap = new Bitmap("", 2);
 		Layer layer = new Layer(FilterMode.ADDITIVE, heroGlowBitmap);
 		layer.setUnshaded(true);
 		layer.setUnfogged(true);
@@ -148,27 +147,4 @@ public class MakeModelSD extends ActionFunction {
 		}
 		return null;
 	}
-
-
-//	public static void makeMaterialSD(Material material) {
-//		if (material.getShaderString() != null) {
-//			material.setShaderString(null);
-//			Layer layerZero = material.getLayers().get(0);
-//			material.clearLayers();
-//			material.addLayer(layerZero);
-//			if (material.getTwoSided()) {
-//				material.setTwoSided(false);
-//				layerZero.setTwoSided(true);
-//			}
-//		}
-//		for (final Layer layer : material.getLayers()) {
-//			if (!Double.isNaN(layer.getEmissive())) {
-//				layer.setEmissive(Double.NaN);
-//			}
-//			final AnimFlag<?> flag = layer.find("Emissive");
-//			if (flag != null) {
-//				layer.remove(flag);
-//			}
-//		}
-//	}
 }

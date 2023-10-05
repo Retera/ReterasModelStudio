@@ -8,16 +8,17 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.util.TwiTreeStuff.TwiTreeExpansionListener;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.util.List;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 public class ComponentThingTree extends JTree {
 
@@ -36,7 +37,7 @@ public class ComponentThingTree extends JTree {
 	ModelTreeMouseAdapter mouseAdapter;
 
 	private final Map<IdObject, ComponentTreeNode<IdObject>> nodeToTreeElement = new HashMap<>();
-	private final ModelTreeExpansionListener tel;
+	private final TwiTreeExpansionListener expansionListener;
 
 	public ComponentThingTree() {
 		super();
@@ -47,37 +48,21 @@ public class ComponentThingTree extends JTree {
 
 		BasicTreeUI basicTreeUI = (BasicTreeUI) getUI();
 		basicTreeUI.setRightChildIndent(5);
-//		System.out.println("KeyListeners: " + getKeyListeners().length);
-//		for(KeyListener a_KeyListener : getKeyListeners()){
-//			System.out.println(a_KeyListener);
-//		}
-//		System.out.println("MouseListeners: " + getMouseListeners().length);
-//		for(MouseListener MouseListener : getMouseListeners()){
-//			System.out.println(MouseListener);
-//		}
-//		System.out.println("MouseMotionListeners: " + getMouseMotionListeners().length);
-//		for(MouseMotionListener a_MouseMotionListener : getMouseMotionListeners()){
-//			System.out.println(a_MouseMotionListener);
-//		}
-//		System.out.println("InputMethodListeners: " + getInputMethodListeners().length);
-//		for(InputMethodListener a_InputMethodListener : getInputMethodListeners()){
-//			System.out.println(a_InputMethodListener);
-//		}
 
-		tel = new ModelTreeExpansionListener();
-		mouseAdapter = new ModelTreeMouseAdapter(tel::setControlDown, this);
+		expansionListener = new TwiTreeExpansionListener();
+		mouseAdapter = new ModelTreeMouseAdapter(expansionListener::setExpansionPropagateKeyDown, this);
 
-		addTreeExpansionListener(tel);
+		addTreeExpansionListener(expansionListener);
 		addMouseListener(mouseAdapter);
 		addMouseMotionListener(mouseAdapter);
-		ModelTreeKeyAdapter keyAdapter = new ModelTreeKeyAdapter(tel::setControlDown);
+		ModelTreeKeyAdapter keyAdapter = new ModelTreeKeyAdapter(expansionListener::setExpansionPropagateKeyDown);
 		addKeyListener(keyAdapter);
 		ModelStructureChangeListener.changeListener.addSelectionListener(this, this::repaint);
 		ModelStructureChangeListener.changeListener.addStateChangeListener(this, this::updateNodes);
 	}
 
 	public ComponentThingTree setControlDown(boolean controlDown) {
-		tel.setControlDown(controlDown);
+		expansionListener.setExpansionPropagateKeyDown(controlDown);
 		return this;
 	}
 
@@ -92,15 +77,11 @@ public class ComponentThingTree extends JTree {
 			this.undoManager = null;
 
 		}
+		expansionListener.clear();
 		mouseAdapter.setUndoManager(this.undoManager);
+
 		buildBaseNodes();
-//		System.out.println("ComponentThingTree#setModel: buildTreeModel");
 		DefaultTreeModel treeModel = buildTreeModel(modelHandler);
-
-//		System.out.println("meshes: " + meshes);
-//		System.out.println("meshes: " + Arrays.toString(meshes.getPath()));
-
-//		System.out.println("ComponentThingTree#setModel: setTreeModel");
 		setModel(treeModel);
 
 		setCellRenderer(this::getCellComp);
@@ -116,9 +97,6 @@ public class ComponentThingTree extends JTree {
 	                      boolean selected, boolean expanded,
 	                      boolean leaf, int row, boolean hasFocus) {
 		if (value instanceof NodeThing) {
-//			System.out.println("value: " +  value);
-//			JPanel treeRenderComponent = ((NodeThing<?>) value).getTreeRenderComponent();
-//			System.out.println("treeRenderComponent: " +  treeRenderComponent);
 			return ((NodeThing<?>) value).getTreeRenderComponent();
 		}
 		return new JLabel("null");
@@ -132,8 +110,6 @@ public class ComponentThingTree extends JTree {
 
 	private void buildBaseNodes() {
 		root = new ComponentTreeNode<>(modelHandler, modelHandler.getModel());
-//		root.setVisible1(true);
-//		root.setEditable1(true);
 		root.updateEditability(true);
 		root.updateVisibility(true);
 
@@ -143,60 +119,12 @@ public class ComponentThingTree extends JTree {
 	}
 
 	public ComponentThingTree reloadTree() {
-		TreePath rootPath = new TreePath(getModel().getRoot());
-		Enumeration<TreePath> expandedDescendants = getExpandedDescendants(rootPath);
 		DefaultTreeModel treeModel = buildTreeModel(modelHandler);
 //		System.out.println("ComponentThingTree#setModel: setTreeModel");
 		setModel(treeModel);
 
-		expandTree(expandedDescendants);
+		expansionListener.openTree(this);
 		return this;
-	}
-
-	private void expandTree(Enumeration<TreePath> expandedDescendants) {
-		TreePath newRootPath = new TreePath(getModel().getRoot());
-		List<TreePath> pathsToExpand = new ArrayList<>();
-
-		while ((expandedDescendants != null) && expandedDescendants.hasMoreElements()) {
-			TreePath oldExpandedPath = expandedDescendants.nextElement();
-
-			TreePath newPathToExpand = newRootPath;
-			NodeThing<?> rootNode = (NodeThing<?>) getModel().getRoot();
-			newPathToExpand = getTreePath(oldExpandedPath, newPathToExpand, rootNode);
-
-			pathsToExpand.add(newPathToExpand);
-		}
-		for (final TreePath path : pathsToExpand) {
-			expandPath(path);
-		}
-	}
-
-	private TreePath getTreePath(TreePath oldExpandedPath, TreePath newPathToExpand, NodeThing<?> rootNode) {
-		NodeThing<?> currentNode = rootNode;
-		for (int i = 1; i < oldExpandedPath.getPathCount(); i++) {
-			boolean foundMatchingChild = false;
-
-			NodeThing<?> pathComponent = (NodeThing<?>) oldExpandedPath.getPathComponent(i);
-			Object oldPathItem = pathComponent.getItem();
-
-			for (int j = 0; j < currentNode.getChildCount(); j++) {
-				NodeThing<?> childAt = (NodeThing<?>) currentNode.getChildAt(j);
-				Object newPathItem = childAt.getItem();
-				if (newPathItem == oldPathItem
-						|| oldPathItem instanceof String && newPathItem.equals(oldPathItem)) {
-					currentNode = childAt;
-					newPathToExpand = newPathToExpand.pathByAddingChild(childAt);
-					foundMatchingChild = true;
-					break;
-				}
-			}
-
-			if (!foundMatchingChild) {
-				// stop searching if no matching child was found at this depth
-				return newPathToExpand;
-			}
-		}
-		return newPathToExpand;
 	}
 
 
@@ -266,25 +194,9 @@ public class ComponentThingTree extends JTree {
 		}
 	}
 
-	public void updateNodes(){
-//		meshes.updateState();
-//		nodes.updateState();
-//		cameras.updateState();
+	public void updateNodes() {
 		meshes.getChildComponents(new HashSet<>()).forEach(NodeThing::updateState);
 		nodes.getChildComponents(new HashSet<>()).forEach(NodeThing::updateState);
 		cameras.getChildComponents(new HashSet<>()).forEach(NodeThing::updateState);
-	}
-
-
-	public void expandAllChildren(TreeNode node, TreePath path, boolean expand) {
-		for (int i = 0; i < node.getChildCount(); i++) {
-			TreeNode child = node.getChildAt(i);
-			expandAllChildren(child, path.pathByAddingChild(child), expand);
-		}
-		if (expand) {
-			expandPath(path);
-		} else {
-			collapsePath(path);
-		}
 	}
 }

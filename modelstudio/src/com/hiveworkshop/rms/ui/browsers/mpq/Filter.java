@@ -70,4 +70,13 @@ public class Filter {
 	public JCheckBoxMenuItem getFilterCheckBoxItem() {
 		return filterCheckBoxItem;
 	}
+
+	public Filter setSelected(boolean selected) {
+		filterCheckBoxItem.setSelected(selected);
+		return this;
+	}
+
+	public boolean isSelected() {
+		return filterCheckBoxItem.isSelected();
+	}
 }

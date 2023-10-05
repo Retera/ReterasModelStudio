@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.*;
+import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.BinaryDecipherHelper;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.actionfunctions.CloseModel;
@@ -106,7 +107,7 @@ public class ModelLoader {
 		return blankTextureModel;
 	}
 
-	public static void loadModel(EditableModel model){
+	public static void loadModel(EditableModel model) {
 		ModelPanel modelPanel = new ModelPanel(new ModelHandler(model));
 		ModelLoader.loadModel(true, true, modelPanel);
 	}
@@ -185,7 +186,7 @@ public class ModelLoader {
 					}
 				} catch (InterruptedException | ExecutionException e) {
 					Throwable cause = e.getCause();
-					if(cause instanceof RuntimeException) {
+					if (cause instanceof RuntimeException) {
 						throw (RuntimeException) cause;
 					} else {
 						throw new RuntimeException("Failed to load \"" + f + "\"", e);
@@ -213,14 +214,14 @@ public class ModelLoader {
 			model = getMdxlModel(f);
 		} else if (Arrays.asList("obj", "fbx").contains(ext)) {
 			model = getAssImpModel(f);
-		} else if (Arrays.asList("pkb").contains(ext)){
+		} else if (Arrays.asList("pkb").contains(ext)) {
 			BinaryDecipherHelper.load(f);
 			model = null;
 		} else if (Arrays.asList("slk").contains(ext)) {
 			String fileName = filepath.replaceAll(".*\\\\", "");
 			new SklViewer().createAndShowHTMLPanel(f, fileName);
 			model = null;
-		} else if (Arrays.asList("txt").contains(ext)) {
+		} else if (Arrays.asList("txt", "fdf", "json", "ini").contains(ext)) {
 			String fileName = filepath.replaceAll(".*\\\\", "");
 			new TxtViewer().createAndShowHTMLPanel(f, fileName);
 			model = null;
@@ -253,7 +254,7 @@ public class ModelLoader {
 				getMdxlModel(f);
 			} else if (Arrays.asList("obj", "fbx", "dae").contains(ext)) {
 				getAssImpModel(f);
-			} else if (Arrays.asList("pkb").contains(ext)){
+			} else if (Arrays.asList("pkb").contains(ext)) {
 				System.out.println("pkb!");
 			BinaryDecipherHelper.load(f);
 			}
@@ -318,6 +319,9 @@ public class ModelLoader {
 		return null;
 	}
 
+	public static void loadFile(String path, boolean temporary) {
+		loadFile(GameDataFileSystem.getDefault().getFile(path), temporary);
+	}
 	public static void loadFile(File f, boolean temporary) {
 		loadFile(f, temporary, true, MDLIcon);
 	}

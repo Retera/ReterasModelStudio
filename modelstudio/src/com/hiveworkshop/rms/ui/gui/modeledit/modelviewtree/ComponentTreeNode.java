@@ -67,8 +67,8 @@ public class ComponentTreeNode<T extends Named> extends NodeThing<T> {
 	private SelectionBundle getSelectionBundle(MouseEvent e) {
 		Integer selectMouseButton = ProgramGlobals.getPrefs().getSelectMouseButton();
 		SelectionBundle newSelection = null;
-//		if(MouseEvent.getMaskForButton(e.getButton()) == selectMouseButton){
-		if((e.getModifiersEx() & selectMouseButton) == selectMouseButton){
+//		if (MouseEvent.getMaskForButton(e.getButton()) == selectMouseButton) {
+		if ((e.getModifiersEx() & selectMouseButton) == selectMouseButton) {
 //			System.out.println("selecting? " + (MouseEvent.getMaskForButton(e.getButton()) == selectMouseButton));
 			System.out.println("selecting? " + ((e.getModifiersEx() & selectMouseButton) == selectMouseButton));
 			if (item instanceof IdObject) {
@@ -91,8 +91,8 @@ public class ComponentTreeNode<T extends Named> extends NodeThing<T> {
 
 	protected UndoAction getSelectAction(MouseEvent e) {
 		SelectionBundle newSelection = getSelectionBundle(e);
-		if(newSelection != null){
-			System.out.println("should be selecting! ");
+		if (newSelection != null) {
+			System.out.println("should be selecting! " + item.getName());
 			Integer addSelectModifier = ProgramGlobals.getPrefs().getAddSelectModifier();
 			Integer removeSelectModifier = ProgramGlobals.getPrefs().getRemoveSelectModifier();
 			if (isModUsed(e, addSelectModifier)
@@ -121,5 +121,33 @@ public class ComponentTreeNode<T extends Named> extends NodeThing<T> {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ComponentTreeNode<?>) {
+			if (this == obj) {
+				return true;
+			}
+//			System.out.println(this.getClass().getSimpleName() + " equals "
+//					+ obj.getClass().getSimpleName() + " " + this.getClass().isInstance(obj)
+//					+ " hash: " + hashCode() + " = " + obj.hashCode()
+//					+ " \t" + item.getName() + " = " + ((ComponentTreeNode<?>) obj).item.getName()
+//			);
+			return this.getClass().isInstance(obj)
+					&& this.modelHandler == ((ComponentTreeNode<?>) obj).modelHandler
+					&& this.item == ((ComponentTreeNode<?>) obj).item;
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		int prime = 31;
+		int result = 1;
+		result = (prime * result) + this.getClass().hashCode();
+		result = (prime * result) + modelHandler.hashCode();
+		result = (prime * result) + item.hashCode();
+		return result;
 	}
 }

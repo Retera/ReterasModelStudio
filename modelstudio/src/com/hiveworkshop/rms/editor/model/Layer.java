@@ -65,10 +65,13 @@ public class Layer extends TimelineContainer implements Named {
 		for (AnimFlag<?> animFlag : other.getAnimFlags()) {
 			add(animFlag.deepCopy());
 		}
-
 	}
 
-	public void setFlipbookTexture(int slot, BitmapAnimFlag animFlag){
+	public boolean isOpaque() {
+		return (filterMode == FilterMode.NONE || filterMode == FilterMode.TRANSPARENT) && staticAlpha == 1 && (getVisibilityFlag() == null || getVisibilityFlag().size() == 0);
+	}
+
+	public void setFlipbookTexture(int slot, BitmapAnimFlag animFlag) {
 		textures.get(slot).setFlipBookTexture(animFlag);
 	}
 
@@ -95,20 +98,20 @@ public class Layer extends TimelineContainer implements Named {
 		return null;
 	}
 
-	public Bitmap getTexture(int id){
-		if (0 <= id && id < textures.size()){
+	public Bitmap getTexture(int id) {
+		if (0 <= id && id < textures.size()) {
 			return textures.get(id).getTexture();
 		}
 		return null;
 	}
 
-	public Texture getTextureSlot(int slot){
-		if (0 <= slot && slot < textures.size()){
+	public Texture getTextureSlot(int slot) {
+		if (0 <= slot && slot < textures.size()) {
 			return textures.get(slot);
 		}
 		return null;
 	}
-	public List<Texture> getTextureSlots(){
+	public List<Texture> getTextureSlots() {
 		return textures;
 	}
 	public List<Bitmap> getTextures() {
@@ -116,7 +119,7 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public void setTexture(int i, Bitmap texture) {
-		if(i < textures.size()){
+		if (i < textures.size()) {
 			textures.get(i).setTexture(texture);
 		} else {
 			textures.add(new Texture(texture));
@@ -279,26 +282,26 @@ public class Layer extends TimelineContainer implements Named {
 		return flags;
 	}
 
-	public void setFlags(Collection<flag> newFlags){
+	public void setFlags(Collection<flag> newFlags) {
 		flags.clear();
 		flags.addAll(newFlags);
 	}
 
-	public boolean isFlagSet(flag flag){
+	public boolean isFlagSet(flag flag) {
 		return flags.contains(flag);
 	}
-	public void setFlag(flag flag){
+	public void setFlag(flag flag) {
 		flags.add(flag);
 	}
-	public void setFlag(flag flag, boolean set){
-		if(set){
+	public void setFlag(flag flag, boolean set) {
+		if (set) {
 			flags.add(flag);
 		} else {
 			flags.remove(flag);
 		}
 	}
 
-	public Layer deepCopy(){
+	public Layer deepCopy() {
 		return new Layer(this);
 	}
 
@@ -366,7 +369,7 @@ public class Layer extends TimelineContainer implements Named {
 				return false;
 			}
 
-			if(!flags.equals(other.flags)){
+			if (!flags.equals(other.flags)) {
 				return false;
 			}
 
@@ -397,7 +400,7 @@ public class Layer extends TimelineContainer implements Named {
 		}
 
 		public Texture setFlipBookTexture(BitmapAnimFlag animFlag) {
-			if(animFlag != null){
+			if (animFlag != null) {
 				add(animFlag);
 			} else {
 				remove(MdlUtils.TOKEN_TEXTURE_ID);
@@ -405,18 +408,18 @@ public class Layer extends TimelineContainer implements Named {
 			return this;
 		}
 
-		public BitmapAnimFlag getFlipbookTexture(){
+		public BitmapAnimFlag getFlipbookTexture() {
 			AnimFlag<?> animFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
 //			System.out.println("layerTexture flipbook: " + animFlag);
-			if(animFlag instanceof BitmapAnimFlag) {
+			if (animFlag instanceof BitmapAnimFlag) {
 				return (BitmapAnimFlag) animFlag;
 			}
 			return null;
 		}
-		public Bitmap getFlipbookTexture(TimeEnvironmentImpl environment){
+		public Bitmap getFlipbookTexture(TimeEnvironmentImpl environment) {
 			if (environment != null && environment.getCurrentSequence() != null) {
 				AnimFlag<?> animFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
-				if(animFlag instanceof BitmapAnimFlag) {
+				if (animFlag instanceof BitmapAnimFlag) {
 					return ((BitmapAnimFlag) animFlag).interpolateAt(environment);
 				}
 			}
@@ -425,8 +428,8 @@ public class Layer extends TimelineContainer implements Named {
 
 		@Override
 		public boolean equals(Object other) {
-			if(other instanceof Texture){
-				if(other == this) return true;
+			if (other instanceof Texture) {
+				if (other == this) return true;
 				return Objects.equals(animFlags, ((Texture) other).animFlags)
 						&& Objects.equals(texture, ((Texture) other).texture);
 			}
@@ -451,7 +454,7 @@ public class Layer extends TimelineContainer implements Named {
 		UNLIT(MdlUtils.TOKEN_UNLIT, 0x100);
 		final String name;
 		final int flagBit;
-		flag(String name, int flagBit){
+		flag(String name, int flagBit) {
 			this.name = name;
 			this.flagBit = flagBit;
 		}

@@ -19,7 +19,11 @@ public class SoundMappings extends EventMapping<Sound> {
 		nameToTags.clear();
 		tagToEvent.clear();
 		readAnimLookups("war3.w3mod\\ui\\soundinfo\\animlookups.slk");
-		fillSoundData("war3.w3mod\\ui\\soundinfo\\animsounds.slk");
+		if (!tagToEvent.isEmpty()) {
+			fillSoundData("war3.w3mod\\ui\\soundinfo\\animsounds.slk");
+		} else {
+			readAnimLookups2("war3.w3mod\\ui\\soundinfo\\animsounds.slk");
+		}
 		System.out.println("SoundMap created! " + nameToTags.size() + " names, " + tagToEvent.size() + " tags");
 	}
 
@@ -46,6 +50,41 @@ public class SoundMappings extends EventMapping<Sound> {
 			}
 		} else if (currSound != null) {
 			currSound.setFromSklLine(s);
+		}
+	}
+	protected void readAnimLookups2(String lookUpsPath) {
+		CompoundDataSource source = GameDataFileSystem.getDefault();
+
+		if (source.has(lookUpsPath)) {
+			try (BufferedReader r = new BufferedReader(new InputStreamReader(source.getResourceAsStream(lookUpsPath)))) {
+				r.lines().forEach(this::processMappingLine2);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	protected void processMappingLine2(String s) {
+		if (s.startsWith("C;X1;Y") && !s.startsWith("C;X1;Y1;")) {
+			String[] strings = s.split("\"");
+			if (1 < strings.length) {
+				if (currSound != null) {
+					System.out.println(currSound.getTag() + " \"" + currSound.getName() + "\"  \"" + Arrays.toString(currSound.getFilePaths()) + "\"");
+				}
+				currSound = new Sound(strings[1]);
+				currSound.setFromSklLine3(s);
+			} else {
+				currSound = null;
+			}
+		} else if (s.startsWith("C;X2") && currSound != null) {
+			String[] strings = s.split("\"");
+			if (1 < strings.length) {
+				currSound.setFromSklLine3(s);
+				tagToEvent.put(currSound.getTag(), currSound);
+			} else {
+				currSound = null;
+			}
+		} else if (currSound != null) {
+			currSound.setFromSklLine3(s);
 		}
 	}
 

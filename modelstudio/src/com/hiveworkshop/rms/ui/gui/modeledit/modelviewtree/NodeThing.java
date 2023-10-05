@@ -49,7 +49,7 @@ public abstract class NodeThing<T> extends DefaultMutableTreeNode {
 
 	@Override
 	public String toString() {
-		if(item instanceof Named){
+		if (item instanceof Named) {
 			return ((Named) item).getName();
 		}
 		return item.toString();
@@ -78,7 +78,7 @@ public abstract class NodeThing<T> extends DefaultMutableTreeNode {
 
 	public abstract T updateState();
 
-	protected void updateButtons(){
+	protected void updateButtons() {
 		visibleButton2.toggleOn(visible);
 		editableButton2.toggleOn(editable);
 	}
@@ -97,7 +97,7 @@ public abstract class NodeThing<T> extends DefaultMutableTreeNode {
 		System.out.println("[NodeThing] set visible! " + visible);
 		UndoAction visAction = getVisAction(visible, isModUsed(e, ActionEvent.SHIFT_MASK));
 
-		if(visAction != null){
+		if (visAction != null) {
 			undoManager.pushAction(visAction.redo());
 		}
 		return this;
@@ -107,7 +107,7 @@ public abstract class NodeThing<T> extends DefaultMutableTreeNode {
 		System.out.println("[NodeThing] set visible! " + visible);
 		UndoAction visAction = getVisAction(visible, multiple);
 
-		if(visAction != null){
+		if (visAction != null) {
 			undoManager.pushAction(visAction.redo());
 		}
 		return this;
@@ -172,7 +172,7 @@ public abstract class NodeThing<T> extends DefaultMutableTreeNode {
 				((NodeThing<?>) childAt).getChildComponents(thingsToAffect);
 			}
 		}
-		if(this instanceof ComponentTreeGeosetsTopNode){
+		if (this instanceof ComponentTreeGeosetsTopNode) {
 //			System.out.println("GeoTop-child-comps:" + thingsToAffect.size());
 		}
 		return thingsToAffect;
@@ -192,10 +192,10 @@ public abstract class NodeThing<T> extends DefaultMutableTreeNode {
 		return ((e.getModifiersEx() & mask) == mask);
 	}
 
-	public Component getComponentAt(Point point){
-		if(treeRenderComponent.getBounds().contains(point)){
-			for(Component component : treeRenderComponent.getComponents()) {
-				if(component.getBounds().contains(point)){
+	public Component getComponentAt(Point point) {
+		if (treeRenderComponent.getBounds().contains(point)) {
+			for (Component component : treeRenderComponent.getComponents()) {
+				if (component.getBounds().contains(point)) {
 					return component;
 				}
 			}
@@ -204,27 +204,27 @@ public abstract class NodeThing<T> extends DefaultMutableTreeNode {
 		return null;
 	}
 
-	public UndoAction clickAt(int x, int y, MouseEvent e){
-		if(e.getID() == MouseEvent.MOUSE_DRAGGED || e.getID() == MouseEvent.MOUSE_PRESSED){
+	public UndoAction clickAt(int x, int y, MouseEvent e) {
+		if (e.getID() == MouseEvent.MOUSE_DRAGGED || e.getID() == MouseEvent.MOUSE_PRESSED) {
 //			System.out.println("[NodeThingME] clickAt: [" + x + ", " + y + "], bounds: " + treeRenderComponent.getBounds());
 
-			for(Component component : treeRenderComponent.getComponents()) {
+			for (Component component : treeRenderComponent.getComponents()) {
 //				System.out.println("\t[NodeThingME] clickAt: [" + x + ", " + y + "], "
 //						+ "contains: " + component.getBounds().contains(x,y)
 //						+ ", " + component);
-				if(component.getBounds().contains(x,y)){
+				if (component.getBounds().contains(x,y)) {
 
 //					System.out.println("[NodeThingME] clickAt: [" + x + ", " + y + "], " + component);
-					if(component == editableButton2){
+					if (component == editableButton2) {
 						boolean multiple = isModUsed(e, InputEvent.SHIFT_DOWN_MASK) && e.getID() != MouseEvent.MOUSE_DRAGGED;
 						return getEdAction(!editable, multiple);
 					}
-					if(component == visibleButton2){
+					if (component == visibleButton2) {
 						boolean multiple = isModUsed(e, InputEvent.SHIFT_DOWN_MASK) && e.getID() != MouseEvent.MOUSE_DRAGGED;
 						return getVisAction(!visible, multiple);
 					}
-					if(component == itemLabel){
-						System.out.println("\t "+ e);
+					if (component == itemLabel) {
+//						System.out.println("\t "+ e);
 						return getSelectAction(e);// drag throws error, fix to use getModifiersEx
 					}
 					return null;
@@ -238,4 +238,18 @@ public abstract class NodeThing<T> extends DefaultMutableTreeNode {
 		return null;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof NodeThing<?>) {
+			if (this == obj) {
+				return true;
+			}
+//			System.out.println("NodeThing - " + this.getClass().getSimpleName() + " equals " + obj.getClass().getSimpleName() + " " + this.getClass().isInstance(obj));
+			if (this.getClass().isInstance(obj)
+					&& this.modelHandler == ((NodeThing<?>)obj).modelHandler
+					&& this.item == ((NodeThing<?>)obj).item)
+				return true;
+		}
+		return false;
+	}
 }

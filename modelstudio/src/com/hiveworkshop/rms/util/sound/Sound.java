@@ -6,8 +6,10 @@ public class Sound extends EventTarget {
 	private String[] fileNames;
 	private String directoryBase;
 	private int volume;
-	private int pitch;
+	private float volumeVariance;
+	private float pitch;
 	private float pitchVariance;
+	private int maximumConcurrentInstances;
 	private int priority;
 	private int channel;
 	private String flags;
@@ -17,6 +19,7 @@ public class Sound extends EventTarget {
 	private String eAXFlags;
 	private int inBeta;
 	private int version;
+	private String rolloffPoints;
 
 	Sound(String[] tag_name_inBeta) {
 		tag = tag_name_inBeta[0];
@@ -46,6 +49,7 @@ public class Sound extends EventTarget {
 //		System.out.println(Arrays.toString(split));
 		if (1 < split.length) {
 			switch (split[1]) {
+				case "X1" -> soundName = getString(split[2]).split(",")[2];
 				case "X2" -> fileNames = getString(split[2]).split(",");
 				case "X3" -> directoryBase = getString(split[2]);
 				case "X4" -> volume = getInt(split[2]);
@@ -65,17 +69,40 @@ public class Sound extends EventTarget {
 		return this;
 	}
 
-//	private int getInt(String s) {
-//		return Integer.parseInt(s.split("K")[1]);
-//	}
-//
-//	private float getFloat(String s) {
-//		return Float.parseFloat(s.split("K")[1]);
-//	}
-//
-//	private String getString(String s) {
-//		return s.split("\"")[1];
-//	}
+
+	Sound setFromSklLine3(String lineString) {
+
+		String[] split = lineString.split(";(Y\\d+;)?");
+
+		if (1 < split.length) {
+//			if ("X3".matches(split[1])) {
+//				String s2 = split[2];
+//				String s3 = getString(s2);
+//				String[] split1 = s3.split(",");
+//				System.out.println(tag + "  " + lineString + "  " + s2 + "  " + s3 + "  " + Arrays.toString(split1));
+//			}
+			switch (split[1]) {
+				case "X1" -> soundName = getString(split[2]);
+				case "X2" -> tag = getString(split[2]);
+				case "X3" -> fileNames = getString(split[2]).split(",");
+				case "X4" -> volume = getInt(split[2]);
+				case "X5" -> volumeVariance = getInt(split[2]);
+				case "X6" -> pitch = getFloat(split[2]);
+				case "X7" -> pitchVariance = getFloat(split[2]);
+				case "X8" -> maximumConcurrentInstances = getInt(split[2]);
+				case "X9" -> priority = getInt(split[2]);
+				case "X10" -> channel = getInt(split[2]);
+				case "X11" -> flags = getString(split[2]);
+				case "X12" -> minDistance = getInt(split[2]);
+				case "X13" -> maxDistance = getInt(split[2]);
+				case "X14" -> distanceCutoff = getInt(split[2]);
+				case "X15" -> eAXFlags = getString(split[2]);
+				case "X16" -> version = getInt(split[2]);
+				case "X17" -> rolloffPoints = getString(split[2]);
+			}
+		}
+		return this;
+	}
 
 	public String[] getFileNames() {
 		return fileNames;
@@ -85,7 +112,7 @@ public class Sound extends EventTarget {
 		if (fileNames != null) {
 			String[] paths = new String[fileNames.length];
 			for (int i = 0; i < paths.length; i++) {
-				paths[i] = directoryBase + fileNames[i];
+				paths[i] = (directoryBase == null ? "" : directoryBase) + fileNames[i];
 			}
 			return paths;
 		}
@@ -96,7 +123,7 @@ public class Sound extends EventTarget {
 			String[][] paths = new String[fileNames.length][2];
 			for (int i = 0; i < paths.length; i++) {
 				paths[i][0] = fileNames[i];
-				paths[i][1] = directoryBase + fileNames[i];
+				paths[i][1] = (directoryBase == null ? "" : directoryBase) + fileNames[i];
 			}
 			return paths;
 		}
@@ -122,7 +149,7 @@ public class Sound extends EventTarget {
 		return volume;
 	}
 
-	public int getPitch() {
+	public float getPitch() {
 		return pitch;
 	}
 

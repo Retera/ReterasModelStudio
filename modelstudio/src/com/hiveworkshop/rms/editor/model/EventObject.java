@@ -29,7 +29,7 @@ public class EventObject extends IdObject {
 
 	private EventObject(final EventObject source) {
 		super(source);
-		for(Sequence sequence : source.eventTrackAnimMap.keySet()){
+		for (Sequence sequence : source.eventTrackAnimMap.keySet()) {
 			eventTrackAnimMap.put(sequence, new TreeSet<>(source.getEventTrackAnimMap().get(sequence)));
 		}
 		globalSeq = source.globalSeq;
@@ -42,7 +42,7 @@ public class EventObject extends IdObject {
 
 	public int size() {
 		int size = 0;
-		for(Sequence animation : eventTrackAnimMap.keySet()){
+		for (Sequence animation : eventTrackAnimMap.keySet()) {
 			if (eventTrackAnimMap.get(animation) != null) {
 				size += eventTrackAnimMap.get(animation).size();
 			}
@@ -51,12 +51,12 @@ public class EventObject extends IdObject {
 	}
 
 	public static EventObject buildEmptyFrom(final EventObject source) {
-		return new EventObject(source);
+		return new EventObject(source.name);
 	}
 
 	public void setValuesTo(final EventObject source) {
 		eventTrackAnimMap.clear();
-		for(Sequence sequence : source.eventTrackAnimMap.keySet()){
+		for (Sequence sequence : source.eventTrackAnimMap.keySet()) {
 			eventTrackAnimMap.put(sequence, new TreeSet<>(source.getEventTrackAnimMap().get(sequence)));
 		}
 	}
@@ -69,11 +69,11 @@ public class EventObject extends IdObject {
 	public void timeScale(Sequence anim, int newLength, int offsetFromStart) {
 		// Timescales a part of the AnimFlag from section "start" to "end" into the new time "newStart" to "newEnd"
 		TreeSet<Integer> trackSet = eventTrackAnimMap.get(anim);
-		if(trackSet != null){
+		if (trackSet != null) {
 			double ratio = (double) (newLength) / (double) (anim.getLength());
 			TreeSet<Integer> scaledSet = getScaledSet(ratio, trackSet);
 			trackSet.clear();
-			for(Integer time : scaledSet){
+			for (Integer time : scaledSet) {
 				trackSet.add(time + offsetFromStart);
 			}
 		}
@@ -81,7 +81,7 @@ public class EventObject extends IdObject {
 
 	private TreeSet<Integer> getScaledSet(double ratio, TreeSet<Integer> trackSet) {
 		TreeSet<Integer> scaledSet = new TreeSet<>();
-		for(Integer time : trackSet){
+		for (Integer time : trackSet) {
 			int newTime = (int) (time * ratio);
 			scaledSet.add(newTime);
 		}
@@ -95,12 +95,12 @@ public class EventObject extends IdObject {
 		TreeSet<Integer> sourceTrackSet = source.getEventTrack(srcSequence);
 		TreeSet<Integer> trackSet = eventTrackAnimMap.computeIfAbsent(newSequence, k -> new TreeSet<>());
 
-		if(srcSequence.getLength() != newSequence.getLength() && sourceTrackSet != null){
+		if (srcSequence.getLength() != newSequence.getLength() && sourceTrackSet != null) {
 			double ratio = (newSequence.getLength())/((double)srcSequence.getLength());
-			for(Integer time : sourceTrackSet){
+			for (Integer time : sourceTrackSet) {
 				trackSet.add((int) (time * ratio));
 			}
-		} else if (sourceTrackSet != null){
+		} else if (sourceTrackSet != null) {
 			trackSet.addAll(sourceTrackSet);
 		}
 	}
@@ -135,7 +135,7 @@ public class EventObject extends IdObject {
 
 	public EventObject addTrack(Sequence sequence, int track) {
 		eventTrackAnimMap.computeIfAbsent(sequence, k -> new TreeSet<>()).add(track);
-		if(sequence instanceof GlobalSeq){
+		if (sequence instanceof GlobalSeq) {
 			this.globalSeq = (GlobalSeq) sequence;
 		}
 		return this;
@@ -143,7 +143,7 @@ public class EventObject extends IdObject {
 
 	public EventObject addSequence(Sequence sequence, Collection<Integer> tracks) {
 		eventTrackAnimMap.computeIfAbsent(sequence, k -> new TreeSet<>()).addAll(tracks);
-		if(sequence instanceof GlobalSeq){
+		if (sequence instanceof GlobalSeq) {
 			this.globalSeq = (GlobalSeq) sequence;
 		}
 		return this;
@@ -158,7 +158,7 @@ public class EventObject extends IdObject {
 
 	public EventObject removeSequence(Sequence sequence) {
 		eventTrackAnimMap.remove(sequence);
-		if(sequence instanceof GlobalSeq){
+		if (sequence instanceof GlobalSeq) {
 			this.globalSeq = null;
 		}
 		return this;
@@ -171,7 +171,7 @@ public class EventObject extends IdObject {
 		return this;
 	}
 
-	public boolean hasSequence(Sequence sequence){
+	public boolean hasSequence(Sequence sequence) {
 		return eventTrackAnimMap.containsKey(sequence);
 	}
 
@@ -180,6 +180,21 @@ public class EventObject extends IdObject {
 			return eventTrackAnimMap.get(sequence);
 		}
 		return null;
+	}
+
+	public Integer getFirstFor(Sequence sequence) {
+		if (sequence != null && eventTrackAnimMap.get(sequence) != null) {
+			return eventTrackAnimMap.get(sequence).ceiling(0);
+		}
+		return null;
+	}
+
+	public boolean usedIn(Sequence sequence) {
+		if (sequence != null && eventTrackAnimMap.get(sequence) != null) {
+			Integer ceiling = eventTrackAnimMap.get(sequence).ceiling(0);
+			return ceiling != null && ceiling <= sequence.getLength();
+		}
+		return false;
 	}
 
 	@Override
@@ -191,7 +206,7 @@ public class EventObject extends IdObject {
 	@Override
 	public float getRenderVisibility(final TimeEnvironmentImpl animatedRenderEnvironment) {
 		TreeSet<Integer> tracks = eventTrackAnimMap.get(animatedRenderEnvironment.getCurrentSequence());
-		if(tracks != null && !tracks.isEmpty()){
+		if (tracks != null && !tracks.isEmpty()) {
 			return 1;
 		}
 		return 0;
