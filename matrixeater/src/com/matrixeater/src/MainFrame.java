@@ -51,7 +51,7 @@ import net.infonode.gui.laf.InfoNodeLookAndFeelThemes;
  * @version (a version number or a date)
  */
 public class MainFrame extends JFrame {
-	private static final String RETERA_MODEL_STUDIO_VERSION = "Retera Model Studio v0.04.5g";
+	private static final String RETERA_MODEL_STUDIO_VERSION = "Retera Model Studio v0.04.5h";
 	static MainFrame frame;
 	static MainPanel panel;
 	static JMenuBar menuBar;
