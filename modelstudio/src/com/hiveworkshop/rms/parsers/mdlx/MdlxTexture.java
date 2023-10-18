@@ -57,4 +57,8 @@ public class MdlxTexture implements MdlxBlock {
 
 		stream.endBlock();
 	}
+
+	public long getByteLength(final int version) {
+		return 268;
+	}
 }

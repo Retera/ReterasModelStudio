@@ -11,6 +11,7 @@ public class FlagUtils {
 
 		if (id == null) {
 			String type = "" + container;
+			type += container == null ? "" : (" " + container.getClass());
 			if (container instanceof IdObject) {
 				type += " (" + ((IdObject) container).getName() + ")";
 			}
@@ -21,7 +22,7 @@ public class FlagUtils {
 	}
 
 	public static AnimationMap getAnimationMap(String name, TimelineContainer container) {
-		if (container instanceof Layer) {
+		if (container instanceof Layer || container instanceof Layer.Texture) {
 			return switch (name) {
 				case MdlUtils.TOKEN_TEXTURE_ID -> AnimationMap.KMTF;
 				case MdlUtils.TOKEN_ALPHA -> AnimationMap.KMTA;

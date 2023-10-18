@@ -76,4 +76,8 @@ public class MdlxSequence implements MdlxBlock {
 		extent.writeMdl(stream);
 		stream.endBlock();
 	}
+
+	public long getByteLength(final int version) {
+		return 132;
+	}
 }

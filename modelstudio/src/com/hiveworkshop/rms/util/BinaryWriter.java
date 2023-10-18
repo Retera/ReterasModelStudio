@@ -3,10 +3,11 @@ package com.hiveworkshop.rms.util;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public class BinaryWriter {
     public ByteBuffer buffer;
-    public static final Charset UTF8 = Charset.forName("utf-8");
+    public static final Charset UTF8 = StandardCharsets.UTF_8;
 
     public BinaryWriter(final int capacity) {
         buffer = ByteBuffer.allocate(capacity);
@@ -131,7 +132,7 @@ public class BinaryWriter {
     }
 
     public void writeInvFloat32Array(final float[] values) {
-        for (int i = values.length-1; i>=0; i--){
+        for (int i = values.length - 1; 0 <= i; i--) {
             writeFloat32(values[i]);
         }
     }

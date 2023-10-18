@@ -12,9 +12,7 @@ import java.util.TreeMap;
 public class IdObjectFactory {
 	public static Bone createBone(MdlxBone mdlxBone, EditableModel model) {
 		Bone bone = new Bone();
-		if ((mdlxBone.flags & 0x100) != 0x100) {
-			System.err.println("MDX -> MDL error: A bone '" + mdlxBone.name + "' not flagged as bone in MDX!");
-		}
+		warnUnmarkedType(mdlxBone, 0x100);
 
 		loadObject(bone, mdlxBone, model);
 
@@ -26,7 +24,7 @@ public class IdObjectFactory {
 		idObject.setName(object.name);
 
 		EnumSet<IdObject.NodeFlag> nodeFlags = IdObject.NodeFlag.fromBits(object.flags);
-		for(IdObject.NodeFlag flag : nodeFlags){
+		for (IdObject.NodeFlag flag : nodeFlags) {
 			idObject.setFlag(flag, true);
 		}
 
@@ -45,9 +43,7 @@ public class IdObjectFactory {
 
 	public static Light createLight(MdlxLight mdlxLight, EditableModel model) {
 		Light light = new Light();
-		if ((mdlxLight.flags & 0x200) != 0x200) {
-			System.err.println("MDX -> MDL error: A light '" + mdlxLight.name + "' not flagged as light in MDX!");
-		}
+		warnUnmarkedType(mdlxLight, 0x200);
 
 		loadObject(light, mdlxLight, model);
 
@@ -63,9 +59,10 @@ public class IdObjectFactory {
 
 	public static Helper createHelper(MdlxHelper mdlxHelper, EditableModel model) {
 		Helper helper = new Helper();
-		if ((mdlxHelper.flags & 1) != 0) {
-			System.err.println("MDX -> MDL error: A helper '" + mdlxHelper.name + "' not flagged as helper in MDX!");
-		}
+		warnUnmarkedType(mdlxHelper, 0x0);
+//		if ((mdlxHelper.flags & 0x100) != 0) {
+//			System.err.println("MDX -> MDL error: Helper '" + mdlxHelper.name + "' not flagged as Helper in MDX!");
+//		}
 
 		loadObject(helper, mdlxHelper, model);
 		return helper;
@@ -73,9 +70,7 @@ public class IdObjectFactory {
 
 	public static Attachment createAttachment(MdlxAttachment mdlxAttachment, EditableModel model) {
 		Attachment attachment = new Attachment();
-		if ((mdlxAttachment.flags & 0x800) != 0x800) {
-			System.err.println("MDX -> MDL error: A light '" + mdlxAttachment.name + "' not flagged as light in MDX!");
-		}
+		warnUnmarkedType(mdlxAttachment, 0x800);
 
 		loadObject(attachment, mdlxAttachment, model);
 
@@ -86,10 +81,7 @@ public class IdObjectFactory {
 
 	public static ParticleEmitter createParticleEmitter(MdlxParticleEmitter mdlxEmitter, EditableModel model) {
 		ParticleEmitter particleEmitter = new ParticleEmitter();
-		if ((mdlxEmitter.flags & 0x1000) != 0x1000) {
-			System.err.println("MDX -> MDL error: A particle emitter '" + mdlxEmitter.name
-					+ "' not flagged as particle emitter in MDX!");
-		}
+		warnUnmarkedType(mdlxEmitter, 0x1000);
 
 		loadObject(particleEmitter, mdlxEmitter, model);
 
@@ -101,28 +93,23 @@ public class IdObjectFactory {
 		particleEmitter.setLongitude(mdlxEmitter.longitude);
 		particleEmitter.setPath(mdlxEmitter.path);
 
-		particleEmitter.setMDLEmitter(((mdlxEmitter.flags >> 15) & 1) == 1);
-		if (!particleEmitter.isMDLEmitter() && (((mdlxEmitter.flags >> 8) & 1) == 1)) {
-			System.err.println(
-					"WARNING in MDX -> MDL: ParticleEmitter of unknown type! Defaults to EmitterUsesTGA in my MDL code!");
+		boolean isMDLEmitter = (mdlxEmitter.flags & 0x8000) == 0x8000;
+		particleEmitter.setMDLEmitter(isMDLEmitter);
+
+		if (!isMDLEmitter && (mdlxEmitter.flags & (0x100)) == 0x100) {
+			System.err.println("WARNING in MDX -> MDL: ParticleEmitter of unknown type! "
+					+ "Defaults to EmitterUsesTGA in my MDL code!");
 		}
-		System.out.println("pEmitter: " + particleEmitter.getName());
-//		for (AnimFlag<?> animFlag : particleEmitter.getAnimFlags()) {
-//			System.out.println("___" + animFlag.getName() + ", " + animFlag.getValueFromIndex(0));
-//		}
 		return particleEmitter;
 	}
 
 	public static ParticleEmitter2 createParticleEmitter2(MdlxParticleEmitter2 mdlxEmitter, EditableModel model) {
 		ParticleEmitter2 particleEmitter2 = new ParticleEmitter2();
-		if ((mdlxEmitter.flags & 0x1000) != 0x1000) {
-			System.err.println("MDX -> MDL error: A particle emitter '" + mdlxEmitter.name
-					+ "' not flagged as particle emitter in MDX!");
-		}
+		warnUnmarkedType(mdlxEmitter, 0x1000);
 
 		loadObject(particleEmitter2, mdlxEmitter, model);
 		EnumSet<ParticleEmitter2.P2Flag> p2Flags = ParticleEmitter2.P2Flag.fromBits(mdlxEmitter.flags);
-		for(ParticleEmitter2.P2Flag flag : p2Flags){
+		for (ParticleEmitter2.P2Flag flag : p2Flags) {
 			particleEmitter2.setFlag(flag, true);
 		}
 
@@ -197,10 +184,7 @@ public class IdObjectFactory {
 
 	public static RibbonEmitter createRibbonEmitter(MdlxRibbonEmitter mdlxEmitter, ModelInfoHolder infoHolder, EditableModel model) {
 		RibbonEmitter ribbonEmitter = new RibbonEmitter();
-		if ((mdlxEmitter.flags & 0x4000) != 0x4000) {
-			System.err.println("MDX -> MDL error: A ribbon emitter '" + mdlxEmitter.name
-					+ "' not flagged as ribbon emitter in MDX!");
-		}
+		warnUnmarkedType(mdlxEmitter, 0x4000);
 
 		loadObject(ribbonEmitter, mdlxEmitter, model);
 
@@ -217,20 +201,12 @@ public class IdObjectFactory {
 		ribbonEmitter.setMaterial(infoHolder.materials.get(mdlxEmitter.materialId));
 		ribbonEmitter.setGravity(mdlxEmitter.gravity);
 
-
-		System.out.println("riEmitter: " + ribbonEmitter.getName());
-//		for (AnimFlag<?> animFlag : ribbonEmitter.getAnimFlags()) {
-//			System.out.println("___" + animFlag.getName() + ", " + animFlag.valueAt(0));
-//		}
 		return ribbonEmitter;
 	}
 
 	public static EventObject createEventObject(MdlxEventObject mdlxObject, EditableModel model) {
 		EventObject eventObject = new EventObject();
-		if ((mdlxObject.flags & 0x400) != 0x400) {
-			System.err.println("MDX -> MDL error: An eventobject '" + mdlxObject.name
-					+ "' not flagged as eventobject in MDX!");
-		}
+		warnUnmarkedType(mdlxObject, 0x400);
 
 		loadObject(eventObject, mdlxObject, model);
 
@@ -241,14 +217,13 @@ public class IdObjectFactory {
 			eventObject.setGlobalSeq(globalSeq);
 		}
 
-
 		TreeMap<Integer, Animation> animationTreeMap = new TreeMap<>();
 		model.getAnims().forEach(a -> animationTreeMap.put(a.getStart(), a));
 
 		for (final long val : mdlxObject.keyFrames) {
-			if(globalSeq != null){
+			if (globalSeq != null) {
 				eventObject.addTrack(globalSeq, (int) val);
-			} else if(animationTreeMap.floorEntry((int) val) != null){
+			} else if (animationTreeMap.floorEntry((int) val) != null) {
 				Sequence sequence = animationTreeMap.floorEntry((int) val).getValue();
 				eventObject.addTrack(sequence, (int) val - sequence.getStart());
 			}
@@ -258,10 +233,7 @@ public class IdObjectFactory {
 
 	public static CollisionShape createCollisionShape(MdlxCollisionShape mdlxShape, EditableModel model) {
 		CollisionShape collisionShape = new CollisionShape(mdlxShape.type);
-		if ((mdlxShape.flags & 0x2000) != 0x2000) {
-			System.err.println("MDX -> MDL error: A collisionshape '" + mdlxShape.name
-					+ "' not flagged as collisionshape in MDX!");
-		}
+		warnUnmarkedType(mdlxShape, 0x2000);
 
 		loadObject(collisionShape, mdlxShape, model);
 
@@ -284,5 +256,12 @@ public class IdObjectFactory {
 			collisionShape.setBoundsRadius(mdlxShape.boundsRadius);
 		}
 		return collisionShape;
+	}
+	private static void warnUnmarkedType(MdlxGenericObject object, int typeFlag) {
+		int allFlags = 0x007f00;
+		if ((object.flags & allFlags) != typeFlag) {
+			String typeName = object.getClass().getSimpleName().substring(4);
+			System.err.println("MDX -> MDL error: " + typeName + " '" + object.name + "' (" + object.objectId + ") not flagged as " + typeName + " in MDX!");
+		}
 	}
 }

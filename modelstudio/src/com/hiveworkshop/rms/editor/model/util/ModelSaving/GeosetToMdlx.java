@@ -20,7 +20,7 @@ public class GeosetToMdlx {
 		}
 
 		for (Animation anim : model.getAnims()) {
-			if(geoset.getAnimExtent(anim) != null){
+			if (geoset.getAnimExtent(anim) != null) {
 				mdlxGeoset.sequenceExtents.add(geoset.getAnimExtent(anim).toMdlx());
 			}
 		}
@@ -42,8 +42,8 @@ public class GeosetToMdlx {
 
 		for (int vId = 0; vId < numVertices; vId++) {
 			final GeosetVertex vertex = geoset.getVertex(vId);
-			if(!vertex.isValid()){
-				vertex.set(0,0,0);
+			if (!vertex.isValid()) {
+				vertex.set(0, 0, 0);
 			}
 
 			mdlxGeoset.vertices[(vId * 3) + 0] = vertex.x;
@@ -76,7 +76,7 @@ public class GeosetToMdlx {
 		for (final Triangle tri : geoset.getTriangles()) {
 			for (int v = 0; v < /* tri.size() */3; v++) {
 				mdlxGeoset.faces[faceIndex++] = tri.getId(v);
-				if(tri.getId(v) < 0){
+				if (tri.getId(v) < 0) {
 					mdlxGeoset.faces[faceIndex-1] = 0;
 				}
 			}
@@ -138,8 +138,6 @@ public class GeosetToMdlx {
 					mdlxGeoset.tangents[(i * 4) + j] = vertex.getTangent().toFloatArray()[j];
 				}
 			}
-		} else {
-			System.out.println("no skin bones! :O");
 		}
 
 		return mdlxGeoset;
@@ -151,7 +149,7 @@ public class GeosetToMdlx {
 			boolean dontFilterBones = model.getBones().size() <= 256;
 
 			Map<Bone, List<GeosetVertex>> boneMap = dontFilterBones ? null : geoset.getBoneMap();
-			for (Bone bone : model.getBones()){
+			for (Bone bone : model.getBones()) {
 				if (dontFilterBones || boneMap.containsKey(bone)) {
 					matrices.add(new Matrix(bone));
 				}
@@ -160,7 +158,7 @@ public class GeosetToMdlx {
 
 		return matrices;
 	}
-	private static Map<Bone, Integer> getMatrixIndMap(List<Matrix> matrices){
+	private static Map<Bone, Integer> getMatrixIndMap(List<Matrix> matrices) {
 		Map<Bone, Integer> boneMatrixIndMap = new LinkedHashMap<>();
 
 		for (Matrix matrix : matrices) {

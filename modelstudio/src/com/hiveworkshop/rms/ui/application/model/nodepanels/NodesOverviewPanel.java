@@ -19,10 +19,9 @@ public class NodesOverviewPanel extends OverviewPanel {
 
 		add(new JLabel("Node type"));
 		add(new JLabel("count"));
-//		add(new JLabel("" + model.getIdObjectsSize()));
 
 		addIfNotNull("Bones", model.getBones().size());
-		addIfNotNull("Helpers", model.getHeader().size());
+		addIfNotNull("Helpers", model.getHelpers().size());
 		addIfNotNull("Lights", model.getLights().size());
 		addIfNotNull("Attachments", model.getAttachments().size());
 		addIfNotNull("ParticleEmitters", model.getParticleEmitters().size());
@@ -37,7 +36,7 @@ public class NodesOverviewPanel extends OverviewPanel {
 	}
 
 	private void addIfNotNull(String type, int size) {
-		if (size > 0) {
+		if (0 < size) {
 			add(new JLabel(type));
 			add(new JLabel("" + size));
 		}

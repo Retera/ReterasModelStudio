@@ -99,7 +99,7 @@ public class MdxLoadSave {
 //			throw new RuntimeException(e);
 		}
 
-//		for(int i = 0; i<mdlxModel.textures.size(); i++){
+//		for (int i = 0; i<mdlxModel.textures.size(); i++) {
 //			System.out.println("#" + i + ": " + mdlxModel.textures.get(i).path + ", " + mdlxModel.textures.get(i).replaceableId);
 //		}
 	}
@@ -120,17 +120,14 @@ public class MdxLoadSave {
 				case VERS, MODL, SEQS, GLBS, MTLS, TEXS, TXAN, GEOS, GEOA, BONE, LITE, HELP, ATCH, PIVT, PREM, PRE2, CORN, RIBB, CAMS, EVTS, CLID, FAFX, BPOS -> true;
 				default -> false;
 			};
-			if(testTag == 1195724627){
-				System.out.println("WOOOP!");
-			}
-			if(0<= j && j<300 && testTag != 0){
+			if (0 <= j && j < 300 && testTag != 0) {
 				j++;
 				System.out.println(testTag + " (" + tempTag + ") ");
 			}
 		}
 		System.out.println("Geos: " + GEOS);
 		System.out.println("tried " + i + "times! testtag: " + testTag + ", temptag:" + tempTag + ", has found: " + hasFound);
-		if(reader.remaining() > 32 && hasFound){
+		if (reader.remaining() > 32 && hasFound) {
 //						int size = reader.readInt32();
 			size = reader.readInt32();
 			System.out.println("loading tag: " + testTag + " with size: " + size);
@@ -222,7 +219,7 @@ public class MdxLoadSave {
 		int oneObjPos = reader.position();
 		sizeTracker = oneObjPos - matStartPos;
 		System.out.println("first obj size: " + sizeTracker);
-		if(sizeTracker< size){
+		if (sizeTracker< size) {
 			final E object2 = constructor.get();
 
 			object2.readMdx(reader, version);
@@ -328,7 +325,7 @@ public class MdxLoadSave {
 	private static void saveGlobalSequenceChunk(List<Long> globalSequences, BinaryWriter writer) {
 		if (!globalSequences.isEmpty()) {
 			writer.writeTag(GLBS);
-			writer.writeUInt32(globalSequences.size() * 4);
+			writer.writeUInt32(globalSequences.size() * 4L);
 
 			for (Long globalSequence : globalSequences) {
 				writer.writeUInt32(globalSequence);
@@ -349,9 +346,9 @@ public class MdxLoadSave {
 	}
 
 	private static void savePivotPointChunk(List<float[]> pivotPoints, final BinaryWriter writer) {
-		if (pivotPoints.size() > 0) {
+		if (0 < pivotPoints.size()) {
 			writer.writeTag(PIVT);
-			writer.writeUInt32(pivotPoints.size() * 12);
+			writer.writeUInt32(pivotPoints.size() * 12L);
 
 			for (final float[] pivotPoint : pivotPoints) {
 				writer.writeFloat32Array(pivotPoint);
@@ -362,7 +359,7 @@ public class MdxLoadSave {
 	private static void saveBindPoseChunk(List<float[]> bindPose, final BinaryWriter writer) {
 		if (0 < bindPose.size()) {
 			writer.writeTag(BPOS);
-			writer.writeUInt32(4 + bindPose.size() * 48);
+			writer.writeUInt32(4 + bindPose.size() * 48L);
 			writer.writeUInt32(bindPose.size());
 
 			for (final float[] matrix : bindPose) {
@@ -432,8 +429,8 @@ public class MdxLoadSave {
 	}
 
 	private static long getBindPoseChunkByteLength(List<float[]> bindPose) {
-		if (bindPose.size() > 0) {
-			return 12 + bindPose.size() * 48;
+		if (0 < bindPose.size()) {
+			return 12 + bindPose.size() * 48L;
 		}
 
 		return 0;

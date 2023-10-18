@@ -44,4 +44,8 @@ public class MdlxFaceEffect implements MdlxBlock {
 
 		stream.endBlock();
 	}
+
+	public long getByteLength(final int version) {
+		return 340;
+	}
 }

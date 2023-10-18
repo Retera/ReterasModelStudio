@@ -18,7 +18,7 @@ public class IdObjectToMdlx {
 
 		objectToMdlx(bone, mdlxBone, model);
 
-		if(boneGeosets != null){
+		if (boneGeosets != null) {
 			mdlxBone.geosetId = model.getGeosets().indexOf(boneGeosets.getGeoset());
 			mdlxBone.geosetAnimationId = model.getGeosets().stream()
 					.filter(Geoset::hasAnim)
@@ -29,7 +29,7 @@ public class IdObjectToMdlx {
 		return mdlxBone;
 	}
 
-	public static MdlxHelper toMdlxHelper(Helper helper, EditableModel model) {
+	public static MdlxHelper toMdlx(Helper helper, EditableModel model) {
 		final MdlxHelper mdlxHelper = new MdlxHelper();
 
 		objectToMdlx(helper, mdlxHelper, model);
@@ -65,7 +65,7 @@ public class IdObjectToMdlx {
 		}
 
 		mdlxShape.boundsRadius = (float) collisionShape.getBoundsRadius();
-		if (Float.isNaN(mdlxShape.boundsRadius) || Float.isInfinite(mdlxShape.boundsRadius)){
+		if (Float.isNaN(mdlxShape.boundsRadius) || Float.isInfinite(mdlxShape.boundsRadius)) {
 			mdlxShape.boundsRadius = 100;
 		}
 
@@ -87,7 +87,7 @@ public class IdObjectToMdlx {
 			TreeSet<Integer> tracks = eventObject.getEventTrack(sequence);
 			if (tracks != null) {
 				for (int track : tracks) {
-					if (track > sequence.getLength()) {
+					if (sequence.getLength() < track) {
 						break;
 					}
 					keyframes.add(track + sequence.getStart());
@@ -102,7 +102,7 @@ public class IdObjectToMdlx {
 			object.keyFrames[i] = keyframes.get(i).longValue();
 		}
 
-		if(keyframes.size() == 0){
+		if (keyframes.size() == 0) {
 			object.keyFrames[0] = 0;
 		}
 
@@ -155,7 +155,7 @@ public class IdObjectToMdlx {
 		objectToMdlx(particleEmitter2, mdlxEmitter, model);
 
 		EnumSet<ParticleEmitter2.P2Flag> p2Flags = particleEmitter2.getP2Flags();
-		for (ParticleEmitter2.P2Flag flag : p2Flags){
+		for (ParticleEmitter2.P2Flag flag : p2Flags) {
 			mdlxEmitter.flags |= flag.getFlagBit();
 		}
 
@@ -164,7 +164,7 @@ public class IdObjectToMdlx {
 		}
 
 		mdlxEmitter.filterMode = particleEmitter2.getFilterMode();
-		for (ParticleEmitter2.HeadTailFlag flag : particleEmitter2.getHeadTailFlags()){
+		for (ParticleEmitter2.HeadTailFlag flag : particleEmitter2.getHeadTailFlags()) {
 			mdlxEmitter.headTailFlag |= flag.getFlagBit();
 		}
 		mdlxEmitter.headTailFlag = Math.max(0, mdlxEmitter.headTailFlag-1);
@@ -249,8 +249,7 @@ public class IdObjectToMdlx {
 		mdlxObject.objectId = model.getObjectId(idObject);
 		mdlxObject.parentId = model.getObjectId(idObject.getParent());
 
-
-		for (IdObject.NodeFlag flag : idObject.getNodeFlags()){
+		for (IdObject.NodeFlag flag : idObject.getNodeFlags()) {
 			mdlxObject.flags |= flag.getFlagBit();
 		}
 
