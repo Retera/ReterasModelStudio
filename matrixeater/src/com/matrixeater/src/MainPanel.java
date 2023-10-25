@@ -4040,6 +4040,7 @@ public class MainPanel extends JPanel
 								&& retainedGeoset.getSelectionGroup() == geoset.getSelectionGroup()
 								&& retainedGeoset.getFlags().contains("Unselectable") == geoset.getFlags()
 										.contains("Unselectable")
+										&& (retainedGeoset.getMatrix().size() == geoset.getMatrix().size())
 								&& mergableGeosetAnims(retainedGeoset.getGeosetAnim(), geoset.getGeosetAnim())) {
 							alreadyRetained = true;
 							for (final GeosetVertex gv : geoset.getVertices()) {

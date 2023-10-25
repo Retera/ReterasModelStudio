@@ -3428,24 +3428,30 @@ public class EditableModel implements Named {
 			}
 		}
 
-		// now split any geosets that are bloated and would bust
-		selectedTriangles.clear();
-		for (final Geoset geoset : model.getGeosets()) {
-			final int matrixSize = geoset.getMatrix().size();
-			final int halfMatrixSize = matrixSize / 2;
-			if (matrixSize > 256) {
-				for (final GeosetVertex vertex : geoset.getVertices()) {
-					if (vertex.VertexGroup > halfMatrixSize) {
-						selectedTriangles.addAll(vertex.triangles);
+		while (true) {
+			// now split any geosets that are bloated and would bust
+			selectedTriangles.clear();
+			for (final Geoset geoset : model.getGeosets()) {
+				final int matrixSize = geoset.getMatrix().size();
+				final int halfMatrixSize = matrixSize / 2;
+				if (matrixSize > 256) {
+					for (final GeosetVertex vertex : geoset.getVertices()) {
+						if (vertex.VertexGroup > halfMatrixSize) {
+							selectedTriangles.addAll(vertex.triangles);
+						}
 					}
 				}
 			}
-		}
-		if (!selectedTriangles.isEmpty()) {
-			// do the split geoset algorithm on some stuff that we picked that probably will
-			// get us < 256 matrices chunks hopefully
-			faceSelectionManager.setSelection(selectedTriangles);
-			faceModelEditor.splitGeoset();
+			if (!selectedTriangles.isEmpty()) {
+				// do the split geoset algorithm on some stuff that we picked that probably will
+				// get us < 256 matrices chunks hopefully
+				faceSelectionManager.setSelection(selectedTriangles);
+				faceModelEditor.splitGeoset();
+				model.doSavePreps();
+			}
+			else {
+				break;
+			}
 		}
 
 //		final List<Animation> removedAnimations = new ArrayList<>();
