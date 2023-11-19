@@ -23,29 +23,35 @@ public class DataSourceTracker {
 	private final JFileChooser fileChooser = new JFileChooser();
 	private final Component popupParent;
 
-	public DataSourceTracker(Component popupParent){
-		getWindowsRegistryDirectory();
+	public DataSourceTracker(Component popupParent) {
+		wcDirectory = getWindowsRegistryDirectory();
+		if (wcDirectory != null) fileChooser.setCurrentDirectory(new File(wcDirectory));
+
 		this.popupParent = popupParent;
 	}
 
-	protected List<DataSourceDescriptor> getDefaults(final List<DataSourceDescriptor> dataSourceDescriptorDefaults) {
-		if (dataSourceDescriptorDefaults == null) {
-			if (wcDirectory != null) {
-				return addWarcraft3Installation(Paths.get(wcDirectory), false);
-
-			}
+	protected List<DataSourceDescriptor> getInitialDescriptors(final List<DataSourceDescriptor> currentDescriptors) {
+		if (currentDescriptors == null) {
+			return getDefaults();
 		} else {
 			List<DataSourceDescriptor> defaults = new ArrayList<>();
-			for (final DataSourceDescriptor dataSourceDescriptor : dataSourceDescriptorDefaults) {
-				defaults.add(dataSourceDescriptor.duplicate());
+			for (DataSourceDescriptor descriptor : currentDescriptors) {
+				defaults.add(descriptor.duplicate());
 			}
 			return defaults;
 		}
-		return Collections.emptyList();
+	}
+
+	protected List<DataSourceDescriptor> getDefaults() {
+		if (wcDirectory != null) {
+			return addWarcraft3Installation(Paths.get(wcDirectory), false);
+		} else {
+			return Collections.emptyList();
+		}
 	}
 
 
-	private void getWindowsRegistryDirectory() {
+	private void getWindowsRegistryDirectory1() {
 		String usrSw = "HKEY_CURRENT_USER\\Software\\";
 		String beW3 = "Blizzard Entertainment\\Warcraft III";
 		wcDirectory = WindowsRegistry.readRegistry(usrSw + beW3, "InstallPathX");
@@ -63,7 +69,70 @@ public class DataSourceTracker {
 		}
 	}
 
-	protected String getWcDirectory(){
+	private void getWindowsRegistryDirectory2() {
+		String usrSw = "HKEY_CURRENT_USER\\Software\\";
+		String beW3 = "Blizzard Entertainment\\Warcraft III";
+
+		String[][] locationKeyPairs = {
+				{usrSw + beW3, "InstallPathX"},
+				{usrSw + beW3, "InstallPathX"},
+				{usrSw + "Classes\\VirtualStore\\MACHINE\\SOFTWARE\\Wow6432Node\\" + beW3, "InstallPath"}};
+
+		for (String[] loc_key : locationKeyPairs) {
+			wcDirectory = WindowsRegistry.readRegistry(loc_key[0], loc_key[1]);
+			if (wcDirectory != null) {
+				wcDirectory = wcDirectory.trim();
+				fileChooser.setCurrentDirectory(new File(wcDirectory));
+				break;
+			}
+		}
+	}
+
+	public static void main(String[] args) {
+		System.out.println(getUgg());
+	}
+	private static String getUgg() {
+//		String usrSw = "HKEY_CURRENT_USER\\Software\\";
+		String usrSw = "HKEY_CURRENT_USER\\SOFTWARE\\";
+		String beW3 = "Blizzard Entertainment\\Warcraft III";
+
+
+
+		String[][] locationKeyPairs = {
+				{usrSw + beW3, "InstallPathX"},
+				{usrSw + beW3, "InstallPath"},
+				{usrSw + "Classes\\VirtualStore\\MACHINE\\SOFTWARE\\Wow6432Node\\" + beW3, "InstallPath"}};
+
+		for (String[] loc_key : locationKeyPairs) {
+			String wcDirectory = WindowsRegistry.readRegistry(loc_key[0], loc_key[1]);
+			if (wcDirectory != null) {
+				return wcDirectory.trim();
+			}
+		}
+		return null;
+	}
+	private String getWindowsRegistryDirectory() {
+//		String usrSw = "HKEY_CURRENT_USER\\Software\\";
+		String usrSw = "HKEY_CURRENT_USER\\SOFTWARE\\";
+		String beW3 = "Blizzard Entertainment\\Warcraft III";
+
+
+
+		String[][] locationKeyPairs = {
+				{usrSw + beW3, "InstallPathX"},
+				{usrSw + beW3, "InstallPathX"},
+				{usrSw + "Classes\\VirtualStore\\MACHINE\\SOFTWARE\\Wow6432Node\\" + beW3, "InstallPath"}};
+
+		for (String[] loc_key : locationKeyPairs) {
+			String wcDirectory = WindowsRegistry.readRegistry(loc_key[0], loc_key[1]);
+			if (wcDirectory != null) {
+				return wcDirectory.trim();
+			}
+		}
+		return null;
+	}
+
+	protected String getWcDirectory() {
 		return wcDirectory;
 	}
 
@@ -72,7 +141,7 @@ public class DataSourceTracker {
 		if (Files.exists(installPathPath.resolve("Data/indices"))) {
 			// Is it a CASC war3
 			List<String> prefixes = CascPrefixChooser.addDefaultCASCPrefixes(installPathPath, allowPopup, popupParent);
-			if(!allowPopup || !prefixes.isEmpty()){
+			if (!allowPopup || !prefixes.isEmpty()) {
 				CascDataSourceDescriptor dataSourceDesc = new CascDataSourceDescriptor(installPathPath.toString(), new ArrayList<>());
 				dataSourceDescriptors.add(dataSourceDesc);
 				dataSourceDesc.addPrefixes(prefixes);
@@ -82,16 +151,16 @@ public class DataSourceTracker {
 			String[] mpqSubPaths = {"War3.mpq", "War3Local.mpq", "War3x.mpq", "War3xlocal.mpq", "war3patch.mpq", "Deprecated.mpq"};
 			String[] folderSubPaths = {"war3.w3mod", "war3.w3mod/_locales/enus.w3mod", "war3.w3mod/_deprecated.w3mod", "war3.w3mod/_hd.w3mod", "war3.w3mod/_hd.w3mod/_locales/enus.w3mod"};
 
-			for (String s : mpqSubPaths){
+			for (String s : mpqSubPaths) {
 				MpqDataSourceDescriptor descriptor = getFromMPQ(installPathPath, s);
-				if(descriptor != null){
+				if (descriptor != null) {
 					dataSourceDescriptors.add(descriptor);
 				}
 			}
 
-			for (String s : folderSubPaths){
+			for (String s : folderSubPaths) {
 				FolderDataSourceDescriptor descriptor = getFromFolder(installPathPath, s);
-				if(descriptor != null){
+				if (descriptor != null) {
 					dataSourceDescriptors.add(descriptor);
 				}
 			}
@@ -118,7 +187,7 @@ public class DataSourceTracker {
 		if (selectedFile != null) {
 			Path installPathPath = selectedFile.toPath();
 			List<DataSourceDescriptor> descriptors = addWarcraft3Installation(installPathPath, true);
-			if(descriptors.isEmpty()){
+			if (descriptors.isEmpty()) {
 				String message = "Did not find any installation on path \"" + installPathPath + "\"";
 				System.err.println(message);
 				JOptionPane.showMessageDialog(popupParent, message, "Error", JOptionPane.ERROR_MESSAGE);

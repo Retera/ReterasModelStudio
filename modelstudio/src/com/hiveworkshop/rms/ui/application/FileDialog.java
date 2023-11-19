@@ -14,6 +14,7 @@ import java.awt.*;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class FileDialog {
     public static final int OPEN_FILE = 0;
@@ -173,6 +174,7 @@ public class FileDialog {
     public File openFile(int operationType) {
         fileChooser.setDialogTitle("Open");
         setFilter(operationType);
+        fileChooser.setFileFilter(getFilter());
         fileChooser.setCurrentDirectory(getCurrentDirectory());
 
         final int returnValue = fileChooser.showOpenDialog(getParent());
@@ -186,6 +188,16 @@ public class FileDialog {
         }
         return null;
     }
+    private FileFilter getFilter() {
+        for (FileNameExtensionFilter filter : extFilter.getOpenFilesExtensions()) {
+            System.out.println(filter.getDescription());
+            if (Objects.equals(filter.getDescription(), ProgramGlobals.getPrefs().getOpenFileFilter())) {
+                return filter;
+            }
+        }
+        return fileChooser.getFileFilter();
+    }
+
     public File openFile(List<FileNameExtensionFilter> filter) {
         fileChooser.setDialogTitle("Open");
         setFilter(filter);

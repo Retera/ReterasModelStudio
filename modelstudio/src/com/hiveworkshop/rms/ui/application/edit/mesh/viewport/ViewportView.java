@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -35,7 +36,7 @@ public abstract class ViewportView extends JPanel {
 		coordinateSystem = new CoordinateSystem(right, up, this);
 
 		setBorder(BorderFactory.createBevelBorder(1));
-		setBackground(ProgramGlobals.getPrefs().getBackgroundColor());
+		setBackground(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.UV_EDIT_BACKGROUND_COLOR));
 
 		mouseListenerThing2 = new MouseListenerThing2(this, coordDisplayListener2, coordinateSystem);
 		addMouseListener(mouseListenerThing2);

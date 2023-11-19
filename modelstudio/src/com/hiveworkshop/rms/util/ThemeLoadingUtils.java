@@ -13,7 +13,9 @@ import java.awt.*;
 
 public class ThemeLoadingUtils {
 	public static void setTheme(ProgramPreferences preferences) {
-		GUITheme theme = preferences.getTheme();
+		setTheme(preferences.getTheme());
+	}
+	public static void setTheme(GUITheme theme) {
 		switch (theme) {
 			case JAVA_DEFAULT -> {
 			}

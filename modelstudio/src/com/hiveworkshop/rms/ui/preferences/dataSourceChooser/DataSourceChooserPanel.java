@@ -22,10 +22,10 @@ public class DataSourceChooserPanel extends JPanel {
 	private final DataSourceTree dataSourceTree;
 	private final DataSourceTracker dataSourceTracker;
 
-	public DataSourceChooserPanel(final List<DataSourceDescriptor> dataSourceDescriptorDefaults) {
+	public DataSourceChooserPanel(final List<DataSourceDescriptor> currentDescriptors) {
 		setLayout(new MigLayout("fill, gap 0", "[sg group1][grow][sg group1]", "[][]"));
 		dataSourceTracker = new DataSourceTracker(this);
-		dataSourceTree = new DataSourceTree(dataSourceTracker.getDefaults(dataSourceDescriptorDefaults), this);
+		dataSourceTree = new DataSourceTree(dataSourceTracker.getInitialDescriptors(currentDescriptors), this);
 
 		JPanel leftPanel = getLeftPanel();
 		JPanel rightPanel = getRightPanel();
@@ -159,7 +159,7 @@ public class DataSourceChooserPanel extends JPanel {
 
 	protected void loadDefaults() {
 		dataSourceTree.clearAll();
-		dataSourceTree.addDataSources(dataSourceTracker.getDefaults(null));
+		dataSourceTree.addDataSources(dataSourceTracker.getInitialDescriptors(null));
 	}
 
 	public List<DataSourceDescriptor> getDataSourceDescriptors() {

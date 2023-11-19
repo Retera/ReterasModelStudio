@@ -69,6 +69,8 @@ public class ProgramPreferences implements Serializable {
 	private String keyBindings = new KeyBindingPrefs().toString();
 	private String editorColors = new EditorColorPrefs().toString();
 	private String cameraShortcuts = new CameraControlPrefs().toString();
+
+	private String openFileFilter = "";
 	private transient KeyBindingPrefs keyBindingsPrefs;
 	private transient EditorColorPrefs editorColorsPrefs;
 	private transient CameraControlPrefs cameraShortcutsPrefs;
@@ -271,9 +273,17 @@ public class ProgramPreferences implements Serializable {
 		saveAndFireListeners();
 	}
 
+	public Color getActiveColor1() {
+		return activeColor1;
+	}
+
 	public void setActiveColor2(final Color activeColor2) {
 		this.activeColor2 = activeColor2;
 		saveAndFireListeners();
+	}
+
+	public Color getActiveColor2() {
+		return activeColor2;
 	}
 
 	public void setActiveBColor1(final Color activeBColor1) {
@@ -296,10 +306,6 @@ public class ProgramPreferences implements Serializable {
 		saveAndFireListeners();
 	}
 
-	public void setTheme(final GUITheme theme) {
-		this.theme = theme;
-		saveAndFireListeners();
-	}
 
 	public Color getActiveRColor1() {
 		return activeRColor1;
@@ -307,14 +313,6 @@ public class ProgramPreferences implements Serializable {
 
 	public Color getActiveRColor2() {
 		return activeRColor2;
-	}
-
-	public Color getActiveColor1() {
-		return activeColor1;
-	}
-
-	public Color getActiveColor2() {
-		return activeColor2;
 	}
 
 	public Color getActiveBColor1() {
@@ -623,6 +621,12 @@ public class ProgramPreferences implements Serializable {
 		return theme;
 	}
 
+	public void setTheme(final GUITheme theme) {
+		this.theme = theme;
+//		SwingUtilities.updateComponentTreeUI(rootComponent);
+		saveAndFireListeners();
+	}
+
 	private transient ProgramPreferencesChangeListener notifier = new ProgramPreferencesChangeListener();
 
 	public void addChangeListener(final Runnable listener) {
@@ -679,6 +683,17 @@ public class ProgramPreferences implements Serializable {
 		System.out.println("Saved keybindings!");
 		System.out.println(keyBindings);
 		saveAndFireListeners();
+		return this;
+	}
+
+
+
+	public String getOpenFileFilter() {
+		return openFileFilter;
+	}
+
+	public ProgramPreferences setOpenFileFilter(String openFileFilter) {
+		this.openFileFilter = openFileFilter;
 		return this;
 	}
 
