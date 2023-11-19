@@ -7,6 +7,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 
 public class TwiTableDefaultRenderer extends DefaultTableCellRenderer {
+	protected static final Color GREEN_OVERLAY = new Color(0, 255, 0, 128);
+	protected static final Color YELLOW_OVERLAY = new Color(255, 255, 0, 128);
 	protected static final Color LIGHT_GREEN = new Color(128, 255, 128);
 	protected static final Color LIGHT_YELLOW = new Color(255, 255, 128);
 	protected Sequence sequence;
@@ -30,49 +32,17 @@ public class TwiTableDefaultRenderer extends DefaultTableCellRenderer {
 		return tableCellRendererComponent;
 	}
 
-
-//
-//	private DefaultTableCellRenderer getCellRenderer() {
-//		return new DefaultTableCellRenderer() {
-//			@Override
-//			public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column) {
-////				System.out.println(row + ", " + column + " , value:" + value + " editor:");
-////				System.out.println("correct? " + table.getSelectedColumn() + ", " + table.getSelectedRow());
-//				setBackground(null);
-//				setForeground(null);
-//				final Component tableCellRendererComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-//				this.setHorizontalAlignment(SwingConstants.RIGHT);
-//				if (column == table.getColumnCount() - 1) {
-//					deleteButton(tableCellRendererComponent);
-//				} else if (column == 0) {
-//					if (value!=null) {
-//						timeCell((int) value, isSelected, tableCellRendererComponent);
-//					}
-//				} else {
-//					if (valueRenderingConsumer != null && column == 1) {
-//						valueRenderingConsumer.accept(tableCellRendererComponent, value);
-//					}
-////					valueCellRendering(tableCellRendererComponent, table, value, isSelected, hasFocus, row, column);
-//				}
-//				return tableCellRendererComponent;
-////				return this;
-//			}
-//
-//
-//		};
-//	}
-	protected void timeCell(int value, boolean isSelected, Component tableCellRendererComponent) {
-		Color bgColor = Color.WHITE;
+	protected void timeCell(int time, boolean isSelected, Component tableCellRendererComponent) {
+		Color bgColor = null;
 		setForeground(null);
-		int time = value;
 		if (time == 0 || time == sequence.getLength()) {
-			bgColor = LIGHT_GREEN;
+			bgColor = GREEN_OVERLAY;
 		} else if (0 < time && time < sequence.getLength()) {
-			bgColor = LIGHT_YELLOW;
+			bgColor = YELLOW_OVERLAY;
 		}
 		this.createToolTip();
 		this.setToolTipText(sequence.toString());
-		if (isSelected) {
+		if (isSelected && bgColor != null) {
 			tableCellRendererComponent.setBackground(bgColor.darker().darker());
 		} else {
 			tableCellRendererComponent.setBackground(bgColor);

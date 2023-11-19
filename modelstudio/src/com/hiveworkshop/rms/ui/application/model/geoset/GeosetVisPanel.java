@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.model.geoset;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryAction;
-import com.hiveworkshop.rms.editor.actions.animation.animFlag.ChangeFlagEntryAction;
+import com.hiveworkshop.rms.editor.actions.animation.animFlag.SetFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
@@ -18,6 +18,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class GeosetVisPanel extends JPanel {
 	private final EditableModel model;
@@ -101,29 +102,24 @@ public class GeosetVisPanel extends JPanel {
 		TreeMap<Integer, Entry<Float>> entryMap = visibilityFlag.getEntryMap(animation);
 		if (currVis == Visibility.VISIBLE) {
 			System.out.println("going invis!");
+			UndoAction action;
 			if (entryMap == null || entryMap.isEmpty()) {
 				Entry<Float> entry = new Entry<>(0, 0f);
-				UndoAction action = new AddFlagEntryAction<>(visibilityFlag, entry, animation, changeListener);
-				undoManager.pushAction(action.redo());
+				action = new AddFlagEntryAction<>(visibilityFlag, entry, animation, changeListener);
 			} else {
-				List<UndoAction> actions = new ArrayList<>();
-				for (Entry<Float> entry : entryMap.values()) {
-					Entry<Float> newEntry = new Entry<>(entry.getTime(), 0f);
-					actions.add(new ChangeFlagEntryAction<>(visibilityFlag, newEntry, entry, animation, null));
-				}
-				UndoAction action = new CompoundAction("Set visible", actions, changeListener::geosetsUpdated);
-				undoManager.pushAction(action.redo());
+				List<Entry<Float>> newEntries = entryMap.values().stream()
+						.map(e -> new Entry<>(e.getTime(), 0f)).collect(Collectors.toList());
+				action = new SetFlagEntryAction<>(visibilityFlag, newEntries, animation, changeListener);
 			}
+			undoManager.pushAction(new CompoundAction("Set Invisible", action).redo());
 		} else if (currVis == Visibility.INVISIBLE) {
 			System.out.println("going vis!");
 			if (!entryMap.isEmpty()) {
-				List<UndoAction> actions = new ArrayList<>();
-				for (Entry<Float> entry : entryMap.values()) {
-					Entry<Float> newEntry = new Entry<>(entry.getTime(), 1f);
-					actions.add(new ChangeFlagEntryAction<>(visibilityFlag, newEntry, entry, animation, null));
-				}
-				UndoAction action = new CompoundAction("Set invisible", actions, changeListener::geosetsUpdated);
-				undoManager.pushAction(action.redo());
+				List<Entry<Float>> newEntries = entryMap.values().stream()
+						.map(e -> new Entry<>(e.getTime(), 1f))
+						.collect(Collectors.toList());
+				UndoAction action = new SetFlagEntryAction<>(visibilityFlag, newEntries, animation, changeListener);
+				undoManager.pushAction(new CompoundAction("Set Visible", action).redo());
 			}
 		}
 	}

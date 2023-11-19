@@ -46,8 +46,7 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 		final Object[] inTans = timeline.inTans;
 		final Object[] outTans = timeline.outTans;
 
-		TreeMap<Integer, Animation> animationTreeMap = new TreeMap<>();
-		model.getAnims().forEach(a -> animationTreeMap.put(a.getStart(), a));
+		TreeMap<Integer, Animation> animationTreeMap = getAnimationTreeMap(model.getAnims());
 
 
 		if (frames.length > 0) {
@@ -101,14 +100,6 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 	@Override
 	protected Integer getIdentity() {
 		return 0;
-	}
-
-	@Override
-	public Integer getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor, Sequence anim) {
-		TreeMap<Integer, Entry<Integer>> entryMap = sequenceMap.get(anim);
-		Entry<Integer> entryFloor = entryMap.get(floorTime);
-		Entry<Integer> entryCeil = entryMap.get(ceilTime);
-		return getInterpolatedValue(entryFloor, entryCeil, 1);
 	}
 
 	@Override
@@ -195,7 +186,7 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 
 	@Override
 	public float[] getTbcFactor(float bias, float tension, float continuity) {
-		return getTCB(-1, bias, tension, continuity);
+		return getTCB(1, bias, tension, continuity);
 	}
 
 	@Override

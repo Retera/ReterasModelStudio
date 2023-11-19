@@ -46,8 +46,7 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 		final Object[] inTans = timeline.inTans;
 		final Object[] outTans = timeline.outTans;
 
-		TreeMap<Integer, Animation> animationTreeMap = new TreeMap<>();
-		model.getAnims().forEach(a -> animationTreeMap.put(a.getStart(), a));
+		TreeMap<Integer, Animation> animationTreeMap = getAnimationTreeMap(model.getAnims());
 
 		if (frames.length > 0) {
 			List<Integer> outsideKFs = new ArrayList<>();
@@ -161,15 +160,6 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 	@Override
 	protected Quat getIdentity() {
 		return Quat.IDENTITY;
-	}
-
-	@Override
-	public Quat getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor, Sequence anim) {
-		TreeMap<Integer, Entry<Quat>> entryMap = sequenceMap.get(anim);
-		Entry<Quat> entryFloor = entryMap.get(floorTime);
-		Entry<Quat> entryCeil = entryMap.get(ceilTime);
-
-		return getInterpolatedValue(entryFloor, entryCeil, timeFactor);
 	}
 
 	@Override

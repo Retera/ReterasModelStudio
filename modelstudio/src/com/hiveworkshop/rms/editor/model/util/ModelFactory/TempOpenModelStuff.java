@@ -4,9 +4,18 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.parsers.mdlx.*;
 import com.hiveworkshop.rms.util.Vec3;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+
 public class TempOpenModelStuff {
 
 	public static EditableModel createEditableModel(MdlxModel mdlxModel) {
+		return createEditableModel(mdlxModel, s -> {});
+	}
+	public static EditableModel createEditableModel(MdlxModel mdlxModel, Consumer<String> stringConsumer) {
 		EditableModel model = new EditableModel(mdlxModel.name);
 		// Step 1: Convert the Model Chunk
 		// For MDL api, this is currently embedded right inside the MDL class
@@ -23,6 +32,7 @@ public class TempOpenModelStuff {
 			model.addComment(comment);
 		}
 
+		stringConsumer.accept("Loading Textures");
 		// Step 5: Convert Texture refs
 		for (final MdlxTexture mdlxTexture : mdlxModel.textures) {
 			Bitmap bitmap = MaterialFactory.createBitmap(mdlxTexture);
@@ -30,16 +40,20 @@ public class TempOpenModelStuff {
 			infoHolder.add(bitmap);
 		}
 
+		stringConsumer.accept("Loading Animations");
 		// Step 4: Convert any global sequences
 		for (final long sequence : mdlxModel.globalSequences) {
 			model.add(new GlobalSeq((int) sequence));
 		}
 
 		// Step 3: Convert the Sequences
-		for (final MdlxSequence sequence : mdlxModel.sequences) {
-			model.add(createAnimation(sequence));
-		}
+		createAnims(mdlxModel, model);
+//		// Step 3: Convert the Sequences
+//		for (final MdlxSequence sequence : mdlxModel.sequences) {
+//			model.add(createAnimation(sequence));
+//		}
 
+		stringConsumer.accept("Loading PivotPoints");
 		// Step 2: fetch pivot points and bindPose
 		for (final float[] point : mdlxModel.pivotPoints) {
 			infoHolder.addPivot(new Vec3(point));
@@ -55,6 +69,7 @@ public class TempOpenModelStuff {
 			model.add(new TextureAnim(mdlxTextureAnimation, model));
 		}
 
+		stringConsumer.accept("Loading Materials");
 		// Step 7: Convert Material refs
 		for (final MdlxMaterial mdlxMaterial : mdlxModel.materials) {
 			Material x = MaterialFactory.createMaterial(mdlxMaterial, model);
@@ -66,6 +81,7 @@ public class TempOpenModelStuff {
 		// Step 3:
 		// convert "IdObjects" (as I called them in my high school mdl code) (nodes)
 
+		stringConsumer.accept("Loading Nodes");
 		// Bones
 		for (final MdlxBone mdlxBone : mdlxModel.bones) {
 //			System.out.println("MdlxBone, id: " + mdlxBone.objectId + " name: " + mdlxBone.name);
@@ -142,6 +158,7 @@ public class TempOpenModelStuff {
 			model.add(x);
 		}
 
+		stringConsumer.accept("Loading Geoset");
 		// Step 8: Geoset
 		if (model.getBones().isEmpty() && !mdlxModel.geosets.isEmpty()) {
 			model.add(new Bone("Found No Bones"));
@@ -178,10 +195,42 @@ public class TempOpenModelStuff {
 		return model;
 	}
 
+
+	private static void createAnims(MdlxModel mdlxModel, EditableModel model) {
+		Map<Integer, List<MdlxSequence>> startToSeqs = new LinkedHashMap<>();
+		for (final MdlxSequence sequence : mdlxModel.sequences) {
+			startToSeqs.computeIfAbsent((int) sequence.interval[0], k -> new ArrayList<>()).add(sequence);
+		}
+		for (List<MdlxSequence> seqs : startToSeqs.values()) {
+			if (!seqs.isEmpty()) {
+				Animation animation = createAnimation(seqs.get(0));
+				model.add(animation);
+
+				for (int i = 1; i < seqs.size(); i++) {
+					model.add(createFakeAnimation(seqs.get(i), animation));
+				}
+			}
+		}
+	}
 	public static Animation createAnimation(MdlxSequence sequence) {
 		long[] interval = sequence.interval;
 
 		Animation animation = new Animation(sequence.name, (int) interval[0], (int) interval[1]);
+
+		animation.setExtents(new ExtLog(sequence.extent));
+		animation.setMoveSpeed(sequence.moveSpeed);
+
+		if (sequence.flags == 1) {
+			animation.setNonLooping(true);
+		}
+
+		animation.setRarity(sequence.rarity);
+		return animation;
+	}
+	public static FakeAnimation createFakeAnimation(MdlxSequence sequence, Animation realAnim) {
+		long[] interval = sequence.interval;
+
+		FakeAnimation animation = new FakeAnimation(sequence.name, realAnim);
 
 		animation.setExtents(new ExtLog(sequence.extent));
 		animation.setMoveSpeed(sequence.moveSpeed);

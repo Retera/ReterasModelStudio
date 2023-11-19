@@ -18,6 +18,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 // Should probably get a better name.. Just thought "AiSceneParser" sounded a bit too much like it were
@@ -48,10 +49,15 @@ public class TwiAiSceneParser {
 
 
 	public TwiAiSceneParser(AiScene scene) {
+		this(scene, s -> {});
+	}
+	public TwiAiSceneParser(AiScene scene, Consumer<String> stringConsumer) {
 		System.out.println("AiMeshHandler got the scene");
+		stringConsumer.accept("Parsing AssetImporter Model");
 		this.scene = scene;
 		editableModel = new EditableModel();
 		editableModel.setFormatVersion(1000);
+		stringConsumer.accept("Parsing AssetImporter Materials");
 		readMaterials();
 
 //		AiNode sceneRoot = scene.getSceneRoot(aiBuiltInWrapperProvider);
@@ -59,6 +65,7 @@ public class TwiAiSceneParser {
 //		setCorrectPivotsAndParents(sceneRoot);
 
 
+		stringConsumer.accept("Parsing AssetImporter Meshes");
 		for (AiMesh am : scene.getMeshes()) {
 			makeGeoset(am);
 //			List<AiBone> bones = am.getBones();
@@ -81,10 +88,12 @@ public class TwiAiSceneParser {
 //			}
 //		}
 
+		stringConsumer.accept("Parsing AssetImporter Animations");
 		fetchAnims();
 
 
 
+		stringConsumer.accept("Parsing AssetImporter Nodes");
 		checkAllNodes(sceneRoot);
 
 		for(AiAnimation aiAnimation : animationMap.keySet()){

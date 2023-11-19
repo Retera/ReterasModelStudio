@@ -1,9 +1,6 @@
 package com.hiveworkshop.rms.editor.model.animflag;
 
-import com.hiveworkshop.rms.editor.model.Bitmap;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.GlobalSeq;
-import com.hiveworkshop.rms.editor.model.TimelineContainer;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.parsers.mdlx.AnimationMap;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatArrayTimeline;
@@ -27,7 +24,7 @@ import java.util.*;
  */
 public abstract class AnimFlag<T> {
 	protected String name;
-	protected InterpolationType interpolationType = InterpolationType.DONT_INTERP;
+	protected InterpolationType interpolationType = InterpolationType.LINEAR;
 	protected GlobalSeq globalSeq;
 	protected Map<Sequence, TreeMap<Integer, Entry<T>>> sequenceMap = new HashMap<>();
 	protected Map<Sequence, Integer[]> timeKeysMap = new HashMap<>();
@@ -61,25 +58,25 @@ public abstract class AnimFlag<T> {
 		};
 	}
 
+	protected TreeMap<Integer, Animation> getAnimationTreeMap(ArrayList<Animation> modelAnims) {
+		TreeMap<Integer, Animation> animationTreeMap = new TreeMap<>();
+		for (Animation animation : modelAnims) {
+			if (animation instanceof FakeAnimation) {
+				animationTreeMap.putIfAbsent(animation.getStart(), animation);
+			} else {
+				animationTreeMap.put(animation.getStart(), animation);
+			}
+		}
+		return animationTreeMap;
+	}
+
 	public abstract T cloneValue(Object value);
 
 	protected AnimFlag(AnimFlag<T> af) {
 		setSettingsFrom(af);
-		for (Sequence anim : af.getAnimMap().keySet()) {
-			TreeMap<Integer, Entry<T>> entryMap = af.getEntryMap(anim);
-			TreeMap<Integer, Entry<T>> newEntryMap = new TreeMap<>();
-			for (Integer time : entryMap.keySet()) {
-				newEntryMap.put(time, entryMap.get(time).deepCopy());
-//				addEntry(entryMap.get(time).deepCopy(), anim);
-			}
-			setEntryMap(anim, newEntryMap);
+		for (Sequence sequence : af.getAnimMap().keySet()) {
+			setEntryMap(sequence, af.getSequenceEntryMapCopy(sequence));
 		}
-//		for (Sequence anim : af.getAnimMap().keySet()) {
-//			TreeMap<Integer, Entry<T>> entryMap = af.getAnimMap().get(anim);
-//			for (Integer time : entryMap.keySet()) {
-//				entryMap.put(time, af.getEntryMap(anim).get(time).deepCopy());
-//			}
-//		}
 	}
 
 	public abstract AnimFlag<T> getEmptyCopy();
@@ -94,7 +91,7 @@ public abstract class AnimFlag<T> {
 
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (o instanceof AnimFlag && getClass() == o.getClass()){
+		if (o instanceof AnimFlag && getClass() == o.getClass()) {
 			AnimFlag<T> animFlag = getAsTypedOrNull((AnimFlag<?>) o);
 
 			return name.equals(animFlag.getName())
@@ -112,8 +109,20 @@ public abstract class AnimFlag<T> {
 	}
 
 	public boolean hasSequence(Sequence sequence) {
+		if (sequence instanceof FakeAnimation) {
+			return sequenceMap.containsKey(((FakeAnimation) sequence).getRealAnim());
+		}
 		return sequenceMap.containsKey(sequence);
 	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String title) {
+		name = title;
+	}
+
 
 	public GlobalSeq getGlobalSeq() {
 		return globalSeq;
@@ -142,20 +151,37 @@ public abstract class AnimFlag<T> {
 
 	public int size() {
 		int size = 0;
-		for (Sequence animation : sequenceMap.keySet()) {
-			if (sequenceMap.get(animation) != null) {
-				size += sequenceMap.get(animation).size();
+		for (Sequence sequence : sequenceMap.keySet()) {
+			if (sequenceMap.get(sequence) != null) {
+				size += sequenceMap.get(sequence).size();
 			}
 		}
 		return size;
 	}
 
-	public int size(Sequence anim) {
-		TreeMap<Integer, Entry<T>> entryTreeMap = sequenceMap.get(anim);
+	public int size(Sequence sequence) {
+		TreeMap<Integer, Entry<T>> entryTreeMap = getEntryTreeMap(sequence);
 		if (entryTreeMap == null || entryTreeMap.isEmpty()) {
 			return 0;
 		}
 		return entryTreeMap.size();
+	}
+
+	private Sequence getRealSequence(Sequence sequence) {
+		if (sequence instanceof FakeAnimation) {
+			sequence = ((FakeAnimation) sequence).getRealAnim();
+		}
+		return sequence;
+	}
+
+	private TreeMap<Integer, Entry<T>> getEntryTreeMap(Sequence sequence) {
+		sequence = getRealSequence(sequence);
+		return sequenceMap.get(sequence);
+	}
+
+	private TreeMap<Integer, Entry<T>> getOrComputeEntryMap(Sequence sequence) {
+		Sequence sequence1 = getRealSequence(sequence);
+		return sequenceMap.computeIfAbsent(sequence1, k -> new TreeMap<>());
 	}
 
 	public abstract MdlxTimeline<?> toMdlx(TimelineContainer container, EditableModel model);
@@ -175,9 +201,9 @@ public abstract class AnimFlag<T> {
 
 		for (int i = 0; i < size; i++) {
 			Entry<T> entry = tempEntries.get(i);
-			if(entry.getValue() != null){
+			if (entry.getValue() != null) {
 				Q[] array = getArray(entry, mdlxTimeline, model);
-//			if(i == 0){
+//			if (i == 0) {
 //				System.out.println("(Q): " + (Q) entry.getValueArr() + ", org: " + entry.getValueArr());
 //				System.out.println("(Q): " + ", org: " + Arrays.toString(entry.getValueArr()));
 //			}
@@ -191,60 +217,50 @@ public abstract class AnimFlag<T> {
 		return mdlxTimeline;
 	}
 
-	private <Q, W> Q[] getArray(Entry<W> entry, MdlxTimeline<Q> mdlxTimeline, EditableModel model){
-		if(entry.getValue() instanceof Bitmap && mdlxTimeline instanceof MdlxUInt32Timeline) {
+	private <Q, W> Q[] getArray(Entry<W> entry, MdlxTimeline<Q> mdlxTimeline, EditableModel model) {
+		if (entry.getValue() instanceof Bitmap && mdlxTimeline instanceof MdlxUInt32Timeline) {
 			return (Q[]) getArray((Entry<Bitmap>) entry, (MdlxUInt32Timeline) mdlxTimeline, (Bitmap) entry.getValue(), model);
-//			return new Q[][]{new int[]{(int) entry.getValue()}, new int[]{(int) entry.getInTan()}, new int[]{(int) entry.getOutTan()}};
-		} else if(entry.getValue() instanceof Integer && mdlxTimeline instanceof MdlxUInt32Timeline){
+		} else if (entry.getValue() instanceof Integer && mdlxTimeline instanceof MdlxUInt32Timeline) {
 			return (Q[]) getArray((Entry<Integer>)entry, (MdlxUInt32Timeline) mdlxTimeline, (int)entry.getValue());
-//			return new Q[][]{new int[]{(int) entry.getValue()}, new int[]{(int) entry.getInTan()}, new int[]{(int) entry.getOutTan()}};
-		} else if(entry.getValue() instanceof Float) {
+		} else if (entry.getValue() instanceof Float) {
 			return (Q[]) getArray((Entry<Float>)entry, (MdlxFloatTimeline)mdlxTimeline, (Float)entry.getValue());
-		} else if(entry.getValue() instanceof Vec3) {
+		} else if (entry.getValue() instanceof Vec3) {
 			return (Q[]) getArray((Entry<Vec3>)entry, (MdlxFloatArrayTimeline)mdlxTimeline, (Vec3)entry.getValue());
-		} else if(entry.getValue() instanceof Quat) {
+		} else if (entry.getValue() instanceof Quat) {
 			return (Q[]) getArray((Entry<Quat>)entry, (MdlxFloatArrayTimeline)mdlxTimeline, (Quat)entry.getValue());
-//		} else if(entry.getValue() instanceof Vec3) {
 		} else {
-//			return (Q[]) getArray(entry, (MdlxFloatArrayTimeline)mdlxTimeline, entry.getValue());
 			return null;
 		}
-//		return getArray(entry, mdlxTimeline);
 	}
 
-	private long[][] getArray(Entry<Bitmap> entry, MdlxUInt32Timeline line, Bitmap i, EditableModel model){
-//		return new int[][]{new int[]{entry.getValue()}, new int[]{entry.getInTan()}, new int[]{entry.getOutTan()}};
+	private long[][] getArray(Entry<Bitmap> entry, MdlxUInt32Timeline line, Bitmap i, EditableModel model) {
 		return new long[][]{new long[]{model.getTextureId(entry.getValue())}, new long[]{0}, new long[]{0}};
 	}
-	private long[][] getArray(Entry<Integer> entry, MdlxUInt32Timeline line, int i){
-//		return new int[][]{new int[]{entry.getValue()}, new int[]{entry.getInTan()}, new int[]{entry.getOutTan()}};
+	private long[][] getArray(Entry<Integer> entry, MdlxUInt32Timeline line, int i) {
 		return new long[][]{new long[]{entry.getValue()}, new long[]{0}, new long[]{0}};
 	}
-	private float[][] getArray(Entry<java.lang.Float> entry, MdlxFloatTimeline line, float i){
-//		return new float[][]{entry.getValue().toFloatArray(), entry.getInTan().toFloatArray(), entry.getOutTan().toFloatArray()};
+	private float[][] getArray(Entry<java.lang.Float> entry, MdlxFloatTimeline line, float i) {
 		return new float[][]{entry.getValueArr(), entry.getInTanArr(), entry.getOutTanArr()};
 	}
-	private float[][] getArray(Entry<Vec3> entry, MdlxFloatArrayTimeline line, Vec3 i){
-//		return new float[][]{entry.getValue().toFloatArray(), entry.getInTan().toFloatArray(), entry.getOutTan().toFloatArray()};
+	private float[][] getArray(Entry<Vec3> entry, MdlxFloatArrayTimeline line, Vec3 i) {
 		return new float[][]{entry.getValueArr(), entry.getInTanArr(), entry.getOutTanArr()};
 	}
-	private float[][] getArray(Entry<Quat> entry, MdlxFloatArrayTimeline line, Quat i){
-//		return new float[][]{entry.getValue().toFloatArray(), entry.getInTan().toFloatArray(), entry.getOutTan().toFloatArray()};
+	private float[][] getArray(Entry<Quat> entry, MdlxFloatArrayTimeline line, Quat i) {
 		return new float[][]{entry.getValueArr(), entry.getInTanArr(), entry.getOutTanArr()};
 	}
 
 	private Pair<ArrayList<Integer>, ArrayList<Entry<T>>> getEntrySavingPair(EditableModel model) {
 		ArrayList<Integer> tempTimes = new ArrayList<>();
 		ArrayList<Entry<T>> tempEntries = new ArrayList<>();
-		for (Sequence anim : model.getAllSequences()) {
-			if (globalSeq == null || anim == globalSeq) {
-				TreeMap<Integer, Entry<T>> entryTreeMap = sequenceMap.get(anim);
-				if(entryTreeMap != null){
+		for (Sequence sequence : model.getAllSequences()) {
+			if ((globalSeq == null || sequence == globalSeq) && !(sequence instanceof FakeAnimation)) {
+				TreeMap<Integer, Entry<T>> entryTreeMap = sequenceMap.get(sequence);
+				if (entryTreeMap != null) {
 					for (Integer time : entryTreeMap.keySet()) {
-						if (time > anim.getLength()) {
+						if (time > sequence.getLength()) {
 							break;
 						}
-						tempTimes.add(time + anim.getStart());
+						tempTimes.add(time + sequence.getStart());
 						Entry<T> entry = entryTreeMap.get(time);
 						tempEntries.add(entry);
 					}
@@ -271,7 +287,7 @@ public abstract class AnimFlag<T> {
 //		for (Sequence anim : model.getAllSequences()) {
 //			if (globalSeq == null || anim == globalSeq) {
 //				TreeMap<Integer, Entry<Integer>> entryTreeMap = sequenceMap.get(anim);
-//				if(entryTreeMap != null){
+//				if (entryTreeMap != null) {
 //					for (Integer time : entryTreeMap.keySet()) {
 //						if (time > anim.getLength()) {
 //							break;
@@ -313,56 +329,41 @@ public abstract class AnimFlag<T> {
 //		return mdlxTimeline;
 //	}
 
-
-	public void addEntry(Integer time, T value, Sequence animation) {
-		Entry<T> entry = new Entry<>(time, value);
-		if (tans()) {
-			entry.unLinearize();
+	public void setEntryMap(Sequence sequence, TreeMap<Integer, Entry<T>> entryMap) {
+		Sequence sequence1 = getRealSequence(sequence);
+		sequenceMap.put(sequence1, entryMap);
+		if (sequence instanceof GlobalSeq) {
+			this.globalSeq = (GlobalSeq) sequence;
 		}
-		sequenceMap.computeIfAbsent(animation, k -> new TreeMap<>()).put(entry.getTime(), entry);
-		if (animation instanceof GlobalSeq) {
-			this.globalSeq = (GlobalSeq) animation;
-		}
+		timeKeysMap.remove(sequence);
 	}
 
-	public void addEntry(Entry<T> entry, Sequence animation) {
-		if (!tans()) {
-			entry.unLinearize();
-		}
-		sequenceMap.computeIfAbsent(animation, k -> new TreeMap<>()).put(entry.getTime(), entry);
-		if (animation instanceof GlobalSeq) {
-			this.globalSeq = (GlobalSeq) animation;
-		}
-	}
-
-	protected void addEntry(Integer time, T value, T inTan, T outTan, Sequence animation) {
-		sequenceMap.computeIfAbsent(animation, k -> new TreeMap<>()).put(time, new Entry<>(time, value, inTan, outTan));
-		if (animation instanceof GlobalSeq) {
-			this.globalSeq = (GlobalSeq) animation;
-		}
-	}
-
-	public void setEntryMap(Sequence animation, TreeMap<Integer, Entry<T>> entryMap) {
-		sequenceMap.put(animation, entryMap);
-		if (animation instanceof GlobalSeq) {
-			this.globalSeq = (GlobalSeq) animation;
-		}
-		timeKeysMap.remove(animation);
-	}
-
-	public void addEntryMap(Sequence animation, Map<Integer, Entry<T>> entryMap) {
-		TreeMap<Integer, Entry<T>> entryTreeMap = sequenceMap.computeIfAbsent(animation, k -> new TreeMap<>());
+	public void addEntryMap(Sequence sequence, Map<Integer, Entry<T>> entryMap) {
+		TreeMap<Integer, Entry<T>> entryTreeMap = getOrComputeEntryMap(sequence);
 		entryTreeMap.putAll(entryMap);
 
-		if (animation instanceof GlobalSeq) {
-			this.globalSeq = (GlobalSeq) animation;
+		if (sequence instanceof GlobalSeq) {
+			this.globalSeq = (GlobalSeq) sequence;
 		}
 	}
 
+	public TreeMap<Integer, Entry<T>> getEntryMap(Sequence sequence) {
+		return getEntryTreeMap(sequence);
+	}
+
+	public Map<Sequence, TreeMap<Integer, Entry<T>>> getAnimMap() {
+		return sequenceMap;
+	}
+
+	public AnimFlag<T> setSequenceMap(Map<Sequence, TreeMap<Integer, Entry<T>>> otherMap) {
+		sequenceMap = otherMap; // ToDo copy entries!
+		timeKeysMap.clear();
+		return this;
+	}
 
 	public TreeMap<Integer, Entry<T>> getSequenceEntryMapCopy(Sequence sequence) {
-		if (hasSequence(sequence) && sequenceMap.get(sequence) != null) {
-			TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(sequence);
+		TreeMap<Integer, Entry<T>> entryMap = getEntryTreeMap(sequence);
+		if (entryMap != null) {
 			TreeMap<Integer, Entry<T>> entryMapCopy = new TreeMap<>();
 			for (Integer time : entryMap.keySet()) {
 				entryMapCopy.put(time, entryMap.get(time).deepCopy());
@@ -372,68 +373,84 @@ public abstract class AnimFlag<T> {
 		return null;
 	}
 
+	public void addEntry(Integer time, T value, Sequence sequence) {
+		addEntry(new Entry<>(time, value), sequence);
+	}
+
+	public void addEntry(Entry<T> entry, Sequence sequence) {
+		if (tans() && !entry.isTangential()) {
+			entry.unLinearize();
+		} else if (!tans() && entry.isTangential()) {
+			entry.linearize();
+		}
+		addEntry(sequence, entry);
+	}
+
+	protected void addEntry(Integer time, T value, T inTan, T outTan, Sequence sequence) {
+		addEntry(sequence, new Entry<>(time, value, inTan, outTan));
+	}
+
+	private void addEntry(Sequence sequence, Entry<T> entry) {
+		TreeMap<Integer, Entry<T>> entryMap = getOrComputeEntryMap(sequence);
+		entryMap.put(entry.getTime(), entry);
+		if (sequence instanceof GlobalSeq) {
+			this.globalSeq = (GlobalSeq) sequence;
+		}
+	}
+
+	public void addEntry(Integer time, Entry<T> entry, Sequence sequence) {
+		if (entry.getValue() != null) {
+			addEntry(sequence, entry.setTime(time));
+		}
+	}
+
 	/**
 	 * To set an Entry with an Entry
 	 *
 	 * @param time  the time of the entry to be changed
 	 * @param entry the entry to replace the old entry
 	 */
-	public void setOrAddEntryT(Integer time, Entry<?> entry, Sequence animation) {
+	public void setOrAddEntryT(Integer time, Entry<?> entry, Sequence sequence) {
 		if (entry.getValue() instanceof Integer && this instanceof IntAnimFlag
 				|| entry.getValue() instanceof Bitmap && this instanceof BitmapAnimFlag
 				|| entry.getValue() instanceof Float && this instanceof FloatAnimFlag
 				|| entry.getValue() instanceof Vec3 && this instanceof Vec3AnimFlag
 				|| entry.getValue() instanceof Quat && this instanceof QuatAnimFlag) {
-			Entry<T> tEntry = (Entry<T>) entry.setTime(time);
-
-			sequenceMap.computeIfAbsent(animation, k -> new TreeMap<>()).put(entry.getTime(), tEntry);
-
-			if (animation instanceof GlobalSeq) {
-				this.globalSeq = (GlobalSeq) animation;
-			}
+			addEntry(time, (Entry<T>) entry, sequence);
 		}
 	}
 
-	public void setOrAddEntry(Integer time, Entry<T> entry, Sequence animation) {
-		if (entry.getValue() instanceof Integer && this instanceof IntAnimFlag
-				|| entry.getValue() instanceof Bitmap && this instanceof BitmapAnimFlag
-				|| entry.getValue() instanceof Float && this instanceof FloatAnimFlag
-				|| entry.getValue() instanceof Vec3 && this instanceof Vec3AnimFlag
-				|| entry.getValue() instanceof Quat && this instanceof QuatAnimFlag) {
-			Entry<T> tEntry = entry.setTime(time);
-
-			sequenceMap.computeIfAbsent(animation, k -> new TreeMap<>())
-					.put(entry.getTime(), tEntry);
-
-			if (animation instanceof GlobalSeq) {
-				this.globalSeq = (GlobalSeq) animation;
-			}
-		}
+	public void clear() {
+		sequenceMap.clear();
 	}
 
+	public TreeMap<Integer, Entry<T>> deleteAnim(Sequence sequence) {
+		timeKeysMap.remove(sequence);
+		if (sequence == globalSeq) {
+			globalSeq = null;
+		}
+		return sequenceMap.remove(sequence);
+	}
 
-	public void changeEntryAt(Integer time, Entry<T> entry, Sequence animation) {
-		TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(animation);
+	public Entry<T> removeKeyframe(int trackTime, Sequence sequence) {
+		TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(sequence);
 		if (entryMap != null) {
-			entryMap.remove(time);
-			entryMap.put(entry.getTime(), entry);
-			if (!time.equals(entry.getTime())) {
-				timeKeysMap.remove(animation);
-			}
-			if (tans() && !entry.isTangential()) {
-				entry.unLinearize();
-			} else if (!tans() && entry.isTangential()) {
-				entry.linearize();
-			}
+			timeKeysMap.remove(sequence);
+			return entryMap.remove(trackTime);
 		}
+		return null;
 	}
 
-	public String getName() {
-		return name;
+	public Entry<T> getEntryAt(Sequence sequence, int time) {
+		TreeMap<Integer, Entry<T>> entryMap = getEntryTreeMap(sequence);
+		if (entryMap != null) {
+			return entryMap.get(time);
+		}
+		return null;
 	}
-
-	public void setName(String title) {
-		name = title;
+	public boolean hasEntryAt(Sequence sequence, int time) {
+		TreeMap<Integer, Entry<T>> entryMap = getEntryTreeMap(sequence);
+		return entryMap != null && entryMap.containsKey(time);
 	}
 
 	public boolean tans() {
@@ -443,8 +460,8 @@ public abstract class AnimFlag<T> {
 	public void linearize() {
 		if (interpolationType.tangential()) {
 			interpolationType = InterpolationType.LINEAR;
-			for (Sequence anim : sequenceMap.keySet()) {
-				TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
+			for (Sequence sequence : sequenceMap.keySet()) {
+				TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(sequence);
 				for (Entry<T> entry : entryMap.values()) {
 					entry.linearize();
 				}
@@ -455,8 +472,8 @@ public abstract class AnimFlag<T> {
 	public void unLinearize() {
 		if (!interpolationType.tangential()) {
 			interpolationType = InterpolationType.BEZIER;
-			for (Sequence anim : sequenceMap.keySet()) {
-				TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
+			for (Sequence sequence : sequenceMap.keySet()) {
+				TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(sequence);
 				for (Entry<T> entry : entryMap.values()) {
 					entry.unLinearize();
 				}
@@ -465,9 +482,9 @@ public abstract class AnimFlag<T> {
 	}
 
 	public void unLinearize2() {
-		for (Sequence animation : sequenceMap.keySet()) {
-			TreeMap<Integer, Entry<T>> entryTreeMap = sequenceMap.get(animation);
-			int animationLength = animation.getEnd() - animation.getStart();
+		for (Sequence sequence : sequenceMap.keySet()) {
+			TreeMap<Integer, Entry<T>> entryTreeMap = sequenceMap.get(sequence);
+			int animationLength = sequence.getEnd() - sequence.getStart();
 			AnimFlagUtils.unLiniarizeMapEntries(this, animationLength, entryTreeMap);
 		}
 	}
@@ -475,8 +492,8 @@ public abstract class AnimFlag<T> {
 	public void bezToHerm() {
 		if (!interpolationType.tangential()) {
 			interpolationType = InterpolationType.HERMITE;
-			for (Sequence anim : sequenceMap.keySet()) {
-				TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
+			for (Sequence sequence : sequenceMap.keySet()) {
+				TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(sequence);
 				for (Entry<T> entry : entryMap.values()) {
 					entry.bezToHerm();
 				}
@@ -486,8 +503,8 @@ public abstract class AnimFlag<T> {
 	public void hermToBez() {
 		if (!interpolationType.tangential()) {
 			interpolationType = InterpolationType.BEZIER;
-			for (Sequence anim : sequenceMap.keySet()) {
-				TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
+			for (Sequence sequence : sequenceMap.keySet()) {
+				TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(sequence);
 				for (Entry<T> entry : entryMap.values()) {
 					entry.hermToBez();
 				}
@@ -495,37 +512,20 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-	public void setInterpolationType(InterpolationType interpolationType) {
-		this.interpolationType = interpolationType;
-		if (interpolationType.tangential()) {
-			unLinearize();
-		} else {
-			linearize();
-		}
-	}
-	public void setInterpolationType2(InterpolationType interpolationType) {
-		if(interpolationType != this.interpolationType){
-			if (interpolationType.tangential() && this.interpolationType.tangential()){
-				if(this.interpolationType == InterpolationType.BEZIER){
+	public void setInterpType(InterpolationType interpolationType) {
+		if (interpolationType != this.interpolationType) {
+			if (interpolationType.tangential() && this.interpolationType.tangential()) {
+				if (this.interpolationType == InterpolationType.BEZIER) {
 					bezToHerm();
 				} else if (this.interpolationType == InterpolationType.HERMITE) {
 					hermToBez();
 				}
 			} else if (interpolationType.tangential()) {
-				unLinearize();
+//				unLinearize();
+				unLinearize2();
 			} else if (this.interpolationType.tangential()) {
 				linearize();
 			}
-		}
-
-		this.interpolationType = interpolationType;
-	}
-
-	public void setInterpType(InterpolationType interpolationType) {
-		if (interpolationType.tangential()) {
-			unLinearize2();
-		} else {
-			linearize();
 		}
 		this.interpolationType = interpolationType;
 	}
@@ -534,110 +534,79 @@ public abstract class AnimFlag<T> {
 		this.interpolationType = interpolationType;
 	}
 
-	public TreeMap<Integer, Entry<T>> deleteAnim(Sequence anim) {
-		timeKeysMap.remove(anim);
-		if (anim == globalSeq) {
-			globalSeq = null;
-		}
-		return sequenceMap.remove(anim);
-	}
-
-	public Entry<T> removeKeyframe(int trackTime, Sequence anim) {
-		TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
-		if (entryMap != null) {
-			timeKeysMap.remove(anim);
-			return entryMap.remove(trackTime);
+	public T valueAt(Sequence sequence, Integer time) {
+		TreeMap<Integer, Entry<T>> entryMap = getEntryTreeMap(sequence);
+		if (entryMap != null && entryMap.containsKey(time)) {
+			return entryMap.get(time).getValue();
 		}
 		return null;
 	}
 
-
-	public void clear() {
-		sequenceMap.clear();
-	}
-
-	public Entry<T> getEntryAt(Sequence anim, int time) {
-		if (sequenceMap.get(anim) != null) {
-			return sequenceMap.get(anim).get(time);
+	public T inTanAt(Sequence sequence, Integer time) {
+		TreeMap<Integer, Entry<T>> entryMap = getEntryTreeMap(sequence);
+		if (entryMap != null && entryMap.containsKey(time)) {
+			return entryMap.get(time).getInTan();
 		}
 		return null;
 	}
 
-	public boolean hasEntryAt(Sequence anim, int time) {
-		return sequenceMap.get(anim) != null && sequenceMap.get(anim).containsKey(time);
-	}
-
-	public T valueAt(Sequence anim, Integer time) {
-		if (sequenceMap.get(anim) != null && sequenceMap.get(anim).containsKey(time)) {
-			return sequenceMap.get(anim).get(time).getValue();
+	public T outTanAt(Sequence sequence, Integer time) {
+		TreeMap<Integer, Entry<T>> entryMap = getEntryTreeMap(sequence);
+		if (entryMap != null && entryMap.containsKey(time)) {
+			return entryMap.get(time).getOutTan();
 		}
 		return null;
 	}
 
-	public T inTanAt(Sequence anim, Integer time) {
-		if (sequenceMap.get(anim) != null && sequenceMap.get(anim).containsKey(time)) {
-			return sequenceMap.get(anim).get(time).getInTan();
-		}
-		return null;
-	}
-
-	public T outTanAt(Sequence anim, Integer time) {
-		if (sequenceMap.get(anim) != null && sequenceMap.get(anim).containsKey(time)) {
-			return sequenceMap.get(anim).get(time).getOutTan();
-		}
-		return null;
-	}
-
-	public int getTimeFromIndex(Sequence anim, int index) {
-		if (sequenceMap.get(anim) != null && 0 <= index && index < sequenceMap.get(anim).size()) {
-			return getTimeKeys(anim)[index];
+	public int getTimeFromIndex(Sequence sequence, int index) {
+		TreeMap<Integer, Entry<T>> entryMap = getEntryTreeMap(sequence);
+		if (entryMap != null && 0 <= index && index < entryMap.size()) {
+			return getTimeKeys(sequence)[index];
 		}
 		return -1;
 	}
 
-	public int getIndexOfTime(Sequence anim, int time) {
-		TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
+	public int getIndexOfTime(Sequence sequence, int time) {
+		TreeMap<Integer, Entry<T>> entryMap = getEntryTreeMap(sequence);
 		if (entryMap != null) {
 			return entryMap.navigableKeySet().subSet(entryMap.firstKey(), entryMap.floorKey(time)).size();
 		}
 		return -1;
 	}
 
-	public T getValueFromIndex(Sequence anim, int index) {
-		if (anim != null) {
-			TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
-			if (entryMap != null && 0 <= index && index <= entryMap.size()) {
-				Entry<T> entry = entryMap.get(getTimeFromIndex(anim, index));
-				if (entry != null) {
-					return entry.getValue();
-				}
+	public T getValueFromIndex(Sequence sequence, int index) {
+		TreeMap<Integer, Entry<T>> entryMap = getEntryTreeMap(sequence);
+		if (entryMap != null && 0 <= index && index <= entryMap.size()) {
+			Entry<T> entry = entryMap.get(getTimeFromIndex(sequence, index));
+			if (entry != null) {
+				return entry.getValue();
 			}
-			timeKeysMap.remove(anim);
 		}
+		timeKeysMap.remove(sequence);
 		return null;
 	}
 
-	public T getInTanFromIndex(Sequence anim, int index) {
-		TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
+	public T getInTanFromIndex(Sequence sequence, int index) {
+		TreeMap<Integer, Entry<T>> entryMap = getEntryTreeMap(sequence);
 		if (entryMap != null && 0 <= index && index <= entryMap.size()) {
-			Entry<T> entry = entryMap.get(getTimeFromIndex(anim, index));
+			Entry<T> entry = entryMap.get(getTimeFromIndex(sequence, index));
 			if (entry != null) {
 				return entry.getInTan();
 			}
 		}
-		timeKeysMap.remove(anim);
+		timeKeysMap.remove(sequence);
 		return null;
 	}
 
-	public T getOutTanFromIndex(Sequence anim, int index) {
-		TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
+	public T getOutTanFromIndex(Sequence sequence, int index) {
+		TreeMap<Integer, Entry<T>> entryMap = getEntryTreeMap(sequence);
 		if (entryMap != null && 0 <= index && index <= entryMap.size()) {
-			Entry<T> entry = entryMap.get(getTimeFromIndex(anim, index));
+			Entry<T> entry = entryMap.get(getTimeFromIndex(sequence, index));
 			if (entry != null) {
 				return entry.getOutTan();
 			}
 		}
-		timeKeysMap.remove(anim);
+		timeKeysMap.remove(sequence);
 		return null;
 	}
 
@@ -655,8 +624,8 @@ public abstract class AnimFlag<T> {
 		return interpolateAt(currentSequence, time);
 	}
 
-	public T interpolateAt(Sequence currentSequence, int time) {
-		TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(currentSequence);
+	public T interpolateAt(Sequence sequence, int time) {
+		TreeMap<Integer, Entry<T>> entryMap = getEntryTreeMap(sequence);
 		if (entryMap == null || entryMap.isEmpty()) {
 			if (this instanceof IntAnimFlag) {
 				System.out.println("[AnimFlag] Case 2: no entryMap or entryMap empty");
@@ -664,13 +633,7 @@ public abstract class AnimFlag<T> {
 			return getIdentity();
 		}
 
-		int sequenceLength = currentSequence.getLength();
-
-//		// no keyframes at nor after time
-//		if (hasGlobalSeq() && globalSeq.getLength() >= 0 && entryMap.ceilingKey(time) == null) {
-//			System.out.println("[AnimFlag] Case 3, " + globalSeq + " " + time + ", " + entryMap.ceilingKey(time));
-//			return getIdentity(typeid);
-//		}
+		int sequenceLength = sequence.getLength();
 
 		Integer lastKeyframeTime = entryMap.floorKey(sequenceLength);
 		Integer firstKeyframeTime = entryMap.ceilingKey(0);
@@ -718,7 +681,7 @@ public abstract class AnimFlag<T> {
 		float timeFactor = getTimeFactor(time, sequenceLength, floorTime, ceilTime);
 
 //		System.out.println("[AnimFlag] interpolating!");
-		return getInterpolatedValue(floorTime, ceilTime, timeFactor, currentSequence);
+		return getInterpolatedValue(floorTime, ceilTime, timeFactor, sequence);
 	}
 
 	protected float getTimeFactor(int time, int animationLength, Integer floorTime, Integer ceilTime) {
@@ -738,12 +701,12 @@ public abstract class AnimFlag<T> {
 		return timeFromKF / (float) timeBetweenFrames;
 	}
 
-	public Entry<T> getFloorEntry(int time, Sequence anim) {
-		TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
+	public Entry<T> getFloorEntry(int time, Sequence sequence) {
+		TreeMap<Integer, Entry<T>> entryMap = getEntryTreeMap(sequence);
 		if (entryMap != null) {
 			Integer floorTime = entryMap.floorKey(time);
-			if (floorTime == null || floorTime < anim.getStart()) {
-				Integer key = entryMap.floorKey(anim.getEnd());
+			if (floorTime == null || floorTime < sequence.getStart()) {
+				Integer key = entryMap.floorKey(sequence.getEnd());
 				if (key == null) {
 					return null;
 				}
@@ -754,12 +717,12 @@ public abstract class AnimFlag<T> {
 		return null;
 	}
 
-	public Entry<T> getCeilEntry(int time, Sequence anim) {
-		TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
+	public Entry<T> getCeilEntry(int time, Sequence sequence) {
+		TreeMap<Integer, Entry<T>> entryMap = getEntryTreeMap(sequence);
 		if (entryMap != null) {
 			Integer ceilTime = entryMap.ceilingKey(time);
-			if (ceilTime == null || ceilTime > anim.getEnd()) {
-				Integer key = entryMap.ceilingKey(anim.getStart());
+			if (ceilTime == null || ceilTime > sequence.getEnd()) {
+				Integer key = entryMap.ceilingKey(sequence.getStart());
 				return key == null ? null : entryMap.get(key);
 			}
 			return entryMap.get(ceilTime);
@@ -767,46 +730,26 @@ public abstract class AnimFlag<T> {
 		return null;
 	}
 
-	public abstract T getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor, Sequence anim);
+	public T getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor, Sequence sequence) {
+		TreeMap<Integer, Entry<T>> entryMap = getEntryTreeMap(sequence);
+		Entry<T> entryFloor = entryMap.get(floorTime);
+		Entry<T> entryCeil = entryMap.get(ceilTime);
+
+		return getInterpolatedValue(entryFloor, entryCeil, timeFactor);
+	}
 
 	public abstract T getInterpolatedValue(Entry<T> entryFloor, Entry<T> entryCeil, float timeFactor);
 
 	protected abstract T getIdentity();
 
-	public void slideKeyframe(int startTrackTime, int endTrackTime, Sequence anim) {
-		TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
-		if (entryMap == null || entryMap.isEmpty()) {
-			throw new IllegalStateException("Unable to slide keyframe: no frames exist");
-		}
-		Entry<T> entryToSlide = getEntryAt(anim, startTrackTime);
-		if (entryToSlide != null) {
-			entryMap.put(endTrackTime, entryMap.remove(startTrackTime).setTime(endTrackTime));
-			timeKeysMap.remove(anim);
-		}
-	}
-
-	public TreeMap<Integer, Entry<T>> getEntryMap(Sequence anim) {
-		return sequenceMap.get(anim);
-	}
-
-	public Map<Sequence, TreeMap<Integer, Entry<T>>> getAnimMap() {
-		return sequenceMap;
-	}
-
-	public AnimFlag<T> setSequenceMap(Map<Sequence, TreeMap<Integer, Entry<T>>> otherMap) {
-		sequenceMap = otherMap; // ToDo copy entries!
-		timeKeysMap.clear();
-		return this;
-	}
-
-	private Integer[] getTimeKeys(Sequence anim) {
-		TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
+	private Integer[] getTimeKeys(Sequence sequence) {
+		TreeMap<Integer, Entry<T>> entryMap = getEntryTreeMap(sequence);
 		if (entryMap != null) {
-			if (timeKeysMap.get(anim) == null || timeKeysMap.get(anim).length != entryMap.size()) {
-				timeKeysMap.put(anim, entryMap.keySet().toArray(new Integer[0]));
+			if (timeKeysMap.get(sequence) == null || timeKeysMap.get(sequence).length != entryMap.size()) {
+				timeKeysMap.put(sequence, entryMap.keySet().toArray(new Integer[0]));
 			}
 		}
-		return timeKeysMap.get(anim);
+		return timeKeysMap.get(sequence);
 	}
 
 //	public abstract void calcNewTans(float factor, T curValue, T nextValue, T prevValue, Entry<T> entry);

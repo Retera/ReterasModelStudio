@@ -30,48 +30,23 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class TimelineTableEditor<T> extends CollapsablePanel {
-
-	private AnimFlag<T> animFlag;
-	private final Sequence sequence;
 	private final ModelHandler modelHandler;
+
+	private final Sequence sequence;
+	private AnimFlag<T> animFlag;
 	private TimelineContainer node;
-	private final TwiTable keyframeTable;
-	private TwiTableModel<T> dataModel;
+
 	private final Function<String, T> parseFunction;
+	private final TwiTable keyframeTable;
 	private final T defaultValue;
+	private TwiTableModel<T> dataModel;
 	private String valueRegex = "[eE\\d-.]+";
 	private String weedingRegex = "[^-\\d,.eE]";
 	private final Map<Integer, Integer> columnSizes = new HashMap<>();
-//	private final ModelStructureChangeListener changeListener = null;
 	private final ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
 	private Runnable updateStuff;
 
-	public TimelineTableEditor(Sequence sequence, Function<String, T> parseFunction, T defaultValue, ModelHandler modelHandler){
-		super(sequence + " (" + sequence.getLength() + ") ", new JPanel(new MigLayout("fill, gap 0, ins 0", "[grow]", "[grow][]")));
-		this.sequence = sequence;
-		this.modelHandler = modelHandler;
-		this.parseFunction = parseFunction;
-		this.defaultValue = defaultValue;
-
-		keyframeTable = new TwiTable();
-		keyframeTable.setDefaultEditor(defaultValue.getClass(), new TwiTableCellEditor<>(parseFunction, defaultValue));
-		TwiTableDefaultRenderer renderer = new TwiTableDefaultRenderer(sequence);
-		keyframeTable.setDefaultRenderer(Integer.class, renderer);
-		keyframeTable.setDefaultRenderer(String.class, renderer);
-
-
-//		editorPane.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-
-		keyframeTable.addMouseListener(getMouseAdapter());
-		keyframeTable.addKeyListener(getKeyAdapter());
-
-		columnSizes.put(-1, keyframeTable.getRowHeight());
-		columnSizes.put(0, keyframeTable.getRowHeight()*4);
-
-		fillEditorPanel();
-	}
-
-	public TimelineTableEditor(Sequence sequence, Function<String, T> parseFunction, T defaultValue, String valueRegex, String weedingRegex, ModelHandler modelHandler){
+	public TimelineTableEditor(Sequence sequence, Function<String, T> parseFunction, T defaultValue, String valueRegex, String weedingRegex, ModelHandler modelHandler) {
 		super(sequence + " (" + sequence.getLength() + ") ", new JPanel(new MigLayout("fill, gap 0, ins 0", "[grow]", "[grow][]")));
 		this.sequence = sequence;
 		this.modelHandler = modelHandler;
@@ -82,12 +57,10 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 
 		keyframeTable = new TwiTable();
 		keyframeTable.setDefaultEditor(defaultValue.getClass(), new TwiTableCellEditor<>(parseFunction, defaultValue));
+
 		TwiTableDefaultRenderer renderer = new TwiTableDefaultRenderer(sequence);
 		keyframeTable.setDefaultRenderer(Integer.class, renderer);
 		keyframeTable.setDefaultRenderer(String.class, renderer);
-
-
-//		editorPane.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
 
 		keyframeTable.addMouseListener(getMouseAdapter());
 		keyframeTable.addKeyListener(getKeyAdapter());
@@ -101,7 +74,7 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 	public TimelineTableEditor<T> setNode(TimelineContainer node, AnimFlag<T> animFlag) {
 		this.animFlag = animFlag;
 		this.node = node;
-		if(modelHandler != null){
+		if (modelHandler != null) {
 			dataModel = new TwiTableModel<>(animFlag, sequence, defaultValue, modelHandler.getUndoManager());
 		} else {
 			dataModel = new TwiTableModel<>(animFlag, sequence, defaultValue, null);
@@ -141,12 +114,12 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 		}
 	}
 
-	private MouseAdapter getMouseAdapter(){
+	private MouseAdapter getMouseAdapter() {
 		return new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				super.mouseClicked(e);
-				if (keyframeTable.getSelectedColumn() == keyframeTable.getColumnCount()-1){
+				if (keyframeTable.getSelectedColumn() == keyframeTable.getColumnCount()-1) {
 					removeEntry(keyframeTable.getSelectedRows());
 				}
 			}
@@ -155,12 +128,12 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 
 	private void removeEntry(int... rows) {
 		ArrayList<Integer> orgTimes = new ArrayList<>();
-		for (int row : rows){
+		for (int row : rows) {
 			orgTimes.add(dataModel.getTimeAt(row));
 		}
 		if (!orgTimes.isEmpty()) {
 			UndoAction action = new RemoveFlagEntryAction<>(animFlag, orgTimes, sequence, changeListener);
-			if(modelHandler != null){
+			if (modelHandler != null) {
 				modelHandler.getUndoManager().pushAction(action.redo());
 			} else {
 				// Temp for testing
@@ -169,16 +142,16 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 			dataModel.fireTableDataChanged();
 
 			int newSelectedRow = rows[0];
-			if(newSelectedRow >= keyframeTable.getRowCount()){
+			if (newSelectedRow >= keyframeTable.getRowCount()) {
 				newSelectedRow -= 1;
 			}
-			if(0 <= newSelectedRow && newSelectedRow < keyframeTable.getRowCount()){
+			if (0 <= newSelectedRow && newSelectedRow < keyframeTable.getRowCount()) {
 				keyframeTable.setRowSelectionInterval(newSelectedRow, newSelectedRow);
 			}
 		}
 
 	}
-	private KeyAdapter getKeyAdapter(){
+	private KeyAdapter getKeyAdapter() {
 		return new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
@@ -217,7 +190,7 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 			}
 
 			UndoAction action = new AddFlagEntryAction<>(animFlag, newEntry, sequence, changeListener);
-			if(modelHandler != null){
+			if (modelHandler != null) {
 				modelHandler.getUndoManager().pushAction(action.redo());
 			} else {
 				// Temp for testing
@@ -230,23 +203,23 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 		}
 	}
 
-	public TimelineTableEditor<T> setRegexStuff(String valueRegex, String weedingRegex){
+	public TimelineTableEditor<T> setRegexStuff(String valueRegex, String weedingRegex) {
 		this.valueRegex = valueRegex;
 		this.weedingRegex = weedingRegex;
 		return this;
 	}
-	private void editAsText(){
+	private void editAsText() {
 		AltTimelineTextEditor<T> editor = new AltTimelineTextEditor<>(sequence, animFlag, parseFunction, node, modelHandler);
 		editor.setRegexStuff(valueRegex, weedingRegex).showWindow();
 //		TimelineTextEditor<T> editor = new TimelineTextEditor<>(animFlag, sequence, parseFunction, node, modelHandler);
 //		editor.setRegexStuff(valueRegex, weedingRegex).show();
 	}
 
-	private void clearAnimation(){
+	private void clearAnimation() {
 		modelHandler.getUndoManager().pushAction(new RemoveFlagEntryMapAction<>(animFlag, sequence, changeListener).redo());
 	}
 
-	public JPanel fillEditorPanel(){
+	public JPanel fillEditorPanel() {
 		JScrollPane scrollPane = new JScrollPane(keyframeTable);
 //		Dimension suitableSize = ScreenInfo.getSuitableSize(250, 300, 0.6);
 //		Dimension suitableSize2 = ScreenInfo.getSuitableSize(3000, 450, 0.6);
@@ -313,7 +286,7 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 
 //				int height1 = getHeight();
 //				int spH1 = scrollPane.getHeight();
-				if(scrollPane.getHeight() < keyframeTable.getRowHeight()*2){
+				if (scrollPane.getHeight() < keyframeTable.getRowHeight()*2) {
 //					mainPanel.setPreferredSize(suitableSize2);
 					updateStuff.run();
 					SwingUtilities.invokeLater(() -> {revalidate();repaint();});

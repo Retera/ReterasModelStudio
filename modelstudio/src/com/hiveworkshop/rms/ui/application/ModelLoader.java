@@ -15,7 +15,7 @@ import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.ExtFilter;
-import com.hiveworkshop.rms.ui.util.FbxLoadingInfo;
+import com.hiveworkshop.rms.ui.util.ModelLoadingInfo;
 import com.hiveworkshop.rms.util.ImageUtils.ImageCreator;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 
 public class ModelLoader {
 	public static final ImageIcon MDLIcon = RMSIcons.MDLIcon;
@@ -114,8 +115,8 @@ public class ModelLoader {
 
 	public static void loadModel(boolean temporary, boolean showModel, ModelPanel modelPanel) {
 		if (temporary) {
-			modelPanel.getModelView().getModel().setTemp(true);
-			modelPanel.getModelView().getModel().setFileRef(null);
+			modelPanel.getModelHandler().getModel().setTemp(true);
+			modelPanel.getModelHandler().getModel().setFileRef(null);
 		}
 		loadModel(showModel, modelPanel);
 	}
@@ -168,12 +169,12 @@ public class ModelLoader {
 	}
 
 	private static void loadAndShowModelFromFile(File f, boolean temporary, boolean showModel, ImageIcon icon) {
-		final FbxLoadingInfo loadingInfo = new FbxLoadingInfo(f);
+		final ModelLoadingInfo loadingInfo = new ModelLoadingInfo(f, true);
 		loadingInfo.start();
 		SwingWorker<EditableModel, String> loaderThing = new SwingWorker<>() {
 			@Override
 			protected EditableModel doInBackground() {
-				return getEditableModel(f, temporary);
+				return getEditableModel(f, temporary, loadingInfo::setMessage);
 			}
 
 			@Override
@@ -181,7 +182,9 @@ public class ModelLoader {
 				try {
 					EditableModel model = get();
 					if (model != null) {
+						loadingInfo.setMessage("Creating ModelPanel");
 						ModelPanel tempModelPanel = new ModelPanel(new ModelHandler(model, icon));
+						loadingInfo.setMessage("Loading in Model");
 						loadModel(showModel, tempModelPanel);
 					}
 				} catch (InterruptedException | ExecutionException e) {
@@ -200,24 +203,26 @@ public class ModelLoader {
 		loaderThing.execute();
 	}
 
-	private static EditableModel getEditableModel(File f, boolean temporary) {
+	private static EditableModel getEditableModel(File f, boolean temporary, Consumer<String> stringConsumer) {
 		ExtFilter extFilter = new ExtFilter();
 		String filepath = f.getPath();
 		final String pathLow = filepath.toLowerCase();
 		String ext = pathLow.replaceAll(".+\\.(?=.+)", "");
 		EditableModel model;
 		if (extFilter.isSupTexture(ext)) {
+			stringConsumer.accept("Loading image");
 			model = getImageModel(f, ext);
 			temporary = false;
 
 		} else if (Arrays.asList("mdx", "mdl").contains(ext)) {
-			model = getMdxlModel(f);
+			model = getMdxlModel(f, stringConsumer);
 		} else if (Arrays.asList("obj", "fbx").contains(ext)) {
-			model = getAssImpModel(f);
+			model = getAssImpModel(f, stringConsumer);
 		} else if (Arrays.asList("pkb").contains(ext)) {
 			BinaryDecipherHelper.load(f);
 			model = null;
 		} else if (Arrays.asList("slk").contains(ext)) {
+			stringConsumer.accept("Loading skl");
 			String fileName = filepath.replaceAll(".*\\\\", "");
 			new SklViewer().createAndShowHTMLPanel(f, fileName);
 			model = null;
@@ -251,9 +256,9 @@ public class ModelLoader {
 				getImageModel(f, ext);
 			} else if (Arrays.asList("mdx", "mdl").contains(ext)) {
 //				BinaryDecipherHelper.load(f);
-				getMdxlModel(f);
+				getMdxlModel(f, s -> {});
 			} else if (Arrays.asList("obj", "fbx", "dae").contains(ext)) {
-				getAssImpModel(f);
+				getAssImpModel(f, s -> {});
 			} else if (Arrays.asList("pkb").contains(ext)) {
 				System.out.println("pkb!");
 			BinaryDecipherHelper.load(f);
@@ -275,9 +280,9 @@ public class ModelLoader {
 		return model;
 	}
 
-	private static EditableModel getMdxlModel(File f) {
+	private static EditableModel getMdxlModel(File f, Consumer<String> stringConsumer) {
 		try {
-			EditableModel model = MdxUtils.loadEditable(f);
+			EditableModel model = MdxUtils.loadEditable(f, stringConsumer);
 			model.setFileRef(f);
 			return model;
 		} catch (final IOException e) {
@@ -287,7 +292,7 @@ public class ModelLoader {
 		}
 	}
 
-	private static EditableModel getAssImpModel(File f) {
+	private static EditableModel getAssImpModel(File f, Consumer<String> stringConsumer) {
 		try {
 			System.out.println("importing file \"" + f.getName() + "\" this might take a while...");
 			long timeStart = System.currentTimeMillis();
@@ -306,7 +311,7 @@ public class ModelLoader {
 			processSteps.add(AiPostProcessSteps.TRIANGULATE);
 			processSteps.add(AiPostProcessSteps.REMOVE_REDUNDANT_MATERIALS);
 			AiScene scene = Jassimp.importFile(f.getPath(), processSteps, twiAiIoSys, aiProgressHandler);
-			TwiAiSceneParser twiAiSceneParser = new TwiAiSceneParser(scene);
+			TwiAiSceneParser twiAiSceneParser = new TwiAiSceneParser(scene, stringConsumer);
 			System.out.println("took " + (System.currentTimeMillis() - timeStart) + " ms to load the model");
 			EditableModel model = twiAiSceneParser.getEditableModel();
 			model.setFileRef(f);

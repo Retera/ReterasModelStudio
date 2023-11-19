@@ -136,6 +136,7 @@ public class MdxLoadSave {
 	}
 
 	private static void lodByTag(MdlxModel mdlxModel, BinaryReader reader, int tag, int size) {
+		System.out.println("reading chunk: " + tag);
 		switch (tag) {
 			case VERS -> loadVersionChunk(mdlxModel, reader);
 			case MODL -> loadModelChunk(mdlxModel, reader);

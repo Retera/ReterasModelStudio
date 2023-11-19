@@ -45,8 +45,7 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 		final Object[] inTans = timeline.inTans;
 		final Object[] outTans = timeline.outTans;
 
-		TreeMap<Integer, Animation> animationTreeMap = new TreeMap<>();
-		model.getAnims().forEach(a -> animationTreeMap.put(a.getStart(), a));
+		TreeMap<Integer, Animation> animationTreeMap = getAnimationTreeMap(model.getAnims());
 
 		if (frames.length > 0) {
 			List<Integer> outsideKFs = new ArrayList<>();
@@ -100,14 +99,6 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 		} else {
 			return 0f;
 		}
-	}
-
-	@Override
-	public Float getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor, Sequence anim) {
-		TreeMap<Integer, Entry<Float>> entryMap = sequenceMap.get(anim);
-		Entry<Float> entryFloor = entryMap.get(floorTime);
-		Entry<Float> entryCeil = entryMap.get(ceilTime);
-		return getInterpolatedValue(entryFloor, entryCeil, timeFactor);
 	}
 
 	@Override
@@ -194,7 +185,7 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 
 	@Override
 	public float[] getTbcFactor(float bias, float tension, float continuity) {
-		return getTCB(-1, bias, tension, continuity);
+		return getTCB(1, bias, tension, continuity);
 	}
 
 	@Override
@@ -227,6 +218,7 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 			cur.outTan *= outAdj;
 		}
 	}
+
 	public FloatAnimFlag getAsTypedOrNull(AnimFlag<?> animFlag){
 		if(animFlag instanceof FloatAnimFlag){
 			return (FloatAnimFlag) animFlag;

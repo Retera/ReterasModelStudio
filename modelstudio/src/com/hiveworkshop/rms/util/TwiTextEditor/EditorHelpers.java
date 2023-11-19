@@ -1,9 +1,6 @@
 package com.hiveworkshop.rms.util.TwiTextEditor;
 
-import com.hiveworkshop.rms.editor.model.Bitmap;
-import com.hiveworkshop.rms.editor.model.GlobalSeq;
-import com.hiveworkshop.rms.editor.model.Layer;
-import com.hiveworkshop.rms.editor.model.TimelineContainer;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.*;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.model.editors.*;
@@ -18,6 +15,7 @@ import com.hiveworkshop.rms.util.TwiTextEditor.table.TwiTableColorRenderer;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -282,17 +280,18 @@ public class EditorHelpers {
 			this.flagToken = flagToken;
 			this.staticConsumer = staticConsumer;
 
-			staticTextureChooser = new TwiComboBox<>(modelHandler.getModel().getTextures(), new Bitmap("", 1));
-			staticTextureChooser.setRenderer(new TextureListRenderer(modelHandler.getModel()).setImageSize(64));
+			EditableModel model = modelHandler.getModel();
+			ArrayList<Bitmap> textures = model.getTextures();
+			staticTextureChooser = new TwiComboBox<>(textures, new Bitmap("", 1));
+			staticTextureChooser.setRenderer(new TextureListRenderer(model).setImageSize(64));
 			staticTextureChooser.addOnSelectItemListener(staticConsumer);
 
 
-			textureChooser = new TwiComboBox<>(modelHandler.getModel().getTextures(), new Bitmap("", 1));
-			textureChooser.setRenderer(new TextureListRenderer(modelHandler.getModel()));
+			textureChooser = new TwiComboBox<>(textures, new Bitmap("", 1));
+			textureChooser.setRenderer(new TextureListRenderer(model));
 
-//			flagPanel = new FlagPanel<>(flagToken, title, null, modelHandler.getModel().getTexture(0), modelHandler);
-			flagPanel = new FlagPanel<>(flagToken, title, s -> parseBitmap(s, modelHandler.getModel().getTextures()), modelHandler.getModel().getTexture(0), valueRegex, weedingRegex, modelHandler);
-			flagPanel.setTableRenderer(new TextureTableCellRenderer(modelHandler.getModel()));
+			flagPanel = new FlagPanel<>(flagToken, title, s -> parseBitmap(s, textures), model.getTexture(0), valueRegex, weedingRegex, modelHandler);
+			flagPanel.setTableRenderer(new TextureTableCellRenderer(model));
 			flagPanel.setTableEditor(new TableComboBoxEditor<>(textureChooser));
 			flagPanel.setStaticComponent(staticTextureChooser);
 		}

@@ -48,7 +48,8 @@ public class EditorTester {
 	}
 
 	private static TimelineTableEditor<Vec3> getVec3TimelineTableEditor(Vec3AnimFlag animFlag, Sequence sequence, Helper helper, ModelHandler modelHandler) {
-		TimelineTableEditor<Vec3> textEditor = new TimelineTableEditor<>(sequence, s -> Vec3.parseVec3(ValueParserUtil.getString(3,s)), new Vec3(0,0,0), modelHandler);
+		TimelineTableEditor<Vec3> textEditor = new TimelineTableEditor<>(sequence, s -> Vec3.parseVec3(ValueParserUtil.getString(3,s)),
+				new Vec3(0,0,0), "[eE\\d-.]+", "[^-\\d,.eE]", modelHandler);
 		textEditor.setNode(helper, animFlag);
 		textEditor.getCollapsableContentPanel().setPreferredSize(ScreenInfo.getSmallWindow());
 		return textEditor;

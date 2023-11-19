@@ -45,8 +45,7 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 		final Object[] inTans = timeline.inTans;
 		final Object[] outTans = timeline.outTans;
 
-		TreeMap<Integer, Animation> animationTreeMap = new TreeMap<>();
-		model.getAnims().forEach(a -> animationTreeMap.put(a.getStart(), a));
+		TreeMap<Integer, Animation> animationTreeMap = getAnimationTreeMap(model.getAnims());
 
 		if (frames.length > 0) {
 			List<Integer> outsideKFs = new ArrayList<>();
@@ -226,14 +225,6 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 		}
 	}
 
-	public Vec3 getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor, Sequence anim) {
-		TreeMap<Integer, Entry<Vec3>> entryMap = sequenceMap.get(anim);
-		Entry<Vec3> entryFloor = entryMap.get(floorTime);
-		Entry<Vec3> entryCeil = entryMap.get(ceilTime);
-
-		return getInterpolatedValue(entryFloor, entryCeil, timeFactor);
-	}
-
 	@Override
 	public Vec3 getInterpolatedValue(Entry<Vec3> entryFloor, Entry<Vec3> entryCeil, float timeFactor) {
 		Vec3 floorValue = entryFloor.getValue();
@@ -252,7 +243,7 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 
 	@Override
 	public float[] getTbcFactor(float bias, float tension, float continuity) {
-		return getTCB(-1, bias, tension, continuity);
+		return getTCB(1, bias, tension, continuity);
 	}
 
 	@Override

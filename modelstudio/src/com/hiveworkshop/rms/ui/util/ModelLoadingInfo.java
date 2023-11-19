@@ -10,12 +10,13 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 
-public class FbxLoadingInfo {
+public class ModelLoadingInfo {
 	final static float giga = 1000000000;
 	final static float mega = 1000000;
 	final static float kilo = 1000;
 	Timer timer;
 	JLabel timeLabel = new JLabel("00000000");
+	JLabel messageLabel;
 	JFrame frame;
 	long initMillis;
 	long startMillis;
@@ -23,7 +24,10 @@ public class FbxLoadingInfo {
 	long timeEst;
 	String fileSize;
 
-	public FbxLoadingInfo(File file){
+	public ModelLoadingInfo(File file) {
+		this(file, false);
+	}
+	public ModelLoadingInfo(File file, boolean showStatus) {
 		this.file = file;
 		timeEst = getTimeEst();
 		long fSize = file.length();
@@ -36,13 +40,16 @@ public class FbxLoadingInfo {
 		} else {
 			fileSize = fSize + " B";
 		}
+		if (showStatus) {
+			messageLabel = new JLabel("        ");
+		}
 	}
 
-	float getRoundedValue(long v, float si){
+	float getRoundedValue(long v, float si) {
 		return Math.round(v / si * 100)/100f;
 	}
 
-	long getTimeEst(){
+	long getTimeEst() {
 		long fileSize = file.length();
 		System.out.println("File size: " + fileSize + " bytes");
 		int kbSize = (int) (fileSize / 1000);
@@ -62,7 +69,12 @@ public class FbxLoadingInfo {
 		panel.add(new JLabel(fileSize), "wrap");
 		panel.add(new JLabel("Est time left: "), "");
 
-		panel.add(timeLabel);
+		if (messageLabel != null){
+			panel.add(timeLabel, "wrap");
+			panel.add(messageLabel);
+		} else {
+			panel.add(timeLabel, "");
+		}
 
 		return panel;
 	}
@@ -77,7 +89,7 @@ public class FbxLoadingInfo {
 		return frame;
 	}
 
-	public void start(){
+	public void start() {
 		getFrame().setVisible(true);
 		startMillis = System.currentTimeMillis();
 		initMillis = System.currentTimeMillis() + getTimeEst();
@@ -92,7 +104,13 @@ public class FbxLoadingInfo {
 		timer.start();
 	}
 
-	public void stop(){
+	public void setMessage(String message){
+		if (messageLabel != null) {
+			messageLabel.setText(message);
+		}
+	}
+
+	public void stop() {
 		timer.stop();
 		System.out.println("took " + (System.currentTimeMillis() - startMillis) + "ms to load \"" + file.getName() + "\"");
 		frame.dispose();

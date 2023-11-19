@@ -1,6 +1,8 @@
 package com.hiveworkshop.rms.ui.application.actionfunctions;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.animation.MirrorNodeAction;
+import com.hiveworkshop.rms.editor.actions.animation.OffsetSequenceAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.ChangeInterpTypeAction;
 import com.hiveworkshop.rms.editor.actions.mesh.BridgeEdgeAction;
 import com.hiveworkshop.rms.editor.actions.mesh.SnapCloseVertsAction;
@@ -21,6 +23,7 @@ import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ModelFromFile;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.CrudeSelectionUVMask;
 import com.hiveworkshop.rms.ui.application.tools.*;
@@ -36,14 +39,12 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.SmartButtonGroup;
+import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -66,17 +67,23 @@ public class TwilacStuff {
 		private static void realFunc(ModelHandler modelHandler, ModelView modelView, List<UndoAction> rebindActions) {
 			if(!modelView.getSelectedIdObjects().isEmpty()){
 				IdObject childObject;
+				IdObject parentObject;
 				if (modelView.getSelectedIdObjects().size() == 1){
 					childObject = modelView.getSelectedIdObjects().stream().findFirst().get();
+					parentObject = childObject.getParent();
 				} else {
+					parentObject = new Helper("DummyParent");
 					childObject = new Helper("Temp");
+					childObject.setParent(parentObject);
 				}
 				IdObject newParent = new IdObjectChooser(modelHandler.getModel(), true).chooseObject(childObject, ProgramGlobals.getMainPanel());
-				for (IdObject idObject : modelView.getSelectedIdObjects()) {
-					System.out.println("rebinding " + idObject.getName());
-					if(newParent != idObject.getParent()){
-						UndoAction action = new BakeAndRebindAction(idObject, newParent, modelHandler);
-						rebindActions.add(action);
+				if (newParent != parentObject) {
+					for (IdObject idObject : modelView.getSelectedIdObjects()) {
+						System.out.println("rebinding " + idObject.getName());
+						if(newParent != idObject.getParent()){
+							UndoAction action = new BakeAndRebindAction(idObject, newParent, modelHandler);
+							rebindActions.add(action);
+						}
 					}
 				}
 				if(!rebindActions.isEmpty()){
@@ -380,6 +387,39 @@ public class TwilacStuff {
 				modelHandler.getUndoManager().pushAction(action.redo());
 			}
 		}
+	}
+	private static class OffsetAnim extends TwiFunction{
+
+		public OffsetAnim() {
+			super("OffsetAnim", OffsetAnim::doStuff);
+		}
+		private static void doStuff(ModelHandler modelHandler) {
+			ModelView modelView = modelHandler.getModelView();
+			Sequence currentSequence = modelHandler.getRenderModel().getTimeEnvironment().getCurrentSequence();
+			Set<AnimFlag<?>> objects = new HashSet<>();
+			modelView.getSelectedIdObjects().forEach(idObject -> objects.addAll(idObject.getAnimFlags()));
+			modelHandler.getUndoManager().pushAction(new OffsetSequenceAction(objects, currentSequence, .5f, ModelStructureChangeListener.changeListener).redo());
+		}
+	}
+	public static JMenuItem getOffsetAnimMenuItem(){
+		return new OffsetAnim().getMenuItem();
+	}
+	private static class MirrorNode extends TwiFunction{
+
+		public MirrorNode() {
+			super("MirrorNode", MirrorNode::doStuff);
+		}
+		private static void doStuff(ModelHandler modelHandler) {
+			ModelView modelView = modelHandler.getModelView();
+
+			List<UndoAction> actions = new ArrayList<>();
+			modelView.getSelectedIdObjects().forEach(idObject -> actions.add(new MirrorNodeAction(idObject, Vec3.Y_AXIS, Vec3.ZERO, null)));
+			UndoAction mirrorNodeAction = new CompoundAction("MirrorNode", actions, ModelStructureChangeListener.changeListener::nodesUpdated);
+			modelHandler.getUndoManager().pushAction(mirrorNodeAction.redo());
+		}
+	}
+	public static JMenuItem getMirrorNodeMenuItem(){
+		return new MirrorNode().getMenuItem();
 	}
 	private static class TempNone extends TwiFunction{
 

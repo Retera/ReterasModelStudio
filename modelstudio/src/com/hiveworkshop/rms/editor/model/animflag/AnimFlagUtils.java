@@ -247,4 +247,39 @@ public class AnimFlagUtils {
 		}
 		return null;
 	}
+	public static <Q> Q getScaledValue(Q value, float scale) {
+		if (value instanceof Integer) {
+			return (Q) Integer.valueOf((int)(((Integer)value)*scale));
+		} else if (value instanceof Bitmap) {
+			return value;
+		} else if (value instanceof Float) {
+
+			return (Q) Float.valueOf(((Float)value)*scale);
+		} else if (value instanceof Vec3) {
+
+			return (Q) (((Vec3)value).scale(scale));
+		} else if (value instanceof Quat quat) {
+			quat.setAsAxisWithAngle(quat);
+			quat.w = quat.w * scale;
+			quat.setFromAxisAngle(quat);
+			return (Q) quat;
+		}
+		return null;
+	}
+	public static <Q> Q getDiffValue(Q value, Q value2) {
+		if (value instanceof Integer) {
+			return (Q) Integer.valueOf(((Integer)value)-((Integer)value2));
+		} else if (value instanceof Bitmap) {
+			return value;
+		} else if (value instanceof Float) {
+
+			return (Q) Float.valueOf(((Float)value)-(Float)value2);
+		} else if (value instanceof Vec3) {
+
+			return (Q) (((Vec3)value).sub((Vec3)value2));
+		} else if (value instanceof Quat quat) {
+			return (Q) quat.mulInverse((Quat) value2);
+		}
+		return null;
+	}
 }

@@ -22,13 +22,16 @@ public class TempSaveModelStuff {
 	public static boolean DISABLE_BONE_GEO_ID_VALIDATOR = false;
 
 	public static MdlxModel toMdlx(EditableModel model) {
-		return toMdlx(model, true);
+		return toMdlx(model, false);
 	}
 
 	public static MdlxModel toMdlx(EditableModel model, boolean clearUnused) {
+		System.out.println("Preparing Model for saving");
 		doSavePreps(model, clearUnused);
+		System.out.println("Fixing Bone geoset refs");
 		Map<Bone, BoneGeosets> boneGeosetsMap = getBoneGeosetMap(model.getGeosets());
 
+		System.out.println("Packing general Model stuff");
 		final MdlxModel mdlxModel = new MdlxModel();
 		mdlxModel.comments.addAll(model.getComments());
 
@@ -37,17 +40,22 @@ public class TempSaveModelStuff {
 		mdlxModel.blendTime = model.getBlendTime();
 		mdlxModel.extent = model.getExtents().toMdlx();
 
+		System.out.println("Packing Animations");
 		model.getAnims().forEach(sequence       -> mdlxModel.sequences.add(AnimToMdlx.toMdlx(sequence)));
 		model.getGlobalSeqs().forEach(sequence  -> mdlxModel.globalSequences.add((long) sequence.getLength()));
 
+		System.out.println("Packing Material stuff");
 		model.getTextures().forEach(texture     -> mdlxModel.textures.add(toMdlx(texture)));
 		model.getTexAnims().forEach(animation   -> mdlxModel.textureAnimations.add(toMdlx(animation, model)));
 		model.getMaterials().forEach(material   -> mdlxModel.materials.add(MaterialToMdlx.toMdlx(material, model)));
 
+		System.out.println("Packing Geosets");
 		model.getGeosets().forEach(geoset       -> mdlxModel.geosets.add(GeosetToMdlx.toMdlx(geoset, model)));
-		model.getGeosets().stream().filter(Geoset::hasAnim).forEach(geoset -> mdlxModel.geosetAnimations.add(GeosetToMdlx.animatedToMdlx(geoset, model)));
+		model.getGeosets().stream().filter(Geoset::hasAnim)
+				.forEach(geoset -> mdlxModel.geosetAnimations.add(GeosetToMdlx.animatedToMdlx(geoset, model)));
 
 
+		System.out.println("Packing Nodes and Node animations");
 		model.getBones().forEach(bone                   -> mdlxModel.bones.add(IdObjectToMdlx.toMdlx(bone, model, boneGeosetsMap.get(bone))));
 		model.getLights().forEach(light                 -> mdlxModel.lights.add(IdObjectToMdlx.toMdlx(light, model)));
 		model.getHelpers().forEach(helper               -> mdlxModel.helpers.add(IdObjectToMdlx.toMdlx(helper, model)));
@@ -60,11 +68,13 @@ public class TempSaveModelStuff {
 		model.getCameras().forEach(camera               -> mdlxModel.cameras.add(camera.toMdlx(model)));
 		model.getColliders().forEach(shape              -> mdlxModel.collisionShapes.add(IdObjectToMdlx.toMdlx(shape, model)));
 
+		System.out.println("Packing Pivot Points");
 		model.getIdObjects().forEach(idObject           -> mdlxModel.pivotPoints.add(idObject.getPivotPoint().toFloatArray()));
 		model.getFaceEffects().forEach(effect           -> mdlxModel.faceEffects.add(effect.toMdlx()));
 
 
 		if (model.isUseBindPose()) {
+			System.out.println("Packing BindPoses");
 			mdlxModel.bindPose.addAll(getBindPoses(model).getBindPoses());
 		}
 
@@ -76,24 +86,42 @@ public class TempSaveModelStuff {
 	}
 
 	public static void doSavePreps(EditableModel model, boolean clearUnused) {
+		System.out.println("Sorting nodes");
 		sortNodes(model, false);
+		System.out.println("Removing empty geosets");
 		model.getGeosets().removeIf(Geoset::isEmpty);
 
 		if (clearUnused) {
+			System.out.println("Removing unused events");
 			removeUnusedEvents(model);
 			model.getEvents().removeIf(eventObject -> model.getAllSequences().stream().noneMatch(eventObject::usedIn));
 		}
+
+		System.out.println("rebuildMaterialList");
 		rebuildMaterialList(model, clearUnused);
+
+		System.out.println("rebuildTextureAnimList");
 		rebuildTextureAnimList(model, clearUnused);
+
+		System.out.println("rebuildTextureList");
 		rebuildTextureList(model, clearUnused);
+
+		System.out.println("rebuildGlobalSeqList");
 		rebuildGlobalSeqList(model, clearUnused);
 
 		// Animations
+		System.out.println("fixAnimIntervals");
 		fixAnimIntervals(model);
+		System.out.println("removeEmptyAnimFlags");
 		removeEmptyAnimFlags(model);
 
 		// Geosets
 		for (final Geoset geoset : model.getGeosets()) {
+//			if ((Short.MAX_VALUE * 2) < geoset.getVertices().size()) {
+//				System.out.println("Too Large geoset!");
+//
+//			}
+			System.out.println("fixing geoset");
 			purifyFaces(geoset);
 
 			for (final GeosetVertex geosetVertex : geoset.getVertices()) {
@@ -181,13 +209,8 @@ public class TempSaveModelStuff {
 	public static void rebuildTextureAnimList(EditableModel model, boolean clearUnused) {
 		Set<TextureAnim> textureAnimSet = new LinkedHashSet<>();
 		if (!clearUnused) textureAnimSet.addAll(model.getTexAnims());
-		for (final Material m : model.getMaterials()) {
-			for (final Layer lay : m.getLayers()) {
-
-				TextureAnim textureAnim = lay.getTextureAnim();
-//				textureAnim.getAnimFlags().isEmpty()
-				textureAnimSet.add(textureAnim);
-			}
+		for (final Material material : model.getMaterials()) {
+			material.getLayers().forEach(layer -> textureAnimSet.add(layer.getTextureAnim()));
 		}
 		textureAnimSet.remove(null);
 		model.clearTexAnims();
@@ -197,7 +220,6 @@ public class TempSaveModelStuff {
 
 	public static void rebuildGlobalSeqList(EditableModel model, boolean clearUnused) {
 		Set<GlobalSeq> globalSeqSet = new TreeSet<>();
-//		if (!clearUnused) globalSeqSet.addAll(model.getGlobalSeqs());
 		if (!clearUnused) model.getGlobalSeqs().stream().filter(Objects::nonNull).forEach(globalSeqSet::add);
 
 		ModelUtils.doForAnimFlags(model, animFlag -> {

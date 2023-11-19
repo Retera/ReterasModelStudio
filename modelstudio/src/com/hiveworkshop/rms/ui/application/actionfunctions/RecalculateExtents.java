@@ -37,6 +37,19 @@ public class RecalculateExtents extends ActionFunction{
 
 		messagePanel.add(buttonGroup2.getButtonPanel(), "wrap");
 
+		SmartButtonGroup buttonGroup3 = new SmartButtonGroup();
+		buttonGroup3.addJRadioButton("Set for all geosets", null);
+		JRadioButton jRadioButton2 = buttonGroup3.addJRadioButton("Set for current editable geosets", null);
+		jRadioButton2.setEnabled(hasEditableGeos);
+		if(!hasEditableGeos){
+				jRadioButton2.setToolTipText("No editable geosets found");
+		}
+		buttonGroup3.setSelectedIndex(0);
+
+		messagePanel.add(buttonGroup3.getButtonPanel(), "wrap");
+		JCheckBox modelCheckbox = new JCheckBox("Set model extent", true);
+		messagePanel.add(modelCheckbox, "wrap");
+
 		int userChoice = JOptionPane.showConfirmDialog(
 				ProgramGlobals.getMainPanel(), messagePanel,
 				"Recalculate Extents",
@@ -45,10 +58,10 @@ public class RecalculateExtents extends ActionFunction{
 			EditableModel model = modelHandler.getModel();
 
 			RecalculateExtentsAction recalculateExtentsAction;
-			if (buttonGroup2.getSelectedIndex() == 0) {
-				recalculateExtentsAction = new RecalculateExtentsAction(model, model.getGeosets());
+			if (buttonGroup3.getSelectedIndex() == 0) {
+				recalculateExtentsAction = new RecalculateExtentsAction(model, model.getGeosets(), buttonGroup3.getSelectedIndex() == 0, modelCheckbox.isSelected());
 			} else {
-				recalculateExtentsAction = new RecalculateExtentsAction(model, modelView.getEditableGeosets());
+				recalculateExtentsAction = new RecalculateExtentsAction(model, modelView.getEditableGeosets(), buttonGroup3.getSelectedIndex() == 0, modelCheckbox.isSelected());
 			}
 
 			modelHandler.getUndoManager().pushAction(recalculateExtentsAction.redo());
