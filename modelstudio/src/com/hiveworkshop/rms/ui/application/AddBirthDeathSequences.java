@@ -35,33 +35,33 @@ public class AddBirthDeathSequences {
 	private final List<UndoAction> undoActions = new ArrayList<>();
 	private final EditableModel model;
 
-	public AddBirthDeathSequences(ModelHandler modelHandler, float height){
+	public AddBirthDeathSequences(ModelHandler modelHandler, float height) {
 		model = modelHandler.getModel();
 
 		Animation[] animationsToUse = getAnimationsToUse();
 		Animation visibility = findAnimByName(model.getAnims(), "stand");
 
-		List<IdObject> topLevelNodes = getTopLevelNodes();
+		List<IdObject> topLevelNodes = model.getIdObjects().stream().filter(n -> n.getParent() == null).toList();
 		Animation birthAnimation = animationsToUse[0];
 		Animation deathAnimation = animationsToUse[1];
-		if(birthAnimation != null || deathAnimation != null){
+		if (birthAnimation != null || deathAnimation != null) {
 			Map<IdObject, Vec3AnimFlag> timelineMap = getTimelineMap(topLevelNodes);
-			for (IdObject node : timelineMap.keySet()){
+			for (IdObject node : timelineMap.keySet()) {
 				Vec3AnimFlag vec3AnimFlag = timelineMap.get(node);
-				if(vec3AnimFlag != null && !node.owns(vec3AnimFlag)){
+				if (vec3AnimFlag != null && !node.owns(vec3AnimFlag)) {
 					undoActions.add(new AddAnimFlagAction<>(node, vec3AnimFlag, null));
 				}
 			}
 
-			if(birthAnimation != null){
+			if (birthAnimation != null) {
 				replaceOrUseOldAnimation(birthAnimation, visibility, timelineMap, height, 0);
 			}
-			if(deathAnimation != null){
+			if (deathAnimation != null) {
 				replaceOrUseOldAnimation(deathAnimation, visibility, timelineMap, 0, height);
 			}
 		}
 
-		if(!undoActions.isEmpty()){
+		if (!undoActions.isEmpty()) {
 			ModelStructureChangeListener structureChangeListener = ModelStructureChangeListener.changeListener;
 			modelHandler.getUndoManager().pushAction(new CompoundAction("Add Birth/Death Sequences", undoActions, structureChangeListener::animationParamsChanged).redo());
 
@@ -105,7 +105,7 @@ public class AddBirthDeathSequences {
 				return anim;
 			} else if (animLowerCase.contains(lowerCase) && bestMatch == null
 					|| animLowerCase.startsWith(lowerCase)
-					&& animLowerCase.length() < bestMatch.getName().length()){
+					&& animLowerCase.length() < bestMatch.getName().length()) {
 				bestMatch = anim;
 			}
 		}
@@ -130,7 +130,7 @@ public class AddBirthDeathSequences {
 
 			if (timeline == null) {
 				Vec3AnimFlag animFlag = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION);
-				animFlag.setInterpolationType(InterpolationType.LINEAR);
+				animFlag.setInterpType(InterpolationType.LINEAR);
 				timeLineMap.put(node, animFlag);
 			} else if (!timeline.hasGlobalSeq()) {
 				timeLineMap.put(node, timeline);
@@ -172,7 +172,7 @@ public class AddBirthDeathSequences {
 		List<UndoAction> visActions = new ArrayList<>();
 		for (TimelineContainer source : ModelUtils.getAllVis(model)) {
 			AnimFlag<Float> visibilityFlag = source.getVisibilityFlag();
-			if(visibilityFlag != null && visibilityFlag.getEntryMap(visibility) != null){
+			if (visibilityFlag != null && visibilityFlag.getEntryMap(visibility) != null) {
 				TreeMap<Integer, Entry<Float>> sequenceEntryMapCopy = visibilityFlag.getSequenceEntryMapCopy(visibility);
 				double ratio = animation.getLength() / (double) visibility.getLength();
 				AnimFlagUtils.scaleMapEntries(ratio, sequenceEntryMapCopy);
@@ -189,10 +189,10 @@ public class AddBirthDeathSequences {
 		AnimationHandeler birthHandler = new AnimationHandeler(findAnimByName(model.getAnims(), "Birth"), "Birth");
 		AnimationHandeler deathHandler = new AnimationHandeler(findAnimByName(model.getAnims(), "Death"), "Death");
 
-		if(birthHandler.shouldShow()) panel.add(birthHandler.getOptionPanel(), "wrap");
-		if(deathHandler.shouldShow()) panel.add(deathHandler.getOptionPanel(), "wrap");
+		if (birthHandler.shouldShow()) panel.add(getOptionPanel(birthHandler), "wrap");
+		if (deathHandler.shouldShow()) panel.add(getOptionPanel(deathHandler), "wrap");
 
-		if(panel.getComponentCount() == 0 || JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), panel, "Found Existing", JOptionPane.OK_CANCEL_OPTION)){
+		if (panel.getComponentCount() == 0 || JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), panel, "Found Existing", JOptionPane.OK_CANCEL_OPTION)) {
 			if (birthHandler.shouldDelete()) undoActions.add(new RemoveSequenceAction(model, birthHandler.getOldAnimation(), null));
 			if (deathHandler.shouldDelete()) undoActions.add(new RemoveSequenceAction(model, deathHandler.getOldAnimation(), null));
 
@@ -201,53 +201,55 @@ public class AddBirthDeathSequences {
 		return new Animation[] {null, null};
 	}
 
+	private JPanel getOptionPanel(AnimationHandeler handler) {
+		JPanel panel = new JPanel(new MigLayout());
+		panel.add(new JLabel("Existing \"" + handler.animName + "\" detected. What should be done?"), "wrap");
+		TwiComboBox<Options> comp = new TwiComboBox<>(Options.values(), Options.ON_TOP)
+				.addOnSelectItemListener(opt -> handler.opt = opt)
+				.setStringFunctionRender((opt) -> ((Options) opt).getOptionString(handler.animName));
+		panel.add(comp, "growx, wrap");
+		return panel;
+	}
+
 	private static class AnimationHandeler {
-		TwiComboBox<options> comboBox = new TwiComboBox<>(options.values(), options.SKIPP);
+		Options opt = Options.SKIPP;
 		Animation animation;
 		String animName;
-		AnimationHandeler(Animation animation, String animName){
+		AnimationHandeler(Animation animation, String animName) {
 			this.animation = animation;
 			this.animName = animName;
-			comboBox.setStringFunctionRender((opt) -> ((options)opt).getOptionString(animName));
 		}
 
 		public Animation getAnimation() {
-			options birthOption = comboBox.getSelected();
-			if(animation != null && birthOption == options.ON_TOP){
+			if (animation != null && opt == Options.ON_TOP) {
 				return animation;
-			} else if (animation == null || birthOption != options.SKIPP) {
+			} else if (animation == null || opt != Options.SKIPP) {
 				return new Animation(animName, 0, 2300);
 			}
 			return null;
 		}
-		boolean shouldDelete(){
-			return comboBox.getSelected() == options.DELETE;
+		boolean shouldDelete() {
+			return opt == Options.DELETE;
 		}
 
 		public Animation getOldAnimation() {
 			return animation;
 		}
 
-		boolean shouldShow(){
+		boolean shouldShow() {
 			return animation != null;
-		}
-		JPanel getOptionPanel(){
-			JPanel panel = new JPanel(new MigLayout());
-			panel.add(new JLabel("Existing \"" + animName + "\" detected. What should be done?"), "wrap");
-			panel.add(comboBox, "growx, wrap");
-			return panel;
 		}
 	}
 
 	final static String REPLACESTRING = "REPLACESTRING";
-	enum options{
+	enum Options {
 		SKIPP("Keep existing \"" + REPLACESTRING + "\" and don't add new \"" + REPLACESTRING + "\""),
 		//		NOTHING("Nothing"),
 		NOTHING("Keep existing \"" + REPLACESTRING + "\" and add new \"" + REPLACESTRING + "\""),
 		DELETE("Replace existing \"" + REPLACESTRING + "\""),
 		ON_TOP("Add new keyframes on top of existing \"" + REPLACESTRING + "\"");
 		final String name;
-		options(String name){
+		Options(String name) {
 			this.name = name;
 		}
 

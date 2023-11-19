@@ -214,7 +214,7 @@ public class Animation extends Sequence {
 			if (startDiff != 0) {
 				return startDiff;
 			}
-			int nameDiff = getName().compareTo(((Animation) o).getName());
+			int nameDiff = getName().compareTo(o.getName());
 			if (nameDiff != 0) {
 				return nameDiff;
 			}

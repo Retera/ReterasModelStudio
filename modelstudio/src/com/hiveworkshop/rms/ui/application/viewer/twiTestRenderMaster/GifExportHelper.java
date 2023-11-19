@@ -33,8 +33,8 @@ public class GifExportHelper {
 	RenderModel renderModel;
 	TimeEnvironmentImpl timeEnvironment;
 
-	public GifExportHelper(ViewportCanvas viewport){
-		if(viewport instanceof ExportFrameViewportCanvas){
+	public GifExportHelper(ViewportCanvas viewport) {
+		if (viewport instanceof ExportFrameViewportCanvas) {
 			this.viewport = (ExportFrameViewportCanvas)viewport;
 			((ExportFrameViewportCanvas)viewport).setOnDoneRunnable(this::doExport);
 		}
@@ -67,13 +67,13 @@ public class GifExportHelper {
 		return gifPanel;
 	}
 
-	public JPanel getSettingsPanel(){
+	public JPanel getSettingsPanel() {
 		return gifExportSettings.getSettingsPanel();
 	}
 
-	private void updateIcon(byte[] bytes){
+	private void updateIcon(byte[] bytes) {
 		this.bytes = bytes;
-		if(bytes != null){
+		if (bytes != null) {
 			gifLabel.setIcon(new ImageIcon(bytes));
 			saveGif.setEnabled(true);
 		} else {
@@ -82,14 +82,14 @@ public class GifExportHelper {
 		}
 	}
 
-	private void saveGif(){
-		if(bytes != null){
+	private void saveGif() {
+		if (bytes != null) {
 			saveBytes("image.gif", new FileNameExtensionFilter("GIF Image", "gif"), bytes);
 		}
 	}
 
-	public void initGenerateFrames(GifExportSettings settings){
-		if(timeEnvironment != null){
+	public void initGenerateFrames(GifExportSettings settings) {
+		if (timeEnvironment != null) {
 			delays = new ArrayList<>();
 			renderTimes = new ArrayList<>();
 			this.gifExportSettings = settings;
@@ -97,7 +97,7 @@ public class GifExportHelper {
 
 			int framesToExp;
 			float timePerFrame;
-			if(settings.getTimeBetweenFrames() != 0){
+			if (settings.getTimeBetweenFrames() != 0 && timeEnvironment.getCurrentSequence() != null) {
 				int length = timeEnvironment.getLength();
 				int frames = (length/settings.getTimeBetweenFrames());
 				framesToExp = frames;
@@ -108,7 +108,7 @@ public class GifExportHelper {
 				framesToExp = 1;
 			}
 
-			for(int i = 0; i< framesToExp; i++){
+			for (int i = 0; i< framesToExp; i++) {
 				renderTimes.add(offs + (int)(timePerFrame *i));
 				delays.add(((int)(timePerFrame *(i+1))) - ((int)(timePerFrame *i)));
 			}
@@ -120,11 +120,11 @@ public class GifExportHelper {
 	}
 
 
-	private void doExport(){
+	private void doExport() {
 		int framesToExp = byteBuffers.size();
 		ByteBuffer[] buffers = new ByteBuffer[framesToExp];
 		int[] frameDelays = new int[framesToExp];
-		for(int i = 0; i<framesToExp; i++){
+		for (int i = 0; i<framesToExp; i++) {
 			buffers[i] = byteBuffers.get(i);
 			frameDelays[i] = delays.get(i)/10;
 //			frameDelays[i] = 1;
@@ -143,10 +143,10 @@ public class GifExportHelper {
 		if (selectedFile != null) {
 			String expExt = fileDialog.getExtensionOrNull(fileName);
 			String saveExt = fileDialog.getExtensionOrNull(selectedFile);
-			if(expExt != null && (saveExt == null || !saveExt.equals(expExt))){
+			if (expExt != null && (saveExt == null || !saveExt.equals(expExt))) {
 				selectedFile = new File(selectedFile.getPath() + "." + expExt);
 			}
-			try (FileOutputStream fileOutputStream = new FileOutputStream(selectedFile)){
+			try (FileOutputStream fileOutputStream = new FileOutputStream(selectedFile)) {
 				fileOutputStream.write(bytes);
 			} catch (IOException ioException) {
 				ioException.printStackTrace();
@@ -161,7 +161,7 @@ public class GifExportHelper {
 //		if (selectedFile != null) {
 //			String expExt = fileDialog.getExtensionOrNull(fileName);
 //			String saveExt = fileDialog.getExtensionOrNull(selectedFile);
-//			if(expExt != null && (saveExt == null || !saveExt.equals(expExt))){
+//			if (expExt != null && (saveExt == null || !saveExt.equals(expExt))) {
 //				selectedFile = new File(selectedFile.getPath() + "." + expExt);
 //			}
 //			try {

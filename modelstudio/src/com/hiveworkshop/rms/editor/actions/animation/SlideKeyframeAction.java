@@ -30,7 +30,7 @@ public class SlideKeyframeAction<T> implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
+	public SlideKeyframeAction<T> undo() {
 		slideKeyframe(endTime, startTrackTime);
 
 		if (keyframeChangeCallback != null) {
@@ -40,7 +40,7 @@ public class SlideKeyframeAction<T> implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public SlideKeyframeAction<T> redo() {
 		slideKeyframe(startTrackTime, endTime);
 
 		if (keyframeChangeCallback != null) {
@@ -64,12 +64,12 @@ public class SlideKeyframeAction<T> implements UndoAction {
 
 
 	private void slideKeyframe(int slideStart, int slideEnd) {
-		if(slideStart != slideEnd){
-			Entry<T> entryToSlide = timeline.getEntryAt(sequence, slideStart);
+		if (slideStart != slideEnd) {
+			Entry<T> entryToSlide = timeline.removeKeyframe(slideStart, sequence);
 			if (entryToSlide != null) {
-				Entry<T> entryAt = timeline.getEntryAt(sequence, slideEnd);
-				timeline.slideKeyframe(slideStart, slideEnd, sequence);
-				if(tempEntry != null){
+				Entry<T> entryAt = timeline.removeKeyframe(slideEnd, sequence);
+				timeline.addEntry(slideEnd, entryToSlide, sequence);
+				if (tempEntry != null) {
 					timeline.addEntry(tempEntry, sequence);
 				}
 				tempEntry = entryAt;

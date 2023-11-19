@@ -19,9 +19,9 @@ public class AddAnimFlagAction<T> implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
+	public AddAnimFlagAction<T> undo() {
 		timelineContainer.remove(animFlag);
-		if(oldAnimFlag != null){
+		if (oldAnimFlag != null) {
 			timelineContainer.add(oldAnimFlag);
 		}
 		if (changeListener != null) {
@@ -31,7 +31,7 @@ public class AddAnimFlagAction<T> implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public AddAnimFlagAction<T> redo() {
 		timelineContainer.add(animFlag);
 		if (changeListener != null) {
 			changeListener.materialsListChanged();

@@ -12,26 +12,26 @@ import java.util.Collections;
 
 public class AddFlagEntryAction<T> implements UndoAction {
 	private final ModelStructureChangeListener changeListener;
-	private final Sequence animation;
+	private final Sequence sequence;
 	private final AnimFlag<T> animFlag;
 	private final Collection<Entry<T>> entries;
 	private final GlobalSeq globalSeq;
 
-	public AddFlagEntryAction(AnimFlag<T> animFlag, Entry<T> entry, Sequence animation, ModelStructureChangeListener changeListener) {
-		this(animFlag, Collections.singleton(entry), animation, changeListener);
+	public AddFlagEntryAction(AnimFlag<T> animFlag, Entry<T> entry, Sequence sequence, ModelStructureChangeListener changeListener) {
+		this(animFlag, Collections.singleton(entry), sequence, changeListener);
 	}
-	public AddFlagEntryAction(AnimFlag<T> animFlag, Collection<Entry<T>> entries, Sequence animation, ModelStructureChangeListener changeListener) {
+	public AddFlagEntryAction(AnimFlag<T> animFlag, Collection<Entry<T>> entries, Sequence sequence, ModelStructureChangeListener changeListener) {
 		this.changeListener = changeListener;
-		this.animation = animation;
+		this.sequence = sequence;
 		this.animFlag = animFlag;
 		this.globalSeq = animFlag.getGlobalSeq();
 		this.entries = entries;
 	}
 
 	@Override
-	public UndoAction undo() {
-		for(Entry<T> entry : entries){
-			animFlag.removeKeyframe(entry.time, animation);
+	public AddFlagEntryAction<T> undo() {
+		for (Entry<T> entry : entries) {
+			animFlag.removeKeyframe(entry.time, sequence);
 		}
 		animFlag.setGlobSeq(globalSeq);
 		if (changeListener != null) {
@@ -41,9 +41,9 @@ public class AddFlagEntryAction<T> implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
-		for(Entry<T> entry : entries){
-			animFlag.setOrAddEntry(entry.time, entry, animation);
+	public AddFlagEntryAction<T> redo() {
+		for (Entry<T> entry : entries) {
+			animFlag.addEntry(entry, sequence);
 		}
 		if (changeListener != null) {
 			changeListener.materialsListChanged();
@@ -53,6 +53,6 @@ public class AddFlagEntryAction<T> implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "add keyframe" + (entries.size() == 1 ? "" : "s");
+		return "Add Keyframe" + (entries.size() == 1 ? "" : "s");
 	}
 }

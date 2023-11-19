@@ -26,9 +26,9 @@ public class ConvertToMatricesAction implements UndoAction {
 		SkinBoneWrapper tempWrapper = new SkinBoneWrapper(null);
 		Map<SkinBoneWrapper, Set<GeosetVertex>> matrixVertexMap = new HashMap<>();
 
-		for(GeosetVertex vertex : geoset.getVertices()){
+		for (GeosetVertex vertex : geoset.getVertices()) {
 			tempWrapper.skinBones = vertex.getSkinBones();
-			if(!matrixVertexMap.containsKey(tempWrapper)){
+			if (!matrixVertexMap.containsKey(tempWrapper)) {
 				matrixVertexMap.put(new SkinBoneWrapper(vertex.getSkinBones()), new HashSet<>());
 			}
 			matrixVertexMap.get(tempWrapper).add(vertex);
@@ -40,38 +40,37 @@ public class ConvertToMatricesAction implements UndoAction {
 
 	private Map<SkinBoneWrapper, List<Bone>> createMatrices() {
 		Map<SkinBoneWrapper, List<Bone>> matrixSkinBoneMap = new HashMap<>();
-		for(SkinBoneWrapper skinBoneWrapper : skinBoneVertexMap.keySet()){
+		for (SkinBoneWrapper skinBoneWrapper : skinBoneVertexMap.keySet()) {
 			matrixSkinBoneMap.put(skinBoneWrapper, skinBonesToMatrix(skinBoneWrapper.skinBones));
 		}
 		return matrixSkinBoneMap;
 	}
 
 	@Override
-	public UndoAction undo() {
-		for(SkinBoneWrapper skinBonesWrapper : skinBoneVertexMap.keySet()){
-			for(GeosetVertex vertex : skinBoneVertexMap.get(skinBonesWrapper)){
+	public ConvertToMatricesAction undo() {
+		for (SkinBoneWrapper skinBonesWrapper : skinBoneVertexMap.keySet()) {
+			for (GeosetVertex vertex : skinBoneVertexMap.get(skinBonesWrapper)) {
 				vertex.clearBoneAttachments();
 				vertex.initSkinBones();
-				for(int i = 0; i < skinBonesWrapper.skinBones.length; i++){
+				for (int i = 0; i < skinBonesWrapper.skinBones.length; i++) {
 					vertex.setSkinBone(skinBonesWrapper.skinBones[i].copy(), i);
 				}
 			}
 		}
-		if(changeListener != null){
+		if (changeListener != null) {
 			changeListener.nodesUpdated();
 		}
 		return this;
 	}
 
 	@Override
-	public UndoAction redo() {
+	public ConvertToMatricesAction redo() {
 		SkinBoneWrapper tempWrapper = new SkinBoneWrapper(null);
-		int i = 0;
-		for(GeosetVertex vertex : geoset.getVertices()){
+		for (GeosetVertex vertex : geoset.getVertices()) {
 			tempWrapper.skinBones = vertex.removeSkinBones();
 			vertex.setBones(skinBoneMatrixMap.get(tempWrapper));
 		}
-		if(changeListener != null){
+		if (changeListener != null) {
 			changeListener.nodesUpdated();
 		}
 		return this;
@@ -79,26 +78,17 @@ public class ConvertToMatricesAction implements UndoAction {
 
 	public List<Bone> skinBonesToMatrix(SkinBone[] skinBones) {
 		List<Bone> matrix = new ArrayList<>();
-//		for(SkinBone skinBone : skinBones){
-//			if(skinBone != null){
-//				matrix.add(skinBone.getBone());
-//			}
-//		}
-		boolean fallback = false;
+		SkinBone fallbackBone = null;
 		for (SkinBone skinBone : skinBones) {
 			if (skinBone != null && skinBone.getBone() != null) {
-				fallback = true;
-				if (skinBone.getWeight() > 110) {
+				fallbackBone = fallbackBone == null || fallbackBone.getWeight() < skinBone.getWeight() ? skinBone : fallbackBone;
+				if (70 < skinBone.getWeight()) {
 					matrix.add(skinBone.getBone());
 				}
 			}
 		}
-		if (matrix.isEmpty() && fallback) {
-			for (SkinBone skinBone : skinBones) {
-				if (skinBone != null && skinBone.getBone() != null) {
-					matrix.add(skinBone.getBone());
-				}
-			}
+		if (matrix.isEmpty() && fallbackBone != null) {
+			matrix.add(fallbackBone.getBone());
 		}
 		return matrix;
 	}
@@ -110,7 +100,7 @@ public class ConvertToMatricesAction implements UndoAction {
 
 	private static class SkinBoneWrapper {
 		SkinBone[] skinBones;
-		SkinBoneWrapper(SkinBone[] skinBones){
+		SkinBoneWrapper(SkinBone[] skinBones) {
 			this.skinBones = skinBones;
 		}
 

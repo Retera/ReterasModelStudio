@@ -23,14 +23,17 @@ public class BitmapAnimFlag extends AnimFlag<Bitmap> {
 
 	public BitmapAnimFlag(String title) {
 		super(title);
+		interpolationType = InterpolationType.DONT_INTERP;
 	}
 
 	protected BitmapAnimFlag(AnimFlag<Bitmap> af) {
 		super(af);
+		interpolationType = InterpolationType.DONT_INTERP;
 	}
 
 	public BitmapAnimFlag(final MdlxUInt32Timeline timeline, EditableModel model) {
 		super(timeline, model);
+		interpolationType = InterpolationType.DONT_INTERP;
 
 		if (timeline.interpolationType != InterpolationType.DONT_INTERP) {
 			System.out.println("(IntAnimFlag) timeline \"" + name + "\" has interpolation type: " + timeline.interpolationType.name());

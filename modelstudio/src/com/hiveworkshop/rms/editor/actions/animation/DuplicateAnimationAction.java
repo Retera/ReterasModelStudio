@@ -17,17 +17,17 @@ public class DuplicateAnimationAction implements UndoAction {
 	private final List<UndoAction> undoActions = new ArrayList<>();
 	private final ModelStructureChangeListener changeListener;
 
-	public DuplicateAnimationAction(EditableModel model, Sequence sequenceToCopy, String name, ModelStructureChangeListener changeListener){
+	public DuplicateAnimationAction(EditableModel model, Sequence sequenceToCopy, String name, ModelStructureChangeListener changeListener) {
 		this.changeListener = changeListener;
 
 		Sequence newSequence = sequenceToCopy.deepCopy();
 
-		if(newSequence instanceof Animation && name != null){
+		if (newSequence instanceof Animation && name != null) {
 			newSequence.setName(name);
 		}
 
 		ModelUtils.doForAnimFlags(model, a -> {
-			if(a.hasSequence(sequenceToCopy)){
+			if (a.hasSequence(sequenceToCopy)) {
 				AddFlagEntryMapAction<?> addAction = getAddEntryMapAction(sequenceToCopy, newSequence, a);
 				undoActions.add(addAction);
 		}});
@@ -46,8 +46,8 @@ public class DuplicateAnimationAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
-		for(UndoAction undoAction : undoActions){
+	public DuplicateAnimationAction undo() {
+		for (UndoAction undoAction : undoActions) {
 			undoAction.undo();
 		}
 		if (changeListener != null) {
@@ -57,8 +57,8 @@ public class DuplicateAnimationAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
-		for(UndoAction undoAction : undoActions){
+	public DuplicateAnimationAction redo() {
+		for (UndoAction undoAction : undoActions) {
 			undoAction.redo();
 		}
 		if (changeListener != null) {

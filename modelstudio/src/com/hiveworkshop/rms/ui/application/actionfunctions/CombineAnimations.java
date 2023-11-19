@@ -72,17 +72,14 @@ public class CombineAnimations extends ActionFunction {
 		if (!af.hasGlobalSeq()) {
 			TreeMap<Integer, Entry<Q>> sequenceEntryMapCopy = af.getSequenceEntryMapCopy(source1);
 			TreeMap<Integer, Entry<Q>> sequenceEntryMap2 = af.getEntryMap(source2);
-			if (sequenceEntryMap2 != null) {
+			if (sequenceEntryMap2 != null && !sequenceEntryMap2.isEmpty()) {
 				if (sequenceEntryMapCopy == null) {
 					sequenceEntryMapCopy = new TreeMap<>();
 				}
-				if (!sequenceEntryMap2.isEmpty()) {
-					for (Integer time : sequenceEntryMap2.keySet()) {
-						int newTime = time + source1.getLength();
-						sequenceEntryMapCopy.put(newTime, sequenceEntryMap2.get(time).deepCopy().setTime(newTime));
-					}
+				for (Integer time : sequenceEntryMap2.keySet()) {
+					int newTime = time + source1.getLength();
+					sequenceEntryMapCopy.put(newTime, sequenceEntryMap2.get(time).deepCopy().setTime(newTime));
 				}
-
 			}
 			if (sequenceEntryMapCopy != null) {
 				undoActions.add(new AddFlagEntryMapAction<>(af, animation, sequenceEntryMapCopy, null));

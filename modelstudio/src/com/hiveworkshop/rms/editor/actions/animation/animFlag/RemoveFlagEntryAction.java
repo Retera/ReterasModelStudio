@@ -14,9 +14,9 @@ import java.util.List;
 
 public class RemoveFlagEntryAction<T> implements UndoAction {
 	private final ModelStructureChangeListener changeListener;
-	private Sequence animation;
-	private AnimFlag<T> animFlag;
-	private List<Entry<T>> entries = new ArrayList<>();
+	private final Sequence animation;
+	private final AnimFlag<T> animFlag;
+	private final List<Entry<T>> entries = new ArrayList<>();
 	private final GlobalSeq globalSeq;
 
 	public RemoveFlagEntryAction(AnimFlag<T> animFlag, int orgTime, Sequence animation, ModelStructureChangeListener changeListener) {
@@ -28,15 +28,15 @@ public class RemoveFlagEntryAction<T> implements UndoAction {
 		this.animation = animation;
 		this.animFlag = animFlag;
 		this.globalSeq = animFlag.getGlobalSeq();
-		for(Integer orgTime : orgTimes){
+		for (Integer orgTime : orgTimes) {
 			entries.add(animFlag.getEntryAt(animation, orgTime));
 		}
 	}
 
 	@Override
-	public UndoAction undo() {
-		for(Entry<T> entry : entries){
-			animFlag.setOrAddEntry(entry.time, entry, animation);
+	public RemoveFlagEntryAction<T> undo() {
+		for (Entry<T> entry : entries) {
+			animFlag.addEntry(entry.time, entry, animation);
 		}
 		animFlag.setGlobSeq(globalSeq);
 		if (changeListener != null) {
@@ -46,11 +46,11 @@ public class RemoveFlagEntryAction<T> implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
-		for(Entry<T> entry : entries){
+	public RemoveFlagEntryAction<T> redo() {
+		for (Entry<T> entry : entries) {
 			animFlag.removeKeyframe(entry.time, animation);
 		}
-		if(animation instanceof GlobalSeq && animFlag.getEntryMap(animation).isEmpty()){
+		if (animation instanceof GlobalSeq && animFlag.getEntryMap(animation).isEmpty()) {
 			animFlag.setGlobSeq(globalSeq);
 		}
 		if (changeListener != null) {
@@ -61,6 +61,6 @@ public class RemoveFlagEntryAction<T> implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "delete keyframe" + (entries.size() == 1 ? "" : "s");
+		return "Delete Keyframe" + (entries.size() == 1 ? "" : "s");
 	}
 }

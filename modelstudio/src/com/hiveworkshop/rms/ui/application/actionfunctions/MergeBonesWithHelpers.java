@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.actionfunctions;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.animation.animFlag.ReplaceAnimFlagsAction;
+import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddAnimFlagAction;
 import com.hiveworkshop.rms.editor.actions.nodes.DeleteNodesAction;
 import com.hiveworkshop.rms.editor.actions.nodes.NameChangeAction;
 import com.hiveworkshop.rms.editor.actions.nodes.SetParentAction;
@@ -23,7 +23,7 @@ import com.hiveworkshop.rms.util.Vec3;
 import java.util.*;
 
 public class MergeBonesWithHelpers extends ActionFunction {
-	public MergeBonesWithHelpers(){
+	public MergeBonesWithHelpers() {
 		super(TextKey.MERGE_BONES_WITH_HELPERS, MergeBonesWithHelpers::mergeActionRes);
 	}
 
@@ -40,10 +40,10 @@ public class MergeBonesWithHelpers extends ActionFunction {
 		Map<IdObject, IdObject> nodeToReplacement = new HashMap<>();
 		Map<Bone, List<IdObject>> boneToChildren = new HashMap<>();
 
-		for (Bone bone : bonesWOMotion){
+		for (Bone bone : bonesWOMotion) {
 			IdObject parent = bone.getParent();
 			long count = parent.getChildrenNodes().stream().filter(idObject -> idObject instanceof Bone && bonesWOMotion.contains(idObject)).count();
-			if(count == 1){
+			if (count == 1) {
 				nodesToRemove.add(parent);
 				nodeToReplacement.put(parent, bone);
 				System.out.println("moving " + bone.getName() + " to parent position");
@@ -51,13 +51,11 @@ public class MergeBonesWithHelpers extends ActionFunction {
 
 
 				ArrayList<AnimFlag<?>> animFlags = parent.getAnimFlags();
-				ArrayList<AnimFlag<?>> animFlagCopies = new ArrayList<>();
-				for(AnimFlag<?> animFlag : animFlags){
-					animFlagCopies.add(animFlag.deepCopy());
+				for (AnimFlag<?> animFlag : animFlags) {
+					undoActions.add(new AddAnimFlagAction<>(bone, animFlag.deepCopy(), null));
 				}
-				undoActions.add(new ReplaceAnimFlagsAction(bone, animFlagCopies, null));
-				if((bone.getName().toLowerCase().startsWith("mesh") || bone.getName().toLowerCase().startsWith("object"))
-						&& (!parent.getName().toLowerCase().startsWith("mesh") && !parent.getName().toLowerCase().startsWith("object"))){
+				if ((bone.getName().toLowerCase().startsWith("mesh") || bone.getName().toLowerCase().startsWith("object"))
+						&& (!parent.getName().toLowerCase().startsWith("mesh") && !parent.getName().toLowerCase().startsWith("object"))) {
 					undoActions.add(new NameChangeAction(bone, parent.getName(), null));
 				}
 
@@ -72,11 +70,11 @@ public class MergeBonesWithHelpers extends ActionFunction {
 		undoActions.add(new RemoveSelectionUggAction(new SelectionBundle(nodesToRemove), modelView, null));
 		undoActions.add(new DeleteNodesAction(nodesToRemove, null, model));
 
-		for (Bone bone : bonesWOMotion){
+		for (Bone bone : bonesWOMotion) {
 			IdObject parent = bone.getParent();
-			if(nodesToRemove.contains(parent)){
+			if (nodesToRemove.contains(parent)) {
 				IdObject newParent = parent.getParent();
-				while (nodeToReplacement.containsKey(newParent)){
+				while (nodeToReplacement.containsKey(newParent)) {
 					newParent = nodeToReplacement.get(newParent);
 				}
 				String newParentName = newParent == null ? "NULL" : newParent.getName();
@@ -85,17 +83,16 @@ public class MergeBonesWithHelpers extends ActionFunction {
 			}
 //				bone.setParent(parent.getParent());
 		}
-		for (Bone bone : boneToChildren.keySet()){
+		for (Bone bone : boneToChildren.keySet()) {
 			System.out.println(bone.getClass().getSimpleName() + ": " + bone.getName() + ": stealing parents (" + bone.getParent().getClass().getSimpleName() + ": " + bone.getParent().getName() + ") children");
 			List<IdObject> childList = boneToChildren.get(bone);
-			for(IdObject child : childList){
+			for (IdObject child : childList) {
 				undoActions.add(new SetParentAction(child, bone, null));
 			}
 		}
 		modelHandler.getUndoManager().pushAction(
 				new CompoundAction("Merge unnecessary Helpers", undoActions,
 						ModelStructureChangeListener.changeListener::nodesUpdated)
-//							ModelStructureChangeListener.changeListener::geosetsUpdated)
 						.redo());
 	}
 }

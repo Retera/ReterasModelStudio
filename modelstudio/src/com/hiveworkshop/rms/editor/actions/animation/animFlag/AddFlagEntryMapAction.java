@@ -10,20 +10,20 @@ import java.util.TreeMap;
 
 public class AddFlagEntryMapAction<T> implements UndoAction {
 	private final ModelStructureChangeListener changeListener;
-	Sequence animation;
-	AnimFlag<T> animFlag;
-	TreeMap<Integer, Entry<T>> entryMap;
+	private final Sequence sequence;
+	private final AnimFlag<T> animFlag;
+	private final TreeMap<Integer, Entry<T>> entryMap;
 
-	public AddFlagEntryMapAction(AnimFlag<T> animFlag, Sequence animation, TreeMap<Integer, Entry<T>> entryMap, ModelStructureChangeListener changeListener) {
+	public AddFlagEntryMapAction(AnimFlag<T> animFlag, Sequence sequence, TreeMap<Integer, Entry<T>> entryMap, ModelStructureChangeListener changeListener) {
 		this.changeListener = changeListener;
-		this.animation = animation;
+		this.sequence = sequence;
 		this.animFlag = animFlag;
 		this.entryMap = entryMap;
 	}
 
 	@Override
-	public UndoAction undo() {
-		animFlag.deleteAnim(animation);
+	public AddFlagEntryMapAction<T> undo() {
+		animFlag.deleteAnim(sequence);
 		if (changeListener != null) {
 			changeListener.materialsListChanged();
 		}
@@ -31,8 +31,8 @@ public class AddFlagEntryMapAction<T> implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
-		animFlag.setEntryMap(animation, entryMap);
+	public AddFlagEntryMapAction<T> redo() {
+		animFlag.setEntryMap(sequence, entryMap);
 		if (changeListener != null) {
 			changeListener.materialsListChanged();
 		}
@@ -41,6 +41,6 @@ public class AddFlagEntryMapAction<T> implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "add animation";
+		return "Add Animation";
 	}
 }

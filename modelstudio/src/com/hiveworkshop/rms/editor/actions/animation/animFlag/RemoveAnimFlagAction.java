@@ -7,8 +7,8 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
 public class RemoveAnimFlagAction implements UndoAction {
 	private final ModelStructureChangeListener changeListener;
-	TimelineContainer timelineContainer;
-	AnimFlag<?> animFlag;
+	private final TimelineContainer timelineContainer;
+	private final AnimFlag<?> animFlag;
 
 	public RemoveAnimFlagAction(TimelineContainer timelineContainer, AnimFlag<?> animFlag, ModelStructureChangeListener changeListener) {
 		this.changeListener = changeListener;
@@ -17,7 +17,7 @@ public class RemoveAnimFlagAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
+	public RemoveAnimFlagAction undo() {
 		timelineContainer.add(animFlag);
 		if (changeListener != null) {
 			changeListener.materialsListChanged();
@@ -27,7 +27,7 @@ public class RemoveAnimFlagAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public RemoveAnimFlagAction redo() {
 		timelineContainer.remove(animFlag);
 		if (changeListener != null) {
 			changeListener.materialsListChanged();
@@ -37,6 +37,6 @@ public class RemoveAnimFlagAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set static";
+		return "Set Static";
 	}
 }

@@ -496,6 +496,9 @@ public class Quat extends Vec4 {
 		y = ay * sinOfHalfAngle;
 		z = az * sinOfHalfAngle;
 		w = (float) Math.cos(halfAngle);
+		if (v3Length() < 0.00001) {
+			w = 1f;
+		}
 		return this;
 	}
 
