@@ -2,14 +2,20 @@ package com.hiveworkshop.rms.util;
 
 import com.hiveworkshop.rms.ui.preferences.GUITheme;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.ui.util.EditorDisplayManager;
+import com.jtattoo.plaf.acryl.AcrylLookAndFeel;
+import com.jtattoo.plaf.aluminium.AluminiumLookAndFeel;
+import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
+import com.jtattoo.plaf.noire.NoireLookAndFeel;
 import net.infonode.gui.laf.InfoNodeLookAndFeel;
 import net.infonode.gui.laf.InfoNodeLookAndFeelTheme;
 import net.infonode.gui.laf.InfoNodeLookAndFeelThemes;
 
 import javax.swing.*;
-import javax.swing.plaf.ColorUIResource;
+import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.plaf.metal.OceanTheme;
 import java.awt.*;
+import java.util.Properties;
+import java.util.function.Consumer;
 
 public class ThemeLoadingUtils {
 	public static void setTheme(ProgramPreferences preferences) {
@@ -17,30 +23,18 @@ public class ThemeLoadingUtils {
 	}
 	public static void setTheme(GUITheme theme) {
 		switch (theme) {
-			case JAVA_DEFAULT -> {
-			}
-			case SOFT_GRAY -> trySetTheme(InfoNodeLookAndFeelThemes.getSoftGrayTheme());
-			case BLUE_ICE -> trySetTheme(InfoNodeLookAndFeelThemes.getBlueIceTheme());
-			case DARK_BLUE_GREEN -> trySetTheme(InfoNodeLookAndFeelThemes.getDarkBlueGreenTheme());
-			case GRAY -> trySetTheme(InfoNodeLookAndFeelThemes.getGrayTheme());
-			case DARK, HIFI, ACRYL, ALUMINIUM -> EditorDisplayManager.setupLookAndFeel(theme);
-			case FOREST_GREEN -> trySetTheme(getRmsTheme());
-			case WINDOWS -> {
-				try {
-					UIManager.put("desktop", new ColorUIResource(Color.WHITE));
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					System.out.println(UIManager.getLookAndFeel());
-				} catch (final UnsupportedLookAndFeelException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
-					// handle exception
-				}
-			}
-			case WINDOWS_CLASSIC -> {
-				try {
-					UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
-				} catch (final Exception exc) {
-					setSystemLookAndFeel();
-				}
-			}
+			case JAVA_DEFAULT       -> trySetTheme(new MetalLookAndFeel(), properties -> MetalLookAndFeel.setCurrentTheme(new OceanTheme()));
+			case SOFT_GRAY          -> trySetTheme(new InfoNodeLookAndFeel(InfoNodeLookAndFeelThemes.getSoftGrayTheme()), null);
+			case BLUE_ICE           -> trySetTheme(new InfoNodeLookAndFeel(InfoNodeLookAndFeelThemes.getBlueIceTheme()), null);
+			case DARK_BLUE_GREEN    -> trySetTheme(new InfoNodeLookAndFeel(InfoNodeLookAndFeelThemes.getDarkBlueGreenTheme()), null);
+			case GRAY               -> trySetTheme(new InfoNodeLookAndFeel(InfoNodeLookAndFeelThemes.getGrayTheme()), null);
+			case DARK               -> trySetTheme(new NoireLookAndFeel(), NoireLookAndFeel::setCurrentTheme);
+			case HIFI               -> trySetTheme(new HiFiLookAndFeel(), HiFiLookAndFeel::setCurrentTheme);
+			case ACRYL              -> trySetTheme(new AcrylLookAndFeel(), AcrylLookAndFeel::setCurrentTheme);
+			case ALUMINIUM          -> trySetTheme(new AluminiumLookAndFeel(), AluminiumLookAndFeel::setCurrentTheme);
+			case FOREST_GREEN       -> trySetTheme(new InfoNodeLookAndFeel(getRmsTheme()), null);
+			case WINDOWS            -> trySetTheme(UIManager.getSystemLookAndFeelClassName());
+			case WINDOWS_CLASSIC    -> trySetTheme("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
 		}
 	}
 
@@ -57,9 +51,25 @@ public class ThemeLoadingUtils {
 		return rmsTheme;
 	}
 
-	private static void trySetTheme(InfoNodeLookAndFeelTheme theme) {
+
+	private static void trySetTheme(LookAndFeel lookAndFeel, Consumer<Properties> propConsumer) {
+		if(propConsumer != null){
+			final Properties props = new Properties();
+			props.put("logoString", "RMS");
+			propConsumer.accept(props);
+		}
 		try {
-			UIManager.setLookAndFeel(new InfoNodeLookAndFeel(theme));
+			UIManager.setLookAndFeel(lookAndFeel);
+		} catch (final Exception exc) {
+			setSystemLookAndFeel();
+			exc.printStackTrace();
+		}
+	}
+
+	private static void trySetTheme(String themeString) {
+		try {
+//			UIManager.put("desktop", new ColorUIResource(Color.WHITE));
+			UIManager.setLookAndFeel(themeString);
 		} catch (final Exception exc) {
 			setSystemLookAndFeel();
 			exc.printStackTrace();
