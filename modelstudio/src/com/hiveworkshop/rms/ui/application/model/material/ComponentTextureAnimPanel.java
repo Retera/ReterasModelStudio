@@ -17,20 +17,18 @@ import javax.swing.*;
 
 public class ComponentTextureAnimPanel extends ComponentPanel<TextureAnim> {
 
-	private final JPanel topPanel;
 	private final FlagPanel<Vec3> transPanel;
 	private final FlagPanel<Vec3> scalePanel;
 	private final FlagPanel<Quat> rotPanel;
 
 	public ComponentTextureAnimPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
-		super(modelHandler, componentsPanel);
-		setLayout(new MigLayout("fillx, gap 0", "[grow]", "[]"));
+		super(modelHandler, componentsPanel, new MigLayout("fillx, gap 0", "[grow]", "[]"));
 
 		transPanel = new FlagPanel<>(MdlUtils.TOKEN_TRANSLATION, this::parseVec3, new Vec3(0,0,0), modelHandler);
 		scalePanel = new FlagPanel<>(MdlUtils.TOKEN_SCALING, this::parseVec3, new Vec3(1,1,1), modelHandler);
 		rotPanel = new FlagPanel<>(MdlUtils.TOKEN_ROTATION, this::parseQuat, new Quat(0,0,0, 1), modelHandler);
 
-		topPanel = new JPanel(new MigLayout());
+		JPanel topPanel = new JPanel(new MigLayout());
 		topPanel.add(transPanel, "wrap");
 		topPanel.add(scalePanel, "wrap");
 		topPanel.add(rotPanel, "wrap");
@@ -48,25 +46,10 @@ public class ComponentTextureAnimPanel extends ComponentPanel<TextureAnim> {
 	public ComponentPanel<TextureAnim> setSelectedItem(TextureAnim itemToSelect) {
 		selectedItem = itemToSelect;
 
-//		topPanel.removeAll();
-//		for (AnimFlag<?> animFlag : selectedItem.getAnimFlags()) {
-//			if (animFlag instanceof Vec3AnimFlag) {
-//				if (animFlag.getName().equals(MdlUtils.TOKEN_TRANSLATION)) {
-//					transPanel.update(selectedItem, (Vec3AnimFlag) animFlag, new Vec3(0, 0, 0));
-//					topPanel.add(transPanel);
-//				}
-//				if (animFlag.getName().equals(MdlUtils.TOKEN_SCALING)) {
-//					scalePanel.update(selectedItem, (Vec3AnimFlag) animFlag, new Vec3(1, 1, 1));
-//					topPanel.add(scalePanel);
-//				}
-//			} else if (animFlag instanceof QuatAnimFlag) {
-//				rotPanel.update(selectedItem, (QuatAnimFlag) animFlag, new Quat(0, 0, 0, 1));
-//				topPanel.add(rotPanel);
-//			}
-//		}
 		transPanel.update(selectedItem, (Vec3AnimFlag) selectedItem.find(MdlUtils.TOKEN_TRANSLATION), new Vec3(0, 0, 0));
 		scalePanel.update(selectedItem, (Vec3AnimFlag) selectedItem.find(MdlUtils.TOKEN_SCALING), new Vec3(1, 1, 1));
 		rotPanel.update(selectedItem, (QuatAnimFlag) selectedItem.find(MdlUtils.TOKEN_ROTATION), new Quat(0, 0, 0, 1));
+
 		revalidate();
 		repaint();
 		return this;

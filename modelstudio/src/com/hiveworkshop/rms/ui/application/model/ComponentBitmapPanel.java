@@ -36,7 +36,7 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 	private ImageUtils.ColorMode colorMode = ImageUtils.ColorMode.RGBA;
 
 	public ComponentBitmapPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
-		super(modelHandler, componentsPanel);
+		super(modelHandler, componentsPanel, new MigLayout("fillx", "[][grow][][]", "[][][][][grow]"));
 		texturePathField = new ComponentEditorTextField(24, this::texturePathField);
 
 		replaceableIdSpinner = new IntEditorJSpinner(-1, -1, this::replaceableIdSpinner);
@@ -50,16 +50,14 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 		wrapHeightBox.addActionListener(e -> setWrap(Bitmap.WrapFlag.HEIGHT, wrapHeightBox.isSelected()));
 
 		imagePreviewPanel = new ZoomableImagePreviewPanel(null);
-		previewPanel = new JPanel();
+		previewPanel = new JPanel(new BorderLayout());
 		previewPanel.setBorder(new TitledBorder(null, "Preview", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		previewPanel.setLayout(new BorderLayout());
 		previewPanel.add(imagePreviewPanel);
 
 		JLabel pathLab = new JLabel("Path: ");
 		JLabel replaceableIdLab = new JLabel("ReplaceableId: ");
 		JButton exportButton = getButton("Export", e -> exportTextureImageFile());
 
-		setLayout(new MigLayout("fillx", "[][grow][][]", "[][][][][grow]"));
 //		add(pathLab,                "cell 0 0");
 //		add(texturePathField,       "cell 1 0 3, growx");
 //		add(replaceableIdLab,        "cell 0 1");

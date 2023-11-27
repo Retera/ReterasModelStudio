@@ -12,10 +12,10 @@ import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec3SpinnerArray;
 
 public class ComponentCollisionPanel extends ComponentIdObjectPanel<CollisionShape> {
-	TwiComboBox<MdlxCollisionShape.Type> typeBox;
-	Vec3SpinnerArray v1SpinnerArray;
-	Vec3SpinnerArray v2SpinnerArray;
-	FloatEditorJSpinner boundsSpinner;
+	private final TwiComboBox<MdlxCollisionShape.Type> typeBox;
+	private final Vec3SpinnerArray v1SpinnerArray;
+	private final Vec3SpinnerArray v2SpinnerArray;
+	private final FloatEditorJSpinner boundsSpinner;
 
 	public ComponentCollisionPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
 		super(modelHandler, componentsPanel);
@@ -67,8 +67,9 @@ public class ComponentCollisionPanel extends ComponentIdObjectPanel<CollisionSha
 			undoManager.pushAction(new SetCollisionExtents(idObject, idObject.getBoundsRadius(), v1, v2, changeListener).redo());
 		}
 	}
+
 	private void setBoundRad(float boundsRadius) {
-		if (boundsRadius != idObject.getBoundsRadius() && boundsRadius>=0 && idObject.getBoundsRadius()>=0) {
+		if (boundsRadius != idObject.getBoundsRadius() && 0 <= boundsRadius && 0 <= idObject.getBoundsRadius()) {
 			Vec3 v1 = idObject.getVertex(0);
 			Vec3 v2 = idObject.getVertex(1);
 			undoManager.pushAction(new SetCollisionExtents(idObject, boundsRadius, v1, v2, changeListener).redo());

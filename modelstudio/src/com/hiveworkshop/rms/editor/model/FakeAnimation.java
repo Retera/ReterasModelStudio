@@ -36,6 +36,11 @@ public class FakeAnimation extends Animation {
 		return realAnim;
 	}
 
+	public FakeAnimation setRealAnim(Animation realAnim) {
+		this.realAnim = realAnim;
+		return this;
+	}
+
 	@Override
 	public int hashCode() {
 		return realAnim.hashCode();

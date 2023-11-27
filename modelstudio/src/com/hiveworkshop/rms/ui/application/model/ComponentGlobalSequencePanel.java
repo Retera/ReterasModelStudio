@@ -16,9 +16,8 @@ public class ComponentGlobalSequencePanel extends ComponentPanel<GlobalSeq> {
 	private GlobalSeq globalSeq;
 
 	public ComponentGlobalSequencePanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
-		super(modelHandler, componentsPanel);
+		super(modelHandler, componentsPanel, new MigLayout());
 
-		setLayout(new MigLayout());
 		lengthSpinner = new IntEditorJSpinner(0, 0, this::setLength);
 		add(new JLabel("GlobalSequence "), "cell 0 0");
 

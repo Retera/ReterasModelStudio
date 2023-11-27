@@ -15,6 +15,7 @@ import java.util.*;
 public class RemoveSequenceAction implements UndoAction {
 	private final EditableModel model;
 	private final Sequence sequence;
+	private final int orgIndex;
 	private final String name;
 	private final ModelStructureChangeListener changeListener;
 	private final Map<EventObject, Set<Integer>> eventTracksToRemove = new HashMap<>();
@@ -23,6 +24,7 @@ public class RemoveSequenceAction implements UndoAction {
 	public RemoveSequenceAction(EditableModel model, Sequence sequence, ModelStructureChangeListener changeListener) {
 		this.model = model;
 		this.sequence = sequence;
+		this.orgIndex = model.getId(sequence);
 		this.changeListener = changeListener;
 		if (sequence instanceof GlobalSeq) {
 			this.name = "GlobalSeq " + model.getGlobalSeqId((GlobalSeq) sequence) + " (" + sequence.getLength() + ")";
@@ -46,11 +48,11 @@ public class RemoveSequenceAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
+	public RemoveSequenceAction undo() {
 		if (sequence instanceof GlobalSeq) {
-			model.add((GlobalSeq) sequence);
+			model.add((GlobalSeq) sequence, orgIndex);
 		} else {
-			model.add((Animation) sequence);
+			model.add((Animation) sequence, orgIndex);
 		}
 		for (RemoveFlagEntryMapAction<?> action : removeFlagEntryMapActions) {
 			action.undo();
@@ -65,7 +67,7 @@ public class RemoveSequenceAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public RemoveSequenceAction redo() {
 		if (sequence instanceof GlobalSeq) {
 			model.remove((GlobalSeq) sequence);
 		} else {
@@ -85,6 +87,6 @@ public class RemoveSequenceAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "Deleted " + name;
+		return "Delete " + name;
 	}
 }

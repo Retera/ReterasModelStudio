@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ComponentLayerPanel extends ComponentPanel<Layer> {
-	private final String valuePanelConstraints = "wrap, growx, hidemode 2";
 	private final List<EditorHelpers.TextureEditor> texturePanels = new ArrayList<>();
 	private EditorHelpers.FloatEditor alphaPanel;
 	private final JPanel texturePreviewPanel;
@@ -48,8 +47,8 @@ public class ComponentLayerPanel extends ComponentPanel<Layer> {
 	private EditorHelpers.FloatEditor fresnelTeamColor;
 
 	public ComponentLayerPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel, String title) {
-		super(modelHandler, componentsPanel);
-		setLayout(new MigLayout("fill", "[][][grow]", "[][fill]"));
+		super(modelHandler, componentsPanel, new MigLayout("fill", "[][][grow]", "[][fill]"));
+
 		Border lineBorder = BorderFactory.createLineBorder(Color.LIGHT_GRAY);
 		setBorder(BorderFactory.createTitledBorder(lineBorder, title));
 
@@ -188,6 +187,7 @@ public class ComponentLayerPanel extends ComponentPanel<Layer> {
 
 	protected JPanel getInnerSettingsPanel() {
 		JPanel innerSettingsPanel = new JPanel(new MigLayout("ins 0"));
+		String valuePanelConstraints = "wrap, growx, hidemode 2";
 		innerSettingsPanel.add(alphaPanel.getFlagPanel(), valuePanelConstraints);
 		innerSettingsPanel.add(emissiveGainPanel.getFlagPanel(), valuePanelConstraints);
 		innerSettingsPanel.add(fresnelColorPanel.getFlagPanel(), valuePanelConstraints);

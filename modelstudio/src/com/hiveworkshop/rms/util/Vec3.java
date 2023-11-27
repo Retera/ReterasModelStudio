@@ -12,6 +12,9 @@ public class Vec3 {
 	public static final Vec3 NEGATIVE_X_AXIS = new Vec3(-1, 0, 0);
 	public static final Vec3 NEGATIVE_Y_AXIS = new Vec3(0, -1, 0);
 	public static final Vec3 NEGATIVE_Z_AXIS = new Vec3(0, 0, -1);
+	public static final Vec3 XY_AXIS = new Vec3(1, 1, 0);
+	public static final Vec3 XZ_AXIS = new Vec3(1, 0, 1);
+	public static final Vec3 YZ_AXIS = new Vec3(0, 1, 1);
 
 	public float x = 0;
 	public float y = 0;

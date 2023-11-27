@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.model.editors;
 
-import javax.swing.*;
 import javax.swing.event.CaretListener;
+import javax.swing.text.JTextComponent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.time.LocalTime;
@@ -12,11 +12,11 @@ public class TwiFocusListener extends FocusAdapter {
 	private Timer timer;
 	private LocalTime lastEditedTime = LocalTime.now();
 	private final Runnable editingStoppedListener;
-	private final JTextField textField;
+	private final JTextComponent textField;
 	private int delay = 500;
-	private int lastEditedExtend = 1000;
+	private int lastEditedExtend = 2000;
 
-	public TwiFocusListener(JTextField textField, Runnable editingStoppedListener){
+	public TwiFocusListener(JTextComponent textField, Runnable editingStoppedListener){
 		this.textField = textField;
 		this.editingStoppedListener = editingStoppedListener;
 	}
@@ -35,8 +35,8 @@ public class TwiFocusListener extends FocusAdapter {
 		return timer != null;
 	}
 
-	public TwiFocusListener setLastEditedExtend(int lastEditedExtend) {
-		this.lastEditedExtend = lastEditedExtend;
+	public TwiFocusListener setLastEditedExtend(int lastEditedExtendMs) {
+		this.lastEditedExtend = lastEditedExtendMs;
 		return this;
 	}
 

@@ -22,9 +22,7 @@ public class ComponentHeaderPanel extends ComponentPanel<EditableModel> {
 	private final ExtLogEditor extLogEditor;
 
 	public ComponentHeaderPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
-		super(modelHandler, componentsPanel);
-
-		setLayout(new MigLayout("fill", "[]", "[][][][][][][][grow]"));
+		super(modelHandler, componentsPanel, new MigLayout("fill", "[]", "[][][][][][][][grow]"));
 
 		modelNameField = new ComponentEditorTextField(this::setModelName);
 		modelNameField.setMaximumSize(MAXIMUM_SIZE);

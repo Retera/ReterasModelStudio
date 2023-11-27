@@ -49,8 +49,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 	private TwiComboBox<Material> materialChooser;
 
 	public ComponentGeosetPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
-		super(modelHandler, componentsPanel);
-		setLayout(new MigLayout("hidemode 1", "[][][grow]", "[]"));
+		super(modelHandler, componentsPanel, new MigLayout("hidemode 1", "[][][grow]", "[]"));
 
 		add(geosetLabel, "");
 		add(getDeleteButton(e -> removeGeoset()), "spanx, right, wrap");

@@ -17,6 +17,15 @@ public abstract class ComponentPanel<T> extends JPanel {
 	protected final ModelStructureChangeListener changeListener;
 	protected T selectedItem;
 
+	public ComponentPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel, LayoutManager layoutManager) {
+		super(layoutManager);
+		this.modelHandler = modelHandler;
+		this.componentsPanel = componentsPanel;
+		this.model = modelHandler.getModel();
+		this.undoManager = modelHandler.getUndoManager();
+		this.changeListener = ModelStructureChangeListener.changeListener;
+	}
+
 	public ComponentPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
 		this.modelHandler = modelHandler;
 		this.componentsPanel = componentsPanel;

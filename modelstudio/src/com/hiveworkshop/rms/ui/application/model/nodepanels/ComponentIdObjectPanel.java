@@ -48,17 +48,14 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	protected JCheckBox dontInheritScalingBox;
 
 	public ComponentIdObjectPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
-		super(modelHandler, componentsPanel);
+		super(modelHandler, componentsPanel, new MigLayout("fillx, gap 0", "[]5[]5[grow]", "[]"));
 
 		parentChooser = new IdObjectChooser(model, true);
 
-//		setLayout(new MigLayout("fill, gap 0", "[]5[]5[grow]", "[][][][][][grow]"));
-		setLayout(new MigLayout("fillx, gap 0", "[]5[]5[grow]", "[]"));
 		nameField = new TwiTextField(24, null);
 		nameField.setFont(new Font("Arial", Font.BOLD, 18));
 		add(nameField, "");
 
-//		add(getDeleteButton(e -> removeNode()), "skip 1, wrap");
 		add(getDeleteButton(e -> removeNode()), "skip 1");
 		add(getButton("Duplicate", e -> duplicateNode()), "split");
 		add(getButton("Change Type", e -> IdObjectTypeChanger.changeNodeType(idObject, modelHandler)), "wrap");
@@ -141,7 +138,7 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	private JPanel getBillboardedPanel() {
 		JPanel panel = new JPanel(new MigLayout("ins 0"));
 
-		billboardedBox = getCheckBox("billboarded", (b) -> idObject.setBillboarded(b), () -> idObject.getBillboarded());
+		billboardedBox    = getCheckBox("billboarded",    (b) -> idObject.setBillboarded(b),    () -> idObject.getBillboarded());
 		billboardLockXBox = getCheckBox("billboardLockX", (b) -> idObject.setBillboardLockX(b), () -> idObject.getBillboardLockX());
 		billboardLockYBox = getCheckBox("billboardLockY", (b) -> idObject.setBillboardLockY(b), () -> idObject.getBillboardLockY());
 		billboardLockZBox = getCheckBox("billboardLockZ", (b) -> idObject.setBillboardLockZ(b), () -> idObject.getBillboardLockZ());
@@ -186,18 +183,11 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 		repaint();
 	}
 
-	private void changeName(String newName) {
-		if (!newName.equals("") && !newName.equals(idObject.getName())) {
-			System.out.println("setting new name to: " + newName);
-			undoManager.pushAction(new NameChangeAction(idObject, newName, changeListener).redo());
-		}
-	}
-
 	private void changeName(String newName, IdObject idObject) {
 		// When changing which node is being viewed the focus lost event
-		// is sent after the new node ha been loaded so to be able to
-		// apply an ongoing name change the focus listener needs a reference
-		// to the node whose name were being edited
+		// is sent after the new node has been loaded,
+		// so to be able to apply an ongoing name change the focus listener needs
+		// a reference to the node whose name were being edited
 		if (!newName.equals("") && !newName.equals(idObject.getName())) {
 			System.out.println("setting new name to: " + newName);
 			undoManager.pushAction(new NameChangeAction(idObject, newName, changeListener).redo());

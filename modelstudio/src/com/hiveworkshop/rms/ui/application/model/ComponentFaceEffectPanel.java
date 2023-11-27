@@ -21,8 +21,7 @@ public class ComponentFaceEffectPanel extends ComponentPanel<FaceEffect> {
 
 
 	public ComponentFaceEffectPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
-		super(modelHandler, componentsPanel);
-		setLayout(new MigLayout("fill", "[][50%:50%:50%, grow][grow]", "[][][][][grow]"));
+		super(modelHandler, componentsPanel, new MigLayout("fill", "[][50%:50%:50%, grow][grow]", "[][][][][grow]"));
 		targetField = new JTextField();
 		targetField.addFocusListener(setEffectTarget());
 		effectField = new JTextField();

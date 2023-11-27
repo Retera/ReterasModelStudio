@@ -216,7 +216,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	private DefaultMutableTreeNode getSequencesNode(EditableModel model, ModelView modelView) {
 		DefaultMutableTreeNode sequences = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.ANIMATION, modelView, "Sequences"));
 		for (Animation item : model.getAnims()) {
-			sequences.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.ANIMATION, modelView, item)));
+			sequences.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.ANIMATION, modelView, item, item::toString)));
 		}
 		return sequences;
 	}

@@ -561,7 +561,7 @@ public abstract class AnimFlag<T> {
 	public int getTimeFromIndex(Sequence sequence, int index) {
 		TreeMap<Integer, Entry<T>> entryMap = getEntryTreeMap(sequence);
 		if (entryMap != null && 0 <= index && index < entryMap.size()) {
-			return getTimeKeys(sequence)[index];
+			return getTimeKeys(getRealSequence(sequence))[index];
 		}
 		return -1;
 	}

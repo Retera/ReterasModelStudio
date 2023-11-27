@@ -23,22 +23,16 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 	private Material material;
 	private ShaderBox<String> shaderOptionComboBox;
 	private IntEditorJSpinner priorityPlaneSpinner;
-//	private JCheckBox twoSided;
-//	private JCheckBox constantColor;
-//	private JCheckBox sortPrimsFarZ;
-//	private JCheckBox sortPrimsNearZ;
-//	private JCheckBox fullResolution;
 	private final TreeMap<Integer, ComponentLayerPanel> layerPanelTreeMap = new TreeMap<>();
 	private final JPanel layersHolderPanel;
-	private MaterialFlagsPanel materialFlagsPanel;
+	private final MaterialFlagsPanel materialFlagsPanel;
 	private JLabel shaderLabel;
 	private final JButton addLayerButton;
 	private JButton copyMaterialAnim;
 
 	public ComponentMaterialPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
-		super(modelHandler, componentsPanel);
+		super(modelHandler, componentsPanel, new MigLayout("fill, hidemode 2", "[][][grow]", "[][][grow]"));
 
-		setLayout(new MigLayout("fill, hidemode 2", "[][][grow]", "[][][grow]"));
 		materialFlagsPanel = new MaterialFlagsPanel(modelHandler);
 
 		add(getTopPanel(), "growx, spanx, wrap");

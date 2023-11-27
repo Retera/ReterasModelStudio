@@ -35,7 +35,6 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 	private final Vec3SpinnerArray positionSpinner;
 	private final Vec3SpinnerArray targetSpinner;
 
-
 	protected FlagPanel<Vec3> transPanel;
 	protected FlagPanel<Quat> rotPanelQuat;
 	protected FlagPanel<Float> rotPanelFloat;
@@ -44,9 +43,8 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 	protected FlagPanel<Vec3> targetTransPanel;
 
 	public ComponentCameraPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
-		super(modelHandler, componentsPanel);
+		super(modelHandler, componentsPanel, new MigLayout("fill, gap 0, hidemode 3", "[]5[]5[grow]", "[][][][][][][grow][grow][grow]"));
 
-		setLayout(new MigLayout("fill, gap 0, hidemode 3", "[]5[]5[grow]", "[][][][][][][grow][grow][grow]"));
 		nameField = new TwiTextField(24, this::changeName1);
 		nameField.setFont(new Font("Arial", Font.BOLD, 18));
 		add(nameField, "spanx 2");

@@ -7,12 +7,12 @@ import com.hiveworkshop.rms.util.Vec3;
 
 public class SetCollisionExtents implements UndoAction {
 	private final CollisionShape collisionShape;
-	private Vec3 v1_old;
-	private Vec3 v2_old;
-	private Vec3 v1_new;
-	private Vec3 v2_new;
-	private double oldBoundsRadius;
-	private double newBoundsRadius;
+	private final Vec3 v1_old;
+	private final Vec3 v2_old;
+	private final Vec3 v1_new;
+	private final Vec3 v2_new;
+	private final double oldBoundsRadius;
+	private final double newBoundsRadius;
 	private final ModelStructureChangeListener changeListener;
 
 	public SetCollisionExtents(CollisionShape collisionShape, double radius, Vec3 v1, Vec3 v2, ModelStructureChangeListener changeListener) {
@@ -32,7 +32,7 @@ public class SetCollisionExtents implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
+	public SetCollisionExtents undo() {
 		collisionShape.getVertex(0).set(v1_old);
 		collisionShape.setVertex(1, v2_old);
 		collisionShape.setBoundsRadius(oldBoundsRadius);
@@ -44,7 +44,7 @@ public class SetCollisionExtents implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public SetCollisionExtents redo() {
 		collisionShape.getVertex(0).set(v1_new);
 		collisionShape.setVertex(1, v2_new);
 		collisionShape.setBoundsRadius(newBoundsRadius);
@@ -57,6 +57,6 @@ public class SetCollisionExtents implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "change collision extents";
+		return "Change Collision Extents";
 	}
 }
