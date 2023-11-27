@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.util.sound.SimpleGuiFlacPlayer.tempStuff;
 
-import com.hiveworkshop.rms.util.sound.SimpleGuiFlacPlayer.FlacDecoder;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -145,7 +144,7 @@ public class FlacInputStream extends AudioInputStream {
 				} else {
 					return new long[] {filePos, (long) temp[1]};
 				}
-			} catch (FlacDecoder.FormatException e) {
+			} catch (FlacFileReader.FormatException e) {
 				filePos += 2;
 			}
 		}
@@ -162,10 +161,10 @@ public class FlacInputStream extends AudioInputStream {
 		}
 		int sync = byteVal << 6 | stream.readUint(6);
 		if (sync != 0x3FFE) {
-			throw new FlacDecoder.FormatException("Sync code expected");
+			throw new FlacFileReader.FormatException("Sync code expected");
 		}
 		if (stream.readUint(1) != 0) {
-			throw new FlacDecoder.FormatException("Reserved bit");
+			throw new FlacFileReader.FormatException("Reserved bit");
 		}
 		int blockStrategy = stream.readUint(1);
 
@@ -177,7 +176,7 @@ public class FlacInputStream extends AudioInputStream {
 		int sampleSize = stream.readUint(3);
 		validateSampleSize(sampleSize);
 		if (stream.readUint(1) != 0) {
-			throw new FlacDecoder.FormatException("Reserved bit");
+			throw new FlacFileReader.FormatException("Reserved bit");
 		}
 
 		long rawPosition = getRawPosition();
@@ -226,7 +225,7 @@ public class FlacInputStream extends AudioInputStream {
 		} else if (8 <= blockSizeCode && blockSizeCode <= 15) {
 			return 256 << (blockSizeCode - 8);
 		} else {
-			throw new FlacDecoder.FormatException("Reserved block size");
+			throw new FlacFileReader.FormatException("Reserved block size");
 		}
 	}
 
@@ -259,7 +258,7 @@ public class FlacInputStream extends AudioInputStream {
 				}
 			}
 		} else {
-			throw new FlacDecoder.FormatException("Reserved channel assignment");
+			throw new FlacFileReader.FormatException("Reserved channel assignment");
 		}
 		return result;
 	}
@@ -267,7 +266,7 @@ public class FlacInputStream extends AudioInputStream {
 
 	private void decodeSubframe(int sampleDepth, long[] result) throws IOException {
 		if (stream.readUint(1) != 0) {
-			throw new FlacDecoder.FormatException("Invalid padding bit");
+			throw new FlacFileReader.FormatException("Invalid padding bit");
 		}
 		int type = stream.readUint(6);
 		int shift = stream.readUint(1);
@@ -316,7 +315,7 @@ public class FlacInputStream extends AudioInputStream {
 				result[i] += sum >> lpcShift;
 			}
 		} else {
-			throw new FlacDecoder.FormatException("Reserved subframe type");
+			throw new FlacFileReader.FormatException("Reserved subframe type");
 		}
 
 		for (int i = 0; i < result.length; i++) {
@@ -328,14 +327,14 @@ public class FlacInputStream extends AudioInputStream {
 	private void decodeRiceResiduals(int warmup, long[] result) throws IOException {
 		int method = stream.readUint(2);
 		if (2 <= method) {
-			throw new FlacDecoder.FormatException("Reserved residual coding method");
+			throw new FlacFileReader.FormatException("Reserved residual coding method");
 		}
 		int paramBits = method == 0 ? 4 : 5;
 		int escapeParam = method == 0 ? 0xF : 0x1F;
 		int partitionOrder = stream.readUint(4);
 		int numPartitions = 1 << partitionOrder;
 		if (result.length % numPartitions != 0) {
-			throw new FlacDecoder.FormatException("Block size not divisible by number of Rice partitions");
+			throw new FlacFileReader.FormatException("Block size not divisible by number of Rice partitions");
 		}
 		int partitionSize = result.length / numPartitions;
 
@@ -424,14 +423,14 @@ public class FlacInputStream extends AudioInputStream {
 			{4, -6, 4, -1},
 	};
 
-	private void validateSampleSize(int sampleSize) throws FlacDecoder.FormatException {
+	private void validateSampleSize(int sampleSize) throws FlacFileReader.FormatException {
 		switch (sampleSize) {
-			case 1 -> { if (format.getSampleSizeInBits() !=  8) throw new FlacDecoder.FormatException("Sample depth mismatch");}
-			case 2 -> { if (format.getSampleSizeInBits() != 12) throw new FlacDecoder.FormatException("Sample depth mismatch");}
-			case 4 -> { if (format.getSampleSizeInBits() != 16) throw new FlacDecoder.FormatException("Sample depth mismatch");}
-			case 5 -> { if (format.getSampleSizeInBits() != 20) throw new FlacDecoder.FormatException("Sample depth mismatch");}
-			case 6 -> { if (format.getSampleSizeInBits() != 24) throw new FlacDecoder.FormatException("Sample depth mismatch");}
-			default -> throw new FlacDecoder.FormatException("Reserved/invalid sample depth");
+			case 1 -> { if (format.getSampleSizeInBits() !=  8) throw new FlacFileReader.FormatException("Sample depth mismatch");}
+			case 2 -> { if (format.getSampleSizeInBits() != 12) throw new FlacFileReader.FormatException("Sample depth mismatch");}
+			case 4 -> { if (format.getSampleSizeInBits() != 16) throw new FlacFileReader.FormatException("Sample depth mismatch");}
+			case 5 -> { if (format.getSampleSizeInBits() != 20) throw new FlacFileReader.FormatException("Sample depth mismatch");}
+			case 6 -> { if (format.getSampleSizeInBits() != 24) throw new FlacFileReader.FormatException("Sample depth mismatch");}
+			default -> throw new FlacFileReader.FormatException("Reserved/invalid sample depth");
 		}
 	}
 }

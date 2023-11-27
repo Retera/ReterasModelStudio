@@ -1,7 +1,5 @@
 package com.hiveworkshop.rms.util.sound.SimpleGuiFlacPlayer.tempStuff;
 
-import com.hiveworkshop.rms.util.sound.SimpleGuiFlacPlayer.FlacDecoder;
-
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -42,7 +40,7 @@ public class FlacFileReader extends AudioFileReader {
 		try {
 			Stream stream = new Stream(file);
 			if (stream.readUint(32) != 0x664C6143) {
-				throw new FlacDecoder.FormatException("Invalid magic string");
+				throw new FormatException("Invalid magic string");
 			}
 			FlacMetaData flacMetaData = readAndGetMetaData(stream);
 			AudioFormat audioFormat = new AudioFormat(flacMetaData.sampleRate, flacMetaData.sampleDepth, flacMetaData.numChannels, true, false);
@@ -210,5 +208,13 @@ public class FlacFileReader extends AudioFileReader {
 			bitBufferLen -= bitBufferLen % 8;
 		}
 
+	}
+
+	// Thrown when non-conforming FLAC data is read.
+	@SuppressWarnings("serial")
+	public static class FormatException extends IOException {
+		public FormatException(String msg) {
+			super(msg);
+		}
 	}
 }
