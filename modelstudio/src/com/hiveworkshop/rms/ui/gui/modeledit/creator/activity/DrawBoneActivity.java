@@ -1,98 +1,78 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator.activity;
 
+import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.addactions.DrawNodeAction;
 import com.hiveworkshop.rms.editor.actions.nodes.AddNodeAction;
+import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
+import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.AbstractCamera;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
-import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.ui.util.MouseEventHelpers;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 
-import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
-public class DrawBoneActivity extends ViewportActivity {
-	float[] halfScreenXY;
-	float halfScreenX;
-	float halfScreenY;
-
-	private ModelEditorActionType3 lastEditorType;
-
-	private Point lastMousePointPoint;
+public class DrawBoneActivity extends DrawActivity {
 
 	public DrawBoneActivity(ModelHandler modelHandler, ModelEditorManager modelEditorManager) {
 		super(modelHandler, modelEditorManager);
 	}
 
-	public DrawBoneActivity(ModelHandler modelHandler, ModelEditorManager modelEditorManager,
+	public DrawBoneActivity(ModelHandler modelHandler,
+	                        ModelEditorManager modelEditorManager,
 	                        ModelEditorActionType3 lastEditorType) {
-		super(modelHandler, modelEditorManager);
-		this.lastEditorType = lastEditorType;
-	}
-
-	@Override
-	public void render(Graphics2D g, AbstractCamera coordinateSystem, RenderModel renderModel, boolean isAnimated) {
-		if (!isAnimated) {
-//			g.setColor(preferences.getVertexColor());
-			g.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.VERTEX));
-			if (lastMousePointPoint != null) {
-				g.fillRect(lastMousePointPoint.x, lastMousePointPoint.y, 3, 3);
-			}
-		}
+		super(modelHandler, modelEditorManager, lastEditorType);
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
-		setPrefs();
-		if (MouseEventHelpers.matches(e, prefs.getModifyMouseButton(),prefs.getSnapTransformModifier())) {
+		if (MouseEventHelpers.matches(e, getModify(), getSnap())) {
 			Vec2 point = getPoint(e);
 			mouseStartPoint.set(point);
 			this.inverseViewProjectionMatrix.set(viewProjectionMatrix).invert();
 			this.viewProjectionMatrix.set(viewProjectionMatrix);
-			halfScreenXY = halfScreenXY();
-			halfScreenX = halfScreenXY[0];
-			halfScreenY = halfScreenXY[1];
 
-			Set<String> allBoneNames = new HashSet<>();
-			for (IdObject object : modelView.getModel().getIdObjects()) {
-				allBoneNames.add(object.getName());
-			}
-			int nameNumber = 1;
-			while (allBoneNames.contains(getNumberName("Bone", nameNumber))) {
-				nameNumber++;
-			}
-			Bone bone = new Bone(getNumberName("Bone", nameNumber));
-			bone.setPivotPoint(get3DPoint(mouseStartPoint));
+			Bone bone = new Bone(getNumberName("Bone", modelView.getModel().getIdObjects()));
+			Vec3 startPoint3d = get3DPoint(mouseStartPoint);
+			bone.setPivotPoint(startPoint3d);
 
-			AddNodeAction addNodeAction = new AddNodeAction(modelHandler.getModel(), bone, changeListener);
-
-			undoManager.pushAction(addNodeAction.redo());
-			lastMousePoint.set(point);
-			if (lastEditorType != null && !MouseEventHelpers.hasModifier(e.getModifiersEx(), MouseEvent.CTRL_DOWN_MASK)) {
-				System.out.println("returning to prev action type!");
-				ProgramGlobals.getCurrentModelPanel().setEditorActionType(lastEditorType);
-			} else {
-				System.out.println("keep draw vertices!");
-			}
+			List<UndoAction> undoActions = new ArrayList<>();
+			AddNodeAction addNodeAction = new AddNodeAction(modelHandler.getModel(), bone, null);
+			undoActions.add(addNodeAction);
+			undoActions.add(new SetSelectionUggAction(new SelectionBundle(Collections.singleton(bone)), modelView, "Select Bone", null));
+			UndoAction setupAction = new CompoundAction("Draw Bone", undoActions,  changeListener::nodesUpdated);
+			transformAction = new DrawNodeAction("Draw Bone", startPoint3d, rotMat, bone, setupAction, null).doSetup();
 		}
 	}
 
-	private static String getNumberName(String name, int number) {
-		return name + String.format("%3s", number).replace(' ', '0');
+	private static String getNumberName(String name, Collection<IdObject> idObjects) {
+		Set<String> allBoneNames = idObjects.stream()
+				.map(IdObject::getName)
+				.filter(oName -> oName.toLowerCase().startsWith(name.toLowerCase()))
+				.collect(Collectors.toSet());
+		for (int i = 1; i <= allBoneNames.size()+1; i++) {
+			String posName = name + String.format("%3s", i).replace(' ', '0');
+			if (allBoneNames.contains(posName)) {
+				return posName;
+			}
+		}
+
+		return name;
 	}
 
 	@Override
-	public void mouseMoved(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
-		lastMousePointPoint = e.getPoint();
+	public void mouseDragged(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
+		if (transformAction != null) {
+			transformAction.setTranslation(get3DPoint(getPoint(e)));
+		}
 	}
 
 }

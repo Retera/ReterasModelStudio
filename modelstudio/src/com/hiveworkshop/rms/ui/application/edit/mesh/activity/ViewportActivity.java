@@ -1,14 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 
-import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.addactions.AddGeosetAction;
 import com.hiveworkshop.rms.editor.actions.editor.AbstractTransformAction;
-import com.hiveworkshop.rms.editor.actions.mesh.AddGeometryAction;
-import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
-import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
-import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
-import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
@@ -26,10 +18,6 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 
 public abstract class ViewportActivity implements SelectionListener {
@@ -65,6 +53,7 @@ public abstract class ViewportActivity implements SelectionListener {
 		this.modelEditorManager = modelEditorManager;
 		this.modelEditor = modelEditorManager.getModelEditor();
 		this.selectionManager = modelEditorManager.getSelectionView();
+		prefs = ProgramGlobals.getPrefs();
 	}
 
 	@Override
@@ -103,42 +92,6 @@ public abstract class ViewportActivity implements SelectionListener {
 		return true;
 	}
 
-	public Geoset getGeosetWithMaterial(Material material) {
-		Set<Geoset> geosets = modelView.getVisEdGeosets();
-		for (Geoset geoset : geosets) {
-			if (geoset.getMaterial().equals(material)) {
-				return geoset;
-			}
-		}
-		return null;
-	}
-
-	protected UndoAction getSetupAction(Collection<GeosetVertex> vertices, Collection<Triangle> triangles) {
-		EditableModel model = modelHandler.getModel();
-		Material material = ModelUtils.getWhiteMaterial(model);
-		Geoset geoset = getGeosetWithMaterial(material);
-		List<UndoAction> undoActions = new ArrayList<>();
-
-		if(geoset == null){
-			Geoset newGeoset = new Geoset();
-			newGeoset.setMaterial(material);
-			newGeoset.addVerticies(vertices);
-			newGeoset.addTriangles(triangles);
-			vertices.forEach(vertex -> vertex.setGeoset(newGeoset));
-			triangles.forEach(triangle -> triangle.setGeoset(newGeoset));
-			undoActions.add(new AddGeosetAction(newGeoset, model, null));
-			if(!model.contains(material)){
-				undoActions.add(new AddMaterialAction(material, model, null));
-			}
-		} else {
-			undoActions.add(new AddGeometryAction(geoset, vertices, triangles, true, null));
-		}
-
-		undoActions.add(new SetSelectionUggAction(vertices, modelView, "Select Mesh", null));
-		return new CompoundAction("Draw Mesh", undoActions,  changeListener::geosetsUpdated);
-	}
-
-
 	protected Mat4 getRotMat(){
 		tempVec3.set(Vec3.ZERO  ).transform(inverseViewProjectionMatrix, 1, true);
 
@@ -154,26 +107,6 @@ public abstract class ViewportActivity implements SelectionListener {
 		return rotMat;
 	}
 
-
-	protected Vec3 get3DPoint(Vec2 mousePos) {
-		tempVec3.set(mousePos.x, mousePos.y, -1).transform(inverseViewProjectionMatrix, 1, true);
-		tempVecZ.set(mousePos.x, mousePos.y, 1).transform(inverseViewProjectionMatrix, 1, true).sub(tempVec3).normalize();
-
-		point3d.set(mousePos.x, mousePos.y, 0).transform(inverseViewProjectionMatrix, 1, true);
-
-		float dotZ = point3d.dot(tempVecZ);
-		point3d.addScaled(tempVecZ, -dotZ);
-
-		return point3d;
-	}
-
-	protected float[] halfScreenXY(){
-		tempVec3.set(Vec3.ZERO)  .addScaled(Vec3.Z_AXIS, .99f).transform(inverseViewProjectionMatrix, 1, true);
-		tempVecX.set(Vec3.X_AXIS).addScaled(Vec3.Z_AXIS, .99f).transform(inverseViewProjectionMatrix, 1, true).sub(tempVec3);
-		tempVecY.set(Vec3.Y_AXIS).addScaled(Vec3.Z_AXIS, .99f).transform(inverseViewProjectionMatrix, 1, true).sub(tempVec3);
-		return new float[]{tempVecX.length(), tempVecY.length()};
-	}
-
 	protected Vec2 getPoint(MouseEvent e) {
 		Component component = e.getComponent();
 		float xRatio = (2.0f * (float) e.getX() / (float) component.getWidth()) - 1.0f;
@@ -181,7 +114,19 @@ public abstract class ViewportActivity implements SelectionListener {
 		return relViewPoint.set(xRatio, yRatio);
 	}
 
-	public void setPrefs() {
-		prefs = ProgramGlobals.getPrefs();
+	protected Integer getSelect(){
+		return prefs.getSelectMouseButton();
+	}
+	protected Integer getAddSel(){
+		return prefs.getAddSelectModifier();
+	}
+	protected Integer getRemSel(){
+		return prefs.getRemoveSelectModifier();
+	}
+	protected Integer getModify(){
+		return prefs.getModifyMouseButton();
+	}
+	protected Integer getSnap(){
+		return prefs.getSnapTransformModifier();
 	}
 }

@@ -71,7 +71,7 @@ public class SelectActivity extends ViewportActivity {
 		}
 
 		int modifiersEx = e.getModifiersEx();
-		if ((ProgramGlobals.getPrefs().getSelectMouseButton() & modifiersEx) > 0) {
+		if (0 < (getSelect() & modifiersEx)) {
 			isActing = true;
 			mouseStartPoint.set(getPoint(e));
 			lastMousePoint.set(mouseStartPoint);
@@ -153,15 +153,11 @@ public class SelectActivity extends ViewportActivity {
 	private SelectionMode getTempSelectMode(MouseEvent e) {
 		SelectionMode tempSelectMode;
 
-		Integer selectMouseButton = ProgramGlobals.getPrefs().getSelectMouseButton();
-		Integer addSelectModifier = ProgramGlobals.getPrefs().getAddSelectModifier();
-		Integer removeSelectModifier = ProgramGlobals.getPrefs().getRemoveSelectModifier();
-
 		int modBut = e.getModifiersEx();
 
-		if (modBut == addSelectModifier || ProgramGlobals.getSelectionMode() == SelectionMode.ADD && modBut != removeSelectModifier) {
+		if (modBut == getAddSel() || ProgramGlobals.getSelectionMode() == SelectionMode.ADD && modBut != getRemSel()) {
 			tempSelectMode = SelectionMode.ADD;
-		} else if (modBut == removeSelectModifier || ProgramGlobals.getSelectionMode() == SelectionMode.DESELECT) {
+		} else if (modBut == getRemSel() || ProgramGlobals.getSelectionMode() == SelectionMode.DESELECT) {
 			tempSelectMode = SelectionMode.DESELECT;
 		} else {
 			tempSelectMode = SelectionMode.SELECT;

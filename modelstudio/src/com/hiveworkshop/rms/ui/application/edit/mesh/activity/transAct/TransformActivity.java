@@ -43,13 +43,12 @@ public abstract class TransformActivity extends ViewportActivity {
 
 	@Override
 	public void mousePressed(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
-		setPrefs();
 		if (isActing) {
 			System.out.println("vpMat, canceled");
 			finnishActionUgg(e, viewProjectionMatrix, sizeAdj, true);
 		}
 
-		if (MouseEventHelpers.matches(e, prefs.getModifyMouseButton(),prefs.getSnapTransformModifier()) && !selectionManager.isEmpty()) {
+		if (MouseEventHelpers.matches(e, getModify(), getSnap()) && !selectionManager.isEmpty()) {
 			this.viewProjectionMatrix.set(viewProjectionMatrix);
 			this.inverseViewProjectionMatrix.set(viewProjectionMatrix).invert();
 			isActing = true;
@@ -85,7 +84,7 @@ public abstract class TransformActivity extends ViewportActivity {
 		if (isActing && transformAction != null) {
 			mousePoint.set(getPoint(e));
 
-			updateMat(null, mousePoint, false, MouseEventHelpers.hasModifier(e, prefs.getSnapTransformModifier()), false);
+			updateMat(null, mousePoint, false, MouseEventHelpers.hasModifier(e, getSnap()), false);
 
 			finnishActionTugg(wasCanceled);
 		}
@@ -122,7 +121,7 @@ public abstract class TransformActivity extends ViewportActivity {
 	public void mouseDragged(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 		if (isActing) {
 			boolean isPrecise = false;
-			boolean isSnap = MouseEventHelpers.hasModifier(e, prefs.getSnapTransformModifier());
+			boolean isSnap = MouseEventHelpers.hasModifier(e, getSnap());
 			boolean isAxisLock = false;
 			mousePoint.set(getPoint(e));
 			updateMat(viewProjectionMatrix, mousePoint, isPrecise, isSnap, isAxisLock);

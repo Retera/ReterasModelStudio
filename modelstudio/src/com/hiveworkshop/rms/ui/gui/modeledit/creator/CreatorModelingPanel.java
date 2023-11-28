@@ -16,6 +16,7 @@ import com.hiveworkshop.rms.ui.util.ModeButton;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.function.Consumer;
 
 public class CreatorModelingPanel extends JPanel {
@@ -94,7 +95,7 @@ public class CreatorModelingPanel extends JPanel {
 	}
 
 	private ModeButton2 getModeButton2(String text, Consumer<ModeButton2> action) {
-		ModeButton2 modeButton = new ModeButton2(text, programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+		ModeButton2 modeButton = new ModeButton2(text, getActiveColor1(), getActiveColor2());
 		modeButton.addActionListener(e -> action.accept(modeButton));
 		return modeButton;
 	}
@@ -106,8 +107,8 @@ public class CreatorModelingPanel extends JPanel {
 	private void addBone(ModeButton2 modeButton) {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
-			DrawBoneActivity activity = new DrawBoneActivity(modelHandler, modelEditorManager);
-			modeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+			DrawBoneActivity activity = new DrawBoneActivity(modelHandler, modelEditorManager, modelPanel.getEditorActionType());
+			modeButton.setColors(getActiveColor1(), getActiveColor2());
 			modelPanel.changeActivity(activity);
 		}
 	}
@@ -116,7 +117,7 @@ public class CreatorModelingPanel extends JPanel {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			DrawVertexActivity activity = new DrawVertexActivity(modelHandler, modelEditorManager, modelPanel.getEditorActionType());
-			modeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+			modeButton.setColors(getActiveColor1(), getActiveColor2());
 			modelPanel.changeActivity(activity);
 		}
 	}
@@ -124,8 +125,8 @@ public class CreatorModelingPanel extends JPanel {
 	private void drawBox(ModeButton modeButton) {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
-			DrawBoxActivity activity = new DrawBoxActivity(modelHandler, modelEditorManager, 1, 1, 1);
-			modeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+			DrawBoxActivity activity = new DrawBoxActivity(modelHandler, modelEditorManager).setNumSegs(1, 1, 1);
+			modeButton.setColors(getActiveColor1(), getActiveColor2());
 			modelPanel.changeActivity(activity);
 		}
 	}
@@ -133,8 +134,8 @@ public class CreatorModelingPanel extends JPanel {
 	private void drawPlane(ModeButton modeButton) {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
-			DrawPlaneActivity activity = new DrawPlaneActivity(modelHandler, modelEditorManager, 1, 1, 1);
-			modeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+			DrawPlaneActivity activity = new DrawPlaneActivity(modelHandler, modelEditorManager).setNumSegs(1, 1);
+			modeButton.setColors(getActiveColor1(), getActiveColor2());
 			modelPanel.changeActivity(activity);
 		}
 	}
@@ -142,9 +143,16 @@ public class CreatorModelingPanel extends JPanel {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			DrawFaceActivity activity = new DrawFaceActivity(modelHandler, modelEditorManager);
-			modeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+			modeButton.setColors(getActiveColor1(), getActiveColor2());
 			modelPanel.changeActivity(activity);
 		}
+	}
+
+	private Color getActiveColor1() {
+		return programPreferences.getActiveColor1();
+	}
+	private Color getActiveColor2() {
+		return programPreferences.getActiveColor2();
 	}
 
 	public JPanel getAnimationBasicsPanel() {
