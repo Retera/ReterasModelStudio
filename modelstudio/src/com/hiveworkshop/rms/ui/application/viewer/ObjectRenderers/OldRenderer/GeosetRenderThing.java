@@ -14,7 +14,6 @@ import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ShaderPipeline
 import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.ui.preferences.EditorColorPrefs;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.*;
 import org.lwjgl.opengl.GL11;
 
@@ -25,13 +24,12 @@ import static org.lwjgl.opengl.GL11.glColor4f;
 
 public class GeosetRenderThing {
 	public static final float NORMAL_RENDER_LENGTH = 0.025f;
+	private final EditorColorPrefs colorPrefs;
 	private int levelOfDetail = 0;
 	private RenderModel renderModel;
 	private ModelView modelView;
 	private EditableModel model;
 	private TextureThing textureThing;
-	private final ProgramPreferences programPreferences;
-	private EditorColorPrefs colorPrefs;
 
 	private final Vec3 vertexHeap = new Vec3();
 	private final Vec4 layerColorHeap = new Vec4();
@@ -49,25 +47,24 @@ public class GeosetRenderThing {
 	private final Vec3 screenDimension = new Vec3();
 	private final Mat4 screenDimensionMat3Heap = new Mat4();
 
-	public GeosetRenderThing(){
-		this.programPreferences = ProgramGlobals.getPrefs();
+	public GeosetRenderThing() {
 		this.colorPrefs = ProgramGlobals.getEditorColorPrefs();
 	}
 
-	public GeosetRenderThing setModel(RenderModel renderModel, ModelView modelView, TextureThing textureThing){
+	public GeosetRenderThing setModel(RenderModel renderModel, ModelView modelView, TextureThing textureThing) {
 		this.renderModel = renderModel;
 		this.textureThing = textureThing;
-		if(modelView != null){
+		if (modelView != null) {
 			this.modelView = modelView;
 			model = modelView.getModel();
 		} else {
-			modelView = null;
+			this.modelView = null;
 			model = null;
 		}
 		return this;
 	}
 
-	public GeosetRenderThing setLod(int lod){
+	public GeosetRenderThing setLod(int lod) {
 		levelOfDetail = lod;
 		return this;
 	}
@@ -76,7 +73,7 @@ public class GeosetRenderThing {
 	private List<Geoset> opaqueGeos = new ArrayList<>();
 	private List<Geoset> transperentGeos = new ArrayList<>();
 	public void render(ShaderPipeline pipeline, boolean renderTextures) {
-		if(renderModel != null){
+		if (renderModel != null) {
 			opaqueGeos.clear();
 			transperentGeos.clear();
 			sortedGeos.clear();
@@ -94,12 +91,12 @@ public class GeosetRenderThing {
 			sortedGeos.addAll(transperentGeos);
 			sortedGeos.addAll(opaqueGeos);
 			for (Geoset geo : sortedGeos) {
-				if(renderTextures){
+				if (renderTextures) {
 					colorHeap.set(renderModel.getRenderGeoset(geo).getRenderColor());
 				} else {
 					colorHeap.set(1,1,1,1);
 				}
-				if(colorHeap.w > RenderModel.MAGIC_RENDER_SHOW_CONSTANT){
+				if (colorHeap.w > RenderModel.MAGIC_RENDER_SHOW_CONSTANT) {
 					renderInst(pipeline, geo, formatVersion, renderTextures);
 				}
 			}
@@ -135,11 +132,11 @@ public class GeosetRenderThing {
 //			for (int i = 0; i < numLayers; i++) {
 			for (int i = numLayers-1; i >=0; i--) {
 				Layer layer = material.getLayers().get(i);
-				if(0.1 < layer.getRenderVisibility(renderModel.getTimeEnvironment())){
+				if (0.1 < layer.getRenderVisibility(renderModel.getTimeEnvironment())) {
 					SdBufferSubInstance instance = new SdBufferSubInstance(model, textureThing);
 					instance.setRenderTextures(renderTextures);
 					instance.setMaterial(material, i, renderModel.getTimeEnvironment());
-					if(lastAddedLayer == null || layer.getCoordId() != lastAddedLayer.getCoordId()){
+					if (lastAddedLayer == null || layer.getCoordId() != lastAddedLayer.getCoordId()) {
 						lastAddedLayer = layer;
 						pipeline.startInstance(instance);
 						setRenderColor(layer);
@@ -177,7 +174,7 @@ public class GeosetRenderThing {
 
 				getUV(layer.getCoordId(), v);
 
-				if(!renderTextures){
+				if (!renderTextures) {
 					getFaceRGBA(v);
 //					colorHeap.addScaled(triColor, .25f).scale(.8f); // (4/4 + 1/4) * 4/5 = 4/4
 					colorHeap.addScaled(triColor, .5625f).scale(.64f); // (16/16 + 9/16) * 16/25 = 16/16
@@ -192,7 +189,7 @@ public class GeosetRenderThing {
 	}
 
 	public void fillNormalsBuffer(ShaderPipeline pipeline) {
-		if(renderModel != null){
+		if (renderModel != null) {
 			// https://learnopengl.com/Advanced-OpenGL/Geometry-Shader
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
@@ -202,7 +199,7 @@ public class GeosetRenderThing {
 			pipeline.prepare();
 //			pipeline.glColor3f(1f, 1f, 3f);
 			colorHeap.set(.7f, .7f, 1f, 1f);
-			// if( wireframe.isSelected() )
+			// if ( wireframe.isSelected() )
 			for (Geoset geo : model.getGeosets()) {
 				if (correctLoD(model.getFormatVersion(), geo) && modelView.shouldRender(geo)) {
 					fillNormalsBuffer(pipeline, geo);
@@ -215,7 +212,7 @@ public class GeosetRenderThing {
 	private void fillNormalsBuffer(ShaderPipeline pipeline, Geoset geo) {
 		RenderGeoset renderGeoset = renderModel.getRenderGeoset(geo);
 		for (GeosetVertex v : geo.getVertices()) {
-			if(!modelView.isHidden(v)){
+			if (!modelView.isHidden(v)) {
 				RenderGeoset.RenderVert renderVert = renderGeoset.getRenderVert(v);
 				Vec3 renderPos = renderVert.getRenderPos();
 				Vec3 renderNorm = renderVert.getRenderNorm();
@@ -226,7 +223,7 @@ public class GeosetRenderThing {
 	}
 
 	public void fillVertsBuffer(ShaderPipeline pipeline) {
-		if(renderModel != null){
+		if (renderModel != null) {
 			// https://learnopengl.com/Advanced-OpenGL/Geometry-Shader
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
@@ -236,7 +233,7 @@ public class GeosetRenderThing {
 			pipeline.prepare();
 //			pipeline.glColor3f(1f, 1f, 3f);
 			colorHeap.set(1f, .0f, 1f, 1f);
-			// if( wireframe.isSelected() )
+			// if ( wireframe.isSelected() )
 			for (Geoset geo : model.getGeosets()) {
 				if (correctLoD(model.getFormatVersion(), geo) && modelView.shouldRender(geo)) {
 					fillVertsBuffer(pipeline, geo);
@@ -249,7 +246,7 @@ public class GeosetRenderThing {
 	private void fillVertsBuffer(ShaderPipeline pipeline, Geoset geo) {
 		RenderGeoset renderGeoset = renderModel.getRenderGeoset(geo);
 		for (GeosetVertex v : geo.getVertices()) {
-			if(!modelView.isHidden(v)){
+			if (!modelView.isHidden(v)) {
 				getVertRGBA(v);
 				RenderGeoset.RenderVert renderVert = renderGeoset.getRenderVert(v);
 				Vec3 renderPos = renderVert.getRenderPos();
@@ -290,7 +287,7 @@ public class GeosetRenderThing {
 
 	Vec3 uvCenter = new Vec3(1,1,1);
 	private Mat4 getUVTransform(Layer layer) {
-		if(layer.getTextureAnim() != null){
+		if (layer.getTextureAnim() != null) {
 			uvTransform.setIdentity();
 			uvTransform.fromRotationTranslationScaleOrigin(
 					layer.getTextureAnim().getInterpolatedQuat(renderModel.getTimeEnvironment(), MdlUtils.TOKEN_ROTATION, Quat.IDENTITY),
@@ -303,7 +300,7 @@ public class GeosetRenderThing {
 		return null;
 	}
 
-	private void resetColorHeap(){
+	private void resetColorHeap() {
 		colorHeap.set(1f, 1f, 1f, 1f);
 	}
 
@@ -372,26 +369,26 @@ public class GeosetRenderThing {
 	}
 
 
-	private boolean triFullySelected(Triangle triangle){
+	private boolean triFullySelected(Triangle triangle) {
 		return modelView.isSelected(triangle.get(0)) && modelView.isSelected(triangle.get(1)) && modelView.isSelected(triangle.get(2));
 	}
-	private boolean triFullyEditable(Triangle triangle){
+	private boolean triFullyEditable(Triangle triangle) {
 		return modelView.isEditable(triangle.get(0)) && modelView.isEditable(triangle.get(1)) && modelView.isEditable(triangle.get(2));
 	}
 
 
 
-	private int getSelectionStatus(GeosetVertex vertex){
-		if(modelView.getHighlightedGeoset() != null && modelView.getHighlightedGeoset() == vertex.getGeoset()) {
+	private int getSelectionStatus(GeosetVertex vertex) {
+		if (modelView.getHighlightedGeoset() != null && modelView.getHighlightedGeoset() == vertex.getGeoset()) {
 			return 0;
-		} else if(modelView.isEditable(vertex)){
+		} else if (modelView.isEditable(vertex)) {
 			if (modelView.isSelected(vertex)) {
 				return 1;
 			} else {
 				return 2;
 			}
 		}
-//		else if (!modelView.isHidden(vertex)){
+//		else if (!modelView.isHidden(vertex)) {
 //		}
 		return 3;
 	}

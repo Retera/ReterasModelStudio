@@ -8,6 +8,8 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportRenderableCamera;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.preferences.ColorThing;
+import com.hiveworkshop.rms.ui.preferences.EditorColorPrefs;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -23,6 +25,8 @@ public final class ResettableIdObjectRenderer {
     private RenderModel renderModel;
     private boolean crosshairIsBox;
     boolean isAnimated;
+	private EditorColorPrefs colorPrefs;
+	private Color lightsColor = Color.YELLOW.brighter();
 
 	Vec2 minCoord = new Vec2();
 	Vec2 maxCoord = new Vec2();
@@ -47,6 +51,7 @@ public final class ResettableIdObjectRenderer {
         this.renderModel = renderModel;
         this.crosshairIsBox = ProgramGlobals.getPrefs().isUseBoxesForPivotPoints();
         this.vertexSize = ProgramGlobals.getPrefs().getVertexSize();
+        this.colorPrefs = ProgramGlobals.getEditorColorPrefs();
         return this;
     }
 
@@ -75,13 +80,13 @@ public final class ResettableIdObjectRenderer {
 	private Color getColor(boolean isHighLighted, boolean isSelected, IdObject object) {
 		Color color;
 		if (object instanceof Light) {
-		    color = ProgramGlobals.getPrefs().getLightsColor();
+		    color = lightsColor;
 		} else {
-			color = ProgramGlobals.getPrefs().getPivotPointsColor();
-		    color = isAnimated ? ProgramGlobals.getPrefs().getAnimatedBoneUnselectedColor() : color;
+			color = colorPrefs.getColor(ColorThing.NODE);
+		    color = isAnimated ? colorPrefs.getColor(ColorThing.SELECTED_NODES_CHILDREN) : color;
 		}
-		color = isSelected ? ProgramGlobals.getPrefs().getSelectColor() : color;
-		color = isHighLighted ? ProgramGlobals.getPrefs().getHighlighVertexColor() : color;
+		color = isSelected ? colorPrefs.getColor(ColorThing.NODE_SELECTED) : color;
+		color = isHighLighted ? colorPrefs.getColor(ColorThing.NODE_HIGHLIGHTED) : color;
 		return color;
 	}
 
@@ -135,7 +140,8 @@ public final class ResettableIdObjectRenderer {
 	        maxCoord.add(minCoord);
 	        drawCrossHair(graphics, minCoord, vertexSize);
 	        drawCrossHair(graphics, maxCoord, vertexSize);
-        } else if (collisionShape.getType() == MdlxCollisionShape.Type.CYLINDER || collisionShape.getType() == MdlxCollisionShape.Type.SPHERE) {
+        } else if (collisionShape.getType() == MdlxCollisionShape.Type.CYLINDER
+		        || collisionShape.getType() == MdlxCollisionShape.Type.SPHERE) {
 	        Vec2 coord = coordinateSystem.viewV(vertexHeap1);
 
             double boundsRadius = collisionShape.getBoundsRadius() * coordinateSystem.getZoom();
@@ -167,9 +173,9 @@ public final class ResettableIdObjectRenderer {
 	Vec3 vertexHeap = new Vec3();
 	public Vec3 getTransformedCoord2(AnimatedNode object, Vec3 point) {
 		vertexHeap.set(point);
-		if(isAnimated && renderModel != null){
+		if (isAnimated && renderModel != null) {
 			RenderNode<AnimatedNode> renderNode = renderModel.getRenderNode(object);
-			if(renderNode != null){
+			if (renderNode != null) {
 				vertexHeap.transform(renderNode.getWorldMatrix());
 
 			}
@@ -177,12 +183,12 @@ public final class ResettableIdObjectRenderer {
 		return vertexHeap;
 	}
 
-	public Vec2 getTransformedCoord(AnimatedNode object, Vec3 point){
+	public Vec2 getTransformedCoord(AnimatedNode object, Vec3 point) {
 		vertexHeap.set(point);
 
-		if(isAnimated && renderModel != null){
+		if (isAnimated && renderModel != null) {
 			RenderNode<AnimatedNode> renderNode = renderModel.getRenderNode(object);
-			if(renderNode != null){
+			if (renderNode != null) {
 				vertexHeap.transform(renderNode.getWorldMatrix());
 
 			}
@@ -197,11 +203,11 @@ public final class ResettableIdObjectRenderer {
         double zoom = coordinateSystem.getZoom();
 
         int attenuationStart = (int) (object.getAttenuationStart() * zoom);
-        if (attenuationStart > 0) {
+        if (0 < attenuationStart) {
             graphics.drawOval(xCoord - attenuationStart, yCoord - attenuationStart, attenuationStart * 2, attenuationStart * 2);
         }
         int attenuationEnd = (int) (object.getAttenuationEnd() * zoom);
-        if (attenuationEnd > 0) {
+        if (0 < attenuationEnd) {
             graphics.drawOval(xCoord - attenuationEnd, yCoord - attenuationEnd, attenuationEnd * 2, attenuationEnd * 2);
         }
     }

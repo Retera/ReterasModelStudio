@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
+import com.hiveworkshop.rms.ui.application.viewer.twiTestRenderMaster.ViewportSettings;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Vec3;
@@ -55,6 +56,7 @@ public class MDLSnapshot {
 	private float xangle;
 	private float yangle;
 	private boolean drawBackground;
+	ViewportSettings viewportSettings = new ViewportSettings();
 
 	public MDLSnapshot(final ModelView modelView, final int width, final int height, final ProgramPreferences programPreferences) throws LWJGLException {
 		this.modelView = modelView;
@@ -94,7 +96,7 @@ public class MDLSnapshot {
 	public void forceReloadTextures() {
 		texLoaded = true;
 
-		for (final Geoset geo : modelView.getModel().getGeosets()) {// .getModel().getGeosets()
+		for (final Geoset geo : modelView.getModel().getGeosets()) {
 			for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 				final Layer layer = geo.getMaterial().getLayers().get(i);
 				final Bitmap tex = layer.firstTexture();
@@ -121,7 +123,7 @@ public class MDLSnapshot {
 	}
 
 	public void addGeosets(final List<Geoset> geosets) {
-		for (final Geoset geo : geosets) {// .getModel().getGeosets()
+		for (final Geoset geo : geosets) {
 			for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 				final Layer layer = geo.getMaterial().getLayers().get(i);
 				final Bitmap tex = layer.firstTexture();
@@ -132,7 +134,7 @@ public class MDLSnapshot {
 
 	public void initGL() {
 		try {
-			if ((programPreferences == null) || programPreferences.textureModels()) {
+			if (viewportSettings.isRenderTextures()) {
 				texLoaded = true;
 				for (final Geoset geo : modelView.getModel().getGeosets()) {// .getModel().getGeosets()
 					for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
@@ -185,14 +187,12 @@ public class MDLSnapshot {
 		}
 	}
 
-	// public byte getPortFirstXYZ()
-	// {
-	// return m_d1;
-	// }
-	// public byte getPortSecondXYZ()
-	// {
-	// return m_d2;
-	// }
+//	public byte getPortFirstXYZ() {
+//		return m_d1;
+//	}
+//	public byte getPortSecondXYZ() {
+//		return m_d2;
+//	}
 	public int getWidth() {
 		return width;
 	}
@@ -254,8 +254,8 @@ public class MDLSnapshot {
 //	}
 
 	public void zoomToFitOld() {
-		setYangle(35);// model.getExtents() == null ? 25 :
-		// (float)(45-model.getExtents().getMaximumExtent().getZ()/400*45));
+		setYangle(35);
+		// model.getExtents() == null ? 25 : (float)(45-model.getExtents().getMaximumExtent().getZ()/400*45));
 		double width = 128;
 		double depth = 64;
 		final EditableModel model = modelView.getModel();
@@ -288,14 +288,13 @@ public class MDLSnapshot {
 			varianceGuy /= widthItems;
 			width = Math.sqrt(varianceGuy) * 6;
 		}
-		if (!loadedWidth && (exts != null) && (exts.getMaximumExtent() != null) && (exts.getMinimumExtent() != null)) {
+		if (!loadedWidth && exts != null && exts.getMaximumExtent() != null && exts.getMinimumExtent() != null) {
 			width = (exts.getMaximumExtent().x) / 2;
 			depth = (exts.getMaximumExtent().y) / 3;
 			loadedWidth = true;
 		}
 		setCameraPosition(new Vec3(0, -20, width));
-		setZoom(Math.min(1,
-				((exts == null) && (exts.getBoundsRadius() > 0)) ? (128 / width) : (32 / exts.getBoundsRadius())));
+		setZoom(Math.min(1, (exts == null && 0 < exts.getBoundsRadius()) ? (128 / width) : (32 / exts.getBoundsRadius())));
 	}
 
 	public void zoomToFit() {
@@ -327,7 +326,7 @@ public class MDLSnapshot {
 		double maxDistance = 0;
 		for (final Vec3 vertex : shapeData) {
 			final double distance = vertex.distance(center);
-			if (distance > maxDistance) {
+			if (maxDistance < distance) {
 				maxDistance = distance;
 			}
 		}
@@ -411,7 +410,7 @@ public class MDLSnapshot {
 	}
 
 	public boolean renderTextures() {
-		return texLoaded && ((programPreferences == null) || programPreferences.textureModels());
+		return texLoaded && viewportSettings.isRenderTextures();
 	}
 
 	public void paintGL() {
@@ -427,9 +426,9 @@ public class MDLSnapshot {
 				current_height = getHeight();
 				glViewport(0, 0, current_width, current_height);
 			}
-			if ((programPreferences != null) && (programPreferences.viewMode() == 0)) {
+			if (viewportSettings.isWireFrame()) {
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			} else if ((programPreferences == null) || (programPreferences.viewMode() == 1)) {
+			} else {
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
 			glViewport(0, 0, getWidth(), getHeight());
@@ -443,8 +442,7 @@ public class MDLSnapshot {
 			glEnable(GL_LIGHT1);
 			glEnable(GL_NORMALIZE);
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-			// System.out.println("max:
-			// "+GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE));
+			// System.out.println("max:" + GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE));
 			if (renderTextures()) {
 				glEnable(GL11.GL_TEXTURE_2D);
 			}
@@ -458,8 +456,7 @@ public class MDLSnapshot {
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
 			gluPerspective(45f, (float) current_width / (float) current_height, 1.0f, 1500.0f);
-			// GLU.gluOrtho2D(45f, (float)current_width/(float)current_height,
-			// 1.0f, 600.0f);
+			// GLU.gluOrtho2D(45f, (float)current_width/(float)current_height, 1.0f, 600.0f);
 			// glRotatef(angle, 0, 0, 0);
 			// glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
 			// gluOrtho2D(0.0f, (float) getWidth(), 0.0f, (float) getHeight());
@@ -485,12 +482,9 @@ public class MDLSnapshot {
 			glColor3f(2f, 2f, 2f);
 			drawEditibleGeosets(renderMask);
 			GL11.glDepthMask(true);
-			// System.out.println("max:
-			// "+GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE));
+			// System.out.println("max:" + GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE));
 			if (modelView.getHighlightedGeoset() != null) {
-				// for( int i = 0; i < dispMDL.highlight.material.layers.size();
-				// i++ )
-				// {
+				// for (int i = 0; i < dispMDL.highlight.material.layers.size(); i++) {
 				drawHighlightedGeoset(renderMask);
 				// }
 			}
@@ -498,7 +492,7 @@ public class MDLSnapshot {
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
-			if ((programPreferences != null) && programPreferences.showNormals()) {
+			if (viewportSettings.isShowNormals()) {
 				drawNormals(renderMask);
 				// GL11.glDisable(GL11.GL_BLEND);
 			}
@@ -538,10 +532,9 @@ public class MDLSnapshot {
 							}
 						}
 					}
-					// if( texture != null )
-					// {
-					// texture.release();
-					// }
+					//if (texture != null) {
+					//  texture.release();
+					//}
 					glEnd();
 				}
 			}
@@ -579,10 +572,9 @@ public class MDLSnapshot {
 							}
 						}
 					}
-					// if( texture != null )
-					// {
-					// texture.release();
-					// }
+					//if (texture != null) {
+					//  texture.release();
+					//}
 					glEnd();
 				}
 			}
@@ -611,8 +603,7 @@ public class MDLSnapshot {
 		final FloatBuffer ambientColor = BufferUtils.createFloatBuffer(4);
 		ambientColor.put(0.2f).put(0.2f).put(0.2f).put(1f).flip();
 		// float [] ambientColor = {0.2f, 0.2f, 0.2f, 1f};
-		// FloatBuffer buffer =
-		// ByteBuffer.allocateDirect(ambientColor.length*8).asFloatBuffer();
+		// FloatBuffer buffer = ByteBuffer.allocateDirect(ambientColor.length*8).asFloatBuffer();
 		// buffer.put(ambientColor).flip();
 		glLightModel(GL_LIGHT_MODEL_AMBIENT, ambientColor);
 
@@ -638,7 +629,7 @@ public class MDLSnapshot {
 //		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		glBegin(GL11.GL_LINES);
 		glColor3f(1f, 1f, 3f);
-		// if( wireframe.isSelected() )
+		// if (wireframe.isSelected())
 		for (final Geoset geo : modelView.getVisibleGeosets()) {// .getModel().getGeosets()
 			for (final Triangle tri : geo.getTriangles()) {
 				for (final GeosetVertex v : tri.getVerts()) {
@@ -655,63 +646,55 @@ public class MDLSnapshot {
 			}
 		}
 
-		// glPolygonMode( GL_FRONT, GL_POINTS );
-		// for (Geoset geo : dispMDL.visibleGeosets)
-		// {//.getModel().getGeosets()
-		// if( !dispMDL.editableGeosets.contains(geo) &&
-		// dispMDL.highlight != geo )
-		// for (Triangle tri : geo.m_triangle) {
-		// for (GeosetVertex v : tri.m_verts) {
-		// if( dispMDL.selection.contains(v))
-		// glColor3f(1f, 0f, 0f);
-		// else
-		// glColor3f(0f, 0f, 0f);
-		// GL11.glNormal3f((float) v.normal.y, (float) v.normal.z,
-		// (float) v.normal.x);
-		// GL11.glVertex3f((float) v.y/1.0f, (float) v.z/1.0f, (float)
-		// v.x/1.0f);
-		// }
-		// }
-		// }
+//		glPolygonMode( GL_FRONT, GL_POINTS );
+//		for (Geoset geo : dispMDL.visibleGeosets) {//.getModel().getGeosets()
+//			if (!dispMDL.editableGeosets.contains(geo) && dispMDL.highlight != geo) {
+//				for (Triangle tri : geo.m_triangle) {
+//					for (GeosetVertex v : tri.m_verts) {
+//						if (dispMDL.selection.contains(v)) {
+//							glColor3f(1f, 0f, 0f);
+//						} else {
+//							glColor3f(0f, 0f, 0f);
+//						}
+//						GL11.glNormal3f(v.normal.y, v.normal.z, v.normal.x);
+//						GL11.glVertex3f(v.y/1.0f, v.z/1.0f, v.x/1.0f);
+//					}
+//				}
+//			}
+//		}
 
 		glEnd();
 		// GL11.glDisable(GL11.GL_BLEND);
 	}
 
 	private void drawHighlightedGeoset(VertexFilter<? super GeosetVertex> renderMask) {
-		// for( int i = 0; i < dispMDL.highlight.material.layers.size();
-		// i++ )
-		// {
+		// for (int i = 0; i < dispMDL.highlight.material.layers.size(); i++) {
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_COLOR);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		// Layer layer = dispMDL.highlight.material.layers.get(i);
-		// Bitmap tex = layer.firstTexture();
-		// Texture texture = textureMap.get(tex);
-		// if( texture != null )
-		// {
-		// texture.bind();
-		// //GL11.glBindTexture(GL11.GL_TEXTURE_2D,texture.getTextureID());
-		// }
-		// if( layer.getFilterMode().equals("Additive") )
-		// {
-		// //GL11.glDisable(GL11.GL_DEPTH_TEST);
-		// GL11.glDepthMask(false);
-		// GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
-		// }
-		// else if( layer.getFilterMode().equals("AddAlpha") )
-		// {
-		// //GL11.glDisable(GL11.GL_DEPTH_TEST);
-		// GL11.glDepthMask(false);
-		// GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-		// }
-		// else
-		// {
-		// //GL11.glEnable(GL11.GL_DEPTH_TEST);
-		// GL11.glDepthMask(true);
-		// GL11.glBlendFunc(GL11.GL_SRC_ALPHA,
-		// GL11.GL_ONE_MINUS_SRC_ALPHA);
-		// }
+
+//		Layer layer = dispMDL.highlight.material.layers.get(i);
+//		Bitmap tex = layer.firstTexture();
+//		Texture texture = textureMap.get(tex);
+//		if (texture != null) {
+//			texture.bind();
+//			//GL11.glBindTexture(GL11.GL_TEXTURE_2D,texture.getTextureID());
+//		}
+//		if (layer.getFilterMode().equals("Additive")) {
+//			//GL11.glDisable(GL11.GL_DEPTH_TEST);
+//			GL11.glDepthMask(false);
+//			GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
+//		} else if (layer.getFilterMode().equals("AddAlpha")) {
+//			//GL11.glDisable(GL11.GL_DEPTH_TEST);
+//			GL11.glDepthMask(false);
+//			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+//		} else {
+//			//GL11.glEnable(GL11.GL_DEPTH_TEST);
+//			GL11.glDepthMask(true);
+//			GL11.glBlendFunc(GL11.GL_SRC_ALPHA,
+//			GL11.GL_ONE_MINUS_SRC_ALPHA);
+//		}
+
 		glColor3f(1f, 3f, 1f);
 		glBegin(GL11.GL_TRIANGLES);
 		for (final Triangle tri : modelView.getHighlightedGeoset().getTriangles()) {
@@ -730,7 +713,8 @@ public class MDLSnapshot {
 	}
 
 	private void setUpCamera() {
-		glTranslatef(0f + (cameraPos.x * (float) zoom), -70f - (cameraPos.y * (float) zoom),
+		glTranslatef(0f + (cameraPos.x * (float) zoom),
+				-70f - (cameraPos.y * (float) zoom),
 				-200f - (cameraPos.z * (float) zoom));
 		glRotatef(yangle, 1f, 0f, 0f);
 		glRotatef(xangle, 0f, 1f, 0f);
@@ -740,8 +724,7 @@ public class MDLSnapshot {
 	private void reloadIfNeeded() {
 		if (wantReloadAll) {
 			wantReloadAll = false;
-			wantReload = false;// If we just reloaded all, no need to reload
-			// some.
+			wantReload = false;// If we just reloaded all, no need to reload some.
 			try {
 				initGL();// Re-overwrite textures
 			} catch (final Exception e) {
@@ -756,104 +739,85 @@ public class MDLSnapshot {
 				e.printStackTrace();
 				ExceptionPopup.display("Error loading new texture:", e);
 			}
-		} else if (!texLoaded && ((programPreferences == null) || programPreferences.textureModels())) {
+		} else if (!texLoaded && viewportSettings.isRenderTextures()) {
 			forceReloadTextures();
 			texLoaded = true;
 		}
 	}
-	// public void paintGL() {
-	// super.paintGL();
-	// try {
-	// if( !initialized )
-	// {
-	// initGL();
-	// initialized = true;
-	// }
-	// System.out.println("printingGL");
-	//// makeCurrent();
-	// GL11.glBegin(GL11.GL_QUADS);
-	// GL11.glColor3f(0f,1f,1f);
-	// for (Geoset geo : dispMDL.getModel().getGeosets()) {
-	// for (Triangle tri : geo.m_triangle) {
-	// for (Vertex v : tri.m_verts) {
-	// GL11.glVertex3f((float) v.x, (float) v.y, (float) v.z);
-	// }
-	// }
-	// }
-	// GL11.glEnd();
-	//// swapBuffers();
-	// } catch (Exception e) {
-	// // Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	// }
+//	public void paintGL() {
+//		super.paintGL();
+//		try {
+//			if (!initialized) {
+//				initGL();
+//				initialized = true;
+//			}
+//			System.out.println("printingGL");
+////			makeCurrent();
+//			GL11.glBegin(GL11.GL_QUADS);
+//			GL11.glColor3f(0f,1f,1f);
+//			for (Geoset geo : dispMDL.getModel().getGeosets()) {
+//				for (Triangle tri : geo.m_triangle) {
+//					for (Vertex v : tri.m_verts) {
+//						GL11.glVertex3f((float) v.x, (float) v.y, (float) v.z);
+//					}
+//				}
+//			}
+//			GL11.glEnd();
+////			swapBuffers();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 
-	// public void paintComponent(Graphics g)
-	// {
-	// paintComponent(g,1);
-	// }
-	// public void paintComponent(Graphics g, int vertexSize)
-	// {
-	// super.paintComponent(g);
-	// dispMDL.drawGeosets(g,this,vertexSize);
-	// dispMDL.drawPivots(g,this,vertexSize);
-	// switch((int)m_d1)
-	// {
-	// case 0: g.setColor( new Color( 0, 255, 0 ) ); break;
-	// case 1: g.setColor( new Color( 255, 0, 0 ) ); break;
-	// case 2: g.setColor( new Color( 0, 0, 255 ) ); break;
-	// }
-	// //g.setColor( new Color( 255, 0, 0 ) );
-	// g.drawLine((int)Math.round(convertX(0)),(int)Math.round(convertY(0)),(int)Math.round(convertX(5)),(int)Math.round(convertY(0)));
-	//
-	// switch((int)m_d2)
-	// {
-	// case 0: g.setColor( new Color( 0, 255, 0 ) ); break;
-	// case 1: g.setColor( new Color( 255, 0, 0 ) ); break;
-	// case 2: g.setColor( new Color( 0, 0, 255 ) ); break;
-	// }
-	// //g.setColor( new Color( 255, 0, 0 ) );
-	// g.drawLine((int)Math.round(convertX(0)),(int)Math.round(convertY(0)),(int)Math.round(convertX(0)),(int)Math.round(convertY(5)));
-	//
-	// //Visual effects from user controls
-	// int xoff = 0;
-	// int yoff = 0;
-	// Component temp = this;
-	// while( temp != null )
-	// {
-	// xoff+=temp.getX();
-	// yoff+=temp.getY();
-	// if( temp.getClass() == ModelPanel.class )
-	// {
-	// temp = MainFrame.panel;
-	// }
-	// else
-	// {
-	// temp = temp.getParent();
-	// }
-	// }
-	//
-	// try {
-	// double mx =
-	// (MouseInfo.getPointerInfo().getLocation().x-xoff);//MainFrame.frame.getX()-8);
-	// double my =
-	// (MouseInfo.getPointerInfo().getLocation().y-yoff);//MainFrame.frame.getY()-30);
-	//
-	// //SelectionBox:
-	// if( selectStart != null )
-	// {
-	// Point sEnd = new Point((int)mx,(int)my);
-	// Rectangle2D.Double r = pointsToRect(selectStart,sEnd);
-	// g.setColor(MDLDisplay.selectColor);
-	// ((Graphics2D)g).draw(r);
-	// }
-	// }
-	// catch (Exception exc)
-	// {
-	// JOptionPane.showMessageDialog(null,"Error retrieving mouse coordinates.
-	// (Probably not a major issue. Due to sleep mode?)");
-	// }
-	// }
+//	public void paintComponent(Graphics g) {
+//		paintComponent(g,1);
+//	}
+//	public void paintComponent(Graphics g, int vertexSize) {
+//		super.paintComponent(g);
+//		dispMDL.drawGeosets(g,this,vertexSize);
+//		dispMDL.drawPivots(g,this,vertexSize);
+//		switch ((int)m_d1) {
+//			case 0 -> g.setColor(new Color(0, 255, 0));
+//			case 1 -> g.setColor(new Color(255, 0, 0));
+//			case 2 -> g.setColor(new Color(0, 0, 255));
+//		}
+//		//g.setColor(new Color(255, 0, 0));
+//		g.drawLine((int)Math.round(convertX(0)),(int)Math.round(convertY(0)),(int)Math.round(convertX(5)),(int)Math.round(convertY(0)));
+//		switch ((int)m_d2) {
+//			case 0 -> g.setColor(new Color(0, 255, 0));
+//			case 1 -> g.setColor(new Color(255, 0, 0));
+//			case 2 -> g.setColor(new Color(0, 0, 255));
+//		}
+//		//g.setColor(new Color(255, 0, 0));
+//		g.drawLine((int)Math.round(convertX(0)),(int)Math.round(convertY(0)),(int)Math.round(convertX(0)),(int)Math.round(convertY(5)));
+//		//Visual effects from user controls
+//		int xoff = 0;
+//		int yoff = 0;
+//		Component temp = this;
+//		while (temp != null) {
+//			xoff += temp.getX();
+//			yoff += temp.getY();
+//			if (temp.getClass() == ModelPanel.class) {
+//				temp = MainFrame.panel;
+//			} else {
+//				temp = temp.getParent();
+//			}
+//		}
+//		try {
+//			double mx = (MouseInfo.getPointerInfo().getLocation().x-xoff);//MainFrame.frame.getX()-8);
+//			double my = (MouseInfo.getPointerInfo().getLocation().y-yoff);//MainFrame.frame.getY()-30);
+//			//SelectionBox:
+//			if (selectStart != null) {
+//				Point sEnd = new Point((int)mx, (int)my);
+//				Rectangle2D.Double r = pointsToRect(selectStart, sEnd);
+//				g.setColor(MDLDisplay.selectColor);
+//				((Graphics2D)g).draw(r);
+//			}
+//		}
+//		catch (Exception exc) {
+//			JOptionPane.showMessageDialog(null,"Error retrieving mouse coordinates. (Probably not a major issue. Due to sleep mode?)");
+//		}
+//	}
 	public double convertX(final double x) {
 		return ((x + cameraPos.x) * zoom) + (getWidth() / 2.0);
 	}
@@ -871,36 +835,33 @@ public class MDLSnapshot {
 	}
 
 	public Rectangle2D.Double pointsToGeomRect(final Point a, final Point b) {
-		final Point2D.Double topLeft = new Point2D.Double(Math.min(geomX(a.x), geomX(b.x)),
-				Math.min(geomY(a.y), geomY(b.y)));
-		final Point2D.Double lowRight = new Point2D.Double(Math.max(geomX(a.x), geomX(b.x)),
-				Math.max(geomY(a.y), geomY(b.y)));
-		return new Rectangle2D.Double(topLeft.x, topLeft.y, (lowRight.x - (topLeft.x)),
-				((lowRight.y) - (topLeft.y)));
+		final Point2D.Double topLeft = new Point2D.Double(Math.min(geomX(a.x), geomX(b.x)), Math.min(geomY(a.y), geomY(b.y)));
+		final Point2D.Double lowRight = new Point2D.Double(Math.max(geomX(a.x), geomX(b.x)), Math.max(geomY(a.y), geomY(b.y)));
+		return new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x, lowRight.y - topLeft.y);
 	}
 
 	public Rectangle2D.Double pointsToRect(final Point a, final Point b) {
 		final Point2D.Double topLeft = new Point2D.Double(Math.min((a.x), (b.x)), Math.min((a.y), (b.y)));
 		final Point2D.Double lowRight = new Point2D.Double(Math.max((a.x), (b.x)), Math.max((a.y), (b.y)));
-		return new Rectangle2D.Double(topLeft.x, topLeft.y, (lowRight.x - (topLeft.x)),
-				((lowRight.y) - (topLeft.y)));
+		return new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x, lowRight.y - topLeft.y);
 	}
 
 	public static int loadTexture(final Layer layer, final BufferedImage image) {
-		// final String filterMode = layer.getFilterMode();
-		// if (filterMode != null ) {
-		// if (filterMode.equals("Additive")) {
-		// for(int x = 0; x < image.getWidth(); x++) {
-		// for(int y = 0; y < image.getHeight(); y++) {
-		// int rgb = image.getRGB(x, y);
-		// final int alpha = ((rgb & (0x000000FF)) + ((rgb & (0x0000FF00))>>8) +
-		// ((rgb & (0x00FF0000))>>16)) / (0xFF);
-		// rgb = (rgb & 0x00FFFFFF) | ((alpha << 24) & 0xFF000000);
-		// image.setRGB(x, y, rgb);
-		// }
-		// }
-		// }
-		// }
+//		 final FilterMode filterMode = layer.getFilterMode();
+//		 if (filterMode != null ) {
+//		    if (filterMode.equals(FilterMode.ADDITIVE)) {
+//		        for (int x = 0; x < image.getWidth(); x++) {
+//		            for (int y = 0; y < image.getHeight(); y++) {
+//		                int rgb = image.getRGB(x, y);
+//		                final int alpha = ((rgb & (0x000000FF))
+//				                + ((rgb & (0x0000FF00))>>8)
+//				                + ((rgb & (0x00FF0000))>>16)) / (0xFF);
+//		                rgb = (rgb & 0x00FFFFFF) | ((alpha << 24) & 0xFF000000);
+//		                image.setRGB(x, y, rgb);
+//		            }
+//		        }
+//		    }
+//		 }
 		return loadTexture(image);
 	}
 
@@ -940,8 +901,8 @@ public class MDLSnapshot {
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 
 		// Send texel data to OpenGL
-		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, image.getWidth(), image.getHeight(), 0, GL11.GL_RGBA,
-				GL11.GL_UNSIGNED_BYTE, buffer);
+		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, image.getWidth(), image.getHeight(), 0,
+				GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
 
 		// Return the texture ID so we can bind it later again
 		return textureID;

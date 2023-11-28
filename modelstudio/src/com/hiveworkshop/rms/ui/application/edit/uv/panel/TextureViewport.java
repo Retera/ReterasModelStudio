@@ -13,6 +13,7 @@ import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CubePainter;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.OldRenderer.GridPainter;
 import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
+import com.hiveworkshop.rms.ui.preferences.EditorColorPrefs;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.BetterAWTGLCanvas;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
@@ -45,6 +46,7 @@ public class TextureViewport extends BetterAWTGLCanvas {
 	private boolean wantReload = false;
 	private boolean wantReloadAll = false;
 	private int popupCount = 0;
+	private EditorColorPrefs colorPrefs;
 	private final ProgramPreferences programPreferences;
 
 	private long lastExceptionTimeMillis = 0;
@@ -61,10 +63,15 @@ public class TextureViewport extends BetterAWTGLCanvas {
 
 	ExtLog currentExt = new ExtLog(Vec3.ZERO, Vec3.ZERO, 0);
 	ExtLog modelExtent = new ExtLog(Vec3.ZERO, Vec3.ZERO, 0);
+	private boolean renderTextures = true;
+	private boolean wireFrame = false;
+	private boolean showNormals = false;
+	private boolean show3dVerts = false;
 
 	public TextureViewport() throws LWJGLException {
 		super();
 		this.programPreferences = ProgramGlobals.getPrefs();
+		this.colorPrefs = ProgramGlobals.getEditorColorPrefs();
 		cameraHandler = new CameraManager(this);
 		gridPainter = new GridPainter(cameraHandler);
 
@@ -148,7 +155,7 @@ public class TextureViewport extends BetterAWTGLCanvas {
 	@Override
 	public void initGL() {
 		try {
-			if ((programPreferences == null) || programPreferences.textureModels()) {
+			if (renderTextures) {
 				forceReloadTextures();
 			}
 		} catch (final Throwable e) {
@@ -186,8 +193,8 @@ public class TextureViewport extends BetterAWTGLCanvas {
 			enableGlThings(GL_DEPTH_TEST, GL_COLOR_MATERIAL, GL_LIGHTING, GL_LIGHT0, GL_LIGHT1, GL_NORMALIZE);
 			GL11.glDepthFunc(GL11.GL_LEQUAL);
 			GL11.glDepthMask(true);
-			if ((programPreferences != null) && (programPreferences.getPerspectiveBackgroundColor() != null)) {
-				float[] colorComponents = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.BACKGROUND_COLOR);
+			if (colorPrefs != null) {
+				float[] colorComponents = colorPrefs.getColorComponents(ColorThing.BACKGROUND_COLOR);
 				glClearColor(colorComponents[0], colorComponents[1], colorComponents[2], autoRepainting ? 1.0f : 1.0f);
 			} else {
 				glClearColor(.3f, .3f, .3f, autoRepainting ? 1.0f : 1.0f);
@@ -324,7 +331,7 @@ public class TextureViewport extends BetterAWTGLCanvas {
 				e.printStackTrace();
 				ExceptionPopup.display("Error loading new texture:", e);
 			}
-		} else if (!texLoaded && ((programPreferences == null) || programPreferences.textureModels())) {
+		} else if (!texLoaded && renderTextures) {
 			forceReloadTextures();
 		}
 	}
@@ -355,7 +362,7 @@ public class TextureViewport extends BetterAWTGLCanvas {
 
 
 	public boolean renderTextures() {
-		return texLoaded && ((programPreferences == null) || programPreferences.textureModels());
+		return texLoaded && renderTextures;
 	}
 
 	public void reloadTextures() {

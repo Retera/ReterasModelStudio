@@ -80,8 +80,8 @@ public class UVRenderer {
 	private void drawHighlightedGeosets() {
 		GL11.glDepthMask(true);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		if ((programPreferences != null) && (programPreferences.getHighlighTriangleColor() != null)) {
-			final Color highlightTriangleColor = programPreferences.getHighlighTriangleColor();
+		if (colorPrefs != null) {
+			final Color highlightTriangleColor = colorPrefs.getColor(ColorThing.TRIANGLE_AREA_HIGHLIGHTED);
 			glColor3f(highlightTriangleColor.getRed() / 255f, highlightTriangleColor.getGreen() / 255f, highlightTriangleColor.getBlue() / 255f);
 		} else {
 			glColor3f(1f, 3f, 1f);
@@ -118,8 +118,7 @@ public class UVRenderer {
 		if (geo != null) {
 			glBegin(GL11.GL_TRIANGLES);
 			for (Triangle tri : geo.getTriangles()) {
-//				if (programPreferences != null && !programPreferences.textureModels() && cameraHandler.isOrtho()) {
-				if (programPreferences != null && cameraHandler.isOrtho()) {
+				if (colorPrefs != null && cameraHandler.isOrtho()) {
 					getTriAreaColor(tri);
 				}
 				GeosetVertex[] verts = tri.getVerts();
@@ -264,7 +263,10 @@ public class UVRenderer {
 	}
 
 	private boolean correctLoD(Geoset geo, int formatVersion) {
-		if ((ModelUtils.isLevelOfDetailSupported(formatVersion)) && (geo.getLevelOfDetailName() != null) && (geo.getLevelOfDetailName().length() > 0) && levelOfDetail > -1) {
+		if (ModelUtils.isLevelOfDetailSupported(formatVersion)
+				&& geo.getLevelOfDetailName() != null
+				&& 0 < geo.getLevelOfDetailName().length()
+				&& -1 < levelOfDetail) {
 			return geo.getLevelOfDetail() == levelOfDetail;
 		}
 		return true;

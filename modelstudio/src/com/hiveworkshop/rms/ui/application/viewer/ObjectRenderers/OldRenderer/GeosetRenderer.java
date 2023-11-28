@@ -41,7 +41,7 @@ public class GeosetRenderer {
 	private Mat4 uvTransform = new Mat4();
 
 	boolean texLoaded = true;
-	public GeosetRenderer(CameraManager cameraHandler, ProgramPreferences programPreferences){
+	public GeosetRenderer(CameraManager cameraHandler, ProgramPreferences programPreferences) {
 		this.cameraHandler = cameraHandler;
 		this.programPreferences = programPreferences;
 		this.colorPrefs = ProgramGlobals.getEditorColorPrefs();
@@ -53,7 +53,7 @@ public class GeosetRenderer {
 	}
 	public GeosetRenderer updateModel(RenderModel renderModel, ModelView modelView, TextureThing textureThing) {
 		this.renderModel = renderModel;
-		if(renderModel != null){
+		if (renderModel != null) {
 			renderEnv = renderModel.getTimeEnvironment();
 			this.modelView = modelView;
 			this.textureThing = textureThing;
@@ -65,7 +65,7 @@ public class GeosetRenderer {
 		return this;
 	}
 
-	public GeosetRenderer doRender(boolean renderTextures, boolean wireFrame, boolean showNormals, boolean show3dVerts){
+	public GeosetRenderer doRender(boolean renderTextures, boolean wireFrame, boolean showNormals, boolean show3dVerts) {
 
 		int formatVersion = modelView.getModel().getFormatVersion();
 		renderGeosets(modelView.getVisibleGeosets(), formatVersion, false, renderTextures, wireFrame);
@@ -86,8 +86,8 @@ public class GeosetRenderer {
 	private void drawHighlightedGeosets(int formatVersion, boolean renderTextures) {
 		GL11.glDepthMask(true);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		if ((programPreferences != null) && (programPreferences.getHighlighTriangleColor() != null)) {
-			final Color highlightTriangleColor = programPreferences.getHighlighTriangleColor();
+		if (colorPrefs != null) {
+			final Color highlightTriangleColor = colorPrefs.getColor(ColorThing.TRIANGLE_LINE_HIGHLIGHTED);
 			glColor3f(highlightTriangleColor.getRed() / 255f, highlightTriangleColor.getGreen() / 255f, highlightTriangleColor.getBlue() / 255f);
 		} else {
 			glColor3f(1f, 3f, 1f);
@@ -182,7 +182,7 @@ public class GeosetRenderer {
 			boolean opaqueLayer = isOpaqueLayer(geo, renderTextures, layer);
 
 			if ((renderOpaque && opaqueLayer) || (!renderOpaque && !opaqueLayer)) {
-				if(!modelView.isEditable(geo) && !renderOpaque && (geo.getName().contains("Pelvis")) && !renderTextures){
+				if (!modelView.isEditable(geo) && !renderOpaque && (geo.getName().contains("Pelvis")) && !renderTextures) {
 					System.out.println("should render geo " + geo.getName() + ": " + (!renderOpaque && !opaqueLayer) + ", has renderGeo: " + renderModel.getRenderGeoset(geo));
 				}
 
@@ -217,7 +217,7 @@ public class GeosetRenderer {
 			glBegin(GL11.GL_TRIANGLES);
 			for (Triangle tri : geo.getTriangles()) {
 //				if (programPreferences != null && !programPreferences.textureModels() && cameraHandler.isOrtho()) {
-				if (programPreferences != null && !renderTextures && cameraHandler.isOrtho()) {
+				if (colorPrefs != null && !renderTextures && cameraHandler.isOrtho()) {
 					getTriAreaColor(tri);
 				}
 				GeosetVertex[] verts = tri.getVerts();
@@ -254,10 +254,10 @@ public class GeosetRenderer {
 
 	private Vec2 getUv(Layer layer, GeosetVertex vertex, Mat4 uvTransform) {
 		int coordId = layer.getCoordId();
-		if (coordId >= vertex.getTverts().size()) {
+		if (vertex.getTverts().size() <= coordId) {
 			coordId = vertex.getTverts().size() - 1;
 		}
-		if(uvTransform != null){
+		if (uvTransform != null) {
 			uvTemp.set(vertex.getTverts().get(coordId));
 			uvTemp.transform2(uvTransform);
 			return uvTemp;
@@ -266,7 +266,7 @@ public class GeosetRenderer {
 	}
 
 	private Mat4 getUVTransform(Layer layer) {
-		if(layer.getTextureAnim() != null){
+		if (layer.getTextureAnim() != null) {
 			uvTransform.setIdentity();
 
 			uvTransform.fromRotationTranslationScale(
@@ -408,10 +408,10 @@ public class GeosetRenderer {
 	}
 
 
-	private boolean triFullySelected(Triangle triangle){
+	private boolean triFullySelected(Triangle triangle) {
 		return modelView.isSelected(triangle.get(0)) && modelView.isSelected(triangle.get(1)) && modelView.isSelected(triangle.get(2));
 	}
-	private boolean triFullyEditable(Triangle triangle){
+	private boolean triFullyEditable(Triangle triangle) {
 		return modelView.isEditable(triangle.get(0)) && modelView.isEditable(triangle.get(1)) && modelView.isEditable(triangle.get(2));
 	}
 	private boolean correctLoD(Geoset geo, int formatVersion) {
@@ -421,9 +421,9 @@ public class GeosetRenderer {
 		return true;
 	}
 
-	public boolean renderTextures() {
-		return texLoaded && ((programPreferences == null) || programPreferences.textureModels());
-	}
+//	public boolean renderTextures() {
+//		return texLoaded && ((programPreferences == null) || programPreferences.textureModels());
+//	}
 
 	private void enableGlThings(int... thing) {
 		for (int t : thing) {

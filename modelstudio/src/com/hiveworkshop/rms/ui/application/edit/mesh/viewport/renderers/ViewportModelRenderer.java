@@ -7,8 +7,10 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportRenderableCamera;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.viewer.twiTestRenderMaster.ViewportSettings;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
+import com.hiveworkshop.rms.ui.preferences.EditorColorPrefs;
 import com.hiveworkshop.rms.util.ImageUtils.GU;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
@@ -53,10 +55,13 @@ public class ViewportModelRenderer {
 	private Map<GeosetVertex, Vec2> vertsMap = new HashMap<>();
 
 	Vec3 tempV3 = new Vec3();
+	ViewportSettings viewportSettings = new ViewportSettings();
+	EditorColorPrefs colorPrefs;
 
 
 	public ViewportModelRenderer(int vertexSize) {
 		idObjectRenderer = new ResettableIdObjectRenderer(vertexSize);
+		colorPrefs = ProgramGlobals.getEditorColorPrefs();
 	}
 
 	public void renderModel(Graphics2D graphics,
@@ -78,15 +83,15 @@ public class ViewportModelRenderer {
 			}
 		}
 
-		graphics.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.VERTEX));
+		graphics.setColor(colorPrefs.getColor(ColorThing.VERTEX));
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			drawVerts(graphics, geoset.getVertices());
 		}
 
-		graphics.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.VERTEX_SELECTED));
+		graphics.setColor(colorPrefs.getColor(ColorThing.VERTEX_SELECTED));
 		drawVerts(graphics, modelView.getSelectedVertices());
 
-		graphics.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.VERTEX_HIGHLIGHTED));
+		graphics.setColor(colorPrefs.getColor(ColorThing.VERTEX_HIGHLIGHTED));
 		if (modelView.getHighlightedGeoset() != null) {
 			drawVerts(graphics, modelView.getHighlightedGeoset().getVertices());
 		}
@@ -105,7 +110,7 @@ public class ViewportModelRenderer {
 
 	public void drawVerts(Graphics2D graphics, Collection<GeosetVertex> vertices) {
 		for (GeosetVertex v : vertices) {
-			if(vertsMap.get(v) != null){
+			if (vertsMap.get(v) != null) {
 				GU.fillCenteredSquare(graphics, vertsMap.get(v), ProgramGlobals.getPrefs().getVertexSize());
 			}
 		}
@@ -116,7 +121,7 @@ public class ViewportModelRenderer {
 		for (RenderGeoset.RenderVert vertex : renderGeoset.getRenderVerts()) {
 			vertsMap.computeIfAbsent(vertex.getVertex(), k -> new Vec2()).set(coordinateSystem.viewV(vertex.getRenderPos()));
 
-			if (ProgramGlobals.getPrefs().showNormals()) {
+			if (viewportSettings.isShowNormals()) {
 				tempV3.set(vertex.getRenderNorm()).scale((float) (12 / coordinateSystem.getZoom())).add(vertex.getRenderPos());
 				normalMap.computeIfAbsent(vertex.getVertex(), k -> new Vec2()).set(coordinateSystem.viewV(tempV3));
 			}
@@ -133,27 +138,27 @@ public class ViewportModelRenderer {
 			triV2[2] = vertsMap.get(v2);
 
 			if (modelView.getHighlightedGeoset() == geoset) {
-				triangleColor = ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.TRIANGLE_AREA_HIGHLIGHTED);
+				triangleColor = colorPrefs.getColor(ColorThing.TRIANGLE_AREA_HIGHLIGHTED);
 			} else if (modelView.isHidden(v0) || modelView.isHidden(v1) || modelView.isHidden(v2) || !modelView.isEditable(triangle)) {
-				triangleColor = ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.TRIANGLE_AREA_UNEDITABLE);
+				triangleColor = colorPrefs.getColor(ColorThing.TRIANGLE_AREA_UNEDITABLE);
 			} else if (modelView.isSelected(v0) && modelView.isSelected(v1) && modelView.isSelected(v2)) {
-				triangleColor = ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.TRIANGLE_AREA_SELECTED);
+				triangleColor = colorPrefs.getColor(ColorThing.TRIANGLE_AREA_SELECTED);
 			} else {
-				triangleColor = ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.TRIANGLE_AREA);
+				triangleColor = colorPrefs.getColor(ColorThing.TRIANGLE_AREA);
 			}
 
 
-			for(int i = 0; i<4; i++){
+			for (int i = 0; i<4; i++) {
 				GeosetVertex gv0 = triangle.get(i%3);
 				GeosetVertex gv1 = triangle.get((i+1)%3);
 				if (modelView.getHighlightedGeoset() == geoset) {
-					triangleLineColor = ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.TRIANGLE_LINE_HIGHLIGHTED);
+					triangleLineColor = colorPrefs.getColor(ColorThing.TRIANGLE_LINE_HIGHLIGHTED);
 				} else if (modelView.isHidden(gv0) || modelView.isHidden(gv1) || !modelView.isEditable(geoset)) {
-					triangleLineColor = ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.TRIANGLE_LINE_UNEDITABLE);
+					triangleLineColor = colorPrefs.getColor(ColorThing.TRIANGLE_LINE_UNEDITABLE);
 				} else if (modelView.isSelected(gv0) && modelView.isSelected(gv1)) {
-					triangleLineColor = ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.TRIANGLE_LINE_SELECTED);
+					triangleLineColor = colorPrefs.getColor(ColorThing.TRIANGLE_LINE_SELECTED);
 				} else {
-					triangleLineColor = ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.TRIANGLE_LINE);
+					triangleLineColor = colorPrefs.getColor(ColorThing.TRIANGLE_LINE);
 				}
 
 				if (triV2[0] != null && triV2[1] != null && triV2[2] != null) {

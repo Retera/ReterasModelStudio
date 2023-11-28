@@ -15,6 +15,8 @@ import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.*;
 import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
 import com.hiveworkshop.rms.ui.application.viewer.ViewportHelpers;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
+import com.hiveworkshop.rms.ui.preferences.ColorThing;
+import com.hiveworkshop.rms.ui.preferences.EditorColorPrefs;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.BetterAWTGLCanvas;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
@@ -36,6 +38,7 @@ import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL11.glEnable;
 
 public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
+	private final ProgramPreferences programPreferences;
 	private ModelView modelView;
 	private RenderModel renderModel;
 	private TimeEnvironmentImpl renderEnv;
@@ -51,7 +54,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 	private static final ShaderManager shaderManager = new ShaderManager();
 
 	Class<? extends Throwable> lastThrownErrorClass;
-	private final ProgramPreferences programPreferences;
 
 	private long lastExceptionTimeMillis = 0;
 
@@ -79,8 +81,9 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 	public AnimatedPerspectiveViewport() throws LWJGLException {
 		super();
 		this.programPreferences = ProgramGlobals.getPrefs();
+		EditorColorPrefs colorPrefs = ProgramGlobals.getEditorColorPrefs();
 
-		setBackground(programPreferences == null ? new Color(80, 80, 80) : programPreferences.getPerspectiveBackgroundColor());
+		setBackground(colorPrefs == null ? new Color(80, 80, 80) : colorPrefs.getColor(ColorThing.BACKGROUND_COLOR));
 		setMinimumSize(new Dimension(200, 200));
 //		cameraManager = new PortraitCameraManager();
 		cameraManager = new CameraManager(this);
@@ -142,7 +145,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 	public void setModel(ModelView modelView, RenderModel renderModel, boolean loadDefaultCamera) {
 		this.renderModel = renderModel;
 		this.modelView = modelView;
-		if(renderModel != null){
+		if (renderModel != null) {
 			renderModel.getTimeEnvironment().setSequence(null);
 			EditableModel model = modelView.getModel();
 			textureThing = new TextureThing(programPreferences);
@@ -213,7 +216,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 	@Override
 	public void initGL() {
 		try {
-			if ((programPreferences == null) || programPreferences.textureModels()) {
+			if (renderTextures) {
 				forceReloadTextures();
 			}
 			// JAVA 9+ or maybe WIN 10 allow ridiculous virtual pixes, this combination of
@@ -255,7 +258,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		try {
 			updateRenderModel();
 
-			if (programPreferences != null && wireFrame) {
+			if (wireFrame) {
 				pipeline.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
 			} else {
 				pipeline.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
@@ -334,7 +337,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 
 				paintAndUpdate();
 			}
-			if(bufferConsumer != null){
+			if (bufferConsumer != null) {
 //				glfwHideWindow(GLFW_VISIBLE, GLFW_FALSE)
 				bufferConsumer.accept(paintGL2());
 				bufferConsumer = null;
@@ -354,7 +357,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		}
 	}
 	Consumer<ByteBuffer> bufferConsumer;
-	public void setPixelBufferListener(Consumer<ByteBuffer> bufferConsumer){
+	public void setPixelBufferListener(Consumer<ByteBuffer> bufferConsumer) {
 		this.bufferConsumer = bufferConsumer;
 	}
 	public ByteBuffer paintGL2() {
@@ -369,7 +372,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		try {
 			updateRenderModel();
 
-			if (programPreferences != null && wireFrame) {
+			if (wireFrame) {
 				pipeline.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
 			} else {
 				pipeline.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
@@ -515,9 +518,9 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 //			pipeline.glColor3f(1f, 1f, 3f);
 
 		Vec4 colorHeap = new Vec4(0f, .0f, 1f, 1f);
-		// if( wireframe.isSelected() )
+		// if ( wireframe.isSelected() )
 		for (IdObject v : modelView.getVisibleIdObjects()) {
-			if(modelView.shouldRender(v)){
+			if (modelView.shouldRender(v)) {
 				RenderNode2 renderNode = renderModel.getRenderNode(v);
 
 				pipeline.addVert(renderNode.getPivot(), Vec3.Z_AXIS, colorHeap, Vec2.ORIGIN, colorHeap, Vec3.ZERO);
@@ -541,7 +544,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 			pipeline.glSetViewMatrix(cameraManager.getViewMat());
 			pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
 
-			if(renderModel != null){
+			if (renderModel != null) {
 				// https://learnopengl.com/Advanced-OpenGL/Geometry-Shader
 				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
@@ -574,7 +577,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 			pipeline.glSetViewMatrix(cameraManager.getViewMat());
 			pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
 
-			if(renderModel != null){
+			if (renderModel != null) {
 				// https://learnopengl.com/Advanced-OpenGL/Geometry-Shader
 				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
@@ -635,7 +638,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 				e.printStackTrace();
 				ExceptionPopup.display("Error loading new texture:", e);
 			}
-		} else if (!texLoaded && ((programPreferences == null) || programPreferences.textureModels())) {
+		} else if (!texLoaded && renderTextures) {
 			forceReloadTextures();
 			texLoaded = true;
 		}
@@ -872,7 +875,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 	}
 
 	public void setCamera(final Camera camera) {
-		if(cameraManager instanceof PortraitCameraManager){
+		if (cameraManager instanceof PortraitCameraManager) {
 			((PortraitCameraManager)cameraManager).setModelInstance(renderModel, camera);
 		}
 	}

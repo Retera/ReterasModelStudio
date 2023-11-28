@@ -14,6 +14,7 @@ import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
 import com.hiveworkshop.rms.ui.application.viewer.ViewportHelpers;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
+import com.hiveworkshop.rms.ui.preferences.EditorColorPrefs;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import org.lwjgl.BufferUtils;
@@ -27,6 +28,8 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 public class BufferFiller {
+	private final ProgramPreferences programPreferences;
+	private final EditorColorPrefs colorPrefs;
 	private ModelView modelView;
 	private RenderModel renderModel;
 	private TimeEnvironmentImpl renderEnv;
@@ -36,7 +39,6 @@ public class BufferFiller {
 	private final ShaderManager shaderManager = new ShaderManager();
 
 	Class<? extends Throwable> lastThrownErrorClass;
-	private ProgramPreferences programPreferences;
 
 	private long lastExceptionTimeMillis = 0;
 
@@ -62,15 +64,11 @@ public class BufferFiller {
 
 	int popupCount = 0;
 
-	Color bgColor;
-
 	boolean isHD = true;
 
-	public BufferFiller(ModelView modelView, RenderModel renderModel, boolean loadDefaultSequence){
+	public BufferFiller(ModelView modelView, RenderModel renderModel, boolean loadDefaultSequence) {
 		this.programPreferences = ProgramGlobals.getPrefs();
-
-		bgColor = programPreferences == null ? new Color(80, 80, 80) : programPreferences.getPerspectiveBackgroundColor();
-
+		this.colorPrefs = ProgramGlobals.getEditorColorPrefs();
 
 		geosetBufferFiller = new GeosetBufferFiller();
 		ribbonBufferFiller = new RibbonBufferFiller();
@@ -97,7 +95,7 @@ public class BufferFiller {
 	public void setModel(ModelView modelView, RenderModel renderModel, boolean loadDefaultSequence) {
 		this.renderModel = renderModel;
 		this.modelView = modelView;
-		if(renderModel != null){
+		if (renderModel != null) {
 			renderModel.getTimeEnvironment().setSequence(null);
 			EditableModel model = renderModel.getModel();
 			textureThing = new TextureThing(programPreferences);
@@ -123,12 +121,12 @@ public class BufferFiller {
 
 	long nextUpdate = 0;
 	int updateInterval = 16;
-	private void setUpdateInterval(int updateInterval){
+	private void setUpdateInterval(int updateInterval) {
 		this.updateInterval = updateInterval;
 	}
-	private void runUpdate(){
+	private void runUpdate() {
 		long millis = System.currentTimeMillis();
-		if(nextUpdate < millis){
+		if (nextUpdate < millis) {
 			nextUpdate = millis + updateInterval;
 			if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 5000) {
 				System.err.println("AnimatedPerspectiveViewport omitting frames due to avoid Exception log spam");
@@ -140,7 +138,7 @@ public class BufferFiller {
 			fillBuffers();
 		}
 	}
-	public void forceUpdate(){
+	public void forceUpdate() {
 		long millis = System.currentTimeMillis();
 		nextUpdate = millis + updateInterval*3L;
 		renderModel.updateAnimationTime().updateNodes2(programPreferences.getRenderParticles());
@@ -153,9 +151,10 @@ public class BufferFiller {
 
 	public void initGL() {
 		try {
-			if ((programPreferences == null) || programPreferences.textureModels()) {
-				forceReloadTextures();
-			}
+//			if ((programPreferences == null) || programPreferences.textureModels()) {
+//				forceReloadTextures();
+//			}
+			forceReloadTextures();
 
 			// For when UI scaling is not set to 100%.
 			// Found on Windows by either: Right-click desktop -> Display settings
@@ -187,7 +186,7 @@ public class BufferFiller {
 		runUpdate();
 		long timeSinceException = System.currentTimeMillis() - lastExceptionTimeMillis;
 		if (timeSinceException < 5000) {
-			if(timeSinceException<24){
+			if (timeSinceException < 24) {
 				System.err.println("AnimatedPerspectiveViewport omitting frames due to avoid Exception log spam");
 			}
 			return;
@@ -211,9 +210,9 @@ public class BufferFiller {
 		}
 	}
 
-	private void fillBuffers(){
-		ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.BACKGROUND_COLOR).getColorComponents(backgroundColor);
-		if(renderModel != null){
+	private void fillBuffers() {
+		colorPrefs.getColor(ColorThing.BACKGROUND_COLOR).getColorComponents(backgroundColor);
+		if (renderModel != null) {
 			geosetBufferFiller.fillBuffer(shaderManager, true);
 
 			nodeBufferFiller.fillBuffer(shaderManager.getPipeline(ShaderManager.PipelineType.BONE));
@@ -226,7 +225,7 @@ public class BufferFiller {
 			cameraBufferFiller.fillBuffer(shaderManager.getPipeline(ShaderManager.PipelineType.CAMERA));
 
 
-			if (programPreferences != null && programPreferences.getRenderParticles()) {
+			if (programPreferences.getRenderParticles()) {
 				ribbonBufferFiller.fillBuffer(shaderManager.getPipeline(ShaderManager.PipelineType.RIBBON));
 				particleBufferFiller.fillBuffer(shaderManager.getPipeline(ShaderManager.PipelineType.PARTICLE2));
 			}
@@ -253,21 +252,21 @@ public class BufferFiller {
 		setUpLights();
 
 
-		if(renderModel != null){
+		if (renderModel != null) {
 
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
 			if (programPreferences.showPerspectiveGrid()) {
 				RendererThing1.paintGrid(cameraManager, shaderManager.getPipeline(ShaderManager.PipelineType.GRID), width, height);
 			}
-			if(isHD){
+			if (isHD) {
 				ShaderPipeline pipeline = shaderManager.getPipeline(ShaderManager.PipelineType.MESH);
 				RendererThing1.renderGeosets(cameraManager, pipeline, width, height, viewportSettings.isWireFrame(), viewportSettings.isRenderTextures());
 			}
 			ShaderPipeline pipeline = shaderManager.getPipeline(ShaderManager.PipelineType.MESH);
 			RendererThing1.renderGeosets(cameraManager, pipeline, width, height, viewportSettings.isWireFrame(), viewportSettings.isRenderTextures());
 
-			if(viewportSettings.isShowNodes()){
+			if (viewportSettings.isShowNodes()) {
 				ShaderPipeline boneMarkerShaderPipeline = shaderManager.getPipeline(ShaderManager.PipelineType.BONE);
 				RendererThing1.renderNodes(cameraManager, boneMarkerShaderPipeline, width, height);
 				if (viewportSettings.isShowNormals()) {
@@ -298,7 +297,7 @@ public class BufferFiller {
 				RendererThing1.paintSelectionBox(cameraManager, selectionPipeline, width, height);
 			}
 
-			if (programPreferences != null && programPreferences.getRenderParticles()) {
+			if (programPreferences.getRenderParticles()) {
 				RendererThing1.renderRibbons(cameraManager, shaderManager.getPipeline(ShaderManager.PipelineType.RIBBON), width, height, false, viewportSettings.isRenderTextures());
 				RendererThing1.renderParticles(cameraManager, shaderManager.getPipeline(ShaderManager.PipelineType.PARTICLE2), width, height);
 			}
@@ -415,7 +414,7 @@ public class BufferFiller {
 				e.printStackTrace();
 				ExceptionPopup.display("Error loading new texture:", e);
 			}
-		} else if (!texLoaded && ((programPreferences == null) || programPreferences.textureModels())) {
+		} else if (!texLoaded) {
 			forceReloadTextures();
 //			doReloadTextures();
 			texLoaded = true;
@@ -452,7 +451,7 @@ public class BufferFiller {
 		geosetBufferFiller.setLod(levelOfDetail);
 	}
 
-	public void clearTextureMap(){
+	public void clearTextureMap() {
 		System.out.println("clearing textureMap for " + modelView.getModel().getName());
 		texLoaded = false;
 		textureThing.queClear();

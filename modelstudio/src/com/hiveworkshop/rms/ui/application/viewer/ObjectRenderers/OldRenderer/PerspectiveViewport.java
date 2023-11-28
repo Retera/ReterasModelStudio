@@ -14,6 +14,7 @@ import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
 import com.hiveworkshop.rms.ui.application.viewer.ViewportHelpers;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
+import com.hiveworkshop.rms.ui.preferences.EditorColorPrefs;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.BetterAWTGLCanvas;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
@@ -55,6 +56,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	private boolean wantReloadAll = false;
 	private int popupCount = 0;
 	private final ProgramPreferences programPreferences;
+	private EditorColorPrefs colorPrefs;
 
 	private long lastExceptionTimeMillis = 0;
 	private int levelOfDetail = -1;
@@ -80,6 +82,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	public PerspectiveViewport() throws LWJGLException {
 		super();
 		this.programPreferences = ProgramGlobals.getPrefs();
+		this.colorPrefs = ProgramGlobals.getEditorColorPrefs();
 		cameraHandler = new CameraManager(this);
 		boneRenderThing = new BoneRenderThing2(cameraHandler);
 		boneRenderThingBuf = new BoneRenderThingBuf(cameraHandler);
@@ -98,7 +101,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 //		keyAdapter = new KeylistenerThing(cameraHandler, programPreferences, this);
 		addKeyListener(keyAdapter);
 
-		setBackground(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.BACKGROUND_COLOR));
+		setBackground(colorPrefs.getColor(ColorThing.BACKGROUND_COLOR));
 		setMinimumSize(new Dimension(200, 200));
 
 
@@ -114,7 +117,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 
 	public PerspectiveViewport setModel(ModelView modelView, RenderModel renderModel, boolean loadDefaultCamera) {
 		this.renderModel = renderModel;
-		if(renderModel != null){
+		if (renderModel != null) {
 			this.modelView = modelView;
 			EditableModel model = modelView.getModel();
 			textureThing = new TextureThing(programPreferences);
@@ -233,7 +236,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		try {
 			System.out.println("initing GL");
 //			geosetRendererBuf.initShaderThing();
-			if ((programPreferences == null) || programPreferences.textureModels()) {
+			if (renderTextures) {
 				forceReloadTextures();
 			}
 			System.out.println("GL inited!!!!");
@@ -281,8 +284,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 
 				GL11.glDepthFunc(GL11.GL_LEQUAL);
 				GL11.glDepthMask(true);
-				if ((programPreferences != null) && (programPreferences.getPerspectiveBackgroundColor() != null)) {
-					float[] colorComponents = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.BACKGROUND_COLOR);
+				if (colorPrefs != null ) {
+					float[] colorComponents = colorPrefs.getColorComponents(ColorThing.BACKGROUND_COLOR);
 					glClearColor(colorComponents[0], colorComponents[1], colorComponents[2], autoRepainting ? 1.0f : 0.0f);
 				} else {
 					glClearColor(.3f, .3f, .3f, autoRepainting ? 1.0f : 0.0f);
@@ -426,7 +429,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 				e.printStackTrace();
 				ExceptionPopup.display("Error loading new texture:", e);
 			}
-		} else if (!texLoaded && ((programPreferences == null) || programPreferences.textureModels())) {
+		} else if (!texLoaded && renderTextures) {
 			forceReloadTextures();
 		}
 	}
@@ -504,7 +507,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		GL11.glEnable(GL_SHADE_MODEL);
 	}
 
-	private void renderIdObjects(){
+	private void renderIdObjects() {
 		glEnable(GL_CULL_FACE);
 		glDisable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
@@ -535,7 +538,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	}
 
 	public boolean renderTextures() {
-		return texLoaded && ((programPreferences == null) || programPreferences.textureModels());
+		return texLoaded && renderTextures;
 	}
 
 	public void reloadTextures() {
