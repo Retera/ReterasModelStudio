@@ -8,6 +8,7 @@ import java.awt.event.ComponentListener;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,6 +27,7 @@ import javax.swing.event.ListSelectionListener;
 
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.EditableModel;
+import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
@@ -45,6 +47,7 @@ public class SmartMappingChooserPanel extends JPanel {
 		pairingListModel = new DefaultListModel<Pairing>();
 		pairingList = new JList<Pairing>(pairingListModel);
 		final Map<String, LinkedList<BoneShell>> nameToBones = new HashMap<>();
+		Map<Bone, BoneShell> futureBoneToBoneShell = new HashMap<>();
 		for (int i = 0; i < newBonesInResultModel.size(); i++) {
 			final BoneShell futureBoneShell = newBonesInResultModel.get(i);
 			final String futureBoneName = futureBoneShell.bone.getName();
@@ -54,6 +57,7 @@ public class SmartMappingChooserPanel extends JPanel {
 				nameToBones.put(futureBoneName, bones);
 			}
 			bones.add(futureBoneShell);
+			futureBoneToBoneShell.put(futureBoneShell.bone, futureBoneShell);
 		}
 		final DefaultListModel<BoneShell> leftListModel = new DefaultListModel<BoneShell>();
 		for (final Bone bone : currentModel.sortedIdObjects(Bone.class)) {
@@ -63,16 +67,12 @@ public class SmartMappingChooserPanel extends JPanel {
 			leftListModel.addElement(bs);
 			LinkedList<BoneShell> defaultPairFriend = nameToBones.get(bone.getName());
 			IdObject currentParent = bone;
-			while (currentParent != null && defaultPairFriend == null || defaultPairFriend.isEmpty()) {
+			while ((currentParent != null) && ((defaultPairFriend == null) || defaultPairFriend.isEmpty())) {
 				defaultPairFriend = nameToBones.get(currentParent.getName());
 				currentParent = currentParent.getParent();
 			}
-			if (defaultPairFriend != null && !defaultPairFriend.isEmpty()) {
-				pairingListModel.addElement(new Pairing(bs, defaultPairFriend.getFirst()));
-				hasPairingSet.add(bs);
-				if (defaultPairFriend.size() > 1) {
-					defaultPairFriend.removeFirst();
-				}
+			if ((defaultPairFriend != null) && !defaultPairFriend.isEmpty()) {
+				chooseDefaultPairingFriend(bs, defaultPairFriend, futureBoneToBoneShell);
 			}
 		}
 		for (final Bone bone : importModel.sortedIdObjects(Bone.class)) {
@@ -82,16 +82,12 @@ public class SmartMappingChooserPanel extends JPanel {
 			leftListModel.addElement(bs);
 			LinkedList<BoneShell> defaultPairFriend = nameToBones.get(bone.getName());
 			IdObject currentParent = bone;
-			while (currentParent != null && (defaultPairFriend == null || defaultPairFriend.isEmpty())) {
+			while ((currentParent != null) && ((defaultPairFriend == null) || defaultPairFriend.isEmpty())) {
 				defaultPairFriend = nameToBones.get(currentParent.getName());
 				currentParent = currentParent.getParent();
 			}
-			if (defaultPairFriend != null && !defaultPairFriend.isEmpty()) {
-				pairingListModel.addElement(new Pairing(bs, defaultPairFriend.getFirst()));
-				hasPairingSet.add(bs);
-				if (defaultPairFriend.size() > 1) {
-					defaultPairFriend.removeFirst();
-				}
+			if ((defaultPairFriend != null) && !defaultPairFriend.isEmpty()) {
+				chooseDefaultPairingFriend(bs, defaultPairFriend, futureBoneToBoneShell);
 			}
 		}
 		importList = new BoneJList(leftListModel);
@@ -123,10 +119,12 @@ public class SmartMappingChooserPanel extends JPanel {
 				if (!hasPairingSet.contains(value)) {
 					if (isSelected) {
 						listCellRendererComponent.setBackground(Color.MAGENTA);
-					} else {
+					}
+					else {
 						listCellRendererComponent.setBackground(Color.PINK);
 					}
-				} else {
+				}
+				else {
 					listCellRendererComponent.setBackground(null);
 				}
 				return listCellRendererComponent;
@@ -143,7 +141,7 @@ public class SmartMappingChooserPanel extends JPanel {
 					System.out.println("select good");
 					final BoneShell left = importList.list.getSelectedValue();
 					final BoneShell right = currentList.list.getSelectedValue();
-					if (left != null && right != null) {
+					if ((left != null) && (right != null)) {
 						System.out.println("select real stuff");
 						int indexToRemove = -1;
 						for (int i = 0; i < pairingListModel.size(); i++) {
@@ -219,6 +217,32 @@ public class SmartMappingChooserPanel extends JPanel {
 
 			}
 		});
+	}
+
+	private void chooseDefaultPairingFriend(final BoneShell bs, LinkedList<BoneShell> defaultPairFriend,
+			Map<Bone, BoneShell> futureBoneToBoneShell) {
+		BoneShell firstDefaultFriend = defaultPairFriend.getFirst();
+		if (firstDefaultFriend.bone.getClass() == Helper.class) {
+			BoneShell chosenFriend = firstDefaultFriend;
+			List<IdObject> childrenNodes = firstDefaultFriend.bone.getChildrenNodes();
+			for (IdObject childNode : childrenNodes) {
+				if (childNode.getClass() == Bone.class) {
+					BoneShell boneShell = futureBoneToBoneShell.get(childNode);
+					if (boneShell != null) {
+						if ((chosenFriend == firstDefaultFriend)
+								|| (chosenFriend.bone.getAnimFlags().size() > boneShell.bone.getAnimFlags().size())) {
+							chosenFriend = boneShell;
+						}
+					}
+				}
+			}
+			firstDefaultFriend = chosenFriend;
+		}
+		pairingListModel.addElement(new Pairing(bs, firstDefaultFriend));
+		hasPairingSet.add(bs);
+		if (defaultPairFriend.size() > 1) {
+			defaultPairFriend.removeFirst();
+		}
 	}
 
 	public DefaultListModel<Pairing> getPairingListModel() {
