@@ -11,7 +11,7 @@ import com.hiveworkshop.rms.util.War3ID;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MdlxMaterial implements MdlxBlock, MdlxChunk {
+public class MdlxMaterial implements MdlxBlock {
 	public static final War3ID LAYS = War3ID.fromString("LAYS");
 	public int priorityPlane = 0;
 	public int flags;
@@ -83,11 +83,11 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		for (final String token : stream.readBlock()) {
 			switch (token) {
-				case MdlUtils.TOKEN_CONSTANT_COLOR -> flags |= 0x1;
-				case MdlUtils.TOKEN_TWO_SIDED -> flags |= 0x2;
-				case MdlUtils.TOKEN_SORT_PRIMS_NEAR_Z -> flags |= 0x8;
-				case MdlUtils.TOKEN_SORT_PRIMS_FAR_Z -> flags |= 0x10;
-				case MdlUtils.TOKEN_FULL_RESOLUTION -> flags |= 0x20;
+				case MdlUtils.TOKEN_CONSTANT_COLOR ->    flags |= 0x01;
+				case MdlUtils.TOKEN_TWO_SIDED ->         flags |= 0x02;
+				case MdlUtils.TOKEN_SORT_PRIMS_NEAR_Z -> flags |= 0x08;
+				case MdlUtils.TOKEN_SORT_PRIMS_FAR_Z ->  flags |= 0x10;
+				case MdlUtils.TOKEN_FULL_RESOLUTION ->   flags |= 0x20;
 				case MdlUtils.TOKEN_PRIORITY_PLANE -> priorityPlane = stream.readInt();
 				case MdlUtils.TOKEN_SHADER -> shader = stream.read();
 				case MdlUtils.TOKEN_LAYER -> {
@@ -104,36 +104,14 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 	public void writeMdl(final MdlTokenOutputStream stream, final int version) {
 		stream.startBlock(MdlUtils.TOKEN_MATERIAL);
 
-		if ((flags & 0x1) != 0) {
-			stream.writeFlag(MdlUtils.TOKEN_CONSTANT_COLOR);
-		}
+		if ((flags & 0x01) != 0) stream.writeFlag(MdlUtils.TOKEN_CONSTANT_COLOR);
+		if ((flags & 0x08) != 0) stream.writeFlag(MdlUtils.TOKEN_SORT_PRIMS_NEAR_Z);
+		if ((flags & 0x10) != 0) stream.writeFlag(MdlUtils.TOKEN_SORT_PRIMS_FAR_Z);
+		if ((flags & 0x20) != 0) stream.writeFlag(MdlUtils.TOKEN_FULL_RESOLUTION);
+		if (priorityPlane  != 0) stream.writeAttrib(MdlUtils.TOKEN_PRIORITY_PLANE, priorityPlane);
+		if ((flags & 0x02) != 0) stream.writeFlag(MdlUtils.TOKEN_TWO_SIDED);
 
-		if ((flags & 0x8) != 0) {
-			stream.writeFlag(MdlUtils.TOKEN_SORT_PRIMS_NEAR_Z);
-		}
-
-		if ((flags & 0x10) != 0) {
-			stream.writeFlag(MdlUtils.TOKEN_SORT_PRIMS_FAR_Z);
-		}
-
-		if ((flags & 0x20) != 0) {
-			stream.writeFlag(MdlUtils.TOKEN_FULL_RESOLUTION);
-		}
-
-		if (priorityPlane != 0) {
-			stream.writeAttrib(MdlUtils.TOKEN_PRIORITY_PLANE, priorityPlane);
-		}
-
-		if ((flags & 0x2) != 0) {
-			stream.writeFlag(MdlUtils.TOKEN_TWO_SIDED);
-		}
-//		if ((flags & 0x2) != 0 && 800 < version) {
-//			stream.writeFlag(MdlUtils.TOKEN_TWO_SIDED);
-//		}
-
-		if (800 < version) {
-			stream.writeStringAttrib(MdlUtils.TOKEN_SHADER, shader);
-		}
+		if (800 < version) stream.writeStringAttrib(MdlUtils.TOKEN_SHADER, shader);
 
 		for (final MdlxLayer layer : layers) {
 			layer.writeMdl(stream, version);

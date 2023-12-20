@@ -77,6 +77,7 @@ public class MdlxSequence implements MdlxBlock {
 		stream.endBlock();
 	}
 
+	@Override
 	public long getByteLength(final int version) {
 		return 132;
 	}

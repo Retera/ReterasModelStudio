@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MdlxGeoset implements MdlxBlock, MdlxChunk {
+public class MdlxGeoset implements MdlxBlock {
 	private static final War3ID VRTX = War3ID.fromString("VRTX"); // vertex position
 	private static final War3ID NRMS = War3ID.fromString("NRMS"); // vertex normal
 	private static final War3ID PTYP = War3ID.fromString("PTYP"); // face type group
@@ -260,7 +260,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 					final int count = stream.readInt();
 					stream.read(); // {
 					stream.read(); // Triangles
-					if(0 < count){
+					if (0 < count) {
 						faces = stream.readUInt16Array(new int[count], 3);
 						faceGroups = new long[] {count};
 					} else {
@@ -421,7 +421,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 		if (800 < version) {
 			stream.writeAttrib(MdlUtils.TOKEN_LEVELOFDETAIL, lod);
 	  
-			if (lodName.length() > 0) {
+			if (0 < lodName.length()) {
 			  stream.writeStringAttrib(MdlUtils.TOKEN_NAME, lodName);
 			}
 		  }
@@ -432,15 +432,16 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 	@Override
 	public long getByteLength(final int version) {
 		long size = 120
-				+ (vertices.length * 4L)
-				+ (normals.length * 4L)
-				+ (faceTypeGroups.length * 4L)
-				+ (faceGroups.length * 4L)
-				+ (faces.length * 2L)
-				+ vertexGroups.length
-				+ (matrixGroups.length * 4L)
-				+ (matrixIndices.length * 4L)
-				+ (sequenceExtents.size() * 28L);
+				+ (vertices.length          * 4L)
+				+ (normals.length           * 4L)
+				+ (faceTypeGroups.length    * 4L)
+				+ (faceGroups.length        * 4L)
+				+ (faces.length             * 2L)
+				+ (vertexGroups.length      * 1L)
+				+ (matrixGroups.length      * 4L)
+				+ (matrixIndices.length     * 4L)
+				+ (sequenceExtents.size()   * 28L);
+
 		for (final float[] uvSet : uvSets) {
 			size += 8 + (uvSet.length * 4L);
 		}

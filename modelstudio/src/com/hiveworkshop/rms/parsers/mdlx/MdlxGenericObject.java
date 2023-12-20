@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
+import com.hiveworkshop.rms.parsers.mdlx.util.MdxFlags;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
 
@@ -71,41 +72,16 @@ public abstract class MdlxGenericObject extends MdlxAnimatedObject {
 	public void writeGenericHeader(final MdlTokenOutputStream stream) {
 		stream.writeAttrib(MdlUtils.TOKEN_OBJECTID, objectId);
 
-		if (parentId != -1) {
-			stream.writeAttrib(MdlUtils.TOKEN_PARENT, parentId);
-		}
+		if (parentId != -1) stream.writeAttrib(MdlUtils.TOKEN_PARENT, parentId);
 
-		if ((flags & 0x40) != 0) {
-			stream.writeFlag(MdlUtils.TOKEN_BILLBOARDED_LOCK_Z);
-		}
-
-		if ((flags & 0x20) != 0) {
-			stream.writeFlag(MdlUtils.TOKEN_BILLBOARDED_LOCK_Y);
-		}
-
-		if ((flags & 0x10) != 0) {
-			stream.writeFlag(MdlUtils.TOKEN_BILLBOARDED_LOCK_X);
-		}
-
-		if ((flags & 0x8) != 0) {
-			stream.writeFlag(MdlUtils.TOKEN_BILLBOARDED);
-		}
-
-		if ((flags & 0x80) != 0) {
-			stream.writeFlag(MdlUtils.TOKEN_CAMERA_ANCHORED);
-		}
-
-		if ((flags & 0x2) != 0) {
-			stream.writeFlag(MdlUtils.TOKEN_DONT_INHERIT + " { " + MdlUtils.TOKEN_ROTATION + " }");
-		}
-
-		if ((flags & 0x1) != 0) {
-			stream.writeFlag(MdlUtils.TOKEN_DONT_INHERIT + " { " + MdlUtils.TOKEN_TRANSLATION + " }");
-		}
-
-		if ((flags & 0x4) != 0) {
-			stream.writeFlag(MdlUtils.TOKEN_DONT_INHERIT + " { " + MdlUtils.TOKEN_SCALING + " }");
-		}
+		if ((flags & MdxFlags.BILLBOARDED_LOCK_Z) != 0) stream.writeFlag(MdlUtils.TOKEN_BILLBOARDED_LOCK_Z);
+		if ((flags & MdxFlags.BILLBOARDED_LOCK_Y) != 0) stream.writeFlag(MdlUtils.TOKEN_BILLBOARDED_LOCK_Y);
+		if ((flags & MdxFlags.BILLBOARDED_LOCK_X) != 0) stream.writeFlag(MdlUtils.TOKEN_BILLBOARDED_LOCK_X);
+		if ((flags & MdxFlags.BILLBOARDED) != 0) stream.writeFlag(MdlUtils.TOKEN_BILLBOARDED);
+		if ((flags & MdxFlags.CAMERA_ANCHORED) != 0) stream.writeFlag(MdlUtils.TOKEN_CAMERA_ANCHORED);
+		if ((flags & MdxFlags.DONT_INHERIT_SCALING) != 0) stream.writeFlag(MdlUtils.TOKEN_DONT_INHERIT + " { " + MdlUtils.TOKEN_ROTATION + " }");
+		if ((flags & MdxFlags.DONT_INHERIT_TRANSLATION) != 0) stream.writeFlag(MdlUtils.TOKEN_DONT_INHERIT + " { " + MdlUtils.TOKEN_TRANSLATION + " }");
+		if ((flags & MdxFlags.DONT_INHERIT_ROTATION) != 0) stream.writeFlag(MdlUtils.TOKEN_DONT_INHERIT + " { " + MdlUtils.TOKEN_SCALING + " }");
 	}
 
 	public void writeGenericTimelines(final MdlTokenOutputStream stream) {

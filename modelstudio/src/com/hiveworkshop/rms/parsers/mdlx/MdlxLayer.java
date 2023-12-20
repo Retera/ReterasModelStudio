@@ -75,7 +75,7 @@ public class MdlxLayer extends MdlxAnimatedObject {
 			fresnelTeamColor = reader.readFloat32();
 			sizeTracker+=4;
 		}
-		if(1000 < version){
+		if (1000 < version) {
 
 			hdFlag = reader.readInt32();
 			sizeTracker+=4;
@@ -96,8 +96,8 @@ public class MdlxLayer extends MdlxAnimatedObject {
 		while (0 < tempSize) {
 			final War3ID name = new War3ID(reader.readTag());
 			MdlxTimeline<?> timeline = getTimeline(reader, name);
-			if(timeline != null){
-				if(War3ID.fromString("KMTF").equals(name) && hdTextureIds.size() == 1){
+			if (timeline != null) {
+				if (War3ID.fromString("KMTF").equals(name) && hdTextureIds.size() == 1) {
 					textureIdTimelineMap.put(0, timeline);
 				} else {
 					timelines.add(timeline);
@@ -110,17 +110,17 @@ public class MdlxLayer extends MdlxAnimatedObject {
 		}
 
 		sizeTracker += (reader.position() - pos);
-		for(; sizeTracker< size; sizeTracker+=4){
+		for (; sizeTracker< size; sizeTracker+=4) {
 				System.out.println(sizeTracker/4 + " (" + sizeTracker + "): " + reader.readInt32());
 		}
 	}
 
-	private int readAndDoStuff(BinaryReader reader, int sizeTracker, int numTextures){
+	private int readAndDoStuff(BinaryReader reader, int sizeTracker, int numTextures) {
 
-		for(int i = 0; i<numTextures; i++){
+		for (int i = 0; i < numTextures; i++) {
 			int animOrTextureId = reader.readInt32();
 			sizeTracker+=4;
-			if(1024<animOrTextureId){
+			if (1024 < animOrTextureId) {
 				int pos = reader.position();
 				i--;
 //				MdlxTimeline<?> timeline = getTimeline(animOrTextureId, reader);
@@ -141,7 +141,7 @@ public class MdlxLayer extends MdlxAnimatedObject {
 
 	private MdlxTimeline<?> getTimeline(BinaryReader reader, War3ID name) {
 		AnimationMap animationMap = AnimationMap.ID_TO_TAG.get(name);
-		if(animationMap != null){
+		if (animationMap != null) {
 			final MdlxTimeline<?> timeline = animationMap.getNewTimeline();
 
 			timeline.readMdx(reader);
@@ -157,7 +157,7 @@ public class MdlxLayer extends MdlxAnimatedObject {
 		writer.writeUInt32(filterMode.ordinal());
 		writer.writeUInt32(flags);
 
-		if(version < 1100){
+		if (version < 1100) {
 			writer.writeInt32(textureId);
 		} else {
 			writer.writeInt32(0);
@@ -177,15 +177,15 @@ public class MdlxLayer extends MdlxAnimatedObject {
 			}
 		}
 
-		if(1000 < version){
+		if (1000 < version) {
 			writer.writeInt32(hdFlag);
 			writer.writeInt32(hdTextureIds.size());
-			for(int i = 0; i < hdTextureIds.size(); i++){
+			for (int i = 0; i < hdTextureIds.size(); i++) {
 				Integer textureID = hdTextureIds.get(i);
 				textureID = (textureID == null || textureID == -1) ? 0 : textureID;
 				writer.writeInt32(textureID);
 				writer.writeInt32(hdTextureSlots.get(i));
-				if(textureIdTimelineMap.get(i) != null){
+				if (textureIdTimelineMap.get(i) != null) {
 					textureIdTimelineMap.get(i).writeMdx(writer);
 				}
 			}
@@ -251,38 +251,17 @@ public class MdlxLayer extends MdlxAnimatedObject {
 		stream.startBlock(MdlUtils.TOKEN_LAYER);
 
 		stream.writeAttrib(MdlUtils.TOKEN_FILTER_MODE, filterMode.toString());
+		if ((flags & 0x001) != 0) stream.writeFlag(MdlUtils.TOKEN_UNSHADED);
+		if ((flags & 0x002) != 0) stream.writeFlag(MdlUtils.TOKEN_SPHERE_ENV_MAP);
+		if ((flags & 0x010) != 0) stream.writeFlag(MdlUtils.TOKEN_TWO_SIDED);
+		if ((flags & 0x020) != 0) stream.writeFlag(MdlUtils.TOKEN_UNFOGGED);
+		if ((flags & 0x040) != 0) stream.writeFlag(MdlUtils.TOKEN_NO_DEPTH_TEST);
+		if ((flags & 0x080) != 0) stream.writeFlag(MdlUtils.TOKEN_NO_DEPTH_SET);
+		if ((flags & 0x100) != 0 && 800 < version) stream.writeFlag(MdlUtils.TOKEN_UNLIT);
 
-		if ((flags & 0x1) != 0) {
-			stream.writeFlag(MdlUtils.TOKEN_UNSHADED);
-		}
-
-		if ((flags & 0x2) != 0) {
-			stream.writeFlag(MdlUtils.TOKEN_SPHERE_ENV_MAP);
-		}
-
-		if ((flags & 0x10) != 0) {
-			stream.writeFlag(MdlUtils.TOKEN_TWO_SIDED);
-		}
-
-		if ((flags & 0x20) != 0) {
-			stream.writeFlag(MdlUtils.TOKEN_UNFOGGED);
-		}
-
-		if ((flags & 0x40) != 0) {
-			stream.writeFlag(MdlUtils.TOKEN_NO_DEPTH_TEST);
-		}
-
-		if ((flags & 0x100) != 0) {
-			stream.writeFlag(MdlUtils.TOKEN_NO_DEPTH_SET);
-		}
-
-		if (version > 800 && (flags & 0x100) != 0) {
-			stream.writeFlag(MdlUtils.TOKEN_UNLIT);
-		}
-
-		if(1000 < version) {
-			for(int i = 0; i < hdTextureIds.size(); i++){
-				if(textureIdTimelineMap.get(i) != null){
+		if (1000 < version) {
+			for (int i = 0; i < hdTextureIds.size(); i++) {
+				if (textureIdTimelineMap.get(i) != null) {
 					textureIdTimelineMap.get(i).writeMdl(stream);
 				} else {
 					stream.writeAttrib(MdlUtils.TOKEN_STATIC_TEXTURE_ID, hdTextureIds.get(i));
@@ -304,7 +283,7 @@ public class MdlxLayer extends MdlxAnimatedObject {
 			stream.writeFloatAttrib(MdlUtils.TOKEN_STATIC_ALPHA, alpha);
 		}
 
-		if (version > 800) {
+		if (800 < version) {
 			if (!writeTimeline(stream, AnimationMap.KMTE) && emissiveGain != 1) {
 				stream.writeFloatAttrib(MdlUtils.TOKEN_STATIC_EMISSIVE_GAIN, emissiveGain);
 			}
@@ -329,19 +308,19 @@ public class MdlxLayer extends MdlxAnimatedObject {
 	public long getByteLength(final int version) {
 		long byteLength = 28 + super.getByteLength(version);
 
-		if (version > 800) {
+		if (800 < version) {
 			byteLength += 4;
 
-			if (version > 900) {
+			if (900 < version) {
 				byteLength += 20;
-				if(1000 < version){
+				if (1000 < version) {
 					byteLength += 8;
-					if(!hdTextureSlots.isEmpty()){
+					if (!hdTextureSlots.isEmpty()) {
 						byteLength += 8L * hdTextureSlots.size();
 					}
 
-					for(MdlxTimeline<?> timeline : textureIdTimelineMap.values()){
-						if(timeline != null){
+					for (MdlxTimeline<?> timeline : textureIdTimelineMap.values()) {
+						if (timeline != null) {
 							byteLength += timeline.getByteLength();
 						}
 					}

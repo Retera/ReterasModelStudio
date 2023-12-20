@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
 
-public interface MdlxBlock {
+public interface MdlxBlock extends MdlxChunk {
 	void readMdx(final BinaryReader reader, final int version);
 
 	void writeMdx(final BinaryWriter writer, final int version);

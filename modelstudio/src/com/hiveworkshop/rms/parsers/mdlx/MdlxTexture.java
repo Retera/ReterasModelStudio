@@ -32,7 +32,7 @@ public class MdlxTexture implements MdlxBlock {
 			switch (token) {
 				case MdlUtils.TOKEN_IMAGE -> path = stream.read();
 				case MdlUtils.TOKEN_REPLACEABLE_ID -> replaceableId = stream.readInt();
-				case MdlUtils.TOKEN_WRAP_WIDTH -> wrapFlag |= 0x1;
+				case MdlUtils.TOKEN_WRAP_WIDTH ->  wrapFlag |= 0x1;
 				case MdlUtils.TOKEN_WRAP_HEIGHT -> wrapFlag |= 0x2;
 				default -> ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Texture: " + token);
 			}
@@ -58,6 +58,7 @@ public class MdlxTexture implements MdlxBlock {
 		stream.endBlock();
 	}
 
+	@Override
 	public long getByteLength(final int version) {
 		return 268;
 	}
