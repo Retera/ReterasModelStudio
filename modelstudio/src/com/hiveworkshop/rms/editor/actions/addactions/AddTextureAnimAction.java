@@ -14,11 +14,12 @@ public class AddTextureAnimAction implements UndoAction {
 	private final ModelStructureChangeListener changeListener;
 
 	public AddTextureAnimAction(EditableModel model, AnimFlag<?> animFlag, ModelStructureChangeListener changeListener) {
+		this(new TextureAnim(animFlag == null ? new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION) : animFlag), model, changeListener);
+	}
+
+	public AddTextureAnimAction(TextureAnim textureAnim, EditableModel model, ModelStructureChangeListener changeListener) {
 		this.model = model;
-		if(animFlag == null){
-			animFlag = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION);
-		}
-		textureAnim = new TextureAnim(animFlag);
+		this.textureAnim = textureAnim;
 
 		this.changeListener = changeListener;
 	}

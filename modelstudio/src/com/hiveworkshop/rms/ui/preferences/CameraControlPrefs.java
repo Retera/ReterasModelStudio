@@ -46,7 +46,7 @@ public class CameraControlPrefs {
 		String[] lines = string.split("\n");
 		for (String line : lines) {
 			String[] s = line.split("=");
-			if (s.length > 1) {
+			if (1 < s.length) {
 				try {
 					CameraShortCut shortCut = CameraShortCut.valueOf(s[0].strip());
 
@@ -54,7 +54,7 @@ public class CameraControlPrefs {
 //					int keyCode = parseIntString(s[1]);
 					shortCutMap.put(shortCut, keyStroke);
 				} catch (Exception e) {
-					System.out.println("failed to parse keybinding \"" + line + "\":");
+					System.out.println("failed to parse cameraControl \"" + line + "\":");
 					System.out.println(e.getMessage());
 				}
 			}

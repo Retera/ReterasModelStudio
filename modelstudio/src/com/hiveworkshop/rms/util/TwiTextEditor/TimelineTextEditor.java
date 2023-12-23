@@ -291,7 +291,7 @@ public class TimelineTextEditor<T> {
 				if(tans && eLines.length<3){
 					eLines = sEntry.split("(,\\s*\\{)|([Tt][Aa][Nn])");
 				}
-				String[] time_value = eLines[0].strip().split(":");
+				String[] time_value = eLines[0].strip().split(":\\s*");
 				System.out.println("time: " + time_value[0]);
 				if (1 < time_value.length){
 					System.out.println("value: " + time_value[1]);

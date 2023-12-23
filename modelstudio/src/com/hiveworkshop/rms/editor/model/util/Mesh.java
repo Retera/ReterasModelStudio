@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public final class Mesh {
@@ -23,6 +24,18 @@ public final class Mesh {
 
 	public Mesh add(GeosetVertex vertex) {
 		vertices.add(vertex);
+		return this;
+	}
+
+	public Mesh add(GeosetVertex... vertices) {
+		this.vertices.addAll(Arrays.asList(vertices));
+		return this;
+	}
+
+	public Mesh add(GeosetVertex[]... vertexGrid) {
+		for (GeosetVertex[] vertices : vertexGrid){
+			this.vertices.addAll(Arrays.asList(vertices));
+		}
 		return this;
 	}
 

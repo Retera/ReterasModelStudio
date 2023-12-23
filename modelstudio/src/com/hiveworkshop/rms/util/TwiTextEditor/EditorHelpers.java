@@ -265,7 +265,7 @@ public class EditorHelpers {
 		String flagToken;
 
 		private String valueRegex = "[\\S][^\\n\\r]+";
-		private String weedingRegex = "[\\n\\r]";
+		private String weedingRegex = "[\\n\\r]|(,$)";
 
 		public TextureEditor(ModelHandler modelHandler) {
 			this(modelHandler, MdlUtils.TOKEN_TEXTURE_ID, null);

@@ -20,7 +20,9 @@ public enum ColorThing {
 	NODE_UNEDITABLE(new Color(50, 100, 255, 102)),
 	NODE_HIGHLIGHTED(new Color(50, 200, 255, 255)),
 	SELECTED_NODES_CHILDREN(new Color(140, 030, 255, 255)),
-	BACKGROUND_COLOR(new Color(80, 80, 80)),
+//	LIGHT_COLOR(new Color(255, 255, 150, 255)),
+	SELECT_BOX_COLOR(new Color(255, 000, 000, 255)),
+	BACKGROUND_COLOR(new Color(80, 80, 80, 255)),
 	UV_EDIT_BACKGROUND_COLOR(new Color(80, 80, 80));
 	final Color internalColor;
 

@@ -69,7 +69,7 @@ public class EditorColorPrefs {
 		String[] lines = string.split("\n");
 		for (String line : lines) {
 			String[] s = line.split("=");
-			if (s.length > 1) {
+			if (1 < s.length) {
 				try {
 					ColorThing colorThing = ColorThing.valueOf(s[0].strip());
 
@@ -77,7 +77,7 @@ public class EditorColorPrefs {
 					Color color = new Color(ints[0], ints[1], ints[2], ints[3]);
 					colorMap.put(colorThing, color);
 				} catch (Exception e) {
-					System.out.println("failed to parse keybinding \"" + line + "\":");
+					System.out.println("failed to parse color \"" + line + "\":");
 					System.out.println(e.getMessage());
 				}
 			}
@@ -90,7 +90,7 @@ public class EditorColorPrefs {
 		Map<String, Color> stringColorMap = new HashMap<>();
 		for (String line : lines) {
 			String[] s = line.split("=");
-			if (s.length > 1) {
+			if (1 < s.length) {
 				int[] ints = parseIntString(s[1]);
 				Color color = new Color(ints[0], ints[1], ints[2], ints[3]);
 				stringColorMap.put(s[0].strip(), color);
