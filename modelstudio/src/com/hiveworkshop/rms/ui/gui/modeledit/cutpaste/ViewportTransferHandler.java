@@ -3,7 +3,10 @@ package com.hiveworkshop.rms.ui.gui.modeledit.cutpaste;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.addactions.AddCameraAction;
 import com.hiveworkshop.rms.editor.actions.addactions.AddGeosetAction;
+import com.hiveworkshop.rms.editor.actions.addactions.AddTextureAnimAction;
+import com.hiveworkshop.rms.editor.actions.animation.AddSequenceAction;
 import com.hiveworkshop.rms.editor.actions.model.AddFaceEffectAction;
+import com.hiveworkshop.rms.editor.actions.model.bitmap.AddBitmapAction;
 import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.editor.actions.nodes.AddNodeAction;
 import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
@@ -12,6 +15,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.util.ModelFactory.TempOpenModelStuff;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.util.TempSaveModelStuff;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.MdlLoadSave;
@@ -20,15 +24,12 @@ import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
-import com.hiveworkshop.rms.ui.application.edit.mesh.GeometryModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportPanel;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.OldRenderer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
@@ -45,101 +46,70 @@ import java.util.*;
 public class ViewportTransferHandler extends TransferHandler {
 
 	private static final String PLACEHOLDER_TAG = "_COPYPLACEHOLDER";
-	/**
-	 * Perform the actual data import.
-	 */
+
 	@Override
 	public boolean importData(TransferHandler.TransferSupport info) {
-		String data;
-		EditableModel pastedModel;
-
-		// If we can't handle the import, bail now.
-		if (!canImport(info)) {
-
-//			System.out.println("cant Imp");
-			return false;
-		}
-
-		PerspectiveViewport pv = null;
-		DisplayPanel dp = null;
-		ViewportPanel dpc = null;
-//		System.out.println("pasting into " + info.getComponent());
-
-		if (info.getComponent() instanceof PerspectiveViewport) {
-//			System.out.println("found PerspectiveViewport");
-			pv = (PerspectiveViewport) info.getComponent();
-		}
-		if (info.getComponent() instanceof DisplayPanel) {
-//			System.out.println("found DisplayPanel");
-			dp = (DisplayPanel) info.getComponent();
-		}
-		if (info.getComponent() instanceof ViewportPanel) {
-//			System.out.println("found DisplayPanel");
-			dpc = (ViewportPanel) info.getComponent();
-		}
-
-		// Fetch the data -- bail if this fails
-		try {
-			data = (String) info.getTransferable().getTransferData(DataFlavor.stringFlavor);
-			MdlxModel mdlxModel = MdxUtils.modelFrom(ByteBuffer.wrap(data.getBytes()));
-			pastedModel = TempOpenModelStuff.createEditableModel(mdlxModel);
-//			System.out.println("done reading model_______________________________________________________");
-		} catch (final UnsupportedFlavorException ufe) {
-			System.out.println("importData: unsupported data flavor");
-			return false;
-		} catch (final IOException ioe) {
-			System.out.println("importData: I/O exception");
-			return false;
-		}
-
-//		if (viewport != null) {
-//			if (info.isDrop()) { // This is a drop
-////				System.out.println("drop Viewport_______________________________________________________");
-//				Viewport.DropLocation dl = (Viewport.DropLocation) info.getDropLocation();
-//				Point dropPoint = dl.getDropPoint();
-//				pasteModelIntoViewport(pastedModel, viewport, dropPoint);
-//			} else { // This is a paste
-////				System.out.println("paste Viewport_______________________________________________________");
-//				pasteModelIntoViewport(pastedModel, viewport, viewport.getLastMouseMotion());
-//			}
-//		}
-		if (pv != null || dp != null || dpc != null) {
-			Point point = new Point(0, 0);
-			if (info.isDrop()) { // This is a drop
-//				System.out.println("drop PerspectiveViewport_______________________________________________________");
-				DropLocation dl = info.getDropLocation();
-				Point dropPoint = dl.getDropPoint();
-				pasteModelIntoViewport(pastedModel, dropPoint);
-			} else { // This is a paste
-
-//				System.out.println("paste PerspectiveViewport_______________________________________________________");
-				pasteModelIntoViewport(pastedModel, point);
+		if (canImport(info) && getViewPort(info) != null) {
+			EditableModel pastedModel = getPastedModel(info);
+			if (pastedModel != null) {
+				Point point = new Point(0, 0);
+				if (info.isDrop()) { // This is a drop
+					DropLocation dl = info.getDropLocation();
+					Point dropPoint = dl.getDropPoint();
+					pasteModelIntoViewport(pastedModel, dropPoint);
+				} else { // This is a paste
+					pasteModelIntoViewport(pastedModel, point);
+				}
+				return true;
 			}
 		}
 
-//		System.out.println("done?_______________________________________________________");
-		return true;
+		return false;
+	}
+
+	private Component getViewPort(TransferSupport info) {
+		Component viewPort = null;
+		if (info.getComponent() instanceof PerspectiveViewport
+				|| info.getComponent() instanceof DisplayPanel
+				|| info.getComponent() instanceof ViewportPanel) {
+			viewPort = info.getComponent();
+		}
+		return viewPort;
+	}
+
+	private EditableModel getPastedModel(TransferHandler.TransferSupport info) {
+		try {
+			String data = (String) info.getTransferable().getTransferData(DataFlavor.stringFlavor);
+			MdlxModel mdlxModel = MdxUtils.modelFrom(ByteBuffer.wrap(data.getBytes()));
+			return TempOpenModelStuff.createEditableModel(mdlxModel);
+		} catch (final UnsupportedFlavorException ufe) {
+			System.out.println("importData: unsupported data flavor");
+		} catch (final IOException ioe) {
+			System.out.println("importData: I/O exception");
+		}
+		return null;
 	}
 
 	private void pasteModelIntoViewport(EditableModel pastedModel, Point dropPoint) {
-//		System.out.println("pasting model!");
-//		doSomething(pastedModel);
-
-		// this is the model they're actually working on
 		ModelHandler currModelHandler = ProgramGlobals.getCurrentModelPanel().getModelHandler();
 		EditableModel currentModel = currModelHandler.getModel();
 		List<UndoAction> undoActions = new ArrayList<>();
 		Map<String, IdObject> placeHolderBones = new HashMap<>();
 		Map<IdObject, IdObject> placeHolderBonesToModelBones = new HashMap<>();
 
-		Map<Sequence, Sequence> sequenceMap = getSequenceMap(pastedModel.getAllSequences(), currentModel.getAllSequences());
+		ArrayList<Sequence> allSequences = currentModel.getAllSequences();
+		for (GlobalSeq globalSeq : pastedModel.getGlobalSeqs()) {
+			if (!currentModel.contains(globalSeq)) {
+				undoActions.add(new AddSequenceAction(currentModel, globalSeq.deepCopy(), null));
+				allSequences.add(globalSeq);
+			}
+		}
+		Map<Sequence, Sequence> sequenceMap = getSequenceMap(pastedModel.getAllSequences(), allSequences);
+		ModelUtils.doForAnimFlags(pastedModel, a -> replaceAnimations(a, sequenceMap));
 
 		Set<IdObject> validIdObjects = new HashSet<>();
 		for (IdObject idObject : pastedModel.getIdObjects()) {
 			if (!idObject.getName().endsWith(PLACEHOLDER_TAG)) {
-				for (AnimFlag<?> animFlag : idObject.getAnimFlags()) {
-					replaceAnimations(animFlag, sequenceMap);
-				}
 				undoActions.add(new AddNodeAction(currentModel, idObject, null));
 				placeHolderBonesToModelBones.put(idObject, idObject);
 				validIdObjects.add(idObject);
@@ -156,9 +126,6 @@ public class ViewportTransferHandler extends TransferHandler {
 		List<GeosetVertex> pastedVerts = new ArrayList<>();
 		for (Geoset pastedGeoset : pastedModel.getGeosets()) {
 			pastedGeoset.setParentModel(currentModel);
-			for (AnimFlag<?> animFlag : pastedGeoset.getAnimFlags()) {
-				replaceAnimations(animFlag, sequenceMap);
-			}
 			for (GeosetVertex vertex : pastedGeoset.getVertices()) {
 				if (vertex.getSkinBones() != null) {
 					for (SkinBone skinBone : vertex.getSkinBones()) {
@@ -176,25 +143,25 @@ public class ViewportTransferHandler extends TransferHandler {
 		}
 
 		for (Material material : pastedModel.getMaterials()) {
-			for (Layer layer : material.getLayers()) {
-				for (AnimFlag<?> animFlag : layer.getAnimFlags()) {
-					replaceAnimations(animFlag, sequenceMap);
-				}
-			}
-
 			if (!currentModel.contains(material)) {
 				undoActions.add(new AddMaterialAction(material, currentModel, null));
 			}
 		}
 
+		for (Bitmap bitmap : pastedModel.getTextures()) {
+			if (!currentModel.contains(bitmap)) {
+				undoActions.add(new AddBitmapAction(bitmap, currentModel, null));
+			}
+		}
+
+		for (TextureAnim textureAnim : pastedModel.getTexAnims()) {
+			if (!currentModel.contains(textureAnim)) {
+				undoActions.add(new AddTextureAnimAction(textureAnim, currentModel, null));
+			}
+		}
+
 		Set<CameraNode> cameraNodes = new HashSet<>();
 		for (Camera idObject : pastedModel.getCameras()) {
-			for (AnimFlag<?> animFlag : idObject.getSourceNode().getAnimFlags()) {
-				replaceAnimations(animFlag, sequenceMap);
-			}
-			for (AnimFlag<?> animFlag : idObject.getTargetNode().getAnimFlags()) {
-				replaceAnimations(animFlag, sequenceMap);
-			}
 			undoActions.add(new AddCameraAction(currentModel, idObject, null));
 			cameraNodes.add(idObject.getSourceNode());
 			cameraNodes.add(idObject.getTargetNode());
@@ -217,7 +184,7 @@ public class ViewportTransferHandler extends TransferHandler {
 	private <Q> void replaceAnimations(AnimFlag<Q> animFlag, Map<Sequence, Sequence> sequenceMap) {
 		for (Sequence sequence : sequenceMap.keySet()) {
 			if (animFlag.getEntryMap(sequence) != null && sequenceMap.get(sequence) != null) {
-				System.out.println("replacing " + sequence + " with " + sequenceMap.get(sequence));
+//				System.out.println("replacing " + sequence + " with " + sequenceMap.get(sequence));
 				TreeMap<Integer, Entry<Q>> entryMap = animFlag.getEntryMap(sequence);
 				animFlag.deleteAnim(sequence);
 				animFlag.setEntryMap(sequenceMap.get(sequence), entryMap);
@@ -225,22 +192,22 @@ public class ViewportTransferHandler extends TransferHandler {
 		}
 	}
 
-	private  Map<Sequence, Sequence> getSequenceMap(List<Sequence> pastedModelSequences, List<Sequence> sequences) {
+	private Map<Sequence, Sequence> getSequenceMap(List<Sequence> pastedModelSequences, List<Sequence> sequences) {
 		Map<Sequence, Sequence> sequenceMap = new HashMap<>();
-		for (Sequence pSequence : pastedModelSequences) {
-			for (Sequence sequence : sequences) {
-				if (pSequence.getLength() == sequence.getLength()) {
-					if (pSequence instanceof Animation && sequence instanceof Animation) {
-						if (((Animation) pSequence).getName().equals(((Animation) sequence).getName())) {
-							System.out.println(pSequence + " == " + sequence);
-							sequenceMap.put(pSequence, sequence);
-							break;
-						}
-					} else if (pSequence instanceof GlobalSeq && sequence instanceof GlobalSeq) {
-						System.out.println(pSequence + " == " + sequence);
+		for (Sequence sequence : sequences) {
+			for (Sequence pSequence : pastedModelSequences) {
+				if (pSequence instanceof Animation && sequence instanceof Animation) {
+					if (getSeqCompName(pSequence).equals(getSeqCompName(sequence))) {
+//						System.out.println(pSequence + " == " + sequence);
 						sequenceMap.put(pSequence, sequence);
 						break;
 					}
+				} else if (pSequence instanceof GlobalSeq
+						&& sequence instanceof GlobalSeq
+						&& pSequence.getLength() == sequence.getLength()) {
+//					System.out.println(pSequence + " == " + sequence);
+					sequenceMap.put(pSequence, sequence);
+					break;
 				}
 			}
 		}
@@ -248,24 +215,11 @@ public class ViewportTransferHandler extends TransferHandler {
 		return sequenceMap;
 	}
 
-	private void doSomething(EditableModel pastedModel) {
-		ModelHandler modelHandler = new ModelHandler(pastedModel);
-		ModelView pastedModelView = modelHandler.getModelView();
-		pastedModelView.setIdObjectsVisible(true);
-		pastedModelView.setCamerasVisible(true);
-		for (IdObject object : pastedModel.getIdObjects()) {
-			pastedModelView.makeIdObjectEditable(object);
-		}
-		for (Camera object : pastedModel.getCameras()) {
-			pastedModelView.makeCameraEditable(object);
-		}
-		GeometryModelEditor listener = new GeometryModelEditor(new SelectionManager(modelHandler.getRenderModel(), pastedModelView, SelectionItemTypes.VERTEX), modelHandler);
-		pastedModelView.selectAll();
-//		Double geomPoint = CoordSysUtils.geom(viewport.getCoordinateSystem(), dropPoint);
-		Vec3 pasteCenter = new Vec3(0, 0, 0);
-//		pasteCenter.setCoord(viewport.getCoordinateSystem().getPortFirstXYZ(), geomPoint.x);
-//		pasteCenter.setCoord(viewport.getCoordinateSystem().getPortSecondXYZ(), geomPoint.y);
-//		listener.setPosition(pastedModelView.getSelectionCenter(), pasteCenter).redo();
+	private String getSeqCompName(Sequence sequence){
+		return sequence.getName()
+				.toUpperCase(Locale.US)
+				.replaceAll("[^\\w\\d ]", "")
+				.replaceAll(" +", " ");
 	}
 
 	/**
@@ -329,7 +283,7 @@ public class ViewportTransferHandler extends TransferHandler {
 			dummyBone.getBindPoseM4().translate(dummyBone.getPivotPoint());
 		}
 
-		final MdlxModel mdlx = TempSaveModelStuff.toMdlx(stringableModel);
+		final MdlxModel mdlx = TempSaveModelStuff.toMdlx(stringableModel, true);
 		byte[] array = MdlLoadSave.saveMdl(mdlx).array();
 		String value = new String(array);
 
@@ -384,8 +338,7 @@ public class ViewportTransferHandler extends TransferHandler {
 	}
 
 	/**
-	 * When the export is complete, remove the old list entry if the action was a
-	 * move.
+	 * When the export is complete, remove the old list entry if the action was a move.
 	 */
 	@Override
 	protected void exportDone(JComponent c, Transferable data, int action) {

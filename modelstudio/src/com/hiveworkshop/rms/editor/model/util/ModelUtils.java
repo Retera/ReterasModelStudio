@@ -13,18 +13,14 @@ import java.util.stream.Collectors;
 public final class ModelUtils {
 	public static String getPortrait(String filepath) {
 		int endIndex = filepath.contains(".") ? filepath.lastIndexOf('.') : filepath.length();
-		String portrait = filepath.substring(0, endIndex) + "_portrait" + filepath.substring(endIndex);
-		return portrait;
+		return filepath.substring(0, endIndex) + "_portrait" + filepath.substring(endIndex);
 	}
 
 	public static Mesh getPlaneMesh2(Vec3 max, Vec3 min, int lengthSegs, int widthSegs) {
 		Mesh planeMesh = getPlane(lengthSegs, widthSegs);
 		Vec3 size = new Vec3(max).sub(min);
 		System.out.println("max: " + max + ", min: " + min);
-//		Vec3 center = new Vec3(max).add(min).scale(.5f);
 		for(GeosetVertex vertex : planeMesh.getVertices()){
-//			vertex.scaleCentered(center, size);
-//			vertex.scaleCentered(Vec3.ZERO, size);
 			vertex.multiply(size).add(min);
 		}
 		return planeMesh;
