@@ -169,8 +169,8 @@ public class GlobalTransformPanel extends JPanel {
 			Entry<T> entryIn = flag.getFloorEntry(trackTime, timeEnvironment.getCurrentSequence());
 			Entry<T> entryOut = flag.getCeilEntry(trackTime, timeEnvironment.getCurrentSequence());
 			int animationLength = timeEnvironment.getCurrentSequence().getLength();
-			float[] tbcFactor = flag.getTbcFactor(0, 0.5f, 0);
-			flag.calcNewTans(tbcFactor, entryOut, entryIn, newEntry, animationLength);
+			float[] tcbFactor = flag.getTcbFactor(0.5f, 0, 0);
+			flag.calcNewTans(tcbFactor, entryOut, entryIn, newEntry, animationLength);
 			System.out.println("calc tans! " + entryIn + entryOut + newEntry);
 		}
 

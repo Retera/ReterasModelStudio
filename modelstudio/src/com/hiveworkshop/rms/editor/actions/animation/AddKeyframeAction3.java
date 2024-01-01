@@ -100,8 +100,8 @@ public class AddKeyframeAction3 implements UndoAction {
 			Entry<T> entryOut = timeline.getCeilEntry(trackTime, timeEnvironmentImpl.getCurrentSequence());
 			int animationLength = timeEnvironmentImpl.getCurrentSequence().getLength();
 
-			float[] tbcFactor = timeline.getTbcFactor(0, 0.5f, 0);
-			timeline.calcNewTans(tbcFactor, entryOut, entryIn, entry, animationLength);
+			float[] tcbFactor = timeline.getTcbFactor(0, 0, 0.5f);
+			timeline.calcNewTans(tcbFactor, entryOut, entryIn, entry, animationLength);
 			System.out.println("calc tans! " + entryIn + entryOut + entry);
 
 			return new AddFlagEntryAction<>(timeline, entry, timeEnvironmentImpl.getCurrentSequence(), null);

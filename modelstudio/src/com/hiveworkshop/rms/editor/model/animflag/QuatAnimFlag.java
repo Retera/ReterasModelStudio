@@ -179,13 +179,13 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 	}
 
 	@Override
-	public float[] getTbcFactor(float bias, float tension, float continuity) {
-		return getTCB(-1, bias, tension, continuity);
+	public float[] getTcbFactor(float tension, float continuity, float bias) {
+		return getTCB(-1, tension, continuity, bias);
 	}
 
 //	@Override
 
-	public void calcNewTans(float[] factor, Entry<Quat> next, Entry<Quat> prev, Entry<Quat> cur, int animationLength) {
+	public void calcNewTans(float[] factor, Entry<Quat> next, Entry<Quat> prev, Entry<Quat> cur, Integer animationLength) {
 
 		if (cur.inTan == null) {
 			cur.inTan = new Quat(cur.value);

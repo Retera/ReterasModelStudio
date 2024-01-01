@@ -184,12 +184,12 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 	}
 
 	@Override
-	public float[] getTbcFactor(float bias, float tension, float continuity) {
-		return getTCB(1, bias, tension, continuity);
+	public float[] getTcbFactor(float tension, float continuity, float bias) {
+		return getTCB(1, tension, continuity, bias);
 	}
 
 	@Override
-	public void calcNewTans(float[] factor, Entry<Float> next, Entry<Float> prev, Entry<Float> cur, int animationLength) {
+	public void calcNewTans(float[] factor, Entry<Float> next, Entry<Float> prev, Entry<Float> cur, Integer animationLength) {
 		// Calculating the derivatives in point Cur (for count cells)
 
 //		float currPrev = cur.value - prev.value;
@@ -207,7 +207,7 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 		cur.inTan = currPrev * factor[0] + nextCurr * factor[1];
 		cur.outTan = currPrev * factor[2] + nextCurr * factor[3];
 
-		if (next != null && prev != null && !next.time.equals(prev.time)) {
+		if (animationLength != null && next != null && prev != null && !next.time.equals(prev.time)) {
 			float timeBetweenFrames = (next.time - prev.time + animationLength) % animationLength;
 			int timeToPrevFrame = (cur.time - prev.time + animationLength) % animationLength;
 			int timeToNextFrame = (next.time - cur.time + animationLength) % animationLength;

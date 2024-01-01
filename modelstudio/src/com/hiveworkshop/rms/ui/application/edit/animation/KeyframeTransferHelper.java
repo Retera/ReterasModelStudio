@@ -86,9 +86,9 @@ public class KeyframeTransferHelper {
 				if(tcb == null){
 					tcb = new float[]{0, .5f, 0};
 				}
-				float[] tbcFactor = flag.getTbcFactor(tcb[2], tcb[0], tcb[1]);
-				flag.calcNewTans(tbcFactor, entryOut, entryIn, entry, animationLength);
-				System.out.println("calc tans! " + entryIn + entryOut + entry + ", TBC: [" + tbcFactor[0] + ", " + tbcFactor[1] + ", " + tbcFactor[2] + "]");
+				float[] tcbFactor = flag.getTcbFactor(tcb[0], tcb[1], tcb[2]);
+				flag.calcNewTans(tcbFactor, entryOut, entryIn, entry, animationLength);
+				System.out.println("calc tans! " + entryIn + entryOut + entry + ", TCB: [" + tcbFactor[0] + ", " + tcbFactor[1] + ", " + tcbFactor[2] + "]");
 			}
 			return new KeyFrameWrapper<>(object, flag, entry, false);
 		}

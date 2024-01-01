@@ -137,8 +137,8 @@ public class KeyframeActionHelpers {
 
 			int animationLength = sequence.getLength();
 
-			float[] tbcFactor = timeline.getTbcFactor(0, 0.5f, 0);
-			timeline.calcNewTans(tbcFactor, entryOut, entryIn, entry, animationLength);
+			float[] tcbFactor = timeline.getTcbFactor(0, 0, 0.5f);
+			timeline.calcNewTans(tcbFactor, entryOut, entryIn, entry, animationLength);
 		}
 		return entry;
 	}

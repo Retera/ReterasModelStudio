@@ -705,8 +705,8 @@ public abstract class AnimFlag<T> {
 		TreeMap<Integer, Entry<T>> entryMap = getEntryTreeMap(sequence);
 		if (entryMap != null) {
 			Integer floorTime = entryMap.floorKey(time);
-			if (floorTime == null || floorTime < sequence.getStart()) {
-				Integer key = entryMap.floorKey(sequence.getEnd());
+			if (floorTime == null || floorTime < 0) {
+				Integer key = entryMap.floorKey(sequence.getLength());
 				if (key == null) {
 					return null;
 				}
@@ -721,8 +721,8 @@ public abstract class AnimFlag<T> {
 		TreeMap<Integer, Entry<T>> entryMap = getEntryTreeMap(sequence);
 		if (entryMap != null) {
 			Integer ceilTime = entryMap.ceilingKey(time);
-			if (ceilTime == null || ceilTime > sequence.getEnd()) {
-				Integer key = entryMap.ceilingKey(sequence.getStart());
+			if (ceilTime == null || sequence.getLength() < ceilTime) {
+				Integer key = entryMap.ceilingKey(0);
 				return key == null ? null : entryMap.get(key);
 			}
 			return entryMap.get(ceilTime);
@@ -754,15 +754,15 @@ public abstract class AnimFlag<T> {
 
 //	public abstract void calcNewTans(float factor, T curValue, T nextValue, T prevValue, Entry<T> entry);
 
-	public abstract void calcNewTans(float[] factor, Entry<T> next, Entry<T> prev, Entry<T> cur, int animationLength);
+	public abstract void calcNewTans(float[] factor, Entry<T> next, Entry<T> prev, Entry<T> cur, Integer animationLength);
 
-	public abstract float[] getTbcFactor(float bias, float tension, float continuity);
+	public abstract float[] getTcbFactor(float tension, float continuity, float bias);
 
-	public float[] getTCB(int i, float bias, float tension, float continuity) {
+	public float[] getTCB(int negForQuat, float tension, float continuity, float bias) {
 		float[] factor = new float[4];
 
-		float contP = i * continuity;
-		float biasP = i * bias;
+		float contP = negForQuat * continuity;
+		float biasP = negForQuat * bias;
 
 		float contN = -contP;
 		float biasN = -biasP;

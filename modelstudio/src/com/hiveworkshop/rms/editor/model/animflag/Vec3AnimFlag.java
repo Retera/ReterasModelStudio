@@ -242,12 +242,12 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 	}
 
 	@Override
-	public float[] getTbcFactor(float bias, float tension, float continuity) {
-		return getTCB(1, bias, tension, continuity);
+	public float[] getTcbFactor(float tension, float continuity, float bias) {
+		return getTCB(1, tension, continuity, bias);
 	}
 
 	@Override
-	public void calcNewTans(float[] factor, Entry<Vec3> next, Entry<Vec3> prev, Entry<Vec3> cur, int animationLength) {
+	public void calcNewTans(float[] factor, Entry<Vec3> next, Entry<Vec3> prev, Entry<Vec3> cur, Integer animationLength) {
 		// Calculating the derivatives in point Cur (for count cells)
 		if (cur.inTan == null) {
 			cur.inTan = new Vec3(0, 0, 0);
@@ -279,7 +279,7 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 //		System.out.println("nextCurr: " + nextCurr);
 //		System.out.println("factor: " + Arrays.toString(factor));
 
-		if (next != null && prev != null && !next.time.equals(prev.time)) {
+		if (animationLength != null && next != null && prev != null && !next.time.equals(prev.time)) {
 			float timeBetweenFrames = (next.time - prev.time + animationLength) % animationLength;
 			int timeToPrevFrame = (cur.time - prev.time + animationLength) % animationLength;
 			int timeToNextFrame = (next.time - cur.time + animationLength) % animationLength;

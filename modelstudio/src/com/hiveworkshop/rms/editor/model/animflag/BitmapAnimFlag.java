@@ -193,12 +193,12 @@ public class BitmapAnimFlag extends AnimFlag<Bitmap> {
 	}
 
 	@Override
-	public float[] getTbcFactor(float bias, float tension, float continuity) {
-		return getTCB(1, bias, tension, continuity);
+	public float[] getTcbFactor(float tension, float continuity, float bias) {
+		return getTCB(1, tension, continuity, bias);
 	}
 
 	@Override
-	public void calcNewTans(float[] factor, Entry<Bitmap> next, Entry<Bitmap> prev, Entry<Bitmap> cur, int animationLength) {
+	public void calcNewTans(float[] factor, Entry<Bitmap> next, Entry<Bitmap> prev, Entry<Bitmap> cur, Integer animationLength) {
 		// Calculating the derivatives in point Cur (for count cells)
 
 //		int currPrev = cur.value;
