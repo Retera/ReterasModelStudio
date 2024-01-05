@@ -4,6 +4,8 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.SelectionBoxHelper;
+import com.hiveworkshop.rms.ui.preferences.Nav3DMouseAction;
+import com.hiveworkshop.rms.ui.preferences.Nav3DMousePrefs;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.MouseEventHelpers;
 import com.hiveworkshop.rms.util.Mat4;
@@ -150,8 +152,10 @@ public class MouseListenerThing2 extends MouseAdapter {
 			endOld.set(endP);
 			endP = setPoint(e, endP);
 			vec2Temp.set(endP).sub(endOld);
-			if (MouseEventHelpers.matches(modifiersEx, programPreferences.getThreeDCameraPanMouseEx())
-					|| MouseEventHelpers.matches(modifiersEx, programPreferences.getThreeDCameraSpinMouseEx())) {
+
+			Nav3DMousePrefs nav3DMousePrefs = programPreferences.getNav3DMousePrefs();
+			if (MouseEventHelpers.matches(modifiersEx, nav3DMousePrefs.getKeyStroke(Nav3DMouseAction.CAMERA_PAN))
+					|| MouseEventHelpers.matches(modifiersEx, nav3DMousePrefs.getKeyStroke(Nav3DMouseAction.CAMERA_SPIN))) {
 //				System.out.println("transl x: " + (e.getX() - endP.y) + " (" + e.getX() + "-" + endP.y + ")" + ", transl y: " + (e.getY() - endP.z) + " (" + e.getY() + "-" + endP.z + ")");
 				coordinateSystem.translateZoomed(vec2Temp.x, vec2Temp.y);
 			} else if ((isActing || isSelecting) && activityManager != null) {

@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.ExtFilter;
-import com.hiveworkshop.rms.util.SmartButtonGroup;
 import com.hiveworkshop.rms.util.TwiComboBox;
 import com.hiveworkshop.rms.util.uiFactories.CheckBox;
 import net.miginfocom.swing.MigLayout;
@@ -18,17 +17,12 @@ public class GeneralPrefsPanel extends JPanel {
 
 	public GeneralPrefsPanel(ProgramPreferences pref){
 		super(new MigLayout());
-		SmartButtonGroup viewModeGroup = new SmartButtonGroup("3D View Mode");
-		viewModeGroup.addJRadioButton("Wireframe", e -> pref.setViewMode(0));
-		viewModeGroup.addJRadioButton("Solid", e -> pref.setViewMode(1));
-		viewModeGroup.setSelectedIndex(pref.viewMode());
-		add(viewModeGroup.getButtonPanel(), "skip 1, wrap");
 
 		add(new JLabel("Show 2D Viewport Gridlines:"));
 		add(CheckBox.create("", pref.show2dGrid(), pref::setShow2dGrid), "wrap");
 
 		add(new JLabel("Use Boxes for Nodes:"));
-		add(CheckBox.create("", pref.getUseBoxesForPivotPoints(), pref::setUseBoxesForPivotPoints), "wrap");
+		add(CheckBox.create("", pref.isUseBoxesForPivotPoints(), pref::setUseBoxesForPivotPoints), "wrap");
 
 		add(new JLabel("Bone Box Size:"));
 		add(new IntEditorJSpinner(pref.getNodeBoxSize(), 1, pref::setNodeBoxSize), "wrap");

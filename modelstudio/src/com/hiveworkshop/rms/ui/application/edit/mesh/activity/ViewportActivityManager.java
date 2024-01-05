@@ -11,6 +11,8 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
+import com.hiveworkshop.rms.ui.preferences.Nav3DMouseAction;
+import com.hiveworkshop.rms.ui.preferences.Nav3DMousePrefs;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.MouseEventHelpers;
 import com.hiveworkshop.rms.util.Mat4;
@@ -157,11 +159,17 @@ public final class ViewportActivityManager implements SelectionListener {
 
 	private boolean isSelect(MouseEvent e){
 		ProgramPreferences prefs = ProgramGlobals.getPrefs();
-		return MouseEventHelpers.matches(e, prefs.getSelectMouseButton(), prefs.getAddSelectModifier(), prefs.getRemoveSelectModifier());
+		Nav3DMousePrefs nav3DMousePrefs = prefs.getNav3DMousePrefs();
+		return MouseEventHelpers.matches(e, nav3DMousePrefs.getKeyStroke(Nav3DMouseAction.SELECT),
+				nav3DMousePrefs.getKeyStroke(Nav3DMouseAction.ADD_SELECT_MODIFIER),
+				nav3DMousePrefs.getKeyStroke(Nav3DMouseAction.REMOVE_SELECT_MODIFIER));
 	}
 	private boolean isEditing(MouseEvent e){
 		ProgramPreferences prefs = ProgramGlobals.getPrefs();
-		return MouseEventHelpers.matches(e, prefs.getModifyMouseButton(),prefs.getSnapTransformModifier()) && !(selectionManager.isEmpty() && currentActivity.selectionNeeded());
+		Nav3DMousePrefs nav3DMousePrefs = prefs.getNav3DMousePrefs();
+		return MouseEventHelpers.matches(e, nav3DMousePrefs.getKeyStroke(Nav3DMouseAction.MODIFY),
+				nav3DMousePrefs.getKeyStroke(Nav3DMouseAction.SNAP_TRANSFORM_MODIFIER))
+				&& !(selectionManager.isEmpty() && currentActivity.selectionNeeded());
 	}
 
 }

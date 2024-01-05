@@ -13,6 +13,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
+import com.hiveworkshop.rms.ui.preferences.Nav3DMouseAction;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -78,15 +79,15 @@ public class ModelTreeItemNodeMouseAdapter<T> extends MouseAdapter {
 
 
 	private void doSelection(MouseEvent e) {
-		Integer selectMouseButton = ProgramGlobals.getPrefs().getSelectMouseButton();
+		Integer selectMouseButton = ProgramGlobals.getPrefs().getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.SELECT);
 //		System.out.println("mouse released: " + item.getName() + ", " + selectMouseButton + ", " + MouseEvent.getMaskForButton(e.getButton()) +  ", " + e.getModifiersEx() + ", " + (selectMouseButton & e.getModifiersEx()) + ", sameButton: " + (e.getButton() == selectMouseButton) + ", " + e);
 
 		SelectionBundle newSelection = getSelectionBundle(e, selectMouseButton);
 
 		if (MouseEvent.getMaskForButton(e.getButton()) == selectMouseButton && newSelection != null) {
 			System.out.println("should be selecting! ");
-			Integer addSelectModifier = ProgramGlobals.getPrefs().getAddSelectModifier();
-			Integer removeSelectModifier = ProgramGlobals.getPrefs().getRemoveSelectModifier();
+			Integer addSelectModifier = ProgramGlobals.getPrefs().getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.ADD_SELECT_MODIFIER);
+			Integer removeSelectModifier = ProgramGlobals.getPrefs().getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.REMOVE_SELECT_MODIFIER);
 
 //					if (modifiersEx == addSelectModifier) {
 			if (isModUsed(e, addSelectModifier)) {

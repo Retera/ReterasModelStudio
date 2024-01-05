@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
+import com.hiveworkshop.rms.ui.preferences.Nav3DMouseAction;
 
 import javax.swing.*;
 import java.awt.event.MouseEvent;
@@ -65,11 +66,9 @@ public class ComponentTreeNode<T extends Named> extends NodeThing<T> {
 	}
 
 	private SelectionBundle getSelectionBundle(MouseEvent e) {
-		Integer selectMouseButton = ProgramGlobals.getPrefs().getSelectMouseButton();
+		Integer selectMouseButton = ProgramGlobals.getPrefs().getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.SELECT);
 		SelectionBundle newSelection = null;
-//		if (MouseEvent.getMaskForButton(e.getButton()) == selectMouseButton) {
 		if ((e.getModifiersEx() & selectMouseButton) == selectMouseButton) {
-//			System.out.println("selecting? " + (MouseEvent.getMaskForButton(e.getButton()) == selectMouseButton));
 			System.out.println("selecting? " + ((e.getModifiersEx() & selectMouseButton) == selectMouseButton));
 			if (item instanceof IdObject) {
 				System.out.println("IdObject!");
@@ -93,8 +92,8 @@ public class ComponentTreeNode<T extends Named> extends NodeThing<T> {
 		SelectionBundle newSelection = getSelectionBundle(e);
 		if (newSelection != null) {
 			System.out.println("should be selecting! " + item.getName());
-			Integer addSelectModifier = ProgramGlobals.getPrefs().getAddSelectModifier();
-			Integer removeSelectModifier = ProgramGlobals.getPrefs().getRemoveSelectModifier();
+			Integer addSelectModifier = ProgramGlobals.getPrefs().getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.ADD_SELECT_MODIFIER);
+			Integer removeSelectModifier = ProgramGlobals.getPrefs().getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.REMOVE_SELECT_MODIFIER);
 			if (isModUsed(e, addSelectModifier)
 					|| e.getID() == MouseEvent.MOUSE_DRAGGED
 					&& !isModUsed(e, removeSelectModifier)

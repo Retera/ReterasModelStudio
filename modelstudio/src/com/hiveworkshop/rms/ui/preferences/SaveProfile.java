@@ -77,7 +77,10 @@ public class SaveProfile implements Serializable {
 
 	private static File getProfileFile() {
 		String profileDirPath = getProfileDirPath();
-		File profileFile = getProfileFile(profileDirPath, "user.profileNew");
+		File profileFile = getProfileFile(profileDirPath, "user.profileNew2");
+		if (!profileFile.exists()) {
+			profileFile = getProfileFile(profileDirPath, "user.profileNew");
+		}
 		if (!profileFile.exists()) {
 			profileFile = getProfileFile(profileDirPath, "user.profile");
 		}
@@ -122,7 +125,8 @@ public class SaveProfile implements Serializable {
 			String profileDirPath = getProfileDirPath();
 			final File profileDir = new File(profileDirPath);
 			profileDir.mkdirs();
-			File profileFile = getProfileFile(profileDirPath, "user.profileNew");
+			File profileFile = getProfileFile(profileDirPath, "user.profileNew2");
+//			File profileFile = getProfileFile(profileDirPath, "user.profileNew");
 			System.out.println(profileFile.getPath());
 
 			try {

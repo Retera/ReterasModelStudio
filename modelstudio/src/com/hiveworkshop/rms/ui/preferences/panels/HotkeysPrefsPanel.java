@@ -19,10 +19,8 @@ public class HotkeysPrefsPanel extends JPanel {
 		CollapsablePanel camera_shortcuts = new CollapsablePanel("Camera Shortcuts", new CameraShortcutPrefPanel(pref.getCameraControlPrefs()));
 		add(camera_shortcuts, "wrap");
 
-		addSettingRow("Camera Spin", pref::getThreeDCameraSpinMouseEx, pref::setThreeDCameraSpinMouseEx);
-		addSettingRow("Camera Pan", pref::getThreeDCameraPanMouseEx, pref::setThreeDCameraPanMouseEx);
-		addSettingRow("Manipulate", pref::getModifyMouseButton, pref::setModifyMouseButton);
-		addSettingRow("Select", pref::getSelectMouseButton, pref::setSelectMouseButton);
+		CollapsablePanel viewActionPanel = new CollapsablePanel("3D Mouse Actions", new Nav3DMousePrefPanel(pref.getNav3DMousePrefs()));
+		add(viewActionPanel, "wrap");
 
 		JButton edit_keybindings = new JButton("Edit Keybindings");
 		edit_keybindings.addActionListener(e -> viewKBPanel(pref));

@@ -11,6 +11,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.AbstractCamer
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
+import com.hiveworkshop.rms.ui.preferences.Nav3DMouseAction;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
@@ -115,18 +116,18 @@ public abstract class ViewportActivity implements SelectionListener {
 	}
 
 	protected Integer getSelect(){
-		return prefs.getSelectMouseButton();
+		return prefs.getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.SELECT);
 	}
 	protected Integer getAddSel(){
-		return prefs.getAddSelectModifier();
+		return prefs.getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.ADD_SELECT_MODIFIER);
 	}
 	protected Integer getRemSel(){
-		return prefs.getRemoveSelectModifier();
+		return prefs.getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.REMOVE_SELECT_MODIFIER);
 	}
 	protected Integer getModify(){
-		return prefs.getModifyMouseButton();
+		return prefs.getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.MODIFY);
 	}
 	protected Integer getSnap(){
-		return prefs.getSnapTransformModifier();
+		return prefs.getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.SNAP_TRANSFORM_MODIFIER);
 	}
 }
