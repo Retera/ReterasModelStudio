@@ -18,9 +18,9 @@ import com.hiveworkshop.rms.ui.gui.modeledit.creator.ManualUVTransformPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
-import com.hiveworkshop.rms.ui.util.ModeButton;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.TwiComboBox;
+import com.hiveworkshop.rms.util.uiFactories.Button;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -99,50 +99,46 @@ public class UVPanel extends JPanel {
 	}
 
 	private JPanel getStuffPanel() {
+		JButton loadImage = Button.create("Load External Image", e -> loadExternalImage());
 
-		JLabel[] divider = new JLabel[4];
-		for (int i = 0; i < divider.length; i++) {
-			divider[i] = new JLabel("----------");
-		}
-
-		ModeButton loadImage = new ModeButton("Load Image");
-		loadImage.addActionListener(e -> loadExternalImage());
+		JPanel unwrapPanel = new JPanel(new MigLayout("ins 0"));
+		unwrapPanel.setBorder(BorderFactory.createTitledBorder("Project UVs"));
 
 		TwiComboBox<UnwrapDirection> unwrapDirectionBox = new TwiComboBox<>(UnwrapDirection.values(), UnwrapDirection.PERSPECTIVE);
-
-		ModeButton unwrapButton = new ModeButton("Remap UVs");
-		unwrapButton.addActionListener(e -> unwrapFromView((UnwrapDirection) unwrapDirectionBox.getSelectedItem()));
-
 		unwrapDirectionBox.setMaximumSize(new Dimension(100, 35));
 		unwrapDirectionBox.setMinimumSize(new Dimension(90, 15));
+
+		JButton unwrapButton = Button.create("Remap UVs", e -> unwrapFromView(unwrapDirectionBox.getSelected()));
+		Button.setTooltip(unwrapButton, "Remap selected UVs as a projection from the chosen view");
+
+		unwrapPanel.add(unwrapDirectionBox);
+		unwrapPanel.add(unwrapButton, "");
 
 		textureComboBox = new TwiComboBox<>(new Bitmap("", 13333337));
 		textureComboBox.addOnSelectItemListener(this::setBitmapAsBackground);
 
 		// ToDo the texture combo box should maybe be limited in size and/or moved to a better spot to allow to view longer strings
-		JPanel stuffPanel = new JPanel(new MigLayout("wrap 1, gap 0, ins 0"));
-		stuffPanel.add(loadImage);
-		stuffPanel.add(textureComboBox);
-		stuffPanel.add(divider[0]);
-		stuffPanel.add(toolbar.getSelectionModeGroup().getModeButton(SelectionMode.SELECT));
-		stuffPanel.add(toolbar.getSelectionModeGroup().getModeButton(SelectionMode.ADD));
-		stuffPanel.add(toolbar.getSelectionModeGroup().getModeButton(SelectionMode.DESELECT));
-		stuffPanel.add(divider[1]);
-		stuffPanel.add(toolbar.getActionTypeGroup().getModeButton(ModelEditorActionType3.TRANSLATION));
-		stuffPanel.add(toolbar.getActionTypeGroup().getModeButton(ModelEditorActionType3.ROTATION));
-		stuffPanel.add(toolbar.getActionTypeGroup().getModeButton(ModelEditorActionType3.SCALING));
-		stuffPanel.add(divider[2]);
-		stuffPanel.add(unwrapDirectionBox);
-		stuffPanel.add(unwrapButton);
+		JPanel stuffPanel = new JPanel(new MigLayout("gap 0, ins 0"));
+		stuffPanel.add(loadImage, "spanx, wrap");
+		stuffPanel.add(textureComboBox, "spanx, wrap");
+		stuffPanel.add(unwrapPanel, "spanx, wrap");
+		stuffPanel.add(new JLabel(" "), "wrap");
+		stuffPanel.add(toolbar.getSelectionModeGroup().getModeButton(SelectionMode.SELECT), "spanx, wrap");
+		stuffPanel.add(toolbar.getSelectionModeGroup().getModeButton(SelectionMode.ADD), "spanx, wrap");
+		stuffPanel.add(toolbar.getSelectionModeGroup().getModeButton(SelectionMode.DESELECT), "spanx, wrap");
+		stuffPanel.add(new JLabel(" "), "wrap");
+		stuffPanel.add(toolbar.getActionTypeGroup().getModeButton(ModelEditorActionType3.TRANSLATION), "");
+		stuffPanel.add(toolbar.getActionTypeGroup().getModeButton(ModelEditorActionType3.ROTATION), "");
+		stuffPanel.add(toolbar.getActionTypeGroup().getModeButton(ModelEditorActionType3.SCALING), "wrap");
 
-		stuffPanel.add(transformPanel);
+		stuffPanel.add(transformPanel, "spanx, wrap");
 		return stuffPanel;
 	}
 
 	private void unwrapFromView(UnwrapDirection unwrapDirection) {
 		if (unwrapDirection != null) {
 			Mat4 cam;
-			if(unwrapDirection == UnwrapDirection.PERSPECTIVE) {
+			if (unwrapDirection == UnwrapDirection.PERSPECTIVE) {
 				cam = viewport.getCameraHandler().getViewProjectionMatrix();
 			} else {
 				cam = new Mat4().setIdentity();
@@ -206,7 +202,7 @@ public class UVPanel extends JPanel {
 	AnimatedPerspectiveViewport viewport;
 	TVertexEditorManager uvModelEditorManager;
 	public UVPanel setModel(ModelPanel modelPanel) {
-		if (modelPanel != null){
+		if (modelPanel != null) {
 			this.modelHandler = modelPanel.getModelHandler();
 			uvModelEditorManager = modelPanel.getUvModelEditorManager();
 			transformPanel.setModel(modelHandler, uvModelEditorManager);
@@ -300,7 +296,7 @@ public class UVPanel extends JPanel {
 	}
 
 	public void setUvLayer(int layer) {
-		if(uvModelEditorManager != null){
+		if (uvModelEditorManager != null) {
 			uvLayer = layer;
 			uvModelEditorManager.setUVLayer(layer);
 			uvViewport.setUvLayer(layer);
@@ -332,7 +328,7 @@ public class UVPanel extends JPanel {
 			return displayText;
 		}
 
-		public Mat4 getTransDim(){
+		public Mat4 getTransDim() {
 			return transDim;
 		}
 	}

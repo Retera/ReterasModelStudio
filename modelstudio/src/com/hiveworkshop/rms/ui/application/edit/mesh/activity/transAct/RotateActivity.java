@@ -53,7 +53,7 @@ public class RotateActivity extends TransformActivity {
 		transformAction.setRotation(radians);
 	}
 
-	protected void finnishAction() {
+	protected void resetActivity() {
 		totRotAngle = 0;
 		realTotRotAngle = 0;
 	}
@@ -81,7 +81,7 @@ public class RotateActivity extends TransformActivity {
 
 	protected double getAngle(double deltaAngle, boolean isSnap) {
 		realTotRotAngle += deltaAngle;
-		if(isSnap){
+		if (isSnap) {
 			totRotAngle = Math.toRadians(((int) (Math.toDegrees(realTotRotAngle) / 15.0)) * 15);
 		} else {
 			totRotAngle = realTotRotAngle;

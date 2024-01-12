@@ -15,14 +15,9 @@ import com.hiveworkshop.rms.util.Vec3;
 import java.awt.event.MouseEvent;
 
 public class DrawBoxActivity extends DrawActivity {
-	private DrawingState drawingState = DrawingState.NOTHING;
-
 	private int numSegsX;
 	private int numSegsY;
 	private int numSegsZ;
-	protected final Vec3 moveVector = new Vec3();
-	protected float zDepth = 0;
-
 	private final Vec3 scale = new Vec3(1,1,1);
 
 	public DrawBoxActivity(ModelHandler modelHandler,
@@ -46,37 +41,23 @@ public class DrawBoxActivity extends DrawActivity {
 	public void mousePressed(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 		if (MouseEventHelpers.matches(e, getModify(), getSnap())) {
 			Vec2 point = getPoint(e);
+			mouseStartPoint.set(point);
+			this.inverseViewProjectionMatrix.set(viewProjectionMatrix).invert();
+			this.viewProjectionMatrix.set(viewProjectionMatrix);
+			setHalfScreenXY();
+
+			Mesh mesh = ModelUtils.getBoxMesh2(numSegsX, numSegsY, numSegsZ);
+			UndoAction setupAction = getSetupAction(mesh.getVertices(), mesh.getTriangles());
+
+
+			startPoint3d.set(get3DPoint(mouseStartPoint));
+
+			Mat4 rotMat = getRotMat();
+			transformAction = new DrawGeometryAction("Draw Box", startPoint3d, rotMat, mesh.getVertices(), setupAction, null).doSetup();
 			scale.set(Vec3.ZERO);
-			if (drawingState == DrawingState.NOTHING) {
-				mouseStartPoint.set(point);
-				this.inverseViewProjectionMatrix.set(viewProjectionMatrix).invert();
-				this.viewProjectionMatrix.set(viewProjectionMatrix);
-				setHalfScreenXY();
+			transformAction.setScale(scale);
 
-
-				drawingState = DrawingState.WANT_BEGIN_BASE;
-				Mesh mesh = ModelUtils.getBoxMesh2(numSegsX, numSegsY, numSegsZ);
-				UndoAction setupAction = getSetupAction(mesh.getVertices(), mesh.getTriangles());
-
-
-				startPoint3d.set(get3DPoint(mouseStartPoint));
-
-				Mat4 rotMat = getRotMat();
-				transformAction = new DrawGeometryAction("Draw Box", startPoint3d, rotMat, mesh.getVertices(), setupAction, null).doSetup();
-				transformAction.setScale(scale);
-
-			}
 			lastMousePoint.set(point);
-		}
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
-		if (transformAction != null) {
-			undoManager.pushAction(transformAction);
-
-			transformAction = null;
-			drawingState = DrawingState.NOTHING;
 		}
 	}
 
@@ -102,8 +83,4 @@ public class DrawBoxActivity extends DrawActivity {
 		lastMousePoint.set(mouseEnd);
 
 	}
-
-	private enum DrawingState {
-		NOTHING, WANT_BEGIN_BASE, BASE, HEIGHT
-    }
 }

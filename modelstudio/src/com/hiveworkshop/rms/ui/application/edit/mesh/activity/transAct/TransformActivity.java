@@ -37,7 +37,7 @@ public abstract class TransformActivity extends ViewportActivity {
 
 
 	protected void updateMat(Mat4 viewProjectionMatrix, Vec2 mouseEnd,
-	                         boolean isPrecise, boolean isSnap, boolean isAxisLock){
+	                         boolean isPrecise, boolean isSnap, boolean isAxisLock) {
 	}
 
 
@@ -59,7 +59,7 @@ public abstract class TransformActivity extends ViewportActivity {
 
 			setWidgetPoint(selectionManager);
 			MoveDimension directionByMouse;
-			if(selectionManager instanceof TVertSelectionManager){
+			if (selectionManager instanceof TVertSelectionManager) {
 				directionByMouse = widget.getDirectionByMouse(mouseStartPoint, viewProjectionMatrix, e.getComponent());
 			} else {
 				directionByMouse = MoveDimension.XYZ;
@@ -80,7 +80,7 @@ public abstract class TransformActivity extends ViewportActivity {
 		finnishActionUgg(e, viewProjectionMatrix, sizeAdj, false);
 	}
 
-	protected void finnishActionUgg(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj, boolean wasCanceled){
+	protected void finnishActionUgg(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj, boolean wasCanceled) {
 		if (isActing && transformAction != null) {
 			mousePoint.set(getPoint(e));
 
@@ -88,11 +88,11 @@ public abstract class TransformActivity extends ViewportActivity {
 
 			finnishActionTugg(wasCanceled);
 		}
-		finnishAction();
+		resetActivity();
 	}
-	protected void finnishAction(){
+	protected void resetActivity() {
 	}
-	protected void finnishActionTugg(boolean wasCanceled){
+	protected void finnishActionTugg(boolean wasCanceled) {
 		if (wasCanceled) {
 			transformAction.undo();
 		} else {
@@ -106,7 +106,7 @@ public abstract class TransformActivity extends ViewportActivity {
 	@Override
 	public void mouseMoved(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 		mousePoint.set(getPoint(e));
-		if(cursorManager != null) {
+		if (cursorManager != null) {
 			if (!selectionManager.isEmpty() && widgetOffersEdit(mousePoint, viewProjectionMatrix, e.getComponent(), selectionManager)) {
 				cursorManager.accept(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
 			} else if (selectionManager.selectableUnderCursor(mousePoint, viewProjectionMatrix, sizeAdj)) {
@@ -166,17 +166,17 @@ public abstract class TransformActivity extends ViewportActivity {
 		widget.setPoint(selectionManager.getCenter());
 	}
 
-	protected Vec2 getViewportSelectionCenter(){
+	protected Vec2 getViewportSelectionCenter() {
 		return vpSelectionCenter.setAsProjection(selectionManager.getCenter(), viewProjectionMatrix);
 	}
 
-	public double getThetaOfDiff(Vec2 v1, Vec2 v2){
+	public double getThetaOfDiff(Vec2 v1, Vec2 v2) {
 		double tX = v1.x - v2.x;
 		double tY = v1.y - v2.y;
 
 		return Math.atan2(tY, tX);
 	}
-	public double getThetaOfDiff(Vec2 v1, Vec3 v2){
+	public double getThetaOfDiff(Vec2 v1, Vec3 v2) {
 		double tX = v1.x - v2.x;
 		double tY = v1.y - v2.y;
 

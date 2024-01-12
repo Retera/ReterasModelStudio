@@ -8,6 +8,8 @@ import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.mesh.GeometryModelEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -29,8 +31,7 @@ public class DrawActivity extends ViewportActivity {
 	protected final Vec3 startPoint3d = new Vec3();
 
 	protected ModelEditorActionType3 lastEditorType;
-
-
+	protected Runnable onRunActivityEnded;
 
 	public DrawActivity(ModelHandler modelHandler, ModelEditorManager modelEditorManager) {
 		super(modelHandler, modelEditorManager);
@@ -42,6 +43,30 @@ public class DrawActivity extends ViewportActivity {
 		this.lastEditorType = lastEditorType;
 	}
 
+	public DrawActivity setOnActivityEnded(Runnable onRunActivityEnded) {
+		this.onRunActivityEnded = onRunActivityEnded;
+		return this;
+	}
+
+	public void onActivityEnded() {
+		if (onRunActivityEnded != null) {
+			onRunActivityEnded.run();
+		}
+	}
+
+	public void modelEditorChanged(ModelEditor newModelEditor) {
+		super.modelEditorChanged(newModelEditor);
+		if (!(newModelEditor instanceof GeometryModelEditor)) {
+			if (transformAction != null) {
+				undoManager.pushAction(transformAction);
+				transformAction = null;
+			}
+
+			if (lastEditorType != null) {
+				ProgramGlobals.getCurrentModelPanel().setEditorActionType(lastEditorType);
+			}
+		}
+	}
 
 	@Override
 	public boolean selectionNeeded() {
@@ -61,10 +86,10 @@ public class DrawActivity extends ViewportActivity {
 		}
 
 		if (lastEditorType != null && !hasContinueActivityModifier(e)) {
-			System.out.println("returning to prev action type!");
+//			System.out.println("returning to prev action type!");
 			ProgramGlobals.getCurrentModelPanel().setEditorActionType(lastEditorType);
-		} else {
-			System.out.println("keep draw vertices!");
+//		} else {
+//			System.out.println("keep draw vertices!");
 		}
 	}
 

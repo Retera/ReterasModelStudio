@@ -45,6 +45,9 @@ public class ProgramPreferences implements Serializable {
 	private transient CameraControlPrefs cameraShortcutsPrefs;
 	private transient Nav3DMousePrefs nav3DMousePrefs;
 
+	private String uiElementColors = new UiElementColorPrefs().toString();
+	private transient UiElementColorPrefs uiElementColorPrefs;
+
 
 	//	private ViewMap viewMap = new ViewMap();
 	byte[] viewMap = new byte[] {};
@@ -107,10 +110,10 @@ public class ProgramPreferences implements Serializable {
 		return getEditorColorPrefs().getColor(ColorThing.SELECT_BOX_COLOR);
 	}
 
-	public boolean loadBrowsersOnStartup(){
+	public boolean loadBrowsersOnStartup() {
 		return loadBrowsersOnStartup;
 	}
-	public ProgramPreferences setLoadBrowsersOnStartup(boolean loadBrowsersOnStartup){
+	public ProgramPreferences setLoadBrowsersOnStartup(boolean loadBrowsersOnStartup) {
 		this.loadBrowsersOnStartup = loadBrowsersOnStartup;
 		saveAndFireListeners();
 		return this;
@@ -205,7 +208,7 @@ public class ProgramPreferences implements Serializable {
 	}
 
 	public KeyBindingPrefs getKeyBindingPrefs() {
-		if(keyBindingsPrefs == null){
+		if (keyBindingsPrefs == null) {
 			keyBindingsPrefs = new KeyBindingPrefs().parseString(keyBindings);
 		}
 		return keyBindingsPrefs;
@@ -216,7 +219,7 @@ public class ProgramPreferences implements Serializable {
 
 	public ProgramPreferences setKeyBindings(String keyBindings) {
 		this.keyBindings = keyBindings;
-		if(keyBindingsPrefs == null){
+		if (keyBindingsPrefs == null) {
 			keyBindingsPrefs = new KeyBindingPrefs();
 		}
 		keyBindingsPrefs.parseString(keyBindings);
@@ -225,7 +228,7 @@ public class ProgramPreferences implements Serializable {
 
 	public ProgramPreferences setKeyBindings(KeyBindingPrefs keyBindingPrefs) {
 		this.keyBindings = keyBindingPrefs.toString();
-		if(keyBindingsPrefs == null){
+		if (keyBindingsPrefs == null) {
 			keyBindingsPrefs = new KeyBindingPrefs();
 		}
 		keyBindingsPrefs.parseString(keyBindings);
@@ -252,7 +255,7 @@ public class ProgramPreferences implements Serializable {
 	}
 
 	public EditorColorPrefs getEditorColorPrefs() {
-		if(editorColorsPrefs == null){
+		if (editorColorsPrefs == null) {
 			editorColorsPrefs = new EditorColorPrefs().parseString(editorColors);
 		}
 		return editorColorsPrefs;
@@ -263,7 +266,7 @@ public class ProgramPreferences implements Serializable {
 
 	public ProgramPreferences setEditorColors(String editorColors) {
 		this.editorColors = editorColors;
-		if(editorColorsPrefs == null){
+		if (editorColorsPrefs == null) {
 			editorColorsPrefs = new EditorColorPrefs();
 		}
 		editorColorsPrefs.parseString(editorColors);
@@ -278,8 +281,40 @@ public class ProgramPreferences implements Serializable {
 		return this;
 	}
 
+
+	public String getUiElementColors() {
+		return uiElementColors;
+	}
+
+	public UiElementColorPrefs getUiElementColorPrefs() {
+		if (uiElementColorPrefs == null) {
+			uiElementColorPrefs = new UiElementColorPrefs().parseString(uiElementColors);
+		}
+		return uiElementColorPrefs;
+	}
+	public UiElementColorPrefs getUiElementColorPrefsCopy() {
+		return new UiElementColorPrefs().parseString(uiElementColors);
+	}
+
+	public ProgramPreferences setUiElementColors(String uiElementColors) {
+		this.uiElementColors = uiElementColors;
+		if (uiElementColorPrefs == null) {
+			uiElementColorPrefs = new UiElementColorPrefs();
+		}
+		uiElementColorPrefs.parseString(uiElementColors);
+		return this;
+	}
+
+	public ProgramPreferences setUiElementColors(UiElementColorPrefs uiElementColors) {
+		this.uiElementColors = uiElementColors.toString();
+		System.out.println("Saved UiElementColors!");
+		System.out.println(uiElementColors);
+		saveAndFireListeners();
+		return this;
+	}
+
 	public CameraControlPrefs getCameraControlPrefs() {
-		if(cameraShortcutsPrefs == null){
+		if (cameraShortcutsPrefs == null) {
 			cameraShortcutsPrefs = new CameraControlPrefs().parseString(cameraShortcuts);
 		}
 		return cameraShortcutsPrefs;
@@ -290,7 +325,7 @@ public class ProgramPreferences implements Serializable {
 
 	public ProgramPreferences setCameraControlPrefs(String cameraShortcuts) {
 		this.cameraShortcuts = cameraShortcuts;
-		if(cameraShortcutsPrefs == null){
+		if (cameraShortcutsPrefs == null) {
 			cameraShortcutsPrefs = new CameraControlPrefs();
 		}
 		cameraShortcutsPrefs.parseString(cameraShortcuts);
@@ -299,7 +334,7 @@ public class ProgramPreferences implements Serializable {
 
 	public ProgramPreferences setCameraControlPrefs(CameraControlPrefs cameraShortcutsPrefs) {
 		this.cameraShortcuts = cameraShortcutsPrefs.toString();
-		if(this.cameraShortcutsPrefs == null){
+		if (this.cameraShortcutsPrefs == null) {
 			this.cameraShortcutsPrefs = new CameraControlPrefs();
 		}
 		this.cameraShortcutsPrefs.parseString(this.cameraShortcuts);
@@ -310,7 +345,7 @@ public class ProgramPreferences implements Serializable {
 	}
 
 	public Nav3DMousePrefs getNav3DMousePrefs() {
-		if(nav3DMousePrefs == null){
+		if (nav3DMousePrefs == null) {
 			nav3DMousePrefs = new Nav3DMousePrefs().parseString(nav3DMouseActions);
 		}
 		return nav3DMousePrefs;
@@ -321,7 +356,7 @@ public class ProgramPreferences implements Serializable {
 
 	public ProgramPreferences setNav3DMousePrefs(String nav3DMouseActions) {
 		this.nav3DMouseActions = nav3DMouseActions;
-		if(nav3DMousePrefs == null){
+		if (nav3DMousePrefs == null) {
 			nav3DMousePrefs = new Nav3DMousePrefs();
 		}
 		nav3DMousePrefs.parseString(nav3DMouseActions);
@@ -330,7 +365,7 @@ public class ProgramPreferences implements Serializable {
 
 	public ProgramPreferences setNav3DMousePrefs(Nav3DMousePrefs nav3DMousePrefs) {
 		this.nav3DMouseActions = nav3DMousePrefs.toString();
-		if(this.nav3DMousePrefs == null){
+		if (this.nav3DMousePrefs == null) {
 			this.nav3DMousePrefs = new Nav3DMousePrefs();
 		}
 		this.nav3DMousePrefs.parseString(this.nav3DMouseActions);
@@ -423,8 +458,8 @@ public class ProgramPreferences implements Serializable {
 	public ProgramPreferences saveViewMap() {
 ////		ViewMap viewMap = new ViewMap();
 //		viewList.clear();
-//		for(JComponent component : ProgramGlobals.getRootWindowUgg().getDockingWindows()){
-//			if (component instanceof View){
+//		for(JComponent component : ProgramGlobals.getRootWindowUgg().getDockingWindows()) {
+//			if (component instanceof View) {
 //				WindowHandler2.traverseAndStuff((View) component, viewMap, viewList);
 //				viewMap.addView(viewList.size(), (View) component);
 //				viewList.add((View) component);

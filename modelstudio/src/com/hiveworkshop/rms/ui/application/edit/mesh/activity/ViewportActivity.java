@@ -62,6 +62,9 @@ public abstract class ViewportActivity implements SelectionListener {
 		this.selectionManager = selectionManager;
 	}
 
+	public void onActivityEnded() {
+	}
+
 	public void modelEditorChanged(ModelEditor newModelEditor) {
 		modelEditor = newModelEditor;
 	}
@@ -89,11 +92,11 @@ public abstract class ViewportActivity implements SelectionListener {
 		return false;
 	}
 
-	public boolean selectionNeeded(){
+	public boolean selectionNeeded() {
 		return true;
 	}
 
-	protected Mat4 getRotMat(){
+	protected Mat4 getRotMat() {
 		tempVec3.set(Vec3.ZERO  ).transform(inverseViewProjectionMatrix, 1, true);
 
 		tempVecX.set(Vec3.X_AXIS).transform(inverseViewProjectionMatrix, 1, true);
@@ -115,19 +118,19 @@ public abstract class ViewportActivity implements SelectionListener {
 		return relViewPoint.set(xRatio, yRatio);
 	}
 
-	protected Integer getSelect(){
+	protected Integer getSelect() {
 		return prefs.getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.SELECT);
 	}
-	protected Integer getAddSel(){
+	protected Integer getAddSel() {
 		return prefs.getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.ADD_SELECT_MODIFIER);
 	}
-	protected Integer getRemSel(){
+	protected Integer getRemSel() {
 		return prefs.getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.REMOVE_SELECT_MODIFIER);
 	}
-	protected Integer getModify(){
+	protected Integer getModify() {
 		return prefs.getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.MODIFY);
 	}
-	protected Integer getSnap(){
+	protected Integer getSnap() {
 		return prefs.getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.SNAP_TRANSFORM_MODIFIER);
 	}
 }

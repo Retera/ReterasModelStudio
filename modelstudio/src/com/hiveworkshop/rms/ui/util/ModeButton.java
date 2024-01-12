@@ -1,60 +1,45 @@
 package com.hiveworkshop.rms.ui.util;
 
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.preferences.UiElementColor;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.util.function.Consumer;
 
-/**
- * Cool gradient colored JButton
- */
 public class ModeButton extends JButton {
-	GradientPaint gPaint;
+	Color activeColor;
+	Color currBG;
 
-	public ModeButton(final String s) {
+	public ModeButton(String s, Color activeColor) {
 		super(s);
-		addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentResized(final ComponentEvent e) {
-				if (gPaint != null) {
-					gPaint = new GradientPaint(
-							new Point(0, 10), gPaint.getColor1(),
-							new Point(0, getHeight()), gPaint.getColor2(), true);
-				}
-			}
-		});
+		this.activeColor = new Color(activeColor.getRGB());
+		currBG = getBackground();
 	}
 
-	@Override
-	public void paintComponent(final Graphics g) {
-		if (gPaint != null) {
-			final Graphics2D g2 = (Graphics2D) g.create();
-			g2.setPaint(gPaint);
-			final int amt = 4;
-			final int indent = 1;
-			g2.fillRect(indent, indent, getWidth() - indent * 3, getHeight() - indent * 3);
-			g2.setColor(Color.black);
-			g2.drawRoundRect(indent, indent, getWidth() - indent * 3, getHeight() - indent * 3, amt, amt);
-			g2.dispose();
+	public ModeButton(String s) {
+		super(s);
+		this.activeColor = ProgramGlobals.getPrefs().getUiElementColorPrefs().getColor(UiElementColor.ACTIVE_MODE_BUTTON);
+		System.out.println("active color: " + activeColor);
+		currBG = getBackground();
+	}
+
+	public ModeButton addListener(Runnable runnable) {
+		addActionListener(e -> runnable.run());
+		return this;
+	}
+
+	public ModeButton addConsumer(Consumer<ModeButton> consumer) {
+		addActionListener(e -> consumer.accept(this));
+		return this;
+	}
+
+	public void setActive(boolean active) {
+		if (active) {
+			setBackground(activeColor);
+		} else {
+			setBackground(currBG);
 		}
-		super.paintComponent(g);
-	}
-
-	public void setColors(final Color a, final Color b) {
-		// setBackground(a);
-		// setOpaque(false);
-		setContentAreaFilled(false);
-		gPaint = new GradientPaint(new Point(0, 10), a, new Point(0, getHeight()), b, true);
-	}
-
-	public void resetColors() {
-		// this.setBackground(null);
-		// setOpaque(true);
-		gPaint = null;
-		setContentAreaFilled(true);
-	}
-
-	public boolean isColorModeActive() {
-		return gPaint != null;
+		repaint();
 	}
 }

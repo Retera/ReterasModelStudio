@@ -10,7 +10,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.AbstractCamer
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.SelectionBoxHelper;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.util.Mat4;
@@ -18,28 +17,14 @@ import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.util.function.Consumer;
 
 public class SelectActivity extends ViewportActivity {
-	private Consumer<Cursor> cursorManager;
 	protected boolean isActing = false;
-	protected MoveDimension dir;
 
 	public SelectActivity(ModelHandler modelHandler,
 	                      AbstractModelEditorManager modelEditorManager) {
 		super(modelHandler, modelEditorManager);
 	}
-
-	@Override
-	public void modelEditorChanged(ModelEditor newModelEditor) {
-		modelEditor = newModelEditor;
-	}
-
-	@Override
-	public void viewportChanged(Consumer<Cursor> cursorManager) {
-		this.cursorManager = cursorManager;
-	}
-
 
 	private void finnishAction(MouseEvent e, SelectionBoxHelper viewBox, double sizeAdj, boolean wasCanceled) {
 		if (isActing) {

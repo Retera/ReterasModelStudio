@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.util.Vec2;
 
 import java.util.Collection;
 
@@ -28,7 +29,13 @@ public class AddGeometryAction implements UndoAction {
 		this.geoset = geoset;
 		this.vertices = vertices;
 		this.triangles = triangles;
-		if(addToGeoset){
+		if (addToGeoset) {
+			if (1 < geoset.numUVLayers()) {
+				vertices.forEach(vertex -> {
+					for (int i = vertex.getTverts().size(); i <= geoset.numUVLayers(); i++)
+						vertex.addTVertex(new Vec2(vertex.getTVertex(0)));
+				});
+			}
 			vertices.forEach(vertex -> vertex.setGeoset(geoset));
 			triangles.forEach(triangle -> triangle.setGeoset(geoset));
 		}
@@ -38,7 +45,8 @@ public class AddGeometryAction implements UndoAction {
 	public UndoAction undo() {
 		geoset.remove(vertices);
 		geoset.removeTriangles(triangles);
-		if(changeListener != null){
+		triangles.forEach(Triangle::removeFromVerts);
+		if (changeListener != null) {
 			changeListener.geosetsUpdated();
 		}
 		return this;
@@ -48,7 +56,8 @@ public class AddGeometryAction implements UndoAction {
 	public UndoAction redo() {
 		geoset.addVerticies(vertices);
 		geoset.addTriangles(triangles);
-		if(changeListener != null){
+		triangles.forEach(Triangle::addToVerts);
+		if (changeListener != null) {
 			changeListener.geosetsUpdated();
 		}
 		return this;

@@ -32,16 +32,16 @@ public class ToolbarButtonGroup2<T extends ToolbarButtonType> {
 		}
 	}
 
-	public void setActiveButton(T type){
+	public void setActiveButton(T type) {
 		activeButtonType = type;
-		if(activeButton != null){
+		if (activeButton != null) {
 			activeButton.setActive(false);
 		}
 		activeButton = buttonMap.get(type);
-		if (activeButton != null){
+		if (activeButton != null) {
 			activeButton.setActive(true);
 		}
-		for(Consumer<T> listener : listeners2){
+		for (Consumer<T> listener : listeners2) {
 			listener.accept(type);
 		}
 	}
@@ -63,25 +63,25 @@ public class ToolbarButtonGroup2<T extends ToolbarButtonType> {
 
 	public List<JButton> getToolbarButtons() {
 		List<JButton> toolbarButtons = new ArrayList<>();
-		for (ToolbarButton2<T> button2 : buttonMap.values()) {
-			toolbarButtons.add(button2.getToolbarButton());
+		for (ToolbarButton2<T> button : buttonMap.values()) {
+			toolbarButtons.add(button.getToolbarButton());
 		}
 		return toolbarButtons;
 	}
 
-	public List<ModeButton2> getModeButtons() {
-		List<ModeButton2> modeButton2s = new ArrayList<>();
-		for (ToolbarButton2<T> button2 : buttonMap.values()) {
-			modeButton2s.add(button2.getModeButton2());
-		}
-		return modeButton2s;
-	}
+//	public List<ModeButton> getModeButtons() {
+//		List<ModeButton> modeButtons = new ArrayList<>();
+//		for (ToolbarButton2<T> button : buttonMap.values()) {
+//			modeButtons.add(button.getModeButton());
+//		}
+//		return modeButtons;
+//	}
 
 	public JButton getToolbarButton(T type) {
 		return buttonMap.get(type).getToolbarButton();
 	}
 
-	public ModeButton2 getModeButton(T type){
-		return buttonMap.get(type).getModeButton2();
+	public JButton getModeButton(T type) {
+		return buttonMap.get(type).getModeButton();
 	}
 }

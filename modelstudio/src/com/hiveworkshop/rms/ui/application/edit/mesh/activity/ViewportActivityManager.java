@@ -45,7 +45,9 @@ public final class ViewportActivityManager implements SelectionListener {
 	}
 
 	public void setCurrentActivity(ViewportActivity currentActivity) {
-		// ToDo check if this should be current or active
+		if (this.currentActivity != null) {
+			this.currentActivity.onActivityEnded();
+		}
 		this.currentActivity = currentActivity;
 		if (this.currentActivity != null) {
 			this.currentActivity.viewportChanged(cursorManager);
@@ -55,7 +57,7 @@ public final class ViewportActivityManager implements SelectionListener {
 	}
 
 	public void setCurrentActivity(ModelEditorActionType3 action) {
-		this.currentActivity =  switch (action) {
+		ViewportActivity activity =  switch (action) {
 			case TRANSLATION -> new MoveActivity(modelHandler, modelEditorManager);
 			case ROTATION -> new RotateActivity(modelHandler, modelEditorManager);
 			case SCALING -> new ScaleActivity(modelHandler, modelEditorManager);
@@ -63,9 +65,7 @@ public final class ViewportActivityManager implements SelectionListener {
 			case EXTEND -> new ExtendActivity(modelHandler, modelEditorManager);
 			case SQUAT -> new SquatActivity(modelHandler, modelEditorManager);
 		};
-		this.currentActivity.viewportChanged(cursorManager);
-		this.currentActivity.onSelectionChanged(newSelection);
-		this.currentActivity.modelEditorChanged(newModelEditor);
+		setCurrentActivity(activity);
 	}
 
 	public void viewportChanged(Consumer<Cursor> cursorManager) {
@@ -109,7 +109,7 @@ public final class ViewportActivityManager implements SelectionListener {
 		} else if (isSelect(e)) {
 			activeActivity = selectActivity;
 			selectActivity.mousePressed(e, viewBox, sizeAdj);
-		} else if (this.activeActivity != null){
+		} else if (this.activeActivity != null) {
 			System.out.println("active Activity: " + this.activeActivity);
 			activeActivity.mousePressed(e, viewProjectionMatrix, sizeAdj);
 		}
@@ -157,14 +157,14 @@ public final class ViewportActivityManager implements SelectionListener {
 		return selectActivity.isEditing();
 	}
 
-	private boolean isSelect(MouseEvent e){
+	private boolean isSelect(MouseEvent e) {
 		ProgramPreferences prefs = ProgramGlobals.getPrefs();
 		Nav3DMousePrefs nav3DMousePrefs = prefs.getNav3DMousePrefs();
 		return MouseEventHelpers.matches(e, nav3DMousePrefs.getKeyStroke(Nav3DMouseAction.SELECT),
 				nav3DMousePrefs.getKeyStroke(Nav3DMouseAction.ADD_SELECT_MODIFIER),
 				nav3DMousePrefs.getKeyStroke(Nav3DMouseAction.REMOVE_SELECT_MODIFIER));
 	}
-	private boolean isEditing(MouseEvent e){
+	private boolean isEditing(MouseEvent e) {
 		ProgramPreferences prefs = ProgramGlobals.getPrefs();
 		Nav3DMousePrefs nav3DMousePrefs = prefs.getNav3DMousePrefs();
 		return MouseEventHelpers.matches(e, nav3DMousePrefs.getKeyStroke(Nav3DMouseAction.MODIFY),

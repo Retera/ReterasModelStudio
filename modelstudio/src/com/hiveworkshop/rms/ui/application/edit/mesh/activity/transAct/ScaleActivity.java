@@ -14,6 +14,7 @@ public class ScaleActivity extends TransformActivity {
 	protected final Vec2 realMouseStart = new Vec2();
 	protected final Vec3 center = new Vec3();
 	protected final Mat4 invRotMat = new Mat4();
+
 	public ScaleActivity(ModelHandler modelHandler,
 	                     AbstractModelEditorManager modelEditorManager) {
 		super(modelHandler, modelEditorManager, new ScalerWidget());
@@ -33,7 +34,7 @@ public class ScaleActivity extends TransformActivity {
 		transformAction.setScale(scaleVector);
 	}
 
-	protected void finnishAction() {
+	protected void resetActivity() {
 		isNeg = false;
 	}
 
