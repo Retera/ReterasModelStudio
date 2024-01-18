@@ -2,9 +2,8 @@ package com.hiveworkshop.rms.editor.actions.animation;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryMapAction;
-import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.EventObject;
+import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -35,6 +34,12 @@ public class DuplicateAnimationAction implements UndoAction {
 		for (EventObject e : model.getEvents()) {
 			if (e.hasSequence(sequenceToCopy)) {
 				undoActions.add(new AddEventTrackAction(e, newSequence, new ArrayList<>(e.getEventTrack(sequenceToCopy)), null));
+			}
+		}
+		if (newSequence instanceof Animation) {
+			for (Geoset g : model.getGeosets()) {
+				ExtLog newExtLog = g.getAnimExtent((Animation) sequenceToCopy).deepCopy();
+				undoActions.add(new ConsumerAction<>(e -> g.add((Animation) newSequence, e), newExtLog, null, "Geoset Ext"));
 			}
 		}
 
