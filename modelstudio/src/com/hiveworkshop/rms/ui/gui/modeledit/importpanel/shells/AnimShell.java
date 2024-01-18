@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells;
 import com.hiveworkshop.rms.editor.model.Animation;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class AnimShell extends AbstractShell {
@@ -12,7 +11,6 @@ public class AnimShell extends AbstractShell {
 	private AnimShell animDataSrc; // animation to replace this animation where bones are missing anim data
 	private boolean reverse = false;
 	private boolean doImport = true;
-//	private ImportType importType = ImportType.IMPORT_BASIC;
 	private String name;
 	private final String oldName;
 
@@ -46,22 +44,6 @@ public class AnimShell extends AbstractShell {
 		this.reverse = reverse;
 		return this;
 	}
-
-//	public ImportType getImportType() {
-//		return importType;
-//	}
-
-	public AnimShell setImportType(int importType) {
-//		if(0 <= importType && importType < ImportType.values().length) {
-//			this.importType = ImportType.fromInt(importType);
-//		}
-		return this;
-	}
-
-//	public AnimShell setImportType(ImportType importType) {
-//		this.importType = importType;
-//		return this;
-//	}
 
 	public AnimShell setDoImport(boolean doImport) {
 		this.doImport = doImport;
@@ -149,18 +131,6 @@ public class AnimShell extends AbstractShell {
 		return oldName;
 	}
 
-//	public String displName() {
-//		String dispName = "";
-//		switch (importType) {
-//			case DONT_IMPORT -> dispName += "\u2297";
-//			case IMPORT_BASIC -> dispName += "\u24BE";
-//			case CHANGE_NAME -> dispName += "\u24C3";
-//			case TIMESCALE_INTO -> dispName += "\u24C9";
-//			case GLOBALSEQ -> dispName += "\u24BC";
-//		}
-//		return dispName + "  " + oldName;
-//	}
-
 	public AnimShell getAnimDataSrc() {
 		return animDataSrc;
 	}
@@ -173,45 +143,9 @@ public class AnimShell extends AbstractShell {
 			this.animDataSrc = animDataSrc;
 			if (animDataSrc != null) {
 				animDataSrc.addAnimDataDest(this);
-//				for (AnimShell animShell : animDataDests) {
-//					animShell.setAnimDataSrc(null);
-//				}
-//				importType = ImportType.TIMESCALE_RECEIVE;
 			}
 		}
 		return this;
-	}
-
-	public enum ImportType {
-		DONT_IMPORT("Do Not Import"),
-		IMPORT_BASIC("Import as-is"),
-		CHANGE_NAME("Change name to:"),
-		//		TIMESCALE_INTO("Time-scale into pre-existing:"),
-		TIMESCALE_INTO("Time-scale into:"),
-		TIMESCALE_RECEIVE("Replace with:"),
-		GLOBALSEQ("Rebuild as global sequence");
-		String dispText;
-
-		ImportType(String s) {
-			dispText = s;
-		}
-
-		public static String[] getDispList() {
-			return Arrays.stream(values()).map(ImportType::getDispText).toArray(String[]::new);
-		}
-
-		public static ImportType fromInt(int i) {
-			return values()[i];
-		}
-
-		public String getDispText() {
-			return dispText;
-		}
-
-		@Override
-		public String toString() {
-			return dispText;
-		}
 	}
 
 }

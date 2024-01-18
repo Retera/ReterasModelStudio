@@ -1,42 +1,26 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
-import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.AnimShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.AnimListCellRenderer;
+import com.hiveworkshop.rms.ui.gui.modeledit.renderers.ListStatus;
 import com.hiveworkshop.rms.ui.util.TwiList;
-import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class AnimPanel extends JPanel {
+public abstract class AnimPanel extends JPanel {
 
-	protected JLabel oldName;
-	private JLabel animInfo;
+	protected JLabel animInfo;
 	protected TriCheckBox inReverse;
 	protected TriCheckBox doImportBox;
 
-//	String timeScaleDonInfo = "All bones set to receive motion will have the animation data of the following animation(s) replaced by this animation";
-	String timeScaleDonInfo = "<html><p>Use the animation data of this animation in the<br>following animations, where applicable:";
-
-//	private String reciveText = "All bones set to receive motion will have the animation data of this animation replaced by: ";
-	private String reciveText = "<html><p>Use the animation data of the following animation<br>in this animation, where applicable:";
-
-
-	protected TwiTextField nameField;
-
 	protected ModelHolderThing mht;
 
-	protected AnimShell selectedAnim;
+	protected List<AnimShell> selectedValuesList;
 	protected TwiList<AnimShell> animJList;
 
-	protected SearchListPanel<AnimShell> destList;
 	protected SearchListPanel<AnimShell> sourceList;
-
-	protected AnimListCellRenderer animDestRenderer;
 	protected AnimListCellRenderer animSrcRenderer;
 
 
@@ -45,38 +29,52 @@ public class AnimPanel extends JPanel {
 		this.animJList = animJList;
 	}
 
-	public AnimPanel(ModelHolderThing mht, TwiList<AnimShell> animJList, final AnimListCellRenderer renderer) {
-		this.mht = mht;
-		setLayout(new MigLayout("gap 0, fill", "[][]", "[][][][][grow]"));
-		this.animJList = animJList;
+	public void updateAnimPanel(List<AnimShell> selectedValuesList) {
+		this.selectedValuesList = selectedValuesList;
 
-		animDestRenderer = new AnimListCellRenderer().setMarkDontImp(true).setDestList(true);
-		animSrcRenderer = new AnimListCellRenderer();
+		animInfo.setText(getInfoText());
 
-		sourceList = new SearchListPanel<>(reciveText, this::search)
-				.setRenderer(animSrcRenderer)
-				.setSelectionConsumer(this::onSourceSelected)
-				.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		AnimShell firstAnimShell = selectedValuesList.get(0);
 
-//		destList = new SearchListPanel<>(timeScaleDonInfo, this::search)
-//				.setRenderer(animDestRenderer)
-//				.setSelectionConsumer(this::onDestSelected)
-//				.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+		boolean firstImp = firstAnimShell.isDoImport();
+		if (selectedValuesList.stream().anyMatch(as -> as.isDoImport() != firstImp)) {
+			doImportBox.setIndeterminate(true);
+		} else {
+			doImportBox.setSelected(firstImp);
+		}
 
-		nameField = new TwiTextField(24, this::renameAnim);
-		nameField.setFont(new Font("Arial", Font.BOLD, 18));
-		add(nameField, "align center, spanx, wrap");
-		oldName = new JLabel("Select an Animation");
+		boolean firstRev = firstAnimShell.isReverse();
+		if (selectedValuesList.stream().anyMatch(as -> as.isReverse() != firstRev)) {
+			inReverse.setIndeterminate(true);
+		} else {
+			inReverse.setSelected(firstRev);
+		}
 
-		animInfo = new JLabel("");
+		updateAnimDataSrcList(firstAnimShell.isFromDonating());
+	}
 
-		add(oldName, "align center, spanx, wrap");
-		add(animInfo, "align center, spanx, wrap");
+	protected abstract String getInfoText();
 
-		add(getImportCheckBox(this::setImport), "align center, split");
-		add(getReverseCheckBox(this::setInReverse), "wrap");
 
-		add(sourceList, "spanx, growx, growy");
+
+	private void updateAnimDataSrcList(boolean fromDonating) {
+		sourceList.clearAndReset();
+
+		List<AnimShell> othersAnimShells = fromDonating ? mht.recModAnims : mht.donModAnims;
+		List<AnimShell> selfAnimShells = fromDonating ? mht.donModAnims : mht.recModAnims;
+
+		sourceList.addAll(othersAnimShells);
+		sourceList.addAll(selfAnimShells);
+
+		if(selectedValuesList.size() == 1){
+			sourceList.remove(selectedValuesList.get(0));
+
+			if(selectedValuesList.get(0).getAnimDataSrc() != null){
+				sourceList.scrollToReveal(selectedValuesList.get(0).getAnimDataSrc());
+			}
+		}
+
+		sourceList.repaint();
 	}
 
 	protected JCheckBox getReverseCheckBox(Consumer<Boolean> boolConsumer) {
@@ -96,99 +94,43 @@ public class AnimPanel extends JPanel {
 		return animShell.getDisplayName().matches("(?i).*" + text + ".*");
 	}
 
-	public void setSelectedAnim(AnimShell animShell) {
-		selectedAnim = animShell;
-//		animRenderer.setSelectedAnim(selectedAnim);
-//		animDestRenderer.setSelectedAnim(selectedAnim);
-		animSrcRenderer.setSelectedAnim(selectedAnim);
+	protected void onSourceSelected(AnimShell animShell){
+		if (animShell != null) {
+			boolean allHasAnimAsSrc = selectedValuesList.stream().allMatch(as -> as.getAnimDataSrc() == animShell);
+			AnimShell animToSet = allHasAnimAsSrc ? null : animShell;
 
-		updateAnimDataSrcList(animShell.isFromDonating());
-		nameField.setText(animShell.getName());
-		oldName.setText(animShell.getOldName());
-
-		animInfo.setText(getInfoText());
-
-		inReverse.setSelected(animShell.isReverse());
-		doImportBox.setSelected(animShell.isDoImport());
-	}
-
-	private void renameAnim(String newName){
-		if(selectedAnim != null){
-			selectedAnim.setName(newName);
-		}
-	}
-
-	private String getInfoText() {
-		Animation anim = selectedAnim.getAnim();
-		if (anim != null) {
-			return "length: " + anim.getLength()
-					+ "    speed: " + anim.getMoveSpeed()
-					+ "    rarity: " + anim.getRarity()
-					+ "    looping: " + !anim.isNonLooping();
-		}
-		return "";
-	}
-
-	private void setInReverse(boolean inReverse) {
-		selectedAnim.setReverse(inReverse);
-	}
-	private void setImport(boolean doImport) {
-		selectedAnim.setDoImport(doImport);
-		animJList.repaint();
-	}
-
-
-	private void updateRecModAnimList(boolean fromDonating) {
-		destList.clearAndReset();
-
-		List<AnimShell> othersAnimShells = fromDonating ? mht.recModAnims : mht.donModAnims;
-		List<AnimShell> selfAnimShells = fromDonating ? mht.donModAnims : mht.recModAnims;
-
-		destList.addAll(othersAnimShells);
-		destList.addAll(selfAnimShells);
-		destList.remove(selectedAnim);
-
-		if(!selectedAnim.getAnimDataDests().isEmpty()){
-			destList.scrollToReveal(selectedAnim.getAnimDataDests().get(0));
-		}
-		destList.repaint();
-	}
-
-	private void updateAnimDataSrcList(boolean fromDonating) {
-		sourceList.clearAndReset();
-
-		List<AnimShell> othersAnimShells = fromDonating ? mht.recModAnims : mht.donModAnims;
-		List<AnimShell> selfAnimShells = fromDonating ? mht.donModAnims : mht.recModAnims;
-
-		sourceList.addAll(othersAnimShells);
-		sourceList.addAll(selfAnimShells);
-		sourceList.remove(selectedAnim);
-
-		if(selectedAnim.getAnimDataSrc() != null){
-			sourceList.scrollToReveal(selectedAnim.getAnimDataSrc());
-		}
-
-		sourceList.repaint();
-	}
-
-	private void onSourceSelected(AnimShell animShell){
-		if(selectedAnim != null && animShell != null) {
-			if (selectedAnim.getAnimDataSrc() == animShell) {
-				selectedAnim.setAnimDataSrc(null);
-			} else {
-				selectedAnim.setAnimDataSrc(animShell);
+			for (AnimShell selectedAnim : selectedValuesList) {
+				if (selectedAnim != null) {
+					selectedAnim.setAnimDataSrc(animToSet);
+				}
 			}
 			SwingUtilities.invokeLater(animJList::repaint);
 		}
 	}
-	private void onDestSelected(AnimShell animShell){
-		if(selectedAnim != null && animShell != null) {
-			if (animShell.getAnimDataSrc() == selectedAnim) {
-				animShell.setAnimDataSrc(null);
-			} else {
-				animShell.setAnimDataSrc(selectedAnim);
+
+	protected void setImport(boolean doImport) {
+		if(selectedValuesList != null){
+			for (AnimShell animShell : selectedValuesList) {
+				animShell.setDoImport(doImport);
 			}
-			SwingUtilities.invokeLater(animJList::repaint);
+			animJList.repaint();
 		}
+	}
+	protected void setInReverse(boolean reverse) {
+		if(selectedValuesList != null){
+			for (AnimShell animShell : selectedValuesList) {
+				animShell.setReverse(reverse);
+			}
+			animJList.repaint();
+		}
+	}
+	protected boolean notAllSelected(Object animShell, boolean isSel) {
+		return selectedValuesList.stream().allMatch(o -> o != null && o.getAnimDataSrc() == animShell);
+	}
+	protected boolean isSrcSelected(Object animShell, boolean isSel) {
+		return selectedValuesList.stream().anyMatch(o -> o != null && o.getAnimDataSrc() == animShell);
+	}
+	protected ListStatus getSrcStatus(Object animShell) {
+		return ListStatus.FREE;
 	}
 }

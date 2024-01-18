@@ -1,14 +1,19 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.AnimShell;
+import com.hiveworkshop.rms.ui.preferences.UiElementColor;
+import com.hiveworkshop.rms.ui.preferences.UiElementColorPrefs;
 import com.hiveworkshop.rms.ui.util.colorchooser.CharIcon;
 import com.hiveworkshop.rms.util.Vec3;
+import net.infonode.util.ColorUtil;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class AnimListCellRenderer extends DefaultListCellRenderer {
 	protected static final Vec3 recCV = new Vec3(200, 255, 255);
@@ -16,138 +21,86 @@ public class AnimListCellRenderer extends DefaultListCellRenderer {
 	protected static final Color recC = recCV.asIntColor();
 	protected static final Color donC = donCV.asIntColor();
 
-	private static final Vec3 selectedOwnerBgCol = new Vec3(130, 230, 170);
-	private static final Vec3 timeScaleBgCol = new Vec3(150, 170, 230);
-	private static final Color timeScaleBgCol1 = new Color(150, 170, 230);
-	private static final Vec3 selectedOwnerFgCol = new Vec3(0, 0, 0);
-	private static final Vec3 otherOwnerBgCol = new Vec3(160, 160, 160);
-	private static final Vec3 otherOwnerFgCol = new Vec3(60, 60, 60);
-	private static final Vec3 noOwnerBgCol = new Vec3(255, 255, 255);
-	private static final Vec3 dontImpBgCol = new Vec3(240, 200, 200);
-	private static final Vec3 noOwnerFgCol = new Vec3(0, 0, 0);
-	private static final Vec3 hLAdjBgCol = new Vec3(0, 0, 50);
-	private static final Vec3 bg = new Vec3();
-	private static final Vec3 fg = new Vec3();
 
-	boolean showLength = false;
-	AnimShell selectedAnim;
-	Set<AnimShell> selectedAnims = new HashSet<>();
-	boolean markDontImp;
-	boolean destList = false;
+	boolean showLength;
+	private final Function<AnimShell, ListStatus> statusFunction;
+	private final BiFunction<AnimShell, Boolean, Boolean> isSelected;
+	private static final String reverseMarker = " \u21a9"; // ↩
+
 
 	public AnimListCellRenderer() {
+		this(false);
 	}
 
 	public AnimListCellRenderer(boolean showLength) {
+		this(showLength, o -> ListStatus.FREE, (o, s) -> s);
+	}
+	public AnimListCellRenderer(boolean showLength,
+	                            Function<AnimShell, ListStatus> statusFunction,
+	                            BiFunction<AnimShell, Boolean, Boolean> isSelected) {
 		this.showLength = showLength;
-	}
-
-	public AnimListCellRenderer setMarkDontImp(boolean markDontImp) {
-		this.markDontImp = markDontImp;
-		return this;
-	}
-
-	public AnimListCellRenderer setDestList(boolean destList) {
-		this.destList = destList;
-		return this;
-	}
-
-	public void setSelectedAnim(AnimShell animShell) {
-		selectedAnims.clear();
-		selectedAnim = animShell;
-	}
-	public void setSelectedAnims(Collection<AnimShell> animShells) {
-		selectedAnims.clear();
-		selectedAnim = null;
-		selectedAnims.addAll(animShells);
+		this.statusFunction = statusFunction;
+		this.isSelected = isSelected;
 	}
 
 	@Override
-	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSel, boolean hasFoc) {
-		AnimShell animShell = (AnimShell) value;
-		String animName = animShell.getDisplayName();
+	public Component getListCellRendererComponent(JList<?> list, Object value1, int index, boolean isSel, boolean hasFoc) {
+		if (value1 instanceof AnimShell) {
+			AnimShell value = (AnimShell) value1;
+			String suffix = value.isReverse() ? reverseMarker : "";
+			String animName = value.getDisplayName() + suffix;
 
-		super.getListCellRendererComponent(list, animName, index, isSel, hasFoc);
-		AnimShell animDataSrc = animShell.getAnimDataSrc();
+			super.getListCellRendererComponent(list, animName, index, isSelected.apply(value, isSel), hasFoc);
+			setText(animName);
 
-		if(selectedAnims.isEmpty()){
-			if (selectedAnim != null && (destList && animDataSrc == selectedAnim || !destList && selectedAnim.getAnimDataSrc() == animShell)) {
-				bg.set(selectedOwnerBgCol);
-				fg.set(selectedOwnerFgCol);
-			} else if (destList && animDataSrc != null && selectedAnim != null) {
-				bg.set(otherOwnerBgCol);
-				fg.set(otherOwnerFgCol);
-			} else if (!animShell.isDoImport() && markDontImp) {
-				bg.set(dontImpBgCol);
-				fg.set(otherOwnerFgCol);
-//			} else if (animShell.getImportType() == AnimShell.ImportType.TIMESCALE_INTO) {
-//				bg.set(timeScaleBgCol);
-//				fg.set(noOwnerFgCol);
-			} else {
-				bg.set(noOwnerBgCol);
-				fg.set(noOwnerFgCol);
+			ListStatus status = statusFunction.apply(value);
+			switch (status){
+				case FREE -> {}
+				case MODIFIED, ONE_OF_MODIFIED, UNAVAILABLE -> this.setBackground(getBgCol(status));
+				case DISABLED -> setEnabled(false);
 			}
-		} else {
-			if(!destList){
-				bg.set(Vec3.ZERO);
-				fg.set(noOwnerFgCol);
-				for (AnimShell as : selectedAnims){
-					if(as.getAnimDataSrc() == animShell){
-						bg.add(selectedOwnerBgCol);
-					} else {
-						bg.add(noOwnerBgCol);
-					}
-				}
-				bg.scale(1f/(float) selectedAnims.size());
-			} else {
-				if(!animShell.isDoImport() && markDontImp){
-					bg.set(dontImpBgCol);
-					fg.set(otherOwnerFgCol);
-				} else if(animDataSrc == null){
-					bg.set(noOwnerBgCol);
-					fg.set(noOwnerFgCol);
-				} else if(selectedAnims.contains(animDataSrc)){
-					bg.set(selectedOwnerBgCol);
-					fg.set(selectedOwnerFgCol);
-				} else {
-					bg.set(otherOwnerBgCol);
-					fg.set(otherOwnerFgCol);
-				}
-			}
-//			if (selectedAnim != null && (destList && animDataSrc == selectedAnim || !destList && selectedAnim.getAnimDataSrc() == animShell)) {
-//				bg.set(selectedOwnerBgCol);
-//				fg.set(selectedOwnerFgCol);
-//			} else if (destList && animDataSrc != null && selectedAnim != null) {
-//				bg.set(otherOwnerBgCol);
-//				fg.set(otherOwnerFgCol);
-//			} else if (!animShell.isDoImport() && markDontImp) {
-//				bg.set(dontImpBgCol);
-//				fg.set(otherOwnerFgCol);
-//			} else if (animShell.getImportType() == AnimShell.ImportType.TIMESCALE_INTO) {
-//				bg.set(timeScaleBgCol);
-//				fg.set(noOwnerFgCol);
-//			} else {
-//				bg.set(noOwnerBgCol);
-//				fg.set(noOwnerFgCol);
-//			}
-		}
 
+			boolean fD = value.isFromDonating();
+			CharIcon charIcon = new CharIcon(fD ? "&" : "#", 7, fD ? donC : recC, 16, 2);
+			setIcon(charIcon); // todo choose icon based on import status
 
-		if (isSel) {
-			bg.add(hLAdjBgCol);
+			setToolTipText(getHoverText(value));
 		}
-		this.setBackground(bg.asIntColor());
-		this.setForeground(fg.asIntColor());
-		boolean fD = animShell.isFromDonating();
-		CharIcon charIcon = new CharIcon(fD ? "&" : "#", 7, fD ? donC : recC, 16, 2);
-		setIcon(charIcon); // todo choose icon based on import status
 		return this;
 	}
 
-	private String getAnimName(AnimShell value){
-		if(showLength) {
-			return value.getOldName() + " (" + value.getAnim().getLength() + ")";
+
+	public Color getBgCol(ListStatus status) {
+		UiElementColorPrefs colorPrefs = ProgramGlobals.getPrefs().getUiElementColorPrefs();
+
+		return switch (status){
+			case FREE -> null;
+			case MODIFIED -> ColorUtil.blend(getBackground(), colorPrefs.getColor(UiElementColor.LIST_ENTRY_EDITED), .5);
+			case ONE_OF_MODIFIED -> ColorUtil.blend(getBackground(), colorPrefs.getColor(UiElementColor.LIST_ENTRY_EDITED), .3);
+			case UNAVAILABLE -> ColorUtil.blend(getBackground(), colorPrefs.getColor(UiElementColor.LIST_ENTRY_UNAVAILABLE), .5);
+			case DISABLED -> ColorUtil.blend(getBackground(), colorPrefs.getColor(UiElementColor.LIST_ENTRY_DISABLED), .5);
+		};
+	}
+
+	private String getHoverText(AnimShell value) {
+		List<String> users = new ArrayList<>();
+		for (AnimShell animShell : value.getAnimDataDests()) {
+			boolean fD = animShell.isFromDonating();
+//			users.add((fD ? "[&]" : "[#]") + "\"" + animShell.getName() + "\"");
+			users.add((fD ? "[&]" : "[#]") + animShell.getName());
 		}
-		return value.getOldName();
+		if (!users.isEmpty()){
+			return "Used by: " + String.join(", ", users);
+		}
+		return null;
+	}
+
+	private String getAnimName(Object value){
+		if (value instanceof AnimShell) {
+			AnimShell animShell = (AnimShell) value;
+			String suffix = animShell.isReverse() ? " \u21a9" : ""; // ↩
+			return animShell.getDisplayName() + suffix;
+		}
+		return "";
 	}
 }

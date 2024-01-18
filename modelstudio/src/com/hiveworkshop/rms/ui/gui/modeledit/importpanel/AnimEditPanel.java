@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 import com.hiveworkshop.rms.ui.application.tools.TwiRenamingPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.AnimShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.AnimListCellRenderer;
+import com.hiveworkshop.rms.ui.gui.modeledit.renderers.ListStatus;
 import com.hiveworkshop.rms.ui.util.TwiList;
 import com.hiveworkshop.rms.util.uiFactories.Button;
 import net.miginfocom.swing.MigLayout;
@@ -13,7 +14,6 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 public class AnimEditPanel extends JPanel {
@@ -21,9 +21,8 @@ public class AnimEditPanel extends JPanel {
 	private final CardLayout cardLayout = new CardLayout();
 	private final JPanel panelCards = new JPanel(cardLayout);
 	private final ModelHolderThing mht;
-	private final AnimPanel singleAnimPanel;
+	private final AnimSinglePanel singleAnimPanel;
 	private final AnimMultiPanel animMultiPanel;
-	private final AnimListCellRenderer animRenderer;
 	private final TwiList<AnimShell> animJList;
 
 	public AnimEditPanel(ModelHolderThing mht) {
@@ -33,14 +32,14 @@ public class AnimEditPanel extends JPanel {
 
 		JPanel topPanel = getTopPanel();
 		add(topPanel, "align center, wrap");
-		System.out.println("parent11: " + getParent());
-		System.out.println("rotepane11: " + getRootPane());
-		System.out.println("anc11: " + getTopLevelAncestor());
+//		System.out.println("parent11: " + getParent());
+//		System.out.println("rotepane11: " + getRootPane());
+//		System.out.println("anc11: " + getTopLevelAncestor());
 		addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				super.componentResized(e);
-				if(AnimEditPanel.this.getTopLevelAncestor() != null && AnimEditPanel.this.getTopLevelAncestor().getWidth() < topPanel.getComponent(0).getWidth()*2){
+				if (AnimEditPanel.this.getTopLevelAncestor() != null && AnimEditPanel.this.getTopLevelAncestor().getWidth() < topPanel.getComponent(0).getWidth()*2) {
 					((MigLayout)topPanel.getLayout()).setLayoutConstraints("gap 0, ins 0, wrap 1");
 					((MigLayout)AnimEditPanel.this.getLayout()).setComponentConstraints(topPanel, "align left, wrap");
 				} else {
@@ -52,11 +51,9 @@ public class AnimEditPanel extends JPanel {
 		});
 
 
-		animRenderer = new AnimListCellRenderer().setMarkDontImp(true);
-		animRenderer.setSelectedAnim(null);
 
 		// Build the animTabs list of AnimPanels
-		singleAnimPanel = new AnimPanel(mht, animJList, animRenderer);
+		singleAnimPanel = new AnimSinglePanel(mht, animJList);
 		animMultiPanel = new AnimMultiPanel(mht, animJList);
 
 		panelCards.add(new JPanel(), "blank");
@@ -64,31 +61,26 @@ public class AnimEditPanel extends JPanel {
 		panelCards.add(animMultiPanel, "multiple");
 		JScrollPane cardScrollPane = new JScrollPane(panelCards);
 
-		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, getAnimListPane(mht), cardScrollPane);
+		AnimListCellRenderer animRenderer = new AnimListCellRenderer(true, this::getDestStatus, this::isDestSelected);
+		JScrollPane animListPane = new JScrollPane(animJList.setRenderer(animRenderer).addMultiSelectionListener(this::changeAnim));
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, animListPane, cardScrollPane);
 		add(splitPane, "wrap, growx, growy, spany");
 		splitPane.setDividerLocation(.3);
-	}
-
-	private JScrollPane getAnimListPane(ModelHolderThing mht) {
-		animJList.setCellRenderer(animRenderer);
-		animJList.addMultiSelectionListener(this::changeAnim);
-		animJList.setSelectedValue(null, false);
-		return new JScrollPane(animJList);
 	}
 
 	private void changeAnim(Collection<AnimShell> selectedValuesList) {
 		if (selectedValuesList.size() < 1) {
 			showCard("blank");
 		} else if (selectedValuesList.size() == 1) {
-			singleAnimPanel.setSelectedAnim(((List<AnimShell>)selectedValuesList).get(0));
+			singleAnimPanel.updateAnimPanel((List<AnimShell>)selectedValuesList);
 			showCard("single");
 		} else {
-			animMultiPanel.updateMultiAnimPanel((List<AnimShell>)selectedValuesList);
+			animMultiPanel.updateAnimPanel((List<AnimShell>)selectedValuesList);
 			showCard("multiple");
 		}
 	}
 
-	private void showCard(String name){
+	private void showCard(String name) {
 		cardLayout.show(panelCards, name);
 	}
 
@@ -101,19 +93,6 @@ public class AnimEditPanel extends JPanel {
 		return topPanel;
 	}
 
-	private JPanel getSetImpTypePanel(String modelName, Consumer<AnimShell.ImportType> importTypeConsumer) {
-		JPanel panel = new JPanel(new MigLayout("gap 0, ins 0", "[][][]", "[align center]"));
-		panel.setOpaque(true);
-		panel.setBorder(BorderFactory.createTitledBorder(modelName));
-
-		panel.add(Button.create("Import All", e -> importTypeConsumer.accept(AnimShell.ImportType.IMPORT_BASIC)), "");
-		panel.add(Button.create("Time-scale All", e -> importTypeConsumer.accept(AnimShell.ImportType.TIMESCALE_INTO)), "");
-		panel.add(Button.create("Import and Rename All", e -> importTypeConsumer.accept(AnimShell.ImportType.CHANGE_NAME)), "");
-		panel.add(Button.create("Leave All", e -> importTypeConsumer.accept(AnimShell.ImportType.DONT_IMPORT)), "");
-		panel.add(Button.create("auto match animations", e -> matchAnimsByName(true)), "wrap");
-
-		return panel;
-	}
 	private JPanel getSetImpTypePanel(boolean fromDonating) {
 		JPanel panel = new JPanel(new MigLayout("gap 0, ins 0", "[][][]", "[align center]"));
 		panel.setOpaque(true);
@@ -131,12 +110,12 @@ public class AnimEditPanel extends JPanel {
 		return panel;
 	}
 
-	private JComponent setTooltip(JComponent comp, String tip){
+	private JComponent setTooltip(JComponent comp, String tip) {
 		comp.setToolTipText(tip);
 		return comp;
 	}
 
-	private void setImportAnims(boolean imp, boolean donMod){
+	private void setImportAnims(boolean imp, boolean donMod) {
 		List<AnimShell> animShells = donMod ? mht.donModAnims : mht.recModAnims;
 		animShells.forEach(a -> a.setDoImport(imp));
 		repaint();
@@ -192,5 +171,23 @@ public class AnimEditPanel extends JPanel {
 			destAnimShell.setAnimDataSrc(null);
 		}
 		animJList.repaint();
+	}
+
+	protected boolean isDestSelected(Object animShell, boolean isSel) {
+		return isSel;
+	}
+	protected ListStatus getDestStatus(Object animShell) {
+		if (animShell instanceof AnimShell) {
+			AnimShell animDataSrc = ((AnimShell)animShell).getAnimDataSrc();
+
+			if (!((AnimShell)animShell).isDoImport()) {
+				return ListStatus.DISABLED;
+			} else if (animDataSrc != null || ((AnimShell) animShell).isReverse()) {
+//				return ListStatus.UNAVAILABLE;
+				return ListStatus.MODIFIED;
+			}
+		}
+
+		return ListStatus.FREE;
 	}
 }

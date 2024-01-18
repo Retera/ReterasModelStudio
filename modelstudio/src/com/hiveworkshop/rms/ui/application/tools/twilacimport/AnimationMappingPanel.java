@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.TriCheckBox;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.shells.AnimShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.AnimListCellRenderer;
+import com.hiveworkshop.rms.ui.gui.modeledit.renderers.ListStatus;
 import com.hiveworkshop.rms.ui.util.TwiList;
 import net.miginfocom.swing.MigLayout;
 
@@ -21,7 +22,7 @@ public class AnimationMappingPanel extends JPanel {
 	List<AnimShell> donAnimations;
 	List<AnimShell> recAnimations;
 
-	public AnimationMappingPanel(List<Animation> donAnims, List<Animation> recAnims){
+	public AnimationMappingPanel(List<Animation> donAnims, List<Animation> recAnims) {
 		super(new MigLayout("ins 0, fill, wrap 2", "[sgx anim][sgx anim]", "[][grow][]"));
 
 		donAnimations = getShellList(donAnims, true, false);
@@ -29,7 +30,7 @@ public class AnimationMappingPanel extends JPanel {
 
 		TwiList<AnimShell> donAnimList = new TwiList<>(donAnimations);
 		donAnimList.setPrototypeCellValue(prototypeAnimShell);
-		AnimListCellRenderer donRenderer = new AnimListCellRenderer(true).setMarkDontImp(true);
+		AnimListCellRenderer donRenderer = new AnimListCellRenderer(true, this::getSrcStatus, this::isSrcSelected);
 		donAnimList.setCellRenderer(donRenderer);
 
 		JButton autoMatchAnimations = new JButton("Auto match animations");
@@ -48,6 +49,24 @@ public class AnimationMappingPanel extends JPanel {
 
 		donAnimList.addMultiSelectionListener(recAnimPanel::setSelectedDonAnims);
 
+	}
+
+	protected boolean isSrcSelected(Object object, boolean isSel) {
+		if (object instanceof AnimShell animShell) {
+			return animShell.isDoImport();
+		}
+		return isSel;
+	}
+
+	protected ListStatus getSrcStatus(Object object) {
+		if (object instanceof AnimShell animShell) {
+			if (!animShell.getAnimDataDests().isEmpty()) {
+				return ListStatus.MODIFIED;
+			} else if (!animShell.isDoImport()) {
+				return ListStatus.DISABLED;
+			}
+		}
+		return ListStatus.FREE;
 	}
 
 	protected Map<Sequence, Sequence> getRecToDonSequenceMap() {
@@ -109,7 +128,7 @@ public class AnimationMappingPanel extends JPanel {
 		Collection<AnimShell> donAnims;
 		Runnable updateUi;
 
-		AnimP(List<AnimShell> recAnimations, Runnable updateUi){
+		AnimP(List<AnimShell> recAnimations, Runnable updateUi) {
 			super(new MigLayout("ins 0, fill"));
 			this.recAnimations = recAnimations;
 			this.updateUi = updateUi;
@@ -117,8 +136,7 @@ public class AnimationMappingPanel extends JPanel {
 
 			recAnimList.setPrototypeCellValue(new AnimShell(new Animation("An Extra Empty Animation", 0, 1000), false));
 
-			recRenderer = new AnimListCellRenderer(true);
-			recRenderer.setDestList(true);
+			recRenderer = new AnimListCellRenderer(true, this::getDestStatus, this::isDestSelected);
 			recAnimList.setRenderer(recRenderer);
 			impBox = new TriCheckBox("Import as new Animation");
 			impBox.addActionListener(e -> onImpToggle(impBox.isSelected()));
@@ -128,11 +146,26 @@ public class AnimationMappingPanel extends JPanel {
 			add(new JScrollPane(recAnimList), "growy, growx");
 		}
 
-		void onSelection(Collection<AnimShell> recAnims){
-			if(!recAnims.isEmpty()){
-				if(donAnim != null){
-					for (AnimShell anim : recAnims){
-						if (anim.getAnimDataSrc() == donAnim){
+		protected boolean isDestSelected(Object object, boolean isSel) {
+			if (object instanceof AnimShell animShell) {
+				return animShell.getAnimDataSrc() == donAnim;
+			}
+			return false;
+		}
+		protected ListStatus getDestStatus(Object object) {
+			if (object instanceof AnimShell animShell) {
+				if (animShell.getAnimDataSrc() == null || animShell.getAnimDataSrc() == donAnim) {
+					return ListStatus.FREE;
+				}
+			}
+			return ListStatus.UNAVAILABLE;
+		}
+
+		void onSelection(Collection<AnimShell> recAnims) {
+			if (!recAnims.isEmpty()) {
+				if (donAnim != null) {
+					for (AnimShell anim : recAnims) {
+						if (anim.getAnimDataSrc() == donAnim) {
 							anim.setAnimDataSrc(null);
 						} else {
 							anim.setAnimDataSrc(donAnim);
@@ -143,21 +176,21 @@ public class AnimationMappingPanel extends JPanel {
 			}
 		}
 
-		void onImpToggle(boolean imp){
-			if(donAnim != null){
+		void onImpToggle(boolean imp) {
+			if (donAnim != null) {
 				donAnim.setDoImport(imp);
-			} else if (donAnims != null){
-				for(AnimShell donAnim : donAnims){
+			} else if (donAnims != null) {
+				for (AnimShell donAnim : donAnims) {
 					donAnim.setDoImport(imp);
 				}
 			}
 		}
 
-		AnimP setSelectedDonAnim(AnimShell donAnim){
+		AnimP setSelectedDonAnim(AnimShell donAnim) {
 			this.donAnims = null;
 			this.donAnim = null;
 			impBox.setSelected(donAnim.isDoImport());
-			recRenderer.setSelectedAnim(donAnim);
+//			recRenderer.setSelectedAnim(donAnim);
 			scrollToRevealFirstChosen(donAnim);
 			this.donAnim = donAnim;
 
@@ -174,9 +207,9 @@ public class AnimationMappingPanel extends JPanel {
 				}
 			}
 		}
-		AnimP setSelectedDonAnims(Collection<AnimShell> donAnims){
+		AnimP setSelectedDonAnims(Collection<AnimShell> donAnims) {
 			AnimShell firstAnimShell = donAnims.stream().findFirst().orElse(null);
-			if(donAnims.size() == 1){
+			if (donAnims.size() == 1) {
 				setSelectedDonAnim(firstAnimShell);
 			} else {
 				this.donAnim = null;
@@ -188,7 +221,7 @@ public class AnimationMappingPanel extends JPanel {
 				} else {
 					impBox.setSelected(firstImp);
 				}
-				recRenderer.setSelectedAnims(donAnims);
+//				recRenderer.setSelectedAnims(donAnims);
 				this.donAnims = donAnims;
 			}
 			repaint();
