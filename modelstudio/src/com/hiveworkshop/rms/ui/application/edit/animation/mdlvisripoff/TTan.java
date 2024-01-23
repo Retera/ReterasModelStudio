@@ -17,12 +17,18 @@ import java.util.TreeMap;
  * Is used for calculating the Tangential part of KK
  */
 public abstract class TTan<T> {
-	AnimFlag<T> timeline;
+	private static final float T_MIN = -1;
+	private static final float T_MAX =  1;
+	private static final float C_MIN = -1;
+	private static final float C_MAX =  1;
+	private static final float B_MIN = -1;
+	private static final float B_MAX =  1;
+	private final AnimFlag<T> timeline;
 	public float bias;
 	public float tension;
 	public float continuity; // Spline parameters
 	protected Entry<T> prev;
-	public Entry<T> tang; // storage for tangents
+	protected Entry<T> calcTang; // storage for tangents
 	protected Entry<T> orgTangs; // storage for tangents
 	public Entry<T> cur;
 	protected Entry<T> next; // Values in KK
@@ -36,7 +42,7 @@ public abstract class TTan<T> {
 	public TTan(AnimFlag<T> timeline, Sequence anim) {
 		this.timeline = timeline;
 		Entry<T> value = timeline.getEntryMap(anim).firstEntry().getValue();
-		tang = new Entry<>(value);
+		calcTang = new Entry<>(value);
 		orgTangs = new Entry<>(value);
 		cur = new Entry<>(value);
 		prev = new Entry<>(value);
@@ -70,20 +76,22 @@ public abstract class TTan<T> {
 				nextTime = entryMap.firstKey();
 			}
 			if (prevTime != null && nextTime != null) {
-				tang.setValues(timeline.getEntryAt(anim, time));
+				orgTangs.setValues(timeline.getEntryAt(anim, time));
 				cur.setValues(timeline.getEntryAt(anim, time));
 				prev.setValues(timeline.getEntryAt(anim, prevTime));
 				next.setValues(timeline.getEntryAt(anim, nextTime));
 			}
 		} else if (prevTime != null || nextTime != null) {
-			tang.setTime(time);
-			tang.setValue(timeline.interpolateAt(anim, time));
-			tang.linearize();
+			orgTangs.setTime(time);
+			orgTangs.setValue(timeline.interpolateAt(anim, time));
 			cur.setTime(time);
 			cur.setValue(timeline.interpolateAt(anim, time));
 			prev.setValue(timeline.interpolateAt(anim, (time-1 + anim.getLength())%anim.getLength()));
 			next.setValue(timeline.interpolateAt(anim, (time+1 + anim.getLength())%anim.getLength()));
+
+			orgTangs.unLinearize();
 		}
+		calcTang.setValues(orgTangs);
 	}
 
 	public T bezInterp(int currTime, Entry<T> itStart, Entry<T> itEnd) {
@@ -160,8 +168,8 @@ public abstract class TTan<T> {
 
 	public void calcSplineParameters() {
 		float bMid = 0;
-		float bStart = -1;
-		float bEnd = 1;
+		float bStart = B_MIN;
+		float bEnd = B_MAX;
 
 		isLogsReady = false;
 
@@ -189,87 +197,41 @@ public abstract class TTan<T> {
 	public abstract void calcDerivative(float tension, float continuity, float bias);
 
 	public float calcWithConstBias(float bias) {
-		float continuityMin = 0;
-		float tensionMin = 0;
-		float continuityCur;
-		float tensionCur;
-		float delta;
-		float continuityCurBeg = -1;
-		float continuityCurEnd = 1;
-		float tensionCurBeg = -1;
-		float tensionCurEnd = 1;
+		float contMinFound = 0;
+		float tensMinFound = 0;
+		float contMinLim = C_MIN;
+		float contMaxLim = C_MAX;
+		float tensMinLim = T_MIN;
+		float tensMaxLim = T_MAX;
 
 		float ds = 1e6f;
-
-		orgTangs.setValues(tang);
-
-		for (float step = 0.1f; 0.001 < step; step *= 0.1f) {
-			continuityCur = continuityCurBeg;
-			do {
-				tensionCur = tensionCurBeg;
-				do {
-					delta = getDelta(orgTangs, tensionCur, continuityCur, bias);
-					if (delta < ds) {
-						ds = delta;
-						continuityMin = continuityCur;
-						tensionMin = tensionCur;
-					}
-					tensionCur += step;
-				} while (tensionCur <= tensionCurEnd);
-				continuityCur += step;
-			} while (continuityCur <= continuityCurEnd);
-
-			continuityCurBeg = Math.max(continuityMin - step, -1);
-			continuityCurEnd = Math.min(continuityMin + step, 1);
-
-			tensionCurBeg = Math.max(tensionMin - step, -1);
-			tensionCurEnd = Math.min(tensionMin + step, 1);
-		}
-
-		continuity = continuityMin;
-		tension = tensionMin;
-		tang.setValues(orgTangs);
-		return ds;
-	}
-
-	public float calcWithConstBias2(float bias) {
-		float contMin = 0;
-		float tensMin = 0;
-		float contCurBeg = -1;
-		float tensCurBeg = -1;
-		float contCurEnd = 1;
-		float tensCurEnd = 1;
-
-		float ds = 1e6f;
-
-		orgTangs.setValues(tang);
+		calcTang.setValues(orgTangs);
 
 		for (float step = 0.1f; 0.001 < step; step *= 0.1f) {
-			for (float cCur = contCurBeg; cCur <= contCurEnd; cCur += step) {
-				for (float tCur = tensCurBeg; tCur <= tensCurEnd; tCur += step) {
-					float delta = getDelta(orgTangs, tCur, cCur, bias);
+			for (float continuityCur = contMinLim; continuityCur <= contMaxLim; continuityCur += step) {
+				for (float tensionCur = tensMinLim; tensionCur <= tensMaxLim; tensionCur += step) {
+					float delta = getDelta(orgTangs, tensionCur, continuityCur, bias);
 					if (delta < ds) {
 						ds = delta;
-						contMin = cCur;
-						tensMin = tCur;
+						contMinFound = continuityCur;
+						tensMinFound = tensionCur;
 					}
 				}
 			}
 
-			contCurBeg = Math.max(contMin - step, -1);
-			tensCurBeg = Math.max(tensMin - step, -1);
+			contMinLim = Math.max(contMinFound - step, C_MIN);
+			contMaxLim = Math.min(contMinFound + step, C_MAX);
 
-			contCurEnd = Math.min(contMin + step, 1);
-			tensCurEnd = Math.min(tensMin + step, 1);
+			tensMinLim = Math.max(tensMinFound - step, T_MIN);
+			tensMaxLim = Math.min(tensMinFound + step, T_MAX);
 		}
 
-		continuity = contMin;
-		tension = tensMin;
-		tang.setValues(orgTangs);
+		continuity = contMinFound;
+		tension = tensMinFound;
 		return ds;
 	}
 
-	protected abstract float getDelta(Entry<T> tang2, float tension, float continuity, float bias);
+	protected abstract float getDelta(Entry<T> orgTangs, float tension, float continuity, float bias);
 	protected abstract float getDelta(float tension, float continuity, float bias);
 
 	public abstract T calculateInterp(Entry<T> itStart, Entry<T> itEnd, float[] f);

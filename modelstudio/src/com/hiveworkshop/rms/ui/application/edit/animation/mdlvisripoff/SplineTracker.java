@@ -79,17 +79,17 @@ public class SplineTracker<T> {
 	}
 
 	public void setEntryToTang(Entry<T> entry) {
-		entry.setValues(tTanDer.tang);
+		entry.setValues(tTanDer.calcTang);
 		setEntryValues(entry, 100);
 	}
 
 	public void setEntrysTo0(Entry<T> entry) {
-		if ((entry.value instanceof Float)) {
+		if (entry.value instanceof Float) {
 			Float v = 0f;
 			entry.value = (T) v;
 			entry.inTan = (T) v;
 			entry.outTan = (T) v;
-		} else if ((entry.value instanceof Integer)) {
+		} else if (entry.value instanceof Integer) {
 			Integer v = 0;
 			entry.value = (T) v;
 			entry.inTan = (T) v;
@@ -105,10 +105,10 @@ public class SplineTracker<T> {
 		}
 	}
 	public void setEntryValues(Entry<T> entry, int value) {
-		if ((entry.value instanceof Float)) {
+		if (entry.value instanceof Float) {
 			Float v = (float) value;
 			entry.value = (T) v;
-		} else if ((entry.value instanceof Integer)) {
+		} else if (entry.value instanceof Integer) {
 			Integer v = value;
 			entry.value = (T) v;
 		} else if (entry.value instanceof Vec3) {
@@ -118,7 +118,7 @@ public class SplineTracker<T> {
 		}
 	}
 	public float[] interpolate(int time) {
-		if (time<= 100) {
+		if (time <= 100) {
 			switch (timeline.getInterpolationType()) {
 				case HERMITE -> tTanDer.hermiteInterp(time, entryInStart, entryInEnd);
 				case BEZIER -> tTanDer.bezInterp(time, entryInStart, entryInEnd);
@@ -147,11 +147,11 @@ public class SplineTracker<T> {
 
 
 	public T setObjToNewValue(T value, float newValue) {
-		if ((value instanceof Float)) {
+		if (value instanceof Float) {
 			Float v = newValue;
 			value = (T) v;
 			return (T) v;
-		} else if ((value instanceof Integer)) {
+		} else if (value instanceof Integer) {
 			Integer v = (int) newValue;
 			value = (T) v;
 			return (T) v;
@@ -165,11 +165,11 @@ public class SplineTracker<T> {
 		throw new IllegalArgumentException("Unknown subscripting (set): " + value + ", " + 0 + ", " + newValue);
 	}
 	public T setObjToNewValue2(T value, float newValue) {
-		if ((value instanceof Float)) {
+		if (value instanceof Float) {
 			Float v = newValue;
 			value = (T) v;
 			return (T) v;
-		} else if ((value instanceof Integer)) {
+		} else if (value instanceof Integer) {
 			Integer v = (int) newValue;
 			value = (T) v;
 			return (T) v;
@@ -184,7 +184,7 @@ public class SplineTracker<T> {
 	}
 
 //	public float getEndX() {
-//		if ((entryEnd.value instanceof Float || entryEnd.value instanceof Integer)) {
+//		if (entryEnd.value instanceof Float || entryEnd.value instanceof Integer) {
 //			return (float) entryEnd.value;
 //		} else if (entryEnd.value instanceof Vec3) {
 //			return ((Vec3) entryEnd.value).getCoord((byte) 0);
@@ -195,7 +195,7 @@ public class SplineTracker<T> {
 //		throw new IllegalArgumentException("Unknown subscripting (get): " + entryEnd.value + ", " + 0);
 //	}
 //	public float getEndX() {
-//		if ((entryEnd.value instanceof Float || entryEnd.value instanceof Integer)) {
+//		if (entryEnd.value instanceof Float || entryEnd.value instanceof Integer) {
 //			return (float) entryEnd.value;
 //		} else if (entryEnd.value instanceof Vec3) {
 //			return ((Vec3) entryEnd.value).getCoord((byte) 0);
@@ -206,7 +206,7 @@ public class SplineTracker<T> {
 //		throw new IllegalArgumentException("Unknown subscripting (get): " + entryEnd.value + ", " + 0);
 //	}
 	public float getEndXIn() {
-		if ((entryInEnd.value instanceof Float || entryInEnd.value instanceof Integer)) {
+		if (entryInEnd.value instanceof Float || entryInEnd.value instanceof Integer) {
 			return (float) entryInEnd.value;
 		} else if (entryInEnd.value instanceof Vec3) {
 			return ((Vec3) entryInEnd.value).x;
@@ -216,7 +216,7 @@ public class SplineTracker<T> {
 		throw new IllegalArgumentException("Unknown subscripting (get): " + entryInEnd.value + ", " + 0);
 	}
 	public float getEndXOut() {
-		if ((entryOutEnd.value instanceof Float || entryOutEnd.value instanceof Integer)) {
+		if (entryOutEnd.value instanceof Float || entryOutEnd.value instanceof Integer) {
 			return (float) entryOutEnd.value;
 		} else if (entryOutEnd.value instanceof Vec3) {
 			return ((Vec3) entryOutEnd.value).x;

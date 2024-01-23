@@ -43,39 +43,33 @@ public class TTanQuat extends TTan<Quat> {
 
 			isLogsReady = true;
 		}
-		if (tang.inTan == null) {
-			tang.inTan = new Quat(0, 0, 0, 0);
-			tang.outTan = new Quat(0, 0, 0, 0);
+		if (calcTang.inTan == null) {
+			calcTang.inTan = new Quat(0, 0, 0, 0);
+			calcTang.outTan = new Quat(0, 0, 0, 0);
+		} else {
+			calcTang.inTan.setIdentity();
+			calcTang.outTan.setIdentity();
 		}
 
 		float[] g = getTCBTangentFactors(-1, tension, continuity, bias);
 
-		tang.inTan.set(logNNP).scale(g[0]).addScaled(logNMN, g[1]);
-		tang.outTan.set(logNNP).scale(g[2]).addScaled(logNMN, g[3]);
+		calcTang.outTan.addScaled(logNNP, g[2] - 1).addScaled(logNMN, g[3]).scale(.5f);
+		calcTang.outTan.w = 0;
+		calcExpQ(calcTang.outTan).mulLeft(qcur);
 
-		Quat q = getQuat(0, tang.outTan, logNNP, qcur);
-		tang.outTan.set(q);
-
-		Quat q2 = getQuat(q.w, logNMN, tang.inTan, qcur);
-		tang.inTan.set(q2);
+		calcTang.inTan.addScaled(logNNP, -g[0]).addScaled(logNMN, 1 - g[1]).scale(.5f);
+		calcTang.inTan.w = calcTang.outTan.w;
+		calcExpQ(calcTang.inTan).mulLeft(qcur);
 
 	}
 
 	private Quat calcLogQ(Quat q) {
-		if (q.w > 0.99999) {
+		if (0.99999 < q.w) {
 			q.w = 0.99999f;
 		}
 		float sinT = (float) (Math.acos(MathUtils.clamp(q.w, -1f, 1f)) / Math.sqrt(1 - (q.w * q.w)));
 		q.scale(sinT);
 		q.w = 0;
-		return q;
-	}
-
-	private Quat getQuat(float w, Quat quat1, Quat quat2, Quat qcur) {
-		Quat q = new Quat(quat1);
-		q.sub(quat2).scale(.5f);
-		q.w = w;
-		calcExpQ(q).mulLeft(qcur);
 		return q;
 	}
 
@@ -95,56 +89,21 @@ public class TTanQuat extends TTan<Quat> {
 		return itEnd.value;
 	}
 
-//	private Quat getQuat(float w, Quat quat1, Quat quat2, Quat qcur) {
-//		Quat q = new Quat(0, 0, 0, w);
-//
-//		q.x = 0.5f * (quat1.x - quat2.x);
-//		q.y = 0.5f * (quat1.y - quat2.y);
-//		q.z = 0.5f * (quat1.z - quat2.z);
-//		calcExpQ(q);
-//		q.mulLeft(qcur);
-//		return q;
-//	}
-//
-//	private Quat calcLogQ(Quat q) {
-//		if (q.w > 0.99999) {
-//			q.w = 0.99999f;
-//		}
-//		float sinT = (float) (Math.acos(q.w) / Math.sqrt(1 - (q.w * q.w)));
-//		q.x = q.x * sinT;
-//		q.y = q.y * sinT;
-//		q.z = q.z * sinT;
-//		q.w = 0;
-//		return q;
-//	}
-//
-//	private Quat calcExpQ(Quat q) {
-//		float t = q.length();
-//		if (t < 1e-5) {
-//			return (Quat) q.set(1,0,0,0);
-//		}
-//		float divt = (float) Math.sin(t) / t;
-//
-//		q.x = q.x * divt;
-//		q.y = q.y * divt;
-//		q.z = q.z * divt;
-//		q.w = (float) Math.cos(t);
-//		return q;
-//	}
 
 	@Override
-	protected float getDelta(Entry<Quat> tang2, float tension, float continuity, float bias) {
+	protected float getDelta(Entry<Quat> orgTangs, float tension, float continuity, float bias) {
 		calcDerivative(tension, continuity, bias);
-		deltaOut.set(tang.outTan).sub(tang2.outTan);
-		deltaIn.set(tang.inTan).sub(tang2.inTan);
+		deltaOut.set(calcTang.outTan).sub(orgTangs.outTan);
+		deltaIn.set(calcTang.inTan).sub(orgTangs.inTan);
 		return Math.abs(deltaOut.x) + Math.abs(deltaOut.y) + Math.abs(deltaOut.z) + Math.abs(deltaOut.w)
 				+ Math.abs(deltaIn.x) + Math.abs(deltaIn.y) + Math.abs(deltaIn.z) + Math.abs(deltaIn.w);
 	}
+
 	@Override
 	protected float getDelta(float tension, float continuity, float bias) {
 		calcDerivative(tension, continuity, bias);
-		deltaOut.set(tang.outTan).sub(orgTangs.outTan);
-		deltaIn.set(tang.inTan).sub(orgTangs.inTan);
+		deltaOut.set(calcTang.outTan).sub(orgTangs.outTan);
+		deltaIn.set(calcTang.inTan).sub(orgTangs.inTan);
 		return Math.abs(deltaOut.x) + Math.abs(deltaOut.y) + Math.abs(deltaOut.z) + Math.abs(deltaOut.w)
 				+ Math.abs(deltaIn.x) + Math.abs(deltaIn.y) + Math.abs(deltaIn.z) + Math.abs(deltaIn.w);
 	}

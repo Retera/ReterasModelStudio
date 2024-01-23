@@ -24,9 +24,9 @@ public class TTanFloat extends TTan<Float> {
 
 	public void calcDerivative(float tension, float continuity, float bias) {
 		// Calculating the derivatives in point Cur (for count cells)
-		if (tang.inTan == null) {
-			tang.inTan = 0f;
-			tang.outTan = 0f;
+		if (calcTang.inTan == null) {
+			calcTang.inTan = 0f;
+			calcTang.outTan = 0f;
 		}
 
 		float[] g = getTCBTangentFactors(1, tension, continuity, bias);
@@ -34,8 +34,8 @@ public class TTanFloat extends TTan<Float> {
 		float currPrev = cur.value - prev.value;
 		float nextCurr = next.value - cur.value;
 
-		tang.inTan = currPrev * g[0] + nextCurr * g[1];
-		tang.outTan = currPrev * g[2] + nextCurr * g[3];
+		calcTang.inTan = currPrev * g[0] + nextCurr * g[1];
+		calcTang.outTan = currPrev * g[2] + nextCurr * g[3];
 	}
 
 	public Float calculateInterp(Entry<Float> itStart, Entry<Float> itEnd, float[] f) {
@@ -44,17 +44,17 @@ public class TTanFloat extends TTan<Float> {
 	}
 
 	@Override
-	protected float getDelta(Entry<Float> tang2, float tension, float continuity, float bias) {
+	protected float getDelta(Entry<Float> orgTangs, float tension, float continuity, float bias) {
 		calcDerivative(tension, continuity, bias);
-		deltaOut = tang.outTan - tang2.outTan;
-		deltaIn = tang.inTan - tang2.inTan;
+		deltaOut = calcTang.outTan - orgTangs.outTan;
+		deltaIn = calcTang.inTan - orgTangs.inTan;
 		return Math.abs(deltaOut) + Math.abs(deltaIn);
 	}
 	@Override
 	protected float getDelta(float tension, float continuity, float bias) {
 		calcDerivative(tension, continuity, bias);
-		deltaOut = tang.outTan - orgTangs.outTan;
-		deltaIn = tang.inTan - orgTangs.inTan;
+		deltaOut = calcTang.outTan - orgTangs.outTan;
+		deltaIn = calcTang.inTan - orgTangs.inTan;
 		return Math.abs(deltaOut) + Math.abs(deltaIn);
 	}
 }
