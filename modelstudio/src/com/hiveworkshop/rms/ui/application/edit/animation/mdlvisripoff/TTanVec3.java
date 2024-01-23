@@ -25,14 +25,14 @@ public class TTanVec3 extends TTan<Vec3> {
 		logNMN = new Vec3();
 	}
 
-	public void calcDerivative() {
+	public void calcDerivative(float tension, float continuity, float bias) {
 		// Calculating the derivatives in point Cur (for count cells)
 		if (tang.inTan == null) {
 			tang.inTan = new Vec3(0, 0, 0);
 			tang.outTan = new Vec3(0, 0, 0);
 		}
 
-		float[] g = getTCBTangentFactors(1);
+		float[] g = getTCBTangentFactors(1, tension, continuity, bias);
 
 		logNNP.set(cur.value).sub(prev.value);
 		logNMN.set(next.value).sub(cur.value);
@@ -48,10 +48,18 @@ public class TTanVec3 extends TTan<Vec3> {
 	}
 
 	@Override
-	protected float getDelta(Entry<Vec3> tang2) {
-		calcDerivative();
+	protected float getDelta(Entry<Vec3> tang2, float tension, float continuity, float bias) {
+		calcDerivative(tension, continuity, bias);
 		deltaOut.set(tang.outTan).sub(tang2.outTan);
 		deltaIn.set(tang.inTan).sub(tang2.inTan);
+		return Math.abs(deltaOut.x) + Math.abs(deltaOut.y) + Math.abs(deltaOut.z)
+				+ Math.abs(deltaIn.x) + Math.abs(deltaIn.y) + Math.abs(deltaIn.z);
+	}
+	@Override
+	protected float getDelta(float tension, float continuity, float bias) {
+		calcDerivative(tension, continuity, bias);
+		deltaOut.set(tang.outTan).sub(orgTangs.outTan);
+		deltaIn.set(tang.inTan).sub(orgTangs.inTan);
 		return Math.abs(deltaOut.x) + Math.abs(deltaOut.y) + Math.abs(deltaOut.z)
 				+ Math.abs(deltaIn.x) + Math.abs(deltaIn.y) + Math.abs(deltaIn.z);
 	}

@@ -30,7 +30,7 @@ public class TTanQuat extends TTan<Quat> {
 		logNMN = new Quat();
 	}
 
-	public void calcDerivative() {
+	public void calcDerivative(float tension, float continuity, float bias) {
 		if (!isLogsReady) {
 
 			qcur.set(cur.value);
@@ -48,7 +48,7 @@ public class TTanQuat extends TTan<Quat> {
 			tang.outTan = new Quat(0, 0, 0, 0);
 		}
 
-		float[] g = getTCBTangentFactors(-1);
+		float[] g = getTCBTangentFactors(-1, tension, continuity, bias);
 
 		tang.inTan.set(logNNP).scale(g[0]).addScaled(logNMN, g[1]);
 		tang.outTan.set(logNNP).scale(g[2]).addScaled(logNMN, g[3]);
@@ -133,10 +133,18 @@ public class TTanQuat extends TTan<Quat> {
 //	}
 
 	@Override
-	protected float getDelta(Entry<Quat> tang2) {
-		calcDerivative();
+	protected float getDelta(Entry<Quat> tang2, float tension, float continuity, float bias) {
+		calcDerivative(tension, continuity, bias);
 		deltaOut.set(tang.outTan).sub(tang2.outTan);
 		deltaIn.set(tang.inTan).sub(tang2.inTan);
+		return Math.abs(deltaOut.x) + Math.abs(deltaOut.y) + Math.abs(deltaOut.z) + Math.abs(deltaOut.w)
+				+ Math.abs(deltaIn.x) + Math.abs(deltaIn.y) + Math.abs(deltaIn.z) + Math.abs(deltaIn.w);
+	}
+	@Override
+	protected float getDelta(float tension, float continuity, float bias) {
+		calcDerivative(tension, continuity, bias);
+		deltaOut.set(tang.outTan).sub(orgTangs.outTan);
+		deltaIn.set(tang.inTan).sub(orgTangs.inTan);
 		return Math.abs(deltaOut.x) + Math.abs(deltaOut.y) + Math.abs(deltaOut.z) + Math.abs(deltaOut.w)
 				+ Math.abs(deltaIn.x) + Math.abs(deltaIn.y) + Math.abs(deltaIn.z) + Math.abs(deltaIn.w);
 	}
