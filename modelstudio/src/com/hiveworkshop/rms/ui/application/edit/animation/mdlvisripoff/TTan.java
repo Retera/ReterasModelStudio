@@ -116,8 +116,6 @@ public abstract class TTan<T> {
 		float[] f = getSplineF(t);
 
 		return calculateInterp(itStart, itEnd, f);
-
-//		itEnd.value.scale(f[3]).addScaled(itStart.value, f[0]).addScaled(itStart.outTan, f[1]).addScaled(itEnd.inTan, f[2]);
 	}
 
 	public void printTCB() {
@@ -127,16 +125,14 @@ public abstract class TTan<T> {
 	protected float[] getSplineF(float t) {
 		float[] f = new float[4];
 
-//		float[] fb = new float[4];
-//		fb[0] = ((2 * t - 3) * (t * t)) + 1;
-//		fb[1] = (1 - 2) * (t * t * t);
-//		fb[2] = (t - 1) * (t * t);
-//		fb[3] = (3 - 2 * t) * (t * t);
+		float t3 = t * t * t;
+		float t2 = t * t;
+		float t2x3_t3x2 = -2 * t3 + 3 * t2;
 
-		f[0] = ((2 * t * t * t) - (3 * t * t)) + 1;
-		f[1] = (t * t * t) - (2 * t * t * t);
-		f[2] = (t * t * t) - (t * t);
-		f[3] = (-2 * t * t * t) + (3 * t * t);
+		f[0] = 1 - t2x3_t3x2;
+		f[1] = t3 - 2 * t2 + t;
+		f[2] = t3 - t2;
+		f[3] = t2x3_t3x2;
 		return f;
 	}
 
@@ -173,21 +169,72 @@ public abstract class TTan<T> {
 
 		isLogsReady = false;
 
+		float vStart = calcWithConstBias(bStart);
+		float vEnd = calcWithConstBias(bEnd);
+
 		while (0.0001 <= Math.abs(bStart - bEnd)) {
 			bMid = ((bEnd - bStart) * 0.5f) + bStart;
 
-			float vStart = calcWithConstBias(bStart);
-
-			float vEnd = calcWithConstBias(bEnd);
-
+			float ds = calcWithConstBias(bMid);
 			if (vStart < vEnd) {
 				bEnd = bMid;
+				vEnd = ds;
 			} else {
-				bStart = bMid;
+				bStart = bMid;				vStart = ds;
 			}
 		}
 
 		bias = bMid;
+	}
+
+	public float calcWithConstBias(float bias) {
+		float tMid = 0;
+		float tStart = T_MIN;
+		float tEnd = T_MAX;
+
+		float vStart = calcWithConstTB(bias, tStart);
+		float vEnd = calcWithConstTB(bias, tEnd);
+		float ds = Float.MAX_VALUE;
+
+		while (0.0001 <= Math.abs(tStart - tEnd)) {
+			tMid = ((tEnd - tStart) * 0.5f) + tStart;
+
+			ds = calcWithConstTB(bias, tMid);
+			if (vStart < vEnd) {
+				tEnd = tMid;
+				vEnd = ds;
+			} else {
+				tStart = tMid;
+				vStart = ds;
+			}
+		}
+
+		tension = tMid;
+		return ds;
+	}
+
+	public float calcWithConstTB(float bias, float tens) {
+		float contMinFound = C_MAX;
+		float contMinLim = C_MIN;
+		float contMaxLim = C_MAX;
+
+		float ds = Float.MAX_VALUE;
+
+		for (float step = 10f; 0.001 < step; step *= 0.1f) {
+			for (float continuityCur = contMinLim; continuityCur <= contMaxLim; continuityCur += step) {
+				float delta = getDelta(tens, continuityCur, bias);
+				if (delta < ds) {
+					ds = delta;
+					contMinFound = continuityCur;
+
+				}
+			}
+			contMinLim = Math.max(contMinFound - 1*step, C_MIN);
+			contMaxLim = Math.min(contMinFound + 1*step, C_MAX);
+		}
+
+		continuity = contMinFound;
+		return ds;
 	}
 
 	public void calcDerivative() {
@@ -195,41 +242,6 @@ public abstract class TTan<T> {
 	}
 
 	public abstract void calcDerivative(float tension, float continuity, float bias);
-
-	public float calcWithConstBias(float bias) {
-		float contMinFound = 0;
-		float tensMinFound = 0;
-		float contMinLim = C_MIN;
-		float contMaxLim = C_MAX;
-		float tensMinLim = T_MIN;
-		float tensMaxLim = T_MAX;
-
-		float ds = 1e6f;
-		calcTang.setValues(orgTangs);
-
-		for (float step = 0.1f; 0.001 < step; step *= 0.1f) {
-			for (float continuityCur = contMinLim; continuityCur <= contMaxLim; continuityCur += step) {
-				for (float tensionCur = tensMinLim; tensionCur <= tensMaxLim; tensionCur += step) {
-					float delta = getDelta(orgTangs, tensionCur, continuityCur, bias);
-					if (delta < ds) {
-						ds = delta;
-						contMinFound = continuityCur;
-						tensMinFound = tensionCur;
-					}
-				}
-			}
-
-			contMinLim = Math.max(contMinFound - step, C_MIN);
-			contMaxLim = Math.min(contMinFound + step, C_MAX);
-
-			tensMinLim = Math.max(tensMinFound - step, T_MIN);
-			tensMaxLim = Math.min(tensMinFound + step, T_MAX);
-		}
-
-		continuity = contMinFound;
-		tension = tensMinFound;
-		return ds;
-	}
 
 	protected abstract float getDelta(Entry<T> orgTangs, float tension, float continuity, float bias);
 	protected abstract float getDelta(float tension, float continuity, float bias);
