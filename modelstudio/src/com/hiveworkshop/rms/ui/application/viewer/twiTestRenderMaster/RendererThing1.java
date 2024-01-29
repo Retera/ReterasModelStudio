@@ -11,6 +11,8 @@ public class RendererThing1 {
 	public static void renderGeosets(CameraManager cameraManager, ShaderPipeline pipeline,
 	                                 int width, int height,
 	                                 boolean wireFrame, boolean texture) {
+		GL11.glDepthFunc(GL11.GL_LEQUAL);
+
 		pipeline.glEnableIfNeeded(GL11.GL_COLOR_MATERIAL);
 		pipeline.glEnableIfNeeded(GL11.GL_LIGHTING);
 		pipeline.glEnableIfNeeded(GL11.GL_LIGHT0);
@@ -50,6 +52,8 @@ public class RendererThing1 {
 	public static void renderRibbons(CameraManager cameraManager, ShaderPipeline pipeline,
 	                                 int width, int height,
 	                                 boolean wireFrame, boolean texture) {
+		GL11.glDepthFunc(GL11.GL_LEQUAL);
+
 		pipeline.glEnableIfNeeded(GL11.GL_COLOR_MATERIAL);
 		pipeline.glEnableIfNeeded(GL11.GL_LIGHTING);
 		pipeline.glEnableIfNeeded(GL11.GL_LIGHT0);
@@ -92,6 +96,7 @@ public class RendererThing1 {
 
 	public static void renderParticles(CameraManager cameraManager, ShaderPipeline pipeline, int width, int height) {
 		GL11.glDepthMask(false);
+		GL11.glDepthFunc(GL11.GL_LEQUAL);
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glDisable(GL11.GL_CULL_FACE);
@@ -120,6 +125,7 @@ public class RendererThing1 {
 	}
 
 	public static void render3DVerts(CameraManager cameraManager, ShaderPipeline pipeline, int width, int height) {
+		GL11.glDepthFunc(GL11.GL_LEQUAL);
 		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		pipeline.glViewport(width, height);
@@ -142,6 +148,8 @@ public class RendererThing1 {
 
 
 	public static void renderNodes(CameraManager cameraManager, ShaderPipeline pipeline, int width, int height) {
+		GL11.glDepthFunc(GL11.GL_LEQUAL);
+
 		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		pipeline.glViewport(width, height);
@@ -157,11 +165,12 @@ public class RendererThing1 {
 		pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-//		pipeline.doRender(GL11.GL_POINTS);
 		pipeline.doRender(GL11.GL_TRIANGLES);
 	}
 
 	public static void renderCol(CameraManager cameraManager, ShaderPipeline pipeline, int width, int height) {
+		GL11.glDepthFunc(GL11.GL_LEQUAL);
+
 		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		pipeline.glViewport(width, height);
@@ -181,6 +190,8 @@ public class RendererThing1 {
 	}
 
 	public static void renderCameras(CameraManager cameraManager, ShaderPipeline pipeline, int width, int height) {
+		GL11.glDepthFunc(GL11.GL_LEQUAL);
+
 		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		pipeline.glViewport(width, height);
@@ -206,6 +217,8 @@ public class RendererThing1 {
 	}
 
 	public static void paintSelectionBox(CameraManager cameraManager, ShaderPipeline pipeline, int width, int height) {
+		GL11.glDepthFunc(GL11.GL_LEQUAL);
+
 		pipeline.glViewport(width, height);
 		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
@@ -235,6 +248,8 @@ public class RendererThing1 {
 	}
 
 	public static void paintGrid(CameraManager cameraManager, ShaderPipeline pipeline, int width, int height) {
+		GL11.glDepthFunc(GL11.GL_LEQUAL);
+
 		pipeline.glViewport(width, height);
 		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
@@ -250,6 +265,9 @@ public class RendererThing1 {
 		pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
 
 		// https://learnopengl.com/Advanced-OpenGL/Geometry-Shader
+		GL11.glEnable(GL11.GL_ALPHA_TEST);
+		GL11.glAlphaFunc(GL11.GL_GREATER, 0.01f);
+
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glEnable(GL11.GL_BLEND);
 		pipeline.doRender(GL11.GL_LINES, cameraManager);

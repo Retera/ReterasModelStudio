@@ -196,6 +196,7 @@ public class Bitmap implements Named {
 				case 11 -> "ReplaceableTextures\\Cliff\\Cliff0" + ".blp";
 				// "ReplaceableTextures\Cliff\Cliff0.tga",
 				// "ReplaceableTextures\Cliff\Cliff1.tga"
+				case 21 -> "ReplaceableTextures\\commandbuttons\\btnpotiongreensmall" + ".blp";
 				case 31 -> "ReplaceableTextures\\LordaeronTree\\LordaeronSummerTree" + ".blp";
 				// "ReplaceableTextures\LordaeronTree\LordaeronSummerTree",
 				// "ReplaceableTextures\LordaeronTree\LordaeronFallTree",

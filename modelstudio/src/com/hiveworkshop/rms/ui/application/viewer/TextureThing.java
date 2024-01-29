@@ -206,7 +206,7 @@ public class TextureThing {
 
 
 	public void bindTexture(Integer texture, int textureSlot) {
-		if(!textureMap.isEmpty()){
+		if (!textureMap.isEmpty()) {
 			GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureSlot);
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
 //			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, wrapW ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
@@ -217,8 +217,8 @@ public class TextureThing {
 	}
 
 	long lastPrint = 0;
-	private void printThing(String text, int ms){
-		if(lastPrint < System.currentTimeMillis()){
+	private void printThing(String text, int ms) {
+		if (lastPrint < System.currentTimeMillis()) {
 			lastPrint = System.currentTimeMillis() + ms;
 			System.out.println(text);
 		}
@@ -270,7 +270,7 @@ public class TextureThing {
 		textureMap.clear();
 	}
 
-	public int getTextureID(Bitmap tex){
+	public int getTextureID(Bitmap tex) {
 		Integer texture = textureMap.get(tex);
 		if (texture != null) {
 			return texture;
@@ -391,34 +391,47 @@ public class TextureThing {
 
 	public void bindLayer(ShaderPipeline pipeline, Layer layer) {
 		boolean depthMask = false;
+		GL11.glDepthFunc(GL11.GL_LEQUAL);
 		switch (layer.getFilterMode()) {
 			case BLEND -> {
 				pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
+//				GL11.glEnable(GL11.GL_ALPHA_TEST);
+//				GL11.glAlphaFunc(GL11.GL_GREATER, 0.01f);
+				GL11.glDisable(GL11.GL_ALPHA_TEST);
 				GL11.glEnable(GL11.GL_BLEND);
 				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			}
 			case ADDITIVE, ADDALPHA -> {
 				pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
+//				GL11.glEnable(GL11.GL_ALPHA_TEST);
+//				GL11.glAlphaFunc(GL11.GL_GREATER, 0.01f);
+				GL11.glDisable(GL11.GL_ALPHA_TEST);
 				GL11.glEnable(GL11.GL_BLEND);
 				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
 			}
 			case MODULATE -> {
 				pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
+//				GL11.glEnable(GL11.GL_ALPHA_TEST);
+//				GL11.glAlphaFunc(GL11.GL_GREATER, 0.01f);
 				GL11.glEnable(GL11.GL_BLEND);
 				GL11.glBlendFunc(GL11.GL_ZERO, GL11.GL_SRC_COLOR);
 			}
 			case MODULATE2X -> {
 				pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
+//				GL11.glEnable(GL11.GL_ALPHA_TEST);
+//				GL11.glAlphaFunc(GL11.GL_GREATER, 0.01f);
 				GL11.glEnable(GL11.GL_BLEND);
 				GL11.glBlendFunc(GL11.GL_DST_COLOR, GL11.GL_SRC_COLOR);
 			}
 			case NONE -> {
 				pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
+//				GL11.glDisable(GL11.GL_ALPHA_TEST);
 				GL11.glDisable(GL11.GL_BLEND);
 				depthMask = true;
 			}
 			case TRANSPARENT -> {
 				pipeline.glEnableIfNeeded(GL11.GL_ALPHA_TEST);
+//				GL11.glEnable(GL11.GL_ALPHA_TEST);
 				GL11.glAlphaFunc(GL11.GL_GREATER, 0.75f);
 				GL11.glDisable(GL11.GL_BLEND);
 				depthMask = true;
@@ -446,13 +459,13 @@ public class TextureThing {
 		}
 	}
 
-	public void queClear(){
+	public void queClear() {
 		clearQue.addAll(textureMap.values());
 		textureMap.clear();
 	}
 
-	public void clearQued(){
-		for(Integer textureId : clearQue){
+	public void clearQued() {
+		for (Integer textureId : clearQue) {
 			GL11.glDeleteTextures(textureId);
 		}
 		clearQue.clear();

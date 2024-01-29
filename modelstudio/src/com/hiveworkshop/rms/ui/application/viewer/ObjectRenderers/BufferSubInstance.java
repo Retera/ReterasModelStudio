@@ -35,6 +35,7 @@ public abstract class BufferSubInstance {
 	protected final Vec2 flipBookSize = new Vec2(1,1);
 	protected int textureSlot = 0;
 	protected Vec4 layerColor = new Vec4();
+	protected float layerAlpha = 1;
 	protected float emissiveGain = 1;
 	protected float fresnelTeamColor = 0;
 	protected Vec4 fresnelColor = new Vec4();
@@ -63,6 +64,7 @@ public abstract class BufferSubInstance {
 
 	public BufferSubInstance setLayerColor(Vec4 layerColor) {
 		this.layerColor.set(layerColor);
+		this.layerColor.w *= layerAlpha;
 		return this;
 	}
 
@@ -167,6 +169,8 @@ public abstract class BufferSubInstance {
 		this.material = material;
 		this.textureSlot = textureSlot;
 		this.diffuseLayer = material.getLayer(textureSlot);
+		this.layerAlpha = diffuseLayer.getRenderVisibility(timeEnvironment);
+		this.layerColor.w *= layerAlpha;
 		this.twoSided = diffuseLayer.getTwoSided() || (ModelUtils.isShaderStringSupported(model.getFormatVersion()) && material.getTwoSided());
 
 		fetchTextures(timeEnvironment);

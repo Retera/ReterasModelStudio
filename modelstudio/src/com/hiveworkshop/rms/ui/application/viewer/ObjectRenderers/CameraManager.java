@@ -172,6 +172,16 @@ public class CameraManager extends AbstractCamera {
 		target.set(v);
 	}
 
+	public CameraManager setNearClip(float nearClip) {
+		this.nearClip = nearClip;
+		return this;
+	}
+
+	public CameraManager setFarClip(float farClip) {
+		this.farClip = farClip;
+		return this;
+	}
+
 	public void resetCamera(){
 		target.set(Vec3.ZERO);
 		upAngle = 0;

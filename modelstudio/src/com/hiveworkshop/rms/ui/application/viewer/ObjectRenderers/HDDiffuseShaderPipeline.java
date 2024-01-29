@@ -145,6 +145,7 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 
 	private void setUpAndDraw(BufferSubInstance instance) {
 		instance.setUpInstance(this);
+		glUniform("u_alphaTest", alphaTest);
 		if(textureUsed == 0){
 			GL11.glDisable(GL11.GL_CULL_FACE);
 		}
@@ -187,7 +188,7 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 			textureUsed = 1;
 //			GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureUnit);
 		}
-		else if ((glEnum == GL11.GL_ALPHA_TEST) && (textureUnit == 0)) {
+		else if (glEnum == GL11.GL_ALPHA_TEST && (textureUnit == 0)) {
 			alphaTest = 1;
 		}
 		else if (glEnum == GL11.GL_LIGHTING) {
@@ -200,7 +201,7 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 			textureUsed = 0;
 			GL13.glActiveTexture(0);
 		}
-		else if ((glEnum == GL11.GL_ALPHA_TEST) && (textureUnit == 0)) {
+		else if (glEnum == GL11.GL_ALPHA_TEST && textureUnit == 0) {
 			alphaTest = 0;
 		}
 		else if (glEnum == GL11.GL_LIGHTING) {

@@ -258,7 +258,7 @@ public class BufferFiller {
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
 			if (programPreferences.showPerspectiveGrid()) {
 				RendererThing1.paintGrid(cameraManager, shaderManager.getPipeline(ShaderManager.PipelineType.GRID), width, height);
-			}
+				}
 			if (isHD) {
 				ShaderPipeline pipeline = shaderManager.getPipeline(ShaderManager.PipelineType.MESH);
 				RendererThing1.renderGeosets(cameraManager, pipeline, width, height, viewportSettings.isWireFrame(), viewportSettings.isRenderTextures());

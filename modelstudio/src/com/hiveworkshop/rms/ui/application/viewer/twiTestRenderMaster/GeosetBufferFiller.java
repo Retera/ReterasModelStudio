@@ -45,15 +45,15 @@ public class GeosetBufferFiller {
 	private final Vec3 screenDimension = new Vec3();
 	private final Mat4 screenDimensionMat3Heap = new Mat4();
 
-	public GeosetBufferFiller(){
+	public GeosetBufferFiller() {
 		this.colorPrefs = ProgramGlobals.getEditorColorPrefs();
 	}
 
-	public GeosetBufferFiller setModel(RenderModel renderModel, ModelView modelView, TextureThing textureThing){
+	public GeosetBufferFiller setModel(RenderModel renderModel, ModelView modelView, TextureThing textureThing) {
 		this.renderModel = renderModel;
 		this.textureThing = textureThing;
 		this.modelView = modelView;
-		if(renderModel != null){
+		if (renderModel != null) {
 			this.model = renderModel.getModel();
 		} else {
 			this.model = null;
@@ -61,7 +61,7 @@ public class GeosetBufferFiller {
 		return this;
 	}
 
-	public GeosetBufferFiller setLod(int lod){
+	public GeosetBufferFiller setLod(int lod) {
 		levelOfDetail = lod;
 		return this;
 	}
@@ -75,7 +75,7 @@ public class GeosetBufferFiller {
 		opaqueGeos.clear();
 		transperentGeos.clear();
 		sortedGeos.clear();
-		if(renderModel != null){
+		if (renderModel != null) {
 			int formatVersion = model.getFormatVersion();
 			boolean shaderStringSupported = ModelUtils.isShaderStringSupported(formatVersion);
 			shaderManager.getPipeline(ShaderManager.PipelineType.MESH).prepare();
@@ -93,17 +93,17 @@ public class GeosetBufferFiller {
 			sortedGeos.addAll(opaqueGeos);
 
 			for (Geoset geo : sortedGeos) {
-				if(correctLoD(formatVersion, geo) && modelView.shouldRender(geo)){
-					Material material = geo.getMaterial();
-					boolean hd = shaderStringSupported && material.getShaderString() != null && material.getShaderString().length() > 0;
+				if (correctLoD(formatVersion, geo) && modelView.shouldRender(geo)) {
+//					Material material = geo.getMaterial();
+//					boolean hd = shaderStringSupported && material.getShaderString() != null && material.getShaderString().length() > 0;
 					ShaderPipeline pipeline = shaderManager.getPipeline(ShaderManager.PipelineType.MESH);
 //					System.out.println("pipeline: " + pipeline.getClass());
-					if(renderTextures){
+					if (renderTextures) {
 						colorHeap.set(renderModel.getRenderGeoset(geo).getRenderColor());
 					} else {
 						colorHeap.set(1,1,1,1);
 					}
-					if(colorHeap.w > RenderModel.MAGIC_RENDER_SHOW_CONSTANT){
+					if (colorHeap.w > RenderModel.MAGIC_RENDER_SHOW_CONSTANT) {
 						renderInst(pipeline, geo, formatVersion, renderTextures);
 //					} else {
 //						System.out.println("invis!");
@@ -127,16 +127,16 @@ public class GeosetBufferFiller {
 		Layer lastAddedLayer = null;
 		HdBufferSubInstance lastInstance = null;
 
-//			for (int i = 0; i < numLayers; i++) {
+//		for (int i = 0; i < numLayers; i++) {
 		for (int i = numLayers-1; 0 <= i; i--) {
 			Layer layer = material.getLayers().get(i);
-			if(0 < layer.getRenderVisibility(renderModel.getTimeEnvironment())){
+			if (0 < layer.getRenderVisibility(renderModel.getTimeEnvironment())) {
 				HdBufferSubInstance instance = new HdBufferSubInstance(model, textureThing);
 				instance.setRenderTextures(renderTextures);
 				instance.setMaterial(material, i, renderModel.getTimeEnvironment());
 				instance.setLayerColor(renderModel.getRenderGeoset(geo).getRenderColor());
 				instance.setOpaque(geo.isOpaque());
-				if(lastAddedLayer == null || layer.getCoordId() != lastAddedLayer.getCoordId()){
+				if (lastAddedLayer == null || layer.getCoordId() != lastAddedLayer.getCoordId()) {
 					lastAddedLayer = layer;
 					pipeline.startInstance(instance);
 					setRenderColor(layer);
@@ -166,22 +166,18 @@ public class GeosetBufferFiller {
 			triColor.set(getTriRGBA(tri));
 			for (GeosetVertex v : tri.getVerts()) {
 				RenderGeoset.RenderVert renderVert = renderGeoset.getRenderVert(v);
-				if (renderVert == null){
-//					System.out.println("could not find renderVert for: " + v + ", renderGeosetVs: " + renderGeoset.getRenderVerts().size() + ", real verts: " + geo.getVertices().size());
-
-				} else {
-
+				if (renderVert != null) {
 					Vec3 renderPos = renderVert.getRenderPos();
 					Vec3 renderNorm = renderVert.getRenderNorm();
 					Vec4 renderTang = renderVert.getRenderTang();
 
 					getUV(layer.getCoordId(), v, uvTransform);
 
-					if(!renderTextures){
+					if (!renderTextures) {
 						colorHeap.set(getFaceRGBA(v));
-//					colorHeap.addScaled(triColor, .25f).scale(.8f); // (4/4 + 1/4) * 4/5 = 4/4
+//					    colorHeap.addScaled(triColor, .25f).scale(.8f); // (4/4 + 1/4) * 4/5 = 4/4
 						colorHeap.addScaled(triColor, .5625f).scale(.64f); // (16/16 + 9/16) * 16/25 = 16/16
-//					colorHeap.add(triColor).scale(.5f);
+//					    colorHeap.add(triColor).scale(.5f);
 					} else {
 						colorHeap.set(layerColorHeap);
 					}
@@ -194,23 +190,21 @@ public class GeosetBufferFiller {
 		}
 	}
 
-	private int getSelectionStatus(GeosetVertex vertex){
-		if(modelView.getHighlightedGeoset() != null && modelView.getHighlightedGeoset() == vertex.getGeoset()) {
+	private int getSelectionStatus(GeosetVertex vertex) {
+		if (modelView.getHighlightedGeoset() != null && modelView.getHighlightedGeoset() == vertex.getGeoset()) {
 			return 0;
-		} else if(modelView.isEditable(vertex)){
+		} else if (modelView.isEditable(vertex)) {
 			if (modelView.isSelected(vertex)) {
 				return 1;
 			} else {
 				return 2;
 			}
 		}
-//		else if (!modelView.isHidden(vertex)){
-//		}
 		return 3;
 	}
 
 	public void fillNormalsBuffer(ShaderPipeline pipeline) {
-		if(renderModel != null){
+		if (renderModel != null) {
 			// https://learnopengl.com/Advanced-OpenGL/Geometry-Shader
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
@@ -220,7 +214,6 @@ public class GeosetBufferFiller {
 			pipeline.prepare();
 //			pipeline.glColor3f(1f, 1f, 3f);
 			colorHeap.set(.7f, .7f, 1f, 1f);
-			// if( wireframe.isSelected() )
 			for (Geoset geo : model.getGeosets()) {
 				if (correctLoD(model.getFormatVersion(), geo) && modelView.shouldRender(geo)) {
 					fillNormalsBuffer(pipeline, geo);
@@ -233,7 +226,7 @@ public class GeosetBufferFiller {
 	private void fillNormalsBuffer(ShaderPipeline pipeline, Geoset geo) {
 		RenderGeoset renderGeoset = renderModel.getRenderGeoset(geo);
 		for (GeosetVertex v : geo.getVertices()) {
-			if(!modelView.isHidden(v)){
+			if (!modelView.isHidden(v)) {
 				RenderGeoset.RenderVert renderVert = renderGeoset.getRenderVert(v);
 				Vec3 renderPos = renderVert.getRenderPos();
 				Vec3 renderNorm = renderVert.getRenderNorm();
@@ -244,7 +237,7 @@ public class GeosetBufferFiller {
 	}
 
 	public void fillVertsBuffer(ShaderPipeline pipeline) {
-		if(renderModel != null){
+		if (renderModel != null) {
 			// https://learnopengl.com/Advanced-OpenGL/Geometry-Shader
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
@@ -254,7 +247,6 @@ public class GeosetBufferFiller {
 			pipeline.prepare();
 //			pipeline.glColor3f(1f, 1f, 3f);
 			colorHeap.set(1f, .0f, 1f, 1f);
-			// if( wireframe.isSelected() )
 			for (Geoset geo : model.getGeosets()) {
 				if (correctLoD(model.getFormatVersion(), geo) && modelView.shouldRender(geo)) {
 					fillVertsBuffer(pipeline, geo);
@@ -267,7 +259,7 @@ public class GeosetBufferFiller {
 	private void fillVertsBuffer(ShaderPipeline pipeline, Geoset geo) {
 		RenderGeoset renderGeoset = renderModel.getRenderGeoset(geo);
 		for (GeosetVertex v : geo.getVertices()) {
-			if(!modelView.isHidden(v)){
+			if (!modelView.isHidden(v)) {
 				getVertRGBA(v);
 				RenderGeoset.RenderVert renderVert = renderGeoset.getRenderVert(v);
 				Vec3 renderPos = renderVert.getRenderPos();
@@ -304,14 +296,11 @@ public class GeosetBufferFiller {
 			coordId = uvs.size() - 1;
 		}
 		uvHeap.set(uvs.get(coordId));
-//		if(uvTransform != null){
-//			uvHeap.transform2(uvTransform);
-//		}
 		return uvHeap;
 	}
 
 	private Mat4 getUVTransform(Layer layer) {
-		if(layer.getTextureAnim() != null){
+		if (layer.getTextureAnim() != null) {
 			uvTransform.setIdentity();
 
 			uvTransform.fromRotationTranslationScale(
@@ -324,7 +313,7 @@ public class GeosetBufferFiller {
 		return null;
 	}
 
-	private void resetColorHeap(){
+	private void resetColorHeap() {
 		colorHeap.set(1f, 1f, 1f, 1f);
 	}
 
@@ -387,10 +376,10 @@ public class GeosetBufferFiller {
 	}
 
 
-	private boolean triFullySelected(Triangle triangle){
+	private boolean triFullySelected(Triangle triangle) {
 		return modelView.isSelected(triangle.get(0)) && modelView.isSelected(triangle.get(1)) && modelView.isSelected(triangle.get(2));
 	}
-	private boolean triFullyEditable(Triangle triangle){
+	private boolean triFullyEditable(Triangle triangle) {
 		return modelView.isEditable(triangle.get(0)) && modelView.isEditable(triangle.get(1)) && modelView.isEditable(triangle.get(2));
 	}
 }
