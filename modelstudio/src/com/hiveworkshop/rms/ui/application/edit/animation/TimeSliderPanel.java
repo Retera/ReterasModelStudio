@@ -2,9 +2,9 @@ package com.hiveworkshop.rms.ui.application.edit.animation;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.AddKeyframeAction3;
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.TimeSkip;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
@@ -76,7 +76,7 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 
 		setKeyframe = Button.setTooltip(Button.create(RMSIcons.setKeyframeIcon, e -> createKeyframe()), "Create Keyframe");
 		buttonPanel.add(setKeyframe, "wrap");
-		setTimeBounds = Button.setTooltip(Button.create(RMSIcons.setTimeBoundsIcon, e -> timeBoundsChooserPanel()), "Choose Time Bounds");
+		setTimeBounds = Button.setTooltip(Button.create(RMSIcons.setTimeBoundsIcon, e -> timeBoundsChooserPanel()), "Quick Edit Animations");
 		buttonPanel.add(setTimeBounds, "wrap");
 
 		allKF = CheckBox.create("All KF", this::setShowAllKFs);
@@ -149,7 +149,7 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 			UndoAction undoAction = new AddKeyframeAction3(
 					modelHandler.getModelView().getSelectedIdObjects(),
 					modelHandler.getRenderModel(),
-					ProgramGlobals.getEditorActionType());
+					ProgramGlobals.getEditorActionType(), ModelStructureChangeListener.changeListener);
 			modelHandler.getUndoManager().pushAction(undoAction.redo());
 		}
 	}
@@ -159,15 +159,7 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 
 		if (modelPanel != null) {
-			TimeBoundChooserPanel tbcPanel = new TimeBoundChooserPanel(modelHandler);
-			int confirmDialogResult = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), tbcPanel, "Set Time Bounds", JOptionPane.OK_CANCEL_OPTION);
-
-			if (confirmDialogResult == JOptionPane.OK_OPTION) {
-				RenderModel editorRenderModel = modelHandler.getRenderModel();
-				tbcPanel.applyTo(editorRenderModel.getTimeEnvironment());
-				modelPanel.refreshFromEditor();
-				editorRenderModel.updateNodes(false);
-			}
+			TimeBoundChooserPanel.showPopup(modelHandler, null);
 		}
 	}
 

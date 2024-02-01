@@ -57,9 +57,9 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 		priorityPlaneSpinner.reloadNewValue(material.getPriorityPlane());
 
 		materialFlagsPanel.setMaterial(material);
-		materialFlagsPanel.setVisible(900 <= formatVersion && (material.getShaderString().equals(Material.SHADER_HD_DEFAULT_UNIT)||material.getShaderString().equals(Material.SHADER_HD_CRYSTAL)));
+		materialFlagsPanel.setVisible(900 <= formatVersion && idHdMaterial(material));
 
-		copyMaterialAnim.setVisible(900 <= formatVersion && (material.getShaderString().equals(Material.SHADER_HD_DEFAULT_UNIT)||material.getShaderString().equals(Material.SHADER_HD_CRYSTAL)));
+		copyMaterialAnim.setVisible(900 <= formatVersion && idHdMaterial(material));
 
 		layersHolderPanel.removeAll();
 		for (int i = 0; i < material.getLayers().size(); i++) {
@@ -70,11 +70,16 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 			layersHolderPanel.add(componentLayer, "growx, wrap");
 		}
 
-		addLayerButton.setVisible(formatVersion < 900 || 1000 < formatVersion);
+		addLayerButton.setVisible(!(formatVersion == 1000 && Material.SHADER_HD_DEFAULT_UNIT.equals(material.getShaderString())));
 
 		revalidate();
 		repaint();
 		return this;
+	}
+
+	private boolean idHdMaterial(Material material) {
+		return Material.SHADER_HD_DEFAULT_UNIT.equals(material.getShaderString())
+				|| Material.SHADER_HD_CRYSTAL.equals(material.getShaderString());
 	}
 
 	protected JPanel getTopPanel() {

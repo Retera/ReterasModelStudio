@@ -53,21 +53,25 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 			Map<AnimShell, Animation> animsToAdd = getAnimsToAdd();
 			animsToAdd.values().forEach(newModel::add);
 
+			Map<Material, Material> materialMap = getMaterialMap();
+			materialMap.values().forEach(newModel::add);
+
 			Map<IdObjectShell<?>, IdObject> newObjectsMap = getNewIdObjectsMap(animsToAdd);
 			newObjectsMap.values().forEach(newModel::add);
 
-			Map<Material, Material> materialMap = getMaterialMap();
-			materialMap.values().forEach(newModel::add);
+			newObjectsMap.values().stream()
+					.filter(o -> o instanceof RibbonEmitter).map(r -> (RibbonEmitter) r)
+					.forEach(r -> r.setMaterial(materialMap.get(r.getMaterial())));
 
 			Map<GeosetShell, Geoset> newGeosetsMap = getNewGeosetsMap(materialMap, newObjectsMap);
 			newGeosetsMap.values().forEach(newModel::add);
 
 			System.out.println("VisShell mappings: " + mht.allVisShellBiMap.size());
-			for(TimelineContainer tc : mht.allVisShellBiMap.keys()){
+			for (TimelineContainer tc : mht.allVisShellBiMap.keys()) {
 				VisibilityShell<?> visibilityShell = mht.allVisShellBiMap.get(tc);
-				if(tc instanceof Named) {
+				if (tc instanceof Named) {
 					System.out.println("VisShell for \"" + ((Named) tc).getName() + "\": " + visibilityShell);
-				} else if (tc != null){
+				} else if (tc != null) {
 					System.out.println("VisShell for \"" + tc.getClass().getSimpleName() + "\": " + visibilityShell);
 				}
 			}
@@ -130,17 +134,17 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 		return newBoneMap;
 	}
 
-	private Map<AnimShell, Animation> getAnimsToAdd(){
+	private Map<AnimShell, Animation> getAnimsToAdd() {
 		Map<AnimShell, Animation> animationMap = new LinkedHashMap<>();
-		for (AnimShell animShell : mht.allAnimShells){
-			if(animShell.isDoImport()){
+		for (AnimShell animShell : mht.allAnimShells) {
+			if (animShell.isDoImport()) {
 				animationMap.put(animShell, animShell.getAnim().deepCopy());
 			}
 		}
 		return animationMap;
 	}
 
-	private void copyAnims(IdObject newObject, IdObjectShell<?> idObjectShell, Map<AnimShell, Animation> animsToAdd){
+	private void copyAnims(IdObject newObject, IdObjectShell<?> idObjectShell, Map<AnimShell, Animation> animsToAdd) {
 		boolean prioSelf = idObjectShell.isPrioritizeMotionFromSelf();
 		for (AnimShell animShell : animsToAdd.keySet()) {
 			Animation anim = animsToAdd.get(animShell);
@@ -151,27 +155,27 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 
 			if (sameModel(node, animSrc)) {
 				addIdObjectAnim(newObject, animSrc, node, anim);
-			} else if(sameModel(node, animShell)) {
+			} else if (sameModel(node, animShell)) {
 				addIdObjectAnim(newObject, animShell, node, anim);
 			}
 
 		}
 	}
-	private IdObjectShell<?> getNodeToUse(IdObjectShell<?> idObjectShell, AnimShell animShell){
+	private IdObjectShell<?> getNodeToUse(IdObjectShell<?> idObjectShell, AnimShell animShell) {
 		boolean prioSelf = idObjectShell.isPrioritizeMotionFromSelf();
 		IdObjectShell<?> prioNode = prioSelf ? idObjectShell : idObjectShell.getMotionSrcShell();
 		IdObjectShell<?> altNode = prioSelf ? idObjectShell.getMotionSrcShell() : idObjectShell;
 
 		AnimShell animSrc = animShell.getAnimDataSrc();
-		if(sameModel(prioNode, animSrc) || sameModel(prioNode, animShell)){
+		if (sameModel(prioNode, animSrc) || sameModel(prioNode, animShell)) {
 			return prioNode;
-		} else if (sameModel(altNode, animSrc) || sameModel(altNode, animShell)){
+		} else if (sameModel(altNode, animSrc) || sameModel(altNode, animShell)) {
 			return altNode;
 		} else {
 			return idObjectShell;
 		}
 	}
-	private boolean sameModel(IdObjectShell<?> idObjectShell, AnimShell animShell){
+	private boolean sameModel(IdObjectShell<?> idObjectShell, AnimShell animShell) {
 		return idObjectShell != null && animShell != null && idObjectShell.isFromDonating() == animShell.isFromDonating();
 	}
 
@@ -183,6 +187,14 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 				}
 				AnimFlag<?> destFlag = newBone.find(srcFlag.getName());
 				AnimFlagUtils.copyFrom(destFlag, srcFlag, animShell.getAnim(), anim);
+			} else if (srcFlag.hasGlobalSeq()) {
+				if (!newBone.has(srcFlag.getName())) {
+					newBone.add(srcFlag.getEmptyCopy());
+				}
+				GlobalSeq globalSeq = srcFlag.getGlobalSeq();
+				AnimFlag<?> destFlag = newBone.find(srcFlag.getName());
+				AnimFlagUtils.copyFrom(destFlag, srcFlag, globalSeq, globalSeq.deepCopy());
+				break;
 			}
 		}
 	}
@@ -227,8 +239,8 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 //			System.out.println("matrixShell-NewBones: " + matrixShell.getNewBones().size());
 //			System.out.println("matrixShell-OldBones: " + matrixShell.getOrgBones().size());
 			List<Bone> newBones = new ArrayList<>();
-			for(IdObjectShell<?> shell : matrixShell.getNewBones()){
-				if (newBoneMap.get(shell) instanceof Bone){
+			for (IdObjectShell<?> shell : matrixShell.getNewBones()) {
+				if (newBoneMap.get(shell) instanceof Bone) {
 					newBones.add((Bone) newBoneMap.get(shell));
 				}
 			}
@@ -275,7 +287,7 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 
 
 
-	private void doVisStuff(TimelineContainer visDest, Map<AnimShell, Animation> animsToAdd){
+	private void doVisStuff(TimelineContainer visDest, Map<AnimShell, Animation> animsToAdd) {
 		VisibilityShell<?> visibilityShell = mht.allVisShellBiMap.get(visDest);
 
 		if (visibilityShell != null) {
@@ -288,7 +300,7 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 				AnimShell animSrc = animShell.getAnimDataSrc();
 				if (sameModel(visToUse, animSrc)) {
 					addVisAnim(visDest, animSrc, visToUse, anim);
-				} else if(sameModel(visToUse, animShell)) {
+				} else if (sameModel(visToUse, animShell)) {
 					addVisAnim(visDest, animShell, visToUse, anim);
 				}
 
@@ -299,7 +311,7 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 
 
 	}
-	private void doVisStuff(TimelineContainer orgObj, TimelineContainer visDest, Map<AnimShell, Animation> animsToAdd){
+	private void doVisStuff(TimelineContainer orgObj, TimelineContainer visDest, Map<AnimShell, Animation> animsToAdd) {
 		VisibilityShell<?> visibilityShell = mht.allVisShellBiMap.get(orgObj);
 
 		if (visibilityShell != null) {
@@ -312,7 +324,7 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 				AnimShell animSrc = animShell.getAnimDataSrc();
 				if (sameModel(visToUse, animSrc)) {
 					addVisAnim(visDest, animSrc, visToUse, anim);
-				} else if(sameModel(visToUse, animShell)) {
+				} else if (sameModel(visToUse, animShell)) {
 					addVisAnim(visDest, animShell, visToUse, anim);
 				}
 
@@ -324,27 +336,27 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 
 	}
 
-	private VisibilityShell<?> getVisToUse(VisibilityShell<?> visibilityShell, AnimShell animShell){
+	private VisibilityShell<?> getVisToUse(VisibilityShell<?> visibilityShell, AnimShell animShell) {
 		boolean prioSelf = visibilityShell.isFavorOld();
 		VisibilityShell<?> prioVis = prioSelf ? visibilityShell : visibilityShell.getVisSource();
 		VisibilityShell<?> altVis = prioSelf ? visibilityShell.getVisSource() : visibilityShell;
 
 		AnimShell animSrc = animShell.getAnimDataSrc();
-		if(sameModel(prioVis, animSrc) || sameModel(prioVis, animShell)){
+		if (sameModel(prioVis, animSrc) || sameModel(prioVis, animShell)) {
 			return prioVis;
-		} else if (sameModel(altVis, animSrc) || sameModel(altVis, animShell)){
+		} else if (sameModel(altVis, animSrc) || sameModel(altVis, animShell)) {
 			return altVis;
 		} else {
 			return visibilityShell;
 		}
 	}
-	private boolean sameModel(VisibilityShell<?> idObjectShell, AnimShell animShell){
+	private boolean sameModel(VisibilityShell<?> idObjectShell, AnimShell animShell) {
 		return idObjectShell != null && animShell != null && idObjectShell.isFromDonating() == animShell.isFromDonating();
 	}
 
 	private void addVisAnim(TimelineContainer visDest, AnimShell animShell, VisibilityShell<?> motionSrcShell, Animation anim) {
 		AnimFlag<Float> visibilityFlag = motionSrcShell.getSource().getVisibilityFlag();
-		if(visibilityFlag != null && visibilityFlag.hasSequence(animShell.getAnim())){
+		if (visibilityFlag != null && visibilityFlag.hasSequence(animShell.getAnim())) {
 			if (!visDest.has(visDest.visFlagName())) {
 				AnimFlag<Float> emptyCopy = visibilityFlag.getEmptyCopy();
 				emptyCopy.setName(visDest.visFlagName());
@@ -360,6 +372,12 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 		for (GeosetShell geoShell : mht.allGeoShells) {
 			if (geoShell.isDoImport()) {
 				materialMap.computeIfAbsent(geoShell.getMaterial(), k -> geoShell.getMaterial().deepCopy());
+			}
+		}
+		for (IdObjectShell<?> idObjectShell : mht.allObjectShells) {
+			if (idObjectShell.getShouldImport() && idObjectShell.getIdObject() instanceof RibbonEmitter ribbon) {
+				materialMap.computeIfAbsent(ribbon.getMaterial(), k -> ribbon.getMaterial().deepCopy());
+
 			}
 		}
 		return materialMap;

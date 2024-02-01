@@ -47,6 +47,7 @@ public class ChangeAnimationLengthPanel extends JPanel {
 		}
 
 		JScrollPane scrollPane = new JScrollPane(animationsPanel);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		add(scrollPane, "spanx 2, growx, growy, wrap");
 
 		JButton okay = new JButton("OK");
@@ -65,14 +66,15 @@ public class ChangeAnimationLengthPanel extends JPanel {
 	private void applyNewAnimationLength() {
 		EditableModel mdl = modelHandler.getModel();
 		Map<Sequence, Integer> sequenceToNewLength = new HashMap<>();
-		for (Animation myAnimation : mdl.getAnims()) {
-			sequenceToNewLength.put(myAnimation, animationBarMap.get(myAnimation).getValue());
+		for (Sequence sequence : animationBarMap.keySet()) {
+			int newLength = animationBarMap.get(sequence).getValue();
+			if (newLength != sequence.getLength()) {
+				sequenceToNewLength.put(sequence, newLength);
+			}
 		}
-
-		for (GlobalSeq myAnimation : mdl.getGlobalSeqs()) {
-			sequenceToNewLength.put(myAnimation, animationBarMap.get(myAnimation).getValue());
+		if (!sequenceToNewLength.isEmpty()) {
+			undoManager.pushAction(new ScaleSequencesLengthsAction(mdl, sequenceToNewLength, ModelStructureChangeListener.changeListener).redo());
 		}
-		undoManager.pushAction(new ScaleSequencesLengthsAction(mdl, sequenceToNewLength, ModelStructureChangeListener.changeListener).redo());
 		closeWindow();
 	}
 }

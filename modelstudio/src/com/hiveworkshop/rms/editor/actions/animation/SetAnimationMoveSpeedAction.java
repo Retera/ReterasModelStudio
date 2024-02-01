@@ -9,16 +9,18 @@ public class SetAnimationMoveSpeedAction implements UndoAction {
 	private final float newMoveSpeed;
 	private final Animation animation;
 	private final ModelStructureChangeListener changeListener;
+	private final String actionName;
 
 	public SetAnimationMoveSpeedAction(float newMoveSpeed, Animation animation, ModelStructureChangeListener changeListener) {
 		this.animation = animation;
 		this.prevMoveSpeed = animation.getMoveSpeed();
 		this.newMoveSpeed = newMoveSpeed;
 		this.changeListener = changeListener;
+		this.actionName = "Set MoveSpeed of " + animation.getName() + " to " + newMoveSpeed;
 	}
 
 	@Override
-	public UndoAction undo() {
+	public SetAnimationMoveSpeedAction undo() {
 		animation.setMoveSpeed(prevMoveSpeed);
 		if (changeListener != null) {
 			changeListener.animationParamsChanged();
@@ -27,7 +29,7 @@ public class SetAnimationMoveSpeedAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public SetAnimationMoveSpeedAction redo() {
 		animation.setMoveSpeed(newMoveSpeed);
 		if (changeListener != null) {
 			changeListener.animationParamsChanged();
@@ -37,6 +39,6 @@ public class SetAnimationMoveSpeedAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set animation MoveSpeed to " + newMoveSpeed;
+		return actionName;
 	}
 }

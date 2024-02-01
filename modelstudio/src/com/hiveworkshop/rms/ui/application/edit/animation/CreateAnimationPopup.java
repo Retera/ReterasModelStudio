@@ -5,13 +5,14 @@ import com.hiveworkshop.rms.editor.actions.animation.*;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.util.SmartButtonGroup;
+import com.hiveworkshop.rms.util.uiFactories.CheckBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -20,25 +21,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class CreateAnimationPopup extends JPanel {
 	private final UndoManager undoManager;
 	private final EditableModel model;
 	private final ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
+	private final NewAnimSettings newAnimSettings;
+	private final Animation anim;
+	private static boolean scaleKfs = true;
 
-	private Component parent;
-
-	NewAnimSettings newAnimSettings;
-
-
-	Animation anim;
-
-	public CreateAnimationPopup(ModelHandler modelHandler, Animation anim){
+	public CreateAnimationPopup(ModelHandler modelHandler, Animation anim) {
 		super(new MigLayout());
 		this.anim = anim;
 		this.model = modelHandler.getModel();
 		this.undoManager = modelHandler.getUndoManager();
-		if(anim == null){
+		if (anim == null) {
 			newAnimSettings = new NewAnimSettings("", 0, 1000);
 		} else {
 			newAnimSettings = new NewAnimSettings(anim);
@@ -50,289 +48,158 @@ public class CreateAnimationPopup extends JPanel {
 		add(new JLabel("Name: "));
 		add(newAnimSettings.getNameField(), "span x, wrap");
 
-		add(newAnimSettings.getLengthButton());
-		add(newAnimSettings.getLengthSpinner(), "wrap");
-		add(newAnimSettings.getTimeRangeButton(), "wrap");
+		add(new JLabel("Length: "));
+		add(newAnimSettings.getLengthSpinner(), "");
+		add(newAnimSettings.getScaleKfsBox(), "wrap");
 
-		JPanel timeRangePanel = new JPanel(new MigLayout("fill, ins 0"));
-		timeRangePanel.add(new JLabel("Start: "));
-		timeRangePanel.add(newAnimSettings.getStartSpinner());
-		timeRangePanel.add(new JLabel("End: "));
-		timeRangePanel.add(newAnimSettings.getEndSpinner(), "wrap");
-		add(timeRangePanel, "spanx, wrap");
-
-		JPanel extraProperties = getExtraPropsPanel();
-
-		add(extraProperties, "spanx, wrap");
+		add(newAnimSettings.getNonLoopingChooser(), "spanx");
+		add(new JLabel(MdlUtils.TOKEN_RARITY));
+		add(newAnimSettings.getRarityChooser(), "wrap");
+		add(new JLabel(MdlUtils.TOKEN_MOVESPEED));
+		add(newAnimSettings.getMoveSpeedChooser(), "wrap");
 	}
 
 	private void addNewAnim() {
-		Animation newAnimation = new Animation(newAnimSettings.getName(),
-				newAnimSettings.getStart(),
-				newAnimSettings.getEnd());
-		float rarityValue = newAnimSettings.getRarity();
-		float moveValue = newAnimSettings.getMoveSpeed();
-		if (rarityValue != 0) {
-			newAnimation.setRarity(rarityValue);
-		}
-		if (moveValue != 0) {
-			newAnimation.setMoveSpeed(moveValue);
-		}
-		if (newAnimSettings.isNonLooping()) {
-			newAnimation.setNonLooping(true);
-		}
-		undoManager.pushAction(new AddSequenceAction(model, newAnimation, changeListener).redo());
+		undoManager.pushAction(getAddAnimAction().redo());
 	}
 
-	private void changeAnim() {
-		boolean scaleAnim = false;
+	public AddSequenceAction getAddAnimAction() {
+		Animation sequence = getNewAnimation();
+		return new AddSequenceAction(model, sequence, changeListener);
+	}
+
+	public Animation getNewAnimation() {
+		Animation sequence = newAnimSettings.getTempAnim().deepCopy();
+		sequence.setExtents(model.getExtents().deepCopy());
+		return sequence;
+	}
+
+	private void editAnim() {
+		List<UndoAction> actions = getEditAnimActions();
+		String actionName = actions.size() == 1 ? actions.get(0).actionName() : "Edit \"" + anim.getName() + "\"";
+		undoManager.pushAction(new CompoundAction(actionName, actions, changeListener::animationParamsChanged).redo());
+	}
+
+	public List<UndoAction> getEditAnimActions() {
+		Animation tempAnim = newAnimSettings.getTempAnim();
 		List<UndoAction> actions = new ArrayList<>();
 
-		if (!Objects.equals(newAnimSettings.getName(), anim.getName())) {
-			actions.add(new SetAnimationNameAction(newAnimSettings.getName(), anim, changeListener));
+		if (!Objects.equals(tempAnim.getName(), anim.getName())) {
+			actions.add(new SetAnimationNameAction(tempAnim.getName(), anim, changeListener));
 		}
-		if (newAnimSettings.getStart() != anim.getStart()) {
-			actions.add(new SetAnimationStartAction(anim, newAnimSettings.getStart(), changeListener));
-		}
-		if (newAnimSettings.getLength() != anim.getLength()) {
-			if(scaleAnim){
+		if (tempAnim.getLength() != anim.getLength()) {
+			if (scaleKfs) {
 				HashMap<Sequence, Integer> lenghtMap = new HashMap<>();
-				lenghtMap.put(anim, newAnimSettings.getLength());
+				lenghtMap.put(anim, tempAnim.getLength());
 				actions.add(new ScaleSequencesLengthsAction(model, lenghtMap, changeListener));
 			} else {
-				actions.add(new SetSequenceLengthAction(anim, newAnimSettings.getLength(), changeListener));
+				actions.add(new SetSequenceLengthAction(anim, tempAnim.getLength(), changeListener));
 			}
 		}
-		if (newAnimSettings.getRarity() != anim.getRarity()) {
-			actions.add(new SetAnimationRarityAction(newAnimSettings.getRarity(), anim, changeListener));
+		if (tempAnim.getRarity() != anim.getRarity()) {
+			actions.add(new SetAnimationRarityAction(tempAnim.getRarity(), anim, changeListener));
 		}
-		if (newAnimSettings.getMoveSpeed() != anim.getMoveSpeed()) {
-			actions.add(new SetAnimationMoveSpeedAction(newAnimSettings.getMoveSpeed(), anim, changeListener));
+		if (tempAnim.getMoveSpeed() != anim.getMoveSpeed()) {
+			actions.add(new SetAnimationMoveSpeedAction(tempAnim.getMoveSpeed(), anim, changeListener));
 		}
-		if (newAnimSettings.isNonLooping() != anim.isNonLooping()) {
-			actions.add(new SetAnimationNonLoopingAction(newAnimSettings.isNonLooping(), anim, changeListener));
+		if (tempAnim.isNonLooping() != anim.isNonLooping()) {
+			actions.add(new SetAnimationNonLoopingAction(tempAnim.isNonLooping(), anim, changeListener));
 		}
-
-		undoManager.pushAction(new CompoundAction("", actions, changeListener::animationParamsChanged).redo());
-	}
-
-	private JPanel getExtraPropsPanel() {
-		JPanel extraProperties = new JPanel();
-
-		extraProperties.setBorder(BorderFactory.createTitledBorder("Misc"));
-		extraProperties.setLayout(new MigLayout());
-
-		extraProperties.add(newAnimSettings.getNonLoopingChooser(), "spanx");
-		extraProperties.add(new JLabel("Rarity"));
-		extraProperties.add(newAnimSettings.getRarityChooser(), "wrap");
-		extraProperties.add(new JLabel("MoveSpeed"));
-		extraProperties.add(newAnimSettings.getMoveSpeedChooser(), "wrap");
-		return extraProperties;
+		return actions;
 	}
 
 	public void showPopup(Component parent) {
+		String title = anim == null ? "Create Animation" : "Edit " + anim.getName() + " (" + anim.getLength() + ")";
 		int result = JOptionPane.showConfirmDialog(parent, this,
-				"Create Animation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+				title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
-			if(anim == null){
+			if (anim == null) {
 				addNewAnim();
 			} else {
-				changeAnim();
+				editAnim();
 			}
 		}
 	}
 
 	public static void showPopup(ModelHandler modelHandler, Animation selectedAnim, Component parent) {
 		CreateAnimationPopup createAnimationPopup = new CreateAnimationPopup(modelHandler, selectedAnim);
+		String title = selectedAnim == null ? "Create Animation" : "Edit " + selectedAnim.getName() + " (" + selectedAnim.getLength() + ")";
 		int result = JOptionPane.showConfirmDialog(parent, createAnimationPopup,
-				"Create Animation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+				title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
-			if(selectedAnim == null){
+			if (selectedAnim == null) {
 				createAnimationPopup.addNewAnim();
 			} else {
-				createAnimationPopup.changeAnim();
+				createAnimationPopup.editAnim();
 			}
 		}
 	}
 
+	private static class NewAnimSettings {
+		private final Animation tempAnim;
+		private TwiTextField nameField;
+		private IntEditorJSpinner lengthSpinner;
+		private JCheckBox scaleKfsBox;
+		private JCheckBox nonLoopingChooser;
+		private FloatEditorJSpinner rarityChooser;
+		private FloatEditorJSpinner moveSpeedChooser;
 
-	private static class NewAnimSettings{
-		String name;
-		int length;
-		int start;
-		int end;
-
-		float rarity = 0;
-		float moveSpeed = 0;
-
-		boolean nonLooping = false;
-		IntEditorJSpinner lengthSpinner;
-		IntEditorJSpinner startSpinner;
-		IntEditorJSpinner endSpinner;
-
-		SmartButtonGroup newAnimBtnGrp;
-		JRadioButton lengthButton;
-		JRadioButton timeRangeButton;
-		TwiTextField nameField;
-
-		FloatEditorJSpinner rarityChooser;
-		FloatEditorJSpinner moveSpeedChooser;
-
-		JCheckBox nonLoopingChooser;
-
-		NewAnimSettings(String name, int start, int length){
-			this.name = name;
-			this.start = start;
-			this.length = length;
-			this.end = start + length;
+		NewAnimSettings(String name, int start, int length) {
+			tempAnim = new Animation(name, start, start + length);
 			makeComponents();
 		}
 
-		NewAnimSettings(Animation animation){
-			this.name = animation.getName();
-			this.length = animation.getLength();
-			this.start = animation.getStart();
-			this.end = start + length;
-			this.moveSpeed = animation.getMoveSpeed();
-			this.nonLooping = animation.isNonLooping();
-			this.rarity = animation.getRarity();
+		NewAnimSettings(Animation animation) {
+			tempAnim = animation.deepCopy();
 			makeComponents();
+		}
+
+		public Animation getTempAnim() {
+			return tempAnim;
 		}
 
 		private void makeComponents() {
-			nameField = new TwiTextField(name, 24, this::setName);
-			rarityChooser = new FloatEditorJSpinner(rarity, 0, 1, this::setRarity);
-			moveSpeedChooser = new FloatEditorJSpinner(moveSpeed, 0, this::setMoveSpeed);
-			startSpinner = new IntEditorJSpinner(start, 0, this::setStart);
-			lengthSpinner = new IntEditorJSpinner(length, 0, this::setLength);
-			endSpinner = new IntEditorJSpinner(end, 0, this::setEnd);
-			nonLoopingChooser = new JCheckBox("NonLooping", nonLooping);
-			nonLoopingChooser.addActionListener(e -> setNonLooping(nonLoopingChooser.isSelected()));
+			nameField = new TwiTextField(tempAnim.getName(), 24, tempAnim::setName);
+			rarityChooser = new FloatEditorJSpinner(tempAnim.getRarity(), 0, 1, tempAnim::setRarity);
+			moveSpeedChooser = new FloatEditorJSpinner(tempAnim.getMoveSpeed(), 0, tempAnim::setMoveSpeed);
+			lengthSpinner = new IntEditorJSpinner(tempAnim.getLength(), 0, i -> setAndUpdate(i, tempAnim::setLength));
+			nonLoopingChooser = CheckBox.create(MdlUtils.TOKEN_NONLOOPING, tempAnim.isNonLooping(), tempAnim::setNonLooping);
 
+			scaleKfsBox = CheckBox.create("Scale Keyframes", scaleKfs, b -> scaleKfs = b);
+			CheckBox.setTooltip(scaleKfsBox, "Adjust the speed of the animation to fit the new length");
+		}
 
-			newAnimBtnGrp = new SmartButtonGroup();
-			lengthButton = newAnimBtnGrp.addJRadioButton("Length", e -> setMode(!lengthButton.isSelected()));
-			timeRangeButton = newAnimBtnGrp.addJRadioButton("Time Range", e -> setMode(timeRangeButton.isSelected()));
-			newAnimBtnGrp.setSelectedIndex(0);
-			setMode(false);
+		private void setAndUpdate(int i, Consumer<Integer> consumer) {
+			consumer.accept(i);
+			updateSpinners();
 		}
 
 		public TwiTextField getNameField() {
 			return nameField;
 		}
 
-		public NewAnimSettings setName(String name) {
-			this.name = name;
-			return this;
-		}
-
-		public String getName() {
-			return name;
-		}
-
 		public FloatEditorJSpinner getRarityChooser() {
 			return rarityChooser;
-		}
-
-		public NewAnimSettings setRarity(float rarity) {
-			this.rarity = rarity;
-			return this;
-		}
-
-		public float getRarity() {
-			return rarity;
 		}
 
 		public FloatEditorJSpinner getMoveSpeedChooser() {
 			return moveSpeedChooser;
 		}
 
-		public NewAnimSettings setMoveSpeed(float moveSpeed) {
-			this.moveSpeed = moveSpeed;
-			return this;
-		}
-
-		public float getMoveSpeed() {
-			return moveSpeed;
-		}
-
 		public JCheckBox getNonLoopingChooser() {
 			return nonLoopingChooser;
 		}
 
-		public NewAnimSettings setNonLooping(boolean nonLooping) {
-			this.nonLooping = nonLooping;
-			return this;
-		}
-
-		public boolean isNonLooping() {
-			return nonLooping;
-		}
-
-		public IntEditorJSpinner getStartSpinner() {
-			return startSpinner;
-		}
-
-		public NewAnimSettings setStart(int start) {
-			this.start = start;
-			this.end = start + length;
-			updateSpinners();
-			return this;
-		}
-
-		public int getStart() {
-			return start;
+		public JCheckBox getScaleKfsBox() {
+			return scaleKfsBox;
 		}
 
 		public IntEditorJSpinner getLengthSpinner() {
 			return lengthSpinner;
 		}
 
-		public NewAnimSettings setLength(int length) {
-			this.length = length;
-			this.end = start + length;
-			updateSpinners();
-			return this;
-		}
-
-		public int getLength() {
-			return length;
-		}
-
-		public IntEditorJSpinner getEndSpinner() {
-			return endSpinner;
-		}
-
-		public NewAnimSettings setEnd(int end) {
-			this.end = end;
-			this.length = end - start;
-			updateSpinners();
-			return this;
-		}
-
-		public int getEnd() {
-			return end;
-		}
-
-		public JRadioButton getLengthButton() {
-			return lengthButton;
-		}
-
-		public JRadioButton getTimeRangeButton() {
-			return timeRangeButton;
-		}
-
-		private void updateSpinners(){
-			startSpinner.reloadNewValue(start);
-			endSpinner.reloadNewValue(end);
-			lengthSpinner.reloadNewValue(length);
-		}
-
-		private void setMode(boolean isTimeRange) {
-			System.out.println("timeRangeMode: " + isTimeRange);
-			lengthSpinner.setEnabled(!isTimeRange);
-			startSpinner.setEnabled(isTimeRange);
-			endSpinner.setEnabled(isTimeRange);
+		private void updateSpinners() {
+			lengthSpinner.reloadNewValue(tempAnim.getLength());
 		}
 	}
 }

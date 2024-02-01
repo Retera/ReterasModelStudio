@@ -6,10 +6,8 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MaterialOverviewPanel extends OverviewPanel {
 	private final JPanel infoPanel;
@@ -35,23 +33,13 @@ public class MaterialOverviewPanel extends OverviewPanel {
 		infoPanel.add(new JLabel("Other anim"));
 		EditableModel model = modelHandler.getModel();
 
-		Map<MaterialKey, List<Geoset>> materialToGeosets = new LinkedHashMap<>();
-		Map<MaterialKey, List<RibbonEmitter>> materialToRibbons = new LinkedHashMap<>();
-		model.getMaterials().forEach(m -> {
-			MaterialKey key = new MaterialKey(m);
-			materialToGeosets.put(key, new ArrayList<>());
-			materialToRibbons.put(key, new ArrayList<>());
-		});
-		model.getGeosets().forEach(g -> materialToGeosets.get(new MaterialKey(g.getMaterial())).add(g));
-		model.getRibbonEmitters().forEach(r -> materialToRibbons.get(new MaterialKey(r.getMaterial())).add(r));
+		Set<Geoset> geosets = new HashSet<>(model.getGeosets());
+		Set<RibbonEmitter> ribbons = new HashSet<>(model.getRibbonEmitters());
 
-		for (MaterialKey materialkey : materialToGeosets.keySet()) {
-			Material material = materialkey.material;
-			int gUsers = materialToGeosets.get(materialkey).size();
-			int rUsers = materialToRibbons.get(materialkey).size();
+		for (Material material : model.getMaterials()) {
 			infoPanel.add(new JLabel("# " + model.computeMaterialID(material) + " " + material.getName()));
-			infoPanel.add(new JLabel("" + gUsers));
-			infoPanel.add(new JLabel("" + rUsers));
+			infoPanel.add(new JLabel("" + countGeosets(material, geosets)));
+			infoPanel.add(new JLabel("" + countRibbons(material, ribbons)));
 			infoPanel.add(new JLabel("" + material.getPriorityPlane()));
 			infoPanel.add(new JLabel("" + material.getLayers().size()));
 			infoPanel.add(new JLabel("" + (material.getLayers().stream().anyMatch(Layer::hasTexAnim) ? "yes" : "no")));
@@ -59,6 +47,23 @@ public class MaterialOverviewPanel extends OverviewPanel {
 			infoPanel.add(new JLabel("" + (material.getLayers().stream().anyMatch(l -> l.getTextureSlots().stream().anyMatch(t -> t.getFlipbookTexture() != null)) ? "yes" : "no")));
 			infoPanel.add(new JLabel("" + (otherAnimated(material) ? "yes" : "no")));
 		}
+		if (!geosets.isEmpty()) {
+			System.err.println("The model's material list was missing " + geosets.size() + " material(s) used by geosets");
+		}
+		if (!ribbons.isEmpty()) {
+			System.err.println("The model's material list was missing " + ribbons.size() + " material(s) used by ribbon emitters");
+		}
+	}
+
+	private int countGeosets(Material material, Set<Geoset> geosets){
+		int count = geosets.size();
+		geosets.removeIf(g -> g.getMaterial() == material);
+		return count - geosets.size();
+	}
+	private int countRibbons(Material material, Set<RibbonEmitter> ribbons) {
+		int count = ribbons.size();
+		ribbons.removeIf(r -> r.getMaterial() == material);
+		return count - ribbons.size();
 	}
 
 	private boolean otherAnimated(Material material) {
@@ -78,27 +83,5 @@ public class MaterialOverviewPanel extends OverviewPanel {
 		fillInfoPanel();
 		revalidate();
 		repaint();
-	}
-
-	private static class MaterialKey  {
-		Material material;
-		MaterialKey(Material material) {
-			this.material = material;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof MaterialKey) {
-				return ((MaterialKey) obj).material == material;
-			} else if (obj instanceof Material) {
-				return obj == material;
-			}
-			return false;
-		}
-
-		@Override
-		public int hashCode() {
-			return material.hashCode();
-		}
 	}
 }

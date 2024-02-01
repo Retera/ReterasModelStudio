@@ -9,16 +9,18 @@ public class SetAnimationNonLoopingAction implements UndoAction {
 	private final boolean newValue;
 	private final Animation animation;
 	private final ModelStructureChangeListener changeListener;
+	private final String actionName;
 
 	public SetAnimationNonLoopingAction(boolean newValue, Animation animation, ModelStructureChangeListener changeListener) {
 		this.animation = animation;
 		this.prevValue = animation.isNonLooping();
 		this.newValue = newValue;
 		this.changeListener = changeListener;
+		this.actionName = "Set " + animation.getName() + " to " + (newValue ? "NonLooping" : "Looping");
 	}
 
 	@Override
-	public UndoAction undo() {
+	public SetAnimationNonLoopingAction undo() {
 		animation.setNonLooping(prevValue);
 		if (changeListener != null) {
 			changeListener.animationParamsChanged();
@@ -27,7 +29,7 @@ public class SetAnimationNonLoopingAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public SetAnimationNonLoopingAction redo() {
 		animation.setNonLooping(newValue);
 		if (changeListener != null) {
 			changeListener.animationParamsChanged();
@@ -37,10 +39,7 @@ public class SetAnimationNonLoopingAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		if (newValue) {
-			return "set animation looping";
-		}
-		return "set animation non looping";
+		return actionName;
 	}
 
 }

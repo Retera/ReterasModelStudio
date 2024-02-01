@@ -9,16 +9,18 @@ public class SetAnimationRarityAction implements UndoAction {
 	private final float newRarity;
 	private final Animation animation;
 	private final ModelStructureChangeListener changeListener;
+	private final String actionName;
 
 	public SetAnimationRarityAction(float newRarity, Animation animation, ModelStructureChangeListener changeListener) {
 		this.animation = animation;
 		this.prevRarity = animation.getRarity();
 		this.newRarity = newRarity;
 		this.changeListener = changeListener;
+		this.actionName = "Set Rarity of " + animation.getName() + " to " + newRarity;
 	}
 
 	@Override
-	public UndoAction undo() {
+	public SetAnimationRarityAction undo() {
 		animation.setRarity(prevRarity);
 		if (changeListener != null) {
 			changeListener.animationParamsChanged();
@@ -27,7 +29,7 @@ public class SetAnimationRarityAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public SetAnimationRarityAction redo() {
 		animation.setRarity(newRarity);
 		if (changeListener != null) {
 			changeListener.animationParamsChanged();
@@ -37,6 +39,6 @@ public class SetAnimationRarityAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set animation Rarity to " + newRarity;
+		return actionName;
 	}
 }

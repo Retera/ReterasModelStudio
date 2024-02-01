@@ -15,9 +15,11 @@ import java.util.List;
 public class DuplicateAnimationAction implements UndoAction {
 	private final List<UndoAction> undoActions = new ArrayList<>();
 	private final ModelStructureChangeListener changeListener;
+	private final String actionName;
 
 	public DuplicateAnimationAction(EditableModel model, Sequence sequenceToCopy, String name, ModelStructureChangeListener changeListener) {
 		this.changeListener = changeListener;
+		actionName = "Duplicate " + sequenceToCopy.getName();
 
 		Sequence newSequence = sequenceToCopy.deepCopy();
 
@@ -26,10 +28,8 @@ public class DuplicateAnimationAction implements UndoAction {
 		}
 
 		ModelUtils.doForAnimFlags(model, a -> {
-			if (a.hasSequence(sequenceToCopy)) {
-				AddFlagEntryMapAction<?> addAction = getAddEntryMapAction(sequenceToCopy, newSequence, a);
-				undoActions.add(addAction);
-		}});
+			if (a.hasSequence(sequenceToCopy)) undoActions.add(getAddEntryMapAction(sequenceToCopy, newSequence, a));
+		});
 
 		for (EventObject e : model.getEvents()) {
 			if (e.hasSequence(sequenceToCopy)) {
@@ -74,7 +74,7 @@ public class DuplicateAnimationAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "Duplicate Sequence";
+		return actionName;
 	}
 
 }

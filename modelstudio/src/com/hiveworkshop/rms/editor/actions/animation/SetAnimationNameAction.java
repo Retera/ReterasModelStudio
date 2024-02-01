@@ -19,7 +19,7 @@ public class SetAnimationNameAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
+	public SetAnimationNameAction undo() {
 		animation.setName(prevName);
 		if (changeListener != null) {
 			changeListener.animationParamsChanged();
@@ -28,7 +28,7 @@ public class SetAnimationNameAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public SetAnimationNameAction redo() {
 		animation.setName(newName);
 		if (changeListener != null) {
 			changeListener.animationParamsChanged();
@@ -38,6 +38,6 @@ public class SetAnimationNameAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set animation name to \"" + newName + "\"";
+		return "Set animation name to \"" + newName + "\"";
 	}
 }

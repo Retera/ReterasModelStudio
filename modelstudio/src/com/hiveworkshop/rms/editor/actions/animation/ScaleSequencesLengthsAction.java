@@ -2,10 +2,8 @@ package com.hiveworkshop.rms.editor.actions.animation;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.SetFlagEntryMapAction;
-import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.EventObject;
-import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
@@ -20,28 +18,28 @@ public final class ScaleSequencesLengthsAction implements UndoAction {
 	private final Map<Sequence, Integer> sequenceToOldLength = new HashMap<>();
 	private final ModelStructureChangeListener changeListener;
 	private final List<UndoAction> undoActions = new ArrayList<>();
+	private final String actionName;
 
-	public ScaleSequencesLengthsAction(EditableModel mdl, Map<Sequence, Integer> sequenceToNewLength, ModelStructureChangeListener changeListener) {
+	public ScaleSequencesLengthsAction(EditableModel model, Map<Sequence, Integer> sequenceToNewLength, ModelStructureChangeListener changeListener) {
 		this.sequenceToNewLength = sequenceToNewLength;
 		this.changeListener = changeListener;
+		this.actionName = sequenceToNewLength.size() == 1 ?
+				"Scale Length of " + sequenceToNewLength.keySet().stream().findFirst().orElse(null)
+				: "Scale " + sequenceToNewLength.size() + " Animation's Lengths";
 
-		for (Animation animation : mdl.getAnims()) {
-			sequenceToOldLength.put(animation, animation.getLength());
+		for (Sequence sequence : sequenceToNewLength.keySet()) {
+			sequenceToOldLength.put(sequence, sequence.getLength());
 		}
-		for (GlobalSeq globalSeq : mdl.getGlobalSeqs()) {
-			sequenceToOldLength.put(globalSeq, globalSeq.getLength());
-		}
 
+		ModelUtils.doForAnimFlags(model, af -> addChangeLengthAction(sequenceToNewLength, undoActions, af));
 
-		ModelUtils.doForAnimFlags(mdl, af -> addChangeLengthAction(sequenceToNewLength, undoActions, af));
-
-		for (final EventObject e : mdl.getEvents()) {
+		for (final EventObject e : model.getEvents()) {
 			addChangeLengthAction(sequenceToNewLength, undoActions, e);
 		}
 	}
 
 	@Override
-	public UndoAction undo() {
+	public ScaleSequencesLengthsAction undo() {
 		undoActions.forEach(UndoAction::undo);
 		sequenceToOldLength.forEach(Sequence::setLength);
 		if (changeListener != null) {
@@ -51,7 +49,7 @@ public final class ScaleSequencesLengthsAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public ScaleSequencesLengthsAction redo() {
 		sequenceToNewLength.forEach(Sequence::setLength);
 		undoActions.forEach(UndoAction::redo);
 		if (changeListener != null) {
@@ -87,7 +85,7 @@ public final class ScaleSequencesLengthsAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "edit animation length(s)";
+		return actionName;
 	}
 
 }

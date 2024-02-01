@@ -13,6 +13,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode2;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.util.Quat;
@@ -23,15 +24,18 @@ import java.util.Collection;
 import java.util.List;
 
 public class AddKeyframeAction3 implements UndoAction {
+	private final ModelStructureChangeListener changeListener;
 	private final RenderModel renderModel ;
 	private final int trackTime;
 	private final TimeEnvironmentImpl timeEnvironmentImpl;
 	private final ModelEditorActionType3 actionType;
+	private final String actionName;
 
 	private final UndoAction createKeyframeCompoundAction;
 
 	public AddKeyframeAction3(Collection<IdObject> selection, RenderModel renderModel,
-	                          ModelEditorActionType3 actionType) {
+	                          ModelEditorActionType3 actionType, ModelStructureChangeListener changeListener) {
+		this.changeListener = changeListener;
 		this.actionType = actionType;
 		this.renderModel = renderModel;
 
@@ -39,6 +43,8 @@ public class AddKeyframeAction3 implements UndoAction {
 		trackTime = timeEnvironmentImpl.getEnvTrackTime();
 
 		createKeyframeCompoundAction = createKeyframe(selection);
+
+		this.actionName = "Add " + getKFTypeName() + " keyframe at " + trackTime + " in " + timeEnvironmentImpl.getCurrentSequence();
 	}
 
 	public UndoAction createKeyframe(Collection<IdObject> selection) {
@@ -53,7 +59,6 @@ public class AddKeyframeAction3 implements UndoAction {
 			};
 			if (keyframeAction != null) {
 				actions.add(keyframeAction);
-//				actions.add(keyframeAction.redo());
 			}
 		}
 
@@ -120,18 +125,24 @@ public class AddKeyframeAction3 implements UndoAction {
 	@Override
 	public UndoAction undo() {
 		createKeyframeCompoundAction.undo();
+		if (changeListener != null) {
+			changeListener.animationParamsChanged();
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
 		createKeyframeCompoundAction.redo();
+		if (changeListener != null) {
+			changeListener.animationParamsChanged();
+		}
 		return this;
 	}
 
 	@Override
 	public String actionName() {
-		return "add " + getKFTypeName() + " keyframe";
+		return actionName;
 	}
 
 	private String getKFTypeName() {
