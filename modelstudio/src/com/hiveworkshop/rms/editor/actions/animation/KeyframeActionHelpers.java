@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.editor.actions.animation;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.SetFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
@@ -9,16 +8,11 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
-import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
-import com.hiveworkshop.rms.ui.application.model.editors.FloatEditorJSpinner;
-import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
-import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,14 +24,14 @@ public class KeyframeActionHelpers {
 		if (sequence != null) {
 			for (IdObject node : selection) {
 				UndoAction setupAction = getSetupAction(sequence, trackTime, node, MdlUtils.TOKEN_ROTATION, new Quat());
-				if(setupAction != null){
+				if (setupAction != null) {
 					actions.add(setupAction);
 				}
 			}
 			for (CameraNode node : camSelection) {
-				if (node instanceof CameraNode.SourceNode){
+				if (node instanceof CameraNode.SourceNode) {
 					UndoAction setupAction = getSetupAction(sequence, trackTime, node, MdlUtils.TOKEN_ROTATION, 0f);
-					if(setupAction != null){
+					if (setupAction != null) {
 						actions.add(setupAction);
 					}
 				}
@@ -52,14 +46,14 @@ public class KeyframeActionHelpers {
 		if (sequence != null) {
 			for (IdObject node : selection) {
 				UndoAction setupAction = getSetupAction(sequence, trackTime, node, MdlUtils.TOKEN_TRANSLATION, new Vec3());
-				if(setupAction != null){
+				if (setupAction != null) {
 					actions.add(setupAction);
 				}
 			}
 			for (CameraNode node : camSelection) {
-				if (node instanceof CameraNode.SourceNode){
+				if (node instanceof CameraNode.SourceNode) {
 					UndoAction setupAction = getSetupAction(sequence, trackTime, node, MdlUtils.TOKEN_TRANSLATION, new Vec3());
-					if(setupAction != null){
+					if (setupAction != null) {
 						actions.add(setupAction);
 					}
 				}
@@ -73,15 +67,15 @@ public class KeyframeActionHelpers {
 		List<UndoAction> actions = new ArrayList<>();
 		if (sequence != null) {
 			for (IdObject node : selection) {
-				UndoAction setupAction = getSetupAction(sequence, trackTime, node, MdlUtils.TOKEN_TRANSLATION, new Vec3(1,1,1));
-				if(setupAction != null){
+				UndoAction setupAction = getSetupAction(sequence, trackTime, node, MdlUtils.TOKEN_SCALING, new Vec3(1,1,1));
+				if (setupAction != null) {
 					actions.add(setupAction);
 				}
 			}
 //			for (CameraNode node : camSelection) {
-//				if (node instanceof CameraNode.SourceNode){
-//					UndoAction setupAction = getSetupAction(sequence, trackTime, node, MdlUtils.TOKEN_TRANSLATION, new Vec3());
-//					if(setupAction != null){
+//				if (node instanceof CameraNode.SourceNode) {
+//					UndoAction setupAction = getSetupAction(sequence, trackTime, node, MdlUtils.TOKEN_SCALING, new Vec3());
+//					if (setupAction != null) {
 //						actions.add(setupAction);
 //					}
 //				}
@@ -97,14 +91,14 @@ public class KeyframeActionHelpers {
 		if (timeline == null) {
 			return getNewPreparedAnimFlag(sequence, trackTime, node, name, defaultValue);
 		}
-		if (!timeline.hasEntryAt(sequence, trackTime) && isValidSequence(sequence, timeline)){
+		if (!timeline.hasEntryAt(sequence, trackTime) && isValidSequence(sequence, timeline)) {
 			return getAddEntryAction(timeline, sequence, trackTime);
 		}
 		return null;
 	}
 	private static <Q> UndoAction getNewPreparedAnimFlag(Sequence sequence, int trackTime, AnimatedNode node, String name, Q defaultValue) {
 		AnimFlag<Q> timeline = AnimFlagUtils.createNewAnimFlag(defaultValue, name);
-		if(timeline != null){
+		if (timeline != null) {
 			Entry<Q> entry = getEntry(timeline, getValueInstanceFrom(timeline, sequence, trackTime), trackTime, sequence);
 			timeline.addEntry(entry, sequence);
 			return new AddTimelineAction<>(node, timeline);
@@ -112,13 +106,7 @@ public class KeyframeActionHelpers {
 		return null;
 	}
 
-	private static <Q> AddFlagEntryAction<Q> getAddEntryAction1(AnimFlag<Q> timeline, Sequence sequence, int trackTime) {
-		Entry<Q> entry = getEntry(timeline, getValueInstanceFrom(timeline, sequence, trackTime), trackTime, sequence);
-		return new AddFlagEntryAction<>(timeline, entry, sequence, null);
-	}
-
 	private static <Q> SetFlagEntryAction<Q> getAddEntryAction(AnimFlag<Q> timeline, Sequence sequence, int trackTime) {
-//		Entry<Q> entry = getEntry(timeline, getValueInstanceFrom(timeline, sequence, trackTime), trackTime, sequence);
 		List<Entry<Q>> entries = getEntries(timeline, getValueInstanceFrom(timeline, sequence, trackTime), trackTime, sequence);
 		return new SetFlagEntryAction<>(timeline, entries, sequence, null);
 	}
@@ -148,45 +136,52 @@ public class KeyframeActionHelpers {
 		List<Entry<T>> list = new ArrayList<>();
 		Entry<T> entry = new Entry<>(time, value);
 		list.add(entry);
-		if (sequence != null && timeline.tans()) {
-			Entry<T> prevValue = timeline.getFloorEntry(time-1, sequence).deepCopy();
-			Entry<T> nextValue = timeline.getCeilEntry(time+1, sequence).deepCopy();
-			float timeBetweenFrames = nextValue.getTime() - prevValue.getTime();
+		if (sequence != null && timeline.tans() && !timeline.getEntryMap(sequence).isEmpty()) {
+			int length = sequence.getLength();
 
-			float timeFraction = (time-prevValue.getTime()) / timeBetweenFrames;
+			Entry<T> prevEntry = timeline.getFloorEntry(time - 1, sequence);
+			Entry<T> nextEntry = timeline.getCeilEntry(time + 1, sequence);
+			Entry<T> prevEntryCopy = prevEntry.deepCopy();
+			Entry<T> nextEntryCopy = nextEntry.deepCopy();
 
-			T pValue = AnimFlagUtils.getDiffValue(value, timeline.interpolateAt(sequence, time - 1));
-			T nValue = AnimFlagUtils.getDiffValue(timeline.interpolateAt(sequence, time + 1), value);
+			list.add(prevEntryCopy);
+			if (nextEntry != prevEntry) {
+				list.add(nextEntryCopy);
+			}
 
-			float inTanAdj = time - prevValue.getTime();
-			float outTanAdj = nextValue.getTime() - time;
+			Integer nextTime = nextEntry.getTime();
+			Integer prevTime = prevEntry.getTime();
 
-			entry.setInTan(AnimFlagUtils.getScaledValue(pValue, inTanAdj)).setOutTan(AnimFlagUtils.getScaledValue(nValue, outTanAdj));
-			timeline.addEntry(entry, sequence);
+			int timeToPrevFrame = ((time - prevTime) + length) % length;
 
-			prevValue.setOutTan(AnimFlagUtils.getScaledValue(prevValue.getOutTan(), timeFraction));
-			nextValue.setInTan(AnimFlagUtils.getScaledValue(nextValue.getInTan(), (1-timeFraction)));
+			float timeBetweenFrames = ((nextTime - prevTime) + length) % length;
+			timeBetweenFrames = timeBetweenFrames == 0 ? length : timeBetweenFrames;
+			float timeFraction = timeToPrevFrame / timeBetweenFrames;
 
-			list.add(prevValue);
-			list.add(nextValue);
+			T interp_p = timeline.interpolateAt(sequence, (time - 1 + length) % length);
+			T interp_n = timeline.interpolateAt(sequence, (time + 1 + length) % length);
+
+			T pValue = AnimFlagUtils.getDiffValue(value, interp_p);
+			T nValue = AnimFlagUtils.getDiffValue(interp_n, value);
+
+			T scaledValueIn = AnimFlagUtils.getScaledValue(pValue, timeFraction);
+			T scaledValueOut = AnimFlagUtils.getScaledValue(nValue, 1-timeFraction);
+
+			entry.setInTan(scaledValueIn).setOutTan(scaledValueOut);
+
+			prevEntryCopy.setOutTan(AnimFlagUtils.getScaledValue(prevEntryCopy.getOutTan(), timeFraction));
+			nextEntryCopy.setInTan(AnimFlagUtils.getScaledValue(nextEntryCopy.getInTan(), (1-timeFraction)));
+		} else if (timeline.tans()) {
+			entry.unLinearize();
 		}
 		return list;
 	}
 
-
-
-	public static <Q> void getNewOrCopiedTimelineWithKFs(AnimatedNode node, Collection<Sequence> sequences, String name, Q defaultValue, GlobalSeq globalSeq) {
-		AnimFlag<?> timeline = getNewOrCopiedTimeline(node, name, defaultValue, globalSeq);
-		if(timeline != null){
-			ensureSequenceKFs(sequences, timeline);
-		}
-	}
-
-	public static  <Q> AnimFlag<?> getNewOrCopiedTimeline(AnimatedNode node, String name, Q defaultValue, GlobalSeq globalSeq) {
+	public static <Q> AnimFlag<?> getNewOrCopiedTimeline(AnimatedNode node, String name, Q defaultValue, GlobalSeq globalSeq) {
 		AnimFlag<?> timeline = node.find(name);
 		if (timeline == null) {
 			AnimFlag<Q> newAnimFlag = AnimFlagUtils.createNewAnimFlag(defaultValue, name);
-			if(newAnimFlag != null){
+			if (newAnimFlag != null) {
 				newAnimFlag.setGlobSeq(globalSeq);
 			}
 			return newAnimFlag;
@@ -196,10 +191,10 @@ public class KeyframeActionHelpers {
 	}
 
 	public static <T> void ensureSequenceKFs(Collection<Sequence> sequences, AnimFlag<T> timeline) {
-		for (Sequence sequence : sequences){
-			if(timeline.size(sequence) == 0
+		for (Sequence sequence : sequences) {
+			if (timeline.size(sequence) == 0
 					&& (!timeline.hasGlobalSeq() && sequence instanceof Animation
-					|| timeline.getGlobalSeq() == sequence)){
+					|| timeline.getGlobalSeq() == sequence)) {
 				Entry<T> entry = getEntry(timeline, getIdentityValue(timeline), 0, sequence);
 				timeline.addEntry(entry, sequence);
 			}
@@ -208,20 +203,20 @@ public class KeyframeActionHelpers {
 
 	public static <T> T getIdentityValue(AnimFlag<T> timeline) {
 		T value = timeline.interpolateAt(null);
-		if (value instanceof Vec3) {
-			return (T) new Vec3((Vec3) value);
-		} else if (value instanceof Quat) {
-			return (T) new Quat((Quat) value);
+		if (value instanceof Vec3 v) {
+			return (T) new Vec3(v);
+		} else if (value instanceof Quat v) {
+			return (T) new Quat(v);
 		}
 		return value;
 	}
 
 	public static <T> T getValueInstanceFrom(AnimFlag<T> timeline, Sequence sequence, int trackTime) {
 		T value = timeline.interpolateAt(sequence, trackTime);
-		if (value instanceof Vec3) {
-			return (T) new Vec3((Vec3) value);
-		} else if (value instanceof Quat) {
-			return (T) new Quat((Quat) value);
+		if (value instanceof Vec3 v) {
+			return (T) new Vec3(v);
+		} else if (value instanceof Quat v) {
+			return (T) new Quat(v);
 		}
 		return value;
 	}

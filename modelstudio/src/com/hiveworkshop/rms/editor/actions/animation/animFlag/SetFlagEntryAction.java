@@ -55,7 +55,7 @@ public class SetFlagEntryAction<T> implements UndoAction {
 	@Override
 	public SetFlagEntryAction<T> redo() {
 		for (Entry<T> entry : entries) {
-			animFlag.addEntry(entry.time, entry, sequence);
+			animFlag.addEntry(entry.time, entry.deepCopy(), sequence);
 		}
 		if (changeListener != null) {
 			changeListener.materialsListChanged();

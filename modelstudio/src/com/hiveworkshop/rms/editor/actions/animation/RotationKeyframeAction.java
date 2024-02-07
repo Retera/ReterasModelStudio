@@ -98,7 +98,7 @@ public class RotationKeyframeAction extends AbstractTransformAction {
 			}
 		}
 
-		if(addingTimelinesOrKeyframesAction != null){
+		if (addingTimelinesOrKeyframesAction != null) {
 			addingTimelinesOrKeyframesAction.undo();
 		}
 		return this;
@@ -106,7 +106,9 @@ public class RotationKeyframeAction extends AbstractTransformAction {
 
 	@Override
 	public RotationKeyframeAction redo() {
-		doSetup();
+		if (addingTimelinesOrKeyframesAction != null) {
+			addingTimelinesOrKeyframesAction.redo();
+		}
 		for (AnimatedNode node : nodeToLocalRotation.keySet()) {
 			Quat localRotation = nodeToLocalRotation.get(node);
 			updateLocalRotationKeyframe(node, localRotation);
@@ -119,8 +121,8 @@ public class RotationKeyframeAction extends AbstractTransformAction {
 		return "Edit Rotation";
 	}
 
-	public RotationKeyframeAction doSetup(){
-		if(addingTimelinesOrKeyframesAction != null){
+	public RotationKeyframeAction doSetup() {
+		if (addingTimelinesOrKeyframesAction != null) {
 			addingTimelinesOrKeyframesAction.redo();
 		}
 		return this;
@@ -156,11 +158,11 @@ public class RotationKeyframeAction extends AbstractTransformAction {
 
 	private void updateLocalRotationKeyframe(AnimatedNode animatedNode, Quat localRotation) {
 		AnimFlag<?> animFlag = animatedNode.find(MdlUtils.TOKEN_ROTATION);
-		if(animFlag instanceof QuatAnimFlag){
+		if (animFlag instanceof QuatAnimFlag) {
 			updateQuatRotation(localRotation, (QuatAnimFlag) animFlag);
-		} else if(animFlag instanceof FloatAnimFlag){
+		} else if (animFlag instanceof FloatAnimFlag) {
 			updateFloatRotation(localRotation, (FloatAnimFlag) animFlag, animatedNode);
-		} else if(animFlag instanceof IntAnimFlag){
+		} else if (animFlag instanceof IntAnimFlag) {
 			updateIntRotation(localRotation, (IntAnimFlag) animFlag, animatedNode);
 		}
 	}
@@ -188,7 +190,7 @@ public class RotationKeyframeAction extends AbstractTransformAction {
 			return;
 		}
 
-		if(animatedNode instanceof CameraNode){
+		if (animatedNode instanceof CameraNode) {
 			if (animFlag.hasEntryAt(anim, trackTime)) {
 				Vec3 cameraLookAxis = new Vec3();
 				Vec3 cameraLookAxis2 = new Vec3();
@@ -197,24 +199,16 @@ public class RotationKeyframeAction extends AbstractTransformAction {
 				cameraLookAxis.set(target).sub(pivot).normalize();
 				cameraLookAxis2.set(target).sub(pivot).normalize();
 
-//				Vec3 up = editorRenderModel.getRenderNode((CameraNode) animatedNode).getCameraUp();
-//				cameraLookAxis.set(up).normalize();
-//				cameraLookAxis2.set(up).normalize();
 				cameraLookAxis2.transform(localRotation);
 
 				temp.setAsAxisWithAngle(localRotation);
-//				float v = (float) cameraLookAxis2.radAngleTo(cameraLookAxis);
 				float v = Math.copySign(temp.w, temp.y);
 
-//				v = cameraLookAxis2.getQuatTo(cameraLookAxis).w;
-
-//				System.out.println("rads: " + v + " (Quat: " + localRotation + ")");
 
 				Entry<Float> entry = animFlag.getEntryAt(anim, trackTime);
 				entry.setValue((entry.getValue() + v)%PI_x2);
 
 				totRot2 += v;
-//				System.out.println("angle: " + Math.toDegrees(totRot2) + " (Quat: " + localRotation + ", " + temp + ")");
 
 				if (animFlag.tans()) {
 					entry.setInTan((entry.getInTan() + v)%PI_x2);
@@ -229,7 +223,7 @@ public class RotationKeyframeAction extends AbstractTransformAction {
 			return;
 		}
 
-		if(animatedNode instanceof CameraNode){
+		if (animatedNode instanceof CameraNode) {
 			if (animFlag.hasEntryAt(anim, trackTime)) {
 				Vec3 cameraLookAxis = new Vec3();
 				Vec3 cameraLookAxis2 = new Vec3();
@@ -244,7 +238,6 @@ public class RotationKeyframeAction extends AbstractTransformAction {
 				Entry<Integer> entry = animFlag.getEntryAt(anim, trackTime);
 				entry.setValue(entry.getValue() + v);
 				totRot2 += v;
-//				System.out.println("angle: " + Math.toDegrees(totRot2));
 
 				if (animFlag.tans()) {
 					entry.setInTan(entry.getInTan() + v);
@@ -262,7 +255,7 @@ public class RotationKeyframeAction extends AbstractTransformAction {
 	private Quat getRotation(AnimatedNode idObject, Vec3 axis, float radians) {
 		RenderNode<?> renderNode = editorRenderModel.getRenderNode(idObject);
 		tempAxis.set(axis).transform(invRotMat, 1, true);
-		if(renderNode != null){
+		if (renderNode != null) {
 			if (worldSpace) {
 				tempMat.set(renderNode.getWorldMatrix()).invert();
 
@@ -275,17 +268,4 @@ public class RotationKeyframeAction extends AbstractTransformAction {
 		}
 		return tempQuat.setIdentity();
 	}
-	private Quat getRotationORG(AnimatedNode idObject, Vec3 axis, float radians) {
-		RenderNode<?> renderNode = editorRenderModel.getRenderNode(idObject);
-		tempAxis.set(axis).transform(invRotMat, 1, true);
-		if(renderNode != null){
-			tempMat.set(renderNode.getWorldMatrix()).invert();
-
-			tempAxis.add(renderNode.getPivot()).transform(tempMat, 1, true);
-			tempAxis2.set(renderNode.getPivot()).transform(tempMat, 1, true);
-			return tempQuat.setFromAxisAngle(tempAxis.sub(tempAxis2).normalize(), -radians).normalize();
-		}
-		return tempQuat.setIdentity();
-	}
-
 }

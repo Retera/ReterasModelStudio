@@ -44,7 +44,7 @@ public class ScalingKeyframeAction extends AbstractTransformAction {
 		nodeToOrgScale = new HashMap<>();
 		for (AnimatedNode node : nodeSelection) {
 			Vec3AnimFlag animFlag = (Vec3AnimFlag) node.find(MdlUtils.TOKEN_SCALING);
-			if (animFlag != null && (anim instanceof GlobalSeq || animFlag.getGlobalSeq() != anim)) {
+			if (animFlag != null && animFlag.hasEntryAt(anim, trackTime) && (anim instanceof GlobalSeq || animFlag.getGlobalSeq() != anim)) {
 				nodeToOrgScale.put(node, animFlag.getEntryAt(anim, trackTime).deepCopy());
 			}
 		}
@@ -52,18 +52,14 @@ public class ScalingKeyframeAction extends AbstractTransformAction {
 
 	@Override
 	public ScalingKeyframeAction undo() {
-//		Vec3 tempInverse = new Vec3(1, 1, 1).divide(scale);
-//		for (IdObject node : nodeList) {
-//			updateScalingKeyframe(node, trackTime, tempInverse);
-//		}
 		for (AnimatedNode node : nodeToOrgScale.keySet()) {
 			Entry<Vec3> orgScale = nodeToOrgScale.get(node);
-			if(orgScale != null){
+			if (orgScale != null) {
 				Vec3AnimFlag animFlag = (Vec3AnimFlag) node.find(MdlUtils.TOKEN_SCALING);
 				animFlag.getEntryAt(anim, orgScale.getTime()).setValues(orgScale);
 			}
 		}
-		if(addingTimelinesOrKeyframesAction != null){
+		if (addingTimelinesOrKeyframesAction != null) {
 			addingTimelinesOrKeyframesAction.undo();
 		}
 		return this;
@@ -71,7 +67,7 @@ public class ScalingKeyframeAction extends AbstractTransformAction {
 
 	@Override
 	public ScalingKeyframeAction redo() {
-		if(addingTimelinesOrKeyframesAction != null){
+		if (addingTimelinesOrKeyframesAction != null) {
 			addingTimelinesOrKeyframesAction.redo();
 		}
 		for (IdObject node : nodeList) {
@@ -85,8 +81,8 @@ public class ScalingKeyframeAction extends AbstractTransformAction {
 		return "Edit Scaling";
 	}
 
-	public ScalingKeyframeAction doSetup(){
-		if(addingTimelinesOrKeyframesAction != null){
+	public ScalingKeyframeAction doSetup() {
+		if (addingTimelinesOrKeyframesAction != null) {
 			addingTimelinesOrKeyframesAction.redo();
 		}
 		return this;
@@ -127,144 +123,4 @@ public class ScalingKeyframeAction extends AbstractTransformAction {
 			}
 		}
 	}
-
-
-//	// I had some idea of being able to move nodes apart by scaling or something...
-//	private Vec3 center;
-//	private RenderModel editorRenderModel;
-//	private HashMap<IdObject, Vec3> nodeToLocalScale;
-//	private HashMap<IdObject, Vec3> nodeToLocalTranslation;
-//	private boolean individualOrigens = true;
-//	public ScalingKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
-//	                             Collection<IdObject> nodeSelection,
-//	                             Vec3 center, Vec3 scale, RenderModel editorRenderModel, boolean individualOrigens) {
-//		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
-//		this.editorRenderModel = editorRenderModel;
-//		this.individualOrigens = individualOrigens;
-//		this.trackTime = editorRenderModel.getTimeEnvironment().getEnvTrackTime();
-//		this.anim = editorRenderModel.getTimeEnvironment().getCurrentSequence();
-//		nodeList = new ArrayList<>(nodeSelection);
-//		nodeToLocalScale = new HashMap<>();
-//		nodeToLocalTranslation = new HashMap<>();
-//
-//		Vec4 translationHeap = new Vec4();
-//		Vec3 translationHeap2 = new Vec3();
-//		Vec3 delta = new Vec3();
-//		Vec4 delta2 = new Vec4();
-//		for (IdObject idObject : nodeSelection) {
-//
-//			if(!individualOrigens){
-//				nodeToLocalTranslation.put(idObject, new Vec3());
-//				delta.set(editorRenderModel.getRenderNode(idObject).getRenderPivot());
-//				delta.scale(center, scale).sub(editorRenderModel.getRenderNode(idObject).getRenderPivot());
-//				setTranslationHeap(idObject, delta, translationHeap);
-//				translationHeap2.set(translationHeap);
-//				nodeToLocalTranslation.get(idObject).scale(center, scale);
-//			}
-////			delta2.set(scale, 1);
-////			setScalingHeap(idObject, delta2, translationHeap);
-////			delta.set(translationHeap);
-////			nodeToLocalScale.put(idObject, new Vec3(1,1,1).multiply(delta));
-//			nodeToLocalScale.put(idObject, new Vec3(1,1,1).multiply(scale));
-//		}
-//		this.center = new Vec3(center);
-//		this.scale = new Vec3(scale);
-//	}
-//
-//
-//	public ScalingKeyframeAction undo2() {
-//		Vec3 tempInverse = new Vec3(1, 1, 1).divide(scale);
-//		for (IdObject node : nodeToLocalScale.keySet()) {
-//			tempInverse.set(1, 1, 1).divide(nodeToLocalScale.get(node));
-//			updateScalingKeyframe(node, trackTime, tempInverse);
-//		}
-//		Vec3 localTranslation = new Vec3();
-//		for (IdObject node : nodeToLocalTranslation.keySet()) {
-//			localTranslation.set(nodeToLocalTranslation.get(node)).scale( -1);
-//			updateTranslationKeyframe(node, localTranslation);
-//		}
-//		addingTimelinesOrKeyframesAction.undo();
-//		return this;
-//	}
-//
-//
-//	public ScalingKeyframeAction redo2() {
-//		addingTimelinesOrKeyframesAction.redo();
-//		for (IdObject node : nodeToLocalScale.keySet()) {
-//			Vec3 localScale = nodeToLocalScale.get(node);
-//			updateScalingKeyframe(node, trackTime, localScale);
-//		}
-//		for (IdObject node : nodeToLocalTranslation.keySet()) {
-//			Vec3 localTranslation = nodeToLocalTranslation.get(node);
-//			updateTranslationKeyframe(node, localTranslation);
-//		}
-//		return this;
-//	}
-//
-//
-//	public ScalingKeyframeAction updateScale2(Vec3 scale) {
-//		Vec4 translationHeap = new Vec4();
-//		Vec3 translationHeap2 = new Vec3();
-//		Vec3 delta = new Vec3();
-//		Vec4 delta2 = new Vec4();
-//		for (IdObject idObject : nodeToLocalScale.keySet()) {
-//			if(nodeToLocalTranslation.get(idObject) != null) {
-//				delta.set(editorRenderModel.getRenderNode(idObject).getRenderPivot());
-//				delta.scale(center, scale).sub(editorRenderModel.getRenderNode(idObject).getRenderPivot());
-//				setTranslationHeap(idObject, delta, translationHeap);
-//				translationHeap2.set(translationHeap);
-//				updateTranslationKeyframe(idObject, translationHeap2);
-//				nodeToLocalTranslation.get(idObject).scale(center, scale);
-//			}
-////			delta2.set(scale, 1);
-////			setScalingHeap(idObject, delta2, translationHeap);
-////			delta.set(delta2);
-//			if(nodeToLocalScale.get(idObject) != null) {
-//				nodeToLocalScale.get(idObject).multiply(scale);
-////				nodeToLocalScale.get(idObject).multiply(delta);
-//			}
-//
-////			updateScalingKeyframe(idObject, trackTime, scale);
-//			updateScalingKeyframe(idObject, trackTime, delta);
-//		}
-//		return this;
-//	}
-//
-//	public void updateTranslationKeyframe(AnimatedNode animatedNode, Vec3 translationHeap) {
-//		// TODO global seqs, needs separate check on AnimRendEnv, and also we must  make AnimFlag.find seek on globalSeqId
-//		Vec3AnimFlag animFlag = (Vec3AnimFlag) animatedNode.find(MdlUtils.TOKEN_TRANSLATION);
-//		if (animFlag == null || anim instanceof GlobalSeq && animFlag.getGlobalSeq() != anim) {
-//			return;
-//		}
-//
-//		if (animFlag.hasEntryAt(anim, trackTime)) {
-//			Entry<Vec3> entry = animFlag.getEntryAt(anim, trackTime);
-//			entry.getValue().add(translationHeap);
-//
-//			if (animFlag.tans()) {
-//				entry.getInTan().add(translationHeap);
-//				entry.getOutTan().add(translationHeap);
-//			}
-//		}
-//	}
-//
-//	private Vec4 setTranslationHeap(IdObject idObject, Vec3 newDelta, Vec4 translationHeap) {
-//		Mat4 worldMatrix = editorRenderModel.getRenderNode(idObject).getParentWorldMatrix();
-//		translationHeap.set(0, 0, 0, 1);
-//		translationHeap.transform(worldMatrix);
-//		translationHeap.add(newDelta);
-//		translationHeap.transformInverted(worldMatrix);
-//
-//		return translationHeap;
-//	}
-//
-//	private Vec4 setScalingHeap(IdObject idObject, Vec4 newScale, Vec4 scalingHeap) {
-//		Mat4 worldMatrix = editorRenderModel.getRenderNode(idObject).getParentWorldMatrix();
-//		scalingHeap.set(1, 1, 1, 1);
-//		scalingHeap.transform(worldMatrix);
-//		scalingHeap.multiply(newScale);
-//		scalingHeap.transformInverted(worldMatrix);
-//
-//		return scalingHeap;
-//	}
 }

@@ -30,14 +30,6 @@ public class AnimFlagUtils {
 		}
 	}
 
-	public static <T> void timeScale3(AnimFlag<T> animFlag, Sequence anim, double ratio) {
-		// Timescales a part of the AnimFlag from section "start" to "end" into the new time "newStart" to "newEnd"
-		TreeMap<Integer, Entry<T>> entryMap = animFlag.getAnimMap().get(anim);
-		if (entryMap != null) {
-			scaleMapEntries(ratio, entryMap);
-		}
-	}
-
 	public static <T> void scaleMapEntries(double ratio, TreeMap<Integer, Entry<T>> entryMap) {
 		TreeMap<Integer, Entry<T>> scaledMap = new TreeMap<>();
 		for (Integer time : entryMap.keySet()) {
@@ -46,21 +38,6 @@ public class AnimFlagUtils {
 		}
 		entryMap.clear();
 		entryMap.putAll(scaledMap);
-	}
-
-	public static <T> void setValuesTo(AnimFlag<T> animFlag, AnimFlag<?> source) {
-		//todo check it this should clear existing
-		AnimFlag<T> tSource = getAsTypedOrNull(animFlag, source);
-		if (tSource != null) {
-			animFlag.setSettingsFrom(tSource);
-			animFlag.clear();
-
-			for (Sequence anim : tSource.getAnimMap().keySet()) {
-				animFlag.setEntryMap(anim, tSource.getSequenceEntryMapCopy(anim));
-//				TreeMap<Integer, Entry<T>> entryMap = tSource.getAnimMap().get(anim);
-//				entryMap.replaceAll((t, v) -> tSource.getEntryMap(anim).get(t).deepCopy());
-			}
-		}
 	}
 
 	/**
@@ -100,8 +77,6 @@ public class AnimFlagUtils {
 					unLiniarizeMapEntries(animFlag, newAnim.getLength(), sequenceEntryMapCopy);
 				}
 
-//				TreeMap<Integer, Entry<T>> entryMap = sequenceMap.computeIfAbsent(newAnim, k -> new TreeMap<>());
-//				entryMap.putAll(sequenceEntryMapCopy);
 				animFlag.setEntryMap(newAnim, sequenceEntryMapCopy);
 			}
 		}
@@ -126,33 +101,8 @@ public class AnimFlagUtils {
 				} else if (animFlag.tans() && !sourceHasTans) {
 					unLiniarizeMapEntries(animFlag, newAnim.getLength(), sequenceEntryMapCopy);
 				}
-//				sequenceMap.put(newAnim, sequenceEntryMapCopy);
-				animFlag.setEntryMap(newAnim, sequenceEntryMapCopy);
-			}
-		}
-	}
 
-	public static <T> void copyFrom(AnimFlag<T> animFlag, AnimFlag<?> source) {
-		AnimFlag<T> tSource = getAsTypedOrNull(animFlag, source);
-		if (tSource != null) {
-			// ToDo give user option to either linearize animflag or unlinearize copied entries
-			boolean linearizeEntries = !animFlag.tans() && tSource.tans();
-			boolean unlinearizeEntries = animFlag.tans() && !tSource.tans();
-			for (Sequence anim : tSource.getAnimMap().keySet()) {
-				TreeMap<Integer, Entry<T>> sourceEntryMap = tSource.getAnimMap().get(anim);
-//				TreeMap<Integer, Entry<T>> entryMap = sequenceMap.computeIfAbsent(anim, k -> new TreeMap<>());
-				TreeMap<Integer, Entry<T>> entryMap = new TreeMap<>();
-				for (Integer time : sourceEntryMap.keySet()) {
-					final Entry<T> copiedEntry = sourceEntryMap.get(time).deepCopy();
-					if (linearizeEntries) {
-						copiedEntry.linearize();
-					} else if (unlinearizeEntries) {
-						copiedEntry.unLinearize();
-					}
-					entryMap.put(time, copiedEntry);
-//					addEntryMap(anim, entryMap);
-					animFlag.setEntryMap(anim, entryMap);
-				}
+				animFlag.setEntryMap(newAnim, sequenceEntryMapCopy);
 			}
 		}
 	}
@@ -174,40 +124,30 @@ public class AnimFlagUtils {
 			Integer nextTime = entryTreeMap.higherKey(time) == null ? entryTreeMap.firstKey() : entryTreeMap.higherKey(time);
 			Integer prevTime = entryTreeMap.lowerKey(time) == null ? entryTreeMap.lastKey() : entryTreeMap.lowerKey(time);
 
-
 			Entry<T> prevValue = entryTreeMap.get(prevTime);
 			Entry<T> nextValue = entryTreeMap.get(nextTime);
 
-//			if(entryTreeMap.lowerKey(time) == null || entryTreeMap.higherKey(time) == null){
-//				System.out.println("nextTime: " + nextTime + ", prevTime: " + prevTime);
-//				System.out.println("nextValue: " + nextValue.value + ", prevValue: " + prevValue.value);
-//			}
-
-//			float[] factor = animFlag.getTcbFactor(0, 0, 0.5f);
-//			float[] factor = animFlag.getTcbFactor(0, -.5f, 0.75f);
-//			float[] factor = animFlag.getTcbFactor(0, -.9f, .2f);
 			float[] factor = animFlag.getTcbFactor(0, -.2f, .2f);
 			animFlag.calcNewTans(factor, nextValue, prevValue, entryTreeMap.get(time), animationLength);
 		}
 	}
 
-	public static <Q> AnimFlag<Q> createNewAnimFlag(Q defaultValue, String title){
-		if(defaultValue instanceof Integer){
+	public static <Q> AnimFlag<Q> createNewAnimFlag(Q defaultValue, String title) {
+		if (defaultValue instanceof Integer) {
 			return (AnimFlag<Q>) new IntAnimFlag(title);
-		} else if(defaultValue instanceof Bitmap){
+		} else if (defaultValue instanceof Bitmap) {
 			return (AnimFlag<Q>) new BitmapAnimFlag(title);
-		} else if(defaultValue instanceof Float){
+		} else if (defaultValue instanceof Float) {
 			return (AnimFlag<Q>) new FloatAnimFlag(title);
-		} else if(defaultValue instanceof Vec3){
+		} else if (defaultValue instanceof Vec3) {
 			return (AnimFlag<Q>) new Vec3AnimFlag(title);
-		} else if(defaultValue instanceof Quat){
+		} else if (defaultValue instanceof Quat) {
 			return (AnimFlag<Q>) new QuatAnimFlag(title);
 		}
-
 		return null;
 	}
 
-	public static <Q> float[] calculateTCB(AnimFlag<Q> animFlag, Sequence sequence, int time){
+	public static <Q> float[] calculateTCB(AnimFlag<Q> animFlag, Sequence sequence, int time) {
 		if (animFlag.hasSequence(sequence) && animFlag.tans()) {
 			TTan<Q> tTanDer = TTan.getNewTTan(animFlag, sequence);
 			TreeMap<Integer, Entry<Q>> entryMap = animFlag.getEntryMap(sequence);
@@ -249,16 +189,46 @@ public class AnimFlagUtils {
 		return null;
 	}
 	public static <Q> Q getScaledValue(Q value, float scale) {
-		if (value instanceof Integer) {
-			return (Q) Integer.valueOf((int)(((Integer)value)*scale));
+		if (value instanceof Integer v) {
+			return (Q) Integer.valueOf((int)(v * scale));
 		} else if (value instanceof Bitmap) {
 			return value;
-		} else if (value instanceof Float) {
-
-			return (Q) Float.valueOf(((Float)value)*scale);
-		} else if (value instanceof Vec3) {
-
-			return (Q) (((Vec3)value).scale(scale));
+		} else if (value instanceof Float v) {
+			return (Q) Float.valueOf(v * scale);
+		} else if (value instanceof Vec3 v) {
+			return (Q) new Vec3(v).scale(scale);
+		} else if (value instanceof Quat quat) {
+			Quat q = new Quat(quat);
+			q.setAsAxisWithAngle(q);
+			q.w = q.w * scale;
+			q.setFromAxisAngle(q);
+			return (Q) q;
+		}
+		return null;
+	}
+	public static <Q> Q getDiffValue(Q value, Q value2) {
+		if (value instanceof Integer v) {
+			return (Q) Integer.valueOf(v - (Integer) value2);
+		} else if (value instanceof Bitmap) {
+			return value;
+		} else if (value instanceof Float v) {
+			return (Q) Float.valueOf(v - (Float) value2);
+		} else if (value instanceof Vec3 v) {
+			return (Q) (new Vec3(v).sub((Vec3)value2));
+		} else if (value instanceof Quat quat) {
+			return (Q) new Quat(quat).mulInverse((Quat) value2);
+		}
+		return null;
+	}
+	public static <Q> Q scaleValue(Q value, float scale) {
+		if (value instanceof Integer v) {
+			return (Q) Integer.valueOf((int)(v*scale));
+		} else if (value instanceof Bitmap) {
+			return value;
+		} else if (value instanceof Float v) {
+			return (Q) Float.valueOf(v*scale);
+		} else if (value instanceof Vec3 v) {
+			return (Q) (v.scale(scale));
 		} else if (value instanceof Quat quat) {
 			quat.setAsAxisWithAngle(quat);
 			quat.w = quat.w * scale;
@@ -267,17 +237,15 @@ public class AnimFlagUtils {
 		}
 		return null;
 	}
-	public static <Q> Q getDiffValue(Q value, Q value2) {
-		if (value instanceof Integer) {
-			return (Q) Integer.valueOf(((Integer)value)-((Integer)value2));
+	public static <Q> Q diffValue(Q value, Q value2) {
+		if (value instanceof Integer v) {
+			return (Q) Integer.valueOf(v - (Integer) value2);
 		} else if (value instanceof Bitmap) {
 			return value;
-		} else if (value instanceof Float) {
-
-			return (Q) Float.valueOf(((Float)value)-(Float)value2);
-		} else if (value instanceof Vec3) {
-
-			return (Q) (((Vec3)value).sub((Vec3)value2));
+		} else if (value instanceof Float v) {
+			return (Q) Float.valueOf(v - (Float) value2);
+		} else if (value instanceof Vec3 v) {
+			return (Q) (v.sub((Vec3) value2));
 		} else if (value instanceof Quat quat) {
 			return (Q) quat.mulInverse((Quat) value2);
 		}
