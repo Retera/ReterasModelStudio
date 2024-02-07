@@ -82,7 +82,7 @@ public class TextureLoader {
 	}
 
 
-	public TextureHelper getTextureHelper(DataSource dataSource, Bitmap bitmap){
+	public TextureHelper getTextureHelper(DataSource dataSource, Bitmap bitmap) {
 		String lowerFilePath = bitmap.getRenderableTexturePath().toLowerCase(Locale.US);
 		TextureHelper textureHelper = cache.get(lowerFilePath);
 		if (textureHelper != null) {
@@ -98,48 +98,50 @@ public class TextureLoader {
 
 	private TextureHelper getNewTextureHelper(DataSource dataSource, Bitmap bitmap) throws IOException {
 		String filepath = bitmap.getRenderableTexturePath();
-		String ddsFilepath = filepath.replaceAll("(\\.blp$)|(\\.tif$)", ".dds");
-		String blpFilepath = filepath.replaceAll("(\\.dds$)|(\\.tif$)", ".blp");
-		String nameOnly = filepath.replaceAll(".*[/\\\\]", "");
-		String ddsNameOnly = ddsFilepath.replaceAll(".*[/\\\\]", "");
-		String blpNameOnly = blpFilepath.replaceAll(".*[/\\\\]", "");
+		if (!filepath.isBlank()) {
+			String ddsFilepath = filepath.replaceAll("(\\.blp$)|(\\.tif$)", ".dds");
+			String blpFilepath = filepath.replaceAll("(\\.dds$)|(\\.tif$)", ".blp");
+			String nameOnly = filepath.replaceAll(".*[/\\\\]", "");
+			String ddsNameOnly = ddsFilepath.replaceAll(".*[/\\\\]", "");
+			String blpNameOnly = blpFilepath.replaceAll(".*[/\\\\]", "");
 
-		String[] filePaths = new String[] {ddsFilepath, nameOnly, ddsNameOnly, blpNameOnly, filepath, blpFilepath};
-//		System.out.println("getNewTextureHelper for filepath: \"" + filepath + "\"");
+			String[] filePaths = new String[] {ddsFilepath, nameOnly, ddsNameOnly, blpNameOnly, filepath, blpFilepath};
+//			Debug.print("getNewTextureHelper for filepath: \"" + filepath + "\"");
 
-		for (String path : filePaths) {
-			if (dataSource.has(path)){
-				File file = dataSource.getFile(path);
-				BufferedImage resultImage = loadTextureFromFile(file);
-				if (resultImage != null) {
-//				System.out.println("found image with path: \"" + path + "\"");
-					TextureHelper textureHelper = new TextureHelper(file, resultImage, !dataSource.allowDownstreamCaching(filepath), bitmap);
-					cache.put(filepath.toLowerCase(Locale.US), textureHelper);
-					return textureHelper;
+			for (String path : filePaths) {
+				if (dataSource.has(path)) {
+					File file = dataSource.getFile(path);
+					BufferedImage resultImage = loadTextureFromFile(file);
+					if (resultImage != null) {
+//						Debug.print("found image with path: \"" + path + "\"");
+						TextureHelper textureHelper = new TextureHelper(file, resultImage, !dataSource.allowDownstreamCaching(filepath), bitmap);
+						cache.put(filepath.toLowerCase(Locale.US), textureHelper);
+						return textureHelper;
+					}
 				}
 			}
 		}
 
-		if(filepath.toLowerCase().matches("\\w:.+")){
+		if (filepath.toLowerCase().matches("\\w:.+")) {
 			File textureFile = getTextureFile(filepath);
-//			System.out.println("loading from disc: \"" + filepath + "\"");
+//			Debug.print("loading from disc: \"" + filepath + "\"");
 			BufferedImage bufferedImage = loadTextureFromFile(textureFile);
 			TextureHelper textureHelper = new TextureHelper(textureFile, bufferedImage, true, bitmap);
 			cache.put(filepath.toLowerCase(Locale.US), textureHelper);
 
 			return textureHelper;
-		} else if (filepath.toLowerCase().matches("(.+[\\\\/])*(.+_)?orm\\.\\w{3,4}")){
-//			System.out.println("could not find ORM: \"" + filepath + "\"");
+		} else if (filepath.toLowerCase().matches("(.+[\\\\/])*(.+_)?orm\\.\\w{3,4}")) {
+//			Debug.print("could not find ORM: \"" + filepath + "\"");
 
 			TextureHelper textureHelper = new TextureHelper(null, ormPlaceholder, false, bitmap);
 			cache.put(filepath.toLowerCase(Locale.US), textureHelper);
-		} else if (filepath.toLowerCase().matches("(.+[\\\\/])*(.+_)?normal\\.\\w{3,4}")){
-//			System.out.println("could not find Normal: \"" + filepath + "\"");
+		} else if (filepath.toLowerCase().matches("(.+[\\\\/])*(.+_)?normal\\.\\w{3,4}")) {
+//			Debug.print("could not find Normal: \"" + filepath + "\"");
 			BufferedImage bufferedImage = normalPlaceholder;
 			TextureHelper textureHelper = new TextureHelper(null, bufferedImage, false, bitmap);
 			cache.put(filepath.toLowerCase(Locale.US), textureHelper);
 		} else {
-//			System.out.println("could not find texture: \"" + filepath + "\"");
+//			Debug.print("could not find texture: \"" + filepath + "\"");
 			BufferedImage bufferedImage = checkerImage;
 			TextureHelper textureHelper = new TextureHelper(null, bufferedImage, false, bitmap);
 			cache.put(filepath.toLowerCase(Locale.US), textureHelper);
@@ -149,15 +151,15 @@ public class TextureLoader {
 
 	private File getTextureFile(String filepath) {
 		Path path = Paths.get(filepath);
-		System.out.println("systemPath! " + filepath + ", path: " + path + " (" + path.getFileName() + ")");
-		if(!path.getFileName().toString().equals("")){
+//		Debug.print("systemPath! " + filepath + ", path: " + path + " (" + path.getFileName() + ")");
+		if (!path.getFileName().toString().equals("")) {
 			return new File(filepath);
 		}
 		return null;
 	}
 
 	private BufferedImage loadTextureFromFile1(File file) throws IOException {
-		if(file != null && file.exists()){
+		if (file != null && file.exists()) {
 			try (final InputStream imageDataStream = Files.newInputStream(file.toPath(), StandardOpenOption.READ)) {
 				return ImageIO.read(imageDataStream);
 			}
@@ -184,7 +186,7 @@ public class TextureLoader {
 	private BufferedImage loadTextureFromFile(File file) throws IOException {
 		if (file != null && file.exists()) {
 			if (file.getPath().toLowerCase(Locale.US).endsWith(".tga")) {
-				try (InputStream inputStream = new FileInputStream(file)){
+				try (InputStream inputStream = new FileInputStream(file)) {
 					return new TwiTGAFile(inputStream).getAsBufferedImage();
 				}
 			} else if (file.getPath().toLowerCase(Locale.US).endsWith(".blp")) {

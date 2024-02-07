@@ -27,10 +27,10 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -128,7 +128,6 @@ public class EditTexturesPanel extends OverviewPanel {
 		return popupMenu;
 	}
 
-
 	private JPanel getPathFieldPanel() {
 		JPanel pathFieldPanel = new JPanel(new MigLayout("fill, ins 0", "[grow][][][][][][]"));
 		pathFieldPanel.add(pathField, "growx");
@@ -157,48 +156,6 @@ public class EditTexturesPanel extends OverviewPanel {
 		return pathFieldPanel;
 	}
 
-	JPopupMenu popupMenu;
-	private JPopupMenu getImageOptionsPopup() {
-//		JPopupMenu popupMenu = new JPopupMenu();
-		popupMenu = new JPopupMenu();
-		popupMenu.add(new JMenuItem("Export")).addActionListener(e -> exportTexture());
-		popupMenu.add(new JMenuItem("Replace")).addActionListener(e -> replaceTexture());
-		popupMenu.add(new JMenuItem("Remove")).addActionListener(e -> removeTexture());
-		popupMenu.add(new JMenuItem("Remove and Replace Uses")).addActionListener(e -> removeAndReplace());
-
-		popupMenu.addPopupMenuListener(new PopupMenuListener() {
-			@Override
-			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-				System.out.println("popupMenuWillBecomeVisible: " + e);
-				System.out.println("\tsource: " + e.getSource());
-				if (e.getSource() instanceof PopupMenu) {
-					System.out.println(((PopupMenu) e.getSource()).paramString());
-				}
-				if (e.getSource() instanceof JPopupMenu) {
-					JPopupMenu source = (JPopupMenu) e.getSource();
-//					System.out.println("popup location: " + source.getPopupLocation(e));
-					System.out.println("popup location: " + source.getLocation());
-					System.out.println("popup invoker: " + source.getInvoker());
-					System.out.println("popup prefSize: " + source.getPreferredSize());
-					System.out.println("X: " + source.getX() + " Y: " + source.getY() + " ");
-				}
-			}
-
-			@Override
-			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-				System.out.println("popupMenuWillBecomeInvisible: " + e);
-
-			}
-
-			@Override
-			public void popupMenuCanceled(PopupMenuEvent e) {
-				System.out.println("popupMenuCanceled: " + e);
-
-			}
-		});
-		return popupMenu;
-	}
-
 	private JPanel getTexturesListPanel() {
 		JPanel texturesListPanel = new JPanel(new MigLayout("fill, ins 0", "[grow]", "[][grow][]"));
 		texturesListPanel.setBorder(BorderFactory.createTitledBorder("Textures"));
@@ -214,7 +171,7 @@ public class EditTexturesPanel extends OverviewPanel {
 		});
 
 		bitmapJList.setCellRenderer(textureListRenderer);
-		bitmapJList.setComponentPopupMenu(getImageOptionsPopup());
+		bitmapJList.setComponentPopupMenu(texturePopupMenu);
 
 		bitmapJList.addSelectionListener1(this::onListSelection);
 		bitmapJList.addMouseListener(getMA());
@@ -232,13 +189,15 @@ public class EditTexturesPanel extends OverviewPanel {
 
 	private void onListSelection(Bitmap bitmap) {
 		selectedImage = bitmap;
-		System.out.println("selected bitmap: " + bitmap);
+		System.out.println("selected bitmap: \"" + bitmap + "\"");
 		if (bitmap != null) {
 			pathField.setText(bitmap.getPath());
 			replaceableIdSpinner.reloadNewValue(bitmap.getReplaceableId());
 			wrapHeightBox.setSelected(bitmap.isWrapHeight());
 			wrapWidthBox.setSelected(bitmap.isWrapWidth());
-			loadBitmap(bitmap);
+			if (!bitmap.getRenderableTexturePath().isBlank()) {
+				loadBitmap(bitmap);
+			}
 		} else {
 			replaceableIdSpinner.reloadNewValue(-1);
 			wrapHeightBox.setSelected(false);
@@ -246,45 +205,6 @@ public class EditTexturesPanel extends OverviewPanel {
 			pathField.setText("");
 		}
 	}
-
-	private KeyAdapter getKeyAdapter() {
-		return new KeyAdapter() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-				super.keyTyped(e);
-				eventInfo(e);
-			}
-
-			private void eventInfo(KeyEvent e) {
-				System.out.println("keyTyped: " + e);
-				System.out.println("MenuShortcut mask: " + Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
-				System.out.println("getModifiersEx: " + e.getModifiersEx());
-				System.out.println("getExtendedKeyCode: " + e.getExtendedKeyCode());
-				System.out.println("getKeyCode: " + e.getKeyCode());
-				System.out.println("getID: " + e.getID());
-				System.out.println("correct mask: " + (e.getModifiersEx() == Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				super.keyPressed(e);
-				eventInfo(e);
-//				System.out.println("keyPressed: " + e);
-//				System.out.println("MenuShortcut mask: " + Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
-//				System.out.println("correct mask: " + (e.getModifiersEx() == Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-				super.keyReleased(e);
-				eventInfo(e);
-//				System.out.println("keyReleased: " + e);
-//				System.out.println("MenuShortcut mask: " + Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
-//				System.out.println("correct mask: " + (e.getModifiersEx() == Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-			}
-		};
-	}
-
 
 	private MouseAdapter getMA() {
 		return new MouseAdapter() {
@@ -295,42 +215,6 @@ public class EditTexturesPanel extends OverviewPanel {
 				if (!bitmapJList.isSelectedIndex(clickedIndex)) {
 					bitmapJList.setSelectedIndex(clickedIndex);
 				}
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-				super.mousePressed(e);
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				super.mouseReleased(e);
-			}
-
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				super.mouseEntered(e);
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-				super.mouseExited(e);
-			}
-
-			@Override
-			public void mouseWheelMoved(MouseWheelEvent e) {
-				super.mouseWheelMoved(e);
-			}
-
-			@Override
-			public void mouseDragged(MouseEvent e) {
-				super.mouseDragged(e);
-			}
-
-			@Override
-			public void mouseMoved(MouseEvent e) {
-				super.mouseMoved(e);
 			}
 		};
 	}
