@@ -1,34 +1,42 @@
 package com.hiveworkshop.rms.editor.actions.mesh;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class MergeGeosetsAction implements UndoAction {
+	private final EditableModel model;
 	private final Geoset recGeoset;
 	private final Geoset donGeoset;
+	private final int orgNum;
 	private final Set<GeosetVertex> donVerts;
 	private final Set<Triangle> donTris;
-	private final ModelView modelView;
 	private final ModelStructureChangeListener changeListener;
+	private final String actionName;
 
-	public MergeGeosetsAction(Geoset recGeoset, Geoset donGeoset, ModelView modelView, ModelStructureChangeListener changeListener) {
-		this.modelView = modelView;
+	public MergeGeosetsAction(Geoset recGeoset, Geoset donGeoset, EditableModel model, ModelStructureChangeListener changeListener) {
+		this(recGeoset, donGeoset, model.getGeosetId(donGeoset), model, changeListener);
+	}
+	public MergeGeosetsAction(Geoset recGeoset, Geoset donGeoset, int addNum, EditableModel model, ModelStructureChangeListener changeListener) {
+		this.changeListener = changeListener;
+		this.model = model;
 		this.recGeoset = recGeoset;
 		this.donGeoset = donGeoset;
-		donVerts = new HashSet<>(donGeoset.getVertices());
-		donTris = new HashSet<>(donGeoset.getTriangles());
-		this.changeListener = changeListener;
+		this.orgNum = addNum;
+		donVerts = new LinkedHashSet<>(donGeoset.getVertices());
+		donTris = new LinkedHashSet<>(donGeoset.getTriangles());
+
+		actionName = "Merge Geoset #" + model.getGeosetId(donGeoset) + " into Geoset #" + model.getGeosetId(recGeoset);
 	}
 
 	@Override
-	public UndoAction undo() {
+	public MergeGeosetsAction undo() {
 		for (GeosetVertex vertex : donVerts) {
 			vertex.setGeoset(donGeoset);
 			recGeoset.remove(vertex);
@@ -39,7 +47,7 @@ public class MergeGeosetsAction implements UndoAction {
 		recGeoset.remove(donVerts);
 		recGeoset.removeTriangles(donTris);
 
-		modelView.getModel().add(donGeoset);
+		model.add(donGeoset, orgNum);
 
 		if (changeListener != null) {
 			changeListener.geosetsUpdated();
@@ -48,7 +56,7 @@ public class MergeGeosetsAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public MergeGeosetsAction redo() {
 		for (GeosetVertex vertex : donVerts) {
 			vertex.setGeoset(recGeoset);
 		}
@@ -58,7 +66,7 @@ public class MergeGeosetsAction implements UndoAction {
 		recGeoset.addVerticies(donVerts);
 		recGeoset.addTriangles(donTris);
 
-		modelView.getModel().remove(donGeoset);
+		model.remove(donGeoset);
 
 		if (changeListener != null) {
 			changeListener.geosetsUpdated();
@@ -68,6 +76,6 @@ public class MergeGeosetsAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "Merge Geosets";
+		return actionName;
 	}
 }

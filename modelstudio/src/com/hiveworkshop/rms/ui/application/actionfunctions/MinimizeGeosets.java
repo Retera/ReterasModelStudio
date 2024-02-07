@@ -14,9 +14,8 @@ import com.hiveworkshop.rms.ui.language.TextKey;
 import java.util.*;
 
 public class MinimizeGeosets extends ActionFunction {
-	public MinimizeGeosets(){
+	public MinimizeGeosets() {
 		super(TextKey.MINIMIZE_GEOSETS, MinimizeGeosets::minimizeGeoset);
-
 	}
 
 	public static void minimizeGeoset(ModelHandler modelHandler) {
@@ -29,8 +28,9 @@ public class MinimizeGeosets extends ActionFunction {
 		for (Geoset geoset : model.getGeosets()) {
 			for (Geoset retainedGeoset : geosetsToKeep) {
 				if (isGeosetsMergable(geoset, retainedGeoset)) {
+					int num = model.getGeosetId(geoset) - geosetsToMerge.size();
 					geosetsToMerge.add(geoset);
-					mergeActions.add(new MergeGeosetsAction(retainedGeoset, geoset, modelHandler.getModelView(), null));
+					mergeActions.add(new MergeGeosetsAction(retainedGeoset, geoset, num, modelHandler.getModel(), null));
 					break;
 				}
 			}
