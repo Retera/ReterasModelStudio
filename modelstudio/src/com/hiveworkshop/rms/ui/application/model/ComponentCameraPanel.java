@@ -205,7 +205,7 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 	}
 
 	private void removeCamera() {
-		undoManager.pushAction(new DeleteNodesAction(camera, changeListener, model).redo());
+		undoManager.pushAction(new DeleteNodesAction(camera, modelHandler.getModelView(), changeListener).redo());
 	}
 	private void simplifyKFs() {
 		List<AnimFlag<?>> animFlags = new ArrayList<>();

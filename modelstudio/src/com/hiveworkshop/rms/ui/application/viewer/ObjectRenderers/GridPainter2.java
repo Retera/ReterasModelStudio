@@ -199,7 +199,7 @@ public class GridPainter2 {
 
 
 		rayHeap.set(cameraHandler.getRayFromScreenSpace(-1, 1));
-		float intersectTL = planeHeapXY.getIntersect(rayHeap);
+		float intersectTL = planeHeapXY.getIntersectBad(rayHeap);
 		vec3Heap.set(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectTL);
 		if(vec3Heap.isValid()){
 			gridStart.minimize(vec3Heap);
@@ -207,7 +207,7 @@ public class GridPainter2 {
 		}
 
 		rayHeap.set(cameraHandler.getRayFromScreenSpace(1,1));
-		float intersectTR = planeHeapXY.getIntersect(rayHeap);
+		float intersectTR = planeHeapXY.getIntersectBad(rayHeap);
 		vec3Heap.set(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectTR);
 		if(vec3Heap.isValid()){
 			gridStart.minimize(vec3Heap);
@@ -215,7 +215,7 @@ public class GridPainter2 {
 		}
 
 		rayHeap.set(cameraHandler.getRayFromScreenSpace(-1,-1));
-		float intersectBL = planeHeapXY.getIntersect(rayHeap);
+		float intersectBL = planeHeapXY.getIntersectBad(rayHeap);
 		vec3Heap.set(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectBL);
 		if(vec3Heap.isValid()){
 			gridStart.minimize(vec3Heap);
@@ -223,7 +223,7 @@ public class GridPainter2 {
 		}
 
 		rayHeap.set(cameraHandler.getRayFromScreenSpace(1, -1));
-		float intersectBR = planeHeapXY.getIntersect(rayHeap);
+		float intersectBR = planeHeapXY.getIntersectBad(rayHeap);
 		vec3Heap.set(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectBR);
 		if(vec3Heap.isValid()){
 			gridStart.minimize(vec3Heap);

@@ -55,23 +55,25 @@ public class WindowHandler2 {
 	}
 
 	public WindowHandler2 setAnimationMode() {
-		boolean b = ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE;
+		SelectionItemTypes selectionItemType = ProgramGlobals.getSelectionItemType();
 		for (ModelingCreatorToolsView editingToolChooserView : editingToolChooserViews) {
-			editingToolChooserView.setAnimationModeState(b);
+			editingToolChooserView.setAnimationModeState(selectionItemType);
 		}
+
+		boolean b = selectionItemType == SelectionItemTypes.ANIMATE;
 		for (TimeSliderView timeSlider : timeSliders) {
 			timeSlider.setAnimationMode(b);
 		}
 		return this;
 	}
-	public WindowHandler2 reValidateKeyframes(){
-		for(TimeSliderView timeSlider : timeSliders){
+	public WindowHandler2 reValidateKeyframes() {
+		for (TimeSliderView timeSlider : timeSliders) {
 			timeSlider.getTimeSliderPanel().revalidateKeyframeDisplay();
 		}
 		return this;
 	}
-	public WindowHandler2 reloadAnimationList(){
-		for(ModelingCreatorToolsView editingToolChooserView : editingToolChooserViews){
+	public WindowHandler2 reloadAnimationList() {
+		for (ModelingCreatorToolsView editingToolChooserView : editingToolChooserViews) {
 			editingToolChooserView.reloadAnimationList();
 		}
 
@@ -131,8 +133,8 @@ public class WindowHandler2 {
 		return this;
 	}
 
-	private boolean isStillInUse(ModelDependentView view){
-		if(view.getWindowParent() == null){
+	private boolean isStillInUse(ModelDependentView view) {
+		if (view.getWindowParent() == null) {
 			view.close();
 			return false;
 		}
@@ -166,12 +168,12 @@ public class WindowHandler2 {
 
 
 	public WindowHandler2 showModelPanel(ModelPanel modelPanel) {
-		for(ModelViewManagingView modelViewManagingTree : modelViewManagingTrees){
+		for (ModelViewManagingView modelViewManagingTree : modelViewManagingTrees) {
 			modelViewManagingTree.setModelPanel(modelPanel);
 			modelViewManagingTree.repaint();
 		}
 
-		for(ModelComponentsView componentBrowserTreeView : componentBrowserTreeViews){
+		for (ModelComponentsView componentBrowserTreeView : componentBrowserTreeViews) {
 			componentBrowserTreeView.setModelPanel(modelPanel);
 		}
 		return this;
@@ -195,9 +197,9 @@ public class WindowHandler2 {
 		return getStartupTabWindow(dockingWindows);
 	}
 
-	private TabWindow getStartupTabWindow(DockingWindow... windows){
-		for(DockingWindow window : windows){
-			if(window instanceof ModelDependentView){
+	private TabWindow getStartupTabWindow(DockingWindow... windows) {
+		for (DockingWindow window : windows) {
+			if (window instanceof ModelDependentView) {
 				allViews.add((ModelDependentView) window);
 			}
 		}

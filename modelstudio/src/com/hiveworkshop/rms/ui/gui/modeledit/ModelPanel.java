@@ -162,6 +162,9 @@ public class ModelPanel {
 	}
 
 	public void setSelectionType(SelectionItemTypes selectionType) {
+		if (this.selectionType != selectionType && this.selectionType == SelectionItemTypes.ANIMATE){
+			modelHandler.getRenderModel().getTimeEnvironment().setLive(false);
+		}
 		this.selectionType = selectionType;
 		modelEditorManager.setSelectionItemType(selectionType);
 		uvModelEditorManager.setSelectionItemType(selectionType);

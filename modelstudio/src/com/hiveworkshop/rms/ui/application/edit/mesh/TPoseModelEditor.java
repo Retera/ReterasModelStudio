@@ -30,7 +30,7 @@ import java.util.Set;
 public class TPoseModelEditor extends ModelEditor {
 	private final RenderModel renderModel;
 	private final ModelStructureChangeListener changeListener;
-	boolean preserveAnimations = true;
+	private static boolean preserveAnimations = true;
 	boolean indvOrigins = false;
 
 	public TPoseModelEditor(SelectionManager selectionManager, ModelHandler modelHandler) {
@@ -185,5 +185,12 @@ public class TPoseModelEditor extends ModelEditor {
 	}
 	public StaticMeshShrinkFattenAction beginShrinkFatten(float amount, boolean scaleApart) {
 		return null;
+	}
+
+	public static boolean isPreserveAnimations() {
+		return preserveAnimations;
+	}
+	public static void setPreserveAnimations(boolean b) {
+		preserveAnimations = b;
 	}
 }

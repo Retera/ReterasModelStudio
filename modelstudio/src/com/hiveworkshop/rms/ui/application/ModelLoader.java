@@ -9,8 +9,6 @@ import com.hiveworkshop.rms.ui.application.actionfunctions.CloseModel;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
@@ -37,30 +35,6 @@ import java.util.function.Consumer;
 
 public class ModelLoader {
 	public static final ImageIcon MDLIcon = RMSIcons.MDLIcon;
-
-	public static void refreshAnimationModeState() {
-
-		if (ProgramGlobals.getCurrentModelPanel() != null) {
-			ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-			modelPanel.refreshFromEditor();
-		} else {
-			ProgramGlobals.setEditorActionTypeButton(ModelEditorActionType3.TRANSLATION);
-		}
-
-		if ((ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE)) {
-			if ((ProgramGlobals.getEditorActionType() == ModelEditorActionType3.EXTRUDE)
-					|| (ProgramGlobals.getEditorActionType() == ModelEditorActionType3.EXTEND)) {
-				ProgramGlobals.setEditorActionTypeButton(ModelEditorActionType3.TRANSLATION);
-			}
-		}
-
-		ProgramGlobals.getRootWindowUgg().getWindowHandler2().setAnimationMode();
-	}
-
-	public static ModelPanel newTempModelPanel(ImageIcon icon, EditableModel model) {
-		return new ModelPanel(new ModelHandler(model, icon));
-	}
-
 
 	public static EditableModel getImagePlaneModel(File file, int version) {
 		String fileName = file.getName();

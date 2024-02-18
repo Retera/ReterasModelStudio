@@ -17,10 +17,13 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.language.TextKey;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 public class Delete extends ActionFunction {
-	public Delete(){
+	public Delete() {
 		super(TextKey.DELETE, Delete::deleteActionRes, "DELETE");
 	}
 
@@ -29,28 +32,40 @@ public class Delete extends ActionFunction {
 			ProgramGlobals.getRootWindowUgg().getWindowHandler2().getTimeSliderView().getTimeSliderPanel().getKeyframeHandler().deleteSelectedKeyframes();
 		} else {
 			ModelView modelView = modelHandler.getModelView();
-			DeleteAction deleteAction = new DeleteAction(modelView.getSelectedVertices(), modelView, ProgramGlobals.getSelectionItemType() == SelectionItemTypes.FACE, ModelStructureChangeListener.changeListener);
-			DeleteNodesAction deleteNodesAction = new DeleteNodesAction(modelView.getSelectedIdObjects(), modelView.getSelectedCameras(), ModelStructureChangeListener.changeListener, modelView.getModel());
-			CompoundAction compoundAction = new CompoundAction("deleted components", Arrays.asList(deleteAction, deleteNodesAction));
-			modelHandler.getUndoManager().pushAction(compoundAction.redo());
+			List<UndoAction> undoActions = new ArrayList<>();
+			if (!modelView.getSelectedVertices().isEmpty()){
+				boolean onlyTriangles = ProgramGlobals.getSelectionItemType() == SelectionItemTypes.FACE;
+				DeleteAction deleteAction = new DeleteAction(modelView.getSelectedVertices(), modelView, onlyTriangles, null);
+				undoActions.add(deleteAction);
+			}
+			if (!modelView.getSelectedIdObjects().isEmpty() || !modelView.getSelectedCameras().isEmpty()){
+				DeleteNodesAction deleteNodesAction = new DeleteNodesAction(modelView.getSelectedIdObjects(), modelView.getSelectedCameras(), modelView, null);
+				undoActions.add(deleteNodesAction);
+			}
+			if (!undoActions.isEmpty()) {
+				String name = undoActions.size() == 1 ? undoActions.get(0).actionName() : "Delete Components";
+
+				CompoundAction compoundAction = new CompoundAction(name, undoActions, ModelStructureChangeListener.changeListener::geosetsUpdated);
+				modelHandler.getUndoManager().pushAction(compoundAction.redo());
+			}
 		}
 		ProgramGlobals.getMainPanel().repaintSelfAndChildren();
 	}
 
-	public static void deleteKeyframes(ModelHandler modelHandler, boolean useAllKFs, boolean visKFs){
+	public static void deleteKeyframes(ModelHandler modelHandler, boolean useAllKFs, boolean visKFs) {
 		TimeEnvironmentImpl timeEnvironment = modelHandler.getRenderModel().getTimeEnvironment();
 		int time = timeEnvironment.getEnvTrackTime();
 		Sequence sequence = timeEnvironment.getCurrentSequence();
 
 		Collection<TimelineContainer> objects = new HashSet<>();
-		if(useAllKFs){
+		if (useAllKFs) {
 			objects.addAll(modelHandler.getModelView().getEditableIdObjects());
 		} else {
 			objects.addAll(modelHandler.getModelView().getSelectedIdObjects());
 		}
-		if(useAllKFs && visKFs){
-			for(Geoset geoset: modelHandler.getModelView().getEditableGeosets()){
-				if(modelHandler.getModelView().isEditable(geoset) && !geoset.getAnimFlags().isEmpty()){
+		if (useAllKFs && visKFs) {
+			for (Geoset geoset: modelHandler.getModelView().getEditableGeosets()) {
+				if (modelHandler.getModelView().isEditable(geoset) && !geoset.getAnimFlags().isEmpty()) {
 					objects.add(geoset);
 				}
 			}
@@ -74,14 +89,14 @@ public class Delete extends ActionFunction {
 
 	public Collection<TimelineContainer> getSelectionToUse(ModelHandler modelHandler, boolean useAllKFs, boolean visKFs) {
 		Collection<TimelineContainer> collectionToUse = new HashSet<>();
-		if(useAllKFs){
+		if (useAllKFs) {
 			collectionToUse.addAll(modelHandler.getModelView().getEditableIdObjects());
 		} else {
 			collectionToUse.addAll(modelHandler.getModelView().getSelectedIdObjects());
 		}
-		if(useAllKFs && visKFs){
-			for(Geoset geoset: modelHandler.getModelView().getEditableGeosets()){
-				if(modelHandler.getModelView().isEditable(geoset) && !geoset.getAnimFlags().isEmpty()){
+		if (useAllKFs && visKFs) {
+			for (Geoset geoset: modelHandler.getModelView().getEditableGeosets()) {
+				if (modelHandler.getModelView().isEditable(geoset) && !geoset.getAnimFlags().isEmpty()) {
 					collectionToUse.add(geoset);
 				}
 			}

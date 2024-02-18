@@ -18,6 +18,7 @@ import com.hiveworkshop.rms.util.uiFactories.CheckBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,38 +27,40 @@ import java.util.List;
 import java.util.Set;
 
 public class AnimationExporter extends JPanel {
-	String modelName;
-	String folder;
-	boolean removeGeometry = true;
-	String extention = "mdx";
-	FileDialog fileDialog;
+	private final FileDialog fileDialog;
+	private String modelName;
+	private String folder;
+	private boolean removeGeometry = true;
+	private String extention = "mdx";
 
-	public AnimationExporter(EditableModel model){
-//		super(new MigLayout("ins 0, fill, wrap 2", "[sgx anim][sgx anim]", "[][grow][]"));
-		super(new MigLayout("ins 0, fill, wrap 2", "[][]", "[][grow][]"));
+	public AnimationExporter(EditableModel model) {
+		super(new MigLayout("ins 0, fill", "[][grow][]", "[][grow][]"));
 		fileDialog = new FileDialog(this);
 		EditableModel tempModel = TempOpenModelStuff.createEditableModel(TempSaveModelStuff.toMdlx(model));
 
-		add(CheckBox.create("Remove Geometry", true, b -> removeGeometry = b), "wrap");
+		add(CheckBox.create("Remove Geometry", true, b -> removeGeometry = b), "spanx, wrap");
 
 		SearchableList<Animation> animationsList = new SearchableList<>(AnimationExporter::filterAnims);
 		animationsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		animationsList.addAll(tempModel.getAnims());
 
-		JPanel animPanel = new JPanel(new MigLayout("ins 0"));
-		animPanel.add(new JLabel("Choose animation(s) to export from " + model.getName()), "spanx, wrap");
+		JPanel animPanel = new JPanel(new MigLayout("ins 0, fill"));
+		JLabel infoLabel = new JLabel("Choose animation(s) to export from " + model.getName());
+		infoLabel.setToolTipText("Animations will be exported as individual files!");
+		animPanel.add(infoLabel, "spanx, wrap");
 		animPanel.add(animationsList.getScrollableList(), "growx, wrap");
 		add(animPanel, "spanx, growx, growy, wrap");
 
 		String name = model.getFile() != null ? model.getFile().getName() : model.getName();
 		modelName = name.split("\\.\\w+$")[0];
 		TwiTextField fileField = new TwiTextField(modelName, 24, s -> modelName = s);
-//		folder = model.getWorkingDirectory() != null ? model.getWorkingDirectory().getPath() : fileDialog.getFileChooser().getCurrentDirectory().getPath();
 		folder = model.getWorkingDirectory() != null ? model.getWorkingDirectory().getPath() : FileDialog.getPath();
 		TwiTextField folderField = new TwiTextField(folder, 24, s -> folder = s);
 		JButton folderButton = Button.create("Choose", e -> folderField.setTextAndRun(fileDialog.chooseDir(FileDialog.OPEN_FILE).getPath()));
 
+		add(new JLabel("File prefix"), "");
 		add(fileField, "wrap");
+		add(new JLabel("Folder"), "");
 		add(folderField, "");
 		add(folderButton, "wrap");
 
@@ -65,13 +68,14 @@ public class AnimationExporter extends JPanel {
 		smartButtonGroup.addJRadioButton(".mdl", e -> extention = "mdl");
 		smartButtonGroup.addJRadioButton(".mdx", e -> extention = "mdx");
 		smartButtonGroup.setSelectedIndex(1);
-		add(smartButtonGroup, "wrap");
+		add(smartButtonGroup, "");
 
 
-		add(Button.create("Export", e -> exportAnimations(tempModel, animationsList.getSelectedValuesList(), removeGeometry, modelName, extention, folder)));
+		add(Button.create("Export", e -> exportAnimations(
+				tempModel, animationsList.getSelectedValuesList(), removeGeometry,
+				modelName, extention, folder, this)), "align center");
 
 	}
-
 
 
 	public static void showWindow() {
@@ -85,39 +89,29 @@ public class AnimationExporter extends JPanel {
 		parentFrame.setVisible(true);
 	}
 
-//	private static class AnimTransfer extends ActionFunction {
-//		AnimTransfer(){
-//			super(TextKey.IMPORT_ANIM, AnimationExporter::showWindow);
-//			setMenuItemMnemonic(KeyEvent.VK_I);
-//		}
-//	}
-//
-//	public static JMenuItem getMenuItem(){
-//		return new AnimTransfer().getMenuItem();
-//	}
-	private static boolean filterAnims(Animation animation, String text){
+	private static boolean filterAnims(Animation animation, String text) {
 		return animation.getName().toLowerCase().contains(text.toLowerCase());
 	}
 
 
-	public static JMenuItem getMenuItem2(){
+	public static JMenuItem getMenuItem2() {
 		JMenuItem menuItem = new JMenuItem("Export Animations");
-//		menuItem.addActionListener(e -> showWindow());
-		menuItem.addActionListener(e -> doStuff());
+		menuItem.addActionListener(e -> showWindow());
+//		menuItem.addActionListener(e -> doStuff());
 		return menuItem;
 	}
-	public static void doStuff(){
+	public static void doStuff() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if(modelPanel != null){
-			exportAnimations(modelPanel.getModel(), true, ProgramGlobals.getMainPanel());
+		if (modelPanel != null) {
+			exportAnimations_simple(modelPanel.getModel(), true, ProgramGlobals.getMainPanel());
 		}
 	}
 
-	private static void exportAnimations(EditableModel model, boolean removeGeometry, JComponent parent){
+	private static void exportAnimations_simple(EditableModel model, boolean removeGeometry, JComponent parent) {
 		FileDialog fileDialog = new FileDialog(parent);
 		String fileName;
 		String ext;
-		if(model.getFile() != null){
+		if (model.getFile() != null) {
 			String[] fileParts = model.getFile().getName().split(".(?=\\w+$)");
 			fileName = fileParts[0];
 			ext = fileDialog.getExtension(model.getFile());
@@ -127,77 +121,45 @@ public class AnimationExporter extends JPanel {
 		}
 //		String ext = fileParts[1];
 		File location = fileDialog.chooseDir(FileDialog.OPEN_FILE);
-		if(location != null){
-			exportAnimations(model, removeGeometry, fileName, ext, location);
+		if (location != null) {
+			EditableModel tempModel = TempOpenModelStuff.createEditableModel(TempSaveModelStuff.toMdlx(model));
+			List<Animation> anims = new ArrayList<>(tempModel.getAnims());
+			exportAnimations(tempModel, anims, removeGeometry, fileName, ext, location.getPath(), parent);
 		}
 	}
 
-	private static void exportAnimations(EditableModel model, boolean removeGeometry, String fileName, String ext, File location) {
-		EditableModel tempModel = TempOpenModelStuff.createEditableModel(TempSaveModelStuff.toMdlx(model));
-		if(removeGeometry){
-			tempModel.getGeosets().clear();
-		}
-		List<Animation> anims = new ArrayList<>(tempModel.getAnims());
-		int maxAnims = anims.size();
-		tempModel.getGlobalSeqs().clear();
-		Set<String> usedAnimNames = new HashSet<>();
-		for(Animation animation : anims){
-			tempModel.getAnims().clear();
-			String nameToUse = animation.getName();
-			for (int i = 1; i<maxAnims && usedAnimNames.contains(nameToUse); i++){
-				if(i<10){
-					nameToUse = animation.getName() + "0" + i;
-				} else {
-					nameToUse = animation.getName() + i;
-				}
-			}
-			usedAnimNames.add(nameToUse);
-			tempModel.add(animation);
-			try {
-				File file = new File(location, fileName + "_" + nameToUse + "." + ext);
-				if (ext.equals("mdl")) {
-					MdxUtils.saveMdl(model, file);
-				} else {
-					MdxUtils.saveMdx(model, file);
-				}
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
-	}
-
-
-	private void exportAnimations(EditableModel tempModel, List<Animation> anims, boolean removeGeometry, String fileName, String ext, String location) {
-		if(removeGeometry){
+	private static void exportAnimations(EditableModel tempModel, List<Animation> anims, boolean removeGeometry,
+	                                     String fileName, String ext, String location, Component parent) {
+		if (removeGeometry) {
 			tempModel.getGeosets().clear();
 		}
 		int exportedAnims = 0;
 		int maxAnims = anims.size();
 		tempModel.getGlobalSeqs().clear();
+		Set<String> usedAnimNames = new HashSet<>();
 		for (Animation animation : anims) {
 			tempModel.getAnims().clear();
-			String nameToUse = getNameToUse(maxAnims, animation.getName());
+			String nameToUse = getNameToUse(maxAnims, animation.getName(), usedAnimNames);
 			tempModel.add(animation);
+			File modelFile = new File(location, fileName + "_" + nameToUse + "." + ext);
 			try {
-				File file = new File(location, fileName + "_" + nameToUse + "." + ext);
 				if (ext.equals("mdl")) {
-					MdxUtils.saveMdl(tempModel, file);
+					MdxUtils.saveMdl(tempModel, modelFile);
 				} else {
-					MdxUtils.saveMdx(tempModel, file);
+					MdxUtils.saveMdx(tempModel, modelFile);
 				}
-				exportedAnims++;
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
+			exportedAnims++;
 		}
-		TwiPopup.quickDismissPopup(this, "Exported " + exportedAnims + " animations", "Exported Animations");
+		TwiPopup.quickDismissPopup(parent, "Exported " + exportedAnims + " animations", "Exported Animations");
 	}
 
-	Set<String> usedAnimNames = new HashSet<>();
-	private String getNameToUse(int maxAnims, String name) {
+	private static String getNameToUse(int maxAnims, String name, Set<String> usedAnimNames) {
 		String nameToUse = name;
-		for (int i = 1; i< maxAnims && usedAnimNames.contains(nameToUse); i++){
-			if(i<10){
+		for (int i = 1; i < maxAnims && usedAnimNames.contains(nameToUse); i++) {
+			if (i < 10) {
 				nameToUse = name + "0" + i;
 			} else {
 				nameToUse = name + i;

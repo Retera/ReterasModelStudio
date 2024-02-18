@@ -74,7 +74,7 @@ public class MakeModelSD extends ActionFunction {
 					undoActions.add(replaceHeroGlowEffect(model));
 				}
 			}
-			undoActions.add(new DeleteNodesAction(model.getPopcornEmitters(), null, model));
+			undoActions.add(new DeleteNodesAction(model.getPopcornEmitters(), modelHandler.getModelView(), null));
 
 			// 6.) fix dump bug with paths:
 			for (ParticleEmitter emitter : model.getParticleEmitters()) {
@@ -140,7 +140,7 @@ public class MakeModelSD extends ActionFunction {
 			}
 			if (!path.endsWith(".blp")) {
 				path += ".blp";
-			};
+			}
 			path = path.replace('/', '\\');
 
 			return new SetBitmapPathAction(tex, path, null);

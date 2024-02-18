@@ -19,11 +19,11 @@ import javax.swing.*;
 import java.util.*;
 
 public class RemoveUnusedBones extends ActionFunction {
-	public RemoveUnusedBones(){
+	public RemoveUnusedBones() {
 		super(TextKey.REMOVE_UNUSED_NODES, RemoveUnusedBones::doRemove);
 	}
 
-	public static void doRemove(ModelHandler modelHandler){
+	public static void doRemove(ModelHandler modelHandler) {
 
 		RemoveUnusedPanel removeUnusedPanel = new RemoveUnusedPanel();
 		int remove_unused_nodes = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), removeUnusedPanel, TextKey.REMOVE_UNUSED_NODES.toString(), JOptionPane.OK_CANCEL_OPTION);
@@ -47,7 +47,7 @@ public class RemoveUnusedBones extends ActionFunction {
 
 			if (!unusedObjects.isEmpty()) {
 				TwiPopup.quickDismissPopup(ProgramGlobals.getMainPanel(), unusedObjects.size() + " unused nodes removed", "Removed Unused Nodes");
-				modelHandler.getUndoManager().pushAction(new DeleteNodesAction(unusedObjects, ModelStructureChangeListener.changeListener, model).redo());
+				modelHandler.getUndoManager().pushAction(new DeleteNodesAction(unusedObjects, modelHandler.getModelView(), ModelStructureChangeListener.changeListener).redo());
 			} else {
 				TwiPopup.quickDismissPopup(ProgramGlobals.getMainPanel(), "Found no unused nodes", "No Nodes Removed");
 			}
@@ -121,7 +121,7 @@ public class RemoveUnusedBones extends ActionFunction {
 		return unusedObjects;
 	}
 
-	private static void collectChilds(IdObject idObject, Set<IdObject> childs){
+	private static void collectChilds(IdObject idObject, Set<IdObject> childs) {
 		childs.add(idObject);
 		for (IdObject child : idObject.getChildrenNodes()) {
 			collectChilds(child, childs);
@@ -162,8 +162,8 @@ public class RemoveUnusedBones extends ActionFunction {
 	private static boolean hasNoEmission(List<Sequence> allSequences, AnimFlag<?> flag) {
 		if (flag instanceof FloatAnimFlag && 0 < flag.size()) {
 			AnimFlag<Float> emissionFlag = (FloatAnimFlag) flag;
-			for (Sequence sequence : allSequences){
-				if(emissionFlag.getEntryMap(sequence) != null){
+			for (Sequence sequence : allSequences) {
+				if (emissionFlag.getEntryMap(sequence) != null) {
 					for (Entry<Float> entry : emissionFlag.getEntryMap(sequence).values()) {
 						if (entry.getValue() != null && entry.getValue() != 0
 								|| entry.getInTan() != null && entry.getInTan() != 0
@@ -177,30 +177,13 @@ public class RemoveUnusedBones extends ActionFunction {
 		return true;
 	}
 
-	private static List<IdObject> getSortedIdObjects(EditableModel model) {
-		List<IdObject> roots = new ArrayList<>();
-		for (IdObject object : model.getIdObjects()) {
-			if (object.getParent() == null) {
-				roots.add(object);
-			}
-		}
-		Queue<IdObject> bfsQueue = new LinkedList<>(roots);
-		List<IdObject> sortedIdObjects = new ArrayList<>();
-		while (!bfsQueue.isEmpty()) {
-			IdObject nextItem = bfsQueue.poll();
-			bfsQueue.addAll(nextItem.getChildrenNodes());
-			sortedIdObjects.add(nextItem);
-		}
-		return sortedIdObjects;
-	}
-
-	private static List<IdObject> getSortedNodes(List<IdObject> allIdObjects, boolean decending){
+	private static List<IdObject> getSortedNodes(List<IdObject> allIdObjects, boolean decending) {
 		TreeMap<Integer, Set<IdObject>> sortedNodeMap = new TreeMap<>();
 		Set<IdObject> roots = new LinkedHashSet<>();
 		sortedNodeMap.put(0, roots);
 
 		allIdObjects.stream().filter(idObject -> idObject.getParent() == null).forEach(roots::add);
-		for (IdObject node : roots){
+		for (IdObject node : roots) {
 			collectDepthSortedNodes(sortedNodeMap, node, 1);
 		}
 
@@ -221,7 +204,7 @@ public class RemoveUnusedBones extends ActionFunction {
 
 	private static void collectDepthSortedNodes(Map<Integer, Set<IdObject>> sortedObj, IdObject node, int depth) {
 		sortedObj.computeIfAbsent(depth, k -> new LinkedHashSet<>()).addAll(node.getChildrenNodes());
-		for (IdObject child : node.getChildrenNodes()){
+		for (IdObject child : node.getChildrenNodes()) {
 			collectDepthSortedNodes(sortedObj, child, depth+1);
 		}
 	}

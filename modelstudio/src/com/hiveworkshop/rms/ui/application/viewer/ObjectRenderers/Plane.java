@@ -18,7 +18,7 @@ public class Plane {
 
 	public Plane(Vec3 norm, Vec3 point) {
 		this.norm = norm;
-		this.dist = -point.dot(norm);
+		this.dist = point.dot(norm);
 	}
 
 	public Vec3 getNorm() {
@@ -43,7 +43,7 @@ public class Plane {
 
 	public Plane set(Vec3 norm, Vec3 point) {
 		this.norm.set(norm).normalize();
-		this.dist = -point.dot(norm);
+		this.dist = point.dot(norm);
 		return this;
 	}
 
@@ -65,33 +65,26 @@ public class Plane {
 		return this;
 	}
 	public Plane setPoint(Vec3 point) {
-		this.dist = -point.dot(norm);
+		this.dist = point.dot(norm);
 		return this;
 	}
 
-	public float getIntersect(Ray ray) {
-		float denominatorP = norm.dot(ray.getDir());
+	public float getIntersectBad(Ray ray) {
+		// I can't remember where this came from, but it seems to be wrong...
 		float numeratorP = norm.dot(ray.getPoint()) + dist;
+		float denominatorP = norm.dot(ray.getDir());
 		return -(numeratorP / denominatorP);
 	}
 
-	public float getIntersect3(Ray ray) {
-
-		float ugg1 = (getPoint().sub(ray.getPoint())).dot(norm);
-
-		float denominatorP = norm.dot(ray.getDir());
-		float numeratorP = norm.dot(ray.getPoint()) + dist;
-//		return -(numeratorP / denominatorP);
-		return ugg1/(ray.getDir().dot(norm));
+	public float getIntersect(Ray ray) {
+		float projection = getPoint().sub(ray.getPoint()).dot(norm);
+		float normProj = ray.getDir().dot(norm);
+		return projection / normProj;
 	}
 	public Vec3 getIntersectP(Ray ray) {
-
-		float ugg1 = (getPoint().sub(ray.getPoint())).dot(norm);
-
-		float rayDist = ugg1 / (ray.getDir().dot(norm));
+		float rayDist = getIntersect(ray);
 		return tempVec.set(ray.getPoint()).addScaled(ray.getDir(), rayDist);
 	}
-
 
 	private final Vec3 tempVec = new Vec3();
 	public boolean inFrontOf(Vec3 point){
@@ -110,7 +103,7 @@ public class Plane {
 	public boolean pointOnPlane(Vec3 v) {
 		tempVec.set(v).addScaled(norm, -dist);
 		float dot = tempVec.dot(norm);
-		return dot == 0;
+		return Math.abs(dot) < Float.MIN_VALUE*10f;
 	}
 
 	public Vec3 getPoint(){

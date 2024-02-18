@@ -20,10 +20,10 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public class SpliceGeosetPanel extends JPanel{
-	EditableModel donModel;
-	EditableModel recModel;
-	ModelHandler recModelHandler;
-	List<Geoset> chosenDonGeos = new ArrayList<>();
+	private final EditableModel donModel;
+	private final EditableModel recModel;
+	private final ModelHandler recModelHandler;
+	private final List<Geoset> chosenDonGeos = new ArrayList<>();
 	private final ModelIconHandler iconHandler = new ModelIconHandler();
 	private boolean tryMatchVisibility = false;
 
@@ -61,7 +61,7 @@ public class SpliceGeosetPanel extends JPanel{
 
 	private JScrollPane getGeosetTogglePanel(){
 		JPanel geosetPanel = new JPanel(new MigLayout("", "[grow]", "[]"));
-		for(Geoset geoset : donModel.getGeosets()){
+		for (Geoset geoset : donModel.getGeosets()){
 			geosetPanel.add(new JLabel(iconHandler.getImageIcon(geoset, donModel)));
 			JCheckBox checkBox = new JCheckBox(geoset.getName(), true);
 			chosenDonGeos.add(geoset);
@@ -72,7 +72,7 @@ public class SpliceGeosetPanel extends JPanel{
 	}
 
 	private void setImportGeoset(Geoset geoset, boolean doImport){
-		if(doImport){
+		if (doImport){
 			System.out.println("added Geoset: " + geoset.getName());
 			chosenDonGeos.add(geoset);
 		} else {
@@ -84,7 +84,7 @@ public class SpliceGeosetPanel extends JPanel{
 
 	protected JButton getButton(String text, Consumer<JButton> buttonConsumer, EditableModel model) {
 		JButton button = new JButton(text);
-		if(model != null){
+		if (model != null){
 			button.setIcon(iconHandler.getImageIcon(model));
 		}
 		button.addActionListener(e -> buttonConsumer.accept(button));
@@ -96,20 +96,20 @@ public class SpliceGeosetPanel extends JPanel{
 		List<UndoAction> undoActions = new ArrayList<>();
 		Set<GeosetVertex> addedVertexes = new HashSet<>();
 
-		if(tryMatchVisibility){
+		if (tryMatchVisibility){
 			matchVisibility(newGeosets);
 		}
 
-		for(IdObject idObject : chainMap.keySet()){
-			if(idObject instanceof Bone && chainMap.get(idObject) != null && !(chainMap.get(idObject) instanceof Bone)) {
+		for (IdObject idObject : chainMap.keySet()){
+			if (idObject instanceof Bone && chainMap.get(idObject) != null && !(chainMap.get(idObject) instanceof Bone)) {
 				Bone replacementBone = new Bone();
-				UndoAction replaceNodeAction = IdObjectTypeChanger.getReplaceNodeAction(chainMap.get(idObject), replacementBone, recModel, null);
+				UndoAction replaceNodeAction = IdObjectTypeChanger.getReplaceNodeAction(chainMap.get(idObject), replacementBone, recModelHandler.getModelView(), null);
 				undoActions.add(replaceNodeAction);
 				chainMap.put(idObject, replacementBone);
 			}
 		}
 
-		for(Geoset newGeoset : newGeosets){
+		for (Geoset newGeoset : newGeosets){
 			for (GeosetVertex vertex : newGeoset.getVertices()) {
 				vertex.replaceBones(chainMap);
 			}
@@ -128,7 +128,7 @@ public class SpliceGeosetPanel extends JPanel{
 	private void matchVisibility(List<Geoset> newGeosets){
 		Map<Animation, Animation> recToDonAnimMap = getRecToDonAnimMap();
 
-		for(Geoset geoset : newGeosets){
+		for (Geoset geoset : newGeosets){
 			copyGeosetAnims(recToDonAnimMap, geoset.getAnimFlags());
 		}
 		
@@ -141,9 +141,9 @@ public class SpliceGeosetPanel extends JPanel{
 	private void addMaterialAnimations(Map<Animation, Animation> recToDonAnimMap, Material material) {
 		for (Layer layer : material.getLayers()){
 			for (AnimFlag<?> animFlag : layer.getAnimFlags()){
-				for(Animation recAnim : donModel.getAnims()){
+				for (Animation recAnim : donModel.getAnims()){
 					Animation donAnim = recToDonAnimMap.get(recAnim);
-					if(donAnim != null && animFlag.hasSequence(donAnim)){
+					if (donAnim != null && animFlag.hasSequence(donAnim)){
 						AnimFlagUtils.copyFrom(animFlag, animFlag, donAnim, recAnim);
 					}
 				}
@@ -153,9 +153,9 @@ public class SpliceGeosetPanel extends JPanel{
 
 	private void copyGeosetAnims(Map<Animation, Animation> recToDonAnimMap, ArrayList<AnimFlag<?>> animFlags) {
 		for (AnimFlag<?> animFlag : animFlags){
-			for(Animation recAnim : recModel.getAnims()){
+			for (Animation recAnim : recModel.getAnims()){
 				Animation donAnim = recToDonAnimMap.get(recAnim);
-				if(donAnim != null && animFlag.hasSequence(donAnim)){
+				if (donAnim != null && animFlag.hasSequence(donAnim)){
 					AnimFlagUtils.copyFrom(animFlag, animFlag, donAnim, recAnim);
 				}
 			}
@@ -165,9 +165,9 @@ public class SpliceGeosetPanel extends JPanel{
 	private Map<Animation, Animation> getRecToDonAnimMap() {
 //		Map<Animation, Animation> donToRecAnimMap = new HashMap<>();
 		Map<Animation, Animation> recToDonAnimMap = new HashMap<>();
-		for(Animation recAnim : recModel.getAnims()){
+		for (Animation recAnim : recModel.getAnims()){
 			String recAnimName = recAnim.getName().toLowerCase();
-			for(Animation donAnim : donModel.getAnims()){
+			for (Animation donAnim : donModel.getAnims()){
 				String donAnimName = donAnim.getName().toLowerCase();
 				if (recAnimName.equals(donAnimName)){
 					System.out.println(donAnimName + " equals " + recAnimName);
@@ -180,18 +180,18 @@ public class SpliceGeosetPanel extends JPanel{
 //					System.out.println(dan2 + " == " + ran2 + " ?");
 					String[] donSplit = dan2.split(" +");
 					String[] recSplit = ran2.split(" +");
-					if(Arrays.equals(donSplit, recSplit)){
+					if (Arrays.equals(donSplit, recSplit)){
 						System.out.println("all equals: " + dan2 + " == " + ran2 + " !" + " (" + donAnimName + " -> " + recAnimName + ")");
 						recToDonAnimMap.put(recAnim, donAnim);
 					} else {
 						Animation curMatch = recToDonAnimMap.get(recAnim);
-						if(curMatch != null){
+						if (curMatch != null){
 							String[] curSplit = curMatch.getName().toLowerCase().replaceAll("[\\d-]", "").split(" +");
 							for (int i = 0; i<donSplit.length; i++){
-								if(recSplit.length<=i || !donSplit[i].equals(recSplit[i])){
+								if (recSplit.length<=i || !donSplit[i].equals(recSplit[i])){
 									break;
-								} else if(curSplit.length <=i || !donSplit[i].equals(curSplit[i])){
-									if(donSplit[i].equals(recSplit[i])){
+								} else if (curSplit.length <=i || !donSplit[i].equals(curSplit[i])){
+									if (donSplit[i].equals(recSplit[i])){
 										System.out.println("part #"+ i + ": " + donSplit[i] + " == " + recSplit[i] + " !" + " (" + donAnimName + " -> " + recAnimName + ")");
 										recToDonAnimMap.put(recAnim, donAnim);
 									}
@@ -205,7 +205,7 @@ public class SpliceGeosetPanel extends JPanel{
 					}
 				}
 			}
-			if(recToDonAnimMap.get(recAnim) == null){
+			if (recToDonAnimMap.get(recAnim) == null){
 				System.out.println("no match for: " + recAnimName + "!");
 			}
 		}

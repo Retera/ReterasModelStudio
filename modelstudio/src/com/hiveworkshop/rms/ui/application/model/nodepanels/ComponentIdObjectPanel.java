@@ -201,7 +201,7 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	}
 
 	private void removeNode() {
-		undoManager.pushAction(new DeleteNodesAction(idObject, changeListener, model).redo());
+		undoManager.pushAction(new DeleteNodesAction(idObject, modelHandler.getModelView(), changeListener).redo());
 	}
 	private void duplicateNode() {
 		undoManager.pushAction(new AddNodeAction(model, idObject.copy(), changeListener).redo());

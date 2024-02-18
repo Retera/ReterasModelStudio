@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff.TSpline;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
@@ -93,13 +94,13 @@ public class ManualTransformPanel extends JPanel {
 		return this;
 	}
 
-	public ManualTransformPanel setAnimationState(boolean isAnimating){
-		shrinkFattenPanel.setVisible(!isAnimating);
+	public ManualTransformPanel setAnimationState(SelectionItemTypes selectionItemTypes) {
+		shrinkFattenPanel.setVisible(selectionItemTypes != SelectionItemTypes.ANIMATE && selectionItemTypes != SelectionItemTypes.TPOSE);
 		return this;
 	}
 
-	void updateSelectionPanel(){
-		if(modelHandler != null){
+	void updateSelectionPanel() {
+		if (modelHandler != null) {
 			selectedVerts.setText("" + modelHandler.getModelView().getSelectedVertices().size());
 			selectedNodes.setText("" + modelHandler.getModelView().getSelectedIdObjects().size());
 			selectedCams.setText("" + modelHandler.getModelView().getSelectedCameraNodes().size());
@@ -218,8 +219,8 @@ public class ManualTransformPanel extends JPanel {
 		}
 	}
 
-	private Vec3 getCurrCenter(){
-		if(modelHandler == null){
+	private Vec3 getCurrCenter() {
+		if (modelHandler == null) {
 			return Vec3.ZERO;
 		} else {
 			return modelEditorManager.getSelectionView().getCenter();

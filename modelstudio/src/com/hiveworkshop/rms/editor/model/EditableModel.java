@@ -707,33 +707,82 @@ public class EditableModel implements Named {
 			nameToIdObjectMap = null;
 		}
 
+		private int getTypeNum(IdObject idObject, int pos){
+			if (pos == -1) return pos;
+
+			if (idObject instanceof Bone) return Math.min(pos, bones.size());
+
+			pos -= bones.size();
+			if (idObject instanceof Light) return Math.min(pos, lights.size());
+
+			pos -= lights.size();
+			if (idObject instanceof Helper) return Math.min(pos, helpers.size());
+
+			pos -= helpers.size();
+			if (idObject instanceof Attachment) return Math.min(pos, attachments.size());
+
+			pos -= attachments.size();
+			if (idObject instanceof ParticleEmitter) return Math.min(pos, particleEmitters.size());
+
+			pos -= particleEmitters.size();
+			if (idObject instanceof ParticleEmitter2) return Math.min(pos, particleEmitter2s.size());
+
+			pos -= particleEmitter2s.size();
+			if (idObject instanceof ParticleEmitterPopcorn) return Math.min(pos, popcornEmitters.size());
+
+			pos -= popcornEmitters.size();
+			if (idObject instanceof RibbonEmitter) return Math.min(pos, ribbonEmitters.size());
+
+			pos -= ribbonEmitters.size();
+			if (idObject instanceof EventObject) return Math.min(pos, events.size());
+
+			pos -= events.size();
+			if (idObject instanceof CollisionShape) return Math.min(pos, colliders.size());
+
+			return -1;
+		}
+		private int getTypeNum(IdObject idObject){
+			if (idObject instanceof Bone) return bones.indexOf(idObject);
+			if (idObject instanceof Light) return lights.indexOf(idObject);
+			if (idObject instanceof Helper) return helpers.indexOf(idObject);
+			if (idObject instanceof Attachment) return attachments.indexOf(idObject);
+			if (idObject instanceof ParticleEmitter) return particleEmitters.indexOf(idObject);
+			if (idObject instanceof ParticleEmitter2) return particleEmitter2s.indexOf(idObject);
+			if (idObject instanceof ParticleEmitterPopcorn) return popcornEmitters.indexOf(idObject);
+			if (idObject instanceof RibbonEmitter) return ribbonEmitters.indexOf(idObject);
+			if (idObject instanceof EventObject) return events.indexOf(idObject);
+			if (idObject instanceof CollisionShape) return colliders.indexOf(idObject);
+			return -1;
+		}
+
 		void addIdObject(IdObject idObject, int pos) {
-			if (pos == -1) {
+			int subPos = getTypeNum(idObject, pos);
+			if (pos == -1 || subPos < 0) {
 				addIdObject(idObject);
 			} else {
 				if (idObject instanceof Light) {
-					lights.add(Math.min(pos, lights.size()), (Light) idObject);
+					lights.add(Math.min(subPos, lights.size()), (Light) idObject);
 				} else if (idObject instanceof Helper) {
-					helpers.add(Math.min(pos, helpers.size()), (Helper) idObject);
+					helpers.add(Math.min(subPos, helpers.size()), (Helper) idObject);
 				} else if (idObject instanceof Bone) {
 //				System.out.println("adding Bone: " + idObject.getName());
-					bones.add(Math.min(pos, bones.size()), (Bone) idObject);
+					bones.add(Math.min(subPos, bones.size()), (Bone) idObject);
 				} else if (idObject instanceof Attachment) {
-					attachments.add(Math.min(pos, attachments.size()), (Attachment) idObject);
+					attachments.add(Math.min(subPos, attachments.size()), (Attachment) idObject);
 				} else if (idObject instanceof ParticleEmitter) {
-					particleEmitters.add(Math.min(pos, particleEmitters.size()), (ParticleEmitter) idObject);
+					particleEmitters.add(Math.min(subPos, particleEmitters.size()), (ParticleEmitter) idObject);
 				} else if (idObject instanceof ParticleEmitter2) {
-					particleEmitter2s.add(Math.min(pos, particleEmitter2s.size()), (ParticleEmitter2) idObject);
+					particleEmitter2s.add(Math.min(subPos, particleEmitter2s.size()), (ParticleEmitter2) idObject);
 				} else if (idObject instanceof ParticleEmitterPopcorn) {
-					popcornEmitters.add(Math.min(pos, popcornEmitters.size()), (ParticleEmitterPopcorn) idObject);
+					popcornEmitters.add(Math.min(subPos, popcornEmitters.size()), (ParticleEmitterPopcorn) idObject);
 				} else if (idObject instanceof RibbonEmitter) {
-					ribbonEmitters.add(Math.min(pos, ribbonEmitters.size()), (RibbonEmitter) idObject);
+					ribbonEmitters.add(Math.min(subPos, ribbonEmitters.size()), (RibbonEmitter) idObject);
 				} else if (idObject instanceof EventObject) {
-					events.add(Math.min(pos, events.size()), (EventObject) idObject);
+					events.add(Math.min(subPos, events.size()), (EventObject) idObject);
 				} else if (idObject instanceof CollisionShape) {
-					colliders.add(Math.min(pos, colliders.size()), (CollisionShape) idObject);
+					colliders.add(Math.min(subPos, colliders.size()), (CollisionShape) idObject);
 				}
-				allObjects.add(idObject);
+				allObjects.add(pos, idObject);
 				idToIdObjectMap = null;
 				idObjectToIdMap = null;
 				nameToIdObjectMap = null;

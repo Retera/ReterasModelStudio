@@ -178,8 +178,8 @@ public class TwiBlock_solv {
 		for(int i = 0; i<points.length; i++){
 			plane.set(ray.getDir(), points[i]);
 //			linePoints[i] = new Vec3(plane.getIntersectP(ray)).negate();
-			linePoints[i] = new Vec3(ray.getPoint()).addScaled(ray.getDir(), plane.getIntersect(ray)).intify();
-			float intersect = plane.getIntersect(ray);
+			linePoints[i] = new Vec3(ray.getPoint()).addScaled(ray.getDir(), plane.getIntersectBad(ray)).intify();
+			float intersect = plane.getIntersectBad(ray);
 //			System.out.println("\tloc color: " + plane.getPoint() + " p:" + points[i] + ", intersectF: " + intersect);
 			tempV.set(ray.getPoint()).addScaled(ray.getDir(), intersect);
 //			System.out.println("\tlinePoint: " + linePoints[i] + ", orgPoint: " + points[i] + ", alt: " + tempV);
@@ -192,7 +192,7 @@ public class TwiBlock_solv {
 		Vec3[] linePoints = new Vec3[points.length];
 		for(int i = 0; i<points.length; i++){
 			plane.set(ray.getDir(), points[i]);
-			linePoints[i] = new Vec3(ray.getPoint()).addScaled(ray.getDir(), plane.getIntersect(ray)).intify();
+			linePoints[i] = new Vec3(ray.getPoint()).addScaled(ray.getDir(), plane.getIntersectBad(ray)).intify();
 
 //			float intersect = plane.getIntersect(ray);
 //			tempV.set(ray.getPoint()).addScaled(ray.getDir(), intersect);

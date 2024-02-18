@@ -4,10 +4,10 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.CreateFace;
 import com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff.TSpline;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportPopupMenu;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.*;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 import com.hiveworkshop.rms.ui.util.ModeButton;
@@ -21,15 +21,9 @@ public class CreatorModelingPanel extends JPanel {
 	private ModelEditorManager modelEditorManager;
 	private ModelHandler modelHandler;
 
-	private JPopupMenu contextMenu;
-
 	public CreatorModelingPanel() {
 		setLayout(new MigLayout("ins 0, hidemode 2", "", "[grow][][]"));
 
-		JButton popupMenuButton = new JButton("show popup menu");
-		popupMenuButton.addActionListener(e -> showVPPopup(popupMenuButton));
-
-		add(popupMenuButton, "wrap");
 		add(getDrawToolsPanel(), "wrap, growx");
 		add(getStandardPrimitivesPanel(), "wrap, growx");
 	}
@@ -99,27 +93,17 @@ public class CreatorModelingPanel extends JPanel {
 		return animationBasicsPanel;
 	}
 
-	private void showVPPopup(JButton button) {
-		if (contextMenu != null) {
-			contextMenu.show(button, 0, 0);
-		}
-	}
-
-	public void setAnimationModeState(boolean animationModeState) {
-//		modeCardPanel.show(animationModeState ? "ANIM" : "MESH");
+	public void setAnimationModeState(SelectionItemTypes selectionItemTypes) {
+		setVisible(selectionItemTypes != SelectionItemTypes.ANIMATE && selectionItemTypes != SelectionItemTypes.TPOSE);
 	}
 
 	public void setModelPanel(ModelPanel modelPanel) {
 		if (modelPanel != null) {
 			this.modelHandler = modelPanel.getModelHandler();
 			this.modelEditorManager = modelPanel.getModelEditorManager();
-//			contextMenu = new ViewportPopupMenu(viewportListener.getViewport(), ProgramGlobals.getMainPanel(), modelPanel.getModelHandler(), modelPanel.getModelEditorManager());
-			contextMenu = new ViewportPopupMenu(null, ProgramGlobals.getMainPanel(), modelPanel.getModelHandler(), modelPanel.getModelEditorManager());
-
 		} else {
 			this.modelHandler = null;
 			this.modelEditorManager = null;
-			contextMenu = null;
 		}
 	}
 

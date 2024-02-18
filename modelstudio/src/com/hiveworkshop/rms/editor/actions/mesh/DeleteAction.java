@@ -8,10 +8,7 @@ import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -23,7 +20,7 @@ public class DeleteAction implements UndoAction {
 	private final Set<GeosetVertex> affectedVerts;
 	private final Set<GeosetVertex> selectedVerts;
 	private final Set<Triangle> affectedTris;
-	private Map<Geoset, Integer> emptyGeosets;
+	private Map<Integer, Geoset> numToEmptyGeo;
 	private final ModelView modelView;
 	private final ModelStructureChangeListener changeListener;
 	private final EditableModel model;
@@ -83,7 +80,7 @@ public class DeleteAction implements UndoAction {
 		}
 		checkForEmptyGeosets();
 
-		for (Geoset geoset : emptyGeosets.keySet()) {
+		for (Geoset geoset : numToEmptyGeo.values()) {
 			model.remove(geoset);
 		}
 		if (changeListener != null) {
@@ -103,22 +100,24 @@ public class DeleteAction implements UndoAction {
 				vertex.addTriangle(t);
 			}
 		}
-		for (Geoset geoset : emptyGeosets.keySet()) {
-			model.add(geoset, emptyGeosets.get(geoset));
+		for (Integer i : numToEmptyGeo.keySet()) {
+			model.add(numToEmptyGeo.get(i), i);
 		}
+
+		modelView.addSelectedVertices(selectedVerts);
+
 		if (changeListener != null) {
 			changeListener.geosetsUpdated();
 		}
 
-		modelView.addSelectedVertices(selectedVerts);
 		return this;
 	}
 
 	private void checkForEmptyGeosets() {
-		if (emptyGeosets == null) {
-			emptyGeosets = model.getGeosets().stream()
+		if (numToEmptyGeo == null) {
+			numToEmptyGeo = model.getGeosets().stream()
 					.filter(Geoset::isEmpty)
-					.collect(Collectors.toMap(geoset -> geoset, model::getGeosetId));
+					.collect(Collectors.toMap(model::getGeosetId, geoset -> geoset, (i1, i2) -> i1, TreeMap::new));
 		}
 	}
 

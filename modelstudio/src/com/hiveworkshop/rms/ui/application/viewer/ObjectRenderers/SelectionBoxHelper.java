@@ -8,10 +8,14 @@ public class SelectionBoxHelper {
 	private final ViewBox viewBox = new ViewBox();
 	private final Ray topRightRay = new Ray();
 	private final Ray botLeftRay  = new Ray();
+	private final Ray topLeftRay = new Ray();
+	private final Ray botRightRay  = new Ray();
 
 	private final Vec3 vecHeap = new Vec3();
 	private final Vec3 topRightPoint = new Vec3();
 	private final Vec3 botLeftPoint = new Vec3();
+	private final Vec3 topLeftPoint = new Vec3();
+	private final Vec3 botRightPoint = new Vec3();
 
 	private final Ray tempRay = new Ray();
 	private final Plane tempPlane = new Plane();
@@ -21,24 +25,41 @@ public class SelectionBoxHelper {
 	private final Vec3 v1 = new Vec3();
 	private final Vec3 v2 = new Vec3();
 
-	public SelectionBoxHelper setFrom(Vec2 topRight, Vec2 bottomLeft, Vec3 camRight, Vec3 camUp, Plane viewPlane, Mat4 invViewProjectionMat){
-		topRightRay.setNearFar(topRight, invViewProjectionMat);
-		topRightPoint.set(topRightRay.getPoint()).addScaled(topRightRay.getDir(), viewPlane.getIntersect3(topRightRay)).negate();
+	private final Vec2 temp = new Vec2();
 
-		vecHeap.set(topRightRay.getDir()).cross(camRight);
+	public SelectionBoxHelper setFrom(Vec2 topRight, Vec2 bottomLeft, Vec3 camRight, Vec3 camUp, Plane viewPlane, Mat4 invViewProjectionMat){
+		if (topRight.x == bottomLeft.x) {
+			topRight.x +=.00001f;
+			bottomLeft.x -=.00001f;
+		}
+		if (topRight.y == bottomLeft.y) {
+			topRight.y +=.00001f;
+			bottomLeft.y -=.00001f;
+		}
+
+		topRightRay.setNearFar(topRight, invViewProjectionMat);
+		botLeftRay.setNearFar(bottomLeft, invViewProjectionMat);
+		topLeftRay.setNearFar(temp.set(bottomLeft.x, topRight.y), invViewProjectionMat);
+		botRightRay.setNearFar(temp.set(topRight.x, bottomLeft.y), invViewProjectionMat);
+
+
+		topRightPoint.set(viewPlane.getIntersectP(topRightRay));
+		botLeftPoint.set(viewPlane.getIntersectP(botLeftRay));
+		topLeftPoint.set(viewPlane.getIntersectP(topLeftRay));
+		botRightPoint.set(viewPlane.getIntersectP(botRightRay));
+
+		vecHeap.set(topRightRay.getPoint()).addScaled(topRightRay.getDir(), 50).setAsPlaneNorm(vecHeap, topRightPoint, topLeftPoint).normalize();
 		viewBox.setTop(topRightPoint, vecHeap);
 
-		vecHeap.set(topRightRay.getDir()).cross(camUp).negate();
+		vecHeap.set(topRightRay.getPoint()).addScaled(topRightRay.getDir(), 50).setAsPlaneNorm(vecHeap, botRightPoint, topRightPoint).normalize();
 		viewBox.setRight(topRightPoint, vecHeap);
 
-		botLeftRay.setNearFar(bottomLeft, invViewProjectionMat);
-		botLeftPoint.set(botLeftRay.getPoint()).addScaled(botLeftRay.getDir(), viewPlane.getIntersect3(botLeftRay)).negate();
-
-		vecHeap.set(botLeftRay.getDir()).cross(camRight).negate();
+		vecHeap.set(botLeftRay.getPoint()).addScaled(botLeftRay.getDir(), 50).setAsPlaneNorm(vecHeap, botLeftPoint, botRightPoint).normalize();
 		viewBox.setBot(botLeftPoint, vecHeap);
 
-		vecHeap.set(botLeftRay.getDir()).cross(camUp);
+		vecHeap.set(botLeftRay.getPoint()).addScaled(botLeftRay.getDir(), 50).setAsPlaneNorm(vecHeap, topLeftPoint, botLeftPoint).normalize();
 		viewBox.setLeft(botLeftPoint, vecHeap);
+
 		return this;
 	}
 
@@ -88,15 +109,15 @@ public class SelectionBoxHelper {
 		tempRay.setFromPoints(v0, v1);
 		vecHeap.set(tempRay.getPoint()).addScaled(tempRay.getDir(), length);
 
-		float bottomI = viewBox.bottom.getIntersect3(tempRay);
-		float topI = viewBox.top.getIntersect3(tempRay);
-		float rightI = viewBox.right.getIntersect3(tempRay);
-		float leftI = viewBox.left.getIntersect3(tempRay);
+		float bottomI = viewBox.bottom.getIntersect(tempRay);
+		float topI    = viewBox.top.getIntersect(tempRay);
+		float rightI  = viewBox.right.getIntersect(tempRay);
+		float leftI   = viewBox.left.getIntersect(tempRay);
 
 
 		if(Float.isFinite(topI) && Float.isFinite(bottomI)
-				&& 0 <= topI && topI<length
-				&& 0 <= bottomI && bottomI<length){
+				&& 0 <= topI && topI < length
+				&& 0 <= bottomI && bottomI < length){
 			vecHeap.set(tempRay.getPoint()).addScaled(tempRay.getDir(), (topI + bottomI)/2f);
 
 			if(pointInBox(vecHeap)){
@@ -111,52 +132,6 @@ public class SelectionBoxHelper {
 		}
 
 		return false;
-	}
-
-	private boolean testLine1(Vec3 v0, Vec3 v1){
-		float length = v0.distance(v1);
-		tempRay.setFromPoints(v0, v1);
-//		vecHeap.set(v1).sub(tempRay.getPoint());
-		vecHeap.set(tempRay.getPoint()).addScaled(tempRay.getDir(), length);
-//		System.out.println( "l: " + length + ", vecs: " + v1 + " vs " + vecHeap);
-
-
-		float bottomI = viewBox.bottom.getIntersect3(tempRay);
-		float topI = viewBox.top.getIntersect3(tempRay);
-		float rightI = viewBox.right.getIntersect3(tempRay);
-		float leftI = viewBox.left.getIntersect3(tempRay);
-
-//		System.out.println(
-//				"botI: " + bottomI +
-//						"\ntopI: " + topI +
-//						"\nrightI: " + rightI +
-//						"\nleftI:  " + leftI
-//		);
-
-		boolean b = false;
-
-		if(Float.isFinite(topI) && Float.isFinite(bottomI)
-				&& 0 <= topI && topI<length
-				&& 0 <= bottomI && bottomI<length){
-			vecHeap.set(tempRay.getPoint()).addScaled(tempRay.getDir(), (topI + bottomI)/2f);
-//			System.out.println("topBot vec: " + vecHeap);
-			b = pointInBox(vecHeap);
-//			if(pointInBox(vecHeap)){
-//				return true;
-//			}
-		}
-		if(Float.isFinite(rightI) && Float.isFinite(leftI)
-				&& 0 <= rightI && rightI<length
-				&& 0 <= leftI && leftI<length){
-			vecHeap.set(tempRay.getPoint()).addScaled(tempRay.getDir(), (rightI + leftI)/2f);
-//			System.out.println("leftRight vec: " + vecHeap);
-			b = b || pointInBox(vecHeap);
-//			if(pointInBox(vecHeap)){
-//				return true;
-//			}
-		}
-
-		return b;
 	}
 
 	private boolean pointInTri(Vec3 A, Vec3 B, Vec3 C, Vec3 P){
