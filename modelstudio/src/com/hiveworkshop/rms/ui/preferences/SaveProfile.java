@@ -46,11 +46,12 @@ public class SaveProfile implements Serializable {
 	public static SaveProfile get() {
 		if (currentProfile == null) {
 			File profileFile = getProfileFile();
-			if(profileFile != null){
+			if (profileFile != null) {
+				System.out.println("loading saveProfile from: \"" + profileFile.getPath() + "\"");
 				try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(profileFile))) {
 					Object loadedObject = ois.readObject();
 					ois.close();
-					if(loadedObject instanceof SaveProfile){
+					if (loadedObject instanceof SaveProfile) {
 						currentProfile = (SaveProfile) loadedObject;
 						currentProfile.getPreferences().setNullToDefaults();
 					} else {
@@ -75,20 +76,16 @@ public class SaveProfile implements Serializable {
 		return currentProfile;
 	}
 
+	private static final String[] savePaths = {"user.profileNew2", "user.profileNew", "user.profile"};
 	private static File getProfileFile() {
 		String profileDirPath = getProfileDirPath();
-		File profileFile = getProfileFile(profileDirPath, "user.profileNew2");
-		if (!profileFile.exists()) {
-			profileFile = getProfileFile(profileDirPath, "user.profileNew");
+		for (String savePath : savePaths) {
+			File profileFile = getProfileFile(profileDirPath, savePath);
+			if (profileFile.exists()) {
+				return profileFile;
+			}
 		}
-		if (!profileFile.exists()) {
-			profileFile = getProfileFile(profileDirPath, "user.profile");
-		}
-		if (profileFile.exists()){
-			return profileFile;
-		} else {
-			return null;
-		}
+		return null;
 	}
 
 	private static void tryToLoadOldPrefs(File profileFile) {
@@ -96,8 +93,7 @@ public class SaveProfile implements Serializable {
 		if (0 < inputBytes.length) {
 			try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(inputBytes))) {
 				Object loadedObject = ois.readObject();
-				if(loadedObject instanceof SaveProfil2) {
-					SaveProfil2 oldSaveProf = (SaveProfil2) loadedObject;
+				if (loadedObject instanceof SaveProfil2 oldSaveProf) {
 
 					SaveProfile saveProfile = new SaveProfile();
 					saveProfile.setPreferences(oldSaveProf.getPreferences().getAsNewPrefs());
@@ -125,8 +121,7 @@ public class SaveProfile implements Serializable {
 			String profileDirPath = getProfileDirPath();
 			final File profileDir = new File(profileDirPath);
 			profileDir.mkdirs();
-			File profileFile = getProfileFile(profileDirPath, "user.profileNew2");
-//			File profileFile = getProfileFile(profileDirPath, "user.profileNew");
+			File profileFile = getProfileFile(profileDirPath, savePaths[0]);
 			System.out.println(profileFile.getPath());
 
 			try {
@@ -180,34 +175,36 @@ public class SaveProfile implements Serializable {
 		save();
 	}
 
+	public void addRecentSetPath(File file) {
+		lastDirectory = file.getParent();
+		getRecent().remove(file.getPath());
+		getRecent().add(file.getPath());
+		if (recent.size() > 15) {
+			recent.remove(0);
+		}
+		save();
+	}
+
 	private void reload() {
 		dataSourceChangeNotifier = new WarcraftDataSourceChangeListener();
 		isHD = computeIsHd(dataSources);
 	}
 
 	private boolean computeIsHd(final Iterable<DataSourceDescriptor> dataSources) {
-		boolean hd = false;
 		for (final DataSourceDescriptor desc : dataSources) {
-			if (desc instanceof FolderDataSourceDescriptor) {
-				if (((FolderDataSourceDescriptor) desc).getFolderPath().contains("_hd.w3mod")) {
-					hd = true;
+			if (desc instanceof FolderDataSourceDescriptor fDesc && fDesc.getFolderPath().contains("_hd.w3mod")
+					|| desc instanceof MpqDataSourceDescriptor mDesc && mDesc.getMpqFilePath().contains("_hd")
+					|| desc instanceof CompoundDataSourceDescriptor compDesc && computeIsHd(compDesc.getDataSourceDescriptors())) {
+				return true;
+			} else if (desc instanceof CascDataSourceDescriptor cDesc) {
+				for (final String prefix : cDesc.getPrefixes()) {
+					if (prefix.contains("_hd.w3mod")) {
+						return true;
+					}
 				}
-			} else if (desc instanceof CascDataSourceDescriptor) {
-				for (final String prefix : ((CascDataSourceDescriptor) desc).getPrefixes()) {
-                    if (prefix.contains("_hd.w3mod")) {
-                        hd = true;
-                        break;
-                    }
-				}
-			} else if (desc instanceof MpqDataSourceDescriptor) {
-				if (((MpqDataSourceDescriptor) desc).getMpqFilePath().contains("_hd")) {
-					hd = true;
-				}
-			} else if (desc instanceof CompoundDataSourceDescriptor) {
-				hd |= computeIsHd(((CompoundDataSourceDescriptor) desc).getDataSourceDescriptors());
 			}
 		}
-		return hd;
+		return false;
 	}
 
 	private static String getProfileDirPath() {
@@ -242,17 +239,20 @@ public class SaveProfile implements Serializable {
 		}
 	}
 
-	public void addFavorite(final File fp) {
-//		getFavorites().remove(fp);
-		getFavorites().add(fp);
-		save();
+	public boolean addFavorite(final File fp) {
+		if (getFavorites().add(fp)) {
+			save();
+			return true;
+		}
+		return false;
 	}
 
-	public void removeFromFavorite(final File fp) {
-		if (getFavorites().contains(fp)) {
-			getFavorites().remove(fp);
+	public boolean removeFromFavorite(final File fp) {
+		if (getFavorites().remove(fp)) {
 			save();
+			return true;
 		}
+		return false;
 	}
 
 	public boolean isHd() {

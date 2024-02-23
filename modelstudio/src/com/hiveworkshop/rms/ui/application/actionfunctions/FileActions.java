@@ -20,20 +20,20 @@ public class FileActions {
 	private static final FileDialog fileDialog = new FileDialog();
 
 	public static class Save extends ActionFunction{
-		public Save(){
+		public Save() {
 			super(TextKey.SAVE, () -> onClickSave(ProgramGlobals.getCurrentModelPanel()), "control S");
 		}
 	}
 
 	public static class Open extends ActionFunction{
-		public Open(){
+		public Open() {
 			super(TextKey.OPEN, () -> onClickOpen(FileDialog.OPEN_FILE), "control O");
 		}
 	}
 
 
 	public static class SaveAs extends ActionFunction{
-		public SaveAs(){
+		public SaveAs() {
 			super(TextKey.SAVE_AS, () -> onClickSaveAs(ProgramGlobals.getCurrentModelPanel(), FileDialog.SAVE), "control Q");
 		}
 	}
@@ -48,9 +48,7 @@ public class FileActions {
 	}
 	public static void openFile(final File file) {
 		if (file != null) {
-			SaveProfile.get().setPath(file.getParent());
-
-			SaveProfile.get().addRecent(file.getPath());
+			SaveProfile.get().addRecentSetPath(file);
 			ProgramGlobals.getMenuBar().updateRecent();
 			ModelLoader.loadFile(file);
 		}
@@ -65,9 +63,7 @@ public class FileActions {
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
-			SaveProfile.get().setPath(file.getParent());
-
-			SaveProfile.get().addRecent(file.getPath());
+			SaveProfile.get().addRecentSetPath(file);
 			ProgramGlobals.getMenuBar().updateRecent();
 		}
 		return null;
@@ -76,8 +72,7 @@ public class FileActions {
 		File file = fileDialog.openFile(operationType);
 
 		if (file != null) {
-			SaveProfile.get().setPath(file.getParent());
-			SaveProfile.get().addRecent(file.getPath());
+			SaveProfile.get().addRecentSetPath(file);
 			ProgramGlobals.getMenuBar().updateRecent();
 			return file;
 		}
@@ -87,8 +82,7 @@ public class FileActions {
 		File file = fileDialog.setParent(parent).openFile(operationType);
 
 		if (file != null) {
-			SaveProfile.get().setPath(file.getParent());
-			SaveProfile.get().addRecent(file.getPath());
+			SaveProfile.get().addRecentSetPath(file);
 			ProgramGlobals.getMenuBar().updateRecent();
 			return file;
 		}
