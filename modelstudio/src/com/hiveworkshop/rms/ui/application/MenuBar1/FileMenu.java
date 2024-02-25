@@ -36,11 +36,11 @@ public class FileMenu extends JMenu {
 
 		fetch.add(new JSeparator());
 
-		JCheckBoxMenuItem fetchPortraitsToo = new JCheckBoxMenuItem("Fetch portraits, too!", true);
+		JCheckBoxMenuItem fetchPortraitsToo = new JCheckBoxMenuItem("Fetch portraits, too!", ProgramGlobals.getPrefs().isLoadPortraits());
 		fetchPortraitsToo.setMnemonic(KeyEvent.VK_P);
 		fetchPortraitsToo.addActionListener(e -> ProgramGlobals.getPrefs().setLoadPortraits(fetchPortraitsToo.isSelected()));
+		fetchPortraitsToo.putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
 		fetch.add(fetchPortraitsToo);
-		fetchPortraitsToo.setSelected(ProgramGlobals.getPrefs().isLoadPortraits());
 
 		add(new JSeparator());
 
@@ -58,10 +58,14 @@ public class FileMenu extends JMenu {
 		add(new FileActions.Save().setMenuItemMnemonic(KeyEvent.VK_S).getMenuItem());
 		add(new FileActions.SaveAs().setMenuItemMnemonic(KeyEvent.VK_A).getMenuItem());
 
+		JCheckBoxMenuItem optimizeOnSave = new JCheckBoxMenuItem("Optimize on Save", ProgramGlobals.getPrefs().isOptimizeOnSave());
+		optimizeOnSave.addActionListener(e -> ProgramGlobals.getPrefs().setOptimizeOnSave(optimizeOnSave.isSelected()));
+		optimizeOnSave.setToolTipText("Remove unused Textures, Materials, GlobalSeq, EventObjects, and TextureAnims when Saving");
+		optimizeOnSave.putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
+		add(optimizeOnSave);
+
 		add(new JSeparator());
 
-//		add(createMenuItem("Export Material as Texture", KeyEvent.VK_E, e -> ExportTexture.exportMaterialAsTextures()));
-//		add(createMenuItem("Export Texture", KeyEvent.VK_E, e -> ExportTexture.exportTextures()));
 		add(new ExportTexture().setMenuItemMnemonic(KeyEvent.VK_E).getMenuItem());
 
 		add(new JSeparator());
@@ -71,7 +75,7 @@ public class FileMenu extends JMenu {
 
 		add(new JSeparator());
 
-		add(createMenuItem("Exit", KeyEvent.VK_E, e -> closeProgram()));
+		add(createMenuItem("Exit", KeyEvent.VK_E, e -> MainFrame.close()));
 	}
 
 	public RecentMenu getRecentMenu() {

@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.filesystem.sources;
 
 import java.nio.file.Paths;
+import java.util.Objects;
 
 public class FolderDataSourceDescriptor implements DataSourceDescriptor {
 	/**
@@ -14,7 +15,7 @@ public class FolderDataSourceDescriptor implements DataSourceDescriptor {
 	}
 
 	@Override
-	public DataSource createDataSource() {
+	public FolderDataSource createDataSource() {
 		return new FolderDataSource(Paths.get(folderPath));
 	}
 
@@ -36,18 +37,10 @@ public class FolderDataSourceDescriptor implements DataSourceDescriptor {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
-			return false;
+		if (obj instanceof final FolderDataSourceDescriptor other) {
+			return Objects.equals(folderPath, other.folderPath);
 		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final FolderDataSourceDescriptor other = (FolderDataSourceDescriptor) obj;
-		if (folderPath == null) {
-			return other.folderPath == null;
-		} else {
-			return folderPath.equals(other.folderPath);
-		}
+		return false;
 	}
 
 	public String getFolderPath() {
@@ -58,7 +51,7 @@ public class FolderDataSourceDescriptor implements DataSourceDescriptor {
 	}
 
 	@Override
-	public DataSourceDescriptor duplicate() {
+	public FolderDataSourceDescriptor duplicate() {
 		return new FolderDataSourceDescriptor(folderPath);
 	}
 }

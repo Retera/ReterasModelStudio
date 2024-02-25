@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.ui.preferences;
 import com.hiveworkshop.rms.filesystem.sources.*;
 import com.hiveworkshop.rms.ui.preferences.listeners.WarcraftDataSourceChangeListener;
 
-import javax.swing.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -99,7 +98,7 @@ public class SaveProfile implements Serializable {
 					saveProfile.setPreferences(oldSaveProf.getPreferences().getAsNewPrefs());
 					saveProfile.setDataSources(oldSaveProf.getDataSources());
 					saveProfile.setPath(oldSaveProf.getPath());
-					for (String s : saveProfile.getRecent()) {
+					for (String s : oldSaveProf.getRecent()) {
 						saveProfile.addRecent(s);
 					}
 
@@ -308,16 +307,4 @@ public class SaveProfile implements Serializable {
 		return bytes;
 	}
 
-	public static boolean testTargetFolderReadOnly(final String wcDirectory) {
-		final File temp = new File(wcDirectory + "war3.mpq");
-		final File datat = new File(wcDirectory + "/Data");
-		if (!temp.exists() && !datat.exists()) {
-			JOptionPane.showMessageDialog(null,
-					"Could not find war3.mpq. Please choose a valid Warcraft III installation.",
-					"WARNING: Needs WC3 Installation", JOptionPane.WARNING_MESSAGE);
-			// requestNewWc3Directory();
-			return false;
-		}
-		return true;
-	}
 }

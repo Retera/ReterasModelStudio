@@ -84,51 +84,12 @@ public class WindowHandler2 {
 		return allViews;
 	}
 
-//	public ViewportListener getViewportListener() {
-//		return viewportListener;
-//	}
-
 	public WindowHandler2 setModelPanel(ModelPanel modelPanel) {
-//		for(DisplayViewUgg displayPanelView : displayPanelViews){
-//			displayPanelView.setModelPanel(modelPanel);
-//		}
-//		for(PerspectiveViewUgg perspectivePanelView : perspectivePanelViews){
-//			perspectivePanelView.setModelPanel(modelPanel);
-//		}
-//		for(PreviewView previewPanelView : previewPanelViews){
-//			previewPanelView.setModelPanel(modelPanel);
-//		}
-//		for(TimeSliderView timeSlider : timeSliders){
-//			timeSlider.setModelPanel(modelPanel);
-//		}
-//		for(ModelViewManagingView modelViewManagingTree : modelViewManagingTrees){
-//			modelViewManagingTree.setModelPanel(modelPanel);
-//		}
-//		for(ModelingCreatorToolsView editingToolChooserView : editingToolChooserViews){
-//			editingToolChooserView.setModelPanel(modelPanel);
-//		}
-//		for(ModelComponentsView componentBrowserTreeView : componentBrowserTreeViews){
-//			componentBrowserTreeView.setModelPanel(modelPanel);
-//		}
-
-//		System.out.println("allViews.size()1: " + allViews.size());
-//		allViews.removeIf(view -> !view.isVisible().isValid());
-//		allViews.removeIf(view -> !view.getComponent().isVisible());
 		allViews.removeIf(view -> !isStillInUse(view));
-//		System.out.println("allViews.size()2: " + allViews.size());
 
 		for (ModelDependentView view : allViews) {
-//			System.out.println("updating: " + view);
-//			System.out.println(view + "#ViewProp: " + view.getViewProperties());
-//			System.out.println(view + "#toString: " + view.toString());
-//			System.out.println(view + "#WindowPar: " + view.getWindowParent());
 			view.setModelPanel(modelPanel);
 		}
-
-//		if (modelPanel != null) {
-////			modelPanel.reloadComponentBrowser();
-//			modelPanel.reloadModelEditingTree();
-//		}
 
 		return this;
 	}
@@ -157,9 +118,6 @@ public class WindowHandler2 {
 	}
 
 	public WindowHandler2 reloadThings() {
-//		System.out.println("WindowHandler2#reloadThings: allViews.size()1: " + allViews.size());
-//		allViews.removeIf(view -> !view.isValid());
-//		System.out.println("WindowHandler2#reloadThings: allViews.size()2: " + allViews.size());
 		for (ModelDependentView view : allViews) {
 			view.reload();
 		}
@@ -283,26 +241,11 @@ public class WindowHandler2 {
 		DisplayViewCanvas front = new DisplayViewCanvas("Front", true, true);
 		allViews.add(front);
 
-//		DisplayViewUgg top = new DisplayViewUgg("Top");
-//		allViews.add(top);
-//
-//		DisplayViewUgg side = new DisplayViewUgg("Side");
-//		allViews.add(side);
-
-//		PerspectiveViewUgg perspective = new PerspectiveViewUgg();
-//		allViews.add(perspective);
-//		SplitWindow frBt = new SplitWindow(true, front, top);
-//		SplitWindow lfPs = new SplitWindow(true, side, perspective);
-//		SplitWindow quadView = new SplitWindow(false, frBt, lfPs);
-
 		DisplayViewCanvas top = new DisplayViewCanvas("Top", true, true);
 		allViews.add(top);
 
 		DisplayViewCanvas side = new DisplayViewCanvas("Side", true, true);
 		allViews.add(side);
-
-//		PerspectiveViewUgg perspective = new PerspectiveViewUgg();
-//		allViews.add(perspective);
 
 		DisplayViewCanvas perspective = new DisplayViewCanvas("Perspective", false, false);
 		allViews.add(perspective);
@@ -386,33 +329,9 @@ public class WindowHandler2 {
 	}
 
 	public WindowHandler2 clearAll() {
-//		for(DisplayViewUgg displayPanelView : displayPanelViews){
-//			displayPanelView.setVisible(false);
-//		}
-//		for(PerspectiveViewUgg perspectivePanelView : perspectivePanelViews){
-//			perspectivePanelView.setVisible(false);
-//		}
-//		for(PreviewView previewPanelView : previewPanelViews){
-//			previewPanelView.setVisible(false);
-//		}
-//		for(TimeSliderView timeSlider : timeSliders){
-//			timeSlider.setVisible(false);
-//		}
-//		for(ModelViewManagingView modelViewManagingTree : modelViewManagingTrees){
-//			modelViewManagingTree.setVisible(false);
-//		}
-//		for(ModelingCreatorToolsView editingToolChooserView : editingToolChooserViews){
-//			editingToolChooserView.setVisible(false);
-//		}
-//		for(ModelComponentsView componentBrowserTreeView : componentBrowserTreeViews){
-//			componentBrowserTreeView.setVisible(false);
-//		}
 		for (ModelDependentView view : allViews) {
 			view.setVisible(false);
 		}
-//		displayPanelViews.clear();
-//		perspectivePanelViews.clear();
-//		previewPanelViews.clear();
 		timeSliders.clear();
 		modelViewManagingTrees.clear();
 		editingToolChooserViews.clear();

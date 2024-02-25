@@ -28,10 +28,6 @@ public class ColorPrefPanel extends JPanel {
 		EditorColorsPrefPanel colorsPrefPanel = new EditorColorsPrefPanel(colorPrefs);
 		innerPanel.add(colorsPrefPanel, "wrap");
 
-		addAtRow(innerPanel, new ColorChooserIconLabel(pref.getActiveColor1(), pref::setActiveColor1), "Button Color 1:");
-		addAtRow(innerPanel, new ColorChooserIconLabel(pref.getActiveColor2(), pref::setActiveColor2), "Button Color 2:");
-
-
 		JScrollPane scrollPane = new JScrollPane(innerPanel);
 		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		scrollPane.setBorder(null);

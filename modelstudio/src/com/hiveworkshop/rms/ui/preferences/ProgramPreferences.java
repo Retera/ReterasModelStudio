@@ -29,6 +29,8 @@ public class ProgramPreferences implements Serializable {
 	private Color activeColor2 = new Color(170, 60, 0);
 	private Boolean loadPortraits = true;
 
+	private Boolean optimizeOnSave = true;
+
 	private GUITheme theme = GUITheme.ALUMINIUM;
 	private Integer vertexSize = 3;
 	private Integer nodeBoxSize = 5;
@@ -80,6 +82,14 @@ public class ProgramPreferences implements Serializable {
 	public ProgramPreferences setMaxNumbersOfUndo(Integer maxNumbersOfUndo) {
 		this.maxNumbersOfUndo = maxNumbersOfUndo;
 		return this;
+	}
+
+	public boolean isOptimizeOnSave() {
+		return optimizeOnSave;
+	}
+	public void setOptimizeOnSave(final boolean optimizeOnSave) {
+		this.optimizeOnSave = optimizeOnSave;
+		saveAndFireListeners();
 	}
 
 	public int getTeamColor() {

@@ -32,7 +32,7 @@ public class TwilacsTools extends JMenu {
 		getAccessibleContext().setAccessibleDescription("Where Twilac puts new features during development before they find a permanent home.");
 //		add(getBakeMenu());
 //		add(EventObjectPanel.getMenuItem());
-//		add(getCutEdgeMenu());
+		add(getCutEdgeMenu());
 		add(getSkinningMenu());
 		add(getFixFacesMenu());
 		add(getBindPoseMenu());

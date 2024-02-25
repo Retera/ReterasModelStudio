@@ -15,13 +15,12 @@ import java.util.List;
 public class MainFrame extends JFrame {
 
 	public static MainFrame frame;
-	public static MainPanel mainPanel;
 
 	public MainFrame(final String title) {
 		super(title);
 
 		setBounds(0, 0, 1000, 650);
-		mainPanel = ProgramGlobals.getMainPanel();
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		setContentPane(mainPanel);
 		setJMenuBar(ProgramGlobals.getMenuBar());
 		setIconImage(RMSIcons.MAIN_PROGRAM_ICON);
@@ -37,6 +36,10 @@ public class MainFrame extends JFrame {
 		setLocationRelativeTo(null);
 		setVisible(true);
 		ProgramGlobals.linkActions(mainPanel);
+	}
+
+	public static void close() {
+		frame.exitAction();
 	}
 
 	private void exitAction() {

@@ -13,6 +13,7 @@ import com.hiveworkshop.rms.editor.model.util.ModelSaving.MaterialToMdlx;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTexture;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTextureAnimation;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 
 import java.util.*;
@@ -22,7 +23,7 @@ public class TempSaveModelStuff {
 	public static boolean DISABLE_BONE_GEO_ID_VALIDATOR = false;
 
 	public static MdlxModel toMdlx(EditableModel model) {
-		return toMdlx(model, false);
+		return toMdlx(model, ProgramGlobals.getPrefs().isOptimizeOnSave());
 	}
 
 	public static MdlxModel toMdlx(EditableModel model, boolean clearUnused) {

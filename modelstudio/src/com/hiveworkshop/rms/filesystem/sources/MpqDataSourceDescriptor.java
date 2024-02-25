@@ -4,6 +4,7 @@ import systems.crigges.jmpq3.JMpqEditor;
 import systems.crigges.jmpq3.MPQOpenOption;
 
 import java.nio.file.Paths;
+import java.util.Objects;
 
 public class MpqDataSourceDescriptor implements DataSourceDescriptor {
 	/**
@@ -17,7 +18,7 @@ public class MpqDataSourceDescriptor implements DataSourceDescriptor {
 	}
 
 	@Override
-	public DataSource createDataSource() {
+	public MpqDataSource createDataSource() {
 		try {
 			return new MpqDataSource(new JMpqEditor(Paths.get(mpqFilePath), MPQOpenOption.READ_ONLY));
 		} catch (final Exception e) {
@@ -43,18 +44,10 @@ public class MpqDataSourceDescriptor implements DataSourceDescriptor {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
-			return false;
+		if (obj instanceof final MpqDataSourceDescriptor other) {
+			return Objects.equals(mpqFilePath, other.mpqFilePath);
 		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final MpqDataSourceDescriptor other = (MpqDataSourceDescriptor) obj;
-		if (mpqFilePath == null) {
-			return other.mpqFilePath == null;
-		} else {
-			return mpqFilePath.equals(other.mpqFilePath);
-		}
+		return false;
 	}
 
 	public String getMpqFilePath() {
@@ -65,7 +58,7 @@ public class MpqDataSourceDescriptor implements DataSourceDescriptor {
 	}
 
 	@Override
-	public DataSourceDescriptor duplicate() {
+	public MpqDataSourceDescriptor duplicate() {
 		return new MpqDataSourceDescriptor(mpqFilePath);
 	}
 }

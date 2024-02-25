@@ -11,7 +11,7 @@ public class CompoundDataSourceDescriptor implements DataSourceDescriptor {
 	}
 
 	@Override
-	public DataSource createDataSource() {
+	public CompoundDataSource createDataSource() {
 		final List<DataSource> dataSources = new ArrayList<>();
 		for (final DataSourceDescriptor descriptor : dataSourceDescriptors) {
 			dataSources.add(descriptor.createDataSource());
@@ -29,10 +29,9 @@ public class CompoundDataSourceDescriptor implements DataSourceDescriptor {
 	}
 
 	@Override
-	public DataSourceDescriptor duplicate() {
+	public CompoundDataSourceDescriptor duplicate() {
 		return new CompoundDataSourceDescriptor(new ArrayList<>(dataSourceDescriptors));
 	}
-
 
 	public String getPath() {
 		return null;

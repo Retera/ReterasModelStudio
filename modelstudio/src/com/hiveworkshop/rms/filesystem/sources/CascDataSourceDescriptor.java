@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.filesystem.sources;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class CascDataSourceDescriptor implements DataSourceDescriptor {
 	/**
@@ -12,13 +13,17 @@ public class CascDataSourceDescriptor implements DataSourceDescriptor {
 	private final String gameInstallPath;
 	private final List<String> prefixes;
 
+	public CascDataSourceDescriptor(final String gameInstallPath) {
+		this(gameInstallPath, new ArrayList<>());
+	}
+
 	public CascDataSourceDescriptor(final String gameInstallPath, final List<String> prefixes) {
 		this.gameInstallPath = gameInstallPath;
 		this.prefixes = prefixes;
 	}
 
 	@Override
-	public DataSource createDataSource() {
+	public CascDataSource createDataSource() {
 		return new CascDataSource(gameInstallPath, prefixes.toArray(new String[0]));
 	}
 
@@ -27,16 +32,19 @@ public class CascDataSourceDescriptor implements DataSourceDescriptor {
 		return "CASC: " + gameInstallPath;
 	}
 
-	public void addPrefix(final String prefix) {
+	public CascDataSourceDescriptor addPrefix(final String prefix) {
 		prefixes.add(prefix);
+		return this;
 	}
 
-	public void addPrefixes(List<String> prefixes) {
+	public CascDataSourceDescriptor addPrefixes(List<String> prefixes) {
 		this.prefixes.addAll(prefixes);
+		return this;
 	}
 
-	public void deletePrefix(final int index) {
+	public CascDataSourceDescriptor deletePrefix(final int index) {
 		prefixes.remove(index);
+		return this;
 	}
 
 	public void movePrefixUp(final int index) {
@@ -82,29 +90,14 @@ public class CascDataSourceDescriptor implements DataSourceDescriptor {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
-			return false;
+		if (obj instanceof final CascDataSourceDescriptor other) {
+			return Objects.equals(gameInstallPath, other.gameInstallPath) && Objects.equals(prefixes, other.prefixes);
 		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final CascDataSourceDescriptor other = (CascDataSourceDescriptor) obj;
-		if (gameInstallPath == null) {
-			if (other.gameInstallPath != null) {
-				return false;
-			}
-		} else if (!gameInstallPath.equals(other.gameInstallPath)) {
-			return false;
-		}
-		if (prefixes == null) {
-			return other.prefixes == null;
-		} else {
-			return prefixes.equals(other.prefixes);
-		}
+		return false;
 	}
 
 	@Override
-	public DataSourceDescriptor duplicate() {
+	public CascDataSourceDescriptor duplicate() {
 		return new CascDataSourceDescriptor(gameInstallPath, new ArrayList<>(prefixes));
 	}
 }

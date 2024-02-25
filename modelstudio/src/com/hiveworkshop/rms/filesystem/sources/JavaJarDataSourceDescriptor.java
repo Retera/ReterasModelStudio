@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.filesystem.sources;
 
 public class JavaJarDataSourceDescriptor implements DataSourceDescriptor {
     @Override
-    public DataSource createDataSource() {
+    public JavaJarDataSource createDataSource() {
         return new JavaJarDataSource();
     }
 
@@ -12,7 +12,7 @@ public class JavaJarDataSourceDescriptor implements DataSourceDescriptor {
     }
 
     @Override
-    public DataSourceDescriptor duplicate() {
+    public JavaJarDataSourceDescriptor duplicate() {
         return this;
     }
 

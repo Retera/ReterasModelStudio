@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 
 public class TeamColorMenu extends JMenu {
 
@@ -24,20 +25,22 @@ public class TeamColorMenu extends JMenu {
 
 	private void createTeamColorMenuItems() {
 		for (int i = 0; i < 25; i++) {
-			String colorNumber = String.format("%2s", i).replace(' ', '0');
-			try {
-				String colorName = WEString.getString("WESTRING_UNITCOLOR_" + colorNumber);
-				String iconTexturePath = "ReplaceableTextures\\TeamColor\\TeamColor" + colorNumber + ".blp";
-				ImageIcon icon = new ImageIcon(BLPHandler.getImage(iconTexturePath));
-				JMenuItem menuItem = new JMenuItem(colorName, icon);
-				add(menuItem);
-				int teamColor = i;
-				menuItem.addActionListener(e -> setCurrentTeamColor(teamColor));
-			} catch (Exception e) {
-				// load failed
-				break;
-			}
+			add(getTCMenuItem(i));
 		}
+	}
+
+	private JMenuItem getTCMenuItem(int teamColor) {
+		String colorNumber = ("" + (100 + teamColor)).substring(1);
+		JMenuItem menuItem = new JMenuItem(WEString.getString("WESTRING_UNITCOLOR_" + colorNumber), getTCIcon(colorNumber));
+		menuItem.setToolTipText("TeamColor" + colorNumber);
+		menuItem.addActionListener(e -> setCurrentTeamColor(teamColor));
+		return menuItem;
+	}
+
+	private ImageIcon getTCIcon(String colorNumber){
+		String iconTexturePath = "ReplaceableTextures\\TeamColor\\TeamColor" + colorNumber + ".blp";
+		BufferedImage image = BLPHandler.getImage(iconTexturePath);
+		return new ImageIcon(image);
 	}
 
 	private void setCurrentTeamColor(int teamColor) {
