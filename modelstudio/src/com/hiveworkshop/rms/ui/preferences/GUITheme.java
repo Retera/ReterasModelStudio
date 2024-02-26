@@ -13,14 +13,40 @@ public enum GUITheme {
 	HIFI("HiFi"),
 	ACRYL("Acryl"),
 	ALUMINIUM("Aluminium");
+
+//	FOREST_GREEN("Forest Green"),
+//	DARK("Noire"),
+//	WINDOWS("Windows"),
+//	WINDOWS_CLASSIC("Windows Classic"),
+//	SOFT_GRAY("Soft Gray"),
+//	JAVA_DEFAULT("Java Default"),
+//	BLUE_ICE("Blue Ice"),
+//	DARK_BLUE_GREEN("Dark Blue-Green"),
+//	GRAY("Gray"),
+//	ACRYL("Acryl"),
+//	AERO("Aero"),
+//	ALUMINIUM("Aluminium"),
+//
+//	BERNSTEIN("Bernstein"),
+//	FAST("Fast"),
+//	GRAPHITE("Graphite"),
+//	HIFI("HiFi"),
+//	LUNA("Luna"),
+//	MC_WIN("McWin"),
+//	MINT("Mint"),
+//	NOIR("Noir"),
+//	SMART("Smart"),
 	private final String displayName;
 
 	GUITheme(final String displayName) {
 		this.displayName = displayName;
 	}
 
-	@Override
-	public String toString() {
+//	@Override
+//	public String toString() {
+//		return displayName;
+//	}
+	public String getDisplayName() {
 		return displayName;
 	}
 //	0, 244,

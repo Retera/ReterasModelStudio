@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit;
 
-import com.hiveworkshop.rms.ui.preferences.SaveProfile;
+import com.hiveworkshop.rms.ui.preferences.SaveProfileNew;
 import com.hiveworkshop.rms.util.uiFactories.Button;
 import com.jtattoo.plaf.BaseFileChooserUI;
 import net.miginfocom.swing.MigLayout;
@@ -12,15 +12,17 @@ import javax.swing.filechooser.FileSystemView;
 import javax.swing.plaf.FileChooserUI;
 import java.awt.*;
 import java.io.File;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Deque;
 import java.util.List;
-import java.util.*;
 
 public class RMSFileChooser extends JFileChooser {
-	private JToolBar favToolBar;
-	private JPanel hideblePanel1;
-	private JPanel hideblePanel2;
-	private Set<File> favorites;
-	private SaveProfile saveProfile;
+	private final JToolBar favToolBar;
+	private final JPanel hideblePanel1;
+	private final JPanel hideblePanel2;
+//	private Set<File> favorites;
+	private final SaveProfileNew saveProfile;
 	private final Deque<File> recentBack;
 	private final Deque<File> recentFwrd;
 	{
@@ -28,26 +30,26 @@ public class RMSFileChooser extends JFileChooser {
 		recentFwrd = new ArrayDeque<>();
 	}
 
-//	private void printContainer(Container container, String prefix){
-//		for(int i = 0; i< container.getComponentCount(); i++){
+//	private void printContainer(Container container, String prefix) {
+//		for (int i = 0; i< container.getComponentCount(); i++) {
 //			Component inComp = container.getComponent(i);
 //			System.out.println(prefix + i + ": "  + inComp);
-//			if(inComp instanceof Container){
+//			if (inComp instanceof Container) {
 //				printContainer((Container) inComp, "\t" + prefix + i + ".");
 //			}
 //		}
 //	}
 
-	public RMSFileChooser(){
+	public RMSFileChooser() {
 		this(null);
 	}
-	public RMSFileChooser(SaveProfile saveProfile){
+	public RMSFileChooser(SaveProfileNew saveProfile) {
 		this.saveProfile = saveProfile;
-		if(saveProfile != null){
-			favorites = saveProfile.getFavorites();
-		} else {
-			favorites = new TreeSet<>();
-		}
+//		if (saveProfile != null) {
+//			favorites = saveProfile.getFavorites();
+//		} else {
+//			favorites = new TreeSet<>();
+//		}
 
 		JPanel outerPanel = new JPanel(new MigLayout("ins 0, gap 0, fill, hidemode 2", "[fill]", "[][grow, fill]"));
 		hideblePanel1 = new JPanel(new MigLayout("ins 0, gap 0, fill, hidemode 2", "[fill]", "[][grow, fill]"));
@@ -91,7 +93,7 @@ public class RMSFileChooser extends JFileChooser {
 
 		File[] chooserShortcutPanelFiles = getFileSystemView().getChooserShortcutPanelFiles();
 		System.out.println("files: " + Arrays.toString(chooserShortcutPanelFiles));
-		for(File file : chooserShortcutPanelFiles){
+		for (File file : chooserShortcutPanelFiles) {
 			Icon systemIcon = FileSystemView.getFileSystemView().getSystemIcon(file);
 			String displayName = FileSystemView.getFileSystemView().getSystemDisplayName(file);
 			dirToolBar.add(Button.create(displayName, systemIcon, e -> {setCurrentDirectory(file); repaint();}));
@@ -145,31 +147,31 @@ public class RMSFileChooser extends JFileChooser {
 		return expandToolbar;
 	}
 
-	private void showFavs(){
+	private void showFavs() {
 		hideblePanel1.setVisible(true);
 		hideblePanel2.setVisible(false);
 		revalidate();
 	}
-	private void hideFavs(){
+	private void hideFavs() {
 		hideblePanel1.setVisible(false);
 		hideblePanel2.setVisible(true);
 		revalidate();
 	}
 
-	private void back(){
-		if (!recentBack.isEmpty()){
+	private void back() {
+		if (!recentBack.isEmpty()) {
 			setCurrentDirectory(recentBack.peek());
 		}
 	}
-	private void forward(){
-		if (!recentFwrd.isEmpty()){
+	private void forward() {
+		if (!recentFwrd.isEmpty()) {
 			setCurrentDirectory(recentFwrd.peek());
 		}
 	}
-	private void favorite(){
-		if (favorites != null){
-			if(favorites.add(getCurrentDirectory()) && saveProfile != null){
-				SaveProfile.save();
+	private void favorite() {
+		if (saveProfile != null) {
+			if (saveProfile.addFavorite(getCurrentDirectory())) {
+				SaveProfileNew.save();
 			}
 		}
 		remakeFavList();
@@ -177,9 +179,9 @@ public class RMSFileChooser extends JFileChooser {
 	}
 
 	private void remakeFavList() {
-		if (favorites != null){
+		if (saveProfile != null) {
 			favToolBar.removeAll();
-			for(File file : favorites){
+			for (File file : saveProfile.getFavorites().getFiles()) {
 				Icon systemIcon = FileSystemView.getFileSystemView().getSystemIcon(file);
 				String displayName = FileSystemView.getFileSystemView().getSystemDisplayName(file);
 				JButton favButton = Button.create(displayName, systemIcon, e -> setCurrentDirectory(file));
@@ -192,19 +194,19 @@ public class RMSFileChooser extends JFileChooser {
 		}
 	}
 
-	private void removeFav(File file){
-		if(favorites.remove(file) && saveProfile != null){
-			SaveProfile.save();
+	private void removeFav(File file) {
+		if (saveProfile != null && saveProfile.removeFromFavorite(file)) {
+			SaveProfileNew.save();
 		}
 		remakeFavList();
 		revalidate();
 	}
 	public void setCurrentDirectory(File dir) {
-		if(recentBack != null) {
-			if(recentBack.peek() == dir){
+		if (recentBack != null) {
+			if (recentBack.peek() == dir) {
 				recentFwrd.push(getCurrentDirectory());
 				recentBack.pop();
-			} else if(recentFwrd.peek() == dir){
+			} else if (recentFwrd.peek() == dir) {
 				recentFwrd.pop();
 				recentBack.push(getCurrentDirectory());
 			} else {
@@ -218,7 +220,7 @@ public class RMSFileChooser extends JFileChooser {
 	protected JDialog createDialog(Component parent) throws HeadlessException {
 		FileChooserUI ui = getUI();
 		System.out.println("FileChooserUI: " + ui);
-		if(ui instanceof BaseFileChooserUI){
+		if (ui instanceof BaseFileChooserUI) {
 			fixBottomPanel((BaseFileChooserUI) ui);
 		}
 		String title = ui.getDialogTitle(this);
@@ -255,16 +257,16 @@ public class RMSFileChooser extends JFileChooser {
 
 	private void fixBottomPanel(BaseFileChooserUI bUi) {
 		JButton defaultButton = bUi.getDefaultButton(this);
-		if(defaultButton != null){
+		if (defaultButton != null) {
 			Container buttonPanel = defaultButton.getParent();
-			if(buttonPanel instanceof JPanel){
+			if (buttonPanel instanceof JPanel) {
 				buttonPanel.setLayout(new MigLayout("wrap 1, ins 0, fill", "[grow, fill]"));
 				Container bottomPanel = buttonPanel.getParent();
-				if(bottomPanel instanceof JPanel){
+				if (bottomPanel instanceof JPanel) {
 					bottomPanel.setLayout(new MigLayout("wrap 2, fill", "[grow, fill][]", "[][]"));
 					bottomPanel.setPreferredSize(new Dimension(700, 55));
-					for(int i = 0; i< bottomPanel.getComponentCount(); i++){
-						if(bottomPanel.getComponent(i) instanceof Box.Filler){
+					for (int i = 0; i< bottomPanel.getComponentCount(); i++) {
+						if (bottomPanel.getComponent(i) instanceof Box.Filler) {
 							bottomPanel.remove(bottomPanel.getComponent(i));
 							i--;
 						}
@@ -314,9 +316,9 @@ public class RMSFileChooser extends JFileChooser {
 		final String name = modelFile.getName();
 		if (name.lastIndexOf('.') != -1) {
 			return name.substring(name.lastIndexOf('.'));
-		} else if (getFileFilter() instanceof FileNameExtensionFilter){
+		} else if (getFileFilter() instanceof FileNameExtensionFilter) {
 			String[] extensions = ((FileNameExtensionFilter) getFileFilter()).getExtensions();
-			if(0 < extensions.length){
+			if (0 < extensions.length) {
 				return "." + extensions[0];
 			}
 		}

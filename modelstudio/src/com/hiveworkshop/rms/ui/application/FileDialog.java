@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.application;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.RMSFileChooser;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
-import com.hiveworkshop.rms.ui.preferences.SaveProfile;
+import com.hiveworkshop.rms.ui.preferences.SaveProfileNew;
 import com.hiveworkshop.rms.ui.util.ExtFilter;
 import net.miginfocom.swing.MigLayout;
 
@@ -25,7 +25,7 @@ public class FileDialog {
     public static final int SAVE_TEXTURE = 5;
     public static final int SAVE = 6;
 
-    private static SaveProfile profile = SaveProfile.get();
+    private static SaveProfileNew profile = SaveProfileNew.get();
 
     private ModelPanel modelPanel;
     private Component parent;
@@ -276,7 +276,7 @@ public class FileDialog {
         if (file != null) {
             setCurrentPath(file);
 
-            SaveProfile.get().addRecent(file.getPath());
+            SaveProfileNew.get().addRecent(file.getPath());
             ProgramGlobals.getMenuBar().updateRecent();
             ModelLoader.loadFile(file);
         }

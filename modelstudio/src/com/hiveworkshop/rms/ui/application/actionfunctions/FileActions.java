@@ -7,7 +7,7 @@ import com.hiveworkshop.rms.ui.application.ModelLoader;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.language.TextKey;
-import com.hiveworkshop.rms.ui.preferences.SaveProfile;
+import com.hiveworkshop.rms.ui.preferences.SaveProfileNew;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.ImageUtils.ImageCreator;
 
@@ -48,7 +48,7 @@ public class FileActions {
 	}
 	public static void openFile(final File file) {
 		if (file != null) {
-			SaveProfile.get().addRecentSetPath(file);
+			SaveProfileNew.get().addRecentSetPath(file);
 			ProgramGlobals.getMenuBar().updateRecent();
 			ModelLoader.loadFile(file);
 		}
@@ -63,7 +63,7 @@ public class FileActions {
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
-			SaveProfile.get().addRecentSetPath(file);
+			SaveProfileNew.get().addRecentSetPath(file);
 			ProgramGlobals.getMenuBar().updateRecent();
 		}
 		return null;
@@ -72,7 +72,7 @@ public class FileActions {
 		File file = fileDialog.openFile(operationType);
 
 		if (file != null) {
-			SaveProfile.get().addRecentSetPath(file);
+			SaveProfileNew.get().addRecentSetPath(file);
 			ProgramGlobals.getMenuBar().updateRecent();
 			return file;
 		}
@@ -82,7 +82,7 @@ public class FileActions {
 		File file = fileDialog.setParent(parent).openFile(operationType);
 
 		if (file != null) {
-			SaveProfile.get().addRecentSetPath(file);
+			SaveProfileNew.get().addRecentSetPath(file);
 			ProgramGlobals.getMenuBar().updateRecent();
 			return file;
 		}
@@ -120,7 +120,7 @@ public class FileActions {
 				modelPanel.getModelHandler().getUndoManager().resetActionsSinceSave();
 				modelPanel.updateMenuItem();
 			}
-			SaveProfile.get().addRecent(modelFile.getPath());
+			SaveProfileNew.get().addRecent(modelFile.getPath());
 			ProgramGlobals.getMenuBar().updateRecent();
 		} catch (final Exception exc) {
 			exc.printStackTrace();

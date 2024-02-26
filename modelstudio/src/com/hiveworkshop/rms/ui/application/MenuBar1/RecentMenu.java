@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.MenuBar1;
 
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.preferences.SaveProfile;
+import com.hiveworkshop.rms.ui.preferences.SaveProfileNew;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -30,12 +30,12 @@ public class RecentMenu extends JMenu {
 		}
 		recentItems.clear();
 
-		List<String> recent = SaveProfile.get().getRecent();
+		List<File> recent = new ArrayList<>(SaveProfileNew.get().getRecent().getFiles());
 
 		for (int i = 0; i < recent.size(); i++) {
-			String fp = recent.get(recent.size() - i - 1);
-			if (recentItems.size() <= i || !recentItems.get(i).samePath(fp)) {
-				RecentItem item = new RecentItem(new File(fp));
+			File file = recent.get(recent.size() - i - 1);
+			if (recentItems.size() <= i || !recentItems.get(i).samePath(file.getPath())) {
+				RecentItem item = new RecentItem(file);
 				recentItems.add(item);
 				add(item, getItemCount() - 2);
 			}
@@ -70,7 +70,7 @@ public class RecentMenu extends JMenu {
 				"Are you sure you want to clear the Recent history?", "Confirm Clear",
 				JOptionPane.YES_NO_OPTION);
 		if (dialogResult == JOptionPane.YES_OPTION) {
-			SaveProfile.get().clearRecent();
+			SaveProfileNew.get().clearRecent();
 			ProgramGlobals.getMenuBar().updateRecent();
 		}
 	}

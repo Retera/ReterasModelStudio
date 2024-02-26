@@ -12,7 +12,7 @@ import com.hiveworkshop.rms.ui.language.Translator;
 import com.hiveworkshop.rms.ui.preferences.EditorColorPrefs;
 import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.ui.preferences.SaveProfile;
+import com.hiveworkshop.rms.ui.preferences.SaveProfileNew;
 import com.hiveworkshop.rms.util.sound.SoundMappings;
 
 import javax.swing.*;
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProgramGlobals {
-	private static final SaveProfile profile;
+	private static final SaveProfileNew profile;
 	private static final ProgramPreferences prefs;
 	private static final KeyBindingPrefs keyBindingPrefs;
 	private static final EditorColorPrefs editorColorPrefs;
@@ -48,7 +48,7 @@ public class ProgramGlobals {
 
 	static {
 		System.out.println("  ~~~  Initializing Globals  ~~~  ");
-		profile = SaveProfile.get();
+		profile = SaveProfileNew.get();
 		prefs = profile.getPreferences();
 		translator = new Translator();
 		keyBindingPrefs = prefs.getKeyBindingPrefs();
@@ -183,7 +183,7 @@ public class ProgramGlobals {
 		}
 	}
 
-	public static SaveProfile getProfile() {
+	public static SaveProfileNew getProfile() {
 		return profile;
 	}
 

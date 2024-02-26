@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
-import com.hiveworkshop.rms.ui.preferences.SaveProfile;
+import com.hiveworkshop.rms.ui.preferences.SaveProfileNew;
 import com.hiveworkshop.rms.util.ProgramVersion;
 import com.hiveworkshop.rms.util.uiFactories.Button;
 import net.miginfocom.swing.MigLayout;
@@ -178,9 +178,9 @@ public class DataSourceChooserPanel extends JPanel {
 				"Retera Model Studio " + ProgramVersion.get() + ": Setup", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
 		if (opt == JOptionPane.OK_OPTION) {
-			SaveProfile.get().setDataSources(dataSourceChooserPanel.getDataSourceDescriptors());
-			SaveProfile.save();
-			GameDataFileSystem.refresh(SaveProfile.get().getDataSources());
+			SaveProfileNew.get().setDataSources(dataSourceChooserPanel.getDataSourceDescriptors());
+			SaveProfileNew.save();
+			GameDataFileSystem.refresh(SaveProfileNew.get().getDataSources());
 
 			// cache priority order...
 			UnitOptionPanel.dropRaceCache();

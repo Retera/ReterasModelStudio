@@ -450,7 +450,7 @@ public class ProgramPreferences implements Serializable {
 	}
 
 	private void saveAndFireListeners() {
-		SaveProfile.save();
+		SaveProfileNew.save();
 		firePrefsChanged();
 	}
 
@@ -556,7 +556,8 @@ public class ProgramPreferences implements Serializable {
 //		}
 	}
 
-	private void parseField(Field field, String s) {
+	private void parseField(Field field, String strip) {
+		String s = strip.replaceAll("(^\")|(\"?;\\s*$)", "");
 		try {
 			if (field.getType().getSuperclass() == Enum.class) {
 				field.set(this, Enum.valueOf((Class<Enum>) field.getType(), s));
@@ -576,8 +577,8 @@ public class ProgramPreferences implements Serializable {
 			}
 
 		} catch (Exception e) {
-			System.out.println("Failed to parse [" + field.getName() + ", " + field.getType() + "]");
-			e.printStackTrace();
+			System.out.println("Failed to parse [" + field.getName() + ", " + field.getType() + "] from \"" + s + "\"");
+//			e.printStackTrace();
 		}
 	}
 

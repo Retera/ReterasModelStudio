@@ -7,7 +7,7 @@ import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.MainFrame;
 import com.hiveworkshop.rms.ui.application.ModelLoader;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.ui.preferences.SaveProfile;
+import com.hiveworkshop.rms.ui.preferences.SaveProfileNew;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.ProgramVersion;
 import com.hiveworkshop.rms.util.ThemeLoadingUtils;
@@ -57,7 +57,7 @@ public class Main {
 		tryLoadJAssImp();
 
 		try {
-			final ProgramPreferences preferences = SaveProfile.get().getPreferences();
+			final ProgramPreferences preferences = SaveProfileNew.get().getPreferences();
 			ThemeLoadingUtils.setTheme(preferences);
 		} catch (final Throwable th) {
 			th.printStackTrace();

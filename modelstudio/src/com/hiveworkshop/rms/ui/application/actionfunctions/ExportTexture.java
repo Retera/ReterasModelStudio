@@ -4,17 +4,18 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.blp.ImageUtils;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter2;
 import com.hiveworkshop.rms.parsers.twiImageStuff.DDS.DDSFile;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.MaterialListRenderer;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
 import com.hiveworkshop.rms.ui.language.TextKey;
-import com.hiveworkshop.rms.ui.preferences.SaveProfile;
+import com.hiveworkshop.rms.ui.preferences.SaveProfileNew;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
+import com.hiveworkshop.rms.ui.util.TwiList;
 import com.hiveworkshop.rms.util.ImageUtils.ImageCreator;
-import com.hiveworkshop.rms.util.IterableListModel;
 import de.wc3data.image.TgaFile;
 import net.miginfocom.swing.MigLayout;
 
@@ -26,20 +27,18 @@ import java.io.File;
 
 public class ExportTexture extends ActionFunction {
 	public ExportTexture(){
-		super(TextKey.EXPORT_TEXTURE, () -> exportTextures2());
+		super(TextKey.EXPORT_TEXTURE, ExportTexture::exportTextures2);
 	}
 
-	public static void exportTextures2(){
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null && modelPanel.getModel() != null) {
-//			JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
+	public static void exportTextures2(ModelHandler modelHandler){
+		if (modelHandler != null) {
 			JTabbedPane tabbedPane = new JTabbedPane();
 			tabbedPane.setMinimumSize(new Dimension(200, 200));
 
-			JPanel texturePanel = getExportTexturePanel(modelPanel.getModel());
+			JPanel texturePanel = getExportTexturePanel(modelHandler.getModel());
 			tabbedPane.addTab("Export Texture", texturePanel);
 
-			JPanel materialPanel = getExportMaterialPanel(modelPanel.getModel());
+			JPanel materialPanel = getExportMaterialPanel(modelHandler.getModel());
 			tabbedPane.addTab("Export Material as Texture", materialPanel);
 
 			showDialog(tabbedPane, "Export Texture");
@@ -49,33 +48,40 @@ public class ExportTexture extends ActionFunction {
     //ToDo figure out why these throw errors sometimes (might have to do with non-existing texture files)
 
 	private static JPanel getExportMaterialPanel(EditableModel model) {
-		IterableListModel<Material> materials = new IterableListModel<>();
-		for (Material mat : model.getMaterials()) {
-			materials.addElement(mat);
-		}
+		TwiList<Material> materials = new TwiList<>();
+		materials.addAll(model.getMaterials());
 		for (ParticleEmitter2 emitter2 : model.getParticleEmitter2s()) {
-			Material dummyMaterial = new Material(new Layer(FilterMode.BLEND, emitter2.getTexture()));
+			Material dummyMaterial = new Material(new Layer(getRealFilterMode(emitter2.getFilterMode()), emitter2.getTexture()));
+			materials.add(dummyMaterial);
 		}
 
-		JList<Material> materialsList = new JList<>(materials);
-		materialsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); //TODO would be nice to be able to batch save
-		materialsList.setCellRenderer(new MaterialListRenderer(model));
+		materials.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); //TODO would be nice to be able to batch save
+		materials.setCellRenderer(new MaterialListRenderer(model));
 
-		JScrollPane texturePane = new JScrollPane(materialsList);
 		JPanel panel = new JPanel(new MigLayout("fill, ins 0"));
-		panel.add(texturePane, "growx, wrap");
+		panel.add(materials.getScrollableList(), "growx, wrap");
 
 		FileDialog fileDialog = new FileDialog();
 		JButton exportButton = new JButton("Export");
-		exportButton.addActionListener(e -> exportChosenMaterial(model, materialsList, fileDialog));
+		exportButton.addActionListener(e -> exportChosenMaterial(model, materials.getSelectedValue(), fileDialog));
 		panel.add(exportButton);
 		return panel;
 	}
 
-	private static void exportChosenMaterial(EditableModel model, JList<Material> materialsList, FileDialog fileDialog) {
-        if (materialsList.getSelectedValue() != null) {
-	        BufferedImage bufferedImage = ImageCreator.getBufferedImage(materialsList.getSelectedValue(), model.getWrappedDataSource());
-	        String name = materialsList.getSelectedValue().getName().replaceAll("[^\\w\\[\\]()#\\. ]", "").replaceAll(" +", "_");
+	private static FilterMode getRealFilterMode(MdlxParticleEmitter2.FilterMode fm){
+		return switch (fm) {
+			case ALPHAKEY -> FilterMode.TRANSPARENT;
+			case BLEND -> FilterMode.BLEND;
+			case ADDITIVE -> FilterMode.ADDITIVE;
+			case MODULATE -> FilterMode.MODULATE;
+			case MODULATE2X -> FilterMode.MODULATE2X;
+		};
+	}
+
+	private static void exportChosenMaterial(EditableModel model, Material material, FileDialog fileDialog) {
+		if (material != null) {
+	        BufferedImage bufferedImage = ImageCreator.getBufferedImage(material, model.getWrappedDataSource());
+	        String name = material.getName().replaceAll("[^\\w\\[\\]()#\\. ]", "").replaceAll(" +", "_");
             System.out.println("ExportTexture, material name: " + name);
 
             onClickSaveAs(bufferedImage, name, FileDialog.SAVE_TEXTURE, fileDialog, ProgramGlobals.getMainPanel());
@@ -91,32 +97,28 @@ public class ExportTexture extends ActionFunction {
 	}
 
 	private static JPanel getExportTexturePanel(EditableModel model) {
-		IterableListModel<Bitmap> bitmaps = new IterableListModel<>();
-		for (Bitmap texture : model.getTextures()) {
-			bitmaps.addElement(texture);
-		}
+		TwiList<Bitmap> bitmaps = new TwiList<>();
+		bitmaps.addAll(model.getTextures());
 
-		JList<Bitmap> bitmapJList = new JList<>(bitmaps);
-		bitmapJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); //TODO would be nice to be able to batch save
-		bitmapJList.setCellRenderer(new TextureListRenderer(model));
+		bitmaps.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); //TODO would be nice to be able to batch save
+		bitmaps.setCellRenderer(new TextureListRenderer(model));
 
 
-		JScrollPane texturePane = new JScrollPane(bitmapJList);
 		JPanel panel = new JPanel(new MigLayout("fill, ins 0"));
-		panel.add(texturePane, "growx, wrap");
+		panel.add(bitmaps.getScrollableList(), "growx, wrap");
 
 		FileDialog fileDialog = new FileDialog();
 		JButton exportButton = new JButton("Export");
-		exportButton.addActionListener(e -> exportChosenTexture(model, bitmapJList, fileDialog));
+		exportButton.addActionListener(e -> exportChosenTexture(model, bitmaps.getSelectedValue(), fileDialog));
 		panel.add(exportButton);
 		return panel;
 	}
 
-	private static void exportChosenTexture(EditableModel model, JList<Bitmap> bitmapJList, FileDialog fileDialog) {
-        if (bitmapJList.getSelectedValue() != null) {
-            BufferedImage texture = BLPHandler.getImage(bitmapJList.getSelectedValue(), model.getWrappedDataSource());
+	private static void exportChosenTexture(EditableModel model, Bitmap selectedValue, FileDialog fileDialog) {
+		if (selectedValue != null) {
+            BufferedImage texture = BLPHandler.getImage(selectedValue, model.getWrappedDataSource());
 
-            String name = bitmapJList.getSelectedValue().getName().replaceAll("[^\\w\\[\\]()#\\. ]", "").replaceAll(" +", "_");
+            String name = selectedValue.getName().replaceAll("[^\\w\\[\\]()#\\. ]", "").replaceAll(" +", "_");
 	        System.out.println("ExportTexture, texture name: " + name);
 //
 	        onClickSaveAs(texture, name, FileDialog.SAVE_TEXTURE, fileDialog, ProgramGlobals.getMainPanel());
@@ -160,7 +162,7 @@ public class ExportTexture extends ActionFunction {
 			} else {
 				System.out.println("writing " + fileExtension);
 				final boolean write = ImageIO.write(bufferedImage, fileExtension, modelFile);
-				SaveProfile.get().addRecent(modelFile.getPath());
+				SaveProfileNew.get().addRecent(modelFile.getPath());
 				if (!write) {
 					JOptionPane.showMessageDialog(parent, "Could not write file.\nFile type unknown or unavailable");
 				}

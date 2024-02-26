@@ -10,7 +10,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
-import com.hiveworkshop.rms.ui.preferences.SaveProfile;
+import com.hiveworkshop.rms.ui.preferences.SaveProfileNew;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.ExtFilter;
 import com.hiveworkshop.rms.ui.util.ModelLoadingInfo;
@@ -133,10 +133,10 @@ public class ModelLoader {
 		System.out.println("filePath: " + filepath);
 		if (f.exists()) {
 			loadAndShowModelFromFile(f, temporary, showModel, icon);
-		} else if (SaveProfile.get().getRecent().contains(filepath)) {
+		} else if (SaveProfileNew.get().getRecent().contains(f)) {
 			int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), "Could not find\n\"" + filepath + "\"\nRemove from recent?", "File not found", JOptionPane.YES_NO_OPTION);
 			if (option == JOptionPane.YES_OPTION) {
-				SaveProfile.get().removeFromRecent(filepath);
+				SaveProfileNew.get().removeFromRecent(filepath);
 				ProgramGlobals.getMenuBar().updateRecent();
 			}
 		}

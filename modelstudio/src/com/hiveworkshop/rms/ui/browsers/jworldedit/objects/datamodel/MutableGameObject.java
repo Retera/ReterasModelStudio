@@ -6,7 +6,7 @@ import com.hiveworkshop.rms.parsers.w3o.ChangeMap;
 import com.hiveworkshop.rms.parsers.w3o.ObjectDataChangeEntry;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
-import com.hiveworkshop.rms.ui.preferences.SaveProfile;
+import com.hiveworkshop.rms.ui.preferences.SaveProfileNew;
 import com.hiveworkshop.rms.util.War3ID;
 
 import java.util.HashSet;
@@ -292,7 +292,7 @@ public class MutableGameObject {
 			index = level - 1;
 		}
 		String editorMetaDataDisplayKey = metaData.getEditorMetaDataDisplayKey(level);
-		if (SaveProfile.get().isHd() && parentWC3Object.keySet().contains(editorMetaDataDisplayKey + ":hd")) {
+		if (SaveProfileNew.get().isHd() && parentWC3Object.keySet().contains(editorMetaDataDisplayKey + ":hd")) {
 			editorMetaDataDisplayKey = editorMetaDataDisplayKey + ":hd";
 		}
 		if (index != -1) {

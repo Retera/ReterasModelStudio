@@ -12,7 +12,7 @@ import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
 import com.hiveworkshop.rms.ui.browsers.mpq.MPQBrowser;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.ui.preferences.SaveProfile;
+import com.hiveworkshop.rms.ui.preferences.SaveProfileNew;
 import com.hiveworkshop.rms.util.ThemeLoadingUtils;
 import com.hiveworkshop.rms.util.uiFactories.Button;
 import net.infonode.docking.DockingWindow;
@@ -32,7 +32,7 @@ public class ProgramPrefWindow extends JFrame {
 		super("Preferences");
 		programPreferences = new ProgramPreferences();
 		programPreferences.loadFrom(ProgramGlobals.getPrefs());
-		priorDataSources = SaveProfile.get().getDataSources();
+		priorDataSources = SaveProfileNew.get().getDataSources();
 		programPreferencesPanel = new ProgramPreferencesPanel(this, programPreferences, priorDataSources);
 
 		JPanel prefPanel = new JPanel(new MigLayout("fill"));
@@ -92,9 +92,9 @@ public class ProgramPrefWindow extends JFrame {
 
 		boolean changedDataSources = (newDataSources != null) && !newDataSources.equals(priorDataSources);
 		if (changedDataSources) {
-			SaveProfile.get().setDataSources(newDataSources);
+			SaveProfileNew.get().setDataSources(newDataSources);
 		}
-		SaveProfile.save();
+		SaveProfileNew.save();
 		if (changedDataSources) {
 			updateDataSource();
 		}
@@ -102,7 +102,7 @@ public class ProgramPrefWindow extends JFrame {
 
 
 	public static void updateDataSource() {
-		GameDataFileSystem.refresh(SaveProfile.get().getDataSources());
+		GameDataFileSystem.refresh(SaveProfileNew.get().getDataSources());
 		// cache priority order...
 		UnitOptionPanel.dropRaceCache();
 		DataTableHolder.dropCache();

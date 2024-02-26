@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.filesystem;
 
 import com.hiveworkshop.rms.filesystem.sources.*;
-import com.hiveworkshop.rms.ui.preferences.SaveProfile;
+import com.hiveworkshop.rms.ui.preferences.SaveProfileNew;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ public final class GameDataFileSystem {
 
 	public static CompoundDataSource getDefault() {
 		if (current == null) {
-			final List<DataSourceDescriptor> dataSourceDescriptors = SaveProfile.get().getDataSources();
+			final List<DataSourceDescriptor> dataSourceDescriptors = SaveProfileNew.get().getDataSources();
 			final List<DataSource> dataSources = new ArrayList<>();
 			dataSources.add(new JavaJarDataSource());
 			if (dataSourceDescriptors != null) {

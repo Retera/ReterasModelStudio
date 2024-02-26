@@ -31,7 +31,6 @@ public class SaveProfileNew {
 
 
 	public static SaveProfileNew get() {
-		System.out.println("\n\ngetting SaveProfileNew");
 		if (currentProfile == null) {
 			File dirPath = getSettingsDirPath();
 			File pathsFile = new File(dirPath, trms_files_fn);
@@ -137,17 +136,7 @@ public class SaveProfileNew {
 
 	public static void save() {
 		if (currentProfile != null) {
-			System.out.println("saving saveProfile!");
-			File profileDir = getSettingsDirPath();
-			if (profileDir.canWrite()) {
-				profileDir.mkdirs();
-
-				String saveString = currentProfile.toSaveString();
-				writeToFile(saveString, new File(profileDir, trms_files_fn));
-
-				String prefString = currentProfile.getPreferences().toString();
-				writeToFile(prefString, new File(profileDir, trms_prefs_fn));
-			}
+			currentProfile.save2();
 		}
 	}
 
@@ -210,7 +199,6 @@ public class SaveProfileNew {
 	}
 
 	public SaveProfileNew() {
-//		toSaveString();
 	}
 
 	public String getPath() {
@@ -219,7 +207,7 @@ public class SaveProfileNew {
 
 	public void setPath(final String path) {
 		lastDirectory = path;
-//		save();
+		save();
 	}
 
 	private void reload() {
@@ -250,6 +238,16 @@ public class SaveProfileNew {
 	public void addRecent(final String fp) {
 		getRecent().remove(fp);
 		getRecent().add(fp);
+		if (recent.size() > 15) {
+			recent.removeFirst();
+		}
+		save();
+	}
+
+	public void addRecentSetPath(File file) {
+		lastDirectory = file.getParent();
+		getRecent().remove(file.getPath());
+		getRecent().add(file.getPath());
 		if (recent.size() > 15) {
 			recent.removeFirst();
 		}

@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.ui.application.actionfunctions.CloseModel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
-import com.hiveworkshop.rms.ui.preferences.SaveProfile;
+import com.hiveworkshop.rms.ui.preferences.SaveProfileNew;
 import com.hiveworkshop.rms.ui.preferences.dataSourceChooser.DataSourceChooserPanel;
 import com.hiveworkshop.rms.util.ProgramVersion;
 
@@ -78,8 +78,8 @@ public class MainFrame extends JFrame {
 	public static void create(final List<String> startupModelPaths, boolean dataPromptForced) {
 		create(startupModelPaths);
 
-		if (dataPromptForced || SaveProfile.get().getDataSources() == null) {
-			DataSourceChooserPanel.showDataSourceChooser(SaveProfile.get().getDataSources());
+		if (dataPromptForced || SaveProfileNew.get().getDataSources() == null) {
+			DataSourceChooserPanel.showDataSourceChooser(SaveProfileNew.get().getDataSources());
 		}
 	}
 }
