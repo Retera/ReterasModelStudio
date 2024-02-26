@@ -7,9 +7,6 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 public class MpqDataSourceDescriptor implements DataSourceDescriptor {
-	/**
-	 * Generated serial id
-	 */
 	private static final long serialVersionUID = 8424254987711783598L;
 	private final String mpqFilePath;
 
@@ -35,7 +32,7 @@ public class MpqDataSourceDescriptor implements DataSourceDescriptor {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = (prime * result) + ((mpqFilePath == null) ? 0 : mpqFilePath.hashCode());
+		result = (prime * result) + Objects.hashCode(mpqFilePath);
 		return result;
 	}
 
@@ -50,9 +47,6 @@ public class MpqDataSourceDescriptor implements DataSourceDescriptor {
 		return false;
 	}
 
-	public String getMpqFilePath() {
-		return mpqFilePath;
-	}
 	public String getPath() {
 		return mpqFilePath;
 	}
@@ -60,5 +54,10 @@ public class MpqDataSourceDescriptor implements DataSourceDescriptor {
 	@Override
 	public MpqDataSourceDescriptor duplicate() {
 		return new MpqDataSourceDescriptor(mpqFilePath);
+	}
+
+	@Override
+	public String toString() {
+		return DataSourceDescriptor.toSaveString(this);
 	}
 }

@@ -104,8 +104,8 @@ public class DataSourceChooserPanel extends JPanel {
 		CascDataSourceDescriptor casc = dataSourceTree.getCascDataSourceDescriptor();
 		if (casc != null) {
 			if (casc.getPrefixes().size() == 5) {
-				casc.deletePrefix(4);
-				casc.deletePrefix(3);
+				casc.removePrefix(4);
+				casc.removePrefix(3);
 				dataSourceTree.rebuildTree();
 			} else {
 				showMessage("Your Warcraft III data CASC configuration is not in the HD mode.");

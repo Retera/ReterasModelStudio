@@ -6,9 +6,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class CascDataSourceDescriptor implements DataSourceDescriptor {
-	/**
-	 * Generated serial id
-	 */
 	private static final long serialVersionUID = 832549098549298820L;
 	private final String gameInstallPath;
 	private final List<String> prefixes;
@@ -42,7 +39,7 @@ public class CascDataSourceDescriptor implements DataSourceDescriptor {
 		return this;
 	}
 
-	public CascDataSourceDescriptor deletePrefix(final int index) {
+	public CascDataSourceDescriptor removePrefix(final int index) {
 		prefixes.remove(index);
 		return this;
 	}
@@ -65,9 +62,6 @@ public class CascDataSourceDescriptor implements DataSourceDescriptor {
 		}
 	}
 
-	public String getGameInstallPath() {
-		return gameInstallPath;
-	}
 	public String getPath() {
 		return gameInstallPath;
 	}
@@ -80,8 +74,8 @@ public class CascDataSourceDescriptor implements DataSourceDescriptor {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = (prime * result) + ((gameInstallPath == null) ? 0 : gameInstallPath.hashCode());
-		result = (prime * result) + ((prefixes == null) ? 0 : prefixes.hashCode());
+		result = (prime * result) + Objects.hashCode(gameInstallPath);
+		result = (prime * result) + Objects.hashCode(prefixes);
 		return result;
 	}
 
@@ -99,5 +93,20 @@ public class CascDataSourceDescriptor implements DataSourceDescriptor {
 	@Override
 	public CascDataSourceDescriptor duplicate() {
 		return new CascDataSourceDescriptor(gameInstallPath, new ArrayList<>(prefixes));
+	}
+
+	@Override
+	public String toString() {
+		return DataSourceDescriptor.toSaveString(this);
+	}
+
+	public CascDataSourceDescriptor parsePrefixes(String prefixString) {
+		String[] prefixes = prefixString.replaceAll("(^\\[)|(]$)", "").split("(?<=\"), ((?=\")|$)");
+		for (String prefix : prefixes) {
+			if (!prefix.isBlank()) {
+				addPrefix(prefix.replaceAll("(^\")|(\"$)", ""));
+			}
+		}
+		return this;
 	}
 }

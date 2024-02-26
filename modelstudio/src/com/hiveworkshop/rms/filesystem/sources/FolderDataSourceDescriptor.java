@@ -4,9 +4,6 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 public class FolderDataSourceDescriptor implements DataSourceDescriptor {
-	/**
-	 * Generated serial id
-	 */
 	private static final long serialVersionUID = -476724730967709309L;
 	private final String folderPath;
 
@@ -28,7 +25,7 @@ public class FolderDataSourceDescriptor implements DataSourceDescriptor {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = (prime * result) + ((folderPath == null) ? 0 : folderPath.hashCode());
+		result = (prime * result) + Objects.hashCode(folderPath);
 		return result;
 	}
 
@@ -43,9 +40,6 @@ public class FolderDataSourceDescriptor implements DataSourceDescriptor {
 		return false;
 	}
 
-	public String getFolderPath() {
-		return folderPath;
-	}
 	public String getPath() {
 		return folderPath;
 	}
@@ -54,4 +48,10 @@ public class FolderDataSourceDescriptor implements DataSourceDescriptor {
 	public FolderDataSourceDescriptor duplicate() {
 		return new FolderDataSourceDescriptor(folderPath);
 	}
+
+	@Override
+	public String toString() {
+		return DataSourceDescriptor.toSaveString(this);
+	}
+
 }

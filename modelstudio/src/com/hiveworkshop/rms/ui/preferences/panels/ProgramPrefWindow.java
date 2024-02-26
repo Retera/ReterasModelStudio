@@ -97,7 +97,6 @@ public class ProgramPrefWindow extends JFrame {
 		SaveProfile.save();
 		if (changedDataSources) {
 			updateDataSource();
-			ProgramGlobals.getRootWindowUgg().getWindowHandler2().dataSourcesChanged();
 		}
 	}
 

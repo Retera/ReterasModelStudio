@@ -3,126 +3,90 @@ package com.hiveworkshop.rms.ui.preferences.dataSourceChooser;
 import com.hiveworkshop.blizzard.casc.io.WC3CascFileSystem;
 import com.hiveworkshop.blizzard.casc.io.WarcraftIIICASC;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
+import com.hiveworkshop.rms.util.TwiComboBox;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class CascPrefixChooser {
 
-
-	public static String getSpecificPrefix(Path installPathPath, Component parent) {
+	public static List<String> getSpecificPrefix(String installPath, Component parent) {
 		// It's CASC. Now the question: what prefixes do we use?
-		try {
-			WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true);
-			DefaultComboBoxModel<String> prefixes = new DefaultComboBoxModel<>();
-			try {
-				WC3CascFileSystem rootFileSystem = tempCascReader.getRootFileSystem();
-				List<String> allFiles = rootFileSystem.enumerateFiles();
-				for (String file : allFiles) {
-					if (rootFileSystem.isNestedFileSystem(file)) {
-						prefixes.addElement(file);
-					}
-				}
-			} finally {
-				tempCascReader.close();
-			}
-			JComboBox<String> prefixChoiceComboBox = new JComboBox<>(prefixes);
-			prefixChoiceComboBox.setEditable(true);
+		List<String> allCascPrefixes = getAllCascPrefixes(Paths.get(installPath));
 
-			JPanel comboBoxPanel = new JPanel(new BorderLayout());
-			comboBoxPanel.add(prefixChoiceComboBox, BorderLayout.CENTER);
-			comboBoxPanel.add(new JLabel("Choose a .w3mod:"), BorderLayout.BEFORE_FIRST_LINE);
+		TwiComboBox<String> prefixChoiceComboBox = new TwiComboBox<>(allCascPrefixes, "a prototype value");
+		prefixChoiceComboBox.setEditable(true);
 
-			if (showConf(comboBoxPanel, "Choose Mod", parent) == JOptionPane.OK_OPTION) {
-				Object selectedItem = prefixChoiceComboBox.getSelectedItem();
-				if (selectedItem != null) {
-					return selectedItem.toString();
+		JPanel comboBoxPanel = new JPanel(new BorderLayout());
+		comboBoxPanel.add(prefixChoiceComboBox, BorderLayout.CENTER);
+		comboBoxPanel.add(new JLabel("Choose a .w3mod:"), BorderLayout.BEFORE_FIRST_LINE);
+
+		if (showConf(comboBoxPanel, "Choose Mod", parent) == JOptionPane.OK_OPTION) {
+			String selectedItem = prefixChoiceComboBox.getSelected();
+			if (selectedItem != null) {
+				return Collections.singletonList(selectedItem);
+			}
+		}
+
+		return Collections.emptyList();
+	}
+
+	private static List<String> getAllCascPrefixes(Path installPath) {
+		List<String> prefixes = new ArrayList<>();
+		try (WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPath, true)) {
+			WC3CascFileSystem rootFileSystem = tempCascReader.getRootFileSystem();
+			List<String> allFiles = rootFileSystem.enumerateFiles();
+			for (String file : allFiles) {
+				if (rootFileSystem.isNestedFileSystem(file)) {
+					prefixes.add(file);
 				}
 			}
-		} catch (final Exception e1) {
-			e1.printStackTrace();
-			ExceptionPopup.display(e1);
+		} catch (IOException ignored) {}
+		return prefixes;
+	}
+
+	public static List<String> getDefaultCASCPrefixes(String installPath, boolean askLocale, Component parent) {
+		CascInstallInfo cascInstallInfo = new CascInstallInfo(installPath);
+		String locale;
+		if (askLocale) {
+			locale = LocaleChooser.getLocale(parent, cascInstallInfo.launcherDbLocale, cascInstallInfo.originalInstallLocale, cascInstallInfo.localeValidMap);
+		} else {
+			locale = LocaleChooser.getFirstValid(cascInstallInfo.localeValidMap);
+		}
+		if (locale != null) {
+			SupportedCascPatchFormat validPatch = getValidPatch(cascInstallInfo.patchFormat, SupportedCascPatchFormat.PATCH131, askLocale, parent);
+			return validPatch.getPrefixes(locale);
 		}
 		return null;
 	}
-	public static List<String> getSpecificPrefixs(Path installPathPath, Component parent) {
-		// It's CASC. Now the question: what prefixes do we use?
-		try {
-			WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true);
-			DefaultComboBoxModel<String> prefixes = new DefaultComboBoxModel<>();
-			try {
-				WC3CascFileSystem rootFileSystem = tempCascReader.getRootFileSystem();
-				List<String> allFiles = rootFileSystem.enumerateFiles();
-				for (String file : allFiles) {
-					if (rootFileSystem.isNestedFileSystem(file)) {
-						prefixes.addElement(file);
-					}
-				}
-			} finally {
-				tempCascReader.close();
-			}
-			JComboBox<String> prefixChoiceComboBox = new JComboBox<>(prefixes);
-			prefixChoiceComboBox.setEditable(true);
 
-			JPanel comboBoxPanel = new JPanel(new BorderLayout());
-			comboBoxPanel.add(prefixChoiceComboBox, BorderLayout.CENTER);
-			comboBoxPanel.add(new JLabel("Choose a .w3mod:"), BorderLayout.BEFORE_FIRST_LINE);
-
-			if (showConf(comboBoxPanel, "Choose Mod", parent) == JOptionPane.OK_OPTION) {
-				Object selectedItem = prefixChoiceComboBox.getSelectedItem();
-				if (selectedItem != null) {
-					return Collections.singletonList(selectedItem.toString());
-				}
-			}
-		} catch (final Exception e1) {
-			e1.printStackTrace();
-			ExceptionPopup.display(e1);
+	private static SupportedCascPatchFormat getValidPatch(SupportedCascPatchFormat patchFormat, SupportedCascPatchFormat fallback, boolean userChosen, Component parent) {
+		if (patchFormat == SupportedCascPatchFormat.UNKNOWN_FUTURE_PATCH) {
+			String locateType = userChosen ? "selected" : "found";
+			showMessage(
+					"The Warcraft III Installation " + locateType + " seems to be too new, or is not a supported version."
+							+ "\nThe suggested prefix list from Patch " + fallback.display + " will be used."
+							+ "\nThis will probably fail, and you will need more advanced configuration.", parent);
+			return fallback;
 		}
-		return Collections.emptyList();
+		return patchFormat;
 	}
 
-	public static List<String> addDefaultCASCPrefixes(Path installPathPath, boolean allowPopup, Component parent) {
-		// It's CASC. Now the question: what prefixes do we use?
-		try {
-			try (WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true)) {
-				String launcherDbLocale = getLauncherDbLocale(installPathPath);
-
-				String originalInstallLocale = getOriginalInstallLocale(tempCascReader);
-
-				WC3CascFileSystem rootFileSystem = tempCascReader.getRootFileSystem();
-				SupportedCascPatchFormat patchFormat = getPatchFormat(tempCascReader, rootFileSystem);
-				// Now, we really want to know the locale.
-				String locale = LocaleChooser.getLocale(allowPopup, parent, launcherDbLocale, originalInstallLocale, tempCascReader, patchFormat, rootFileSystem);
-
-				if (locale != null){
-					if (patchFormat == SupportedCascPatchFormat.UNKNOWN_FUTURE_PATCH){
-						showMessage(
-								"The Warcraft III Installation you have selected seems to be too new, " +
-										"or is not a supported version. The suggested prefix list from Patch 1.31 will be used." +
-										"\nThis will probably fail, and you will need more advanced configuration.", parent);
-					}
-					return patchFormat.getPrefixes(locale);
-				}
-			}
-		} catch (final Exception e1) {
-			e1.printStackTrace();
-			ExceptionPopup.display(e1);
-		}
-		return Collections.emptyList();
-	}
-
-	public static SupportedCascPatchFormat getPatchFormat(WarcraftIIICASC tempCascReader, WC3CascFileSystem rootFileSystem) throws IOException {
+	public static SupportedCascPatchFormat getPatchFormat(WC3CascFileSystem rootFileSystem) throws IOException {
 		SupportedCascPatchFormat patchFormat;
 		if (rootFileSystem.isFile("war3.mpq\\units\\unitdata.slk")) {
 			patchFormat = SupportedCascPatchFormat.PATCH130;
-		} else if (tempCascReader.getRootFileSystem().isFile("war3.w3mod\\_hd.w3mod\\units\\human\\footman\\footman.mdx")) {
+		} else if (rootFileSystem.isFile("war3.w3mod\\_hd.w3mod\\units\\human\\footman\\footman.mdx")) {
 			patchFormat = SupportedCascPatchFormat.PATCH132;
-		} else if (tempCascReader.getRootFileSystem().isFile("war3.w3mod\\units\\unitdata.slk")) {
+		} else if (rootFileSystem.isFile("war3.w3mod\\units\\unitdata.slk")) {
 			patchFormat = SupportedCascPatchFormat.PATCH131;
 		} else {
 			patchFormat = SupportedCascPatchFormat.UNKNOWN_FUTURE_PATCH;
@@ -156,10 +120,10 @@ public class CascPrefixChooser {
 			if (launcherDBLang.size() > 0 && launcherDBLang.get(0).length() == 4) {
 				return launcherDBLang.get(0);
 			}
-		} catch (final Exception ignored) {
-		}
+		} catch (final Exception ignored) {}
 		return null;
 	}
+
 	public static int showConf(JPanel messagePanel, String title, Component parent) {
 		int option = JOptionPane.OK_CANCEL_OPTION;
 		int type = JOptionPane.PLAIN_MESSAGE;
@@ -168,5 +132,25 @@ public class CascPrefixChooser {
 
 	public static void showMessage(String message, Component parent) {
 		JOptionPane.showMessageDialog(parent, message, "Error", JOptionPane.ERROR_MESSAGE);
+	}
+
+	private static class CascInstallInfo {
+		private SupportedCascPatchFormat patchFormat;
+		private String launcherDbLocale;
+		private String originalInstallLocale;
+		private Map<String, Boolean> localeValidMap;
+		CascInstallInfo(String installPath) {
+			Path installPathPath = Paths.get(installPath);
+			try (WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true)) {
+				WC3CascFileSystem rootFileSystem = tempCascReader.getRootFileSystem();
+				patchFormat = getPatchFormat(rootFileSystem);
+				launcherDbLocale = getLauncherDbLocale(installPathPath);
+				originalInstallLocale = getOriginalInstallLocale(tempCascReader);
+				localeValidMap = LocaleChooser.getLocaleOptions(rootFileSystem, patchFormat);
+			} catch (final Exception e1) {
+				e1.printStackTrace();
+				ExceptionPopup.display(e1);
+			}
+		}
 	}
 }

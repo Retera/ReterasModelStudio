@@ -11,7 +11,9 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.TreeMap;
 
 public class ProgramPreferences implements Serializable {
 	@Serial
@@ -25,8 +27,6 @@ public class ProgramPreferences implements Serializable {
 	private Boolean useBoxesForPivotPoints = true;
 	private Boolean allowLoadingNonBlpTextures = true;
 	private Boolean renderParticles = true;
-	private Color activeColor1 = new Color(255, 200, 200);
-	private Color activeColor2 = new Color(170, 60, 0);
 	private Boolean loadPortraits = true;
 
 	private Boolean optimizeOnSave = true;
@@ -153,23 +153,6 @@ public class ProgramPreferences implements Serializable {
 		saveAndFireListeners();
 	}
 
-	public Color getActiveColor1() {
-		return activeColor1;
-	}
-	public void setActiveColor1(final Color activeColor1) {
-		this.activeColor1 = activeColor1;
-		saveAndFireListeners();
-	}
-
-	public Color getActiveColor2() {
-		return activeColor2;
-	}
-	public void setActiveColor2(final Color activeColor2) {
-		this.activeColor2 = activeColor2;
-		saveAndFireListeners();
-	}
-
-
 
 	public boolean isLoadPortraits() {
 		return loadPortraits;
@@ -285,7 +268,7 @@ public class ProgramPreferences implements Serializable {
 
 	public ProgramPreferences setEditorColors(EditorColorPrefs editorColors) {
 		this.editorColors = editorColors.toString();
-		System.out.println("Saved keybindings!");
+		System.out.println("Saved EditColorPrefs!");
 		System.out.println(editorColors);
 		saveAndFireListeners();
 		return this;
@@ -348,7 +331,7 @@ public class ProgramPreferences implements Serializable {
 			this.cameraShortcutsPrefs = new CameraControlPrefs();
 		}
 		this.cameraShortcutsPrefs.parseString(this.cameraShortcuts);
-		System.out.println("Saved keybindings!");
+		System.out.println("Saved Camera Keybindings!");
 		System.out.println(cameraShortcutsPrefs);
 		saveAndFireListeners();
 		return this;
@@ -379,7 +362,7 @@ public class ProgramPreferences implements Serializable {
 			this.nav3DMousePrefs = new Nav3DMousePrefs();
 		}
 		this.nav3DMousePrefs.parseString(this.nav3DMouseActions);
-		System.out.println("Saved keybindings!");
+		System.out.println("Saved Nav3D Keybindings!");
 		System.out.println(cameraShortcuts);
 		saveAndFireListeners();
 		return this;
@@ -450,7 +433,8 @@ public class ProgramPreferences implements Serializable {
 		Field[] declaredFields = this.getClass().getDeclaredFields();
 		for (Field field : declaredFields) {
 			try {
-				if (field.get(this) == null) {
+				if (notTransientNorStatic(field) && field.get(this) == null) {
+//					System.out.println("filling field: \"" + field.getName() + "\"");
 					field.set(this, field.get(defaultPrefs));
 				}
 
@@ -458,6 +442,11 @@ public class ProgramPreferences implements Serializable {
 				e.printStackTrace();
 			}
 		}
+	}
+	private boolean notTransientNorStatic(Field field) {
+		int modifiers = field.getModifiers();
+//		!Modifier.isStatic(modifiers) || !Modifier.isTransient(modifiers);
+		return (modifiers & 128) == 0 && (modifiers & 8) == 0;
 	}
 
 	private void saveAndFireListeners() {
@@ -481,6 +470,115 @@ public class ProgramPreferences implements Serializable {
 
 		saveAndFireListeners();
 		return this;
+	}
+	public String toString() {
+		Field[] declaredFields = ProgramPreferences.class.getDeclaredFields();
+		StringBuilder sb = new StringBuilder();
+		for (Field field : declaredFields) {
+			if (notTransientNorStatic(field)) {
+				try {
+					String name = field.getName();
+					Object o = field.get(this);
+
+					if (o instanceof Collection<?> collection) {
+						sb.append(name).append(" = ").append("[\n");
+						for (Object e : collection) {
+							if (e instanceof String) {
+								sb.append("\t\"").append(e).append("\",\n");
+							} else {
+								sb.append("\t").append(e).append(",\n");
+							}
+						}
+						sb.append("];\n");
+					} else {
+						if (o instanceof String) {
+							sb.append(name).append(" = \"").append(o).append("\";\n");
+						} else {
+							sb.append(name).append(" = ").append(o).append(";\n");
+						}
+					}
+
+				} catch (IllegalAccessException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		return sb.toString();
+	}
+	public void fromString(String s) {
+		Field[] declaredFields = this.getClass().getDeclaredFields();
+		TreeMap<Integer, Field> offsetToField = new TreeMap<>();
+		for (Field field : declaredFields) {
+			if (notTransientNorStatic(field)) {
+				String name = field.getName();
+				int indexOf = s.indexOf(name + " = ");
+				if (indexOf != -1) {
+					offsetToField.put(indexOf, field);
+				}
+			}
+		}
+
+		for (Integer offs : offsetToField.keySet()) {
+			Field field = offsetToField.get(offs);
+			String name = field.getName();
+			String fieldString = s.strip().split(name + " = ")[1];
+			Integer nOffs = offsetToField.higherKey(offs);
+			if (nOffs != null) {
+				String nextName = offsetToField.get(nOffs).getName();
+				fieldString = fieldString.strip().split(nextName + " = ")[0];
+			}
+			parseField(field, fieldString);
+		}
+
+//		Map<String, String> fieldStringsMap = new LinkedHashMap<>();
+//		String stump = s;
+//		Field lastField = null;
+//		for (Field field : declaredFields) {
+//			if(notTransientNorStatic(field)) {
+//				String name = field.getName();
+//				String[] split = stump.split(name + " = ");
+//
+//				if (lastField != null) {
+//					String strip = split[0].strip();
+//					fieldStringsMap.put(lastField.getName(), strip);
+//					if (!strip.isBlank()) {
+//						String s1 = strip.replaceAll("(^\")|(\"?;$)", "");
+//						System.out.println(lastField.getName() + " - " + lastField.getType() + " [" + s1 +"]");
+//
+//						parseField(lastField, s1);
+//					}
+//				}
+//				lastField = field;
+//				if(1 < split.length){
+//					stump = split[1];
+//				}
+//			}
+//		}
+	}
+
+	private void parseField(Field field, String s) {
+		try {
+			if (field.getType().getSuperclass() == Enum.class) {
+				field.set(this, Enum.valueOf((Class<Enum>) field.getType(), s));
+			} else if (field.getType() == Integer.class) {
+				field.set(this, Integer.parseInt(s));
+			} else if (field.getType() == Boolean.class) {
+				field.set(this, Boolean.parseBoolean(s));
+			} else if (field.getType() == String.class) {
+				field.set(this, s);
+			} else if (field.getType() == Float.class) {
+				field.set(this, Float.parseFloat(s));
+			} else if (field.getType() == Color.class) {
+//				field.set(this, Color.getColor(s));
+//				field.set(this, Color.decode(s));
+			} else {
+				System.out.println("\tUNKNOWN TYPE");
+			}
+
+		} catch (Exception e) {
+			System.out.println("Failed to parse [" + field.getName() + ", " + field.getType() + "]");
+			e.printStackTrace();
+		}
 	}
 
 	public byte[] getViewMap() {

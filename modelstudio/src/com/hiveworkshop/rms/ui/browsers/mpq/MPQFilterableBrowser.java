@@ -61,20 +61,6 @@ public abstract class MPQFilterableBrowser extends JPanel {
 
 	protected abstract JMenuBar getMenuBar();
 
-	private static File getDummyFile(String extension) {
-		File dummy = new File(extension);
-		if (!dummy.exists()) {
-			try {
-				if (!dummy.createNewFile()) {
-					return null;
-				}
-			} catch (IOException e) {
-				return null;
-			}
-		}
-		return dummy;
-	}
-
 	protected abstract void addFilters();
 
 	protected MPQFilterableBrowser addFilter(String name, String... extensions) {
@@ -151,6 +137,20 @@ public abstract class MPQFilterableBrowser extends JPanel {
 				tempFile.delete();
 			}
 		}
+	}
+
+	private static File getDummyFile(String extension) {
+		File dummy = new File(extension);
+		if (!dummy.exists()) {
+			try {
+				if (!dummy.createNewFile()) {
+					return null;
+				}
+			} catch (IOException e) {
+				return null;
+			}
+		}
+		return dummy;
 	}
 
 	// Go through all nodes recursively and update the visible tag for all based on the current filter setting

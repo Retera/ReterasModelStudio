@@ -53,16 +53,10 @@ public class SaveProfile implements Serializable {
 					if (loadedObject instanceof SaveProfile) {
 						currentProfile = (SaveProfile) loadedObject;
 						currentProfile.getPreferences().setNullToDefaults();
-					} else {
-						System.out.println("Will try to load old preferences");
-						tryToLoadOldPrefs(profileFile);
 					}
 
 				} catch (final Exception e) {
-//					e.printStackTrace();
-					System.err.println("Failed to load preferences;\nWill try to load preferences from older version!");
-					System.out.println("Will try to load old preferences");
-					tryToLoadOldPrefs(profileFile);
+					System.err.println("Failed to load preferences");
 				}
 			}
 			if (currentProfile == null) {
@@ -85,34 +79,6 @@ public class SaveProfile implements Serializable {
 			}
 		}
 		return null;
-	}
-
-	private static void tryToLoadOldPrefs(File profileFile) {
-		byte[] inputBytes = getFixedFileBytes(profileFile);
-		if (0 < inputBytes.length) {
-			try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(inputBytes))) {
-				Object loadedObject = ois.readObject();
-				if (loadedObject instanceof SaveProfil2 oldSaveProf) {
-
-					SaveProfile saveProfile = new SaveProfile();
-					saveProfile.setPreferences(oldSaveProf.getPreferences().getAsNewPrefs());
-					saveProfile.setDataSources(oldSaveProf.getDataSources());
-					saveProfile.setPath(oldSaveProf.getPath());
-					for (String s : oldSaveProf.getRecent()) {
-						saveProfile.addRecent(s);
-					}
-
-					currentProfile = saveProfile;
-
-					System.out.println("Seems to successfully loaded old preferences");
-				}
-			} catch (Exception e2) {
-				System.err.println("Failed to load old preferences");
-//				e2.printStackTrace();
-			}
-		} else {
-			System.err.println("Failed to load old preferences");
-		}
 	}
 
 	public static void save() {
@@ -191,8 +157,8 @@ public class SaveProfile implements Serializable {
 
 	private boolean computeIsHd(final Iterable<DataSourceDescriptor> dataSources) {
 		for (final DataSourceDescriptor desc : dataSources) {
-			if (desc instanceof FolderDataSourceDescriptor fDesc && fDesc.getFolderPath().contains("_hd.w3mod")
-					|| desc instanceof MpqDataSourceDescriptor mDesc && mDesc.getMpqFilePath().contains("_hd")
+			if (desc instanceof FolderDataSourceDescriptor fDesc && fDesc.getPath().contains("_hd.w3mod")
+					|| desc instanceof MpqDataSourceDescriptor mDesc && mDesc.getPath().contains("_hd")
 					|| desc instanceof CompoundDataSourceDescriptor compDesc && computeIsHd(compDesc.getDataSourceDescriptors())) {
 				return true;
 			} else if (desc instanceof CascDataSourceDescriptor cDesc) {
@@ -256,55 +222,6 @@ public class SaveProfile implements Serializable {
 
 	public boolean isHd() {
 		return isHD;
-	}
-
-	private static byte[] getFixedFileBytes(File profileFile) {
-		// Change occurrences of "ProgramPreferences" and "SaveProfile" in the file content
-		// to "ProgramPreference2" and "SaveProfil2" to allow loading of
-		// old settings into renamed classes
-		byte[] bytes;
-		try (FileInputStream fis = new FileInputStream(profileFile)) {
-			bytes = fis.readAllBytes();
-		} catch (Exception e){
-			bytes = new byte[0];
-		}
-
-		String prefClassName = "ProgramPreferences";
-		String saveClassName = "SaveProfile";
-
-		boolean readingPref = false;
-		boolean readingSProf = false;
-		int numSavedBytes = 0;
-
-		for (int i = 0; i < bytes.length; i++) {
-			byte b = bytes[i];
-			if (readingPref && prefClassName.length() <= numSavedBytes
-					|| readingSProf && saveClassName.length() <= numSavedBytes) {
-				// text in byteList matches either "ProgramPreferences" or "SaveProfile".
-				// Change last letter to a "2"
-				bytes[i-1] = (byte) '2';
-				numSavedBytes = 0;
-				readingPref = false;
-				readingSProf = false;
-			} else if (readingPref && b == prefClassName.charAt(numSavedBytes)
-					|| readingSProf && b == saveClassName.charAt(numSavedBytes)) {
-				numSavedBytes++;
-			} else {
-				numSavedBytes = 0;
-				readingPref = false;
-				readingSProf = false;
-			}
-
-			if (!readingPref && !readingSProf && b == prefClassName.charAt(0)) {
-				numSavedBytes = 1;
-				readingPref = true;
-			} else if (!readingPref && !readingSProf && b == saveClassName.charAt(0)) {
-				numSavedBytes = 1;
-				readingSProf = true;
-			}
-		}
-
-		return bytes;
 	}
 
 }

@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.filesystem.sources.CascDataSourceDescriptor;
 
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
-import java.nio.file.Paths;
 import java.util.List;
 
 public class CascDataSourceDescTreeNode extends DataSourceDescTreeNode<CascDataSourceDescriptor> {
@@ -20,19 +19,23 @@ public class CascDataSourceDescTreeNode extends DataSourceDescTreeNode<CascDataS
 		}
 	}
 
-	public void addDefaultCASCMod(DefaultTreeModel model, Component popupParent){
-		List<String> prefixes = CascPrefixChooser.addDefaultCASCPrefixes(Paths.get(descriptor.getGameInstallPath()), true, popupParent);
-		descriptor.addPrefixes(prefixes);
-		for(String prefix : prefixes){
-			CascDataSourceSubNode cascChild = new CascDataSourceSubNode(prefix, descriptor, this);
-			model.insertNodeInto(cascChild, this, getChildCount());
+	public void addDefaultCASCMod(DefaultTreeModel model, Component popupParent) {
+		List<String> prefixes = CascPrefixChooser.getDefaultCASCPrefixes(descriptor.getPath(), true, popupParent);
+		if (prefixes != null) {
+			addCASCMods(prefixes, model);
 		}
 	}
 
-	public void addSpecificCASCMod(DefaultTreeModel model, Component popupParent){
-		List<String> prefixes = CascPrefixChooser.getSpecificPrefixs(Paths.get(descriptor.getGameInstallPath()), popupParent);
+	public void addSpecificCASCMod(DefaultTreeModel model, Component popupParent) {
+		List<String> prefixes = CascPrefixChooser.getSpecificPrefix(descriptor.getPath(), popupParent);
+		if (prefixes != null) {
+			addCASCMods(prefixes, model);
+		}
+	}
+
+	public void addCASCMods(List<String> prefixes, DefaultTreeModel model) {
 		descriptor.addPrefixes(prefixes);
-		for(String prefix : prefixes){
+		for (String prefix : prefixes) {
 			CascDataSourceSubNode cascChild = new CascDataSourceSubNode(prefix, descriptor, this);
 			model.insertNodeInto(cascChild, this, getChildCount());
 		}
@@ -42,14 +45,14 @@ public class CascDataSourceDescTreeNode extends DataSourceDescTreeNode<CascDataS
 		int index = getIndex(cascChild);
 		descriptor.movePrefix(index, dir);
 		int newIndex = index + dir;
-		if (newIndex >= 0 && newIndex < getChildCount()){
+		if (0 <= newIndex && newIndex < getChildCount()) {
 			model.removeNodeFromParent(cascChild);
 			model.insertNodeInto(cascChild, this, newIndex);
 		}
 	}
 	public void remove(DefaultTreeModel model, CascDataSourceSubNode cascChild) {
 		int index = getIndex(cascChild);
-		descriptor.deletePrefix(index);
+		descriptor.removePrefix(index);
 		model.removeNodeFromParent(cascChild);
 	}
 }

@@ -18,7 +18,7 @@ public class WindowsRegistry {
 	public static String readRegistry(final String location, final String key) {
 		try {
 			// Run reg query, then read output with StreamReader (internal class)
-			final Process process = Runtime.getRuntime().exec("reg query " + '"' + location + "\" /v " + key);
+			final Process process = Runtime.getRuntime().exec("reg query \"" + location + "\" /v " + key);
 
 			final StreamReader reader = new StreamReader(process.getInputStream());
 			reader.start();
@@ -27,7 +27,7 @@ public class WindowsRegistry {
 			final String output = reader.getResult();
 
 			// Output has the following format:
-			// \n<Version information>\n\n<key>\t<registry type>\t<value>
+			// \n<Version information>\n\n\t<key>\t<registry type>\t<value>
 			if (!output.contains("REG_SZ")) {
 				return null;
 			}
@@ -40,7 +40,28 @@ public class WindowsRegistry {
 		} catch (final Exception e) {
 			return null;
 		}
+	}
 
+	/**
+	 * @param location path in the registry
+	 * @return registry values and sub-paths or empty array if none found
+	 */
+	public static String[] readRegistry(final String location) {
+		try {
+			// Run reg query, then read output with StreamReader (internal class)
+			final Process process = Runtime.getRuntime().exec("reg query \"" + location + "\"");
+
+			final StreamReader reader = new StreamReader(process.getInputStream());
+			reader.start();
+			process.waitFor();
+			reader.join();
+			final String output = reader.getResult();
+			// Output has the following format:
+			//\n<<location>\n[\t<key>\t<registry type>\t<value>\n]\n>[<sub location>\n]
+			return output.trim().split("\n");
+		} catch (final Exception e) {
+			return null;
+		}
 	}
 
 	static class StreamReader extends Thread {

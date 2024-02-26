@@ -26,6 +26,7 @@ public class DataSourceTracker {
 	public DataSourceTracker(Component popupParent) {
 		wcDirectory = getWindowsRegistryDirectory();
 		if (wcDirectory != null) fileChooser.setCurrentDirectory(new File(wcDirectory));
+		else if (new File("C:\\Program Files").exists()) fileChooser.setCurrentDirectory(new File("C:\\Program Files\\Warcraft III"));
 
 		this.popupParent = popupParent;
 	}
@@ -44,89 +45,31 @@ public class DataSourceTracker {
 
 	protected List<DataSourceDescriptor> getDefaults() {
 		if (wcDirectory != null) {
-			return addWarcraft3Installation(Paths.get(wcDirectory), false);
+			if (isCASC(wcDirectory)) {
+				List<String> prefixes = CascPrefixChooser.getDefaultCASCPrefixes(wcDirectory, false, popupParent);
+				return getCascDataSourceDescriptors(Paths.get(wcDirectory), prefixes);
+			} else {
+				return getMPQDataSourceDescriptors(Paths.get(wcDirectory));
+			}
 		} else {
 			return Collections.emptyList();
 		}
 	}
 
-
-	private void getWindowsRegistryDirectory1() {
-		String usrSw = "HKEY_CURRENT_USER\\Software\\";
-		String beW3 = "Blizzard Entertainment\\Warcraft III";
-		wcDirectory = WindowsRegistry.readRegistry(usrSw + beW3, "InstallPathX");
-		if (wcDirectory == null) {
-			wcDirectory = WindowsRegistry.readRegistry(usrSw + beW3, "InstallPathX");
-		}
-		if (wcDirectory == null) {
-			wcDirectory = WindowsRegistry.readRegistry(
-					usrSw + "Classes\\VirtualStore\\MACHINE\\SOFTWARE\\Wow6432Node\\" + beW3,
-					"InstallPath");
-		}
-		if (wcDirectory != null) {
-			wcDirectory = wcDirectory.trim();
-			fileChooser.setCurrentDirectory(new File(wcDirectory));
-		}
-	}
-
-	private void getWindowsRegistryDirectory2() {
-		String usrSw = "HKEY_CURRENT_USER\\Software\\";
-		String beW3 = "Blizzard Entertainment\\Warcraft III";
-
-		String[][] locationKeyPairs = {
-				{usrSw + beW3, "InstallPathX"},
-				{usrSw + beW3, "InstallPathX"},
-				{usrSw + "Classes\\VirtualStore\\MACHINE\\SOFTWARE\\Wow6432Node\\" + beW3, "InstallPath"}};
-
-		for (String[] loc_key : locationKeyPairs) {
-			wcDirectory = WindowsRegistry.readRegistry(loc_key[0], loc_key[1]);
-			if (wcDirectory != null) {
-				wcDirectory = wcDirectory.trim();
-				fileChooser.setCurrentDirectory(new File(wcDirectory));
-				break;
-			}
-		}
-	}
-
-	public static void main(String[] args) {
-		System.out.println(getUgg());
-	}
-	private static String getUgg() {
-//		String usrSw = "HKEY_CURRENT_USER\\Software\\";
-		String usrSw = "HKEY_CURRENT_USER\\SOFTWARE\\";
-		String beW3 = "Blizzard Entertainment\\Warcraft III";
-
-
-
-		String[][] locationKeyPairs = {
-				{usrSw + beW3, "InstallPathX"},
-				{usrSw + beW3, "InstallPath"},
-				{usrSw + "Classes\\VirtualStore\\MACHINE\\SOFTWARE\\Wow6432Node\\" + beW3, "InstallPath"}};
-
-		for (String[] loc_key : locationKeyPairs) {
-			String wcDirectory = WindowsRegistry.readRegistry(loc_key[0], loc_key[1]);
-			if (wcDirectory != null) {
-				return wcDirectory.trim();
-			}
-		}
-		return null;
-	}
 	private String getWindowsRegistryDirectory() {
-//		String usrSw = "HKEY_CURRENT_USER\\Software\\";
-		String usrSw = "HKEY_CURRENT_USER\\SOFTWARE\\";
-		String beW3 = "Blizzard Entertainment\\Warcraft III";
+		String[] keys = {"InstallPathX", "InstallPath", "InstallLocation"};
+		String[] locations = {
+				"HKEY_CURRENT_USER\\SOFTWARE\\Blizzard Entertainment\\Warcraft III",
+				"HKEY_CURRENT_USER\\SOFTWARE\\Classes\\VirtualStore\\MACHINE\\SOFTWARE\\Wow6432Node\\Blizzard Entertainment\\Warcraft III",
+				"HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Warcraft III",
+		};
 
-
-
-		String[][] locationKeyPairs = {
-				{usrSw + beW3, "InstallPathX"},
-				{usrSw + beW3, "InstallPathX"},
-				{usrSw + "Classes\\VirtualStore\\MACHINE\\SOFTWARE\\Wow6432Node\\" + beW3, "InstallPath"}};
-
-		for (String[] loc_key : locationKeyPairs) {
-			String wcDirectory = WindowsRegistry.readRegistry(loc_key[0], loc_key[1]);
-			if (wcDirectory != null) {
-				return wcDirectory.trim();
+		for (String location : locations) {
+			for (String key : keys) {
+				String wcDirectory = WindowsRegistry.readRegistry(location, key);
+				if (wcDirectory != null) {
+					return wcDirectory.trim();
+				}
 			}
 		}
 		return null;
@@ -136,57 +79,59 @@ public class DataSourceTracker {
 		return wcDirectory;
 	}
 
-	public List<DataSourceDescriptor> addWarcraft3Installation(final Path installPathPath, final boolean allowPopup) {
-		List<DataSourceDescriptor> dataSourceDescriptors = new ArrayList<>();
-		if (Files.exists(installPathPath.resolve("Data/indices"))) {
-			// Is it a CASC war3
-			List<String> prefixes = CascPrefixChooser.addDefaultCASCPrefixes(installPathPath, allowPopup, popupParent);
-			if (!allowPopup || !prefixes.isEmpty()) {
-				CascDataSourceDescriptor dataSourceDesc = new CascDataSourceDescriptor(installPathPath.toString(), new ArrayList<>());
-				dataSourceDescriptors.add(dataSourceDesc);
-				dataSourceDesc.addPrefixes(prefixes);
-			}
-		} else {
-			// Is it a MPQ war3
-			String[] mpqSubPaths = {"War3.mpq", "War3Local.mpq", "War3x.mpq", "War3xlocal.mpq", "war3patch.mpq", "Deprecated.mpq"};
-			String[] folderSubPaths = {"war3.w3mod", "war3.w3mod/_locales/enus.w3mod", "war3.w3mod/_deprecated.w3mod", "war3.w3mod/_hd.w3mod", "war3.w3mod/_hd.w3mod/_locales/enus.w3mod"};
-
-			for (String s : mpqSubPaths) {
-				MpqDataSourceDescriptor descriptor = getFromMPQ(installPathPath, s);
-				if (descriptor != null) {
-					dataSourceDescriptors.add(descriptor);
-				}
-			}
-
-			for (String s : folderSubPaths) {
-				FolderDataSourceDescriptor descriptor = getFromFolder(installPathPath, s);
-				if (descriptor != null) {
-					dataSourceDescriptors.add(descriptor);
-				}
-			}
+	public List<DataSourceDescriptor> getCascDataSourceDescriptors(final Path installPathPath, List<String> prefixes){
+		if (prefixes != null) {
+			CascDataSourceDescriptor dataSourceDesc = new CascDataSourceDescriptor(installPathPath.toString());
+			dataSourceDesc.addPrefixes(prefixes);
+			return Collections.singletonList(dataSourceDesc);
 		}
+		return Collections.emptyList();
+	}
+
+	public List<DataSourceDescriptor> getMPQDataSourceDescriptors(final Path installPathPath){
+		List<DataSourceDescriptor> dataSourceDescriptors = new ArrayList<>();
+		dataSourceDescriptors.addAll(getMPQDescriptors(installPathPath));
+		dataSourceDescriptors.addAll(getFolderDescriptors(installPathPath));
 		return dataSourceDescriptors;
 	}
 
-	private FolderDataSourceDescriptor getFromFolder(Path installPathPath, String s) {
-		if (Files.exists(installPathPath.resolve(s))) {
-			return new FolderDataSourceDescriptor(installPathPath.resolve(s).toString());
-		}
-		return null;
+	private boolean isCASC(final String installPath) {
+		return Files.exists(Paths.get(installPath).resolve("Data/indices"));
 	}
 
-	private MpqDataSourceDescriptor getFromMPQ(Path installPathPath, String s) {
-		if (Files.exists(installPathPath.resolve(s))) {
-			return new MpqDataSourceDescriptor(installPathPath.resolve(s).toString());
+	private List<DataSourceDescriptor> getFolderDescriptors(Path installPathPath) {
+		List<DataSourceDescriptor> folderDescriptors = new ArrayList<>();
+		String[] folderSubPaths = {"war3.w3mod", "war3.w3mod/_locales/enus.w3mod", "war3.w3mod/_deprecated.w3mod", "war3.w3mod/_hd.w3mod", "war3.w3mod/_hd.w3mod/_locales/enus.w3mod"};
+		for (String s : folderSubPaths) {
+			if (Files.exists(installPathPath.resolve(s))) {
+				folderDescriptors.add(new FolderDataSourceDescriptor(installPathPath.resolve(s).toString()));
+			}
 		}
-		return null;
+		return folderDescriptors;
+	}
+
+	private List<DataSourceDescriptor> getMPQDescriptors(Path installPathPath) {
+		List<DataSourceDescriptor> mpqDescriptors = new ArrayList<>();
+		String[] mpqSubPaths = {"War3.mpq", "War3Local.mpq", "War3x.mpq", "War3xlocal.mpq", "war3patch.mpq", "Deprecated.mpq"};
+		for (String s : mpqSubPaths) {
+			if (Files.exists(installPathPath.resolve(s))) {
+				mpqDescriptors.add(new MpqDataSourceDescriptor(installPathPath.resolve(s).toString()));
+			}
+		}
+		return mpqDescriptors;
 	}
 
 	public List<DataSourceDescriptor> getWar3InstallDirectory() {
 		File selectedFile = getFile(null, JFileChooser.DIRECTORIES_ONLY, popupParent);
 		if (selectedFile != null) {
 			Path installPathPath = selectedFile.toPath();
-			List<DataSourceDescriptor> descriptors = addWarcraft3Installation(installPathPath, true);
+			List<DataSourceDescriptor> descriptors;
+			if (isCASC(selectedFile.getPath())) {
+				List<String> prefixes = CascPrefixChooser.getDefaultCASCPrefixes(selectedFile.getPath(), true, popupParent);
+				descriptors = getCascDataSourceDescriptors(installPathPath, prefixes);
+			} else {
+				descriptors = getMPQDescriptors(installPathPath);
+			}
 			if (descriptors.isEmpty()) {
 				String message = "Did not find any installation on path \"" + installPathPath + "\"";
 				System.err.println(message);
@@ -206,8 +151,7 @@ public class DataSourceTracker {
 	}
 
 	public List<DataSourceDescriptor> getMPQ() {
-		FileNameExtensionFilter filter = new FileNameExtensionFilter(
-				"MPQ Archive File (*.mpq;*.w3x;*.w3m)", "mpq", "w3x", "w3m");
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("MPQ Archive File (*.mpq;*.w3x;*.w3m)", "mpq", "w3x", "w3m");
 		File selectedFile = getFile(filter, JFileChooser.FILES_ONLY, popupParent);
 		if (selectedFile != null) {
 			return Collections.singletonList(new MpqDataSourceDescriptor(selectedFile.getPath()));

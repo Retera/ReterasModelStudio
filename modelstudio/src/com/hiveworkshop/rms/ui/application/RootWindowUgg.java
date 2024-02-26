@@ -27,7 +27,7 @@ public class RootWindowUgg extends RootWindow {
 	private static final WindowHandler2 windowHandler2 = new WindowHandler2();
 
 	public RootWindowUgg(byte[] viewMap1) {
-		super(windowHandler2.getViewSerilizer());
+		super(WH_ViewSerializer.getViewSerilizer());
 
 		addListener(new RootWindowListener(this));
 		loadDefaultLayout();

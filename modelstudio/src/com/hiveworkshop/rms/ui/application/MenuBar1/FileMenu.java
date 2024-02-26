@@ -82,9 +82,4 @@ public class FileMenu extends JMenu {
 		return recentMenu;
 	}
 
-	private void closeProgram() {
-		if (CloseModel.closeAll()) {
-			MainFrame.frame.dispose();
-		}
-	}
 }

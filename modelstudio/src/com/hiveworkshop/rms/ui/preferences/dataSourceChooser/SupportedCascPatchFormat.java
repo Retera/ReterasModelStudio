@@ -3,17 +3,17 @@ package com.hiveworkshop.rms.ui.preferences.dataSourceChooser;
 import java.util.ArrayList;
 
 enum SupportedCascPatchFormat {
-	PATCH130("", new String[] {"war3.mpq", "deprecated.mpq", "LOCALE" + "-war3local.mpq"}),
-	PATCH131("", new String[] {"war3.w3mod", "war3.w3mod\\_deprecated.w3mod", "war3.w3mod\\_locales\\" + "LOCALE" + ".w3mod"}),
-	PATCH132("", new String[] {"war3.w3mod", "war3.w3mod\\_deprecated.w3mod", "war3.w3mod\\_locales\\" + "LOCALE" + ".w3mod", "war3.w3mod\\_hd.w3mod", "war3.w3mod\\_hd.w3mod\\_locales\\" + "LOCALE" + ".w3mod"}),
-	UNKNOWN_FUTURE_PATCH("", new String[] {"war3.w3mod", "war3.w3mod", "war3.w3mod\\_deprecated.w3mod", "war3.w3mod\\_locales\\" + "LOCALE" + ".w3mod"});
+	PATCH130("1.30", new String[] {"war3.mpq", "deprecated.mpq", "LOCALE" + "-war3local.mpq"}),
+	PATCH131("1.31", new String[] {"war3.w3mod", "war3.w3mod\\_deprecated.w3mod", "war3.w3mod\\_locales\\" + "LOCALE" + ".w3mod"}),
+	PATCH132("1.32", new String[] {"war3.w3mod", "war3.w3mod\\_deprecated.w3mod", "war3.w3mod\\_locales\\" + "LOCALE" + ".w3mod", "war3.w3mod\\_hd.w3mod", "war3.w3mod\\_hd.w3mod\\_locales\\" + "LOCALE" + ".w3mod"}),
+	UNKNOWN_FUTURE_PATCH("?", new String[] {"war3.w3mod", "war3.w3mod", "war3.w3mod\\_deprecated.w3mod", "war3.w3mod\\_locales\\" + "LOCALE" + ".w3mod"});
 
 
-	String filePathToTest;
-	String[] prefixes;
+	final String display;
+	final String[] prefixes;
 
-	SupportedCascPatchFormat(String filePathToTest, String[] prefixes){
-		this.filePathToTest = filePathToTest;
+	SupportedCascPatchFormat(String display, String[] prefixes){
+		this.display = display;
 		this.prefixes = prefixes;
 	}
 
