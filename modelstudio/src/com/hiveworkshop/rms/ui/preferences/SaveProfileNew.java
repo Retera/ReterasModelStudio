@@ -29,109 +29,18 @@ public class SaveProfileNew {
 	private static final String trms_prefs_fn = "TRMS_settings.txt";
 	private static final String trms_files_fn = "TRMS_file_paths.txt";
 
-
+	public SaveProfileNew() {
+	}
 	public static SaveProfileNew get() {
 		if (currentProfile == null) {
-			File dirPath = getSettingsDirPath();
-			File pathsFile = new File(dirPath, trms_files_fn);
-			if (pathsFile.exists()) {
-				String pathsString = readStringFrom(pathsFile);
-				if (!pathsString.isBlank()) {
-					currentProfile = new SaveProfileNew();
-					currentProfile.fromString(pathsString);
-				}
-			} else {
-				File oldProfileFile = getOldProfileFile();
-				if (oldProfileFile != null) {
-					currentProfile = tryGetFromSerialized(oldProfileFile);
-				}
-			}
-			if (currentProfile == null) {
-				currentProfile = new SaveProfileNew();
-			}
-			currentProfile.getPreferences().setNullToDefaults();
+			currentProfile = getSaveProfileNewFromFile();
 
-			File prefsFile = new File(getSettingsDirPath(), trms_prefs_fn);
-			if (prefsFile.exists()) {
-				String prefsString = readStringFrom(prefsFile);
-				if (!prefsString.isBlank()) {
-					currentProfile.getPreferences().fromString(prefsString);
-				}
+			String prefsString = readStringFrom(new File(getSettingsDirPath(), trms_prefs_fn));
+			if (!prefsString.isBlank()) {
+				currentProfile.getPreferences().fromString(prefsString);
 			}
 		}
 		return currentProfile;
-	}
-
-	public SaveProfileNew set(SaveProfileNew saveProfile) {
-		lastDirectory = saveProfile.lastDirectory;
-		getPreferences().setFromOther(saveProfile.getPreferences());
-
-		for (File file : saveProfile.getFavorites().getFiles()) {
-			getFavorites().add(file);
-		}
-
-		for (File file : saveProfile.getRecent().getFiles()) {
-			getRecent().add(file);
-		}
-		getDataSources2().addAll(saveProfile.getDataSources2().getDataSourceDescriptors());
-		return this;
-	}
-
-	private static SaveProfileNew tryGetFromSerialized(File profileFile) {
-		System.out.println("loading saveProfile from: \"" + profileFile.getPath() + "\", " + profileFile.exists());
-		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(profileFile))) {
-			Object loadedObject = ois.readObject();
-			if (loadedObject instanceof SaveProfileNew saveProfileNew) {
-				return saveProfileNew;
-			} else if (loadedObject instanceof SaveProfile saveProfile) {
-				return new SaveProfileNew().setFromOldPrefs(saveProfile);
-			}
-
-		} catch (final Exception e) {
-//			e.printStackTrace();
-			System.out.println("Failed to load serialized preferences!");
-		}
-		return null;
-	}
-
-
-	private static String readStringFrom(File file) {
-		if (file != null && file.exists()) {
-			System.out.println("reading file: " + file);
-			try (BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
-				StringBuilder sb = new StringBuilder();
-				r.lines().forEach(l -> sb.append(l).append("\n"));
-				return sb.toString();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return "";
-	}
-
-	private static File getOldProfileFile() {
-		File profileDirPath = getSettingsDirPath();
-		for (String savePath : oldSavePaths) {
-			File profileFile = new File(profileDirPath, savePath);
-			if (profileFile.exists()) {
-				return profileFile;
-			}
-		}
-		return null;
-	}
-
-	private SaveProfileNew setFromOldPrefs(SaveProfile oldSaveProf) {
-		if (oldSaveProf != null) {
-			getPreferences().setFromOther(oldSaveProf.getPreferences());
-			setDataSources(oldSaveProf.getDataSources());
-			setPath(oldSaveProf.getPath());
-			for (String s : oldSaveProf.getRecent()) {
-				addRecent(s);
-			}
-
-			System.out.println("Seems to successfully loaded old preferences");
-		}
-		return this;
 	}
 
 	public static void save() {
@@ -174,7 +83,6 @@ public class SaveProfileNew {
 		this.preferences = preferences;
 	}
 
-
 	public void setDataSources(final List<DataSourceDescriptor> dataSources) {
 		this.dataSources = new DataSourceTracker(dataSources);
 		isHD = this.dataSources.isHd();
@@ -185,9 +93,12 @@ public class SaveProfileNew {
 	}
 
 	public List<DataSourceDescriptor> getDataSources() {
-		return dataSources.getDataSourceDescriptors();
+		return getDataSourceTracker().getDataSourceDescriptors();
 	}
-	public DataSourceTracker getDataSources2() {
+	public DataSourceTracker getDataSourceTracker() {
+		if (dataSources == null) {
+			dataSources = new DataSourceTracker();
+		}
 		return dataSources;
 	}
 
@@ -198,7 +109,9 @@ public class SaveProfileNew {
 		dataSourceChangeNotifier.subscribe(listener);
 	}
 
-	public SaveProfileNew() {
+	private void reload() {
+		dataSourceChangeNotifier = new WarcraftDataSourceChangeListener();
+		isHD = dataSources.isHd();
 	}
 
 	public String getPath() {
@@ -208,19 +121,6 @@ public class SaveProfileNew {
 	public void setPath(final String path) {
 		lastDirectory = path;
 		save();
-	}
-
-	private void reload() {
-		dataSourceChangeNotifier = new WarcraftDataSourceChangeListener();
-		isHD = dataSources.isHd();
-	}
-
-	private static File getSettingsDirPath() {
-		final String homeProfile = System.getProperty("user.home");
-		if (!System.getProperty("os.name").toLowerCase().contains("win")) {
-			return new File(homeProfile + "/.reteraStudioBeta");
-		}
-		return new File(homeProfile + "\\AppData\\Roaming\\ReteraStudioBeta");
 	}
 
 	public void clearRecent() {
@@ -292,6 +192,100 @@ public class SaveProfileNew {
 		return isHD;
 	}
 
+	private static SaveProfileNew getSaveProfileNewFromFile() {
+		String pathsString = readStringFrom(new File(getSettingsDirPath(), trms_files_fn));
+		if (!pathsString.isBlank()) {
+			return new SaveProfileNew().fromString(pathsString);
+		} else {
+			SaveProfileNew newProfile = tryGetFromSerialized(getOldProfileFile());
+			return newProfile == null ? new SaveProfileNew() : newProfile;
+		}
+	}
+
+	public SaveProfileNew set(SaveProfileNew saveProfile) {
+		lastDirectory = saveProfile.lastDirectory;
+		getPreferences().setFromOther(saveProfile.getPreferences());
+
+		for (File file : saveProfile.getFavorites().getFiles()) {
+			getFavorites().add(file);
+		}
+
+		for (File file : saveProfile.getRecent().getFiles()) {
+			getRecent().add(file);
+		}
+		getDataSourceTracker().addAll(saveProfile.getDataSourceTracker().getDataSourceDescriptors());
+		return this;
+	}
+
+	private static SaveProfileNew tryGetFromSerialized(File file) {
+		if (file != null && file.exists()) {
+			System.out.println("loading saveProfile from: \"" + file.getPath() + "\", " + file.exists());
+			try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+				Object loadedObject = ois.readObject();
+
+				if (loadedObject instanceof SaveProfileNew saveProfileNew) {
+					saveProfileNew.getPreferences().setNullToDefaults();
+					return saveProfileNew;
+				} else if (loadedObject instanceof SaveProfile saveProfile) {
+					saveProfile.getPreferences().setNullToDefaults();
+					return new SaveProfileNew().setFromOldPrefs(saveProfile);
+				}
+
+			} catch (final Exception e) {
+//			    e.printStackTrace();
+				System.out.println("Failed to load serialized preferences!");
+			}
+		}
+		return null;
+	}
+
+
+	private static String readStringFrom(File file) {
+		if (file != null && file.exists()) {
+			System.out.println("reading file: " + file);
+			try (BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
+				StringBuilder sb = new StringBuilder();
+				r.lines().forEach(l -> sb.append(l).append("\n"));
+				return sb.toString();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return "";
+	}
+
+	private static File getOldProfileFile() {
+		File profileDirPath = getSettingsDirPath();
+		for (String savePath : oldSavePaths) {
+			File profileFile = new File(profileDirPath, savePath);
+			if (profileFile.exists()) {
+				return profileFile;
+			}
+		}
+		return null;
+	}
+
+	private SaveProfileNew setFromOldPrefs(SaveProfile oldSaveProf) {
+		if (oldSaveProf != null) {
+			getPreferences().setFromOther(oldSaveProf.getPreferences());
+			setDataSources(oldSaveProf.getDataSources());
+			lastDirectory = oldSaveProf.getPath();
+			recent.addAllPaths(oldSaveProf.getRecent());
+			favoriteDirectories.addAll(oldSaveProf.getFavorites());
+
+			System.out.println("Seems to successfully loaded old preferences");
+		}
+		return this;
+	}
+
+	private static File getSettingsDirPath() {
+		final String homeProfile = System.getProperty("user.home");
+		if (!System.getProperty("os.name").toLowerCase().contains("win")) {
+			return new File(homeProfile + "/.reteraStudioBeta");
+		}
+		return new File(homeProfile + "\\AppData\\Roaming\\ReteraStudioBeta");
+	}
+
 
 	public static boolean testTargetFolderReadOnly(final String wcDirectory) {
 		final File temp = new File(wcDirectory + "war3.mpq");
@@ -353,7 +347,7 @@ public class SaveProfileNew {
 		}
 		return sb.toString();
 	}
-	public void fromString(String s) {
+	public SaveProfileNew fromString(String s) {
 		Field[] declaredFields = this.getClass().getDeclaredFields();
 		TreeMap<Integer, Field> offsetToField = new TreeMap<>();
 		for (Field field : declaredFields) {
@@ -366,8 +360,6 @@ public class SaveProfileNew {
 			}
 		}
 
-//		LinkedHashMap<Field, String> fieldStringsMap = new LinkedHashMap<>();
-
 		for (Integer offs : offsetToField.keySet()) {
 			Field field = offsetToField.get(offs);
 			String name = field.getName();
@@ -378,14 +370,9 @@ public class SaveProfileNew {
 				fieldString = fieldString.strip().split(nextName + " = ")[0];
 			}
 
-//			fieldStringsMap.put(field, fieldString);
 			parseField(field, fieldString);
 		}
-
-//		System.out.println("\n\nfieldStringsMap: ");
-//		for (Field field : fieldStringsMap.keySet()) {
-//			System.out.println("" + field.getName() + " = {" + fieldStringsMap.get(field) + "}");
-//		}
+		return this;
 	}
 
 	private void parseField(Field field, String strip) {

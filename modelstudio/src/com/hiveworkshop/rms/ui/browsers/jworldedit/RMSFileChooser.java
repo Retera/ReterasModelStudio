@@ -170,9 +170,7 @@ public class RMSFileChooser extends JFileChooser {
 	}
 	private void favorite() {
 		if (saveProfile != null) {
-			if (saveProfile.addFavorite(getCurrentDirectory())) {
-				SaveProfileNew.save();
-			}
+			saveProfile.addFavorite(getCurrentDirectory());
 		}
 		remakeFavList();
 		revalidate();
@@ -195,8 +193,8 @@ public class RMSFileChooser extends JFileChooser {
 	}
 
 	private void removeFav(File file) {
-		if (saveProfile != null && saveProfile.removeFromFavorite(file)) {
-			SaveProfileNew.save();
+		if (saveProfile != null) {
+			saveProfile.removeFromFavorite(file);
 		}
 		remakeFavList();
 		revalidate();
@@ -220,8 +218,8 @@ public class RMSFileChooser extends JFileChooser {
 	protected JDialog createDialog(Component parent) throws HeadlessException {
 		FileChooserUI ui = getUI();
 		System.out.println("FileChooserUI: " + ui);
-		if (ui instanceof BaseFileChooserUI) {
-			fixBottomPanel((BaseFileChooserUI) ui);
+		if (ui instanceof BaseFileChooserUI bfcUi) {
+			fixBottomPanel(bfcUi);
 		}
 		String title = ui.getDialogTitle(this);
 		putClientProperty(AccessibleContext.ACCESSIBLE_DESCRIPTION_PROPERTY, title);
@@ -240,8 +238,7 @@ public class RMSFileChooser extends JFileChooser {
 		contentPane.add(this, BorderLayout.CENTER);
 
 		if (JDialog.isDefaultLookAndFeelDecorated()) {
-			boolean supportsWindowDecorations =
-					UIManager.getLookAndFeel().getSupportsWindowDecorations();
+			boolean supportsWindowDecorations = UIManager.getLookAndFeel().getSupportsWindowDecorations();
 			if (supportsWindowDecorations) {
 				dialog.getRootPane().setWindowDecorationStyle(JRootPane.FILE_CHOOSER_DIALOG);
 			}
@@ -257,29 +254,24 @@ public class RMSFileChooser extends JFileChooser {
 
 	private void fixBottomPanel(BaseFileChooserUI bUi) {
 		JButton defaultButton = bUi.getDefaultButton(this);
-		if (defaultButton != null) {
-			Container buttonPanel = defaultButton.getParent();
-			if (buttonPanel instanceof JPanel) {
-				buttonPanel.setLayout(new MigLayout("wrap 1, ins 0, fill", "[grow, fill]"));
-				Container bottomPanel = buttonPanel.getParent();
-				if (bottomPanel instanceof JPanel) {
-					bottomPanel.setLayout(new MigLayout("wrap 2, fill", "[grow, fill][]", "[][]"));
-					bottomPanel.setPreferredSize(new Dimension(700, 55));
-					for (int i = 0; i< bottomPanel.getComponentCount(); i++) {
-						if (bottomPanel.getComponent(i) instanceof Box.Filler) {
-							bottomPanel.remove(bottomPanel.getComponent(i));
-							i--;
-						}
+		if (defaultButton != null && defaultButton.getParent() instanceof JPanel buttonPanel) {
+			buttonPanel.setLayout(new MigLayout("wrap 1, ins 0, fill", "[grow, fill]"));
+			if (buttonPanel.getParent() instanceof JPanel bottomPanel) {
+				bottomPanel.setLayout(new MigLayout("wrap 2, fill", "[grow, fill][]", "[][]"));
+				bottomPanel.setPreferredSize(new Dimension(700, 55));
+				for (int i = 0; i < bottomPanel.getComponentCount(); i++) {
+					if (bottomPanel.getComponent(i) instanceof Box.Filler) {
+						bottomPanel.remove(bottomPanel.getComponent(i));
+						i--;
 					}
-					bottomPanel.add(buttonPanel, "spany", 1);
 				}
+				bottomPanel.add(buttonPanel, "spany", 1);
 			}
 		}
 	}
 
 
-	static Window getWindowForComponent(Component parentComponent)
-			throws HeadlessException {
+	static Window getWindowForComponent(Component parentComponent) throws HeadlessException {
 		if (parentComponent == null)
 			return JOptionPane.getRootFrame();
 		if (parentComponent instanceof Frame || parentComponent instanceof Dialog)
@@ -316,8 +308,8 @@ public class RMSFileChooser extends JFileChooser {
 		final String name = modelFile.getName();
 		if (name.lastIndexOf('.') != -1) {
 			return name.substring(name.lastIndexOf('.'));
-		} else if (getFileFilter() instanceof FileNameExtensionFilter) {
-			String[] extensions = ((FileNameExtensionFilter) getFileFilter()).getExtensions();
+		} else if (getFileFilter() instanceof FileNameExtensionFilter filter) {
+			String[] extensions = filter.getExtensions();
 			if (0 < extensions.length) {
 				return "." + extensions[0];
 			}

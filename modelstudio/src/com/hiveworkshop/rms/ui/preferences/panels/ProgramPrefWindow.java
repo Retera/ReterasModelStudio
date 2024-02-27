@@ -119,14 +119,11 @@ public class ProgramPrefWindow extends JFrame {
 		for (int i = 0; i < childWindowCount; i++) {
 			DockingWindow childWindow = window.getChildWindow(i);
 			traverseAndReloadData(childWindow);
-			if (childWindow instanceof View) {
-				View view = (View) childWindow;
+			if (childWindow instanceof View view) {
 				Component component = view.getComponent();
-				if (component instanceof JScrollPane) {
-					JScrollPane pane = (JScrollPane) component;
+				if (component instanceof JScrollPane pane) {
 					Component viewportView = pane.getViewport().getView();
-					if (viewportView instanceof UnitEditorTree) {
-						UnitEditorTree unitEditorTree = (UnitEditorTree) viewportView;
+					if (viewportView instanceof UnitEditorTree unitEditorTree) {
 						WorldEditorDataType dataType = unitEditorTree.getDataType();
 						if (dataType == WorldEditorDataType.UNITS) {
 							System.out.println("saw unit tree");
@@ -136,9 +133,8 @@ public class ProgramPrefWindow extends JFrame {
 							unitEditorTree.setUnitDataAndReloadVerySlowly();
 						}
 					}
-				} else if (component instanceof MPQBrowser) {
+				} else if (component instanceof MPQBrowser comp) {
 					System.out.println("saw mpq tree");
-					MPQBrowser comp = (MPQBrowser) component;
 					comp.refreshTree();
 				}
 			}
