@@ -16,10 +16,10 @@ public class HotkeysPrefsPanel extends JPanel {
 	public HotkeysPrefsPanel(ProgramPreferences pref) {
 		super(new MigLayout());
 
-		CollapsablePanel camera_shortcuts = new CollapsablePanel("Camera Shortcuts", new CameraShortcutPrefPanel(pref.getCameraControlPrefs()));
+		CollapsablePanel camera_shortcuts = new CollapsablePanel("Camera Shortcuts", new CameraShortcutPrefPanel(pref.getCameraControlPrefs(), pref));
 		add(camera_shortcuts, "wrap");
 
-		CollapsablePanel viewActionPanel = new CollapsablePanel("3D Mouse Actions", new Nav3DMousePrefPanel(pref.getNav3DMousePrefs()));
+		CollapsablePanel viewActionPanel = new CollapsablePanel("3D Mouse Actions", new Nav3DMousePrefPanel(pref.getNav3DMousePrefs(), pref));
 		add(viewActionPanel, "wrap");
 
 		JButton edit_keybindings = new JButton("Edit Keybindings");
@@ -27,15 +27,8 @@ public class HotkeysPrefsPanel extends JPanel {
 		add(edit_keybindings, "wrap");
 	}
 
-	private void addSettingRow(String text, Supplier<Integer> buttonExSupplier, Consumer<Integer> integerConsumer) {
-		MouseSetting mouseSetting = new MouseSetting(text, buttonExSupplier, integerConsumer, this);
-		add(mouseSetting.getLabel());
-		add(mouseSetting.getEditButton(), "wrap");
-	}
-
 	private void viewKBPanel(ProgramPreferences pref) {
-		KeybindingPrefPanel keybindingPrefPanel = new KeybindingPrefPanel(pref.getKeyBindingPrefs());
-//		keybindingPrefPanel.setPreferredSize(ScreenInfo.getSmallWindow());
+		KeybindingPrefPanel keybindingPrefPanel = new KeybindingPrefPanel(pref.getKeyBindingPrefs(), pref);
 		FramePopup.show(keybindingPrefPanel, this, "Edit Keybindings");
 	}
 

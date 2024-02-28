@@ -42,9 +42,9 @@ public class ProgramPreferences implements Serializable {
 	private String openFileFilter = "";
 	private Integer maxNumbersOfUndo = 200;
 
-	private transient KeyBindingPrefs keyBindingsPrefs;
-	private transient EditorColorPrefs editorColorsPrefs;
-	private transient CameraControlPrefs cameraShortcutsPrefs;
+	private transient KeyBindingPrefs keyBindingPrefs;
+	private transient EditorColorPrefs editorColorPrefs;
+	private transient CameraControlPrefs cameraShortcutPrefs;
 	private transient Nav3DMousePrefs nav3DMousePrefs;
 
 	private String uiElementColors = new UiElementColorPrefs().toString();
@@ -55,12 +55,11 @@ public class ProgramPreferences implements Serializable {
 	byte[] viewMap = new byte[] {};
 	private List<View> viewList = new ArrayList<>();
 
-	public void loadFrom(ProgramPreferences other) {
-		setFromOther(other);
-		saveAndFireListeners();
-
+	public ProgramPreferences deepCopy() {
+		ProgramPreferences preferences = new ProgramPreferences();
+		preferences.setFromOther(this);
+		return preferences;
 	}
-
 	public void setFromOther(ProgramPreferences other) {
 		Field[] declaredFields = this.getClass().getDeclaredFields();
 		for (Field field : declaredFields) {
@@ -87,17 +86,17 @@ public class ProgramPreferences implements Serializable {
 	public boolean isOptimizeOnSave() {
 		return optimizeOnSave;
 	}
-	public void setOptimizeOnSave(final boolean optimizeOnSave) {
+	public ProgramPreferences setOptimizeOnSave(final boolean optimizeOnSave) {
 		this.optimizeOnSave = optimizeOnSave;
-		saveAndFireListeners();
+		return this;
 	}
 
 	public int getTeamColor() {
 		return teamColor;
 	}
-	public void setTeamColor(final int teamColor) {
+	public ProgramPreferences setTeamColor(final int teamColor) {
 		this.teamColor = teamColor;
-		saveAndFireListeners();
+		return this;
 	}
 
 	public int getVertexSize() {
@@ -105,19 +104,14 @@ public class ProgramPreferences implements Serializable {
 	}
 	public void setVertexSize(final int vertexSize) {
 		this.vertexSize = vertexSize;
-		saveAndFireListeners();
 	}
 
 	public int getNodeBoxSize() {
 		return nodeBoxSize;
 	}
-	public void setNodeBoxSize(final int vertexSize) {
+	public ProgramPreferences setNodeBoxSize(final int vertexSize) {
 		this.nodeBoxSize = vertexSize;
-		saveAndFireListeners();
-	}
-
-	public Color getSelectColor() {
-		return getEditorColorPrefs().getColor(ColorThing.SELECT_BOX_COLOR);
+		return this;
 	}
 
 	public boolean loadBrowsersOnStartup() {
@@ -125,41 +119,40 @@ public class ProgramPreferences implements Serializable {
 	}
 	public ProgramPreferences setLoadBrowsersOnStartup(boolean loadBrowsersOnStartup) {
 		this.loadBrowsersOnStartup = loadBrowsersOnStartup;
-		saveAndFireListeners();
 		return this;
 	}
 
 	public boolean showNodeForward() {
 		return showNodeForward;
 	}
-	public void setShowNodeForward(final boolean showNodeForward) {
+	public ProgramPreferences setShowNodeForward(final boolean showNodeForward) {
 		this.showNodeForward = showNodeForward;
-		saveAndFireListeners();
+		return this;
 	}
 
 	public boolean showPerspectiveGrid() {
 		return showPerspectiveGrid;
 	}
-	public void setShowPerspectiveGrid(final boolean showPerspectiveGrid) {
+	public ProgramPreferences setShowPerspectiveGrid(final boolean showPerspectiveGrid) {
 		this.showPerspectiveGrid = showPerspectiveGrid;
-		saveAndFireListeners();
+		return this;
 	}
 
 	public boolean showVMControls() {
 		return showVertexModifierControls;
 	}
-	public void setShowVertexModifierControls(final boolean showVertexModifierControls) {
+	public ProgramPreferences setShowVertexModifierControls(final boolean showVertexModifierControls) {
 		this.showVertexModifierControls = showVertexModifierControls;
-		saveAndFireListeners();
+		return this;
 	}
 
 
 	public boolean isLoadPortraits() {
 		return loadPortraits;
 	}
-	public void setLoadPortraits(final boolean loadPortraits) {
+	public ProgramPreferences setLoadPortraits(final boolean loadPortraits) {
 		this.loadPortraits = loadPortraits;
-		saveAndFireListeners();
+		return this;
 	}
 
 
@@ -168,16 +161,13 @@ public class ProgramPreferences implements Serializable {
 	}
 	public void setUseBoxesForPivotPoints(final Boolean useBoxesForPivotPoints) {
 		this.useBoxesForPivotPoints = useBoxesForPivotPoints;
-		saveAndFireListeners();
 	}
 
 	public Boolean show2dGrid() {
 		return show2dGrid != null && show2dGrid;
 	}
-
 	public void setShow2dGrid(final Boolean show2dGrid) {
 		this.show2dGrid = show2dGrid;
-		saveAndFireListeners();
 	}
 
 	public Boolean getAllowLoadingNonBlpTextures() {
@@ -185,98 +175,63 @@ public class ProgramPreferences implements Serializable {
 	}
 	public void setAllowLoadingNonBlpTextures(final Boolean allowLoadingNonBlpTextures) {
 		this.allowLoadingNonBlpTextures = allowLoadingNonBlpTextures;
-		saveAndFireListeners();
 	}
 
 	public Boolean getRenderParticles() {
 		return renderParticles == null || renderParticles;
 	}
-	public void setRenderParticles(final Boolean renderParticles) {
+	public ProgramPreferences setRenderParticles(final Boolean renderParticles) {
 		this.renderParticles = renderParticles;
-		saveAndFireListeners();
-	}
-
-	public String getKeyBindings() {
-		return keyBindings;
-	}
-
-	public KeyBindingPrefs getKeyBindingPrefs() {
-		if (keyBindingsPrefs == null) {
-			keyBindingsPrefs = new KeyBindingPrefs().parseString(keyBindings);
-		}
-		return keyBindingsPrefs;
-	}
-	public KeyBindingPrefs getKeyBindingPrefsCopy() {
-		return new KeyBindingPrefs().parseString(keyBindings);
-	}
-
-	public ProgramPreferences setKeyBindings(String keyBindings) {
-		this.keyBindings = keyBindings;
-		if (keyBindingsPrefs == null) {
-			keyBindingsPrefs = new KeyBindingPrefs();
-		}
-		keyBindingsPrefs.parseString(keyBindings);
 		return this;
 	}
-
-	public ProgramPreferences setKeyBindings(KeyBindingPrefs keyBindingPrefs) {
-		this.keyBindings = keyBindingPrefs.toString();
-		if (keyBindingsPrefs == null) {
-			keyBindingsPrefs = new KeyBindingPrefs();
-		}
-		keyBindingsPrefs.parseString(keyBindings);
-		System.out.println("Saved keybindings!");
-		System.out.println(keyBindings);
-		saveAndFireListeners();
-		return this;
-	}
-
-
 
 	public String getOpenFileFilter() {
 		return openFileFilter;
 	}
-
 	public ProgramPreferences setOpenFileFilter(String openFileFilter) {
 		this.openFileFilter = openFileFilter;
 		return this;
 	}
 
 
-	public String getEditorColors() {
-		return editorColors;
+	public KeyBindingPrefs getKeyBindingPrefs() {
+		if (keyBindingPrefs == null) {
+			keyBindingPrefs = new KeyBindingPrefs().parseString(keyBindings);
+		}
+		return keyBindingPrefs;
+	}
+	public ProgramPreferences setKeyBindings(String keyBindings) {
+		this.keyBindings = keyBindings;
+		if (keyBindingPrefs == null) {
+			keyBindingPrefs = new KeyBindingPrefs();
+		}
+		keyBindingPrefs.parseString(keyBindings);
+		return this;
+	}
+	public ProgramPreferences setKeyBindings(KeyBindingPrefs keyBindingPrefs) {
+		return setKeyBindings(keyBindingPrefs.toString());
+	}
+
+	public Color getSelectColor() {
+		return getEditorColorPrefs().getColor(ColorThing.SELECT_BOX_COLOR);
 	}
 
 	public EditorColorPrefs getEditorColorPrefs() {
-		if (editorColorsPrefs == null) {
-			editorColorsPrefs = new EditorColorPrefs().parseString(editorColors);
+		if (editorColorPrefs == null) {
+			editorColorPrefs = new EditorColorPrefs().parseString(editorColors);
 		}
-		return editorColorsPrefs;
+		return editorColorPrefs;
 	}
-	public EditorColorPrefs getEditorColorPrefsCopy() {
-		return new EditorColorPrefs().parseString(editorColors);
-	}
-
 	public ProgramPreferences setEditorColors(String editorColors) {
 		this.editorColors = editorColors;
-		if (editorColorsPrefs == null) {
-			editorColorsPrefs = new EditorColorPrefs();
+		if (editorColorPrefs == null) {
+			editorColorPrefs = new EditorColorPrefs();
 		}
-		editorColorsPrefs.parseString(editorColors);
+		editorColorPrefs.parseString(editorColors);
 		return this;
 	}
-
 	public ProgramPreferences setEditorColors(EditorColorPrefs editorColors) {
-		this.editorColors = editorColors.toString();
-		System.out.println("Saved EditColorPrefs!");
-		System.out.println(editorColors);
-		saveAndFireListeners();
-		return this;
-	}
-
-
-	public String getUiElementColors() {
-		return uiElementColors;
+		return setEditorColors(editorColors.toString());
 	}
 
 	public UiElementColorPrefs getUiElementColorPrefs() {
@@ -285,10 +240,6 @@ public class ProgramPreferences implements Serializable {
 		}
 		return uiElementColorPrefs;
 	}
-	public UiElementColorPrefs getUiElementColorPrefsCopy() {
-		return new UiElementColorPrefs().parseString(uiElementColors);
-	}
-
 	public ProgramPreferences setUiElementColors(String uiElementColors) {
 		this.uiElementColors = uiElementColors;
 		if (uiElementColorPrefs == null) {
@@ -297,56 +248,35 @@ public class ProgramPreferences implements Serializable {
 		uiElementColorPrefs.parseString(uiElementColors);
 		return this;
 	}
-
 	public ProgramPreferences setUiElementColors(UiElementColorPrefs uiElementColors) {
-		this.uiElementColors = uiElementColors.toString();
-		System.out.println("Saved UiElementColors!");
-		System.out.println(uiElementColors);
-		saveAndFireListeners();
-		return this;
+		return setUiElementColors(uiElementColors.toString());
 	}
 
 	public CameraControlPrefs getCameraControlPrefs() {
-		if (cameraShortcutsPrefs == null) {
-			cameraShortcutsPrefs = new CameraControlPrefs().parseString(cameraShortcuts);
+		if (cameraShortcutPrefs == null) {
+			cameraShortcutPrefs = new CameraControlPrefs().parseString(cameraShortcuts);
 		}
-		return cameraShortcutsPrefs;
-	}
-	public CameraControlPrefs getCameraControlPrefsCopy() {
-		return new CameraControlPrefs().parseString(cameraShortcuts);
+		return cameraShortcutPrefs;
 	}
 
 	public ProgramPreferences setCameraControlPrefs(String cameraShortcuts) {
 		this.cameraShortcuts = cameraShortcuts;
-		if (cameraShortcutsPrefs == null) {
-			cameraShortcutsPrefs = new CameraControlPrefs();
+		if (cameraShortcutPrefs == null) {
+			cameraShortcutPrefs = new CameraControlPrefs();
 		}
-		cameraShortcutsPrefs.parseString(cameraShortcuts);
+		cameraShortcutPrefs.parseString(cameraShortcuts);
 		return this;
 	}
 
 	public ProgramPreferences setCameraControlPrefs(CameraControlPrefs cameraShortcutsPrefs) {
-		this.cameraShortcuts = cameraShortcutsPrefs.toString();
-		if (this.cameraShortcutsPrefs == null) {
-			this.cameraShortcutsPrefs = new CameraControlPrefs();
-		}
-		this.cameraShortcutsPrefs.parseString(this.cameraShortcuts);
-		System.out.println("Saved Camera Keybindings!");
-		System.out.println(cameraShortcutsPrefs);
-		saveAndFireListeners();
-		return this;
+		return setCameraControlPrefs(cameraShortcutsPrefs.toString());
 	}
-
 	public Nav3DMousePrefs getNav3DMousePrefs() {
 		if (nav3DMousePrefs == null) {
 			nav3DMousePrefs = new Nav3DMousePrefs().parseString(nav3DMouseActions);
 		}
 		return nav3DMousePrefs;
 	}
-	public Nav3DMousePrefs getNav3DMousePrefsCopy() {
-		return new Nav3DMousePrefs().parseString(nav3DMouseActions);
-	}
-
 	public ProgramPreferences setNav3DMousePrefs(String nav3DMouseActions) {
 		this.nav3DMouseActions = nav3DMouseActions;
 		if (nav3DMousePrefs == null) {
@@ -355,77 +285,35 @@ public class ProgramPreferences implements Serializable {
 		nav3DMousePrefs.parseString(nav3DMouseActions);
 		return this;
 	}
-
 	public ProgramPreferences setNav3DMousePrefs(Nav3DMousePrefs nav3DMousePrefs) {
-		this.nav3DMouseActions = nav3DMousePrefs.toString();
-		if (this.nav3DMousePrefs == null) {
-			this.nav3DMousePrefs = new Nav3DMousePrefs();
-		}
-		this.nav3DMousePrefs.parseString(this.nav3DMouseActions);
-		System.out.println("Saved Nav3D Keybindings!");
-		System.out.println(cameraShortcuts);
-		saveAndFireListeners();
-		return this;
+		return setNav3DMousePrefs(nav3DMousePrefs.toString());
 	}
-
-	public Integer getSelectMouseButton() {
-		return getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.SELECT);
-	}
-	public Integer getThreeDCameraSpinMouseEx() {
-		return getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.CAMERA_SPIN);
-	}
-	public Integer getThreeDCameraPanMouseEx() {
-		return getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.CAMERA_PAN);
-	}
-	public Integer getSnapTransformModifier() {
-		return getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.SNAP_TRANSFORM_MODIFIER);
-	}
-	public Integer getModifyMouseButton() {
-		return getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.MODIFY);
-	}
-	public Integer getAddSelectModifier() {
-		return getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.ADD_SELECT_MODIFIER);
-	}
-	public Integer getRemoveSelectModifier() {
-		return getNav3DMousePrefs().getKeyStroke(Nav3DMouseAction.REMOVE_SELECT_MODIFIER);
-	}
-
 
 	public Boolean getQuickBrowse() {
 		return quickBrowse != null && quickBrowse;
 	}
 	public void setQuickBrowse(final Boolean quickBrowse) {
 		this.quickBrowse = quickBrowse;
-		saveAndFireListeners();
 	}
 
 	public GUITheme getTheme() {
 		return theme;
 	}
-
 	public void setTheme(final GUITheme theme) {
 		this.theme = theme;
-//		SwingUtilities.updateComponentTreeUI(rootComponent);
-		saveAndFireListeners();
-	}
-
-	public void resetToDefaults() {
-		loadFrom(new ProgramPreferences());
-	}
-
-	private void firePrefsChanged() {
-		if (notifier != null) {
-			notifier.runListeners();
-		}
 	}
 
 	private transient ProgramPreferencesChangeListener notifier = new ProgramPreferencesChangeListener();
-
 	public void addChangeListener(final Runnable listener) {
 		if (notifier == null) {
 			notifier = new ProgramPreferencesChangeListener();
 		}
 		notifier.subscribe(listener);
+	}
+	private void firePrefsChanged() {
+		if (notifier != null) {
+			notifier.runListeners();
+		}
 	}
 
 	public void setNullToDefaults() {
@@ -449,28 +337,12 @@ public class ProgramPreferences implements Serializable {
 		return (modifiers & 128) == 0 && (modifiers & 8) == 0;
 	}
 
-	private void saveAndFireListeners() {
+	public ProgramPreferences saveToFile() {
 		SaveProfileNew.save();
 		firePrefsChanged();
-	}
-
-	public ProgramPreferences saveViewMap() {
-////		ViewMap viewMap = new ViewMap();
-//		viewList.clear();
-//		for(JComponent component : ProgramGlobals.getRootWindowUgg().getDockingWindows()) {
-//			if (component instanceof View) {
-//				WindowHandler2.traverseAndStuff((View) component, viewMap, viewList);
-//				viewMap.addView(viewList.size(), (View) component);
-//				viewList.add((View) component);
-//			}
-//		}
-		RootWindowUgg rootWindowUgg = ProgramGlobals.getRootWindowUgg();
-		rootWindowUgg.compileViewMap();
-		viewMap = rootWindowUgg.ugg();
-
-		saveAndFireListeners();
 		return this;
 	}
+
 	public String toString() {
 		Field[] declaredFields = ProgramPreferences.class.getDeclaredFields();
 		StringBuilder sb = new StringBuilder();
@@ -527,6 +399,7 @@ public class ProgramPreferences implements Serializable {
 				String nextName = offsetToField.get(nOffs).getName();
 				fieldString = fieldString.strip().split(nextName + " = ")[0];
 			}
+//			System.out.println(field.getName() + " - " + field.getType() + " [" + fieldString +"]");
 			parseField(field, fieldString);
 		}
 
@@ -580,6 +453,22 @@ public class ProgramPreferences implements Serializable {
 			System.out.println("Failed to parse [" + field.getName() + ", " + field.getType() + "] from \"" + s + "\"");
 //			e.printStackTrace();
 		}
+	}
+
+	public ProgramPreferences saveViewMap() {
+////		ViewMap viewMap = new ViewMap();
+//		viewList.clear();
+//		for(JComponent component : ProgramGlobals.getRootWindowUgg().getDockingWindows()) {
+//			if (component instanceof View) {
+//				WindowHandler2.traverseAndStuff((View) component, viewMap, viewList);
+//				viewMap.addView(viewList.size(), (View) component);
+//				viewList.add((View) component);
+//			}
+//		}
+		RootWindowUgg rootWindowUgg = ProgramGlobals.getRootWindowUgg();
+		rootWindowUgg.compileViewMap();
+		viewMap = rootWindowUgg.ugg();
+		return this;
 	}
 
 	public byte[] getViewMap() {

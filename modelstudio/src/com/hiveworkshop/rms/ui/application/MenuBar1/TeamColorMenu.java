@@ -44,8 +44,7 @@ public class TeamColorMenu extends JMenu {
 	}
 
 	private void setCurrentTeamColor(int teamColor) {
-		ProgramGlobals.getPrefs().setTeamColor(teamColor);
+		ProgramGlobals.getPrefs().setTeamColor(teamColor).saveToFile();
 		ModelStructureChangeListener.changeListener.texturesChanged();
-		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 	}
 }

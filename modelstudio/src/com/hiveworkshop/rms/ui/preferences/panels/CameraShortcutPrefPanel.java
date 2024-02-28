@@ -16,11 +16,13 @@ import java.util.function.Function;
 
 public class CameraShortcutPrefPanel extends JPanel {
 	private final CameraControlPrefs cameraControlPrefs;
+	private final ProgramPreferences prefs;
 	private final Map<CameraShortCut, JButton> buttonMap;
 
-	public CameraShortcutPrefPanel(CameraControlPrefs cameraControlPrefs) {
+	public CameraShortcutPrefPanel(CameraControlPrefs cameraControlPrefs, ProgramPreferences prefs) {
 		super(new MigLayout("fill", "[][][]"));
 		this.cameraControlPrefs = cameraControlPrefs;
+		this.prefs = prefs;
 		buttonMap = new HashMap<>();
 
 		JPanel settingsPanel = new JPanel(new MigLayout("fill, wrap 2", "[left][right]"));
@@ -85,8 +87,8 @@ public class CameraShortcutPrefPanel extends JPanel {
 	}
 
 	private void saveKeybindings(CameraControlPrefs cameraControlPrefs) {
-		ProgramPreferences prefs = ProgramGlobals.getPrefs();
-		prefs.setCameraControlPrefs(cameraControlPrefs);
+		this.prefs.setCameraControlPrefs(cameraControlPrefs.toString());
+		ProgramGlobals.getPrefs().setCameraControlPrefs(cameraControlPrefs).saveToFile();
 	}
 
 }

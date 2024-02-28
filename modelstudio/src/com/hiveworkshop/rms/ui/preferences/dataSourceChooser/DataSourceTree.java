@@ -23,7 +23,7 @@ public class DataSourceTree extends JTree {
 	private JButton moveUpButton;
 	private JButton moveDownButton;
 
-	public DataSourceTree(List<DataSourceDescriptor> dataSourceDescriptors, Component popupParent){
+	public DataSourceTree(List<DataSourceDescriptor> dataSourceDescriptors, Component popupParent) {
 		this.dataSourceDescriptors.addAll(dataSourceDescriptors);
 		this.root = new DefaultMutableTreeNode();
 		this.model = new DefaultTreeModel(this.root);
@@ -41,12 +41,12 @@ public class DataSourceTree extends JTree {
 	public void move(boolean up) {
 		TreePath[] selectionPaths = getSelectionPaths();
 		int dir = up ? -1 : 1;
-		if(selectionPaths != null && 0 < selectionPaths.length){
+		if (selectionPaths != null && 0 < selectionPaths.length) {
 			for (TreePath selectionPath : selectionPaths) {
 				DataSourceTreeNode<?> node = getNode(selectionPath);
-				if(node != null){
+				if (node != null) {
 					DataSourceDescriptor descriptor = node.descriptor;
-					if(descriptor != null){
+					if (descriptor != null) {
 						int indexOf = dataSourceDescriptors.indexOf(descriptor);
 						if (indexOf + dir >= 0 && indexOf + dir < dataSourceDescriptors.size()) {
 							Collections.swap(dataSourceDescriptors, indexOf, indexOf + dir);
@@ -61,7 +61,7 @@ public class DataSourceTree extends JTree {
 		}
 	}
 
-	private void createButtons(){
+	private void createButtons() {
 		addDefaultCascPrefixes = Button.create("Add Default CASC Mod", e -> addDefaultCASCMod());
 		addSpecificCascPrefix = Button.create("Add Specific CASC Mod", e -> addSpecificCASCMod());
 		deleteButton = Button.create("Delete Selection", e -> deleteSelection());
@@ -69,7 +69,7 @@ public class DataSourceTree extends JTree {
 		moveDownButton = Button.create("Move Down", e -> move(false));
 	}
 
-	private void updateButtons(TreeSelectionEvent e){
+	private void updateButtons(TreeSelectionEvent e) {
 		TreePath selectionPath = e.getNewLeadSelectionPath();
 		boolean cascSelected = isCascSelected(selectionPath);
 		addDefaultCascPrefixes.setEnabled(cascSelected);
@@ -80,19 +80,19 @@ public class DataSourceTree extends JTree {
 		moveUpButton.setEnabled(canMoveUp(selectionPath));
 		moveDownButton.setEnabled(canMoveDown(selectionPath));
 	}
-	public JButton getAddDefaultCascButton(){
+	public JButton getAddDefaultCascButton() {
 		return addDefaultCascPrefixes;
 	}
-	public JButton getAddSpecificCascButton(){
+	public JButton getAddSpecificCascButton() {
 		return addSpecificCascPrefix;
 	}
-	public JButton getDeleteButton(){
+	public JButton getDeleteButton() {
 		return deleteButton;
 	}
-	public JButton getMoveUpButton(){
+	public JButton getMoveUpButton() {
 		return moveUpButton;
 	}
-	public JButton getMoveDownButton(){
+	public JButton getMoveDownButton() {
 		return moveDownButton;
 	}
 
@@ -103,7 +103,7 @@ public class DataSourceTree extends JTree {
 			DataSourceTreeNode<?> node = getNode(selectionPath);
 			if (node != null) {
 				DataSourceDescriptor descriptor = node.getDescriptor();
-				if(descriptor != null){
+				if (descriptor != null) {
 					dataSourceDescriptors.remove(descriptor);
 				}
 				node.remove(model);
@@ -112,17 +112,15 @@ public class DataSourceTree extends JTree {
 	}
 
 	public void addDefaultCASCMod() {
-		final TreePath selectionPath = getSelectionPath();
-		DataSourceTreeNode<?> node = getNode(selectionPath);
-		if(node != null){
+		DataSourceTreeNode<?> node = getNode(getSelectionPath());
+		if (node != null) {
 			node.addDefaultCASCMod(model, popupParent);
 		}
 	}
 
 	public void addSpecificCASCMod() {
-		final TreePath selectionPath = getSelectionPath();
-		DataSourceTreeNode<?> node = getNode(selectionPath);
-		if(node != null){
+		DataSourceTreeNode<?> node = getNode(getSelectionPath());
+		if (node != null) {
 			node.addSpecificCASCMod(model, popupParent);
 		}
 	}
@@ -136,22 +134,22 @@ public class DataSourceTree extends JTree {
 			// collect selection paths
 			Arrays.stream(selectionPaths).forEach(sp -> selectionSet.add(sp.toString()));
 		}
-		for (int i = root.getChildCount() - 1; i >= 0; i--) {
+		for (int i = root.getChildCount() - 1; 0 <= i; i--) {
 			model.removeNodeFromParent((MutableTreeNode) root.getChildAt(i));
 		}
 		buildTree();
 
 		expandPath(new TreePath(root));
-		for(int i = 0; i < root.getChildCount(); i++){
+		for (int i = 0; i < root.getChildCount(); i++) {
 			TreePath treePath = new TreePath(model.getPathToRoot(root.getChildAt(i)));
 			expandPath(treePath);
 			String path = treePath.toString();
-			if(selectionSet.contains(path)){
+			if (selectionSet.contains(path)) {
 				addSelectionPath(treePath);
 			}
 		}
-		if (selectionPaths != null && rowCount < getRowCount()){
-			setSelectionRow(getRowCount()-1);
+		if (selectionPaths != null && rowCount < getRowCount()) {
+			setSelectionRow(getRowCount() - 1);
 		}
 	}
 
@@ -168,7 +166,7 @@ public class DataSourceTree extends JTree {
 
 	public void addDataSources(List<DataSourceDescriptor> descriptors) {
 		dataSourceDescriptors.addAll(descriptors);
-		for(DataSourceDescriptor descriptor : descriptors){
+		for (DataSourceDescriptor descriptor : descriptors) {
 			DataSourceDescTreeNode<?> newChild = getNewChild(descriptor);
 			model.insertNodeInto(newChild, root, root.getChildCount());
 			TreePath treePath = new TreePath(model.getPathToRoot(newChild));
@@ -177,9 +175,8 @@ public class DataSourceTree extends JTree {
 		}
 	}
 	private DataSourceDescTreeNode<?> getNewChild(DataSourceDescriptor descriptor) {
-		if (descriptor instanceof CascDataSourceDescriptor) {
-			return new CascDataSourceDescTreeNode((CascDataSourceDescriptor) descriptor);
-
+		if (descriptor instanceof CascDataSourceDescriptor cascDesc) {
+			return new CascDataSourceDescTreeNode(cascDesc);
 		} else {
 			return new DataSourceDescTreeNode<>(descriptor);
 		}
@@ -201,28 +198,31 @@ public class DataSourceTree extends JTree {
 	}
 
 	public DataSourceTreeNode<?> getNode(TreePath selectionPath) {
-		if (selectionPath != null) {
-			Object lastPathComponent = selectionPath.getLastPathComponent();
-			if (lastPathComponent instanceof DataSourceTreeNode) {
-				return  (DataSourceTreeNode<?>) lastPathComponent;
-			}
+		if (selectionPath != null && selectionPath.getLastPathComponent() instanceof DataSourceTreeNode treeNode) {
+			return  treeNode;
 		}
 		return null;
 	}
 
 	public CascDataSourceDescriptor getCascDataSourceDescriptor() {
-		if ((dataSourceDescriptors.size() == 1) && (dataSourceDescriptors.get(0) instanceof CascDataSourceDescriptor)) {
-			return  (CascDataSourceDescriptor) dataSourceDescriptors.get(0);
+		if (dataSourceDescriptors.size() == 1 && dataSourceDescriptors.get(0) instanceof CascDataSourceDescriptor cascDesc) {
+			return  cascDesc;
 		}
 		return null;
 	}
 
-	public void clearAll(){
+	public void clearAll() {
 		dataSourceDescriptors.clear();
-		for (int i = root.getChildCount() - 1; i >= 0; i--) {
+		for (int i = root.getChildCount() - 1; 0 <= i; i--) {
 			model.removeNodeFromParent((MutableTreeNode) root.getChildAt(i));
 		}
 		expandPath(new TreePath(root));
+	}
+
+	@Override
+	public TreePath[] getSelectionPaths() {
+		TreePath[] selectionPaths = super.getSelectionPaths();
+		return selectionPaths == null ? new TreePath[0] : selectionPaths;
 	}
 
 	public List<DataSourceDescriptor> getDataSourceDescriptors() {

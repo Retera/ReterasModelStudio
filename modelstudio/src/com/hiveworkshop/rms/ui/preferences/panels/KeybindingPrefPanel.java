@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.preferences.panels;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.language.TextKey;
 import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs;
+import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.ScreenInfo;
 import com.hiveworkshop.rms.util.uiFactories.Button;
 import net.miginfocom.swing.MigLayout;
@@ -13,11 +14,13 @@ import java.util.Map;
 
 public class KeybindingPrefPanel extends JPanel {
 	private final KeyBindingPrefs keyBindingPrefs;
+	private final ProgramPreferences prefs;
 	private final Map<TextKey, JButton> buttonMap;
 
-	public KeybindingPrefPanel(KeyBindingPrefs keyBindingPrefs) {
+	public KeybindingPrefPanel(KeyBindingPrefs keyBindingPrefs, ProgramPreferences prefs) {
 		super(new MigLayout("fill", "[][][]"));
 		this.keyBindingPrefs = keyBindingPrefs;
+		this.prefs = prefs;
 		buttonMap = new HashMap<>();
 
 		JPanel settingsPanel = new JPanel(new MigLayout("fill, wrap 2", "[left][right]"));
@@ -77,9 +80,10 @@ public class KeybindingPrefPanel extends JPanel {
 	}
 
 	private void saveKeybindings(KeyBindingPrefs keyBindingPrefs) {
-		ProgramGlobals.getKeyBindingPrefs().parseString(keyBindingPrefs.toString());
-		ProgramGlobals.getPrefs().setKeyBindings(ProgramGlobals.getKeyBindingPrefs());
-		ProgramGlobals.linkActions(ProgramGlobals.getMainPanel());
+		this.prefs.setKeyBindings(keyBindingPrefs);
+		ProgramGlobals.getPrefs().setKeyBindings(keyBindingPrefs).saveToFile();
+
 		ProgramGlobals.getUndoHandler().refreshUndo();
+		ProgramGlobals.linkActions(ProgramGlobals.getMainPanel());
 	}
 }

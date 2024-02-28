@@ -38,7 +38,7 @@ public class FileMenu extends JMenu {
 
 		JCheckBoxMenuItem fetchPortraitsToo = new JCheckBoxMenuItem("Fetch portraits, too!", ProgramGlobals.getPrefs().isLoadPortraits());
 		fetchPortraitsToo.setMnemonic(KeyEvent.VK_P);
-		fetchPortraitsToo.addActionListener(e -> ProgramGlobals.getPrefs().setLoadPortraits(fetchPortraitsToo.isSelected()));
+		fetchPortraitsToo.addActionListener(e -> ProgramGlobals.getPrefs().setLoadPortraits(fetchPortraitsToo.isSelected()).saveToFile());
 		fetchPortraitsToo.putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
 		fetch.add(fetchPortraitsToo);
 
@@ -59,7 +59,7 @@ public class FileMenu extends JMenu {
 		add(new FileActions.SaveAs().setMenuItemMnemonic(KeyEvent.VK_A).getMenuItem());
 
 		JCheckBoxMenuItem optimizeOnSave = new JCheckBoxMenuItem("Optimize on Save", ProgramGlobals.getPrefs().isOptimizeOnSave());
-		optimizeOnSave.addActionListener(e -> ProgramGlobals.getPrefs().setOptimizeOnSave(optimizeOnSave.isSelected()));
+		optimizeOnSave.addActionListener(e -> ProgramGlobals.getPrefs().setOptimizeOnSave(optimizeOnSave.isSelected()).saveToFile());
 		optimizeOnSave.setToolTipText("Remove unused Textures, Materials, GlobalSeq, EventObjects, and TextureAnims when Saving");
 		optimizeOnSave.putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
 		add(optimizeOnSave);

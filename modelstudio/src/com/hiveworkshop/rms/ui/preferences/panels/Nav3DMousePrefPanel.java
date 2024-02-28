@@ -17,11 +17,13 @@ import java.util.function.Function;
 
 public class Nav3DMousePrefPanel extends JPanel {
 	private final Nav3DMousePrefs nav3DMousePrefs;
+	private final ProgramPreferences prefs;
 	private final Map<Nav3DMouseAction, JButton> buttonMap;
 
-	public Nav3DMousePrefPanel(Nav3DMousePrefs nav3DMousePrefs) {
+	public Nav3DMousePrefPanel(Nav3DMousePrefs nav3DMousePrefs, ProgramPreferences prefs) {
 		super(new MigLayout("fill", "[][][]"));
 		this.nav3DMousePrefs = nav3DMousePrefs;
+		this.prefs = prefs;
 		buttonMap = new HashMap<>();
 
 		JPanel settingsPanel = new JPanel(new MigLayout("fill, wrap 2", "[left][right]"));
@@ -85,8 +87,8 @@ public class Nav3DMousePrefPanel extends JPanel {
 	}
 
 	private void saveKeybindings(Nav3DMousePrefs cameraControlPrefs) {
-		ProgramPreferences prefs = ProgramGlobals.getPrefs();
-		prefs.setNav3DMousePrefs(cameraControlPrefs);
+		this.prefs.setNav3DMousePrefs(cameraControlPrefs.toString());
+		ProgramGlobals.getPrefs().setNav3DMousePrefs(cameraControlPrefs).saveToFile();
 	}
 
 }

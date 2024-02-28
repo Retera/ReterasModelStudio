@@ -11,6 +11,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditor
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
 import com.hiveworkshop.rms.ui.browsers.mpq.MPQBrowser;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
+import com.hiveworkshop.rms.ui.preferences.GUITheme;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfileNew;
 import com.hiveworkshop.rms.util.ThemeLoadingUtils;
@@ -21,18 +22,17 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProgramPrefWindow extends JFrame {
 	private final ProgramPreferences programPreferences;
-	private final List<DataSourceDescriptor> priorDataSources;
 	private final ProgramPreferencesPanel programPreferencesPanel;
 
 	public ProgramPrefWindow() {
 		super("Preferences");
-		programPreferences = new ProgramPreferences();
-		programPreferences.loadFrom(ProgramGlobals.getPrefs());
-		priorDataSources = SaveProfileNew.get().getDataSources();
+		programPreferences = ProgramGlobals.getPrefs().deepCopy();
+		List<DataSourceDescriptor> priorDataSources = new ArrayList<>(SaveProfileNew.get().getDataSources());
 		programPreferencesPanel = new ProgramPreferencesPanel(this, programPreferences, priorDataSources);
 
 		JPanel prefPanel = new JPanel(new MigLayout("fill"));
@@ -47,22 +47,25 @@ public class ProgramPrefWindow extends JFrame {
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 	}
 
-	private void onOK(){
-		saveSettings(programPreferences, priorDataSources, programPreferencesPanel.getDataSources());
+	private void onOK() {
+		saveSettings(programPreferences, programPreferencesPanel.getDataSources());
 		closeWindow();
 	}
 
-	private void closeWindow(){
-		ProgramPreferences realPrefs = ProgramGlobals.getPrefs();
-		if (realPrefs.getTheme() != programPreferences.getTheme()) {
-			ThemeLoadingUtils.setTheme(realPrefs.getTheme());
-			SwingUtilities.updateComponentTreeUI(ProgramGlobals.getMainPanel().getRootPane());
-		}
+	private void closeWindow() {
+		updateThemeIfNotEqual(ProgramGlobals.getPrefs().getTheme(), programPreferences.getTheme());
 		setVisible(false);
 		dispose();
 	}
 
-	public static void showPanel(){
+	private static void updateThemeIfNotEqual(GUITheme wantedTheme, GUITheme otherTheme){
+		if (wantedTheme != otherTheme) {
+			ThemeLoadingUtils.setTheme(wantedTheme);
+			SwingUtilities.updateComponentTreeUI(ProgramGlobals.getMainPanel().getRootPane());
+		}
+	}
+
+	public static void showPanel() {
 		ProgramPrefWindow programPrefWindow = new ProgramPrefWindow();
 		programPrefWindow.setLocationRelativeTo(ProgramGlobals.getMainPanel());
 
@@ -71,35 +74,33 @@ public class ProgramPrefWindow extends JFrame {
 
 
 	private static void saveSettings(ProgramPreferences programPreferences,
-	                                 List<DataSourceDescriptor> priorDataSources,
 	                                 List<DataSourceDescriptor> newDataSources) {
+		ensurePrefsSet(programPreferences);
+
 		ProgramPreferences realPrefs = ProgramGlobals.getPrefs();
 
-		if (realPrefs.getTheme() != programPreferences.getTheme()) {
-			ThemeLoadingUtils.setTheme(programPreferences.getTheme());
-			SwingUtilities.updateComponentTreeUI(ProgramGlobals.getMainPanel().getRootPane());
-		}
+		updateThemeIfNotEqual(programPreferences.getTheme(), realPrefs.getTheme());
+		realPrefs.setFromOther(programPreferences);
 
-		ProgramGlobals.getEditorColorPrefs().setFrom(programPreferences.getEditorColorPrefs());
-		programPreferences.setEditorColors(ProgramGlobals.getEditorColorPrefs());
-
-		ProgramGlobals.getKeyBindingPrefs().parseString(programPreferences.getKeyBindingPrefs().toString());
-		realPrefs.setKeyBindings(ProgramGlobals.getKeyBindingPrefs());
-		ProgramGlobals.linkActions(ProgramGlobals.getMainPanel());
+//		ProgramGlobals.linkActions(ProgramGlobals.getMainPanel());
 		ProgramGlobals.getUndoHandler().refreshUndo();
 
-		realPrefs.loadFrom(programPreferences);
-
-		boolean changedDataSources = (newDataSources != null) && !newDataSources.equals(priorDataSources);
-		if (changedDataSources) {
-			SaveProfileNew.get().setDataSources(newDataSources);
-		}
+		boolean changedDataSources = (newDataSources != null) && SaveProfileNew.get().setDataSources(newDataSources);
 		SaveProfileNew.save();
 		if (changedDataSources) {
 			updateDataSource();
 		}
 	}
 
+	private static void ensurePrefsSet(ProgramPreferences programPreferences) {
+		// sets ProgramPreference's corresponding strings of these settings
+		// (which is the part that is saved)
+		programPreferences.setKeyBindings(programPreferences.getKeyBindingPrefs());
+		programPreferences.setEditorColors(programPreferences.getEditorColorPrefs());
+		programPreferences.setCameraControlPrefs(programPreferences.getCameraControlPrefs());
+		programPreferences.setNav3DMousePrefs(programPreferences.getNav3DMousePrefs());
+		programPreferences.setUiElementColors(programPreferences.getUiElementColorPrefs());
+	}
 
 	public static void updateDataSource() {
 		GameDataFileSystem.refresh(SaveProfileNew.get().getDataSources());

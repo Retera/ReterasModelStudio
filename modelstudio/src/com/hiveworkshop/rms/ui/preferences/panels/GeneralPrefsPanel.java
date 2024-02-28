@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.preferences.panels;
 
-import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.ExtFilter;
@@ -50,14 +49,14 @@ public class GeneralPrefsPanel extends JPanel {
 	private TwiComboBox<FileNameExtensionFilter> getExtensionFilterBox(ProgramPreferences pref) {
 		List<FileNameExtensionFilter> openFilesExtensions = new ExtFilter().getOpenFilesExtensions();
 		final TwiComboBox<FileNameExtensionFilter> fileFilterBox = new TwiComboBox<>(openFilesExtensions, openFilesExtensions.get(1));
-		fileFilterBox.setStringFunctionRender(o -> {if (o instanceof FileNameExtensionFilter) return  ((FileNameExtensionFilter) o).getDescription(); else return "";});
-		fileFilterBox.selectFirst();
-		for (FileNameExtensionFilter filter : openFilesExtensions) {
-			if (Objects.equals(filter.getDescription(), ProgramGlobals.getPrefs().getOpenFileFilter())) {
-				fileFilterBox.selectOrFirst(filter);
-				break;
-			}
-		}
+		fileFilterBox.setStringFunctionRender(o -> (o instanceof FileNameExtensionFilter fnef) ? fnef.getDescription() : "");
+
+		FileNameExtensionFilter filter = openFilesExtensions.stream()
+				.filter(f -> Objects.equals(f.getDescription(), pref.getOpenFileFilter()))
+				.findFirst()
+				.orElse(null);
+		fileFilterBox.selectOrFirst(filter);
+
 		fileFilterBox.addOnSelectItemListener(o -> pref.setOpenFileFilter(o.getDescription()));
 		return fileFilterBox;
 	}

@@ -79,17 +79,13 @@ public class SaveProfileNew {
 		return preferences;
 	}
 
-	public void setPreferences(final ProgramPreferences preferences) {
-		this.preferences = preferences;
-	}
-
-	public void setDataSources(final List<DataSourceDescriptor> dataSources) {
-		this.dataSources = new DataSourceTracker(dataSources);
-		isHD = this.dataSources.isHd();
-//		this.dataSources = dataSources;
-//		isHD = computeIsHd(dataSources);
-//		save();
-//		dataSourceChangeNotifier.dataSourcesChanged();
+	public boolean setDataSources(final List<DataSourceDescriptor> dataSources) {
+		if (!dataSources.equals(getDataSourceTracker().getDataSourceDescriptors())){
+			getDataSourceTracker().clear().addAll(dataSources);
+			isHD = this.dataSources.isHd();
+			return true;
+		}
+		return false;
 	}
 
 	public List<DataSourceDescriptor> getDataSources() {

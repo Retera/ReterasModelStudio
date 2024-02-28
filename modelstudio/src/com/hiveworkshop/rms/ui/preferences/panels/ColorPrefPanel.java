@@ -4,12 +4,12 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.preferences.EditorColorPrefs;
 import com.hiveworkshop.rms.ui.preferences.GUITheme;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.ui.util.colorchooser.ColorChooserIconLabel;
 import com.hiveworkshop.rms.util.ThemeLoadingUtils;
 import com.hiveworkshop.rms.util.TwiComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.util.function.Consumer;
 
 public class ColorPrefPanel extends JPanel {
 
@@ -19,11 +19,7 @@ public class ColorPrefPanel extends JPanel {
 		final JPanel innerPanel = new JPanel(new MigLayout("gap 0"));
 
 		innerPanel.add(new JLabel("Window Borders (Theme):"));
-		ThemeTracker themeTracker = new ThemeTracker(frame, this, pref);
-		final TwiComboBox<GUITheme> themeCheckBox2 = new TwiComboBox<>(GUITheme.values(), GUITheme.DARK_BLUE_GREEN)
-				.selectOrFirst(pref.getTheme())
-				.addOnSelectItemListener(themeTracker::themeChanged);
-		innerPanel.add(themeCheckBox2, "wrap");
+		innerPanel.add(new ThemeTracker(frame, this, pref::setTheme).getThemeComboBox(pref.getTheme()), "wrap");
 
 		EditorColorsPrefPanel colorsPrefPanel = new EditorColorsPrefPanel(colorPrefs);
 		innerPanel.add(colorsPrefPanel, "wrap");
@@ -34,25 +30,27 @@ public class ColorPrefPanel extends JPanel {
 		add(scrollPane, "growx, growy");
 	}
 
-	public void addAtRow(JPanel modelEditorPanel, ColorChooserIconLabel colorIcon, String s) {
-		modelEditorPanel.add(new JLabel(s));
-		modelEditorPanel.add(colorIcon, "wrap");
-	}
-
 	private static class ThemeTracker {
 		boolean hasWarned = false;
 		JFrame frame;
 		JComponent parent;
-		ProgramPreferences pref;
+		Consumer<GUITheme> themeConsumer;
 
-		ThemeTracker(JFrame frame, JComponent parent, ProgramPreferences pref){
+		ThemeTracker(JFrame frame, JComponent parent, Consumer<GUITheme> themeConsumer){
 			this.parent = parent;
-			this.pref = pref;
 			this.frame = frame;
+			this.themeConsumer = themeConsumer;
+		}
+
+		TwiComboBox<GUITheme> getThemeComboBox(GUITheme selectedTheme) {
+			return new TwiComboBox<>(GUITheme.values(), GUITheme.DARK_BLUE_GREEN)
+					.selectOrFirst(selectedTheme)
+					.addOnSelectItemListener(this::themeChanged)
+					.setStringFunctionRender(o -> o instanceof GUITheme t ? t.getDisplayName() : "NULL");
 		}
 
 		public void themeChanged(GUITheme selectedItem) {
-			pref.setTheme(selectedItem);
+			themeConsumer.accept(selectedItem);
 			if (selectedItem != null && parent.getRootPane() != null) {
 				System.out.println("setting theme");
 				ThemeLoadingUtils.setTheme(selectedItem);
