@@ -19,15 +19,12 @@ import java.util.Collections;
 import java.util.List;
 
 public class DataSourceTracker {
-	private String wcDirectory;
-	private final JFileChooser fileChooser = new JFileChooser();
+	private final String wcDirectory;
 	private final Component popupParent;
 
 	public DataSourceTracker(Component popupParent) {
+		// takes ~300ms to check Windows registry for install location
 		wcDirectory = getWindowsRegistryDirectory();
-		if (wcDirectory != null) fileChooser.setCurrentDirectory(new File(wcDirectory));
-		else if (new File("C:\\Program Files").exists()) fileChooser.setCurrentDirectory(new File("C:\\Program Files\\Warcraft III"));
-
 		this.popupParent = popupParent;
 	}
 
@@ -171,6 +168,7 @@ public class DataSourceTracker {
 		return getFile(filter, mode, null);
 	}
 	public File getFile(FileFilter filter, int mode, Component parent) {
+		JFileChooser fileChooser = getFileChooser();
 		fileChooser.setFileFilter(filter);
 		fileChooser.setFileSelectionMode(mode);
 		int result = fileChooser.showOpenDialog(parent);
@@ -178,5 +176,16 @@ public class DataSourceTracker {
 			return fileChooser.getSelectedFile();
 		}
 		return null;
+	}
+
+	private JFileChooser fileChooser;
+	private JFileChooser getFileChooser() {
+		if (fileChooser == null) {
+			// takes ~200ms to create fileChooser
+			fileChooser = new JFileChooser();
+			if (wcDirectory != null) fileChooser.setCurrentDirectory(new File(wcDirectory));
+			else if (new File("C:\\Program Files").exists()) fileChooser.setCurrentDirectory(new File("C:\\Program Files\\Warcraft III"));
+		}
+		return fileChooser;
 	}
 }

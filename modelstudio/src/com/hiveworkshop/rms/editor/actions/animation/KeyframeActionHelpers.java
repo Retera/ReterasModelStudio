@@ -125,7 +125,7 @@ public class KeyframeActionHelpers {
 
 			int animationLength = sequence.getLength();
 
-			float[] tcbFactor = timeline.getTcbFactor(0, 0, 0.5f);
+			float[] tcbFactor = timeline.getTcbFactor(0.0f, 0.0f, 0.5f);
 			timeline.calcNewTans(tcbFactor, entryOut, entryIn, entry, animationLength);
 		}
 		return entry;
@@ -136,7 +136,7 @@ public class KeyframeActionHelpers {
 		List<Entry<T>> list = new ArrayList<>();
 		Entry<T> entry = new Entry<>(time, value);
 		list.add(entry);
-		if (sequence != null && timeline.tans() && !timeline.getEntryMap(sequence).isEmpty()) {
+		if (sequence != null && timeline.tans() && timeline.getEntryMap(sequence) != null && !timeline.getEntryMap(sequence).isEmpty()) {
 			int length = sequence.getLength();
 
 			Entry<T> prevEntry = timeline.getFloorEntry(time - 1, sequence);

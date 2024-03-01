@@ -1,17 +1,16 @@
 package com.hiveworkshop.rms.util.fileviewers;
 
-import javax.swing.text.StyledEditorKit;
+import javax.swing.text.html.HTMLEditorKit;
 import java.io.*;
 
-public class TxtViewer extends FileViewer {
-	private static final String utf8Bom = String.valueOf(new char[] {0xEF, 0xBB, 0xBF});
+public class HTMLViewer extends FileViewer {
 
-	public TxtViewer() {
-		super(new StyledEditorKit());
+	public HTMLViewer() {
+		super(new HTMLEditorKit());
 	}
 
 	protected String getReadFile(File file) {
-		try (FileInputStream in = new FileInputStream(file)) {
+		try (FileInputStream in = new FileInputStream(file)){
 			return readStream(in);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -24,11 +23,6 @@ public class TxtViewer extends FileViewer {
 		StringBuilder stringBuilder = new StringBuilder();
 
 		try (BufferedReader r = new BufferedReader(new InputStreamReader(in))) {
-			char[] tempChar = new char[3];
-			r.mark(4);
-			if (r.read(tempChar, 0, 3) != 3 || !utf8Bom.equals(new String(tempChar))) {
-				r.reset();
-			}
 			r.lines().forEach(l -> stringBuilder.append(l).append("\n"));
 		} catch (Exception e) {
 			e.printStackTrace();

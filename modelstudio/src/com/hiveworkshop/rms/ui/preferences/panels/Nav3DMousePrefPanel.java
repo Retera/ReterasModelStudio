@@ -55,11 +55,11 @@ public class Nav3DMousePrefPanel extends JPanel {
 		add(Button.setTooltip(fullResetButton, ("Reset fields to RMS presets. Remember to save if you want to apply these keybindings!")), "");
 	}
 
-	private void setKB(Nav3DMouseAction cameraShortCut, Integer keyStroke){
+	private void setKB(Nav3DMouseAction cameraShortCut, Integer keyStroke) {
 		nav3DMousePrefs.setKeyStroke(cameraShortCut, keyStroke);
 	}
 
-	private void setAllKB(Nav3DMousePrefs prefs){
+	private void setAllKB(Nav3DMousePrefs prefs) {
 		this.nav3DMousePrefs.setFrom(prefs);
 		for (Nav3DMouseAction cameraShortCut : buttonMap.keySet()) {
 			Integer keyStroke = this.nav3DMousePrefs.getKeyStroke(cameraShortCut);
@@ -78,7 +78,7 @@ public class Nav3DMousePrefPanel extends JPanel {
 
 		int change = JOptionPane.showConfirmDialog(this, panel, "Edit KeyBinding for " + mouseAction.toString(), JOptionPane.OK_CANCEL_OPTION);
 
-		if(change == JOptionPane.OK_OPTION){
+		if (change == JOptionPane.OK_OPTION) {
 			Integer newKeyStroke = mouseSettingPanel.getNewKeyStroke();
 			button.setText(newKeyStroke == null ? TextKey.NONE.toString() : MouseEvent.getModifiersExText(newKeyStroke));
 			return newKeyStroke;

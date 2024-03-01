@@ -37,8 +37,6 @@ public class ProgramPrefWindow extends JFrame {
 
 		JPanel prefPanel = new JPanel(new MigLayout("fill"));
 		prefPanel.add(programPreferencesPanel, "growx, growy, spanx, wrap");
-
-
 		prefPanel.add(Button.create("OK", e -> onOK()));
 		prefPanel.add(Button.create("Cancel", e -> closeWindow()));
 
@@ -58,7 +56,7 @@ public class ProgramPrefWindow extends JFrame {
 		dispose();
 	}
 
-	private static void updateThemeIfNotEqual(GUITheme wantedTheme, GUITheme otherTheme){
+	private static void updateThemeIfNotEqual(GUITheme wantedTheme, GUITheme otherTheme) {
 		if (wantedTheme != otherTheme) {
 			ThemeLoadingUtils.setTheme(wantedTheme);
 			SwingUtilities.updateComponentTreeUI(ProgramGlobals.getMainPanel().getRootPane());

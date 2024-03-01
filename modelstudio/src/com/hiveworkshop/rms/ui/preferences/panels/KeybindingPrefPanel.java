@@ -72,7 +72,7 @@ public class KeybindingPrefPanel extends JPanel {
 
 		int change = JOptionPane.showConfirmDialog(this, panel, "Edit KeyBinding for " + textKey.toString(), JOptionPane.OK_CANCEL_OPTION);
 
-		if(change == JOptionPane.OK_OPTION){
+		if (change == JOptionPane.OK_OPTION){
 			KeyStroke newKeyStroke = keySettingField.getNewKeyStroke();
 			button.setText(newKeyStroke == null ? TextKey.NONE.toString() : newKeyStroke.toString());
 			keyBindingPrefs.setKeyStroke(textKey, newKeyStroke);

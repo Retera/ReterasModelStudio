@@ -44,7 +44,8 @@ public class Nav3DMousePrefs {
 		String[] lines = string.split("\n");
 		for (String line : lines) {
 			String[] s = line.split("=");
-			if (s.length > 1) {
+//			System.out.println("parsing: \"" + line + "\"");
+			if (1 < s.length) {
 				try {
 					Nav3DMouseAction mouseAction = Nav3DMouseAction.valueOf(s[0].strip());
 

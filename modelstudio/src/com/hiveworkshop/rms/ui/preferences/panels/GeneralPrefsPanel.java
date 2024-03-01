@@ -14,7 +14,7 @@ import java.util.Objects;
 
 public class GeneralPrefsPanel extends JPanel {
 
-	public GeneralPrefsPanel(ProgramPreferences pref){
+	public GeneralPrefsPanel(ProgramPreferences pref) {
 		super(new MigLayout());
 
 		add(new JLabel("Show 2D Viewport Gridlines:"));

@@ -37,18 +37,18 @@ public class HotkeysPrefsPanel extends JPanel {
 		Supplier<Integer> buttonExSupplier;
 		Consumer<Integer> integerConsumer;
 		JComponent parent;
-		MouseSetting(String text, Supplier<Integer> buttonExSupplier, Consumer<Integer> integerConsumer, JComponent parent){
+		MouseSetting(String text, Supplier<Integer> buttonExSupplier, Consumer<Integer> integerConsumer, JComponent parent) {
 			this.text = text;
 			this.buttonExSupplier = buttonExSupplier;
 			this.integerConsumer = integerConsumer;
 			this.parent = parent;
 		}
 
-		JLabel getLabel(){
+		JLabel getLabel() {
 			return new JLabel(text);
 		}
 
-		JButton getEditButton(){
+		JButton getEditButton() {
 			JButton editButton = new JButton(MouseEvent.getModifiersExText(buttonExSupplier.get()));
 			editButton.addActionListener(e -> integerConsumer.accept(editMouseButtonBinding(text, editButton, buttonExSupplier.get(), false)));
 			return editButton;

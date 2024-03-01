@@ -69,6 +69,7 @@ public class EditorColorPrefs {
 		String[] lines = string.split("\n");
 		for (String line : lines) {
 			String[] s = line.split("=");
+//			System.out.println("parsing: \"" + line + "\"");
 			if (1 < s.length) {
 				try {
 					ColorThing colorThing = ColorThing.valueOf(s[0].strip());

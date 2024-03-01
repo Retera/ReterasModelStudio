@@ -18,17 +18,20 @@ public class JavaJarDataSource implements DataSource {
     @Override
     public File getFile(final String filepath) throws IOException {
         final InputStream newInputStream = getResourceAsStream(filepath);
-        String tmpdir = System.getProperty("java.io.tmpdir");
-        if (!tmpdir.endsWith(File.separator)) {
-            tmpdir += File.separator;
+        if (newInputStream != null) {
+            String tmpdir = System.getProperty("java.io.tmpdir");
+            if (!tmpdir.endsWith(File.separator)) {
+                tmpdir += File.separator;
+            }
+            final String tempDir = tmpdir + "RMSExtract/";
+            final File tempProduct = new File(tempDir + filepath.replace('\\', File.separatorChar));
+            tempProduct.delete();
+            tempProduct.getParentFile().mkdirs();
+            Files.copy(newInputStream, tempProduct.toPath());
+            tempProduct.deleteOnExit();
+            return tempProduct;
         }
-        final String tempDir = tmpdir + "RMSExtract/";
-        final File tempProduct = new File(tempDir + filepath.replace('\\', File.separatorChar));
-        tempProduct.delete();
-        tempProduct.getParentFile().mkdirs();
-        Files.copy(newInputStream, tempProduct.toPath());
-        tempProduct.deleteOnExit();
-        return tempProduct;
+        return null;
     }
 
     @Override

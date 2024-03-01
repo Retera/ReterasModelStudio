@@ -36,7 +36,8 @@ public class KeyBindingPrefs implements Serializable {
 		String[] lines = string.split("\n");
 		for (String line : lines) {
 			String[] s = line.split("=");
-			if (s.length > 1) {
+//			System.out.println("parsing: \"" + line + "\"");
+			if (1 < s.length) {
 				try {
 					TextKey textKey = TextKey.valueOf(s[0].strip());
 					KeyStroke keyStroke = KeyStroke.getKeyStroke(s[1]);
@@ -60,7 +61,7 @@ public class KeyBindingPrefs implements Serializable {
 		for (ActionFunction function : actionFunctionMap.values()) {
 			actionMap.put(function.getName(), function.getAction());
 		}
-//		for (ActionMapActions action : ActionMapActions.values()){
+//		for (ActionMapActions action : ActionMapActions.values()) {
 //			actionMap.put(action.getName(), action.getAction());
 //		}
 		return actionMap;
@@ -113,7 +114,7 @@ public class KeyBindingPrefs implements Serializable {
 //			}
 //		}
 //		makeMap();
-//		for (ActionMapActions action : ActionMapActions.values()){
+//		for (ActionMapActions action : ActionMapActions.values()) {
 //			keyStrokeMap.computeIfAbsent(action, k -> defaultPrefs.keyStrokeMap.get(action));
 //		}
 //	}

@@ -37,7 +37,7 @@ public class TeamColorMenu extends JMenu {
 		return menuItem;
 	}
 
-	private ImageIcon getTCIcon(String colorNumber){
+	private ImageIcon getTCIcon(String colorNumber) {
 		String iconTexturePath = "ReplaceableTextures\\TeamColor\\TeamColor" + colorNumber + ".blp";
 		BufferedImage image = BLPHandler.getImage(iconTexturePath);
 		return new ImageIcon(image);

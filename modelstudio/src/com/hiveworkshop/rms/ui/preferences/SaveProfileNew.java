@@ -80,7 +80,7 @@ public class SaveProfileNew {
 	}
 
 	public boolean setDataSources(final List<DataSourceDescriptor> dataSources) {
-		if (!dataSources.equals(getDataSourceTracker().getDataSourceDescriptors())){
+		if (!dataSources.equals(getDataSourceTracker().getDataSourceDescriptors())) {
 			getDataSourceTracker().clear().addAll(dataSources);
 			isHD = this.dataSources.isHd();
 			return true;
@@ -328,7 +328,7 @@ public class SaveProfileNew {
 							}
 						}
 						sb.append("];\n");
-					} else if (o != null){
+					} else if (o != null) {
 						if (o instanceof String || o instanceof File) {
 							sb.append(name).append(" = \"").append(o).append("\";\n");
 						} else {

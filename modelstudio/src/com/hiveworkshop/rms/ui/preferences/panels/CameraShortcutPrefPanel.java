@@ -54,11 +54,11 @@ public class CameraShortcutPrefPanel extends JPanel {
 		add(Button.setTooltip(fullResetButton, ("Reset fields to RMS presets. Remember to save if you want to apply these keybindings!")), "");
 	}
 
-	private void setKB(CameraShortCut cameraShortCut, KeyStroke keyStroke){
+	private void setKB(CameraShortCut cameraShortCut, KeyStroke keyStroke) {
 		cameraControlPrefs.setKeyStroke(cameraShortCut, keyStroke);
 	}
 
-	private void setAllKB(CameraControlPrefs prefs){
+	private void setAllKB(CameraControlPrefs prefs) {
 		this.cameraControlPrefs.setFrom(prefs);
 		for (CameraShortCut cameraShortCut : buttonMap.keySet()) {
 			KeyStroke keyStroke = this.cameraControlPrefs.getKeyStroke(cameraShortCut);
@@ -78,7 +78,7 @@ public class CameraShortcutPrefPanel extends JPanel {
 
 		int change = JOptionPane.showConfirmDialog(this, panel, "Edit KeyBinding for " + cameraShortCut.toString(), JOptionPane.OK_CANCEL_OPTION);
 
-		if(change == JOptionPane.OK_OPTION){
+		if (change == JOptionPane.OK_OPTION) {
 			KeyStroke newKeyStroke = keySettingField.getNewKeyStroke();
 			button.setText(newKeyStroke == null ? TextKey.NONE.toString() : newKeyStroke.toString());
 			return newKeyStroke;

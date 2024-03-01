@@ -407,7 +407,7 @@ public class ProgramPreferences implements Serializable {
 //		String stump = s;
 //		Field lastField = null;
 //		for (Field field : declaredFields) {
-//			if(notTransientNorStatic(field)) {
+//			if (notTransientNorStatic(field)) {
 //				String name = field.getName();
 //				String[] split = stump.split(name + " = ");
 //
@@ -422,7 +422,7 @@ public class ProgramPreferences implements Serializable {
 //					}
 //				}
 //				lastField = field;
-//				if(1 < split.length){
+//				if (1 < split.length) {
 //					stump = split[1];
 //				}
 //			}
@@ -458,7 +458,7 @@ public class ProgramPreferences implements Serializable {
 	public ProgramPreferences saveViewMap() {
 ////		ViewMap viewMap = new ViewMap();
 //		viewList.clear();
-//		for(JComponent component : ProgramGlobals.getRootWindowUgg().getDockingWindows()) {
+//		for (JComponent component : ProgramGlobals.getRootWindowUgg().getDockingWindows()) {
 //			if (component instanceof View) {
 //				WindowHandler2.traverseAndStuff((View) component, viewMap, viewList);
 //				viewMap.addView(viewList.size(), (View) component);

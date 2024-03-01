@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 
 public class ColorPrefPanel extends JPanel {
 
-	public ColorPrefPanel(JFrame frame, ProgramPreferences pref){
+	public ColorPrefPanel(JFrame frame, ProgramPreferences pref) {
 		super(new MigLayout("gap 0, ins 0, fill"));
 		EditorColorPrefs colorPrefs = pref.getEditorColorPrefs();
 		final JPanel innerPanel = new JPanel(new MigLayout("gap 0"));
@@ -36,7 +36,7 @@ public class ColorPrefPanel extends JPanel {
 		JComponent parent;
 		Consumer<GUITheme> themeConsumer;
 
-		ThemeTracker(JFrame frame, JComponent parent, Consumer<GUITheme> themeConsumer){
+		ThemeTracker(JFrame frame, JComponent parent, Consumer<GUITheme> themeConsumer) {
 			this.parent = parent;
 			this.frame = frame;
 			this.themeConsumer = themeConsumer;

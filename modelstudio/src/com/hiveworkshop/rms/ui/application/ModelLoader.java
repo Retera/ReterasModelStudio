@@ -14,9 +14,11 @@ import com.hiveworkshop.rms.ui.preferences.SaveProfileNew;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.ExtFilter;
 import com.hiveworkshop.rms.ui.util.ModelLoadingInfo;
+import com.hiveworkshop.rms.ui.util.TwiPopup;
 import com.hiveworkshop.rms.util.ImageUtils.ImageCreator;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.fileviewers.HTMLViewer;
 import com.hiveworkshop.rms.util.fileviewers.SklViewer;
 import com.hiveworkshop.rms.util.fileviewers.TxtViewer;
 import jassimp.AiPostProcessSteps;
@@ -198,13 +200,18 @@ public class ModelLoader {
 		} else if (Arrays.asList("slk").contains(ext)) {
 			stringConsumer.accept("Loading skl");
 			String fileName = filepath.replaceAll(".*\\\\", "");
-			new SklViewer().createAndShowHTMLPanel(f, fileName);
+			new SklViewer().loadAndShow(f, fileName);
 			model = null;
-		} else if (Arrays.asList("txt", "fdf", "json", "ini").contains(ext)) {
+		} else if (Arrays.asList("txt", "fdf", "json", "ini", "ai", "pld", "j", "js").contains(ext)) {
 			String fileName = filepath.replaceAll(".*\\\\", "");
-			new TxtViewer().createAndShowHTMLPanel(f, fileName);
+			new TxtViewer().loadAndShow(f, fileName);
+			model = null;
+		} else if (Arrays.asList("htm", "html").contains(ext)) {
+			String fileName = filepath.replaceAll(".*\\\\", "");
+			new HTMLViewer().loadAndShow(f, fileName);
 			model = null;
 		} else {
+			TwiPopup.quickDismissPopup(ProgramGlobals.getMainPanel(), "Unsupported file type: \"" + ext + "\"", "Unsupported File");
 			model = null;
 		}
 
@@ -299,7 +306,12 @@ public class ModelLoader {
 	}
 
 	public static void loadFile(String path, boolean temporary) {
-		loadFile(GameDataFileSystem.getDefault().getFile(path), temporary);
+		File file = GameDataFileSystem.getDefault().getFile(path);
+		if (file != null) {
+			loadFile(file, temporary);
+		} else {
+			TwiPopup.quickDismissPopup(ProgramGlobals.getMainPanel(), "Could not load \"" + path + "\"", "File Error");
+		}
 	}
 	public static void loadFile(File f, boolean temporary) {
 		loadFile(f, temporary, true, MDLIcon);
