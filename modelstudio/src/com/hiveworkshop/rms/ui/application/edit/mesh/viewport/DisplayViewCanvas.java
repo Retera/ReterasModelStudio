@@ -133,9 +133,9 @@ public class DisplayViewCanvas extends ModelDependentView {
 		this.modelPanel = modelPanel;
 		if (modelPanel == null) {
 			this.setComponent(dudPanel);
-			viewportPanel.setModel(null, null);
+			viewportPanel.setModel(null, null, true);
 		} else {
-			viewportPanel.setModel(modelPanel.getModelHandler().getRenderModel(), modelPanel.getViewportActivityManager());
+			viewportPanel.setModel(modelPanel.getModelHandler().getRenderModel(), modelPanel.getViewportActivityManager(), true);
 			viewportPanel.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
 			setUpViewAngle();
 			this.setComponent(viewportPanel);

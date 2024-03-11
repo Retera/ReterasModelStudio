@@ -74,11 +74,11 @@ public class MPQTreeNode implements TreeNode {
 	}
 
 	public List<MPQTreeNode> getChildren() {
-		return new ArrayList<MPQTreeNode>(children.values());
+		return new ArrayList<>(children.values());
 	}
 
 	public List<MPQTreeNode> getHiddenChildren() {
-		return new ArrayList<MPQTreeNode>(hiddenChildren.values());
+		return new ArrayList<>(hiddenChildren.values());
 	}
 
 	/**
@@ -118,7 +118,7 @@ public class MPQTreeNode implements TreeNode {
 	}
 
 	public void setHiddenChildren() {
-		List<MPQTreeNode> childrenToHide = children.values().stream().filter(c -> !c.isVisible).collect(Collectors.toList());
+		List<MPQTreeNode> childrenToHide = children.values().stream().filter(c -> !c.isVisible).toList();
 
 		for (MPQTreeNode child : childrenToHide) {
 			hiddenChildren.put(child.getSubPathName(), child);
@@ -128,7 +128,7 @@ public class MPQTreeNode implements TreeNode {
 	}
 
 	public void setVisibleChildren() {
-		List<MPQTreeNode> childrenToShow = hiddenChildren.values().stream().filter(c -> c.isVisible).collect(Collectors.toList());
+		List<MPQTreeNode> childrenToShow = hiddenChildren.values().stream().filter(c -> c.isVisible).toList();
 		for (MPQTreeNode child : childrenToShow) {
 			children.put(child.getSubPathName(), child);
 			hiddenChildren.remove(child.getSubPathName());

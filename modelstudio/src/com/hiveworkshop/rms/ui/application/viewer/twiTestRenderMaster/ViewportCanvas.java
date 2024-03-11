@@ -32,7 +32,7 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 	}
 	public ViewportCanvas(ProgramPreferences programPreferences, boolean portrait) throws LWJGLException {
 		super();
-		if(portrait){
+		if (portrait) {
 			cameraManager = new PortraitCameraManager(this);
 		} else {
 
@@ -65,11 +65,16 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 	}
 
 	public ViewportCanvas setModel(RenderModel renderModel) {
+		return setModel(renderModel, true);
+	}
+	public ViewportCanvas setModel(RenderModel renderModel, boolean loadDefaultCamera) {
 //		viewportCanvas.getWidth(), viewportCanvas.getHeight()
 //		System.out.println("VP canvas size: x=" + getWidth() + " y=" + getHeight() + ", dim=" +getSize() + ", rekt=" + getBounds());
-		if(renderModel != null){
+		if (renderModel != null) {
 			ExtLog extents = renderModel.getModel().getExtents();
-			cameraManager.loadDefaultCameraFor(ViewportHelpers.getBoundsRadius(renderModel.getTimeEnvironment(), extents));
+			if (loadDefaultCamera) {
+				cameraManager.loadDefaultCameraFor(ViewportHelpers.getBoundsRadius(renderModel.getTimeEnvironment(), extents));
+			}
 			bufferFiller = renderModel.getBufferFiller();
 		}
 		return this;
@@ -82,14 +87,14 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 
 
 	public void setCamera(final Camera camera) {
-		if(cameraManager instanceof PortraitCameraManager){
+		if (cameraManager instanceof PortraitCameraManager) {
 //			((PortraitCameraManager)cameraManager).setModelInstance(renderModel, camera);
 		}
 	}
 
 	@Override
 	public void initGL() {
-		if(bufferFiller != null){
+		if (bufferFiller != null) {
 			bufferFiller.initGL();
 		}
 	}
@@ -97,8 +102,8 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 	@Override
 	public void paintGL() {
 		setSize(getParent().getSize());
-		if(doPaint && bufferFiller != null){
-			if(bufferConsumer != null){
+		if (doPaint && bufferFiller != null) {
+			if (bufferConsumer != null) {
 				final Consumer<ByteBuffer> bc = bufferConsumer;
 				ByteBuffer pixels = bufferFiller.paintGL2(cameraManager, viewportSettings, getWidth(), getHeight());
 				SwingUtilities.invokeLater(() -> {
@@ -118,7 +123,7 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 		}
 
 		if (isShowing() && !paintTimer.isRunning()) {
-			if(exceptionTimeout < System.currentTimeMillis()){
+			if (exceptionTimeout < System.currentTimeMillis()) {
 				doPaint = true;
 				paintTimer.restart();
 			}
@@ -128,7 +133,7 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 	}
 
 	Consumer<ByteBuffer> bufferConsumer;
-	public void setPixelBufferListener(Consumer<ByteBuffer> bufferConsumer){
+	public void setPixelBufferListener(Consumer<ByteBuffer> bufferConsumer) {
 		this.bufferConsumer = bufferConsumer;
 	}
 
@@ -150,8 +155,8 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 		return mouseAdapter;
 	}
 
-	public ViewportCanvas setLevelOfDetail(int levelOfDetail){
-		if(bufferFiller != null){
+	public ViewportCanvas setLevelOfDetail(int levelOfDetail) {
+		if (bufferFiller != null) {
 			bufferFiller.setLevelOfDetail(levelOfDetail);
 		}
 		return this;

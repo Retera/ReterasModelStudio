@@ -23,7 +23,7 @@ public class MPQBrowserView extends View {
 		setComponent(mpqBrowser);
 	}
 
-	public MPQBrowserView prefsUpdated(){
+	public MPQBrowserView prefsUpdated() {
 		mpqBrowser.reloadFileSystem();
 		return this;
 	}
@@ -42,11 +42,11 @@ public class MPQBrowserView extends View {
 		}
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
-			if (modelPanel.getModel().getFormatVersion() > 800) {
+			if (800 < modelPanel.getModel().getFormatVersion()) {
 				finalPath = finalPath.replace("\\", "/"); // Reforged prefers forward slash
 			}
 			modelPanel.getModel().add(new Bitmap(finalPath));
 			ModelStructureChangeListener.changeListener.texturesChanged();
 		}
-    }
+	}
 }

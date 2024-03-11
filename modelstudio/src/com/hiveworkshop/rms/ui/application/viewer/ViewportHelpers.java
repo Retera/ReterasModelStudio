@@ -6,9 +6,9 @@ import com.hiveworkshop.rms.editor.model.ExtLog;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
+import java.util.Comparator;
+
 public class ViewportHelpers {
-
-
 
 	public static double getBoundsRadius(TimeEnvironmentImpl renderEnv, ExtLog modelExtent) {
 		ExtLog defaultAnimationExtent = new ExtLog(Vec3.ZERO, Vec3.ZERO, 0);
@@ -44,23 +44,11 @@ public class ViewportHelpers {
 	}
 
 	public static Animation findDefaultAnimation(EditableModel model) {
-		Animation defaultAnimation = null;
-		for (Animation animation : model.getAnims()) {
-			if (defaultAnimation == null
-					|| !defaultAnimation.getName().toLowerCase().contains("stand")
-					|| (animation.getName().toLowerCase().contains("stand")
-					&& (animation.getName().length() < defaultAnimation.getName().length()))) {
-				defaultAnimation = animation;
-			}
-		}
-		return defaultAnimation;
+		return model.getAnims().stream()
+				.filter(a -> a.getName().toLowerCase().contains("stand"))
+				.min(Comparator.comparingInt(a -> a.getName().length()))
+				.orElse(model.getAnim(0));
 	}
-
-//	public static ExtLog getAnimExt(Sequence sequence){
-//		if(sequence instanceof Animation){
-//			return ((Animation) sequence).getExtents();
-//		}
-//	}
 
 	public static Vec3 getGoodCameraPos(ExtLog extLog, double ry, double rz){
 		Vec3 look = new Vec3(extLog.getMaximumExtent()).add(extLog.getMinimumExtent()).scale(.5f);

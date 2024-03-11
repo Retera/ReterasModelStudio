@@ -52,7 +52,7 @@ public class PreviewViewCanv extends ModelDependentView {
 	@Override
 	public PreviewViewCanv setModelPanel(ModelPanel modelPanel) {
 		if (modelPanel == null) {
-			viewportPanel.setModel(null, null);
+			viewportPanel.setModel(null, null, true);
 			animationController.setModel(null, null, true);
 		} else {
 //			previewPanel.setModel(modelPanel.getModelHandler(), true, modelPanel.getViewportActivityManager());
@@ -62,7 +62,7 @@ public class PreviewViewCanv extends ModelDependentView {
 			TimeEnvironmentImpl renderEnv = previewRenderModel.getTimeEnvironment();
 			renderEnv.setAnimationTime(0);
 			renderEnv.setLive(true);
-			viewportPanel.setModel(previewRenderModel, null);
+			viewportPanel.setModel(previewRenderModel, null, true);
 			animationController.setModel(previewRenderModel, renderEnv.getCurrentAnimation(), true);
 		}
 		splitPane.setDividerLocation(0.8);

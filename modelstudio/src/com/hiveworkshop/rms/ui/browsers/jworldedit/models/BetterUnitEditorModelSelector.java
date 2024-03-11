@@ -20,7 +20,8 @@ public class BetterUnitEditorModelSelector extends BetterSelector {
 
 	protected JPanel getRightPanel() {
 		JPanel rightPanel = new JPanel(new MigLayout("fill, ins 0", "", ""));
-		rightPanel.add(perspDisplayPanel, "growx, growy");
+		rightPanel.add(viewportPanel, "growx, growy, spanx, wrap");
+		rightPanel.add(animationChooser);
 		return rightPanel;
 	}
 

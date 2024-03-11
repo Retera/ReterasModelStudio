@@ -3,17 +3,17 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.models;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DoodadTabTreeBrowserBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
-import com.hiveworkshop.rms.util.TwiComboBoxModel;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 
 
 public class BetterDoodadModelSelector extends BetterSelector {
-	private JComboBox<Integer> variantBox;
 	private ArrayList<Integer> variants;
+	private TwiComboBox<Integer> variantBox;
+	private Integer variant = 0;
 
 	public BetterDoodadModelSelector(UnitEditorSettings unitEditorSettings) {
 		super(new DoodadTabTreeBrowserBuilder(), unitEditorSettings, WE_Field.DOODAD_FILE.getId(), WE_Field.DOODAD_VARIATIONS_FIELD.getId());
@@ -21,13 +21,13 @@ public class BetterDoodadModelSelector extends BetterSelector {
 
 	protected JPanel getRightPanel() {
 		JPanel rightPanel = new JPanel(new MigLayout("fill, ins 0", "", ""));
-		rightPanel.add(perspDisplayPanel, "growx, growy, wrap");
+		rightPanel.add(viewportPanel, "growx, growy, spanx, wrap");
 		variants = new ArrayList<>();
-		variantBox = new JComboBox<>(new TwiComboBoxModel<>(variants));
-		variantBox.setPrototypeDisplayValue(10000000);
-		variantBox.addItemListener(this::chooseVariant);
-		variantBox.setEditable(false);
+		variantBox = new TwiComboBox<>(variants, 10000000);
+		variantBox.addOnSelectItemListener(this::selectVariant);
+		variantBox.addMouseWheelListener(e -> variantBox.incIndex(e.getWheelRotation()));
 		rightPanel.add(variantBox);
+		rightPanel.add(animationChooser);
 		return rightPanel;
 	}
 
@@ -37,23 +37,21 @@ public class BetterDoodadModelSelector extends BetterSelector {
 		for (int i = 0; i < numberOfVariations; i++) {
 			variants.add(i + 1);
 		}
-		variantBox.setEnabled(numberOfVariations > 1);
-		if(variantBox.getItemCount()>0){
-			variantBox.setSelectedIndex(0);
-			openModel(getFilePath(currentUnit, 0), currentUnit.getName());
-		}
+		variantBox.selectFirst();
+		variantBox.setEnabled(1 < numberOfVariations);
+		selectVariant(1);
 	}
 
-	protected void chooseVariant(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED && currentUnit != null) {
-			String filepath = getFilePath(currentUnit, ((Integer) e.getItem()) - 1);
+	protected void selectVariant(Integer selected) {
+		variant = selected == null ? 0 : selected - 1;
+		if (currentUnit != null) {
+			String filepath = getFilePath(currentUnit, (variant));
 			String gameObjectName = currentUnit.getName();
 			openModel(filepath, gameObjectName);
 		}
 	}
 	public String getCurrentFilePath() {
-		if(currentUnit != null){
-			int variant = variantBox.isEnabled() ? variantBox.getSelectedIndex() : 0;
+		if (currentUnit != null) {
 			return getFilePath(currentUnit, variant);
 		} else {
 			return null;

@@ -104,13 +104,13 @@ public class ExportFrameViewCanvas extends ModelDependentView {
 		this.modelPanel = modelPanel;
 		if (modelPanel == null) {
 			this.setComponent(dudPanel);
-			viewportPanel.setModel(null, null);
+			viewportPanel.setModel(null, null, true);
 			animationController.setModel(null, null, true);
 			gifExportHelper.setRenderModel(null);
 		} else {
 			ModelHandler modelHandler = modelPanel.getModelHandler();
 			RenderModel renderModel = new RenderModel(modelHandler.getModel(), modelHandler.getModelView());
-			viewportPanel.setModel(renderModel, null);
+			viewportPanel.setModel(renderModel, null, true);
 			viewportPanel.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
 			viewportPanel.getViewport().getCameraHandler().setCameraRotation(0, 0, 0);
 			gifExportHelper.setRenderModel(renderModel);
@@ -127,8 +127,8 @@ public class ExportFrameViewCanvas extends ModelDependentView {
 	}
 
 	@Override
-	public ExportFrameViewCanvas preferencesUpdated(){
-		if(viewportPanel != null){
+	public ExportFrameViewCanvas preferencesUpdated() {
+		if (viewportPanel != null) {
 			viewportPanel.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
 		}
 		return this;
@@ -145,7 +145,7 @@ public class ExportFrameViewCanvas extends ModelDependentView {
 
 	Color onC = new Color(255, 255, 255);
 	Color offC = new Color(100, 100, 100);
-	private TinyToggleButton getButton(String text, boolean initial, Consumer<Boolean> boolConsumer){
+	private TinyToggleButton getButton(String text, boolean initial, Consumer<Boolean> boolConsumer) {
 		TinyToggleButton button = new TinyToggleButton(text, onC, offC, boolConsumer);
 		button.setOn(initial);
 		boolConsumer.accept(initial);
@@ -153,7 +153,7 @@ public class ExportFrameViewCanvas extends ModelDependentView {
 
 	}
 
-	public ViewportCanvas getPerspectiveViewport(){
+	public ViewportCanvas getPerspectiveViewport() {
 		return viewportPanel.getViewport();
 	}
 }

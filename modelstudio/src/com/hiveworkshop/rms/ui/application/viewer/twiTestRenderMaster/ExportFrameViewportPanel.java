@@ -21,13 +21,13 @@ public class ExportFrameViewportPanel extends ViewportPanel {
 		return viewport;
 	}
 
-	public ExportFrameViewportPanel setModel(RenderModel renderModel, ViewportActivityManager activityListener) {
+	public ExportFrameViewportPanel setModel(RenderModel renderModel, ViewportActivityManager activityListener, boolean loadDefaultCamera) {
 		this.activityListener = activityListener;
-		if(renderModel != null){
-			viewport.setModel(renderModel);
+		if (renderModel != null) {
+			viewport.setModel(renderModel, loadDefaultCamera);
 			viewport.getMouseAdapter().setActivityManager(activityListener);
 		} else {
-			viewport.setModel(null);
+			viewport.setModel(null, loadDefaultCamera);
 		}
 		return this;
 	}

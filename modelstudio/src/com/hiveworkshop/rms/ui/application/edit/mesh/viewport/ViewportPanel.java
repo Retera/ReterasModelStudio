@@ -56,13 +56,13 @@ public class ViewportPanel extends JPanel {
 		return viewport;
 	}
 
-	public ViewportPanel setModel(RenderModel renderModel, ViewportActivityManager activityListener) {
+	public ViewportPanel setModel(RenderModel renderModel, ViewportActivityManager activityListener, boolean loadDefaultCamera) {
 		this.activityListener = activityListener;
 		if (renderModel != null) {
-			viewport.setModel(renderModel);
+			viewport.setModel(renderModel, loadDefaultCamera);
 			viewport.getMouseAdapter().setActivityManager(activityListener);
 		} else {
-			viewport.setModel(null);
+			viewport.setModel(null, true);
 		}
 		return this;
 	}

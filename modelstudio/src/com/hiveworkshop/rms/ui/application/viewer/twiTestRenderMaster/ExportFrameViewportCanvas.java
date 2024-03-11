@@ -24,12 +24,13 @@ public class ExportFrameViewportCanvas extends ViewportCanvas {
 		super(programPreferences, portrait);
 	}
 
-
-	public ExportFrameViewportCanvas setModel(RenderModel renderModel) {
-		if(renderModel != null){
+	public ExportFrameViewportCanvas setModel(RenderModel renderModel, boolean loadDefaultCamera) {
+		if (renderModel != null) {
 			timeEnvironment = renderModel.getTimeEnvironment();
 			ExtLog extents = renderModel.getModel().getExtents();
-			cameraManager.loadDefaultCameraFor(ViewportHelpers.getBoundsRadius(renderModel.getTimeEnvironment(), extents));
+			if (loadDefaultCamera) {
+				cameraManager.loadDefaultCameraFor(ViewportHelpers.getBoundsRadius(renderModel.getTimeEnvironment(), extents));
+			}
 			bufferFiller = renderModel.getBufferFiller();
 		}
 		return this;
@@ -38,14 +39,14 @@ public class ExportFrameViewportCanvas extends ViewportCanvas {
 
 	@Override
 	public void paintGL() {
-		if(expDimension != null){
+		if (expDimension != null) {
 			setSize(expDimension);
 		} else {
 			setSize(getParent().getSize());
 		}
-		if(bufferFiller != null){
-			if(doExp){
-				if(currFrame<renderTimes.size()){
+		if (bufferFiller != null) {
+			if (doExp) {
+				if (currFrame<renderTimes.size()) {
 					timeEnvironment.setAnimationTime(renderTimes.get(currFrame), true);
 					bufferFiller.forceUpdate();
 					ByteBuffer pixels = bufferFiller.paintGL2(cameraManager, viewportSettings, this.getWidth(), this.getHeight());
@@ -69,7 +70,7 @@ public class ExportFrameViewportCanvas extends ViewportCanvas {
 		}
 
 		if (isShowing() && !paintTimer.isRunning()) {
-			if(exceptionTimeout < System.currentTimeMillis()){
+			if (exceptionTimeout < System.currentTimeMillis()) {
 				doPaint = true;
 				paintTimer.restart();
 			}
@@ -96,14 +97,14 @@ public class ExportFrameViewportCanvas extends ViewportCanvas {
 		doExp = true;
 	}
 
-	private void runOnFramesDone(){
-		if(onDoneRunnable != null){
+	private void runOnFramesDone() {
+		if (onDoneRunnable != null) {
 			onDoneRunnable.run();
 		}
 	}
 
 	Runnable onDoneRunnable;
-	public void setOnDoneRunnable(Runnable onDoneRunnable){
+	public void setOnDoneRunnable(Runnable onDoneRunnable) {
 		this.onDoneRunnable = onDoneRunnable;
 	}
 }

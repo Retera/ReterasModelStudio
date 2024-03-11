@@ -1,8 +1,11 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.models;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
-import com.hiveworkshop.rms.ui.application.viewer.PerspDisplayPanel;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportPanel;
+import com.hiveworkshop.rms.ui.application.model.nodepanels.AnimationChooser;
+import com.hiveworkshop.rms.ui.application.viewer.ViewportHelpers;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.ObjectTabTreeBrowserBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
@@ -18,46 +21,22 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 
 public abstract class BetterSelector extends JSplitPane {
 	protected MutableGameObject currentUnit = null;
 
 	protected EditableModel mdl = new EditableModel();
-	protected final PerspDisplayPanel perspDisplayPanel;
+	protected final ViewportPanel viewportPanel;
 	protected DefaultMutableTreeNode defaultSelection = null;
 	protected final UnitEditorTree tree;
 
 	protected War3ID field;
 	protected War3ID variationField;
+	protected Consumer<String> setTitle;
+	protected AnimationChooser animationChooser;
 
-	public BetterSelector(ObjectTabTreeBrowserBuilder treeBuilder,
-	                      UnitEditorSettings unitEditorSettings,
-	                      String fileString,
-	                      String variationString) {
-		tree = new UnitEditorTree(treeBuilder, unitEditorSettings);
-		if (variationString == null) {
-			variationField = null;
-		} else {
-			variationField = War3ID.fromString(variationString);
-		}
-
-		field = War3ID.fromString(fileString);
-		JScrollPane treePane;
-		setLeftComponent(treePane = new JScrollPane(tree));
-		perspDisplayPanel = new PerspDisplayPanel("blank");
-		JPanel rightPanel = getRightPanel();
-		setCurrentGameObject(null);
-
-		setRightComponent(rightPanel);
-
-		tree.addTreeSelectionListener(this::valueChanged);
-		treePane.setPreferredSize(new Dimension(350, 600));
-		perspDisplayPanel.setPreferredSize(new Dimension(800, 600));
-		if (defaultSelection != null) {
-			tree.getSelectionModel().setSelectionPath(getPath(defaultSelection));
-		}
-	}
 	public BetterSelector(ObjectTabTreeBrowserBuilder treeBuilder,
 	                      UnitEditorSettings unitEditorSettings,
 	                      War3ID field,
@@ -69,15 +48,18 @@ public abstract class BetterSelector extends JSplitPane {
 
 		JScrollPane treePane;
 		setLeftComponent(treePane = new JScrollPane(tree));
-		perspDisplayPanel = new PerspDisplayPanel("blank");
+		viewportPanel = new ViewportPanel(false, false);
+		animationChooser = new AnimationChooser(true, false, true);
 		JPanel rightPanel = getRightPanel();
+		setTitle = title -> rightPanel.setBorder(BorderFactory.createTitledBorder(title));
+		rightPanel.setBorder(BorderFactory.createTitledBorder(""));
 		setCurrentGameObject(null);
 
 		setRightComponent(rightPanel);
 
 		tree.addTreeSelectionListener(this::valueChanged);
 		treePane.setPreferredSize(new Dimension(350, 600));
-		perspDisplayPanel.setPreferredSize(new Dimension(800, 600));
+		viewportPanel.setPreferredSize(new Dimension(800, 600));
 		if (defaultSelection != null) {
 			tree.getSelectionModel().setSelectionPath(getPath(defaultSelection));
 		}
@@ -100,12 +82,16 @@ public abstract class BetterSelector extends JSplitPane {
 
 	protected abstract void loadUnitPreview();
 
+	boolean tempLoadDefault = true;
 	protected void openModel(String filepath, String gameObjectName) {
 		try {
 			filepath = setEndWithMdx(filepath);
 			mdl = MdxUtils.loadEditable(filepath, null);
-			perspDisplayPanel.setModel(new ModelHandler(mdl));
-			perspDisplayPanel.setTitle(gameObjectName);
+			RenderModel previewRenderModel = new ModelHandler(mdl).getPreviewRenderModel();
+			animationChooser.setModel(mdl, previewRenderModel).chooseSequence(ViewportHelpers.findDefaultAnimation(mdl));
+			viewportPanel.setModel(previewRenderModel, null, tempLoadDefault);
+			tempLoadDefault = false;
+			setTitle.accept(gameObjectName);
 			System.out.println("Opened \"" + filepath + "\"");
 		} catch (final Exception exc) {
 			exc.printStackTrace();
@@ -130,11 +116,10 @@ public abstract class BetterSelector extends JSplitPane {
 
 	public void valueChanged(final TreeSelectionEvent e) {
 		TreePath newLeadSelectionPath = e.getNewLeadSelectionPath();
-		if(newLeadSelectionPath != null){
-			final DefaultMutableTreeNode o = (DefaultMutableTreeNode) newLeadSelectionPath.getLastPathComponent();
-			if (o.getUserObject() instanceof MutableGameObject) {
-				setCurrentGameObject((MutableGameObject) o.getUserObject());
-			}
+		if (newLeadSelectionPath != null
+				&& newLeadSelectionPath.getLastPathComponent() instanceof DefaultMutableTreeNode treeNode
+				&& treeNode.getUserObject() instanceof MutableGameObject gameObject) {
+			setCurrentGameObject(gameObject);
 		}
 	}
 
@@ -171,7 +156,7 @@ public abstract class BetterSelector extends JSplitPane {
 		}
 
 
-		if (numberOfVariations > 1) {
+		if (1 < numberOfVariations) {
 			return obj.getFieldAsString(field, 0) + variant + ".mdl";
 		} else {
 			return obj.getFieldAsString(field, 0);
