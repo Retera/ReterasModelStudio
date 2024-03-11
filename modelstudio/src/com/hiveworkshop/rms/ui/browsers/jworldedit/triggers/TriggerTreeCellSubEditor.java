@@ -33,7 +33,7 @@ public class TriggerTreeCellSubEditor extends JTextField implements TreeCellEdit
 
 	@Override
 	public boolean isCellEditable(final EventObject anEvent) {
-		return (anEvent == null) || ((anEvent instanceof MouseEvent) && (((MouseEvent) anEvent).isMetaDown()));
+		return anEvent == null || anEvent instanceof MouseEvent mouseEvent && mouseEvent.isMetaDown();
 	}
 
 	@Override

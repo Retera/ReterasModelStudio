@@ -391,7 +391,7 @@ public final class War3ObjectDataChangeset {
 		return 3; // string
 	}
 
-	public boolean loadtable(BlizzardDataInputStream stream, ObjectMap map, boolean isOriginal, WTS wts, boolean inlineWTS) throws IOException {
+	public boolean loadtable(BlizzardDataInputStream stream, ObjectMap map, boolean isOriginal, WTSFile wts, boolean inlineWTS) throws IOException {
 		War3ID noId = new War3ID(0);
 		ByteBuffer stringByteBuffer = ByteBuffer.allocate(1024); // TODO check max len?
 		CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPLACE)
@@ -537,7 +537,7 @@ public final class War3ObjectDataChangeset {
 		return Integer.parseInt(numberAsText);
 	}
 
-	public boolean load(final BlizzardDataInputStream stream, final WTS wts, final boolean inlineWTS) throws IOException {
+	public boolean load(final BlizzardDataInputStream stream, final WTSFile wts, final boolean inlineWTS) throws IOException {
 		detected = false;
 		version = stream.readInt();
 		if ((version != 1) && (version != 2)) {
@@ -556,13 +556,13 @@ public final class War3ObjectDataChangeset {
 		return true;
 	}
 
-	public boolean load(final File file, final WTS wts, final boolean inlineWTS) throws IOException {
+	public boolean load(final File file, final WTSFile wts, final boolean inlineWTS) throws IOException {
 		try (BlizzardDataInputStream inputStream = new BlizzardDataInputStream(new FileInputStream(file))) {
 			return load(inputStream, wts, inlineWTS);
 		}
 	}
 
-	public static void inlineWTSTable(final ObjectMap map, final WTS wts) {
+	public static void inlineWTSTable(final ObjectMap map, final WTSFile wts) {
 		for (ObjectDataChangeEntry entry : map.values()) {
 			for (List<Change> changes : entry.getChanges().values()) {
 				for (Change change : changes) {
@@ -578,7 +578,7 @@ public final class War3ObjectDataChangeset {
 		}
 	}
 
-	public static void inlineWTSTable1(final ObjectMap map, final WTS wts) {
+	public static void inlineWTSTable1(final ObjectMap map, final WTSFile wts) {
 		for (final Map.Entry<War3ID, ObjectDataChangeEntry> entry : map) {
 			for (final Map.Entry<War3ID, List<Change>> changes : entry.getValue().getChanges()) {
 				for (final Change change : changes.getValue()) {
@@ -594,7 +594,7 @@ public final class War3ObjectDataChangeset {
 		}
 	}
 
-	public void inlineWTS(final WTS wts) {
+	public void inlineWTS(final WTSFile wts) {
 		inlineWTSTable(original, wts);
 		inlineWTSTable(custom, wts);
 	}

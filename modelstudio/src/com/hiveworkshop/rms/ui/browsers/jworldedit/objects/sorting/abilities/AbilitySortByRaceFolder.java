@@ -9,12 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class AbilitySortByRaceFolder extends SortByRaceFolder {
-
-	/**
-	 * default generated id to stop warnings, not going to serialize these folders
-	 */
-	private static final long serialVersionUID = 1L;
-
 	public AbilitySortByRaceFolder(String displayName) {
 		this(displayName, Arrays.asList(DefaultAbilityRace.values()));
 	}

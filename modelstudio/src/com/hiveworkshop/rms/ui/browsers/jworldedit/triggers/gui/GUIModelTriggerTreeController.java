@@ -52,8 +52,7 @@ public class GUIModelTriggerTreeController implements TriggerTreeController {
 
 	@Override
 	public void moveTrigger(final Trigger trigger, final TriggerCategory triggerCategory, final int index) {
-		final TriggerTreeNode triggerNode = root.getNode(trigger.getCategory()) == null ? null
-				: root.getNode(trigger.getCategory()).getNode(trigger);
+		final TriggerTreeNode triggerNode = root.getNode(trigger.getCategory()) == null ? null : root.getNode(trigger.getCategory()).getNode(trigger);
 		delegate.moveTrigger(trigger, triggerCategory, index);
 		if (triggerNode != null) {
 			treeModel.removeNodeFromParent(triggerNode);
@@ -89,8 +88,7 @@ public class GUIModelTriggerTreeController implements TriggerTreeController {
 				if (triggersInCategoryCount == 1) {
 					newSelectionPath = selectionPath.getParentPath();
 				} else {
-					newSelectionPath = selectionPath.getParentPath().pathByAddingChild(
-							categoryNode.getChildAt(Math.min(nextChildIndex, triggersInCategoryCount - 2)));
+					newSelectionPath = selectionPath.getParentPath().pathByAddingChild(categoryNode.getChildAt(Math.min(nextChildIndex, triggersInCategoryCount - 2)));
 				}
 			}
 		}
@@ -113,8 +111,7 @@ public class GUIModelTriggerTreeController implements TriggerTreeController {
 				if (categoryCount == 1) {
 					newSelectionPath = selectionPath.getParentPath();
 				} else {
-					newSelectionPath = selectionPath.getParentPath()
-							.pathByAddingChild(root.getChildAt(Math.min(nextChildIndex, categoryCount - 2)));
+					newSelectionPath = selectionPath.getParentPath().pathByAddingChild(root.getChildAt(Math.min(nextChildIndex, categoryCount - 2)));
 				}
 			}
 		}

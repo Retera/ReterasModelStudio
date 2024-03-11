@@ -11,11 +11,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class UnitSortByRaceFolder extends SortByRaceFolder {
-	/**
-	 * default generated id to stop warnings, not going to serialize these folders
-	 */
-	private static final long serialVersionUID = 1L;
-
 	private static final List<String> defaultNeutralRaces = Arrays.asList("commoner", "demon", "critters", "other", "creeps", "");
 
 	public UnitSortByRaceFolder(String displayName) {
@@ -50,14 +45,14 @@ public final class UnitSortByRaceFolder extends SortByRaceFolder {
 		DefaultUnitRace raceKey = DefaultUnitRace.getFromKeyString(race);
 
 		if (raceKey == DefaultUnitRace.NEUTRAL_PASSIVE
-				|| raceKey == null && defaultNeutralRaces.contains(race) ) {
+				|| raceKey == null && defaultNeutralRaces.contains(race)) {
 			boolean isHostile = object.getFieldAsBoolean(WE_Field.UNIT_DISPLAY_AS_NEUTRAL_HOSTILE.getId(), 0);
 			return isHostile ? DefaultUnitRace.NEUTRAL_HOSTILE : DefaultUnitRace.NEUTRAL_PASSIVE;
 		}
 		return raceKey;
 	}
 
-	private SortingFolderTreeNode getSortingFolderTreeNode(String race) {
+	private UnitRaceLevelFolder getSortingFolderTreeNode(String race) {
 		return new UnitRaceLevelFolder(new SortRace() {
 			@Override
 			public String getKeyString() {

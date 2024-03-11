@@ -99,18 +99,18 @@ public class DnDTabbedPane extends JTabbedPane {
 			}
 		};
 		final DragGestureListener dgl = e -> {
-            final Point tabPt = e.getDragOrigin();
-            dragTabIndex = indexAtLocation(tabPt.x, tabPt.y);
-            if (dragTabIndex < 0) {
-                return;
-            }
-            initGlassPane(e.getComponent(), e.getDragOrigin());
-            try {
-                e.startDrag(DragSource.DefaultMoveDrop, t, dsl);
-            } catch (final InvalidDnDOperationException idoe) {
-                idoe.printStackTrace();
-            }
-        };
+			final Point tabPt = e.getDragOrigin();
+			dragTabIndex = indexAtLocation(tabPt.x, tabPt.y);
+			if (dragTabIndex < 0) {
+				return;
+			}
+			initGlassPane(e.getComponent(), e.getDragOrigin());
+			try {
+				e.startDrag(DragSource.DefaultMoveDrop, t, dsl);
+			} catch (final InvalidDnDOperationException idoe) {
+				idoe.printStackTrace();
+			}
+		};
 		// dropTarget =
 		new DropTarget(glassPane, DnDConstants.ACTION_COPY_OR_MOVE, new CDropTargetListener(), true);
 		new DragSource().createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY_OR_MOVE, dgl);

@@ -21,7 +21,8 @@ public class UnitTabTreeBrowserBuilder extends ObjectTabTreeBrowserBuilder {
 		super(WorldEditorDataType.UNITS);
 		unitData = new MutableUnitData();
 		editorTabCustomToolbarButtonData = new EditorTabCustomToolbarButtonData("UNIT", "Unit");
-		customUnitPopupRunner = new NewCustomUnitDialogRunner(null, unitData);
+		NewCustomUnitDialogRunner dialogRunner = new NewCustomUnitDialogRunner(null, unitData);
+		customUnitPopupRunner = dialogRunner::run;
 	}
 
 	protected void setNewUnitData(){

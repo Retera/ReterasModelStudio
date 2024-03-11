@@ -19,15 +19,14 @@ import java.io.IOException;
 import java.util.List;
 
 public class ObjectEditorToolbar extends JToolBar {
-
 	private final JFileChooser jFileChooser;
-	List<UnitEditorPanel> editors;
-	JTabbedPane tabbedPane;
-	Component popupParent;
+	private final List<UnitEditorPanel> editors;
+	private final JTabbedPane tabbedPane;
+	private final Component popupParent;
 
-	private JButton createNewButton;
-	private JButton pasteButton;
-	private JButton copyButton;
+	private final JButton createNewButton;
+	private final JButton pasteButton;
+	private final JButton copyButton;
 
 	public ObjectEditorToolbar(DataTable worldEditorData, JTabbedPane tabbedPane, List<UnitEditorPanel> editors, Component popupParent) {
 		this.tabbedPane = tabbedPane;

@@ -51,8 +51,7 @@ public abstract class AbstractFieldBuilder {
 		String displayPrefix = getDisplayPrefix(displayLevel);
 		String prefixedDispName = displayPrefix + displayName;
 
-		AbstractObjectField field = getObjectField(metaKey, level, hasMoreThanOneLevel, metaField, displayName, rawDataName, prefixedDispName);
-		return field;
+		return getObjectField(metaKey, level, hasMoreThanOneLevel, metaField, displayName, rawDataName, prefixedDispName);
 	}
 	public AbstractObjectField create(GameObject metaField, MutableGameObject gameObject, War3ID metaKey, int level, boolean hasMoreThanOneLevel) {
 		int displayLevel = hasMoreThanOneLevel ? level : 0;
@@ -62,8 +61,7 @@ public abstract class AbstractFieldBuilder {
 		String displayPrefix = getDisplayPrefix(displayLevel);
 		String prefixedDispName = displayPrefix + displayName;
 
-		AbstractObjectField field = getObjectField(metaKey, level, hasMoreThanOneLevel, metaField, displayName, rawDataName, prefixedDispName);
-		return field;
+		return getObjectField(metaKey, level, hasMoreThanOneLevel, metaField, displayName, rawDataName, prefixedDispName);
 	}
 	public AbstractObjectField create1(MutableGameObject gameObject, ObjectData metaData, War3ID metaKey, int level, boolean hasMoreThanOneLevel) {
 		GameObject metaField = metaData.get(metaKey.toString());

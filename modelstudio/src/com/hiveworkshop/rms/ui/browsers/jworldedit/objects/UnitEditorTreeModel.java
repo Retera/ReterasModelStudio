@@ -27,9 +27,9 @@ public class UnitEditorTreeModel extends DefaultTreeModel {
 	@Override
 	public void setRoot(final TreeNode root) {
 		super.setRoot(root);
-		if (root instanceof DefaultMutableTreeNode) {
+		if (root instanceof DefaultMutableTreeNode treeRoot) {
 			unitIdToNode.clear();
-			init((DefaultMutableTreeNode) root);
+			init(treeRoot);
 		}
 	}
 
@@ -37,26 +37,8 @@ public class UnitEditorTreeModel extends DefaultTreeModel {
 		final Enumeration<TreeNode> depthFirstEnumeration = root.depthFirstEnumeration();
 		while (depthFirstEnumeration.hasMoreElements()) {
 			final Object nextElement = depthFirstEnumeration.nextElement();
-			if (nextElement instanceof DefaultMutableTreeNode) {
-				final DefaultMutableTreeNode objectNode = (DefaultMutableTreeNode) nextElement;
-				final Object userObject = objectNode.getUserObject();
-				if (userObject instanceof MutableGameObject) {
-					final MutableGameObject gameObject = (MutableGameObject) userObject;
-					final War3ID alias = gameObject.getAlias();
-					unitIdToNode.put(alias, objectNode);
-				}
-			}
-		}
-	}
-
-	@Override
-	public void insertNodeInto(final MutableTreeNode newChild, final MutableTreeNode parent, final int index) {
-		super.insertNodeInto(newChild, parent, index);
-		if (newChild instanceof DefaultMutableTreeNode) {
-			final DefaultMutableTreeNode objectNode = (DefaultMutableTreeNode) newChild;
-			final Object userObject = objectNode.getUserObject();
-			if (userObject instanceof MutableGameObject) {
-				final MutableGameObject gameObject = (MutableGameObject) userObject;
+			if (nextElement instanceof final DefaultMutableTreeNode objectNode
+					&& objectNode.getUserObject() instanceof final MutableGameObject gameObject) {
 				final War3ID alias = gameObject.getAlias();
 				unitIdToNode.put(alias, objectNode);
 			}
@@ -64,16 +46,22 @@ public class UnitEditorTreeModel extends DefaultTreeModel {
 	}
 
 	@Override
+	public void insertNodeInto(final MutableTreeNode newChild, final MutableTreeNode parent, final int index) {
+		super.insertNodeInto(newChild, parent, index);
+		if (newChild instanceof final DefaultMutableTreeNode objectNode
+				&& objectNode.getUserObject() instanceof final MutableGameObject gameObject) {
+			final War3ID alias = gameObject.getAlias();
+			unitIdToNode.put(alias, objectNode);
+		}
+	}
+
+	@Override
 	public void removeNodeFromParent(final MutableTreeNode node) {
 		super.removeNodeFromParent(node);
-		if (node instanceof DefaultMutableTreeNode) {
-			final DefaultMutableTreeNode objectNode = (DefaultMutableTreeNode) node;
-			final Object userObject = objectNode.getUserObject();
-			if (userObject instanceof MutableGameObject) {
-				final MutableGameObject gameObject = (MutableGameObject) userObject;
-				final War3ID alias = gameObject.getAlias();
-				unitIdToNode.remove(alias);
-			}
+		if (node instanceof final DefaultMutableTreeNode objectNode
+				&& objectNode.getUserObject() instanceof final MutableGameObject gameObject) {
+			final War3ID alias = gameObject.getAlias();
+			unitIdToNode.remove(alias);
 		}
 	}
 

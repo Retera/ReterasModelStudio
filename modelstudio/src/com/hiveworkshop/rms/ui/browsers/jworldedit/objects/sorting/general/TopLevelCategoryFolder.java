@@ -9,10 +9,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 public final class TopLevelCategoryFolder extends AbstractSortingFolderTreeNode {
-	/**
-	 * default generated id to stop warnings, not going to serialize these folders
-	 */
-	private static final long serialVersionUID = 1L;
 	private final SortingFolderTreeNode standard;
 	private final SortingFolderTreeNode custom;
 

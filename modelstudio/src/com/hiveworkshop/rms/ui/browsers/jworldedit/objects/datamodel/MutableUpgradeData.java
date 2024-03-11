@@ -58,15 +58,6 @@ public final class MutableUpgradeData extends MutableObjectData {
 				.add(upgradeData, "UpgradeData", true);
 	}
 
-	// TODO remove this hack
-	public War3ObjectDataChangeset getEditorData() {
-		return editorData;
-	}
-
-	public Map<String, War3ID> getMetaNameToMetaId() {
-		return metaNameToMetaId;
-	}
-
 	public void mergeChangset(War3ObjectDataChangeset changeset) {
 		List<War3ID> newObjects = new ArrayList<>();
 		Map<War3ID, War3ID> previousAliasToNewAlias = new HashMap<>();

@@ -10,10 +10,6 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.WE_Field;
 import javax.swing.tree.TreeNode;
 
 public class UnitRaceLevelFolder extends AbstractSortingFolderTreeNode {
-	/**
-	 * default generated id to stop warnings, not going to serialize these folders
-	 */
-	private static final long serialVersionUID = 1L;
 	private final UnitMeleeLevelFolder melee;
 	private final UnitMeleeLevelFolder campaign;
 	private final UnitMeleeLevelFolder hidden;

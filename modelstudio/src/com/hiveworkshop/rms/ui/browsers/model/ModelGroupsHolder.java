@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 public class ModelGroupsHolder {
-
 	private static final List<ModelGroup> groups = new ArrayList<>();
 
 	private static DataTable unitData = null;

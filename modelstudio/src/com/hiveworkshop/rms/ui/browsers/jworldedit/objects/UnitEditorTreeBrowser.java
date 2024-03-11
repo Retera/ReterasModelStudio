@@ -22,20 +22,19 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 
 		UnitBrowserPopupMenu popupMenu = new UnitBrowserPopupMenu(this::getMutableGameObject);
 
-		MouseAdapter umdl = getMouseAdapter(popupMenu);
-		addMouseListener(umdl);
+		MouseAdapter mouseAdapter = getMouseAdapter(popupMenu);
+		addMouseListener(mouseAdapter);
 	}
 
 	private MutableGameObject getMutableGameObject() {
-		MutableGameObject obj = null;
 		TreePath currentUnitTreePath = getPathForLocation(rightClickX, rightClickY);
-		if (currentUnitTreePath != null) {
-			DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath.getLastPathComponent();
-			if (o.getUserObject() instanceof MutableGameObject) {
-				obj = (MutableGameObject) o.getUserObject();
-			}
+		if (currentUnitTreePath != null
+				&& currentUnitTreePath.getLastPathComponent() instanceof DefaultMutableTreeNode treeNode
+				&& treeNode.getUserObject() instanceof MutableGameObject gameObject) {
+
+			return gameObject;
 		}
-		return obj;
+		return null;
 	}
 
 	private MouseAdapter getMouseAdapter(UnitBrowserPopupMenu popupMenu) {
@@ -48,7 +47,7 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 						rightClickY = e.getY();
 						popupMenu.show(UnitEditorTreeBrowser.this, e.getX(), e.getY());
 					} else {
-						if (e.getClickCount() >= 2) {
+						if (2 <= e.getClickCount()) {
 							rightClickX = e.getX();
 							rightClickY = e.getY();
 							openUnit();

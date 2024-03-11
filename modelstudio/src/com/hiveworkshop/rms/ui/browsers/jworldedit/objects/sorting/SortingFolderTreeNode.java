@@ -7,10 +7,7 @@ import javax.swing.tree.TreeNode;
 import java.util.Enumeration;
 
 public abstract class SortingFolderTreeNode extends DefaultMutableTreeNode {
-	/**
-	 * default generated id to stop warnings, not going to serialize these folders
-	 */
-//	private static final long serialVersionUID = 1L;
+
 	public SortingFolderTreeNode() {
 		super();
 	}
@@ -26,9 +23,9 @@ public abstract class SortingFolderTreeNode extends DefaultMutableTreeNode {
 	public abstract DefaultMutableTreeNode add(final MutableGameObject mutableGameObject, TreeNodeLinker treeModel);
 
 	public abstract int getSortIndex(SortingFolderTreeNode childNode);
-	public int getSortIndex(){
-		if(parent instanceof SortingFolderTreeNode){
-			return ((SortingFolderTreeNode) parent).getSortIndex(this);
+	public int getSortIndex() {
+		if (parent instanceof SortingFolderTreeNode sortingNode) {
+			return sortingNode.getSortIndex(this);
 		}
 		return 0;
 	}
@@ -46,11 +43,10 @@ public abstract class SortingFolderTreeNode extends DefaultMutableTreeNode {
 	public int getLeafCount() {
 		int count = 0;
 
-		TreeNode node;
 		final Enumeration<TreeNode> enum_ = breadthFirstEnumeration(); // order matters not
 
 		while (enum_.hasMoreElements()) {
-			node = enum_.nextElement();
+			TreeNode node = enum_.nextElement();
 			if (node.isLeaf() && !(node instanceof SortingFolderTreeNode)) {
 				// override: sorting folders don't count as leaves
 				count++;
@@ -61,19 +57,14 @@ public abstract class SortingFolderTreeNode extends DefaultMutableTreeNode {
 	}
 
 	public boolean hasEditedChildren() {
-		TreeNode node;
 		final Enumeration<TreeNode> enum_ = breadthFirstEnumeration(); // order matters not
 
 		while (enum_.hasMoreElements()) {
-			node = enum_.nextElement();
-			if ((node instanceof DefaultMutableTreeNode)) { // override: sorting folders don't count as leaves
-				final DefaultMutableTreeNode mutableTreeNode = (DefaultMutableTreeNode) node;
-				if (mutableTreeNode.getUserObject() instanceof MutableGameObject) {
-					final MutableGameObject gameObject = (MutableGameObject) mutableTreeNode.getUserObject();
-					if (gameObject.hasEditorData()) {
-						return true;
-					}
-				}
+			TreeNode node = enum_.nextElement();
+			if (node instanceof final DefaultMutableTreeNode treeNode  // override: sorting folders don't count as leaves
+					&& treeNode.getUserObject() instanceof final MutableGameObject gameObject
+					&& gameObject.hasEditorData()) {
+				return true;
 			}
 		}
 

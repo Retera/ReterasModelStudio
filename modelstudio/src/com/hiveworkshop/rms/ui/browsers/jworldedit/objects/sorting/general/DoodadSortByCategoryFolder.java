@@ -17,10 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 public final class DoodadSortByCategoryFolder extends AbstractSortingFolderTreeNode {
-	/**
-	 * default generated id to stop warnings, not going to serialize these folders
-	 */
-	private static final long serialVersionUID = 1L;
 	private static final String TAG_NAME = "doodClass";
 	private final Map<String, BottomLevelCategoryFolder> objectClassToTreeNode = new LinkedHashMap<>();
 	private final List<BottomLevelCategoryFolder> objectClassesList = new ArrayList<>();
@@ -48,7 +44,7 @@ public final class DoodadSortByCategoryFolder extends AbstractSortingFolderTreeN
 
 	//	@Override
 	public int getSortIndex(SortingFolderTreeNode childNode) {
-		if (childNode != null) {
+		if (childNode instanceof BottomLevelCategoryFolder) {
 			return objectClassesList.indexOf(childNode);
 		}
 		return -1;
@@ -56,7 +52,7 @@ public final class DoodadSortByCategoryFolder extends AbstractSortingFolderTreeN
 
 	@Override
 	public int getSortIndex(TreeNode childNode) {
-		if (childNode != null) {
+		if (childNode instanceof BottomLevelCategoryFolder) {
 			return objectClassesList.indexOf(childNode);
 		}
 		return -1;

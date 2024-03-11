@@ -82,15 +82,13 @@ public class UnitEditorTree extends JTree {
 			public void treeExpanded(TreeExpansionEvent event) {
 				TreePath expandedPath = event.getPath();
 				Object lastPathComponent = expandedPath.getLastPathComponent();
-				if (lastPathComponent instanceof AbstractSortingFolderTreeNode) {
-					AbstractSortingFolderTreeNode folderTreeNode = (AbstractSortingFolderTreeNode) lastPathComponent;
-					if (!folderTreeNode.isHasExpandedFirstTime()) {
-						if (folderTreeNode.getChildCount() > 0) {
-							TreeNode childAt = folderTreeNode.getChildAt(0);
-							expandPath(expandedPath.pathByAddingChild(childAt));
-						}
-						folderTreeNode.setHasExpandedFirstTime(true);
+				if (lastPathComponent instanceof AbstractSortingFolderTreeNode folderTreeNode
+						&& !folderTreeNode.isHasExpandedFirstTime()) {
+					if (0 < folderTreeNode.getChildCount()) {
+						TreeNode childAt = folderTreeNode.getChildAt(0);
+						expandPath(expandedPath.pathByAddingChild(childAt));
 					}
+					folderTreeNode.setHasExpandedFirstTime(true);
 				}
 			}
 
@@ -148,21 +146,22 @@ public class UnitEditorTree extends JTree {
 		}
 
 		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) getLastSelectedPathComponent();
-
 		boolean foundSelection = selectedNode == null;
 
-		Enumeration<TreeNode> depthFirstEnum = root.depthFirstEnumeration();
-
-		while (depthFirstEnum.hasMoreElements()) {
-			TreeNode nextElement = depthFirstEnum.nextElement();
-			if (foundSelection) {
-				if (getSelectionPath111(text, displayAsRawData, caseSensitive, nextElement)) return;
-			} else {
-				foundSelection = nextElement == selectedNode;
+		if (!foundSelection) {
+			Enumeration<TreeNode> depthFirstEnum = root.depthFirstEnumeration();
+			while (depthFirstEnum.hasMoreElements()) {
+				TreeNode nextElement = depthFirstEnum.nextElement();
+				if (foundSelection) {
+					if (getSelectionPath111(text, displayAsRawData, caseSensitive, nextElement)) return;
+				} else {
+					foundSelection = nextElement == selectedNode;
+				}
 			}
 		}
-		if (foundSelection && (selectedNode != null)) {
-			depthFirstEnum = root.depthFirstEnumeration();
+
+		if (foundSelection) {
+			Enumeration<TreeNode> depthFirstEnum = root.depthFirstEnumeration();
 			while (depthFirstEnum.hasMoreElements()) {
 				TreeNode nextElement = depthFirstEnum.nextElement();
 				if (getSelectionPath111(text, displayAsRawData, caseSensitive, nextElement)) return;
@@ -172,25 +171,23 @@ public class UnitEditorTree extends JTree {
 
 	private boolean getSelectionPath111(String text, boolean displayAsRawData, boolean caseSensitive, TreeNode nextElement) {
 		System.out.println("getSelectionPath111");
-		if (nextElement instanceof DefaultMutableTreeNode) {
+		if (nextElement instanceof DefaultMutableTreeNode node
+				&& matches(node, text, displayAsRawData, caseSensitive)) {
 			System.out.println("next element: " + nextElement);
-			DefaultMutableTreeNode node = (DefaultMutableTreeNode) nextElement;
 			LinkedList<TreeNode> nodesForPath = new LinkedList<>();
-			if (matches(node, text, displayAsRawData, caseSensitive)) {
-				TreePath path = new TreePath(root);
-				TreeNode treeNode = node;
-				while (treeNode.getParent() != null) {
-					nodesForPath.addFirst(treeNode);
-					treeNode = treeNode.getParent();
-				}
-				for (TreeNode treeNodeForPath : nodesForPath) {
-					System.out.println("nodesForPath: " + nodesForPath);
-					path = path.pathByAddingChild(treeNodeForPath);
-				}
-				setSelectionPath(path);
-				scrollPathToVisible(path);
-				return true;
+			TreePath path = new TreePath(root);
+			TreeNode treeNode = node;
+			while (treeNode.getParent() != null) {
+				nodesForPath.addFirst(treeNode);
+				treeNode = treeNode.getParent();
 			}
+			for (TreeNode treeNodeForPath : nodesForPath) {
+				System.out.println("nodesForPath: " + nodesForPath);
+				path = path.pathByAddingChild(treeNodeForPath);
+			}
+			setSelectionPath(path);
+			scrollPathToVisible(path);
+			return true;
 		}
 		return false;
 	}
@@ -208,8 +205,7 @@ public class UnitEditorTree extends JTree {
 	}
 
 	public boolean matches(DefaultMutableTreeNode node, String text, boolean displayAsRawData, boolean caseSensitive) {
-		if (node != null && node.getUserObject() instanceof MutableGameObject) {
-			MutableGameObject obj = (MutableGameObject) node.getUserObject();
+		if (node != null && node.getUserObject() instanceof MutableGameObject obj) {
 			String name = displayAsRawData ? MutableObjectData.getDisplayAsRawDataName(obj) : obj.getName();
 			if (!caseSensitive) {
 				name = name.toLowerCase();
@@ -237,13 +233,9 @@ public class UnitEditorTree extends JTree {
 		TreePath[] selectionPaths = getSelectionPaths();
 		if (selectionPaths != null) {
 			for (TreePath path : selectionPaths) {
-				Object lastPathComponent = path.getLastPathComponent();
-				if (lastPathComponent instanceof DefaultMutableTreeNode) {
-					DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) lastPathComponent;
-					if (treeNode.getUserObject() instanceof MutableGameObject) {
-						MutableGameObject gameObject = (MutableGameObject) treeNode.getUserObject();
-						selectedObjects.add(gameObject);
-					}
+				if (path.getLastPathComponent() instanceof DefaultMutableTreeNode treeNode
+						&& treeNode.getUserObject() instanceof MutableGameObject gameObject) {
+					selectedObjects.add(gameObject);
 				}
 			}
 		}
@@ -264,9 +256,9 @@ public class UnitEditorTree extends JTree {
 	}
 
 	public MutableGameObject getSelectedGameObject() {
-		DefaultMutableTreeNode node = (DefaultMutableTreeNode) getLastSelectedPathComponent();
-		if (node != null && node.getUserObject() instanceof MutableGameObject) {
-			return (MutableGameObject) node.getUserObject();
+		if (getLastSelectedPathComponent() instanceof DefaultMutableTreeNode node
+				&& node.getUserObject() instanceof MutableGameObject gameObject) {
+			return gameObject;
 		}
 		return null;
 	}

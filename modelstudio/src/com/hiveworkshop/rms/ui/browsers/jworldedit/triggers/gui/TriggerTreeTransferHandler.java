@@ -23,8 +23,7 @@ final class TriggerTreeTransferHandler extends TransferHandler {
 		this.controller = controller;
 		nodeFlavors = new DataFlavor[1];
 		try {
-			nodeFlavors[0] = new DataFlavor(
-					DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + DraggableNode.class.getName() + "\"");
+			nodeFlavors[0] = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" + DraggableNode.class.getName() + "\"");
 		} catch (final ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}
@@ -74,8 +73,8 @@ final class TriggerTreeTransferHandler extends TransferHandler {
 	 * Defensive copy used in createTransferable.
 	 */
 	private TriggerElementTreeNode copy(final TreeNode node) {
-		if (node instanceof TriggerElementTreeNode) {
-			return ((TriggerElementTreeNode) node).copy();
+		if (node instanceof TriggerElementTreeNode elementTreeNode) {
+			return elementTreeNode.copy();
 		}
 		throw new RuntimeException("unable to copy: " + node);
 	}
@@ -86,18 +85,14 @@ final class TriggerTreeTransferHandler extends TransferHandler {
 		if (tree.getSelectionCount() == 1) {
 			final TreePath selectionPath = tree.getSelectionPath();
 			final Object lastPathComponent = selectionPath.getLastPathComponent();
-			if (lastPathComponent instanceof TriggerTreeNode) {
-				final TriggerTreeNode triggerTreeNode = (TriggerTreeNode) lastPathComponent;
+			if (lastPathComponent instanceof final TriggerTreeNode triggerTreeNode) {
 				triggersToRemove = new Trigger[] {triggerTreeNode.getTrigger()};
 				categoriesToRemove = new TriggerCategory[0];
-				return new NodesTransferable(
-						new DraggableNode[] {new TriggerDraggableNode(triggerTreeNode.getTrigger().copy())});
-			} else if (lastPathComponent instanceof TriggerCategoryTreeNode) {
-				final TriggerCategoryTreeNode triggerTreeNode = (TriggerCategoryTreeNode) lastPathComponent;
+				return new NodesTransferable(new DraggableNode[] {new TriggerDraggableNode(triggerTreeNode.getTrigger().copy())});
+			} else if (lastPathComponent instanceof final TriggerCategoryTreeNode triggerTreeNode) {
 				triggersToRemove = new Trigger[0];
 				categoriesToRemove = new TriggerCategory[] {triggerTreeNode.getCategory()};
-				return new NodesTransferable(
-						new DraggableNode[] {new CategoryDraggableNode(triggerTreeNode.getCategory().copy())});
+				return new NodesTransferable(new DraggableNode[] {new CategoryDraggableNode(triggerTreeNode.getCategory().copy())});
 			}
 		}
 		return null;

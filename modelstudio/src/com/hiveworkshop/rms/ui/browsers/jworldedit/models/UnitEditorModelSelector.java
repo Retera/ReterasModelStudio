@@ -313,8 +313,7 @@ public class UnitEditorModelSelector extends JSplitPane {
 
 	public void valueChanged(final TreeSelectionEvent e) {
 		final DefaultMutableTreeNode o = (DefaultMutableTreeNode) e.getNewLeadSelectionPath().getLastPathComponent();
-		if (o.getUserObject() instanceof WarcraftObject) {
-			final WarcraftObject obj = (WarcraftObject) o.getUserObject();
+		if (o.getUserObject() instanceof final WarcraftObject obj) {
 			debugLabel.setText(obj.getName());
 			currentUnit = obj;
 			fillTable();

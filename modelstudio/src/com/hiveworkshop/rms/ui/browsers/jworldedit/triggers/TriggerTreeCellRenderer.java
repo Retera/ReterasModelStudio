@@ -33,16 +33,13 @@ public class TriggerTreeCellRenderer extends DefaultTreeCellRenderer {
 		if (defaultBackgroundSelectionColor == null) {
 			defaultBackgroundSelectionColor = getBackgroundSelectionColor();
 		}
-		if (node instanceof TriggerEnvironmentRootNode) {
-			final TriggerEnvironmentRootNode rootNode = (TriggerEnvironmentRootNode) node;
+		if (node instanceof final TriggerEnvironmentRootNode rootNode) {
 			final TriggerEnvironment triggerEnv = rootNode.getTriggerEnvironment();
 			final String displayName = triggerEnv.getName();
 			revalidate();
 			try {
-				final BufferedImage img = BLPHandler
-						.getImage("ReplaceableTextures\\WorldEditUI\\CampaignEditor-Map.blp");
-				final ImageIcon mapIcon = new ImageIcon(
-						toBufferedImage(img.getScaledInstance(16, 16, Image.SCALE_FAST)));
+				final BufferedImage img = BLPHandler.getImage("ReplaceableTextures\\WorldEditUI\\CampaignEditor-Map.blp");
+				final ImageIcon mapIcon = new ImageIcon(toBufferedImage(img.getScaledInstance(16, 16, Image.SCALE_FAST)));
 				setOpenIcon(mapIcon);
 				setClosedIcon(mapIcon);
 				setLeafIcon(mapIcon);
@@ -51,8 +48,7 @@ public class TriggerTreeCellRenderer extends DefaultTreeCellRenderer {
 				exc.printStackTrace();
 			}
 			super.getTreeCellRendererComponent(tree, displayName, selected, expanded, leaf, row, hasFocus);
-		} else if (node instanceof TriggerTreeNode) {
-			final TriggerTreeNode triggerTreeNode = (TriggerTreeNode) node;
+		} else if (node instanceof final TriggerTreeNode triggerTreeNode) {
 			final Trigger trigger = triggerTreeNode.getTrigger();
 			final String displayName = trigger.getName();
 			revalidate();
@@ -71,8 +67,7 @@ public class TriggerTreeCellRenderer extends DefaultTreeCellRenderer {
 			if (trigger.isComment()) {
 				setForeground(settings.getTriggerCommentColor());
 			}
-		} else if (node instanceof TriggerCategoryTreeNode) {
-			final TriggerCategoryTreeNode triggerTreeNode = (TriggerCategoryTreeNode) node;
+		} else if (node instanceof final TriggerCategoryTreeNode triggerTreeNode) {
 			final TriggerCategory trigger = triggerTreeNode.getCategory();
 			final String displayName = trigger.getName();
 			revalidate();
@@ -88,24 +83,20 @@ public class TriggerTreeCellRenderer extends DefaultTreeCellRenderer {
 		} else {
 			setLeafIcon(worldEditArt.getIcon("SEIcon_FunctionDisabled"));
 			System.out.println("leaf is STATE CORRUPTION");
-//			TreePath selectionPath = tree.getSelectionPath();
 //			if (tree.getSelectionCount() == 1) {
-//				switch (selectionPath.getPathCount()) {
-//					case 1:
+//				switch (tree.getSelectionPath().getPathCount()) {
+//					case 1 -> {
 //						try {
-//							BufferedImage img = BLPHandler.get()
-//									.getGameTex("ReplaceableTextures\\WorldEditUI\\CampaignEditor-Map.blp");
-//							ImageIcon mapIcon = new ImageIcon(
-//									toBufferedImage(img.getScaledInstance(16, 16, Image.SCALE_FAST)));
+//							BufferedImage img = BLPHandler.getImage("ReplaceableTextures\\WorldEditUI\\CampaignEditor-Map.blp");
+//							ImageIcon mapIcon = new ImageIcon(toBufferedImage(img.getScaledInstance(16, 16, Image.SCALE_FAST)));
 //							setLeafIcon(mapIcon);
-//						} catch (final Exception exc) { exc.printStackTrace(); }
-//						break;
-//					case 2:
-//						setLeafIcon(worldEditArt.getIcon("SEIcon_TriggerCategory"));
-//						break;
-//					case 3: setLeafIcon(worldEditArt.getIcon("SEIcon_Trigger"));
-//						break;
-//				 }
+//						} catch (final Exception exc) {
+//							exc.printStackTrace();
+//						}
+//					}
+//					case 2 -> setLeafIcon(worldEditArt.getIcon("SEIcon_TriggerCategory"));
+//					case 3 -> setLeafIcon(worldEditArt.getIcon("SEIcon_Trigger"));
+//				}
 //			}
 			super.getTreeCellRendererComponent(tree, node, selected, expanded, leaf, row, hasFocus);
 		}
@@ -122,13 +113,12 @@ public class TriggerTreeCellRenderer extends DefaultTreeCellRenderer {
 	}
 
 	public static BufferedImage toBufferedImage(final Image img) {
-		if (img instanceof BufferedImage) {
-			return (BufferedImage) img;
+		if (img instanceof BufferedImage bImg) {
+			return bImg;
 		}
 
 		// Create a buffered image with transparency
-		final BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null),
-				BufferedImage.TYPE_INT_ARGB);
+		final BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 
 		// Draw the image on to the buffered image
 		final Graphics2D bGr = bimage.createGraphics();

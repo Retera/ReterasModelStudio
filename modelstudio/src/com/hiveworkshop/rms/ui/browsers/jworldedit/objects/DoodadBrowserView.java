@@ -41,16 +41,12 @@ public class DoodadBrowserView extends View {
 	}
 
 	private static void doodadViewerMouseClick(MouseEvent e, UnitEditorTree unitEditorTree) {
-		if (e.getClickCount() >= 2) {
+		if (2 <= e.getClickCount()) {
 			TreePath currentUnitTreePath = unitEditorTree.getSelectionPath();
-			if (currentUnitTreePath != null) {
-
-				DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath.getLastPathComponent();
-				if (o.getUserObject() instanceof MutableGameObject) {
-
-					MutableGameObject obj = (MutableGameObject) o.getUserObject();
-					loadAllVariations(obj);
-				}
+			if (currentUnitTreePath != null
+					&& currentUnitTreePath.getLastPathComponent() instanceof DefaultMutableTreeNode treeNode
+					&& treeNode.getUserObject() instanceof MutableGameObject gameObject) {
+				loadAllVariations(gameObject);
 			}
 		}
 	}

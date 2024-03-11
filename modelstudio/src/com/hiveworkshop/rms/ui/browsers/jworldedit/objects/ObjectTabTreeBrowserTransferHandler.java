@@ -28,7 +28,6 @@ public class ObjectTabTreeBrowserTransferHandler extends TransferHandler {
 	@Override
 	public boolean importData(final TransferHandler.TransferSupport info) {
 		try {
-			byte[] data = null;
 			War3ObjectDataChangeset pastedObjects = null;
 
 			// If we can't handle the import, bail now.
@@ -39,7 +38,7 @@ public class ObjectTabTreeBrowserTransferHandler extends TransferHandler {
 			final UnitEditorTree editorPanel = (UnitEditorTree) info.getComponent();
 			// Fetch the data -- bail if this fails
 			try {
-				data = (byte[]) info.getTransferable().getTransferData(dataFlavor);
+				byte[] data = (byte[]) info.getTransferable().getTransferData(dataFlavor);
 				pastedObjects = new War3ObjectDataChangeset(editorPanel.getWar3ObjectDataChangesetKindChar());
 				try (BlizzardDataInputStream inputStream = new BlizzardDataInputStream(new ByteArrayInputStream(data))) {
 					pastedObjects.load(inputStream, null, false);

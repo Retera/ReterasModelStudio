@@ -206,7 +206,7 @@ public class UnitOptionPanel extends JPanel {
 	}
 
 	private String getMeleeType() {
-		return switch (meleeBox.getSelectedIndex()){
+		return switch (meleeBox.getSelectedIndex()) {
 			case 1 -> "campaign";
 			case 2 -> "custom";
 			case 3 -> "hidden";
@@ -268,13 +268,6 @@ public class UnitOptionPanel extends JPanel {
 		}
 	}
 
-	private DefaultComboBoxModel<String> getBoxModelOf(String[] strings) {
-		DefaultComboBoxModel<String> boxModel = new DefaultComboBoxModel<>();
-		for (String string : strings) {
-			boxModel.addElement(WEString.getString(string));
-		}
-		return boxModel;
-	}
 	private List<String> getWEStringsOf(String[] strings) {
 		List<String> boxModel = new ArrayList<>();
 		for (String string : strings) {
@@ -282,13 +275,7 @@ public class UnitOptionPanel extends JPanel {
 		}
 		return boxModel;
 	}
-	private DefaultComboBoxModel<String> getBoxModelOf(Enum<?>[] e) {
-		DefaultComboBoxModel<String> boxModel = new DefaultComboBoxModel<>();
-		for (Object o : e) {
-			boxModel.addElement(WEString.getString(o.toString()));
-		}
-		return boxModel;
-	}
+
 	private List<String> getWEStringsOf(Enum<?>[] e) {
 		List<String> boxModel = new ArrayList<>();
 		for (Object o : e) {
@@ -303,7 +290,7 @@ public class UnitOptionPanel extends JPanel {
 				JOptionPane.PLAIN_MESSAGE);
 		if (x == JOptionPane.OK_OPTION) {
 			GameObject choice = uop.getSelection();
-			if(choice != null && isValidFilepath(choice.getField("file"))){
+			if (choice != null && isValidFilepath(choice.getField("file"))) {
 				return choice;
 			}
 		}

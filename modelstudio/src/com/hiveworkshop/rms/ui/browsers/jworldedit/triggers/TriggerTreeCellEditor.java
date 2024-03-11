@@ -38,25 +38,21 @@ public class TriggerTreeCellEditor extends DefaultTreeCellEditor {
 	public Object getCellEditorValue() {
 		if (tree.getSelectionCount() == 1) {
 			final TreePath selectionPath = tree.getSelectionPath();
-			final Object lastPathComponent = selectionPath.getLastPathComponent();
-//			if (lastPathComponent instanceof TriggerTreeNode) {
-//				final TriggerTreeNode triggerTreeNode = (TriggerTreeNode) lastPathComponent;
+//			if (lastPathComponent instanceof final TriggerTreeNode triggerTreeNode) {
 //				triggerTreeNode.getTrigger().setName(super.getCellEditorValue().toString());
 //				triggerTreeNode.setUserObject(super.getCellEditorValue().toString());
 //				return triggerTreeNode.getTrigger().getName();
-//			} else if (lastPathComponent instanceof TriggerCategoryTreeNode) {
-//				final TriggerCategoryTreeNode triggerTreeNode = (TriggerCategoryTreeNode) lastPathComponent;
+//			} else if (lastPathComponent instanceof final TriggerCategoryTreeNode triggerTreeNode) {
 //				triggerTreeNode.getCategory().setName(super.getCellEditorValue().toString());
 //				triggerTreeNode.setUserObject(super.getCellEditorValue().toString());
 //				return triggerTreeNode.getCategory().getName();
-//			} else if (lastPathComponent instanceof TriggerEnvironmentRootNode) {
-//				final TriggerEnvironmentRootNode triggerTreeNode = (TriggerEnvironmentRootNode) lastPathComponent;
+//			} else if (lastPathComponent instanceof final TriggerEnvironmentRootNode triggerTreeNode) {
 //				triggerTreeNode.getTriggerEnvironment().setName(super.getCellEditorValue().toString());
 //				triggerTreeNode.setUserObject(super.getCellEditorValue().toString());
 //				return triggerTreeNode.getTriggerEnvironment().getName();
 //			}
-			if (lastPathComponent instanceof TriggerElementTreeNode) {
-				TriggerElementTreeNode triggerTreeNode = (TriggerElementTreeNode) lastPathComponent;
+			if (selectionPath != null
+					&& selectionPath.getLastPathComponent() instanceof TriggerElementTreeNode triggerTreeNode) {
 				triggerTreeNode.setNodeObjectName(super.getCellEditorValue().toString());
 				triggerTreeNode.setUserObject(super.getCellEditorValue().toString());
 				return triggerTreeNode.getNodeObjectName();

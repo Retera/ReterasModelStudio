@@ -103,8 +103,7 @@ public abstract class AbstractObjectField {
 	public static int showConfirmDialog(Component parentComponent, Object message, String title,
 	                                    JComponent componentWantingFocus) {
 		PopupContext popupContext = new PopupContext();
-		if (componentWantingFocus instanceof JSpinner) {
-			JSpinner spinner = (JSpinner) componentWantingFocus;
+		if (componentWantingFocus instanceof JSpinner spinner) {
 			spinner.addChangeListener(e -> commitEdit(parentComponent, spinner));
 
 			JSpinner.DefaultEditor editor = (JSpinner.DefaultEditor) spinner.getEditor();
@@ -122,8 +121,8 @@ public abstract class AbstractObjectField {
 		popupContext.optionPane = pane;
 		dialog.setVisible(true);
 
-		if (pane.getValue() instanceof Integer) {
-			return (Integer) pane.getValue();
+		if (pane.getValue() instanceof Integer value) {
+			return value;
 		}
 		return -1;
 	}
@@ -139,18 +138,17 @@ public abstract class AbstractObjectField {
 		try {
 			spinner.commitEdit();
 		} catch (ParseException e) {
-			JOptionPane.showMessageDialog(parentComponent,
-					"Unable to commit edit because: " + e.getClass() + ": " + e.getMessage());
+			JOptionPane.showMessageDialog(parentComponent, "Unable to commit edit because: " + e.getClass() + ": " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
 
 	private static void selectAll(JComponent componentWantingFocus) {
-		if (componentWantingFocus instanceof JSpinner) {
-			JSpinner spinner = (JSpinner) componentWantingFocus;
-			((JSpinner.DefaultEditor) spinner.getEditor()).getTextField().selectAll();
-		} else if (componentWantingFocus instanceof JTextComponent) {
-			((JTextComponent) componentWantingFocus).selectAll();
+		if (componentWantingFocus instanceof JSpinner spinner
+				&& spinner.getEditor() instanceof JSpinner.DefaultEditor editor) {
+			editor.getTextField().selectAll();
+		} else if (componentWantingFocus instanceof JTextComponent textComponent) {
+			textComponent.selectAll();
 		}
 	}
 

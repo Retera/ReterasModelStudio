@@ -139,8 +139,8 @@ public class UnitEditorPanel extends JSplitPane {
 			                                              boolean expanded, boolean leaf, int row, boolean hasFocus) {
 				Component treeCellRendererComponent = super.getTreeCellRendererComponent(tree, value, sel,
 						expanded, leaf, row, hasFocus);
-				if (value instanceof BehaviorTreeNode) {
-					setIcon(((BehaviorTreeNode) value).getIcon());
+				if (value instanceof BehaviorTreeNode treeNode) {
+					setIcon(treeNode.getIcon());
 				}
 				return treeCellRendererComponent;
 			}
@@ -289,19 +289,11 @@ public class UnitEditorPanel extends JSplitPane {
 
 	private boolean getCurrentKeyboardEvent(KeyEvent ke) {
 		synchronized (SHIFT_KEY_LOCK) {
-			switch (ke.getID()) {
-				case KeyEvent.KEY_PRESSED:
-					if (ke.getKeyCode() == KeyEvent.VK_SHIFT) {
-						holdingShift = true;
-					}
-					break;
-
-				case KeyEvent.KEY_RELEASED:
-					if (ke.getKeyCode() == KeyEvent.VK_SHIFT) {
-						holdingShift = false;
-					}
-					break;
-			}
+			holdingShift = switch (ke.getID()) {
+				case KeyEvent.KEY_PRESSED -> ke.getKeyCode() == KeyEvent.VK_SHIFT || holdingShift;
+				case KeyEvent.KEY_RELEASED -> ke.getKeyCode() != KeyEvent.VK_SHIFT && holdingShift;
+				default -> holdingShift;
+			};
 			return false;
 		}
 	}
@@ -428,17 +420,11 @@ public class UnitEditorPanel extends JSplitPane {
 	public void selectUnit(final War3ID unitId) {
 		final Enumeration<TreeNode> depthFirstEnumeration = root.depthFirstEnumeration();
 		while (depthFirstEnumeration.hasMoreElements()) {
-			final TreeNode nextElement = depthFirstEnumeration.nextElement();
-
-			if (nextElement instanceof DefaultMutableTreeNode) {
-				if (((DefaultMutableTreeNode) nextElement).getUserObject() instanceof MutableGameObject) {
-					final MutableGameObject object = (MutableGameObject) ((DefaultMutableTreeNode) nextElement).getUserObject();
-
-					if (object.getAlias().equals(unitId)) {
-						selectTreeNode(nextElement);
-						return;
-					}
-				}
+			if (depthFirstEnumeration.nextElement() instanceof DefaultMutableTreeNode treeNode
+					&& treeNode.getUserObject() instanceof final MutableGameObject object
+					&& object.getAlias().equals(unitId)) {
+				selectTreeNode(treeNode);
+				return;
 			}
 		}
 	}
@@ -451,10 +437,10 @@ public class UnitEditorPanel extends JSplitPane {
 		dataModel = new ObjectDataTableModel(currentUnit, unitMetaData, objectTabTreeBrowserBuilder,
 				settings.isDisplayAsRawData(), () -> changeCustomUnit());
 
-		dataModel.addTableModelListener(e -> getTableModelListener());
+		dataModel.addTableModelListener(e -> collectTableRowFields());
 		table.setModel(dataModel);
 
-		dataModel.addTableModelListener(e -> getTableModelListener2());
+		dataModel.addTableModelListener(e -> addSelectedTableRows());
 		table.setAutoCreateColumnsFromModel(false);
 	}
 
@@ -468,7 +454,7 @@ public class UnitEditorPanel extends JSplitPane {
 		}
 	}
 
-	private void getTableModelListener2() {
+	private void addSelectedTableRows() {
 		for (int rowIndex = 0; rowIndex < table.getRowCount(); rowIndex++) {
 			if (lastSelectedFields.contains(dataModel.getFieldRawDataName(rowIndex) + ":" + dataModel.getFieldLevel(rowIndex))) {
 				table.addRowSelectionInterval(rowIndex, rowIndex);
@@ -476,7 +462,7 @@ public class UnitEditorPanel extends JSplitPane {
 		}
 	}
 
-	private void getTableModelListener() {
+	private void collectTableRowFields() {
 		if (currentUnit != null) {
 			lastSelectedFields.clear();
 			if (dataModel != null) {
@@ -506,15 +492,15 @@ public class UnitEditorPanel extends JSplitPane {
 	public void valueChanged(final TreeSelectionEvent e) {
 		currentUnitTreePath = e.getNewLeadSelectionPath();
 		if (currentUnitTreePath != null) {
-			getTableModelListener();
-			final DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath.getLastPathComponent();
-			if (o.getUserObject() instanceof MutableGameObject) {
-				currentUnit = (MutableGameObject) o.getUserObject();
+			collectTableRowFields();
+			if (currentUnitTreePath.getLastPathComponent() instanceof DefaultMutableTreeNode treeNode
+					&& treeNode.getUserObject() instanceof MutableGameObject gameObject) {
+				currentUnit = gameObject;
 			} else {
 				currentUnit = null;
 			}
 			fillTable();
-			getTableModelListener2();
+			addSelectedTableRows();
 		}
 	}
 

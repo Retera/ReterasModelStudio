@@ -38,9 +38,9 @@ public enum WE_Field {
 	IS_EFFECT("feff"),
 
 	;
-	String string;
-	War3ID id;
-	WE_Field(String string){
+	final String string;
+	final War3ID id;
+	WE_Field(String string) {
 		this.string = string;
 		this.id = War3ID.fromString(string);
 	}

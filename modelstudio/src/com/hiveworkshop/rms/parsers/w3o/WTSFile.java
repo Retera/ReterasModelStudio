@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * @author Deaod
  */
-public class WTSFile implements WTS {
+public class WTSFile {
 	private final Map<Integer, String> trigStrings = new Hashtable<>();
 
 	private enum ParseState {
@@ -34,32 +34,30 @@ public class WTSFile implements WTS {
 
 		String currentLine = sourceReader.readLine();
 		int id = 0;
-		StringBuffer data = new StringBuffer();
+		StringBuilder data = new StringBuilder();
 
 		while (currentLine != null) {
 			switch (state) {
-			case NEXT_TRIGSTR:
-				if (currentLine.startsWith("STRING ")) {
-					id = Integer.parseInt(currentLine.substring(7));
-					state = ParseState.START_OF_DATA;
+				case NEXT_TRIGSTR -> {
+					if (currentLine.startsWith("STRING ")) {
+						id = Integer.parseInt(currentLine.substring(7));
+						state = ParseState.START_OF_DATA;
+					}
 				}
-				break;
-
-			case START_OF_DATA:
-				if (currentLine.startsWith("{")) {
-					state = ParseState.END_OF_DATA;
+				case START_OF_DATA -> {
+					if (currentLine.startsWith("{")) {
+						state = ParseState.END_OF_DATA;
+					}
 				}
-				break;
-
-			case END_OF_DATA:
-				if (currentLine.startsWith("}")) {
-					trigStrings.put(id, data.toString());
-					data = new StringBuffer();
-					state = ParseState.NEXT_TRIGSTR;
-				} else {
-					data.append(currentLine);
+				case END_OF_DATA -> {
+					if (currentLine.startsWith("}")) {
+						trigStrings.put(id, data.toString());
+						data = new StringBuilder();
+						state = ParseState.NEXT_TRIGSTR;
+					} else {
+						data.append(currentLine);
+					}
 				}
-				break;
 			}
 			currentLine = sourceReader.readLine();
 		}
@@ -78,7 +76,6 @@ public class WTSFile implements WTS {
 		this(Paths.get(sourcePath));
 	}
 
-	@Override
 	public String get(final int index) {
 		return trigStrings.get(index);
 	}

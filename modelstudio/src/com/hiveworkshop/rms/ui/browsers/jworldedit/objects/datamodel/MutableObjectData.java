@@ -6,7 +6,10 @@ import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.ObjectData;
 import com.hiveworkshop.rms.parsers.slk.WarcraftData;
-import com.hiveworkshop.rms.parsers.w3o.*;
+import com.hiveworkshop.rms.parsers.w3o.Change;
+import com.hiveworkshop.rms.parsers.w3o.ObjectDataChangeEntry;
+import com.hiveworkshop.rms.parsers.w3o.WTSFile;
+import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorDataChangeListener;
 import com.hiveworkshop.rms.util.War3ID;
@@ -16,7 +19,6 @@ import java.io.IOException;
 import java.util.*;
 
 public class MutableObjectData {
-
 	protected final WorldEditorDataType worldEditorDataType;
 	protected final WarcraftData sourceSLKData;
 	protected final DataTable sourceSLKMetaData;
@@ -381,7 +383,7 @@ public class MutableObjectData {
 
 			if (gameDataFileSystem.has(fileName)) {
 				BlizzardDataInputStream stream = new BlizzardDataInputStream(gameDataFileSystem.getResourceAsStream(fileName));
-				WTS wts = gameDataFileSystem.has("war3map.wts") ? new WTSFile(gameDataFileSystem.getResourceAsStream("war3map.wts")) : null;
+				WTSFile wts = gameDataFileSystem.has("war3map.wts") ? new WTSFile(gameDataFileSystem.getResourceAsStream("war3map.wts")) : null;
 				unitDataChangeset.load(stream, wts, true);
 			}
 		} catch (final IOException e) {

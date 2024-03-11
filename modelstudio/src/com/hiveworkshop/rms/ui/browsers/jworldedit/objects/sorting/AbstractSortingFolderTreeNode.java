@@ -6,10 +6,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 public abstract class AbstractSortingFolderTreeNode extends SortingFolderTreeNode {
 	private boolean hasExpandedFirstTime = false;
-	/**
-	 * default generated id to stop warnings, not going to serialize these folders
-	 */
-//	private static final long serialVersionUID = 1L;
 
 	public AbstractSortingFolderTreeNode() {
 		super();
@@ -49,17 +45,15 @@ public abstract class AbstractSortingFolderTreeNode extends SortingFolderTreeNod
 
 	private int getInsertIndex(SortingFolderTreeNode sortingFolderTreeNode) {
 		int childCount = getChildCount();
-		if(0 < childCount){
+		if (0 < childCount) {
 			int sortIndex = getSortIndex(sortingFolderTreeNode);
 
-			int sortedInsertionIndex = childCount;
 			for (int i = 0; i < childCount; i++) {
-				if(sortIndex < getSortIndex(getChildAt(i))){
-					sortedInsertionIndex = i;
-					break;
+				if (sortIndex < getSortIndex(getChildAt(i))) {
+					return i;
 				}
 			}
-			return sortedInsertionIndex;
+			return childCount;
 		}
 		return 0;
 	}

@@ -6,9 +6,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import java.io.Serializable;
 
 final class TriggerDraggableNode implements DraggableNode, Serializable {
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = -3149168228812835946L;
 	private final Trigger trigger;
 
@@ -21,8 +18,7 @@ final class TriggerDraggableNode implements DraggableNode, Serializable {
 	}
 
 	@Override
-	public void dragInto(final TriggerTreeController controller, final DefaultMutableTreeNode rootGuy,
-	                     final int index) {
+	public void dragInto(final TriggerTreeController controller, final DefaultMutableTreeNode rootGuy, final int index) {
 		controller.moveTrigger(trigger, ((TriggerCategoryTreeNode) rootGuy).getCategory(), index);
 	}
 

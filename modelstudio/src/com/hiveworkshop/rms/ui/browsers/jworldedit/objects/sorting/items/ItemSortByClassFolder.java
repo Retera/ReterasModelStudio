@@ -14,10 +14,6 @@ import javax.swing.tree.TreeNode;
 import java.util.*;
 
 public final class ItemSortByClassFolder extends AbstractSortingFolderTreeNode {
-	/**
-	 * default generated id to stop warnings, not going to serialize these folders
-	 */
-	private static final long serialVersionUID = 1L;
 	private static final Comparator<MutableGameObject> ITEM_NAME_COMPARATOR = Comparator.comparing(MutableGameObject::getName);
 	private final Map<String, BottomLevelCategoryFolder> itemClassToTreeNode = new LinkedHashMap<>();
 	private final List<BottomLevelCategoryFolder> itemClassesList = new ArrayList<>();
@@ -48,7 +44,7 @@ public final class ItemSortByClassFolder extends AbstractSortingFolderTreeNode {
 
 	//	@Override
 	public int getSortIndex(SortingFolderTreeNode childNode) {
-		if (childNode != null) {
+		if (childNode instanceof BottomLevelCategoryFolder) {
 			return itemClassesList.indexOf(childNode);
 		}
 		return -1;
@@ -57,7 +53,7 @@ public final class ItemSortByClassFolder extends AbstractSortingFolderTreeNode {
 
 	@Override
 	public int getSortIndex(TreeNode childNode) {
-		if (childNode != null) {
+		if (childNode instanceof BottomLevelCategoryFolder) {
 			return itemClassesList.indexOf(childNode);
 		}
 		return -1;

@@ -15,6 +15,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.function.Function;
 
 public class TriggerTree extends JTree {
 	private final TriggerEnvironment triggerEnvironment;
@@ -31,8 +32,7 @@ public class TriggerTree extends JTree {
 		TriggerTreeCellRenderer triggerTreeCellRenderer = new TriggerTreeCellRenderer(settings, worldEditArt);
 		setCellRenderer(triggerTreeCellRenderer);
 
-		TriggerTreeCellEditor treeCellEditor = new TriggerTreeCellEditor(this, triggerTreeCellRenderer, settings,
-				worldEditArt, triggerEnvironment);
+		TriggerTreeCellEditor treeCellEditor = new TriggerTreeCellEditor(this, triggerTreeCellRenderer, settings, worldEditArt, triggerEnvironment);
 		setCellEditor(treeCellEditor);
 		controller = new GUIModelTriggerTreeController(this, triggerEnvironment, root, ((DefaultTreeModel) getModel()));
 		setEditable(true);
@@ -46,10 +46,10 @@ public class TriggerTree extends JTree {
 			public void actionPerformed(final ActionEvent e) {
 				if (getSelectionCount() == 1) {
 					Object lastPathComponent = getSelectionPath().getLastPathComponent();
-					if (lastPathComponent instanceof TriggerTreeNode) {
-						controller.deleteTrigger(((TriggerTreeNode) lastPathComponent).getTrigger());
-					} else if (lastPathComponent instanceof TriggerCategoryTreeNode) {
-						controller.deleteCategory(((TriggerCategoryTreeNode) lastPathComponent).getCategory());
+					if (lastPathComponent instanceof TriggerTreeNode triggerNode) {
+						controller.deleteTrigger(triggerNode.getTrigger());
+					} else if (lastPathComponent instanceof TriggerCategoryTreeNode categoryNode) {
+						controller.deleteCategory(categoryNode.getCategory());
 					}
 				}
 			}
@@ -74,27 +74,25 @@ public class TriggerTree extends JTree {
 	}
 
 	public Trigger createTrigger() {
-		return createTrigger(TypedTriggerInstantiator.TRIGGER);
+		return createTrigger(controller::createTrigger);
 	}
 
 	public Trigger createTriggerComment() {
-		return createTrigger(TypedTriggerInstantiator.COMMENT);
+		return createTrigger(controller::createTriggerComment);
 	}
 
-	private Trigger createTrigger(TypedTriggerInstantiator instantiator) {
+	private Trigger createTrigger(Function<TriggerCategory, Trigger> triggerFunction) {
 		TreePath selectionPath = getSelectionPath();
-		if (!canCreateTrigger(selectionPath)) {
+		if (selectionPath == null || !canCreateTrigger(selectionPath)) {
 			throw new IllegalStateException("Cannot create trigger at selection");
 		}
 		final Object lastPathComponent = selectionPath.getLastPathComponent();
-		if (lastPathComponent instanceof TriggerCategoryTreeNode) {
+		if (lastPathComponent instanceof TriggerCategoryTreeNode node) {
 			// category
-			TriggerCategoryTreeNode node = (TriggerCategoryTreeNode) lastPathComponent;
-			return instantiator.create(controller, node.getCategory());
-		} else if (lastPathComponent instanceof TriggerTreeNode) {
-			TriggerTreeNode node = (TriggerTreeNode) lastPathComponent;
+			return triggerFunction.apply(node.getCategory());
+		} else if (lastPathComponent instanceof TriggerTreeNode node) {
 			int newTriggerIndex = node.getParent().getIndex(node) + 1;
-			Trigger trigger = instantiator.create(controller, node.getTrigger().getCategory());
+			Trigger trigger = triggerFunction.apply(node.getTrigger().getCategory());
 			controller.moveTrigger(trigger, trigger.getCategory(), newTriggerIndex);
 			return trigger;
 		} else {

@@ -38,8 +38,7 @@ public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer {
 //		if (value.toString().equals("Undead")) {
 //			System.out.println("UndeadUggaBugga!");
 //		}
-		if (node.getUserObject() instanceof MutableGameObject) {
-			final MutableGameObject unit = (MutableGameObject) node.getUserObject();
+		if (node.getUserObject() instanceof final MutableGameObject unit) {
 			String displayName = unit.getName();
 			if (settings.isDisplayAsRawData()) {
 				displayName = MutableObjectData.getDisplayAsRawDataName(unit);

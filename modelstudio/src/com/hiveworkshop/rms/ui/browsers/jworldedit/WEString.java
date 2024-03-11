@@ -12,46 +12,30 @@ import java.util.ResourceBundle;
 
 public class WEString {
 	static ResourceBundle bundle;
-	static ResourceBundle bundlegs;
+	static ResourceBundle bundle_gs;
 
 	static ResourceBundle get() {
 		if (bundle == null) {
-			final InputStream fis;
-			try {
-				fis = GameDataFileSystem.getDefault().getResourceAsStream("UI\\WorldEditStrings.txt");
-				try {
-					bundle = new PropertyResourceBundle(new InputStreamReader(fis, StandardCharsets.UTF_8));
-				} catch (final IOException e) {
-					e.printStackTrace();
-				} finally {
-					fis.close();
-				}
-			} catch (final IOException e) {
-				e.printStackTrace();
-				return null;
-			}
+			bundle = getResourceBundle("UI\\WorldEditStrings.txt");
 		}
 		return bundle;
 	}
 
 	static ResourceBundle getGameStrings() {
-		if (bundlegs == null) {
-			final InputStream fis;
-			try {
-				fis = GameDataFileSystem.getDefault().getResourceAsStream("UI\\WorldEditGameStrings.txt");
-				try {
-					bundlegs = new PropertyResourceBundle(new InputStreamReader(fis, StandardCharsets.UTF_8));
-				} catch (final IOException e) {
-					e.printStackTrace();
-				} finally {
-					fis.close();
-				}
-			} catch (final IOException e) {
-				e.printStackTrace();
-				return null;
-			}
+		if (bundle_gs == null) {
+			bundle_gs = getResourceBundle("UI\\WorldEditGameStrings.txt");
 		}
-		return bundlegs;
+		return bundle_gs;
+	}
+
+	private static PropertyResourceBundle getResourceBundle(String filepath) {
+		try (final InputStream fis = GameDataFileSystem.getDefault().getResourceAsStream(filepath);
+		     final InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8)) {
+			return new PropertyResourceBundle(isr);
+		} catch (final IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public static String getString(String string) {
@@ -72,7 +56,10 @@ public class WEString {
 	private static String internalGetString(final String key) {
 		try {
 			String string = get().getString(key.toUpperCase());
-			if ((string.charAt(0) == '"') && (string.length() >= 2) && (string.charAt(string.length() - 1) == '"')) {
+			if (2 <= string.length()
+					&& string.charAt(0) == '"'
+					&& string.charAt(string.length() - 1) == '"') {
+				// remove citation
 				string = string.substring(1, string.length() - 1);
 			}
 			return string;
@@ -91,6 +78,6 @@ public class WEString {
 
 	public static void dropCache() {
 		bundle = null;
-		bundlegs = null;
+		bundle_gs = null;
 	}
 }

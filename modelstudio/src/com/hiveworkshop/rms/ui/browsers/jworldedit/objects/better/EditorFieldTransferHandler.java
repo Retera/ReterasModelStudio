@@ -27,9 +27,6 @@ public class EditorFieldTransferHandler extends TransferHandler {
 	 */
 	@Override
 	public boolean importData(final TransferHandler.TransferSupport info) {
-		byte[] data = null;
-		War3ObjectDataChangeset pastedObjects = null;
-
 		// If we can't handle the import, bail now.
 		if (!canImport(info)) {
 			return false;
@@ -37,8 +34,9 @@ public class EditorFieldTransferHandler extends TransferHandler {
 
 		final UnitEditorTree editorPanel = (UnitEditorTree) info.getComponent();
 		// Fetch the data -- bail if this fails
+		War3ObjectDataChangeset pastedObjects = null;
 		try {
-			data = (byte[]) info.getTransferable().getTransferData(dataFlavor);
+			byte[] data = (byte[]) info.getTransferable().getTransferData(dataFlavor);
 			pastedObjects = new War3ObjectDataChangeset(editorPanel.getWar3ObjectDataChangesetKindChar());
 			try (BlizzardDataInputStream inputStream = new BlizzardDataInputStream(new ByteArrayInputStream(data))) {
 

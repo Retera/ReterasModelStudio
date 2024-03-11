@@ -12,10 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class AbilityRaceLevelFolder extends AbstractSortingFolderTreeNode {
-	/**
-	 * default generated id to stop warnings, not going to serialize these folders
-	 */
-//	private static final long serialVersionUID = 1L;
 	private static final String TAG_NAME = "sort";
 
 	private final BottomLevelCategoryFolder units;
@@ -50,7 +46,7 @@ public final class AbilityRaceLevelFolder extends AbstractSortingFolderTreeNode 
 
 	//	@Override
 	public int getSortIndex(SortingFolderTreeNode childNode) {
-		if (childNode != null) {
+		if (childNode instanceof BottomLevelCategoryFolder) {
 			return folders.indexOf(childNode);
 		}
 		return -1;
@@ -58,7 +54,7 @@ public final class AbilityRaceLevelFolder extends AbstractSortingFolderTreeNode 
 
 	@Override
 	public int getSortIndex(TreeNode childNode) {
-		if (childNode != null) {
+		if (childNode instanceof BottomLevelCategoryFolder) {
 			return folders.indexOf(childNode);
 		}
 		return -1;

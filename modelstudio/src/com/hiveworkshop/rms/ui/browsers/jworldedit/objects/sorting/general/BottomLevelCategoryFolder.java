@@ -9,11 +9,6 @@ import javax.swing.tree.TreeNode;
 import java.util.Comparator;
 
 public final class BottomLevelCategoryFolder extends SortingFolderTreeNode {
-	/**
-	 * default generated id to stop warnings, not going to serialize these folders
-	 */
-//	private static final long serialVersionUID = 1L;
-
 	private final Comparator<MutableGameObject> objectComparator;
 
 	public BottomLevelCategoryFolder(Object userObject, Comparator<MutableGameObject> objectComparator) {
@@ -34,7 +29,7 @@ public final class BottomLevelCategoryFolder extends SortingFolderTreeNode {
 		for (int childIndex = 0; childIndex < getChildCount(); childIndex++) {
 			MutableGameObject unitInTree = getGameObjectAt(childIndex);
 			int comparison = objectComparator.compare(unitToAdd, unitInTree);
-			if (comparison >= 0) {
+			if (0 <= comparison) {
 				insertIndex = childIndex + 1;
 			}
 		}

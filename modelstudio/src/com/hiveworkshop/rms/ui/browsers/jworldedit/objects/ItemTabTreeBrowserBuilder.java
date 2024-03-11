@@ -16,14 +16,14 @@ import java.util.List;
 
 public class ItemTabTreeBrowserBuilder extends ObjectTabTreeBrowserBuilder {
 
-	public ItemTabTreeBrowserBuilder(){
+	public ItemTabTreeBrowserBuilder() {
 		super(WorldEditorDataType.ITEM);
 		unitData = new MutableItemData();
 		editorTabCustomToolbarButtonData = new EditorTabCustomToolbarButtonData("ITEM", "Item");
 		customUnitPopupRunner = () -> {};
 	}
 
-	protected void setNewUnitData(){
+	protected void setNewUnitData() {
 		unitData = new MutableItemData();
 	}
 

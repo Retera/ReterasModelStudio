@@ -12,12 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class SortByRaceFolder extends AbstractSortingFolderTreeNode {
-
-	/**
-	 * default generated id to stop warnings, not going to serialize these folders
-	 */
-	private static final long serialVersionUID = 1L;
-
 	protected final Map<String, SortingFolderTreeNode> raceFolders = new HashMap<>();
 	protected final List<SortingFolderTreeNode> raceNodes = new ArrayList<>();
 
@@ -66,7 +60,7 @@ public abstract class SortByRaceFolder extends AbstractSortingFolderTreeNode {
 
 	@Override
 	public int getSortIndex(TreeNode childNode) {
-		if (childNode != null) {
+		if (childNode instanceof SortingFolderTreeNode) {
 			return raceNodes.indexOf(childNode);
 		}
 		return -1;

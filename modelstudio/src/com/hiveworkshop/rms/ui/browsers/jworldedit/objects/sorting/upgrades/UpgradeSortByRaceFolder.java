@@ -12,11 +12,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class UpgradeSortByRaceFolder extends SortByRaceFolder {
-
-	/**
-	 * default generated id to stop warnings, not going to serialize these folders
-	 */
-	private static final long serialVersionUID = 1L;
 	private static final String TAG_NAME = "sort";
 
 	public UpgradeSortByRaceFolder(final String displayName) {

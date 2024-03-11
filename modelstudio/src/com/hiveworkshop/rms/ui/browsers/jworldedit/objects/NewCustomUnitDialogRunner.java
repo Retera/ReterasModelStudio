@@ -14,7 +14,7 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import java.awt.*;
 
-public final class NewCustomUnitDialogRunner implements Runnable {
+public final class NewCustomUnitDialogRunner {
 	private final Component popupParent;
 	private final MutableObjectData unitData;
 
@@ -23,7 +23,6 @@ public final class NewCustomUnitDialogRunner implements Runnable {
 		this.unitData = unitData;
 	}
 
-	@Override
 	public void run() {
 		JLabel nameLabel = new JLabel(WEString.getString("WESTRING_UE_FIELDNAME") + ":");
 

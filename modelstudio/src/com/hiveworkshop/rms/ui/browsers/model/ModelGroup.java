@@ -28,7 +28,6 @@ public class ModelGroup {
 	}
 
 	public ModelGroup sortModels() {
-//		models.sort();
 		Collections.sort(models);
 		return this;
 	}
