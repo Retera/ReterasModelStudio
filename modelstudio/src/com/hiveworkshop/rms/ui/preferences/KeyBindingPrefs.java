@@ -25,8 +25,12 @@ public class KeyBindingPrefs implements Serializable {
 
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append("\n");
 		for (ActionFunction action : actionFunctionMap.values()) {
-			stringBuilder.append(action.getName().name()).append("=").append(action.getKeyStroke()).append("\n");
+			stringBuilder.append(action.getName().name())
+					.append(" = ")
+					.append(action.getKeyStroke())
+					.append("\n");
 
 		}
 		return stringBuilder.toString();

@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ui.browsers.jworldedit;
+package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.ui.preferences.SaveProfileNew;
 import com.hiveworkshop.rms.util.uiFactories.Button;

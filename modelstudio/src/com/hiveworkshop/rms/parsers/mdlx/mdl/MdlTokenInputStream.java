@@ -347,7 +347,7 @@ public class MdlTokenInputStream {
 		skipToken("{"); // {
 
 		for (int i = 0, l = array.length / vectorLength; i < l; i++) {
-			skipToken("{");; // {
+			skipToken("{"); // {
 
 			for (int j = 0; j < vectorLength; j++) {
 				array[(i * vectorLength) + j] = readFloat();
@@ -439,17 +439,17 @@ public class MdlTokenInputStream {
 		int line = this.line;
 		String peek = readValue();
 		if (!peek.equals(token)) {
-			System.out.println(line + " did not skip, " + peek + " != " + token);
+//			System.out.println(line + " did not skip, " + peek + " != " + token);
 			this.index = index;
 			this.line = line;
-		} else {
-
-			System.out.println(line + " skipped, " + peek + " == " + token);
 		}
+//		else {
+//			System.out.println(line + " skipped, " + peek + " == " + token);
+//		}
 	}
 
 	public void readColor(final float[] color) {
-		skipToken("{");; // {
+		skipToken("{"); // {
 
 		color[2] = readFloat();
 		color[1] = readFloat();

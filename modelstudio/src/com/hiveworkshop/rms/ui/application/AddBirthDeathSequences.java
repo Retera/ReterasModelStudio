@@ -98,14 +98,17 @@ public class AddBirthDeathSequences {
 
 	public Animation findAnimByName(List<Animation> anims, String name) {
 		String lowerCase = name.toLowerCase();
-		Animation bestMatch = null;
-		for (Animation anim : anims) {
+
+		List<Animation> validAnims = anims.stream()
+				.filter(a -> a.getName().toLowerCase().contains(lowerCase))
+				.toList();
+
+		Animation bestMatch = 0 < validAnims.size() ? validAnims.get(0) : null;
+		for (Animation anim : validAnims) {
 			String animLowerCase = anim.getName().toLowerCase();
 			if (animLowerCase.equals(lowerCase)) {
 				return anim;
-			} else if (animLowerCase.contains(lowerCase) && bestMatch == null
-					|| animLowerCase.startsWith(lowerCase)
-					&& animLowerCase.length() < bestMatch.getName().length()) {
+			} else if (animLowerCase.startsWith(lowerCase) && animLowerCase.length() < bestMatch.getName().length()) {
 				bestMatch = anim;
 			}
 		}

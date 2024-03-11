@@ -52,11 +52,12 @@ public class EditorColorPrefs {
 	@Override
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append("\n");
 		for (ColorThing thing : ColorThing.values()) {
-			stringBuilder.append(thing.name()).append(" = ");
 			Color color = colorMap.get(thing) == null ? thing.getInternalColor() : colorMap.get(thing);
 
-			stringBuilder.append("[")
+			stringBuilder.append(thing.name())
+					.append(" = [")
 					.append(color.getRed()).append(",")
 					.append(color.getGreen()).append(",")
 					.append(color.getBlue()).append(",")

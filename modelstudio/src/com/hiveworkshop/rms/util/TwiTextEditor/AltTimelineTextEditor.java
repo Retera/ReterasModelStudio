@@ -43,7 +43,7 @@ public class AltTimelineTextEditor<T> extends JPanel {
 		sequences.setSelectedItem(sequence);
 		sequences.addOnSelectItemListener(this::setSequence);
 
-		addMouseWheelListener(e -> sequences.incIndex(e.getWheelRotation()));
+		sequences.addMouseWheelListener(e -> sequences.incIndex(e.getWheelRotation()));
 		sequences.setAllowLastToFirst(true);
 
 		border = new TitledBorder("");
@@ -71,7 +71,7 @@ public class AltTimelineTextEditor<T> extends JPanel {
 
 	public void showWindow(){
 		setPreferredSize(ScreenInfo.getSmallWindow());
-		String nameString = node instanceof Named ? ((Named) node).getName() : node.getClass().getSimpleName();
+		String nameString = node instanceof Named named ? named.getName() : node.getClass().getSimpleName();
 		frame = FramePopup.show(this, null, nameString + " - [" + animFlag.getName() + "]");
 		setSequence(currSequence);
 	}

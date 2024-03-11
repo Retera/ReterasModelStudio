@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.RMSFileChooser;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.preferences.SaveProfileNew;
 import com.hiveworkshop.rms.ui.util.ExtFilter;

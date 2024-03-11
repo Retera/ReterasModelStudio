@@ -19,7 +19,7 @@ public class TwiComboBox<E> extends JComboBox<E> {
 		super();
 		setModel(aModel);
 		comboBoxModel = aModel;
-		if(prototypeValue != null){
+		if (prototypeValue != null) {
 			setPrototypeDisplayValue(prototypeValue);
 		}
 	}
@@ -56,7 +56,7 @@ public class TwiComboBox<E> extends JComboBox<E> {
 		this(new TwiComboBoxModel<>(items), prototypeValue);
 	}
 
-	public TwiComboBox<E> addOnSelectItemListener(Consumer<E> consumer){
+	public TwiComboBox<E> addOnSelectItemListener(Consumer<E> consumer) {
 		addItemListener(e -> consumeOnSelected(consumer, e));
 		return this;
 	}
@@ -85,19 +85,21 @@ public class TwiComboBox<E> extends JComboBox<E> {
 		super.setModel(comboBoxModel);
 	}
 
-	public void incIndex(int steps){
-		int previousSelectedIndex = Math.max(0, getSelectedIndex());
+	public void incIndex(int steps) {
+		if (isEnabled()) {
+			int previousSelectedIndex = Math.max(0, getSelectedIndex());
 
-		int itemCount = getItemCount();
-		int newIndex = previousSelectedIndex + steps;
-		if (allowLastToFirst) {
-			newIndex = (itemCount + newIndex) % itemCount;
-		} else {
-			newIndex = MathUtils.clamp(newIndex, 0, itemCount-1);
-		}
+			int itemCount = getItemCount();
+			int newIndex = previousSelectedIndex + steps;
+			if (allowLastToFirst) {
+				newIndex = (itemCount + newIndex) % itemCount;
+			} else {
+				newIndex = MathUtils.clamp(newIndex, 0, itemCount-1);
+			}
 
-		if (newIndex != previousSelectedIndex) {
-			setSelectedIndex(newIndex);
+			if (newIndex != previousSelectedIndex) {
+				setSelectedIndex(newIndex);
+			}
 		}
 	}
 
@@ -127,8 +129,7 @@ public class TwiComboBox<E> extends JComboBox<E> {
 		return this;
 	}
 
-	public TwiComboBox<E> selectOrFirst(E item){
-//		setSelectedItem(item);
+	public TwiComboBox<E> selectOrFirst(E item) {
 		comboBoxModel.setSelectedNoListener(item);
 		if (getSelectedItem() == null && 0 < getItemCount()) {
 			comboBoxModel.setSelectedNoListener(comboBoxModel.getElementAt(0));
@@ -137,14 +138,9 @@ public class TwiComboBox<E> extends JComboBox<E> {
 		if (getEditor() != null) {
 			getEditor().setItem(comboBoxModel.getSelectedItem());
 		}
-//		setSelectedItem(item);
-//		if (getSelectedItem() == null && getItemCount() > 0) {
-//			setSelectedIndex(0);
-//		}
 		return this;
 	}
-	public TwiComboBox<E> selectOrFirstWithListener(E item){
-//		setSelectedItem(item);
+	public TwiComboBox<E> selectOrFirstWithListener(E item) {
 		comboBoxModel.setSelectedItem(item);
 		if (getSelectedItem() == null && 0 < getItemCount()) {
 			comboBoxModel.setSelectedItem(comboBoxModel.getElementAt(0));
@@ -155,7 +151,7 @@ public class TwiComboBox<E> extends JComboBox<E> {
 		}
 		return this;
 	}
-	public TwiComboBox<E> selectFirst(){
+	public TwiComboBox<E> selectFirst() {
 		if (0 < getItemCount()) {
 			comboBoxModel.setSelectedNoListener(comboBoxModel.getElementAt(0));
 		}
@@ -185,8 +181,8 @@ public class TwiComboBox<E> extends JComboBox<E> {
 		return this;
 	}
 
-	public TwiComboBox<E> setStringFunctionRender(Function<Object, String> toStringFunction){
-		setRenderer(new BasicComboBoxRenderer(){
+	public TwiComboBox<E> setStringFunctionRender(Function<Object, String> toStringFunction) {
+		setRenderer(new BasicComboBoxRenderer() {
 			@Override
 			public Component getListCellRendererComponent(JList list, Object value, int index, boolean iss, boolean chf) {
 				return super.getListCellRendererComponent(list, toStringFunction.apply(value), index, iss, chf);
@@ -195,17 +191,17 @@ public class TwiComboBox<E> extends JComboBox<E> {
 		return this;
 	}
 
-	public E getSelected(){
+	public E getSelected() {
 		return comboBoxModel.getSelectedTyped();
 	}
 
 
-	public TwiComboBox<E> twiSetRenderer(ListCellRenderer<? super E> aRenderer){
+	public TwiComboBox<E> twiSetRenderer(ListCellRenderer<? super E> aRenderer) {
 		super.setRenderer(aRenderer);
 		return this;
 	}
 
-	public TwiComboBox<E> twiSetEnabled(boolean b){
+	public TwiComboBox<E> twiSetEnabled(boolean b) {
 		super.setEnabled(b);
 		return this;
 	}

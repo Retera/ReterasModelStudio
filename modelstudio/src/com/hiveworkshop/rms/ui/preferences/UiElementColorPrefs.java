@@ -52,11 +52,12 @@ public class UiElementColorPrefs {
 	@Override
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append("\n");
 		for (UiElementColor thing : UiElementColor.values()) {
-			stringBuilder.append(thing.name()).append(" = ");
 			Color color = colorMap.get(thing) == null ? thing.getInternalColor() : colorMap.get(thing);
 
-			stringBuilder.append("[")
+			stringBuilder.append(thing.name()).append(" = ")
+					.append("[")
 					.append(color.getRed()).append(",")
 					.append(color.getGreen()).append(",")
 					.append(color.getBlue()).append(",")
@@ -69,6 +70,7 @@ public class UiElementColorPrefs {
 		String[] lines = string.split("\n");
 		for (String line : lines) {
 			String[] s = line.split("=");
+//			System.out.println("parsing: \"" + line + "\"");
 			if (1 < s.length) {
 				try {
 					UiElementColor colorThing = UiElementColor.valueOf(s[0].strip());

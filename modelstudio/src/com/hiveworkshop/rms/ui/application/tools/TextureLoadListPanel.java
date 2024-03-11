@@ -4,11 +4,13 @@ import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.RMSFileChooser;
+import com.hiveworkshop.rms.ui.application.RMSFileChooser;
 import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
+import com.hiveworkshop.rms.ui.preferences.SaveProfileNew;
 import com.hiveworkshop.rms.ui.util.TwiList;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import com.hiveworkshop.rms.util.ImageUtils.GU;
+import com.hiveworkshop.rms.util.uiFactories.Button;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -16,8 +18,8 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class TextureLoadListPanel extends JPanel{
 	private int textSize = 12;
@@ -26,23 +28,32 @@ public class TextureLoadListPanel extends JPanel{
 	private final TwiList<Bitmap> bitmapJList;
 	private ZoomableImagePreviewPanel comp;
 
-	private final JFileChooser fileChooser = new RMSFileChooser();
+	private RMSFileChooser fileChooser;
+	private final Supplier<RMSFileChooser> fileChooserSupplier;
 	private final JPanel imageViewerPanel = new JPanel(new BorderLayout());
 	DataSource workingDirectory = GameDataFileSystem.getDefault();
 
-	public TextureLoadListPanel(){
-		this(new ArrayList<>(), 12, 16);
+	public TextureLoadListPanel(List<Bitmap> bitmaps, int textSize, int imageSize) {
+		this(bitmaps, textSize, imageSize, () -> new RMSFileChooser(SaveProfileNew.get()));
 	}
-
-	public TextureLoadListPanel(List<Bitmap> bitmaps, int textSize, int imageSize){
+	public TextureLoadListPanel(List<Bitmap> bitmaps, int textSize, int imageSize, Supplier<RMSFileChooser> fileChooserSupplier) {
 		super(new MigLayout("fill, ins 0", "[grow][grow]", "[grow][]"));
 		this.bitmaps = bitmaps;
 		this.textSize = textSize;
 		this.imageSize = imageSize;
+		this.fileChooserSupplier = fileChooserSupplier;
 		bitmapJList = new TwiList<>(bitmaps);
 		add(getTexturesListPanel(), "growx, growy");
 		add(getImageViewerPanel(), "growx, growy, wrap");
-		add(getFileDialogButton2());
+	}
+
+
+
+	private RMSFileChooser getFileChooser() {
+		if (fileChooser == null) {
+			fileChooser = fileChooserSupplier.get();
+		}
+		return fileChooser;
 	}
 
 
@@ -62,9 +73,10 @@ public class TextureLoadListPanel extends JPanel{
 
 		bitmapJList.setCellRenderer(textureListRenderer);
 		bitmapJList.addSelectionListener1(this::onListSelection);
-		texturesListPanel.add(new JScrollPane(bitmapJList), "growx, growy, wrap");
+		texturesListPanel.add(new JScrollPane(bitmapJList), "growx, growy, spanx, wrap");
 
 		texturesListPanel.add(displayPath, "");
+		texturesListPanel.add(Button.create("Open Images", e -> openImages2(bitmapJList, importImages())));
 		return texturesListPanel;
 	}
 	private void onListSelection(Bitmap bitmap) {
@@ -94,11 +106,6 @@ public class TextureLoadListPanel extends JPanel{
 		}
 	}
 
-	private JButton getFileDialogButton2() {
-		JButton open_images = new JButton("Open Images");
-		open_images.addActionListener(e -> openImages2(bitmapJList, importImages()));
-		return open_images;
-	}
 	private void openImages2(TwiList<Bitmap> bitmapJList, Bitmap[] bitmap){
 		if(bitmap != null){
 			bitmaps.addAll(List.of(bitmap));
@@ -107,6 +114,7 @@ public class TextureLoadListPanel extends JPanel{
 	}
 
 	public Bitmap[] importImages() {
+		RMSFileChooser fileChooser = getFileChooser();
 //		setFilter(FileDialog.OPEN_TEXTURE);
 //		fileChooser.setCurrentDirectory(new File("C:\\Users\\twilac\\Desktop\\WC3\\troubleShootingStuff\\Ironforge Ram Rider\\Ironforge Ram Rider\\"));
 		fileChooser.setMultiSelectionEnabled(true);

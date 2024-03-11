@@ -32,11 +32,13 @@ public class CameraControlPrefs {
 	@Override
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append("\n");
 		for (CameraShortCut shortCut : CameraShortCut.values()) {
-			stringBuilder.append(shortCut.name()).append(" = ");
 			KeyStroke keyStroke = shortCutMap.get(shortCut) == null ? shortCut.getInternalKeyStroke() : shortCutMap.get(shortCut);
-
-			stringBuilder.append(keyStroke).append("\n");
+			stringBuilder.append(shortCut.name())
+					.append(" = ")
+					.append(keyStroke)
+					.append("\n");
 		}
 //		System.out.println("CAMERA SHORTCUTS:\n" + stringBuilder);
 		return stringBuilder.toString();
