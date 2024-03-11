@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.MatrixEditListRenderer;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.util.SearchableList;
+import com.hiveworkshop.rms.util.uiFactories.Button;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -52,9 +53,7 @@ public class MatrixPopup extends JPanel {
 		bonesPane.setPreferredSize(new Dimension(400, 500));
 		bonePanel.add(bonesPane, "wrap");
 
-		JButton useBone = new JButton("Use Bone(s)", RMSIcons.greenArrowIcon);
-		useBone.addActionListener(e -> useBone());
-		bonePanel.add(useBone, "wrap");
+		bonePanel.add(Button.create("Use Bone(s)", RMSIcons.greenArrowIcon, e -> useBone()), "wrap");
 
 		JPanel newRefsPanel = new JPanel(new MigLayout("gap 0, ins 0", "[grow, align center]", "[][grow][]"));
 		newRefsPanel.add(new JLabel("New Refs"), "wrap");
@@ -65,19 +64,12 @@ public class MatrixPopup extends JPanel {
 		newRefsPane.setPreferredSize(new Dimension(400, 500));
 		newRefsPanel.add(newRefsPane, "wrap");
 
-		JButton removeNewRef = new JButton("Remove", RMSIcons.redXIcon);
-		removeNewRef.addActionListener(e -> removeNewRef());
-		newRefsPanel.add(removeNewRef, "wrap");
+		newRefsPanel.add(Button.create("Remove", RMSIcons.redXIcon, e -> removeNewRef()), "wrap");
 
 		JPanel arrowPanel = new JPanel(new MigLayout("gap 0, ins 0", "[]5", "[align center]16[align center]"));
 
-		JButton moveUp = new JButton(RMSIcons.moveUpIcon);
-		moveUp.addActionListener(e -> moveUp());
-		arrowPanel.add(moveUp, "wrap");
-
-		JButton moveDown = new JButton(RMSIcons.moveDownIcon);
-		moveDown.addActionListener(e -> moveDown());
-		arrowPanel.add(moveDown, "wrap");
+		arrowPanel.add(Button.create(RMSIcons.moveUpIcon, e -> moveUp()), "wrap");
+		arrowPanel.add(Button.create(RMSIcons.moveDownIcon, e -> moveDown()), "wrap");
 
 		add(displayParents, "wrap, spanx, align center");
 		add(newRefsPanel);
@@ -94,9 +86,9 @@ public class MatrixPopup extends JPanel {
 	private SearchableList<Bone> getNewRefsLists(Collection<GeosetVertex> vertices) {
 		setUpBoneLists(vertices);
 		SearchableList<Bone> newRefsJList = new SearchableList<>(this::filterBones);
-		for(Bone bone : bonesList.getFullListModel()){
+		for (Bone bone : bonesList.getFullListModel()) {
 			// To keep the bones in the correct order
-			if(allBones.contains(bone)){
+			if (allBones.contains(bone)) {
 				newRefsJList.add(bone);
 			}
 		}
@@ -116,9 +108,9 @@ public class MatrixPopup extends JPanel {
 
 	private void moveDown() {
 		final int[] indices = newRefsJList.getSelectedIndices();
-		if (indices != null && indices.length > 0) {
+		if (indices != null && 0 < indices.length) {
 			if (indices[indices.length - 1] < newRefsJList.listSize() - 1) {
-				for (int i = indices.length - 1; i >= 0; i--) {
+				for (int i = indices.length - 1; 0 <= i; i--) {
 					final Bone bs = newRefsJList.get(indices[i]);
 					newRefsJList.remove(bs);
 					newRefsJList.add(indices[i] + 1, bs);
@@ -131,8 +123,8 @@ public class MatrixPopup extends JPanel {
 
 	private void moveUp() {
 		final int[] indices = newRefsJList.getSelectedIndices();
-		if (indices != null && indices.length > 0) {
-			if (indices[0] > 0) {
+		if (indices != null && 0 < indices.length) {
+			if (0 < indices[0]) {
 				for (int i = 0; i < indices.length; i++) {
 					final Bone bs = newRefsJList.get(indices[i]);
 					newRefsJList.remove(bs);

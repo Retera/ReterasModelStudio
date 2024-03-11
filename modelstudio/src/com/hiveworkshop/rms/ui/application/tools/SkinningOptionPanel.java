@@ -1,23 +1,20 @@
 package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.tools.ReplaceBonesAction;
 import com.hiveworkshop.rms.editor.actions.tools.SetHdSkinAction;
-import com.hiveworkshop.rms.editor.actions.tools.SetMatrixAction3;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.tools.uielement.IdObjectChooser;
-import com.hiveworkshop.rms.ui.gui.modeledit.MatrixPopup;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.SkinPopup;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.IdObjectListCellRenderer;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 import com.hiveworkshop.rms.ui.util.SearchableList;
 import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.MathUtils;
+import com.hiveworkshop.rms.util.SmartNumberSlider;
 import com.hiveworkshop.rms.util.StringPadder;
 import com.hiveworkshop.rms.util.uiFactories.Button;
 import net.miginfocom.swing.MigLayout;
@@ -26,39 +23,47 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 public class SkinningOptionPanel extends JPanel {
-	ModelHandler modelHandler;
-	ModelView modelView;
+	ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
 	Map<Integer, List<GeosetVertex>> skinboneVertMap = new HashMap<>();
 	Map<Integer, SkinBone[]> skinboneMap = new HashMap<>();
 	Map<Integer, Bone[]> boneMap = new HashMap<>();
-//	Map<Integer, Short[]> weightMap = new HashMap<>();
 	Set<Matrix> matrixSet = new HashSet<>();
 	Map<Matrix, Set<GeosetVertex>> matrixVertexMap = new HashMap<>();
-	ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
+	ModelHandler modelHandler;
+	ModelView modelView;
+	SkinningGroupsPanel skinSubPanel;
+	Integer lessThanInt = 5;
+	Integer adjustInt = 0;
+	Integer snapStep = 5;
 
-	public SkinningOptionPanel(ModelHandler modelHandler){
+	public SkinningOptionPanel(ModelHandler modelHandler) {
 		super(new MigLayout("fill, gap 0, ins 0", "[grow]", "[grow]"));
 		this.modelHandler = modelHandler;
 		this.modelView = modelHandler.getModelView();
-//		collectUniqueSkinnings();
 		JTabbedPane tabbedPane = new JTabbedPane();
+		collectUniqueSkinnings();
 
-		JPanel skinSubPanel = new JPanel(new MigLayout("fill, gap 0, ins 0"));
-		fillSkinSubPanel(skinSubPanel);
+		skinSubPanel = new SkinningGroupsPanel(modelHandler)
+				.fillSkinBonePanel(skinboneMap, skinboneVertMap)
+				.fillMatrixPanel(matrixVertexMap);
+
+		JPanel buttonPanel = new JPanel(new MigLayout("fill, ins 0", "[grow]", "[][grow]"));
+		buttonPanel.add(Button.create("Update From Viewport Selection", e -> remakeSkinSubPanel()), "");
+		buttonPanel.add(Button.create("Merge Weights Of Same Bone", e -> mergeSameForAll()), "");
+		buttonPanel.add(Button.create("Remove If Less Than", e -> removeIfLessThan(null)), "");
+		buttonPanel.add(Button.create("Snap To Step", e -> snapToSteps()), "");
+
+		JScrollPane scrollPane = new JScrollPane(skinSubPanel);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
 		JPanel skinPanel = new JPanel(new MigLayout("fill", "[grow]", "[][grow]"));
-		JButton load = new JButton("update from selection");
-		load.addActionListener(e -> fillSkinSubPanel(skinSubPanel));
-		skinPanel.add(load, "wrap");
+		skinPanel.add(buttonPanel, "wrap");
+		skinPanel.add(scrollPane, "growx, growy");
+		tabbedPane.add("Skin", skinPanel);
 
-
-		skinPanel.add(skinSubPanel, "growx, growy");
-		JScrollPane scrollPane = new JScrollPane(skinPanel);
-		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		tabbedPane.add("Skin", scrollPane);
 
 		tabbedPane.add("Bones", getBoneAdjustmentsPanel());
 		add(tabbedPane, "growx, growy");
@@ -71,402 +76,20 @@ public class SkinningOptionPanel extends JPanel {
 
 	}
 
-	private void fillSkinSubPanel(JPanel skinSubPanel) {
-		skinSubPanel.removeAll();
+	private void remakeSkinSubPanel() {
 		collectUniqueSkinnings();
-		if(!skinboneMap.isEmpty()){
-			System.out.println("adding SkinBonePanel");
-			skinSubPanel.add(getSkinBonePanel(), "wrap");
-		}
-		if(!matrixVertexMap.isEmpty()){
-			System.out.println("adding MatrixPanel");
-			skinSubPanel.add(getMatrixPanel(), "wrap");
-		}
-		skinSubPanel.revalidate();
+		updateSkinSubPanel();
 	}
 
-	public JPanel getSkinBonePanel(){
-		JPanel panel = new JPanel(new MigLayout("fill"));
-		for(Integer key : skinboneMap.keySet()){
-			JPanel sbWrapperPanel = new JPanel(new MigLayout("gap 0, ins 0", "10[]10[]10", "2[][]2"));
-			sbWrapperPanel.setBorder(BorderFactory.createTitledBorder(""));
-			JPanel sbInfoPanel = new JPanel(new MigLayout("gap 0, ins 0, fill, wrap 2", "[grow, left]10[right]"));
-			JPanel sbButtonsPanel = new JPanel(new MigLayout("gap 0, ins 0, wrap 1"));
-			sbWrapperPanel.add(new JLabel(skinboneVertMap.get(key).size() + " vertices:"), "wrap");
-//			sbWrapperPanel.setBorder(BorderFactory.createTitledBorder(skinboneVertMap.get(key).size() + " vertices:"));
-			for (String sbS : getHDDescription2(key)){
-				sbInfoPanel.add(new JLabel(sbS));
-			}
-//			JPanel sbPanel = new JPanel();
-//			sbPanel.add(sbInfoPanel);
-
-//			JButton edit = new JButton("Edit");
-//			edit.addActionListener(e -> changeSkinBoneSetup(skinboneVertMap.get(key), skinboneMap.get(key)));
-//			sbButtonsPanel.add(edit);
-//
-//			JButton useForSelected = new JButton("Use for selected");
-//			useForSelected.addActionListener(e -> useForVertices(modelView.getSelectedVertices(), skinboneMap.get(key)));
-//			sbButtonsPanel.add(useForSelected);
-
-			sbButtonsPanel.add(Button.create("Edit", e -> changeSkinBoneSetup(skinboneVertMap.get(key), skinboneMap.get(key))));
-			sbButtonsPanel.add(Button.create("Use for selected", e -> useForVertices(modelView.getSelectedVertices(), skinboneMap.get(key))));
-
-			sbButtonsPanel.add(Button.create("Select Vertices", e -> selectVertices(skinboneMap.get(key))));
-			sbButtonsPanel.add(Button.create("Select Vertices (Subset of selection)", e -> selectVerticesSubset(skinboneVertMap.get(key))));
-			sbWrapperPanel.add(sbInfoPanel);
-			sbWrapperPanel.add(sbButtonsPanel);
-			panel.add(sbWrapperPanel, "wrap");
-
-//			JPanel sbPanel = new JPanel();
-//			sbPanel.add(sbInfoPanel);
-//			JButton edit = new JButton("Edit");
-//			edit.addActionListener(e -> changeSkinBoneSetup(skinboneVertMap.get(key), skinboneMap.get(key)));
-//			sbInfoPanel.add(edit);
-//			JButton useForSelected = new JButton("Use for selected");
-//			useForSelected.addActionListener(e -> useForVertices(modelView.getSelectedVertices(), skinboneMap.get(key)));
-//			sbInfoPanel.add(useForSelected);
-//			panel.add(sbInfoPanel, "wrap");
-		}
-		return panel;
+	private void updateSkinSubPanel() {
+		skinSubPanel
+				.clear()
+				.fillSkinBonePanel(skinboneMap, skinboneVertMap)
+				.fillMatrixPanel(matrixVertexMap)
+				.revalidate();
 	}
 
-	public String[] getHDDescription(Integer sbId){
-		SkinBone[] skinBones = skinboneMap.get(sbId);
-		String[] strings = new String[skinBones.length];
-
-		for (int i = 0; i < skinBones.length; i++) {
-			if (skinBones[i] == null) {
-				strings[i] = "null";
-			} else {
-				String nameString = skinBones[i].getBone() == null ? "null" : skinBones[i].getBone().getName();
-				nameString = StringPadder.padStringEnd(nameString + ":", " ", 29);
-				String weightString = StringPadder.padStringStart(skinBones[i].getWeight() + "", " ", 3);
-
-				strings[i] = nameString + weightString;
-			}
-		}
-		return strings;
-	}
-	public String[] getHDDescription2(Integer sbId){
-		SkinBone[] skinBones = skinboneMap.get(sbId);
-		String[] strings = new String[skinBones.length*2];
-
-		for (int i = 0; i < skinBones.length; i++) {
-			if (skinBones[i] == null) {
-				strings[i*2] = "null";
-				strings[i*2+1] = "0";
-			} else {
-				String nameString = skinBones[i].getBone() == null ? "null" : skinBones[i].getBone().getName();
-//				nameString = StringPadder.padStringEnd(nameString + ":", " ", 29);
-				String weightString = StringPadder.padStringStart(skinBones[i].getWeight() + "", " ", 3);
-
-				strings[i*2] = nameString;
-				strings[i*2+1] =  weightString;
-			}
-		}
-		return strings;
-	}
-
-	public JPanel getMatrixPanel(){
-		JPanel panel = new JPanel(new MigLayout("fill"));
-		for(Matrix matrix : matrixVertexMap.keySet()){
-			JPanel sbInfoPanel = new JPanel(new MigLayout("gap 0, ins 0"));
-			sbInfoPanel.add(new JLabel(getMatricesDescription(matrix)));
-
-			JPanel sbPanel = new JPanel();
-			sbPanel.add(sbInfoPanel);
-			JButton edit = new JButton("Edit");
-			edit.addActionListener(e -> changeMatrixSetup(matrix));
-			sbInfoPanel.add(edit);
-			JButton useForSelected = new JButton("Use for selected");
-			useForSelected.addActionListener(e -> useForVertices(modelView.getSelectedVertices(), matrix.getBones()));
-			sbInfoPanel.add(useForSelected);
-			panel.add(sbInfoPanel, "wrap");
-		}
-		return panel;
-	}
-
-
-
-
-	public String getMatricesDescription(Matrix matrix) {
-		StringBuilder boneList = new StringBuilder();
-
-		int numBones = matrix.size();
-		if(numBones>0){
-			boneList.append("Matrix:{");
-			for (int i = 0; i < numBones; i++) {
-				if (i == (numBones - 2)) {
-					boneList.append(matrix.get(i).getName()).append(" and ");
-				} else if (i == (numBones - 1)) {
-					boneList.append(matrix.get(i).getName());
-				} else {
-					boneList.append(matrix.get(i).getName()).append(", ");
-				}
-			}
-			boneList.append("}: ");
-			boneList.append(matrixVertexMap.get(matrix).size());
-			boneList.append(" vertices");
-		}
-		return boneList.toString();
-	}
-
-	public void changeSkinBoneSetup(Collection<GeosetVertex> vertices, SkinBone[] skinBones){
-		SkinPopup skinPopup = new SkinPopup(modelHandler.getModel(), skinBones);
-		String[] words = {"Accept", "Cancel"};
-		int i = JOptionPane.showOptionDialog(this, skinPopup, "Rebuild Skin", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, words, words[1]);
-		if (i == 0) {
-			Bone[] bones = skinPopup.getBones();
-			short[] weights = skinPopup.getSkinWeights();
-			modelHandler.getUndoManager().pushAction(new SetHdSkinAction(vertices, bones, weights).redo());
-		}
-	}
-
-	public void changeMatrixSetup(Matrix matrix){
-		MatrixPopup matrixPopup = new MatrixPopup(modelHandler.getModel(), matrixVertexMap.get(matrix));
-		String[] words = {"Accept", "Cancel"};
-		int i = JOptionPane.showOptionDialog(this, matrixPopup, "Reassign Matrix", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, words, words[1]);
-		if (i == 0) {
-			modelHandler.getUndoManager()
-					.pushAction(new SetMatrixAction3(matrixVertexMap.get(matrix), matrixPopup.getNewBoneList(), matrixPopup.getBonesNotInAll()).redo());
-		}
-	}
-
-	public void useForVertices(Collection<GeosetVertex> vertices, SkinBone[] skinBones){
-		Bone[] bones = new Bone[skinBones.length];
-		short[] weights = new short[skinBones.length];
-		for(int i = 0; i<skinBones.length; i++){
-			bones[i] = skinBones[i].getBone();
-			weights[i] = skinBones[i].getWeight();
-		}
-
-		Set<GeosetVertex> affectedVerts = vertices.stream().filter(gv -> gv.getSkinBones() != null).collect(Collectors.toSet());
-
-		modelHandler.getUndoManager().pushAction(new SetHdSkinAction(affectedVerts, bones, weights).redo());
-	}
-
-	public void useForVertices(Collection<GeosetVertex> vertices, Collection<Bone> bones){
-		modelHandler.getUndoManager().pushAction(new SetMatrixAction3(vertices, bones, Collections.emptySet()).redo());
-	}
-
-	public void selectVerticesSubset(Collection<GeosetVertex> vertices){
-		if (!modelView.sameSelection(vertices, Collections.emptySet(), Collections.emptySet())) {
-			SelectionBundle bundle = new SelectionBundle(vertices);
-			UndoAction action = new SetSelectionUggAction(bundle, modelView, "select skin vertices", ModelStructureChangeListener.changeListener);
-			modelHandler.getUndoManager().pushAction(action.redo());
-		}
-	}
-
-	public void selectVertices(SkinBone[] skinBones){
-		Set<GeosetVertex> vertices = new LinkedHashSet<>();
-		int hashCode = Arrays.hashCode(skinBones);
-		for (Geoset geoset : modelView.getEditableGeosets()) {
-			for (GeosetVertex vertex : geoset.getVertices()) {
-				if (modelView.isEditable(vertex)) {
-					if (vertex.getSkinBones() != null && hashCode == Arrays.hashCode(vertex.getSkinBones())) {
-						vertices.add(vertex);
-					}
-				}
-			}
-		}
-		if (!vertices.isEmpty() && !modelView.sameSelection(vertices, Collections.emptySet(), Collections.emptySet())) {
-			SelectionBundle bundle = new SelectionBundle(vertices);
-			UndoAction action = new SetSelectionUggAction(bundle, modelView, "select skin vertices", ModelStructureChangeListener.changeListener);
-			modelHandler.getUndoManager().pushAction(action.redo());
-		}
-	}
-
-	public void selectVertices(Matrix matrix){
-		Set<GeosetVertex> vertices = new LinkedHashSet<>();
-		for (Geoset geoset : modelView.getEditableGeosets()) {
-			for (GeosetVertex vertex : geoset.getVertices()) {
-				if (modelView.isEditable(vertex)) {
-					if (matrix.equals(vertex.getMatrix())) {
-						vertices.add(vertex);
-					}
-				}
-			}
-		}
-		if (!vertices.isEmpty() && !modelView.sameSelection(vertices, Collections.emptySet(), Collections.emptySet())) {
-			SelectionBundle bundle = new SelectionBundle(vertices);
-			UndoAction action = new SetSelectionUggAction(bundle, modelView, "select skin vertices", ModelStructureChangeListener.changeListener);
-			modelHandler.getUndoManager().pushAction(action.redo());
-		}
-	}
-
-	public void replaceBones1(Map<IdObject, IdObject> bonesToReplace){
-		Map<IdObject, IdObject> boneReplacements = new HashMap<>();
-		Set<GeosetVertex> affectedVerts = new HashSet<>();
-
-		for (Integer key : skinboneMap.keySet()) {
-			SkinBone[] skinBones = skinboneMap.get(key);
-			boolean shouldAdjust = Arrays.stream(skinBones).anyMatch(sb -> bonesToReplace.containsKey(sb.getBone()));
-			if (shouldAdjust) {
-				affectedVerts.addAll(skinboneVertMap.get(key));
-				for (SkinBone skinBone : skinBones) {
-					Bone bone = skinBone.getBone();
-					boneReplacements.put(bone, bonesToReplace.getOrDefault(bone, bone));
-				}
-			}
-		}
-
-		for (Matrix matrix : matrixVertexMap.keySet()) {
-			boolean shouldAdjust = matrix.getBones().stream().anyMatch(bonesToReplace::containsKey);
-			if (shouldAdjust) {
-				affectedVerts.addAll(matrixVertexMap.get(matrix));
-				for (Bone bone : matrix.getBones()) {
-					boneReplacements.put(bone, bonesToReplace.getOrDefault(bone, bone));
-				}
-			}
-		}
-
-		modelHandler.getUndoManager().pushAction(new ReplaceBonesAction(affectedVerts, boneReplacements, changeListener).redo());
-	}
-
-	public void replaceBones(Collection<GeosetVertex> selection, Map<IdObject, IdObject> boneReplacements){
-		modelHandler.getUndoManager().pushAction(new ReplaceBonesAction(selection, boneReplacements, changeListener).redo());
-	}
-
-	public void adjustInfluence(Collection<GeosetVertex> selection, Map<IdObject, Float> boneAdjustments){
-		List<UndoAction> undoActions = new ArrayList<>();
-		for(Integer key : skinboneMap.keySet()){
-			SkinBone[] skinBones = skinboneMap.get(key);
-			boolean shouldAdjust = Arrays.stream(skinBones).anyMatch(sb -> boneAdjustments.containsKey(sb.getBone()));
-			if(shouldAdjust){
-				Bone[] bones = new Bone[skinBones.length];
-				short[] weights = new short[skinBones.length];
-				Short[] newWeights = new Short[skinBones.length];
-				int notAdjustedWeights = 0;
-				short extraWeight = 0;
-
-				// calculate how much weight is redistributed and how many weights to spread the weight disparity over
-				for (int i = 0; i < skinBones.length; i++){
-					Bone bone = skinBones[i].getBone();
-					short weight = skinBones[i].getWeight();
-					bones[i] = bone;
-					weights[i] = weight;
-					Float adjust = boneAdjustments.get(bone);
-					if(adjust != null){
-						newWeights[i] = (short) MathUtils.clamp(weight * (1 + adjust), 0, 255);
-						extraWeight += newWeights[i] - weight;
-					} else {
-						notAdjustedWeights++;
-					}
-				}
-
-				// Spread the weight disparity
-				for (int i = 0; i < skinBones.length; i++){
-					if (newWeights[i] == null) {
-						newWeights[i] = (short) MathUtils.clamp(weights[i] - extraWeight/notAdjustedWeights, 0, 255);
-						extraWeight -= newWeights[i] - weights[i];
-						notAdjustedWeights--;
-					}
-				}
-
-				// Fix any left over extra weight (spreads any disparity if all weights were adjusted)
-				for (int i = 0; i < skinBones.length; i++){
-					weights[i] = (short) MathUtils.clamp(newWeights[i] - extraWeight/(skinBones.length-i), 0, 255);
-					extraWeight -= weights[i] - newWeights[i];
-				}
-
-
-				List<GeosetVertex> vertices = skinboneVertMap.get(key);
-				undoActions.add(new SetHdSkinAction(vertices, bones, weights));
-
-//				for (int i = 0; i < skinBones.length; i++){
-//					if (newWeights[i] != null) {
-//						weights[i] = newWeights[i];
-//					} else {
-//						short orgWeight = weights[i];
-//						weights[i] = (short) MathUtils.clamp(orgWeight - extraWeight/notAdjustedWeights, 0, 255);
-//						extraWeight -= weights[i] - orgWeight;
-//						notAdjustedWeights--;
-//					}
-//				}
-//
-//
-//				for (int i = 0; i < skinBones.length; i++){
-//					short orgWeight = weights[i];
-//					weights[i] = (short) MathUtils.clamp(orgWeight - extraWeight/(skinBones.length-i), 0, 255);
-//					extraWeight -= weights[i] - orgWeight;
-//					notAdjustedWeights--;
-//				}
-//
-//
-//				List<GeosetVertex> vertices = skinboneVertMap.get(key);
-//				undoActions.add(new SetHdSkinAction(vertices, bones, weights));
-			}
-		}
-		modelHandler.getUndoManager().pushAction(new CompoundAction("Adjust skin wiegths", undoActions, ModelStructureChangeListener.changeListener::nodesUpdated));
-
-	}
-//
-//	public void increaseInfluence(Collection<GeosetVertex> selection, Map<IdObject, Float> boneAdjustments){
-//		List<UndoAction> undoActions = new ArrayList<>();
-//		for(Integer key : skinboneMap.keySet()){
-//			SkinBone[] skinBones = skinboneMap.get(key);
-//			boolean shouldAdjust = Arrays.stream(skinBones).anyMatch(sb -> boneAdjustments.containsKey(sb.getBone()));
-//			if(shouldAdjust){
-//				Bone[] bones = new Bone[skinBones.length];
-//				short[] weights = new short[skinBones.length];
-////				Short[] adjWeights = new Short[skinBones.length];
-//				Short[] adjWeights = new Short[skinBones.length];
-//				int notAdjustedWeights = 0;
-//				short extraWeight = 0;
-//
-//				// calculate how much weight is redistributed and how many weights to spread the weight disparity over
-//				for (int i = 0; i < skinBones.length; i++){
-//					Bone bone = skinBones[i].getBone();
-//					short weight = skinBones[i].getWeight();
-//					bones[i] = bone;
-//					weights[i] = weight;
-//					Float adjust = boneAdjustments.get(bone);
-//					if(adjust != null){
-//						adjWeights[i] = (short) MathUtils.clamp(weight * (1 + adjust), 0, 255);
-//						extraWeight += adjWeights[i] - weight;
-//					} else {
-//						notAdjustedWeights++;
-//					}
-//				}
-//
-//				// Spread the weight disparity
-//				for (int i = 0; i < skinBones.length; i++){
-//					if (adjWeights[i] == null) {
-//						short orgWeight = weights[i];
-//						weights[i] = (short) MathUtils.clamp(orgWeight - extraWeight/notAdjustedWeights, 0, 255);
-//						extraWeight -= weights[i] - orgWeight;
-//						notAdjustedWeights--;
-//					} else {
-//						weights[i] = adjWeights[i];
-//					}
-//				}
-//
-//
-//				for (int i = 0; i < skinBones.length; i++){
-//					short orgWeight = weights[i];
-//					weights[i] = (short) MathUtils.clamp(orgWeight - extraWeight/(skinBones.length-i), 0, 255);
-//					extraWeight -= weights[i] - orgWeight;
-//					notAdjustedWeights--;
-//				}
-//
-//
-//				List<GeosetVertex> vertices = skinboneVertMap.get(key);
-//				undoActions.add(new SetHdSkinAction(vertices, bones, weights));
-//			}
-//		}
-//
-//		for (GeosetVertex vertex : selection) {
-//			SkinBone[] skinBones = vertex.getSkinBones();
-//			if(skinBones != null){
-//				boolean shouldAdjust = Arrays.stream(skinBones).anyMatch(sb -> boneAdjustments.containsKey(sb.getBone()));
-//				if(shouldAdjust){
-////					undoActions.add(new SetHdSkinAction())
-//				}
-//			}
-//		}
-//	}
-
-	private void collectUniqueSkinnings(){
+	private void collectUniqueSkinnings() {
 
 		System.out.println(modelView.getSelectedVertices().size() + " verts selected");
 		skinboneVertMap.clear();
@@ -475,10 +98,10 @@ public class SkinningOptionPanel extends JPanel {
 		matrixSet.clear();
 		matrixVertexMap.clear();
 
-		for(GeosetVertex vertex : modelView.getSelectedVertices()){
+		for (GeosetVertex vertex : modelView.getSelectedVertices()) {
 			SkinBone[] skinBones = vertex.getSkinBones();
 
-			if (skinBones != null){
+			if (skinBones != null) {
 				int hashCode = Arrays.hashCode(skinBones);
 				skinboneMap.putIfAbsent(hashCode, skinBones);
 				skinboneVertMap.computeIfAbsent(hashCode, k -> new ArrayList<>()).add(vertex);
@@ -491,7 +114,7 @@ public class SkinningOptionPanel extends JPanel {
 				matrixSet.add(vertex.getMatrix());
 
 				Set<GeosetVertex> vertexSet = matrixVertexMap.get(vertex.getMatrix());
-				if(vertexSet == null){
+				if (vertexSet == null) {
 					vertexSet = new HashSet<>();
 					matrixVertexMap.put(new Matrix(vertex.getBones()), vertexSet);
 				}
@@ -503,123 +126,25 @@ public class SkinningOptionPanel extends JPanel {
 	}
 
 
-	public JPanel getBoneAdjustmentsPanel(){
+	public JPanel getBoneAdjustmentsPanel() {
 		JPanel panel = new JPanel(new MigLayout("fill", "[grow][grow]"));
 		JPanel listPanel = new JPanel(new MigLayout("fill, gap 0", "[grow]", "[][grow]"));
 		SearchableList<Bone> searchableList = getSearchableList(modelHandler.getModel().getBones());
 		listPanel.add(searchableList.getSearchField(), "growx, wrap");
 		listPanel.add(searchableList.getScrollableList(), "growx, growy");
 		panel.add(listPanel, "growx, growy");
+
 		JPanel boneThingPanel = new JPanel(new MigLayout("fill, gap 0, ins 0", "[grow]", "[grow]"));
 		searchableList.addMultiSelectionListener((bones) -> {
 			System.out.println("selected bones: " + bones);
 			boneThingPanel.removeAll();
-			boneThingPanel.add(getAdjustBonePanel(bones));
+			boneThingPanel.add(getAdjustBonePanel(bones), "left, growx, growy");
 			panel.revalidate();
 		});
-//		searchableList.addSelectionListener1((bone) -> {
-//			System.out.println("selected bone: " + bone);
-//			boneThingPanel.removeAll();
-//			boneThingPanel.add(getAdjustBonePanel(bone));
-//			panel.revalidate();
-////			SwingUtilities.invokeLater(panel::revalidate);
-////			if(panel.getParent() != null){
-////				panel.getParent().repaint();
-////			}
-////			boneThingPanel.repaint();
-//		});
+
 		panel.add(boneThingPanel, "growx, growy");
 		return panel;
 	}
-
-	public JPanel getAdjustBonePanel(Bone bone){
-		JPanel panel = new JPanel(new MigLayout("fill"));
-		String name = bone == null ? "none" : bone.getName();
-		System.out.println("new panel for: " + name);
-		panel.add(new JLabel(name), "wrap");
-		JButton removeFromSelected = new JButton("Remove from selected");
-		removeFromSelected.addActionListener(e -> removeFromSelected(bone));
-		panel.add(removeFromSelected, "wrap");
-		JButton replaceForSelected = new JButton("Replace for selected");
-		removeFromSelected.addActionListener(e -> replaceForSelected(bone));
-		panel.add(replaceForSelected, "wrap");
-		if(!skinboneMap.isEmpty()){
-			panel.add(new JButton("Adjust influence for selected"), "wrap");
-		}
-		return panel;
-	}
-
-	public void removeFromSelected(Bone bone){
-		Map<IdObject, IdObject> toRemoveMap = new HashMap<>();
-		toRemoveMap.put(bone, null);
-		replaceBones1(toRemoveMap);
-	}
-
-	public void replaceForSelected(Bone bone){
-		Map<IdObject, IdObject> replaceMap = new HashMap<>();
-		IdObjectChooser idObjectChooser = new IdObjectChooser(modelHandler.getModel(), false).setClasses(Bone.class);
-		IdObject idObject = idObjectChooser.chooseObject(bone, this);
-		if(idObject != null){
-			replaceMap.put(bone, idObject);
-			replaceBones1(replaceMap);
-		}
-	}
-
-	public JPanel getAdjustBonePanel(Collection<Bone> bones){
-		JPanel panel = new JPanel(new MigLayout("fill"));
-
-		StringBuilder nameBuilder = new StringBuilder();
-		int bonesLeft = bones.size();
-		for (Bone bone : bones){
-			if(bone != null){
-//				nameBuilder.append(bone.getName());
-				if (bonesLeft == 2) {
-					nameBuilder.append(bone.getName()).append(" and ");
-				} else if (bonesLeft == 1) {
-					nameBuilder.append(bone.getName());
-				} else {
-					nameBuilder.append(bone.getName()).append(", ");
-				}
-			}
-			bonesLeft--;
-		}
-
-		String name = nameBuilder.toString();
-		System.out.println("new panel for: " + name);
-		panel.add(new JLabel(name), "wrap");
-		JButton removeFromSelected = new JButton("Remove from selected");
-		removeFromSelected.addActionListener(e -> removeFromSelected(bones));
-		panel.add(removeFromSelected, "wrap");
-		JButton replaceForSelected = new JButton("Replace for selected");
-		replaceForSelected.addActionListener(e -> replaceForSelected(bones));
-		panel.add(replaceForSelected, "wrap");
-		if(!skinboneMap.isEmpty()){
-			panel.add(new JButton("Adjust influence for selected"), "wrap");
-		}
-		return panel;
-	}
-	public void removeFromSelected(Collection<Bone> bones){
-		System.out.println("remove from selected!");
-		Map<IdObject, IdObject> toRemoveMap = new HashMap<>();
-		for (Bone bone : bones){
-			toRemoveMap.put(bone, null);
-		}
-		replaceBones1(toRemoveMap);
-	}
-
-	public void replaceForSelected(Collection<Bone> bones){
-		System.out.println("replace for selected!");
-		Map<IdObject, IdObject> replaceMap = new HashMap<>();
-		IdObjectChooser idObjectChooser = new IdObjectChooser(modelHandler.getModel(), false).setClasses(Bone.class);
-		IdObject idObject = idObjectChooser.chooseObject(null, this);
-		if(idObject != null){
-			for (Bone bone : bones){
-				replaceMap.put(bone, idObject);
-			}
-			replaceBones1(replaceMap);
-		}
-	}
-
 
 	private SearchableList<Bone> getSearchableList(Collection<Bone> bones) {
 		SearchableList<Bone> searchableList = new SearchableList<>(this::idObjectNameFiler);
@@ -639,13 +164,447 @@ public class SkinningOptionPanel extends JPanel {
 		return (objectShell != null ? objectShell.getName() : "none").toLowerCase().contains(filterText.toLowerCase());
 	}
 
+	public JPanel getAdjustBonePanel(Collection<Bone> bones) {
+		JPanel panel = new JPanel(new MigLayout("fill"));
+		JPanel buttonPanel = new JPanel(new MigLayout("fill, ins 0"));
 
+		buttonPanel.add(Button.create("Remove from selected", e -> replaceBones(bones, false)), "wrap");
+		buttonPanel.add(Button.create("Replace for selected", e -> replaceBones(bones, true)), "wrap");
+		buttonPanel.add(Button.create("Remove If Weight Less Than", e -> removeIfLessThan(bones)), "wrap");
+		if (!skinboneMap.isEmpty()) {
+			buttonPanel.add(Button.create("Adjust influence for selected", e -> adjustInfluence(bones)), "wrap");
+		}
+
+		String name = getString(bones);
+		System.out.println("new panel for: " + name);
+
+		JTextArea infoLabel = getInfoLabel(name);
+		infoLabel.setBorder(BorderFactory.createTitledBorder("Selected"));
+		panel.add(infoLabel, "bottom, growx, spanx, wrap");
+
+		panel.add(buttonPanel, "top, wrap");
+		return panel;
+	}
+
+	private JTextArea getInfoLabel(String text) {
+		JTextArea infoLabel = new JTextArea(text);
+		infoLabel.setEditable(false);
+		infoLabel.setOpaque(false);
+		infoLabel.setLineWrap(true);
+		infoLabel.setWrapStyleWord(true);
+		return infoLabel;
+	}
+
+	private String getString(Collection<Bone> bones) {
+		List<String> nameList = bones.stream().filter(Objects::nonNull).map(IdObject::getName).toList();
+		String boneString = String.join(", ", nameList);
+		if (1 < nameList.size()) {
+			String last = nameList.get(nameList.size() - 1);
+			boneString = boneString.replaceFirst(", " + last + "$", " and " + last);
+		}
+		return boneString;
+	}
+
+	private void adjustInfluence(Collection<Bone> bones) {
+		SmartNumberSlider slider = new SmartNumberSlider("%", adjustInt , -100, 500, i -> adjustInt = i, false, false);
+		int adjust_influence = JOptionPane.showConfirmDialog(this, slider, "Adjust influence", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		if (adjust_influence == JOptionPane.OK_OPTION && slider.getValue() != 0) {
+			adjustInt = slider.getValue();
+			float adjust = (100 + slider.getValue()) / 100f;
+			adjustInfluenc(adjust, bones);
+		}
+
+	}
+
+	public void adjustInfluenc(float adjust, Collection<Bone> selectedBones) {
+		List<UndoAction> undoActions = new ArrayList<>();
+		Set<Bone> bonesToAdj = new HashSet<>(selectedBones);
+		for (Integer key : skinboneMap.keySet()) {
+			SkinBone[] skinBones = skinboneMap.get(key);
+			boolean shouldAdjust = Arrays.stream(skinBones).anyMatch(sb -> bonesToAdj.contains(sb.getBone()));
+			if (shouldAdjust) {
+				Bone[] bones = new Bone[skinBones.length];
+				short[] weights = new short[skinBones.length];
+
+				for (int i = 0; i < skinBones.length; i++) {
+					bones[i] = skinBones[i].getBone();
+					weights[i] = skinBones[i].getWeight();
+				}
+
+				int[] newWeights = new int[weights.length];
+				for (int i = 0; i < weights.length; i++) {
+					if (bonesToAdj.contains(bones[i])) {
+						newWeights[i] = (int) (MathUtils.clamp(weights[i] * adjust, 0, 10000) + .499f);
+					} else {
+						newWeights[i] = bones[i] != null ? weights[i] : 0;
+					}
+				}
+
+
+				float totNewWeight = Arrays.stream(newWeights).sum();
+				for (int i = 0; i < newWeights.length; i++) {
+					float weightFraction = newWeights[i] / totNewWeight;
+					weights[i] = (short) MathUtils.clamp((int) (255 * weightFraction + .499), 0, 255);
+				}
+
+				fixWeights(bones, weights);
+
+				List<GeosetVertex> vertices = skinboneVertMap.get(key);
+				undoActions.add(new SetHdSkinAction(vertices, bones, weights));
+
+			}
+		}
+		modelHandler.getUndoManager().pushAction(new CompoundAction("Adjust skin wiegths", undoActions, changeListener::nodesUpdated).redo());
+
+		updateSkinSubPanel();
+
+	}
+
+	public void replaceBones(Collection<Bone> bones, boolean showChooser) {
+		System.out.println("replace for selected!");
+		Map<IdObject, IdObject> replaceMap = new HashMap<>();
+		IdObject idObject = null;
+		IdObject orgBone = bones.size() == 1 ? bones.stream().findFirst().orElse(null) : null;
+		if (showChooser) {
+			IdObjectChooser idObjectChooser = new IdObjectChooser(modelHandler.getModel(), false).setClasses(Bone.class);
+			idObject = idObjectChooser.chooseObject(orgBone, this);
+		}
+		if (!showChooser || idObject != orgBone) {
+			for (Bone bone : bones) {
+				if (bone != idObject) {
+					replaceMap.put(bone, idObject);
+				}
+			}
+		}
+		if (!replaceMap.isEmpty()) {
+			replaceBones(replaceMap);
+		}
+	}
+
+	public void replaceBones(Map<IdObject, IdObject> bonesToReplace) {
+		Map<IdObject, IdObject> boneReplacements = new HashMap<>();
+		Set<GeosetVertex> affectedVerts = new HashSet<>();
+
+		for (Integer key : skinboneMap.keySet()) {
+			SkinBone[] skinBones = skinboneMap.get(key);
+			boolean shouldAdjust = Arrays.stream(skinBones).anyMatch(sb -> bonesToReplace.containsKey(sb.getBone()));
+			if (shouldAdjust) {
+				affectedVerts.addAll(skinboneVertMap.get(key));
+				for (SkinBone skinBone : skinBones) {
+					Bone bone = skinBone.getBone();
+
+					IdObject orDefault = bonesToReplace.getOrDefault(bone, bone);
+					String defName = orDefault == null ? "null" : ("\"" + orDefault.getName() + "\"");
+					System.out.println("replacing \"" + bone.getName() + "\" with " + defName);
+					boneReplacements.put(bone, orDefault);
+				}
+			}
+		}
+
+		for (Matrix matrix : matrixVertexMap.keySet()) {
+			boolean shouldAdjust = matrix.getBones().stream().anyMatch(bonesToReplace::containsKey);
+			if (shouldAdjust) {
+				affectedVerts.addAll(matrixVertexMap.get(matrix));
+				for (Bone bone : matrix.getBones()) {
+					boneReplacements.put(bone, bonesToReplace.getOrDefault(bone, bone));
+				}
+			}
+		}
+
+		if (!boneReplacements.isEmpty()) {
+			modelHandler.getUndoManager().pushAction(new ReplaceBonesAction(affectedVerts, boneReplacements, changeListener).redo());
+
+			updateSkinSubPanel();
+		}
+	}
+
+	private void mergeSameForAll() {
+		List<UndoAction> undoActions = new ArrayList<>();
+		for (Integer index : skinboneMap.keySet()) {
+			SkinBone[] skinBones = skinboneMap.get(index);
+			List<GeosetVertex> vertices = skinboneVertMap.get(index);
+			Bone[] bones = new Bone[4];
+			short[] weights = new short[4];
+
+			for (int i = 0; i < 4; i++) {
+				bones[i] = skinBones[i].getBone();
+				weights[i] = skinBones[i].getWeight();
+			}
+			setNoInfluenceToNull(bones, weights);
+			mergeIfSameBone(bones, weights);
+			sortByWeight(bones, weights);
+
+			if (isChangeMade(skinBones, bones, weights)) {
+				undoActions.add(new SetHdSkinAction(vertices, bones, weights));
+			}
+		}
+
+		if (!undoActions.isEmpty()) {
+			modelHandler.getUndoManager().pushAction(new CompoundAction("Merge Weights of Same Bone", undoActions).redo());
+
+			updateSkinSubPanel();
+		}
+	}
+
+
+	private void removeIfLessThan(Collection<Bone> bones) {
+		IntEditorJSpinner intEditorJSpinner = new IntEditorJSpinner(lessThanInt, 0, 255, weight -> lessThanInt = weight);
+		int adjust_influence = JOptionPane.showConfirmDialog(this, intEditorJSpinner, "Remove if Less Than", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		if (adjust_influence == JOptionPane.OK_OPTION && intEditorJSpinner.getIntValue() != 0) {
+			lessThanInt = intEditorJSpinner.getIntValue();
+			removeIfLessThan(intEditorJSpinner.getIntValue(), bones);
+		}
+	}
+
+	private void removeIfLessThan(int weightLimit, Collection<Bone> selectedBones) {
+
+		List<UndoAction> undoActions = new ArrayList<>();
+		Set<Bone> bonesToAdj = selectedBones == null ? null : new HashSet<>(selectedBones);
+		Function<SkinBone, Boolean> shouldAdjFilter = selectedBones == null
+				? sb -> sb.getWeight() != 0 && sb.getWeight() < weightLimit
+				: sb -> sb.getWeight() != 0 && sb.getWeight() < weightLimit && bonesToAdj.contains(sb.getBone());
+		for (Integer key : skinboneMap.keySet()) {
+			SetHdSkinAction action = getRemoveIfLessAction(skinboneMap.get(key), skinboneVertMap.get(key), shouldAdjFilter);
+			if (action != null) {
+				undoActions.add(action);
+			}
+		}
+		if (!undoActions.isEmpty()) {
+			modelHandler.getUndoManager().pushAction(new CompoundAction("Adjust skin weights", undoActions, changeListener::nodesUpdated).redo());
+
+			updateSkinSubPanel();
+		}
+	}
+
+	private SetHdSkinAction getRemoveIfLessAction(SkinBone[] skinBones, List<GeosetVertex> vertices, Function<SkinBone, Boolean> shouldAdjFilter) {
+		boolean shouldAdjust = Arrays.stream(skinBones).anyMatch(shouldAdjFilter::apply);
+		if (shouldAdjust) {
+			Bone[] bones = new Bone[skinBones.length];
+			short[] weights = new short[skinBones.length];
+
+			for (int i = 0; i < skinBones.length; i++) {
+				bones[i] = skinBones[i].getBone();
+				weights[i] = skinBones[i].getWeight();
+				if (shouldAdjFilter.apply(skinBones[i])) {
+					weights[i] = 0;
+				}
+			}
+
+			fixWeights(bones, weights);
+
+			return new SetHdSkinAction(vertices, bones, weights);
+		}
+		return null;
+	}
+
+	private void snapToSteps() {
+		IntEditorJSpinner intEditorJSpinner = new IntEditorJSpinner(snapStep, 0, 255, weight -> snapStep = weight);
+		int adjust_influence = JOptionPane.showConfirmDialog(this, intEditorJSpinner, "Snap to Weight Step", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		if (adjust_influence == JOptionPane.OK_OPTION && intEditorJSpinner.getIntValue() != 0) {
+			snapStep = intEditorJSpinner.getIntValue();
+			snapToSteps(intEditorJSpinner.getIntValue());
+		}
+
+	}
+	private void snapToSteps(int step) {
+		int halfStep = step / 2;
+		List<UndoAction> undoActions = new ArrayList<>();
+		for (Integer key : skinboneMap.keySet()) {
+			SkinBone[] skinBones = skinboneMap.get(key);
+			List<GeosetVertex> vertices = skinboneVertMap.get(key);
+
+			Bone[] bones = new Bone[skinBones.length];
+			short[] weights = new short[skinBones.length];
+
+			weights[0] -= 1;  // This makes the weight distribute better for some reason
+			int weightDiff = 255;
+			for (int i = 0; i < skinBones.length; i++) {
+				bones[i] = skinBones[i].getBone();
+				weights[i] = (short)(((skinBones[i].getWeight() + halfStep) / step) * step);
+				weightDiff -= weights[i];
+			}
+
+			weights[0] += weightDiff % step;
+			weightDiff += weightDiff % step;
+			for (int i = 0; i < 4 && step <= weightDiff; i++) {
+				weights[i] += step;
+				weightDiff -= step;
+			}
+			for (int i = weights.length-1; 0 <= i && weightDiff <= -step; i--) {
+				if (weights[i] != 0) {
+					weights[i] -= step;
+					weightDiff += step;
+				}
+			}
+
+			fixWeights(bones, weights);
+
+			undoActions.add(new SetHdSkinAction(vertices, bones, weights));
+		}
+		if (!undoActions.isEmpty()) {
+			modelHandler.getUndoManager().pushAction(new CompoundAction("Snap Weights (step:" + step + ")", undoActions, changeListener::nodesUpdated).redo());
+
+			updateSkinSubPanel();
+		}
+	}
+
+	private void setNoInfluenceToNull(Bone[] bones, short[] weights) {
+		for (int i = 0; i < 4; i++) {
+			if (weights[i] == 0 && bones[i] != null) {
+				bones[i] = null;
+			}
+		}
+	}
+
+	private void mergeIfSameBone(Bone[] bones, short[] weights) {
+		for (int boneIndex = 0; boneIndex < bones.length; boneIndex++) {
+			Bone boneToCheck = bones[boneIndex];
+			for (int i = boneIndex + 1; i < bones.length; i++) {
+				if (bones[i] != null && bones[i] == boneToCheck) {
+					weights[boneIndex] += weights[i];
+					weights[i] = 0;
+					bones[i] = null;
+				}
+			}
+		}
+	}
+
+	private void sortByWeight(Bone[] bones, short[] weights) {
+		for (int i = 0; i < bones.length; i++) {
+			for (int j = i + 1; j < bones.length; j++) {
+				if (weights[i] < weights[j]) {
+					short tempWeight = weights[i];
+					Bone tempBone = bones[i];
+
+					weights[i] = weights[j];
+					bones[i] = bones[j];
+
+					weights[j] = tempWeight;
+					bones[j] = tempBone;
+				}
+			}
+		}
+	}
+	private boolean isChangeMade(SkinBone[] skinBones, Bone[] bones, short[] weights) {
+		for (int i = 0; i < skinBones.length; i++) {
+			if (bones[i] != skinBones[i].getBone() || weights[i] != skinBones[i].getWeight()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void fixWeights(Bone[] bones, short[] weights) {
+		int totWeight = 0;
+		for (short weight : weights) {
+			totWeight += weight;
+		}
+
+		if (totWeight != 255) {
+			int notNullBones = (int) Arrays.stream(bones).filter(Objects::nonNull).count();
+			int extraWeight = totWeight - 255;
+
+			for (int i = bones.length - 1; 0 <= i && extraWeight != 0; i--) {
+				if (weights[i] != 0 && bones[i] != null) {
+					short tempWeight = (short) MathUtils.clamp(weights[i] - extraWeight / (i + 1), 0, 255);
+					extraWeight -= weights[i] - tempWeight;
+					weights[i] = tempWeight;
+				}
+			}
+			if (extraWeight != 0) {
+				for (int i = 0; i < notNullBones && extraWeight != 0; i++) {
+					short tempWeight = (short) MathUtils.clamp(weights[i] - extraWeight, 0, 255);
+					extraWeight -= weights[i] - tempWeight;
+					weights[i] = tempWeight;
+				}
+			}
+		}
+	}
 
 	public static void showPanel(JComponent parent, ModelHandler modelHandler) {
 		SkinningOptionPanel skinningOptionPanel = new SkinningOptionPanel(modelHandler);
 		skinningOptionPanel.setPreferredSize(new Dimension(800, 650));
 		skinningOptionPanel.revalidate();
-//		FramePopup.show(skinningOptionPanel, ProgramGlobals.getMainPanel(), "Edit Textures");
 		FramePopup.show(skinningOptionPanel, parent, "Edit Skinning");
+	}
+
+	// For experimenting with snapping
+	public static void main(String[] args) {
+		int step = 4;
+		snap(step, 242, 7, 6, 0);
+		snap(step, 244, 7, 4, 0);
+		snap(step, 148, 63, 44, 0);
+		snap(step, 228, 18, 9, 0);
+		snap(step, 107, 82, 66, 0);
+	}
+	private static void snap(float step, int... skinBones) {
+		float halfStep = (step+.5f)/2f;
+		int[] weights = new int[4];
+
+
+		StringBuilder sb = new StringBuilder("(step:").append(step).append(") \n");
+		sb.append("\t[");
+		for (int weight : skinBones) {
+			sb.append(StringPadder.padStringStart(weight + "", " ", 3));
+		}
+		sb.append("]\n");
+
+		skinBones[0] -= 1;
+		for (int i = 0; i < 4; i++) {
+			weights[i] = (int)(((int)((skinBones[i] + halfStep) / step)) * step);
+		}
+
+		int weightDiff = 255;
+		for (int weight : weights) {
+			weightDiff -= weight;
+		}
+		float stepDiff = weightDiff % step;
+
+		weights[0] += stepDiff;
+		weightDiff += stepDiff;
+		for (int i = 0; i < 4 && step<=weightDiff; i++) {
+			weights[i] += step;
+			weightDiff -= step;
+		}
+		for (int i = weights.length-1; 0 <= i && weightDiff <= -step; i--) {
+			if (weights[i] != 0) {
+				weights[i] -= step;
+				weightDiff += step;
+			}
+		}
+
+		fixWeights2(weights);
+
+		sb.append("\t[");
+		for (int weight : weights) {
+			sb.append(StringPadder.padStringStart(weight + "", " ", 3));
+		}
+		sb.append("]");
+		System.out.println(sb);
+	}
+	private static void fixWeights2(int[] weights) {
+		int totWeight = 0;
+		for (int weight : weights) {
+			totWeight += weight;
+		}
+
+		if (totWeight != 255) {
+			int extraWeight = totWeight - 255;
+
+			for (int i = 4 - 1; 0 <= i && extraWeight != 0; i--) {
+				if (weights[i] != 0) {
+					short tempWeight = (short) MathUtils.clamp(weights[i] - extraWeight / (i + 1), 0, 255);
+					extraWeight -= weights[i] - tempWeight;
+					weights[i] = tempWeight;
+				}
+			}
+			if (extraWeight != 0) {
+				for (int i = 0; i < 4 && extraWeight != 0; i++) {
+					short tempWeight = (short) MathUtils.clamp(weights[i] - extraWeight, 0, 255);
+					extraWeight -= weights[i] - tempWeight;
+					weights[i] = tempWeight;
+				}
+			}
+		}
 	}
 }
