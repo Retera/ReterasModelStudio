@@ -44,7 +44,7 @@ public final class RotatorWidget extends Widget {
 	}
 
 	public void render(Graphics2D graphics, Mat4 viewportMat, Mat4 invViewportMat, Component parent){
-		float aspect = parent.getWidth() / (float)parent.getHeight();
+		float aspect = parent.getWidth() / (float) parent.getHeight();
 		temp0.set(0, 0, 0).transform(invViewportMat, 1, true);
 
 		Vec3 tempX = tempPoint.set(1, 0, 0).transform(invViewportMat, 1, true).sub(temp0);
@@ -79,7 +79,7 @@ public final class RotatorWidget extends Widget {
 			graphics.setColor(getColor(zDim));
 			drawCircle(graphics, x, y);
 		}
-    }
+	}
 
 	public void drawCircle(Graphics2D graphics, double x, double y) {
 		graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2, ROTATOR_RADIUS * 2);

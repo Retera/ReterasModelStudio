@@ -113,14 +113,14 @@ public class AddBirthDeathSequences {
 	}
 
 	private List<IdObject> getTopLevelNodes() {
-        List<IdObject> topLevelNodes = new ArrayList<>();
-        for (IdObject obj : model.getIdObjects()) {
-            if (obj.getParent() == null) {
-                topLevelNodes.add(obj);
-            }
-        }
-        return topLevelNodes;
-    }
+		List<IdObject> topLevelNodes = new ArrayList<>();
+		for (IdObject obj : model.getIdObjects()) {
+			if (obj.getParent() == null) {
+				topLevelNodes.add(obj);
+			}
+		}
+		return topLevelNodes;
+	}
 
 	public Map<IdObject, Vec3AnimFlag> getTimelineMap(Collection<IdObject> selection) {
 		Map<IdObject, Vec3AnimFlag> timeLineMap = new HashMap<>();

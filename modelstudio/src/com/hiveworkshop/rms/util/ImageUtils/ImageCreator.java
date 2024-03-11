@@ -19,14 +19,14 @@ import java.util.ArrayList;
 public class ImageCreator {
 	private Image image;
 
-	public ImageCreator(int width, int height){
+	public ImageCreator(int width, int height) {
 		image = new BufferedImage(width, height, ColorSpace.CS_sRGB);
 	}
 
 	public static BufferedImage getBufferedImage(Material material, final DataSource workingDirectory) {
 //		System.out.println("getBufferedImage");
 		BufferedImage theImage = null;
-		if (Material.SHADER_HD_DEFAULT_UNIT.equals(material.getShaderString()) && (material.getLayers().size() > 0)) {
+		if (Material.SHADER_HD_DEFAULT_UNIT.equals(material.getShaderString()) && 0 < material.getLayers().size()) {
 			final Layer firstLayer = material.getLayer(0);
 			final Bitmap tex = firstLayer.firstTexture();
 			final String path = getRenderableTexturePath(tex);
@@ -40,35 +40,35 @@ public class ImageCreator {
 			}
 			return newImage;
 		} else {
-            for (final Layer lay : material.getLayers()) {
-                final Bitmap tex = lay.firstTexture();
-                final String path = getRenderableTexturePath(tex);
-                BufferedImage newImage;
-                try {
-//                    newImage = BLPHandler.get().getTexture(workingDirectory, path);
-                    newImage = BLPHandler.getImage(tex, workingDirectory);
-                } catch (final Exception exc) {
-                    // newImage = null;
-                    newImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
-                }
-                if (theImage == null) {
-                    theImage = newImage;
-                } else {
-                    if (newImage != null) {
-	                    if (tex != null) System.out.println(tex.getName());
-	                    if (lay.getFilterMode() == FilterMode.MODULATE) {
-		                    System.out.println("modulate!");
-		                    theImage = modulate(theImage, newImage);
-	                    } else if (lay.getFilterMode() == FilterMode.MODULATE2X) {
-		                    theImage = modulateX2(theImage, newImage);
-	                    } else if (lay.getFilterMode() == FilterMode.ADDITIVE) {
-		                    theImage = additative(theImage, newImage);
-	                    } else {
-		                    theImage = mergeImage(theImage, newImage);
-	                    }
-                    }
-                }
-            }
+			for (final Layer lay : material.getLayers()) {
+				final Bitmap tex = lay.firstTexture();
+				final String path = getRenderableTexturePath(tex);
+				BufferedImage newImage;
+				try {
+					// newImage = BLPHandler.get().getTexture(workingDirectory, path);
+					newImage = BLPHandler.getImage(tex, workingDirectory);
+				} catch (final Exception exc) {
+					// newImage = null;
+					newImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+				}
+				if (theImage == null) {
+					theImage = newImage;
+				} else {
+					if (newImage != null) {
+						if (tex != null) System.out.println(tex.getName());
+						if (lay.getFilterMode() == FilterMode.MODULATE) {
+							System.out.println("modulate!");
+							theImage = modulate(theImage, newImage);
+						} else if (lay.getFilterMode() == FilterMode.MODULATE2X) {
+							theImage = modulateX2(theImage, newImage);
+						} else if (lay.getFilterMode() == FilterMode.ADDITIVE) {
+							theImage = additative(theImage, newImage);
+						} else {
+							theImage = mergeImage(theImage, newImage);
+						}
+					}
+				}
+			}
 		}
 
 		return theImage;
@@ -90,16 +90,16 @@ public class ImageCreator {
 		int srcAlphaBand = pixelDataSrc.length == 4 ? 3 : -1;
 		int clipAlphaBand = pixelDataClip.length == 4 ? 3 : -1;
 
-		for(int h = 0; h< height; h++){
-			for(int w = 0; w< width; w++){
+		for (int h = 0; h < height; h++) {
+			for (int w = 0; w < width; w++) {
 //				rasterSrc.getPixel(w, h, pixelDataSrc);
 				rasterSrc.getPixel(w, h, pixelData);
 				rasterClip.getPixel(w, h, pixelDataClip);
 
 				float addAlpha = 1;
 
-//				pixelData[3] = 255f - Math.min(1f, ((255-pixelDataSrc[3])/255f) * ((addAlpha)))*255f;
-				pixelData[3] = pixelData[3]*pixelDataClip[3]/255f;
+//				pixelData[3] = 255f - Math.min(1f, ((255 - pixelDataSrc[3]) / 255f) * addAlpha) * 255f;
+				pixelData[3] = pixelData[3] * pixelDataClip[3] / 255f;
 				combinedRaster.setPixel(w, h, pixelData);
 			}
 		}
@@ -133,7 +133,7 @@ public class ImageCreator {
 		return combined;
 	}
 
-	private void ugg(BufferedImage in, BufferedImage in2){
+	private void ugg(BufferedImage in, BufferedImage in2) {
 		Graphics graphics = image.getGraphics();
 		ImageFilter imageFilter = new ImageFilter();
 		ImageProducer imageProducer = new ImageProducer() {
@@ -208,13 +208,13 @@ public class ImageCreator {
 	}
 
 
-	public static BufferedImage ugg(WritableRaster raster1, WritableRaster raster2){
-		if(raster1.getHeight() == raster2.getHeight() && raster1.getWidth() == raster2.getWidth()){
+	public static BufferedImage ugg(WritableRaster raster1, WritableRaster raster2) {
+		if (raster1.getHeight() == raster2.getHeight() && raster1.getWidth() == raster2.getWidth()) {
 			BufferedImage combined = new BufferedImage(raster1.getWidth(), raster1.getHeight(), BufferedImage.TYPE_INT_ARGB);
 			WritableRaster combinedRaster = combined.getRaster();
 
-			for(int h = 0; h<raster1.getHeight(); h++){
-				for(int w = 0; w<raster1.getWidth(); w++){
+			for (int h = 0; h < raster1.getHeight(); h++) {
+				for (int w = 0; w < raster1.getWidth(); w++) {
 					float[] pixelData1 = new float[raster1.getNumBands()];
 					float[] pixelData2 = new float[raster2.getNumBands()];
 					raster1.getPixel(w, h, pixelData1);
@@ -222,8 +222,8 @@ public class ImageCreator {
 
 					int min = Math.min(pixelData1.length, pixelData2.length);
 					float[] pixelData = new float[min];
-					for(int pd = 0; pd< min; pd++){
-						pixelData[pd] = pixelData1[pd]*pixelData2[pd];
+					for (int pd = 0; pd < min; pd++) {
+						pixelData[pd] = pixelData1[pd] * pixelData2[pd];
 					}
 					combinedRaster.setPixel(w, h, pixelData);
 				}
@@ -235,7 +235,7 @@ public class ImageCreator {
 	}
 
 	public static BufferedImage getScaledImage(BufferedImage source, int w, int h) {
-		if(source.getWidth() != w || source.getHeight() != h){
+		if (source.getWidth() != w || source.getHeight() != h) {
 			System.out.println("scaling Image");
 			BufferedImage scaled = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 
@@ -248,7 +248,7 @@ public class ImageCreator {
 	}
 
 
-	public static BufferedImage modulate(BufferedImage image1, BufferedImage image2){
+	public static BufferedImage modulate(BufferedImage image1, BufferedImage image2) {
 		int height = Math.max(image1.getHeight(), image2.getHeight());
 		int width = Math.max(image1.getWidth(), image2.getWidth());
 		Raster raster1 = getScaledImage(image1, width, height).getData();
@@ -257,8 +257,8 @@ public class ImageCreator {
 		BufferedImage combined = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		WritableRaster combinedRaster = combined.getRaster();
 
-		for(int h = 0; h< height; h++){
-			for(int w = 0; w< width; w++){
+		for (int h = 0; h < height; h++) {
+			for (int w = 0; w < width; w++) {
 				float[] pixelData1 = new float[raster1.getNumBands()];
 				float[] pixelData2 = new float[raster2.getNumBands()];
 				raster1.getPixel(w, h, pixelData1);
@@ -267,14 +267,14 @@ public class ImageCreator {
 				int min = Math.min(pixelData1.length, pixelData2.length);
 				float[] pixelData = new float[min];
 				float addAlpha = 1;
-				for(int pd = 0; pd< min; pd++){
-					pixelData[pd] = Math.min(1f, (pixelData1[pd]/255f)*(pixelData2[pd]/255f))*255f;
-					addAlpha *= (pixelData2[pd]/255f);
+				for (int pd = 0; pd < min; pd++) {
+					pixelData[pd] = Math.min(1f, (pixelData1[pd] / 255f) * (pixelData2[pd] / 255f)) * 255f;
+					addAlpha *= (pixelData2[pd] / 255f);
 				}
 //				pixelData[3] = Math.min(255, pixelData1[3] - addAlpha);
 //				pixelData[3] = Math.min(255, pixelData1[3] * (addAlpha));
 //				System.out.println("pixelData1: " + Arrays.toString(pixelData1) + ", addAlpha: " + addAlpha);
-				pixelData[3] = 255f - Math.min(1f, ((255-pixelData1[3])/255f) * ((addAlpha)))*255f;
+				pixelData[3] = 255f - Math.min(1f, ((255 - pixelData1[3]) / 255f) * addAlpha) * 255f;
 //				System.out.println("pixD: " + Arrays.toString(pixelData));
 				combinedRaster.setPixel(w, h, pixelData);
 			}
@@ -282,7 +282,7 @@ public class ImageCreator {
 		combined.setData(combinedRaster);
 		return combined;
 	}
-	public static BufferedImage modulateX2(BufferedImage image1, BufferedImage image2){
+	public static BufferedImage modulateX2(BufferedImage image1, BufferedImage image2) {
 		int height = Math.max(image1.getHeight(), image2.getHeight());
 		int width = Math.max(image1.getWidth(), image2.getWidth());
 		Raster raster1 = getScaledImage(image1, width, height).getData();
@@ -291,8 +291,8 @@ public class ImageCreator {
 		BufferedImage combined = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		WritableRaster combinedRaster = combined.getRaster();
 
-		for(int h = 0; h< height; h++){
-			for(int w = 0; w< width; w++){
+		for (int h = 0; h < height; h++) {
+			for (int w = 0; w < width; w++) {
 				float[] pixelData1 = new float[raster1.getNumBands()];
 				float[] pixelData2 = new float[raster2.getNumBands()];
 				raster1.getPixel(w, h, pixelData1);
@@ -301,20 +301,20 @@ public class ImageCreator {
 				int min = Math.min(pixelData1.length, pixelData2.length);
 				float[] pixelData = new float[min];
 				float addAlpha = 1;
-				for(int pd = 0; pd< min; pd++){
-					pixelData[pd] = Math.min(1f, (pixelData1[pd]/255f)*(2*pixelData2[pd]/255f))*255f;
-					addAlpha *= (2*pixelData2[pd]/255f);
+				for (int pd = 0; pd < min; pd++) {
+					pixelData[pd] = Math.min(1f, (pixelData1[pd] / 255f) * (2 * pixelData2[pd] / 255f)) * 255f;
+					addAlpha *= (2 * pixelData2[pd] / 255f);
 				}
 //				pixelData[3] = Math.min(255, pixelData1[3] - addAlpha);
 //				pixelData[3] = Math.min(255, pixelData1[3] * (addAlpha));
-				pixelData[3] = 255f - Math.min(1f, ((255-pixelData1[3])/255f) * ((addAlpha)))*255f;
+				pixelData[3] = 255f - Math.min(1f, ((255 - pixelData1[3]) / 255f) * addAlpha) * 255f;
 				combinedRaster.setPixel(w, h, pixelData);
 			}
 		}
 		combined.setData(combinedRaster);
 		return combined;
 	}
-	public static BufferedImage additative(BufferedImage image1, BufferedImage image2){
+	public static BufferedImage additative(BufferedImage image1, BufferedImage image2) {
 		int height = Math.max(image1.getHeight(), image2.getHeight());
 		int width = Math.max(image1.getWidth(), image2.getWidth());
 		Raster raster1 = getScaledImage(image1, width, height).getData();
@@ -323,8 +323,8 @@ public class ImageCreator {
 		BufferedImage combined = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		WritableRaster combinedRaster = combined.getRaster();
 
-		for(int h = 0; h< height; h++){
-			for(int w = 0; w< width; w++){
+		for (int h = 0; h < height; h++) {
+			for (int w = 0; w < width; w++) {
 				float[] pixelData1 = new float[raster1.getNumBands()];
 				float[] pixelData2 = new float[raster2.getNumBands()];
 				raster1.getPixel(w, h, pixelData1);
@@ -333,7 +333,7 @@ public class ImageCreator {
 				int min = Math.min(pixelData1.length, pixelData2.length);
 				float[] pixelData = new float[min];
 				float addAlpha = 0;
-				for(int pd = 0; pd< min-1; pd++){
+				for (int pd = 0; pd < min - 1; pd++) {
 					pixelData[pd] = Math.min(255, pixelData1[pd] + pixelData2[pd]);
 					addAlpha += pixelData2[pd];
 				}
@@ -364,7 +364,7 @@ public class ImageCreator {
 		}
 		if (tex.getPath().length() == 0) {
 			String tcString = ("" + (100 + ProgramGlobals.getPrefs().getTeamColor())).substring(1);
-			return switch (tex.getReplaceableId()){
+			return switch (tex.getReplaceableId()) {
 				case 0 -> "";
 				case 1 -> "ReplaceableTextures\\TeamColor\\TeamColor" + tcString + ".blp";
 				case 2 -> "ReplaceableTextures\\TeamGlow\\TeamGlow" + tcString + ".blp";
@@ -380,7 +380,7 @@ public class ImageCreator {
 	private static String getReplaceableTexturePath(Bitmap bitmap) {
 		String tcString = ("" + (100 + ProgramGlobals.getPrefs().getTeamColor())).substring(1);
 //		System.out.println("replID: " + bitmap.getReplaceableId());
-		return switch (bitmap.getReplaceableId()){
+		return switch (bitmap.getReplaceableId()) {
 			case 0 -> "";
 			case 1 -> "ReplaceableTextures\\TeamColor\\TeamColor" + tcString + ".blp";
 			case 2 -> "ReplaceableTextures\\TeamGlow\\TeamGlow" + tcString + ".blp";
@@ -475,7 +475,7 @@ public class ImageCreator {
 
 			for (int i = 0; i < width; i++) {
 				for (int j = 0; j < height; j++) {
-					newImage.setRGB(i, j, image.getRGB(i+xOff, j+yOff));
+					newImage.setRGB(i, j, image.getRGB(i + xOff, j + yOff));
 				}
 			}
 
@@ -521,8 +521,8 @@ public class ImageCreator {
 				int yi = i / rows;
 				int x1 = xi * width + 2;
 				int y1 = yi * height + 2;
-				int x2 = (xi + 1) * width-1;
-				int y2 = (yi + 1) * height-1;
+				int x2 = (xi + 1) * width - 1;
+				int y2 = (yi + 1) * height - 1;
 				graphics.drawLine(x1, y1, x2, y1);
 				graphics.drawLine(x1, y2, x2, y2);
 				graphics.drawLine(x1, y1, x1, y2);

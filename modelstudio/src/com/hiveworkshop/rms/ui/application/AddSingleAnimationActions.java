@@ -116,18 +116,18 @@ public class AddSingleAnimationActions {
 		List<Integer> animNumber = new ArrayList<>();
 		List<Integer> lengths = new ArrayList<>();
 		List<String> animationNames = new ArrayList<>();
-        for (Animation a : currAnim) {
-	        animNumber.add(animNumber.size());
-	        lengths.add(a.getLength());
-	        animationNames.add(a.getName());
-        }
+		for (Animation a : currAnim) {
+			animNumber.add(animNumber.size());
+			lengths.add(a.getLength());
+			animationNames.add(a.getName());
+		}
 
-        DefaultTableModel animationTableModel = new DefaultTableModel();
+		DefaultTableModel animationTableModel = new DefaultTableModel();
 		animationTableModel.addColumn("", animNumber.toArray());
 		animationTableModel.addColumn("name", animationNames.toArray());
 		animationTableModel.addColumn("length", lengths.toArray());
 
-        existingAnimationTable.setModel(animationTableModel);
+		existingAnimationTable.setModel(animationTableModel);
 
 		int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), creationPanel, "Create Empty Animation", JOptionPane.OK_CANCEL_OPTION);
 

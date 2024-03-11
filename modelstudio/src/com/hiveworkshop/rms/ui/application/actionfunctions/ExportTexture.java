@@ -45,7 +45,7 @@ public class ExportTexture extends ActionFunction {
 		}
 	}
 
-    //ToDo figure out why these throw errors sometimes (might have to do with non-existing texture files)
+	//ToDo figure out why these throw errors sometimes (might have to do with non-existing texture files)
 
 	private static JPanel getExportMaterialPanel(EditableModel model) {
 		TwiList<Material> materials = new TwiList<>();
@@ -80,13 +80,13 @@ public class ExportTexture extends ActionFunction {
 
 	private static void exportChosenMaterial(EditableModel model, Material material, FileDialog fileDialog) {
 		if (material != null) {
-	        BufferedImage bufferedImage = ImageCreator.getBufferedImage(material, model.getWrappedDataSource());
-	        String name = material.getName().replaceAll("[^\\w\\[\\]()#\\. ]", "").replaceAll(" +", "_");
-            System.out.println("ExportTexture, material name: " + name);
+			BufferedImage bufferedImage = ImageCreator.getBufferedImage(material, model.getWrappedDataSource());
+			String name = material.getName().replaceAll("[^\\w\\[\\]()#\\. ]", "").replaceAll(" +", "_");
+			System.out.println("ExportTexture, material name: " + name);
 
-            onClickSaveAs(bufferedImage, name, FileDialog.SAVE_TEXTURE, fileDialog, ProgramGlobals.getMainPanel());
-        }
-    }
+			onClickSaveAs(bufferedImage, name, FileDialog.SAVE_TEXTURE, fileDialog, ProgramGlobals.getMainPanel());
+		}
+	}
 
 	private static void showDialog(JComponent panel, String title) {
 		JOptionPane.showOptionDialog(
@@ -116,14 +116,14 @@ public class ExportTexture extends ActionFunction {
 
 	private static void exportChosenTexture(EditableModel model, Bitmap selectedValue, FileDialog fileDialog) {
 		if (selectedValue != null) {
-            BufferedImage texture = BLPHandler.getImage(selectedValue, model.getWrappedDataSource());
+			BufferedImage texture = BLPHandler.getImage(selectedValue, model.getWrappedDataSource());
 
-            String name = selectedValue.getName().replaceAll("[^\\w\\[\\]()#\\. ]", "").replaceAll(" +", "_");
-	        System.out.println("ExportTexture, texture name: " + name);
-//
-	        onClickSaveAs(texture, name, FileDialog.SAVE_TEXTURE, fileDialog, ProgramGlobals.getMainPanel());
-        }
-    }
+			String name = selectedValue.getName().replaceAll("[^\\w\\[\\]()#\\. ]", "").replaceAll(" +", "_");
+			System.out.println("ExportTexture, texture name: " + name);
+
+			onClickSaveAs(texture, name, FileDialog.SAVE_TEXTURE, fileDialog, ProgramGlobals.getMainPanel());
+		}
+	}
 
 	public static boolean onClickSaveAs(BufferedImage bufferedImage, String suggestedName, int operationType, Component parent) {
 		return onClickSaveAs(bufferedImage, suggestedName, operationType, new FileDialog(parent), parent);

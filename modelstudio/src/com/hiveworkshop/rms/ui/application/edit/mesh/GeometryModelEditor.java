@@ -37,37 +37,39 @@ public class GeometryModelEditor extends ModelEditor {
 		return new StaticMeshShrinkFattenAction(modelView, amount, scaleApart);
 	}
 
-    @Override
-    public UndoAction setPosition(Vec3 center, Vec3 v) {
-        Vec3 delta = Vec3.getDiff(v, center);
-	    return new StaticMeshMoveAction(modelView, delta, new Mat4());
-    }
+	@Override
+	public UndoAction setPosition(Vec3 center, Vec3 v) {
+		Vec3 delta = Vec3.getDiff(v, center);
+		return new StaticMeshMoveAction(modelView, delta, new Mat4());
+	}
 
-    @Override
-    public UndoAction rotate(Vec3 center, Vec3 rotate, Mat4 rotMat) {
-	    return new CompoundAction("rotate", null,
-			    new StaticMeshRotateAction(modelView, center, Vec3.X_AXIS, Math.toRadians(rotate.x)),
-			    new StaticMeshRotateAction(modelView, center, Vec3.NEGATIVE_Y_AXIS, Math.toRadians(rotate.y)),
-			    new StaticMeshRotateAction(modelView, center, Vec3.NEGATIVE_Z_AXIS, Math.toRadians(rotate.z)));
-    }
+	@Override
+	public UndoAction rotate(Vec3 center, Vec3 rotate, Mat4 rotMat) {
+		return new CompoundAction("rotate", null,
+				new StaticMeshRotateAction(modelView, center, Vec3.X_AXIS, Math.toRadians(rotate.x)),
+				new StaticMeshRotateAction(modelView, center, Vec3.NEGATIVE_Y_AXIS, Math.toRadians(rotate.y)),
+				new StaticMeshRotateAction(modelView, center, Vec3.NEGATIVE_Z_AXIS, Math.toRadians(rotate.z)));
+	}
 
-    @Override
-    public boolean editorWantsAnimation() {
-        return false;
-    }
+	@Override
+	public boolean editorWantsAnimation() {
+		return false;
+	}
 
-    @Override
-    public AbstractTransformAction beginTranslation(Mat4 rotMat) {
-        return new StaticMeshMoveAction(modelView, Vec3.ZERO, rotMat);
-    }
-//    @Override
-    public AbstractTransformAction beginExtrude(Mat4 rotMat) {
-        return new StaticMeshMoveAction(modelView, Vec3.ZERO, "Extrude", new ExtrudeAction(modelView.getSelectedVertices(), changeListener), rotMat).doSetup();
-    }
-//    @Override
-    public AbstractTransformAction beginExtend(Mat4 rotMat) {
-        return new StaticMeshMoveAction(modelView, Vec3.ZERO, "Extend", new SplitTrisAndFillGap(modelView.getSelectedVertices(), changeListener), rotMat).doSetup();
-    }
+	@Override
+	public AbstractTransformAction beginTranslation(Mat4 rotMat) {
+		return new StaticMeshMoveAction(modelView, Vec3.ZERO, rotMat);
+	}
+
+	@Override
+	public AbstractTransformAction beginExtrude(Mat4 rotMat) {
+		return new StaticMeshMoveAction(modelView, Vec3.ZERO, "Extrude", new ExtrudeAction(modelView.getSelectedVertices(), changeListener), rotMat).doSetup();
+	}
+
+	@Override
+	public AbstractTransformAction beginExtend(Mat4 rotMat) {
+		return new StaticMeshMoveAction(modelView, Vec3.ZERO, "Extend", new SplitTrisAndFillGap(modelView.getSelectedVertices(), changeListener), rotMat).doSetup();
+	}
 
 	@Override
 	public AbstractTransformAction beginRotation(Vec3 center, Vec3 axis, Mat4 rotMat) {

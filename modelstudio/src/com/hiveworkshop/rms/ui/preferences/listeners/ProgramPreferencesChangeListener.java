@@ -4,9 +4,9 @@ import com.hiveworkshop.rms.util.SubscriberSetNotifier;
 
 public class ProgramPreferencesChangeListener extends SubscriberSetNotifier<Runnable> {
 
-    public void runListeners() {
-        for (Runnable listener : listenerSet) {
-            listener.run();
-        }
-    }
+	public void runListeners() {
+		for (Runnable listener : listenerSet) {
+			listener.run();
+		}
+	}
 }

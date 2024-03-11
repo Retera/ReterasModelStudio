@@ -37,7 +37,7 @@ public final class ScalerWidget extends Widget {
 
 	}
 
-	public MoveDimension getDirectionByMouse(Vec2 mousePoint, Mat4 viewportMat, Component parent){
+	public MoveDimension getDirectionByMouse(Vec2 mousePoint, Mat4 viewportMat, Component parent) {
 		MoveDimension direction = MoveDimension.NONE;
 
 		Point mouseP = getMousePoint(mousePoint, parent);
@@ -66,7 +66,7 @@ public final class ScalerWidget extends Widget {
 	}
 
 	@Override
-	public void render(Graphics2D graphics, Mat4 viewportMat, Mat4 invViewportMat, Component parent){
+	public void render(Graphics2D graphics, Mat4 viewportMat, Mat4 invViewportMat, Component parent) {
 		float aspect = parent.getWidth() / (float)parent.getHeight();
 		temp0.set(0, 0, 0).transform(invViewportMat, 1, true);
 
@@ -93,26 +93,26 @@ public final class ScalerWidget extends Widget {
 			drawNorthLine(graphics, x, y);
 			drawDiagonalLineNorth(graphics, x, y, EXTERIOR_TRIANGLE_OFFSET);
 			drawDiagonalLineNorth(graphics, x, y, INTERIOR_TRIANGLE_OFFSET);
-		    switch (moveDirection) {
-			    case NONE -> {
-				    graphics.setColor(new Color(255, 255, 255, 70));
-				    GU.fillPolygonAt(graphics, x, y, triangle);
-			    }
-			    case XYZ -> {
-				    graphics.setColor(new Color(255, 255, 0, 70));
-				    GU.fillPolygonAt(graphics, x, y, triangle);
-				    graphics.setColor(new Color(255, 255, 0));
-				    GU.drawPolygonAt(graphics, x, y, triangle);
-			    }
-			    case XY, XZ, YZ -> {
-				    graphics.setColor(new Color(255, 255, 255, 70));
-				    GU.fillPolygonAt(graphics, x, y, romb);
-				    graphics.setColor(new Color(180, 255, 0));
-				    GU.drawPolygonAt(graphics, x, y, romb);
-			    }
-		    }
-	    }
-    }
+			switch (moveDirection) {
+				case NONE -> {
+					graphics.setColor(new Color(255, 255, 255, 70));
+					GU.fillPolygonAt(graphics, x, y, triangle);
+				}
+				case XYZ -> {
+					graphics.setColor(new Color(255, 255, 0, 70));
+					GU.fillPolygonAt(graphics, x, y, triangle);
+					graphics.setColor(new Color(255, 255, 0));
+					GU.drawPolygonAt(graphics, x, y, triangle);
+				}
+				case XY, XZ, YZ -> {
+					graphics.setColor(new Color(255, 255, 255, 70));
+					GU.fillPolygonAt(graphics, x, y, romb);
+					graphics.setColor(new Color(180, 255, 0));
+					GU.drawPolygonAt(graphics, x, y, romb);
+				}
+			}
+		}
+	}
 
 	public void drawDiagonalLineNorth(Graphics2D graphics, int x, int y, int triangleOffset) {
 		graphics.drawLine(x + triangleOffset / 2, y - triangleOffset / 2, x, y - triangleOffset);

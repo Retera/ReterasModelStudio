@@ -57,7 +57,7 @@ public class GeosetVertex extends Vec3 {
 		}
 	}
 
-	public GeosetVertex deepCopy(){
+	public GeosetVertex deepCopy() {
 		return new GeosetVertex(this);
 	}
 
@@ -82,7 +82,7 @@ public class GeosetVertex extends Vec3 {
 	}
 
 	public Vec2 getTVertex(int i) {
-		if(0 <= i && i <tverts.size()){
+		if (0 <= i && i < tverts.size()) {
 			return tverts.get(i);
 		}
 		return null;
@@ -108,10 +108,10 @@ public class GeosetVertex extends Vec3 {
 		matrix.addAll(b);
 	}
 
-	public boolean hasBones(){
-		if(skinBones != null){
-			for (SkinBone skinBone : skinBones){
-				if(skinBone != null && skinBone.getBone() != null){
+	public boolean hasBones() {
+		if (skinBones != null) {
+			for (SkinBone skinBone : skinBones) {
+				if (skinBone != null && skinBone.getBone() != null) {
 					return true;
 				}
 			}
@@ -126,10 +126,10 @@ public class GeosetVertex extends Vec3 {
 	}
 
 	public List<Bone> getAllBones() {
-		if(skinBones != null){
+		if (skinBones != null) {
 			List<Bone> bones = new ArrayList<>();
-			for (SkinBone skinBone : skinBones){
-				if(skinBone != null && skinBone.getBone() != null && skinBone.getWeight() != 0){
+			for (SkinBone skinBone : skinBones) {
+				if (skinBone != null && skinBone.getBone() != null && skinBone.getWeight() != 0) {
 					bones.add(skinBone.getBone());
 				}
 			}
@@ -153,11 +153,11 @@ public class GeosetVertex extends Vec3 {
 	}
 
 	public GeosetVertex replaceBones(Map<IdObject, IdObject> newBoneMap) {
-		if(skinBones != null){
-			for (SkinBone skinBone : skinBones){
-				if (skinBone != null && skinBone.getBone() != null){
+		if (skinBones != null) {
+			for (SkinBone skinBone : skinBones) {
+				if (skinBone != null && skinBone.getBone() != null) {
 					IdObject idObject = newBoneMap.get(skinBone.getBone());
-					if(idObject instanceof Bone){
+					if (idObject instanceof Bone) {
 						skinBone.setBone((Bone) idObject);
 					}
 				}
@@ -167,11 +167,11 @@ public class GeosetVertex extends Vec3 {
 		return this;
 	}
 	public GeosetVertex replaceBones(Map<IdObject, IdObject> newBoneMap, boolean removeIfNull) {
-		if(skinBones != null){
-			for (SkinBone skinBone : skinBones){
-				if (skinBone != null && skinBone.getBone() != null){
+		if (skinBones != null) {
+			for (SkinBone skinBone : skinBones) {
+				if (skinBone != null && skinBone.getBone() != null) {
 					IdObject idObject = newBoneMap.get(skinBone.getBone());
-					if(idObject instanceof Bone){
+					if (idObject instanceof Bone) {
 						skinBone.setBone((Bone) idObject);
 					}
 				}
@@ -266,7 +266,7 @@ public class GeosetVertex extends Vec3 {
 		}
 		Bone[] sb = new Bone[4];
 		for (int i = 0; i < skinBones.length; i++) {
-			if(skinBones[i] != null){
+			if (skinBones[i] != null) {
 				sb[i] = skinBones[i].getBone();
 			} else {
 				sb[i] = null;
@@ -359,7 +359,7 @@ public class GeosetVertex extends Vec3 {
 		}
 		short[] sw = new short[4];
 		for (int i = 0; i < skinBones.length; i++) {
-			if(skinBones[i] != null){
+			if (skinBones[i] != null) {
 				sw[i] = skinBones[i].getWeight();
 			} else {
 				sw[i] = 0;
@@ -382,7 +382,7 @@ public class GeosetVertex extends Vec3 {
 		}
 	}
 
-	public void normalizeBoneWeights(){
+	public void normalizeBoneWeights() {
 		float totWeight = 0;
 		for (int i = 0; i < 4; i++) {
 			if (this.skinBones[i] != null) {
@@ -403,13 +403,13 @@ public class GeosetVertex extends Vec3 {
 		}
 	}
 
-	public void initSkinBones(){
-		if(skinBones == null){
+	public void initSkinBones() {
+		if (skinBones == null) {
 			skinBones = new SkinBone[4];
 		}
 	}
 
-	public SkinBone[] removeSkinBones(){
+	public SkinBone[] removeSkinBones() {
 		SkinBone[] skinBones = this.skinBones;
 		this.skinBones = null;
 		return skinBones;
@@ -426,14 +426,14 @@ public class GeosetVertex extends Vec3 {
 	public void setTangent(Vec4 tangent) {
 		if (this.tangent == null) {
 			this.tangent = new Vec4(tangent);
-		} else if (tangent == null){
+		} else if (tangent == null) {
 			this.tangent = null;
 		} else {
 			this.tangent.set(tangent);
 		}
 	}
 
-	public void removeTangent(){
+	public void removeTangent() {
 		this.tangent = null;
 	}
 
@@ -442,7 +442,7 @@ public class GeosetVertex extends Vec3 {
 	}
 
 	public void setTangent(Vec3 tangent, float w) {
-		if(this.tangent == null){
+		if (this.tangent == null) {
 			this.tangent = new Vec4(tangent, w);
 		} else {
 			this.tangent.set(tangent, w);
