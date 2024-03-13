@@ -24,7 +24,7 @@ public class NodeMapHelper {
 	}
 
 
-	public void setLink(int depth, IdObject fromNode, IdObject toNode){
+	public void setLink(int depth, IdObject fromNode, IdObject toNode) {
 		nodeDepthMap.setLink(depth, fromNode, toNode);
 	}
 
@@ -44,14 +44,14 @@ public class NodeMapHelper {
 		return nodeDepthMap.getBoneChainMap(depth);
 	}
 
-	public boolean isNodeMapped(IdObject node){
+	public boolean isNodeMapped(IdObject node) {
 		return nodeDepthMap.getBoneChainMap().isEmpty() || !nodeDepthMap.getBoneChainMap().containsKey(node);
 	}
 
 	public void fillChainMap(int depth) {
-		for (int i = 0; i < depth; i++){
+		for (int i = 0; i < depth; i++) {
 			LinkedHashMap<IdObject, IdObject> chainMap = nodeDepthMap.getBoneChainMap(i);
-			if(chainMap != null){
+			if (chainMap != null) {
 				boneChainMap.putAll(chainMap);
 				System.out.println("added " + chainMap.size() + " mappings");
 			} else {
@@ -61,22 +61,22 @@ public class NodeMapHelper {
 		System.out.println(boneChainMap.size() + " mappings found!");
 	}
 
-	public Map<IdObject, IdObject> fillAndGetChainMap(int depth){
+	public Map<IdObject, IdObject> fillAndGetChainMap(int depth) {
 		System.out.println("FILL AND GET MAP!");
 		fillChainMap(depth);
 		System.out.println("MAP SIZE: " + boneChainMap.size());
 		return boneChainMap;
 	}
 
-	public Map<IdObject, Map<IdObject, List<IdObject>>> getMappingOptions(int depth){
+	public Map<IdObject, Map<IdObject, List<IdObject>>> getMappingOptions(int depth) {
 		Map<IdObject, Map<IdObject, List<IdObject>>> parentToChildOptions = new HashMap<>();
 
 		LinkedHashMap<IdObject, IdObject> chainMap = nodeDepthMap.getDepthMap(depth).getBoneChainMap();
-		for(IdObject idObject : chainMap.keySet()){
+		for (IdObject idObject : chainMap.keySet()) {
 			Map<IdObject, List<IdObject>> childOptionMap = parentToChildOptions.computeIfAbsent(idObject.getParent(), k -> new HashMap<>());
 			IdObject parentMapping = chainMap.get(idObject);
-			if(parentMapping != null) {
-				for(IdObject child : idObject.getChildrenNodes()){
+			if (parentMapping != null) {
+				for (IdObject child : idObject.getChildrenNodes()) {
 					childOptionMap.put(child, getValidNodesList(child, parentMapping.getChildrenNodes(), depth+1));
 				}
 			}
@@ -86,7 +86,7 @@ public class NodeMapHelper {
 	}
 
 	public void prefillMap(int currDepth, int depth, List<IdObject> mapFromNodes, List<IdObject> mapToNodes) {
-		if(currDepth == 0){
+		if (currDepth == 0) {
 //			List<IdObject> mapFromNodes = getAllTopLevelNodes(mapFromModel);
 //			List<IdObject> mapToNodes = getAllTopLevelNodes(mapToModel);
 			prefillCurrDepth(mapFromNodes, mapToNodes, currDepth);
@@ -95,10 +95,10 @@ public class NodeMapHelper {
 		while (currDepth<depth) {
 			Map<IdObject, IdObject> boneChainSubMap = nodeDepthMap.getBoneChainMap(currDepth);
 			currDepth++;
-			if (boneChainSubMap != null){
-				for(IdObject mapFromIdObject : boneChainSubMap.keySet()){
+			if (boneChainSubMap != null) {
+				for (IdObject mapFromIdObject : boneChainSubMap.keySet()) {
 					IdObject mapToIdObject = boneChainSubMap.get(mapFromIdObject);
-					if (mapToIdObject != null && isBones(mapFromIdObject, mapToIdObject)){
+					if (mapToIdObject != null && isBones(mapFromIdObject, mapToIdObject)) {
 						prefillCurrDepth(mapFromIdObject.getChildrenNodes(), mapToIdObject.getChildrenNodes(), currDepth);
 
 					}
@@ -142,9 +142,9 @@ public class NodeMapHelper {
 	public Map<IdObject, List<IdObject>> getCandidateListMap(List<IdObject> idObjectsForComboBox, List<IdObject> idObjectsForPanel, int currDepth) {
 		Map<IdObject, List<IdObject>> candidateListMap = new HashMap<>();
 
-		if(!idObjectsForComboBox.isEmpty()){
+		if (!idObjectsForComboBox.isEmpty()) {
 			for (IdObject idObjectForPanel : idObjectsForPanel) {
-				if(classSet == null || classSet.contains(idObjectForPanel.getClass())){
+				if (classSet == null || classSet.contains(idObjectForPanel.getClass())) {
 					candidateListMap.put(idObjectForPanel, getValidNodesList(idObjectForPanel, idObjectsForComboBox, currDepth));
 				}
 			}
@@ -164,14 +164,14 @@ public class NodeMapHelper {
 				.filter(idObject -> isValidCandidate(idObjectDest, idObject))
 				.forEach(validObjects::add);
 
-		if(checkHelperChilds){
-			validObjects.addAll(fetchSuitibleChildBones(idObjectDest, idObjectsForComboBox));
+		if (checkHelperChilds) {
+			validObjects.addAll(fetchSuitableChildBones2(idObjectDest, idObjectsForComboBox));
 		}
 
 
-		if(nodeDepthMap.hasMappedNode(currDepth, idObjectDest)){
+		if (nodeDepthMap.hasMappedNode(currDepth, idObjectDest)) {
 			IdObject mappedNode = nodeDepthMap.getMappedNode(currDepth, idObjectDest);
-			if(autoValidateChain && !validObjects.contains(mappedNode)){
+			if (autoValidateChain && !validObjects.contains(mappedNode)) {
 				nodeDepthMap.removeLink(currDepth, idObjectDest);
 			}
 		}
@@ -179,13 +179,30 @@ public class NodeMapHelper {
 		return validObjects;
 	}
 
-	private List<IdObject> fetchSuitibleChildBones(IdObject idObject, List<IdObject> nodesToCheck){
+//	private List<IdObject> fetchSuitibleChildBones(IdObject idObject, List<IdObject> nodesToCheck) {
+//		List<IdObject> nodes =  new ArrayList<>();
+//		if (idObject instanceof Bone || idObject instanceof  Helper) {
+//			for (IdObject node : nodesToCheck) {
+//				if (node instanceof Helper) {
+//					for (IdObject child : node.getChildrenNodes()) {
+//						if (child instanceof Bone) {
+//							nodes.add(child);
+//						}
+//					}
+//				}
+//			}
+//		}
+//
+//		return nodes;
+//	}
+
+	private List<IdObject> fetchSuitableChildBones2(IdObject idObject, List<IdObject> nodesToCheck) {
 		List<IdObject> nodes =  new ArrayList<>();
-		if(idObject instanceof Bone || idObject instanceof  Helper){
-			for (IdObject node : nodesToCheck){
-				if(node instanceof Helper){
-					for(IdObject child : node.getChildrenNodes()){
-						if(child instanceof Bone){
+		if (idObject instanceof Bone || idObject instanceof  Helper) {
+			for (IdObject node : nodesToCheck) {
+				if (node instanceof Helper || node instanceof Bone) {
+					for (IdObject child : node.getChildrenNodes()) {
+						if (classSet == null || classSet.contains(child.getClass())) {
 							nodes.add(child);
 						}
 					}
@@ -197,10 +214,10 @@ public class NodeMapHelper {
 	}
 
 	private boolean isValidCandidate(IdObject idObjectDest, IdObject idObject) {
-//		if(isGeometryMode){
+//		if (isGeometryMode) {
 //			return sameClass(idObjectDest, idObject);
 //		}
-		return isBones(idObject, idObjectDest) || sameClass(idObjectDest, idObject) || idObjectDest instanceof Helper && idObject instanceof Bone;
+		return isBones(idObject, idObjectDest) || sameClass(idObjectDest, idObject) || idObjectDest instanceof Helper && idObject instanceof Bone ||  idObjectDest instanceof Bone && idObject instanceof Helper;
 	}
 
 	private boolean sameClass(IdObject idObjectDest, IdObject idObject) {
@@ -216,7 +233,7 @@ public class NodeMapHelper {
 		int lastMatch = 20;
 		String matchName = objToMatch.getName();
 		for (IdObject idObject : validObjects) {
-			if(idObject != null){
+			if (idObject != null) {
 				String name = idObject.getName();
 				int comp = Math.abs(name.compareTo(matchName));
 				if (comp == 0
@@ -251,9 +268,9 @@ public class NodeMapHelper {
 		return name.startsWith(destName) || destName.startsWith(name);
 	}
 
-	private String replaceAllTypeStrings(String s){
+	private String replaceAllTypeStrings(String s) {
 		s = s.toLowerCase();
-		for(String stupid : typeStrings){
+		for (String stupid : typeStrings) {
 			s = s.replaceAll(stupid, "TEMP");
 		}
 //		s = s.replaceAll("TEMP", "").replaceAll("_", "");

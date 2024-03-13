@@ -409,8 +409,12 @@ public class SelectionManager extends AbstractSelectionManager {
 			Vec3 centerOfGroupSumHeap = new Vec3(0, 0, 0);
 			if (selectionMode != SelectionItemTypes.TPOSE && allowSelectVerts) {
 				for (GeosetVertex object : modelView.getSelectedVertices()) {
-					centerOfGroupSumHeap.add(editorRenderModel.getRenderGeoset(object.getGeoset()).getRenderVert(object).getRenderPos());
-					tot++;
+					RenderGeoset.RenderVert renderVert = editorRenderModel.getRenderGeoset(object.getGeoset()).getRenderVert(object);
+					if (renderVert != null) {
+						// ToDo this should probably be fixed in RenderModel
+						centerOfGroupSumHeap.add(renderVert.getRenderPos());
+						tot++;
+					}
 				}
 			}
 			for (IdObject object : modelView.getSelectedIdObjects()) {

@@ -19,7 +19,6 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ImportBoneChainAnimationPanel extends TwiImportPanel {
 
@@ -42,15 +41,15 @@ public class ImportBoneChainAnimationPanel extends TwiImportPanel {
 
 		BoneChainMapWizard boneChainMapWizard = new BoneChainMapWizard(this, donModel, recModel);
 		JButton mapBonesButton = new JButton("Map Bones!");
-		mapBonesButton.addActionListener(e -> mapBones(boneChainMapWizard, donBoneChooserButton.getChosenBone(), recBoneChooserButton.getChosenBone(), boneChainDepth));
+		mapBonesButton.addActionListener(e -> mapBones(boneChainMapWizard, donBoneChooserButton.getChosenIdObject(), recBoneChooserButton.getChosenIdObject(), boneChainDepth));
 		add(mapBonesButton, "wrap");
 
 		JButton importButton = new JButton("Import!");
-		importButton.addActionListener(e -> doImport(donBoneChooserButton.getChosenBone(), recBoneChooserButton.getChosenBone(), boneChainDepth));
+		importButton.addActionListener(e -> doImport(donBoneChooserButton.getChosenIdObject(), recBoneChooserButton.getChosenIdObject(), boneChainDepth));
 		add(importButton, "");
 	}
 
-	private void mapBones(BoneChainMapWizard boneChainMapWizard, Bone donBone, Bone recBone, int boneChainDepth){
+	private void mapBones(BoneChainMapWizard boneChainMapWizard, IdObject donBone, IdObject recBone, int boneChainDepth){
 		boneChainMapWizard.editMapping(donBone, recBone, boneChainDepth, false);
 		chainMap = boneChainMapWizard.getChainMap();
 	}
@@ -144,11 +143,11 @@ public class ImportBoneChainAnimationPanel extends TwiImportPanel {
 
 	private void tryAutoMatchStuff(String regexReplace, List<IdObject> recChilds, List<IdObject> donChilds) {
 		Map<IdObject, ArrayList<IdObject>> tempMap = new HashMap<>();
-		List<IdObject> recNotBoneChilds = recChilds.stream().filter(object -> !(object instanceof Bone)).collect(Collectors.toList());
-		List<IdObject> donNotBoneChilds = donChilds.stream().filter(object -> !(object instanceof Bone)).collect(Collectors.toList());
+		List<IdObject> recNotBoneChilds = recChilds.stream().filter(object -> !(object instanceof Bone)).toList();
+		List<IdObject> donNotBoneChilds = donChilds.stream().filter(object -> !(object instanceof Bone)).toList();
 
-		List<IdObject> donBoneChilds = donChilds.stream().filter(object -> object instanceof Bone).collect(Collectors.toList());
-		List<IdObject> recBoneChilds = recChilds.stream().filter(object -> object instanceof Bone).collect(Collectors.toList());
+		List<IdObject> donBoneChilds = donChilds.stream().filter(object -> object instanceof Bone).toList();
+		List<IdObject> recBoneChilds = recChilds.stream().filter(object -> object instanceof Bone).toList();
 		for (IdObject tempDonBone : donBoneChilds) {
 			List<IdObject> kindaMatchingList = tempMap.computeIfAbsent(tempDonBone, k -> new ArrayList<>() {});
 			List<IdObject> nameMatchingList = new ArrayList<>();
