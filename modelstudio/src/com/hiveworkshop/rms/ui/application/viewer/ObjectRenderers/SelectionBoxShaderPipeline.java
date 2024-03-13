@@ -1,6 +1,8 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.viewer.OtherUtils;
+import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
@@ -57,9 +59,12 @@ public class SelectionBoxShaderPipeline extends ShaderPipeline {
 
 
 //		color.set(1,0,0,1);
-		glUniform("u_color", color);
+		float[] colorHig = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.SELECT_BOX_COLOR);
+		glUniform("u_color", colorHig[0], colorHig[1], colorHig[2], colorHig[3]);
+//		glUniform("u_color", color);
 		glUniform("u_viewPos", Vec3.NEGATIVE_Z_AXIS);
-		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
+//		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
+		fillMatrixBuffer(pipelineMatrixBuffer, projectionMat);
 		GL20.glUniformMatrix4(getUniformLocation("u_projection"), false, pipelineMatrixBuffer);
 		fillMatrixBuffer(pipelineViewMatrixBuffer, viewMat);
 		GL20.glUniformMatrix4(getUniformLocation("u_view"), false, pipelineViewMatrixBuffer);
