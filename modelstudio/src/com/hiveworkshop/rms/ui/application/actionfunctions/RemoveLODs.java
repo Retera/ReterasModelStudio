@@ -7,42 +7,41 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.language.TextKey;
+import com.hiveworkshop.rms.util.uiFactories.CheckBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class RemoveLODs extends ActionFunction {
-	public RemoveLODs(){
+	public RemoveLODs() {
 		super(TextKey.REMOVE_LODS, RemoveLODs::removeLoDs);
 	}
 
-	public static void removeLoDs() {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null) {
+	public static void removeLoDs(ModelHandler modelHandler) {
+		if (modelHandler != null) {
 			JPanel panel = new JPanel(new MigLayout());
 			panel.add(new JLabel("Choose LoDs to remove"), "wrap");
-			EditableModel model = modelPanel.getModel();
+			EditableModel model = modelHandler.getModel();
 
 			TreeSet<Integer> lodSet = new TreeSet<>();
-			for(Geoset geoset : model.getGeosets()){
+			for (Geoset geoset : model.getGeosets()) {
 				lodSet.add(geoset.getLevelOfDetail());
 			}
 
 			TreeMap<Integer, Boolean> lodsToRemove = new TreeMap<>();
-			for(int lod : lodSet){
+			for (int lod : lodSet) {
 				lodsToRemove.put(lod, false);
-				JCheckBox lodBox = new JCheckBox("LoD " + lod);
-				lodBox.addActionListener(e -> lodsToRemove.put(lod, lodBox.isSelected()));
-				panel.add(lodBox, "wrap");
+				panel.add(CheckBox.create("LoD " + lod, b -> lodsToRemove.put(lod, b)), "wrap");
 			}
-
 
 			int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), panel, "Remove LoDs", JOptionPane.OK_CANCEL_OPTION);
 			if (option == JOptionPane.OK_OPTION) {
-				removeLoDGeoset(modelPanel.getModelHandler(), lodsToRemove);
+				removeLoDGeoset(modelHandler, lodsToRemove);
 			}
 		}
 		ProgramGlobals.getMainPanel().repaint();
@@ -50,24 +49,26 @@ public class RemoveLODs extends ActionFunction {
 
 	public static void removeLoDGeoset(ModelHandler modelHandler, Map<Integer, Boolean> lodsToRemove) {
 		EditableModel model = modelHandler.getModel();
-		List<Geoset> lodGeosToRemove = new ArrayList<>();
-		for (Geoset geo : model.getGeosets()) {
-			if (lodsToRemove.get(geo.getLevelOfDetail())){
-				lodGeosToRemove.add(geo);
-			}
-		}
-		if (model.getGeosets().size() > lodGeosToRemove.size()) {
-			StringBuilder lods = new StringBuilder("[");
-			for(Integer lod : lodsToRemove.keySet()){
-				if(lodsToRemove.get(lod)){
-					lods.append(lod).append(", ");
-				}
-			}
-			lods.delete(lods.length()-2, lods.length()).append("]");
+		List<Geoset> lodGeosToRemove = model.getGeosets().stream()
+				.filter(g -> lodsToRemove.get(g.getLevelOfDetail()))
+				.toList();
+
+		int nRem = lodGeosToRemove.size();
+		if (!lodGeosToRemove.isEmpty() && nRem < model.getGeosets().size()) {
 			DeleteGeosetAction deleteGeosetAction = new DeleteGeosetAction(model, lodGeosToRemove, ModelStructureChangeListener.changeListener);
-			CompoundAction deletActions = new CompoundAction("Delete LoD=" + lods + " geosets", deleteGeosetAction);
-			modelHandler.getUndoManager().pushAction(deletActions.redo());
+
+			String lods = getLodsString(lodsToRemove);
+			String name = nRem == 1 ? deleteGeosetAction.actionName() + " (Lod=" + lods + ")" : "Delete " + nRem + " Geosets (LoD=[" + lods + "])";
+			modelHandler.getUndoManager().pushAction(new CompoundAction(name, deleteGeosetAction).redo());
 		}
+	}
+
+	private static String getLodsString(Map<Integer, Boolean> lodsToRemove) {
+		String[] lods = lodsToRemove.entrySet().stream()
+				.filter(Map.Entry::getValue)
+				.map(e -> e.getKey().toString())
+				.toArray(String[]::new);
+		return String.join(", ", lods);
 	}
 
 }
