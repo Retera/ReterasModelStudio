@@ -18,7 +18,7 @@ public class SetBlendTimeAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
+	public SetBlendTimeAction undo() {
 		model.setBlendTime(prevBlendTime);
 		if (changeListener != null) {
 			changeListener.headerChanged();
@@ -27,7 +27,7 @@ public class SetBlendTimeAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public SetBlendTimeAction redo() {
 		model.setBlendTime(newBlendTime);
 		if (changeListener != null) {
 			changeListener.headerChanged();
@@ -37,7 +37,7 @@ public class SetBlendTimeAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set BlendTime to " + newBlendTime;
+		return "Set BlendTime To " + newBlendTime;
 	}
 
 }

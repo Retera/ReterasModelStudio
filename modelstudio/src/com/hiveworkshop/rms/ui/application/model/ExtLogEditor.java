@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.ExtLog;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatEditorJSpinner;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec3SpinnerArray;
+import com.hiveworkshop.rms.util.uiFactories.CheckBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -25,23 +26,24 @@ public class ExtLogEditor extends JPanel {
 	private Vec3 maxExt;
 	private double boundsRadValue;
 
+	private boolean hasMinimumExtent = true;
+	private boolean hasMaximumExtent = true;
+	private boolean hasBoundsRadius = true;
+
 	Consumer<ExtLog> extLogConsumer;
 
 	public ExtLogEditor() {
 		super(new MigLayout("fill"));
 
 		minimumExtentV = new Vec3SpinnerArray().setVec3Consumer(this::setMinExtValue);
-		minimumExtentBox = new JCheckBox("Minimum Extent");
-		minimumExtentBox.addActionListener(e -> setMinExtValue(minimumExtentBox.isSelected() ? minimumExtentV.getValue() : null));
+		minimumExtentBox = CheckBox.create("Minimum Extent", this::setHasMinExtValue);
 
 		maximumExtentV = new Vec3SpinnerArray().setVec3Consumer(this::setMaxExtValue);
-		maximumExtentBox = new JCheckBox("Maximum Extent");
-		maximumExtentBox.addActionListener(e -> setMaxExtValue(maximumExtentBox.isSelected() ? maximumExtentV.getValue() : null));
+		maximumExtentBox = CheckBox.create("Maximum Extent", this::setHasMaxExtValue);
 
-		boundsRadius = new FloatEditorJSpinner(0.0f, (float) Integer.MIN_VALUE, this::setBoundsRadius);
+		boundsRadius = new FloatEditorJSpinner(0.0f, (float) Integer.MIN_VALUE, (float) Integer.MAX_VALUE, this::setBoundsRadius);
 		boundsRadius.setMaximumSize(MAXIMUM_SIZE);
-		boundsRadiusBox = new JCheckBox("Bounds Radius");
-		boundsRadiusBox.addActionListener(e -> setBoundsRadius(boundsRadiusBox.isSelected() ? (float) ExtLog.NO_BOUNDS_RADIUS : boundsRadius.getFloatValue()));
+		boundsRadiusBox = CheckBox.create("Bounds Radius", this::setHasBoundsRadius);
 
 		minSpinnerPanel = minimumExtentV.spinnerPanel();
 		maxSpinnerPanel = maximumExtentV.spinnerPanel();
@@ -54,72 +56,94 @@ public class ExtLogEditor extends JPanel {
 		add(boundsRadius, "wrap");
 	}
 
-	private void setMinExtValue(Vec3 vec3Value){
-		if(!minExt.equalLocs(vec3Value)){
+	private void setMinExtValue(Vec3 vec3Value) {
+		if (!minExt.equalLocs(vec3Value)) {
 			minExt = vec3Value;
 			minimumExtentV.setEnabled(minExt != null);
 			runExtLogConsumer();
 		}
 	}
-	private void setMaxExtValue(Vec3 vec3Value){
-		if(!maxExt.equalLocs(vec3Value)){
+	private void setHasMinExtValue(boolean has) {
+		if (hasMinimumExtent != has) {
+			minimumExtentV.setEnabled(has);
+			runExtLogConsumer();
+		}
+	}
+
+	private void setMaxExtValue(Vec3 vec3Value) {
+		if (!maxExt.equalLocs(vec3Value)) {
 			maxExt = vec3Value;
 			maximumExtentV.setEnabled(maxExt != null);
 			runExtLogConsumer();
 		}
 	}
+	private void setHasMaxExtValue(boolean has) {
+		if (hasMaximumExtent != has) {
+			maximumExtentV.setEnabled(has);
+			runExtLogConsumer();
+		}
+	}
 
-	private void setBoundsRadius(float value){
-		if(boundsRadValue != value) {
+	private void setBoundsRadius(float value) {
+		if (boundsRadValue != value) {
 			boundsRadValue = value;
 			boundsRadius.setEnabled(boundsRadiusBox.isSelected());
 			runExtLogConsumer();
 		}
 	}
+	private void setHasBoundsRadius(boolean has) {
+		if (hasBoundsRadius != has) {
+			boundsRadius.setEnabled(has);
+			runExtLogConsumer();
+		}
+	}
 
-	public ExtLogEditor addExtLogConsumer(Consumer<ExtLog> extLogConsumer){
+	public ExtLogEditor addExtLogConsumer(Consumer<ExtLog> extLogConsumer) {
 		this.extLogConsumer = extLogConsumer;
 		return this;
 	}
 
 	public void setExtLog(ExtLog extents) {
-		if(extents != null){
-			minExt = extents.getMinimumExtent() == null ? null : new Vec3(extents.getMinimumExtent());
-			if (minExt != null) {
-				minimumExtentV.setValues(minExt);
-			}
+		if (extents != null) {
+			minExt = new Vec3(extents.getMinimumExtent());
+			hasMinimumExtent = extents.hasMinimumExtent();
+			minimumExtentV.setValues(minExt);
+			minimumExtentBox.setSelected(hasMinimumExtent);
+			minimumExtentV.setEnabled(hasMinimumExtent);
 
-			maxExt = extents.getMaximumExtent() == null ? null : new Vec3(extents.getMaximumExtent());
-			if (maxExt != null) {
-				maximumExtentV.setValues(maxExt);
-			}
+			maxExt = new Vec3(extents.getMaximumExtent());
+			hasMaximumExtent = extents.hasMaximumExtent();
+			maximumExtentV.setValues(maxExt);
+			maximumExtentBox.setSelected(hasMaximumExtent);
+			maximumExtentV.setEnabled(hasMaximumExtent);
 
-			boundsRadiusBox.setSelected(extents.hasBoundsRadius());
-			boundsRadius.setEnabled(extents.hasBoundsRadius());
-			if (extents.hasBoundsRadius()) {
-				boundsRadValue = extents.getBoundsRadius();
-//				boundsRadius.reloadNewValue(extents.getBoundsRadius());
-				boundsRadius.reloadNewValue(boundsRadValue);
-			}
+
+			boundsRadValue = extents.getBoundsRadius();
+			hasBoundsRadius = extents.hasBoundsRadius();
+			boundsRadius.reloadNewValue(boundsRadValue);
+			boundsRadiusBox.setSelected(hasBoundsRadius);
+			boundsRadius.setEnabled(hasBoundsRadius);
 		} else {
 			boundsRadius.setEnabled(false);
 			boundsRadiusBox.setSelected(false);
+			minimumExtentBox.setEnabled(false);
+			minimumExtentV.setEnabled(false);
+			maximumExtentBox.setEnabled(false);
+			maximumExtentV.setEnabled(false);
 		}
-
-		minimumExtentV.setEnabled(minExt != null);
-		minimumExtentBox.setSelected(minExt != null);
-		maximumExtentV.setEnabled(maxExt != null);
-		maximumExtentBox.setSelected(maxExt != null);
 	}
 
-	private void runExtLogConsumer(){
-		if(extLogConsumer != null){
+	private void runExtLogConsumer() {
+		if (extLogConsumer != null) {
 			extLogConsumer.accept(getExtLog());
 		}
 	}
 
 
 	public ExtLog getExtLog() {
-		return new ExtLog(minExt, maxExt, boundsRadValue);
+		return new ExtLog(minExt, maxExt, boundsRadValue)
+				.setHasMaximumExtent(hasMaximumExtent)
+				.setHasMinimumExtent(hasMinimumExtent)
+				.setHasBoundsRadius(hasBoundsRadius);
 	}
 }

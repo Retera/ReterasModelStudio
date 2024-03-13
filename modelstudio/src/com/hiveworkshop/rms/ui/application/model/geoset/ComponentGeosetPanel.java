@@ -239,14 +239,14 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 	private void setDropShadow(boolean b) {
 		if (geoset.isDropShadow() != b) {
 			String actionName = b ? "Set Geoset as DropDhadow" : "Set Geoset as not DropDhadow";
-			undoManager.pushAction(new BoolAction(geoset::setDropShadow, b, actionName, null));
+			undoManager.pushAction(new BoolAction(geoset::setDropShadow, b, actionName, null).redo());
 		}
 	}
 
 	private void setUnSelectable(boolean b) {
 		if (geoset.getUnselectable() != b) {
 			String actionName = b ? "Set Geoset Unselectable" : "Set Geoset Selectable";
-			undoManager.pushAction(new BoolAction(geoset::setUnselectable, b, actionName, null));
+			undoManager.pushAction(new BoolAction(geoset::setUnselectable, b, actionName, null).redo());
 		}
 	}
 

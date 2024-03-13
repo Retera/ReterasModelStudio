@@ -25,7 +25,7 @@ public class RecalculateTangentsAction implements UndoAction {
 		this.oldTangents = new ArrayList<>();
 		this.newTangents = new ArrayList<>();
 		for (GeosetVertex vertex : affectedVertices) {
-			if(vertex.getTangent() != null){
+			if(vertex.getTangent() != null) {
 				this.oldTangents.add(new Vec4(vertex.getTangent()));
 			} else {
 				this.oldTangents.add(null);
@@ -40,7 +40,7 @@ public class RecalculateTangentsAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
+	public RecalculateTangentsAction undo() {
 		for (int i = 0; i < affectedVertices.size(); i++) {
 			affectedVertices.get(i).setTangent(oldTangents.get(i));
 		}
@@ -48,7 +48,7 @@ public class RecalculateTangentsAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public RecalculateTangentsAction redo() {
 		for (int i = 0; i < affectedVertices.size(); i++) {
 			affectedVertices.get(i).setTangent(newTangents.get(i));
 		}
@@ -66,7 +66,7 @@ public class RecalculateTangentsAction implements UndoAction {
 	public void recalculateTangents2(List<GeosetVertex> affectedVertices) {
 
 		Set<Triangle> triangles = new HashSet<>();
-		for(GeosetVertex vertex : affectedVertices){
+		for (GeosetVertex vertex : affectedVertices) {
 			triangles.addAll(vertex.getTriangles());
 		}
 
@@ -124,7 +124,7 @@ public class RecalculateTangentsAction implements UndoAction {
 		}
 
 		Vec3 tempNorm = new Vec3();
-		for(GeosetVertex vertex : affectedVertices){
+		for (GeosetVertex vertex : affectedVertices) {
 			Vec4 tangent = new Vec4();
 			Vec3 triSAcc = vertexSMap.getOrDefault(vertex, Vec3.Z_AXIS);
 			Vec3 normal = vertex.getNormal();

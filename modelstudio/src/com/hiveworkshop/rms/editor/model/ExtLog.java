@@ -16,6 +16,10 @@ public class ExtLog {
 	private final Vec3 minimumExtent = new Vec3();
 	private final Vec3 maximumExtent = new Vec3();
 	private double boundsRadius;
+	private boolean hasMinimumExtent = true;
+	private boolean hasMaximumExtent = true;
+	private boolean hasBoundsRadius = true;
+
 
 	public ExtLog(final double boundsRadius) {
 		this(DEFAULT_MINEXT, DEFAULT_MAXEXT, boundsRadius);
@@ -49,14 +53,17 @@ public class ExtLog {
 		minimumExtent.set(other.minimumExtent);
 		maximumExtent.set(other.maximumExtent);
 		boundsRadius = other.boundsRadius;
+		hasMinimumExtent = other.hasMinimumExtent;
+		hasMaximumExtent = other.hasMaximumExtent;
+		hasBoundsRadius = other.hasBoundsRadius;
 	}
 
 	public MdlxExtent toMdlx() {
 		final MdlxExtent extent = new MdlxExtent();
 
-		extent.boundsRadius = (float) boundsRadius;
-		extent.min = minimumExtent.toFloatArray();
-		extent.max = maximumExtent.toFloatArray();
+		extent.boundsRadius = hasBoundsRadius ? (float) boundsRadius : 0;
+		extent.min = hasMinimumExtent ? minimumExtent.toFloatArray() : new float[] {0, 0, 0};
+		extent.max = hasMaximumExtent ? maximumExtent.toFloatArray() : new float[] {0, 0, 0};
 
 		return extent;
 	}
@@ -75,6 +82,9 @@ public class ExtLog {
 			minimumExtent.set(other.minimumExtent);
 			maximumExtent.set(other.maximumExtent);
 			boundsRadius = other.boundsRadius;
+			hasMinimumExtent = other.hasMinimumExtent;
+			hasMaximumExtent = other.hasMaximumExtent;
+			hasBoundsRadius = other.hasBoundsRadius;
 		} else {
 			setDefault();
 		}
@@ -85,6 +95,10 @@ public class ExtLog {
 		minimumExtent.set(minE);
 		maximumExtent.set(maxE);
 		boundsRadius = boundsRad;
+
+		hasMinimumExtent = (minE[0] != 0) || (minE[1] != 0) || (minE[2] != 0);
+		hasMaximumExtent = (maxE[0] != 0) || (maxE[1] != 0) || (maxE[2] != 0);
+		hasBoundsRadius = boundsRadius != 0;
 		return this;
 	}
 
@@ -128,7 +142,30 @@ public class ExtLog {
 	}
 
 	public boolean hasBoundsRadius() {
-		return boundsRadius != NO_BOUNDS_RADIUS;
+		return hasBoundsRadius;
+	}
+
+	public ExtLog setHasBoundsRadius(boolean hasBoundsRadius) {
+		this.hasBoundsRadius = hasBoundsRadius;
+		return this;
+	}
+
+	public boolean hasMinimumExtent() {
+		return hasMinimumExtent;
+	}
+
+	public ExtLog setHasMinimumExtent(boolean hasMinimumExtent) {
+		this.hasMinimumExtent = hasMinimumExtent;
+		return this;
+	}
+
+	public boolean hasMaximumExtent() {
+		return hasMaximumExtent;
+	}
+
+	public ExtLog setHasMaximumExtent(boolean hasMaximumExtent) {
+		this.hasMaximumExtent = hasMaximumExtent;
+		return this;
 	}
 
 	public ExtLog deepCopy() {
@@ -138,16 +175,21 @@ public class ExtLog {
 	@Override
 	public boolean equals(Object obj) {
 		if(obj == this) return true;
-		if(obj instanceof ExtLog){
-			return minimumExtent.equalLocs(((ExtLog)obj).minimumExtent)
-					&& maximumExtent.equalLocs(((ExtLog)obj).maximumExtent)
-					&& boundsRadius == ((ExtLog)obj).boundsRadius;
+		if(obj instanceof ExtLog extLog){
+			return minimumExtent.equalLocs(extLog.minimumExtent)
+					&& maximumExtent.equalLocs(extLog.maximumExtent)
+					&& boundsRadius == extLog.boundsRadius
+					&& hasMinimumExtent == extLog.hasMinimumExtent
+					&& hasMaximumExtent == extLog.hasMaximumExtent
+					&& hasBoundsRadius == extLog.hasBoundsRadius;
 		}
 		return false;
 	}
 
 	public String toString() {
-		return "minExt: " + minimumExtent + "\nmaxExt: " + maximumExtent + "\nbonusRad: " + boundsRadius;
+		return "minExt: " + (hasMinimumExtent ? minimumExtent : "no (" + minimumExtent + ")")
+				+ "\nmaxExt: " + (hasMaximumExtent ? maximumExtent : "no (" + maximumExtent + ")")
+				+ "\nbonusRad: " + (hasBoundsRadius ? boundsRadius : "no (" + boundsRadius + ")");
 //		return "minExt: " + minimumExtent.toString() + "\nmaxExt: " + maximumExtent.toString() + "\nbonusRad: " + boundsRadius;
 	}
 }

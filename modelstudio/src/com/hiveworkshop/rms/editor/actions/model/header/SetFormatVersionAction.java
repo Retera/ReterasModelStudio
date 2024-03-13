@@ -18,7 +18,7 @@ public class SetFormatVersionAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
+	public SetFormatVersionAction undo() {
 		model.setFormatVersion(prevVersion);
 		if (changeListener != null) {
 			changeListener.headerChanged();
@@ -27,7 +27,7 @@ public class SetFormatVersionAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public SetFormatVersionAction redo() {
 		model.setFormatVersion(newVersion);
 		if (changeListener != null) {
 			changeListener.headerChanged();
@@ -37,7 +37,7 @@ public class SetFormatVersionAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set FormatVersion to " + newVersion;
+		return "Set FormatVersion To " + newVersion;
 	}
 
 }

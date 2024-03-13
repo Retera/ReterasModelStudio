@@ -27,10 +27,10 @@ public class ComponentHeaderPanel extends ComponentPanel<EditableModel> {
 		modelNameField = new ComponentEditorTextField(this::setModelName);
 		modelNameField.setMaximumSize(MAXIMUM_SIZE);
 
-		formatVersionSpinner = new IntEditorJSpinner(800, Integer.MIN_VALUE, this::setFormatVersion);
+		formatVersionSpinner = new IntEditorJSpinner(800, Integer.MIN_VALUE, Integer.MAX_VALUE, 100, this::setFormatVersion);
 		formatVersionSpinner.setMaximumSize(MAXIMUM_SIZE);
 
-		blendTimeSpinner = new IntEditorJSpinner(150, Integer.MIN_VALUE, this::setBlendTime);
+		blendTimeSpinner = new IntEditorJSpinner(150, Integer.MIN_VALUE, Integer.MAX_VALUE, 10, this::setBlendTime);
 		blendTimeSpinner.setMaximumSize(MAXIMUM_SIZE);
 
 		extLogEditor = new ExtLogEditor();

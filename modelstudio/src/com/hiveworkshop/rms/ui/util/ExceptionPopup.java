@@ -112,7 +112,7 @@ public class ExceptionPopup {
 			infoPanel.add(new JLabel("To get more information run RMS from a terminal."), "cell 0 1");
 
 			if (firstException != null) {
-				JButton exceptionButton = Button.create("Show first Exeption", e -> display(firstException, "First exception to occur:"));
+				JButton exceptionButton = Button.create("Show first Exception", e -> display(firstException, "First exception to occur:"));
 				infoPanel.add(exceptionButton, "cell 1 0, spany 2, al 100% 50%, wrap");
 			}
 

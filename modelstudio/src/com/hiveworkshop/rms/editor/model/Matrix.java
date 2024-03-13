@@ -25,18 +25,15 @@ public class Matrix {
 	}
 
 	public String getName() {
-		StringBuilder out = new StringBuilder();
 		if (bones != null) {
-			if (bones.size() > 0) {
-				out = new StringBuilder(bones.get(0).getName());
-				for (int i = 1; i < bones.size(); i++) {
-					out.append(", ").append(bones.get(i).getName());
-				}
+			if (bones.isEmpty()) {
+				return "Error bad bone list";
 			} else {
-				out = new StringBuilder("Error bad bone list");
+				String[] names = bones.stream().map(IdObject::getName).toArray(String[]::new);
+				return String.join(", ", names);
 			}
 		}
-		return out.toString();
+		return "";
 	}
 
 	public void cureBones(List<Bone> modelBones) {
@@ -117,10 +114,7 @@ public class Matrix {
 	}
 
 	public int size() {
-		if ((bones != null)) {
-			return bones.size();
-		}
-		return -1;// bad stuff
+		return bones != null ? bones.size() : -1;
 	}
 
 	@Override
@@ -150,7 +144,6 @@ public class Matrix {
 
 	@Override
 	public int hashCode() {
-//		return Objects.hash(bones);
 		return bones.hashCode();
 	}
 }

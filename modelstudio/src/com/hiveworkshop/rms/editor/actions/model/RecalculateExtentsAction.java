@@ -42,17 +42,17 @@ public class RecalculateExtentsAction implements UndoAction {
 
 
 		Collection<Geoset> geosToSet = setAll ? model.getGeosets() : geosetsIncludedForCalculation;
-		for (Geoset modelGeoset : geosToSet) {
+		for (Geoset geoset : geosToSet) {
 			Map<Animation, ExtLog> animationToOldExtents = new HashMap<>();
 			Map<Animation, ExtLog> animationToNewExtents = new HashMap<>();
 			for (Animation anim : model.getAnims()) {
-				animationToOldExtents.put(anim, modelGeoset.getAnimExtent(anim));
+				animationToOldExtents.put(anim, geoset.getAnimExtent(anim));
 				animationToNewExtents.put(anim, newModelExtents.deepCopy());
 			}
-			geosetToOldExtents.put(modelGeoset, modelGeoset.getExtents().deepCopy());
-			geosetToNewExtents.put(modelGeoset, newModelExtents.deepCopy());
-			geosetToAnimationToOldExtents.put(modelGeoset, animationToOldExtents);
-			geosetToAnimationToNewExtents.put(modelGeoset, animationToNewExtents);
+			geosetToOldExtents.put(geoset, geoset.getExtents().deepCopy());
+			geosetToNewExtents.put(geoset, newModelExtents.deepCopy());
+			geosetToAnimationToOldExtents.put(geoset, animationToOldExtents);
+			geosetToAnimationToNewExtents.put(geoset, animationToNewExtents);
 		}
 		for (Animation sequence : model.getAnims()) {
 			modelSequenceToOldExtents.put(sequence, sequence.getExtents());

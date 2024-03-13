@@ -64,9 +64,6 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 		return this;
 	}
 
-	public ViewportCanvas setModel(RenderModel renderModel) {
-		return setModel(renderModel, true);
-	}
 	public ViewportCanvas setModel(RenderModel renderModel, boolean loadDefaultCamera) {
 //		viewportCanvas.getWidth(), viewportCanvas.getHeight()
 //		System.out.println("VP canvas size: x=" + getWidth() + " y=" + getHeight() + ", dim=" +getSize() + ", rekt=" + getBounds());
@@ -106,9 +103,7 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 			if (bufferConsumer != null) {
 				final Consumer<ByteBuffer> bc = bufferConsumer;
 				ByteBuffer pixels = bufferFiller.paintGL2(cameraManager, viewportSettings, getWidth(), getHeight());
-				SwingUtilities.invokeLater(() -> {
-					bc.accept(pixels);
-				});
+				SwingUtilities.invokeLater(() -> bc.accept(pixels));
 				bufferConsumer = null;
 			}
 			bufferFiller.paintCanvas(viewportSettings, cameraManager, mouseAdapter, this);

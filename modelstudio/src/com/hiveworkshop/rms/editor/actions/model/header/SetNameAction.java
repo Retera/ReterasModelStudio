@@ -18,7 +18,7 @@ public class SetNameAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
+	public SetNameAction undo() {
 		model.setName(prevName);
 		if (changeListener != null) {
 			changeListener.headerChanged();
@@ -27,7 +27,7 @@ public class SetNameAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public SetNameAction redo() {
 		model.setName(newName);
 		if (changeListener != null) {
 			changeListener.headerChanged();
@@ -37,7 +37,7 @@ public class SetNameAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set name to \"" + newName + "\"";
+		return "Set Name To \"" + newName + "\"";
 	}
 
 }

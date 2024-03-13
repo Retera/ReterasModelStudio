@@ -39,7 +39,7 @@ public class ViewportPanel extends JPanel {
 			viewHolderPanel.add(viewport, "spany, spanx, growy, growx");
 			add(viewHolderPanel, "spany, growy, growx");
 		} catch (LWJGLException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException(e.getMessage(), e);
 		}
 
 		if (allowButtonPanel) {
