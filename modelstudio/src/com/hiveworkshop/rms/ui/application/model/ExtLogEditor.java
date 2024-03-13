@@ -59,12 +59,13 @@ public class ExtLogEditor extends JPanel {
 	private void setMinExtValue(Vec3 vec3Value) {
 		if (!minExt.equalLocs(vec3Value)) {
 			minExt = vec3Value;
-			minimumExtentV.setEnabled(minExt != null);
+			minimumExtentV.setEnabled(hasMinimumExtent);
 			runExtLogConsumer();
 		}
 	}
 	private void setHasMinExtValue(boolean has) {
 		if (hasMinimumExtent != has) {
+			hasMinimumExtent = has;
 			minimumExtentV.setEnabled(has);
 			runExtLogConsumer();
 		}
@@ -73,12 +74,13 @@ public class ExtLogEditor extends JPanel {
 	private void setMaxExtValue(Vec3 vec3Value) {
 		if (!maxExt.equalLocs(vec3Value)) {
 			maxExt = vec3Value;
-			maximumExtentV.setEnabled(maxExt != null);
+			maximumExtentV.setEnabled(hasMaximumExtent);
 			runExtLogConsumer();
 		}
 	}
 	private void setHasMaxExtValue(boolean has) {
 		if (hasMaximumExtent != has) {
+			hasMaximumExtent = has;
 			maximumExtentV.setEnabled(has);
 			runExtLogConsumer();
 		}
@@ -87,12 +89,13 @@ public class ExtLogEditor extends JPanel {
 	private void setBoundsRadius(float value) {
 		if (boundsRadValue != value) {
 			boundsRadValue = value;
-			boundsRadius.setEnabled(boundsRadiusBox.isSelected());
+			boundsRadius.setEnabled(hasBoundsRadius);
 			runExtLogConsumer();
 		}
 	}
 	private void setHasBoundsRadius(boolean has) {
 		if (hasBoundsRadius != has) {
+			hasBoundsRadius = has;
 			boundsRadius.setEnabled(has);
 			runExtLogConsumer();
 		}
