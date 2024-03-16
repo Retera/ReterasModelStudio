@@ -9,7 +9,7 @@ import javax.swing.ImageIcon;
 import com.hiveworkshop.wc3.gui.datachooser.JavaJarDataSource;
 
 public class RMSIcons {
-	public static final JavaJarDataSource ICONS_DATA_SOURCE = new JavaJarDataSource();
+	public static final JavaJarDataSource ICONS_DATA_SOURCE = new JavaJarDataSource(JavaJarDataSource.DEFAULT_SOURCE_CLASS);
 	public static final ImageIcon MDLIcon = new ImageIcon(loadTabImage("MDLIcon_16.png"));
 	public static final ImageIcon AnimIcon = new ImageIcon(loadTabImage("Anim.png"));
 	public static final ImageIcon animIcon = new ImageIcon(loadTabImage("anim_small.png"));

@@ -1,18 +1,24 @@
 package com.hiveworkshop.wc3.gui.datachooser;
 
 public class JavaJarDataSourceDescriptor implements DataSourceDescriptor {
-    @Override
-    public DataSource createDataSource() {
-        return new JavaJarDataSource();
-    }
+	private Class<?> sourceClass;
 
-    @Override
-    public String getDisplayName() {
-        return "JAR";
-    }
+	public JavaJarDataSourceDescriptor(Class<?> sourceClass) {
+		this.sourceClass = sourceClass;
+	}
 
-    @Override
-    public DataSourceDescriptor duplicate() {
-        return this;
-    }
+	@Override
+	public DataSource createDataSource() {
+		return new JavaJarDataSource(sourceClass);
+	}
+
+	@Override
+	public String getDisplayName() {
+		return "JAR";
+	}
+
+	@Override
+	public DataSourceDescriptor duplicate() {
+		return this;
+	}
 }
