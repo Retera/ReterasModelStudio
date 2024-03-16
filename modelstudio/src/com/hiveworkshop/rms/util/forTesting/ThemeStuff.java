@@ -16,21 +16,60 @@ import java.util.Hashtable;
 
 public class ThemeStuff {
 
+	public static JTable getJTable(Hashtable<?, ?> defaults, String keyFilter, String valueFilter) {
+		System.out.println(defaults.size() + " properties defined !");
+		String[] colName = {"Key", "Value"};
+		String[][] rowData = new String[defaults.size()][2];
+
+		if (keyFilter == null || keyFilter.isBlank()) {
+			System.out.println("no key filter!");
+			keyFilter = ".*";
+		}
+		if (valueFilter == null || valueFilter.isBlank()) {
+			System.out.println("no value filter!");
+			valueFilter = ".*";
+		}
+
+		int i = 0;
+		for (Enumeration<?> e = defaults.keys(); e.hasMoreElements(); i++) {
+			Object key = e.nextElement();
+			String keyString = key.toString();
+			if (keyString.matches(keyFilter)) {
+				Object value = defaults.get(key);
+				String valueString = "" +  value;
+				if (valueString.matches(valueFilter)) {
+					rowData[i][0] = keyString;
+					if (defaults.get(key) instanceof Object[] data) {
+						System.out.println("_______ARRAY_______");
+						rowData[i][1] = "" + Arrays.toString(data);
+					} else if (defaults.get(key) instanceof Collection<?> collection) {
+						System.out.println("_______Collection_______");
+						rowData[i][1] = "" + Arrays.toString(collection.toArray(new Object[0]));
+					} else {
+						rowData[i][1] = "" + defaults.get(key);
+					}
+					System.out.println(keyString + "\t - \t\"" + value + "\"");
+				}
+			}
+		}
+		return new JTable(rowData, colName);
+	}
 
 	public static JTable getJTable(UIDefaults defaults) {
 		System.out.println(defaults.size() + " properties defined !");
 		String[] colName = {"Key", "Value"};
 		String[][] rowData = new String[defaults.size()][2];
+
 		int i = 0;
 		for (Enumeration<?> e = defaults.keys(); e.hasMoreElements(); i++) {
 			Object key = e.nextElement();
 			rowData[i][0] = key.toString();
-			if(defaults.get(key) instanceof Object[]) {
+			if (defaults.get(key) instanceof Object[] data) {
 				System.out.println("_______ARRAY_______");
-				rowData[i][1] = "" + Arrays.toString((Object[]) defaults.get(key));
-			} else if(defaults.get(key) instanceof Collection) {
+				rowData[i][1] = "" + Arrays.toString(data);
+			} else if (defaults.get(key) instanceof Collection<?> collection) {
 				System.out.println("_______Collection_______");
-				rowData[i][1] = "" + Arrays.toString(((Collection<?>) defaults.get(key)).toArray(new Object[0]));
+				rowData[i][1] = "" + Arrays.toString(collection.toArray(new Object[0]));
 			} else {
 				rowData[i][1] = "" + defaults.get(key);
 			}
@@ -58,13 +97,13 @@ public class ThemeStuff {
 	}
 
 
-	private static void printUIDefaults(Hashtable<?, ?> defaults, String keyFilter, String valueFilter) {
+	public static void printUIDefaults(Hashtable<?, ?> defaults, String keyFilter, String valueFilter) {
 		System.out.println(defaults.size() + " properties defined !");
-		if (keyFilter == null || keyFilter.isBlank() || keyFilter.isEmpty()){
+		if (keyFilter == null || keyFilter.isBlank() || keyFilter.isEmpty()) {
 			System.out.println("no key filter!");
 			keyFilter = ".*";
 		}
-		if (valueFilter == null || valueFilter.isBlank() || valueFilter.isEmpty()){
+		if (valueFilter == null || valueFilter.isBlank() || valueFilter.isEmpty()) {
 			System.out.println("no value filter!");
 			valueFilter = ".*";
 		}
@@ -72,19 +111,19 @@ public class ThemeStuff {
 		for (Enumeration<?> e = defaults.keys(); e.hasMoreElements(); i++) {
 			Object key = e.nextElement();
 			String keyString = key.toString();
-			if(keyString.matches(keyFilter)){
+			if (keyString.matches(keyFilter)) {
 				Object value = defaults.get(key);
 				String valueString = "" +  value;
-				if(valueString.matches(valueFilter)){
+				if (valueString.matches(valueFilter)) {
 					System.out.println(keyString + "\t - \t\"" + value + "\"");
 				}
 			}
 		}
 	}
 
-	public static void setTheme(int themeNum){
+	public static void setTheme(int themeNum) {
 		try {
-			switch (themeNum){
+			switch (themeNum) {
 				case 0 -> UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 				case 1 -> UIManager.setLookAndFeel(NoireLookAndFeel.class.getName());
 				case 2 -> UIManager.setLookAndFeel(HiFiLookAndFeel.class.getName());
@@ -103,7 +142,7 @@ public class ThemeStuff {
 		}
 	}
 
-	public static void setTheme(GUITheme theme){
+	public static void setTheme(GUITheme theme) {
 		try {
 			switch (theme) {
 				case FOREST_GREEN -> {}

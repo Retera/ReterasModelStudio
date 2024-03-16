@@ -21,7 +21,22 @@ public class MouseEventHelpers {
 	}
 
 	/**
-	 *
+	 * Strips the event's modifierEx of all mouse buttons
+	 * @return modifierEx consisting of only keyboard modifiers
+	 */
+	public static int getModifierMasks(MouseEvent e) {
+		return getMouseButtonMasks(e.getModifiersEx());
+	}
+	/**
+	 * Strips modifierEx of all mouse buttons
+	 * @return modifierEx consisting of only keyboard modifiers
+	 */
+	public static int getModifierMasks(int modifiersEx) {
+		return (modifiersEx & ~mouseButtonMask);
+	}
+
+	/**
+	 * Checks is a MouseEvent uses the same mouse buttons as modifiersEx, ignoring keyboard modifiers
 	 * @param e MouseEvent to check
 	 * @param modifiersEx modifiers to compare with
 	 * @return {@code true} if the event contains exactly the same mouse buttons as {@code modifiersEx}
@@ -31,7 +46,7 @@ public class MouseEventHelpers {
 		return isSameMouseButton(e.getModifiersEx(), modifiersEx);
 	}
 	/**
-	 *
+	 * Checks is eModifiersEx uses the same mouse buttons as modifiersEx, ignoring keyboard modifiers
 	 * @param eModifiersEx modifiers to check
 	 * @param modifiersEx modifiers to compare with
 	 * @return true if eModifiersEx contains exactly the same mouse buttons as modifiersEx
@@ -50,7 +65,7 @@ public class MouseEventHelpers {
 	 * e.getModifiersEx == (mainMods | posMods[i])
 	 * otherwise false
 	 */
-	public static boolean matches(MouseEvent e, int mainMods, int... posMods){
+	public static boolean matches(MouseEvent e, int mainMods, int... posMods) {
 		return matches(e.getModifiersEx(), mainMods, posMods);
 	}
 	/**
@@ -63,9 +78,9 @@ public class MouseEventHelpers {
 	 */
 	public static boolean matches(int modifiersEx, int mainMods, int... posMods) {
 		int xor_MB = modifiersEx ^ mainMods;
-		if (xor_MB != 0){
-			for(int mod : posMods) {
-				if((xor_MB ^ mod) == 0){
+		if (xor_MB != 0) {
+			for (int mod : posMods) {
+				if ((xor_MB ^ mod) == 0) {
 					return true;
 				}
 			}
@@ -83,7 +98,7 @@ public class MouseEventHelpers {
 	 * posMods[i] if e.getModifiersEx == (mainMods | posMods[i])
 	 * otherwise MouseEvent.NOBUTTON
 	 */
-	public static int getMatch(MouseEvent e, int mainMods, int... posMods){
+	public static int getMatch(MouseEvent e, int mainMods, int... posMods) {
 		return getMatch(e.getModifiersEx(), mainMods, posMods);
 	}
 	/**
@@ -97,9 +112,9 @@ public class MouseEventHelpers {
 	 */
 	public static int getMatch(int modifiersEx, int mainMods, int... posMods) {
 		int xor_MB = modifiersEx ^ mainMods;
-		if (xor_MB != 0){
-			for(int mod : posMods) {
-				if((xor_MB ^ mod) == 0){
+		if (xor_MB != 0) {
+			for (int mod : posMods) {
+				if ((xor_MB ^ mod) == 0) {
 					return mod;
 				}
 			}
@@ -114,7 +129,7 @@ public class MouseEventHelpers {
 	 * @param modifier modifier to check
 	 * @return modifier != MouseEvent.NOBUTTON && ((e.getModifiersEx() & modifier) == modifier)
 	 */
-	public static boolean hasModifier(MouseEvent e, int modifier){
+	public static boolean hasModifier(MouseEvent e, int modifier) {
 		return hasModifier(e.getModifiersEx(), modifier);
 	}
 	/**
@@ -123,7 +138,7 @@ public class MouseEventHelpers {
 	 * @param modifier modifier to check
 	 * @return modifier != MouseEvent.NOBUTTON && ((modifiersEx & modifier) == modifier)
 	 */
-	public static boolean hasModifier(int modifiersEx, int modifier){
+	public static boolean hasModifier(int modifiersEx, int modifier) {
 		return modifier != MouseEvent.NOBUTTON && ((modifiersEx & modifier) == modifier);
 	}
 }

@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.filesystem.sources.CascDataSourceDescriptor;
 import com.hiveworkshop.rms.filesystem.sources.DataSourceDescriptor;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
@@ -188,6 +189,8 @@ public class DataSourceChooserPanel extends JPanel {
 			ModelOptionPanel.dropCache();
 			WEString.dropCache();
 			BLPHandler.get().dropCache();
+			ProgramGlobals.getMenuBar().updateTeamColors();
+			ProgramGlobals.getRootWindowUgg().traverseAndReloadData();
 			return true;
 		} else {
 			return false;

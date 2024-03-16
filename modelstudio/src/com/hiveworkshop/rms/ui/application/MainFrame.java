@@ -78,7 +78,7 @@ public class MainFrame extends JFrame {
 	public static void create(final List<String> startupModelPaths, boolean dataPromptForced) {
 		create(startupModelPaths);
 
-		if (dataPromptForced || SaveProfileNew.get().getDataSources() == null) {
+		if (dataPromptForced || !SaveProfileNew.get().hasDataSources()) {
 			DataSourceChooserPanel.showDataSourceChooser(SaveProfileNew.get().getDataSources());
 		}
 	}

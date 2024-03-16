@@ -6,22 +6,16 @@ import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
-import com.hiveworkshop.rms.ui.browsers.mpq.MPQBrowser;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
 import com.hiveworkshop.rms.ui.preferences.GUITheme;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfileNew;
 import com.hiveworkshop.rms.util.ThemeLoadingUtils;
 import com.hiveworkshop.rms.util.uiFactories.Button;
-import net.infonode.docking.DockingWindow;
-import net.infonode.docking.View;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,34 +103,6 @@ public class ProgramPrefWindow extends JFrame {
 		WEString.dropCache();
 		BLPHandler.get().dropCache();
 		ProgramGlobals.getMenuBar().updateTeamColors();
-		traverseAndReloadData(ProgramGlobals.getRootWindowUgg());
-	}
-
-
-	public static void traverseAndReloadData(DockingWindow window) {
-		int childWindowCount = window.getChildWindowCount();
-		for (int i = 0; i < childWindowCount; i++) {
-			DockingWindow childWindow = window.getChildWindow(i);
-			traverseAndReloadData(childWindow);
-			if (childWindow instanceof View view) {
-				Component component = view.getComponent();
-				if (component instanceof JScrollPane pane) {
-					Component viewportView = pane.getViewport().getView();
-					if (viewportView instanceof UnitEditorTree unitEditorTree) {
-						WorldEditorDataType dataType = unitEditorTree.getDataType();
-						if (dataType == WorldEditorDataType.UNITS) {
-							System.out.println("saw unit tree");
-							unitEditorTree.setUnitDataAndReloadVerySlowly();
-						} else if (dataType == WorldEditorDataType.DOODADS) {
-							System.out.println("saw doodad tree");
-							unitEditorTree.setUnitDataAndReloadVerySlowly();
-						}
-					}
-				} else if (component instanceof MPQBrowser comp) {
-					System.out.println("saw mpq tree");
-					comp.refreshTree();
-				}
-			}
-		}
+		ProgramGlobals.getRootWindowUgg().traverseAndReloadData();
 	}
 }

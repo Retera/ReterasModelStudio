@@ -72,7 +72,7 @@ public class Nav3DMousePrefPanel extends JPanel {
 		JPanel panel = new JPanel(new MigLayout());
 
 		Integer keyStroke = ksProvider.apply(mouseAction);
-		MouseSettingPanel mouseSettingPanel = new MouseSettingPanel(ksProvider.apply(mouseAction));
+		MouseSettingPanel mouseSettingPanel = new MouseSettingPanel(ksProvider.apply(mouseAction), mouseAction.isModifierSetting());
 
 		panel.add(mouseSettingPanel);
 

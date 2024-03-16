@@ -79,6 +79,9 @@ public class SaveProfileNew {
 		return preferences;
 	}
 
+	public boolean hasDataSources() {
+		return dataSources != null;
+	}
 	public boolean setDataSources(final List<DataSourceDescriptor> dataSources) {
 		if (!dataSources.equals(getDataSourceTracker().getDataSourceDescriptors())) {
 			getDataSourceTracker().clear().addAll(dataSources);
@@ -266,8 +269,8 @@ public class SaveProfileNew {
 			getPreferences().setFromOther(oldSaveProf.getPreferences());
 			setDataSources(oldSaveProf.getDataSources());
 			lastDirectory = oldSaveProf.getPath();
-			recent.addAllPaths(oldSaveProf.getRecent());
-			favoriteDirectories.addAll(oldSaveProf.getFavorites());
+			getRecent().addAllPaths(oldSaveProf.getRecent());
+			getFavorites().addAll(oldSaveProf.getFavorites());
 
 			System.out.println("Seems to successfully loaded old preferences");
 		}

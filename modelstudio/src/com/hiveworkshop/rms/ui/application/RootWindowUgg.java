@@ -4,6 +4,9 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayViewUgg;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.PerspectiveViewUgg;
 import com.hiveworkshop.rms.ui.application.viewer.PreviewView;
 import com.hiveworkshop.rms.ui.application.windowStuff.RootWindowListener;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
+import com.hiveworkshop.rms.ui.browsers.mpq.MPQBrowser;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.ModelingCreatorToolsView;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree.ModelComponentsView;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.ModelViewManagingView;
@@ -20,7 +23,6 @@ import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.util.Enumeration;
 
 public class RootWindowUgg extends RootWindow {
 	private static ViewMap viewMap = new ViewMap();
@@ -45,7 +47,7 @@ public class RootWindowUgg extends RootWindow {
 		return windowHandler2;
 	}
 
-	public FloatingWindow newWindow(View view){
+	public FloatingWindow newWindow(View view) {
 		if (view.getTopLevelAncestor() == null || !view.getTopLevelAncestor().isVisible()) {
 			windowHandler2.addView(view);
 			FloatingWindow newWindow = createFloatingWindow(getLocation(), ScreenInfo.getSmallWindow(), view);
@@ -57,7 +59,7 @@ public class RootWindowUgg extends RootWindow {
 		return null;
 	}
 
-	public FloatingWindow newWindow2(View view){
+	public FloatingWindow newWindow2(View view) {
 		if ((view.getTopLevelAncestor() == null) || !view.getTopLevelAncestor().isVisible()) {
 			windowHandler2.addView(view);
 			System.out.println("WindowHandler2: opening new window, creating floating window");
@@ -69,7 +71,7 @@ public class RootWindowUgg extends RootWindow {
 
 			System.out.println("WindowHandler2: getting keybindings");
 			KeyBindingPrefs keyBindingPrefs = ProgramGlobals.getKeyBindingPrefs();
-//            view.getRootPane().setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
+//			view.getRootPane().setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
 			System.out.println("WindowHandler2: setting input map");
 			newWindow.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
 			System.out.println("WindowHandler2: setting action map");
@@ -82,9 +84,9 @@ public class RootWindowUgg extends RootWindow {
 
 	private static void setRootProps(RootWindow rootWindow) {
 
-//        UIManager.put("TabbedPane.contentBorderInsets", new Insets(-2, -2, -1, -1));
+//		UIManager.put("TabbedPane.contentBorderInsets", new Insets(-2, -2, -1, -1));
 		UIManager.put("TabbedPane.contentBorderInsets", new Insets(-2, -2, -1, -1));
-//        //			UIManager.put("TabbedPane.border", null);
+////			UIManager.put("TabbedPane.border", null);
 ////			UIManager.put("TabbedPane.borderWidth", 0);
 ////			UIManager.put("TabbedPane.labelShift", 20);
 ////			UIManager.put("InternalFrame.borderWidth", 0);
@@ -95,7 +97,7 @@ public class RootWindowUgg extends RootWindow {
 ////			UIManager.put("TabbedPane.tabAreaInsets", new Insets(0, 0, 20, 0));
 ////			UIManager.put("TabbedPane.selectedTabPadInsets", new Insets(8, 0, 5, 0));
 //////			UIManager.put("Table.highlight", Color.magenta);
-//        UIManager.put("controlDkShadow", Color.magenta.brighter());
+//			UIManager.put("controlDkShadow", Color.magenta.brighter());
 //
 //			UIManager.put("SplitPane.highlight", Color.magenta);
 //			UIManager.put("TabbedPane.tabAreaBackground", Color.magenta);
@@ -115,14 +117,14 @@ public class RootWindowUgg extends RootWindow {
 //			UIManager.put("SplitPane.dividerFocusColor", Color.ORANGE.darker());
 //			UIManager.put("Slider.shadow", Color.ORANGE.darker());
 //			UIManager.put("MenuBar.shadow", Color.magenta.brighter());
-//        UIManager.put("SplitPane.shadow", Color.blue.brighter());
-//        UIManager.put("Panel.background", Color.pink);
-//        UIManager.put("EditorPane.inactiveBackground", Color.blue.brighter());
-//        UIManager.put("ToolBar.shadow", Color.pink);
-//        UIManager.put("controlShadow", Color.yellow);
-//        UIManager.put("InternalFrame.borderShadow", Color.yellow);
-//        UIManager.put("InternalFrame.borderColor ", Color.ORANGE.darker());
-//        UIManager.put("InternalFrame.activeTitleBackground", Color.yellow);
+//		UIManager.put("SplitPane.shadow", Color.blue.brighter());
+//		UIManager.put("Panel.background", Color.pink);
+//		UIManager.put("EditorPane.inactiveBackground", Color.blue.brighter());
+//		UIManager.put("ToolBar.shadow", Color.pink);
+//		UIManager.put("controlShadow", Color.yellow);
+//		UIManager.put("InternalFrame.borderShadow", Color.yellow);
+//		UIManager.put("InternalFrame.borderColor ", Color.ORANGE.darker());
+//		UIManager.put("InternalFrame.activeTitleBackground", Color.yellow);
 //			UIManager.put("Separator.background", Color.red);
 //			UIManager.put("ScrollBar.thumbHighlight", Color.red);
 //			UIManager.put("MenuBar.highlight", Color.cyan.brighter().brighter());
@@ -153,64 +155,50 @@ public class RootWindowUgg extends RootWindow {
 		rootWindow.getRootWindowProperties().getTabWindowProperties().getTabbedPanelProperties().setShadowEnabled(false);
 		rootWindow.getRootWindowProperties().getWindowAreaProperties().getInsets().set(0, 0, 0, 0);
 		rootWindow.getRootWindowProperties().getSplitWindowProperties().setDividerSize(2);
-//        rootWindow.getRootWindowProperties().getDockingWindowProperties().getTabProperties().getTitledTabProperties().setHighlightedRaised(0);
+//		rootWindow.getRootWindowProperties().getDockingWindowProperties().getTabProperties().getTitledTabProperties().setHighlightedRaised(0);
 		rootWindow.getRootWindowProperties().getFloatingWindowProperties().setUseFrame(true);
 		rootWindow.getRootWindowProperties().getViewProperties().getViewTitleBarProperties().setVisible(true);
 
 		rootWindow.setBackground(Color.GREEN.darker());
 		rootWindow.setForeground(Color.GREEN.darker());
-//    getjTable(UIManager.getDefaults());
+//		ThemeStuff.getJTable(UIManager.getDefaults(), ".*plit.*", "");
+//		ThemeStuff.getJTable(UIManager.getDefaults(), ".*[iI]con.*", "");
 
-//        KeyBindingPrefs keyBindingPrefs = new KeyBindingPrefs();
-//        keyBindingPrefs.makeMap();
-//        System.out.println("V_______________keyBindingPrefs_________________V");
-//        keyBindingPrefs.parseString("KEYBOARDKEY=released ALT");
-//        System.out.println(keyBindingPrefs.toString());
+//		KeyBindingPrefs keyBindingPrefs = new KeyBindingPrefs();
+//		keyBindingPrefs.makeMap();
+//		System.out.println("V_______________keyBindingPrefs_________________V");
+//		keyBindingPrefs.parseString("KEYBOARDKEY=released ALT");
+//		System.out.println(keyBindingPrefs.toString());
 //
-//        System.out.println("^_______________keyBindingPrefs_________________^");
+//		System.out.println("^_______________keyBindingPrefs_________________^");
 	}
 
-
-
-	private static JTable getjTable(UIDefaults defaults) {
-		System.out.println(defaults.size() + " properties defined !");
-		String[] colName = {"Key", "Value"};
-		String[][] rowData = new String[defaults.size()][2];
-		int i = 0;
-		for (Enumeration e = defaults.keys(); e.hasMoreElements(); i++) {
-			Object key = e.nextElement();
-			rowData[i][0] = key.toString();
-			rowData[i][1] = "" + defaults.get(key);
-			System.out.println(rowData[i][0] + " ,, " + rowData[i][1]);
-		}
-		JTable t = new JTable(rowData, colName);
-		return t;
-	}
 
 	public void resetView() {
-
+		compileViewMap();
 //		final TabWindow startupTabWindow = rootWindow.getWindowHandler2().getStartupTabWindow();
 //		windowHandler2.resetView();
-		final TabWindow startupTabWindow = windowHandler2.resetView();;
+		final TabWindow startupTabWindow = windowHandler2.resetView();
 //		startupTabWindow.setSelectedTab(0);
 		setWindow(startupTabWindow);
 		ModelLoader.setCurrentModel(ProgramGlobals.getCurrentModelPanel());
 		revalidate();
 	}
 
-	public ViewMap compileViewMap(){
+	public ViewMap compileViewMap() {
 		RootWindowListener.traverseAndRemoveNull(getWindow());
-		for(int i = viewMap.getViewCount(); i>0; i--){
+		for (int i = viewMap.getViewCount(); 0 < i; i--) {
 			View view = viewMap.getView(i - 1);
-			if(!view.isValid() || !view.isVisible() || view.getParent() == null){
-				if(!(view instanceof DisplayViewUgg)
+//			System.out.println("#" + i + " view: " + view);
+			if (!view.isValid() || !view.isVisible() || view.getParent() == null) {
+				if (!(view instanceof DisplayViewUgg)
 						|| !(view instanceof PerspectiveViewUgg)
 						|| !(view instanceof PreviewView)
 						|| !(view instanceof TimeSliderView)
 						|| !(view instanceof ModelViewManagingView)
 						|| !(view instanceof ModelingCreatorToolsView)
 						|| !(view instanceof ModelComponentsView)
-				){
+				) {
 					viewMap.removeView(i-1);
 				}
 			}
@@ -220,22 +208,22 @@ public class RootWindowUgg extends RootWindow {
 
 
 //		traverseAndStuff(getWindow(), viewMap, viewList);
-//		for(JComponent component : this.getAncestors()){
-//			if (component instanceof View){
-//				WindowHandler2.traverseAndStuff((View) component, viewMap, viewList);
-//				viewMap.addView(viewList.size(), (View) component);
-//				viewList.add((View) component);
+//		for (JComponent component : this.getAncestors()) {
+//			if (component instanceof View view) {
+//				traverseAndStuff(view, viewMap, viewList);
+//				viewMap.addView(viewList.size(), view);
+//				viewList.add(view);
 //				System.out.println("was View!");
 //			} else {
 //				System.out.println();
 //			}
 //		}
 //		viewList.clear();
-//		for(JComponent component : this.getAncestors()){
-//			if (component instanceof View){
-//				WindowHandler2.traverseAndStuff((View) component, viewMap, viewList);
-//				viewMap.addView(viewList.size(), (View) component);
-//				viewList.add((View) component);
+//		for (JComponent component : this.getAncestors()) {
+//			if (component instanceof View view) {
+//				traverseAndStuff(view, viewMap, viewList);
+//				viewMap.addView(viewList.size(), view);
+//				viewList.add(view);
 //				System.out.println("was View!");
 //			} else {
 //				System.out.println();
@@ -246,20 +234,20 @@ public class RootWindowUgg extends RootWindow {
 	}
 
 	private void extracted1(DockingWindow[] components) {
-		for(DockingWindow component : components){
+		for (DockingWindow component : components) {
 			System.out.println("Component! e1");
-			if (component instanceof View){
+			if (component instanceof View) {
 				System.out.println("was View!");
 			}
-			if(component != null){
+			if (component != null) {
 				extracted2(component);
 			}
 		}
 	}
 	private void extracted2(DockingWindow component) {
-		for(int i = 0; i< component.getChildWindowCount(); i++){
+		for (int i = 0; i < component.getChildWindowCount(); i++) {
 			System.out.println("Component! e2");
-			if (component instanceof View){
+			if (component instanceof View) {
 				System.out.println("was View!");
 			}
 
@@ -267,12 +255,12 @@ public class RootWindowUgg extends RootWindow {
 		}
 	}
 
-//	public ViewMap compileViewMap2(DockingWindow window){
-//		for(JComponent component : this.getAncestors()){
-//			if (component instanceof View){
-//				WindowHandler2.traverseAndStuff((View) component, viewMap, viewList);
-//				viewMap.addView(viewList.size(), (View) component);
-//				viewList.add((View) component);
+//	public ViewMap compileViewMap2(DockingWindow window) {
+//		for (JComponent component : this.getAncestors()) {
+//			if (component instanceof View view) {
+//				traverseAndStuff(view, viewMap, viewList);
+//				viewMap.addView(viewList.size(), view);
+//				viewList.add(view);
 //				System.out.println("was View!");
 //			} else {
 //				System.out.println();
@@ -282,14 +270,14 @@ public class RootWindowUgg extends RootWindow {
 //		return viewMap;
 //	}
 //	private void traverseAndStuff(DockingWindow window, ViewMap viewMap, List<View> viewList) {
-//		if(window instanceof View){
-//			viewMap.addView(viewList.size(), (View) window);
-//			viewList.add((View) window);
+//		if (window instanceof View view) {
+//			viewMap.addView(viewList.size(), view);
+//			viewList.add(view);
 //			System.out.println("was View!");
 //		}
 //		for (int i = 0; i < window.getChildWindowCount(); i++) {
 //			DockingWindow childWindow = window.getChildWindow(i);
-//			if(childWindow instanceof View){
+//			if (childWindow instanceof View) {
 //				traverseAndStuff(childWindow, viewMap, viewList);
 //			}
 //		}
@@ -305,10 +293,10 @@ public class RootWindowUgg extends RootWindow {
 		return viewMap;
 	}
 
-	public DockingWindow[] getDockingWindows(){
+	public DockingWindow[] getDockingWindows() {
 		return this.getAncestors();
 	}
-	public byte[] ugg(){
+	public byte[] ugg() {
 		try {
 
 //			RootWindow rootWindow = DockingUtil.createRootWindow(viewMap, true);
@@ -329,15 +317,46 @@ public class RootWindowUgg extends RootWindow {
 //		return viewList;
 //	}
 
-	//	public ViewMap compileViewMap(){
+//	public ViewMap compileViewMap() {
 //		viewMap = new ViewMap();
 //		viewList.clear();
-//		for(JComponent component : this.getAncestors()){
-//			if (component instanceof View){
-//				WindowHandler2.traverseAndStuff((View) component, viewMap, viewList);
+//		for (JComponent component : this.getAncestors()) {
+//			if (component instanceof View view) {
+//				WindowHandler2.traverseAndStuff(view, viewMap, viewList);
 //			}
 //		}
 //
 //		return viewMap;
 //	}
+
+
+	public void traverseAndReloadData() {
+		traverseAndReloadData(this);
+	}
+
+	public static void traverseAndReloadData(DockingWindow window) {
+		int childWindowCount = window.getChildWindowCount();
+		for (int i = 0; i < childWindowCount; i++) {
+			DockingWindow childWindow = window.getChildWindow(i);
+			traverseAndReloadData(childWindow);
+			if (childWindow instanceof View view) {
+				Component component = view.getComponent();
+				if (component instanceof JScrollPane pane) {
+					if (pane.getViewport().getView() instanceof UnitEditorTree unitEditorTree) {
+						WorldEditorDataType dataType = unitEditorTree.getDataType();
+						if (dataType == WorldEditorDataType.UNITS) {
+							System.out.println("saw unit tree");
+							unitEditorTree.setUnitDataAndReloadVerySlowly();
+						} else if (dataType == WorldEditorDataType.DOODADS) {
+							System.out.println("saw doodad tree");
+							unitEditorTree.setUnitDataAndReloadVerySlowly();
+						}
+					}
+				} else if (component instanceof MPQBrowser comp) {
+					System.out.println("saw mpq tree");
+					comp.refreshTree();
+				}
+			}
+		}
+	}
 }

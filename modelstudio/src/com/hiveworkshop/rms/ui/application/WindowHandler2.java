@@ -225,6 +225,7 @@ public class WindowHandler2 {
 	public WindowHandler2 clearAll() {
 		for (ModelDependentView view : allViews) {
 			view.setVisible(false);
+			view.close();
 		}
 		timeSliders.clear();
 		modelViewManagingTrees.clear();
