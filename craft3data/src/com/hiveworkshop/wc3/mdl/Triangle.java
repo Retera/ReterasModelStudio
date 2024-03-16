@@ -89,7 +89,7 @@ public class Triangle {
 	}
 
 	public boolean containsRef(final GeosetVertex v) {
-		return verts[0] == v || verts[1] == v || verts[2] == v;
+		return (verts[0] == v) || (verts[1] == v) || (verts[2] == v);
 	}
 
 	public boolean contains(final GeosetVertex v) {
@@ -111,7 +111,7 @@ public class Triangle {
 
 	public int indexOf(final GeosetVertex v) {
 		int out = -1;
-		for (int i = 0; i < verts.length && out == -1; i++) {
+		for (int i = 0; (i < verts.length) && (out == -1); i++) {
 			if (verts[i].equalLocs(v)) {
 				out = i;
 			}
@@ -121,8 +121,8 @@ public class Triangle {
 
 	public boolean equalLocs(final Triangle t) {
 		boolean equal = true;
-		for (int i = 0; i < 3 && equal; i++) {
-			if (!t.verts[i].equalLocs(verts[i]) || t.vertIds[i] != vertIds[i]) {
+		for (int i = 0; (i < 3) && equal; i++) {
+			if (!t.verts[i].equalLocs(verts[i]) || (t.vertIds[i] != vertIds[i])) {
 				equal = false;
 			}
 		}
@@ -131,7 +131,7 @@ public class Triangle {
 
 	public boolean sameVerts(final Triangle t) {
 		boolean equal = true;
-		for (int i = 0; i < 3 && equal; i++) {
+		for (int i = 0; (i < 3) && equal; i++) {
 			if (!contains(t.verts[i])) {
 				equal = false;
 			}
@@ -141,7 +141,7 @@ public class Triangle {
 
 	public int indexOfRef(final GeosetVertex v) {
 		int out = -1;
-		for (int i = 0; i < verts.length && out == -1; i++) {
+		for (int i = 0; (i < verts.length) && (out == -1); i++) {
 			if (verts[i] == v) {
 				out = i;
 			}
@@ -151,7 +151,7 @@ public class Triangle {
 
 	public boolean equalRefsNoIds(final Triangle t) {
 		boolean equal = true;
-		for (int i = 0; i < 3 && equal; i++) {
+		for (int i = 0; (i < 3) && equal; i++) {
 			if (t.verts[i] != verts[i]) {
 				equal = false;
 			}
@@ -161,8 +161,8 @@ public class Triangle {
 
 	public boolean equalRefs(final Triangle t) {
 		boolean equal = true;
-		for (int i = 0; i < 3 && equal; i++) {
-			if (t.verts[i] != verts[i] || t.vertIds[i] != vertIds[i]) {
+		for (int i = 0; (i < 3) && equal; i++) {
+			if ((t.verts[i] != verts[i]) || (t.vertIds[i] != vertIds[i])) {
 				equal = false;
 			}
 		}
@@ -206,7 +206,7 @@ public class Triangle {
 			s[0] = s[0].substring(4, s[0].length());
 			final int s_size = MDLReader.occurrencesIn(input[l], ",");
 			s[s_size - 1] = s[s_size - 1].substring(0, s[s_size - 1].length() - 2);
-			for (int t = 0; t < s_size - 1; t += 3)// s[t+3].equals("")||
+			for (int t = 0; t < (s_size - 1); t += 3)// s[t+3].equals("")||
 			{
 				for (int i = 0; i < 3; i++) {
 					s[t + i] = s[t + i].substring(1);
@@ -214,7 +214,8 @@ public class Triangle {
 				try {
 					output.add(new Triangle(Integer.parseInt(s[t]), Integer.parseInt(s[t + 1]),
 							Integer.parseInt(s[t + 2])));
-				} catch (final NumberFormatException e) {
+				}
+				catch (final NumberFormatException e) {
 					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 							"Error: Unable to interpret information in Triangles: " + s[t] + ", " + s[t + 1] + ", or "
 									+ s[t + 2]);
@@ -236,7 +237,7 @@ public class Triangle {
 			final int s_size = MDLReader.occurrencesIn(",", line);
 			// System.out.println("We broke it into "+s_size+" parts.");
 			s[s_size - 1] = s[s_size - 1].substring(0, s[s_size - 1].length() - 2);
-			for (int t = 0; t < s_size - 1; t += 3)// s[t+3].equals("")||
+			for (int t = 0; t < (s_size - 1); t += 3)// s[t+3].equals("")||
 			{
 				for (int i = 0; i < 3; i++) {
 					s[t + i] = s[t + i].substring(1);
@@ -244,7 +245,8 @@ public class Triangle {
 				try {
 					output.add(new Triangle(Integer.parseInt(s[t]), Integer.parseInt(s[t + 1]),
 							Integer.parseInt(s[t + 2])));
-				} catch (final NumberFormatException e) {
+				}
+				catch (final NumberFormatException e) {
 					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 							"Error: Unable to interpret information in Triangles: " + s[t] + ", " + s[t + 1] + ", or "
 									+ s[t + 2]);
@@ -261,20 +263,20 @@ public class Triangle {
 		String line = "";
 		while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
 			// System.out.println("Interpreting "+line+" for Triangles");
+			// Remove the "Tris" prefix and the ending brackets
+			line = line.replace("Tris", "").replace("{", "").replace("}", "");
+			// Split the line by commas and trim any whitespace
 			final String[] s = line.split(",");
-			s[0] = s[0].substring(4, s[0].length());
-			final int s_size = MDLReader.occurrencesIn(",", line);
-			// System.out.println("We broke it into "+s_size+" parts.");
-			s[s_size - 1] = s[s_size - 1].substring(0, s[s_size - 1].length() - 2);
-			for (int t = 0; t < s_size - 1; t += 3)// s[t+3].equals("")||
-			{
-				for (int i = 0; i < 3; i++) {
-					s[t + i] = s[t + i].substring(1);
-				}
+			for (int i = 0; i < s.length; i++) {
+				s[i] = s[i].trim();
+			}
+			// Assume the data is in groups of 3 and parse each group as a triangle
+			for (int t = 0; t < (s.length - 2); t += 3) {
 				try {
 					output.add(new Triangle(Integer.parseInt(s[t]), Integer.parseInt(s[t + 1]),
 							Integer.parseInt(s[t + 2]), geoRef));
-				} catch (final NumberFormatException e) {
+				}
+				catch (final NumberFormatException e) {
 					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 							"Error: Unable to interpret information in Triangles: " + s[t] + ", " + s[t + 1] + ", or "
 									+ s[t + 2]);
@@ -290,7 +292,8 @@ public class Triangle {
 	}
 
 	/**
-	 * Flips the triangle's orientation, and optionally the normal vectors for all the triangle's components.
+	 * Flips the triangle's orientation, and optionally the normal vectors for all
+	 * the triangle's components.
 	 */
 	public void flip(final boolean flipNormals) {
 		GeosetVertex tempVert;

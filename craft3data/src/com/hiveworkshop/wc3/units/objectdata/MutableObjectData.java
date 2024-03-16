@@ -39,13 +39,13 @@ public final class MutableObjectData {
 		this.sourceSLKData = sourceSLKData;
 		this.sourceSLKMetaData = sourceSLKMetaData;
 		this.editorData = editorData;
-		this.metaNameToMetaId = new HashMap<>();
+		metaNameToMetaId = new HashMap<>();
 		for (final String metaKeyString : sourceSLKMetaData.keySet()) {
 			final War3ID metaKey = War3ID.fromString(metaKeyString);
 			metaNameToMetaId.put(sourceSLKMetaData.get(metaKeyString).getField("field"), metaKey);
 		}
-		this.cachedKeyToGameObject = new HashMap<>();
-		this.changeNotifier = new MutableObjectDataChangeNotifier();
+		cachedKeyToGameObject = new HashMap<>();
+		changeNotifier = new MutableObjectDataChangeNotifier();
 	}
 
 	// TODO remove this hack
@@ -61,7 +61,8 @@ public final class MutableObjectData {
 			if (name.startsWith("WESTRING")) {
 				if (!name.contains(" ")) {
 					name = WEString.getString(name);
-				} else {
+				}
+				else {
 					final String[] names = name.split(" ");
 					name = "";
 					for (final String subName : names) {
@@ -70,7 +71,8 @@ public final class MutableObjectData {
 						}
 						if (subName.startsWith("WESTRING")) {
 							name += WEString.getString(subName);
-						} else {
+						}
+						else {
 							name += subName;
 						}
 					}
@@ -118,10 +120,12 @@ public final class MutableObjectData {
 						final War3ID newTechId = previousAliasToNewAlias.get(War3ID.fromString(tech));
 						if (newTechId != null) {
 							resultingTechList.add(newTechId.toString());
-						} else {
+						}
+						else {
 							resultingTechList.add(tech);
 						}
-					} else {
+					}
+					else {
 						resultingTechList.add(tech);
 					}
 				}
@@ -153,11 +157,13 @@ public final class MutableObjectData {
 				final War3ID newAlias = getNextDefaultEditorId(
 						War3ID.fromString(gameObject.getCode().charAt(0) + "000"), changeset, sourceSLKData);
 				gameObjectUserData = new ObjectDataChangeEntry(gameObjectUserDataToCopy.getOldId(), newAlias);
-			} else if (editorData.getCustom().containsKey(alias)) {
+			}
+			else if (editorData.getCustom().containsKey(alias)) {
 				gameObjectUserDataToCopy = editorData.getCustom().get(alias);
 				gameObjectUserData = new ObjectDataChangeEntry(gameObjectUserDataToCopy.getOldId(),
 						gameObjectUserDataToCopy.getNewId());
-			} else {
+			}
+			else {
 				gameObjectUserDataToCopy = null;
 				final War3ID newAlias = getNextDefaultEditorId(
 						War3ID.fromString(gameObject.getCode().charAt(0) + "000"), changeset, sourceSLKData);
@@ -189,10 +195,12 @@ public final class MutableObjectData {
 						final War3ID newTechId = previousAliasToNewAlias.get(War3ID.fromString(tech));
 						if (newTechId != null) {
 							resultingTechList.add(newTechId.toString());
-						} else {
+						}
+						else {
 							resultingTechList.add(tech);
 						}
-					} else {
+					}
+					else {
 						resultingTechList.add(tech);
 					}
 				}
@@ -258,12 +266,14 @@ public final class MutableObjectData {
 				mutableGameObject = new MutableGameObject(sourceSLKData.get(customUnitData.getOldId().asStringValue()),
 						customUnitData);
 				cachedKeyToGameObject.put(id, mutableGameObject);
-			} else if (editorData.getOriginal().containsKey(id)) {
+			}
+			else if (editorData.getOriginal().containsKey(id)) {
 				final ObjectDataChangeEntry customUnitData = editorData.getOriginal().get(id);
 				mutableGameObject = new MutableGameObject(sourceSLKData.get(customUnitData.getOldId().asStringValue()),
 						editorData.getOriginal().get(id));
 				cachedKeyToGameObject.put(id, mutableGameObject);
-			} else if (sourceSLKData.get(id.asStringValue()) != null) {
+			}
+			else if (sourceSLKData.get(id.asStringValue()) != null) {
 				mutableGameObject = new MutableGameObject(sourceSLKData.get(id.asStringValue()), null);
 				cachedKeyToGameObject.put(id, mutableGameObject);
 			}
@@ -314,26 +324,30 @@ public final class MutableObjectData {
 	}
 
 	private static boolean goodForId(final char c) {
-		return Character.isDigit(c) || c >= 'A' && c <= 'Z';
+		return Character.isDigit(c) || ((c >= 'A') && (c <= 'Z'));
 	}
 
 	public War3ID getNextDefaultEditorId(final War3ID startingId) {
 		War3ID newId = startingId;
-		while (editorData.getCustom().containsKeyCaseInsensitive(newId) || sourceSLKData.get(newId.toString()) != null
+		while (editorData.getCustom().containsKeyCaseInsensitive(newId) || (sourceSLKData.get(newId.toString()) != null)
 				|| !goodForId(newId.charAt(1)) || !goodForId(newId.charAt(2)) || !goodForId(newId.charAt(3))) {
 			// TODO good code general solution
 			if (newId.charAt(3) == 'Z') {
 				if (newId.charAt(2) == 'Z') {
 					if (newId.charAt(1) == 'Z') {
-						newId = new War3ID(newId.getValue() / (256 * 256 * 256) * 256 * 256 * 256 + 256 * 256 * 256
-								+ '0' + '0' * 256 + '0' * 256 * 256);
-					} else {
-						newId = new War3ID(newId.getValue() / (256 * 256) * 256 * 256 + 256 * 256 + '0' + '0' * 256);
+						newId = new War3ID(((newId.getValue() / (256 * 256 * 256)) * 256 * 256 * 256)
+								+ (256 * 256 * 256) + '0' + ('0' * 256) + ('0' * 256 * 256));
 					}
-				} else {
-					newId = new War3ID(newId.getValue() / 256 * 256 + 256 + '0');
+					else {
+						newId = new War3ID(
+								((newId.getValue() / (256 * 256)) * 256 * 256) + (256 * 256) + '0' + ('0' * 256));
+					}
 				}
-			} else {
+				else {
+					newId = new War3ID(((newId.getValue() / 256) * 256) + 256 + '0');
+				}
+			}
+			else {
 				newId = new War3ID(newId.getValue() + 1);
 			}
 		}
@@ -343,7 +357,7 @@ public final class MutableObjectData {
 	public static War3ID getNextDefaultEditorId(final War3ID startingId, final War3ObjectDataChangeset editorData,
 			final ObjectData sourceSLKData) {
 		War3ID newId = startingId;
-		while (editorData.getCustom().containsKeyCaseInsensitive(newId) || sourceSLKData.get(newId.toString()) != null
+		while (editorData.getCustom().containsKeyCaseInsensitive(newId) || (sourceSLKData.get(newId.toString()) != null)
 				|| !goodForId(newId.charAt(1)) || !goodForId(newId.charAt(2)) || !goodForId(newId.charAt(3))) {
 			newId = new War3ID(newId.getValue() + 1);
 		}
@@ -404,13 +418,17 @@ public final class MutableObjectData {
 			final String changeFlags = sourceSLKMetaData.get(field.toString()).getField("changeFlags");
 			if (CATEGORY_FIELDS.contains(field)) {
 				changeNotifier.categoriesChanged(getAlias());
-			} else if (changeFlags.contains("t")) {
+			}
+			else if (changeFlags.contains("t")) {
 				changeNotifier.textChanged(getAlias());
-			} else if (changeFlags.contains("m")) {
+			}
+			else if (changeFlags.contains("m")) {
 				changeNotifier.modelChanged(getAlias());
-			} else if (changeFlags.contains("i")) {
+			}
+			else if (changeFlags.contains("i")) {
 				changeNotifier.iconsChanged(getAlias());
-			} else if (FIELD_SETTINGS_FIELDS.contains(field)) {
+			}
+			else if (FIELD_SETTINGS_FIELDS.contains(field)) {
 				changeNotifier.fieldsChanged(getAlias());
 			}
 		}
@@ -431,19 +449,22 @@ public final class MutableObjectData {
 		}
 
 		public boolean hasEditorData() {
-			return customUnitData != null && customUnitData.getChanges().size() > 0;
+			return (customUnitData != null) && (customUnitData.getChanges().size() > 0);
 		}
 
 		public boolean isCustom() {
 			return editorData.getCustom().containsKey(getAlias());
 		}
 
+		private static final boolean ALLOW_RESET_DEFAULT = false;
+
 		public void setField(final War3ID field, final int level, final String value) {
-			if (value.equals(getFieldStringFromSLKs(field, level))) {
+			if (ALLOW_RESET_DEFAULT && value.equals(getFieldStringFromSLKs(field, level))) {
 				if (!value.equals(getFieldAsString(field, level))) {
 					fireChangedEvent(field, level);
 					System.out.println("field was reset");
-				} else {
+				}
+				else {
 					System.out.println("field was unmodified");
 				}
 				resetFieldToDefaults(field, level);
@@ -457,7 +478,7 @@ public final class MutableObjectData {
 		}
 
 		public void setField(final War3ID field, final int level, final boolean value) {
-			if (value == (asInt(getFieldStringFromSLKs(field, level).trim()) == 1)) {
+			if (ALLOW_RESET_DEFAULT && (value == (asInt(getFieldStringFromSLKs(field, level).trim()) == 1))) {
 				if (value != getFieldAsBoolean(field, level)) {
 					fireChangedEvent(field, level);
 				}
@@ -465,13 +486,13 @@ public final class MutableObjectData {
 				return;
 			}
 			final Change matchingChange = getOrCreateMatchingChange(field, level);
-			matchingChange.setBoolval(value);
-			matchingChange.setVartype(War3ObjectDataChangeset.VAR_TYPE_BOOLEAN);
+			matchingChange.setLongval(value ? 1 : 0);
+			matchingChange.setVartype(War3ObjectDataChangeset.VAR_TYPE_INT);
 			fireChangedEvent(field, level);
 		}
 
 		public void setField(final War3ID field, final int level, final int value) {
-			if (value == asInt(getFieldStringFromSLKs(field, level).trim())) {
+			if (ALLOW_RESET_DEFAULT && (value == asInt(getFieldStringFromSLKs(field, level).trim()))) {
 				if (value != getFieldAsInteger(field, level)) {
 					fireChangedEvent(field, level);
 				}
@@ -486,7 +507,7 @@ public final class MutableObjectData {
 
 		public void resetFieldToDefaults(final War3ID field, final int level) {
 			final Change existingChange = getMatchingChange(field, level);
-			if (existingChange != null && customUnitData != null) {
+			if ((existingChange != null) && (customUnitData != null)) {
 				customUnitData.getChanges().delete(field, existingChange);
 				fireChangedEvent(field, level);
 			}
@@ -494,7 +515,8 @@ public final class MutableObjectData {
 		}
 
 		public void setField(final War3ID field, final int level, final float value) {
-			if (Math.abs(value - asFloat(getFieldStringFromSLKs(field, level).trim())) < 0.00001f) {
+			if (ALLOW_RESET_DEFAULT
+					&& (Math.abs(value - asFloat(getFieldStringFromSLKs(field, level).trim())) < 0.00001f)) {
 				if (Math.abs(value - getFieldAsFloat(field, level)) > 0.00001f) {
 					fireChangedEvent(field, level);
 				}
@@ -530,7 +552,8 @@ public final class MutableObjectData {
 				}
 				if (changeList == null) {
 					changeMap.add(field, matchingChange);
-				} else {
+				}
+				else {
 					boolean insertedChange = false;
 					for (int i = 0; i < changeList.size(); i++) {
 						if (changeList.get(i).getLevel() > level) {
@@ -600,7 +623,7 @@ public final class MutableObjectData {
 			String name = getFieldAsString(editorData.getNameField(),
 					worldEditorDataType == WorldEditorDataType.UPGRADES ? 1 : 0);
 			boolean nameKnown = name.length() >= 1;
-			if (!nameKnown && !readSLKTag("code").equals(getAlias().toString()) && readSLKTag("code").length() >= 4
+			if (!nameKnown && !readSLKTag("code").equals(getAlias().toString()) && (readSLKTag("code").length() >= 4)
 					&& !isCustom()) {
 				final MutableGameObject codeObject = get(War3ID.fromString(readSLKTag("code").substring(0, 4)));
 				if (codeObject != null) {
@@ -615,12 +638,12 @@ public final class MutableObjectData {
 				break;
 			case BUFFS_EFFECTS:
 				final String editorName = getFieldAsString(BUFF_EDITOR_NAME, 0);
-				if (!nameKnown && editorName.length() > 1) {
+				if (!nameKnown && (editorName.length() > 1)) {
 					name = editorName;
 					nameKnown = true;
 				}
 				final String buffTip = getFieldAsString(BUFF_BUFFTIP, 0);
-				if (!nameKnown && buffTip.length() > 1) {
+				if (!nameKnown && (buffTip.length() > 1)) {
 					name = buffTip;
 					nameKnown = true;
 				}
@@ -649,7 +672,8 @@ public final class MutableObjectData {
 			if (nameKnown/* && name.startsWith("WESTRING") */) {
 				if (!name.contains(" ")) {
 					// name = WEString.getString(name);
-				} else {
+				}
+				else {
 					final String[] names = name.split(" ");
 					name = "";
 					for (final String subName : names) {
@@ -670,7 +694,7 @@ public final class MutableObjectData {
 			if (!nameKnown) {
 				name = WEString.getString("WESTRING_UNKNOWN") + " '" + getAlias().toString() + "'";
 			}
-			if (suf.length() > 0 && !suf.equals("_")) {
+			if ((suf.length() > 0) && !suf.equals("_")) {
 				// if (suf.startsWith("WESTRING")) {
 				// suf = WEString.getString(suf);
 				// }
@@ -688,11 +712,14 @@ public final class MutableObjectData {
 				if (worldEditorDataType == WorldEditorDataType.UNITS) {
 					if (ROC_SUPPORT_URAC.equals(field)) {
 						return parentWC3Object.getField("race");
-					} else if (ROC_SUPPORT_UCAM.equals(field)) {
+					}
+					else if (ROC_SUPPORT_UCAM.equals(field)) {
 						return "0";
-					} else if (ROC_SUPPORT_USPE.equals(field)) {
+					}
+					else if (ROC_SUPPORT_USPE.equals(field)) {
 						return parentWC3Object.getField("special");
-					} else if (ROC_SUPPORT_UBDG.equals(field)) {
+					}
+					else if (ROC_SUPPORT_UBDG.equals(field)) {
 						return parentWC3Object.getField("isbldg");
 					}
 				}
@@ -709,7 +736,8 @@ public final class MutableObjectData {
 				if (!field.toString().equals("gbpx") && !field.toString().equals("gbpy")) {
 					index = level;
 				}
-			} else if (index != -1 && level > 0) {
+			}
+			else if ((index != -1) && (level > 0)) {
 				index = level - 1;
 			}
 			String editorMetaDataDisplayKey = getEditorMetaDataDisplayKey(level, metaData);
@@ -737,7 +765,8 @@ public final class MutableObjectData {
 			// no luck with custom data, look at the standard data
 			try {
 				return Integer.parseInt(getFieldStringFromSLKs(field, level));
-			} catch (final NumberFormatException e) {
+			}
+			catch (final NumberFormatException e) {
 				return 0;
 			}
 		}
@@ -748,7 +777,8 @@ public final class MutableObjectData {
 				if (matchingChange.getVartype() != War3ObjectDataChangeset.VAR_TYPE_BOOLEAN) {
 					if (matchingChange.getVartype() == War3ObjectDataChangeset.VAR_TYPE_INT) {
 						return matchingChange.getLongval() == 1;
-					} else {
+					}
+					else {
 						throw new IllegalStateException(
 								"Requested boolean value of '" + field + "' from '" + parentWC3Object.getId()
 										+ "', but this field was not a bool! vartype=" + matchingChange.getVartype());
@@ -759,7 +789,8 @@ public final class MutableObjectData {
 			// no luck with custom data, look at the standard data
 			try {
 				return Integer.parseInt(getFieldStringFromSLKs(field, level)) == 1;
-			} catch (final NumberFormatException e) {
+			}
+			catch (final NumberFormatException e) {
 				return false;
 			}
 		}
@@ -767,8 +798,8 @@ public final class MutableObjectData {
 		public float getFieldAsFloat(final War3ID field, final int level) {
 			final Change matchingChange = getMatchingChange(field, level);
 			if (matchingChange != null) {
-				if (matchingChange.getVartype() != War3ObjectDataChangeset.VAR_TYPE_REAL
-						&& matchingChange.getVartype() != War3ObjectDataChangeset.VAR_TYPE_UNREAL) {
+				if ((matchingChange.getVartype() != War3ObjectDataChangeset.VAR_TYPE_REAL)
+						&& (matchingChange.getVartype() != War3ObjectDataChangeset.VAR_TYPE_UNREAL)) {
 					throw new IllegalStateException(
 							"Requested float value of '" + field + "' from '" + parentWC3Object.getId()
 									+ "', but this field was not a float! vartype=" + matchingChange.getVartype());
@@ -778,7 +809,8 @@ public final class MutableObjectData {
 			// no luck with custom data, look at the standard data
 			try {
 				return Float.parseFloat(getFieldStringFromSLKs(field, level));
-			} catch (final NumberFormatException e) {
+			}
+			catch (final NumberFormatException e) {
 				return 0;
 			}
 		}
@@ -795,19 +827,22 @@ public final class MutableObjectData {
 
 		public War3ID getCode() {
 			if (customUnitData == null) {
-				if ((worldEditorDataType == WorldEditorDataType.ABILITIES
-						|| worldEditorDataType == WorldEditorDataType.BUFFS_EFFECTS)
-						&& parentWC3Object.getField("code") != null && parentWC3Object.getField("code").length() > 0) {
+				if (((worldEditorDataType == WorldEditorDataType.ABILITIES)
+						|| (worldEditorDataType == WorldEditorDataType.BUFFS_EFFECTS))
+						&& (parentWC3Object.getField("code") != null)
+						&& (parentWC3Object.getField("code").length() > 0)) {
 					return War3ID.fromString(parentWC3Object.getField("code"));
-				} else {
+				}
+				else {
 					return War3ID.fromString(parentWC3Object.getId());
 				}
 			}
 			if (War3ID.NONE.equals(customUnitData.getNewId())) {
-				if (worldEditorDataType == WorldEditorDataType.ABILITIES
-						|| worldEditorDataType == WorldEditorDataType.BUFFS_EFFECTS) {
+				if ((worldEditorDataType == WorldEditorDataType.ABILITIES)
+						|| (worldEditorDataType == WorldEditorDataType.BUFFS_EFFECTS)) {
 					return War3ID.fromString(parentWC3Object.getField("code"));
-				} else {
+				}
+				else {
 					return customUnitData.getOldId();
 				}
 			}
@@ -818,7 +853,7 @@ public final class MutableObjectData {
 
 	private static int asInt(final String text) {
 		return text == null ? 0
-				: "".equals(text) ? 0 : "-".equals(text) ? 0 : "_".equals(text) ? 0 : Integer.parseInt(text);
+				: "".equals(text) ? 0 : "-".equals(text) ? 0 : "_".equals(text) ? 0 : (int) Float.parseFloat(text);
 	}
 
 	private static float asFloat(final String text) {
@@ -846,7 +881,7 @@ public final class MutableObjectData {
 		String metaDataName = metaData.getField("field");
 		final int repeatCount = metaData.getFieldValue("repeat");
 		final String upgradeHack = metaData.getField("appendIndex");
-		final boolean repeats = repeatCount > 0 && !"0".equals(upgradeHack);
+		final boolean repeats = (repeatCount > 0) && !"0".equals(upgradeHack);
 		final int data = metaData.getFieldValue("data");
 		if (data > 0) {
 			metaDataName += (char) ('A' + (data - 1));
@@ -856,13 +891,15 @@ public final class MutableObjectData {
 			if (upgradeExtensionLevel > 0) {
 				metaDataName += Integer.toString(upgradeExtensionLevel);
 			}
-		} else if (repeats && (index == -1 || repeatCount >= 10)) {
+		}
+		else if (repeats && ((index == -1) || (repeatCount >= 10))) {
 			if (level == 0) {
 				level = 1;
 			}
 			if (repeatCount >= 10) {
 				metaDataName += String.format("%2d", level).replace(' ', '0');
-			} else {
+			}
+			else {
 				metaDataName += Integer.toString(level);
 			}
 		}
