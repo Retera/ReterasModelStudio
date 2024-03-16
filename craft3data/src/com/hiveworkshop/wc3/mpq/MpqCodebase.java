@@ -27,7 +27,7 @@ public class MpqCodebase implements Codebase, DataSource {
 	private final List<DataSource> mpqList = new ArrayList<>();
 
 	public MpqCodebase(final List<DataSourceDescriptor> dataSourceDescriptors) {
-		mpqList.add(new JavaJarDataSource(JavaJarDataSource.DEFAULT_SOURCE_CLASS));
+		mpqList.add(new JavaJarDataSource());
 		if (dataSourceDescriptors != null) {
 			for (final DataSourceDescriptor descriptor : dataSourceDescriptors) {
 				mpqList.add(descriptor.createDataSource());
@@ -118,7 +118,7 @@ public class MpqCodebase implements Codebase, DataSource {
 		}
 		cache.clear();
 		mpqList.clear();
-		mpqList.add(new JavaJarDataSource(JavaJarDataSource.DEFAULT_SOURCE_CLASS));
+		mpqList.add(new JavaJarDataSource());
 		if (dataSourceDescriptors != null) {
 			for (final DataSourceDescriptor descriptor : dataSourceDescriptors) {
 				mpqList.add(descriptor.createDataSource());

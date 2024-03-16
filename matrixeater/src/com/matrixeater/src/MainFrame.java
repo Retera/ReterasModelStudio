@@ -28,7 +28,6 @@ import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceChooserPanel;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
-import com.hiveworkshop.wc3.gui.datachooser.JavaJarDataSource;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.resources.Resources;
@@ -52,7 +51,7 @@ import net.infonode.gui.laf.InfoNodeLookAndFeelThemes;
  * @version (a version number or a date)
  */
 public class MainFrame extends JFrame {
-	private static final String RETERA_MODEL_STUDIO_VERSION = "Retera Model Studio v0.04.5j";
+	private static final String RETERA_MODEL_STUDIO_VERSION = "Retera Model Studio v0.04.5j2";
 	static MainFrame frame;
 	static MainPanel panel;
 	static JMenuBar menuBar;
@@ -62,7 +61,6 @@ public class MainFrame extends JFrame {
 	}
 
 	public static void main(final String[] args) {
-		JavaJarDataSource.DEFAULT_SOURCE_CLASS = MainFrame.class;
 		final boolean hasArgs = args.length >= 1;
 		final List<String> startupModelPaths = new ArrayList<>();
 		if (hasArgs) {

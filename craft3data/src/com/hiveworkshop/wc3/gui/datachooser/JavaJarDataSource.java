@@ -9,17 +9,10 @@ import java.util.Collection;
 import java.util.Collections;
 
 public class JavaJarDataSource implements DataSource {
-	public static Class<?> DEFAULT_SOURCE_CLASS = null;
-
-	private Class<?> sourceClass;
-
-	public JavaJarDataSource(Class<?> sourceClass) {
-		this.sourceClass = sourceClass;
-	}
 
 	@Override
 	public InputStream getResourceAsStream(final String filepath) throws IOException {
-		return sourceClass.getResourceAsStream("/" + filepath.replace('\\', '/'));
+		return JavaJarDataSource.class.getResourceAsStream("/" + filepath.replace('\\', '/'));
 	}
 
 	@Override
@@ -49,7 +42,7 @@ public class JavaJarDataSource implements DataSource {
 
 	@Override
 	public boolean has(final String filepath) {
-		return sourceClass.getResource("/" + filepath.replace('\\', '/')) != null;
+		return JavaJarDataSource.class.getResource("/" + filepath.replace('\\', '/')) != null;
 	}
 
 	@Override
