@@ -30,7 +30,7 @@ public class ScaleActivity extends TransformActivity {
 
 	protected void updateMat(Mat4 viewProjectionMatrix, Vec2 mouseEnd,
 	                         boolean isPrecise, boolean isSnap, boolean isAxisLock) {
-		buildScaleVector(lastMousePoint, mouseEnd);
+		buildScaleVector(lastMousePoint, mouseEnd, isSnap);
 		transformAction.setScale(scaleVector);
 	}
 
@@ -38,7 +38,7 @@ public class ScaleActivity extends TransformActivity {
 		isNeg = false;
 	}
 
-	protected double computeScaleFactor(Vec2 mouseStart, Vec2 mouseEnd) {
+	protected double computeUniformScaleFactor(Vec2 mouseStart, Vec2 mouseEnd, boolean isSnap) {
 		double dxEnd = 0;
 		double dyEnd = 0;
 
@@ -59,13 +59,15 @@ public class ScaleActivity extends TransformActivity {
 
 		int flipNeg = (int) Math.copySign(1, (dxEnd*dxStart) + (dyEnd*dyStart));
 
-		return flipNeg * (endDist / startDist);
+		double scaleFactor = endDist / startDist;
+		scaleFactor = isSnap ? ((int)(scaleFactor*10f))/10d : scaleFactor;
+		return flipNeg * scaleFactor;
 	}
 
-	protected final void buildScaleVector(Vec2 mouseStart, Vec2 mouseEnd) {
+	protected final void buildScaleVector(Vec2 mouseStart, Vec2 mouseEnd, boolean isSnap) {
 		scaleVector.set(0,0,0);
 
-		double scaleFactor = computeScaleFactor(realMouseStart, mouseEnd);
+		double scaleFactor = computeUniformScaleFactor(realMouseStart, mouseEnd, isSnap);
 		if (dir.containDim(MoveDimension.X)) {
 			scaleVector.addScaled(Vec3.X_AXIS, (float) (scaleFactor));
 		} else {

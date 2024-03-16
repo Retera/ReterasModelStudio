@@ -36,6 +36,7 @@ public abstract class ViewportActivity implements SelectionListener {
 	protected ModelView modelView;
 	protected final Vec2 mouseStartPoint = new Vec2();
 	protected final Vec2 lastMousePoint = new Vec2();
+	protected float sizeAdj;
 	protected AbstractSelectionManager selectionManager;
 	protected AbstractModelEditorManager modelEditorManager;
 	protected final Vec3 tempVec3 = new Vec3();

@@ -21,6 +21,7 @@ public final class StaticMeshMoveAction extends AbstractTransformAction {
 	private final String actionName;
 	private final Mat4 invRotMat = new Mat4();
 	private final Mat4 rotMat = new Mat4();
+	private final Vec3 deltaTranslate = new Vec3();
 
 	public StaticMeshMoveAction(ModelView modelView, Vec3 moveVector, Mat4 rotMat) {
 		this(modelView, moveVector, "Move", null, rotMat);
@@ -79,6 +80,14 @@ public final class StaticMeshMoveAction extends AbstractTransformAction {
 	public StaticMeshMoveAction updateTranslation(Vec3 delta) {
 		moveVector.add(delta);
 		updateTransform(delta);
+		return this;
+	}
+
+	@Override
+	public StaticMeshMoveAction setTranslation(Vec3 transl) {
+		deltaTranslate.set(transl).sub(moveVector);
+		moveVector.set(transl);
+		updateTransform(deltaTranslate);
 		return this;
 	}
 

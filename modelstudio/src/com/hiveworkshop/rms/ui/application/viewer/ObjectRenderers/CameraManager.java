@@ -132,7 +132,7 @@ public class CameraManager extends AbstractCamera {
 		return camBackward;
 	}
 
-	// 1 px on screen to distance in world
+	// 1 px on screen to distance in world (1 u/px)
 	public double sizeAdj() {
 		Vec3 worldScreenSpaceAsDeltaRay2 = getWorldScreenSpaceAsDeltaRay(1, 0);
 		return worldScreenSpaceAsDeltaRay2.length() * 2.0 / ((double) viewport.getWidth());

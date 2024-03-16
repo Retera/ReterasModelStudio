@@ -14,6 +14,7 @@ public final class StaticMeshUVMoveAction extends AbstractTransformAction {
 	private final Vec3 moveVector;
 	private final Mat4 invRotMat = new Mat4();
 	private final Mat4 rotMat = new Mat4();
+	private final Vec3 deltaTranslate = new Vec3();
 
 	public StaticMeshUVMoveAction(Collection<GeosetVertex> selectedVertices, int uvLayerIndex, Vec3 moveVector, Mat4 rotMat) {
 		selectedTVerts = new ArrayList<>();
@@ -51,6 +52,13 @@ public final class StaticMeshUVMoveAction extends AbstractTransformAction {
 	public StaticMeshUVMoveAction updateTranslation(Vec3 delta) {
 		moveVector.add(delta);
 		rawMove(delta);
+		return this;
+	}
+	@Override
+	public StaticMeshUVMoveAction setTranslation(Vec3 transl) {
+		deltaTranslate.set(transl).sub(moveVector);
+		moveVector.set(transl);
+		rawMove(deltaTranslate);
 		return this;
 	}
 

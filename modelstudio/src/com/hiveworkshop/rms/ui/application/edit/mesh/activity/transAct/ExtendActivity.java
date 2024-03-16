@@ -21,6 +21,8 @@ public class ExtendActivity extends MoveActivity {
 		lengthX = moveVector.sub(tempVec3).length();
 		moveVector.set(0, 1, zDepth).transform(inverseViewProjectionMatrix, 1, true);
 		lengthY = moveVector.sub(tempVec3).length();
+
+		snapSize = getSnapSize();
 	}
 
 }

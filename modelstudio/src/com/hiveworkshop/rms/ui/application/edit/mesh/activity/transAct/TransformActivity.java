@@ -51,8 +51,8 @@ public abstract class TransformActivity extends ViewportActivity {
 		if (MouseEventHelpers.matches(e, getModify(), getSnap()) && !selectionManager.isEmpty()) {
 			this.viewProjectionMatrix.set(viewProjectionMatrix);
 			this.inverseViewProjectionMatrix.set(viewProjectionMatrix).invert();
+			this.sizeAdj = (float) sizeAdj;
 			isActing = true;
-
 
 			mouseStartPoint.set(getPoint(e));
 			lastMousePoint.set(mouseStartPoint);
