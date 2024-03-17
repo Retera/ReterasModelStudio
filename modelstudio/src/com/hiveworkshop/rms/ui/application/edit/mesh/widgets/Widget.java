@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.widgets;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.MoveDimension;
 import com.hiveworkshop.rms.util.Mat4;
+import com.hiveworkshop.rms.util.MathUtils;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -23,12 +24,19 @@ public abstract class Widget {
 	public void render(Graphics2D graphics, Mat4 viewportMat, Mat4 invViewportMat, Component parent){
 	}
 
-	protected Vec2 getVpPoint(Mat4 viewportMat, Component parent){
+	protected Vec2 getVpPoint(Mat4 viewportMat, Component parent) {
 		tempPoint.set(point).transform(viewportMat, 1, true);
-		int x = (int) ((1 + tempPoint.x)/2f * parent.getWidth());
-		int y = (int) ((1 - tempPoint.y)/2f * parent.getHeight());
+		int x = MathUtils.clamp((int) ((1 + tempPoint.x)/2f * parent.getWidth()), 0, parent.getWidth()-25);
+		int y = MathUtils.clamp((int) ((1 - tempPoint.y)/2f * parent.getHeight()), 25, parent.getHeight());
 		return vpPoint.set(x, y);
 	}
+
+//	protected Vec2 getVpPoint(Mat4 viewportMat, Component parent){
+//		tempPoint.set(point).transform(viewportMat, 1, true);
+//		int x = (int) ((1 + tempPoint.x)/2f * parent.getWidth());
+//		int y = (int) ((1 - tempPoint.y)/2f * parent.getHeight());
+//		return vpPoint.set(x, y);
+//	}
 
 	protected Point getMousePoint(Vec2 mousePoint, Component parent) {
 		float x = (1 + mousePoint.x) / 2f * parent.getWidth();

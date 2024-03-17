@@ -25,7 +25,6 @@ public class ScriptView {
 	}
 
 	public View createHackerView() {
-		View hackerView;
 		JPanel hackerPanel = new JPanel(new BorderLayout());
 
 		RSyntaxTextArea scriptTextArea = new RSyntaxTextArea(20, 60);
@@ -42,8 +41,7 @@ public class ScriptView {
 		runScriptButton.addActionListener(e -> runScript(factory, scriptTextArea));
 		hackerPanel.add(runScriptButton, BorderLayout.NORTH);
 
-		hackerView = new View("Matrix Eater Script", null, hackerPanel);
-		return hackerView;
+		return new View("Matrix Eater Script", null, hackerPanel);
 	}
 
 

@@ -53,9 +53,13 @@ public class WindowsMenu extends JMenu {
 		JMenu browsersMenu = createMenu("Browsers", KeyEvent.VK_B);
 		add(browsersMenu);
 
-		browsersMenu.add(createMenuItem("Data Browser", KeyEvent.VK_A, e -> openViewer(new MPQBrowserView())));
-		browsersMenu.add(createMenuItem("Unit Browser", KeyEvent.VK_U, e -> openViewer(new UnitBrowserView())));
-		browsersMenu.add(createMenuItem("Doodad Browser", KeyEvent.VK_D, e -> openViewer(new DoodadBrowserView())));
+		browsersMenu.add(createMenuItem("Data Browser", KeyEvent.VK_A, e -> openView(new MPQBrowserView())));
+		browsersMenu.add(createMenuItem("Unit Browser", KeyEvent.VK_U, e -> openView(new UnitBrowserView())));
+		browsersMenu.add(createMenuItem("Doodad Browser", KeyEvent.VK_D, e -> openView(new DoodadBrowserView())));
+//
+//		browsersMenu.add(createMenuItem("Data Browser", KeyEvent.VK_A, e -> openViewer(new MPQBrowserView())));
+//		browsersMenu.add(createMenuItem("Unit Browser", KeyEvent.VK_U, e -> openViewer(new UnitBrowserView())));
+//		browsersMenu.add(createMenuItem("Doodad Browser", KeyEvent.VK_D, e -> openViewer(new DoodadBrowserView())));
 		browsersMenu.add(createMenuItem("Image Browser", KeyEvent.VK_I, e -> MPQImageBrowser.showPanel()));
 
 		JMenuItem hiveViewer = new JMenuItem("Hive Browser");
@@ -115,6 +119,12 @@ public class WindowsMenu extends JMenu {
 		RootWindowUgg rootWindow = ProgramGlobals.getRootWindowUgg();
 
 		rootWindow.newWindow(mdv.setModelPanel(ProgramGlobals.getCurrentModelPanel()));
+	}
+
+	private void openView(View mdv){
+		RootWindowUgg rootWindow = ProgramGlobals.getRootWindowUgg();
+
+		rootWindow.newWindow(mdv);
 	}
 
 
