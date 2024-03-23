@@ -12,10 +12,10 @@ public final class GameDataFileSystem {
 
 	public static CompoundDataSource getDefault() {
 		if (current == null) {
-			final List<DataSourceDescriptor> dataSourceDescriptors = SaveProfileNew.get().getDataSources();
 			final List<DataSource> dataSources = new ArrayList<>();
 			dataSources.add(new JavaJarDataSource());
-			if (dataSourceDescriptors != null) {
+			if (SaveProfileNew.get().hasDataSources()) {
+				final List<DataSourceDescriptor> dataSourceDescriptors = SaveProfileNew.get().getDataSources();
 				for (final DataSourceDescriptor descriptor : dataSourceDescriptors) {
 					try {
 						dataSources.add(descriptor.createDataSource());

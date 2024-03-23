@@ -20,7 +20,7 @@ public class ModeButton extends JButton {
 	public ModeButton(String s) {
 		super(s);
 		this.activeColor = ProgramGlobals.getPrefs().getUiElementColorPrefs().getColor(UiElementColor.ACTIVE_MODE_BUTTON);
-		System.out.println("active color: " + activeColor);
+//		System.out.println("active color: " + activeColor);
 		currBG = getBackground();
 	}
 
