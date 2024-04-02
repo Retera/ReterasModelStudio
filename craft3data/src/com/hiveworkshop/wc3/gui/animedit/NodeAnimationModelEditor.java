@@ -81,8 +81,8 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		this.model = model;
 		this.programPreferences = programPreferences;
 		this.structureChangeListener = structureChangeListener;
-		this.genericSelectorVisitor = new GenericSelectorVisitor();
-		this.selectionAtPointTester = new SelectionAtPointTester();
+		genericSelectorVisitor = new GenericSelectorVisitor();
+		selectionAtPointTester = new SelectionAtPointTester();
 		this.renderModel = renderModel;
 	}
 
@@ -345,7 +345,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		private SelectionAtPointTester reset(final CoordinateSystem axes, final Point point) {
 			this.axes = axes;
 			this.point = point;
-			this.mouseOverVertex = false;
+			mouseOverVertex = false;
 			return this;
 		}
 
@@ -933,6 +933,11 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public UndoAction setParent(final IdObject node) {
+		throw new WrongModeException("Can't set parent in Animation Editor");
+	}
+
+	@Override
+	public UndoAction reLinkRFBone(IdObject node) {
 		throw new WrongModeException("Can't set parent in Animation Editor");
 	}
 

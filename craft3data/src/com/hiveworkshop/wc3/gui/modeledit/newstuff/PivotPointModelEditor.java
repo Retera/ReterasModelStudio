@@ -23,6 +23,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.nodes.DeleteNodesActi
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.AutoCenterBonesAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.ReLinkRFBoneAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.RenameBoneAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.RigAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.SetParentAction;
@@ -64,8 +65,8 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			final ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager, model, structureChangeListener);
 		this.programPreferences = programPreferences;
-		this.genericSelectorVisitor = new GenericSelectorVisitor();
-		this.selectionAtPointTester = new SelectionAtPointTester();
+		genericSelectorVisitor = new GenericSelectorVisitor();
+		selectionAtPointTester = new SelectionAtPointTester();
 	}
 
 	@Override
@@ -77,6 +78,20 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			}
 		}
 		final SetParentAction setParentAction = new SetParentAction(nodeToOldParent, node, structureChangeListener);
+		setParentAction.redo();
+		return setParentAction;
+	}
+
+	@Override
+	public UndoAction reLinkRFBone(IdObject node) {
+		final HashMap<IdObject, IdObject> nodeToOldParent = new HashMap<>();
+		for (final IdObject b : model.getEditableIdObjects()) {
+			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
+				nodeToOldParent.put(b, b.getParent());
+			}
+		}
+		final ReLinkRFBoneAction setParentAction = new ReLinkRFBoneAction(model.getModel(), nodeToOldParent, node,
+				structureChangeListener);
 		setParentAction.redo();
 		return setParentAction;
 	}
@@ -115,7 +130,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		}
 		final Vertex selectedVertex = selectionManager.getSelection().iterator().next();
 		IdObject node = null;
-		for (final IdObject bone : this.model.getEditableIdObjects()) {
+		for (final IdObject bone : model.getEditableIdObjects()) {
 			if (bone.getPivotPoint() == selectedVertex) {
 				if (node != null) {
 					throw new IllegalStateException(
@@ -136,7 +151,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 	public UndoAction addSelectedBoneSuffix(final String name) {
 		final Set<Vertex> selection = selectionManager.getSelection();
 		final com.etheller.collections.List<RenameBoneAction> actions = new com.etheller.collections.ArrayList<>();
-		for (final IdObject bone : this.model.getEditableIdObjects()) {
+		for (final IdObject bone : model.getEditableIdObjects()) {
 			if (selection.contains(bone.getPivotPoint())) {
 				final RenameBoneAction renameBoneAction = new RenameBoneAction(bone.getName(), bone.getName() + name,
 						bone);
@@ -672,7 +687,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		private SelectionAtPointTester reset(final CoordinateSystem axes, final Point point) {
 			this.axes = axes;
 			this.point = point;
-			this.mouseOverVertex = false;
+			mouseOverVertex = false;
 			return this;
 		}
 

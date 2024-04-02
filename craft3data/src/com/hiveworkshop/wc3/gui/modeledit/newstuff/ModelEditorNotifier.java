@@ -194,6 +194,20 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
+	public UndoAction reLinkRFBone(IdObject node) {
+		final List<UndoAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			try {
+				actions.add(handler.reLinkRFBone(node));
+			}
+			catch (final UnsupportedOperationException e) {
+				// don't add actions for unsupported operations
+			}
+		}
+		return mergeActions(actions);
+	}
+
+	@Override
 	public UndoAction addTeamColor() {
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {

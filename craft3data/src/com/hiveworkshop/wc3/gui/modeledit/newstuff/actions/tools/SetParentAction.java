@@ -20,7 +20,7 @@ public final class SetParentAction implements UndoAction {
 		this.nodeToOldParent = nodeToOldParent;
 		this.newParent = newParent;
 		this.changeListener = changeListener;
-		this.nodes = new ArrayList<>();
+		nodes = new ArrayList<>();
 		for (final MapView.Entry<IdObject, IdObject> entry : nodeToOldParent) {
 			nodes.add(entry.getKey());
 		}
@@ -46,7 +46,7 @@ public final class SetParentAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "re-assign matrix";
+		return "set parent";
 	}
 
 }

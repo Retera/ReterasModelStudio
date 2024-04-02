@@ -150,6 +150,27 @@ public class MathUtils {
 		out.m33 = 1;
 	}
 
+	public static void toQuat(Matrix4f mat, Quaternion q) {
+		q.w = (float) Math.sqrt(Math.max(0, 1 + mat.m00 + mat.m11 + mat.m22)) / 2;
+		q.x = (float) Math.sqrt(Math.max(0, (1 + mat.m00) - mat.m11 - mat.m22)) / 2;
+		q.y = (float) Math.sqrt(Math.max(0, ((1 - mat.m00) + mat.m11) - mat.m22)) / 2;
+		q.z = (float) Math.sqrt(Math.max(0, (1 - mat.m00 - mat.m11) + mat.m22)) / 2;
+		q.x *= Math.signum(q.x * (mat.m12 - mat.m21));
+		q.y *= Math.signum(q.y * (mat.m20 - mat.m02));
+		q.z *= Math.signum(q.z * (mat.m01 - mat.m10));
+	}
+
+	// NOTE: in this extract function, out is not out
+	public static void extractTranslation(Matrix4f out, Vertex value, Vertex pivot) {
+//		out.m30 = (v.x + pivot.x) - ((out.m00 * pivot.x) + (out.m10 * pivot.y) + (out.m20 * pivot.z));
+//		out.m31 = (v.y + pivot.y) - ((out.m01 * pivot.x) + (out.m11 * pivot.y) + (out.m21 * pivot.z));
+//		out.m32 = (v.z + pivot.z) - ((out.m02 * pivot.x) + (out.m12 * pivot.y) + (out.m22 * pivot.z));
+		// TODO Auto-generated method stub
+		value.x = (out.m30 + ((out.m00 * pivot.x) + (out.m10 * pivot.y) + (out.m20 * pivot.z))) - pivot.x;
+		value.y = (out.m31 + ((out.m01 * pivot.x) + (out.m11 * pivot.y) + (out.m21 * pivot.z))) - pivot.y;
+		value.z = (out.m32 + ((out.m02 * pivot.x) + (out.m12 * pivot.y) + (out.m22 * pivot.z))) - pivot.z;
+	}
+
 	public static void fromQuat(final Quaternion q, final Matrix4f out) {
 		final float x = q.x, y = q.y, z = q.z, w = q.w;
 		final float x2 = x + x;

@@ -398,6 +398,11 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 		throw new UnsupportedOperationException("This feature is not available in Geoset Vertex mode");
 	}
 
+	@Override
+	public UndoAction reLinkRFBone(IdObject node) {
+		throw new UnsupportedOperationException("This feature is not available in Geoset Vertex mode");
+	}
+
 	public VertexSelectionHelper getVertexSelectionHelper() {
 		return vertexSelectionHelper;
 	}

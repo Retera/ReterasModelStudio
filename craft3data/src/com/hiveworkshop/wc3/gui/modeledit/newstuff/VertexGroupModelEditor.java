@@ -353,6 +353,11 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 		throw new UnsupportedOperationException("This feature is not available in Vertex Group mode");
 	}
 
+	@Override
+	public UndoAction reLinkRFBone(IdObject node) {
+		throw new UnsupportedOperationException("This feature is not available in Vertex Group mode");
+	}
+
 	public VertexSelectionHelper getVertexSelectionHelper() {
 		return vertexSelectionHelper;
 	}
