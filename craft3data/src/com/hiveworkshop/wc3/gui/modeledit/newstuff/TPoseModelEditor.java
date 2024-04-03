@@ -21,6 +21,7 @@ import com.hiveworkshop.wc3.gui.modeledit.cutpaste.CopiedModelData;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.nodes.DeleteNodesAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.AutoCenterBonesAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.ReLinkRFBoneAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.RenameBoneAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.SetParentAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.CompoundAction;
@@ -59,8 +60,8 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 			final ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager, model, structureChangeListener);
 		this.programPreferences = programPreferences;
-		this.genericSelectorVisitor = new GenericSelectorVisitor();
-		this.selectionAtPointTester = new SelectionAtPointTester();
+		genericSelectorVisitor = new GenericSelectorVisitor();
+		selectionAtPointTester = new SelectionAtPointTester();
 	}
 
 	@Override
@@ -72,6 +73,20 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 			}
 		}
 		final SetParentAction setParentAction = new SetParentAction(nodeToOldParent, node, structureChangeListener);
+		setParentAction.redo();
+		return setParentAction;
+	}
+
+	@Override
+	public UndoAction reLinkRFBone(IdObject node) {
+		final HashMap<IdObject, IdObject> nodeToOldParent = new HashMap<>();
+		for (final IdObject b : model.getEditableIdObjects()) {
+			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
+				nodeToOldParent.put(b, b.getParent());
+			}
+		}
+		final ReLinkRFBoneAction setParentAction = new ReLinkRFBoneAction(model.getModel(), nodeToOldParent, node,
+				structureChangeListener);
 		setParentAction.redo();
 		return setParentAction;
 	}
@@ -469,7 +484,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		private SelectionAtPointTester reset(final CoordinateSystem axes, final Point point) {
 			this.axes = axes;
 			this.point = point;
-			this.mouseOverVertex = false;
+			mouseOverVertex = false;
 			return this;
 		}
 

@@ -13,7 +13,7 @@ public interface RenderResourceAllocator {
 
 	InternalResource allocateMaterial(Material material, RibbonEmitter ribbonEmitter);
 
-	public static final RenderResourceAllocator DO_NOTHINGX = new RenderResourceAllocator() {
+	public static final RenderResourceAllocator DO_NOTHING = new RenderResourceAllocator() {
 		@Override
 		public InternalResource allocateTexture(final Bitmap bitmap, final ParticleEmitter2 textureSource) {
 			return new InternalResource() {

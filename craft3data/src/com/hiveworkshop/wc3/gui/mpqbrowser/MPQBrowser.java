@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.swing.Icon;
@@ -84,7 +85,7 @@ public final class MPQBrowser extends JPanel {
 		menuBar.add(fileMenu);
 		final JMenu filtersMenu = new JMenu("Filters");
 		menuBar.add(filtersMenu);
-		this.filters = new ArrayList<>();
+		filters = new ArrayList<>();
 		filters.add(new Filter("Text", new String[] { ".txt" }));
 		filters.add(new Filter("Sylk", new String[] { ".slk" }));
 		filters.add(new Filter("Script", new String[] { ".ai", ".wai", ".j", ".js", ".pld" }));
@@ -92,7 +93,7 @@ public final class MPQBrowser extends JPanel {
 		filters.add(new Filter("Models", new String[] { ".mdl", ".mdx" }));
 		filters.add(new Filter("Images", new String[] { ".bmp", ".tga", ".jpg", ".jpeg", ".pcx", ".blp", ".dds" }));
 		filters.add(new Filter("Maps", new String[] { ".w3m", ".w3x", ".w3n" }));
-		filters.add(new Filter("Sounds", new String[] { ".wav" }));
+		filters.add(new Filter("Sounds", new String[] { ".wav", ".flac" }));
 		filters.add(new Filter("Music", new String[] { ".mp3", ".mid" }));
 		otherFilter = new Filter("Other", true);
 		filters.add(otherFilter);
@@ -133,7 +134,7 @@ public final class MPQBrowser extends JPanel {
 		});
 		final MPQTreeNode root = createMPQTree(mpqCodebase);
 		treeModel = new DefaultTreeModel(root);
-		this.tree = new JTree(treeModel);
+		tree = new JTree(treeModel);
 		tree.setShowsRootHandles(true);
 		tree.setRootVisible(false);
 		tree.setCellRenderer(new DefaultTreeCellRenderer() {
@@ -157,11 +158,13 @@ public final class MPQBrowser extends JPanel {
 							tempFile.delete();
 						}
 					}
-				} else {
+				}
+				else {
 					if (expanded) {
 						setIcon(new ImageIcon(BLPHandler.get()
 								.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp")));
-					} else {
+					}
+					else {
 						setIcon(new ImageIcon(BLPHandler.get()
 								.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp")));
 					}
@@ -213,14 +216,17 @@ public final class MPQBrowser extends JPanel {
 									"Export File", JOptionPane.WARNING_MESSAGE,
 									JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION) {
 								return;
-							} else {
+							}
+							else {
 								selectedFile.delete();
 							}
-						} else {
+						}
+						else {
 							try {
 								Files.copy(mpqCodebase.getResourceAsStream(clickedNode.getPath()),
 										selectedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-							} catch (final IOException e1) {
+							}
+							catch (final IOException e1) {
 								ExceptionPopup.display(e1);
 								e1.printStackTrace();
 							}
@@ -271,11 +277,11 @@ public final class MPQBrowser extends JPanel {
 		}
 		List.Util.sort(listfile);
 		for (String string : listfile) {
-			final int periodIndex = string.indexOf('.');
+			final int periodIndex = string.lastIndexOf('.');
 			boolean foundMatch = false;
 			if (periodIndex != -1) {
 				final String extension = string.substring(periodIndex);
-				final Filter filter = extensionToFilter.get(extension);
+				final Filter filter = extensionToFilter.get(extension.toLowerCase(Locale.US));
 				if (filter != null) {
 					foundMatch = true;
 					if (!filter.getFilterCheckBoxItem().isSelected()) {
@@ -326,7 +332,8 @@ public final class MPQBrowser extends JPanel {
 				if (!dummy.createNewFile()) {
 					return null;
 				}
-			} catch (final IOException e) {
+			}
+			catch (final IOException e) {
 				return null;
 			}
 		}
@@ -342,14 +349,14 @@ public final class MPQBrowser extends JPanel {
 		public Filter(final String name, final String[] extensions) {
 			this.name = name;
 			this.extensions = extensions;
-			this.filterCheckBoxItem = new JCheckBoxMenuItem(getDescription(), true);
+			filterCheckBoxItem = new JCheckBoxMenuItem(getDescription(), true);
 		}
 
 		public Filter(final String name, final boolean isOtherFilter) {
 			this.name = name;
 			this.isOtherFilter = isOtherFilter;
-			this.extensions = new String[] {};
-			this.filterCheckBoxItem = new JCheckBoxMenuItem(name, true);
+			extensions = new String[] {};
+			filterCheckBoxItem = new JCheckBoxMenuItem(name, true);
 		}
 
 		public boolean passes(final String path) {

@@ -62,6 +62,8 @@ public interface ModelEditor extends ComponentVisibilityListener {
 
 	UndoAction setParent(IdObject node);
 
+	UndoAction reLinkRFBone(IdObject node);
+
 	UndoAction createKeyframe(ModelEditorActionType actionType);
 
 	UndoAction deleteSelectedComponents();

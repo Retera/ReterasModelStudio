@@ -34,7 +34,8 @@ public class RMSIcons {
 		try {
 			return new ImageIcon(
 					ImageIO.read(ICONS_DATA_SOURCE.getResourceAsStream("UI\\Widgets\\ReteraStudio\\" + path)));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -50,7 +51,8 @@ public class RMSIcons {
 	public static Image loadImage(final String path) {
 		try {
 			return ImageIO.read(ICONS_DATA_SOURCE.getResourceAsStream("UI\\Widgets\\ReteraStudio\\" + path));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
 	}

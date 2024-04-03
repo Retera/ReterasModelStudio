@@ -330,6 +330,11 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 		throw new UnsupportedOperationException("This feature is not available in Face mode");
 	}
 
+	@Override
+	public UndoAction reLinkRFBone(IdObject node) {
+		throw new UnsupportedOperationException("This feature is not available in Face mode");
+	}
+
 	public VertexSelectionHelper getVertexSelectionHelper() {
 		return vertexSelectionHelper;
 	}
