@@ -3447,7 +3447,7 @@ public class EditableModel implements Named {
 				// get us < 256 matrices chunks hopefully
 				faceSelectionManager.setSelection(selectedTriangles);
 				faceModelEditor.splitGeoset();
-				model.doSavePreps();
+				model.doSavePreps(false);
 			}
 			else {
 				break;

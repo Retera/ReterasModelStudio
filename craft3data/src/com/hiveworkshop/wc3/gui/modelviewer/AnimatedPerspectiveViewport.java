@@ -54,6 +54,7 @@ import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.vector.Matrix3f;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Quaternion;
+import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -87,6 +88,7 @@ import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
+import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.TextureAnim;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
@@ -555,6 +557,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	private final Vector3f vertexHeap3 = new Vector3f();
 	private final Vector3f uvTranslationHeap3 = new Vector3f();
 	private final Vector3f uvScaleHeap3 = new Vector3f();
+	private final Vector2f uvHeap2A = new Vector2f();
+	private final Vector2f uvHeap2B = new Vector2f();
 
 	@Override
 	protected void exceptionOccurred(final LWJGLException exception) {
@@ -1085,9 +1089,9 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 							coordId = v.getTverts().size() - 1;
 						}
 						final TextureAnim textureAnim = layer.getTextureAnim();
+						final TVertex tVertex = v.getTverts().get(coordId);
+						vertexHeap.set((float) tVertex.x, (float) tVertex.y, 0, 1);
 						if (textureAnim != null) {
-							vertexHeap.set((float) v.getTverts().get(coordId).x, (float) v.getTverts().get(coordId).y,
-									0, 1);
 							final QuaternionRotation renderRotation = textureAnim.getRenderRotation(this);
 							quatHeap.set((float) renderRotation.a, (float) renderRotation.b, (float) renderRotation.c,
 									(float) renderRotation.d);
@@ -1096,15 +1100,18 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 									(float) renderTranslation.z);
 							final Vertex renderScale = textureAnim.getRenderScale(this);
 							uvScaleHeap3.set((float) renderScale.x, (float) renderScale.y, (float) renderScale.z);
-							MathUtils.fromRotationTranslationScale(quatHeap, uvTranslationHeap3, uvScaleHeap3,
-									skinBonesMatrixSumHeap);
-							Matrix4f.transform(skinBonesMatrixSumHeap, vertexHeap, vertexHeap);
-							NGGLDP.pipeline.glTexCoord2f(vertexHeap.x, vertexHeap.y);
+							vertexHeap.x += uvTranslationHeap3.x;
+							vertexHeap.y += uvTranslationHeap3.y;
+							// uv = quat_transform(v_uvTransRot.zw, uv - 0.5) + 0.5;
+							uvHeap2A.set(-quatHeap.z * (vertexHeap.y - 0.5f), quatHeap.z * (vertexHeap.x - 0.5f));
+							uvHeap2B.set(-quatHeap.z * (uvHeap2A.y), quatHeap.z * (uvHeap2A.x));
+							vertexHeap.set(vertexHeap.x + (2.0f * ((uvHeap2A.x * quatHeap.w) + uvHeap2B.x)),
+									vertexHeap.y + (2.0f * ((uvHeap2A.y * quatHeap.w) + uvHeap2B.y)), vertexHeap.z,
+									vertexHeap.w);
+							vertexHeap.x = (uvScaleHeap3.x * (vertexHeap.x - 0.5f)) + 0.5f;
+							vertexHeap.y = (uvScaleHeap3.y * (vertexHeap.y - 0.5f)) + 0.5f;
 						}
-						else {
-							NGGLDP.pipeline.glTexCoord2f((float) v.getTverts().get(coordId).x,
-									(float) v.getTverts().get(coordId).y);
-						}
+						NGGLDP.pipeline.glTexCoord2f(vertexHeap.x, vertexHeap.y);
 						NGGLDP.pipeline.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
 					}
 				}
