@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -133,6 +134,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.UndoHandler;
 import com.hiveworkshop.wc3.gui.modeledit.Viewport;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SetModelContentsAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.SpecialDeleteAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.ActivityDescriptor;
 import com.hiveworkshop.wc3.gui.modeledit.activity.ModelEditorChangeActivityListener;
@@ -151,6 +153,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model.ScaleWidgetMani
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
+import com.hiveworkshop.wc3.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
@@ -3676,6 +3679,38 @@ public class MainPanel extends JPanel
 			}
 		});
 		scriptsMenu.add(relinkBoneRFWeapon);
+
+		final JMenuItem deleteLODs = new JMenuItem("Delete LODs");
+		deleteLODs.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final ModelPanel mpanel = currentModelPanel();
+				if (mpanel != null) {
+					final List<GeosetVertex> selectedVertices = new ArrayList<>();
+					final List<Geoset> selectedGeosets = new ArrayList<>();
+					final List<Triangle> selectedTriangles = new ArrayList<>();
+					final EditableModel model = mpanel.getModel();
+					for (final Geoset geoset : model.getGeosets()) {
+						if (geoset.getLevelOfDetail() > 0) {
+							selectedVertices.addAll(geoset.getVertices());
+							selectedGeosets.add(geoset);
+							selectedTriangles.addAll(geoset.getTriangles());
+						}
+					}
+					final SpecialDeleteAction specialDeleteAction = new SpecialDeleteAction(selectedVertices,
+							selectedTriangles, new VertexSelectionHelper() {
+								@Override
+								public void selectVertices(final Collection<Vertex> vertices) {
+								}
+							}, selectedGeosets, model, modelStructureChangeListener);
+					specialDeleteAction.redo();
+
+					mpanel.getUndoManager().pushAction(specialDeleteAction);
+				}
+				repaint();
+			}
+		});
+		scriptsMenu.add(deleteLODs);
 
 		final JMenuItem jokebutton = new JMenuItem("Load Retera Land");
 		jokebutton.setMnemonic(KeyEvent.VK_A);
