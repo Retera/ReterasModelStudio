@@ -133,7 +133,7 @@ public class TempOpenModelStuff {
 		}
 
 		// RibbonEmitter
-//		if(!mdlxModel.ribbonEmitters.isEmpty()){
+//		if (!mdlxModel.ribbonEmitters.isEmpty()) {
 //			JOptionPane.showMessageDialog(null, mdlxModel.ribbonEmitters.size() + " RIBBON EMITTER(S)!!!");
 //		}
 
@@ -163,11 +163,15 @@ public class TempOpenModelStuff {
 		if (model.getBones().isEmpty() && !mdlxModel.geosets.isEmpty()) {
 			model.add(new Bone("Found No Bones"));
 		}
+		ArrayList<Animation> anims = model.getAnims();
+		Bone bone = model.getBones().get(0);
 		for (final MdlxGeoset mdlxGeoset : mdlxModel.geosets) {
-			Geoset x = GeosetFactory.createGeoset(mdlxGeoset, infoHolder, model);
+			Geoset x = GeosetFactory.createGeoset(mdlxGeoset, infoHolder, anims, bone);
 			x.setParentModel(model);
+			if (!x.isEmpty()) {
+				model.add(x);
+			}
 			infoHolder.add(x);
-			model.add(x);
 		}
 
 		// Step 9: GeosetAnims

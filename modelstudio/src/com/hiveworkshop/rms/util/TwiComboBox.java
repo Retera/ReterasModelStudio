@@ -141,6 +141,7 @@ public class TwiComboBox<E> extends JComboBox<E> {
 		return this;
 	}
 	public TwiComboBox<E> selectOrFirstWithListener(E item) {
+		selectedItemReminder = null;
 		comboBoxModel.setSelectedItem(item);
 		if (getSelectedItem() == null && 0 < getItemCount()) {
 			comboBoxModel.setSelectedItem(comboBoxModel.getElementAt(0));

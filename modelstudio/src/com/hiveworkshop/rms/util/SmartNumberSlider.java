@@ -4,8 +4,6 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.EventListenerList;
 import java.util.function.Consumer;
 
 public class SmartNumberSlider extends JPanel {
@@ -72,7 +70,7 @@ public class SmartNumberSlider extends JPanel {
 		textField = new FilteredTextField("" + initial, 3);
 //		textField.setAllowedCharacters("-1234567890.eE");
 		textField.setAllowedCharacters("-1234567890");
-		textField.addOnCaretEventFunction((st) -> setValueFromText(st));
+		textField.addOnCaretEventFunction(this::setValueFromText);
 		add(textField, "wmin 25");
 
 		if (!expandMax) {
@@ -85,6 +83,10 @@ public class SmartNumberSlider extends JPanel {
 
 	public int getValue() {
 		return jSlider.getValue();
+	}
+	public SmartNumberSlider setValue(int value) {
+		jSlider.setValue(value);
+		return this;
 	}
 
 	private void setValueFromText(String s) {
@@ -109,7 +111,7 @@ public class SmartNumberSlider extends JPanel {
 	private void setTextfieldText() {
 		try {
 			textField.setText("" + jSlider.getValue());
-		} catch (Exception e) {
+		} catch (Exception ignored) {
 
 		}
 	}
@@ -159,102 +161,6 @@ public class SmartNumberSlider extends JPanel {
 	}
 
 	private void updateLimits() {
-
-	}
-
-	private void ugg() {
-		DefaultBoundedRangeModel d = new DefaultBoundedRangeModel();
-	}
-
-	private BoundedRangeModel getBoundedRangeModel() {
-		return new BoundedRangeModel() {
-
-			protected transient ChangeEvent changeEvent = null;
-
-			/** The listeners waiting for model changes. */
-			protected EventListenerList listenerList = new EventListenerList();
-
-			int minMin;
-			int minMax;
-			int min;
-			int max;
-			int minUpperLimit = Integer.MAX_VALUE;
-			int minLowerLimit = Integer.MIN_VALUE;
-			int maxUpperLimit = Integer.MAX_VALUE;
-			int maxLowerLimit = Integer.MIN_VALUE;
-			int initial;
-			boolean expandMin;
-			boolean expandMax;
-			int value;
-
-			@Override
-			public int getMinimum() {
-				return min;
-			}
-
-			@Override
-			public void setMinimum(int newMinimum) {
-				if(minLowerLimit <= newMinimum && newMinimum <= minUpperLimit){
-					min = newMinimum;
-				}
-			}
-
-			@Override
-			public int getMaximum() {
-				return max;
-			}
-
-			@Override
-			public void setMaximum(int newMaximum) {
-				if(maxLowerLimit <= newMaximum && newMaximum <= maxUpperLimit){
-					max = newMaximum;
-				}
-			}
-
-			@Override
-			public int getValue() {
-				return value;
-			}
-
-			@Override
-			public void setValue(int newValue) {
-				value = newValue;
-			}
-
-			@Override
-			public void setValueIsAdjusting(boolean b) {
-
-			}
-
-			@Override
-			public boolean getValueIsAdjusting() {
-				return false;
-			}
-
-			@Override
-			public int getExtent() {
-				return 0;
-			}
-
-			@Override
-			public void setExtent(int newExtent) {
-			}
-
-			@Override
-			public void setRangeProperties(int value, int extent, int min, int max, boolean adjusting) {
-
-			}
-
-			@Override
-			public void addChangeListener(ChangeListener x) {
-
-			}
-
-			@Override
-			public void removeChangeListener(ChangeListener x) {
-
-			}
-		};
 	}
 
 }

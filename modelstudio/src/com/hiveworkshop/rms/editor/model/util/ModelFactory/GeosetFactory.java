@@ -11,16 +11,18 @@ import java.util.List;
 
 public class GeosetFactory {
 	public static Geoset createGeoset(MdlxGeoset mdlxGeoset, ModelInfoHolder infoHolder, EditableModel model) {
+		return createGeoset(mdlxGeoset, infoHolder, model.getAnims(), model.getBones().get(0));
+	}
+
+	public static Geoset createGeoset(MdlxGeoset mdlxGeoset, ModelInfoHolder infoHolder, List<Animation> anims, Bone defaultBone) {
 		Geoset geoset = new Geoset();
 		geoset.setExtents(new ExtLog(mdlxGeoset.extent));
-
-		for (int i = 0; i < mdlxGeoset.sequenceExtents.size() && i<model.getAnimsSize(); i++) {
+		for (int i = 0; i < mdlxGeoset.sequenceExtents.size() && i<anims.size(); i++) {
 			ExtLog extents = new ExtLog(mdlxGeoset.sequenceExtents.get(i));
-			geoset.add(model.getAnim(i), extents);
+			geoset.add(anims.get(i), extents);
 		}
 
 		geoset.setMaterial(infoHolder.materials.get((int) mdlxGeoset.materialId));
-
 
 		if (mdlxGeoset.selectionFlags == 4) {
 			geoset.setUnselectable(true);
@@ -51,7 +53,7 @@ public class GeosetFactory {
 			matrices.add(m);
 		}
 		if (matrices.isEmpty()) {
-			matrices.add(new Matrix(model.getBones().get(0)));
+			matrices.add(new Matrix(defaultBone));
 		}
 
 
@@ -114,21 +116,28 @@ public class GeosetFactory {
 		// to exist on the web (i.e. quads). if you wanted to fix that, you'd want to do it below
 		final int[] facesVertIndices = mdlxGeoset.faces;
 
+		int maxInd = vertexList.size();
 		for (int i = 0; i < facesVertIndices.length; i += 3) {
-			if (facesVertIndices[i] < 0 || facesVertIndices[i + 1] < 0 || facesVertIndices[i + 2] < 0
-					|| vertexList.size() < facesVertIndices[i] || vertexList.size() < facesVertIndices[i + 1] || vertexList.size() < facesVertIndices[i + 2]) {
-				continue;
+			if (allWithin(facesVertIndices, maxInd, i)) {
+				Triangle triangle = new Triangle(
+						vertexList.get(facesVertIndices[i]),
+						vertexList.get(facesVertIndices[i + 1]),
+						vertexList.get(facesVertIndices[i + 2]),
+						geoset).addToVerts();
+				triangleList.add(triangle);
+				geoset.add(triangle);
 			}
-			Triangle triangle = new Triangle(
-					vertexList.get(facesVertIndices[i]),
-					vertexList.get(facesVertIndices[i + 1]),
-					vertexList.get(facesVertIndices[i + 2]),
-					geoset).addToVerts();
-			triangleList.add(triangle);
-			geoset.add(triangle);
 		}
 
 		return geoset;
+	}
+
+	private static boolean allWithin(int[] facesInds, int maxInd, int i) {
+		return isWithin(facesInds[i], maxInd) && isWithin(facesInds[i + 1], maxInd) && isWithin(facesInds[i + 2], maxInd);
+	}
+
+	private static boolean isWithin(int faceInd, int maxInd) {
+		return 0 < faceInd && faceInd < maxInd;
 	}
 
 	private static short[] getSkin(List<Matrix> matrices, short[] skin, int matrixMax, int i, GeosetVertex gv) {

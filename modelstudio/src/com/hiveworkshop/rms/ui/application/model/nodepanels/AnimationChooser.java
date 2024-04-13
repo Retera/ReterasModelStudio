@@ -6,37 +6,40 @@ import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.util.Debug;
 import com.hiveworkshop.rms.util.TwiComboBox;
 
-import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
-public class AnimationChooser extends TwiComboBox<Sequence>{
+public class AnimationChooser extends TwiComboBox<Sequence> {
 	private EditableModel model;
 	private TimeEnvironmentImpl timeEnvironment;
 	private boolean anims;
 	private boolean globalSeqs;
 	private boolean playOnSelect;
 	private boolean allowUnanimated = false;
+	private final List<Sequence> sequences = new ArrayList<>();
 
 	public AnimationChooser(boolean anims, boolean globalSeqs, boolean playOnSelect) {
 		super(new Animation("Stand and work for me", 0, 1));
 		this.anims = anims;
 		this.globalSeqs = globalSeqs;
 		this.playOnSelect = playOnSelect;
+		setNewLinkedModelOf(sequences);
 		setStringFunctionRender(this::getDisplayString);
 		addOnSelectItemListener(this::setSequence);
 
-		setMaximumSize(new Dimension(99999999, 35));
 		setFocusable(true);
 		addMouseWheelListener(e -> incIndex(e.getWheelRotation()));
 	}
 
 	public AnimationChooser setModel(EditableModel model, RenderModel renderModel) {
-		if(this.model != model){
+		if (this.model != model) {
 			getComboBoxModel().setSelectedNoListener(null);
 		}
 		this.model = model;
-		if(renderModel != null){
+		if (renderModel != null) {
 			timeEnvironment = renderModel.getTimeEnvironment();
 		} else {
 			timeEnvironment = null;
@@ -45,9 +48,9 @@ public class AnimationChooser extends TwiComboBox<Sequence>{
 		return this;
 	}
 	public AnimationChooser setModel(RenderModel renderModel) {
-//		System.out.println("[AnimationChooser] setModel");
-		if(renderModel != null){
-			if(this.model != renderModel.getModel()){
+//		Debug.print("[AnimationChooser] setModel");
+		if (renderModel != null) {
+			if (this.model != renderModel.getModel()) {
 				getComboBoxModel().setSelectedNoListener(null);
 			}
 			this.model = renderModel.getModel();
@@ -61,10 +64,10 @@ public class AnimationChooser extends TwiComboBox<Sequence>{
 	}
 
 	private String getDisplayString(Object value) {
-		if(model != null){
+		if (model != null) {
 			if (value instanceof Animation) {
 				return "(" + model.getAnims().indexOf(value) + ") " + value;
-			} else if (value instanceof GlobalSeq){
+			} else if (value instanceof GlobalSeq) {
 				return "" + value;
 			} else {
 				return "(Unanimated)";
@@ -74,14 +77,17 @@ public class AnimationChooser extends TwiComboBox<Sequence>{
 	}
 
 	public void chooseSequence(Sequence selectedItem) {
-//		System.out.println("[AnimationChooser] chooseSequence: '" + selectedItem + "'");
+//		Debug.print("[AnimationChooser] chooseSequence: '" + selectedItem + "'");
 		selectOrFirstWithListener(selectedItem);
 	}
+
 	private void setSequence(Sequence selectedItem) {
-//		System.out.println("[AnimationChooser] setSequence: '" + selectedItem + "'");
+//		Debug.print("[AnimationChooser] setSequence: '" + selectedItem + "'");
 		if (timeEnvironment != null) {
+			Sequence currentSequence = timeEnvironment.getCurrentSequence();
 			timeEnvironment.setSequence(selectedItem);
-			if(playOnSelect){
+
+			if (playOnSelect && (currentSequence != selectedItem || !timeEnvironment.isLive() || timeEnvironment.getLength() == timeEnvironment.getAnimationTime())) {
 				playAnimation();
 			}
 		}
@@ -116,19 +122,19 @@ public class AnimationChooser extends TwiComboBox<Sequence>{
 	}
 
 	public AnimationChooser updateAnimationList() {
-		Sequence selectedItem = (Sequence) getSelectedItem();
-//		Sequence selectedItem = getSelected();
-		getComboBoxModel().removeAllElements();
-//		System.out.println("[AnimationChooser] updateAnimationList - selected: '" + selectedItem + "'");
+		Sequence selectedItem = getSelected();
+		sequences.clear();
+		Debug.print("[AnimationChooser] updateAnimationList - selected: '" + selectedItem + "'");
 		if (model != null) {
-			if (anims)          addAll(model.getAnims());
-			if (globalSeqs)     addAll(model.getGlobalSeqs());
+			if (anims)          sequences.addAll(model.getAnims());
+			if (globalSeqs)     sequences.addAll(model.getGlobalSeqs());
 
 			if (allowUnanimated || (getItemCount() == 0)) {
-				addItem(null, 0);
+				sequences.add(0, null);
 			}
-
 			selectOrFirstWithListener(selectedItem);
+		} else {
+			selectOrFirstWithListener(null);
 		}
 		return this;
 	}

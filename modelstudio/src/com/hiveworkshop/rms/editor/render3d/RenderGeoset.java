@@ -125,7 +125,7 @@ public class RenderGeoset {
 
 
 	private void checkHD() {
-		isHD = ModelUtils.isTangentAndSkinSupported(geoset.getParentModel())
+		isHD = !geoset.isEmpty() && ModelUtils.isTangentAndSkinSupported(geoset.getParentModel())
 				&& (geoset.getVertex(0).getSkinBones() != null);
 	}
 

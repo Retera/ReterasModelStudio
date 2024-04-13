@@ -11,7 +11,7 @@ public class SliderBarHandler implements ChangeListener {
 
 	public SliderBarHandler(int length) {
 		int maxLengthSlider = Math.max(1000, length * 4);
-		int maxLengthSpinner = Math.max(100000, length * 4);
+		int maxLengthSpinner = Math.max(1000000, length * 4);
 		bar = new JSlider(0, maxLengthSlider, length);
 		spinner = new JSpinner(new SpinnerNumberModel(length / 1000.00, 0.0, maxLengthSpinner / 1000.00, 0.001));
 

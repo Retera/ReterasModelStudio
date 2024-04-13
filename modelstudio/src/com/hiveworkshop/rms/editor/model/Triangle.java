@@ -92,9 +92,29 @@ public class Triangle {
 		}
 		return true;
 	}
+
+	public boolean shareEdge(Triangle t) {
+		int common = 0;
+		for (int i = 0; i < 3; i++) {
+			if (containsRef(t.verts[i])) {
+				common++;
+			}
+		}
+		return common <= 2;
+	}
+
 	public boolean containsSameVerts(GeosetVertex[] vertices) {
 		for (int i = 0; i < 3; i++) {
-			if(!containsRef(vertices[i])){
+			if (!containsRef(vertices[i])) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public boolean containsVerts(GeosetVertex... vertices) {
+		for (GeosetVertex vertex : vertices) {
+			if (!containsRef(vertex)) {
 				return false;
 			}
 		}

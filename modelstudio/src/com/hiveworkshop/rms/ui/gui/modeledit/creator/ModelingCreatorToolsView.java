@@ -27,7 +27,7 @@ public class ModelingCreatorToolsView extends ModelDependentView {
 	private JPopupMenu contextMenu;
 
 	public ModelingCreatorToolsView() {
-		super("Modeling", null, new JPanel());
+		super("Modeling", null, null);
 		selectionPanel = new SelectionInfoPanel();
 		creatorModelingPanel = new CreatorModelingPanel();
 		transformPanel = new ManualTransformPanel();
@@ -35,15 +35,13 @@ public class ModelingCreatorToolsView extends ModelDependentView {
 		animationChooser = new AnimationChooser(true, true, false);
 		animationPanel = new JPanel(new MigLayout("ins 0, gap 0, fill", "[grow]", "[][]"));
 		animationPanel.add(new JLabel("Animation"), "wrap");
-		animationPanel.add(animationChooser);
+		animationPanel.add(animationChooser, "growx");
 
 		tPosePanel = new JPanel(new MigLayout("ins 0, gap 0, fill", "[grow]", "[][]"));
 		JCheckBox preserve_animations = CheckBox.create("Preserve Animations", TPoseModelEditor.isPreserveAnimations(), TPoseModelEditor::setPreserveAnimations);
 		tPosePanel.add(CheckBox.setTooltip(preserve_animations, "Apply the inverse transformation to the node's keyframes"), "");
 
-
 		JPanel panel = new JPanel(new MigLayout("fill, ins 0, gap 0, hidemode 2", "", "[top][top][top][top][top][top][top, grow]"));
-
 		panel.add(animationPanel, "growx, spanx, wrap");
 		animationPanel.setVisible(false);
 

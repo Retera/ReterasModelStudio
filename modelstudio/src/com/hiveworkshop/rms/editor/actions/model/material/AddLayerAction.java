@@ -17,7 +17,7 @@ public class AddLayerAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
+	public AddLayerAction undo() {
 		material.removeLayer(layer);
 		if (changeListener != null) {
 			changeListener.materialsListChanged();
@@ -26,7 +26,7 @@ public class AddLayerAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public AddLayerAction redo() {
 		material.addLayer(layer);
 		if (changeListener != null) {
 			changeListener.materialsListChanged();
@@ -36,7 +36,7 @@ public class AddLayerAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "add Layer";
+		return "Add Layer";
 	}
 
 }

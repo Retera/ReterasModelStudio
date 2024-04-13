@@ -356,7 +356,15 @@ public abstract class AnimFlag<T> {
 	}
 
 	public AnimFlag<T> setSequenceMap(Map<Sequence, TreeMap<Integer, Entry<T>>> otherMap) {
-		sequenceMap = otherMap; // ToDo copy entries!
+		sequenceMap.keySet().removeIf(sequence -> !otherMap.containsKey(sequence));
+		for (Sequence sequence : otherMap.keySet()) {
+			TreeMap<Integer, Entry<T>> entryTreeMap = sequenceMap.computeIfAbsent(sequence, k -> new TreeMap<>());
+			entryTreeMap.clear();
+			for (Entry<T> entry : otherMap.get(sequence).values()) {
+				entryTreeMap.put(entry.getTime(), entry.deepCopy());
+			}
+		}
+//		sequenceMap = otherMap; // ToDo copy entries!
 		timeKeysMap.clear();
 		return this;
 	}

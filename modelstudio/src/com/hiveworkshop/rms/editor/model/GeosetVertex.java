@@ -245,7 +245,7 @@ public class GeosetVertex extends Vec3 {
 	}
 
 	public boolean isInTriangle(Triangle triangle) {
-		return triangles.contains(triangle) && triangle.containsLoc(this);
+		return triangles.contains(triangle) && triangle.containsRef(this);
 	}
 
 	public boolean hasTriangle(Triangle triangle) {
