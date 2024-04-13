@@ -37,7 +37,7 @@ public class StaticMeshUVScaleAction extends AbstractTransformAction {
 
 	@Override
 	public StaticMeshUVScaleAction undo() {
-		for (int i = 0; i<selectedTVerts.size(); i++) {
+		for (int i = 0; i < selectedTVerts.size(); i++) {
 			selectedTVerts.get(i).set(orgTVerts.get(i));
 		}
 		return this;
@@ -69,7 +69,7 @@ public class StaticMeshUVScaleAction extends AbstractTransformAction {
 
 	Vec3 tempVec = new Vec3();
 	private void rawScale(Vec3 scale) {
-		for (int i = 0; i<selectedTVerts.size(); i++) {
+		for (int i = 0; i < selectedTVerts.size(); i++) {
 			tempVec.set(orgTVerts.get(i), -1)
 					.sub(center)
 					.transform(rotMat, 1, true)

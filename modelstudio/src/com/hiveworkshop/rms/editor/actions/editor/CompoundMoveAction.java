@@ -42,6 +42,22 @@ public final class CompoundMoveAction extends AbstractTransformAction{
 	}
 
 	@Override
+	public CompoundMoveAction doSetup() {
+		for (final AbstractTransformAction action : actions) {
+			action.doSetup();
+		}
+		return this;
+	}
+
+	@Override
+	public CompoundMoveAction setTranslation(Vec3 transl) {
+		for (final AbstractTransformAction action : actions) {
+			action.setTranslation(transl);
+		}
+		return this;
+	}
+
+	@Override
 	public CompoundMoveAction updateTranslation(Vec3 delta) {
 		for (final AbstractTransformAction action : actions) {
 			action.updateTranslation(delta);

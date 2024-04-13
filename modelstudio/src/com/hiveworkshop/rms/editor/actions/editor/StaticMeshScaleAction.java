@@ -63,15 +63,15 @@ public class StaticMeshScaleAction extends AbstractTransformAction {
 		Vec3 revScale = new Vec3(1, 1, 1).divide(0 < scale.length() ? scale : new Vec3(0.1, 0.1, 0.1).scale(0.0000001f));
 		rawScale(center, revScale);
 
-		for (int i = 0; i<selectedVertices.size(); i++) {
+		for (int i = 0; i < selectedVertices.size(); i++) {
 			selectedVertices.get(i).set(opgPosVertices.get(i));
 		}
 
-		for (int i = 0; i<selectedIdObjects.size(); i++) {
+		for (int i = 0; i < selectedIdObjects.size(); i++) {
 			selectedIdObjects.get(i).setPivotPoint(opgPosIdObjects.get(i));
 		}
 
-		for (int i = 0; i<selectedCameraNodes.size(); i++) {
+		for (int i = 0; i < selectedCameraNodes.size(); i++) {
 			selectedCameraNodes.get(i).setPosition(opgPosCameraNodes.get(i));
 		}
 		return this;
@@ -141,7 +141,7 @@ public class StaticMeshScaleAction extends AbstractTransformAction {
 	private void rawScale2(Vec3 center, Vec3 scale) {
 		double avgScale = (scale.x + scale.y + scale.z) / 3;
 
-		for (int i = 0; i<selectedVertices.size(); i++) {
+		for (int i = 0; i < selectedVertices.size(); i++) {
 			selectedVertices.get(i).set(opgPosVertices.get(i))
 					.sub(center)
 					.transform(rotMat, 1, true)
@@ -150,7 +150,7 @@ public class StaticMeshScaleAction extends AbstractTransformAction {
 					.add(center);
 		}
 
-		for (int i = 0; i<selectedIdObjects.size(); i++) {
+		for (int i = 0; i < selectedIdObjects.size(); i++) {
 			IdObject object = selectedIdObjects.get(i);
 			object.getPivotPoint().set(opgPosIdObjects.get(i))
 					.sub(center)
@@ -165,7 +165,7 @@ public class StaticMeshScaleAction extends AbstractTransformAction {
 			scaleNodeStuff1(scale, avgScale, object);
 		}
 
-		for (int i = 0; i<selectedCameraNodes.size(); i++) {
+		for (int i = 0; i < selectedCameraNodes.size(); i++) {
 			CameraNode cameraNode = selectedCameraNodes.get(i);
 			cameraNode.getPivotPoint().set(opgPosCameraNodes.get(i))
 					.sub(center)
@@ -178,10 +178,9 @@ public class StaticMeshScaleAction extends AbstractTransformAction {
 	}
 	private void scaleNodeStuff(Vec3 center, Vec3 scale, double avgScale, IdObject object) {
 		// ToDo check if these non-pivot-scaling should be done relative something or not...
-		if (object instanceof CollisionShape) {
-			CollisionShape shape = (CollisionShape) object;
+		if (object instanceof CollisionShape shape) {
 			List<Vec3> vertices = shape.getVertices();
-			for(Vec3 vertex : vertices){
+			for(Vec3 vertex : vertices) {
 				vertex
 						.add(shape.getPivotPoint())
 						.sub(center)
@@ -196,8 +195,7 @@ public class StaticMeshScaleAction extends AbstractTransformAction {
 //				}
 			shape.setBoundsRadius(shape.getBoundsRadius() * avgScale);
 		}
-		if(object instanceof ParticleEmitter2){
-			ParticleEmitter2 particle = (ParticleEmitter2) object;
+		if (object instanceof ParticleEmitter2 particle) {
 			tempVec.set(particle.getLatitude(), particle.getWidth(), particle.getLength())
 					.add(particle.getPivotPoint())
 					.sub(center)
@@ -223,8 +221,7 @@ public class StaticMeshScaleAction extends AbstractTransformAction {
 			particle.getParticleScaling().scale(tempVec.x);
 			particle.setGravity(particle.getGravity() * tempVec.z);
 		}
-		if(object instanceof ParticleEmitter){
-			ParticleEmitter particle = (ParticleEmitter) object;
+		if (object instanceof ParticleEmitter particle) {
 			tempVec.set(1,0, 1)
 					.add(particle.getPivotPoint())
 					.sub(center)
@@ -242,24 +239,23 @@ public class StaticMeshScaleAction extends AbstractTransformAction {
 	}
 
 	private void scaleNodeStuff1(Vec3 scale, double avgScale, IdObject object) {
-		if (object instanceof CollisionShape) {
-			CollisionShape shape = (CollisionShape) object;
+		if (object instanceof CollisionShape shape) {
 			if ((scale.x == scale.z) && (scale.y == scale.z)) {
 				shape.setBoundsRadius(shape.getBoundsRadius() * scale.x);
 			}
 		}
-		if(object instanceof ParticleEmitter2){
-			((ParticleEmitter2) object).setLatitude(((ParticleEmitter2) object).getLatitude()* scale.z);
-			((ParticleEmitter2) object).setWidth(((ParticleEmitter2) object).getWidth()* scale.y);
-			((ParticleEmitter2) object).setLength(((ParticleEmitter2) object).getLength()* scale.x);
-			((ParticleEmitter2) object).getParticleScaling().multiply(scale);
-			((ParticleEmitter2) object).setSpeed(((ParticleEmitter2) object).getSpeed() * avgScale);
-			((ParticleEmitter2) object).setGravity(((ParticleEmitter2) object).getGravity() * avgScale);
+		if (object instanceof ParticleEmitter2 particle) {
+			particle.setLatitude(particle.getLatitude()* scale.z);
+			particle.setWidth(particle.getWidth()* scale.y);
+			particle.setLength(particle.getLength()* scale.x);
+			particle.getParticleScaling().multiply(scale);
+			particle.setSpeed(particle.getSpeed() * avgScale);
+			particle.setGravity(particle.getGravity() * avgScale);
 		}
-		if(object instanceof ParticleEmitter){
-			((ParticleEmitter) object).setLatitude(((ParticleEmitter) object).getLatitude()* scale.z);
-			((ParticleEmitter) object).setLongitude(((ParticleEmitter) object).getLongitude()* scale.y);
-			((ParticleEmitter) object).setInitVelocity(((ParticleEmitter) object).getInitVelocity()* avgScale);
+		if (object instanceof ParticleEmitter particle) {
+			particle.setLatitude(particle.getLatitude()* scale.z);
+			particle.setLongitude(particle.getLongitude()* scale.y);
+			particle.setInitVelocity(particle.getInitVelocity()* avgScale);
 
 		}
 	}
@@ -335,7 +331,7 @@ public class StaticMeshScaleAction extends AbstractTransformAction {
 		if (extents.getMinimumExtent() != null) {
 			extents.getMinimumExtent().scale(center, scale);
 		}
-		if(extents.hasBoundsRadius()){
+		if (extents.hasBoundsRadius()) {
 			extents.setBoundsRadius(extents.getBoundsRadius() * avgScale);
 		}
 	}

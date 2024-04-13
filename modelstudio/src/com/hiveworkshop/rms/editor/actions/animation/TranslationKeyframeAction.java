@@ -29,6 +29,8 @@ public class TranslationKeyframeAction extends AbstractTransformAction {
 	private final Mat4 invRotMat = new Mat4();
 	private final Mat4 rotMat = new Mat4();
 	private final boolean worldSpace;
+	private final Vec3 totTranslate = new Vec3();
+	private final Vec3 deltaTranslate = new Vec3();
 
 	public TranslationKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
 	                                 Collection<IdObject> nodeSelection,
@@ -70,7 +72,7 @@ public class TranslationKeyframeAction extends AbstractTransformAction {
 		this.rotMat.set(rotMat);
 		this.invRotMat.set(rotMat).invert();
 
-		if(translation != Vec3.ZERO && !translation.equalLocs(Vec3.ZERO)){
+		if (translation != Vec3.ZERO && !translation.equalLocs(Vec3.ZERO)) {
 			for (AnimatedNode idObject : nodeToLocalTranslation.keySet()) {
 				if (nodeToLocalTranslation.get(idObject) != null) {
 					nodeToLocalTranslation.get(idObject).add(getTranslationHeap(idObject, translation));
@@ -95,7 +97,7 @@ public class TranslationKeyframeAction extends AbstractTransformAction {
 			}
 		}
 
-		if(addingTimelinesOrKeyframesAction != null){
+		if (addingTimelinesOrKeyframesAction != null) {
 			addingTimelinesOrKeyframesAction.undo();
 		}
 		return this;
@@ -103,7 +105,7 @@ public class TranslationKeyframeAction extends AbstractTransformAction {
 
 	@Override
 	public TranslationKeyframeAction redo() {
-		if(addingTimelinesOrKeyframesAction != null){
+		if (addingTimelinesOrKeyframesAction != null) {
 			addingTimelinesOrKeyframesAction.redo();
 		}
 		for (AnimatedNode node : nodeToLocalTranslation.keySet()) {
@@ -118,8 +120,8 @@ public class TranslationKeyframeAction extends AbstractTransformAction {
 		return "Edit Translation";
 	}
 
-	public TranslationKeyframeAction doSetup(){
-		if(addingTimelinesOrKeyframesAction != null){
+	public TranslationKeyframeAction doSetup() {
+		if (addingTimelinesOrKeyframesAction != null) {
 			addingTimelinesOrKeyframesAction.redo();
 		}
 		return this;
@@ -127,8 +129,25 @@ public class TranslationKeyframeAction extends AbstractTransformAction {
 
 	@Override
 	public TranslationKeyframeAction updateTranslation(Vec3 delta) {
+		deltaTranslate.set(delta);
+		totTranslate.add(delta);
 		for (AnimatedNode idObject : nodeToLocalTranslation.keySet()) {
 			Vec3 translationHeap = getTranslationHeap(idObject, delta);
+
+			if (nodeToLocalTranslation.get(idObject) != null) {
+				nodeToLocalTranslation.get(idObject).add(translationHeap);
+			}
+			updateLocalTranslationKeyframe(idObject, translationHeap);
+		}
+		return this;
+	}
+
+	@Override
+	public TranslationKeyframeAction setTranslation(Vec3 transl) {
+		deltaTranslate.set(transl).sub(totTranslate);
+		totTranslate.set(transl);
+		for (AnimatedNode idObject : nodeToLocalTranslation.keySet()) {
+			Vec3 translationHeap = getTranslationHeap(idObject, deltaTranslate);
 
 			if (nodeToLocalTranslation.get(idObject) != null) {
 				nodeToLocalTranslation.get(idObject).add(translationHeap);
@@ -145,14 +164,14 @@ public class TranslationKeyframeAction extends AbstractTransformAction {
 	private Vec3 getTranslationHeap(AnimatedNode idObject, Vec3 newDelta) {
 		translationHeap.set(0, 0, 0);
 		RenderNode<AnimatedNode> renderNode = editorRenderModel.getRenderNode(idObject);
-		if(renderNode != null){
+		if (renderNode != null) {
 			tempVec.set(renderNode.getPivot())
 					.transform(rotMat, 1, true)
 					.add(newDelta)
 					.transform(invRotMat, 1, true)
 					.sub(renderNode.getPivot());
 
-			if(worldSpace){
+			if (worldSpace) {
 				Mat4 worldMatrix = renderNode.getParentWorldMatrix();
 				tempMat.set(worldMatrix).invert();
 				translationHeap.add(idObject.getPivotPoint());
@@ -171,7 +190,7 @@ public class TranslationKeyframeAction extends AbstractTransformAction {
 	private Vec3 getTranslationHeapOrg(AnimatedNode idObject, Vec3 newDelta) {
 		translationHeap.set(0, 0, 0);
 		RenderNode<AnimatedNode> renderNode = editorRenderModel.getRenderNode(idObject);
-		if(renderNode != null){
+		if (renderNode != null) {
 			tempVec.set(renderNode.getPivot())
 					.transform(rotMat, 1, true)
 					.add(newDelta)

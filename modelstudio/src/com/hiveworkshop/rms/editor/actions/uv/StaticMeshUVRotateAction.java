@@ -40,7 +40,7 @@ public final class StaticMeshUVRotateAction extends AbstractTransformAction {
 	}
 	@Override
 	public StaticMeshUVRotateAction undo() {
-		for (int i = 0; i<selectedTVerts.size(); i++) {
+		for (int i = 0; i < selectedTVerts.size(); i++) {
 			selectedTVerts.get(i).set(orgTVerts.get(i));
 		}
 		return this;
@@ -74,7 +74,7 @@ public final class StaticMeshUVRotateAction extends AbstractTransformAction {
 
 	private void rawRot(double radians) {
 		rot.setFromAxisAngle(axis, (float) radians).normalize();
-		for (int i = 0; i<selectedTVerts.size(); i++) {
+		for (int i = 0; i < selectedTVerts.size(); i++) {
 			tempVec.set(orgTVerts.get(i), 0)
 					.sub(center)
 					.transform(rotMat, 1, true)

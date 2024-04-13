@@ -36,6 +36,22 @@ public final class CompoundScaleAction extends AbstractTransformAction {
 	}
 
 	@Override
+	public CompoundScaleAction doSetup() {
+		for (final AbstractTransformAction action : actions) {
+			action.doSetup();
+		}
+		return this;
+	}
+
+	@Override
+	public CompoundScaleAction setScale(final Vec3 scale) {
+		for (final AbstractTransformAction action : actions) {
+			action.setScale(scale);
+		}
+		return this;
+	}
+
+	@Override
 	public CompoundScaleAction updateScale(final Vec3 scale) {
 		for (final AbstractTransformAction action : actions) {
 			action.updateScale(scale);

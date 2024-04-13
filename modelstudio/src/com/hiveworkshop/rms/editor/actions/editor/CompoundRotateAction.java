@@ -35,6 +35,14 @@ public final class CompoundRotateAction extends AbstractTransformAction {
 	}
 
 	@Override
+	public CompoundRotateAction doSetup() {
+		for (final AbstractTransformAction action : actions) {
+			action.doSetup();
+		}
+		return this;
+	}
+
+	@Override
 	public CompoundRotateAction updateRotation(final double radians) {
 		for (final AbstractTransformAction action : actions) {
 			action.updateRotation(radians);

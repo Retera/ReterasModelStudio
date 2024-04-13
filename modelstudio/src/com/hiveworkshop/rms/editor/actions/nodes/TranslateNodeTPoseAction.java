@@ -22,6 +22,8 @@ public class TranslateNodeTPoseAction extends AbstractTransformAction {
 	private final Mat4 rotMat = new Mat4();
 	private final Vec3 tempTransl = new Vec3();
 	private final Vec3 tempDelta = new Vec3();
+	private final Vec3 totTranslate = new Vec3();
+	private final Vec3 deltaTranslate = new Vec3();
 	private AddTimelineAction<Vec3> translTimelineAction;
 	private final AnimFlag<Vec3> newTranslation;
 	private final Map<IdObject, Vec3> childToOrgLoc = new LinkedHashMap<>();
@@ -33,7 +35,7 @@ public class TranslateNodeTPoseAction extends AbstractTransformAction {
 	                                Mat4 rotMat,
 	                                boolean preserveAnimations,
 	                                AnimFlag<Vec3> newTranslation,
-	                                ModelStructureChangeListener changeListener){
+	                                ModelStructureChangeListener changeListener) {
 		this.changeListener = changeListener;
 		this.preserveAnimations = preserveAnimations;
 		this.rotMat.set(rotMat);
@@ -74,7 +76,20 @@ public class TranslateNodeTPoseAction extends AbstractTransformAction {
 	}
 
 	public TranslateNodeTPoseAction updateTranslation(Vec3 delta) {
+		deltaTranslate.set(delta);
+		totTranslate.add(delta);
 		move(setTranslationHeap(node.getPivotPoint(), delta));
+		node.setPivotPoint(newPivot);
+		for (IdObject idObject : childToNewLoc.keySet()) {
+			idObject.setPivotPoint(childToNewLoc.get(idObject));
+		}
+		return this;
+	}
+
+	public TranslateNodeTPoseAction setTranslation(Vec3 transl) {
+		deltaTranslate.set(transl).sub(totTranslate);
+		totTranslate.set(transl);
+		move(setTranslationHeap(node.getPivotPoint(), deltaTranslate));
 		node.setPivotPoint(newPivot);
 		for (IdObject idObject : childToNewLoc.keySet()) {
 			idObject.setPivotPoint(childToNewLoc.get(idObject));

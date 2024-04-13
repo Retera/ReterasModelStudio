@@ -8,9 +8,9 @@ import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 public final class StaticMeshRotateAction extends AbstractTransformAction {
 	private final Vec3 center;
@@ -20,9 +20,14 @@ public final class StaticMeshRotateAction extends AbstractTransformAction {
 	private final Mat4 rotMat = new Mat4();
 
 	private double radians;
-	private final Set<GeosetVertex> selectedVertices;
-	private final Set<IdObject> selectedIdObjects;
-	private final Set<CameraNode> selectedCameraNodes;
+	private final List<GeosetVertex> selectedVertices;
+	private final List<IdObject> selectedIdObjects;
+	private final List<CameraNode> selectedCameraNodes;
+	private final List<Vec3> orgVerticesPos;
+	private final List<Vec3> orgIdObjectsPos;
+	private final List<Mat4> orgIdObjectsBP;
+	private final List<Vec3> orgCameraNodesPos;
+	private final List<Mat4> orgCameraNodesBP;
 
 	public StaticMeshRotateAction(ModelView modelView, Vec3 center, Vec3 axis, double radians) {
 		this(modelView.getSelectedVertices(),
@@ -53,14 +58,35 @@ public final class StaticMeshRotateAction extends AbstractTransformAction {
 		this.radians = radians;
 		this.rotMat.set(rotMat);
 		this.invRotMat.set(rotMat).invert();
-		this.selectedVertices = new HashSet<>(selectedVertices);
-		this.selectedIdObjects = new HashSet<>(selectedIdObjects);
-		this.selectedCameraNodes = new HashSet<>(selectedCameraNodes);
+		this.selectedVertices = new ArrayList<>(selectedVertices);
+		this.selectedIdObjects = new ArrayList<>(selectedIdObjects);
+		this.selectedCameraNodes = new ArrayList<>(selectedCameraNodes);
+
+		this.orgVerticesPos = selectedVertices.stream().map(Vec3::new).toList();
+		this.orgIdObjectsPos = selectedIdObjects.stream().map(o -> new Vec3(o.getPivotPoint())).toList();
+		this.orgIdObjectsBP = selectedIdObjects.stream().map(o -> new Mat4(o.getBindPoseM4())).toList();
+		this.orgCameraNodesPos = selectedCameraNodes.stream().map(o -> new Vec3(o.getPivotPoint())).toList();
+		this.orgCameraNodesBP = selectedCameraNodes.stream().map(o -> o instanceof CameraNode.SourceNode ? new Mat4(o.getParent().getBindPoseM4()) : o.getParent().getBindPoseM4()).toList();
 	}
 
 	@Override
 	public StaticMeshRotateAction undo() {
-		updateTransform(-radians);
+		for (int i = 0; i < selectedVertices.size(); i++) {
+			selectedVertices.get(i).set(orgVerticesPos.get(i));
+		}
+
+		for (int i = 0; i < selectedIdObjects.size(); i++) {
+			selectedIdObjects.get(i).getPivotPoint().set(orgIdObjectsPos.get(i));
+			selectedIdObjects.get(i).getBindPoseM4().set(orgIdObjectsBP.get(i));
+		}
+
+		for (int i = 0; i < selectedCameraNodes.size(); i++) {
+			CameraNode cameraNode = selectedCameraNodes.get(i);
+			cameraNode.getPosition().set(orgCameraNodesPos.get(i));
+			if (cameraNode instanceof CameraNode.SourceNode) {
+				cameraNode.getParent().getBindPoseM4().set(orgCameraNodesBP.get(i));
+			}
+		}
 		return this;
 	}
 
@@ -102,7 +128,7 @@ public final class StaticMeshRotateAction extends AbstractTransformAction {
 					.transform(rotMat, 1, true)
 					.transform(rot)
 					.transform(invRotMat, 1, true).normalize();
-			if(vertex.getTangent() != null) {
+			if (vertex.getTangent() != null) {
 				temp.set(vertex.getTangent())
 						.transform(rotMat, 1, true)
 						.transform(rot)
@@ -120,7 +146,7 @@ public final class StaticMeshRotateAction extends AbstractTransformAction {
 					.transform(invRotMat, 1, true)
 					.add(center);
 
-			if (b.getBindPoseM4() != null){
+			if (b.getBindPoseM4() != null) {
 				temp.sub(b.getPivotPoint());
 				b.getBindPoseM4().translateScaled(temp, -1f);
 			}
@@ -135,8 +161,8 @@ public final class StaticMeshRotateAction extends AbstractTransformAction {
 					.transform(invRotMat, 1, true)
 					.add(center);
 
-			if(node instanceof CameraNode.SourceNode){
-				if (node.getParent().getBindPoseM4() != null){
+			if (node instanceof CameraNode.SourceNode) {
+				if (node.getParent().getBindPoseM4() != null) {
 					temp.sub(node.getPosition());
 					node.getParent().getBindPoseM4().translate(temp);
 				}
