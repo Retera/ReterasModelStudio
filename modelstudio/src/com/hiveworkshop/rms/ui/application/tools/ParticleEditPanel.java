@@ -186,8 +186,8 @@ public class ParticleEditPanel extends JPanel {
 	}
 
 	Timer[] timer = new Timer[1];
-	private void updateSquirtTimer(boolean isSquirt){
-		if(timer[0] != null) {
+	private void updateSquirtTimer(boolean isSquirt) {
+		if (timer[0] != null) {
 			timer[0].cancel();
 			timer[0] = null;
 		}
@@ -195,7 +195,7 @@ public class ParticleEditPanel extends JPanel {
 		if (isSquirt) {
 			int delay = Math.max((int)(1300 * copy.getLifeSpan()), 2500);
 			timer[0] = new Timer();
-			TimerTask task = new TimerTask(){
+			TimerTask task = new TimerTask() {
 				public void run() {
 					tempModelHandler.getPreviewRenderModel().refreshFromEditor();
 				}
@@ -231,17 +231,17 @@ public class ParticleEditPanel extends JPanel {
 			ParticleEmitter2 emitter2 = this.copy.copy();
 			emitter2.setParent(null);
 
-			for(AnimFlag<?> animFlag : particleEmitter2.getAnimFlags()){
-				if (animFlag != null){
+			for (AnimFlag<?> animFlag : particleEmitter2.getAnimFlags()) {
+				if (animFlag != null) {
 					emitter2.add(animFlag.deepCopy());
 				}
 			}
 
 			List<String> affectedAnims = getAffectedAnims(emitter2);
-			if(checkShouldScaleAnims(affectedAnims)){
+			if (checkShouldScaleAnims(affectedAnims)) {
 				for (String s : affectedAnims) {
 					AnimFlag<?> animFlag = emitter2.find(s);
-					if(animFlag instanceof FloatAnimFlag) {
+					if (animFlag instanceof FloatAnimFlag) {
 						double maxValue = nameToValueGetter.get(s).apply(emitter2);
 						scaleAnimAmplitude(animFlag, (float) maxValue);
 					}
@@ -265,12 +265,12 @@ public class ParticleEditPanel extends JPanel {
 		if (modelPanel != null && modelPanel.getModel().contains(particleEmitter2)) {
 			UndoAction action1 = new SetFromOtherParticle2Action(particleEmitter2, copy);
 			List<String> affectedAnims = getAffectedAnims(particleEmitter2);
-			if(checkShouldScaleAnims(affectedAnims)){
+			if (checkShouldScaleAnims(affectedAnims)) {
 				List<UndoAction> undoActions = new ArrayList<>();
 				undoActions.add(action1);
 				for (String s : affectedAnims) {
 					UndoAction scaleAmplitudeAction = getScaleAmplitudeAction(particleEmitter2, s, nameToValueGetter.get(s).apply(copy));
-					if(scaleAmplitudeAction != null){
+					if (scaleAmplitudeAction != null) {
 						undoActions.add(scaleAmplitudeAction);
 					}
 				}
@@ -281,8 +281,8 @@ public class ParticleEditPanel extends JPanel {
 		}
 	}
 
-	private boolean checkShouldScaleAnims(List<String> affectedAnims){
-		if(!affectedAnims.isEmpty()){
+	private boolean checkShouldScaleAnims(List<String> affectedAnims) {
+		if (!affectedAnims.isEmpty()) {
 			StringBuilder sb = new StringBuilder("The following is animated:\n");
 			for (String affectedAnim : affectedAnims) {
 				sb.append("    ").append(affectedAnim).append("\n");
@@ -295,7 +295,7 @@ public class ParticleEditPanel extends JPanel {
 		return false;
 	}
 
-	private JPanel getTexturePanel(){
+	private JPanel getTexturePanel() {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		ModelHandler modelHandler;
@@ -326,12 +326,12 @@ public class ParticleEditPanel extends JPanel {
 		return panel;
 	}
 
-	private void changeTexture(Bitmap texture, JLabel imageLabel){
+	private void changeTexture(Bitmap texture, JLabel imageLabel) {
 		copy.setTexture(texture);
 		updateImageLabel(imageLabel);
 	}
 
-	private void updateImageParts(int rows, int cols, JLabel imageLabel){
+	private void updateImageParts(int rows, int cols, JLabel imageLabel) {
 		copy.setRows(rows);
 		copy.setColumns(cols);
 		updateImageLabel(imageLabel);
@@ -357,29 +357,17 @@ public class ParticleEditPanel extends JPanel {
 		graphics.drawImage(scaledInstance, 0,0,null);
 
 		graphics.setColor(new Color(128,128,128,128));
-		float colSpace = w/(float)cols;
-		float rowSpace = h/(float)rows;
-		for(float i = colSpace; i < w; i+= colSpace){
+		float colSpace = w / (float)cols;
+		float rowSpace = h / (float)rows;
+		for (float i = colSpace; i < w; i+= colSpace) {
 			graphics.drawLine((int) i, 0, (int) i, h);
 		}
-		for(float i = rowSpace; i < h; i+= rowSpace){
+		for (float i = rowSpace; i < h; i+= rowSpace) {
 			graphics.drawLine(0, (int) i, w, (int) i);
 		}
 		graphics.dispose();
 
 		imageLabel.setIcon(new ImageIcon(iconImage));
-	}
-
-	private float[] clampColorVector(float[] rowColor) {
-		for (int i = 0; i < rowColor.length; i++) {
-			rowColor[i] = Math.max(0, Math.min(1, rowColor[i]));
-		}
-		return rowColor;
-	}
-
-	private void changeColor(int i, Color color) {
-		System.out.println("Setting color " + i + " to: " + color);
-		copy.setSegmentColor(i, clampColorVector(color.getComponents(null)));
 	}
 
 
@@ -433,7 +421,7 @@ public class ParticleEditPanel extends JPanel {
 
 	private UndoAction getScaleAmplitudeAction(ParticleEmitter2 emitter, String flagName, double newMaxValue) {
 		AnimFlag<?> animFlag = emitter.find(flagName);
-		if(animFlag instanceof FloatAnimFlag) {
+		if (animFlag instanceof FloatAnimFlag) {
 			AnimFlag<?> newAnimFlag = animFlag.deepCopy();
 			scaleAnimAmplitude(newAnimFlag, (float) newMaxValue);
 			return new AddAnimFlagAction<>(emitter, newAnimFlag, null);
@@ -441,16 +429,15 @@ public class ParticleEditPanel extends JPanel {
 		return null;
 	}
 
-	private void scaleAnimAmplitude(AnimFlag<?> animFlag, float newMaxValue){
-		if (animFlag instanceof FloatAnimFlag) {
-			FloatAnimFlag floatAnimFlag = (FloatAnimFlag) animFlag;
+	private void scaleAnimAmplitude(AnimFlag<?> animFlag, float newMaxValue) {
+		if (animFlag instanceof FloatAnimFlag floatAnimFlag) {
 			float staticValue = getStaticValue(floatAnimFlag, newMaxValue);
-			if(staticValue != 0 && staticValue != newMaxValue){
+			if (staticValue != 0 && staticValue != newMaxValue) {
 				float scaleFactor = newMaxValue/staticValue;
 				for (TreeMap<Integer, Entry<Float>> seqMap : floatAnimFlag.getAnimMap().values()) {
-					for (Entry<Float> entry : seqMap.values()){
+					for (Entry<Float> entry : seqMap.values()) {
 						entry.setValue(entry.getValue() * scaleFactor);
-						if(entry.isTangential()){
+						if (entry.isTangential()) {
 							entry.setInTan(entry.getInTan() * scaleFactor);
 							entry.setOutTan(entry.getOutTan() * scaleFactor);
 						}
@@ -471,16 +458,16 @@ public class ParticleEditPanel extends JPanel {
 				MdlUtils.TOKEN_GRAVITY,
 				MdlUtils.TOKEN_EMISSION_RATE,
 				MdlUtils.TOKEN_LIFE_SPAN};
-		for(String flagName : flagNames) {
+		for (String flagName : flagNames) {
 //			System.out.println("Has \"" + flagName + "\": " + emitter.has("flagName"));
-			if (emitter.has(flagName)){
+			if (emitter.has(flagName)) {
 				animatedStuff.add(flagName);
 			}
 		}
 		return animatedStuff;
 	}
 
-	private ParticleEmitter2 getCopyForEditing(ParticleEmitter2 emitter){
+	private ParticleEmitter2 getCopyForEditing(ParticleEmitter2 emitter) {
 		ParticleEmitter2 copy = emitter.copy();
 
 		setStaticValue(copy, MdlUtils.TOKEN_WIDTH, copy::setWidth);
@@ -516,24 +503,24 @@ public class ParticleEditPanel extends JPanel {
 
 		return copy;
 	}
-	private void setStaticValue(ParticleEmitter2 emitter, String timelineTitle, Consumer<Float> valueConsumer){
+	private void setStaticValue(ParticleEmitter2 emitter, String timelineTitle, Consumer<Float> valueConsumer) {
 		AnimFlag<?> animFlag = emitter.find(timelineTitle);
 		if (animFlag instanceof FloatAnimFlag) {
 			Float maxFloat = getStaticValue((FloatAnimFlag) animFlag, null);
-			if(maxFloat != null){
+			if (maxFloat != null) {
 				valueConsumer.accept(maxFloat);
 			}
 		}
 	}
 
-	private Float getStaticValue(FloatAnimFlag animFlag, Float value){
+	private Float getStaticValue(FloatAnimFlag animFlag, Float value) {
 		Float maxFloat = null;
 		for (TreeMap<Integer, Entry<Float>> seqMap : animFlag.getAnimMap().values()) {
-			for (Entry<Float> entry : seqMap.values()){
+			for (Entry<Float> entry : seqMap.values()) {
 				maxFloat = maxFloat == null ? entry.getValue() : Math.max(maxFloat, entry.getValue());
 			}
 		}
-		if(maxFloat != null){
+		if (maxFloat != null) {
 			return maxFloat;
 		}
 		return value;
@@ -576,5 +563,17 @@ public class ParticleEditPanel extends JPanel {
 		panel.add(button2);
 
 		return panel;
+	}
+
+	private void changeColor(int i, Color color) {
+		System.out.println("Setting color " + i + " to: " + color);
+		copy.setSegmentColor(i, clampColorVector(color.getComponents(null)));
+	}
+
+	private float[] clampColorVector(float[] rowColor) {
+		for (int i = 0; i < rowColor.length; i++) {
+			rowColor[i] = Math.max(0, Math.min(1, rowColor[i]));
+		}
+		return rowColor;
 	}
 }

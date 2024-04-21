@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.ui.application.model.material;
 
+import com.hiveworkshop.rms.editor.actions.addactions.AddTextureAnimAction;
+import com.hiveworkshop.rms.editor.actions.animation.RemoveTextureAnimAction;
 import com.hiveworkshop.rms.editor.model.TextureAnim;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
@@ -23,6 +25,9 @@ public class ComponentTextureAnimPanel extends ComponentPanel<TextureAnim> {
 
 	public ComponentTextureAnimPanel(ModelHandler modelHandler, ComponentsPanel componentsPanel) {
 		super(modelHandler, componentsPanel, new MigLayout("fillx, gap 0", "[grow]", "[]"));
+
+		add(getDeleteButton(e -> removeNode()), "split, right");
+		add(getButton("Duplicate", e -> duplicateNode()), "wrap");
 
 		transPanel = new FlagPanel<>(MdlUtils.TOKEN_TRANSLATION, this::parseVec3, new Vec3(0,0,0), modelHandler);
 		scalePanel = new FlagPanel<>(MdlUtils.TOKEN_SCALING, this::parseVec3, new Vec3(1,1,1), modelHandler);
@@ -53,5 +58,12 @@ public class ComponentTextureAnimPanel extends ComponentPanel<TextureAnim> {
 		revalidate();
 		repaint();
 		return this;
+	}
+
+	private void removeNode() {
+		undoManager.pushAction(new RemoveTextureAnimAction(selectedItem, model, changeListener).redo());
+	}
+	private void duplicateNode() {
+		undoManager.pushAction(new AddTextureAnimAction(selectedItem.deepCopy(), model, changeListener).redo());
 	}
 }

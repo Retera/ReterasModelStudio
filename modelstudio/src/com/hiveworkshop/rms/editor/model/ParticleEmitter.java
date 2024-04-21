@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.render3d.EmitterIdObject;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 
@@ -32,7 +33,7 @@ public class ParticleEmitter extends EmitterIdObject {
 		this.name = name;
 	}
 
-	public ParticleEmitter(ParticleEmitter emitter) {
+	private ParticleEmitter(ParticleEmitter emitter) {
 		super(emitter);
 
 		emissionRate = emitter.emissionRate;
@@ -145,26 +146,26 @@ public class ParticleEmitter extends EmitterIdObject {
 	}
 
 	public double getRenderSpeed(TimeEnvironmentImpl animatedRenderEnvironment) {
-		return getInterpolatedFloat(animatedRenderEnvironment, "InitVelocity", (float) getInitVelocity());
+		return getInterpolatedFloat(animatedRenderEnvironment, MdlUtils.TOKEN_INIT_VELOCITY, (float) getInitVelocity());
 	}
 
 	public double getRenderLatitude(TimeEnvironmentImpl animatedRenderEnvironment) {
-		return getInterpolatedFloat(animatedRenderEnvironment, "Latitude", (float) getLatitude());
+		return getInterpolatedFloat(animatedRenderEnvironment, MdlUtils.TOKEN_LATITUDE, (float) getLatitude());
 	}
 
 	public double getRenderLongitude(TimeEnvironmentImpl animatedRenderEnvironment) {
-		return getInterpolatedFloat(animatedRenderEnvironment, "Longitude", (float) getLongitude());
+		return getInterpolatedFloat(animatedRenderEnvironment, MdlUtils.TOKEN_LONGITUDE, (float) getLongitude());
 	}
 
 	public double getRenderLifeSpan(TimeEnvironmentImpl animatedRenderEnvironment) {
-		return getInterpolatedFloat(animatedRenderEnvironment, "LifeSpan", (float) getLifeSpan());
+		return getInterpolatedFloat(animatedRenderEnvironment, MdlUtils.TOKEN_LIFE_SPAN, (float) getLifeSpan());
 	}
 
 	public double getRenderGravity(TimeEnvironmentImpl animatedRenderEnvironment) {
-		return getInterpolatedFloat(animatedRenderEnvironment, "Gravity", (float) getGravity());
+		return getInterpolatedFloat(animatedRenderEnvironment, MdlUtils.TOKEN_GRAVITY, (float) getGravity());
 	}
 
 	public double getRenderEmissionRate(TimeEnvironmentImpl animatedRenderEnvironment) {
-		return getInterpolatedFloat(animatedRenderEnvironment, "EmissionRate", (float) getEmissionRate());
+		return getInterpolatedFloat(animatedRenderEnvironment, MdlUtils.TOKEN_EMISSION_RATE, (float) getEmissionRate());
 	}
 }

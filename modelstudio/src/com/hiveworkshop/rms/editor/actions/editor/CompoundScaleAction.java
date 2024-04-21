@@ -8,16 +8,25 @@ import java.util.List;
 public final class CompoundScaleAction extends AbstractTransformAction {
 	private final List<? extends AbstractTransformAction> actions;
 	private final String name;
+	private final Runnable updater;
 
 	public CompoundScaleAction(final String name, final List<? extends AbstractTransformAction> actions) {
+		this(name, actions, null);
+	}
+
+	public CompoundScaleAction(final String name, final List<? extends AbstractTransformAction> actions, Runnable updater) {
 		this.name = name;
 		this.actions = actions;
+		this.updater = updater;
 	}
 
 	@Override
 	public CompoundScaleAction undo() {
 		for (final UndoAction action : actions) {
 			action.undo();
+		}
+		if (updater != null) {
+			updater.run();
 		}
 		return this;
 	}
@@ -26,6 +35,9 @@ public final class CompoundScaleAction extends AbstractTransformAction {
 	public CompoundScaleAction redo() {
 		for (final UndoAction action : actions) {
 			action.redo();
+		}
+		if (updater != null) {
+			updater.run();
 		}
 		return this;
 	}

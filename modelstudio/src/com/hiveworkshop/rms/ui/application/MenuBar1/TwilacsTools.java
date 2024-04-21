@@ -30,6 +30,7 @@ public class TwilacsTools extends JMenu {
 		super("Twilac's Beta Tools");
 		setMnemonic(KeyEvent.VK_I);
 		getAccessibleContext().setAccessibleDescription("Where Twilac puts new features during development before they find a permanent home.");
+		add(new OffsetKeyframes().getMenuItem());
 //		add(getBakeMenu());
 //		add(EventObjectPanel.getMenuItem());
 		add(getCutEdgeMenu());

@@ -45,7 +45,9 @@ public enum TextKey {
 	SELECTION_TYPE_FACE("Selection_Type_FACE"),
 	SELECTION_TYPE_GROUP("Selection_Type_GROUP"),
 	TOGGLE_WIREFRAME("Toggle wireframe"),
+	BRIDGE_EDGES("Bridge Edges"),
 	CREATE_FACE("Create face from selection"),
+	CUT_EDGE("Cut Edge"),
 	MOD_ADD_SELECT("Add Selection Modifier"),
 	UNMOD_ADD_SELECT("unShiftSelect"),
 	MOD_REMOVE_SELECT("Remove Selection Modifier"),
@@ -90,6 +92,7 @@ public enum TextKey {
 	SIMPLIFY_KEYFRAMES("Simplify Keyframes"),
 	SIMPLIFY_KEYFRAMES_OF_SELECTED_NODES("Simplify Keyframes of Selected Nodes"),
 	ROUND_KEYFRAMES("Round Keyframes"),
+	OFFSET_KEYFRAMES("Offset Keyframes"),
 	MINIMIZE_GEOSETS("Minimize Geosets"),
 	SIMPLIFY_SELECTED_GEOMETRY("Simplify Selected Geometry"),
 	SORT_NODES("Sort Nodes"),
@@ -113,6 +116,7 @@ public enum TextKey {
 	NONE("None"),
 	KEYBOARDKEY(""),
 	INVERT_ALL_UVS("Swap All UVs U for V"),
+	MIRROR_NODES("Mirror Nodes"),
 	MIRROR_X("Mirror X"),
 	MIRROR_Y("Mirror Y"),
 	MIRROR_Z("Mirror Z"),
@@ -132,7 +136,7 @@ public enum TextKey {
 	RELOAD_TEXTURES("Reload Textures"),
 
 	;
-	String defaultTranslation;
+	final String defaultTranslation;
 
 	TextKey(String s) {
 		defaultTranslation = s;

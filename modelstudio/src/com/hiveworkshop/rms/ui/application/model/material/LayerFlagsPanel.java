@@ -13,17 +13,14 @@ public class LayerFlagsPanel extends JPanel {
 
 	private final ModelHandler modelHandler;
 	private Layer layer;
-	private final LinkedHashMap<Layer.flag, JCheckBox> checkboxes = new LinkedHashMap<>();
+	private final LinkedHashMap<Layer.Flag, JCheckBox> checkboxes = new LinkedHashMap<>();
 
 	public LayerFlagsPanel(ModelHandler modelHandler) {
 		super(new MigLayout("ins 3, gap 3, wrap 1", "", ""));
 		setBorder(BorderFactory.createTitledBorder("Flags"));
 		this.modelHandler = modelHandler;
 
-//		setOpaque(true);
-//		setBackground(Color.MAGENTA);
-
-		for (Layer.flag flag : Layer.flag.values()){
+		for (Layer.Flag flag : Layer.Flag.values()) {
 			JCheckBox checkBox = new JCheckBox(flag.getName());
 			checkBox.addActionListener(e -> toggleFlag(flag, checkBox.isSelected()));
 			add(checkBox, "");
@@ -33,13 +30,13 @@ public class LayerFlagsPanel extends JPanel {
 
 	public LayerFlagsPanel setLayer(Layer layer) {
 		this.layer = layer;
-		for(Layer.flag flag : checkboxes.keySet()){
+		for (Layer.Flag flag : checkboxes.keySet()) {
 			checkboxes.get(flag).setSelected(layer.isFlagSet(flag));
 		}
 		return this;
 	}
 
-	private void toggleFlag(Layer.flag flag, boolean selected) {
+	private void toggleFlag(Layer.Flag flag, boolean selected) {
 		if (layer != null && layer.isFlagSet(flag) != selected) {
 			modelHandler.getUndoManager().pushAction(new SetLayerFlagAction(layer, flag, selected, ModelStructureChangeListener.changeListener).redo());
 		}

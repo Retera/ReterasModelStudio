@@ -12,28 +12,37 @@ import java.util.List;
 import java.util.TreeMap;
 
 public class OffsetSequenceAction implements UndoAction {
-	ModelStructureChangeListener changeListener;
-	List<AnimFlag<?>> animFlags;
-	Sequence sequence;
-	int offset;
+	private final ModelStructureChangeListener changeListener;
+	private final List<AnimFlag<?>> animFlags;
+	private final Sequence sequence;
+	private final int offset;
+	private final boolean wrap;
+	private final String actionName;
 
-	public OffsetSequenceAction(Collection<AnimFlag<?>> animFlags, Sequence sequence, float offset,
-	                            ModelStructureChangeListener changeListener) {
-		this(animFlags, sequence, (int)(sequence.getLength()*offset), changeListener);
+	public OffsetSequenceAction(Collection<AnimFlag<?>> animFlags, Sequence sequence, float offset, ModelStructureChangeListener changeListener) {
+		this(animFlags, sequence, (int)(sequence.getLength() * offset), true, changeListener);
+	}
+	public OffsetSequenceAction(Collection<AnimFlag<?>> animFlags, Sequence sequence, float offset, boolean wrap, ModelStructureChangeListener changeListener) {
+		this(animFlags, sequence, (int)(sequence.getLength() * offset), wrap, changeListener);
 	}
 
-	public OffsetSequenceAction(Collection<AnimFlag<?>> animFlags, Sequence sequence, int offset,
-	                            ModelStructureChangeListener changeListener) {
+	public OffsetSequenceAction(Collection<AnimFlag<?>> animFlags, Sequence sequence, int offset, ModelStructureChangeListener changeListener) {
+		this(animFlags, sequence, offset, true, changeListener);
+	}
+	public OffsetSequenceAction(Collection<AnimFlag<?>> animFlags, Sequence sequence, int offset, boolean wrap, ModelStructureChangeListener changeListener) {
 		this.changeListener = changeListener;
 		this.animFlags = new ArrayList<>();
 		this.sequence = sequence;
 		this.offset = offset;
+		this.wrap = wrap;
 
 		for (AnimFlag<?> animFlag : animFlags) {
 			if (animFlag.getEntryMap(sequence) != null && 0 < animFlag.getEntryMap(sequence).size()) {
 				this.animFlags.add(animFlag);
 			}
 		}
+
+		actionName = "Offset \"" + sequence.getName() + "\" by " + offset + " frames for " + animFlags.size() + " timelines";
 	}
 
 	private <Q> void doOffset1(AnimFlag<Q> animFlag) {
@@ -60,10 +69,25 @@ public class OffsetSequenceAction implements UndoAction {
 		TreeMap<Integer, Entry<Q>> entryMap = animFlag.getEntryMap(sequence);
 		for (Integer i : entryMap.keySet()) {
 			Entry<Q> value = entryMap.get(i);
-			value.time = (i + offset) % (sequence.getLength()+1);
+			value.time = getNewValidTime(i + offset);
 			newMap.put(value.time, value);
 		}
 		animFlag.setEntryMap(sequence, newMap);
+	}
+
+	private int getNewValidTime(int newTime) {
+		if (wrap) {
+			for (int i = 0; i < 10; i++) {
+				if (newTime < 0) {
+					newTime = newTime + sequence.getLength();
+				} else if (sequence.getLength() < newTime) {
+					newTime = newTime - sequence.getLength();
+				} else {
+					break;
+				}
+			}
+		}
+		return newTime;
 	}
 
 	@Override
@@ -90,6 +114,6 @@ public class OffsetSequenceAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "Offset \"" + "Sequence" + "\"";
+		return actionName;
 	}
 }

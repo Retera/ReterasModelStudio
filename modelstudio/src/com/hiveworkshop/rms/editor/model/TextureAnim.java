@@ -14,9 +14,6 @@ import java.util.Map;
  * Eric Theller 3/9/2012
  */
 public class TextureAnim extends TimelineContainer {
-	/**
-	 * Constructor for objects of class TextureAnim
-	 */
 	public TextureAnim(final AnimFlag<?> flag) {
 		add(flag);
 	}
@@ -42,5 +39,14 @@ public class TextureAnim extends TimelineContainer {
 		//TODO figure out what this should return
 //		System.out.println("TextureAnim flags: " + flags.keySet());
 		return flags.keySet().toString();
+	}
+
+	public TextureAnim deepCopy() {
+		return new TextureAnim(this);
+	}
+
+	@Override
+	public String toString() {
+		return getFlagNames();
 	}
 }

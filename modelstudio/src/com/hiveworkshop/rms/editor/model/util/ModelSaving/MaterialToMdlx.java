@@ -120,7 +120,7 @@ public class MaterialToMdlx {
 		MdlxLayer mdlxLayer = new MdlxLayer();
 
 		mdlxLayer.filterMode = layer.getFilterMode();
-		for (Layer.flag flag : layer.getFlags()){
+		for (Layer.Flag flag : layer.getFlags()){
 			mdlxLayer.flags |= flag.getFlagBit();
 		}
 

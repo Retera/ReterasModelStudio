@@ -6,12 +6,12 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
 public class SetLayerFlagAction implements UndoAction {
 	private final Layer layer;
-	private final Layer.flag flag;
+	private final Layer.Flag flag;
 	private final boolean set;
 	private final boolean oldState;
 	private final ModelStructureChangeListener changeListener;
 
-	public SetLayerFlagAction(Layer layer, Layer.flag flag, boolean set, ModelStructureChangeListener changeListener) {
+	public SetLayerFlagAction(Layer layer, Layer.Flag flag, boolean set, ModelStructureChangeListener changeListener) {
 		this.layer = layer;
 		this.flag = flag;
 		this.set = set;

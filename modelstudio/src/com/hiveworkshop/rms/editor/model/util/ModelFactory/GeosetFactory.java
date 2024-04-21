@@ -98,12 +98,10 @@ public class GeosetFactory {
 				gv.addTVertex(new Vec2(uvSet[(i * 2)], uvSet[(i * 2) + 1]));
 			}
 
-
 			if (tangents != null) {
 				Vec4 tang = new Vec4(tangents[(i * 4)], tangents[(i * 4) + 1], tangents[(i * 4) + 2], tangents[(i * 4) + 3]);
 				gv.setTangent(tang);
 			}
-
 
 			if (skin != null && !matrices.isEmpty()) {
 				short[] vertSkin = getSkin(matrices, skin, matrixMax, i, gv);
@@ -137,7 +135,7 @@ public class GeosetFactory {
 	}
 
 	private static boolean isWithin(int faceInd, int maxInd) {
-		return 0 < faceInd && faceInd < maxInd;
+		return 0 <= faceInd && faceInd < maxInd;
 	}
 
 	private static short[] getSkin(List<Matrix> matrices, short[] skin, int matrixMax, int i, GeosetVertex gv) {

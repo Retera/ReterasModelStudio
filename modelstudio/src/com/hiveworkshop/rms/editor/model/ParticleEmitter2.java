@@ -63,7 +63,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		this.name = name;
 	}
 
-	public ParticleEmitter2(ParticleEmitter2 emitter) {
+	private ParticleEmitter2(ParticleEmitter2 emitter) {
 		super(emitter);
 
 		filterMode = emitter.filterMode;
@@ -105,23 +105,23 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return new ParticleEmitter2(this);
 	}
 
-	public boolean isFlagSet(P2Flag flag){
+	public boolean isFlagSet(P2Flag flag) {
 		return p2Flags.contains(flag);
 	}
-	public ParticleEmitter2 setFlag(P2Flag flag, boolean set){
-		if(set){
+	public ParticleEmitter2 setFlag(P2Flag flag, boolean set) {
+		if (set) {
 			p2Flags.add(flag);
 		} else {
 			p2Flags.remove(flag);
 		}
 		return this;
 	}
-	public ParticleEmitter2 setFlags(EnumSet<P2Flag> flags){
+	public ParticleEmitter2 setFlags(EnumSet<P2Flag> flags) {
 		p2Flags.addAll(flags);
 		return this;
 	}
 
-	public ParticleEmitter2 toggleFlag(P2Flag flag){
+	public ParticleEmitter2 toggleFlag(P2Flag flag) {
 		return setFlag(flag, !p2Flags.contains(flag));
 	}
 
@@ -209,12 +209,12 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return setFlag(HeadTailFlag.EMIT_TAIL, b);
 	}
 
-	public boolean isFlagSet(HeadTailFlag flag){
+	public boolean isFlagSet(HeadTailFlag flag) {
 		return headTailFlags.contains(flag);
 	}
 
-	public ParticleEmitter2 setFlag(HeadTailFlag flag, boolean set){
-		if(set){
+	public ParticleEmitter2 setFlag(HeadTailFlag flag, boolean set) {
+		if (set) {
 			headTailFlags.add(flag);
 		} else {
 			headTailFlags.remove(flag);
@@ -222,7 +222,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return this;
 	}
 
-	public ParticleEmitter2 toggleFlag(HeadTailFlag flag){
+	public ParticleEmitter2 toggleFlag(HeadTailFlag flag) {
 		return setFlag(flag, !headTailFlags.contains(flag));
 	}
 
@@ -493,7 +493,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		EMIT_TAIL(MdlUtils.TOKEN_TAIL, 0x2);
 		final String name;
 		final int flagBit;
-		HeadTailFlag(String name, int flagBit){
+		HeadTailFlag(String name, int flagBit) {
 			this.name = name;
 			this.flagBit = flagBit;
 		}
@@ -510,10 +510,10 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		public int getFlagBit() {
 			return flagBit;
 		}
-		public static EnumSet<HeadTailFlag> fromBits(int bits){
+		public static EnumSet<HeadTailFlag> fromBits(int bits) {
 			EnumSet<HeadTailFlag> flagSet = EnumSet.noneOf(HeadTailFlag.class);
-			for (HeadTailFlag f : HeadTailFlag.values()){
-				if ((f.flagBit & bits) == f.flagBit){
+			for (HeadTailFlag f : HeadTailFlag.values()) {
+				if ((f.flagBit & bits) == f.flagBit) {
 					flagSet.add(f);
 				}
 			}
@@ -530,7 +530,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		XY_QUAD(            MdlUtils.TOKEN_XY_QUAD,             0x100000);
 		final String name;
 		final int flagBit;
-		P2Flag(String name, int flagBit){
+		P2Flag(String name, int flagBit) {
 			this.name = name;
 			this.flagBit = flagBit;
 		}
@@ -547,10 +547,10 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		public int getFlagBit() {
 			return flagBit;
 		}
-		public static EnumSet<P2Flag> fromBits(int bits){
+		public static EnumSet<P2Flag> fromBits(int bits) {
 			EnumSet<P2Flag> flagSet = EnumSet.noneOf(P2Flag.class);
-			for (P2Flag f : P2Flag.values()){
-				if ((f.flagBit & bits) == f.flagBit){
+			for (P2Flag f : P2Flag.values()) {
+				if ((f.flagBit & bits) == f.flagBit) {
 					flagSet.add(f);
 				}
 			}

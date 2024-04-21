@@ -10,7 +10,10 @@ import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.plaf.basic.BasicTreeUI;
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -21,7 +24,7 @@ import java.util.*;
 
 public final class ModelComponentBrowserTree extends JTree {
 	private final ModelHandler modelHandler;
-	private Map<IdObject, DefaultMutableTreeNode> nodeToTreeElement;
+	private Map<IdObject, ModelTreeNode<?>> nodeToTreeElement;
 	private boolean controlDown = false;
 	private final ComponentsPanel componentsPanel;
 
@@ -69,29 +72,27 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private TreeExpansionListener getExpansionListener() {
 		return new TreeExpansionListener() {
-			boolean isSt = false;
+			boolean isExpanding = false;
 
 			@Override
 			public void treeExpanded(TreeExpansionEvent event) {
-				if (controlDown && (!isSt)) {
-					isSt = true;
-					if (event.getPath().getLastPathComponent() instanceof DefaultMutableTreeNode) {
-						DefaultMutableTreeNode lastPathComponent = (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
+				if (controlDown && (!isExpanding)) {
+					isExpanding = true;
+					if (event.getPath().getLastPathComponent() instanceof ModelTreeNode<?> lastPathComponent) {
 						expandAllChildren(lastPathComponent, event.getPath(), true);
 					}
-					isSt = false;
+					isExpanding = false;
 				}
 			}
 
 			@Override
 			public void treeCollapsed(TreeExpansionEvent event) {
-				if (controlDown && (!isSt)) {
-					isSt = true;
-					if (event.getPath().getLastPathComponent() instanceof DefaultMutableTreeNode) {
-						DefaultMutableTreeNode lastPathComponent = (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
+				if (controlDown && (!isExpanding)) {
+					isExpanding = true;
+					if (event.getPath().getLastPathComponent() instanceof ModelTreeNode<?> lastPathComponent) {
 						expandAllChildren(lastPathComponent, event.getPath(), false);
 					}
-					isSt = false;
+					isExpanding = false;
 				}
 			}
 		};
@@ -110,15 +111,12 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	private DefaultTreeModel buildTreeModel(ModelHandler modelHandler) {
-
 		EditableModel model = modelHandler.getModel();
 		ModelView modelView = modelHandler.getModelView();
 
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.MODEL_ROOT, modelView, model, () -> "Model \"" + model.getHeaderName() + "\""));
-
-		root.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.COMMENT, modelView, model.getComments(), () -> "Comment")));
-
-		root.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.HEADER, modelView, model, () -> "Header")));
+		ModelTreeNode<?> root = new ModelTreeNode<>(DisplayElementType.MODEL_ROOT, modelView, model, () -> "Model \"" + model.getHeaderName() + "\"");
+		root.add(new ModelTreeNode<>(DisplayElementType.COMMENT, modelView, model.getComments(), () -> "Comment"));
+		root.add(new ModelTreeNode<>(DisplayElementType.HEADER, modelView, model, () -> "Header"));
 
 		root.add(getSequencesNode(model, modelView));
 		root.add(getGlobalSequences(model, modelView));
@@ -132,29 +130,29 @@ public final class ModelComponentBrowserTree extends JTree {
 		int number = 0;
 		if (!model.getFaceEffects().isEmpty()) {
 			for (FaceEffect faceEffect : model.getFaceEffects()) {
-				root.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.FACEFX, modelView, faceEffect, () -> DisplayElementType.FACEFX.getName() + " \"" + faceEffect.getFaceEffectTarget() + "\"", number++)));
+				root.add(new ModelTreeNode<>(DisplayElementType.FACEFX, modelView, faceEffect, () -> DisplayElementType.FACEFX.getName() + " \"" + faceEffect.getFaceEffectTarget() + "\"", number++));
 			}
 		}
 		return new DefaultTreeModel(root);
 	}
 
-	private DefaultMutableTreeNode getCameras(EditableModel model, ModelView modelView) {
-		DefaultMutableTreeNode cameras = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.CAMERA, modelView, "Cameras"));
+	private ModelTreeNode<?> getCameras(EditableModel model, ModelView modelView) {
+		ModelTreeNode<?> cameras = new ModelTreeNode<>(new ChoosableDisplayElement<>(DisplayElementType.CAMERA, modelView, "Cameras"));
 		for (Camera item : model.getCameras()) {
-			cameras.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.CAMERA, modelView, item, model.getId(item))));
+			cameras.add(new ModelTreeNode<>(DisplayElementType.CAMERA, modelView, item, model.getId(item)));
 		}
 		return cameras;
 	}
 
-	private DefaultMutableTreeNode getNodes(EditableModel model, ModelView modelView) {
-		DefaultMutableTreeNode nodes = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.NODES, modelView, "Nodes"));
+	private ModelTreeNode<?> getNodes(EditableModel model, ModelView modelView) {
+		ModelTreeNode<?> nodes = new ModelTreeNode<>(DisplayElementType.NODES, modelView, "Nodes");
 
 		nodeToTreeElement = new HashMap<>();
 		nodeToTreeElement.put(null, nodes);
 
 		// Create all treeNodes
 		for (IdObject idObject : model.getIdObjects()) {
-			DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(getIdObjectElement(modelView, idObject));
+			ModelTreeNode<?> treeNode = new ModelTreeNode<>(getIdObjectElement(modelView, idObject));
 
 			nodeToTreeElement.put(idObject, treeNode);
 		}
@@ -163,78 +161,66 @@ public final class ModelComponentBrowserTree extends JTree {
 		for (IdObject idObject : model.getIdObjects()) {
 			IdObject parent = idObject.getParent();
 
-			DefaultMutableTreeNode parentTreeNode = nodeToTreeElement.get(parent);
+			ModelTreeNode<?> parentTreeNode = nodeToTreeElement.get(parent);
 			parentTreeNode.add(nodeToTreeElement.get(idObject));
 		}
 		return nodes;
 	}
 
-	private DefaultMutableTreeNode getGeosets(EditableModel model, ModelView modelView) {
-		DefaultMutableTreeNode geosets = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.GEOSET_ITEM, modelView, "Geosets"));
+	private ModelTreeNode<?> getGeosets(EditableModel model, ModelView modelView) {
+		ModelTreeNode<?> geosets = new ModelTreeNode<>(DisplayElementType.GEOSET_ITEM, modelView, "Geosets");
 		for (Geoset item : model.getGeosets()) {
-			ChoosableDisplayElement<Geoset> geosetItem2 = new ChoosableDisplayElement<>(DisplayElementType.GEOSET_ITEM, modelView, item);
-
-			geosets.add(new DefaultMutableTreeNode(geosetItem2));
+			geosets.add(new ModelTreeNode<>(DisplayElementType.GEOSET_ITEM, modelView, item));
 		}
 		return geosets;
 	}
 
-	private DefaultMutableTreeNode getTextureAnims(EditableModel model, ModelView modelView) {
-		DefaultMutableTreeNode textureAnims = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.TEXTURE_ANIM, modelView, "TextureAnims"));
-		int number = 0;
-		for (TextureAnim item : model.getTexAnims()) {
-			textureAnims.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.TEXTURE_ANIM, modelView, item, () -> "# " + model.getId(item), number++)));
+	private ModelTreeNode<?> getTextureAnims(EditableModel model, ModelView modelView) {
+		ModelTreeNode<?> textureAnims = new ModelTreeNode<>(DisplayElementType.TEXTURE_ANIM, modelView, "TextureAnims");
+		for (int i = 0; i < model.getTexAnims().size(); i++) {
+			textureAnims.add(new ModelTreeNode<>(DisplayElementType.TEXTURE_ANIM, modelView, model.getTexAnim(i), i));
 		}
 		return textureAnims;
 	}
 
-	private DefaultMutableTreeNode getMaterials(EditableModel model, ModelView modelView) {
-		DefaultMutableTreeNode materials = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.MATERIAL, modelView, "Materials"));
-		for (int i = 0; i<model.getMaterials().size(); i++) {
-			materials.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.MATERIAL, modelView, model.getMaterial(i), i)));
+	private ModelTreeNode<?> getMaterials(EditableModel model, ModelView modelView) {
+		ModelTreeNode<?> materials = new ModelTreeNode<>(DisplayElementType.MATERIAL, modelView, "Materials");
+		for (int i = 0; i < model.getMaterials().size(); i++) {
+			materials.add(new ModelTreeNode<>(DisplayElementType.MATERIAL, modelView, model.getMaterial(i), i));
 		}
 		return materials;
 	}
 
-	private DefaultMutableTreeNode getTextures(EditableModel model, ModelView modelView) {
-		DefaultMutableTreeNode textures = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.TEXTURE, modelView, "Textures"));
-		int number = 0;
-		for (Bitmap item : model.getTextures()) {
-			textures.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.TEXTURE, modelView, item, number++)));
+	private ModelTreeNode<?> getTextures(EditableModel model, ModelView modelView) {
+		ModelTreeNode<?> textures = new ModelTreeNode<>(DisplayElementType.TEXTURE, modelView, "Textures");
+		for (int i = 0; i < model.getTextures().size(); i++) {
+			textures.add(new ModelTreeNode<>(DisplayElementType.TEXTURE, modelView, model.getTexture(i), i));
 		}
 		return textures;
 	}
 
-	private DefaultMutableTreeNode getGlobalSequences(EditableModel model, ModelView modelView) {
-		DefaultMutableTreeNode globalSequences = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.GLOBAL_SEQ, modelView, "GlobalSequences"));
+	private ModelTreeNode<?> getGlobalSequences(EditableModel model, ModelView modelView) {
+		ModelTreeNode<?> globalSequences = new ModelTreeNode<>(DisplayElementType.GLOBAL_SEQ, modelView, "GlobalSequences");
 		for (GlobalSeq globalSeq : model.getGlobalSeqs()) {
-			globalSequences.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.GLOBAL_SEQ, modelView, globalSeq, model.getId(globalSeq))));
+			globalSequences.add(new ModelTreeNode<>(DisplayElementType.GLOBAL_SEQ, modelView, globalSeq, model.getId(globalSeq)));
 		}
 		return globalSequences;
 	}
 
-	private DefaultMutableTreeNode getSequencesNode(EditableModel model, ModelView modelView) {
-		DefaultMutableTreeNode sequences = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.ANIMATION, modelView, "Sequences"));
-		for (Animation item : model.getAnims()) {
-			sequences.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.ANIMATION, modelView, item, item::toString)));
+	private ModelTreeNode<?> getSequencesNode(EditableModel model, ModelView modelView) {
+//		ModelTreeNode<?> sequences = new ModelTreeNode<>(DisplayElementType.ANIMATION, modelView, "Sequences (" + model.getAnims().size() + ")");
+		ModelTreeNode<?> sequences = new ModelTreeNode<>(DisplayElementType.ANIMATION, modelView, "Sequences");
+		for (int i = 0; i < model.getAnims().size(); i++) {
+			sequences.add(new ModelTreeNode<>(DisplayElementType.ANIMATION, modelView, model.getAnim(i), i));
 		}
 		return sequences;
 	}
 
 	private void onTreeSelection(ComponentsPanel componentsPanel, TreeSelectionEvent e) {
 		TreePath path = e.getNewLeadSelectionPath();
-		boolean selected = false;
-
-		if (path != null && path.getLastPathComponent() instanceof DefaultMutableTreeNode) {
-
-			DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-
-			if (node.getUserObject() instanceof ChoosableDisplayElement) {
-				asElement(node.getUserObject()).select(componentsPanel);
-				selected = true;
-			}
-		}
-		if (!selected) {
+		if (path != null && path.getLastPathComponent() instanceof ModelTreeNode<?> node) {
+			node.select(componentsPanel);
+		} else {
 			componentsPanel.selectedBlank();
 		}
 	}
@@ -244,89 +230,51 @@ public final class ModelComponentBrowserTree extends JTree {
 			@Override
 			public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected,
 			                                              boolean expanded, boolean leaf, int row, boolean hasFocus) {
-				ImageIcon iconOverride = null;
-				if (value instanceof DefaultMutableTreeNode) {
-					Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
-					if (userObject instanceof ChoosableDisplayElement) {
-						ImageIcon icon = ((ChoosableDisplayElement<?>) userObject).getIcon(expanded);
-						if (icon != null) {
-							iconOverride = icon;
-						}
+				Component treeCellRendererComponent = super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
+				if (value instanceof ModelTreeNode treeNode) {
+					ImageIcon iconOverride = treeNode.getIcon(expanded);
+					if (iconOverride != null) {
+						setIcon(iconOverride);
 					}
-				}
-				Component treeCellRendererComponent =
-						super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
-				if (iconOverride != null) {
-					setIcon(iconOverride);
 				}
 				return treeCellRendererComponent;
 			}
 		};
 	}
 
-	private ChoosableDisplayElement<?> asElement(Object userObject) {
-		return (ChoosableDisplayElement<?>) userObject;
-	}
-
-	private ChoosableDisplayElement<?> asElement(TreePath path) {
-		if (path != null) {
-			DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-			return asElement(node);
-		}
-		return null;
-	}
-
-	private ChoosableDisplayElement<?> asElement(DefaultMutableTreeNode node) {
-		if (node != null) {
-			Object userObject = node.getUserObject();
-			if (userObject instanceof ChoosableDisplayElement) {
-				return (ChoosableDisplayElement<?>) userObject;
-			}
-		}
-		return null;
-	}
-
 	public ModelComponentBrowserTree reloadFromModelView() {
 //		System.out.println("Reloading ModelComponentBrowserTree");
 		SwingUtilities.invokeLater(() -> {
-			TreePath selectionPath = getSelectionPath();
-//			System.out.println("selectionPath: " + selectionPath);
-
+			TreePath oldSelectionPath = getSelectionPath();
 			TreePath rootPath = new TreePath(getModel().getRoot());
+			Enumeration<TreePath> oldExpandedDescendants = getExpandedDescendants(rootPath);
+//			System.out.println("oldSelectionPath: " + oldSelectionPath);
 //			System.out.println("rootPath: " + rootPath);
-
-
-			Enumeration<TreePath> expandedDescendants = getExpandedDescendants(rootPath);
+			
 			setModel(buildTreeModel(modelHandler));
-
-			TreePath newRootPath = new TreePath(getModel().getRoot());
+			ModelTreeNode<?> rootNode = (ModelTreeNode<?>) getModel().getRoot();
+			TreePath newRootPath = new TreePath(rootNode);
 //			System.out.println("newRootPath: " + newRootPath);
 
 			List<TreePath> pathsToExpand = new ArrayList<>();
-
-			DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getModel().getRoot();
-
-			while ((expandedDescendants != null) && expandedDescendants.hasMoreElements()) {
-				pathsToExpand.add(getTreePath(expandedDescendants.nextElement(), rootNode));
+			while (oldExpandedDescendants != null && oldExpandedDescendants.hasMoreElements()) {
+				pathsToExpand.add(getNewTreePathForOldPath(oldExpandedDescendants.nextElement(), rootNode));
 			}
 			for (TreePath path : pathsToExpand) {
 				expandPath(path);
 			}
 
 			TreePath newSelectionPath = newRootPath;
-			if (selectionPath != null) {
-//				System.out.println("selection path not null!");
-
-				ChoosableDisplayElement<?> element = asElement((DefaultMutableTreeNode) selectionPath.getLastPathComponent());
-				if (element != null && element.getItem() instanceof IdObject) {
-					IdObject idObject = (IdObject) element.getItem();
+			if (oldSelectionPath != null) {
+				if (oldSelectionPath.getLastPathComponent() instanceof ModelTreeNode<?> node
+						&& node.getItem() instanceof IdObject idObject) {
 					if (nodeToTreeElement.containsKey(idObject)) {
 						newSelectionPath = new TreePath(nodeToTreeElement.get(idObject).getPath());
 //						System.out.println("make visible: " + newSelectionPath);
 						makeVisible(newSelectionPath);
 					}
 				} else {
-					newSelectionPath = getTreePath(selectionPath, rootNode);
+					newSelectionPath = getNewTreePathForOldPath(oldSelectionPath, rootNode);
 				}
 			}
 
@@ -335,27 +283,23 @@ public final class ModelComponentBrowserTree extends JTree {
 		return this;
 	}
 
-	private TreePath getTreePath(TreePath nodePath, DefaultMutableTreeNode rootNode) {
+	private TreePath getNewTreePathForOldPath(TreePath oldNodePath, ModelTreeNode<?> rootNode) {
 		TreePath compoundPath = new TreePath(rootNode);
-		DefaultMutableTreeNode currentNode = rootNode;
+		ModelTreeNode<?> currentNode = rootNode;
 
-		for (int i = 1; i < nodePath.getPathCount() && compoundPath.getPathCount() == i; i++) {
-
-			for (int j = 0; (j < currentNode.getChildCount()); j++) {
-
-				DefaultMutableTreeNode pathComponent = (DefaultMutableTreeNode) nodePath.getPathComponent(i);
-				DefaultMutableTreeNode childAt = (DefaultMutableTreeNode) currentNode.getChildAt(j);
-
-				if (asElement(childAt).hasSameItem(asElement(pathComponent))) {
-					currentNode = childAt;
-					compoundPath = compoundPath.pathByAddingChild(childAt);
+		for (int i = 1; i < oldNodePath.getPathCount(); i++) {
+			Object pathComponent = oldNodePath.getPathComponent(i);
+			if (pathComponent instanceof ModelTreeNode<?> oldNode){
+				currentNode = currentNode.findChildWithSameItem(oldNode);
+				if (currentNode != null) {
+					compoundPath = compoundPath.pathByAddingChild(currentNode);
+				} else {
 					break;
 				}
 			}
 		}
 		return compoundPath;
 	}
-
 
 	public static ChoosableDisplayElement<?> getIdObjectElement(ModelView modelView, IdObject idObject) {
 		return switch (idObject.getClass().getSimpleName()) {
@@ -387,12 +331,8 @@ public final class ModelComponentBrowserTree extends JTree {
 				TreePath pathForLocation = getPathForLocation(e.getX(), e.getY());
 				if (pathForLocation == null) {
 					modelHandler.getModelView().higthlight(null);
-				} else {
-					DefaultMutableTreeNode lastPathComponent = (DefaultMutableTreeNode) pathForLocation.getLastPathComponent();
-					ChoosableDisplayElement<?> element = (ChoosableDisplayElement<?>) lastPathComponent.getUserObject();
-					if (element != null) {
-						modelHandler.getModelView().higthlight(element.getItem());
-					}
+				} else if (pathForLocation.getLastPathComponent() instanceof ModelTreeNode<?> lastPathComponent) {
+					modelHandler.getModelView().higthlight(lastPathComponent.getItem());
 				}
 			}
 		};

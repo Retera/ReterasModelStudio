@@ -4,8 +4,6 @@ import com.hiveworkshop.rms.editor.render3d.EmitterIdObject;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.util.Vec3;
 
-import javax.swing.*;
-
 /**
  * RibbonEmitter specific animation tags
  * 	KRHA - Ribbon emitter height above
@@ -48,7 +46,7 @@ public class RibbonEmitter extends EmitterIdObject {
 		this.name = name;
 	}
 
-	public RibbonEmitter(final RibbonEmitter emitter) {
+	private RibbonEmitter(final RibbonEmitter emitter) {
 		super(emitter);
 
 		heightAbove = emitter.heightAbove;
@@ -98,10 +96,10 @@ public class RibbonEmitter extends EmitterIdObject {
 	}
 
 	public void setTextureSlot(final int textureSlot) {
-		System.out.println("RE, textureSlot: " + textureSlot);
-		if(textureSlot != 0){
-			JOptionPane.showMessageDialog(null, "RE TextureSlot: " + textureSlot + "!!!");
-		}
+		System.out.println("RibbonEmitter#textureSlot: " + textureSlot);
+//		if (textureSlot != 0) {
+//			JOptionPane.showMessageDialog(null, "RE TextureSlot: " + textureSlot + "!!!");
+//		}
 		this.textureSlot = textureSlot;
 	}
 

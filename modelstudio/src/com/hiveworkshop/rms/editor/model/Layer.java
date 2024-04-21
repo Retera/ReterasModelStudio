@@ -25,7 +25,7 @@ public class Layer extends TimelineContainer implements Named {
 	private double fresnelOpacity = 0;
 	private double fresnelTeamColor = 0;
 	private double staticAlpha = 1;// Amount of static alpha (opacity)
-	private final EnumSet<flag> flags = EnumSet.noneOf(flag.class);
+	private final EnumSet<Flag> flags = EnumSet.noneOf(Flag.class);
 
 
 	public Layer() {
@@ -50,12 +50,7 @@ public class Layer extends TimelineContainer implements Named {
 		flags.addAll(other.flags);
 		filterMode = other.filterMode;
 		coordId = other.coordId;
-		if (other.textureAnim != null) {
-			textureAnim = new TextureAnim(other.textureAnim);
-//			textureAnim = other.textureAnim;
-		} else {
-			textureAnim = null;
-		}
+		textureAnim = other.textureAnim;
 		staticAlpha = other.staticAlpha;
 		emissiveGain = other.emissiveGain;
 		fresnelColor.set(other.fresnelColor);
@@ -222,78 +217,78 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public boolean getUnshaded() {
-		return flags.contains(flag.UNSHADED);
+		return flags.contains(Flag.UNSHADED);
 	}
 
 	public void setUnshaded(boolean unshaded) {
-		boolean ugg = unshaded ? flags.add(flag.UNSHADED) : flags.remove(flag.UNSHADED);
+		boolean ugg = unshaded ? flags.add(Flag.UNSHADED) : flags.remove(Flag.UNSHADED);
 	}
 
 	public boolean getSphereEnvMap() {
-		return flags.contains(flag.SPHERE_ENV_MAP);
+		return flags.contains(Flag.SPHERE_ENV_MAP);
 	}
 
 	public void setSphereEnvMap(boolean sphereEnvMap) {
-		boolean ugg = sphereEnvMap ? flags.add(flag.SPHERE_ENV_MAP) : flags.remove(flag.SPHERE_ENV_MAP);
+		boolean ugg = sphereEnvMap ? flags.add(Flag.SPHERE_ENV_MAP) : flags.remove(Flag.SPHERE_ENV_MAP);
 	}
 
 	public boolean getTwoSided() {
-		return flags.contains(flag.TWO_SIDED);
+		return flags.contains(Flag.TWO_SIDED);
 	}
 
 	public void setTwoSided(boolean twoSided) {
-		boolean ugg = twoSided ? flags.add(flag.TWO_SIDED) : flags.remove(flag.TWO_SIDED);
+		boolean ugg = twoSided ? flags.add(Flag.TWO_SIDED) : flags.remove(Flag.TWO_SIDED);
 	}
 
 	public boolean getUnfogged() {
-		return flags.contains(flag.UNFOGGED);
+		return flags.contains(Flag.UNFOGGED);
 	}
 
 	public void setUnfogged(boolean unfogged) {
-		boolean ugg = unfogged ? flags.add(flag.UNFOGGED) : flags.remove(flag.UNFOGGED);
+		boolean ugg = unfogged ? flags.add(Flag.UNFOGGED) : flags.remove(Flag.UNFOGGED);
 	}
 
 	public boolean getNoDepthTest() {
-		return flags.contains(flag.NO_DEPTH_TEST);
+		return flags.contains(Flag.NO_DEPTH_TEST);
 //		return noDepthTest;
 	}
 
 	public void setNoDepthTest(boolean noDepthTest) {
-		boolean ugg = noDepthTest ? flags.add(flag.NO_DEPTH_TEST) : flags.remove(flag.NO_DEPTH_TEST);
+		boolean ugg = noDepthTest ? flags.add(Flag.NO_DEPTH_TEST) : flags.remove(Flag.NO_DEPTH_TEST);
 	}
 
 	public boolean getNoDepthSet() {
-		return flags.contains(flag.NO_DEPTH_SET);
+		return flags.contains(Flag.NO_DEPTH_SET);
 	}
 
 	public void setNoDepthSet(boolean noDepthSet) {
-		boolean ugg = noDepthSet ? flags.add(flag.NO_DEPTH_SET) : flags.remove(flag.NO_DEPTH_SET);
+		boolean ugg = noDepthSet ? flags.add(Flag.NO_DEPTH_SET) : flags.remove(Flag.NO_DEPTH_SET);
 	}
 
 	public boolean getUnlit() {
-		return flags.contains(flag.UNLIT);
+		return flags.contains(Flag.UNLIT);
 	}
 
 	public void setUnlit(boolean unlit) {
-		boolean ugg = unlit ? flags.add(flag.UNLIT) : flags.remove(flag.UNLIT);
+		boolean ugg = unlit ? flags.add(Flag.UNLIT) : flags.remove(Flag.UNLIT);
 	}
 
-	public Set<flag> getFlags() {
+	public Set<Flag> getFlags() {
 		return flags;
 	}
 
-	public void setFlags(Collection<flag> newFlags) {
+	public void setFlags(Collection<Flag> newFlags) {
 		flags.clear();
 		flags.addAll(newFlags);
 	}
 
-	public boolean isFlagSet(flag flag) {
+	public boolean isFlagSet(Flag flag) {
 		return flags.contains(flag);
 	}
-	public void setFlag(flag flag) {
+	public void setFlag(Flag flag) {
 		flags.add(flag);
 	}
-	public void setFlag(flag flag, boolean set) {
+	public void setFlag(Flag flag, boolean set) {
 		if (set) {
 			flags.add(flag);
 		} else {
@@ -341,8 +336,7 @@ public class Layer extends TimelineContainer implements Named {
 		if (this == obj) {
 			return true;
 		}
-		if (obj instanceof Layer) {
-			Layer other = (Layer) obj;
+		if (obj instanceof Layer other) {
 			if (coordId != other.coordId) {
 				return false;
 			}
@@ -444,7 +438,7 @@ public class Layer extends TimelineContainer implements Named {
 		}
 
 	}
-	public enum flag {
+	public enum Flag {
 		UNSHADED(MdlUtils.TOKEN_UNSHADED, 0x1),
 		SPHERE_ENV_MAP(MdlUtils.TOKEN_SPHERE_ENV_MAP, 0x2),
 		TWO_SIDED(MdlUtils.TOKEN_TWO_SIDED, 0x10),
@@ -454,7 +448,7 @@ public class Layer extends TimelineContainer implements Named {
 		UNLIT(MdlUtils.TOKEN_UNLIT, 0x100);
 		final String name;
 		final int flagBit;
-		flag(String name, int flagBit) {
+		Flag(String name, int flagBit) {
 			this.name = name;
 			this.flagBit = flagBit;
 		}

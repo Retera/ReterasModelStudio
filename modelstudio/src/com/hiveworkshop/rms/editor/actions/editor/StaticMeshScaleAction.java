@@ -1,17 +1,18 @@
 package com.hiveworkshop.rms.editor.actions.editor;
 
+import com.hiveworkshop.rms.editor.actions.nodes.ScaleCollisionExtents;
+import com.hiveworkshop.rms.editor.actions.nodes.ScaleParticleAction;
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
+import com.hiveworkshop.rms.editor.render3d.EmitterIdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 
 public class StaticMeshScaleAction extends AbstractTransformAction {
 	private final Vec3 center;
@@ -20,6 +21,9 @@ public class StaticMeshScaleAction extends AbstractTransformAction {
 	private final ArrayList<IdObject> selectedIdObjects;
 	private final ArrayList<CameraNode> selectedCameraNodes;
 
+	private final Map<TimelineContainer, Vec3AnimFlag> opgTranslation;
+//	private final ArrayList<ScaleParticleAction> particleActions;
+	private final ArrayList<AbstractTransformAction> otherScaleActions;
 	private final ArrayList<Vec3> opgPosVertices;
 	private final ArrayList<Vec3> opgPosIdObjects;
 	private final ArrayList<Vec3> opgPosCameraNodes;
@@ -56,12 +60,75 @@ public class StaticMeshScaleAction extends AbstractTransformAction {
 		this.selectedIdObjects.forEach(o -> opgPosIdObjects.add(new Vec3(o.getPivotPoint())));
 		this.opgPosCameraNodes = new ArrayList<>();
 		this.selectedCameraNodes.forEach(c -> opgPosCameraNodes.add(new Vec3(c.getPosition())));
+
+
+		this.opgTranslation = new HashMap<>();
+//		this.particleActions = new ArrayList<>();
+		this.otherScaleActions = new ArrayList<>();
+		for (IdObject node : selectedIdObjects) {
+			AnimFlag<?> flag = node.find(MdlUtils.TOKEN_TRANSLATION);
+			if (flag instanceof Vec3AnimFlag translation) {
+				this.opgTranslation.put(node, (Vec3AnimFlag)translation.deepCopy());
+			}
+
+			if (node instanceof EmitterIdObject emitter){
+//				particleActions.add(new ScaleParticleAction(emitter, center, rotMat, scale, false));
+				otherScaleActions.add(new ScaleParticleAction(emitter, center, rotMat, scale, false));
+			}
+			if (node instanceof CollisionShape shape) {
+				otherScaleActions.add(new ScaleCollisionExtents(shape, center, rotMat, scale, false, null));
+			}
+		}
+		for (CameraNode node : selectedCameraNodes) {
+			AnimFlag<?> flag = node.find(MdlUtils.TOKEN_TRANSLATION);
+			if (flag instanceof Vec3AnimFlag translation) {
+				this.opgTranslation.put(node, (Vec3AnimFlag)translation.deepCopy());
+			}
+		}
+
+
+//		this.opgAnimatedFloats = new HashMap<>();
+//		for (IdObject node : selectedIdObjects) {
+//			if(node instanceof ParticleEmitter){
+//				String[] flagNames = new String[] {MdlUtils.TOKEN_LATITUDE, MdlUtils.TOKEN_LONGITUDE, MdlUtils.TOKEN_INIT_VELOCITY, MdlUtils.TOKEN_GRAVITY};
+//				for(String s : flagNames){
+//					AnimFlag<?> flag = node.find(s);
+//					if (flag instanceof FloatAnimFlag floatAnimFlag) {
+//						this.opgAnimatedFloats.put(node, (FloatAnimFlag)floatAnimFlag.deepCopy());
+//					}
+//				}
+//			}
+//			if(node instanceof ParticleEmitter2){
+//				String[] flagNames = new String[] {MdlUtils.TOKEN_LATITUDE, MdlUtils.TOKEN_WIDTH, MdlUtils.TOKEN_LENGTH, MdlUtils.TOKEN_SPEED, MdlUtils.TOKEN_GRAVITY};
+//				for(String s : flagNames){
+//					AnimFlag<?> flag = node.find(s);
+//					if (flag instanceof FloatAnimFlag floatAnimFlag) {
+//						this.opgAnimatedFloats.put(node, (FloatAnimFlag)floatAnimFlag.deepCopy());
+//					}
+//				}
+//			}
+//		}
+
 	}
 
 	@Override
 	public StaticMeshScaleAction undo() {
 		Vec3 revScale = new Vec3(1, 1, 1).divide(0 < scale.length() ? scale : new Vec3(0.1, 0.1, 0.1).scale(0.0000001f));
 		rawScale(center, revScale);
+
+		for (IdObject node : selectedIdObjects) {
+			Vec3AnimFlag translation = (Vec3AnimFlag) node.find(MdlUtils.TOKEN_TRANSLATION);
+			if (translation != null) {
+				translation.setSequenceMap(opgTranslation.get(node).getAnimMap());
+			}
+		}
+		for (CameraNode node : selectedCameraNodes) {
+			Vec3AnimFlag translation = (Vec3AnimFlag) node.find(MdlUtils.TOKEN_TRANSLATION);
+			if (translation != null) {
+				translation.setSequenceMap(opgTranslation.get(node).getAnimMap());
+			}
+		}
+
 
 		for (int i = 0; i < selectedVertices.size(); i++) {
 			selectedVertices.get(i).set(opgPosVertices.get(i));
@@ -73,6 +140,13 @@ public class StaticMeshScaleAction extends AbstractTransformAction {
 
 		for (int i = 0; i < selectedCameraNodes.size(); i++) {
 			selectedCameraNodes.get(i).setPosition(opgPosCameraNodes.get(i));
+		}
+
+//		for (ScaleParticleAction particleAction : particleActions) {
+//			particleAction.undo();
+//		}
+		for (AbstractTransformAction scaleAction : otherScaleActions) {
+			scaleAction.undo();
 		}
 		return this;
 	}
@@ -101,51 +175,66 @@ public class StaticMeshScaleAction extends AbstractTransformAction {
 		return this;
 	}
 
-	private void rawScale(Vec3 center, Vec3 scale) {
-		double avgScale = (scale.x + scale.y + scale.z) / 3;
+	private void rawScale(Vec3 center, Vec3 deltaScale) {
+		double avgScale = (deltaScale.x + deltaScale.y + deltaScale.z) / 3;
 		for (Vec3 vertex : selectedVertices) {
 			vertex
 					.sub(center)
 					.transform(rotMat, 1, true)
-					.multiply(scale)
+					.multiply(deltaScale)
 					.transform(invRotMat, 1, true)
 					.add(center);
 		}
 		for (IdObject object : selectedIdObjects) {
-			scaleNodeStuff1(scale, avgScale, object);
+			if (object instanceof CollisionShape shape) {
+				List<Vec3> vertices = shape.getVertices();
+				for(Vec3 vertex : vertices) {
+					vertex
+							.add(shape.getPivotPoint())
+							.sub(center)
+							.transform(rotMat, 1, true)
+							.multiply(scale)
+							.transform(invRotMat, 1, true)
+							.add(center)
+							.sub(shape.getPivotPoint());
+				}
+				if ((scale.x == scale.z) && (scale.y == scale.z)) {
+					shape.setBoundsRadius(shape.getBoundsRadius() * scale.x);
+				}
+			}
 
 			object.getPivotPoint()
 					.sub(center)
 					.transform(rotMat, 1, true)
-					.multiply(scale)
+					.multiply(deltaScale)
 					.transform(invRotMat, 1, true)
 					.add(center);
 
 			// todo fix the scaling of animated translations
-			scaleAnimatedTranslations(object, scale);
+			scaleAnimatedTranslations(object, deltaScale);
 
 		}
 		for (CameraNode cameraNode : selectedCameraNodes) {
 			cameraNode.getPosition()
 					.sub(center)
 					.transform(rotMat, 1, true)
-					.multiply(scale)
+					.multiply(deltaScale)
 					.transform(invRotMat, 1, true)
 					.add(center);
-			scaleAnimatedTranslations(cameraNode, scale);
+			scaleAnimatedTranslations(cameraNode, deltaScale);
 		}
 	}
 
 	Vec3 tempVec = new Vec3();
 
-	private void rawScale2(Vec3 center, Vec3 scale) {
-		double avgScale = (scale.x + scale.y + scale.z) / 3;
+	private void rawScale2(Vec3 center, Vec3 totScale) {
+		double avgScale = (totScale.x + totScale.y + totScale.z) / 3;
 
 		for (int i = 0; i < selectedVertices.size(); i++) {
 			selectedVertices.get(i).set(opgPosVertices.get(i))
 					.sub(center)
 					.transform(rotMat, 1, true)
-					.multiply(scale)
+					.multiply(totScale)
 					.transform(invRotMat, 1, true)
 					.add(center);
 		}
@@ -155,14 +244,37 @@ public class StaticMeshScaleAction extends AbstractTransformAction {
 			object.getPivotPoint().set(opgPosIdObjects.get(i))
 					.sub(center)
 					.transform(rotMat, 1, true)
-					.multiply(scale)
+					.multiply(totScale)
 					.transform(invRotMat, 1, true)
 					.add(center);
 
 			// todo fix the scaling of animated translations
-			scaleAnimatedTranslations(object, scale);
+			scaleAnimatedTranslations(object, totScale);
 
-			scaleNodeStuff1(scale, avgScale, object);
+			if (object instanceof CollisionShape shape) {
+				List<Vec3> vertices = shape.getVertices();
+				for(Vec3 vertex : vertices) {
+					vertex
+							.add(shape.getPivotPoint())
+							.sub(center)
+							.transform(rotMat, 1, true)
+							.multiply(scale)
+							.transform(invRotMat, 1, true)
+							.add(center)
+							.sub(shape.getPivotPoint());
+				}
+				if ((scale.x == scale.z) && (scale.y == scale.z)) {
+					shape.setBoundsRadius(shape.getBoundsRadius() * scale.x);
+				}
+			}
+		}
+
+//		for (ScaleParticleAction particleAction : particleActions) {
+//			particleAction.setScale(scale);
+//		}
+
+		for (AbstractTransformAction scaleAction : otherScaleActions) {
+			scaleAction.setScale(scale);
 		}
 
 		for (int i = 0; i < selectedCameraNodes.size(); i++) {
@@ -170,106 +282,64 @@ public class StaticMeshScaleAction extends AbstractTransformAction {
 			cameraNode.getPivotPoint().set(opgPosCameraNodes.get(i))
 					.sub(center)
 					.transform(rotMat, 1, true)
-					.multiply(scale)
+					.multiply(totScale)
 					.transform(invRotMat, 1, true)
 					.add(center);
-			scaleAnimatedTranslations(cameraNode, scale);
-		}
-	}
-	private void scaleNodeStuff(Vec3 center, Vec3 scale, double avgScale, IdObject object) {
-		// ToDo check if these non-pivot-scaling should be done relative something or not...
-		if (object instanceof CollisionShape shape) {
-			List<Vec3> vertices = shape.getVertices();
-			for(Vec3 vertex : vertices) {
-				vertex
-						.add(shape.getPivotPoint())
-						.sub(center)
-						.transform(rotMat, 1, true)
-						.multiply(scale)
-						.transform(invRotMat, 1, true)
-						.add(center)
-						.sub(shape.getPivotPoint());
-			}
-//				if ((scale.x == scale.z) && (scale.y == scale.z)) {
-//					shape.setBoundsRadius(shape.getBoundsRadius() * scale.x);
-//				}
-			shape.setBoundsRadius(shape.getBoundsRadius() * avgScale);
-		}
-		if (object instanceof ParticleEmitter2 particle) {
-			tempVec.set(particle.getLatitude(), particle.getWidth(), particle.getLength())
-					.add(particle.getPivotPoint())
-					.sub(center)
-					.transform(rotMat, 1, true)
-					.multiply(scale)
-					.transform(invRotMat, 1, true)
-					.add(center)
-					.sub(particle.getPivotPoint());
-			particle.setLatitude(tempVec.z);
-			particle.setWidth(tempVec.y);
-			particle.setLength(tempVec.x);
-
-//				tempVec.set(0,0, particle.getSpeed())
-			tempVec.set(1,0, 1)
-					.add(particle.getPivotPoint())
-					.sub(center)
-					.transform(rotMat, 1, true)
-					.multiply(scale)
-					.transform(invRotMat, 1, true)
-					.add(center)
-					.sub(particle.getPivotPoint());
-			particle.setSpeed(particle.getSpeed()*tempVec.z);
-			particle.getParticleScaling().scale(tempVec.x);
-			particle.setGravity(particle.getGravity() * tempVec.z);
-		}
-		if (object instanceof ParticleEmitter particle) {
-			tempVec.set(1,0, 1)
-					.add(particle.getPivotPoint())
-					.sub(center)
-					.transform(rotMat, 1, true)
-					.multiply(scale)
-					.transform(invRotMat, 1, true)
-					.add(center)
-					.sub(particle.getPivotPoint());
-			particle.setLatitude(particle.getLatitude()*tempVec.z);
-			particle.setLongitude(particle.getLongitude()*tempVec.y);
-			particle.setInitVelocity(particle.getInitVelocity()*tempVec.z);
-			particle.setGravity(particle.getGravity() * tempVec.z);
-
+			scaleAnimatedTranslations(cameraNode, totScale);
 		}
 	}
 
-	private void scaleNodeStuff1(Vec3 scale, double avgScale, IdObject object) {
-		if (object instanceof CollisionShape shape) {
-			if ((scale.x == scale.z) && (scale.y == scale.z)) {
-				shape.setBoundsRadius(shape.getBoundsRadius() * scale.x);
+
+
+	public void resetAnimatedTranslations() {
+		for (IdObject node : selectedIdObjects) {
+			Vec3AnimFlag translation = (Vec3AnimFlag) node.find(MdlUtils.TOKEN_TRANSLATION);
+			if (translation != null) {
+				translation.setSequenceMap(opgTranslation.get(node).getAnimMap());
 			}
 		}
-		if (object instanceof ParticleEmitter2 particle) {
-			particle.setLatitude(particle.getLatitude()* scale.z);
-			particle.setWidth(particle.getWidth()* scale.y);
-			particle.setLength(particle.getLength()* scale.x);
-			particle.getParticleScaling().multiply(scale);
-			particle.setSpeed(particle.getSpeed() * avgScale);
-			particle.setGravity(particle.getGravity() * avgScale);
+		for (CameraNode node : selectedCameraNodes) {
+			Vec3AnimFlag translation = (Vec3AnimFlag) node.find(MdlUtils.TOKEN_TRANSLATION);
+			if (translation != null) {
+				translation.setSequenceMap(opgTranslation.get(node).getAnimMap());
+			}
 		}
-		if (object instanceof ParticleEmitter particle) {
-			particle.setLatitude(particle.getLatitude()* scale.z);
-			particle.setLongitude(particle.getLongitude()* scale.y);
-			particle.setInitVelocity(particle.getInitVelocity()* avgScale);
-
+	}
+	public void resetAnimatedTranslations(AnimatedNode node, Vec3 totScale) {
+		Vec3AnimFlag translation = (Vec3AnimFlag) node.find(MdlUtils.TOKEN_TRANSLATION);
+		if (translation != null) {
+			translation.setSequenceMap(opgTranslation.get(node).getAnimMap());
 		}
 	}
 
-	public void scaleAnimatedTranslations(AnimatedNode node, Vec3 scale) {
+	public void scaleAnimatedTranslations(AnimatedNode node, Vec3 totScale) {
+		Vec3AnimFlag translation = (Vec3AnimFlag) node.find(MdlUtils.TOKEN_TRANSLATION);
+		if (translation != null) {
+			translation.setSequenceMap(opgTranslation.get(node).getAnimMap());
+			for (TreeMap<Integer, Entry<Vec3>> entryMap : translation.getAnimMap().values()) {
+				if (entryMap != null) {
+					for (Entry<Vec3> entry : entryMap.values()) {
+						entry.getValue().multiply(totScale);
+						if (translation.tans()) {
+							entry.getInTan().multiply(totScale);
+							entry.getOutTan().multiply(totScale);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public void scaleAnimatedTranslations1(AnimatedNode node, Vec3 deltaScale) {
 		Vec3AnimFlag translation = (Vec3AnimFlag) node.find(MdlUtils.TOKEN_TRANSLATION);
 		if (translation != null) {
 			for (TreeMap<Integer, Entry<Vec3>> entryMap : translation.getAnimMap().values()) {
 				if (entryMap != null) {
 					for (Entry<Vec3> entry : entryMap.values()) {
-						entry.getValue().multiply(scale);
+						entry.getValue().multiply(deltaScale);
 						if (translation.tans()) {
-							entry.getInTan().multiply(scale);
-							entry.getOutTan().multiply(scale);
+							entry.getInTan().multiply(deltaScale);
+							entry.getOutTan().multiply(deltaScale);
 						}
 					}
 				}
@@ -318,22 +388,4 @@ public class StaticMeshScaleAction extends AbstractTransformAction {
 			}
 		}
 	}
-
-
-
-	private void scaleExtent(ExtLog extents, Vec3 center, Vec3 scale, double avgScale) {
-		if (extents == null) {
-			return;
-		}
-		if (extents.getMaximumExtent() != null) {
-			extents.getMaximumExtent().scale(center, scale);
-		}
-		if (extents.getMinimumExtent() != null) {
-			extents.getMinimumExtent().scale(center, scale);
-		}
-		if (extents.hasBoundsRadius()) {
-			extents.setBoundsRadius(extents.getBoundsRadius() * avgScale);
-		}
-	}
-
 }

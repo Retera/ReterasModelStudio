@@ -61,9 +61,7 @@ public class Geoset extends TimelineContainer implements Named {
 
 	@Override
 	public void setName(String text) {
-		if (getParentModel() != null && getParentModel().getFormatVersion() > 900) {
-			setLevelOfDetailName(text);
-		}
+		setLevelOfDetailName(text);
 	}
 
 	public Geoset addVertex(final GeosetVertex v) {

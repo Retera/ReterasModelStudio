@@ -24,6 +24,7 @@ import java.util.*;
 public class ReorderAnimationsPanel extends JPanel {
 	private final Map<Animation, Integer> animToOrgIndex;
 	private final TwiList<Animation> animList;
+	private final List<Animation> backingAnimList;
 	private final ModelHandler modelHandler;
 	private int startAt = 100;
 	private int animSpacing = 100;
@@ -34,7 +35,8 @@ public class ReorderAnimationsPanel extends JPanel {
 		super(new MigLayout("gap 0, ins 0 n n n", "[grow][][grow]", "[align center][grow][align center]"));
 		this.modelHandler = modelHandler;
 		animToOrgIndex = getAnimToOrgIndex(modelHandler.getModel().getAnims());
-		animList = getAnimList(modelHandler.getModel().getAnims());
+		backingAnimList = new ArrayList<>(modelHandler.getModel().getAnims());
+		animList = getAnimList(backingAnimList);
 		add(getSpacingPanel(), "wrap, spanx, align center");
 		add(getAnimListPanel());
 		add(getArrowPanel(),"wrap");
@@ -81,6 +83,7 @@ public class ReorderAnimationsPanel extends JPanel {
 		spacingPanel.add(startAtS, "");
 		spacingPanel.add(minSpaceS, "");
 		spacingPanel.add(alignSpaceS, "");
+		spacingPanel.add(Button.create("AutoSort", e -> autoSort()), "");
 		return spacingPanel;
 	}
 
@@ -97,11 +100,11 @@ public class ReorderAnimationsPanel extends JPanel {
 		}
 	}
 
-	private TwiList<Animation> getAnimList(ArrayList<Animation> anims){
+	private TwiList<Animation> getAnimList(List<Animation> anims){
 		AnimationListCellRenderer renderer =
 				new AnimationListCellRenderer(true, this::getListStatus)
 				.setOldIndexFunc(animToOrgIndex::get);
-		return new TwiList<>(new ArrayList<>(anims)).setRenderer(renderer);
+		return new TwiList<>(anims).setRenderer(renderer);
 	}
 
 	private Map<Animation, Integer> getAnimToOrgIndex(ArrayList<Animation> anims) {
@@ -176,5 +179,241 @@ public class ReorderAnimationsPanel extends JPanel {
 		}
 
 		return animationsToNewStarts;
+	}
+
+	private void autoSort(){
+//		List<Animation> newOrder = new ArrayList<>(modelHandler.getModel().getAnims());
+		List<Animation> selectedValuesList = animList.getSelectedValuesList();
+		Map<String, Integer> keyToInd = getKeyToInd();
+		backingAnimList.sort((a1, a2) -> compAnim(a1, a2, keyToInd));
+		int[] selectedInds = new int[selectedValuesList.size()];
+		for (int i = 0; i < selectedValuesList.size(); i++) {
+			selectedInds[i] = backingAnimList.indexOf(selectedValuesList.get(i));
+		}
+		animList.setSelectedIndices(selectedInds);
+		repaint();
+
+//		List<String> sortedPrimKeywords = getSortedPrimKeywords();
+//		sortedPrimKeywords.addAll(getPropKeys());
+//		Map<String, List<Animation>> firstKeyToAnim = new HashMap<>();
+//		for (Animation animation : modelHandler.getModel().getAnims()) {
+//			firstKeyToAnim.computeIfAbsent(animation.getName().split(" ")[0].toUpperCase(), k -> new ArrayList<>()).add(animation);
+//		}
+//
+//		List<Animation> newOrder2 = new ArrayList<>();
+//		for(String key : sortedPrimKeywords) {
+//			newOrder2.addAll(firstKeyToAnim.getOrDefault(key, Collections.emptyList()));
+//			firstKeyToAnim.remove(key);
+//		}
+//		firstKeyToAnim.keySet().stream().sorted().forEach(s -> newOrder2.addAll(firstKeyToAnim.get(s)));
+//
+//		String name1 = "stand walk spell attack birth morph";
+//		String name2 = "stand walk attack spell birth morph";
+//		String name3 = "walk attack spell birth morph";
+
+	}
+
+	private int compAnim(Animation anim1, Animation anim2, Map<String, Integer> keyToInd) {
+		String[] name1 = anim1.getName().toLowerCase().split(" +-* *");
+		String[] name2 = anim2.getName().toLowerCase().split(" +-* *");
+		for (int i = 0; i < Math.min(name1.length, name2.length); i++) {
+			String key1 = name1[i];
+			String key2 = name2[i];
+			if (!key1.equals(key2)) {
+				if (key1.matches("\\d+") && key2.matches("\\d+")){
+					return Integer.parseInt(key1) - Integer.parseInt(key2);
+				} else if (key1.matches("\\d+")){
+					return -1;
+				} else if (key2.matches("\\d+")){
+					return 1;
+				} else if (keyToInd.containsKey(key1) && keyToInd.containsKey(key2)) {
+					return keyToInd.get(key1) - keyToInd.get(key2);
+				} else if (keyToInd.containsKey(key1)) {
+					return -1;
+				} else if (keyToInd.containsKey(key2)) {
+					return 1;
+				} else {
+					return key1.compareTo(key2);
+				}
+			}
+		}
+		return name1.length - name2.length;
+	}
+
+	private Map<String, Integer> getKeyToInd() {
+		List<String> sortedKeywords = getPropKeys();
+		Map<String, Integer> map = new HashMap<>();
+		for (String k : sortedKeywords) {
+			map.put(k.toLowerCase(), map.size());
+		}
+		return map;
+	}
+
+	private List<String> getSortedPrimKeywords() {
+		return new ArrayList<>(Arrays.asList("stand", "walk", "spell", "attack", "birth", "morph", "sleep", "death", "decay", "dissipate", "portrait", "cinematic"));
+	}
+	private List<String> getPropKeys(){
+		return Arrays.asList(
+				"off",
+				"first",
+				"second",
+				"third",
+				"fourth",
+				"fifth",
+				"one",
+				"two",
+				"three",
+				"four",
+				"five",
+				"stand", "walk", "attack", "spell", "birth", "morph", "sleep", "death", "decay", "dissipate", "portrait", "cinematic",
+				"gold",
+				"lumber",
+				"work",
+				"ready",
+				"alternate",
+				"alternateex",
+				"chain",
+				"channel",
+				"complete",
+				"defend",
+				"drain",
+				"eattree",
+				"fast",
+				"fill",
+				"flail",
+				"flesh",
+				"fire",
+				"hit",
+				"left",
+				"right",
+				"looping",
+				"puke",
+				"slam",
+				"small",
+				"medium",
+				"large",
+				"light",
+				"moderate",
+				"severe",
+				"critical",
+				"spiked",
+				"spin",
+				"turn",
+				"swim",
+				"talk",
+				"throw",
+				"victory",
+				"wounded",
+				"upgrade");
+	}
+	private List<String> getPropKeys_1(){
+		return Arrays.asList(
+				"off",
+				"first",
+				"second",
+				"third",
+				"fourth",
+				"fifth",
+				"one",
+				"two",
+				"three",
+				"four",
+				"five",
+				"gold",
+				"lumber",
+				"work",
+				"ready",
+				"alternate",
+				"alternateex",
+				"chain",
+				"channel",
+				"complete",
+				"defend",
+				"drain",
+				"eattree",
+				"fast",
+				"fill",
+				"flail",
+				"flesh",
+				"fire",
+				"hit",
+				"left",
+				"right",
+				"looping",
+				"puke",
+				"severe",
+				"slam",
+				"small",
+				"medium",
+				"large",
+				"light",
+				"moderate",
+				"critical",
+				"spiked",
+				"spin",
+				"turn",
+				"swim",
+				"talk",
+				"throw",
+				"victory",
+				"wounded",
+				"upgrade");
+	}
+
+	private List<String> getSortedPrimKeywords1() {
+		return Arrays.asList("attack", "birth", "cinematic", "death", "decay", "dissipate", "morph", "portrait", "sleep", "spell", "stand", "walk");
+	}
+	private List<String> getPropKeys1(){
+		return Arrays.asList(
+				"alternate",
+				"alternateex",
+				"chain",
+				"channel",
+				"complete",
+				"critical",
+				"defend",
+				"drain",
+				"eattree",
+				"fast",
+				"fill",
+				"flail",
+				"flesh",
+				"fifth",
+				"fire",
+				"first",
+				"five",
+				"four",
+				"fourth",
+				"gold",
+				"hit",
+				"large",
+				"left",
+				"light",
+				"looping",
+				"lumber",
+				"medium",
+				"moderate",
+				"off",
+				"one",
+				"puke",
+				"ready",
+				"right",
+				"second",
+				"severe",
+				"slam",
+				"small",
+				"spiked",
+				"spin",
+				"swim",
+				"talk",
+				"third",
+				"three",
+				"throw",
+				"two",
+				"turn",
+				"victory",
+				"work",
+				"wounded",
+				"upgrade");
 	}
 }

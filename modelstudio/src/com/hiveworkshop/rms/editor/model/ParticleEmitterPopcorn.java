@@ -65,7 +65,7 @@ public class ParticleEmitterPopcorn extends EmitterIdObject {
 		return false;
 	}
 
-	public ParticleEmitterPopcorn(ParticleEmitterPopcorn emitter) {
+	private ParticleEmitterPopcorn(ParticleEmitterPopcorn emitter) {
 		super(emitter);
 
 		replaceableId = emitter.replaceableId;
@@ -127,8 +127,8 @@ public class ParticleEmitterPopcorn extends EmitterIdObject {
 			}
 
 //			System.out.println(name);
-//			for (String s : rootMap.keySet()){
-//				if(rootMap.get(s).size() == 1 && !rootMap.get(s).contains(State.none)){
+//			for (String s : rootMap.keySet()) {
+//				if (rootMap.get(s).size() == 1 && !rootMap.get(s).contains(State.none)) {
 //					System.out.println("root: " + s + " "+ rootMap.get(s).toArray(new State[0])[0]);
 //				}
 //			}
@@ -147,8 +147,8 @@ public class ParticleEmitterPopcorn extends EmitterIdObject {
 							lastAddedRootName = rootName;
 						}
 						rootName = s;
-//					orgRootName = s;
-//					rootName = s.split(" ")[0];
+//					    orgRootName = s;
+//					    rootName = s.split(" ")[0];
 						lastState = currState;
 					}
 				}
@@ -165,10 +165,10 @@ public class ParticleEmitterPopcorn extends EmitterIdObject {
 //			String rootName = ""; //recursive solution?
 //			String orgRootName = "";
 //			String lastAddedRootName = "";
-//			for (String s : stringStateMap.keySet()){
+//			for (String s : stringStateMap.keySet()) {
 //				State currState = stringStateMap.get(s);
-//				if(currState != lastState || !s.startsWith(rootName)){
-//					if(rootName.length() > 0 && lastState != State.none){
+//				if (currState != lastState || !s.startsWith(rootName)) {
+//					if (rootName.length() > 0 && lastState != State.none) {
 //						System.out.println("added: " + rootName + "=" + lastState.name());
 //						visStrings.add(rootName + "=" + lastState.name());
 //					}
@@ -181,7 +181,7 @@ public class ParticleEmitterPopcorn extends EmitterIdObject {
 //
 //			}
 //
-//			if(!rootName.startsWith(lastAddedRootName)){
+//			if (!rootName.startsWith(lastAddedRootName)) {
 //				System.out.println("added: " + rootName + "=" + lastState.name());
 //				visStrings.add(rootName + "=" + lastState.name());
 //			}
@@ -315,8 +315,6 @@ public class ParticleEmitterPopcorn extends EmitterIdObject {
 	public void setStaticVis(float vis) {
 		System.out.println(vis);
 	}
-
-	;
 
 	public enum State {
 		on, off, none;

@@ -4,12 +4,12 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
 
 public class SetFromOtherParticle2Action implements UndoAction {
-	ParticleEmitter2 emitter;
-	ParticleEmitter2 old;
-	ParticleEmitter2 other;
+	private final ParticleEmitter2 emitter;
+	private final ParticleEmitter2 old;
+	private final ParticleEmitter2 other;
 
 	/**
-	 * Sets every setting except name, parent, objectId and AnimFlags (timelines) to the same as for other
+	 * Sets every setting except name, parent and AnimFlags (timelines) to the same as for other
 	 **/
 	public SetFromOtherParticle2Action(ParticleEmitter2 emitter, ParticleEmitter2 other) {
 		this.emitter = emitter;
