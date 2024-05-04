@@ -14,6 +14,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.CollapsablePanel;
 import com.hiveworkshop.rms.util.TimeLogger;
 import com.hiveworkshop.rms.util.TwiComboBox;
+import com.hiveworkshop.rms.util.uiFactories.Button;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -120,9 +121,7 @@ public class FlagPanel<T> extends CollapsablePanel {
 		JPanel panel = new JPanel(new MigLayout("ins 0, gap 0, fill", "[grow][][]", "[][]"));
 		panel.add(new JLabel("Dynamic"));
 
-		JButton button = new JButton("Make Static");
-		button.addActionListener(e -> makeStatic());
-		panel.add(button, "right, wrap");
+		panel.add(Button.create("Make Static", e -> makeStatic()), "right, wrap");
 
 		TwiComboBox<InterpolationType> comboBox = new TwiComboBox<>(InterpolationType.values(), InterpolationType.DONT_INTERP);
 		comboBox.setSelectedItem(animFlag.getInterpolationType());
@@ -130,13 +129,9 @@ public class FlagPanel<T> extends CollapsablePanel {
 		panel.add(comboBox);
 
 		if (!animFlag.hasGlobalSeq()) {
-			JButton button2 = new JButton("To GlobalSeq");
-			button2.addActionListener(e -> GlobalSeqWizard.showPopup(modelHandler, animFlag, title + " to GlobalSeq", button2));
-			panel.add(button2, "right, wrap");
+			panel.add(Button.create("To GlobalSeq", e -> GlobalSeqWizard.showPopup(modelHandler, animFlag, title + " to GlobalSeq", panel)), "right, wrap");
 		} else {
-			JButton button2 = new JButton("Edit GlobalSeq");
-			button2.addActionListener(e -> GlobalSeqWizard.showPopup(modelHandler, animFlag, "Edit " + title, button2));
-			panel.add(button2, "right, wrap");
+			panel.add(Button.create("Edit GlobalSeq", e -> GlobalSeqWizard.showPopup(modelHandler, animFlag, "Edit " + title, panel)), "right, wrap");
 		}
 		return panel;
 	}
@@ -155,8 +150,10 @@ public class FlagPanel<T> extends CollapsablePanel {
 
 	private void makeDynamic() {
 		AnimFlag<T> animFlag = AnimFlagUtils.createNewAnimFlag(defaultValue, flagToken);
-		UndoAction action = new AddAnimFlagAction<>(node, animFlag, changeListener);
-		modelHandler.getUndoManager().pushAction(action.redo());
+		if (animFlag != null) {
+			UndoAction action = new AddAnimFlagAction<>(node, animFlag, changeListener);
+			modelHandler.getUndoManager().pushAction(action.redo());
+		}
 	}
 
 	public void setTableRenderer(TableCellRenderer renderer) {

@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.editor.model.FakeAnimation;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
+import com.hiveworkshop.rms.ui.application.tools.ChangeSingleAnimLengthPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.SequenceComboBoxRenderer;
 import com.hiveworkshop.rms.util.TwiComboBox;
@@ -59,10 +60,11 @@ public class ComponentAnimationPanel extends ComponentPanel<Animation> {
 		animLength = new IntEditorJSpinner(1300, this::setAnimLength);
 		add(animLength, "wrap");
 
-
 		nonLoopingChooser = new JCheckBox("NonLooping");
 		nonLoopingChooser.addActionListener(e -> nonLoopingChooser(nonLoopingChooser.isSelected()));
-		add(nonLoopingChooser, "wrap");
+		add(nonLoopingChooser, "");
+
+		add(Button.create("Scale Length", e -> ChangeSingleAnimLengthPanel.showPopup(modelHandler, animation, this)), "skip 2, right, wrap");
 
 		add(new JLabel("Rarity"), "");
 		rarityChooser = new FloatEditorJSpinner(0f, 0f, this::rarityChooser);
@@ -81,7 +83,7 @@ public class ComponentAnimationPanel extends ComponentPanel<Animation> {
 
 	}
 
-	private void setFakeAnimSourceAnim(Animation source){
+	private void setFakeAnimSourceAnim(Animation source) {
 		if (animation instanceof FakeAnimation) {
 			Animation oldSource = ((FakeAnimation) animation).getRealAnim();
 			if (oldSource != source) {

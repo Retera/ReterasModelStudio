@@ -141,7 +141,7 @@ public class ComponentRibbonPanel extends ComponentIdObjectPanel<RibbonEmitter> 
 	}
 
 	private void setStaticColor(Vec3 value) {
-		if (value != idObject.getStaticColor()) {
+		if (!value.equalLocs(idObject.getStaticColor())) {
 			undoManager.pushAction(new ConsumerAction<>(idObject::setStaticColor, value, idObject.getStaticColor(), "StaticColor").redo());
 		}
 	}

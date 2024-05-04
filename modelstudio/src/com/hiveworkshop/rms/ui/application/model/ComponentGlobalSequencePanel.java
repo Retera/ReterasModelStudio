@@ -5,7 +5,9 @@ import com.hiveworkshop.rms.editor.actions.animation.RemoveSequenceAction;
 import com.hiveworkshop.rms.editor.actions.animation.SetSequenceLengthAction;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
+import com.hiveworkshop.rms.ui.application.tools.ChangeSingleAnimLengthPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.util.uiFactories.Button;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -26,8 +28,10 @@ public class ComponentGlobalSequencePanel extends ComponentPanel<GlobalSeq> {
 
 		add(getDeleteButton(e -> removeSequence()), "cell 2 0");
 
-		add(new JLabel("Duration: "), "cell 0 1");
+		add(new JLabel("Length: "), "cell 0 1");
 		add(lengthSpinner, "cell 1 1");
+
+		add(Button.create("Scale Length", e -> ChangeSingleAnimLengthPanel.showPopup(modelHandler, globalSeq, this)), "right, cell 1 2");
 	}
 
 	private void setLength(int newLength) {
