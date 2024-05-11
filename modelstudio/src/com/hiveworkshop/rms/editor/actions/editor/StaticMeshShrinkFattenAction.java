@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.editor.actions.editor;
 
-import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.util.HashableVector;
@@ -8,14 +7,11 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
-public class StaticMeshShrinkFattenAction implements UndoAction {
-	private float amount;
+public class StaticMeshShrinkFattenAction extends AbstractShrinkFattenAction {
 	private final ArrayList<GeosetVertex> selectedVertices;
 
 	private final ArrayList<Vec3> opgPosVertices;
-	Map<HashableVector, List<GeosetVertex>> locationToGVs = new HashMap<>();
-	Map<HashableVector, Vec3> locationToNormal = new HashMap<>();
-	private boolean scaleApart;
+	private final ArrayList<Vec3> normals;
 
 	public StaticMeshShrinkFattenAction(ModelView modelView, float amount, boolean scaleApart) {
 		this(modelView.getSelectedVertices(), amount, scaleApart);
@@ -25,25 +21,32 @@ public class StaticMeshShrinkFattenAction implements UndoAction {
 		this.selectedVertices = new ArrayList<>(selectedVertices);
 
 		this.opgPosVertices = new ArrayList<>();
+		this.normals = new ArrayList<>();
 		this.selectedVertices.forEach(v -> opgPosVertices.add(new Vec3(v)));
-		this.scaleApart = scaleApart;
-		if(!scaleApart){
+		if (scaleApart) {
+			this.selectedVertices.forEach(v -> normals.add(new Vec3(v.getNormal())));
+		} else {
+			Map<HashableVector, List<GeosetVertex>> locationToGVs = new HashMap<>();
 			for (GeosetVertex vertex : selectedVertices) {
 				locationToGVs.computeIfAbsent(new HashableVector(vertex), k -> new ArrayList<>()).add(vertex);
 			}
 
-			for(HashableVector key : locationToGVs.keySet()){
+			Map<HashableVector, Vec3> locationToNormal = new HashMap<>();
+			for (HashableVector key : locationToGVs.keySet()) {
 				Vec3 normal = new Vec3();
 				locationToGVs.get(key).forEach(gv -> normal.add(gv.getNormal()));
-				normal.scale(1f/(float) locationToGVs.get(key).size()).normalize();
-				locationToNormal.put(key, normal);
+				locationToNormal.put(key, normal.normalize());
+			}
+
+			for (GeosetVertex vertex : selectedVertices) {
+				normals.add(locationToNormal.get(new HashableVector(vertex)));
 			}
 		}
 	}
 
 	@Override
 	public StaticMeshShrinkFattenAction undo() {
-		for (int i = 0; i<selectedVertices.size(); i++) {
+		for (int i = 0; i < selectedVertices.size(); i++) {
 			selectedVertices.get(i).set(opgPosVertices.get(i));
 		}
 		return this;
@@ -57,29 +60,31 @@ public class StaticMeshShrinkFattenAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return amount <0 ? "Shrink" : "Fatten";
+		return (amount < 0 ? "Shrink by " : "Fatten by ") + String.format(Locale.US, "%3.1f", amount);
 	}
 
 
-	public UndoAction updateAmount(float amount) {
-		this.amount += amount;
-		rawScale(amount);
+	public StaticMeshShrinkFattenAction updateAmount(float deltaAmount) {
+		this.amount += deltaAmount;
+		rawScale(deltaAmount);
 		return this;
 	}
 
-	public void rawScale(float amount) {
-		if (scaleApart){
-			for (GeosetVertex vertex : selectedVertices) {
-				vertex.addScaled(vertex.getNormal(), amount);
-			}
-		} else {
-			for(HashableVector key : locationToGVs.keySet()){
-				Vec3 normal = locationToNormal.get(key);
-				for (GeosetVertex vertex : locationToGVs.get(key)) {
-					vertex.addScaled(normal, amount);
-				}
-			}
+	public StaticMeshShrinkFattenAction setAmount(float amount) {
+		this.amount = amount;
+		rawSetScale(amount);
+		return this;
+	}
+
+	protected void rawScale(float amountDelta) {
+		for (int i = 0; i < selectedVertices.size(); i++) {
+			selectedVertices.get(i).addScaled(normals.get(i), amountDelta);
 		}
 	}
 
+	protected void rawSetScale(float amount) {
+		for (int i = 0; i < selectedVertices.size(); i++) {
+			selectedVertices.get(i).set(opgPosVertices.get(i)).addScaled(normals.get(i), amount);
+		}
+	}
 }

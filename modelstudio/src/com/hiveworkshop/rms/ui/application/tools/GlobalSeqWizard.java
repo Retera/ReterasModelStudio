@@ -33,7 +33,7 @@ public class GlobalSeqWizard<T> extends JPanel{
 	private GlobalSeq newGlobalSeq;
 	private boolean removeOthers = true;
 
-	GlobalSeqWizard(ModelHandler modelHandler, AnimFlag<T> animFlag){
+	GlobalSeqWizard(ModelHandler modelHandler, AnimFlag<T> animFlag) {
 		super(new MigLayout());
 		this.modelHandler = modelHandler;
 		this.animFlag = animFlag;
@@ -42,7 +42,7 @@ public class GlobalSeqWizard<T> extends JPanel{
 
 		add(getTypePanel(), "wrap");
 
-		if(!animFlag.hasGlobalSeq()){
+		if (!animFlag.hasGlobalSeq()) {
 			add(new JLabel("From Animation"), "wrap");
 			add(getAnimationBox(), "wrap");
 		}
@@ -55,27 +55,27 @@ public class GlobalSeqWizard<T> extends JPanel{
 	private void doTurn() {
 		GlobalSeq globalSeq = getGlobSeqToUse();
 		TreeMap<Integer, Entry<T>> entryMap = animFlag.getSequenceEntryMapCopy(selectedAnim);
-		if(entryMap == null){
+		if (entryMap == null) {
 			entryMap = new TreeMap<>();
 		}
 		List<UndoAction> actions = new ArrayList<>();
 
 
-		if (this.removeOthers){
-			for(Sequence sequence : animFlag.getAnimMap().keySet()){
+		if (this.removeOthers) {
+			for (Sequence sequence : animFlag.getAnimMap().keySet()) {
 				actions.add(new RemoveFlagEntryMapAction<>(animFlag, sequence, null));
 			}
-		} else if (selectedAnim instanceof GlobalSeq){
+		} else if (selectedAnim instanceof GlobalSeq) {
 			actions.add(new RemoveFlagEntryMapAction<>(animFlag, selectedAnim, null));
 		}
 
-		if(!modelHandler.getModel().contains(globalSeq)){
+		if (!modelHandler.getModel().contains(globalSeq)) {
 			actions.add(new AddSequenceAction(modelHandler.getModel(), globalSeq, null));
 		} else {
 			globalSeq = modelHandler.getModel().getGlobalSeqByLength(globalSeq.getLength());
 		}
 
-		if(selectedAnim != null && selectedAnim.getLength() != globalSeq.getLength()){
+		if (selectedAnim != null && selectedAnim.getLength() != globalSeq.getLength()) {
 			double ratio = ((double) globalSeq.getLength()) / ((double) selectedAnim.getLength());
 			AnimFlagUtils.scaleMapEntries(ratio, entryMap);
 		}
@@ -92,15 +92,13 @@ public class GlobalSeqWizard<T> extends JPanel{
 
 		TwiComboBox<GlobalSeq> globalSeqBox = getGlobalSeqBox();
 		IntEditorJSpinner customSpinner = new IntEditorJSpinner(1000, 1, Integer.MAX_VALUE, i -> {
-			if(newGlobalSeq != null){
+			if (newGlobalSeq != null) {
 				newGlobalSeq.setLength(i);
 			}
 		});
 
 		SmartButtonGroup typeGroup = new SmartButtonGroup();
-		JRadioButton intoExisting = typeGroup.addJRadioButton("Into Existing", e -> {
-			chooseSeq(0, globalSeqBox, customSpinner);
-		});
+		JRadioButton intoExisting = typeGroup.addJRadioButton("Into Existing", e -> chooseSeq(0, globalSeqBox, customSpinner));
 
 		JRadioButton custom = typeGroup.addJRadioButton("To Custom Length", e -> chooseSeq(1, globalSeqBox, customSpinner));
 		JRadioButton useAnimationLength = typeGroup.addJRadioButton("Use Animation Length", e -> chooseSeq(2, globalSeqBox, customSpinner));
@@ -116,9 +114,9 @@ public class GlobalSeqWizard<T> extends JPanel{
 		typePanel.add(customSpinner, "wrap");
 
 		typePanel.add(useAnimationLength, "wrap");
-		useAnimationLength.setEnabled(0 < animFlag.getAnimMap().size());
+		useAnimationLength.setEnabled(0 < animFlag.getAnimMap().size() && !animFlag.hasGlobalSeq() || 1 < animFlag.getAnimMap().size());
 
-		if(!animFlag.hasGlobalSeq() && 0 < animFlag.getAnimMap().size()){
+		if (!animFlag.hasGlobalSeq() && 0 < animFlag.getAnimMap().size()) {
 //			typeGroup.setSelectedName("Use Animation Length");
 			useAnimationLength.setSelected(true);
 			useAnimationLength.getActionListeners()[0].actionPerformed(null);
@@ -130,9 +128,9 @@ public class GlobalSeqWizard<T> extends JPanel{
 		return typePanel;
 	}
 
-	private void chooseSeq(int type, TwiComboBox<GlobalSeq> globalSeqBox, IntEditorJSpinner customSpinner){
+	private void chooseSeq(int type, TwiComboBox<GlobalSeq> globalSeqBox, IntEditorJSpinner customSpinner) {
 
-		switch (type){
+		switch (type) {
 			case 0 -> newGlobalSeq = globalSeqBox.getSelected();
 			case 1 -> newGlobalSeq = new GlobalSeq(customSpinner.getIntValue());
 			case 2 -> newGlobalSeq = new GlobalSeq(selectedAnim == null ? 1000 : selectedAnim.getLength());
@@ -144,7 +142,7 @@ public class GlobalSeqWizard<T> extends JPanel{
 	}
 
 	private GlobalSeq getGlobSeqToUse() {
-		if(newGlobalSeq != null){
+		if (newGlobalSeq != null) {
 			return newGlobalSeq;
 		}
 		return new GlobalSeq(1000);
@@ -161,37 +159,37 @@ public class GlobalSeqWizard<T> extends JPanel{
 		animations.setStringFunctionRender(this::animationName);
 		animations.addItem(null);
 
-		for(Animation anim : modelHandler.getModel().getAnims()){
-			if(animFlag.hasSequence(anim)){
+		for (Animation anim : modelHandler.getModel().getAnims()) {
+			if (animFlag.hasSequence(anim)) {
 				animations.add(anim);
 			}
 		}
 
 		animations.addOnSelectItemListener(a -> {
 			selectedAnim = a;
-			if(newGlobalSeq != null){
+			if (newGlobalSeq != null) {
 				newGlobalSeq.setLength(a == null ? 1000 : a.getLength());
 			}
 		});
 
 		animations.selectOrFirstWithListener(animations.getItemAt(1));
-		if(newGlobalSeq != null){
+		if (newGlobalSeq != null) {
 			newGlobalSeq.setLength(animations.getSelected() == null ? 1000 : animations.getSelected().getLength());
 		}
 		return animations;
 	}
 
-	private String animationName(Object o){
-		if(o == null){
+	private String animationName(Object o) {
+		if (o == null) {
 			return "None";
-		} else if(o instanceof Animation){
+		} else if (o instanceof Animation) {
 			return ((Animation) o).getName() + "  (" + ((Animation) o).getLength() + ")";
 		} else {
 			return o.toString();
 		}
 	}
 
-	public static void showPopup(ModelHandler modelHandler, AnimFlag<?> animFlag, String title, Component parent){
+	public static void showPopup(ModelHandler modelHandler, AnimFlag<?> animFlag, String title, Component parent) {
 		GlobalSeqWizard<?> globalSeqWizard = new GlobalSeqWizard<>(modelHandler, animFlag);
 		int option = JOptionPane.showConfirmDialog(parent, globalSeqWizard, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (option == JOptionPane.OK_OPTION) {

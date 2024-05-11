@@ -1,8 +1,11 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
+import com.hiveworkshop.rms.editor.actions.editor.CameraShrinkFattenAction;
 import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.CameraNode;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportPanel;
 import com.hiveworkshop.rms.ui.application.model.ComponentCameraPanel;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
@@ -10,11 +13,14 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.ModelDependentView;
 import com.hiveworkshop.rms.util.TwiComboBox;
+import com.hiveworkshop.rms.util.TwiNumberSlider;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.Collections;
 
 public class CameraPreviewView extends ModelDependentView {
 	private final AnimationController animationController;
@@ -27,6 +33,9 @@ public class CameraPreviewView extends ModelDependentView {
 	private Camera chosenCamera;
 	private RenderModel renderModel;
 	private final CameraManager cameraHandler;
+	private TwiNumberSlider posSlider;
+	private CameraShrinkFattenAction shrinkFattenAction;
+	private float lastValue = 0;
 
 	public CameraPreviewView() {
 		super("Camera Preview", null, new JPanel());
@@ -58,10 +67,13 @@ public class CameraPreviewView extends ModelDependentView {
 			cameraPanel = new ComponentCameraPanel(modelHandler, null);
 
 			chosenCamera = modelHandler.getModel().getCameras().get(0);
+			posSlider = new TwiNumberSlider(-1000, 1000, 0, true, true);
+			cameraPanel.add(posSlider, "cell 2 2");
 			if (chosenCamera != null) {
 				cameraPanel.setSelectedItem(chosenCamera);
 //				cameraHandler.setCamera(renderModel.getRenderNode(chosenCamera.getSourceNode()));
 				cameraHandler.setCamera(renderModel, chosenCamera.getSourceNode());
+				posSlider.addChangeListener(e -> onShrinkFatten(e, posSlider, chosenCamera.getSourceNode(), modelHandler));
 			}
 
 			viewMainPanel.add(topLeftPanel, "");
@@ -83,8 +95,8 @@ public class CameraPreviewView extends ModelDependentView {
 	}
 
 	private String getCameraName(Object object) {
-		if (object instanceof Camera) {
-			return ((Camera) object).getName();
+		if (object instanceof Camera camera) {
+			return camera.getName();
 		}
 		return "null";
 	}
@@ -124,7 +136,44 @@ public class CameraPreviewView extends ModelDependentView {
 		}
 		if (cameraPanel != null && chosenCamera != null) {
 			cameraPanel.setSelectedItem(chosenCamera);
+			cameraPanel.repaint();
 		}
 		return this;
+	}
+
+
+	private void onShrinkFatten(ChangeEvent e, JSlider slider, CameraNode cameraNode, ModelHandler modelHandler) {
+		if (modelHandler != null && cameraNode != null) {
+			if (slider.getValueIsAdjusting()) {
+				float newValue = getValue(slider.getValue());
+				float value = newValue - lastValue;
+
+				if (shrinkFattenAction == null) {
+					shrinkFattenAction = new CameraShrinkFattenAction(Collections.singleton(cameraNode), value, false, ModelStructureChangeListener.changeListener);
+				} else {
+					shrinkFattenAction.updateAmount(value);
+				}
+				lastValue = newValue;
+			} else if (shrinkFattenAction != null) {
+				modelHandler.getUndoManager().pushAction(shrinkFattenAction);
+				shrinkFattenAction = null;
+				lastValue = 0;
+				slider.setValue(0);
+			}
+			renderModel.getRenderNode(cameraNode).setDirty(true).recalculateTransformation();
+		}
+	}
+
+	private float getValue(int i) {
+		float a = .2f;
+		float b = 0.1f;
+		float c = 0.01f;
+		return getValue(i, a, b, c);
+	}
+	private static float getValue(int i, float a, float b, float c) {
+		float x = Math.abs(i/100f);
+		float x2 = x*x;
+		float x3 = x*x*x;
+		return Math.copySign(x*a + x2*b + x3*c, i);
 	}
 }
