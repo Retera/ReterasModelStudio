@@ -56,10 +56,8 @@ public class RecalculateTangents extends ActionFunction {
 				}
 			}
 
-
 			RecalculateTangentsAction recalculateTangentsAction = new RecalculateTangentsAction(vertices);
 			modelHandler.getUndoManager().pushAction(recalculateTangentsAction.redo());
-
 
 			int goodTangents = 0;
 			int slightlyBadTangents = 0;
@@ -69,15 +67,27 @@ public class RecalculateTangents extends ActionFunction {
 				if (Math.abs(dotProduct) <= 0.000001) {
 					goodTangents += 1;
 				} else if (Math.abs(dotProduct) <= 0.01) {
-					slightlyBadTangents += 1;
+					slightlyBadTangents++;
 				} else {
-					badTangents += 1;
+					badTangents++;
 				}
 			}
-			JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(),
-					"Tangent generation completed." +
-							"\nGood tangents: " + goodTangents + ", slightly bad tangents: " + slightlyBadTangents + ", bad tangents: " + badTangents + "" +
-							"\nFound " + recalculateTangentsAction.getZeroAreaUVTris() + " uv triangles with no area");
+			JPanel resPanel = new JPanel(new MigLayout("fill, wrap 2", "[grow][grow, right]"));
+			resPanel.add(new JLabel("Good tangents:"));
+			resPanel.add(new JLabel("" + goodTangents));
+
+			resPanel.add(new JLabel("Slightly bad tangents:"));
+			resPanel.add(new JLabel("" + slightlyBadTangents));
+
+			resPanel.add(new JLabel("Bad tangents:"));
+			resPanel.add(new JLabel("" + badTangents));
+
+			JPanel infoPanel = new JPanel(new MigLayout());
+			infoPanel.add(new JLabel("Tangent generation completed."), "wrap");
+			infoPanel.add(resPanel, "wrap");
+			infoPanel.add(new JLabel("Found " + recalculateTangentsAction.getZeroAreaUVTris() + " uv triangles with no area"), "wrap");
+
+			JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(), infoPanel, "Recalculate Tangents", JOptionPane.PLAIN_MESSAGE);
 		}
 		ProgramGlobals.getMainPanel().repaint();
 	}

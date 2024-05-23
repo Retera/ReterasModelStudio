@@ -129,7 +129,7 @@ public class RecalculateTangentsAction implements UndoAction {
 			Vec3 triSAcc = vertexSMap.getOrDefault(vertex, Vec3.Z_AXIS);
 			Vec3 normal = vertex.getNormal();
 
-			tangent.set(triSAcc).addScaled(normal, normal.dot(triSAcc)).normalize();
+			tangent.set(triSAcc).addScaled(normal, -normal.dot(triSAcc)).normalize();
 
 			tempNorm.set(normal).cross(triSAcc);
 
