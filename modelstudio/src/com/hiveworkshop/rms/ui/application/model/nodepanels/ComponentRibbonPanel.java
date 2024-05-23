@@ -7,8 +7,10 @@ import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.model.ComponentsPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.ValueParserUtil;
+import com.hiveworkshop.rms.ui.application.tools.RibbonEditPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.MaterialListRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.TwiComboBox;
 import com.hiveworkshop.rms.util.TwiTextEditor.EditorHelpers;
 import com.hiveworkshop.rms.util.TwiTextEditor.FlagPanel;
@@ -38,6 +40,11 @@ public class ComponentRibbonPanel extends ComponentIdObjectPanel<RibbonEmitter> 
 		topPanel.add(new JLabel("Material:"), "");
 		materialChooser = getMaterialChooser();
 		topPanel.add(materialChooser, "wrap");
+
+		JButton editParticle = new JButton("editParticle");
+		editParticle.addActionListener(e -> viewParticlePanel());
+//		topPanel.add(editParticle, "spanx, growx, wrap");
+		topPanel.add(editParticle, "spanx, wrap");
 
 		rowsSpinner = new IntEditorJSpinner(0, 0, 500, this::setRows);
 		colsSpinner = new IntEditorJSpinner(0, 0, 500, this::setColumns);
@@ -70,6 +77,11 @@ public class ComponentRibbonPanel extends ComponentIdObjectPanel<RibbonEmitter> 
 		topPanel.add(emissionRatePanel.getFlagPanel(), "spanx, growx, wrap");
 		topPanel.add(colorPanel.getFlagPanel(), "spanx, growx, wrap");
 		topPanel.add(visibilityPanel, "spanx, growx, wrap");
+	}
+
+	private void viewParticlePanel() {
+		RibbonEditPanel panel = new RibbonEditPanel(idObject);
+		FramePopup.show(panel, null, "Editing " + idObject.getName());
 	}
 
 	private TwiComboBox<Material> getMaterialChooser() {

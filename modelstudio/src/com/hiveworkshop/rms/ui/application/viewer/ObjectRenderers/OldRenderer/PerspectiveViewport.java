@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.OldRenderer;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderParticleEmitter2;
+import com.hiveworkshop.rms.editor.render3d.RenderRibbonEmitter;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
@@ -469,6 +470,12 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 
 //		renderModel.getParticleShader().use();
 		for (final RenderParticleEmitter2 particle : renderModel.getRenderParticleEmitters2()) {
+//			System.out.println("renderParticles");
+			particleRenderer.render(particle);
+		}
+
+//		renderModel.getParticleShader().use();
+		for (final RenderRibbonEmitter particle : renderModel.getRenderParticleEmitters2Rib()) {
 //			System.out.println("renderParticles");
 			particleRenderer.render(particle);
 		}

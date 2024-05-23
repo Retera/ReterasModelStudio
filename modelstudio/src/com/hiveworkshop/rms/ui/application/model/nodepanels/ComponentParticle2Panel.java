@@ -30,6 +30,7 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 	private final EditorHelpers.FloatEditor lifeSpanPanel;
 	private final EditorHelpers.FloatEditor visibilityPanel;
 	private final IntEditorJSpinner replIdSpinner;
+	private final IntEditorJSpinner prioSpinner;
 
 	private final TwiComboBox<Bitmap> textureChooser;
 
@@ -43,11 +44,14 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 
 		JButton editParticle = new JButton("editParticle");
 		editParticle.addActionListener(e -> viewParticlePanel());
-//		topPanel.add(editParticle, "spanx, growx, wrap");
+
 		topPanel.add(editParticle, "spanx, wrap");
-		replIdSpinner = new IntEditorJSpinner(0, 0, this::setReplId);
-		topPanel.add(new JLabel(MdlUtils.TOKEN_REPLACEABLE_ID + ": "), "spanx 2, split 2");
-		topPanel.add(replIdSpinner, "wrap");
+		replIdSpinner = new IntEditorJSpinner(0, 0, 100, this::setReplId);
+		topPanel.add(new JLabel(MdlUtils.TOKEN_REPLACEABLE_ID + ": "), "spanx 2, split 4");
+		topPanel.add(replIdSpinner, "");
+		prioSpinner = new IntEditorJSpinner(0, 0, 100, this::setPriorityPlane);
+		topPanel.add(new JLabel(MdlUtils.TOKEN_PRIORITY_PLANE + ": "), "gapleft 10");
+		topPanel.add(prioSpinner, "wrap");
 
 		widthPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_WIDTH, this::setWidth);
 		lengthPanel = new EditorHelpers.FloatEditor(modelHandler, MdlUtils.TOKEN_LENGTH, this::setLength);
@@ -76,6 +80,7 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 	@Override
 	public void updatePanels() {
 		replIdSpinner.reloadNewValue(idObject.getReplaceableId());
+		prioSpinner.reloadNewValue(idObject.getPriorityPlane());
 		widthPanel.update(idObject, (float) idObject.getWidth());
 		lengthPanel.update(idObject, (float) idObject.getLength());
 		latitudePanel.update(idObject, (float) idObject.getLatitude());
@@ -100,56 +105,62 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 		}
 	}
 
-	private void setWidth(float value) {
-		if (value != idObject.getWidth()) {
-			undoManager.pushAction(new ConsumerAction<>(idObject::setWidth, (double) value, idObject.getWidth(), "Width").redo());
+	private void setReplId(int value) {
+		if (value != idObject.getReplaceableId()) {
+			undoManager.pushAction(new ConsumerAction<>(idObject::setReplaceableId, value, idObject.getReplaceableId(), MdlUtils.TOKEN_REPLACEABLE_ID).redo());
 		}
 	}
 
-	private void setReplId(int value) {
-		if (value != idObject.getReplaceableId()) {
-			undoManager.pushAction(new ConsumerAction<>(idObject::setReplaceableId, value, idObject.getReplaceableId(), "ReplacebleId").redo());
+	private void setPriorityPlane(int value) {
+		if (value != idObject.getPriorityPlane()) {
+			undoManager.pushAction(new ConsumerAction<>(idObject::setPriorityPlane, value, idObject.getPriorityPlane(), MdlUtils.TOKEN_PRIORITY_PLANE).redo());
+		}
+	}
+
+	private void setWidth(float value) {
+		if (value != idObject.getWidth()) {
+			undoManager.pushAction(new ConsumerAction<>(idObject::setWidth, (double) value, idObject.getWidth(), MdlUtils.TOKEN_WIDTH).redo());
 		}
 	}
 
 	private void setLength(float value) {
 		if (value != idObject.getLength()) {
-			undoManager.pushAction(new ConsumerAction<>(idObject::setLength, (double) value, idObject.getLength(), "Length").redo());
+			undoManager.pushAction(new ConsumerAction<>(idObject::setLength, (double) value, idObject.getLength(), MdlUtils.TOKEN_LENGTH).redo());
 		}
 	}
 
 	private void setLatitude(float value) {
 		if (value != idObject.getLatitude()) {
-			undoManager.pushAction(new ConsumerAction<>(idObject::setLatitude, (double) value, idObject.getLatitude(), "Latitude").redo());
+			undoManager.pushAction(new ConsumerAction<>(idObject::setLatitude, (double) value, idObject.getLatitude(), MdlUtils.TOKEN_LATITUDE).redo());
 		}
 	}
 
 	private void setVariation(float value) {
 		if (value != idObject.getVariation()) {
-			undoManager.pushAction(new ConsumerAction<>(idObject::setVariation, (double) value, idObject.getVariation(), "Variation").redo());
+			undoManager.pushAction(new ConsumerAction<>(idObject::setVariation, (double) value, idObject.getVariation(), MdlUtils.TOKEN_VARIATION).redo());
 		}
 	}
 
 	private void setSpeed(float value) {
 		if (value != idObject.getSpeed()) {
-			undoManager.pushAction(new ConsumerAction<>(idObject::setSpeed, (double) value, idObject.getSpeed(), "Speed").redo());
+			undoManager.pushAction(new ConsumerAction<>(idObject::setSpeed, (double) value, idObject.getSpeed(), MdlUtils.TOKEN_SPEED).redo());
 		}
 	}
 
 	private void setGravity(float value) {
 		if (value != idObject.getGravity()) {
-			undoManager.pushAction(new ConsumerAction<>(idObject::setGravity, (double) value, idObject.getGravity(), "Gravity").redo());
+			undoManager.pushAction(new ConsumerAction<>(idObject::setGravity, (double) value, idObject.getGravity(), MdlUtils.TOKEN_GRAVITY).redo());
 		}
 	}
 
 	private void setEmissionRate(float value) {
 		if (value != idObject.getEmissionRate()) {
-			undoManager.pushAction(new ConsumerAction<>(idObject::setEmissionRate, (double) value, idObject.getEmissionRate(), "EmissionRate").redo());
+			undoManager.pushAction(new ConsumerAction<>(idObject::setEmissionRate, (double) value, idObject.getEmissionRate(), MdlUtils.TOKEN_EMISSION_RATE).redo());
 		}
 	}
 	private void setLifeSpan(float value) {
 		if (value != idObject.getLifeSpan()) {
-			undoManager.pushAction(new ConsumerAction<>(idObject::setLifeSpan, (double) value, idObject.getLifeSpan(), "LifeSpan").redo());
+			undoManager.pushAction(new ConsumerAction<>(idObject::setLifeSpan, (double) value, idObject.getLifeSpan(), MdlUtils.TOKEN_VISIBILITY).redo());
 		}
 	}
 }

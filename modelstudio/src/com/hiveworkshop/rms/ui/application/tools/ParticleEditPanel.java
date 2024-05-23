@@ -42,7 +42,7 @@ public class ParticleEditPanel extends JPanel {
 	private final ModelHandler tempModelHandler;
 	private final PerspectiveViewport perspectiveViewport;
 	private final ParticleEmitter2 particleEmitter2;
-	private ParticleEmitter2 copy;
+	private final ParticleEmitter2 copy;
 	Map<String, Function<ParticleEmitter2, Double>> nameToValueGetter = new HashMap<>();
 	{
 		nameToValueGetter.put(MdlUtils.TOKEN_WIDTH, ParticleEmitter2::getWidth);
@@ -80,12 +80,8 @@ public class ParticleEditPanel extends JPanel {
 
 
 		JPanel subPanel = new JPanel(new MigLayout("ins 0", "[]20[]"));
-
 		subPanel.add(getSliderPanel(), "");
-
-		JPanel spinnerPanel = getSpinnerPanel();
-
-		subPanel.add(spinnerPanel, "wrap");
+		subPanel.add(getSpinnerPanel(), "wrap");
 		add(subPanel, "spanx, wrap");
 
 		JButton apply = new JButton("Apply");
@@ -104,12 +100,12 @@ public class ParticleEditPanel extends JPanel {
 		spinnerPanel.add(getColorPanel(), SPINNER_CONSTRAINTS);
 
 		JPanel alphaPanel = new Vec3SpinnerArray(copy.getAlpha(), 0, .1f)
-				.setVec3Consumer((v) -> copy.setAlpha(v))
+				.setVec3Consumer(copy::setAlpha)
 				.spinnerPanel("Alpha");
 		spinnerPanel.add(alphaPanel, SPINNER_CONSTRAINTS);
 
 		JPanel scalingPanel = new Vec3SpinnerArray(copy.getParticleScaling())
-				.setVec3Consumer((v) -> copy.setParticleScaling(v))
+				.setVec3Consumer(copy::setParticleScaling)
 				.spinnerPanel("Particle Scaling");
 		spinnerPanel.add(scalingPanel, SPINNER_CONSTRAINTS);
 
@@ -129,9 +125,9 @@ public class ParticleEditPanel extends JPanel {
 		JPanel tailPanel = new JPanel(new MigLayout("ins 0"));
 		tailPanel.setBorder(BorderFactory.createTitledBorder("Tail UV (sub-texture index)"));
 		tailPanel.add(new JLabel("Life Span"));
-		tailPanel.add(new Vec3SpinnerArray(copy.getTailUVAnim(), "start", "end", "repeat").setVec3Consumer((v) -> copy.setTailUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
+		tailPanel.add(new Vec3SpinnerArray(copy.getTailUVAnim(), "start", "end", "repeat").setVec3Consumer(copy::setTailUVAnim).spinnerPanel(), SPINNER_CONSTRAINTS);
 		tailPanel.add(new JLabel("Decay"));
-		tailPanel.add(new Vec3SpinnerArray(copy.getTailDecayUVAnim(), "start", "end", "repeat").setVec3Consumer((v) -> copy.setTailDecayUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
+		tailPanel.add(new Vec3SpinnerArray(copy.getTailDecayUVAnim(), "start", "end", "repeat").setVec3Consumer(copy::setTailDecayUVAnim).spinnerPanel(), SPINNER_CONSTRAINTS);
 		return tailPanel;
 	}
 
@@ -139,29 +135,29 @@ public class ParticleEditPanel extends JPanel {
 		JPanel headPanel = new JPanel(new MigLayout("ins 0"));
 		headPanel.setBorder(BorderFactory.createTitledBorder("Head UV (sub-texture index)"));
 		headPanel.add(new JLabel("Life Span"));
-		headPanel.add(new Vec3SpinnerArray(copy.getHeadUVAnim(), "start", "end", "repeat").setVec3Consumer((v) -> copy.setHeadUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
+		headPanel.add(new Vec3SpinnerArray(copy.getHeadUVAnim(), "start", "end", "repeat").setVec3Consumer(copy::setHeadUVAnim).spinnerPanel(), SPINNER_CONSTRAINTS);
 		headPanel.add(new JLabel("Decay"));
 
-		headPanel.add(new Vec3SpinnerArray(copy.getHeadDecayUVAnim(), "start", "end", "repeat").setVec3Consumer((v) -> copy.setHeadDecayUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
+		headPanel.add(new Vec3SpinnerArray(copy.getHeadDecayUVAnim(), "start", "end", "repeat").setVec3Consumer(copy::setHeadDecayUVAnim).spinnerPanel(), SPINNER_CONSTRAINTS);
 		return headPanel;
 	}
 
 	private JPanel getSliderPanel() {
 		JPanel sliderPanel = new JPanel(new MigLayout("ins 0"));
 
-		sliderPanel.add(new SmartNumberSlider("EmissionRate", copy.getEmissionRate(), 100, (i) -> copy.setEmissionRate(i)).addLabelTooltip("Particles emitted per second"), SLIDER_CONSTRAINTS);
+		sliderPanel.add(new SmartNumberSlider("EmissionRate", copy.getEmissionRate(), 100, copy::setEmissionRate).addLabelTooltip("Particles emitted per second"), SLIDER_CONSTRAINTS);
 
-		sliderPanel.add(new SmartNumberSlider("Speed", copy.getSpeed(), 500, (i) -> copy.setSpeed(i)), SLIDER_CONSTRAINTS + ", gaptop 5");
+		sliderPanel.add(new SmartNumberSlider("Speed", copy.getSpeed(), 500, copy::setSpeed), SLIDER_CONSTRAINTS + ", gaptop 5");
 		sliderPanel.add(new SmartNumberSlider("Variation (%)", copy.getVariation() * 100, 500, (i) -> copy.setVariation(i / 100d)).addLabelTooltip("Variation in speed"), SLIDER_CONSTRAINTS);
 
-		sliderPanel.add(new SmartNumberSlider("Latitude", copy.getLatitude(), 180, (i) -> copy.setLatitude(i)).addLabelTooltip("Angular spread"), SLIDER_CONSTRAINTS);
-		sliderPanel.add(new SmartNumberSlider("Gravity", copy.getGravity(), -100, 100, (i) -> copy.setGravity(i)), SLIDER_CONSTRAINTS);
+		sliderPanel.add(new SmartNumberSlider("Latitude", copy.getLatitude(), 180, copy::setLatitude).addLabelTooltip("Angular spread"), SLIDER_CONSTRAINTS);
+		sliderPanel.add(new SmartNumberSlider("Gravity", copy.getGravity(), -100, 100, copy::setGravity), SLIDER_CONSTRAINTS);
 
-		sliderPanel.add(new SmartNumberSlider("Width", copy.getWidth(), 400, (i) -> copy.setWidth(i)).addLabelTooltip("Width of the spawn plane"), SLIDER_CONSTRAINTS + ", gaptop 5");
-		sliderPanel.add(new SmartNumberSlider("Length", copy.getLength(), 400, (i) -> copy.setLength(i)).addLabelTooltip("Length of the spawn plane"), SLIDER_CONSTRAINTS);
+		sliderPanel.add(new SmartNumberSlider("Width", copy.getWidth(), 400, copy::setWidth).addLabelTooltip("Width of the spawn plane"), SLIDER_CONSTRAINTS + ", gaptop 5");
+		sliderPanel.add(new SmartNumberSlider("Length", copy.getLength(), 400, copy::setLength).addLabelTooltip("Length of the spawn plane"), SLIDER_CONSTRAINTS);
 
-		sliderPanel.add(new SmartNumberSlider("LifeSpan (~ 0.1 s)", copy.getLifeSpan() * 10, 200, (i) -> {copy.setLifeSpan(i / 10d); updateSquirtTimer(copy.getSquirt());}).setMinLowerLimit(0).setMaxUpperLimit(1000), SLIDER_CONSTRAINTS);
-		sliderPanel.add(new SmartNumberSlider("TailLength", copy.getTailLength(), 100, (i) -> copy.setTailLength(i)), SLIDER_CONSTRAINTS);
+		sliderPanel.add(new SmartNumberSlider("LifeSpan (~ 0.01 s)", copy.getLifeSpan() * 100, 200, (i) -> {copy.setLifeSpan(i / 100d); updateSquirtTimer(copy.getSquirt());}).setMinLowerLimit(0).setMaxUpperLimit(10000), SLIDER_CONSTRAINTS);
+		sliderPanel.add(new SmartNumberSlider("TailLength", copy.getTailLength() * 100, 100, (i) -> copy.setTailLength(i / 100d)), SLIDER_CONSTRAINTS);
 		sliderPanel.add(new SmartNumberSlider("Time (%)", copy.getTime() * 100, 0, 100, (i) -> copy.setTime(i / 100d), false, false).addLabelTooltip("Fraction of lifespan at which to start decaying"), SLIDER_CONSTRAINTS);
 
 		return sliderPanel;
@@ -171,14 +167,12 @@ public class ParticleEditPanel extends JPanel {
 		JPanel flagPanel = new JPanel(new MigLayout("ins 0, gap 0"));
 		flagPanel.setBorder(BorderFactory.createTitledBorder("Flags"));
 
-		flagPanel.add(getCheckBox("Unshaded", copy.getUnshaded(), (b) -> copy.setUnshaded(b)), "wrap");
-		flagPanel.add(getCheckBox("Unfogged", copy.getUnfogged(), (b) -> copy.setUnfogged(b)), "wrap");
-		flagPanel.add(getCheckBox("LineEmitter", copy.getLineEmitter(), (b) -> copy.setLineEmitter(b)), "wrap");
-		flagPanel.add(getCheckBox("SortPrimsFarZ", copy.getSortPrimsFarZ(), (b) -> copy.setSortPrimsFarZ(b)), "wrap");
-		flagPanel.add(getCheckBox("ModelSpace", copy.getModelSpace(), (b) -> copy.setModelSpace(b)), "wrap");
-		flagPanel.add(getCheckBox("XYQuad", copy.getXYQuad(), (b) -> copy.setXYQuad(b)), "wrap");
-//		flagPanel.add(getCheckBox("Squirt", copy.getSquirt(), (b) -> copy.setSquirt(b)), "wrap");
-
+		flagPanel.add(getCheckBox("Unshaded", copy.getUnshaded(), copy::setUnshaded), "wrap");
+		flagPanel.add(getCheckBox("Unfogged", copy.getUnfogged(), copy::setUnfogged), "wrap");
+		flagPanel.add(getCheckBox("LineEmitter", copy.getLineEmitter(), copy::setLineEmitter), "wrap");
+		flagPanel.add(getCheckBox("SortPrimsFarZ", copy.getSortPrimsFarZ(), copy::setSortPrimsFarZ), "wrap");
+		flagPanel.add(getCheckBox("ModelSpace", copy.getModelSpace(), copy::setModelSpace), "wrap");
+		flagPanel.add(getCheckBox("XYQuad", copy.getXYQuad(), copy::setXYQuad), "wrap");
 
 		flagPanel.add(getCheckBox("Squirt", copy.getSquirt(), (b) -> {copy.setSquirt(b);updateSquirtTimer(b);}), "wrap");
 

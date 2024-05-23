@@ -65,7 +65,7 @@ public class RenderParticleEmitter2 {
 		AnimFlag<?> emissionRateFlag = particleEmitter2.find("EmissionRate");
 		currentSequence = timeEnvironment.getCurrentSequence();
 		if (emissionRateFlag != null && currentSequence != null && emissionRateFlag.getCeilEntry(0, currentSequence) != null) {
-			if (emissionRateFlag.size() > 0) {
+			if (0 < emissionRateFlag.size()) {
 				lastEmissionRate = (Float) emissionRateFlag.getValueFromIndex(currentSequence, 0);
 			}
 		}
@@ -75,19 +75,19 @@ public class RenderParticleEmitter2 {
 		return particleEmitter2;
 	}
 
-	public void update(boolean spawn){
-		if(timeEnvironment.getCurrentSequence() != currentSequence){
+	public void update(boolean spawn) {
+		if (timeEnvironment.getCurrentSequence() != currentSequence) {
 			lastAnimTime = 0;
 			currentSequence = timeEnvironment.getCurrentSequence();
 		}
 
 		int animTime = timeEnvironment.getAnimationTime();
 		int animLength = timeEnvironment.getLength();
-		float dt = (((animTime + animLength) - lastAnimTime)%animLength)/1000f;
+		float dt = animLength == 0 ? 0 : (((animTime + animLength) - lastAnimTime)%animLength)/1000f;
 
 		lastAnimTime = animTime;
 		update(dt, currentSequence);
-		if(spawn){
+		if (spawn) {
 			spawn(dt);
 		}
 	}
@@ -112,7 +112,7 @@ public class RenderParticleEmitter2 {
 
 	public RenderParticleEmitter2 emitHead() {
 		RenderParticle2HeadInst headInst = deadHeadQueue.poll();
-		if(headInst == null){
+		if (headInst == null) {
 			headInst = new RenderParticle2HeadInst(particleEmitter2);
 		}
 		aliveHeadQueue.offer(headInst.reset(renderNode2, true, timeEnvironment));
@@ -120,7 +120,7 @@ public class RenderParticleEmitter2 {
 	}
 	public RenderParticleEmitter2 emitTail() {
 		RenderParticle2TailInst tailInst = deadTailQueue.poll();
-		if(tailInst == null){
+		if (tailInst == null) {
 			tailInst = new RenderParticle2TailInst(particleEmitter2);
 		}
 		aliveTailQueue.offer(tailInst.reset(renderNode2, false, timeEnvironment));
@@ -132,7 +132,7 @@ public class RenderParticleEmitter2 {
 		int heads = aliveHeadQueue.size();
 		for (int i = 0; i < heads; i++) {
 			RenderParticle2HeadInst inst = aliveHeadQueue.poll();
-			if(inst != null){
+			if (inst != null) {
 				inst.update(dt, currentSequence, inverseCameraRotation);
 				inst.updateRenderData();
 
@@ -146,9 +146,9 @@ public class RenderParticleEmitter2 {
 		}
 
 		int tails = aliveTailQueue.size();
-		for (int i = 0; i< tails; i++) {
+		for (int i = 0; i < tails; i++) {
 			RenderParticle2TailInst inst = aliveTailQueue.poll();
-			if(inst != null){
+			if (inst != null) {
 				inst.update(dt, currentSequence, inverseCameraRotation);
 				inst.updateRenderData();
 
@@ -174,7 +174,7 @@ public class RenderParticleEmitter2 {
 	}
 	public RenderParticleEmitter2 emitObject1(boolean isHead) {
 		RenderParticle2Inst inst = deadQueue.poll();
-		if(inst == null){
+		if (inst == null) {
 			inst = new RenderParticle2Inst(particleEmitter2);
 		}
 		aliveQueue.offer(inst.reset(renderNode2, isHead, timeEnvironment));
@@ -193,9 +193,9 @@ public class RenderParticleEmitter2 {
 //			vectors = billboardVectors;
 //		}
 
-		for (int i = 0; i< aliveQueue.size(); i++) {
+		for (int i = 0; i < aliveQueue.size(); i++) {
 			RenderParticle2Inst inst = aliveQueue.poll();
-			if(inst != null){
+			if (inst != null) {
 				inst.update(dt, currentSequence, inverseCameraRotation);
 				inst.updateRenderData();
 

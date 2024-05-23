@@ -38,8 +38,11 @@ public class DuplicateAnimationAction implements UndoAction {
 		}
 		if (newSequence instanceof Animation) {
 			for (Geoset g : model.getGeosets()) {
-				ExtLog newExtLog = g.getAnimExtent((Animation) sequenceToCopy).deepCopy();
-				undoActions.add(new ConsumerAction<>(e -> g.add((Animation) newSequence, e), newExtLog, null, "Geoset Ext"));
+				ExtLog animExtent = g.getAnimExtent((Animation) sequenceToCopy);
+				if (animExtent != null) {
+					ExtLog newExtLog = animExtent.deepCopy();
+					undoActions.add(new ConsumerAction<>(e -> g.add((Animation) newSequence, e), newExtLog, null, "Geoset Ext"));
+				}
 			}
 		}
 

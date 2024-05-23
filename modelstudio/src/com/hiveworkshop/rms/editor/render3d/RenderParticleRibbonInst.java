@@ -82,7 +82,7 @@ public class RenderParticleRibbonInst {
 	}
 
 	private void fillColorHeaps(TimeEnvironmentImpl timeEnvironment) {
-//		colorHeap.set(ribbon.getInterpolatedVector(timeEnvironment, MdlUtils.TOKEN_COLOR, ribbon.getStaticColor()), ribbon.getInterpolatedFloat(timeEnvironment, MdlUtils.TOKEN_ALPHA, (float) ribbon.getAlpha()));;
+		colorHeap.set(ribbon.getInterpolatedVector(timeEnvironment, MdlUtils.TOKEN_COLOR, ribbon.getStaticColor()), ribbon.getInterpolatedFloat(timeEnvironment, MdlUtils.TOKEN_ALPHA, (float) ribbon.getAlpha()));
 //		colorHeap.set(1,0,1,1);
 	}
 

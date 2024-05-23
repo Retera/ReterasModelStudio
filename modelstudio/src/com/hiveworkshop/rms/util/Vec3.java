@@ -236,6 +236,10 @@ public class Vec3 {
 		return new Float[] {x, y, z};
 	}
 
+	public int[] toIntArray() {
+		return new int[] {(int) x, (int) y, (int) z};
+	}
+
 	public short[] toShortArray() {
 		return new short[] {(short) x, (short) y, (short) z};
 	}
@@ -736,5 +740,21 @@ public class Vec3 {
 				+ (0 < roundX ? " " : "") + roundX + ", "
 				+ (0 < roundY ? " " : "") + roundY + ", "
 				+ (0 < roundZ ? " " : "") + roundZ + " }";
+	}
+
+	public String toRoundedString2(int dec){
+		float mul = (float) Math.pow(10f, dec);
+		int roundX = Math.round(x*mul);
+		int roundY = Math.round(y*mul);
+		int roundZ = Math.round(z*mul);
+
+		float fRoundX = roundX/mul;
+		float fRoundY = roundY/mul;
+		float fRoundZ = roundZ/mul;
+
+		return "{ "
+				+ (0 < fRoundX ? " " : "") + fRoundX + ", "
+				+ (0 < fRoundY ? " " : "") + fRoundY + ", "
+				+ (0 < fRoundZ ? " " : "") + fRoundZ + " }";
 	}
 }
