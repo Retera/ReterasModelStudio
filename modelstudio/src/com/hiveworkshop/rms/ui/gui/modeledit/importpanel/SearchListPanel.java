@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.ui.util.SearchableTwiList;
+import com.hiveworkshop.rms.ui.util.TwiListModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -86,7 +87,8 @@ public class SearchListPanel<T> extends JPanel {
 	}
 	public SearchListPanel<T> scrollToReveal(T item) {
 		if (item != null) {
-			int i = itemList.indexOf(item);
+//			int i = itemList.indexOf(item);
+			int i = searchList.getModel().getIndexOf(item);
 			if (i != -1) {
 				Rectangle cellBounds = searchList.getCellBounds(i, i);
 				if (cellBounds != null) {
@@ -94,6 +96,15 @@ public class SearchListPanel<T> extends JPanel {
 				}
 			}
 		}
+		return this;
+	}
+	public SearchListPanel<T> select(T... items) {
+		int[] indices = new int[items.length];
+		TwiListModel<T> model = searchList.getModel();
+		for (int i = 0; i < indices.length; i++) {
+			indices[i] = model.getIndexOf(items[i]);
+		}
+		searchList.setSelectedIndices(indices);
 		return this;
 	}
 //	public SearchListPanel<T> setMultiSelectionConsumer(Consumer<Collection<T>> selectionConsumer) {

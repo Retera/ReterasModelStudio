@@ -7,15 +7,15 @@ import java.util.Map;
 public class SpawnMappings extends EventMapping<SpawnMappings.Spawn> {
 	private final Map<String, Spawn> tagToEvent = new HashMap<>();
 
-	public SpawnMappings(){
+	public SpawnMappings() {
 		tagToEvent.clear();
 		updateMappings();
 	}
 
-	public Spawn getEvent(String eventCode){
+	public Spawn getEvent(String eventCode) {
 		return tagToEvent.get(eventCode.substring(4));
 	}
-	public Collection<Spawn> getEvents(){
+	public Collection<Spawn> getEvents() {
 		return tagToEvent.values();
 	}
 
@@ -107,6 +107,25 @@ public class SpawnMappings extends EventMapping<SpawnMappings.Spawn> {
 		}
 		public String[] getFileNames() {
 			return new String[] {file};
+		}
+		public String[] getFilePaths() {
+			return new String[] {file};
+		}
+
+		public String[][] getFileNameAndPaths() {
+			if (file != null) {
+				String[][] paths = new String[1][2];
+				paths[0][0] = file;
+				paths[0][1] = "";
+				return paths;
+			}
+			return new String[0][0];
+		}
+
+		public void printInfo() {
+			System.out.println("Splat " + name);
+			System.out.println("\ttag: " + tag);
+			System.out.println("\tfileNames: " + file);
 		}
 	}
 }

@@ -1,5 +1,8 @@
 package com.hiveworkshop.rms.util.sound;
 
+import java.util.Arrays;
+import java.util.Map;
+
 public class Sound extends EventTarget {
 	private String soundName;
 	private String tag;
@@ -29,25 +32,60 @@ public class Sound extends EventTarget {
 	Sound(String tag) {
 		this.tag = tag;
 	}
-	Sound setFromSklLine(String lineString) {
-		String[] split = lineString.split(";");
-//		System.out.println(Arrays.toString(split));
+//	Sound setFromAnimLookups(String lineString) {
+//		String[] split = lineString.split(";");
+////		System.out.println(Arrays.toString(split));
+//		if (1 < split.length) {
+//			switch (split[1]) {
+//				case "X1" -> tag = getString(split[2]);
+//				case "X2" -> soundName = getString(split[2]);
+//				case "X3" -> inBeta = getInt(split[2]);
+//			}
+//		}
+//		return this;
+//	}
+
+	Sound setFromSklLine(String lineString, Map<String, String> fieldToKey) {
+
+		String[] split = lineString.split(";(Y\\d+;)?");
+
 		if (1 < split.length) {
-			switch (split[1]) {
-				case "X1" -> tag = getString(split[2]);
-				case "X2" -> soundName = getString(split[2]);
-				case "X3" -> inBeta = getInt(split[2]);
+			String key = fieldToKey.get(split[1]);
+//			System.out.println("key: " + key + ", split[0]: " + split[0] + ", split[1]: " + split[1] + ", lineString: " + lineString);
+
+			switch (key) {
+				case "SoundName", "SoundLabel" -> soundName = getString(split[2]);
+				case "AnimationEventCode", "AnimSoundEvent" -> tag = getString(split[2]);
+				case "FileNames" -> fileNames = getString(split[2]).split(",");
+				case "DirectoryBase" -> directoryBase = getString(split[2]);
+				case "Volume" -> volume = getInt(split[2]);
+				case "VolumeVariance" -> volumeVariance = getInt(split[2]);
+				case "Pitch" -> pitch = getFloat(split[2]);
+				case "PitchVariance" -> pitchVariance = getFloat(split[2]);
+				case "MaximumConcurrentInstances" -> maximumConcurrentInstances = getInt(split[2]);
+				case "Priority" -> priority = getInt(split[2]);
+				case "Channel" -> channel = getInt(split[2]);
+				case "Flags" -> flags = getString(split[2]);
+				case "MinDistance" -> minDistance = getInt(split[2]);
+				case "MaxDistance" -> maxDistance = getInt(split[2]);
+				case "DistanceCutoff" -> distanceCutoff = getInt(split[2]);
+				case "EAXFlags" -> eAXFlags = getString(split[2]);
+				case "Version" -> version = getInt(split[2]);
+				case "InBeta" -> inBeta = getInt(split[2]);
+				case "RolloffPoints" -> rolloffPoints = getString(split[2]);
 			}
 		}
 		return this;
 	}
 
 
-	Sound setFromSklLine2(String lineString) {
+	Sound setFromOldAnimSounds(String lineString) {
 
 		String[] split = lineString.split(";");
-//		System.out.println(Arrays.toString(split));
 		if (1 < split.length) {
+//			if ("X2".matches(split[1]) || "X3".matches(split[1])) {
+//				System.out.println(Arrays.toString(split));
+//			}
 			switch (split[1]) {
 				case "X1" -> soundName = getString(split[2]).split(",")[2];
 				case "X2" -> fileNames = getString(split[2]).split(",");
@@ -69,8 +107,7 @@ public class Sound extends EventTarget {
 		return this;
 	}
 
-
-	Sound setFromSklLine3(String lineString) {
+	Sound setFromNewAnimSounds(String lineString) {
 
 		String[] split = lineString.split(";(Y\\d+;)?");
 
@@ -191,5 +228,11 @@ public class Sound extends EventTarget {
 
 	public int getVersion() {
 		return version;
+	}
+	public void printInfo() {
+		System.out.println("Sound " + soundName);
+		System.out.println("\tdirectoryBase: " + directoryBase);
+		System.out.println("\tfileNames: " + Arrays.toString(fileNames));
+
 	}
 }

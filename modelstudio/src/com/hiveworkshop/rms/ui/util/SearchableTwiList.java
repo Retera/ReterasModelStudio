@@ -22,7 +22,7 @@ public class SearchableTwiList<T> extends JList<T> {
 		this(new ArrayList<>(), filterFunction);
 	}
 	public SearchableTwiList(List<T> items, BiFunction<T, String, Boolean> filterFunction){
-		super();
+		super(new TwiListModel<>());
 		this.filterFunction = filterFunction;
 
 		allObjects = items;
@@ -64,6 +64,11 @@ public class SearchableTwiList<T> extends JList<T> {
 	public SearchableTwiList<T> removeAll(Collection<T> t) {
 		fullListModel.removeAll(t);
 		return this;
+	}
+
+	@Override
+	public TwiListModel<T> getModel() {
+		return (TwiListModel<T>) super.getModel();
 	}
 
 	public T get(int i){

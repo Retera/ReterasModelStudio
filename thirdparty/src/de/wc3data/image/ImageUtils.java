@@ -10,25 +10,19 @@ public class ImageUtils {
 	 * all possible mipmaps
 	 */
 	public static BufferedImage[] generateMipMaps(final BufferedImage input) {
-		int num = 0;
 		int curWidth = input.getWidth();
 		int curHeight = input.getHeight();
-		int pow;
-		do {
-			num++;
-			pow = (int) Math.pow(2.0D, num - 1);
-		} while ((pow < curWidth) || (pow < curHeight));
-		final BufferedImage[] result = new BufferedImage[num];
+		int maxDim = Math.max(curWidth, curHeight);
+		int numMipMaps = 0;
+		while ((int) Math.pow(2.0D, numMipMaps) < maxDim){
+			numMipMaps++;
+		}
+
+		final BufferedImage[] result = new BufferedImage[numMipMaps];
 		result[0] = input;
-		for (int i = 1; i < num; i++) {
-			curWidth /= 2;
-			curHeight /= 2;
-			if (curHeight == 0) {
-				curHeight = 1;
-			}
-			if (curWidth == 0) {
-				curWidth = 1;
-			}
+		for (int i = 1; i < numMipMaps; i++) {
+			curWidth = Math.max(curWidth/2, 1);
+			curHeight = Math.max(curHeight/2, 1);
 			result[i] = ImageUtils.getScaledInstance(result[(i - 1)], curWidth, curHeight, RenderingHints.VALUE_INTERPOLATION_BICUBIC, true);
 		}
 		return result;
@@ -41,46 +35,23 @@ public class ImageUtils {
 	 */
 	public static BufferedImage getScaledInstance(final BufferedImage img, final int targetWidth, final int targetHeight, final Object hint, final boolean higherQuality) {
 		final int type = img.getTransparency() == 1 ? 1 : 2;
-		BufferedImage ret = img;
-		int h;
-		int w;
-		if (higherQuality) {
-			w = img.getWidth();
-			h = img.getHeight();
-		} else {
-			w = targetWidth;
-			h = targetHeight;
-		}
+		BufferedImage currImg = img;
+		int w = higherQuality ? img.getWidth() : targetWidth;
+		int h = higherQuality ? img.getHeight() : targetHeight;
+
 		do {
-			if ((higherQuality) && (w > targetWidth)) {
-				w /= 2;
-				if (w < targetWidth) {
-					w = targetWidth;
-				}
-			}
-			if ((higherQuality) && (h > targetHeight)) {
-				h /= 2;
-				if (h < targetHeight) {
-					h = targetHeight;
-				}
-			}
+			w = higherQuality && (targetWidth < w) ? Math.max(w / 2, targetWidth) : w;
+			h = higherQuality && (targetHeight < h) ? Math.max(h / 2, targetHeight) : h;
 
-
-			BufferedImage tmp;
 			if (!img.getColorModel().hasAlpha()) {
-				tmp = new BufferedImage(w, h, type);
-				final Graphics2D g2 = tmp.createGraphics();
-				g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, hint);
-				g2.drawImage(ret, 0, 0, w, h, null);
-				g2.dispose();
+				currImg = getScaledImage(currImg, w, h, hint, type);
 			} else {
-				//Necessary because otherwise Bilinear resize would couse transparent pixel to change color
-				tmp = resizeWorkAround(ret, w, h, hint);
+				//Necessary because otherwise BiLinear resize would cause transparent pixel to change color
+				currImg = resizeWorkAround(currImg, w, h, hint);
 			}
 
-			ret = tmp;
 		} while ((w != targetWidth) || (h != targetHeight));
-		return ret;
+		return currImg;
 	}
 
 	private static BufferedImage resizeWorkAround(final BufferedImage ret, final int w, final int h, final Object hint) {
@@ -94,23 +65,20 @@ public class ImageUtils {
 				noAlpha.setRGB(x, y, color);
 			}
 		}
-
-		final BufferedImage noAlphaSmall = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g2 = noAlphaSmall.createGraphics();
-		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, hint);
-		g2.drawImage(noAlpha, 0, 0, w, h, null);
-		g2.dispose();
-
-
-		final BufferedImage tmp = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-		g2 = tmp.createGraphics();
-		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, hint);
-		g2.drawImage(ret, 0, 0, w, h, null);
-		g2.dispose();
-
+		final BufferedImage noAlphaSmall = getScaledImage(noAlpha, w, h, hint, BufferedImage.TYPE_INT_ARGB);
+		final BufferedImage tmp = getScaledImage(ret, w, h, hint, BufferedImage.TYPE_INT_ARGB);
 		noAlphaSmall.getAlphaRaster().setRect(0, 0, tmp.getAlphaRaster());
 
 		return noAlphaSmall;
+	}
+
+	private static BufferedImage getScaledImage(BufferedImage image, int w, int h, Object hint, int type) {
+		final BufferedImage scaledImage = new BufferedImage(w, h, type);
+		Graphics2D g2 = scaledImage.createGraphics();
+		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, hint);
+		g2.drawImage(image, 0, 0, w, h, null);
+		g2.dispose();
+		return scaledImage;
 	}
 
 	/**
@@ -127,6 +95,15 @@ public class ImageUtils {
 		return convertedImage;
 	}
 
+
+	public static BufferedImage convertStandardImageType(final BufferedImage src, final boolean useAlpha) {
+		int targetType = useAlpha ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
+		if (src.getType() != targetType){
+			return ImageUtils.changeImageType(src, targetType);
+		} else {
+			return src;
+		}
+	}
 	public static BufferedImage changeImageType(final BufferedImage src, final int type) {
 		final BufferedImage img = new BufferedImage(src.getWidth(), src.getHeight(), type);
 		final Graphics2D g = (Graphics2D) img.getGraphics();
@@ -140,20 +117,6 @@ public class ImageUtils {
 		g.dispose();
 
 		return img;
-	}
-
-	public static BufferedImage convertStandardImageType(final BufferedImage src, final boolean useAlpha) {
-
-		if (useAlpha && src.getType() == BufferedImage.TYPE_INT_ARGB) {
-			return src;
-		}
-
-		if (!useAlpha && src.getType() == BufferedImage.TYPE_INT_RGB) {
-			return src;
-		}
-
-		return ImageUtils.changeImageType(src, useAlpha ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
-
 	}
 
 	public static BufferedImage createBlank(final Color color, final int width, final int height) {

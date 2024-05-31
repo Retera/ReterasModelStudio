@@ -7,15 +7,15 @@ import java.util.Collection;
 public class SplatMappings extends EventMapping<SplatMappings.Splat> {
 //	private final Map<String, Splat> tagToEvent = new HashMap<>();
 
-	public SplatMappings(){
+	public SplatMappings() {
 		tagToEvent.clear();
 		updateMappings();
 	}
 
-	public Splat getEvent(String eventCode){
+	public Splat getEvent(String eventCode) {
 		return tagToEvent.get(eventCode.substring(4));
 	}
-	public Collection<Splat> getEvents(){
+	public Collection<Splat> getEvents() {
 		return tagToEvent.values();
 	}
 
@@ -62,7 +62,7 @@ public class SplatMappings extends EventMapping<SplatMappings.Splat> {
 		}
 	}
 
-	public static class Splat extends EventTarget {
+	public static class Splat extends SplatTarget {
 		private String tag;
 		private String name; // comment
 		private String dir;
@@ -99,7 +99,7 @@ public class SplatMappings extends EventMapping<SplatMappings.Splat> {
 //		int endB;
 //		int endA;
 
-		Splat(String tag){
+		Splat(String tag) {
 			this.tag = tag;
 		}
 
@@ -167,6 +167,16 @@ public class SplatMappings extends EventMapping<SplatMappings.Splat> {
 		public String[] getFileNames() {
 			return new String[] {file};
 		}
+
+		public String[] getFilePaths() {
+			if (file != null) {
+				String[] paths = new String[1];
+				paths[0] = (dir == null ? "" : dir) + file;
+				return paths;
+			}
+			return new String[0];
+		}
+
 		public String[][] getFileNameAndPaths() {
 			if (file != null) {
 				String[][] paths = new String[1][2];
@@ -197,6 +207,10 @@ public class SplatMappings extends EventMapping<SplatMappings.Splat> {
 
 		public float getLifespan() {
 			return lifespan;
+		}
+
+		public float getPauseTime() {
+			return 0;
 		}
 
 		public float getDecay() {
@@ -245,6 +259,17 @@ public class SplatMappings extends EventMapping<SplatMappings.Splat> {
 
 		public String getSoundTag() {
 			return soundTag;
+		}
+
+		public int getVersion() {
+			return version;
+		}
+
+		public void printInfo() {
+			System.out.println("Splat " + name);
+			System.out.println("\tdirectory: " + dir);
+			System.out.println("\tfileNames: " + file);
+			System.out.println("\t" + startRGBA + "->" + middleRGBA + "->" + endRGBA + " [" + lifespan + " + " + decay + "]");
 		}
 	}
 }

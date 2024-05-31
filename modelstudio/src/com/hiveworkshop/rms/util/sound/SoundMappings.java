@@ -10,7 +10,7 @@ import java.util.*;
 
 public class SoundMappings extends EventMapping<Sound> {
 	private final Map<String, List<String>> nameToTags = new HashMap<>();
-
+	private final Map<String, String> fieldToKey = new HashMap<>();
 	public SoundMappings() {
 		updateMappings();
 	}
@@ -20,8 +20,10 @@ public class SoundMappings extends EventMapping<Sound> {
 		tagToEvent.clear();
 		readAnimLookups("war3.w3mod\\ui\\soundinfo\\animlookups.slk");
 		if (!tagToEvent.isEmpty()) {
+//			System.out.println("filling sound data!");
 			fillSoundData("war3.w3mod\\ui\\soundinfo\\animsounds.slk");
 		} else {
+//			System.out.println("generating sound data!");
 			readAnimLookups2("war3.w3mod\\ui\\soundinfo\\animsounds.slk");
 		}
 		System.out.println("SoundMap created! " + nameToTags.size() + " names, " + tagToEvent.size() + " tags");
@@ -29,6 +31,7 @@ public class SoundMappings extends EventMapping<Sound> {
 
 	protected void readAnimLookups(String lookUpsPath) {
 		CompoundDataSource source = GameDataFileSystem.getDefault();
+		fieldToKey.clear();
 
 		if (source.has(lookUpsPath)) {
 			try (BufferedReader r = new BufferedReader(new InputStreamReader(source.getResourceAsStream(lookUpsPath)))) {
@@ -49,11 +52,18 @@ public class SoundMappings extends EventMapping<Sound> {
 				currSound = null;
 			}
 		} else if (currSound != null) {
-			currSound.setFromSklLine(s);
+			currSound.setFromSklLine(s, fieldToKey);
+		} else if (s.startsWith("C;X")) {
+			String[] field = s.split(";");
+			String[] strings = s.split("\"");
+			if (1 < field.length && 1 < strings.length && !fieldToKey.containsKey(field[1])) {
+				fieldToKey.put(field[1], strings[1]);
+			}
 		}
 	}
 	protected void readAnimLookups2(String lookUpsPath) {
 		CompoundDataSource source = GameDataFileSystem.getDefault();
+		fieldToKey.clear();
 
 		if (source.has(lookUpsPath)) {
 			try (BufferedReader r = new BufferedReader(new InputStreamReader(source.getResourceAsStream(lookUpsPath)))) {
@@ -71,26 +81,36 @@ public class SoundMappings extends EventMapping<Sound> {
 					System.out.println(currSound.getTag() + " \"" + currSound.getName() + "\"  \"" + Arrays.toString(currSound.getFilePaths()) + "\"");
 				}
 				currSound = new Sound(strings[1]);
-				currSound.setFromSklLine3(s);
+//				currSound.setFromNewAnimSounds(s);
+				currSound.setFromSklLine(s, fieldToKey);
 			} else {
 				currSound = null;
 			}
 		} else if (s.startsWith("C;X2") && currSound != null) {
 			String[] strings = s.split("\"");
 			if (1 < strings.length) {
-				currSound.setFromSklLine3(s);
+//				currSound.setFromNewAnimSounds(s);
+				currSound.setFromSklLine(s, fieldToKey);
 				tagToEvent.put(currSound.getTag(), currSound);
 			} else {
 				currSound = null;
 			}
 		} else if (currSound != null) {
-			currSound.setFromSklLine3(s);
+//			currSound.setFromNewAnimSounds(s);
+			currSound.setFromSklLine(s, fieldToKey);
+		} else if (s.startsWith("C;X")) {
+			String[] field = s.split(";");
+			String[] strings = s.split("\"");
+			if (1 < field.length && 1 < strings.length && !fieldToKey.containsKey(field[1])) {
+				fieldToKey.put(field[1], strings[1]);
+			}
 		}
 	}
 
 	private void fillSoundData(String animSoundsPath) {
 		CompoundDataSource source = GameDataFileSystem.getDefault();
-
+		fieldToKey.clear();
+//		System.out.println("filling from \"" + animSoundsPath + "\"");
 		try (BufferedReader r = new BufferedReader(new InputStreamReader(source.getResourceAsStream(animSoundsPath)))) {
 			Map<String, List<String>> nameToTags = new HashMap<>();
 			tagToEvent.forEach((t, e) -> nameToTags.computeIfAbsent(e.getName(), k -> new ArrayList<>()).add(t));
@@ -101,11 +121,26 @@ public class SoundMappings extends EventMapping<Sound> {
 					String name = l.split("\"")[1];
 					if (nameToTags.containsKey(name)) {
 						tags.addAll(nameToTags.get(name));
+					} else {
+						String[] field = l.split(";");
+						String[] strings = l.split("\"");
+						if (1 < field.length && 1 < strings.length && !fieldToKey.containsKey(field[1])) {
+							fieldToKey.put(field[1], strings[1]);
+						}
 					}
 				} else {
-					for (String tag : tags) {
-						if (tagToEvent.containsKey(tag)) {
-							tagToEvent.get(tag).setFromSklLine2(l);
+					if (tags.isEmpty()) {
+						String[] field = l.split(";");
+						String[] strings = l.split("\"");
+						if (1 < field.length && 1 < strings.length && !fieldToKey.containsKey(field[1])) {
+							fieldToKey.put(field[1], strings[1]);
+						}
+					} else {
+						for (String tag : tags) {
+							if (tagToEvent.containsKey(tag)) {
+								tagToEvent.get(tag).setFromSklLine(l, fieldToKey);
+//							    tagToEvent.get(tag).setFromOldAnimSounds(l);
+							}
 						}
 					}
 				}

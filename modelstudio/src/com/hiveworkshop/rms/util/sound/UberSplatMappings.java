@@ -9,16 +9,16 @@ import java.util.Map;
 public class UberSplatMappings extends EventMapping<UberSplatMappings.UberSplat>{
 	private final Map<String, UberSplat> tagToEvent = new HashMap<>();
 
-	public UberSplatMappings(){
+	public UberSplatMappings() {
 		tagToEvent.clear();
 		updateMappings();
 	}
 
-	public UberSplat getEvent(String eventCode){
+	public UberSplat getEvent(String eventCode) {
 		return tagToEvent.get(eventCode.substring(4));
 	}
 
-	public Collection<UberSplat> getEvents(){
+	public Collection<UberSplat> getEvents() {
 		return tagToEvent.values();
 	}
 
@@ -58,7 +58,7 @@ public class UberSplatMappings extends EventMapping<UberSplatMappings.UberSplat>
 		}
 	}
 
-	public static class UberSplat extends EventTarget {
+	public static class UberSplat extends SplatTarget {
 		private String tag;
 		private String name; // comment
 		private String dir;
@@ -149,6 +149,15 @@ public class UberSplatMappings extends EventMapping<UberSplatMappings.UberSplat>
 			return new String[] {file};
 		}
 
+		public String[] getFilePaths() {
+			if (file != null) {
+				String[] paths = new String[1];
+				paths[0] = (dir == null ? "" : dir) + file;
+				return paths;
+			}
+			return new String[0];
+		}
+
 		public String[][] getFileNameAndPaths() {
 			if (file != null) {
 				String[][] paths = new String[1][2];
@@ -170,6 +179,10 @@ public class UberSplatMappings extends EventMapping<UberSplatMappings.UberSplat>
 		}
 
 		public float getBirthTime() {
+			return birthTime;
+		}
+
+		public float getLifespan() {
 			return birthTime;
 		}
 
@@ -203,6 +216,13 @@ public class UberSplatMappings extends EventMapping<UberSplatMappings.UberSplat>
 
 		public int getInBeta() {
 			return inBeta;
+		}
+
+		public void printInfo() {
+			System.out.println("UberSplat " + name);
+			System.out.println("\tdirectory: " + dir);
+			System.out.println("\tfileNames: " + file);
+			System.out.println("\t" + startRGBA + "->" + middleRGBA + "->" + endRGBA + " [" + birthTime + " + " + pauseTime + " + " + decay + "]");
 		}
 	}
 }

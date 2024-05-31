@@ -72,40 +72,35 @@ public class RemoveUnusedBones extends ActionFunction {
 				// there's no reliable way to check if they're unused
 				if (idObject instanceof Bone && !usedBones.contains(idObject)) {
 					unusedObjects.add(idObject);
-				} else if (idObject instanceof Light) {
-					if  (isNeverVis(allSequences, idObject.getVisibilityFlag())) {
+				} else if (idObject instanceof Light light) {
+					if  (isNeverVis(allSequences, idObject.getVisibilityFlag(), light.getIntensity())) {
 						unusedObjects.add(idObject);
 					}
 				} else if (idObject instanceof Helper) {
 					unusedObjects.add(idObject);
-				} else if (idObject instanceof ParticleEmitter) {
-					if (isNeverVis(allSequences, idObject.getVisibilityFlag())
-							|| hasNoEmission(allSequences, idObject.find(MdlUtils.TOKEN_EMISSION_RATE))
-							&& ((ParticleEmitter) idObject).getEmissionRate() == 0) {
+				} else if (idObject instanceof ParticleEmitter emitter) {
+					if (isNeverVis(allSequences, idObject.getVisibilityFlag(), emitter.getEmissionRate())
+							|| hasNoEmission(allSequences, idObject.find(MdlUtils.TOKEN_EMISSION_RATE), emitter.getEmissionRate())) {
 						unusedObjects.add(idObject);
 					}
-				} else if (idObject instanceof ParticleEmitter2) {
-					if (isNeverVis(allSequences, idObject.getVisibilityFlag())
-							|| hasNoEmission(allSequences, idObject.find(MdlUtils.TOKEN_EMISSION_RATE))
-							&& ((ParticleEmitter2) idObject).getEmissionRate() == 0) {
+				} else if (idObject instanceof ParticleEmitter2 emitter) {
+					if (isNeverVis(allSequences, idObject.getVisibilityFlag(), emitter.getAlpha().length())
+							|| hasNoEmission(allSequences, idObject.find(MdlUtils.TOKEN_EMISSION_RATE), emitter.getEmissionRate())) {
 						unusedObjects.add(idObject);
 					}
-				} else if (idObject instanceof ParticleEmitterPopcorn) {
-					ParticleEmitterPopcorn popcorn = (ParticleEmitterPopcorn) idObject;
-					if (isNeverVis(allSequences, idObject.getVisibilityFlag())
-							|| hasNoEmission(allSequences, idObject.find(MdlUtils.TOKEN_EMISSION_RATE))
-							&& popcorn.getEmissionRate() == 0
+				} else if (idObject instanceof ParticleEmitterPopcorn popcorn) {
+					if (isNeverVis(allSequences, idObject.getVisibilityFlag(), popcorn.getAlpha())
+							|| hasNoEmission(allSequences, idObject.find(MdlUtils.TOKEN_EMISSION_RATE), popcorn.getEmissionRate())
 							|| !isEverOn(popcorn, anims)) {
 						unusedObjects.add(idObject);
 					}
-				} else if (idObject instanceof RibbonEmitter) {
-					if (isNeverVis(allSequences, idObject.getVisibilityFlag())
-							|| hasNoEmission(allSequences, idObject.find(MdlUtils.TOKEN_EMISSION_RATE))
-							&& ((RibbonEmitter) idObject).getEmissionRate() == 0) {
+				} else if (idObject instanceof RibbonEmitter emitter) {
+					if (isNeverVis(allSequences, idObject.getVisibilityFlag(), emitter.getAlpha())
+							|| hasNoEmission(allSequences, idObject.find(MdlUtils.TOKEN_EMISSION_RATE), emitter.getEmissionRate())) {
 						unusedObjects.add(idObject);
 					}
-				} else if (idObject instanceof EventObject) {
-					if (((EventObject) idObject).size() == 0) {
+				} else if (idObject instanceof EventObject eventObject) {
+					if (eventObject.size() == 0) {
 						unusedObjects.add(idObject);
 					}
 				}
@@ -143,7 +138,7 @@ public class RemoveUnusedBones extends ActionFunction {
 		return isEverOn;
 	}
 
-	private static boolean isNeverVis(List<Sequence> allSequences, AnimFlag<Float> visibilityFlag) {
+	private static boolean isNeverVis(List<Sequence> allSequences, AnimFlag<Float> visibilityFlag, double staticVis) {
 		if (visibilityFlag != null && 0 < visibilityFlag.size()) {
 			for (Sequence sequence : allSequences) {
 				if (visibilityFlag.hasSequence(sequence)) {
@@ -157,9 +152,9 @@ public class RemoveUnusedBones extends ActionFunction {
 				}
 			}
 		}
-		return false;
+		return staticVis < 0.00001;
 	}
-	private static boolean hasNoEmission(List<Sequence> allSequences, AnimFlag<?> flag) {
+	private static boolean hasNoEmission(List<Sequence> allSequences, AnimFlag<?> flag, double staticEmission) {
 		if (flag instanceof FloatAnimFlag && 0 < flag.size()) {
 			AnimFlag<Float> emissionFlag = (FloatAnimFlag) flag;
 			for (Sequence sequence : allSequences) {
@@ -174,7 +169,7 @@ public class RemoveUnusedBones extends ActionFunction {
 				}
 			}
 		}
-		return true;
+		return staticEmission < 0.00001;
 	}
 
 	private static List<IdObject> getSortedNodes(List<IdObject> allIdObjects, boolean decending) {
@@ -208,7 +203,5 @@ public class RemoveUnusedBones extends ActionFunction {
 			collectDepthSortedNodes(sortedObj, child, depth+1);
 		}
 	}
-
-
 
 }
