@@ -45,7 +45,7 @@ public class GeosetChooser {
 		geosetJList.setCellRenderer(renderer);
 
 		GeosetShell currentBoneShell = null;
-		geosetJList.add(new GeosetShell(null, model, false));
+		geosetJList.add(new GeosetShell(null, model, false).setName("none"));
 		for (Geoset geoset : model.getGeosets()) {
 			GeosetShell geosetShell = new GeosetShell(geoset, model, false);
 			geosetJList.add(geosetShell);
@@ -92,12 +92,12 @@ public class GeosetChooser {
 		return geosetJList;
 	}
 
-	private void selectGeoset(ListSelectionEvent e, SearchableList<GeosetShell> geosetJList){
-		if(e.getValueIsAdjusting()){
+	private void selectGeoset(ListSelectionEvent e, SearchableList<GeosetShell> geosetJList) {
+		if (e.getValueIsAdjusting()) {
 			GeosetShell selectedValue = geosetJList.getSelectedValue();
-			if(selectedGeosetShells.contains(selectedValue)){
+			if (selectedGeosetShells.contains(selectedValue)) {
 				selectedGeosetShells.remove(selectedValue);
-			} else if(selectedValue != null){
+			} else if (selectedValue != null) {
 				selectedGeosetShells.add(selectedValue);
 			}
 			geosetJList.setSelectedValue(null, false);
@@ -113,6 +113,6 @@ public class GeosetChooser {
 	}
 
 	private boolean geosetNameFilter(GeosetShell geosetShell, String filterText) {
-		return geosetShell.getName().toLowerCase().contains(filterText.toLowerCase());
+		return geosetShell != null && geosetShell.getName() != null && geosetShell.getName().toLowerCase().contains(filterText.toLowerCase());
 	}
 }

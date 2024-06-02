@@ -24,7 +24,7 @@ public class AddGeosetAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction undo() {
+	public AddGeosetAction undo() {
 		model.remove(geoset);
 		if (changeListener != null) {
 			changeListener.geosetsUpdated();
@@ -33,7 +33,7 @@ public class AddGeosetAction implements UndoAction {
 	}
 
 	@Override
-	public UndoAction redo() {
+	public AddGeosetAction redo() {
 		model.add(geoset);
 		if (changeListener != null) {
 			changeListener.geosetsUpdated();

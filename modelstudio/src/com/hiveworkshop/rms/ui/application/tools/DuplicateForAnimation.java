@@ -14,65 +14,105 @@ import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
-import com.hiveworkshop.rms.ui.application.tools.uielement.GeosetChooser;
+import com.hiveworkshop.rms.ui.application.tools.uielement.IdObjectChooserButton;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.ScreenInfo;
+import com.hiveworkshop.rms.util.uiFactories.CheckBox;
+import com.hiveworkshop.rms.util.uiFactories.Label;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.util.*;
 
 public class DuplicateForAnimation extends JPanel {
-	ModelHandler modelHandler;
-	UndoManager undoManager;
-	ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
-	GeosetChooser geosetChooser;
-	Geoset geoset;
-	List<Animation> animationsToSplit = new ArrayList<>();
-	ModelIconHandler iconHandler = new ModelIconHandler();
+	private final ModelHandler modelHandler;
+	private final UndoManager undoManager;
+	private final ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
+	private final List<Animation> animationsToSplit = new ArrayList<>();
+	private final ModelIconHandler iconHandler = new ModelIconHandler();
+	private final TreeSet<Geoset> geosets;
+	private IdObject newTopParent = null;
 
 
-	public DuplicateForAnimation(ModelHandler modelHandler){
-		super(new MigLayout("fill", "[][]", "[grow][]"));
+	public DuplicateForAnimation(ModelHandler modelHandler) {
+		super(new MigLayout("fill", "[][]", "[][][][]"));
 		setPreferredSize(ScreenInfo.getSuitableSize(550, 440, 1.2));
 		this.modelHandler = modelHandler;
 		this.undoManager = modelHandler.getUndoManager();
-		geosetChooser = new GeosetChooser(modelHandler.getModel());
+		geosets = new TreeSet<>(Comparator.comparingInt(modelHandler.getModel()::getGeosetId));
 
-		add(getInfoLabel("Creates a copy of the chosen geoset and the bones bound to it. "
-				+ "The copy will have the inverted visibility of the original geoset. The topmost "
-				+ "bone-copies will have their parents removed."), "spanx, growx, wrap");
+		add(getInfoLabel("Creates a copies of the chosen geosets and the bones bound to it. "
+				+ "The original geosets will be invisible, "
+				+ "and the copies will use the original visibility, in the chosen animations. "
+				+"The topmost bone-copies will have their parents changed and their transforms recalculated."),
+		    "spanx, growx, wrap");
 
-		JButton chooseGeoset = new JButton("Choose Geoset");
-		chooseGeoset.setIcon(iconHandler.getImageIcon(modelHandler.getModel()));
-		chooseGeoset.addActionListener(e -> chooseGeoset(chooseGeoset));
-		add(chooseGeoset, "");
+//		add(getInfoLabel("Creates a copy of the chosen geoset and the bones bound to it. "
+//				+ "The copy will have the inverted visibility of the original geoset. The topmost "
+//				+ "bone-copies will have their parents removed."), "spanx, growx, wrap");
 
-		add(new JLabel("Animations to split"), "wrap");
-		add(getInfoLabel("Choose which animations to use the created copy in. The original geoset will be hidden in these animations."), "growx");
+		add(getGeosetChoosingPanel(), "growx, growy");
 
-		JScrollPane scrollPane = new JScrollPane(getAnimChoosingPanel());
-		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(scrollPane, "growx, growy, wrap");
+//		add(getInfoLabel("Choose which animations to use the created copy in. The original geoset will be hidden in these animations."), "growx");
+
+		add(getAnimChoosingPanel(), "growx, growy, wrap");
 
 		JButton doStuff = new JButton("Create Copy");
 		doStuff.addActionListener(e -> doStuff());
 		add(doStuff);
 	}
 
-	private JPanel getAnimChoosingPanel(){
-		JPanel panel = new JPanel(new MigLayout("gap 0"));
-		for(Animation animation : modelHandler.getModel().getAnims()){
-			JCheckBox comp = new JCheckBox(animation.getName());
-			comp.addActionListener(e -> chooseAnim(animation, comp.isSelected()));
-			panel.add(comp, "wrap");
+	private JPanel getAnimChoosingPanel() {
+		JPanel innerPanel = new JPanel(new MigLayout("fill, gap 0"));
+		for (Animation animation : modelHandler.getModel().getAnims()) {
+			JCheckBox comp = CheckBox.create(animation.getName(), false, b -> chooseAnim(animation, b));
+			innerPanel.add(comp, "growx, wrap");
 		}
+
+		JScrollPane scrollPane = new JScrollPane(innerPanel);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+		JPanel panel = new JPanel(new MigLayout("fill, gap 0"));
+		panel.add(new JLabel("Animations to split"), "wrap");
+		panel.add(scrollPane, "growx, growy, wrap");
+
+
+		panel.add(Label.create("Parent:", "Node to bind copied bone-chains to"), "spanx, split 2");
+		IdObjectChooserButton idObjectChooserButton = new IdObjectChooserButton(modelHandler.getModel(), false, this)
+				.setButtonText("Choose Parent For Copies");
+		idObjectChooserButton.setIdObjectConsumer(node -> newTopParent = node);
+		panel.add(idObjectChooserButton);
+		return panel;
+	}
+	private JPanel getGeosetChoosingPanel() {
+		JPanel innerPanel = new JPanel(new MigLayout("fill, gap 0"));
+		EditableModel model = modelHandler.getModel();
+		for (Geoset geoset : model.getGeosets()) {
+			JCheckBox comp = CheckBox.create(null, null, false, b -> setImp(geoset, b));
+			innerPanel.add(comp, "");
+			JLabel label = Label.create(geoset.getName(), iconHandler.getImageIcon(geoset, model), () -> {setImp(geoset, !comp.isSelected());comp.setSelected(!comp.isSelected());});
+			innerPanel.add(label, "growx, wrap");
+		}
+		JScrollPane scrollPane = new JScrollPane(innerPanel);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+		JPanel panel = new JPanel(new MigLayout("fill, gap 0"));
+		panel.add(new JLabel("Geosets to copy"), "wrap");
+		panel.add(scrollPane, "growx, growy");
 		return panel;
 	}
 
-	private JTextArea getInfoLabel(String text){
+	private void setImp(Geoset geoset, boolean doImp) {
+//		System.out.println("imp " + geoset.getName() + ": " + doImp);
+		if (doImp) {
+			geosets.add(geoset);
+		} else {
+			geosets.remove(geoset);
+		}
+	}
+	private JTextArea getInfoLabel(String text) {
 		JTextArea infoLabel = new JTextArea(text);
 		infoLabel.setEditable(false);
 		infoLabel.setOpaque(false);
@@ -81,33 +121,26 @@ public class DuplicateForAnimation extends JPanel {
 		return infoLabel;
 	}
 
-	private void chooseGeoset(JButton button){
-		geoset = geosetChooser.chooseGeoset(geoset, this);
-		if(geoset == null){
-			button.setText("Choose Geoset");
-		} else {
-			button.setText(geoset.getName());
-		}
-		button.setIcon(iconHandler.getImageIcon(geoset, modelHandler.getModel()));
-	}
-
-	private void chooseAnim(Animation animation, boolean selected){
-		if(selected){
+	private void chooseAnim(Animation animation, boolean selected) {
+		if (selected) {
 			animationsToSplit.add(animation);
 		} else {
 			animationsToSplit.remove(animation);
 		}
 	}
 
-	private void doStuff(){
-		if(geoset != null){
-			duplicateGeoWNodes(geoset, animationsToSplit);
+	private void doStuff() {
+		if (!geosets.isEmpty()) {
+			duplicateGeoWNodes(geosets, animationsToSplit);
 		}
 	}
-
-	private void duplicateGeoWNodes(Geoset geoset, List<Animation> animationsToSplit){
+	private void duplicateGeoWNodes(Collection<Geoset> geosets, List<Animation> animationsToSplit) {
 		List<UndoAction> undoActions = new ArrayList<>();
-		Set<IdObject> idObjects = new HashSet<>(geoset.getBoneMap().keySet());
+		Set<IdObject> tempIdObjects = new HashSet<>();
+		for (Geoset geoset : geosets) {
+			tempIdObjects.addAll(geoset.getBoneMap().keySet());
+		}
+		Set<IdObject> idObjects = getSortedUsedNodes(tempIdObjects);
 
 		Map<IdObject, IdObject> oldToNewObjMap = new HashMap<>();
 		for (IdObject idObject : idObjects) {
@@ -117,41 +150,70 @@ public class DuplicateForAnimation extends JPanel {
 		}
 
 		Set<IdObject> toRebindIdObjects = new HashSet<>();
-		for (IdObject idObject : oldToNewObjMap.values()) {
-			IdObject newParent = oldToNewObjMap.get(idObject.getParent());
-			if(newParent != null) {
-				idObject.setParent(newParent);
+		for (IdObject newNode : oldToNewObjMap.values()) {
+			IdObject newParent = oldToNewObjMap.get(newNode.getParent());
+			if (newParent != null) {
+				newNode.setParent(newParent);
 			} else {
-				toRebindIdObjects.add(idObject);
+				toRebindIdObjects.add(newNode);
 			}
 		}
 
-		for(IdObject idObject : oldToNewObjMap.values()){
-			undoActions.add(new AddNodeAction(modelHandler.getModel(), idObject, null));
+		for (IdObject newNode : oldToNewObjMap.values()) {
+			undoActions.add(new AddNodeAction(modelHandler.getModel(), newNode, null));
 		}
 
-		for(IdObject idObject : toRebindIdObjects) {
-			undoActions.add(new BakeAndRebindAction(idObject, null, animationsToSplit, modelHandler));
+		for (IdObject idObject : toRebindIdObjects) {
+			undoActions.add(new BakeAndRebindAction(idObject, newTopParent, animationsToSplit, modelHandler));
 		}
 
-		Geoset newGeoset = getNewGeoset(geoset, oldToNewObjMap);
-		AnimFlag<Float> visFlagForOrg = getVisFlagForOrg(animationsToSplit, newGeoset);
+		List<GeosetVertex> vertsToSelect = new ArrayList<>();
+		for (Geoset geoset : geosets) {
+			Geoset newGeoset = getNewGeoset(geoset, oldToNewObjMap);
+			vertsToSelect.addAll(newGeoset.getVertices());
+			AnimFlag<Float> visFlagForOrg = getVisFlagForOrg(animationsToSplit, geoset);
 
-		undoActions.add(new AddGeosetAction(newGeoset, modelHandler.getModel(), null));
-		undoActions.add(new AddTimelineAction<>(geoset, visFlagForOrg));
+			undoActions.add(new AddGeosetAction(newGeoset, modelHandler.getModel(), null));
+			undoActions.add(new AddTimelineAction<>(geoset, visFlagForOrg));
+		}
 
-		SelectionBundle selectionBundle = new SelectionBundle(oldToNewObjMap.values(), newGeoset.getVertices());
+		SelectionBundle selectionBundle = new SelectionBundle(oldToNewObjMap.values(), vertsToSelect);
 		undoActions.add(new SetSelectionUggAction(selectionBundle, modelHandler.getModelView(), null));
 
 		undoManager.pushAction(new CompoundAction("Duplicate for animation", undoActions, changeListener::geosetsUpdated).redo());
 	}
 
-	private AnimFlag<Float> getVisFlagForOrg(List<Animation> animationsToSplit, Geoset geoset) {
-		if(geoset.getVisibilityFlag() == null){
-			geoset.setVisibilityFlag(new FloatAnimFlag(geoset.visFlagName()));
+	private Set<IdObject> getSortedUsedNodes(Set<IdObject> usedNodes) {
+		Set<IdObject> expandedUsedNodes = new LinkedHashSet<>();
+
+		List<IdObject> tempNodeChain = new ArrayList<>();
+		for (IdObject newNode : usedNodes) {
+			if (!expandedUsedNodes.contains(newNode)) {
+				IdObject tempParent = newNode.getParent();
+				expandedUsedNodes.add(newNode);
+				while (tempParent != null) {
+					tempNodeChain.add(tempParent);
+					if (usedNodes.contains(tempParent)) {
+						expandedUsedNodes.addAll(tempNodeChain);
+						tempNodeChain.clear();
+					}
+					tempParent = tempParent.getParent();
+				}
+			}
 		}
-		AnimFlag<Float> visFlagForOrg = geoset.getVisibilityFlag().deepCopy();
-		invertVis(animationsToSplit, visFlagForOrg);
+
+		LinkedHashSet<IdObject> sortedNodes = new LinkedHashSet<>();
+		modelHandler.getModel().getIdObjects().stream().filter(expandedUsedNodes::contains).forEach(sortedNodes::add);
+		return sortedNodes;
+	}
+
+	private AnimFlag<Float> getVisFlagForOrg(List<Animation> animationsToSplit, Geoset geoset) {
+		AnimFlag<Float> visFlag = geoset.getVisibilityFlag();
+		if (visFlag == null) {
+			visFlag = new FloatAnimFlag(geoset.visFlagName());
+		}
+		AnimFlag<Float> visFlagForOrg = visFlag.deepCopy();
+		splitVis(new HashSet<>(animationsToSplit), false, visFlagForOrg);
 
 		return visFlagForOrg;
 	}
@@ -163,13 +225,11 @@ public class DuplicateForAnimation extends JPanel {
 			newVert.replaceBones(oldToNewObjMap, false);
 		}
 
-		if(newGeoset.getVisibilityFlag() == null){
+		if (newGeoset.getVisibilityFlag() == null) {
 			newGeoset.setVisibilityFlag(new FloatAnimFlag(newGeoset.visFlagName()));
 		}
 
-		List<Sequence> animationsToKeep = new ArrayList<>(modelHandler.getModel().getAnims());
-		animationsToKeep.removeAll(animationsToSplit);
-		invertVis(animationsToKeep, newGeoset.getVisibilityFlag());
+		splitVis(new HashSet<>(animationsToSplit), true, newGeoset.getVisibilityFlag());
 
 		return newGeoset;
 	}
@@ -187,19 +247,14 @@ public class DuplicateForAnimation extends JPanel {
 		return name;
 	}
 
-	private void invertVis(List<? extends Sequence> allSequences, AnimFlag<Float> animFlag) {
-		for (Sequence sequence : allSequences){
-			if(animFlag.getEntryAt(sequence, 0) == null){
-				if(animFlag.tans()){
-					animFlag.addEntry(new Entry<>(0, 1.0f, 1.0f, 1.0f), sequence);
-				} else {
-					animFlag.addEntry(new Entry<>(0, 1.0f), sequence);
-				}
-			}
-		}
-		for(TreeMap<Integer, Entry<Float>> entryMap : animFlag.getAnimMap().values()){
-			for(Entry<Float> entry : entryMap.values()){
-				entry.setValue(Math.min(1f, Math.max(0f, 1f-entry.getValue())));
+	private void splitVis(Set<Sequence> animationsToSplit, boolean keepProvided, AnimFlag<Float> animFlag) {
+		Entry<Float> invisEntry = animFlag.tans() ? new Entry<>(0, 0.0f, 0.0f, 0.0f) : new Entry<>(0, 0.0f);
+		for (Sequence sequence : animFlag.getAnimMap().keySet()) {
+			TreeMap<Integer, Entry<Float>> entryMap = animFlag.getEntryMap(sequence);
+			if (animationsToSplit.contains(sequence) && !keepProvided || !animationsToSplit.contains(sequence) && keepProvided) {
+				entryMap.clear();
+				entryMap.put(0, invisEntry.deepCopy());
+				entryMap.put(sequence.getLength(), invisEntry.deepCopy().setTime(sequence.getLength()));
 			}
 		}
 	}

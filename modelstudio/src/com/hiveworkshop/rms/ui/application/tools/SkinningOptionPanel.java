@@ -211,12 +211,12 @@ public class SkinningOptionPanel extends JPanel {
 		if (adjust_influence == JOptionPane.OK_OPTION && slider.getValue() != 0) {
 			adjustInt = slider.getValue();
 			float adjust = (100 + slider.getValue()) / 100f;
-			adjustInfluenc(adjust, bones);
+			adjustInfluence(adjust, bones);
 		}
 
 	}
 
-	public void adjustInfluenc(float adjust, Collection<Bone> selectedBones) {
+	public void adjustInfluence(float adjust, Collection<Bone> selectedBones) {
 		List<UndoAction> undoActions = new ArrayList<>();
 		Set<Bone> bonesToAdj = new HashSet<>(selectedBones);
 		for (Integer key : skinboneMap.keySet()) {
@@ -295,7 +295,8 @@ public class SkinningOptionPanel extends JPanel {
 
 					IdObject orDefault = bonesToReplace.getOrDefault(bone, bone);
 					String defName = orDefault == null ? "null" : ("\"" + orDefault.getName() + "\"");
-					System.out.println("replacing \"" + bone.getName() + "\" with " + defName);
+					String orgBName = bone == null ? "null" : ("\"" + bone.getName() + "\"");
+					System.out.println("replacing \"" + orgBName + "\" with " + defName);
 					boneReplacements.put(bone, orDefault);
 				}
 			}
