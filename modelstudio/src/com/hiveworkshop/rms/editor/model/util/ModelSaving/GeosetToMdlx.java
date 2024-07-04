@@ -194,7 +194,7 @@ public class GeosetToMdlx {
 
 		animation.alpha = (float) geoset.getStaticAlpha();
 
-		if (geoset.find(MdlUtils.TOKEN_COLOR) != null || !geoset.getStaticColor().equals(new Vec3(1, 1, 1))) {
+		if (geoset.find(MdlUtils.TOKEN_COLOR) != null || !geoset.getStaticColor().equalLocs(new Vec3(1, 1, 1))) {
 			animation.flags |= 0x2;
 		}
 		animation.color = geoset.getStaticColor().toFloatArray();
