@@ -3192,22 +3192,57 @@ public class EditableModel implements Named {
 			AnimFlag alphaFlag;
 		}
 		final Map<Triangle, Integer> triangleToTeamColorPixelCount = new HashMap<>();
-		final Map<Layer, BakingInfo> layerToBakingInfo = new HashMap<>();
+		// Previously we were using Map<Layer, BakingInfo>, but this
+		// is a broken concept because the design of our Layer class is broken.
+		// Elsewhere to automate the collapsing of identical layers into one
+		// upon saving, it was implemented that mapping a layer is based
+		// on its properties and not a reference. Thus, when we edit
+		// layers that are in a map, we corrupt the map.
+		// By contrast, LayerReference does not override hashCode()
+		// nor equals(), and so it can be used as map keys
+		class LayerReference {
+			Layer layer;
+
+			public LayerReference(final Layer layer) {
+				this.layer = layer;
+			}
+		}
+		class MaterialReference {
+			Material material;
+			List<LayerReference> layerReferences = new ArrayList<>();
+
+			public MaterialReference(final Material material) {
+				this.material = material;
+			}
+		}
+		final List<MaterialReference> materialReferences = new ArrayList<>();
 		for (final Material material : model.getMaterials()) {
+			final MaterialReference materialReference = new MaterialReference(material);
+			materialReferences.add(materialReference);
 			for (final Layer layer : material.getLayers()) {
+				materialReference.layerReferences.add(new LayerReference(layer));
+			}
+		}
+		final Map<LayerReference, BakingInfo> layerToBakingInfo = new HashMap<>();
+		for (final MaterialReference materialReference : materialReferences) {
+			final Material material = materialReference.material;
+			for (final LayerReference layerReference : materialReference.layerReferences) {
+				final Layer layer = layerReference.layer;
 				if (layer.getLayerShader() == LayerShader.HD) {
 					final BakingInfo bakingInfo = new BakingInfo();
 					bakingInfo.bakedTexturePath = material.getBakedHDNonEmissiveBufferedImage(
 							model.getWrappedDataSource(), outputDirectory, model, targetLevelOfDetail,
 							triangleToTeamColorPixelCount);
-					layerToBakingInfo.put(layer, bakingInfo);
+					layerToBakingInfo.put(layerReference, bakingInfo);
 				}
 			}
 		}
-		for (final Material material : model.getMaterials()) {
+		for (final MaterialReference materialReference : materialReferences) {
+			final Material material = materialReference.material;
 			final com.etheller.collections.List<Layer> additionalLayers = new com.etheller.collections.ArrayList<>();
-			for (final Layer layer : material.getLayers()) {
-				final BakingInfo bakingInfo = layerToBakingInfo.get(layer);
+			for (final LayerReference layerReference : materialReference.layerReferences) {
+				final Layer layer = layerReference.layer;
+				final BakingInfo bakingInfo = layerToBakingInfo.get(layerReference);
 				if (layer.getLayerShader() == LayerShader.HD && bakingInfo != null) {
 					bakingInfo.alphaFlag = layer.getFlag("Alpha");
 					layer.getAnims().remove(bakingInfo.alphaFlag);
@@ -3302,15 +3337,29 @@ public class EditableModel implements Named {
 		for (final Geoset geoset : model.getGeosets()) {
 			final Material material = geoset.getMaterial();
 			for (final Layer layer : material.getLayers()) {
-				final BakingInfo bakingInfo = layerToBakingInfo.get(layer);
-				if (bakingInfo != null) {
-					final GeosetAnim geosetAnim = geoset.forceGetGeosetAnim();
-					final AnimFlag visibilityFlag = geosetAnim.getVisibilityFlag();
-					if (visibilityFlag == null) {
-						geosetAnim.addAnimFlag(bakingInfo.alphaFlag);
-					} else {
-						visibilityFlag.copyFrom(bakingInfo.alphaFlag);
-						visibilityFlag.sort();
+				for (final MaterialReference materialReference : materialReferences) {
+					if (materialReference.material == material) {
+						for (final LayerReference layerReference : materialReference.layerReferences) {
+							if (layerReference.layer == layer) {
+								final BakingInfo bakingInfo = layerToBakingInfo.get(layerReference);
+								if (bakingInfo != null) {
+									final GeosetAnim geosetAnim = geoset.forceGetGeosetAnim();
+									final AnimFlag visibilityFlag = geosetAnim.getVisibilityFlag();
+									if (visibilityFlag == null) {
+										geosetAnim.addAnimFlag(bakingInfo.alphaFlag);
+									} else {
+										for (int i = visibilityFlag.size() - 1; i >= 0; i--) {
+											final Integer time = visibilityFlag.getTimes().get(i);
+											if (bakingInfo.alphaFlag.times.contains(time)) {
+												visibilityFlag.deleteAt(i);
+											}
+										}
+										visibilityFlag.copyFrom(bakingInfo.alphaFlag);
+										visibilityFlag.sort();
+									}
+								}
+							}
+						}
 					}
 				}
 			}
@@ -3448,8 +3497,7 @@ public class EditableModel implements Named {
 				faceSelectionManager.setSelection(selectedTriangles);
 				faceModelEditor.splitGeoset();
 				model.doSavePreps(false);
-			}
-			else {
+			} else {
 				break;
 			}
 		}
