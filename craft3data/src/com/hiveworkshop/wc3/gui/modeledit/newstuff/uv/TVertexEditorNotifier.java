@@ -168,6 +168,24 @@ public class TVertexEditorNotifier extends SubscriberSetNotifier<TVertexEditor> 
 	}
 
 	@Override
+	public UndoAction snapXSelectedVertices() {
+		final List<UndoAction> actions = new ArrayList<>();
+		for (final TVertexEditor handler : set) {
+			actions.add(handler.snapXSelectedVertices());
+		}
+		return mergeActions(actions);
+	}
+
+	@Override
+	public UndoAction snapYSelectedVertices() {
+		final List<UndoAction> actions = new ArrayList<>();
+		for (final TVertexEditor handler : set) {
+			actions.add(handler.snapYSelectedVertices());
+		}
+		return mergeActions(actions);
+	}
+
+	@Override
 	public void rawTranslate(final double x, final double y) {
 		for (final TVertexEditor handler : set) {
 			handler.rawTranslate(x, y);
@@ -268,7 +286,8 @@ public class TVertexEditorNotifier extends SubscriberSetNotifier<TVertexEditor> 
 		for (final TVertexEditor handler : set) {
 			if (uvLayerIndex == -1) {
 				uvLayerIndex = handler.getUVLayerIndex();
-			} else if (uvLayerIndex != handler.getUVLayerIndex()) {
+			}
+			else if (uvLayerIndex != handler.getUVLayerIndex()) {
 				throw new IllegalStateException("Differing UV Layer Indices between editors: " + uvLayerIndex + " != "
 						+ handler.getUVLayerIndex());
 			}

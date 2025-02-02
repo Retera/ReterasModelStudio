@@ -9,6 +9,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UVPanel;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.UVRemapAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.UVSnapAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.UVSnapXAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveAction;
@@ -118,6 +119,34 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 			oldLocations.add(new TVertex(vertex));
 		}
 		final UVSnapAction temp = new UVSnapAction(selection, oldLocations, cog);
+		temp.redo();// a handy way to do the snapping!
+		return temp;
+	}
+
+	@Override
+	public UndoAction snapXSelectedVertices() {
+		final Collection<? extends TVertex> selection = TVertexUtils
+				.getTVertices(selectionManager.getSelectedVertices(), uvLayerIndex);
+		final ArrayList<TVertex> oldLocations = new ArrayList<>();
+		final TVertex cog = TVertex.centerOfGroup(selection);
+		for (final TVertex vertex : selection) {
+			oldLocations.add(new TVertex(vertex));
+		}
+		final UVSnapXAction temp = new UVSnapXAction(selection, oldLocations, cog, (byte) 0);
+		temp.redo();// a handy way to do the snapping!
+		return temp;
+	}
+
+	@Override
+	public UndoAction snapYSelectedVertices() {
+		final Collection<? extends TVertex> selection = TVertexUtils
+				.getTVertices(selectionManager.getSelectedVertices(), uvLayerIndex);
+		final ArrayList<TVertex> oldLocations = new ArrayList<>();
+		final TVertex cog = TVertex.centerOfGroup(selection);
+		for (final TVertex vertex : selection) {
+			oldLocations.add(new TVertex(vertex));
+		}
+		final UVSnapXAction temp = new UVSnapXAction(selection, oldLocations, cog, (byte) 1);
 		temp.redo();// a handy way to do the snapping!
 		return temp;
 	}

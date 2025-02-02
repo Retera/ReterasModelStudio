@@ -104,7 +104,7 @@ public class UVPanel extends JPanel
 
 	ModeButton loadImage, selectButton, addButton, deselectButton, moveButton, rotateButton, scaleButton, unwrapButton;
 	private final JComboBox<UnwrapDirection> unwrapDirectionBox;
-	JButton snapButton;
+	JButton snapButton, snapXButton, snapYButton;
 	JMenuItem selectAll, invertSelect, expandSelection, selFromMain, mirrorX, mirrorY, setAspectRatio;
 	JMenu editMenu, mirrorSubmenu, dispMenu;
 	JMenuBar menuBar;
@@ -594,6 +594,37 @@ public class UVPanel extends JPanel
 					if (currentModelPanel != null) {
 						currentModelPanel.getUndoManager()
 								.pushAction(modelEditorManager.getModelEditor().snapSelectedVertices());
+					}
+				}
+				catch (final Exception exc) {
+					ExceptionPopup.display(exc);
+				}
+			}
+		});
+		toolbar.addSeparator();
+		snapXButton = toolbar.add(new AbstractAction("SnapX", RMSIcons.loadToolBarImageIcon("snapX.png")) {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				try {
+					final ModelPanel currentModelPanel = currentModelPanel();
+					if (currentModelPanel != null) {
+						currentModelPanel.getUndoManager()
+								.pushAction(modelEditorManager.getModelEditor().snapXSelectedVertices());
+					}
+				}
+				catch (final Exception exc) {
+					ExceptionPopup.display(exc);
+				}
+			}
+		});
+		snapYButton = toolbar.add(new AbstractAction("SnapY", RMSIcons.loadToolBarImageIcon("snapY.png")) {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				try {
+					final ModelPanel currentModelPanel = currentModelPanel();
+					if (currentModelPanel != null) {
+						currentModelPanel.getUndoManager()
+								.pushAction(modelEditorManager.getModelEditor().snapYSelectedVertices());
 					}
 				}
 				catch (final Exception exc) {

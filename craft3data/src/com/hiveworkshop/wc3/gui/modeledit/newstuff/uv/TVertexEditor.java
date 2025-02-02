@@ -37,6 +37,10 @@ public interface TVertexEditor extends ComponentVisibilityListener {
 
 	UndoAction snapSelectedVertices();
 
+	UndoAction snapXSelectedVertices();
+
+	UndoAction snapYSelectedVertices();
+
 	UndoAction setSelectedRegion(Rectangle2D region, CoordinateSystem coordinateSystem);
 
 	UndoAction removeSelectedRegion(Rectangle2D region, CoordinateSystem coordinateSystem);
