@@ -16,7 +16,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.DeleteAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.ExtrudeAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.RecalculateExtentsAction;
-import com.hiveworkshop.wc3.gui.modeledit.actions.RecalculateNormalsAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.RecalculateNormalsAction2;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SnapAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SnapNormalsAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SpecialDeleteAction;
@@ -131,7 +131,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 				} // else no normal to snap!!!
 			}
 		}
-		final RecalculateNormalsAction temp = new RecalculateNormalsAction(selectedVertices, oldLocations, snapped);
+		final RecalculateNormalsAction2 temp = new RecalculateNormalsAction2(selectedVertices, oldLocations, snapped);
 		temp.redo();// a handy way to do the snapping!
 		return temp;
 	}
