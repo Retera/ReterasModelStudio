@@ -221,7 +221,7 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 
 	public void loadHotkeys() {
 		final JRootPane root = getRootPane();
-		this.getRootPane().getActionMap().put("displayAsRawData", new AbstractAction() {
+		getRootPane().getActionMap().put("displayAsRawData", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				for (final UnitEditorPanel editor : editors) {
@@ -229,7 +229,7 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 				}
 			}
 		});
-		this.getRootPane().getActionMap().put("searchUnits", new AbstractAction() {
+		getRootPane().getActionMap().put("searchUnits", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				final int selectedIndex = tabbedPane.getSelectedIndex();
@@ -237,7 +237,7 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 				unitEditorPanel.doSearchForUnit();
 			}
 		});
-		this.getRootPane().getActionMap().put("searchFindNextUnit", new AbstractAction() {
+		getRootPane().getActionMap().put("searchFindNextUnit", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				final int selectedIndex = tabbedPane.getSelectedIndex();
@@ -267,7 +267,8 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 								: null,
 						true);
 			}
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			e.printStackTrace();
 		}
 		unitData = new MutableObjectData(WorldEditorDataType.UNITS, StandardObjectData.getStandardUnits(),
@@ -291,7 +292,8 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 								: null,
 						true);
 			}
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			e.printStackTrace();
 		}
 		final DataTable standardUnitMeta = StandardObjectData.getStandardUnitMeta();
@@ -321,7 +323,8 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 								: null,
 						true);
 			}
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			e.printStackTrace();
 		}
 		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(
@@ -352,7 +355,8 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 								: null,
 						true);
 			}
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			e.printStackTrace();
 		}
 		final DataTable standardUnitMeta = StandardObjectData.getStandardDoodadMeta();
@@ -382,7 +386,8 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 								: null,
 						true);
 			}
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			e.printStackTrace();
 		}
 		final DataTable standardUnitMeta = StandardObjectData.getStandardAbilityMeta();
@@ -412,7 +417,8 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 								: null,
 						true);
 			}
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			e.printStackTrace();
 		}
 		final DataTable standardUnitMeta = StandardObjectData.getStandardAbilityBuffMeta();
@@ -444,7 +450,8 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 								: null,
 						true);
 			}
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			e.printStackTrace();
 		}
 		final DataTable standardMeta = StandardObjectData.getStandardUpgradeMeta();
@@ -498,9 +505,11 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 					try (BlizzardDataOutputStream outputStream = new BlizzardDataOutputStream(w3uFile)) {
 						unitEditorPanel.getUnitData().getEditorData().save(outputStream, false);
 					}
-				} catch (final FileNotFoundException e1) {
+				}
+				catch (final FileNotFoundException e1) {
 					e1.printStackTrace();
-				} catch (final IOException e1) {
+				}
+				catch (final IOException e1) {
 					e1.printStackTrace();
 				}
 			}
@@ -560,9 +569,11 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 						unitEditorPanel.getUnitData().getEditorData().load(inputStream, null, false);
 						unitEditorPanel.reloadAllDataVerySlowly();
 					}
-				} catch (final FileNotFoundException e1) {
+				}
+				catch (final FileNotFoundException e1) {
 					e1.printStackTrace();
-				} catch (final IOException e1) {
+				}
+				catch (final IOException e1) {
 					e1.printStackTrace();
 				}
 			}
@@ -607,8 +618,7 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 			if (response == JOptionPane.OK_OPTION) {
 				final GameObject selection = unitOptionPanel.getSelection();
 				final War3ID sourceId = War3ID.fromString(selection.getId());
-				final MutableGameObject newObject = unitData.createNew(
-						unitData.getNextDefaultEditorId(War3ID.fromString(sourceId.charAt(0) + "000")), sourceId);
+				final MutableGameObject newObject = unitData.createNew(War3ID.fromString("plyr"), sourceId);
 				newObject.setField(UNIT_NAME, 0, nameField.getText());
 			}
 		}

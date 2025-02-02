@@ -303,6 +303,22 @@ public class DataSourceChooserPanel extends JPanel {
 				enterSDMode();
 			}
 		});
+		final JButton enterHD2Mode = new JButton("Reforged2 Graphics Mode");
+		enterHD2Mode.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				enterHD2Mode();
+			}
+		});
+		final JButton enterSD2Mode = new JButton("Classic2 Graphics Mode");
+		enterSD2Mode.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				enterSD2Mode();
+			}
+		});
 		final JButton resetAllToDefaults = new JButton("Reset to Defaults");
 		resetAllToDefaults.addActionListener(new ActionListener() {
 
@@ -385,8 +401,8 @@ public class DataSourceChooserPanel extends JPanel {
 		if (wcDirectory == null) {
 			warcraft3InstallPath.setForeground(Color.RED);
 		}
-		this.root = new DefaultMutableTreeNode();
-		this.model = new DefaultTreeModel(root);
+		root = new DefaultMutableTreeNode();
+		model = new DefaultTreeModel(root);
 		dataSourceTree = new JTree(model);
 		dataSourceTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		dataSourceTree.setRootVisible(false);
@@ -423,38 +439,39 @@ public class DataSourceChooserPanel extends JPanel {
 		dstScrollpane.setPreferredSize(new Dimension(500, 400));
 		final GroupLayout layout = new GroupLayout(this);
 
-		layout.setHorizontalGroup(
-				layout.createSequentialGroup().addGap(8)
-						.addGroup(layout.createParallelGroup().addGroup(layout.createSequentialGroup()
-								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-										.addComponent(clearList).addComponent(addWarcraft3Installation)
-										.addComponent(resetAllToDefaults).addComponent(separatorLabelLeftHandSide)
-										.addComponent(enterHDMode).addComponent(enterSDMode))
-								.addComponent(dstScrollpane)
-								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-										.addComponent(addCASCButton).addComponent(addMPQButton)
-										.addComponent(addFolderButton).addComponent(separatorLabel)
-										.addComponent(addDefaultCascPrefixes).addComponent(addSpecificCascPrefix)
-										.addComponent(separatorLabel2).addComponent(deleteSelection)
-										.addComponent(moveSelectionUp).addComponent(moveSelectionDown)))
-								.addGroup(layout.createSequentialGroup().addComponent(warcraft3InstallLocated)
-										.addComponent(warcraft3InstallPath)))
-						.addGap(8));
+		layout.setHorizontalGroup(layout.createSequentialGroup().addGap(8)
+				.addGroup(layout.createParallelGroup().addGroup(layout.createSequentialGroup()
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(clearList)
+								.addComponent(addWarcraft3Installation).addComponent(resetAllToDefaults)
+								.addComponent(separatorLabelLeftHandSide).addComponent(enterHDMode)
+								.addComponent(enterSDMode).addComponent(enterHD2Mode).addComponent(enterSD2Mode))
+						.addComponent(dstScrollpane)
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(addCASCButton)
+								.addComponent(addMPQButton).addComponent(addFolderButton).addComponent(separatorLabel)
+								.addComponent(addDefaultCascPrefixes).addComponent(addSpecificCascPrefix)
+								.addComponent(separatorLabel2).addComponent(deleteSelection)
+								.addComponent(moveSelectionUp).addComponent(moveSelectionDown)))
+						.addGroup(layout.createSequentialGroup().addComponent(warcraft3InstallLocated)
+								.addComponent(warcraft3InstallPath)))
+				.addGap(8));
 
 		layout.linkSize(SwingConstants.HORIZONTAL, clearList, addWarcraft3Installation, enterHDMode, enterSDMode,
 				resetAllToDefaults);
 		layout.linkSize(SwingConstants.HORIZONTAL, addCASCButton, addMPQButton, addFolderButton, addDefaultCascPrefixes,
 				addSpecificCascPrefix, deleteSelection, moveSelectionUp, moveSelectionDown);
 
-		layout.setVerticalGroup(layout.createSequentialGroup().addGap(8).addGroup(layout.createParallelGroup()
-				.addGroup(layout.createSequentialGroup().addComponent(clearList).addComponent(addWarcraft3Installation)
-						.addComponent(resetAllToDefaults).addComponent(separatorLabelLeftHandSide)
-						.addComponent(enterHDMode).addComponent(enterSDMode))
-				.addComponent(dstScrollpane)
-				.addGroup(layout.createSequentialGroup().addComponent(addCASCButton).addComponent(addMPQButton)
-						.addComponent(addFolderButton).addComponent(separatorLabel).addComponent(addDefaultCascPrefixes)
-						.addComponent(addSpecificCascPrefix).addComponent(separatorLabel2).addComponent(deleteSelection)
-						.addComponent(moveSelectionUp).addComponent(moveSelectionDown)))
+		layout.setVerticalGroup(layout.createSequentialGroup().addGap(8)
+				.addGroup(layout.createParallelGroup()
+						.addGroup(layout.createSequentialGroup().addComponent(clearList)
+								.addComponent(addWarcraft3Installation).addComponent(resetAllToDefaults)
+								.addComponent(separatorLabelLeftHandSide).addComponent(enterHDMode)
+								.addComponent(enterSDMode).addComponent(enterHD2Mode).addComponent(enterSD2Mode))
+						.addComponent(dstScrollpane)
+						.addGroup(layout.createSequentialGroup().addComponent(addCASCButton).addComponent(addMPQButton)
+								.addComponent(addFolderButton).addComponent(separatorLabel)
+								.addComponent(addDefaultCascPrefixes).addComponent(addSpecificCascPrefix)
+								.addComponent(separatorLabel2).addComponent(deleteSelection)
+								.addComponent(moveSelectionUp).addComponent(moveSelectionDown)))
 				.addGap(8)
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(warcraft3InstallLocated)
 						.addComponent(warcraft3InstallPath))
@@ -539,6 +556,63 @@ public class DataSourceChooserPanel extends JPanel {
 				JOptionPane.showMessageDialog(this, "Your Warcraft III data CASC configuration is not in the SD mode.",
 						"Error", JOptionPane.ERROR_MESSAGE);
 			}
+		}
+		else {
+			JOptionPane.showMessageDialog(this,
+					"Your Warcraft III data configuration is not a standard Reforged CASC setup, so this automation feature is unavailable.\nTo use this feature, please press 'Clear All' and then 'Add War3 Install Directory' to choose a Reforged installation.",
+					"Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private void enterSD2Mode() {
+		if ((dataSourceDescriptors.size() == 1) && (dataSourceDescriptors.get(0) instanceof CascDataSourceDescriptor)) {
+			final CascDataSourceDescriptor cascDataSourceDescriptor = (CascDataSourceDescriptor) dataSourceDescriptors
+					.get(0);
+			cascDataSourceDescriptor.getPrefixes().clear();
+			cascDataSourceDescriptor.addPrefix(("war3.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("war3.w3mod\\_deprecated.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("war3.w3mod\\_locales\\enus.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\buildings.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\environment.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\heroes.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\icons.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\textures.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\units.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\vfx.w3mod"));
+			reloadTree();
+		}
+		else {
+			JOptionPane.showMessageDialog(this,
+					"Your Warcraft III data configuration is not a standard Reforged CASC setup, so this automation feature is unavailable.\nTo use this feature, please press 'Clear All' and then 'Add War3 Install Directory' to choose a Reforged installation.",
+					"Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private void enterHD2Mode() {
+		if ((dataSourceDescriptors.size() == 1) && (dataSourceDescriptors.get(0) instanceof CascDataSourceDescriptor)) {
+			final CascDataSourceDescriptor cascDataSourceDescriptor = (CascDataSourceDescriptor) dataSourceDescriptors
+					.get(0);
+			cascDataSourceDescriptor.getPrefixes().clear();
+			cascDataSourceDescriptor.addPrefix(("war3.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("war3.w3mod\\_deprecated.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("war3.w3mod\\_locales\\enus.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\buildings.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\environment.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\heroes.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\icons.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\textures.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\units.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\vfx.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("war3.w3mod\\_hd.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("war3.w3mod\\_hd.w3mod\\_locales\\enus.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\buildings.w3mod\\_hd.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\environment.w3mod\\_hd.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\heroes.w3mod\\_hd.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\icons.w3mod\\_hd.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\textures.w3mod\\_hd.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\units.w3mod\\_hd.w3mod"));
+			cascDataSourceDescriptor.addPrefix(("_addons\\hd2.w3addon\\vfx.w3mod\\_hd.w3mod"));
+			reloadTree();
 		}
 		else {
 			JOptionPane.showMessageDialog(this,
@@ -677,10 +751,7 @@ public class DataSourceChooserPanel extends JPanel {
 	}
 
 	private static enum SupportedCascPatchFormat {
-		PATCH130,
-		PATCH131,
-		PATCH132,
-		UNKNOWN_FUTURE_PATCH;
+		PATCH130, PATCH131, PATCH132, UNKNOWN_FUTURE_PATCH;
 	}
 
 	public static void main(final String[] args) {
