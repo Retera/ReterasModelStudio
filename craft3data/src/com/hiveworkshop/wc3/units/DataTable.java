@@ -121,9 +121,15 @@ public class DataTable implements ObjectData {
 	}
 
 	Map<StringKey, Element> dataTable = new LinkedHashMap<>();
+	public static DataTableReforgedMode DEFAULT_MODE = DataTableReforgedMode.SD;
+	private DataTableReforgedMode reforgedMode;
 
 	public DataTable() {
+		this(DEFAULT_MODE);
+	}
 
+	public DataTable(DataTableReforgedMode reforgedMode) {
+		this.reforgedMode = reforgedMode;
 	}
 
 	@Override
@@ -143,7 +149,8 @@ public class DataTable implements ObjectData {
 			if (unitSkin != null) {
 				readTXT(unitSkin, true);
 			}
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 	}
@@ -155,7 +162,8 @@ public class DataTable implements ObjectData {
 			if (unitSkin != null) {
 				readTXT(unitSkin, true);
 			}
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 	}
@@ -163,7 +171,8 @@ public class DataTable implements ObjectData {
 	public void loadItems() {
 		try {
 			readSLK(MpqCodebase.get().getResourceAsStream("Units\\ItemData.slk"));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 		readTXT(MpqCodebase.get().getResourceAsStream("Units\\ItemFunc.txt"));
@@ -173,7 +182,8 @@ public class DataTable implements ObjectData {
 	public void loadBuffs() {
 		try {
 			readSLK(MpqCodebase.get().getResourceAsStream("Units\\AbilityBuffData.slk"));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 		readTXT(MpqCodebase.get().getResourceAsStream("Units\\CampaignAbilityFunc.txt"));
@@ -197,7 +207,8 @@ public class DataTable implements ObjectData {
 	public void loadSpawns() {
 		try {
 			readSLK(MpqCodebase.get().getResourceAsStream("Splats\\SpawnData.slk"));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 	}
@@ -206,7 +217,8 @@ public class DataTable implements ObjectData {
 		try {
 			readSLK(MpqCodebase.get().getResourceAsStream("Splats\\SplatData.slk"));
 			readSLK(MpqCodebase.get().getResourceAsStream("Splats\\UberSplatData.slk"));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 	}
@@ -214,7 +226,8 @@ public class DataTable implements ObjectData {
 	public void loadTerrain() {
 		try {
 			readSLK(MpqCodebase.get().getResourceAsStream("TerrainArt\\Terrain.slk"));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 	}
@@ -222,7 +235,8 @@ public class DataTable implements ObjectData {
 	public void loadGinters() {
 		try {
 			readTXT(MpqCodebase.get().getResourceAsStream("UI\\war3skins.txt"), true);
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 	}
@@ -231,7 +245,8 @@ public class DataTable implements ObjectData {
 		try {
 			readTXT(MpqCodebase.get().getResourceAsStream("UI\\UnitEditorData.txt"), true);
 			readTXT(MpqCodebase.get().getResourceAsStream("UI\\WorldEditData.txt"), true);
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 	}
@@ -246,7 +261,8 @@ public class DataTable implements ObjectData {
 			readSLK(MpqCodebase.get().getResourceAsStream("Units\\UnitBalance.slk"));
 			readSLK(MpqCodebase.get().getResourceAsStream("Units\\UnitWeapons.slk"));
 			readSLK(MpqCodebase.get().getResourceAsStream("Units\\UpgradeData.slk"));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 		readTXT(MpqCodebase.get().getResourceAsStream("Units\\CampaignUnitFunc.txt"));
@@ -359,7 +375,8 @@ public class DataTable implements ObjectData {
 	public void readTXT(final InputStream inputStream) {
 		try {
 			readTXT(inputStream, false);
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 	}
@@ -371,7 +388,8 @@ public class DataTable implements ObjectData {
 	public void readTXT(final File f, final boolean canProduce) {
 		try {
 			readTXT(new FileInputStream(f), canProduce);
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 	}
@@ -379,7 +397,8 @@ public class DataTable implements ObjectData {
 	public void readSLK(final File f) {
 		try {
 			readSLK(new FileInputStream(f));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 	}
@@ -395,6 +414,7 @@ public class DataTable implements ObjectData {
 		String input = "";
 		Element currentUnit = null;
 		final boolean first = true;
+		String reforgedModeKeySuffix = reforgedMode.getKeySuffix();
 		while ((input = reader.readLine()) != null) {
 			if (DEBUG) {
 				System.out.println(input);
@@ -430,7 +450,8 @@ public class DataTable implements ObjectData {
 					// }
 					// }
 				}
-			} else if (input.contains("=")) {
+			}
+			else if (input.contains("=")) {
 				final int eIndex = input.indexOf("=");
 				final String fieldValue = input.substring(eIndex + 1);
 				// if (fieldValue.length() > 1 && fieldValue.startsWith("\"") &&
@@ -440,15 +461,20 @@ public class DataTable implements ObjectData {
 				int fieldIndex = 0;
 				final StringBuilder builder = new StringBuilder();
 				boolean withinQuotedString = false;
-				final String fieldName = input.substring(0, eIndex);
+				String fieldName = input.substring(0, eIndex);
+				if (fieldName.endsWith(reforgedModeKeySuffix)) {
+					fieldName = fieldName.substring(0, fieldName.length() - reforgedModeKeySuffix.length());
+				}
 				for (int i = 0; i < fieldValue.length(); i++) {
 					final char c = fieldValue.charAt(i);
 					if (c == '\"') {
 						withinQuotedString = !withinQuotedString;
-					} else if (!withinQuotedString && (c == ',')) {
+					}
+					else if (!withinQuotedString && (c == ',')) {
 						currentUnit.setField(fieldName, builder.toString().trim(), fieldIndex++);
 						builder.setLength(0); // empty buffer
-					} else {
+					}
+					else {
 						builder.append(c);
 					}
 				}
@@ -485,7 +511,8 @@ public class DataTable implements ObjectData {
 		if (xIndex > yIndex) {
 			colCount = Integer.parseInt(input.substring(xIndex, input.lastIndexOf(";")));
 			rowCount = Integer.parseInt(input.substring(yIndex, xIndex - 2));
-		} else {
+		}
+		else {
 			rowCount = Integer.parseInt(input.substring(yIndex, input.lastIndexOf(";")));
 			colCount = Integer.parseInt(input.substring(xIndex, yIndex - 2));
 			flipMode = true;
@@ -513,7 +540,8 @@ public class DataTable implements ObjectData {
 			if (input.contains("X1;")) {
 				rowStartCount++;
 				col = 0;
-			} else {
+			}
+			else {
 				col++;
 			}
 			String kInput;
@@ -522,7 +550,8 @@ public class DataTable implements ObjectData {
 				if (DEBUG) {
 					System.out.println(kInput);
 				}
-			} else {
+			}
+			else {
 				kInput = input;
 			}
 			if (rowStartCount <= 1) {
@@ -540,7 +569,8 @@ public class DataTable implements ObjectData {
 							rowStartCount++;
 						}
 						fieldId = lastFieldId + 1;
-					} else {
+					}
+					else {
 						fieldId = Integer.parseInt(input.substring(subXIndex + 1, fieldIdEndIndex));
 					}
 
@@ -550,12 +580,14 @@ public class DataTable implements ObjectData {
 					}
 					if (quotationIndex == -1) {
 						dataNames[fieldId - 1] = kInput.substring(eIndex + 1);
-					} else {
+					}
+					else {
 						dataNames[fieldId - 1] = kInput.substring(quotationIndex + 1, kInput.lastIndexOf("\""));
 					}
 					lastFieldId = fieldId;
 					continue;
-				} else {
+				}
+				else {
 					int eIndex = kInput.indexOf("K");
 					if ((eIndex == -1) || (kInput.charAt(eIndex - 1) != ';')) {
 						continue;
@@ -566,7 +598,8 @@ public class DataTable implements ObjectData {
 							rowStartCount++;
 						}
 						fieldId = lastFieldId + 1;
-					} else {
+					}
+					else {
 						if (flipMode && input.contains("Y") && (input == kInput)) {
 							eIndex = Math.min(subYIndex, eIndex);
 						}
@@ -580,7 +613,8 @@ public class DataTable implements ObjectData {
 					}
 					if (quotationIndex == -1) {
 						dataNames[fieldId - 1] = kInput.substring(eIndex + 1);
-					} else {
+					}
+					else {
 						dataNames[fieldId - 1] = kInput.substring(quotationIndex + 1, kInput.lastIndexOf("\""));
 					}
 					lastFieldId = fieldId;
@@ -600,7 +634,8 @@ public class DataTable implements ObjectData {
 						dataTable.put(new StringKey(newKey), currentUnit);
 					}
 				}
-			} else if (kInput.contains("K")) {
+			}
+			else if (kInput.contains("K")) {
 				final int subXIndex = input.indexOf("X");
 				int eIndex = kInput.indexOf("K");
 				if (flipMode && kInput.contains("Y")) {
