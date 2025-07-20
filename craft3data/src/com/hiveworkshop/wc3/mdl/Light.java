@@ -67,12 +67,14 @@ public class Light extends IdObject implements VisibilitySource {
 		}
 		if (light.lightAttenuationStart != null) {
 			add(new AnimFlag(light.lightAttenuationStart));
-		} else {
+		}
+		else {
 			setAttenuationStart(light.attenuationStart);
 		}
 		if (light.lightAttenuationEnd != null) {
 			add(new AnimFlag(light.lightAttenuationEnd));
-		} else {
+		}
+		else {
 			setAttenuationEnd(light.attenuationEnd);
 		}
 		if (light.lightVisibility != null) {
@@ -80,25 +82,29 @@ public class Light extends IdObject implements VisibilitySource {
 		}
 		if (light.lightColor != null) {
 			add(new AnimFlag(light.lightColor));
-		} else {
+		}
+		else {
 			setStaticColor(new Vertex(light.color, true));
 		}
 		if (light.lightIntensity != null) {
 			add(new AnimFlag(light.lightIntensity));
-		} else {
+		}
+		else {
 			setIntensity(light.intensity);
 		}
 		if (light.lightAmbientColor != null) {
 			add(new AnimFlag(light.lightAmbientColor));
-		} else {
+		}
+		else {
 			setStaticAmbColor(new Vertex(light.ambientColor, true));
 		}
 		if (light.lightAmbientIntensity != null) {
 			add(new AnimFlag(light.lightAmbientIntensity));
-		} else {
+		}
+		else {
 			setAmbIntensity(light.ambientIntensity);
 		}
-		//TODO: can shadow intensity be animated
+		// TODO: can shadow intensity be animated
 		setShadowIntensity(light.shadowIntensity);
 
 	}
@@ -138,31 +144,44 @@ public class Light extends IdObject implements VisibilitySource {
 					&& !line.equals("COMPLETED PARSING")) {
 				if (line.contains("ObjectId")) {
 					lit.objectId = MDLReader.readInt(line);
-				} else if (line.contains("Parent")) {
+				}
+				else if (line.contains("Parent")) {
 					lit.parentId = MDLReader.splitToInts(line)[0];
 					// lit.parent = mdlr.getIdObject(lit.parentId);
-				} else if (!line.contains("static") && line.contains("{") && !line.contains("DontInherit")) {
+				}
+				else if (!line.contains("static") && line.contains("{") && !line.contains("DontInherit")) {
 					MDLReader.reset(mdl);
 					lit.animFlags.add(AnimFlag.read(mdl));
-				} else if (line.contains("AttenuationStart"))// These are
-																// 'static'
-																// ones, the
-																// rest are
+				}
+				else if (line.contains("AttenuationStart"))// These are
+															// 'static'
+															// ones, the
+															// rest are
 				{ // saved in animFlags
 					lit.AttenuationStart = MDLReader.readInt(line);
-				} else if (line.contains("AttenuationEnd")) {
+				}
+				else if (line.contains("AttenuationEnd")) {
 					lit.AttenuationEnd = MDLReader.readInt(line);
-				} else if (line.contains("AmbIntensity")) {
+				}
+				else if (line.contains("AmbIntensity")) {
 					lit.AmbIntensity = MDLReader.readDouble(line);
-				} else if (ModelUtils.isLightShadowIntensitySupported(mdlr.getFormatVersion()) && line.contains("ShadowIntensity")) {
+				}
+				else if (line.contains("ShadowIntensity")) {
+					// we allow parsing this even if it's a corrupted model with a ShadowIntensity
+					// line despite not having version 1200 header, so that ShadowIntensity can't be
+					// mistakenly read by the ".contains(Intensity)" check below.
 					lit.ShadowIntensity = MDLReader.readDouble(line);
-				} else if (line.contains("AmbColor")) {
+				}
+				else if (line.contains("AmbColor")) {
 					lit.staticAmbColor = Vertex.parseText(line);
-				} else if (line.contains("Intensity")) {
+				}
+				else if (line.contains("Intensity")) {
 					lit.Intensity = MDLReader.readDouble(line);
-				} else if (line.contains("Color")) {
+				}
+				else if (line.contains("Color")) {
 					lit.staticColor = Vertex.parseText(line);
-				} else// Flags like Omnidirectional
+				}
+				else// Flags like Omnidirectional
 				{
 					lit.flags.add(MDLReader.readFlag(line));
 				}
@@ -170,7 +189,8 @@ public class Light extends IdObject implements VisibilitySource {
 				line = MDLReader.nextLine(mdl);
 			}
 			return lit;
-		} else {
+		}
+		else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Unable to parse Light: Missing or unrecognized open statement.");
 		}
@@ -205,9 +225,10 @@ public class Light extends IdObject implements VisibilitySource {
 		String currentFlag = "AttenuationStart";
 		if (AttenuationStart != -1) {
 			writer.println("\tstatic " + currentFlag + " " + AttenuationStart + ",");
-		} else {
+		}
+		else {
 			boolean set = false;
-			for (int i = 0; i < pAnimFlags.size() && !set; i++) {
+			for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
 				if (pAnimFlags.get(i).getName().equals(currentFlag)) {
 					pAnimFlags.get(i).printTo(writer, 1);
 					pAnimFlags.remove(i);
@@ -218,9 +239,10 @@ public class Light extends IdObject implements VisibilitySource {
 		currentFlag = "AttenuationEnd";
 		if (AttenuationEnd != -1) {
 			writer.println("\tstatic " + currentFlag + " " + AttenuationEnd + ",");
-		} else {
+		}
+		else {
 			boolean set = false;
-			for (int i = 0; i < pAnimFlags.size() && !set; i++) {
+			for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
 				if (pAnimFlags.get(i).getName().equals(currentFlag)) {
 					pAnimFlags.get(i).printTo(writer, 1);
 					pAnimFlags.remove(i);
@@ -231,9 +253,10 @@ public class Light extends IdObject implements VisibilitySource {
 		currentFlag = "Intensity";
 		if (Intensity != -1) {
 			writer.println("\tstatic " + currentFlag + " " + Intensity + ",");
-		} else {
+		}
+		else {
 			boolean set = false;
-			for (int i = 0; i < pAnimFlags.size() && !set; i++) {
+			for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
 				if (pAnimFlags.get(i).getName().equals(currentFlag)) {
 					pAnimFlags.get(i).printTo(writer, 1);
 					pAnimFlags.remove(i);
@@ -244,9 +267,10 @@ public class Light extends IdObject implements VisibilitySource {
 		currentFlag = "Color";
 		if (staticColor != null) {
 			writer.println("\tstatic " + currentFlag + " " + staticColor.toString() + ",");
-		} else {
+		}
+		else {
 			boolean set = false;
-			for (int i = 0; i < pAnimFlags.size() && !set; i++) {
+			for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
 				if (pAnimFlags.get(i).getName().equals(currentFlag)) {
 					pAnimFlags.get(i).printTo(writer, 1);
 					pAnimFlags.remove(i);
@@ -257,9 +281,10 @@ public class Light extends IdObject implements VisibilitySource {
 		currentFlag = "AmbIntensity";
 		if (AmbIntensity != -1) {
 			writer.println("\tstatic " + currentFlag + " " + AmbIntensity + ",");
-		} else {
+		}
+		else {
 			boolean set = false;
-			for (int i = 0; i < pAnimFlags.size() && !set; i++) {
+			for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
 				if (pAnimFlags.get(i).getName().equals(currentFlag)) {
 					pAnimFlags.get(i).printTo(writer, 1);
 					pAnimFlags.remove(i);
@@ -271,16 +296,26 @@ public class Light extends IdObject implements VisibilitySource {
 			currentFlag = "ShadowIntensity";
 			if (ShadowIntensity != -1) {
 				writer.println("\tstatic " + currentFlag + " " + ShadowIntensity + ",");
-			} else {
-				//TODO: Does shadow intensity have animations? Most likely does
+			}
+			else {
+				// TODO: Does shadow intensity have animations? Most likely does
+				boolean set = false;
+				for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
+					if (pAnimFlags.get(i).getName().equals(currentFlag)) {
+						pAnimFlags.get(i).printTo(writer, 1);
+						pAnimFlags.remove(i);
+						set = true;
+					}
+				}
 			}
 		}
 		currentFlag = "AmbColor";
 		if (staticAmbColor != null) {
 			writer.println("\tstatic " + currentFlag + " " + staticAmbColor.toString() + ",");
-		} else {
+		}
+		else {
 			boolean set = false;
-			for (int i = 0; i < pAnimFlags.size() && !set; i++) {
+			for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
 				if (pAnimFlags.get(i).getName().equals(currentFlag)) {
 					pAnimFlags.get(i).printTo(writer, 1);
 					pAnimFlags.remove(i);
@@ -393,11 +428,11 @@ public class Light extends IdObject implements VisibilitySource {
 	}
 
 	public double getShadowIntensity() {
-		return AmbIntensity;
+		return ShadowIntensity;
 	}
 
 	public void setShadowIntensity(final double ambIntensity) {
-		AmbIntensity = ambIntensity;
+		ShadowIntensity = ambIntensity;
 	}
 
 	public Vertex getStaticAmbColor() {
