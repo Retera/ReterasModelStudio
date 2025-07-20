@@ -10,6 +10,7 @@ import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.LightChunk;
+import com.hiveworkshop.wc3.util.ModelUtils;
 
 /**
  * Write a description of class Light here.
@@ -23,6 +24,7 @@ public class Light extends IdObject implements VisibilitySource {
 	double Intensity = -1;
 	Vertex staticColor;
 	double AmbIntensity = -1;
+	double ShadowIntensity = -1;
 	Vertex staticAmbColor;
 	ArrayList<AnimFlag> animFlags = new ArrayList<>();
 	ArrayList<String> flags = new ArrayList<>();
@@ -96,6 +98,8 @@ public class Light extends IdObject implements VisibilitySource {
 		} else {
 			setAmbIntensity(light.ambientIntensity);
 		}
+		//TODO: can shadow intensity be animated
+		setShadowIntensity(light.shadowIntensity);
 
 	}
 
@@ -114,6 +118,7 @@ public class Light extends IdObject implements VisibilitySource {
 		x.Intensity = Intensity;
 		x.staticColor = staticColor;
 		x.AmbIntensity = AmbIntensity;
+		x.ShadowIntensity = ShadowIntensity;
 		x.staticAmbColor = staticAmbColor;
 		for (final AnimFlag af : animFlags) {
 			x.animFlags.add(new AnimFlag(af));
@@ -122,7 +127,7 @@ public class Light extends IdObject implements VisibilitySource {
 		return x;
 	}
 
-	public static Light read(final BufferedReader mdl) {
+	public static Light read(final BufferedReader mdl, final EditableModel mdlr) {
 		String line = MDLReader.nextLine(mdl);
 		if (line.contains("Light")) {
 			final Light lit = new Light();
@@ -149,6 +154,8 @@ public class Light extends IdObject implements VisibilitySource {
 					lit.AttenuationEnd = MDLReader.readInt(line);
 				} else if (line.contains("AmbIntensity")) {
 					lit.AmbIntensity = MDLReader.readDouble(line);
+				} else if (ModelUtils.isLightShadowIntensitySupported(mdlr.getFormatVersion()) && line.contains("ShadowIntensity")) {
+					lit.ShadowIntensity = MDLReader.readDouble(line);
 				} else if (line.contains("AmbColor")) {
 					lit.staticAmbColor = Vertex.parseText(line);
 				} else if (line.contains("Intensity")) {
@@ -171,7 +178,7 @@ public class Light extends IdObject implements VisibilitySource {
 	}
 
 	@Override
-	public void printTo(final PrintWriter writer) {
+	public void printTo(final PrintWriter writer, final int version) {
 		// Remember to update the ids of things before using this
 		// -- uses objectId value of idObject superclass
 		// -- uses parentId value of idObject superclass
@@ -258,6 +265,14 @@ public class Light extends IdObject implements VisibilitySource {
 					pAnimFlags.remove(i);
 					set = true;
 				}
+			}
+		}
+		if (ModelUtils.isLightShadowIntensitySupported(version)) {
+			currentFlag = "ShadowIntensity";
+			if (ShadowIntensity != -1) {
+				writer.println("\tstatic " + currentFlag + " " + ShadowIntensity + ",");
+			} else {
+				//TODO: Does shadow intensity have animations? Most likely does
 			}
 		}
 		currentFlag = "AmbColor";
@@ -374,6 +389,14 @@ public class Light extends IdObject implements VisibilitySource {
 	}
 
 	public void setAmbIntensity(final double ambIntensity) {
+		AmbIntensity = ambIntensity;
+	}
+
+	public double getShadowIntensity() {
+		return AmbIntensity;
+	}
+
+	public void setShadowIntensity(final double ambIntensity) {
 		AmbIntensity = ambIntensity;
 	}
 

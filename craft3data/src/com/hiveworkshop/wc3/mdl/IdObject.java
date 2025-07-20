@@ -94,7 +94,7 @@ public abstract class IdObject extends AbstractAnimatedNode implements Named {
 		setParent(host.parent);
 	}
 
-	public abstract void printTo(PrintWriter writer);
+	public abstract void printTo(PrintWriter writer, final int version);
 
 	public void setPivotPoint(final Vertex p) {
 		pivotPoint = p;
