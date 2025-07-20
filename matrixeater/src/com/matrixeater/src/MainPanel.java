@@ -3486,7 +3486,8 @@ public class MainPanel extends JPanel
 		});
 		scriptsMenu.add(version800BakingToggle);
 
-		final JMenuItem recalculateTangents = new JMenuItem("Recalculate Tangents (requires 900 or 1000 or 1100)");
+		final JMenuItem recalculateTangents = new JMenuItem(
+				"Recalculate Tangents (requires 900 or 1000 or 1100 or 1200)");
 		recalculateTangents.setMnemonic(KeyEvent.VK_A);
 		recalculateTangents.addActionListener(new ActionListener() {
 			@Override
@@ -3720,7 +3721,7 @@ public class MainPanel extends JPanel
 				final StringBuilder sb = new StringBuilder();
 				for (final File file : new File(
 						"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\CustomMapData\\LuaFpsMap\\Maps\\MultiplayerFun004")
-						.listFiles()) {
+								.listFiles()) {
 					if (!file.getName().toLowerCase().endsWith("_init.txt")) {
 						sb.setLength(0);
 						try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {

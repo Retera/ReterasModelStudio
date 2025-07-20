@@ -1028,7 +1028,7 @@ public class EditableModel implements Named {
 			line = MDLReader.nextLine(mdl);
 			mdlr.formatVersion = MDLReader.readInt(line);
 			if ((mdlr.formatVersion != 800) && (mdlr.formatVersion != 900) && (mdlr.formatVersion != 1000)
-					&& (mdlr.formatVersion != 1100)) {
+					&& (mdlr.formatVersion != 1100) && (mdlr.formatVersion != 1200)) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "The format version was confusing!");
 			}
 			line = MDLReader.nextLine(mdl);// this is "}" for format version
