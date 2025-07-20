@@ -146,7 +146,7 @@ public class EventObject extends IdObject {
 	}
 
 	@Override
-	public void printTo(final PrintWriter writer) {
+	public void printTo(final PrintWriter writer, final int version) {
 		// Remember to update the ids of things before using this
 		// -- uses objectId value of idObject superclass
 		// -- uses parentId value of idObject superclass

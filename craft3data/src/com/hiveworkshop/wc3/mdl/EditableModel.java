@@ -1098,7 +1098,7 @@ public class EditableModel implements Named {
 				}
 				else if (line.contains("Light ")) {
 					MDLReader.reset(mdl);
-					mdlr.addIdObject(Light.read(mdl));
+					mdlr.addIdObject(Light.read(mdl, mdlr));
 					MDLReader.mark(mdl);
 				}
 				else if (line.contains("Helper ")) {
@@ -1598,7 +1598,7 @@ public class EditableModel implements Named {
 					cameras.get(c).printTo(writer);
 				}
 			}
-			obj.printTo(writer);
+			obj.printTo(writer, formatVersion);
 		}
 
 		if (!pivotsPrinted) {
