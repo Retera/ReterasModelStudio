@@ -343,7 +343,7 @@ public class MdxModel {
 				boneChunk.load(in);
 			} else if (MdxUtils.checkOptionalId(in, LightChunk.key)) {
 				lightChunk = new LightChunk();
-				lightChunk.load(in);
+				lightChunk.load(in, version);
 			} else if (MdxUtils.checkOptionalId(in, HelperChunk.key)) {
 				helperChunk = new HelperChunk();
 				helperChunk.load(in);
@@ -433,7 +433,7 @@ public class MdxModel {
 			boneChunk.save(out);
 		}
 		if (lightChunk != null) {
-			lightChunk.save(out);
+			lightChunk.save(out, versionChunk.version);
 		}
 		if (helperChunk != null) {
 			helperChunk.save(out);
@@ -513,7 +513,7 @@ public class MdxModel {
 			a += boneChunk.getSize();
 		}
 		if (lightChunk != null) {
-			a += lightChunk.getSize();
+			a += lightChunk.getSize(versionChunk.version);
 		}
 		if (helperChunk != null) {
 			a += helperChunk.getSize();

@@ -313,7 +313,7 @@ public final class ModelUtils {
 	}
 
 	public static boolean isShaderStringSupported(final int formatVersion) {
-		return (formatVersion == 900) || (formatVersion == 1000);
+		return formatVersion >= 900 && formatVersion <= 1000;
 	}
 
 	public static boolean isTangentAndSkinSupported(final int formatVersion) {
@@ -338,6 +338,10 @@ public final class ModelUtils {
 
 	public static boolean isCombinedHDLayerSupported(final int formatVersion) {
 		return (formatVersion == 1100) || (formatVersion == 1200);
+	}
+
+	public static boolean isLightShadowIntensitySupported(final int formatVersion) {
+		return formatVersion >= 1200;
 	}
 
 	private ModelUtils() {

@@ -7,6 +7,7 @@ import java.util.List;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
+import com.hiveworkshop.wc3.util.ModelUtils;
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
 
@@ -15,7 +16,7 @@ public class LightChunk {
 
 	public static final String key = "LITE";
 
-	public void load(final BlizzardDataInputStream in) throws IOException {
+	public void load(final BlizzardDataInputStream in, final int version) throws IOException {
 		MdxUtils.checkId(in, "LITE");
 		final int chunkSize = in.readInt();
 		final List<Light> lightList = new ArrayList();
@@ -23,28 +24,28 @@ public class LightChunk {
 		while (lightCounter > 0) {
 			final Light templight = new Light();
 			lightList.add(templight);
-			templight.load(in);
-			lightCounter -= templight.getSize();
+			templight.load(in, version);
+			lightCounter -= templight.getSize(version);
 		}
 		light = lightList.toArray(new Light[lightList.size()]);
 	}
 
-	public void save(final BlizzardDataOutputStream out) throws IOException {
+	public void save(final BlizzardDataOutputStream out, final int version) throws IOException {
 		final int nrOfLights = light.length;
 		out.writeNByteString("LITE", 4);
-		out.writeInt(getSize() - 8);// ChunkSize
+		out.writeInt(getSize(version) - 8);// ChunkSize
 		for (int i = 0; i < light.length; i++) {
-			light[i].save(out);
+			light[i].save(out, version);
 		}
 
 	}
 
-	public int getSize() {
+	public int getSize(final int version) {
 		int a = 0;
 		a += 4;
 		a += 4;
 		for (int i = 0; i < light.length; i++) {
-			a += light[i].getSize();
+			a += light[i].getSize(version);
 		}
 
 		return a;
@@ -59,6 +60,7 @@ public class LightChunk {
 		public float intensity;
 		public float[] ambientColor = new float[3];
 		public float ambientIntensity;
+		public float shadowIntensity;
 		public LightVisibility lightVisibility;
 		public LightColor lightColor;
 		public LightIntensity lightIntensity;
@@ -67,7 +69,7 @@ public class LightChunk {
 		public LightAttenuationStart lightAttenuationStart;
 		public LightAttenuationEnd lightAttenuationEnd;
 
-		public void load(final BlizzardDataInputStream in) throws IOException {
+		public void load(final BlizzardDataInputStream in, final int version) throws IOException {
 			final int inclusiveSize = in.readInt();
 			node = new Node();
 			node.load(in);
@@ -78,6 +80,14 @@ public class LightChunk {
 			intensity = in.readFloat();
 			ambientColor = MdxUtils.loadFloatArray(in, 3);
 			ambientIntensity = in.readFloat();
+			if (ModelUtils.isLightShadowIntensitySupported(version))
+			{
+				shadowIntensity = in.readFloat();
+			}
+			else
+			{
+				shadowIntensity = 0.4f;
+			}
 			for (int i = 0; i < 7; i++) {
 				if (MdxUtils.checkOptionalId(in, LightVisibility.key)) {
 					lightVisibility = new LightVisibility();
@@ -105,8 +115,8 @@ public class LightChunk {
 			}
 		}
 
-		public void save(final BlizzardDataOutputStream out) throws IOException {
-			out.writeInt(getSize());// InclusiveSize
+		public void save(final BlizzardDataOutputStream out, final int version) throws IOException {
+			out.writeInt(getSize(version));// InclusiveSize
 			node.save(out);
 			out.writeInt(type);
 			out.writeFloat(attenuationStart);
@@ -125,6 +135,9 @@ public class LightChunk {
 			}
 			MdxUtils.saveFloatArray(out, ambientColor);
 			out.writeFloat(ambientIntensity);
+			if (ModelUtils.isLightShadowIntensitySupported(version)) {
+				out.writeFloat(shadowIntensity);
+			}
 			if (lightVisibility != null) {
 				lightVisibility.save(out);
 			}
@@ -149,7 +162,7 @@ public class LightChunk {
 
 		}
 
-		public int getSize() {
+		public int getSize(final int version) {
 			int a = 0;
 			a += 4;
 			a += node.getSize();
@@ -160,6 +173,9 @@ public class LightChunk {
 			a += 4;
 			a += 12;
 			a += 4;
+			if (ModelUtils.isLightShadowIntensitySupported(version)) {
+				a += 4;
+			}
 			if (lightVisibility != null) {
 				a += lightVisibility.getSize();
 			}
@@ -344,6 +360,7 @@ public class LightChunk {
 			ambientIntensity = (float) light.getAmbIntensity(); // copied
 																// regardless
 																// currently
+			shadowIntensity = (float) light.getShadowIntensity();
 			for (final String flag : light.getFlags()) {
 				switch (flag) {
 				case "Omnidirectional":
