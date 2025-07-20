@@ -76,7 +76,8 @@ public final class TeamColorAddAction<T> implements UndoAction {
 				geosetCreated.setGeosetAnim(new GeosetAnim(geosetCreated, geosetAnim));
 			}
 			geosetCreated.setParentModel(model);
-			final Material newMaterial = new Material(geoset.getMaterial());
+			final Material oldMaterial = geoset.getMaterial();
+			final Material newMaterial = new Material(oldMaterial);
 			if (newMaterial.getLayers().size() == 1 && newMaterial.firstLayer().getLayerShader() == LayerShader.HD) {
 				newMaterial.firstLayer().setLayerShader(LayerShader.SD);
 				final EnumMap<ShaderTextureTypeHD, Bitmap> shaderTextures = newMaterial.firstLayer()
@@ -91,7 +92,8 @@ public final class TeamColorAddAction<T> implements UndoAction {
 			}
 			final Layer teamColorLayer = new Layer(FilterMode.NONE.getMdlText(), new Bitmap("", 1));
 			teamColorLayer.add("Unshaded");
-			if (geoset.getMaterial().firstLayer().getFlags().contains("TwoSided")) {
+			final Layer oldFirstLayer = oldMaterial.firstLayer();
+			if (oldFirstLayer.getFlags().contains("TwoSided")) {
 				teamColorLayer.add("TwoSided");
 			}
 			newMaterial.getLayers().add(0, teamColorLayer);
