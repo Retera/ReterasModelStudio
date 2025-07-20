@@ -103,7 +103,8 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 		x.alpha = alpha;
 		if (color != null) {
 			x.color = new Vertex(color);
-		} else {
+		}
+		else {
 			x.color = null;
 		}
 		x.speed = speed;
@@ -129,41 +130,52 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 				if (line.contains("ObjectId")) {
 					pe.objectId = MDLReader.readInt(line);
 					foundType = true;
-				} else if (line.contains("Parent")) {
+				}
+				else if (line.contains("Parent")) {
 					pe.parentId = MDLReader.splitToInts(line)[0];
 					foundType = true;
 					// pe.parent = mdlr.getIdObject(pe.parentId);
-				} else if (line.contains("Path")) {
+				}
+				else if (line.contains("Path")) {
 					pe.path = MDLReader.readName(line);
 					foundType = true;
-				} else if (line.contains("static LifeSpan")) {
+				}
+				else if (line.contains("static LifeSpan")) {
 					pe.lifeSpan = (float) MDLReader.readDouble(line);
 					foundType = true;
-				} else if (line.contains("static EmissionRate")) {
+				}
+				else if (line.contains("static EmissionRate")) {
 					pe.emissionRate = (float) MDLReader.readDouble(line);
 					foundType = true;
-				} else if (line.contains("static Speed")) {
+				}
+				else if (line.contains("static Speed")) {
 					pe.speed = (float) MDLReader.readDouble(line);
 					foundType = true;
-				} else if (line.contains("static Color")) {
+				}
+				else if (line.contains("static Color")) {
 					pe.color = Vertex.parseText(line);
 					foundType = true;
-				} else if (line.contains("static Alpha")) {
+				}
+				else if (line.contains("static Alpha")) {
 					pe.alpha = (float) MDLReader.readDouble(line);
 					foundType = true;
-				} else if (line.contains("ReplaceableId")) {
+				}
+				else if (line.contains("ReplaceableId")) {
 					pe.replaceableId = MDLReader.readInt(line);
 					foundType = true;
-				} else if (line.contains("FlagString") || line.contains("AnimVisibilityGuide")) {
+				}
+				else if (line.contains("FlagString") || line.contains("AnimVisibilityGuide")) {
 					pe.animVisibilityGuide = MDLReader.readName(line);
 					foundType = true;
-				} else if ((line.contains("Visibility") || line.contains("Rotation") || line.contains("Translation")
+				}
+				else if ((line.contains("Visibility") || line.contains("Rotation") || line.contains("Translation")
 						|| line.contains("Scaling") || line.contains("Alpha") || line.contains("EmissionRate")
 						|| line.contains("Speed") || line.contains("LifeSpan")) && !line.contains("DontInherit")) {
 					MDLReader.reset(mdl);
 					pe.animFlags.add(AnimFlag.read(mdl));
 					foundType = true;
-				} else if (line.contains("SegmentColor")) {
+				}
+				else if (line.contains("SegmentColor")) {
 					final float[] maybeColor = new float[8];
 					boolean reading = true;
 					foundType = true;
@@ -176,7 +188,8 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 							maybeColor[(i * 4) + 1] = (float) quatern.b;
 							maybeColor[(i * 4) + 2] = (float) quatern.c;
 							maybeColor[(i * 4) + 3] = (float) quatern.d;
-						} else {
+						}
+						else {
 							reading = false;
 							MDLReader.reset(mdl);
 							line = MDLReader.nextLine(mdl);
@@ -189,7 +202,8 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 					pe.alpha = maybeColor[6];
 					pe.replaceableId = (int) maybeColor[7];
 					line = MDLReader.nextLine(mdl);
-				} else if (line.contains("Color")) {
+				}
+				else if (line.contains("Color")) {
 					foundType = true;
 					MDLReader.reset(mdl);
 					pe.animFlags.add(AnimFlag.read(mdl));
@@ -201,7 +215,8 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 				line = MDLReader.nextLine(mdl);
 			}
 			return pe;
-		} else
+		}
+		else
 
 		{
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
