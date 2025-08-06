@@ -107,7 +107,6 @@ import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
-import com.hiveworkshop.gltf.GLTFExport;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.GUIUtils;
@@ -230,6 +229,7 @@ import com.hiveworkshop.wc3.util.Callback;
 import com.hiveworkshop.wc3.util.IconUtils;
 import com.hiveworkshop.wc3.util.ModelUtils;
 import com.hiveworkshop.wc3.util.ModelUtils.Mesh;
+import com.matrixeater.gltf.GLTFExport;
 import com.matrixeater.imp.AnimationTransfer;
 import com.matrixeaterhayate.TextureManager;
 import com.owens.oobjloader.builder.Build;
@@ -3715,7 +3715,7 @@ public class MainPanel extends JPanel
 		scriptsMenu.add(deleteLODs);
 
 		final JMenuItem gltfExport = new JMenuItem("GLTF Export");
-		gltfExport.addActionListener(new GLTFExport());
+		gltfExport.addActionListener(new GLTFExport(this));
 		scriptsMenu.add(gltfExport);
 
 		final JMenuItem jokebutton = new JMenuItem("Load Retera Land");
