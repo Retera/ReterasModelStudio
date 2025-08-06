@@ -1,14 +1,11 @@
 buildscript {
     repositories {
         mavenLocal()
-		flatDir {
-			dirs "$rootProject.projectDir/jars"
-		}
         mavenCentral()
+        google()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://maven.nikr.net/" }
         gradlePluginPortal()
-        google()
     }
 }
 
@@ -40,13 +37,20 @@ allprojects {
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://maven.nikr.net/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven { url "https://www.javagl.de/repo/" }
+    }
+}
+
+subprojects {
+    apply plugin: "java-library"
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
 project(":matrixeater") {
-    apply plugin: "java-library"
-
-
     dependencies {
         implementation project(":craft3data")
         implementation project(":craft3editor")
@@ -56,9 +60,6 @@ project(":matrixeater") {
 }
 
 project(":craft3editor") {
-    apply plugin: "java-library"
-
-
     dependencies {
         implementation project(":craft3data")
         api "org.jclarion:image4j:$image4jVersion"
@@ -66,9 +67,6 @@ project(":craft3editor") {
 }
 
 project(":craft3data") {
-    apply plugin: "java-library"
-
-
     dependencies {
         api "com.jtattoo:JTattoo:$jtattooVersion"
         api "com.miglayout:miglayout-swing:$miglayoutVersion"
@@ -79,8 +77,6 @@ project(":craft3data") {
 		api "org.lwjgl.lwjgl:lwjgl_util:${lwjglVersion}"
 		api "net.nikr:dds:1.0.0"
         api "com.glazedlists:glazedlists:1.11.0"
-//        compile "com.github.ebourg:infonode:master"
-//        compile "com.github.DrSuperGood:blp-iio-plugin:master"
 		api files(fileTree(dir:'../jars', includes: ['*.jar']))
     }
 }

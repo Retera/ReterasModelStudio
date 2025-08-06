@@ -1,8 +1,22 @@
 plugins {
     id 'org.beryx.runtime' version '1.12.5'
+    id 'java'
 }
 
-sourceCompatibility = 1.17
+repositories {
+    mavenCentral()
+    maven { url "https://www.javagl.de/repo/" }
+}
+
+dependencies {
+    implementation project(':craft3data')
+    implementation fileTree('lib') {
+        include '*.jar'
+    }
+    implementation 'de.javagl:jgltf-model:2.0.3'
+    implementation 'de.javagl:jgltf-impl-v2:2.0.3'
+    implementation 'de.javagl:jgltf-obj:2.0.3'
+}
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
