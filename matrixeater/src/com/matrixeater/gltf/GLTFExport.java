@@ -142,136 +142,103 @@ public class GLTFExport implements ActionListener {
             totalTriangles += geoset.getTriangles().size();
         }
 
-        // Create buffers
-        float[] positions = new float[totalVertices * 3];
-        float[] normals = new float[totalVertices * 3];
-        float[] uvs = new float[totalVertices * 2];
-        int[] indices = new int[totalTriangles * 3];
-
         int vertexIndex = 0;
         int triangleIndex = 0;
         int baseVertexOffset = 0;
 
-        log.info(Arrays.stream(indices).max().orElse(-1) + " is the max index in indices array");
-        log.info(Arrays.stream(indices).min().orElse(-1) + " is the min index in indices array");
         List<Buffer> buffers = new ArrayList<>();
         List<BufferView> bufferViews = new ArrayList<>();
         List<Accessor> accessors = new ArrayList<>();
         List<Mesh> meshes = new ArrayList<>();
         List<Node> nodes = new ArrayList<>();
-        List<Integer> rootNodes = new ArrayList<>();
+        List<Integer> geoNodes = new ArrayList<>(); // called geo because it contains nodes made form geosets
 
         for (Geoset geoset : geosets) {
-            if (geoset.getVertices().size() == 0) {
-                continue;
-            }
-            // Fill vertex data
-            for (GeosetVertex vertex : geoset.getVertices()) {
-                positions[vertexIndex * 3] = (float) vertex.x;
-                positions[vertexIndex * 3 + 1] = (float) vertex.y;
-                positions[vertexIndex * 3 + 2] = (float) vertex.z;
-                if (vertex.getNormal() != null) {
-                    normals[vertexIndex * 3] = (float) vertex.getNormal().x;
-                    normals[vertexIndex * 3 + 1] = (float) vertex.getNormal().y;
-                    normals[vertexIndex * 3 + 2] = (float) vertex.getNormal().z;
-                } else {
-                    normals[vertexIndex * 3] = 0;
-                    normals[vertexIndex * 3 + 1] = 0;
-                    normals[vertexIndex * 3 + 2] = 1;
-                }
-                if (vertex.getTverts().size() > 0) {
-                    uvs[vertexIndex * 2] = (float) vertex.getTverts().get(0).x;
-                    uvs[vertexIndex * 2 + 1] = (float) vertex.getTverts().get(0).y;
-                } else {
-                    uvs[vertexIndex * 2] = 0;
-                    uvs[vertexIndex * 2 + 1] = 0;
-                }
-                vertexIndex++;
-            }
-            // Fill triangle indices
-            for (Triangle triangle : geoset.getTriangles()) {
-                indices[triangleIndex * 3] = geoset.getVertices().indexOf(triangle.getVerts()[0]) + baseVertexOffset;
-                indices[triangleIndex * 3 + 1] = geoset.getVertices().indexOf(triangle.getVerts()[1])
-                        + baseVertexOffset;
-                indices[triangleIndex * 3 + 2] = geoset.getVertices().indexOf(triangle.getVerts()[2])
-                        + baseVertexOffset;
-                triangleIndex++;
-            }
-            baseVertexOffset += geoset.getVertices().size();
+            var data = new GeosetData(geoset);
+            byte[] positionBytes = new byte[data.positions.length * 4];
+            ByteBuffer.wrap(positionBytes).order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer().put(data.positions);
+            String base64positionData = java.util.Base64.getEncoder().encodeToString(positionBytes);
+            String uri = "data:application/octet-stream;base64," + base64positionData;
+
+            Buffer positionBuffer = new Buffer();
+            positionBuffer.setByteLength(positionBytes.length);
+            positionBuffer.setUri(uri);
+            buffers.add(positionBuffer);
+            var vertexBufferIndex = buffers.size() - 1;
+
+            BufferView positionBufferView = new BufferView();
+            positionBufferView.setTarget(34962); // ARRAY_BUFFER
+            positionBufferView.setBuffer(vertexBufferIndex);
+            positionBufferView.setByteOffset(0);
+            positionBufferView.setByteLength(positionBytes.length);
+            bufferViews.add(positionBufferView);
+            var positionBufferViewIndex = bufferViews.size() - 1;
+
+            Accessor positionAccessor = new Accessor();
+            // TODO: should define min/max values for positionAccessor, after I figure out
+            // how vertices are expresssed in the model
+            positionAccessor.setBufferView(positionBufferViewIndex);
+            positionAccessor.setComponentType(5126); // FLOAT
+            positionAccessor.setCount(data.positions.length / 3);
+            positionAccessor.setType("VEC3");
+            positionAccessor.setByteOffset(0);
+            accessors.add(positionAccessor);
+            var positionAccessorIndex = accessors.size() - 1;
+
+            byte[] indicesBytes = new byte[data.indices.length * 4];
+            ByteBuffer.wrap(indicesBytes).order(ByteOrder.LITTLE_ENDIAN).asIntBuffer().put(data.indices);
+            String base64IndicesData = java.util.Base64.getEncoder().encodeToString(indicesBytes);
+            String indicesUri = "data:application/octet-stream;base64," + base64IndicesData;
+
+            Buffer indicesBuffer = new Buffer();
+            indicesBuffer.setByteLength(indicesBytes.length);
+            indicesBuffer.setUri(indicesUri);
+            buffers.add(indicesBuffer);
+            // gltf.getBuffers().add(indicesBuffer); // Updated to use getBuffers(), now
+            // it's not null because we added
+            // positionBuffer
+            var indicesBufferIndex = buffers.size() - 1; // Get the index of the indices buffer
+
+            BufferView indicesBufferView = new BufferView();
+            indicesBufferView.setTarget(34963); // ELEMENT_ARRAY_BUFFER
+            indicesBufferView.setBuffer(indicesBufferIndex);
+            indicesBufferView.setByteOffset(0);
+            indicesBufferView.setByteLength(indicesBytes.length);
+            bufferViews.add(indicesBufferView);
+            var indicesBufferViewIndex = bufferViews.size() - 1; // Get the index of the indices buffer view
+
+            Accessor indicesAccessor = new Accessor();
+            indicesAccessor.setBufferView(indicesBufferViewIndex);
+            indicesAccessor.setComponentType(5125); // UNSIGNED_SHORT
+            indicesAccessor.setCount(data.indices.length);
+            indicesAccessor.setType("SCALAR");
+            indicesAccessor.setByteOffset(0);
+            accessors.add(indicesAccessor);
+            var indicesAccessorIndex = accessors.size() - 1; // Get the index of the indices accessor
+
+            Mesh mesh = new Mesh();
+            MeshPrimitive primitive = new MeshPrimitive();
+            primitive.setAttributes(Map.of("POSITION", positionAccessorIndex));
+            primitive.setIndices(indicesAccessorIndex);
+            primitive.setMode(4); // TRIANGLES
+            mesh.setPrimitives(Arrays.asList(primitive));
+            meshes.add(mesh);
+            var meshIndex = meshes.size() - 1; // Get the index of the mesh
+
+            Node node = new Node();
+            node.setMesh(meshIndex);
+            nodes.add(node);
+            geoNodes.add(nodes.size() - 1); // Add the node to the root nodes list
         }
 
-
-        byte[] positionBytes = new byte[positions.length * 4];
-        ByteBuffer.wrap(positionBytes).order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer().put(positions);
-        String base64positionData = java.util.Base64.getEncoder().encodeToString(positionBytes);
-        String uri = "data:application/octet-stream;base64," + base64positionData;
-
-        Buffer positionBuffer = new Buffer();
-        positionBuffer.setByteLength(positionBytes.length);
-        positionBuffer.setUri(uri);
-        buffers.add(positionBuffer);
-
-        var vertexBufferIndex = buffers.size() - 1;
-        BufferView positionBufferView = new BufferView();
-        positionBufferView.setTarget(34962); // ARRAY_BUFFER
-        positionBufferView.setBuffer(vertexBufferIndex);
-        positionBufferView.setByteOffset(0);
-        positionBufferView.setByteLength(positionBytes.length);
-        bufferViews.add(positionBufferView);
-
-        Accessor positionAccessor = new Accessor();
-        // TODO: should define min/max values for positionAccessor, after I figure out
-        // how vertices are expresssed in the model
-        positionAccessor.setBufferView(0);
-        positionAccessor.setComponentType(5126); // FLOAT
-        positionAccessor.setCount(positions.length / 3);
-        positionAccessor.setType("VEC3");
-        positionAccessor.setByteOffset(0);
-        accessors.add(positionAccessor);
-
-        byte[] indicesBytes = new byte[indices.length * 4];
-        ByteBuffer.wrap(indicesBytes).order(ByteOrder.LITTLE_ENDIAN).asIntBuffer().put(indices);
-        String base64IndicesData = java.util.Base64.getEncoder().encodeToString(indicesBytes);
-        String indicesUri = "data:application/octet-stream;base64," + base64IndicesData;
-
-        Buffer indicesBuffer = new Buffer();
-        indicesBuffer.setByteLength(indicesBytes.length);
-        indicesBuffer.setUri(indicesUri);
-        buffers.add(indicesBuffer);
-        // gltf.getBuffers().add(indicesBuffer); // Updated to use getBuffers(), now it's not null because we added
-                                              // positionBuffer
-        var indicesBufferIndex = buffers.size() - 1; // Get the index of the indices buffer
-
-        BufferView indicesBufferView = new BufferView();
-        indicesBufferView.setTarget(34963); // ELEMENT_ARRAY_BUFFER
-        indicesBufferView.setBuffer(indicesBufferIndex);
-        indicesBufferView.setByteOffset(0);
-        indicesBufferView.setByteLength(indicesBytes.length);
-        bufferViews.add(indicesBufferView);
-
-        Accessor indicesAccessor = new Accessor();
-        indicesAccessor.setBufferView(1);
-        indicesAccessor.setComponentType(5125); // UNSIGNED_SHORT
-        indicesAccessor.setCount(indices.length);
-        indicesAccessor.setType("SCALAR");
-        indicesAccessor.setByteOffset(0);
-        accessors.add(indicesAccessor);
-
-        Mesh mesh = new Mesh();
-        MeshPrimitive primitive = new MeshPrimitive();
-        primitive.setAttributes(Map.of("POSITION", 0));
-        primitive.setIndices(1);
-        primitive.setMode(4); // TRIANGLES
-        mesh.setPrimitives(Arrays.asList(primitive));
-        meshes.add(mesh);
-
-        Node node = new Node();
-        node.setMesh(0);
-        nodes.add(node);
-        rootNodes.add(nodes.size() - 1); // Add the node to the root nodes list
+        Node rootNode = new Node();
+        rootNode.setName(model.getName());
+        rootNode.setChildren(geoNodes);
+        nodes.add(rootNode);
+        var rootNodeIndex = nodes.size() - 1; // Get the index of the root node
 
         Scene scene = new Scene();
-        scene.setNodes(rootNodes);
+        scene.setNodes(Arrays.asList(rootNodeIndex));
         gltf.setScenes(Arrays.asList(scene));
         gltf.setScene(0);
 
@@ -281,13 +248,18 @@ public class GLTFExport implements ActionListener {
         gltf.setMeshes(meshes);
         gltf.setNodes(nodes);
     }
-    private class GeosetData {
+
+    private static class GeosetData {
         float[] positions;
         float[] normals;
         float[] uvs;
         int[] indices;
 
         public GeosetData(Geoset geoset) {
+            positions = new float[geoset.getVertices().size() * 3];
+            normals = new float[geoset.getVertices().size() * 3];
+            uvs = new float[geoset.getVertices().size() * 2];
+            indices = new int[geoset.getTriangles().size() * 3];
             int vertexIndex = 0;
             int triangleIndex = 0;
             if (geoset.getVertices().size() == 0) {
