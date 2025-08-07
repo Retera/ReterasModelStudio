@@ -10,16 +10,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import javax.swing.JFileChooser;
-
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 
+import de.javagl.jgltf.impl.v2.GlTF;
 import de.javagl.jgltf.model.GltfModel;
 import de.javagl.jgltf.model.io.GltfModelWriter;
+import de.javagl.jgltf.model.io.GltfWriter;
 import de.wc3data.stream.BlizzardDataInputStream;
 
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
@@ -48,7 +48,11 @@ public class GLTFExport implements ActionListener {
         log.info(this.getAllDoodadsPaths().size() + " doodad paths found for GLTF export.");
         var model0 = this.loadModel(this.getAllUnitPaths().get(0));
         log.info("name: " + model0.getName());
-        GltfModel gltfModel = createGltfModel(model0);
+        try {
+            GLTFExport.export(model0);
+        } catch (IOException ex) {
+            log.severe("Failed to export model to GLTF: " + ex.getMessage());
+        }
     }
 
     private List<String> getAllUnitPaths() {
@@ -89,15 +93,18 @@ public class GLTFExport implements ActionListener {
         return doodadPaths;
     }
 
-    private static void export(EditableModel model, File selectedFile) throws IOException {
-        GltfModel gltfModel = createGltfModel(model);
-        try (OutputStream os = new FileOutputStream(selectedFile)) {
-            GltfModelWriter writer = new GltfModelWriter();
-            writer.writeBinary(gltfModel, os);
+    private static void export(EditableModel model) throws IOException {
+        var gltf = createGltfModel(model);
+        File outputFile = new File("output.gltf");
+        try (OutputStream os = new FileOutputStream(outputFile)) {
+            GltfWriter writer = new GltfWriter();
+            writer.write(gltf, os);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    private static GltfModel createGltfModel(EditableModel model) {
+    private static GlTF createGltfModel(EditableModel model) {
         // Create vertex data arrays  
         List<Geoset> geosets = new ArrayList<Geoset>();
         for (Geoset geoset : model.getGeosets()) {
@@ -167,10 +174,14 @@ public class GLTFExport implements ActionListener {
         
         // For now, return null until we can determine the correct jgltf API
         // This is a placeholder that collects all the mesh data correctly
-        System.out.println("Created glTF data with " + (positions.length / 3) + " vertices and " + (indices.length / 3) + " triangles");
+        GlTF gltf = new GlTF();
+        gltf.setAsset(new de.javagl.jgltf.impl.v2.Asset());
         
-        // TODO: Implement proper glTF model creation once the correct API is determined
-        return null;
+
+
+        System.out.println("Created glTF data with " + (positions.length / 3) + " vertices and " + (indices.length / 3) + " triangles");
+        return gltf;
+
     }
 
     private EditableModel loadModel(String path) {
