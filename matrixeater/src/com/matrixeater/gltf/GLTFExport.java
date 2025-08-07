@@ -14,9 +14,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 
@@ -56,7 +58,7 @@ public class GLTFExport implements ActionListener {
         // }
         log.info(this.getAllUnitPaths().size() + " unit paths found for GLTF export.");
         log.info(this.getAllDoodadsPaths().size() + " doodad paths found for GLTF export.");
-        var model0 = this.loadModel(this.getAllUnitPaths().get(0));
+        var model0 = this.loadModel(this.getAllUnitPaths().get(689));
         log.info("name: " + model0.getName());
         try {
             GLTFExport.export(model0);
@@ -128,23 +130,14 @@ public class GLTFExport implements ActionListener {
     }
 
     private static void loadMeshIntoModel(EditableModel model, GlTF gltf) {
-        // Create vertex data arrays
-        List<Geoset> geosets = new ArrayList<Geoset>();
-        for (Geoset geoset : model.getGeosets()) {
-            geosets.add(geoset);
-        }
 
-        // Count total vertices and triangles
-        int totalVertices = 0;
-        int totalTriangles = 0;
-        for (Geoset geoset : geosets) {
-            totalVertices += geoset.getVertices().size();
-            totalTriangles += geoset.getTriangles().size();
+        List<Bone> bones = new ArrayList<>();
+        for (final IdObject object : model.getIdObjects()) {
+            if (object instanceof Bone) {
+                bones.add((Bone) object);
+            }
         }
-
-        int vertexIndex = 0;
-        int triangleIndex = 0;
-        int baseVertexOffset = 0;
+        log.info("Bones: " + bones.size());
 
         List<Buffer> buffers = new ArrayList<>();
         List<BufferView> bufferViews = new ArrayList<>();
@@ -152,8 +145,8 @@ public class GLTFExport implements ActionListener {
         List<Mesh> meshes = new ArrayList<>();
         List<Node> nodes = new ArrayList<>();
         List<Integer> geoNodes = new ArrayList<>(); // called geo because it contains nodes made form geosets
-
-        for (Geoset geoset : geosets) {
+        log.info("Geosets: " + model.getGeosets().size());
+        for (Geoset geoset : model.getGeosets()) {
             var data = new GeosetData(geoset);
             byte[] positionBytes = new byte[data.positions.length * 4];
             ByteBuffer.wrap(positionBytes).order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer().put(data.positions);
