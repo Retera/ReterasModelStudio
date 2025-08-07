@@ -29,8 +29,6 @@ import de.javagl.jgltf.impl.v2.Mesh;
 import de.javagl.jgltf.impl.v2.MeshPrimitive;
 import de.javagl.jgltf.impl.v2.Node;
 import de.javagl.jgltf.impl.v2.Scene;
-import de.javagl.jgltf.model.GltfModel;
-import de.javagl.jgltf.model.io.GltfModelWriter;
 import de.javagl.jgltf.model.io.GltfWriter;
 import de.wc3data.stream.BlizzardDataInputStream;
 
@@ -117,12 +115,25 @@ public class GLTFExport implements ActionListener {
     }
 
     private static GlTF createGltfModel(EditableModel model) {
-        // Create vertex data arrays  
+
+        GlTF gltf = new GlTF();
+        Asset asset = new Asset();
+        asset.setVersion("2.0");
+        asset.setGenerator("MatrixEater GLTF Exporter");
+        gltf.setAsset(asset);
+
+        loadMeshIntoModel(model, gltf);
+
+        return gltf;
+    }
+
+    private static void loadMeshIntoModel(EditableModel model, GlTF gltf) {
+        // Create vertex data arrays
         List<Geoset> geosets = new ArrayList<Geoset>();
         for (Geoset geoset : model.getGeosets()) {
             geosets.add(geoset);
         }
-        
+
         // Count total vertices and triangles
         int totalVertices = 0;
         int totalTriangles = 0;
@@ -130,28 +141,35 @@ public class GLTFExport implements ActionListener {
             totalVertices += geoset.getVertices().size();
             totalTriangles += geoset.getTriangles().size();
         }
-        
+
         // Create buffers
         float[] positions = new float[totalVertices * 3];
         float[] normals = new float[totalVertices * 3];
         float[] uvs = new float[totalVertices * 2];
         int[] indices = new int[totalTriangles * 3];
-        
+
         int vertexIndex = 0;
         int triangleIndex = 0;
         int baseVertexOffset = 0;
-        
+
+        log.info(Arrays.stream(indices).max().orElse(-1) + " is the max index in indices array");
+        log.info(Arrays.stream(indices).min().orElse(-1) + " is the min index in indices array");
+        List<Buffer> buffers = new ArrayList<>();
+        List<BufferView> bufferViews = new ArrayList<>();
+        List<Accessor> accessors = new ArrayList<>();
+        List<Mesh> meshes = new ArrayList<>();
+        List<Node> nodes = new ArrayList<>();
+        List<Integer> rootNodes = new ArrayList<>();
+
         for (Geoset geoset : geosets) {
             if (geoset.getVertices().size() == 0) {
                 continue;
             }
-            
             // Fill vertex data
             for (GeosetVertex vertex : geoset.getVertices()) {
                 positions[vertexIndex * 3] = (float) vertex.x;
                 positions[vertexIndex * 3 + 1] = (float) vertex.y;
                 positions[vertexIndex * 3 + 2] = (float) vertex.z;
-                
                 if (vertex.getNormal() != null) {
                     normals[vertexIndex * 3] = (float) vertex.getNormal().x;
                     normals[vertexIndex * 3 + 1] = (float) vertex.getNormal().y;
@@ -161,7 +179,6 @@ public class GLTFExport implements ActionListener {
                     normals[vertexIndex * 3 + 1] = 0;
                     normals[vertexIndex * 3 + 2] = 1;
                 }
-                
                 if (vertex.getTverts().size() > 0) {
                     uvs[vertexIndex * 2] = (float) vertex.getTverts().get(0).x;
                     uvs[vertexIndex * 2 + 1] = (float) vertex.getTverts().get(0).y;
@@ -169,28 +186,20 @@ public class GLTFExport implements ActionListener {
                     uvs[vertexIndex * 2] = 0;
                     uvs[vertexIndex * 2 + 1] = 0;
                 }
-                
                 vertexIndex++;
             }
-            
             // Fill triangle indices
             for (Triangle triangle : geoset.getTriangles()) {
                 indices[triangleIndex * 3] = geoset.getVertices().indexOf(triangle.getVerts()[0]) + baseVertexOffset;
-                indices[triangleIndex * 3 + 1] = geoset.getVertices().indexOf(triangle.getVerts()[1]) + baseVertexOffset;
-                indices[triangleIndex * 3 + 2] = geoset.getVertices().indexOf(triangle.getVerts()[2]) + baseVertexOffset;
+                indices[triangleIndex * 3 + 1] = geoset.getVertices().indexOf(triangle.getVerts()[1])
+                        + baseVertexOffset;
+                indices[triangleIndex * 3 + 2] = geoset.getVertices().indexOf(triangle.getVerts()[2])
+                        + baseVertexOffset;
                 triangleIndex++;
             }
-            
             baseVertexOffset += geoset.getVertices().size();
         }
-        log.info(Arrays.stream(indices).max().orElse(-1) + " is the max index in indices array");
-        log.info(Arrays.stream(indices).min().orElse(-1) + " is the min index in indices array");
 
-        GlTF gltf = new GlTF();
-        Asset asset = new Asset();
-        asset.setVersion("2.0");
-        asset.setGenerator("MatrixEater GLTF Exporter");
-        gltf.setAsset(asset);
 
         byte[] positionBytes = new byte[positions.length * 4];
         ByteBuffer.wrap(positionBytes).order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer().put(positions);
@@ -200,23 +209,26 @@ public class GLTFExport implements ActionListener {
         Buffer positionBuffer = new Buffer();
         positionBuffer.setByteLength(positionBytes.length);
         positionBuffer.setUri(uri);
-        gltf.setBuffers(new ArrayList<>(Arrays.asList(positionBuffer)));
+        buffers.add(positionBuffer);
 
+        var vertexBufferIndex = buffers.size() - 1;
         BufferView positionBufferView = new BufferView();
         positionBufferView.setTarget(34962); // ARRAY_BUFFER
-        positionBufferView.setBuffer(0);
+        positionBufferView.setBuffer(vertexBufferIndex);
         positionBufferView.setByteOffset(0);
         positionBufferView.setByteLength(positionBytes.length);
-        gltf.setBufferViews(new ArrayList<>(Arrays.asList(positionBufferView)));
+        bufferViews.add(positionBufferView);
 
         Accessor positionAccessor = new Accessor();
+        // TODO: should define min/max values for positionAccessor, after I figure out
+        // how vertices are expresssed in the model
         positionAccessor.setBufferView(0);
         positionAccessor.setComponentType(5126); // FLOAT
         positionAccessor.setCount(positions.length / 3);
         positionAccessor.setType("VEC3");
         positionAccessor.setByteOffset(0);
-        gltf.setAccessors(new ArrayList<>(Arrays.asList(positionAccessor)));
-        
+        accessors.add(positionAccessor);
+
         byte[] indicesBytes = new byte[indices.length * 4];
         ByteBuffer.wrap(indicesBytes).order(ByteOrder.LITTLE_ENDIAN).asIntBuffer().put(indices);
         String base64IndicesData = java.util.Base64.getEncoder().encodeToString(indicesBytes);
@@ -225,14 +237,17 @@ public class GLTFExport implements ActionListener {
         Buffer indicesBuffer = new Buffer();
         indicesBuffer.setByteLength(indicesBytes.length);
         indicesBuffer.setUri(indicesUri);
-        gltf.getBuffers().add(indicesBuffer); // Updated to use getBuffers(), now it's not null because we added positionBuffer
+        buffers.add(indicesBuffer);
+        // gltf.getBuffers().add(indicesBuffer); // Updated to use getBuffers(), now it's not null because we added
+                                              // positionBuffer
+        var indicesBufferIndex = buffers.size() - 1; // Get the index of the indices buffer
 
         BufferView indicesBufferView = new BufferView();
         indicesBufferView.setTarget(34963); // ELEMENT_ARRAY_BUFFER
-        indicesBufferView.setBuffer(1);
+        indicesBufferView.setBuffer(indicesBufferIndex);
         indicesBufferView.setByteOffset(0);
         indicesBufferView.setByteLength(indicesBytes.length);
-        gltf.getBufferViews().add(indicesBufferView);
+        bufferViews.add(indicesBufferView);
 
         Accessor indicesAccessor = new Accessor();
         indicesAccessor.setBufferView(1);
@@ -240,7 +255,7 @@ public class GLTFExport implements ActionListener {
         indicesAccessor.setCount(indices.length);
         indicesAccessor.setType("SCALAR");
         indicesAccessor.setByteOffset(0);
-        gltf.getAccessors().add(indicesAccessor);
+        accessors.add(indicesAccessor);
 
         Mesh mesh = new Mesh();
         MeshPrimitive primitive = new MeshPrimitive();
@@ -248,21 +263,67 @@ public class GLTFExport implements ActionListener {
         primitive.setIndices(1);
         primitive.setMode(4); // TRIANGLES
         mesh.setPrimitives(Arrays.asList(primitive));
-        gltf.setMeshes(Arrays.asList(mesh));
+        meshes.add(mesh);
 
         Node node = new Node();
         node.setMesh(0);
-        gltf.setNodes(Arrays.asList(node));
-        
+        nodes.add(node);
+        rootNodes.add(nodes.size() - 1); // Add the node to the root nodes list
+
         Scene scene = new Scene();
-        scene.setNodes(Arrays.asList(0));
+        scene.setNodes(rootNodes);
         gltf.setScenes(Arrays.asList(scene));
         gltf.setScene(0);
 
+        gltf.setBuffers(buffers);
+        gltf.setBufferViews(bufferViews);
+        gltf.setAccessors(accessors);
+        gltf.setMeshes(meshes);
+        gltf.setNodes(nodes);
+    }
+    private class GeosetData {
+        float[] positions;
+        float[] normals;
+        float[] uvs;
+        int[] indices;
 
-        System.out.println("Created glTF data with " + (positions.length / 3) + " vertices and " + (indices.length / 3) + " triangles");
-        return gltf;
-
+        public GeosetData(Geoset geoset) {
+            int vertexIndex = 0;
+            int triangleIndex = 0;
+            if (geoset.getVertices().size() == 0) {
+                return;
+            }
+            // Fill vertex data
+            for (GeosetVertex vertex : geoset.getVertices()) {
+                positions[vertexIndex * 3] = (float) vertex.x;
+                positions[vertexIndex * 3 + 1] = (float) vertex.y;
+                positions[vertexIndex * 3 + 2] = (float) vertex.z;
+                if (vertex.getNormal() != null) {
+                    normals[vertexIndex * 3] = (float) vertex.getNormal().x;
+                    normals[vertexIndex * 3 + 1] = (float) vertex.getNormal().y;
+                    normals[vertexIndex * 3 + 2] = (float) vertex.getNormal().z;
+                } else {
+                    normals[vertexIndex * 3] = 0;
+                    normals[vertexIndex * 3 + 1] = 0;
+                    normals[vertexIndex * 3 + 2] = 1;
+                }
+                if (vertex.getTverts().size() > 0) {
+                    uvs[vertexIndex * 2] = (float) vertex.getTverts().get(0).x;
+                    uvs[vertexIndex * 2 + 1] = (float) vertex.getTverts().get(0).y;
+                } else {
+                    uvs[vertexIndex * 2] = 0;
+                    uvs[vertexIndex * 2 + 1] = 0;
+                }
+                vertexIndex++;
+            }
+            // Fill triangle indices
+            for (Triangle triangle : geoset.getTriangles()) {
+                indices[triangleIndex * 3] = geoset.getVertices().indexOf(triangle.getVerts()[0]);
+                indices[triangleIndex * 3 + 1] = geoset.getVertices().indexOf(triangle.getVerts()[1]);
+                indices[triangleIndex * 3 + 2] = geoset.getVertices().indexOf(triangle.getVerts()[2]);
+                triangleIndex++;
+            }
+        }
     }
 
     private EditableModel loadModel(String path) {
@@ -270,8 +331,7 @@ public class GLTFExport implements ActionListener {
         try (BlizzardDataInputStream in = new BlizzardDataInputStream(f)) {
             final EditableModel model = new EditableModel(MdxUtils.loadModel(in));
             return model;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.severe("Failed to load model from path: " + path + " due to " + e.getMessage());
             return null;
         }
@@ -285,5 +345,4 @@ public class GLTFExport implements ActionListener {
         }
         return filepath;
     }
-
 }
