@@ -105,7 +105,7 @@ public class GLTFExport implements ActionListener {
 
     private static void export(EditableModel model) throws IOException {
         var gltf = createGltfModel(model);
-        File outputFile = new File("ExportedFromRetera.gltf");
+        File outputFile = new File(model.getName() + ".gltf");
         try (OutputStream os = new FileOutputStream(outputFile)) {
             GltfWriter writer = new GltfWriter();
             writer.write(gltf, os);
@@ -119,7 +119,7 @@ public class GLTFExport implements ActionListener {
         GlTF gltf = new GlTF();
         Asset asset = new Asset();
         asset.setVersion("2.0");
-        asset.setGenerator("MatrixEater GLTF Exporter");
+        asset.setGenerator(model.getName());
         gltf.setAsset(asset);
 
         loadMeshIntoModel(model, gltf);
