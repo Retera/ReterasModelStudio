@@ -6,8 +6,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import com.hiveworkshop.wc3.mdl.EditableModel;
@@ -16,7 +20,15 @@ import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 
+import de.javagl.jgltf.impl.v2.Accessor;
+import de.javagl.jgltf.impl.v2.Asset;
+import de.javagl.jgltf.impl.v2.Buffer;
+import de.javagl.jgltf.impl.v2.BufferView;
 import de.javagl.jgltf.impl.v2.GlTF;
+import de.javagl.jgltf.impl.v2.Mesh;
+import de.javagl.jgltf.impl.v2.MeshPrimitive;
+import de.javagl.jgltf.impl.v2.Node;
+import de.javagl.jgltf.impl.v2.Scene;
 import de.javagl.jgltf.model.GltfModel;
 import de.javagl.jgltf.model.io.GltfModelWriter;
 import de.javagl.jgltf.model.io.GltfWriter;
@@ -27,7 +39,7 @@ import com.hiveworkshop.wc3.units.objectdata.War3ID;
 import com.matrixeater.src.MainPanel;
 
 public class GLTFExport implements ActionListener {
-    private final Logger log = Logger.getLogger(GLTFExport.class.getName());
+    private final static Logger log = Logger.getLogger(GLTFExport.class.getName());
     // I know it's bad, don't worry.
     private final MainPanel mainframe;
 
@@ -95,7 +107,7 @@ public class GLTFExport implements ActionListener {
 
     private static void export(EditableModel model) throws IOException {
         var gltf = createGltfModel(model);
-        File outputFile = new File("output.gltf");
+        File outputFile = new File("ExportedFromRetera.gltf");
         try (OutputStream os = new FileOutputStream(outputFile)) {
             GltfWriter writer = new GltfWriter();
             writer.write(gltf, os);
@@ -171,12 +183,81 @@ public class GLTFExport implements ActionListener {
             
             baseVertexOffset += geoset.getVertices().size();
         }
-        
-        // For now, return null until we can determine the correct jgltf API
-        // This is a placeholder that collects all the mesh data correctly
+        log.info(Arrays.stream(indices).max().orElse(-1) + " is the max index in indices array");
+        log.info(Arrays.stream(indices).min().orElse(-1) + " is the min index in indices array");
+
         GlTF gltf = new GlTF();
-        gltf.setAsset(new de.javagl.jgltf.impl.v2.Asset());
+        Asset asset = new Asset();
+        asset.setVersion("2.0");
+        asset.setGenerator("MatrixEater GLTF Exporter");
+        gltf.setAsset(asset);
+
+        byte[] positionBytes = new byte[positions.length * 4];
+        ByteBuffer.wrap(positionBytes).order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer().put(positions);
+        String base64positionData = java.util.Base64.getEncoder().encodeToString(positionBytes);
+        String uri = "data:application/octet-stream;base64," + base64positionData;
+
+        Buffer positionBuffer = new Buffer();
+        positionBuffer.setByteLength(positionBytes.length);
+        positionBuffer.setUri(uri);
+        gltf.setBuffers(new ArrayList<>(Arrays.asList(positionBuffer)));
+
+        BufferView positionBufferView = new BufferView();
+        positionBufferView.setTarget(34962); // ARRAY_BUFFER
+        positionBufferView.setBuffer(0);
+        positionBufferView.setByteOffset(0);
+        positionBufferView.setByteLength(positionBytes.length);
+        gltf.setBufferViews(new ArrayList<>(Arrays.asList(positionBufferView)));
+
+        Accessor positionAccessor = new Accessor();
+        positionAccessor.setBufferView(0);
+        positionAccessor.setComponentType(5126); // FLOAT
+        positionAccessor.setCount(positions.length / 3);
+        positionAccessor.setType("VEC3");
+        positionAccessor.setByteOffset(0);
+        gltf.setAccessors(new ArrayList<>(Arrays.asList(positionAccessor)));
         
+        byte[] indicesBytes = new byte[indices.length * 4];
+        ByteBuffer.wrap(indicesBytes).order(ByteOrder.LITTLE_ENDIAN).asIntBuffer().put(indices);
+        String base64IndicesData = java.util.Base64.getEncoder().encodeToString(indicesBytes);
+        String indicesUri = "data:application/octet-stream;base64," + base64IndicesData;
+
+        Buffer indicesBuffer = new Buffer();
+        indicesBuffer.setByteLength(indicesBytes.length);
+        indicesBuffer.setUri(indicesUri);
+        gltf.getBuffers().add(indicesBuffer); // Updated to use getBuffers(), now it's not null because we added positionBuffer
+
+        BufferView indicesBufferView = new BufferView();
+        indicesBufferView.setTarget(34963); // ELEMENT_ARRAY_BUFFER
+        indicesBufferView.setBuffer(1);
+        indicesBufferView.setByteOffset(0);
+        indicesBufferView.setByteLength(indicesBytes.length);
+        gltf.getBufferViews().add(indicesBufferView);
+
+        Accessor indicesAccessor = new Accessor();
+        indicesAccessor.setBufferView(1);
+        indicesAccessor.setComponentType(5125); // UNSIGNED_SHORT
+        indicesAccessor.setCount(indices.length);
+        indicesAccessor.setType("SCALAR");
+        indicesAccessor.setByteOffset(0);
+        gltf.getAccessors().add(indicesAccessor);
+
+        Mesh mesh = new Mesh();
+        MeshPrimitive primitive = new MeshPrimitive();
+        primitive.setAttributes(Map.of("POSITION", 0));
+        primitive.setIndices(1);
+        primitive.setMode(4); // TRIANGLES
+        mesh.setPrimitives(Arrays.asList(primitive));
+        gltf.setMeshes(Arrays.asList(mesh));
+
+        Node node = new Node();
+        node.setMesh(0);
+        gltf.setNodes(Arrays.asList(node));
+        
+        Scene scene = new Scene();
+        scene.setNodes(Arrays.asList(0));
+        gltf.setScenes(Arrays.asList(scene));
+        gltf.setScene(0);
 
 
         System.out.println("Created glTF data with " + (positions.length / 3) + " vertices and " + (indices.length / 3) + " triangles");
@@ -204,4 +285,5 @@ public class GLTFExport implements ActionListener {
         }
         return filepath;
     }
+
 }
