@@ -362,6 +362,8 @@ public class GLTFExport implements ActionListener {
         Node rootNode = new Node();
         rootNode.setName(model.getName());
         rootNode.setChildren(geoNodes);
+        // Rotate -90 degrees around X-axis to convert from Z-up (MDX) to Y-up (glTF)
+        rootNode.setRotation(new float[] { -0.7071068f, 0, 0, 0.7071068f });
         nodes.add(rootNode);
         var rootNodeIndex = nodes.size() - 1; // Get the index of the root node
 
