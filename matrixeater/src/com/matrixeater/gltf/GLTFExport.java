@@ -22,6 +22,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 
+import de.javagl.jgltf.impl.v2.Skin;
 import de.javagl.jgltf.impl.v2.Accessor;
 import de.javagl.jgltf.impl.v2.Asset;
 import de.javagl.jgltf.impl.v2.Buffer;
@@ -131,20 +132,15 @@ public class GLTFExport implements ActionListener {
 
     private static void loadMeshIntoModel(EditableModel model, GlTF gltf) {
 
-        List<Bone> bones = new ArrayList<>();
-        for (final IdObject object : model.getIdObjects()) {
-            if (object instanceof Bone) {
-                bones.add((Bone) object);
-            }
-        }
-        log.info("Bones: " + bones.size());
-
         List<Buffer> buffers = new ArrayList<>();
         List<BufferView> bufferViews = new ArrayList<>();
         List<Accessor> accessors = new ArrayList<>();
         List<Mesh> meshes = new ArrayList<>();
         List<Node> nodes = new ArrayList<>();
         List<Integer> geoNodes = new ArrayList<>(); // called geo because it contains nodes made form geosets
+        List<Skin> skins = new ArrayList<>();
+
+        // MESH
         log.info("Geosets: " + model.getGeosets().size());
         for (Geoset geoset : model.getGeosets()) {
             var data = new GeosetData(geoset);
@@ -209,9 +205,37 @@ public class GLTFExport implements ActionListener {
             accessors.add(indicesAccessor);
             var indicesAccessorIndex = accessors.size() - 1; // Get the index of the indices accessor
 
+            byte[] uvBytes = new byte[data.uvs.length * 4];
+            ByteBuffer.wrap(uvBytes).order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer().put(data.uvs);
+            String base64UvData = java.util.Base64.getEncoder().encodeToString(uvBytes);
+            String uvUri = "data:application/octet-stream;base64," + base64UvData;
+
+            Buffer uvBuffer = new Buffer();
+            uvBuffer.setByteLength(uvBytes.length);
+            uvBuffer.setUri(uvUri);
+            buffers.add(uvBuffer);
+            var uvBufferIndex = buffers.size() - 1; // Get the index of the
+
+            BufferView uvBufferView = new BufferView();
+            uvBufferView.setTarget(34962); // ARRAY_BUFFER
+            uvBufferView.setBuffer(uvBufferIndex);
+            uvBufferView.setByteOffset(0);
+            uvBufferView.setByteLength(uvBytes.length);
+            bufferViews.add(uvBufferView);
+            var uvBufferViewIndex = bufferViews.size() - 1; // Get the index
+
+            Accessor uvAccessor = new Accessor();
+            uvAccessor.setBufferView(uvBufferViewIndex);
+            uvAccessor.setComponentType(5126);
+            uvAccessor.setCount(data.uvs.length / 2);
+            uvAccessor.setType("VEC2");
+            uvAccessor.setByteOffset(0);
+            accessors.add(uvAccessor);
+            var uvAccessorIndex = accessors.size() - 1;
+
             Mesh mesh = new Mesh();
             MeshPrimitive primitive = new MeshPrimitive();
-            primitive.setAttributes(Map.of("POSITION", positionAccessorIndex));
+            primitive.setAttributes(Map.of("POSITION", positionAccessorIndex, "TEXCOORD_0", uvAccessorIndex));
             primitive.setIndices(indicesAccessorIndex);
             primitive.setMode(4); // TRIANGLES
             mesh.setPrimitives(Arrays.asList(primitive));
@@ -220,10 +244,45 @@ public class GLTFExport implements ActionListener {
 
             Node node = new Node();
             node.setMesh(meshIndex);
+            node.setName(geoset.getName());
             nodes.add(node);
             geoNodes.add(nodes.size() - 1); // Add the node to the root nodes list
         }
 
+        // Bones
+        List<Bone> mdxBones = new ArrayList<>();
+        for (final IdObject object : model.getIdObjects()) {
+            if (object instanceof Bone) {
+                mdxBones.add((Bone) object);
+            }
+        }
+
+        log.info("Bones: " + mdxBones.size());
+        // if (mdxBones.size() > 0) {
+        //     // Create a skin for the bones
+        //     Skin skin = new Skin();
+        //     List<Integer> jointIndices = new ArrayList<>();
+        //     List<float[]> inverseBindMatrices = new ArrayList<>(); // Changed to List<float[]> for inverse bind matrices
+        //     for (Bone bone : mdxBones) {
+        //         jointIndices.add(nodes.size()); // Add the node index to the joint indices
+        //         Node boneNode = new Node();
+        //         boneNode.setName(bone.getName());
+        //         nodes.add(boneNode);
+        //         // Create an inverse bind matrix for the bone
+        //         float[] inverseBindMatrix = new float[16];
+        //         // Assuming the bone has a method to get its transformation matrix
+        //         // Here we just create an identity matrix for simplicity
+        //         for (int i = 0; i < 16; i++) {
+        //             inverseBindMatrix[i] = (i % 5 == 0) ? 1
+        //                     : 0; // Identity matrix
+        //         }
+        //         inverseBindMatrices.add(inverseBindMatrix);
+        //     }
+        //     skins.add(skin);
+        // }
+
+
+        // Merge
         Node rootNode = new Node();
         rootNode.setName(model.getName());
         rootNode.setChildren(geoNodes);
@@ -240,6 +299,7 @@ public class GLTFExport implements ActionListener {
         gltf.setAccessors(accessors);
         gltf.setMeshes(meshes);
         gltf.setNodes(nodes);
+        //gltf.setSkins(skins);
     }
 
     private static class GeosetData {
