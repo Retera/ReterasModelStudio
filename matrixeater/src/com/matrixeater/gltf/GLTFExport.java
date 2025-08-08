@@ -28,11 +28,13 @@ import de.javagl.jgltf.impl.v2.Asset;
 import de.javagl.jgltf.impl.v2.Buffer;
 import de.javagl.jgltf.impl.v2.BufferView;
 import de.javagl.jgltf.impl.v2.GlTF;
+import de.javagl.jgltf.impl.v2.Material;
 import de.javagl.jgltf.impl.v2.Mesh;
 import de.javagl.jgltf.impl.v2.MeshPrimitive;
 import de.javagl.jgltf.impl.v2.Node;
 import de.javagl.jgltf.impl.v2.Scene;
 import de.javagl.jgltf.model.io.GltfWriter;
+import de.javagl.jgltf.impl.v2.*;
 import de.wc3data.stream.BlizzardDataInputStream;
 
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
@@ -138,8 +140,27 @@ public class GLTFExport implements ActionListener {
         List<Mesh> meshes = new ArrayList<>();
         List<Node> nodes = new ArrayList<>();
         List<Integer> geoNodes = new ArrayList<>(); // called geo because it contains nodes made form geosets
+        List<Material> materials = new ArrayList<>();
         List<Skin> skins = new ArrayList<>();
 
+        //Materials
+        for (var material: model.getMaterials())
+        {
+            if (material.getLayers().size() > 1)
+            {
+                log.warning("Material " + material.getName() + " has more than one layer, which is not supported in GLTF export.");
+            }
+            Material glMaterial = new Material();
+            glMaterial.setName(material.getName());
+
+            MaterialPbrMetallicRoughness pbr = new MaterialPbrMetallicRoughness();
+            pbr.setBaseColorFactor(new float[] {1.0f, 0.0f, 0.0f, 1.0f});
+            pbr.setMetallicFactor(0.0f);
+            pbr.setRoughnessFactor(1.0f);
+
+            glMaterial.setPbrMetallicRoughness(pbr);
+            materials.add(glMaterial);
+        }
         // MESH
         log.info("Geosets: " + model.getGeosets().size());
         for (Geoset geoset : model.getGeosets()) {
@@ -238,6 +259,7 @@ public class GLTFExport implements ActionListener {
             primitive.setAttributes(Map.of("POSITION", positionAccessorIndex, "TEXCOORD_0", uvAccessorIndex));
             primitive.setIndices(indicesAccessorIndex);
             primitive.setMode(4); // TRIANGLES
+            primitive.setMaterial(data.materialIndex); // Assuming materialIndex is the index of the material in the glTF
             mesh.setPrimitives(Arrays.asList(primitive));
             meshes.add(mesh);
             var meshIndex = meshes.size() - 1; // Get the index of the mesh
@@ -299,6 +321,7 @@ public class GLTFExport implements ActionListener {
         gltf.setAccessors(accessors);
         gltf.setMeshes(meshes);
         gltf.setNodes(nodes);
+        gltf.setMaterials(materials);
         //gltf.setSkins(skins);
     }
 
@@ -307,12 +330,14 @@ public class GLTFExport implements ActionListener {
         float[] normals;
         float[] uvs;
         int[] indices;
+        int materialIndex;
 
         public GeosetData(Geoset geoset) {
             positions = new float[geoset.getVertices().size() * 3];
             normals = new float[geoset.getVertices().size() * 3];
             uvs = new float[geoset.getVertices().size() * 2];
             indices = new int[geoset.getTriangles().size() * 3];
+            materialIndex = geoset.getMaterialID();
             int vertexIndex = 0;
             int triangleIndex = 0;
             if (geoset.getVertices().size() == 0) {
