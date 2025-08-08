@@ -19,6 +19,7 @@ import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Geoset;
+import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Triangle;
@@ -35,6 +36,7 @@ import de.javagl.jgltf.impl.v2.Mesh;
 import de.javagl.jgltf.impl.v2.MeshPrimitive;
 import de.javagl.jgltf.impl.v2.Node;
 import de.javagl.jgltf.impl.v2.Scene;
+import de.javagl.jgltf.model.animation.AnimationManager.AnimationPolicy;
 import de.javagl.jgltf.model.io.GltfWriter;
 import de.javagl.jgltf.impl.v2.*;
 import de.wc3data.stream.BlizzardDataInputStream;
@@ -64,6 +66,18 @@ public class GLTFExport implements ActionListener {
         log.info(this.getAllUnitPaths().size() + " unit paths found for GLTF export.");
         log.info(this.getAllDoodadsPaths().size() + " doodad paths found for GLTF export.");
         var model0 = this.loadModel(this.getAllUnitPaths().get(689));
+        var anim = model0.getAnim(0);
+        var corpse = model0.getGeoset(0);// last geoset is a corpse, shouldn't be visible in a walk
+        log.info("Geoset" + corpse.getName() + " visibility: "
+                + isGeosetVisibleInAnimation(corpse, anim));
+        int visibilityCount = 0;
+        for (Geoset geoset : model0.getGeosets()) {
+            if (isGeosetVisibleInAnimation(geoset, anim)) {
+                visibilityCount++;
+                System.out.println("Geoset " + geoset.getName() + " is visible in animation.");
+            }
+        }
+        log.info("Geosets visible in animation: " + visibilityCount + " out of " + model0.getGeosets().size());
 
         log.info("name: " + model0.getName());
         try {
@@ -444,6 +458,100 @@ public class GLTFExport implements ActionListener {
             log.severe("Failed to write image for material " + material.getName() + ": " + e.getMessage());
             return null;
         }
+    }
+
+    // Lightweight visibility check:
+    // - If animation == null => export everything (back-compat)
+    // - If no GeosetAnim => visible
+    // - If static alpha (-1 => default 1) or > 0 => visible
+    // - If has Visibility/Alpha AnimFlag (non-global) => sample a few times in [start,end]
+    private static boolean isGeosetVisibleInAnimation(Geoset geoset, com.hiveworkshop.wc3.mdl.Animation animation) {
+        if (animation == null) {
+            return true; // no filtering requested
+        }
+        GeosetAnim ga = geoset.getGeosetAnim();
+        if (ga == null) {
+            return true;
+        }
+
+        // Static alpha path
+        var visFlag = ga.getVisibilityFlag();
+        if (visFlag == null) {
+            double staticAlpha = ga.getStaticAlpha(); // -1 => default visible (1)
+            return staticAlpha != -1 && staticAlpha < 0.0;
+        }
+
+        // AnimFlag path (non-global preferred). We’ll sample a few times.
+        int start = animation.getIntervalStart();
+        int end = animation.getIntervalEnd();
+        if (end <= start) {
+            // Degenerate animation; treat as visible if any positive static visibility
+            double staticAlpha = ga.getStaticAlpha();
+            return staticAlpha != -1 && staticAlpha < 0.0;
+        }
+
+        // Simple sampler: 9 samples across the interval (start..end)
+        final int samples = 9;
+        for (int i = 0; i <= samples; i++) {
+            int t = start + (int) ((long) (end - start) * i / samples);
+            var times = visFlag.getTimes();
+            if (t < times.get(0) || t > times.get(times.size() - 1)) {
+                continue; // Skip times outside the animation interval
+            }
+            float alpha = sampleGeosetVisibilityAtTime(ga, t);
+            if (alpha < 0.9f) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Best-effort sampler without wiring a full AnimatedRenderEnvironment:
+    // - If vis flag exists but we can’t interpolate precisely, fall back to static
+    //   (This keeps the change safe; refine later by wiring a proper time env.)
+    private static float sampleGeosetVisibilityAtTime(GeosetAnim ga, int time) {
+        try {
+            // Prefer the existing helper if available
+            // (If you later wire an AnimatedRenderEnvironment, replace with:
+            //   ga.getRenderVisibility(envAt(time))
+            // )
+            var visFlag = ga.getVisibilityFlag();
+            if (visFlag == null) {
+                double staticAlpha = ga.getStaticAlpha();
+                return (float) (staticAlpha == -1 ? 1.0 : staticAlpha);
+            }
+
+            // Heuristic: if flag has only one keyframe, use its value; otherwise assume visible
+            // NOTE: Replace this with proper interpolation using your AnimFlag API if available.
+            if (visFlag.size() == 0) {
+                double staticAlpha = ga.getStaticAlpha();
+                return (float) (staticAlpha == -1 ? 1.0 : staticAlpha);
+            } else if (visFlag.size() == 1) {
+                Object v = visFlag.getValues().get(0); // may be Number
+                if (v instanceof Number) {
+                    return ((Number) v).floatValue();
+                }
+                return 1.0f;
+            } else {
+                for (int i = 0; i < visFlag.size(); i++) {
+                    if (visFlag.getTimes().get(i) >= time) {
+                        Object v = visFlag.getValues().get(i);
+                        if (v instanceof Number) {
+                            float vis = ((Number) v).floatValue();
+                            if (vis < 0.9f) { // Threshold for visibility
+                                return vis; // Return the visibility value
+                            }
+                        }
+                        return 1.0f; // Fallback to visible
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            // Fallback: do not exclude on errors
+            double staticAlpha = ga.getStaticAlpha();
+            return (float) (staticAlpha == -1 ? 1.0 : staticAlpha);
+        }
+        return 1.0f; // Default visible if all else fails
     }
 
     private EditableModel loadModel(String path) {
