@@ -82,7 +82,7 @@ public class GLTFExport implements ActionListener {
 
         log.info("name: " + model0.getName());
         try {
-            GLTFExport.export(model0);
+            GLTFExport.export(model0, geoset -> isGeosetVisibleInAnimation(geoset, anim));
         } catch (IOException ex) {
             log.severe("Failed to export model to GLTF: " + ex.getMessage());
         }
@@ -126,8 +126,8 @@ public class GLTFExport implements ActionListener {
         return doodadPaths;
     }
 
-    private static void export(EditableModel model) throws IOException {
-        var gltf = createGltfModel(model);
+    private static void export(EditableModel model, Predicate<Geoset> visibilityFilter) throws IOException {
+        var gltf = createGltfModel(model, visibilityFilter);
         File outputFile = new File(model.getName() + ".gltf");
         try (OutputStream os = new FileOutputStream(outputFile)) {
             GltfWriter writer = new GltfWriter();
@@ -137,7 +137,7 @@ public class GLTFExport implements ActionListener {
         }
     }
 
-    private static GlTF createGltfModel(EditableModel model) {
+    private static GlTF createGltfModel(EditableModel model, Predicate<Geoset> visibilityFilter) {
 
         GlTF gltf = new GlTF();
         Asset asset = new Asset();
@@ -145,7 +145,7 @@ public class GLTFExport implements ActionListener {
         asset.setGenerator(model.getName());
         gltf.setAsset(asset);
 
-        loadMeshIntoModel(model, gltf, geoset -> true);
+        loadMeshIntoModel(model, gltf, visibilityFilter);
 
         return gltf;
     }
@@ -233,7 +233,8 @@ public class GLTFExport implements ActionListener {
         log.info("Geosets: " + model.getGeosets().size());
         for (Geoset geoset : model.getGeosets()) {
             if (!visibilityFilter.test(geoset)) {
-                continue;
+                log.info("Skipping geoset " + geoset.getName() + " due to visibility filter.");
+                continue; // Skip geosets that are not visible in the animation
             }
             var data = new GeosetData(geoset);
             byte[] positionBytes = new byte[data.positions.length * 4];
