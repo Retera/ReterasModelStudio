@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
@@ -144,12 +145,12 @@ public class GLTFExport implements ActionListener {
         asset.setGenerator(model.getName());
         gltf.setAsset(asset);
 
-        loadMeshIntoModel(model, gltf);
+        loadMeshIntoModel(model, gltf, geoset -> true);
 
         return gltf;
     }
 
-    private static void loadMeshIntoModel(EditableModel model, GlTF gltf) {
+    private static void loadMeshIntoModel(EditableModel model, GlTF gltf, Predicate<Geoset> visibilityFilter) {
 
         List<Buffer> buffers = new ArrayList<>();
         List<BufferView> bufferViews = new ArrayList<>();
@@ -231,6 +232,9 @@ public class GLTFExport implements ActionListener {
         // MESH
         log.info("Geosets: " + model.getGeosets().size());
         for (Geoset geoset : model.getGeosets()) {
+            if (!visibilityFilter.test(geoset)) {
+                continue;
+            }
             var data = new GeosetData(geoset);
             byte[] positionBytes = new byte[data.positions.length * 4];
             ByteBuffer.wrap(positionBytes).order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer().put(data.positions);
