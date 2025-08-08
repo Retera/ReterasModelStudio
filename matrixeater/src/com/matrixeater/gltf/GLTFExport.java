@@ -2,6 +2,7 @@ package com.matrixeater.gltf;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Geoset;
@@ -62,6 +64,7 @@ public class GLTFExport implements ActionListener {
         log.info(this.getAllUnitPaths().size() + " unit paths found for GLTF export.");
         log.info(this.getAllDoodadsPaths().size() + " doodad paths found for GLTF export.");
         var model0 = this.loadModel(this.getAllUnitPaths().get(689));
+
         log.info("name: " + model0.getName());
         try {
             GLTFExport.export(model0);
@@ -140,23 +143,73 @@ public class GLTFExport implements ActionListener {
         List<Mesh> meshes = new ArrayList<>();
         List<Node> nodes = new ArrayList<>();
         List<Integer> geoNodes = new ArrayList<>(); // called geo because it contains nodes made form geosets
+        List<Image> images = new ArrayList<>();
+        List<Sampler> samplers = new ArrayList<>();
+        List<Texture> textures = new ArrayList<>();
         List<Material> materials = new ArrayList<>();
         List<Skin> skins = new ArrayList<>();
 
-        //Materials
-        for (var material: model.getMaterials())
-        {
-            if (material.getLayers().size() > 1)
-            {
-                log.warning("Material " + material.getName() + " has more than one layer, which is not supported in GLTF export.");
+        // Materials
+        for (var material : model.getMaterials()) {
+            if (material.getLayers().size() > 1) {
+                log.warning("Material " + material.getName()
+                        + " has more than one layer, which is not supported in GLTF export, conversion might have errors.");
             }
+
+            var pngBytes = getPngFromMaterial(material, model.getWrappedDataSource());
+            Buffer materialTextureBuffer = new Buffer();
+            String pngBase64Data = java.util.Base64.getEncoder().encodeToString(pngBytes);
+            String uri = "data:application/octet-stream;base64," + pngBase64Data;
+            materialTextureBuffer.setByteLength(pngBytes.length);
+            materialTextureBuffer.setUri(uri);
+            buffers.add(materialTextureBuffer);
+            var materialTextureBufferIndex = buffers.size() - 1;
+
+            BufferView materialTextureBufferView = new BufferView();
+            materialTextureBufferView.setBuffer(materialTextureBufferIndex);
+            materialTextureBufferView.setByteOffset(0);
+            materialTextureBufferView.setByteLength(pngBytes.length);
+            bufferViews.add(materialTextureBufferView);
+            var materialTextureBufferViewIndex = bufferViews.size() - 1;
+
+            Image materialImage = new Image();
+            materialImage.setBufferView(materialTextureBufferViewIndex);
+            materialImage.setMimeType("image/png");
+            images.add(materialImage);
+            var materialImageIndex = images.size() - 1;
+
+            Sampler sampler = new Sampler();
+            sampler.setMagFilter(9729); // LINEAR
+            sampler.setMinFilter(9987); // LINEAR_MIPMAP_LINEAR
+            sampler.setWrapS(10497); // REPEAT
+            sampler.setWrapT(10497); // REPEAT
+            samplers.add(sampler);
+            var samplerIndex = samplers.size() - 1;
+
+            Texture texture = new Texture();
+            texture.setSource(materialImageIndex);
+            texture.setSampler(samplerIndex);
+            textures.add(texture);
+            var textureIndex = textures.size() - 1;
+
+            TextureInfo textureInfo = new TextureInfo();
+            textureInfo.setIndex(textureIndex);
+
             Material glMaterial = new Material();
             glMaterial.setName(material.getName());
+            // glMaterial.setAlphaMode("BLEND");
+            // glMaterial.setAlphaCutoff(null);
+            //! The best approximation I could find so far
+            glMaterial.setAlphaMode("MASK");
+            glMaterial.setAlphaCutoff(0.5f);  // or whatever cutoff works best
+
 
             MaterialPbrMetallicRoughness pbr = new MaterialPbrMetallicRoughness();
-            pbr.setBaseColorFactor(new float[] {1.0f, 0.0f, 0.0f, 1.0f});
+            pbr.setBaseColorFactor(new float[]{1, 1, 1, 1});
             pbr.setMetallicFactor(0.0f);
             pbr.setRoughnessFactor(1.0f);
+            pbr.setBaseColorTexture(textureInfo);
+
 
             glMaterial.setPbrMetallicRoughness(pbr);
             materials.add(glMaterial);
@@ -259,7 +312,8 @@ public class GLTFExport implements ActionListener {
             primitive.setAttributes(Map.of("POSITION", positionAccessorIndex, "TEXCOORD_0", uvAccessorIndex));
             primitive.setIndices(indicesAccessorIndex);
             primitive.setMode(4); // TRIANGLES
-            primitive.setMaterial(data.materialIndex); // Assuming materialIndex is the index of the material in the glTF
+            primitive.setMaterial(data.materialIndex); // Assuming materialIndex is the index of the material in the
+                                                       // glTF
             mesh.setPrimitives(Arrays.asList(primitive));
             meshes.add(mesh);
             var meshIndex = meshes.size() - 1; // Get the index of the mesh
@@ -281,28 +335,28 @@ public class GLTFExport implements ActionListener {
 
         log.info("Bones: " + mdxBones.size());
         // if (mdxBones.size() > 0) {
-        //     // Create a skin for the bones
-        //     Skin skin = new Skin();
-        //     List<Integer> jointIndices = new ArrayList<>();
-        //     List<float[]> inverseBindMatrices = new ArrayList<>(); // Changed to List<float[]> for inverse bind matrices
-        //     for (Bone bone : mdxBones) {
-        //         jointIndices.add(nodes.size()); // Add the node index to the joint indices
-        //         Node boneNode = new Node();
-        //         boneNode.setName(bone.getName());
-        //         nodes.add(boneNode);
-        //         // Create an inverse bind matrix for the bone
-        //         float[] inverseBindMatrix = new float[16];
-        //         // Assuming the bone has a method to get its transformation matrix
-        //         // Here we just create an identity matrix for simplicity
-        //         for (int i = 0; i < 16; i++) {
-        //             inverseBindMatrix[i] = (i % 5 == 0) ? 1
-        //                     : 0; // Identity matrix
-        //         }
-        //         inverseBindMatrices.add(inverseBindMatrix);
-        //     }
-        //     skins.add(skin);
+        // // Create a skin for the bones
+        // Skin skin = new Skin();
+        // List<Integer> jointIndices = new ArrayList<>();
+        // List<float[]> inverseBindMatrices = new ArrayList<>(); // Changed to
+        // List<float[]> for inverse bind matrices
+        // for (Bone bone : mdxBones) {
+        // jointIndices.add(nodes.size()); // Add the node index to the joint indices
+        // Node boneNode = new Node();
+        // boneNode.setName(bone.getName());
+        // nodes.add(boneNode);
+        // // Create an inverse bind matrix for the bone
+        // float[] inverseBindMatrix = new float[16];
+        // // Assuming the bone has a method to get its transformation matrix
+        // // Here we just create an identity matrix for simplicity
+        // for (int i = 0; i < 16; i++) {
+        // inverseBindMatrix[i] = (i % 5 == 0) ? 1
+        // : 0; // Identity matrix
         // }
-
+        // inverseBindMatrices.add(inverseBindMatrix);
+        // }
+        // skins.add(skin);
+        // }
 
         // Merge
         Node rootNode = new Node();
@@ -321,8 +375,11 @@ public class GLTFExport implements ActionListener {
         gltf.setAccessors(accessors);
         gltf.setMeshes(meshes);
         gltf.setNodes(nodes);
+        gltf.setImages(images);
+        gltf.setSamplers(samplers);
+        gltf.setTextures(textures);
         gltf.setMaterials(materials);
-        //gltf.setSkins(skins);
+        // gltf.setSkins(skins);
     }
 
     private static class GeosetData {
@@ -373,6 +430,17 @@ public class GLTFExport implements ActionListener {
                 indices[triangleIndex * 3 + 2] = geoset.getVertices().indexOf(triangle.getVerts()[2]);
                 triangleIndex++;
             }
+        }
+    }
+
+    private static byte[] getPngFromMaterial(com.hiveworkshop.wc3.mdl.Material material, DataSource dataSource) {
+        var img = material.getBufferedImage(dataSource);
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            javax.imageio.ImageIO.write(img, "png", baos);
+            return baos.toByteArray();
+        } catch (IOException e) {
+            log.severe("Failed to write image for material " + material.getName() + ": " + e.getMessage());
+            return null;
         }
     }
 
