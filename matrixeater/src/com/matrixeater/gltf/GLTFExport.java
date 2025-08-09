@@ -57,35 +57,158 @@ public class GLTFExport implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // var model = mainframe.currentMDL();
-        // if (model != null) {
-        // // Process the model and export it to GLTF format
-        // this.processModel(model);
-        // } else {
-        // log.warning("No model is currently loaded for GLTF export.");
-        // }
-        log.info(this.getAllUnitPaths().size() + " unit paths found for GLTF export.");
-        log.info(this.getAllDoodadsPaths().size() + " doodad paths found for GLTF export.");
-        var model0 = this.loadModel(this.getAllUnitPaths().get(689));
-        var anim = model0.getAnim(0);
-        var corpse = model0.getGeoset(0);// last geoset is a corpse, shouldn't be visible in a walk
-        log.info("Geoset" + corpse.getName() + " visibility: "
-                + isGeosetVisibleInAnimation(corpse, anim));
-        int visibilityCount = 0;
-        for (Geoset geoset : model0.getGeosets()) {
-            if (isGeosetVisibleInAnimation(geoset, anim)) {
-                visibilityCount++;
-                System.out.println("Geoset " + geoset.getName() + " is visible in animation.");
-            }
-        }
-        log.info("Geosets visible in animation: " + visibilityCount + " out of " + model0.getGeosets().size());
+        // Build a simple modal dialog for export options
+        final javax.swing.JDialog dialog = new javax.swing.JDialog(
+                (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(mainframe),
+                "GLTF Export", true);
+        javax.swing.JPanel panel = new javax.swing.JPanel(new java.awt.GridBagLayout());
+        java.awt.GridBagConstraints gc = new java.awt.GridBagConstraints();
+        gc.insets = new java.awt.Insets(4,4,4,4);
+        gc.anchor = java.awt.GridBagConstraints.WEST;
+        gc.gridx = 0; gc.gridy = 0;
 
-        log.info("name: " + model0.getName());
-        try {
-            GLTFExport.export(model0, geoset -> isGeosetVisibleInAnimation(geoset, anim));
-        } catch (IOException ex) {
-            log.severe("Failed to export model to GLTF: " + ex.getMessage());
-        }
+        // Checkbox for visibility-by-animation filtering
+        final javax.swing.JCheckBox visibilityCheck = new javax.swing.JCheckBox("Filter by animation visibility");
+        panel.add(visibilityCheck, gc);
+
+        // Animation text field (name or index)
+        gc.gridy++;
+        panel.add(new javax.swing.JLabel("Animation (name or index):"), gc);
+        gc.gridx = 1;
+        final javax.swing.JTextField animationField = new javax.swing.JTextField(18);
+        animationField.setEnabled(false);
+        panel.add(animationField, gc);
+
+        visibilityCheck.addActionListener(ev -> animationField.setEnabled(visibilityCheck.isSelected()));
+
+        // Buttons
+        gc.gridx = 0; gc.gridy++;
+        final javax.swing.JButton exportCurrentBtn = new javax.swing.JButton("Export Current Model");
+        panel.add(exportCurrentBtn, gc);
+        gc.gridx = 1;
+        final javax.swing.JButton exportAllBtn = new javax.swing.JButton("Export All Models");
+        panel.add(exportAllBtn, gc);
+
+        gc.gridx = 0; gc.gridy++;
+        final javax.swing.JButton closeBtn = new javax.swing.JButton("Close");
+        panel.add(closeBtn, gc);
+
+        closeBtn.addActionListener(ev -> dialog.dispose());
+
+        // Helper to resolve animation by text (index or partial name)
+        java.util.function.BiFunction<com.hiveworkshop.wc3.mdl.EditableModel, String, com.hiveworkshop.wc3.mdl.Animation> resolveAnimation =
+                (model, text) -> {
+                    if (model == null || text == null || text.isBlank()) return null;
+                    text = text.trim();
+                    // Try index
+                    try {
+                        int idx = Integer.parseInt(text);
+                        if (idx >= 0 && idx < model.getAnims().size()) {
+                            return model.getAnim(idx);
+                        }
+                    } catch (NumberFormatException ex) {
+                        // ignore
+                    }
+                    // Try substring name match (case-insensitive)
+                    for (com.hiveworkshop.wc3.mdl.Animation anim : model.getAnims()) {
+                        if (anim.getName() != null && anim.getName().toLowerCase().contains(text.toLowerCase())) {
+                            return anim;
+                        }
+                    }
+                    return null;
+                };
+
+        // Predicate factory
+        java.util.function.BiFunction<com.hiveworkshop.wc3.mdl.EditableModel, com.hiveworkshop.wc3.mdl.Animation, java.util.function.Predicate<com.hiveworkshop.wc3.mdl.Geoset>>
+                predicateFor = (model, anim) -> {
+                    if (anim == null) {
+                        return g -> true;
+                    }
+                    return g -> isGeosetVisibleInAnimation(g, anim);
+                };
+
+        // Export current model action
+        exportCurrentBtn.addActionListener(ev -> {
+            exportCurrentBtn.setEnabled(false);
+            new Thread(() -> {
+                try {
+                    var model = mainframe.currentMDL();
+                    if (model == null) {
+                        log.warning("No current model to export.");
+                        javax.swing.SwingUtilities.invokeLater(() ->
+                                javax.swing.JOptionPane.showMessageDialog(dialog, "No current model loaded.", "Export", javax.swing.JOptionPane.WARNING_MESSAGE));
+                        return;
+                    }
+                    com.hiveworkshop.wc3.mdl.Animation anim = null;
+                    if (visibilityCheck.isSelected()) {
+                        anim = resolveAnimation.apply(model, animationField.getText());
+                        if (anim == null) {
+                            log.warning("Animation not found; exporting all geosets.");
+                        } else {
+                            log.info("Using animation for visibility filter: " + anim.getName());
+                        }
+                    }
+                    var predicate = predicateFor.apply(model, anim);
+                    GLTFExport.export(model, predicate);
+                    log.info("Exported current model: " + model.getName());
+                    javax.swing.SwingUtilities.invokeLater(() ->
+                            javax.swing.JOptionPane.showMessageDialog(dialog, "Exported: " + model.getName(), "Export", javax.swing.JOptionPane.INFORMATION_MESSAGE));
+                } catch (Exception ex2) {
+                    log.severe("Export failed: " + ex2.getMessage());
+                    javax.swing.SwingUtilities.invokeLater(() ->
+                            javax.swing.JOptionPane.showMessageDialog(dialog, "Export failed: " + ex2.getMessage(), "Export Error", javax.swing.JOptionPane.ERROR_MESSAGE));
+                } finally {
+                    javax.swing.SwingUtilities.invokeLater(() -> exportCurrentBtn.setEnabled(true));
+                }
+            }, "GLTF-Export-Current").start();
+        });
+
+        // Export all models action
+        exportAllBtn.addActionListener(ev -> {
+            exportAllBtn.setEnabled(false);
+            new Thread(() -> {
+                try {
+                    java.util.List<String> paths = new java.util.ArrayList<>();
+                    paths.addAll(getAllUnitPaths());
+                    paths.addAll(getAllDoodadsPaths());
+                    log.info("Beginning export of " + paths.size() + " models.");
+                    int success = 0;
+                    int fail = 0;
+                    for (String path : paths) {
+                        try {
+                            var model = loadModel(path);
+                            if (model == null) {
+                                fail++;
+                                continue;
+                            }
+                            com.hiveworkshop.wc3.mdl.Animation anim = null;
+                            if (visibilityCheck.isSelected()) {
+                                anim = resolveAnimation.apply(model, animationField.getText());
+                            }
+                            var predicate = predicateFor.apply(model, anim);
+                            GLTFExport.export(model, predicate);
+                            success++;
+                        } catch (Exception one) {
+                            fail++;
+                            log.warning("Failed exporting " + path + ": " + one.getMessage());
+                        }
+                    }
+                    int finalSuccess = success;
+                    int finalFail = fail;
+                    javax.swing.SwingUtilities.invokeLater(() ->
+                            javax.swing.JOptionPane.showMessageDialog(dialog,
+                                    "All exports complete.\nSuccess: " + finalSuccess + "\nFailed: " + finalFail,
+                                    "Export All", javax.swing.JOptionPane.INFORMATION_MESSAGE));
+                } finally {
+                    javax.swing.SwingUtilities.invokeLater(() -> exportAllBtn.setEnabled(true));
+                }
+            }, "GLTF-Export-All").start();
+        });
+
+        dialog.getContentPane().add(panel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(mainframe);
+        dialog.setVisible(true);
     }
 
     private List<String> getAllUnitPaths() {
