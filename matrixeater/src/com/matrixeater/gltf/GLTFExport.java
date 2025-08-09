@@ -428,11 +428,13 @@ public class GLTFExport implements ActionListener {
         List<Integer> topLevelBoneNodeIndices = new ArrayList<>();
         for (Bone bone : mdxBones) {
             if (!(bone.getParent() instanceof Bone)) {
-                topLevelBoneNodeIndices.add(boneToNode.get(bone));
+                var topLevelBoneIndex = boneToNode.get(bone);
+                topLevelBoneNodeIndices.add(topLevelBoneIndex);
+                Node topLevelBoneNode = nodes.get(topLevelBoneIndex);
+                topLevelBoneNode.setRotation(new float[] { -0.7071068f, 0, 0, 0.7071068f }); // lazy rotation to match expected axis
             }
         }
 
-        // NEW: Skin (one skin covering all bones)
         int skinIndex = -1;
         if (!mdxBones.isEmpty()) {
             int boneCount = mdxBones.size();
@@ -546,9 +548,6 @@ public class GLTFExport implements ActionListener {
             indicesBuffer.setByteLength(indicesBytes.length);
             indicesBuffer.setUri(indicesUri);
             buffers.add(indicesBuffer);
-            // gltf.getBuffers().add(indicesBuffer); // Updated to use getBuffers(), now
-            // it's not null because we added
-            // positionBuffer
             var indicesBufferIndex = buffers.size() - 1; // Get the index of the indices buffer
 
             BufferView indicesBufferView = new BufferView();
@@ -717,20 +716,12 @@ public class GLTFExport implements ActionListener {
             geoNodes.add(nodes.size() - 1);
         }
 
-        // Merge root
-        Node rootNode = new Node();
-        rootNode.setName(model.getName());
         List<Integer> rootChildren = new ArrayList<>();
         rootChildren.addAll(geoNodes);
-        rootChildren.addAll(topLevelBoneNodeIndices); // NEW include bones
-        if (!rootChildren.isEmpty()) {
-            rootNode.setChildren(rootChildren);
-        }
-        rootNode.setRotation(new float[] { -0.7071068f, 0, 0, 0.7071068f }); // lazy rotation to match expected axis
-        nodes.add(rootNode);
-        int rootNodeIndex = nodes.size() - 1;
+        rootChildren.addAll(topLevelBoneNodeIndices);
+
         Scene scene = new Scene();
-        scene.setNodes(Arrays.asList(rootNodeIndex));
+        scene.setNodes(rootChildren);
         gltf.setScenes(Arrays.asList(scene));
         gltf.setScene(0);
 
