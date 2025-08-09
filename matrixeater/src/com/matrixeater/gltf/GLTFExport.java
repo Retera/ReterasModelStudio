@@ -23,6 +23,7 @@ import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.GeosetVertexBoneLink;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
 import com.hiveworkshop.wc3.mdl.Triangle;
@@ -164,6 +165,8 @@ public class GLTFExport implements ActionListener {
                     javax.swing.SwingUtilities.invokeLater(() -> javax.swing.JOptionPane.showMessageDialog(dialog,
                             "Export failed: " + ex2.getMessage(), "Export Error",
                             javax.swing.JOptionPane.ERROR_MESSAGE));
+                    // print stack trace for debugging
+                    ex2.printStackTrace();
                 } finally {
                     javax.swing.SwingUtilities.invokeLater(() -> exportCurrentBtn.setEnabled(true));
                 }
@@ -296,7 +299,7 @@ public class GLTFExport implements ActionListener {
         List<Accessor> accessors = new ArrayList<>();
         List<Mesh> meshes = new ArrayList<>();
         List<Node> nodes = new ArrayList<>();
-        List<Integer> geoNodes = new ArrayList<>(); // called geo because it contains nodes made form geosets
+        List<Integer> geoNodes = new ArrayList<>();
         List<Image> images = new ArrayList<>();
         List<Sampler> samplers = new ArrayList<>();
         List<Texture> textures = new ArrayList<>();
@@ -368,6 +371,129 @@ public class GLTFExport implements ActionListener {
         }
         // MESH
         log.info("Geosets: " + model.getGeosets().size());
+        List<Bone> mdxBones = new ArrayList<>();
+        for (final IdObject object : model.getIdObjects()) {
+            if (object instanceof Bone) {
+                mdxBones.add((Bone) object);
+            }
+        }
+        Map<Bone, Integer> boneToNode = new java.util.HashMap<>();
+        // First pass: create nodes (no translation yet)
+        for (Bone bone : mdxBones) {
+            Node boneNode = new Node();
+            boneNode.setName(bone.getName());
+            nodes.add(boneNode);
+            boneToNode.put(bone, nodes.size() - 1);
+        }
+        // Establish bone hierarchy
+        for (Bone bone : mdxBones) {
+            IdObject parent = bone.getParent();
+            if (parent instanceof Bone) {
+                Integer parentIdx = boneToNode.get((Bone) parent);
+                if (parentIdx != null) {
+                    Node pNode = nodes.get(parentIdx);
+                    List<Integer> kids = pNode.getChildren();
+                    if (kids == null) {
+                        kids = new ArrayList<>();
+                        kids.add(boneToNode.get(bone));
+                        pNode.setChildren(kids);
+                    }
+                    else {
+                        kids.add(boneToNode.get(bone));
+                    }
+                }
+            }
+        }
+        // Second pass: assign local translations = pivot - parentPivot
+        for (Bone bone : mdxBones) {
+            if (bone.getPivotPoint() == null) {
+                continue;
+            }
+            double bx = bone.getPivotPoint().x;
+            double by = bone.getPivotPoint().y;
+            double bz = bone.getPivotPoint().z;
+            double tx = bx, ty = by, tz = bz;
+            IdObject parent = bone.getParent();
+            if (parent instanceof Bone) {
+                Bone pb = (Bone) parent;
+                if (pb.getPivotPoint() != null) {
+                    tx = bx - pb.getPivotPoint().x;
+                    ty = by - pb.getPivotPoint().y;
+                    tz = bz - pb.getPivotPoint().z;
+                }
+            }
+            nodes.get(boneToNode.get(bone)).setTranslation(new float[] { (float) tx, (float) ty, (float) tz });
+        }
+        List<Integer> topLevelBoneNodeIndices = new ArrayList<>();
+        for (Bone bone : mdxBones) {
+            if (!(bone.getParent() instanceof Bone)) {
+                topLevelBoneNodeIndices.add(boneToNode.get(bone));
+            }
+        }
+
+        // NEW: Skin (one skin covering all bones)
+        int skinIndex = -1;
+        if (!mdxBones.isEmpty()) {
+            int boneCount = mdxBones.size();
+            // Build inverse bind matrices: inverse(worldBind) = translate(-pivot)
+            float[] ibm = new float[boneCount * 16];
+            for (int i = 0; i < boneCount; i++) {
+                Bone b = mdxBones.get(i);
+                double px = 0, py = 0, pz = 0;
+                if (b.getPivotPoint() != null) {
+                    px = b.getPivotPoint().x;
+                    py = b.getPivotPoint().y;
+                    pz = b.getPivotPoint().z;
+                }
+                int o = i * 16;
+                // column-major identity
+                ibm[o] = 1;
+                ibm[o + 5] = 1;
+                ibm[o + 10] = 1;
+                ibm[o + 15] = 1;
+                // translation components (last column except bottom-right)
+                ibm[o + 12] = (float)(-px);
+                ibm[o + 13] = (float)(-py);
+                ibm[o + 14] = (float)(-pz);
+            }
+            byte[] ibmBytes = new byte[ibm.length * 4];
+            ByteBuffer.wrap(ibmBytes).order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer().put(ibm);
+            String ibmUri = "data:application/octet-stream;base64," +
+                    java.util.Base64.getEncoder().encodeToString(ibmBytes);
+            Buffer ibmBuffer = new Buffer();
+            ibmBuffer.setByteLength(ibmBytes.length);
+            ibmBuffer.setUri(ibmUri);
+            buffers.add(ibmBuffer);
+            int ibmBufferIndex = buffers.size() - 1;
+
+            BufferView ibmView = new BufferView();
+            ibmView.setBuffer(ibmBufferIndex);
+            ibmView.setByteOffset(0);
+            ibmView.setByteLength(ibmBytes.length);
+            bufferViews.add(ibmView);
+            int ibmViewIndex = bufferViews.size() - 1;
+
+            Accessor ibmAccessor = new Accessor();
+            ibmAccessor.setBufferView(ibmViewIndex);
+            ibmAccessor.setComponentType(5126); // FLOAT
+            ibmAccessor.setCount(boneCount);
+            ibmAccessor.setType("MAT4");
+            ibmAccessor.setByteOffset(0);
+            accessors.add(ibmAccessor);
+            int ibmAccessorIndex = accessors.size() - 1;
+
+            Skin skin = new Skin();
+            List<Integer> joints = new ArrayList<>();
+            for (Bone b : mdxBones) {
+                joints.add(boneToNode.get(b));
+            }
+            skin.setJoints(joints);
+            skin.setInverseBindMatrices(ibmAccessorIndex);
+            skins.add(skin);
+            skinIndex = skins.size() - 1;
+        }
+
+        // log.info("Geosets: " + model.getGeosets().size());
         for (Geoset geoset : model.getGeosets()) {
             if (!visibilityFilter.test(geoset)) {
                 log.info("Skipping geoset " + geoset.getName() + " due to visibility filter.");
@@ -463,9 +589,110 @@ public class GLTFExport implements ActionListener {
             accessors.add(uvAccessor);
             var uvAccessorIndex = accessors.size() - 1;
 
+            // NEW: Skinning attributes
+            Integer jointsAccessorIndex = null;
+            Integer weightsAccessorIndex = null;
+            if (skinIndex >= 0) {
+                int vertexCount = geoset.getVertices().size();
+                short[] joints = new short[vertexCount * 4];
+                float[] weights = new float[vertexCount * 4];
+                for (int v = 0; v < vertexCount; v++) {
+                    GeosetVertex gv = geoset.getVertices().get(v);
+                    List<GeosetVertexBoneLink> links = gv.getLinks();
+                    int influenceCount = Math.min(links.size(), 4);
+                    int total = 0;
+                    for (int i = 0; i < influenceCount; i++) {
+                        GeosetVertexBoneLink link = links.get(i);
+                        Integer nodeIdx = boneToNode.get(link.bone);
+                        if (nodeIdx == null) continue;
+                        joints[v * 4 + i] = (short) (int) nodeIdx;
+                        weights[v * 4 + i] = link.weight;
+                        total += link.weight;
+                    }
+                    if (total == 0 && !mdxBones.isEmpty()) {
+                        joints[v * 4] = (short) (int) boneToNode.get(mdxBones.get(0));
+                        weights[v * 4] = 255f;
+                        total = 255;
+                    }
+                    for (int i = 0; i < 4; i++) {
+                        weights[v * 4 + i] = weights[v * 4 + i] / 255f;
+                    }
+                    float sum = weights[v * 4] + weights[v * 4 + 1] + weights[v * 4 + 2] + weights[v * 4 + 3];
+                    if (sum > 0) {
+                        for (int i = 0; i < 4; i++) {
+                            weights[v * 4 + i] /= sum;
+                        }
+                    }
+                }
+                // JOINTS buffer
+                byte[] jointsBytes = new byte[joints.length * 2];
+                ByteBuffer.wrap(jointsBytes).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(joints);
+                String jointsUri = "data:application/octet-stream;base64," +
+                        java.util.Base64.getEncoder().encodeToString(jointsBytes);
+                Buffer jointsBuffer = new Buffer();
+                jointsBuffer.setByteLength(jointsBytes.length);
+                jointsBuffer.setUri(jointsUri);
+                buffers.add(jointsBuffer);
+                int jointsBufferIndex = buffers.size() - 1;
+
+                BufferView jointsView = new BufferView();
+                jointsView.setBuffer(jointsBufferIndex);
+                jointsView.setByteOffset(0);
+                jointsView.setByteLength(jointsBytes.length);
+                jointsView.setTarget(34962);
+                bufferViews.add(jointsView);
+                int jointsViewIndex = bufferViews.size() - 1;
+
+                Accessor jointsAccessor = new Accessor();
+                jointsAccessor.setBufferView(jointsViewIndex);
+                jointsAccessor.setComponentType(5123); // UNSIGNED_SHORT
+                jointsAccessor.setCount(vertexCount);
+                jointsAccessor.setType("VEC4");
+                jointsAccessor.setByteOffset(0);
+                accessors.add(jointsAccessor);
+                jointsAccessorIndex = accessors.size() - 1;
+
+                // WEIGHTS buffer
+                byte[] weightsBytes = new byte[weights.length * 4];
+                ByteBuffer.wrap(weightsBytes).order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer().put(weights);
+                String weightsUri = "data:application/octet-stream;base64," +
+                        java.util.Base64.getEncoder().encodeToString(weightsBytes);
+                Buffer weightsBuffer = new Buffer();
+                weightsBuffer.setByteLength(weightsBytes.length);
+                weightsBuffer.setUri(weightsUri);
+                buffers.add(weightsBuffer);
+                int weightsBufferIndex = buffers.size() - 1;
+
+                BufferView weightsView = new BufferView();
+                weightsView.setBuffer(weightsBufferIndex);
+                weightsView.setByteOffset(0);
+                weightsView.setByteLength(weightsBytes.length);
+                weightsView.setTarget(34962);
+                bufferViews.add(weightsView);
+                int weightsViewIndex = bufferViews.size() - 1;
+
+                Accessor weightsAccessor = new Accessor();
+                weightsAccessor.setBufferView(weightsViewIndex);
+                weightsAccessor.setComponentType(5126); // FLOAT
+                weightsAccessor.setCount(vertexCount);
+                weightsAccessor.setType("VEC4");
+                weightsAccessor.setByteOffset(0);
+                accessors.add(weightsAccessor);
+                weightsAccessorIndex = accessors.size() - 1;
+            }
+
             Mesh mesh = new Mesh();
             MeshPrimitive primitive = new MeshPrimitive();
-            primitive.setAttributes(Map.of("POSITION", positionAccessorIndex, "TEXCOORD_0", uvAccessorIndex));
+            primitive.setAttributes(Map.of(
+                    "POSITION", positionAccessorIndex,
+                    "TEXCOORD_0", uvAccessorIndex));
+            if (jointsAccessorIndex != null && weightsAccessorIndex != null) {
+                primitive.setAttributes(Map.of(
+                        "POSITION", positionAccessorIndex,
+                        "TEXCOORD_0", uvAccessorIndex,
+                        "JOINTS_0", jointsAccessorIndex,
+                        "WEIGHTS_0", weightsAccessorIndex));
+            }
             primitive.setIndices(indicesAccessorIndex);
             primitive.setMode(4); // TRIANGLES
             primitive.setMaterial(data.materialIndex); // Assuming materialIndex is the index of the material in the
@@ -476,53 +703,26 @@ public class GLTFExport implements ActionListener {
 
             Node node = new Node();
             node.setMesh(meshIndex);
+            if (skinIndex >= 0) {
+                node.setSkin(skinIndex);
+            }
             node.setName(geoset.getName());
             nodes.add(node);
-            geoNodes.add(nodes.size() - 1); // Add the node to the root nodes list
+            geoNodes.add(nodes.size() - 1);
         }
 
-        // Bones
-        List<Bone> mdxBones = new ArrayList<>();
-        for (final IdObject object : model.getIdObjects()) {
-            if (object instanceof Bone) {
-                mdxBones.add((Bone) object);
-            }
-        }
-
-        log.info("Bones: " + mdxBones.size());
-        // if (mdxBones.size() > 0) {
-        // // Create a skin for the bones
-        // Skin skin = new Skin();
-        // List<Integer> jointIndices = new ArrayList<>();
-        // List<float[]> inverseBindMatrices = new ArrayList<>(); // Changed to
-        // List<float[]> for inverse bind matrices
-        // for (Bone bone : mdxBones) {
-        // jointIndices.add(nodes.size()); // Add the node index to the joint indices
-        // Node boneNode = new Node();
-        // boneNode.setName(bone.getName());
-        // nodes.add(boneNode);
-        // // Create an inverse bind matrix for the bone
-        // float[] inverseBindMatrix = new float[16];
-        // // Assuming the bone has a method to get its transformation matrix
-        // // Here we just create an identity matrix for simplicity
-        // for (int i = 0; i < 16; i++) {
-        // inverseBindMatrix[i] = (i % 5 == 0) ? 1
-        // : 0; // Identity matrix
-        // }
-        // inverseBindMatrices.add(inverseBindMatrix);
-        // }
-        // skins.add(skin);
-        // }
-
-        // Merge
+        // Merge root
         Node rootNode = new Node();
         rootNode.setName(model.getName());
-        rootNode.setChildren(geoNodes);
-        // Rotate -90 degrees around X-axis to convert from Z-up (MDX) to Y-up (glTF)
+        List<Integer> rootChildren = new ArrayList<>();
+        rootChildren.addAll(geoNodes);
+        rootChildren.addAll(topLevelBoneNodeIndices); // NEW include bones
+        if (!rootChildren.isEmpty()) {
+            rootNode.setChildren(rootChildren);
+        }
         rootNode.setRotation(new float[] { -0.7071068f, 0, 0, 0.7071068f });
         nodes.add(rootNode);
-        var rootNodeIndex = nodes.size() - 1; // Get the index of the root node
-
+        int rootNodeIndex = nodes.size() - 1;
         Scene scene = new Scene();
         scene.setNodes(Arrays.asList(rootNodeIndex));
         gltf.setScenes(Arrays.asList(scene));
@@ -537,7 +737,9 @@ public class GLTFExport implements ActionListener {
         gltf.setSamplers(samplers);
         gltf.setTextures(textures);
         gltf.setMaterials(materials);
-        // gltf.setSkins(skins);
+        if (!skins.isEmpty()) { // NEW set skins only if present
+            gltf.setSkins(skins);
+        }
     }
 
     private static class GeosetData {
