@@ -13,8 +13,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
+
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
 
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.mdl.Bitmap;
@@ -41,7 +51,6 @@ import de.javagl.jgltf.impl.v2.Mesh;
 import de.javagl.jgltf.impl.v2.MeshPrimitive;
 import de.javagl.jgltf.impl.v2.Node;
 import de.javagl.jgltf.impl.v2.Scene;
-import de.javagl.jgltf.model.animation.AnimationManager.AnimationPolicy;
 import de.javagl.jgltf.model.io.GltfWriter;
 import de.javagl.jgltf.impl.v2.*;
 import de.wc3data.stream.BlizzardDataInputStream;
@@ -62,10 +71,10 @@ public class GLTFExport implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         // Build a simple modal dialog for export options
-        final javax.swing.JDialog dialog = new javax.swing.JDialog(
-                (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(mainframe),
+        final JDialog dialog = new JDialog(
+                (java.awt.Frame) SwingUtilities.getWindowAncestor(mainframe),
                 "GLTF Export", true);
-        javax.swing.JPanel panel = new javax.swing.JPanel(new java.awt.GridBagLayout());
+        JPanel panel = new JPanel(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gc = new java.awt.GridBagConstraints();
         gc.insets = new java.awt.Insets(4, 4, 4, 4);
         gc.anchor = java.awt.GridBagConstraints.WEST;
@@ -73,14 +82,14 @@ public class GLTFExport implements ActionListener {
         gc.gridy = 0;
 
         // Checkbox for visibility-by-animation filtering
-        final javax.swing.JCheckBox visibilityCheck = new javax.swing.JCheckBox("Filter by animation visibility");
+        final JCheckBox visibilityCheck = new JCheckBox("Filter by animation visibility");
         panel.add(visibilityCheck, gc);
 
         // Animation text field (name or index)
         gc.gridy++;
-        panel.add(new javax.swing.JLabel("Animation (name or index):"), gc);
+        panel.add(new JLabel("Animation (name or index):"), gc);
         gc.gridx = 1;
-        final javax.swing.JTextField animationField = new javax.swing.JTextField(18);
+        final JTextField animationField = new JTextField(18);
         animationField.setEnabled(false);
         panel.add(animationField, gc);
 
@@ -89,21 +98,21 @@ public class GLTFExport implements ActionListener {
         // Buttons
         gc.gridx = 0;
         gc.gridy++;
-        final javax.swing.JButton exportCurrentBtn = new javax.swing.JButton("Export Current Model");
+        final JButton exportCurrentBtn = new JButton("Export Current Model");
         panel.add(exportCurrentBtn, gc);
         gc.gridx = 1;
-        final javax.swing.JButton exportAllBtn = new javax.swing.JButton("Export All Models");
+        final JButton exportAllBtn = new JButton("Export All Models");
         panel.add(exportAllBtn, gc);
 
         gc.gridx = 0;
         gc.gridy++;
-        final javax.swing.JButton closeBtn = new javax.swing.JButton("Close");
+        final JButton closeBtn = new JButton("Close");
         panel.add(closeBtn, gc);
 
         closeBtn.addActionListener(ev -> dialog.dispose());
 
         // Helper to resolve animation by text (index or partial name)
-        java.util.function.BiFunction<com.hiveworkshop.wc3.mdl.EditableModel, String, com.hiveworkshop.wc3.mdl.Animation> resolveAnimation = (
+        BiFunction<com.hiveworkshop.wc3.mdl.EditableModel, String, com.hiveworkshop.wc3.mdl.Animation> resolveAnimation = (
                 model, text) -> {
             if (model == null || text == null || text.isBlank())
                 return null;
@@ -143,8 +152,8 @@ public class GLTFExport implements ActionListener {
                     var model = mainframe.currentMDL();
                     if (model == null) {
                         log.warning("No current model to export.");
-                        javax.swing.SwingUtilities.invokeLater(() -> javax.swing.JOptionPane.showMessageDialog(dialog,
-                                "No current model loaded.", "Export", javax.swing.JOptionPane.WARNING_MESSAGE));
+                        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(dialog,
+                                "No current model loaded.", "Export", JOptionPane.WARNING_MESSAGE));
                         return;
                     }
                     com.hiveworkshop.wc3.mdl.Animation anim = null;
@@ -159,17 +168,17 @@ public class GLTFExport implements ActionListener {
                     var predicate = predicateFor.apply(model, anim);
                     GLTFExport.export(model, predicate);
                     log.info("Exported current model: " + model.getName());
-                    javax.swing.SwingUtilities.invokeLater(() -> javax.swing.JOptionPane.showMessageDialog(dialog,
-                            "Exported: " + model.getName(), "Export", javax.swing.JOptionPane.INFORMATION_MESSAGE));
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(dialog,
+                            "Exported: " + model.getName(), "Export", JOptionPane.INFORMATION_MESSAGE));
                 } catch (Exception ex2) {
                     log.severe("Export failed: " + ex2.getMessage());
-                    javax.swing.SwingUtilities.invokeLater(() -> javax.swing.JOptionPane.showMessageDialog(dialog,
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(dialog,
                             "Export failed: " + ex2.getMessage(), "Export Error",
-                            javax.swing.JOptionPane.ERROR_MESSAGE));
+                            JOptionPane.ERROR_MESSAGE));
                     // print stack trace for debugging
                     ex2.printStackTrace();
                 } finally {
-                    javax.swing.SwingUtilities.invokeLater(() -> exportCurrentBtn.setEnabled(true));
+                    SwingUtilities.invokeLater(() -> exportCurrentBtn.setEnabled(true));
                 }
             }, "GLTF-Export-Current").start();
         });
@@ -206,17 +215,22 @@ public class GLTFExport implements ActionListener {
                     }
                     int finalSuccess = success;
                     int finalFail = fail;
-                    javax.swing.SwingUtilities.invokeLater(() -> javax.swing.JOptionPane.showMessageDialog(dialog,
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(dialog,
                             "All exports complete.\nSuccess: " + finalSuccess + "\nFailed: " + finalFail,
-                            "Export All", javax.swing.JOptionPane.INFORMATION_MESSAGE));
+                            "Export All", JOptionPane.INFORMATION_MESSAGE));
                 } finally {
-                    javax.swing.SwingUtilities.invokeLater(() -> exportAllBtn.setEnabled(true));
+                    SwingUtilities.invokeLater(() -> exportAllBtn.setEnabled(true));
                 }
             }, "GLTF-Export-All").start();
         });
 
         dialog.getContentPane().add(panel);
         dialog.pack();
+        JOptionPane.showMessageDialog(
+                dialog,
+                "GLTF export is experimental.\nResults may be incomplete or incorrect.",
+                "Experimental Feature",
+                JOptionPane.WARNING_MESSAGE);
         dialog.setLocationRelativeTo(mainframe);
         dialog.setVisible(true);
     }
@@ -357,7 +371,7 @@ public class GLTFExport implements ActionListener {
             glMaterial.setName(material.getName());
             // glMaterial.setAlphaMode("BLEND");
             // glMaterial.setAlphaCutoff(null);
-            // ! The best approximation I could find so far
+            // ! The best approximation I could find so far, works well on the models I tested
             glMaterial.setAlphaMode("MASK");
             glMaterial.setAlphaCutoff(0.5f); // or whatever cutoff works best
 
@@ -595,7 +609,6 @@ public class GLTFExport implements ActionListener {
             accessors.add(uvAccessor);
             var uvAccessorIndex = accessors.size() - 1;
 
-            // NEW: Skinning attributes
             Integer jointsAccessorIndex = null;
             Integer weightsAccessorIndex = null;
             if (skinIndex >= 0) {
