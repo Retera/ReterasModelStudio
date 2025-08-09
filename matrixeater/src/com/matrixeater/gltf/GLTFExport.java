@@ -219,7 +219,6 @@ public class GLTFExport implements ActionListener {
                     AtomicInteger processed = new AtomicInteger(0);
                     var threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
                     ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(threads);
-
                     // Units
                     for (String path : unitPaths) {
                         try {
@@ -510,7 +509,6 @@ public class GLTFExport implements ActionListener {
             materials.add(glMaterial);
         }
         // MESH
-        log.info("Geosets: " + model.getGeosets().size());
         List<Bone> mdxBones = new ArrayList<>();
         for (final IdObject object : model.getIdObjects()) {
             if (object instanceof Bone) {
