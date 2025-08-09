@@ -509,6 +509,7 @@ public class GLTFExport implements ActionListener {
             materials.add(glMaterial);
         }
         // MESH
+        log.info("Geosets: " + model.getGeosets().size());
         List<Bone> mdxBones = new ArrayList<>();
         for (final IdObject object : model.getIdObjects()) {
             if (object instanceof Bone) {
