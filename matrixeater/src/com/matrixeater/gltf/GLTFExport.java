@@ -14,6 +14,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.logging.Logger;
 
@@ -199,9 +202,7 @@ public class GLTFExport implements ActionListener {
             new Thread(() -> {
                 long startNanos = System.nanoTime(); // timing start
                 try {
-                    int success = 0;
-                    int fail = 0;
-                    List<String> failedModels = new ArrayList<>(); // track failed exports
+                    List<String> failedModels = Collections.synchronizedList(new ArrayList<>()); // track failed exports
                     // Gather paths first to know total for progress
                     List<String> unitPaths = getAllUnitPaths();
                     List<String> doodadPaths = getAllDoodadsPaths();
@@ -212,34 +213,50 @@ public class GLTFExport implements ActionListener {
                         exportAllProgress.setValue(0);
                         exportAllProgress.setString("0 / " + total);
                     });
-                    int processed = 0;
+
+                    AtomicInteger success = new AtomicInteger(0);
+                    AtomicInteger fail = new AtomicInteger(0);
+                    AtomicInteger processed = new AtomicInteger(0);
+                    var threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
+                    ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(threads);
 
                     // Units
                     for (String path : unitPaths) {
                         try {
                             var model = loadModel(path);
                             if (model == null) {
-                                fail++;
+                                fail.incrementAndGet();
                                 failedModels.add(path);
                             } else {
-                                com.hiveworkshop.wc3.mdl.Animation anim = visibilityCheck.isSelected()
-                                        ? resolveAnimation.apply(model, animationField.getText())
-                                        : null;
-                                GLTFExport.export(model, anim, "models/units");
-                                success++;
+                                executor.submit(() -> {
+                                    com.hiveworkshop.wc3.mdl.Animation anim = visibilityCheck.isSelected()
+                                            ? resolveAnimation.apply(model, animationField.getText())
+                                            : null;
+                                    try {
+                                        GLTFExport.export(model, anim, "models/units");
+                                        success.incrementAndGet();
+                                    } catch (Exception ex) {
+                                        log.warning("Failed exporting unit " + path + ": " + ex.getMessage());
+                                        fail.incrementAndGet();
+                                        failedModels.add(path);
+                                        return;
+                                    } finally {
+                                        processed.incrementAndGet();
+                                        final int fProcessed = processed.get();
+                                        final int fTotal = total;
+                                        SwingUtilities.invokeLater(() -> {
+                                            exportAllProgress.setValue(fProcessed);
+                                            exportAllProgress.setString(fProcessed + " / " + fTotal);
+                                        });
+                                    }
+                                });
                             }
                         } catch (Exception one) {
-                            fail++;
+                            fail.incrementAndGet();
                             failedModels.add(path);
                             log.warning("Failed exporting unit " + path + ": " + one.getMessage());
                         }
-                        processed++;
-                        final int fProcessed = processed;
-                        final int fTotal = total;
-                        SwingUtilities.invokeLater(() -> {
-                            exportAllProgress.setValue(fProcessed);
-                            exportAllProgress.setString(fProcessed + " / " + fTotal);
-                        });
+
                     }
 
                     // Doodads
@@ -247,39 +264,56 @@ public class GLTFExport implements ActionListener {
                         try {
                             var model = loadModel(path);
                             if (model == null) {
-                                fail++;
+                                fail.incrementAndGet();
                                 failedModels.add(path);
                             } else {
-                                com.hiveworkshop.wc3.mdl.Animation anim = visibilityCheck.isSelected()
-                                        ? resolveAnimation.apply(model, animationField.getText())
-                                        : null;
-                                GLTFExport.export(model, anim, "models/doodads");
-                                success++;
+                                executor.submit(() -> {
+                                    com.hiveworkshop.wc3.mdl.Animation anim = visibilityCheck.isSelected()
+                                            ? resolveAnimation.apply(model, animationField.getText())
+                                            : null;
+                                    try { 
+                                    GLTFExport.export(model, anim, "models/doodads");
+                                    success.incrementAndGet();
+                                    }
+                                    catch (Exception ex) {
+                                        log.warning("Failed exporting doodad " + path + ": " + ex.getMessage());
+                                        fail.incrementAndGet();
+                                        failedModels.add(path);
+                                        return;
+                                    }
+                                    finally {
+                                        processed.incrementAndGet();
+                                        final int fProcessed = processed.get();
+                                        final int fTotal = total;
+                                        SwingUtilities.invokeLater(() -> {
+                                            exportAllProgress.setValue(fProcessed);
+                                            exportAllProgress.setString(fProcessed + " / " + fTotal);
+                                        });
+                                    }
+                                });
                             }
                         } catch (Exception one) {
-                            fail++;
+                            fail.incrementAndGet();
                             failedModels.add(path);
                             log.warning("Failed exporting doodad " + path + ": " + one.getMessage());
                         }
-                        processed++;
-                        final int fProcessed = processed;
-                        final int fTotal = total;
-                        SwingUtilities.invokeLater(() -> {
-                            exportAllProgress.setValue(fProcessed);
-                            exportAllProgress.setString(fProcessed + " / " + fTotal);
-                        });
-                    }
 
-                    int finalSuccess = success;
-                    int finalFail = fail;
+                    }
+                    executor.shutdown();
+                    executor.awaitTermination(1_000_000, TimeUnit.SECONDS);
+
+                    int finalSuccess = success.get();
+                    int finalFail = fail.get();
                     List<String> finalFailedModels = new ArrayList<>(failedModels);
                     long elapsedMs = (System.nanoTime() - startNanos) / 1_000_000L; // timing end
                     SwingUtilities.invokeLater(() -> {
                         double secs = elapsedMs / 1000.0;
-                        exportAllProgress.setString("Done: " + finalSuccess + "/" + total + " (Failed " + finalFail + ")");
+                        exportAllProgress
+                                .setString("Done: " + finalSuccess + "/" + total + " (Failed " + finalFail + ")");
                         if (finalFail > 0) {
                             var msgPanel = Box.createVerticalBox();
-                            String summary = "Success: " + finalSuccess + "\nFailed: " + finalFail + "\nDuration: " + String.format(java.util.Locale.US, "%.3f s", secs);
+                            String summary = "Success: " + finalSuccess + "\nFailed: " + finalFail + "\nDuration: "
+                                    + String.format(java.util.Locale.US, "%.3f s", secs);
                             msgPanel.add(new JLabel("Export Summary"), BorderLayout.NORTH);
                             msgPanel.add(new JTextArea(summary), BorderLayout.NORTH);
                             msgPanel.add(new JLabel("Failed models (paths):"), BorderLayout.NORTH);
@@ -289,13 +323,20 @@ public class GLTFExport implements ActionListener {
                             JScrollPane scrollPane = new JScrollPane(failList);
                             scrollPane.setPreferredSize(new Dimension(400, 300));
                             msgPanel.add(scrollPane, BorderLayout.CENTER);
-                            JOptionPane.showMessageDialog(dialog, msgPanel, "Export All", JOptionPane.INFORMATION_MESSAGE);
+                            JOptionPane.showMessageDialog(dialog, msgPanel, "Export All",
+                                    JOptionPane.INFORMATION_MESSAGE);
                         } else {
                             JOptionPane.showMessageDialog(dialog,
-                                    "All exports complete.\nSuccess: " + finalSuccess + "\nFailed: 0\nDuration: " + String.format(java.util.Locale.US, "%.3f s", secs),
+                                    "All exports complete.\nSuccess: " + finalSuccess + "\nFailed: 0\nDuration: "
+                                            + String.format(java.util.Locale.US, "%.3f s", secs),
                                     "Export All", JOptionPane.INFORMATION_MESSAGE);
                         }
                     });
+                } catch (InterruptedException e2) {
+                    log.warning("Export interrupted: " + e2.getMessage());
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(dialog,
+                            "Export interrupted: " + e2.getMessage(), "Export Error",
+                            JOptionPane.ERROR_MESSAGE));
                 } finally {
                     SwingUtilities.invokeLater(() -> {
                         exportAllBtn.setEnabled(true);
@@ -354,7 +395,8 @@ public class GLTFExport implements ActionListener {
         return doodadPaths;
     }
 
-    private static void export(EditableModel model, com.hiveworkshop.wc3.mdl.Animation animation, String baseDir) throws IOException {
+    private static void export(EditableModel model, com.hiveworkshop.wc3.mdl.Animation animation, String baseDir)
+            throws IOException {
         var gltf = createGltfModel(model, animation);
         File outputFile = new File(baseDir + "/" + model.getName() + ".gltf");
 
@@ -388,7 +430,8 @@ public class GLTFExport implements ActionListener {
         return gltf;
     }
 
-    private static void loadMeshIntoModel(EditableModel model, GlTF gltf, com.hiveworkshop.wc3.mdl.Animation animation) {
+    private static void loadMeshIntoModel(EditableModel model, GlTF gltf,
+            com.hiveworkshop.wc3.mdl.Animation animation) {
 
         List<Buffer> buffers = new ArrayList<>();
         List<BufferView> bufferViews = new ArrayList<>();
@@ -452,7 +495,8 @@ public class GLTFExport implements ActionListener {
             glMaterial.setName(material.getName());
             // glMaterial.setAlphaMode("BLEND");
             // glMaterial.setAlphaCutoff(null);
-            // ! The best approximation I could find so far, works well on the models I tested
+            // ! The best approximation I could find so far, works well on the models I
+            // tested
             glMaterial.setAlphaMode("MASK");
             glMaterial.setAlphaCutoff(0.5f); // or whatever cutoff works best
 
@@ -493,8 +537,7 @@ public class GLTFExport implements ActionListener {
                         kids = new ArrayList<>();
                         kids.add(boneToNode.get(bone));
                         pNode.setChildren(kids);
-                    }
-                    else {
+                    } else {
                         kids.add(boneToNode.get(bone));
                     }
                 }
@@ -526,7 +569,8 @@ public class GLTFExport implements ActionListener {
                 var topLevelBoneIndex = boneToNode.get(bone);
                 topLevelBoneNodeIndices.add(topLevelBoneIndex);
                 Node topLevelBoneNode = nodes.get(topLevelBoneIndex);
-                topLevelBoneNode.setRotation(new float[] { -0.7071068f, 0, 0, 0.7071068f }); // lazy rotation to match expected axis
+                topLevelBoneNode.setRotation(new float[] { -0.7071068f, 0, 0, 0.7071068f }); // lazy rotation to match
+                                                                                             // expected axis
             }
         }
 
@@ -550,9 +594,9 @@ public class GLTFExport implements ActionListener {
                 ibm[o + 10] = 1;
                 ibm[o + 15] = 1;
                 // translation components (last column except bottom-right)
-                ibm[o + 12] = (float)(-px);
-                ibm[o + 13] = (float)(-py);
-                ibm[o + 14] = (float)(-pz);
+                ibm[o + 12] = (float) (-px);
+                ibm[o + 13] = (float) (-py);
+                ibm[o + 14] = (float) (-pz);
             }
             byte[] ibmBytes = new byte[ibm.length * 4];
             ByteBuffer.wrap(ibmBytes).order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer().put(ibm);
@@ -618,10 +662,10 @@ public class GLTFExport implements ActionListener {
             var positionBufferViewIndex = bufferViews.size() - 1;
 
             Accessor positionAccessor = new Accessor();
-            var minExtents = new Number[]{geoset.getExtents().getMinimumExtent().x,
-                    geoset.getExtents().getMinimumExtent().y, geoset.getExtents().getMinimumExtent().z};
-            var maxExtents = new Number[]{geoset.getExtents().getMaximumExtent().x,
-                    geoset.getExtents().getMaximumExtent().y, geoset.getExtents().getMaximumExtent().z};
+            var minExtents = new Number[] { geoset.getExtents().getMinimumExtent().x,
+                    geoset.getExtents().getMinimumExtent().y, geoset.getExtents().getMinimumExtent().z };
+            var maxExtents = new Number[] { geoset.getExtents().getMaximumExtent().x,
+                    geoset.getExtents().getMaximumExtent().y, geoset.getExtents().getMaximumExtent().z };
 
             positionAccessor.setMax(maxExtents); // Default max extent
             positionAccessor.setMin(minExtents); // Updated to use calculated min extents
@@ -704,7 +748,8 @@ public class GLTFExport implements ActionListener {
                     for (int i = 0; i < influenceCount; i++) {
                         GeosetVertexBoneLink link = links.get(i);
                         Integer nodeIdx = boneToNode.get(link.bone);
-                        if (nodeIdx == null) continue;
+                        if (nodeIdx == null)
+                            continue;
                         joints[v * 4 + i] = (short) (int) nodeIdx;
                         weights[v * 4 + i] = link.weight;
                         total += link.weight;
@@ -947,7 +992,7 @@ public class GLTFExport implements ActionListener {
     }
 
     private static boolean isGeosetTeamGlow(Geoset geoset) {
-        //ge the material
+        // ge the material
         if (geoset.getMaterial() == null) {
             return false; // cannot be team glow, team glow has a material
         }
@@ -992,12 +1037,14 @@ public class GLTFExport implements ActionListener {
                 }
                 return 1.0f;
             } else {
-                //times is sorted, hopefully no duplicates, so Collections.binarySearch is behaving like a bisect left
+                // times is sorted, hopefully no duplicates, so Collections.binarySearch is
+                // behaving like a bisect left
                 int keyframeTime = Collections.binarySearch(visFlag.getTimes(), time);
                 Object v = visFlag.getValues().get(keyframeTime);
                 if (v instanceof Number) {
                     float vis = ((Number) v).floatValue();
-                    if (vis < 0.9f) { // Threshold for visibility, I assume alpha is generally either 0 or 1, so 0.9 is as good as any value
+                    if (vis < 0.9f) { // Threshold for visibility, I assume alpha is generally either 0 or 1, so 0.9
+                                      // is as good as any value
                         return vis; // Return the visibility value
                     }
                 }
@@ -1010,7 +1057,7 @@ public class GLTFExport implements ActionListener {
         }
     }
 
-    private EditableModel loadModel(String path) {
+    private static EditableModel loadModel(String path) {
         var f = MpqCodebase.get().getResourceAsStream(path);
         try (BlizzardDataInputStream in = new BlizzardDataInputStream(f)) {
             final EditableModel model = new EditableModel(MdxUtils.loadModel(in));
