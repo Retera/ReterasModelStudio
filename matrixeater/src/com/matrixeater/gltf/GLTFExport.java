@@ -20,6 +20,7 @@ import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.EditableModel;
+import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
@@ -520,7 +521,13 @@ public class GLTFExport implements ActionListener {
             var positionBufferViewIndex = bufferViews.size() - 1;
 
             Accessor positionAccessor = new Accessor();
-            // TODO: should define min/max values for positionAccessor, after I figure out
+            var minExtents = new Number[]{geoset.getExtents().getMinimumExtent().x,
+                    geoset.getExtents().getMinimumExtent().y, geoset.getExtents().getMinimumExtent().z};
+            var maxExtents = new Number[]{geoset.getExtents().getMaximumExtent().x,
+                    geoset.getExtents().getMaximumExtent().y, geoset.getExtents().getMaximumExtent().z};
+
+            positionAccessor.setMax(maxExtents); // Default max extent
+            positionAccessor.setMin(minExtents); // Updated to use calculated min extents
             // how vertices are expresssed in the model
             positionAccessor.setBufferView(positionBufferViewIndex);
             positionAccessor.setComponentType(5126); // FLOAT
@@ -695,8 +702,7 @@ public class GLTFExport implements ActionListener {
             }
             primitive.setIndices(indicesAccessorIndex);
             primitive.setMode(4); // TRIANGLES
-            primitive.setMaterial(data.materialIndex); // Assuming materialIndex is the index of the material in the
-                                                       // glTF
+            primitive.setMaterial(data.materialIndex);
             mesh.setPrimitives(Arrays.asList(primitive));
             meshes.add(mesh);
             var meshIndex = meshes.size() - 1; // Get the index of the mesh
@@ -720,7 +726,7 @@ public class GLTFExport implements ActionListener {
         if (!rootChildren.isEmpty()) {
             rootNode.setChildren(rootChildren);
         }
-        rootNode.setRotation(new float[] { -0.7071068f, 0, 0, 0.7071068f });
+        rootNode.setRotation(new float[] { -0.7071068f, 0, 0, 0.7071068f }); // lazy rotation to match expected axis
         nodes.add(rootNode);
         int rootNodeIndex = nodes.size() - 1;
         Scene scene = new Scene();
@@ -877,8 +883,6 @@ public class GLTFExport implements ActionListener {
     }
 
     // Best-effort sampler without wiring a full AnimatedRenderEnvironment:
-    // - If vis flag exists but we can’t interpolate precisely, fall back to static
-    // (This keeps the change safe; refine later by wiring a proper time env.)
     private static float sampleGeosetVisibilityAtTime(GeosetAnim ga, int time) {
         try {
             // Prefer the existing helper if available
@@ -893,8 +897,6 @@ public class GLTFExport implements ActionListener {
 
             // Heuristic: if flag has only one keyframe, use its value; otherwise assume
             // visible
-            // NOTE: Replace this with proper interpolation using your AnimFlag API if
-            // available.
             if (visFlag.size() == 0) {
                 double staticAlpha = ga.getStaticAlpha();
                 return (float) (staticAlpha == -1 ? 1.0 : staticAlpha);
@@ -910,7 +912,7 @@ public class GLTFExport implements ActionListener {
                         Object v = visFlag.getValues().get(i);
                         if (v instanceof Number) {
                             float vis = ((Number) v).floatValue();
-                            if (vis < 0.9f) { // Threshold for visibility
+                            if (vis < 0.9f) { // Threshold for visibility, I assume alpha is generally either 0 or 1, so 0.9 is as good as any value
                                 return vis; // Return the visibility value
                             }
                         }
