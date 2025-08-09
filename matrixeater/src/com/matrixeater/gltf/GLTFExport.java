@@ -23,9 +23,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JProgressBar;
+import javax.swing.JTextArea;
+import javax.swing.JScrollPane;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.mdl.Bitmap;
@@ -192,6 +197,7 @@ public class GLTFExport implements ActionListener {
             exportAllProgress.setIndeterminate(true);
             exportAllProgress.setString("Preparing...");
             new Thread(() -> {
+                long startNanos = System.nanoTime(); // timing start
                 try {
                     int success = 0;
                     int fail = 0;
@@ -267,17 +273,28 @@ public class GLTFExport implements ActionListener {
                     int finalSuccess = success;
                     int finalFail = fail;
                     List<String> finalFailedModels = new ArrayList<>(failedModels);
+                    long elapsedMs = (System.nanoTime() - startNanos) / 1_000_000L; // timing end
                     SwingUtilities.invokeLater(() -> {
+                        double secs = elapsedMs / 1000.0;
                         exportAllProgress.setString("Done: " + finalSuccess + "/" + total + " (Failed " + finalFail + ")");
-                        StringBuilder msg = new StringBuilder();
-                        msg.append("All exports complete.\nSuccess: ").append(finalSuccess).append("\nFailed: ").append(finalFail);
                         if (finalFail > 0) {
-                            msg.append("\nFailed models (paths):\n");
-                            for (String fm : finalFailedModels) {
-                                msg.append(fm).append('\n');
-                            }
+                            var msgPanel = Box.createVerticalBox();
+                            String summary = "Success: " + finalSuccess + "\nFailed: " + finalFail + "\nDuration: " + String.format(java.util.Locale.US, "%.3f s", secs);
+                            msgPanel.add(new JLabel("Export Summary"), BorderLayout.NORTH);
+                            msgPanel.add(new JTextArea(summary), BorderLayout.NORTH);
+                            msgPanel.add(new JLabel("Failed models (paths):"), BorderLayout.NORTH);
+                            JTextArea failList = new JTextArea();
+                            failList.setEditable(false);
+                            failList.setText(String.join("\n", finalFailedModels));
+                            JScrollPane scrollPane = new JScrollPane(failList);
+                            scrollPane.setPreferredSize(new Dimension(400, 300));
+                            msgPanel.add(scrollPane, BorderLayout.CENTER);
+                            JOptionPane.showMessageDialog(dialog, msgPanel, "Export All", JOptionPane.INFORMATION_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(dialog,
+                                    "All exports complete.\nSuccess: " + finalSuccess + "\nFailed: 0\nDuration: " + String.format(java.util.Locale.US, "%.3f s", secs),
+                                    "Export All", JOptionPane.INFORMATION_MESSAGE);
                         }
-                        JOptionPane.showMessageDialog(dialog, msg.toString(), "Export All", JOptionPane.INFORMATION_MESSAGE);
                     });
                 } finally {
                     SwingUtilities.invokeLater(() -> {
