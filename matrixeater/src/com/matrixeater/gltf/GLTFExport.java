@@ -566,10 +566,7 @@ public class GLTFExport implements ActionListener {
         for (Bone bone : mdxBones) {
             if (!(bone.getParent() instanceof Bone)) {
                 var topLevelBoneIndex = boneToNode.get(bone);
-                topLevelBoneNodeIndices.add(topLevelBoneIndex);
-                Node topLevelBoneNode = nodes.get(topLevelBoneIndex);
-                topLevelBoneNode.setRotation(new float[] { -0.7071068f, 0, 0, 0.7071068f }); // lazy rotation to match
-                                                                                             // expected axis
+                topLevelBoneNodeIndices.add(topLevelBoneIndex); 
             }
         }
 
@@ -856,7 +853,15 @@ public class GLTFExport implements ActionListener {
 
         List<Integer> rootChildren = new ArrayList<>();
         rootChildren.addAll(geoNodes);
-        rootChildren.addAll(topLevelBoneNodeIndices);
+
+        Node rootNode = new Node();
+        rootNode.setName("Root");
+        rootNode.setChildren(topLevelBoneNodeIndices); // only bones because glTF validator complains if we add skinned meshes as children to a node
+        rootNode.setRotation(new float[] { -0.7071068f, 0, 0, 0.7071068f }); // lazy rotation to match
+                                                                                             // expected axis
+        nodes.add(rootNode); 
+        var rootNodeIndex = nodes.size() - 1;
+        rootChildren.add(rootNodeIndex); // Add root node to the scene
 
         Scene scene = new Scene();
         scene.setNodes(rootChildren);
