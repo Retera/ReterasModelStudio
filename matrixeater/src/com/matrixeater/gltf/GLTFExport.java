@@ -17,12 +17,14 @@ import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
+import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.IdObject;
+import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 
@@ -63,9 +65,10 @@ public class GLTFExport implements ActionListener {
                 "GLTF Export", true);
         javax.swing.JPanel panel = new javax.swing.JPanel(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gc = new java.awt.GridBagConstraints();
-        gc.insets = new java.awt.Insets(4,4,4,4);
+        gc.insets = new java.awt.Insets(4, 4, 4, 4);
         gc.anchor = java.awt.GridBagConstraints.WEST;
-        gc.gridx = 0; gc.gridy = 0;
+        gc.gridx = 0;
+        gc.gridy = 0;
 
         // Checkbox for visibility-by-animation filtering
         final javax.swing.JCheckBox visibilityCheck = new javax.swing.JCheckBox("Filter by animation visibility");
@@ -82,50 +85,53 @@ public class GLTFExport implements ActionListener {
         visibilityCheck.addActionListener(ev -> animationField.setEnabled(visibilityCheck.isSelected()));
 
         // Buttons
-        gc.gridx = 0; gc.gridy++;
+        gc.gridx = 0;
+        gc.gridy++;
         final javax.swing.JButton exportCurrentBtn = new javax.swing.JButton("Export Current Model");
         panel.add(exportCurrentBtn, gc);
         gc.gridx = 1;
         final javax.swing.JButton exportAllBtn = new javax.swing.JButton("Export All Models");
         panel.add(exportAllBtn, gc);
 
-        gc.gridx = 0; gc.gridy++;
+        gc.gridx = 0;
+        gc.gridy++;
         final javax.swing.JButton closeBtn = new javax.swing.JButton("Close");
         panel.add(closeBtn, gc);
 
         closeBtn.addActionListener(ev -> dialog.dispose());
 
         // Helper to resolve animation by text (index or partial name)
-        java.util.function.BiFunction<com.hiveworkshop.wc3.mdl.EditableModel, String, com.hiveworkshop.wc3.mdl.Animation> resolveAnimation =
-                (model, text) -> {
-                    if (model == null || text == null || text.isBlank()) return null;
-                    text = text.trim();
-                    // Try index
-                    try {
-                        int idx = Integer.parseInt(text);
-                        if (idx >= 0 && idx < model.getAnims().size()) {
-                            return model.getAnim(idx);
-                        }
-                    } catch (NumberFormatException ex) {
-                        // ignore
-                    }
-                    // Try substring name match (case-insensitive)
-                    for (com.hiveworkshop.wc3.mdl.Animation anim : model.getAnims()) {
-                        if (anim.getName() != null && anim.getName().toLowerCase().contains(text.toLowerCase())) {
-                            return anim;
-                        }
-                    }
-                    return null;
-                };
+        java.util.function.BiFunction<com.hiveworkshop.wc3.mdl.EditableModel, String, com.hiveworkshop.wc3.mdl.Animation> resolveAnimation = (
+                model, text) -> {
+            if (model == null || text == null || text.isBlank())
+                return null;
+            text = text.trim();
+            // Try index
+            try {
+                int idx = Integer.parseInt(text);
+                if (idx >= 0 && idx < model.getAnims().size()) {
+                    return model.getAnim(idx);
+                }
+            } catch (NumberFormatException ex) {
+                // ignore
+            }
+            // Try substring name match (case-insensitive)
+            for (com.hiveworkshop.wc3.mdl.Animation anim : model.getAnims()) {
+                if (anim.getName() != null && anim.getName().toLowerCase().contains(text.toLowerCase())) {
+                    return anim;
+                }
+            }
+            return null;
+        };
 
         // Predicate factory
-        java.util.function.BiFunction<com.hiveworkshop.wc3.mdl.EditableModel, com.hiveworkshop.wc3.mdl.Animation, java.util.function.Predicate<com.hiveworkshop.wc3.mdl.Geoset>>
-                predicateFor = (model, anim) -> {
-                    if (anim == null) {
-                        return g -> true;
-                    }
-                    return g -> isGeosetVisibleInAnimation(g, anim);
-                };
+        java.util.function.BiFunction<com.hiveworkshop.wc3.mdl.EditableModel, com.hiveworkshop.wc3.mdl.Animation, java.util.function.Predicate<com.hiveworkshop.wc3.mdl.Geoset>> predicateFor = (
+                model, anim) -> {
+            if (anim == null) {
+                return g -> true;
+            }
+            return g -> isGeosetVisibleInAnimation(g, anim);
+        };
 
         // Export current model action
         exportCurrentBtn.addActionListener(ev -> {
@@ -135,8 +141,8 @@ public class GLTFExport implements ActionListener {
                     var model = mainframe.currentMDL();
                     if (model == null) {
                         log.warning("No current model to export.");
-                        javax.swing.SwingUtilities.invokeLater(() ->
-                                javax.swing.JOptionPane.showMessageDialog(dialog, "No current model loaded.", "Export", javax.swing.JOptionPane.WARNING_MESSAGE));
+                        javax.swing.SwingUtilities.invokeLater(() -> javax.swing.JOptionPane.showMessageDialog(dialog,
+                                "No current model loaded.", "Export", javax.swing.JOptionPane.WARNING_MESSAGE));
                         return;
                     }
                     com.hiveworkshop.wc3.mdl.Animation anim = null;
@@ -151,12 +157,13 @@ public class GLTFExport implements ActionListener {
                     var predicate = predicateFor.apply(model, anim);
                     GLTFExport.export(model, predicate);
                     log.info("Exported current model: " + model.getName());
-                    javax.swing.SwingUtilities.invokeLater(() ->
-                            javax.swing.JOptionPane.showMessageDialog(dialog, "Exported: " + model.getName(), "Export", javax.swing.JOptionPane.INFORMATION_MESSAGE));
+                    javax.swing.SwingUtilities.invokeLater(() -> javax.swing.JOptionPane.showMessageDialog(dialog,
+                            "Exported: " + model.getName(), "Export", javax.swing.JOptionPane.INFORMATION_MESSAGE));
                 } catch (Exception ex2) {
                     log.severe("Export failed: " + ex2.getMessage());
-                    javax.swing.SwingUtilities.invokeLater(() ->
-                            javax.swing.JOptionPane.showMessageDialog(dialog, "Export failed: " + ex2.getMessage(), "Export Error", javax.swing.JOptionPane.ERROR_MESSAGE));
+                    javax.swing.SwingUtilities.invokeLater(() -> javax.swing.JOptionPane.showMessageDialog(dialog,
+                            "Export failed: " + ex2.getMessage(), "Export Error",
+                            javax.swing.JOptionPane.ERROR_MESSAGE));
                 } finally {
                     javax.swing.SwingUtilities.invokeLater(() -> exportCurrentBtn.setEnabled(true));
                 }
@@ -195,10 +202,9 @@ public class GLTFExport implements ActionListener {
                     }
                     int finalSuccess = success;
                     int finalFail = fail;
-                    javax.swing.SwingUtilities.invokeLater(() ->
-                            javax.swing.JOptionPane.showMessageDialog(dialog,
-                                    "All exports complete.\nSuccess: " + finalSuccess + "\nFailed: " + finalFail,
-                                    "Export All", javax.swing.JOptionPane.INFORMATION_MESSAGE));
+                    javax.swing.SwingUtilities.invokeLater(() -> javax.swing.JOptionPane.showMessageDialog(dialog,
+                            "All exports complete.\nSuccess: " + finalSuccess + "\nFailed: " + finalFail,
+                            "Export All", javax.swing.JOptionPane.INFORMATION_MESSAGE));
                 } finally {
                     javax.swing.SwingUtilities.invokeLater(() -> exportAllBtn.setEnabled(true));
                 }
@@ -251,12 +257,22 @@ public class GLTFExport implements ActionListener {
 
     private static void export(EditableModel model, Predicate<Geoset> visibilityFilter) throws IOException {
         var gltf = createGltfModel(model, visibilityFilter);
-        File outputFile = new File(model.getName() + ".gltf");
+        File outputFile = new File("models/" + model.getName() + ".gltf");
+
+        // Ensure parent directories exist
+        File parentDir = outputFile.getParentFile();
+        if (parentDir != null && !parentDir.exists()) {
+            if (!parentDir.mkdirs()) {
+                throw new IOException("Failed to create directories: " + parentDir.getAbsolutePath());
+            }
+        }
+
         try (OutputStream os = new FileOutputStream(outputFile)) {
             GltfWriter writer = new GltfWriter();
             writer.write(gltf, os);
         } catch (IOException e) {
             e.printStackTrace();
+            throw e; // rethrow so caller knows it failed
         }
     }
 
@@ -337,17 +353,15 @@ public class GLTFExport implements ActionListener {
             glMaterial.setName(material.getName());
             // glMaterial.setAlphaMode("BLEND");
             // glMaterial.setAlphaCutoff(null);
-            //! The best approximation I could find so far
+            // ! The best approximation I could find so far
             glMaterial.setAlphaMode("MASK");
-            glMaterial.setAlphaCutoff(0.5f);  // or whatever cutoff works best
-
+            glMaterial.setAlphaCutoff(0.5f); // or whatever cutoff works best
 
             MaterialPbrMetallicRoughness pbr = new MaterialPbrMetallicRoughness();
-            pbr.setBaseColorFactor(new float[]{1, 1, 1, 1});
+            pbr.setBaseColorFactor(new float[] { 1, 1, 1, 1 });
             pbr.setMetallicFactor(0.0f);
             pbr.setRoughnessFactor(1.0f);
             pbr.setBaseColorTexture(textureInfo);
-
 
             glMaterial.setPbrMetallicRoughness(pbr);
             materials.add(glMaterial);
@@ -592,8 +606,13 @@ public class GLTFExport implements ActionListener {
     // - If animation == null => export everything (back-compat)
     // - If no GeosetAnim => visible
     // - If static alpha (-1 => default 1) or > 0 => visible
-    // - If has Visibility/Alpha AnimFlag (non-global) => sample a few times in [start,end]
+    // - If has Visibility/Alpha AnimFlag (non-global) => sample a few times in
+    // [start,end]
     private static boolean isGeosetVisibleInAnimation(Geoset geoset, com.hiveworkshop.wc3.mdl.Animation animation) {
+        if (isGeosetTeamGlow(geoset)) { // don't export the team glow geometry
+            return false; // Always export team glow geosets
+        }
+
         if (animation == null) {
             return true; // no filtering requested
         }
@@ -634,14 +653,35 @@ public class GLTFExport implements ActionListener {
         return true;
     }
 
+    private static boolean isGeosetTeamGlow(Geoset geoset) {
+        //ge the material
+        if (geoset.getMaterial() == null) {
+            return false; // cannot be team glow, team glow has a material
+        }
+        var material = geoset.getMaterial();
+        if (material.getLayers().size() == 0) {
+            return false; // no layers, cannot be team glow
+        }
+        if (material.getLayers().size() > 1) {
+            return false; // Multiple layers, cannot be team glow
+        }
+        var layer = material.getLayers().get(0);
+        for (Map.Entry<ShaderTextureTypeHD, Bitmap> entry : layer.getShaderTextures().entrySet()) {
+            if (entry.getValue().getReplaceableId() == 2) {
+                return true; // Team glow texture found
+            }
+        }
+        return false;
+    }
+
     // Best-effort sampler without wiring a full AnimatedRenderEnvironment:
     // - If vis flag exists but we can’t interpolate precisely, fall back to static
-    //   (This keeps the change safe; refine later by wiring a proper time env.)
+    // (This keeps the change safe; refine later by wiring a proper time env.)
     private static float sampleGeosetVisibilityAtTime(GeosetAnim ga, int time) {
         try {
             // Prefer the existing helper if available
             // (If you later wire an AnimatedRenderEnvironment, replace with:
-            //   ga.getRenderVisibility(envAt(time))
+            // ga.getRenderVisibility(envAt(time))
             // )
             var visFlag = ga.getVisibilityFlag();
             if (visFlag == null) {
@@ -649,8 +689,10 @@ public class GLTFExport implements ActionListener {
                 return (float) (staticAlpha == -1 ? 1.0 : staticAlpha);
             }
 
-            // Heuristic: if flag has only one keyframe, use its value; otherwise assume visible
-            // NOTE: Replace this with proper interpolation using your AnimFlag API if available.
+            // Heuristic: if flag has only one keyframe, use its value; otherwise assume
+            // visible
+            // NOTE: Replace this with proper interpolation using your AnimFlag API if
+            // available.
             if (visFlag.size() == 0) {
                 double staticAlpha = ga.getStaticAlpha();
                 return (float) (staticAlpha == -1 ? 1.0 : staticAlpha);
