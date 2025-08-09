@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
-import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 import javax.swing.JDialog;
@@ -135,15 +134,6 @@ public class GLTFExport implements ActionListener {
             return null;
         };
 
-        // Predicate factory
-        java.util.function.BiFunction<com.hiveworkshop.wc3.mdl.EditableModel, com.hiveworkshop.wc3.mdl.Animation, java.util.function.Predicate<com.hiveworkshop.wc3.mdl.Geoset>> predicateFor = (
-                model, anim) -> {
-            if (anim == null) {
-                return g -> true;
-            }
-            return g -> isGeosetVisibleInAnimation(g, anim);
-        };
-
         // Export current model action
         exportCurrentBtn.addActionListener(ev -> {
             exportCurrentBtn.setEnabled(false);
@@ -165,8 +155,7 @@ public class GLTFExport implements ActionListener {
                             log.info("Using animation for visibility filter: " + anim.getName());
                         }
                     }
-                    var predicate = predicateFor.apply(model, anim);
-                    GLTFExport.export(model, predicate);
+                    GLTFExport.export(model, anim, "models");
                     log.info("Exported current model: " + model.getName());
                     SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(dialog,
                             "Exported: " + model.getName(), "Export", JOptionPane.INFORMATION_MESSAGE));
@@ -188,31 +177,47 @@ public class GLTFExport implements ActionListener {
             exportAllBtn.setEnabled(false);
             new Thread(() -> {
                 try {
-                    java.util.List<String> paths = new java.util.ArrayList<>();
-                    paths.addAll(getAllUnitPaths());
-                    paths.addAll(getAllDoodadsPaths());
-                    log.info("Beginning export of " + paths.size() + " models.");
                     int success = 0;
                     int fail = 0;
-                    for (String path : paths) {
+
+                    // Units
+                    for (String path : getAllUnitPaths()) {
                         try {
                             var model = loadModel(path);
                             if (model == null) {
                                 fail++;
                                 continue;
                             }
-                            com.hiveworkshop.wc3.mdl.Animation anim = null;
-                            if (visibilityCheck.isSelected()) {
-                                anim = resolveAnimation.apply(model, animationField.getText());
-                            }
-                            var predicate = predicateFor.apply(model, anim);
-                            GLTFExport.export(model, predicate);
+                            com.hiveworkshop.wc3.mdl.Animation anim = visibilityCheck.isSelected()
+                                    ? resolveAnimation.apply(model, animationField.getText())
+                                    : null;
+                            GLTFExport.export(model, anim, "models/units");
                             success++;
                         } catch (Exception one) {
                             fail++;
-                            log.warning("Failed exporting " + path + ": " + one.getMessage());
+                            log.warning("Failed exporting unit " + path + ": " + one.getMessage());
                         }
                     }
+
+                    // Doodads
+                    for (String path : getAllDoodadsPaths()) {
+                        try {
+                            var model = loadModel(path);
+                            if (model == null) {
+                                fail++;
+                                continue;
+                            }
+                            com.hiveworkshop.wc3.mdl.Animation anim = visibilityCheck.isSelected()
+                                    ? resolveAnimation.apply(model, animationField.getText())
+                                    : null;
+                            GLTFExport.export(model, anim, "models/doodads");
+                            success++;
+                        } catch (Exception one) {
+                            fail++;
+                            log.warning("Failed exporting doodad " + path + ": " + one.getMessage());
+                        }
+                    }
+
                     int finalSuccess = success;
                     int finalFail = fail;
                     SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(dialog,
@@ -273,9 +278,9 @@ public class GLTFExport implements ActionListener {
         return doodadPaths;
     }
 
-    private static void export(EditableModel model, Predicate<Geoset> visibilityFilter) throws IOException {
-        var gltf = createGltfModel(model, visibilityFilter);
-        File outputFile = new File("models/" + model.getName() + ".gltf");
+    private static void export(EditableModel model, com.hiveworkshop.wc3.mdl.Animation animation, String baseDir) throws IOException {
+        var gltf = createGltfModel(model, animation);
+        File outputFile = new File(baseDir + "/" + model.getName() + ".gltf");
 
         // Ensure parent directories exist
         File parentDir = outputFile.getParentFile();
@@ -294,7 +299,7 @@ public class GLTFExport implements ActionListener {
         }
     }
 
-    private static GlTF createGltfModel(EditableModel model, Predicate<Geoset> visibilityFilter) {
+    private static GlTF createGltfModel(EditableModel model, com.hiveworkshop.wc3.mdl.Animation animation) {
 
         GlTF gltf = new GlTF();
         Asset asset = new Asset();
@@ -302,12 +307,12 @@ public class GLTFExport implements ActionListener {
         asset.setGenerator(model.getName());
         gltf.setAsset(asset);
 
-        loadMeshIntoModel(model, gltf, visibilityFilter);
+        loadMeshIntoModel(model, gltf, animation);
 
         return gltf;
     }
 
-    private static void loadMeshIntoModel(EditableModel model, GlTF gltf, Predicate<Geoset> visibilityFilter) {
+    private static void loadMeshIntoModel(EditableModel model, GlTF gltf, com.hiveworkshop.wc3.mdl.Animation animation) {
 
         List<Buffer> buffers = new ArrayList<>();
         List<BufferView> bufferViews = new ArrayList<>();
@@ -512,7 +517,7 @@ public class GLTFExport implements ActionListener {
 
         // log.info("Geosets: " + model.getGeosets().size());
         for (Geoset geoset : model.getGeosets()) {
-            if (!visibilityFilter.test(geoset)) {
+            if (!isGeosetVisibleInAnimation(geoset, animation)) {
                 log.info("Skipping geoset " + geoset.getName() + " due to visibility filter.");
                 continue; // Skip geosets that are not visible in the animation
             }
