@@ -201,147 +201,118 @@ public class GLTFExport implements ActionListener {
             exportAllProgress.setString("Preparing...");
             new Thread(() -> {
                 long startNanos = System.nanoTime(); // timing start
-                try {
-                    List<String> failedModels = Collections.synchronizedList(new ArrayList<>()); // track failed exports
-                    // Gather paths first to know total for progress
-                    List<String> unitPaths = getAllUnitPaths();
-                    List<String> doodadPaths = getAllDoodadsPaths();
-                    int total = unitPaths.size() + doodadPaths.size();
-                    SwingUtilities.invokeLater(() -> {
-                        exportAllProgress.setIndeterminate(false);
-                        exportAllProgress.setMaximum(total);
-                        exportAllProgress.setValue(0);
-                        exportAllProgress.setString("0 / " + total);
-                    });
+                List<String> failedModels = Collections.synchronizedList(new ArrayList<>()); // track failed exports
+                // Gather paths first to know total for progress
+                List<String> unitPaths = getAllUnitPaths();
+                List<String> doodadPaths = getAllDoodadsPaths();
+                int total = unitPaths.size() + doodadPaths.size();
+                SwingUtilities.invokeLater(() -> {
+                    exportAllProgress.setIndeterminate(false);
+                    exportAllProgress.setMaximum(total);
+                    exportAllProgress.setValue(0);
+                    exportAllProgress.setString("0 / " + total);
+                });
 
-                    AtomicInteger success = new AtomicInteger(0);
-                    AtomicInteger fail = new AtomicInteger(0);
-                    AtomicInteger processed = new AtomicInteger(0);
-                    var threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
-                    ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(threads);
-                    // Units
-                    for (String path : unitPaths) {
+                int success = 0;
+                int fail = 0;
+                int processed = 0;
+                // Units
+                for (String path : unitPaths) {
+                    var model = loadModel(path);
+                    if (model == null) {
+                        fail++;
+                        failedModels.add(path);
+                    } else {
+                        com.hiveworkshop.wc3.mdl.Animation anim = visibilityCheck.isSelected()
+                                ? resolveAnimation.apply(model, animationField.getText())
+                                : null;
                         try {
-                            var model = loadModel(path);
-                            if (model == null) {
-                                fail.incrementAndGet();
-                                failedModels.add(path);
-                            } else {
-                                executor.submit(() -> {
-                                    com.hiveworkshop.wc3.mdl.Animation anim = visibilityCheck.isSelected()
-                                            ? resolveAnimation.apply(model, animationField.getText())
-                                            : null;
-                                    try {
-                                        GLTFExport.export(model, anim, "models/units");
-                                        success.incrementAndGet();
-                                    } catch (Exception ex) {
-                                        log.warning("Failed exporting unit " + path + ": " + ex.getMessage());
-                                        fail.incrementAndGet();
-                                        failedModels.add(path);
-                                        return;
-                                    } finally {
-                                        processed.incrementAndGet();
-                                        final int fProcessed = processed.get();
-                                        final int fTotal = total;
-                                        SwingUtilities.invokeLater(() -> {
-                                            exportAllProgress.setValue(fProcessed);
-                                            exportAllProgress.setString(fProcessed + " / " + fTotal);
-                                        });
-                                    }
-                                });
-                            }
-                        } catch (Exception one) {
-                            fail.incrementAndGet();
+                            GLTFExport.export(model, anim, "models/units");
+                            success++;
+                        } catch (Exception ex) {
+                            log.warning("Failed exporting unit " + path + ": " + ex.getMessage());
+                            ex.printStackTrace();
+                            fail++;
                             failedModels.add(path);
-                            log.warning("Failed exporting unit " + path + ": " + one.getMessage());
+                        } finally {
+                            processed++;
+                            final int fProcessed = processed;
+                            final int fTotal = total;
+                            SwingUtilities.invokeLater(() -> {
+                                exportAllProgress.setValue(fProcessed);
+                                exportAllProgress.setString(fProcessed + " / " + fTotal);
+                            });
                         }
-
                     }
-
-                    // Doodads
-                    for (String path : doodadPaths) {
-                        try {
-                            var model = loadModel(path);
-                            if (model == null) {
-                                fail.incrementAndGet();
-                                failedModels.add(path);
-                            } else {
-                                executor.submit(() -> {
-                                    com.hiveworkshop.wc3.mdl.Animation anim = visibilityCheck.isSelected()
-                                            ? resolveAnimation.apply(model, animationField.getText())
-                                            : null;
-                                    try { 
-                                    GLTFExport.export(model, anim, "models/doodads");
-                                    success.incrementAndGet();
-                                    }
-                                    catch (Exception ex) {
-                                        log.warning("Failed exporting doodad " + path + ": " + ex.getMessage());
-                                        fail.incrementAndGet();
-                                        failedModels.add(path);
-                                        return;
-                                    }
-                                    finally {
-                                        processed.incrementAndGet();
-                                        final int fProcessed = processed.get();
-                                        final int fTotal = total;
-                                        SwingUtilities.invokeLater(() -> {
-                                            exportAllProgress.setValue(fProcessed);
-                                            exportAllProgress.setString(fProcessed + " / " + fTotal);
-                                        });
-                                    }
-                                });
-                            }
-                        } catch (Exception one) {
-                            fail.incrementAndGet();
-                            failedModels.add(path);
-                            log.warning("Failed exporting doodad " + path + ": " + one.getMessage());
-                        }
-
-                    }
-                    executor.shutdown();
-                    executor.awaitTermination(1_000_000, TimeUnit.SECONDS);
-
-                    int finalSuccess = success.get();
-                    int finalFail = fail.get();
-                    List<String> finalFailedModels = new ArrayList<>(failedModels);
-                    long elapsedMs = (System.nanoTime() - startNanos) / 1_000_000L; // timing end
-                    SwingUtilities.invokeLater(() -> {
-                        double secs = elapsedMs / 1000.0;
-                        exportAllProgress
-                                .setString("Done: " + finalSuccess + "/" + total + " (Failed " + finalFail + ")");
-                        if (finalFail > 0) {
-                            var msgPanel = Box.createVerticalBox();
-                            String summary = "Success: " + finalSuccess + "\nFailed: " + finalFail + "\nDuration: "
-                                    + String.format(java.util.Locale.US, "%.3f s", secs);
-                            msgPanel.add(new JLabel("Export Summary"), BorderLayout.NORTH);
-                            msgPanel.add(new JTextArea(summary), BorderLayout.NORTH);
-                            msgPanel.add(new JLabel("Failed models (paths):"), BorderLayout.NORTH);
-                            JTextArea failList = new JTextArea();
-                            failList.setEditable(false);
-                            failList.setText(String.join("\n", finalFailedModels));
-                            JScrollPane scrollPane = new JScrollPane(failList);
-                            scrollPane.setPreferredSize(new Dimension(400, 300));
-                            msgPanel.add(scrollPane, BorderLayout.CENTER);
-                            JOptionPane.showMessageDialog(dialog, msgPanel, "Export All",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(dialog,
-                                    "All exports complete.\nSuccess: " + finalSuccess + "\nFailed: 0\nDuration: "
-                                            + String.format(java.util.Locale.US, "%.3f s", secs),
-                                    "Export All", JOptionPane.INFORMATION_MESSAGE);
-                        }
-                    });
-                } catch (InterruptedException e2) {
-                    log.warning("Export interrupted: " + e2.getMessage());
-                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(dialog,
-                            "Export interrupted: " + e2.getMessage(), "Export Error",
-                            JOptionPane.ERROR_MESSAGE));
-                } finally {
-                    SwingUtilities.invokeLater(() -> {
-                        exportAllBtn.setEnabled(true);
-                        exportAllProgress.setIndeterminate(false);
-                    });
                 }
+
+                // Doodads
+                for (String path : doodadPaths) {
+                    try {
+                        var model = loadModel(path);
+                        if (model == null) {
+                            fail++;
+                            failedModels.add(path);
+                        } else {
+                            com.hiveworkshop.wc3.mdl.Animation anim = visibilityCheck.isSelected()
+                                    ? resolveAnimation.apply(model, animationField.getText())
+                                    : null;
+                            try {
+                                GLTFExport.export(model, anim, "models/doodads");
+                                success++;
+                            } catch (Exception ex) {
+                                log.warning("Failed exporting doodad " + path + ": " + ex.getMessage());
+                                fail++;
+                                failedModels.add(path);
+                            } finally {
+                                processed++;
+                                final int fProcessed = processed;
+                                final int fTotal = total;
+                                SwingUtilities.invokeLater(() -> {
+                                    exportAllProgress.setValue(fProcessed);
+                                    exportAllProgress.setString(fProcessed + " / " + fTotal);
+                                });
+                            }
+                        }
+                    } catch (Exception one) {
+                        fail++;
+                        failedModels.add(path);
+                        log.warning("Failed exporting doodad " + path + ": " + one.getMessage());
+                    }
+
+                }
+
+                int finalSuccess = success;
+                int finalFail = fail;
+                List<String> finalFailedModels = new ArrayList<>(failedModels);
+                long elapsedMs = (System.nanoTime() - startNanos) / 1_000_000L; // timing end
+                SwingUtilities.invokeLater(() -> {
+                    double secs = elapsedMs / 1000.0;
+                    exportAllProgress
+                            .setString("Done: " + finalSuccess + "/" + total + " (Failed " + finalFail + ")");
+                    if (finalFail > 0) {
+                        var msgPanel = Box.createVerticalBox();
+                        String summary = "Success: " + finalSuccess + "\nFailed: " + finalFail + "\nDuration: "
+                                + String.format(java.util.Locale.US, "%.3f s", secs);
+                        msgPanel.add(new JLabel("Export Summary"), BorderLayout.NORTH);
+                        msgPanel.add(new JTextArea(summary), BorderLayout.NORTH);
+                        msgPanel.add(new JLabel("Failed models (paths):"), BorderLayout.NORTH);
+                        JTextArea failList = new JTextArea();
+                        failList.setEditable(false);
+                        failList.setText(String.join("\n", finalFailedModels));
+                        JScrollPane scrollPane = new JScrollPane(failList);
+                        scrollPane.setPreferredSize(new Dimension(400, 300));
+                        msgPanel.add(scrollPane, BorderLayout.CENTER);
+                        JOptionPane.showMessageDialog(dialog, msgPanel, "Export All",
+                                JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(dialog,
+                                "All exports complete.\nSuccess: " + finalSuccess + "\nFailed: 0\nDuration: "
+                                        + String.format(java.util.Locale.US, "%.3f s", secs),
+                                "Export All", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                });
+
             }, "GLTF-Export-All").start();
         });
 
@@ -566,7 +537,7 @@ public class GLTFExport implements ActionListener {
         for (Bone bone : mdxBones) {
             if (!(bone.getParent() instanceof Bone)) {
                 var topLevelBoneIndex = boneToNode.get(bone);
-                topLevelBoneNodeIndices.add(topLevelBoneIndex); 
+                topLevelBoneNodeIndices.add(topLevelBoneIndex);
             }
         }
 
@@ -663,8 +634,6 @@ public class GLTFExport implements ActionListener {
             var maxExtents = new Number[] { geoset.getExtents().getMaximumExtent().x,
                     geoset.getExtents().getMaximumExtent().y, geoset.getExtents().getMaximumExtent().z };
 
-            positionAccessor.setMax(maxExtents); // Default max extent
-            positionAccessor.setMin(minExtents); // Updated to use calculated min extents
             // how vertices are expresssed in the model
             positionAccessor.setBufferView(positionBufferViewIndex);
             positionAccessor.setComponentType(5126); // FLOAT
@@ -856,10 +825,11 @@ public class GLTFExport implements ActionListener {
 
         Node rootNode = new Node();
         rootNode.setName("Root");
-        rootNode.setChildren(topLevelBoneNodeIndices); // only bones because glTF validator complains if we add skinned meshes as children to a node
+        rootNode.setChildren(topLevelBoneNodeIndices); // only bones because glTF validator complains if we add skinned
+                                                       // meshes as children to a node
         rootNode.setRotation(new float[] { -0.7071068f, 0, 0, 0.7071068f }); // lazy rotation to match
-                                                                                             // expected axis
-        nodes.add(rootNode); 
+                                                                             // expected axis
+        nodes.add(rootNode);
         var rootNodeIndex = nodes.size() - 1;
         rootChildren.add(rootNodeIndex); // Add root node to the scene
 
