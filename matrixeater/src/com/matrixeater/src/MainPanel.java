@@ -229,6 +229,7 @@ import com.hiveworkshop.wc3.util.Callback;
 import com.hiveworkshop.wc3.util.IconUtils;
 import com.hiveworkshop.wc3.util.ModelUtils;
 import com.hiveworkshop.wc3.util.ModelUtils.Mesh;
+import com.matrixeater.gltf.GLTFExport;
 import com.matrixeater.imp.AnimationTransfer;
 import com.matrixeaterhayate.TextureManager;
 import com.owens.oobjloader.builder.Build;
@@ -3712,6 +3713,10 @@ public class MainPanel extends JPanel
 			}
 		});
 		scriptsMenu.add(deleteLODs);
+
+		final JMenuItem gltfExport = new JMenuItem("GLTF Export");
+		gltfExport.addActionListener(new GLTFExport(this));
+		scriptsMenu.add(gltfExport);
 
 		final JMenuItem jokebutton = new JMenuItem("Load Retera Land");
 		jokebutton.setMnemonic(KeyEvent.VK_A);

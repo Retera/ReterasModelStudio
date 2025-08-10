@@ -1,6 +1,5 @@
+apply plugin: "java-library"
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-
-sourceCompatibility = 1.17
 
 sourceSets.main.java.srcDirs = [ "src/" ]
 
