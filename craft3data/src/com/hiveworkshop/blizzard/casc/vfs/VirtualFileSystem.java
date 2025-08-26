@@ -502,7 +502,13 @@ public final class VirtualFileSystem {
 			if (fileReferenceCount == 1) {
 				// check if nested VFS
 				final Key encodingKey = fileNode.getFileReference(0).getEncodingKey();
-				final TVFSFile tvfsFile = resolveTVFS(encodingKey);
+                TVFSFile tvfsFile;
+                try {
+                    tvfsFile = resolveTVFS(encodingKey);
+                } catch(Exception e){
+                    System.out.println("Failed decoding tvfsFile at " + PathNode.toString(parentPathFragments) + currentNode + ".");
+                    tvfsFile = null;
+                }
 
 				if (tvfsFile != null) {
 					// file is also a folder
@@ -668,11 +674,11 @@ public final class VirtualFileSystem {
 			synchronized (this) {
 				tvfsFile = tvfsCache.get(encodingKey);
 				if (tvfsFile == null) {
-					// decode TVFS from storage
-					final ByteBuffer rootBuffer = fetchStoredBuffer(storageReference);
-					tvfsFile = decoder.loadFile(rootBuffer);
+                    // decode TVFS from storage
+                    final ByteBuffer rootBuffer = fetchStoredBuffer(storageReference);
+                    tvfsFile = decoder.loadFile(rootBuffer);
 
-					tvfsCache.put(storageReference.getEncodingKey(), tvfsFile);
+                    tvfsCache.put(storageReference.getEncodingKey(), tvfsFile);
 				}
 			}
 		}
