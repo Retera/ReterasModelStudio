@@ -10,6 +10,9 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
 import java.awt.Point;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -1659,6 +1662,75 @@ public class MainPanel extends JPanel
 				MainPanel.this.setMouseCoordDisplay(dimension1, dimension2, coord1, coord2);
 			}
 		};
+
+
+		setDropTarget(new DropTarget(this, DnDConstants.ACTION_COPY, new DropTargetListener() {
+			@Override
+			public void dragEnter(DropTargetDragEvent dtde) {
+
+			}
+
+			@Override
+			public void dragOver(DropTargetDragEvent dtde) {
+				try {
+					Transferable transferable = dtde.getTransferable();
+					if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+						List<File> droppedFiles = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
+
+						if (!droppedFiles.isEmpty()) {
+							File file = droppedFiles.get(0);
+							String fileName = file.getName().toLowerCase();
+
+							// Limit the allowed file formats
+							if (fileName.endsWith(".blp") || fileName.endsWith(".png") || fileName.endsWith(".mdx")
+									|| fileName.endsWith(".mdl") || fileName.endsWith(".obj")) {
+								dtde.acceptDrag(DnDConstants.ACTION_COPY);
+							} else {
+								dtde.rejectDrag();
+							}
+						}
+					}
+				} catch (Exception e) {
+					ExceptionPopup.display(e);
+					e.printStackTrace();
+				}
+			}
+
+			@Override
+			public void dropActionChanged(DropTargetDragEvent dtde) {
+				int dropAction = dtde.getDropAction();
+				if (dropAction != DnDConstants.ACTION_COPY) {
+					dtde.rejectDrag();
+				}
+			}
+
+			@Override
+			public void dragExit(DropTargetEvent dte) {
+
+			}
+
+			@Override
+			public void drop(DropTargetDropEvent dtde) {
+				try {
+					// Accept the drag as a copy action (this allows file drop)
+					dtde.acceptDrop(DnDConstants.ACTION_COPY);
+
+					// Get the dropped files
+					Transferable transferable = dtde.getTransferable();
+					if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+						List<File> droppedFiles = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
+						// Handle the dropped file(s)
+						if (!droppedFiles.isEmpty()) {
+							File droppedFile = droppedFiles.get(0); // Assuming a single file drop
+							openFile(droppedFile);  // Use your existing openFile method to open the dropped file
+						}
+					}
+				} catch (Exception e) {
+					ExceptionPopup.display(e);
+					e.printStackTrace();
+				}
+			}
+		}));
 	}
 
 	private TabWindow createMainLayout() {
