@@ -248,38 +248,31 @@ public class GLTFExport implements ActionListener {
 
                 // Doodads
                 for (String path : doodadPaths) {
-                    try {
-                        var model = loadModel(path);
-                        if (model == null) {
-                            fail++;
-                            failedModels.add(path);
-                        } else {
-                            com.hiveworkshop.wc3.mdl.Animation anim = visibilityCheck.isSelected()
-                                    ? resolveAnimation.apply(model, animationField.getText())
-                                    : null;
-                            try {
-                                GLTFExport.export(model, anim, "models/doodads");
-                                success++;
-                            } catch (Exception ex) {
-                                log.warning("Failed exporting doodad " + path + ": " + ex.getMessage());
-                                fail++;
-                                failedModels.add(path);
-                            } finally {
-                                processed++;
-                                final int fProcessed = processed;
-                                final int fTotal = total;
-                                SwingUtilities.invokeLater(() -> {
-                                    exportAllProgress.setValue(fProcessed);
-                                    exportAllProgress.setString(fProcessed + " / " + fTotal);
-                                });
-                            }
-                        }
-                    } catch (Exception one) {
+                    var model = loadModel(path);
+                    if (model == null) {
                         fail++;
                         failedModels.add(path);
-                        log.warning("Failed exporting doodad " + path + ": " + one.getMessage());
+                    } else {
+                        com.hiveworkshop.wc3.mdl.Animation anim = visibilityCheck.isSelected()
+                                ? resolveAnimation.apply(model, animationField.getText())
+                                : null;
+                        try {
+                            GLTFExport.export(model, anim, "models/doodads");
+                            success++;
+                        } catch (Exception ex) {
+                            log.warning("Failed exporting doodad " + path + ": " + ex.getMessage());
+                            fail++;
+                            failedModels.add(path);
+                        } finally {
+                            processed++;
+                            final int fProcessed = processed;
+                            final int fTotal = total;
+                            SwingUtilities.invokeLater(() -> {
+                                exportAllProgress.setValue(fProcessed);
+                                exportAllProgress.setString(fProcessed + " / " + fTotal);
+                            });
+                        }
                     }
-
                 }
 
                 int finalSuccess = success;
