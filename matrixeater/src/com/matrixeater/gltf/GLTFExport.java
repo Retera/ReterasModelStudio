@@ -367,9 +367,12 @@ public class GLTFExport implements ActionListener {
 
     private static void export(EditableModel model, com.hiveworkshop.wc3.mdl.Animation animation, String baseDir)
             throws IOException {
-        var gltf = createGltfModel(model, animation);
         File outputFile = new File(baseDir + "/" + model.getName() + ".gltf");
-
+        if (outputFile.exists()) {
+            log.info("Skipping existing file: " + outputFile.getAbsolutePath());
+            return;
+        }
+        var gltf = createGltfModel(model, animation);
         // Ensure parent directories exist
         File parentDir = outputFile.getParentFile();
         if (parentDir != null && !parentDir.exists()) {
