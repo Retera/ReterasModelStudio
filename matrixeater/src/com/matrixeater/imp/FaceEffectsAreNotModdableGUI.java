@@ -6,7 +6,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-
+import com.matrixeater.localization.LocalizationManager;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 
