@@ -22,10 +22,10 @@ jobs:
         distribution: 'temurin'
     
     - name: Set up Eclipse
-      uses: pR0Ps/setup-eclipse@v1
+      uses: committed-consulting/epsilon-ci-action@v2
       with:
-        eclipse-version: '2023-12'  # 使用最新的 Eclipse 版本
-        
+        target: master
+
     - name: Import and build Eclipse project
       shell: cmd
       run: |
