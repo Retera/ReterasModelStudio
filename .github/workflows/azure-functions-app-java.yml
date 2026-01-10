@@ -28,7 +28,7 @@ jobs:
       working-directory: ./  # 根据实际情况调整工作目录
 
     - name: Build with Gradle
-      run: ./gradlew buildExe  # 替换为实际的打包命令或脚本
+      run: ./gradlew gradlew.bat  # 替换为实际的打包命令或脚本
       working-directory: ./  # 根据实际情况调整工作目录
 
     - name: Upload EXE Artifact
