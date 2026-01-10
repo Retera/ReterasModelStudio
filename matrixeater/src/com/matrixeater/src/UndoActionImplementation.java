@@ -24,7 +24,7 @@ public final class UndoActionImplementation extends AbstractAction {
 			try {
 				mpanel.getUndoManager().undo();
 			} catch (final NoSuchElementException exc) {
-				JOptionPane.showMessageDialog(mainPanel, "Nothing to undo!");
+				JOptionPane.showMessageDialog(mainPanel, LocalizationManager.getInstance().get("action.nothing_to_undo"));
 			} catch (final Exception exc) {
 				ExceptionPopup.display(exc);
 			}

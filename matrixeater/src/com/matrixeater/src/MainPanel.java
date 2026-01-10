@@ -113,6 +113,7 @@ import org.lwjgl.util.vector.Vector4f;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.GUIUtils;
+import com.matrixeater.localization.LocalizationManager;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.animedit.ControllableTimeBoundProvider;
 import com.hiveworkshop.wc3.gui.animedit.TimeBoundChangeListener;
@@ -1499,9 +1500,9 @@ public class MainPanel extends JPanel
 		mdlEditorTextArea.setCodeFoldingEnabled(true);
 		mdlEditorTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
 		mdlEditorPanel.add(new RTextScrollPane(mdlEditorTextArea), BorderLayout.CENTER);
-		final JButton refresh = new JButton("Refresh");
-		final JButton apply = new JButton("Apply");
-		final JButton mdlTextFind = new JButton("Find (F3)");
+		final JButton refresh = new JButton(LocalizationManager.getInstance().get("button.refresh"));
+		final JButton apply = new JButton(LocalizationManager.getInstance().get("button.apply"));
+		final JButton mdlTextFind = new JButton(LocalizationManager.getInstance().get("button.find_f3"));
 		mdlTextFind.setEnabled(false);
 		refresh.addActionListener(new ActionListener() {
 			@Override
@@ -2124,7 +2125,7 @@ public class MainPanel extends JPanel
 					currentModelPanel().getUndoManager().undo();
 				}
 				catch (final NoSuchElementException exc) {
-					JOptionPane.showMessageDialog(MainPanel.this, "Nothing to undo!");
+					JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("action.nothing_to_undo"));
 				}
 				catch (final Exception exc) {
 					ExceptionPopup.display(exc);
@@ -2140,7 +2141,7 @@ public class MainPanel extends JPanel
 					currentModelPanel().getUndoManager().redo();
 				}
 				catch (final NoSuchElementException exc) {
-					JOptionPane.showMessageDialog(MainPanel.this, "Nothing to redo!");
+					JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("action.nothing_to_redo"));
 				}
 				catch (final Exception exc) {
 					ExceptionPopup.display(exc);
@@ -2230,7 +2231,7 @@ public class MainPanel extends JPanel
 					}
 				}
 				catch (final NoSuchElementException exc) {
-					JOptionPane.showMessageDialog(MainPanel.this, "Nothing to undo!");
+					JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("action.nothing_to_undo"));
 				}
 				catch (final Exception exc) {
 					ExceptionPopup.display(exc);
@@ -2743,38 +2744,38 @@ public class MainPanel extends JPanel
 		menuBar = new JMenuBar();
 
 		// Build the file menu
-		fileMenu = new JMenu("File");
+		fileMenu = new JMenu(LocalizationManager.getInstance().get("menu.file"));
 		fileMenu.setMnemonic(KeyEvent.VK_F);
 		fileMenu.getAccessibleContext()
-				.setAccessibleDescription("Allows the user to open, save, close, and manipulate files.");
+				.setAccessibleDescription(LocalizationManager.getInstance().get("menu.file_description"));
 		menuBar.add(fileMenu);
 
-		recentMenu = new JMenu("Open Recent");
+		recentMenu = new JMenu(LocalizationManager.getInstance().get("menu.open_recent"));
 		recentMenu.setMnemonic(KeyEvent.VK_R);
-		recentMenu.getAccessibleContext().setAccessibleDescription("Allows you to access recently opened files.");
+		recentMenu.getAccessibleContext().setAccessibleDescription(LocalizationManager.getInstance().get("menu.open_recent_description"));
 
-		editMenu = new JMenu("Edit");
+		editMenu = new JMenu(LocalizationManager.getInstance().get("menu.edit"));
 		editMenu.setMnemonic(KeyEvent.VK_E);
 		// editMenu.addMouseListener(this);
 		editMenu.getAccessibleContext()
-				.setAccessibleDescription("Allows the user to use various tools to edit the currently selected model.");
+				.setAccessibleDescription(LocalizationManager.getInstance().get("menu.edit_description"));
 		menuBar.add(editMenu);
 
-		toolsMenu = new JMenu("Tools");
+		toolsMenu = new JMenu(LocalizationManager.getInstance().get("menu.tools"));
 		toolsMenu.setMnemonic(KeyEvent.VK_T);
 		toolsMenu.getAccessibleContext().setAccessibleDescription(
-				"Allows the user to use various model editing tools. (You must open a model before you may use this menu.)");
+				LocalizationManager.getInstance().get("menu.tools_description"));
 		toolsMenu.setEnabled(false);
 		menuBar.add(toolsMenu);
 
-		viewMenu = new JMenu("View");
+		viewMenu = new JMenu(LocalizationManager.getInstance().get("menu.view"));
 		// viewMenu.setMnemonic(KeyEvent.VK_V);
-		viewMenu.getAccessibleContext().setAccessibleDescription("Allows the user to control view settings.");
+		viewMenu.getAccessibleContext().setAccessibleDescription(LocalizationManager.getInstance().get("menu.view_description"));
 		menuBar.add(viewMenu);
 
-		teamColorMenu = new JMenu("Team Color");
+		teamColorMenu = new JMenu(LocalizationManager.getInstance().get("menu.team_color"));
 		teamColorMenu.getAccessibleContext()
-				.setAccessibleDescription("Allows the user to control team color settings.");
+				.setAccessibleDescription(LocalizationManager.getInstance().get("menu.team_color_description"));
 		menuBar.add(teamColorMenu);
 
 		directoryChangeNotifier.subscribe(new WarcraftDataSourceChangeListener() {
@@ -2795,13 +2796,13 @@ public class MainPanel extends JPanel
 		});
 		createTeamColorMenuItems();
 
-		windowMenu = new JMenu("Window");
+		windowMenu = new JMenu(LocalizationManager.getInstance().get("menu.window"));
 		windowMenu.setMnemonic(KeyEvent.VK_W);
 		windowMenu.getAccessibleContext()
-				.setAccessibleDescription("Allows the user to open various windows containing the program features.");
+				.setAccessibleDescription(LocalizationManager.getInstance().get("menu.window_description"));
 		menuBar.add(windowMenu);
 
-		final JMenuItem resetViewButton = new JMenuItem("Reset Layout");
+		final JMenuItem resetViewButton = new JMenuItem(LocalizationManager.getInstance().get("menu.reset_layout"));
 		resetViewButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -2813,12 +2814,12 @@ public class MainPanel extends JPanel
 		});
 		windowMenu.add(resetViewButton);
 
-		final JMenu viewsMenu = new JMenu("Views");
+		final JMenu viewsMenu = new JMenu(LocalizationManager.getInstance().get("menu.views"));
 		viewsMenu.setMnemonic(KeyEvent.VK_V);
 		windowMenu.add(viewsMenu);
 
-		final JMenuItem testItem = new JMenuItem("test");
-		testItem.addActionListener(new OpenViewAction("Animation Preview", new OpenViewGetter() {
+		final JMenuItem testItem = new JMenuItem(LocalizationManager.getInstance().get("menu.test"));
+		testItem.addActionListener(new OpenViewAction(LocalizationManager.getInstance().get("menu.animation_preview"), new OpenViewGetter() {
 			@Override
 			public View getView() {
 				final JPanel testPanel = new JPanel();
@@ -2843,86 +2844,86 @@ public class MainPanel extends JPanel
 
 //		viewsMenu.add(testItem);
 
-		animationViewer = new JMenuItem("Animation Preview");
+		animationViewer = new JMenuItem(LocalizationManager.getInstance().get("menu.animation_preview"));
 		animationViewer.setMnemonic(KeyEvent.VK_A);
 		animationViewer.addActionListener(openAnimationViewerAction);
 		viewsMenu.add(animationViewer);
 
-		animationController = new JMenuItem("Animation Controller");
+		animationController = new JMenuItem(LocalizationManager.getInstance().get("menu.animation_controller"));
 		animationController.setMnemonic(KeyEvent.VK_C);
 		animationController.addActionListener(openAnimationControllerAction);
 		viewsMenu.add(animationController);
 
-		cameraController = new JMenuItem("Camera Controller");
+		cameraController = new JMenuItem(LocalizationManager.getInstance().get("menu.camera_controller"));
 		cameraController.addActionListener(openCameraControllerAction);
 		viewsMenu.add(cameraController);
 
 		viewsMenu.addSeparator();
 
-		modelingTab = new JMenuItem("Modeling");
+		modelingTab = new JMenuItem(LocalizationManager.getInstance().get("menu.modeling"));
 		modelingTab.setMnemonic(KeyEvent.VK_M);
 		modelingTab.addActionListener(openModelingTabAction);
 		viewsMenu.add(modelingTab);
 
-		final JMenuItem outlinerItem = new JMenuItem("Outliner");
+		final JMenuItem outlinerItem = new JMenuItem(LocalizationManager.getInstance().get("menu.outliner"));
 		outlinerItem.setMnemonic(KeyEvent.VK_O);
 		outlinerItem.addActionListener(openOutlinerAction);
 		viewsMenu.add(outlinerItem);
 
-		final JMenuItem perspectiveItem = new JMenuItem("Perspective");
+		final JMenuItem perspectiveItem = new JMenuItem(LocalizationManager.getInstance().get("menu.perspective"));
 		perspectiveItem.setMnemonic(KeyEvent.VK_P);
 		perspectiveItem.addActionListener(openPerspectiveAction);
 		viewsMenu.add(perspectiveItem);
 
-		final JMenuItem frontItem = new JMenuItem("Front");
+		final JMenuItem frontItem = new JMenuItem(LocalizationManager.getInstance().get("menu.front"));
 		frontItem.setMnemonic(KeyEvent.VK_F);
 		frontItem.addActionListener(openFrontAction);
 		viewsMenu.add(frontItem);
 
-		final JMenuItem sideItem = new JMenuItem("Side");
+		final JMenuItem sideItem = new JMenuItem(LocalizationManager.getInstance().get("menu.side"));
 		sideItem.setMnemonic(KeyEvent.VK_S);
 		sideItem.addActionListener(openSideAction);
 		viewsMenu.add(sideItem);
 
-		final JMenuItem bottomItem = new JMenuItem("Bottom");
+		final JMenuItem bottomItem = new JMenuItem(LocalizationManager.getInstance().get("menu.bottom"));
 		bottomItem.setMnemonic(KeyEvent.VK_B);
 		bottomItem.addActionListener(openBottomAction);
 		viewsMenu.add(bottomItem);
 
-		final JMenuItem toolsItem = new JMenuItem("Tools");
+		final JMenuItem toolsItem = new JMenuItem(LocalizationManager.getInstance().get("menu.tools"));
 		toolsItem.setMnemonic(KeyEvent.VK_T);
 		toolsItem.addActionListener(openToolsAction);
 		viewsMenu.add(toolsItem);
 
-		final JMenuItem timeItem = new JMenuItem("Footer");
+		final JMenuItem timeItem = new JMenuItem(LocalizationManager.getInstance().get("menu.footer"));
 		timeItem.addActionListener(openTimeSliderAction);
 		viewsMenu.add(timeItem);
 
 		viewsMenu.addSeparator();
 
-		final JMenuItem tracksItem = new JMenuItem("Tracks");
+		final JMenuItem tracksItem = new JMenuItem(LocalizationManager.getInstance().get("menu.tracks"));
 		tracksItem.addActionListener(openTracksViewAction);
 		viewsMenu.add(tracksItem);
 
 		viewsMenu.addSeparator();
 
-		final JMenuItem contentsItem = new JMenuItem("Contents");
+		final JMenuItem contentsItem = new JMenuItem(LocalizationManager.getInstance().get("menu.contents"));
 		contentsItem.setMnemonic(KeyEvent.VK_M);
 		contentsItem.addActionListener(openModelDataContentsViewAction);
 		viewsMenu.add(contentsItem);
 
-		final JMenuItem componentItem = new JMenuItem("Component");
+		final JMenuItem componentItem = new JMenuItem(LocalizationManager.getInstance().get("menu.component"));
 		componentItem.setMnemonic(KeyEvent.VK_C);
 		componentItem.addActionListener(openModelDataComponentsViewAction);
 		viewsMenu.add(componentItem);
 
 		viewsMenu.addSeparator();
 
-		final JMenuItem textItem = new JMenuItem("Text");
+		final JMenuItem textItem = new JMenuItem(LocalizationManager.getInstance().get("menu.text"));
 		textItem.addActionListener(openTextViewAction);
 		viewsMenu.add(textItem);
 
-		final JMenuItem hackerViewItem = new JMenuItem("Matrix Eater Script");
+		final JMenuItem hackerViewItem = new JMenuItem(LocalizationManager.getInstance().get("menu.matrix_eater_script"));
 		hackerViewItem.setMnemonic(KeyEvent.VK_H);
 		hackerViewItem.setAccelerator(KeyStroke.getKeyStroke("control P"));
 		hackerViewItem.addActionListener(hackerViewAction);
@@ -3383,7 +3384,7 @@ public class MainPanel extends JPanel
 		});
 		scriptsMenu.add(exportAnimatedToStaticMesh);
 
-		exportAnimatedFramePNG = new JMenuItem("Export Animated Frame PNG");
+		exportAnimatedFramePNG = new JMenuItem(LocalizationManager.getInstance().get("menu.export_animated_frame_png"));
 		exportAnimatedFramePNG.setMnemonic(KeyEvent.VK_F);
 		exportAnimatedFramePNG.addActionListener(new ActionListener() {
 			@Override
@@ -3424,11 +3425,11 @@ public class MainPanel extends JPanel
 								}
 								final boolean write = ImageIO.write(bufferedImage, fileExtension, file);
 								if (!write) {
-									JOptionPane.showMessageDialog(MainPanel.this, "File type unknown or unavailable");
+									JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("dialog.error.file_type_unknown"));
 								}
 							}
 							else {
-								JOptionPane.showMessageDialog(MainPanel.this, "No file type was specified");
+								JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("dialog.error.no_file_type_specified"));
 							}
 						}
 						catch (final IOException e1) {
@@ -3441,7 +3442,7 @@ public class MainPanel extends JPanel
 						}
 					}
 					else {
-						JOptionPane.showMessageDialog(MainPanel.this, "No output file was specified");
+						JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("dialog.error.no_output_file_specified"));
 					}
 				}
 			}
@@ -4945,7 +4946,7 @@ public class MainPanel extends JPanel
 								}
 							}
 							else {
-								JOptionPane.showMessageDialog(this, "No file type was specified");
+								JOptionPane.showMessageDialog(this, LocalizationManager.getInstance().get("dialog.error.no_file_type_specified"));
 							}
 						}
 						catch (final IOException e1) {
@@ -5158,7 +5159,7 @@ public class MainPanel extends JPanel
 					model.add(death);
 				}
 
-				JOptionPane.showMessageDialog(this, "Done!");
+				JOptionPane.showMessageDialog(this, LocalizationManager.getInstance().get("status.done"));
 			}
 			else if (e.getSource() == animFromFile) {
 				fc.setDialogTitle("Animation Source");
@@ -5709,21 +5710,21 @@ public class MainPanel extends JPanel
 				JOptionPane.QUESTION_MESSAGE, null, animationSourceModel.getAnims().toArray(),
 				animationSourceModel.getAnims().get(0));
 		if (choice == null) {
-			JOptionPane.showMessageDialog(this, "Bad choice. No animation added.");
+			JOptionPane.showMessageDialog(this, LocalizationManager.getInstance().get("message.bad_choice_no_animation"));
 			return;
 		}
 		final Animation visibilitySource = (Animation) JOptionPane.showInputDialog(this,
 				"Which animation from THIS model to copy visiblity from?", "Add Animation",
 				JOptionPane.QUESTION_MESSAGE, null, current.getAnims().toArray(), current.getAnims().get(0));
 		if (visibilitySource == null) {
-			JOptionPane.showMessageDialog(this, "No visibility will be copied.");
+			JOptionPane.showMessageDialog(this, LocalizationManager.getInstance().get("message.no_visibility_will_be_copied"));
 		}
 		final List<Animation> animationsAdded = current.addAnimationsFrom(animationSourceModel,
 				Collections.singletonList(choice));
 		for (final Animation anim : animationsAdded) {
 			current.copyVisibility(visibilitySource, anim);
 		}
-		JOptionPane.showMessageDialog(this, "Added " + animationSourceModel.getName() + "'s " + choice.getName()
+		JOptionPane.showMessageDialog(this, LocalizationManager.getInstance().get("message.added_animation_prefix") + animationSourceModel.getName() + "'s " + choice.getName()
 				+ " with " + visibilitySource.getName() + "'s visibility  OK!");
 		modelStructureChangeListener.animationsAdded(animationsAdded);
 	}
@@ -6965,7 +6966,7 @@ public class MainPanel extends JPanel
 					fileHandler.onClickOK(file, exportTextureDialog.getFileFilter());
 				}
 				else {
-					JOptionPane.showMessageDialog(parent, "No import file was specified");
+					JOptionPane.showMessageDialog(parent, LocalizationManager.getInstance().get("dialog.error.no_import_file_specified"));
 				}
 			}
 		}

@@ -24,7 +24,7 @@ public final class RedoActionImplementation extends AbstractAction {
 			try {
 				mpanel.getUndoManager().redo();
 			} catch (final NoSuchElementException exc) {
-				JOptionPane.showMessageDialog(mainPanel, "Nothing to redo!");
+				JOptionPane.showMessageDialog(mainPanel, LocalizationManager.getInstance().get("action.nothing_to_redo"));
 			} catch (final Exception exc) {
 				ExceptionPopup.display(exc);
 			}

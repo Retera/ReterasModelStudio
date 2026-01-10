@@ -14,7 +14,7 @@ public class FaceEffectsAreNotModdableGUI extends JPanel {
 	public FaceEffectsAreNotModdableGUI(final EditableModel model) {
 		final JLabel audioFileLabel = new JLabel("Audio File:");
 		final JTextField audioFilePath = new JTextField();
-		final JButton audioFileBrowseBtn = new JButton("Browse");
+		final JButton audioFileBrowseBtn = new JButton(LocalizationManager.getInstance().get("button.browse"));
 		final JLabel baseSequenceLabel = new JLabel("Base Sequence:");
 		final DefaultComboBoxModel<Animation> animations = new DefaultComboBoxModel<>();
 		final JComboBox<Animation> baseSequenceChooser = new JComboBox<>();
