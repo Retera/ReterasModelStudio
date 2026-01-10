@@ -23,6 +23,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
 
+import com.matrixeater.localization.LocalizationManager;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
@@ -258,3 +259,4 @@ public class TextureManager extends JPanel {
 		}
 	}
 }
+
