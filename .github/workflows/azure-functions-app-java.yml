@@ -40,11 +40,6 @@ jobs:
       working-directory: ./
       continue-on-error: true
 
-    - name: Try to create EXE with launch4j (if available)
-      run: ./gradlew.bat launch4j
-      working-directory: ./
-      continue-on-error: true
-
     - name: Check for EXE in common locations
       id: check_exe
       run: |
