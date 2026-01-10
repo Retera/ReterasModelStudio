@@ -6,7 +6,11 @@ import java.io.IOException;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+
+import com.matrixeater.localization.LocalizationManager;
+import java.util.Locale;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.util.vector.Quaternion;
@@ -47,17 +51,27 @@ public class YseraPanel extends JPanel {
 	}
 
 	public JMenuBar createJMenuBar() {
+		final LocalizationManager lm = LocalizationManager.getInstance();
 		final JMenuBar jMenuBar = new JMenuBar();
 
-		final JMenu fileMenu = new JMenu("File");
+		final JMenu fileMenu = new JMenu(lm.get("menu.file"));
 		jMenuBar.add(fileMenu);
-		jMenuBar.add(new JMenu("Recent Files"));
-		jMenuBar.add(new JMenu("Edit"));
-		jMenuBar.add(new JMenu("View"));
-		jMenuBar.add(new JMenu("Team Color"));
-		jMenuBar.add(new JMenu("Windows"));
-		jMenuBar.add(new JMenu("Extras"));
-		jMenuBar.add(new JMenu("Help"));
+		jMenuBar.add(new JMenu(lm.get("menu.recent_files")));
+		jMenuBar.add(new JMenu(lm.get("menu.edit")));
+		jMenuBar.add(new JMenu(lm.get("menu.view")));
+		jMenuBar.add(new JMenu(lm.get("menu.team_color")));
+		jMenuBar.add(new JMenu(lm.get("menu.windows")));
+		jMenuBar.add(new JMenu(lm.get("menu.extras")));
+		jMenuBar.add(new JMenu(lm.get("menu.help")));
+
+		final JMenu languageMenu = new JMenu(lm.get("menu.language"));
+		final JMenuItem enItem = new JMenuItem(lm.get("language.en"));
+		enItem.addActionListener(e -> LocalizationManager.getInstance().setLocale(Locale.ENGLISH));
+		final JMenuItem zhItem = new JMenuItem(lm.get("language.zh_CN"));
+		zhItem.addActionListener(e -> LocalizationManager.getInstance().setLocale(new Locale("zh","CN")));
+		languageMenu.add(enItem);
+		languageMenu.add(zhItem);
+		jMenuBar.add(languageMenu);
 
 		return jMenuBar;
 	}
