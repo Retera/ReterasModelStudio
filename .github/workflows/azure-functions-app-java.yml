@@ -2,9 +2,9 @@ name: Build Reteras Model Studio EXE
 
 on:
   push:
-    branches: [ master ]  # 可以在这里指定触发工作流的分支
+    branches: [ CN ]  # 可以在这里指定触发工作流的分支
   pull_request:
-    branches: [ master ]  # 也可以为pull request设置触发
+    branches: [ CN ]  # 也可以为pull request设置触发
 
 jobs:
   build:
@@ -87,3 +87,4 @@ jobs:
         name: ReterasModelStudio-EXE
 
         path: D:/a/ReterasModelStudio/ReterasModelStudio
+
