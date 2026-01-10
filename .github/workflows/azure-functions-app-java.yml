@@ -27,9 +27,13 @@ jobs:
       run: chmod +x ./gradlew  # 在Windows上这一步可能不是必需的，取决于你的脚本权限
       working-directory: ./  # 根据实际情况调整工作目录
 
+    - name: List all available Gradle tasks
+      run: ./gradlew.bat tasks --all
+      working-directory: ./
+
     - name: Build with Gradle
-      run: ./gradlew.bat  # 替换为实际的打包命令或脚本
-      working-directory: ./  # 根据实际情况调整工作目录
+      run: ./gradlew.bat
+      working-directory: ./
 
     - name: Check for EXE in common locations
       id: check_exe
@@ -39,6 +43,30 @@ jobs:
           echo "Found EXE in ./"
         } else {
           echo "No EXE found in ./"
+        }
+      shell: pwsh
+
+    - name: Try to create EXE with jpackage (if available)
+      run: ./gradlew.bat jpackage
+      working-directory: ./
+      continue-on-error: true
+
+    - name: Try to create EXE with launch4j (if available)
+      run: ./gradlew.bat launch4j
+      working-directory: ./
+      continue-on-error: true
+
+    - name: Check for EXE in all possible locations
+      id: check_exe
+      run: |
+        echo "Searching for EXE files in the entire repository..."
+        Get-ChildItem -Recurse -Filter *.exe | ForEach-Object {
+          echo "Found EXE: $($_.FullName)"
+          echo "exe_path=$($_.FullName)" >> $env:GITHUB_OUTPUT
+        }
+        
+        if (-not (Get-ChildItem -Recurse -Filter *.exe)) {
+          echo "No EXE files found in the repository"
         }
       shell: pwsh
 
