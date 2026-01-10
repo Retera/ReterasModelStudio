@@ -29,81 +29,201 @@ jobs:
 
     # 安装必要工具
     - name: Setup tools
+      shell: powershell
       run: |
         Write-Host "Installing Inno Setup..."
         choco install innosetup -y --no-progress
         
-        # 验证安装
-        $iscc = Get-Command "ISCC.exe" -ErrorAction SilentlyContinue
-        if (-not $iscc) {
-          $iscc = Get-ChildItem "C:\Program Files*" -Recurse -Include "ISCC.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+        # 查找 ISCC.exe 位置
+        $isccPaths = @(
+          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe",
+          "C:\Program Files\Inno Setup 6\ISCC.exe",
+          "C:\Program Files (x86)\Inno Setup 5\ISCC.exe",
+          "C:\Program Files\Inno Setup 5\ISCC.exe"
+        )
+        
+        $foundPath = $null
+        foreach ($path in $isccPaths) {
+          if (Test-Path $path) {
+            $foundPath = $path
+            break
+          }
         }
-        if ($iscc) {
-          Write-Host "ISCC found at $($iscc.FullName)"
-          echo "ISCC_PATH=$($iscc.FullName)" >> $env:GITHUB_ENV
+        
+        if (-not $foundPath) {
+          # 尝试通过 PATH 查找
+          $foundPath = (Get-Command ISCC.exe -ErrorAction SilentlyContinue)?.Path
+        }
+        
+        if ($foundPath) {
+          Write-Host "ISCC found at $foundPath"
+          echo "ISCC_PATH=$foundPath" >> $env:GITHUB_ENV
         } else {
-          Write-Error "ISCC.exe not found!"
+          Write-Error "ISCC.exe not found! Please install Inno Setup."
           exit 1
         }
-      shell: powershell
 
-    - name: Grant execute permission for gradlew
+    # ✅ 修复: 统一使用 PowerShell 语法处理 gradlew
+    - name: Prepare gradlew
+      shell: powershell
       run: |
         if (Test-Path "gradlew") {
-          attrib -R gradlew
-          git update-index --assume-unchanged gradlew
+          Write-Host "Preparing gradlew script..."
+          # 移除只读属性
+          Set-ItemProperty -Path "gradlew" -Name IsReadOnly -Value $false -Force
+          
+          # 确保文件有执行权限 (Windows 不需要 chmod，但确保格式正确)
+          $content = Get-Content "gradlew" -Raw
+          if ($content -match "`r`n") {
+            Write-Host "gradlew already has Windows line endings"
+          } else {
+            Write-Host "Converting gradlew to Windows line endings..."
+            $content = $content -replace "`n", "`r`n"
+            Set-Content -Path "gradlew" -Value $content -NoNewline
+          }
+        } else {
+          Write-Error "gradlew script not found in repository!"
+          exit 1
         }
-      shell: cmd
 
-    # 构建项目
+    # ✅ 修复: 使用 PowerShell 调用 Gradle
     - name: Build with Gradle
-      run: |
-        .\gradlew build --no-daemon --info
-      shell: cmd
-
-    # 创建可执行 JAR
-    - name: Create executable JAR
-      run: |
-        echo Creating executable JAR...
-        .\gradlew jar --no-daemon
-      shell: cmd
-
-    # ✅ 修复: 正确的 jpackage 语法 (Windows 兼容)
-    - name: Package Windows application
-      run: |
-        echo Creating Windows application with jpackage...
-        mkdir build\installer -Force
-        
-        # 使用正确的 jpackage 语法 (无 create-installer 子命令)
-        jpackage `
-          --name "ReterasModelStudio" `
-          --input "build\libs" `
-          --main-jar "matrixeater.jar" `
-          --main-class "com.matrixeater.src.MainFrame" `
-          --type "exe" `
-          --app-version "1.0.0" `
-          --vendor "Retera" `
-          --description "Warcraft III Model Editor" `
-          --win-menu `
-          --win-shortcut `
-          --output "build\installer"
       shell: powershell
-      env:
-        # 防止 jpackage 创建临时目录问题
-        _JAVA_OPTIONS: "-Djava.io.tmpdir=${{ runner.temp }}"
+      run: |
+        Write-Host "Building project with Gradle..."
+        $gradleArgs = @(
+          "build",
+          "--no-daemon",
+          "--info",
+          "--stacktrace"
+        )
+        
+        if ($env:CI) {
+          $gradleArgs += "--continuous-build"
+        }
+        
+        $process = Start-Process -FilePath ".\gradlew" `
+          -ArgumentList $gradleArgs `
+          -NoNewWindow `
+          -PassThru `
+          -Wait
+        
+        if ($process.ExitCode -ne 0) {
+          Write-Error "Gradle build failed with exit code $($process.ExitCode)"
+          exit $process.ExitCode
+        }
+        
+        Write-Host "Gradle build completed successfully"
 
-    # ✅ 修复: 正确的 Inno Setup 脚本生成 (Windows 路径)
+    # ✅ 修复: 使用 PowerShell 创建 JAR
+    - name: Create executable JAR
+      shell: powershell
+      run: |
+        Write-Host "Creating executable JAR..."
+        $jarProcess = Start-Process -FilePath ".\gradlew" `
+          -ArgumentList "jar", "--no-daemon" `
+          -NoNewWindow `
+          -PassThru `
+          -Wait
+        
+        if ($jarProcess.ExitCode -ne 0) {
+          Write-Error "JAR creation failed with exit code $($jarProcess.ExitCode)"
+          exit $jarProcess.ExitCode
+        }
+        
+        # 验证 JAR 文件
+        $jarPath = "build\libs\matrixeater.jar"
+        if (Test-Path $jarPath) {
+          $size = (Get-Item $jarPath).Length
+          Write-Host "JAR created successfully: $jarPath ($size bytes)"
+        } else {
+          Write-Error "JAR file not found at $jarPath"
+          Get-ChildItem "build\libs" -Recurse -ErrorAction SilentlyContinue
+          exit 1
+        }
+
+    # ✅ 修复: 使用 PowerShell 语法的 jpackage
+    - name: Package Windows application
+      shell: powershell
+      run: |
+        Write-Host "Creating Windows application with jpackage..."
+        $outputDir = "build\installer"
+        $null = New-Item -Path $outputDir -ItemType Directory -Force
+        
+        # 设置 jpackage 参数
+        $jpackageArgs = @(
+          "--name", "ReterasModelStudio",
+          "--input", "build\libs",
+          "--main-jar", "matrixeater.jar",
+          "--main-class", "com.matrixeater.src.MainFrame",
+          "--type", "exe",
+          "--app-version", "1.0.0",
+          "--vendor", "Retera",
+          "--description", "Warcraft III Model Editor",
+          "--win-menu",
+          "--win-shortcut",
+          "--output", $outputDir
+        )
+        
+        # 检查图标文件
+        $iconPath = "resources\icons\app.ico"
+        if (Test-Path $iconPath) {
+          $jpackageArgs += "--icon", $iconPath
+          Write-Host "Using application icon: $iconPath"
+        } else {
+          Write-Warning "Icon file not found at $iconPath. Using default icon."
+        }
+        
+        Write-Host "Running jpackage with arguments:"
+        Write-Host ($jpackageArgs -join " ")
+        
+        $env:_JAVA_OPTIONS = "-Djava.io.tmpdir=$env:RUNNER_TEMP"
+        
+        $jpackageProcess = Start-Process -FilePath "jpackage" `
+          -ArgumentList $jpackageArgs `
+          -NoNewWindow `
+          -PassThru `
+          -Wait `
+          -WorkingDirectory $PWD
+        
+        if ($jpackageProcess.ExitCode -ne 0) {
+          Write-Error "jpackage failed with exit code $($jpackageProcess.ExitCode)"
+          
+          # 调试信息
+          Write-Host "Checking build/libs directory:"
+          Get-ChildItem "build\libs" -Recurse -ErrorAction SilentlyContinue
+          
+          Write-Host "Java version:"
+          java -version 2>&1 | ForEach-Object { Write-Host $_ }
+          
+          Write-Host "jpackage version:"
+          jpackage --version 2>&1 | ForEach-Object { Write-Host $_ }
+          
+          exit $jpackageProcess.ExitCode
+        }
+        
+        # 验证输出
+        $exePath = "$outputDir\ReterasModelStudio\ReterasModelStudio.exe"
+        if (Test-Path $exePath) {
+          $size = (Get-Item $exePath).Length
+          Write-Host "Application created successfully: $exePath ($size bytes)"
+        } else {
+          Write-Error "Executable not found at $exePath"
+          Get-ChildItem $outputDir -Recurse -ErrorAction SilentlyContinue
+          exit 1
+        }
+
+    # ✅ 修复: 完全 PowerShell 语法的 Inno Setup
     - name: Create Inno Setup installer
+      shell: powershell
       run: |
         Write-Host "Creating Inno Setup installer..."
-        $installerDir = "build\installer"
         $setupScript = "build\setup.iss"
         $outputDir = "build\final-installer"
-        
-        mkdir $outputDir -Force | Out-Null
+        $null = New-Item -Path $outputDir -ItemType Directory -Force
         
         # 生成 Inno Setup 脚本
-        @"
+        $issContent = @"
         [Setup]
         AppName=Reteras Model Studio
         AppVersion=1.0.0
@@ -111,19 +231,21 @@ jobs:
         DefaultGroupName=Reteras Model Studio
         OutputDir=$outputDir
         OutputBaseFilename=ReterasModelStudio-Setup
-        SetupIconFile=resources\icons\app.ico
         Compression=lzma2
         SolidCompression=yes
         PrivilegesRequired=lowest
         WizardStyle=modern
+        SetupIconFile=resources\icons\app.ico
+        UninstallDisplayIcon={app}\ReterasModelStudio.exe
 
         [Files]
-        Source: "$installerDir\ReterasModelStudio\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+        Source: "build\installer\ReterasModelStudio\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
         Source: "resources\*"; DestDir: "{app}\resources"; Flags: ignoreversion recursesubdirs createallsubdirs
         Source: "craft3data\*"; DestDir: "{app}\craft3data"; Flags: ignoreversion recursesubdirs createallsubdirs
+        Source: "jars\*"; DestDir: "{app}\jars"; Flags: ignoreversion recursesubdirs createallsubdirs
 
         [Icons]
-        Name: "{group}\Reteras Model Studio"; Filename: "{app}\ReterasModelStudio.exe"
+        Name: "{group}\Reteras Model Studio"; Filename: "{app}\ReterasModelStudio.exe"; IconFilename: "{app}\ReterasModelStudio.exe"
         Name: "{group}\Uninstall Reteras Model Studio"; Filename: "{uninstallexe}"
         Name: "{commondesktop}\Reteras Model Studio"; Filename: "{app}\ReterasModelStudio.exe"; Tasks: desktopicon
 
@@ -132,13 +254,39 @@ jobs:
 
         [Run]
         Filename: "{app}\ReterasModelStudio.exe"; Description: "Launch Reteras Model Studio"; Flags: nowait postinstall skipifsilent
-        "@ | Set-Content -Path $setupScript -Encoding UTF8
+        "@
         
+        $issContent | Set-Content -Path $setupScript -Encoding UTF8
+        Write-Host "Inno Setup script created at $setupScript"
+        
+        # 调试: 显示脚本内容
         Write-Host "Inno Setup script content:"
         Get-Content $setupScript
         
-        Write-Host "Compiling installer with ISCC..."
-        & "${env:ISCC_PATH}" "$setupScript"
+        # 编译安装程序
+        if (-not $env:ISCC_PATH) {
+          Write-Error "ISCC_PATH environment variable not set!"
+          exit 1
+        }
+        
+        Write-Host "Compiling installer with ISCC from $($env:ISCC_PATH)..."
+        $isccProcess = Start-Process -FilePath $env:ISCC_PATH `
+          -ArgumentList "`"$setupScript`"" `
+          -NoNewWindow `
+          -PassThru `
+          -Wait
+        
+        if ($isccProcess.ExitCode -ne 0) {
+          Write-Error "ISCC failed with exit code $($isccProcess.ExitCode)"
+          
+          # 调试信息
+          Write-Host "ISCC path: $($env:ISCC_PATH)"
+          Write-Host "Current directory: $(Get-Location)"
+          Write-Host "Files in current directory:"
+          Get-ChildItem -Force
+          
+          exit $isccProcess.ExitCode
+        }
         
         # 验证输出
         $installerPath = "$outputDir\ReterasModelStudio-Setup.exe"
@@ -146,12 +294,21 @@ jobs:
           $size = (Get-Item $installerPath).Length
           Write-Host "Installer created successfully: $installerPath"
           Write-Host "Size: $size bytes"
+          
+          # 检查最小大小 (20MB 合理下限)
+          if ($size -lt 20MB) {
+            Write-Warning "Installer size is smaller than expected ($size bytes). This might indicate missing files."
+            Write-Host "Installer directory contents:"
+            Get-ChildItem $outputDir
+          }
         } else {
-          Write-Error "Installer was not created!"
-          Get-ChildItem $outputDir -Recurse
+          Write-Error "Installer was not created at $installerPath!"
+          Write-Host "Output directory contents:"
+          Get-ChildItem $outputDir -ErrorAction SilentlyContinue
+          Write-Host "Parent directory contents:"
+          Get-ChildItem "build" -ErrorAction SilentlyContinue
           exit 1
         }
-      shell: powershell
 
     # 上传构建产物
     - name: Upload Artifacts
@@ -165,19 +322,41 @@ jobs:
 
     # 验证安装程序
     - name: Verify installer
+      shell: powershell
       run: |
-        $installer = "build\final-installer\ReterasModelStudio-Setup.exe"
-        if (-not (Test-Path $installer)) {
-          Write-Error "Installer not found at $installer"
+        $installerPath = "build\final-installer\ReterasModelStudio-Setup.exe"
+        
+        if (-not (Test-Path $installerPath)) {
+          Write-Error "Installer not found at $installerPath"
           exit 1
         }
         
-        $size = (Get-Item $installer).Length
-        Write-Host "Installer size: $size bytes"
+        $size = (Get-Item $installerPath).Length
+        Write-Host "Final installer size: $size bytes"
         
-        if ($size -lt 20000000) {  # 20MB minimum reasonable size
-          Write-Warning "Installer is smaller than expected ($size bytes)"
-          # 列出内容帮助调试
-          7z l $installer
+        # 创建安装测试目录
+        $testDir = "installer-test"
+        $null = New-Item -Path $testDir -ItemType Directory -Force
+        
+        # 运行安装程序（静默模式）
+        Write-Host "Testing installer in silent mode..."
+        $installerArgs = @("/VERYSILENT", "/DIR=`"$testDir\installed`"", "/LOG=`"$testDir\install.log`"")
+        
+        $installProcess = Start-Process -FilePath $installerPath `
+          -ArgumentList $installerArgs `
+          -NoNewWindow `
+          -PassThru `
+          -Wait
+        
+        if ($installProcess.ExitCode -ne 0) {
+          Write-Error "Installer test failed with exit code $($installProcess.ExitCode)"
+          if (Test-Path "$testDir\install.log") {
+            Write-Host "Installation log:"
+            Get-Content "$testDir\install.log" -Tail 20
+          }
+          exit $installProcess.ExitCode
         }
-      shell: powershell
+        
+        Write-Host "Installer test passed successfully"
+        Write-Host "Installed files:"
+        Get-ChildItem "$testDir\installed" -Recurse -Depth 2
