@@ -9,6 +9,9 @@ on:
 jobs:
   build:
     runs-on: windows-latest  # 使用Windows最新版本来编译EXE
+    strategy:
+      matrix:
+        java: [ '17' ]  # 项目需要 JDK 17
 
     steps:
     - uses: actions/checkout@v4  # 检出仓库代码
