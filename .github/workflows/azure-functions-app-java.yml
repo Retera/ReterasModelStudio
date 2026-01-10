@@ -39,6 +39,9 @@ jobs:
       run: ./gradlew.bat jpackage
       working-directory: ./
       continue-on-error: true
+      appImage: true
+      installer: false
+      installerType: 'app-image'
 
     - name: Check for EXE in common locations
       id: check_exe
