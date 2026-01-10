@@ -48,12 +48,12 @@ public class TextureManager extends JPanel {
 		setLayout(null);
 
 		final JPanel panel = new JPanel();
-		panel.setBorder(new TitledBorder(null, "Textures", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel.setBorder(new TitledBorder(null, LocalizationManager.getInstance().get("label.textures"), TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panel.setBounds(16, 17, 297, 507);
 		add(panel);
 		panel.setLayout(new BorderLayout(0, 0));
 
-		final JCheckBox chckbxDisplayPath = new JCheckBox("Display Path");
+		final JCheckBox chckbxDisplayPath = new JCheckBox(LocalizationManager.getInstance().get("label.display_path"));
 
 		final JList<Bitmap> list = new JList<Bitmap>();
 		chckbxDisplayPath.addActionListener(new ActionListener() {
@@ -103,14 +103,14 @@ public class TextureManager extends JPanel {
 		panel.add(chckbxDisplayPath, BorderLayout.SOUTH);
 
 		panel_1 = new JPanel();
-		panel_1.setBorder(new TitledBorder(null, "Image Viewer", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_1.setBorder(new TitledBorder(null, LocalizationManager.getInstance().get("label.image_viewer"), TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panel_1.setBounds(323, 17, 439, 507);
 		panel_1.setLayout(new BorderLayout());
 		add(panel_1);
 
 		loadBitmap(modelView, defaultTexture);
 
-		final JButton importButton = new JButton("Import");
+		final JButton importButton = new JButton(LocalizationManager.getInstance().get("button.import"));
 		importButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -129,7 +129,7 @@ public class TextureManager extends JPanel {
 		importButton.setBounds(26, 535, 89, 23);
 		add(importButton);
 
-		final JButton exportButton = new JButton("Export");
+		final JButton exportButton = new JButton(LocalizationManager.getInstance().get("button.export"));
 		exportButton.setBounds(125, 535, 89, 23);
 		add(exportButton);
 		exportButton.addActionListener(new ActionListener() {
@@ -152,7 +152,7 @@ public class TextureManager extends JPanel {
 			}
 		});
 
-		final JButton btnReplaceTexture = new JButton("Replace Texture");
+		final JButton btnReplaceTexture = new JButton(LocalizationManager.getInstance().get("button.replace_texture"));
 		btnReplaceTexture.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -173,7 +173,7 @@ public class TextureManager extends JPanel {
 		btnReplaceTexture.setBounds(25, 569, 185, 23);
 		add(btnReplaceTexture);
 
-		final JButton btnRemove = new JButton("Remove");
+		final JButton btnRemove = new JButton(LocalizationManager.getInstance().get("button.remove"));
 		btnRemove.setBounds(224, 535, 89, 23);
 		btnRemove.addActionListener(new ActionListener() {
 			@Override
@@ -188,7 +188,7 @@ public class TextureManager extends JPanel {
 		});
 		add(btnRemove);
 
-		final JButton btnEditTexture = new JButton("Edit Path");
+		final JButton btnEditTexture = new JButton(LocalizationManager.getInstance().get("button.edit_path"));
 		btnEditTexture.setBounds(415, 535, 88, 23);
 		add(btnEditTexture);
 		btnEditTexture.addActionListener(new ActionListener() {
@@ -209,12 +209,12 @@ public class TextureManager extends JPanel {
 		add(pathField);
 		pathField.setColumns(10);
 
-		final JButton btnAdd = new JButton("Add Path");
+		final JButton btnAdd = new JButton(LocalizationManager.getInstance().get("button.add_path"));
 		btnAdd.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				final String path = JOptionPane.showInputDialog(TextureManager.this, "Enter texture path:",
-						"Add Texture", JOptionPane.PLAIN_MESSAGE);
+			final String path = JOptionPane.showInputDialog(TextureManager.this, LocalizationManager.getInstance().get("dialog.add_texture.message"),
+				LocalizationManager.getInstance().get("dialog.add_texture.title"), JOptionPane.PLAIN_MESSAGE);
 				if (path != null) {
 					final Bitmap newBitmap = new Bitmap(path);
 					modelView.getModel().add(newBitmap);
