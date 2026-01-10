@@ -271,13 +271,13 @@ public class MainPanel extends JPanel
 		implements ActionListener, UndoHandler, ModelEditorChangeActivityListener, ModelPanelCloseListener {
 	JMenuBar menuBar;
 	JMenu fileMenu, recentMenu, recentFetchMenu, editMenu, toolsMenu, mirrorSubmenu, tweaksSubmenu, viewMenu,
-			importMenu, addMenu, scriptsMenu, windowMenu, addParticle, animationMenu, singleAnimationMenu, aboutMenu,
+			importMenu, addMenu, scriptsMenu, windowMenu, addParticle, animationMenu, singleAnimationMenu, languageMenu, aboutMenu,
 			fetch;
 	JCheckBoxMenuItem mirrorFlip, fetchPortraitsToo, showNormals, textureModels, showVertexModifyControls;
 	ArrayList geoItems = new ArrayList();
 	JMenuItem newModel, open, fetchUnit, fetchModel, fetchObject, save, close, exit, revert, mergeGeoset, saveAs,
 			importButton, importUnit, importGameModel, importGameObject, importFromWorkspace, importButtonS,
-			newDirectory, creditsButton, changelogButton, clearRecent, clearRecentFetch, nullmodelButton, selectAll,
+			newDirectory, creditsButton, enItem, zhItem, changelogButton, clearRecent, clearRecentFetch, nullmodelButton, selectAll,
 			invertSelect, expandSelection, snapNormals, snapVertices, flipAllUVsU, flipAllUVsV, inverseAllUVs, mirrorX,
 			mirrorY, mirrorZ, insideOut, insideOutNormals, showMatrices, editUVs, exportTextures, editTextures,
 			scaleAnimations, animationViewer, animationController, cameraController, modelingTab, mpqViewer, hiveViewer,
@@ -3864,23 +3864,31 @@ public class MainPanel extends JPanel
 		});
 //		scriptsMenu.add(fixReteraLand);
 
-		aboutMenu = new JMenu("Help");
+		languageMenu = new JMenu(lm.get("menu.language"));
+		enItem = new JMenuItem(lm.get("language.en"));
+		enItem.addActionListener(e -> LocalizationManager.getInstance().setLocale(Locale.ENGLISH));
+		languageMenu.add(enItem);
+		zhItem = new JMenuItem(lm.get("language.zh_CN"));
+		zhItem.addActionListener(e -> LocalizationManager.getInstance().setLocale(new Locale("zh","CN")));
+		languageMenu.add(zhItem);
+
+		aboutMenu = new JMenu(LocalizationManager.getInstance().get("menu.about"));
 		aboutMenu.setMnemonic(KeyEvent.VK_H);
 		menuBar.add(aboutMenu);
 
 		recentMenu.add(new JSeparator());
 
-		clearRecent = new JMenuItem("Clear");
+		clearRecent = new JMenuItem(LocalizationManager.getInstance().get("menu.clear"));
 		clearRecent.setMnemonic(KeyEvent.VK_C);
 		clearRecent.addActionListener(this);
 		recentMenu.add(clearRecent);
 
-		changelogButton = new JMenuItem("Changelog");
+		changelogButton = new JMenuItem(LocalizationManager.getInstance().get("menu.changelog"));
 		changelogButton.setMnemonic(KeyEvent.VK_A);
 		changelogButton.addActionListener(this);
 		aboutMenu.add(changelogButton);
 
-		creditsButton = new JMenuItem("About");
+		creditsButton = new JMenuItem(LocalizationManager.getInstance().get("menu.about"));
 		creditsButton.setMnemonic(KeyEvent.VK_A);
 		creditsButton.addActionListener(this);
 		aboutMenu.add(creditsButton);
