@@ -35,17 +35,6 @@ jobs:
       run: ./gradlew.bat
       working-directory: ./
 
-    - name: Check for EXE in common locations
-      id: check_exe
-      run: |
-        echo "Checking ./ for EXE files..."
-        if (Test-Path "./*.*") {
-          echo "Found EXE in ./"
-        } else {
-          echo "No EXE found in ./"
-        }
-      shell: pwsh
-
     - name: Try to create EXE with jpackage (if available)
       run: ./gradlew.bat jpackage
       working-directory: ./
@@ -56,17 +45,14 @@ jobs:
       working-directory: ./
       continue-on-error: true
 
-    - name: Check for EXE in all possible locations
+    - name: Check for EXE in common locations
       id: check_exe
       run: |
-        echo "Searching for EXE files in the entire repository..."
-        Get-ChildItem -Recurse -Filter *.exe | ForEach-Object {
-          echo "Found EXE: $($_.FullName)"
-          echo "exe_path=$($_.FullName)" >> $env:GITHUB_OUTPUT
-        }
-        
-        if (-not (Get-ChildItem -Recurse -Filter *.exe)) {
-          echo "No EXE files found in the repository"
+        echo "Checking ./ for EXE files..."
+        if (Test-Path "./*.*") {
+          echo "Found EXE in ./"
+        } else {
+          echo "No EXE found in ./"
         }
       shell: pwsh
 
