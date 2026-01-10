@@ -24,8 +24,8 @@ jobs:
         cache: 'gradle'
 
     - name: Grant execute permission for gradlew
-      run: chmod +x ./gradlew  # 在Windows上这一步可能不是必需的，取决于你的脚本权限
-      working-directory: ./  # 根据实际情况调整工作目录
+      run: chmod +x ./gradlew
+      working-directory: ./
 
     - name: List all available Gradle tasks
       run: ./gradlew.bat tasks --all
@@ -40,10 +40,10 @@ jobs:
       working-directory: ./
       continue-on-error: true
 
-    - name: Try to create EXE with launch4j (if available)
-      run: ./gradlew.bat launch4j
-      working-directory: ./
-      continue-on-error: true
+    # - name: Try to create EXE with launch4j (if available)
+    #   run: ./gradlew.bat launch4j
+    #   working-directory: ./
+    #   continue-on-error: true
 
     - name: Check for EXE in common locations
       id: check_exe
@@ -74,7 +74,6 @@ jobs:
         }
       shell: pwsh
 
-
     # - name: 打包
     #   uses: TheDoctor0/zip-release@0.7.6
     #   with:
@@ -86,4 +85,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ReterasModelStudio-EXE
+
         path: D:/a/ReterasModelStudio/ReterasModelStudio
