@@ -31,6 +31,59 @@ jobs:
       run: ./gradlew.bat  # 替换为实际的打包命令或脚本
       working-directory: ./  # 根据实际情况调整工作目录
 
+    - name: Check for EXE in common locations
+      id: check_exe
+      run: |
+        echo "Checking build/libs/ for EXE files..."
+        if (Test-Path "build/libs/*.exe") {
+          echo "Found EXE in build/libs/"
+          Get-ChildItem build/libs/*.exe | ForEach-Object {
+            echo "exe_path=$_" >> $env:GITHUB_OUTPUT
+          }
+        } else {
+          echo "No EXE found in build/libs/"
+        }
+        
+        echo "Checking build/distributions/ for EXE files..."
+        if (Test-Path "build/distributions/*.exe") {
+          echo "Found EXE in build/distributions/"
+          Get-ChildItem build/distributions/*.exe | ForEach-Object {
+            echo "exe_path=$_" >> $env:GITHUB_OUTPUT
+          }
+        } else {
+          echo "No EXE found in build/distributions/"
+        }
+        
+        echo "Checking build/launch4j/ for EXE files..."
+        if (Test-Path "build/launch4j/*.exe") {
+          echo "Found EXE in build/launch4j/"
+          Get-ChildItem build/launch4j/*.exe | ForEach-Object {
+            echo "exe_path=$_" >> $env:GITHUB_OUTPUT
+          }
+        } else {
+          echo "No EXE found in build/launch4j/"
+        }
+      shell: pwsh
+
+    - name: List all files in build directory
+      run: |
+        echo "Listing all files in build directory:"
+        Get-ChildItem -Recurse build/ | Where-Object { $_.Extension -eq ".exe" } | ForEach-Object {
+          echo "Found EXE: $_"
+        }
+        
+        echo "Listing all files in build/libs/:"
+        Get-ChildItem build/libs/ | ForEach-Object {
+          echo "File: $_"
+        }
+        
+        echo "Listing all files in build/distributions/:"
+        Get-ChildItem build/distributions/ | ForEach-Object {
+          echo "File: $_"
+        }
+      shell: pwsh
+
+
     # - name: 打包
     #   uses: TheDoctor0/zip-release@0.7.6
     #   with:
