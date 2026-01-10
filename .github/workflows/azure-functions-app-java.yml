@@ -1,0 +1,97 @@
+name: Build Java EXE
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build:
+    runs-on: windows-latest  # 使用 Windows 环境生成 EXE
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up JDK
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'  # 根据你的项目需求调整版本
+        distribution: 'temurin'
+    
+    - name: Set up Eclipse
+      uses: pR0Ps/setup-eclipse@v1
+      with:
+        eclipse-version: '2023-12'  # 使用最新的 Eclipse 版本
+        
+    - name: Import and build Eclipse project
+      shell: cmd
+      run: |
+        # 进入项目目录
+        cd "%GITHUB_WORKSPACE%"
+        
+        # 创建 Eclipse 项目文件（如果不存在）
+        if not exist .project (
+          echo Creating Eclipse project files...
+          echo ^<?xml version="1.0" encoding="UTF-8"?^> > .project
+          echo ^<projectDescription^> >> .project
+          echo ^<name^>%GITHUB_REPOSITORY_NAME%^</name^> >> .project
+          echo ^<buildSpec^> >> .project
+          echo ^<buildCommand^> >> .project
+          echo ^<name^>org.eclipse.jdt.core.javabuilder^</name^> >> .project
+          echo ^</buildCommand^> >> .project
+          echo ^</buildSpec^> >> .project
+          echo ^<natures^> >> .project
+          echo ^<nature^>org.eclipse.jdt.core.javanature^</nature^> >> .project
+          echo ^</natures^> >> .project
+          echo ^</projectDescription^> >> .project
+        )
+        
+        if not exist .classpath (
+          echo ^<?xml version="1.0" encoding="UTF-8"?^> > .classpath
+          echo ^<classpath^> >> .classpath
+          echo ^<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/^> >> .classpath
+          echo ^<classpathentry kind="src" path="src"/^> >> .classpath
+          echo ^<classpathentry kind="output" path="bin"/^> >> .classpath
+          echo ^</classpath^> >> .classpath
+        )
+        
+        # 使用 Eclipse 编译
+        echo Building project with Eclipse...
+        "%ECLIPSE_HOME%\eclipsec.exe" -nosplash -application org.eclipse.jdt.core.JavaCompiler -data "%GITHUB_WORKSPACE%" -project "%GITHUB_REPOSITORY_NAME%"
+    
+    - name: Create EXE with Launch4j
+      shell: cmd
+      run: |
+        cd "%GITHUB_WORKSPACE%"
+        
+        # 下载 Launch4j
+        curl -L -o launch4j.zip https://sourceforge.net/projects/launch4j/files/launch4j-3/3.14/launch4j-3.14-win32.zip/download
+        tar -xf launch4j.zip
+        
+        # 创建 Launch4j 配置文件
+        echo ^<?xml version="1.0" encoding="UTF-8"?^> > launch4j-config.xml
+        echo ^<launch4jConfig^> >> launch4j-config.xml
+        echo ^<headerType>gui^</headerType^> >> launch4j-config.xml
+        echo ^<outfile>output/myapp.exe^</outfile^> >> launch4j-config.xml
+        echo ^<jar>bin/myapp.jar^</jar^> >> launch4j-config.xml  # 根据你的 JAR 文件名调整
+        echo ^<errTitle>Application Error^</errTitle^> >> launch4j-config.xml
+        echo ^<classPath^> >> launch4j-config.xml
+        echo ^<mainClass>com.yourcompany.Main^</mainClass^> >> launch4j-config.xml  # 根据你的主类调整
+        echo ^<chdir>^</chdir^> >> launch4j-config.xml
+        echo ^<jre^> >> launch4j-config.xml
+        echo ^<minVersion>1.8.0^</minVersion^> >> launch4j-config.xml
+        echo ^</jre^> >> launch4j-config.xml
+        echo ^</launch4jConfig^> >> launch4j-config.xml
+        
+        # 运行 Launch4j
+        launch4j-3.14\launch4j.exe launch4j-config.xml
+    
+    - name: Upload EXE as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: executable
+        path: output/*.exe
+        if-no-files-found: error
