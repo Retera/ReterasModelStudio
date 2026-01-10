@@ -3864,12 +3864,12 @@ public class MainPanel extends JPanel
 		});
 //		scriptsMenu.add(fixReteraLand);
 
-		languageMenu = new JMenu(LocalizationManager.getInstance().setLocale("menu.language"));
-		enItem = new JMenuItem(LocalizationManager.getInstance().setLocale("language.en"));
+		languageMenu = new JMenu(LocalizationManager.getInstance().get("menu.language"));
+		enItem = new JMenuItem(LocalizationManager.getInstance().get("language.en"));
 		enItem.addActionListener(e -> LocalizationManager.getInstance().setLocale(Locale.ENGLISH));
 		languageMenu.add(enItem);
-		zhItem = new JMenuItem(LocalizationManager.getInstance().setLocale("language.zh_CN"));
-		zhItem.addActionListener(e -> LocalizationManager.getInstance().setLocale(new Locale("zh","CN")));
+		zhItem = new JMenuItem(LocalizationManager.getInstance().get("language.zh_CN"));
+		zhItem.addActionListener(e -> LocalizationManager.getInstance().setLocale(Locale("zh","CN")));
 		languageMenu.add(zhItem);
 
 		aboutMenu = new JMenu(LocalizationManager.getInstance().get("menu.about"));
