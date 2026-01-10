@@ -31,15 +31,15 @@ jobs:
       run: ./gradlew.bat  # 替换为实际的打包命令或脚本
       working-directory: ./  # 根据实际情况调整工作目录
 
-    - name: 打包
-      uses: TheDoctor0/zip-release@0.7.6
-      with:
-        filename: ReterasModelStudio.zip
-        path: D:/a/ReterasModelStudio/ReterasModelStudio
-        directory: D:/a/ReterasModelStudio/ZIP/ReterasModelStudio
+    # - name: 打包
+    #   uses: TheDoctor0/zip-release@0.7.6
+    #   with:
+    #     filename: ReterasModelStudio.zip
+    #     path: D:/a/ReterasModelStudio/ReterasModelStudio
+    #     directory: D:/a/ReterasModelStudio/ReterasModelStudio
   
     - name: Upload EXE Artifact
       uses: actions/upload-artifact@v4
       with:
         name: ReterasModelStudio-EXE
-        path: ./ZIP/ReterasModelStudio
+        path: ./ReterasModelStudio
