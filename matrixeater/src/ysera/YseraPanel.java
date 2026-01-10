@@ -63,16 +63,16 @@ public class YseraPanel extends JPanel {
 		jMenuBar.add(new JMenu(lm.get("menu.windows")));
 		jMenuBar.add(new JMenu(lm.get("menu.extras")));
 		jMenuBar.add(new JMenu(lm.get("menu.help")));
+		jMenuBar.add(new JMenu(lm.get("menu.language")));
 
-		final JMenu languageMenu = new JMenu(lm.get("menu.language"));
 		final JMenuItem enItem = new JMenuItem(lm.get("language.en"));
 		enItem.addActionListener(e -> LocalizationManager.getInstance().setLocale(Locale.ENGLISH));
 		final JMenuItem zhItem = new JMenuItem(lm.get("language.zh_CN"));
 		zhItem.addActionListener(e -> LocalizationManager.getInstance().setLocale(new Locale("zh","CN")));
 		languageMenu.add(enItem);
 		languageMenu.add(zhItem);
-		jMenuBar.add(languageMenu);
 
 		return jMenuBar;
 	}
 }
+
