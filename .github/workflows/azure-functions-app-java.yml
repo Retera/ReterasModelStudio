@@ -85,6 +85,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ReterasModelStudio-EXE
-
-        path: D:/a/ReterasModelStudio/ReterasModelStudio
+        path: D:/a/ReterasModelStudio/ReterasModelStudio/matrixeater/src/com/matrixeater/build
 
