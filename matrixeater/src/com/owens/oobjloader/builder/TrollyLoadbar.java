@@ -7,6 +7,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+import com.matrixeater.localization.LocalizationManager;
+
 /**
  * This is not thread safe and not very well programmed... It's 5 am.
  *
@@ -19,10 +21,10 @@ public class TrollyLoadbar {
 	private final JLabel text;
 	private final JProgressBar bar;
 	public TrollyLoadbar() {
-		frame = new JFrame("Loading...");
+		frame = new JFrame(LocalizationManager.getInstance().get("status.loading"));
 		frame.setUndecorated(true);
 		panel = new JPanel();
-		text = new JLabel("Loading...");
+		text = new JLabel(LocalizationManager.getInstance().get("status.loading"));
 		bar = new JProgressBar(0, 100);
 		bar.setPreferredSize(new Dimension(270,20));
 		panel.add(text);

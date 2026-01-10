@@ -16,6 +16,8 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
+import com.matrixeater.localization.LocalizationManager;
+
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.modeledit.TargaReader;
 import com.hiveworkshop.wc3.mdl.Animation;
@@ -772,10 +774,15 @@ public class BuildWLists implements BuilderInterface {
 			}
 		}
 		if (allLessThan2) {
-			final String[] options = { "x32", "x64", "x128", "No" };
+			final String[] options = {
+				LocalizationManager.getInstance().get("option.scale_x32"),
+				LocalizationManager.getInstance().get("option.scale_x64"),
+				LocalizationManager.getInstance().get("option.scale_x128"),
+				LocalizationManager.getInstance().get("option.no")
+			};
 			final int option = JOptionPane.showOptionDialog(null,
-					"This model might be a WoW model, or peculiarly small. Would you like to increase its size?",
-					"WoW Scaling", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
+					LocalizationManager.getInstance().get("dialog.wow_scaling.message"),
+					LocalizationManager.getInstance().get("dialog.wow_scaling.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
 			// final int result = JOptionPane.showConfirmDialog(null, "This
 			// model might be a WoW model, or peculiarly small. Would you like
 			// to increase its size?","WoW Scaling",JOptionPane.YES_NO_OPTION);
@@ -808,8 +815,8 @@ public class BuildWLists implements BuilderInterface {
 		boolean userWantsSwapToBLP = false;
 		if (hasPNGs) {
 			final int result = JOptionPane.showConfirmDialog(null,
-					"This OBJ model contains references to non-BLP files in its materials. Automatically create corresponding BLP files?\n\nIf you choose YES, the MDL format of this OBJ will also be generated to support Matrix Eater 3D viewing.",
-					"Convert Textures to BLPs", JOptionPane.YES_NO_OPTION);
+				LocalizationManager.getInstance().get("dialog.convert_textures.message"),
+				LocalizationManager.getInstance().get("dialog.convert_textures.title"), JOptionPane.YES_NO_OPTION);
 			userWantsSwapToBLP = result == JOptionPane.YES_OPTION;
 		}
 		final File objFile = new File(objFilename);
@@ -854,7 +861,7 @@ public class BuildWLists implements BuilderInterface {
 							// BlpFile.writePalettedBLP(imageData, imageFileBLP,
 							// true, true, false);
 						} catch (final Exception e) {
-							ExceptionPopup.display("Unable to convert PNG to BLP.", e);
+							ExceptionPopup.display(LocalizationManager.getInstance().get("error.unable_convert_png"), e);
 						}
 					}
 					name = name.replace(".png", ".blp").replace(".PNG", ".BLP");

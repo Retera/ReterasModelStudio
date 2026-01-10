@@ -18,6 +18,8 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
+import com.matrixeater.localization.LocalizationManager;
+
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.modeledit.TargaReader;
 import com.hiveworkshop.wc3.mdl.Animation;
@@ -765,24 +767,24 @@ public class Build implements BuilderInterface {
 			// =========================================
 			if (loadbar.isVisible()) {
 				loadbar.setPercent(0f);
-				loadbar.setText("Collapsing MatrixEater MDL representation");
+				loadbar.setText(LocalizationManager.getInstance().get("status.collapsing_mdl_representation"));
 			}
 			mdl.doSavePreps(false);
 			if (loadbar.isVisible()) {
 				loadbar.setPercent(0.5f);
-				loadbar.setText("Preparing model for editing...");
+				loadbar.setText(LocalizationManager.getInstance().get("status.preparing_model_editing"));
 			}
 			mdl.doPostRead();
 			if (loadbar.isVisible()) {
 				loadbar.setPercent(1.0f);
-				loadbar.setText("Adding \"Stand\" animation...");
+				loadbar.setText(LocalizationManager.getInstance().get("status.adding_stand_animation"));
 			}
 			mdl.add(new Animation("Stand", 333, 1333));
 			boolean allLessThan2 = true;
 			final int sizeLimit = 10;
 			if (loadbar.isVisible()) {
 				loadbar.setPercent(0.0f);
-				loadbar.setText("Scanning for WoW sizing...");
+				loadbar.setText(LocalizationManager.getInstance().get("status.scanning_wow_sizing"));
 			}
 			for (final Geoset geo : mdl.getGeosets()) {
 				for (final GeosetVertex gv : geo.getVertices()) {
@@ -797,10 +799,15 @@ public class Build implements BuilderInterface {
 				}
 			}
 			if (allLessThan2) {
-				final String[] options = { "x32", "x64", "x128", "No" };
+				final String[] options = {
+				LocalizationManager.getInstance().get("option.scale_x32"),
+				LocalizationManager.getInstance().get("option.scale_x64"),
+				LocalizationManager.getInstance().get("option.scale_x128"),
+				LocalizationManager.getInstance().get("option.no")
+			};
 				final int option = JOptionPane.showOptionDialog(null,
-						"This model might be a WoW model, or peculiarly small. Would you like to increase its size?",
-						"WoW Scaling", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+						LocalizationManager.getInstance().get("dialog.wow_scaling.message"),
+						LocalizationManager.getInstance().get("dialog.wow_scaling.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
 						options[1]);
 				// final int result = JOptionPane.showConfirmDialog(null, "This
 				// model might be a WoW model, or peculiarly small. Would you
@@ -824,7 +831,7 @@ public class Build implements BuilderInterface {
 			}
 			if (loadbar.isVisible()) {
 				loadbar.setPercent(0.0f);
-				loadbar.setText("Scanning for convertable textures...");
+				loadbar.setText(LocalizationManager.getInstance().get("status.scanning_convertable_textures"));
 			}
 			boolean hasPNGs = false;
 			int index = 0;
@@ -840,15 +847,15 @@ public class Build implements BuilderInterface {
 				}
 				if (loadbar.isVisible()) {
 					loadbar.setPercent(index / (float) mdl.getMaterials().size());
-					loadbar.setText("Scanning for convertable textures...");
+					loadbar.setText(LocalizationManager.getInstance().get("status.scanning_convertable_textures"));
 					index++;
 				}
 			}
 			boolean userWantsSwapToBLP = false;
 			if (hasPNGs) {
 				final int result = JOptionPane.showConfirmDialog(null,
-						"This OBJ model contains references to non-BLP files in its materials. Automatically create corresponding BLP files?\n\nIf you choose YES, the MDL format of this OBJ will also be generated to support Matrix Eater 3D viewing.",
-						"Convert Textures to BLPs", JOptionPane.YES_NO_OPTION);
+						LocalizationManager.getInstance().get("dialog.convert_textures.message"),
+						LocalizationManager.getInstance().get("dialog.convert_textures.title"), JOptionPane.YES_NO_OPTION);
 				userWantsSwapToBLP = result == JOptionPane.YES_OPTION;
 			}
 			final File objFile = new File(objFilename);
@@ -860,7 +867,7 @@ public class Build implements BuilderInterface {
 			}
 			if (loadbar.isVisible()) {
 				loadbar.setPercent(0.0f);
-				loadbar.setText("Converting textures...");
+				loadbar.setText(LocalizationManager.getInstance().get("status.converting_textures"));
 				index = 0;
 			}
 			for (final com.hiveworkshop.wc3.mdl.Material material : mdl.getMaterials()) {
@@ -898,7 +905,7 @@ public class Build implements BuilderInterface {
 								// BlpFile.writePalettedBLP(imageData,
 								// imageFileBLP, true, true, false);
 							} catch (final Exception e) {
-								ExceptionPopup.display("Unable to convert PNG to BLP: " + imageFilePNG.toString(), e);
+								ExceptionPopup.display(LocalizationManager.getInstance().get("error.unable_convert_png") + ": " + imageFilePNG.toString(), e);
 							}
 						}
 						name = name.substring(0, name.lastIndexOf('.')) + ".blp";
@@ -906,7 +913,7 @@ public class Build implements BuilderInterface {
 					}
 					if (loadbar.isVisible()) {
 						loadbar.setPercent(index / (float) nLayers);
-						loadbar.setText("Converting textures..");
+						loadbar.setText(LocalizationManager.getInstance().get("status.converting_textures"));
 						index++;
 					}
 				}
@@ -914,7 +921,7 @@ public class Build implements BuilderInterface {
 			if (userWantsSwapToBLP) {
 				if (loadbar.isVisible()) {
 					loadbar.setPercent(0);
-					loadbar.setText("Saving file...");
+					loadbar.setText(LocalizationManager.getInstance().get("status.saving_file"));
 				}
 				mdl.saveFile(false);
 			}
@@ -929,7 +936,7 @@ public class Build implements BuilderInterface {
 	private void convertMesh(final EditableModel mdl, final Set<Face> processedFaces, final String groupName,
 			final Map<Material, Subgroup> materialToSubgroup, final ArrayList<Face> faceList) {
 		if (loadbar.isVisible()) {
-			loadbar.setText("Converting " + groupName + " ...");
+			loadbar.setText(String.format(LocalizationManager.getInstance().get("status.converting_group"), groupName));
 		}
 		FaceIteration: for (final Face face : faceList) {
 			if (processedFaces.contains(face)) {
