@@ -16,7 +16,9 @@ jobs:
     - name: Set up Java
       uses: actions/setup-java@v4
       with:
-        java-version: '17'  # 指定Java版本，根据项目需求调整
+        java-version: ${{ matrix.java }}
+        distribution: 'temurin'
+        cache: 'gradle'
 
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew  # 在Windows上这一步可能不是必需的，取决于你的脚本权限
