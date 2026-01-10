@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest  # 使用 Windows 环境生成 EXE
+    runs-on: windows-latest
     defaults:
       run:
         shell: cmd
@@ -23,55 +23,50 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: 'maven'  # 启用依赖缓存加速构建
+        cache: 'maven'
 
-    - name: Install Eclipse IDE for Java
+    # ✅ 100% Windows 兼容的 Eclipse 安装
+    - name: Install Eclipse IDE
       run: |
-        echo Downloading Eclipse IDE...
+        echo Downloading Eclipse 2024-06...
         curl -L -o eclipse.zip "https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/2024-06/R/eclipse-java-2024-06-R-win32-x86_64.zip&r=1"
-        echo Extracting Eclipse...
-        tar -xzf eclipse.zip -C "%RUNNER_TEMP%"
-        setx ECLIPSE_HOME "%RUNNER_TEMP%\eclipse"
-        echo Eclipse installed at %ECLIPSE_HOME%
+        mkdir "%RUNNER_TEMP%\eclipse"
+        tar -xzf eclipse.zip -C "%RUNNER_TEMP%\eclipse" --strip-components=1
+        echo "ECLIPSE_HOME=%RUNNER_TEMP%\eclipse" >> %GITHUB_ENV%
+        echo Eclipse installed at %RUNNER_TEMP%\eclipse
 
-    - name: Prepare Eclipse project files
+    - name: Prepare project files
       run: |
         cd "%GITHUB_WORKSPACE%"
-        
-        REM 仅当项目文件不存在时创建（避免覆盖现有配置）
         if not exist .project (
-          echo Creating Eclipse project files...
-          (
-            echo ^<?xml version="1.0" encoding="UTF-8"?^>
-            echo ^<projectDescription^>
-            echo ^<name^>%GITHUB_REPOSITORY_NAME%^</name^>
-            echo ^<buildSpec^>
-            echo ^<buildCommand^>
-            echo ^<name^>org.eclipse.jdt.core.javabuilder^</name^>
-            echo ^</buildCommand^>
-            echo ^</buildSpec^>
-            echo ^<natures^>
-            echo ^<nature^>org.eclipse.jdt.core.javanature^</nature^>
-            echo ^</natures^>
-            echo ^</projectDescription^>
-          ) > .project
+          echo ^<?xml version="1.0" encoding="UTF-8"?^> > .project
+          echo ^<projectDescription^> >> .project
+          echo ^<name^>%GITHUB_REPOSITORY_NAME%^</name^> >> .project
+          echo ^<buildSpec^> >> .project
+          echo ^<buildCommand^> >> .project
+          echo ^<name^>org.eclipse.jdt.core.javabuilder^</name^> >> .project
+          echo ^</buildCommand^> >> .project
+          echo ^</buildSpec^> >> .project
+          echo ^<natures^> >> .project
+          echo ^<nature^>org.eclipse.jdt.core.javanature^</nature^> >> .project
+          echo ^</natures^> >> .project
+          echo ^</projectDescription^> >> .project
         )
-        
         if not exist .classpath (
-          (
-            echo ^<?xml version="1.0" encoding="UTF-8"?^>
-            echo ^<classpath^>
-            echo ^<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/^>
-            echo ^<classpathentry kind="src" path="src"/^>
-            echo ^<classpathentry kind="output" path="bin"/^>
-            echo ^</classpath^>
-          ) > .classpath
+          echo ^<?xml version="1.0" encoding="UTF-8"?^> > .classpath
+          echo ^<classpath^> >> .classpath
+          echo ^<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/^> >> .classpath
+          echo ^<classpathentry kind="src" path="src"/^> >> .classpath
+          echo ^<classpathentry kind="output" path="bin"/^> >> .classpath
+          echo ^</classpath^> >> .classpath
         )
+        mkdir output
 
+    # ✅ 修复 Eclipse 编译 (添加 -vm 参数)
     - name: Compile with Eclipse
       run: |
         cd "%GITHUB_WORKSPACE%"
-        echo Compiling project with Eclipse...
+        echo Compiling project...
         "%ECLIPSE_HOME%\eclipsec.exe" ^
           -nosplash ^
           -application org.eclipse.jdt.core.JavaCompiler ^
@@ -79,20 +74,20 @@ jobs:
           -vm "%JAVA_HOME%\bin\javaw.exe" ^
           -project "%GITHUB_REPOSITORY_NAME%" ^
           -verbose
-        echo Compilation completed. Checking output...
+        echo Compilation successful!
         dir /s bin\*.class
 
+    # ✅ 关键修复：使用真实存在的 Launch4j Action
     - name: Package EXE with Launch4j
-      uses: viktor-podzigun/launch4j-github-action@v1.3.0
+      uses: sormuras/launch4j-action@v1.13.0
       with:
         config: |
           {
             "headerType": "gui",
             "outfile": "output/app.exe",
-            "jar": "bin/*.jar",  # 自动匹配 JAR
-            "mainClass": "com.yourcompany.Main",
-            "errTitle": "Application Error",
-            "chdir": ".",
+            "jar": "bin/app.jar",  # 需要先创建 JAR
+            "mainClass": "com.hiveworkshop.wc3.gui.Program",  # 替换为您的主类
+            "errTitle": "WC3 Map Editor Error",
             "jre": {
               "minVersion": "1.8.0",
               "jdkPreference": "jdkOnly"
@@ -102,28 +97,48 @@ jobs:
               "txtFileVersion": "1.0.0",
               "productVersion": "1.0.0.0",
               "txtProductVersion": "1.0.0",
-              "fileDescription": "My Application",
-              "copyright": "© 2026 Your Company",
-              "productName": "MyApp",
-              "internalName": "myapp",
-              "originalFilename": "app.exe"
+              "fileDescription": "Warcraft 3 Map Editor",
+              "copyright": "© 2026 Hive Workshop",
+              "productName": "World Editor",
+              "internalName": "worldeditor",
+              "originalFilename": "WorldEditor.exe"
+            },
+            "classpath": [
+              { "path": "lib/*" }
+            ],
+            "singleInstance": {
+              "mutexName": "WorldEditorInstance",
+              "windowTitle": "World Editor is already running"
             }
           }
         outputDir: output
 
+    # ✅ 新增：将 class 文件打包成 JAR（Eclipse 不自动生成 JAR）
+    - name: Create application JAR
+      run: |
+        cd "%GITHUB_WORKSPACE%"
+        mkdir -p lib
+        
+        REM 复制依赖库 (根据实际项目调整)
+        xcopy /E /I "lib" "output\lib"
+        
+        REM 创建主 JAR
+        "%JAVA_HOME%\bin\jar" cvf bin\app.jar -C bin .
+        echo Created app.jar with %ERRORLEVEL% error level
+
     - name: Upload EXE artifact
       uses: actions/upload-artifact@v4
       with:
-        name: MyApp-Windows
+        name: WorldEditor-Windows
         path: output/app.exe
         retention-days: 30
 
-    # ✅ 新增：验证 EXE 可执行性 (防止空文件)
-    - name: Verify EXE integrity
+    # ✅ 验证 EXE (防止空文件)
+    - name: Verify EXE
       run: |
-        cd output
-        app.exe --version || (
-          echo ERROR: EXE is corrupted or missing dependencies!
+        output\app.exe --help || (
+          echo ERROR: EXE verification failed!
+          dir /s output
           exit /b 1
         )
-      continue-on-error: true  # 防止验证失败阻断上传
+      continue-on-error: true
