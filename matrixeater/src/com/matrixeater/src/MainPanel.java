@@ -3870,7 +3870,7 @@ public class MainPanel extends JPanel
 		enItem.addActionListener(e -> LocalizationManager.getInstance().setLocale(Locale.ENGLISH));
 		languageMenu.add(enItem);
 		zhItem = new JMenuItem(LocalizationManager.getInstance().get("language.zh_CN"));
-		zhItem.addActionListener(e -> LocalizationManager.getInstance().setLocale(Locale("zh","CN")));
+		zhItem.addActionListener(e -> LocalizationManager.getInstance().setLocale(new  Locale("zh","CN")));
 		languageMenu.add(zhItem);
 
 		aboutMenu = new JMenu(LocalizationManager.getInstance().get("menu.about"));
