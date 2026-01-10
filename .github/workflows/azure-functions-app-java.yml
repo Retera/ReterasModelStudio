@@ -36,7 +36,7 @@ jobs:
       working-directory: ./
 
     - name: Try to create EXE with jpackage (if available)
-      run: ./gradlew.bat jpackage --type app-image
+      run: ./gradlew.bat jpackage
       working-directory: ./
       continue-on-error: true
 
