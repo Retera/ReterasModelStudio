@@ -41,7 +41,7 @@ jobs:
       continue-on-error: true
       appImage: true
       installer: false
-      installerType: 'app-image'
+      installerType: app-image
 
     - name: Check for EXE in common locations
       id: check_exe
