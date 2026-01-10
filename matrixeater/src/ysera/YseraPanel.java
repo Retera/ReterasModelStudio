@@ -10,7 +10,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import com.matrixeater.localization.LocalizationManager;
-import java.util.Locale;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.util.vector.Quaternion;
