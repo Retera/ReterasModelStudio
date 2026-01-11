@@ -46,25 +46,19 @@ public class LocalizationManager {
         props.clear();
         String[] candidates = new String[] { locale.toString(), locale.getLanguage(), "en" };
         for (String candidate : candidates) {
-            // 修复资源路径：从 /lang/ 改为 /res/lang/，并测试包路径
-            String[] possiblePaths = new String[] {
-                "/res/lang/" + candidate + ".properties",
-                "res/lang/" + candidate + ".properties",
-            };
-            for (String path : possiblePaths) {
-                try (InputStream is = getClass().getResourceAsStream(path)) {
-                if (is != null) {
-                    // load as UTF-8
-                    Properties p = new Properties();
-                    p.load(new java.io.InputStreamReader(is, StandardCharsets.UTF_8));
-                    props.putAll(p);
-                    // 加载成功后立即返回
-                    return;
-                }
+            String path = "/res/lang/" + candidate + ".properties";
+            try (InputStream is = getClass().getResourceAsStream(path)) {
+            if (is != null) {
+                // load as UTF-8
+                Properties p = new Properties();
+                p.load(new java.io.InputStreamReader(is, StandardCharsets.UTF_8));
+                props.putAll(p);
+                // 加载成功后立即返回
+                return;
+            }
             } catch (IOException e) {
                 // ignore and try next path
             }
-        }
         }
     }
 
