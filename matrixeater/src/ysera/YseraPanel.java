@@ -53,20 +53,16 @@ public class YseraPanel extends JPanel {
 		final LocalizationManager lm = LocalizationManager.getInstance();
 		final JMenuBar jMenuBar = new JMenuBar();
 
-		final JMenu fileMenu = new JMenu(lm.get("menu.file"));
+		final JMenu fileMenu = new JMenu(lm.get("ysera.menu.file"));
 		jMenuBar.add(fileMenu);
-		jMenuBar.add(new JMenu(lm.get("menu.recent_files")));
-		jMenuBar.add(new JMenu(lm.get("menu.edit")));
-		jMenuBar.add(new JMenu(lm.get("menu.view")));
-		jMenuBar.add(new JMenu(lm.get("menu.team_color")));
-		jMenuBar.add(new JMenu(lm.get("menu.windows")));
-		jMenuBar.add(new JMenu(lm.get("menu.extras")));
-		jMenuBar.add(new JMenu(lm.get("menu.help")));
+		jMenuBar.add(new JMenu(lm.get("ysera.menu.recent_files")));
+		jMenuBar.add(new JMenu(lm.get("ysera.menu.edit")));
+		jMenuBar.add(new JMenu(lm.get("ysera.menu.view")));
+		jMenuBar.add(new JMenu(lm.get("ysera.menu.team_color")));
+		jMenuBar.add(new JMenu(lm.get("ysera.menu.windows")));
+		jMenuBar.add(new JMenu(lm.get("ysera.menu.extras")));
+		jMenuBar.add(new JMenu(lm.get("ysera.menu.help")));
 
 		return jMenuBar;
 	}
 }
-
-
-
-

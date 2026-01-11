@@ -10,7 +10,7 @@ import com.matrixeater.localization.LocalizationManager;
 
 public class YseraFrame extends JFrame {
 	public YseraFrame() {
-		super(LocalizationManager.getInstance().get("app.title"));
+		super(LocalizationManager.getInstance().get("ysera.app.title"));
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		final YseraPanel contentPane = new YseraPanel();
 		setContentPane(contentPane);
@@ -20,7 +20,7 @@ public class YseraFrame extends JFrame {
 		LocalizationManager.getInstance().addPropertyChangeListener(evt -> {
 			if ("locale".equals(evt.getPropertyName())) {
 				setJMenuBar(contentPane.createJMenuBar());
-				setTitle(LocalizationManager.getInstance().get("app.title"));
+				setTitle(LocalizationManager.getInstance().get("ysera.app.title"));
 				SwingUtilities.updateComponentTreeUI(this);
 			}
 		});
