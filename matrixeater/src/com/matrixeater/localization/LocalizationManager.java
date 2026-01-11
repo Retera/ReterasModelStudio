@@ -46,7 +46,7 @@ public class LocalizationManager {
         props.clear();
         String[] candidates = new String[] { locale.toString(), locale.getLanguage(), "en" };
         for (String candidate : candidates) {
-            String path = "/res/lang/" + candidate + ".properties";
+            String path = "/lang/" + candidate + ".properties";
             try (InputStream is = getClass().getResourceAsStream(path)) {
             if (is != null) {
                 // load as UTF-8
