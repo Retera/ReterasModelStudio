@@ -1501,9 +1501,9 @@ public class MainPanel extends JPanel
 		mdlEditorTextArea.setCodeFoldingEnabled(true);
 		mdlEditorTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
 		mdlEditorPanel.add(new RTextScrollPane(mdlEditorTextArea), BorderLayout.CENTER);
-		final JButton refresh = new JButton(LocalizationManager.getInstance().get("button.refresh"));
-		final JButton apply = new JButton(LocalizationManager.getInstance().get("button.apply"));
-		final JButton mdlTextFind = new JButton(LocalizationManager.getInstance().get("button.find_f3"));
+		final JButton refresh = new JButton(LocalizationManager.getInstance().get("matrixeater.button.refresh"));
+		final JButton apply = new JButton(LocalizationManager.getInstance().get("matrixeater.button.apply"));
+		final JButton mdlTextFind = new JButton(LocalizationManager.getInstance().get("matrixeater.button.find_f3"));
 		mdlTextFind.setEnabled(false);
 		refresh.addActionListener(new ActionListener() {
 			@Override
@@ -2126,7 +2126,7 @@ public class MainPanel extends JPanel
 					currentModelPanel().getUndoManager().undo();
 				}
 				catch (final NoSuchElementException exc) {
-					JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("action.nothing_to_undo"));
+					JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("matrixeater.action.nothing_to_undo"));
 				}
 				catch (final Exception exc) {
 					ExceptionPopup.display(exc);
@@ -2142,7 +2142,7 @@ public class MainPanel extends JPanel
 					currentModelPanel().getUndoManager().redo();
 				}
 				catch (final NoSuchElementException exc) {
-					JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("action.nothing_to_redo"));
+					JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("matrixeater.action.nothing_to_redo"));
 				}
 				catch (final Exception exc) {
 					ExceptionPopup.display(exc);
@@ -2232,7 +2232,7 @@ public class MainPanel extends JPanel
 					}
 				}
 				catch (final NoSuchElementException exc) {
-					JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("action.nothing_to_undo"));
+					JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("matrixeater.action.nothing_to_undo"));
 				}
 				catch (final Exception exc) {
 					ExceptionPopup.display(exc);
@@ -2745,38 +2745,38 @@ public class MainPanel extends JPanel
 		menuBar = new JMenuBar();
 
 		// Build the file menu
-		fileMenu = new JMenu(LocalizationManager.getInstance().get("menu.file"));
+		fileMenu = new JMenu(LocalizationManager.getInstance().get("matrixeater.menu.file"));
 		fileMenu.setMnemonic(KeyEvent.VK_F);
 		fileMenu.getAccessibleContext()
-				.setAccessibleDescription(LocalizationManager.getInstance().get("menu.file_description"));
+				.setAccessibleDescription(LocalizationManager.getInstance().get("matrixeater.menu.file_description"));
 		menuBar.add(fileMenu);
 
-		recentMenu = new JMenu(LocalizationManager.getInstance().get("menu.open_recent"));
+		recentMenu = new JMenu(LocalizationManager.getInstance().get("matrixeater.menu.open_recent"));
 		recentMenu.setMnemonic(KeyEvent.VK_R);
-		recentMenu.getAccessibleContext().setAccessibleDescription(LocalizationManager.getInstance().get("menu.open_recent_description"));
+		recentMenu.getAccessibleContext().setAccessibleDescription(LocalizationManager.getInstance().get("matrixeater.menu.open_recent_description"));
 
-		editMenu = new JMenu(LocalizationManager.getInstance().get("menu.edit"));
+		editMenu = new JMenu(LocalizationManager.getInstance().get("matrixeater.menu.edit"));
 		editMenu.setMnemonic(KeyEvent.VK_E);
 		// editMenu.addMouseListener(this);
 		editMenu.getAccessibleContext()
-				.setAccessibleDescription(LocalizationManager.getInstance().get("menu.edit_description"));
+				.setAccessibleDescription(LocalizationManager.getInstance().get("matrixeater.menu.edit_description"));
 		menuBar.add(editMenu);
 
-		toolsMenu = new JMenu(LocalizationManager.getInstance().get("menu.tools"));
+		toolsMenu = new JMenu(LocalizationManager.getInstance().get("matrixeater.menu.tools"));
 		toolsMenu.setMnemonic(KeyEvent.VK_T);
 		toolsMenu.getAccessibleContext().setAccessibleDescription(
-				LocalizationManager.getInstance().get("menu.tools_description"));
+				LocalizationManager.getInstance().get("matrixeater.menu.tools_description"));
 		toolsMenu.setEnabled(false);
 		menuBar.add(toolsMenu);
 
-		viewMenu = new JMenu(LocalizationManager.getInstance().get("menu.view"));
+		viewMenu = new JMenu(LocalizationManager.getInstance().get("matrixeater.menu.view"));
 		// viewMenu.setMnemonic(KeyEvent.VK_V);
-		viewMenu.getAccessibleContext().setAccessibleDescription(LocalizationManager.getInstance().get("menu.view_description"));
+		viewMenu.getAccessibleContext().setAccessibleDescription(LocalizationManager.getInstance().get("matrixeater.menu.view_description"));
 		menuBar.add(viewMenu);
 
-		teamColorMenu = new JMenu(LocalizationManager.getInstance().get("menu.team_color"));
+		teamColorMenu = new JMenu(LocalizationManager.getInstance().get("matrixeater.menu.team_color"));
 		teamColorMenu.getAccessibleContext()
-				.setAccessibleDescription(LocalizationManager.getInstance().get("menu.team_color_description"));
+				.setAccessibleDescription(LocalizationManager.getInstance().get("matrixeater.menu.team_color_description"));
 		menuBar.add(teamColorMenu);
 
 		directoryChangeNotifier.subscribe(new WarcraftDataSourceChangeListener() {
@@ -2797,13 +2797,13 @@ public class MainPanel extends JPanel
 		});
 		createTeamColorMenuItems();
 
-		windowMenu = new JMenu(LocalizationManager.getInstance().get("menu.window"));
+		windowMenu = new JMenu(LocalizationManager.getInstance().get("matrixeater.menu.window"));
 		windowMenu.setMnemonic(KeyEvent.VK_W);
 		windowMenu.getAccessibleContext()
-				.setAccessibleDescription(LocalizationManager.getInstance().get("menu.window_description"));
+				.setAccessibleDescription(LocalizationManager.getInstance().get("matrixeater.menu.window_description"));
 		menuBar.add(windowMenu);
 
-		final JMenuItem resetViewButton = new JMenuItem(LocalizationManager.getInstance().get("menu.reset_layout"));
+		final JMenuItem resetViewButton = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.reset_layout"));
 		resetViewButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -2815,12 +2815,12 @@ public class MainPanel extends JPanel
 		});
 		windowMenu.add(resetViewButton);
 
-		final JMenu viewsMenu = new JMenu(LocalizationManager.getInstance().get("menu.views"));
+		final JMenu viewsMenu = new JMenu(LocalizationManager.getInstance().get("matrixeater.menu.views"));
 		viewsMenu.setMnemonic(KeyEvent.VK_V);
 		windowMenu.add(viewsMenu);
 
-		final JMenuItem testItem = new JMenuItem(LocalizationManager.getInstance().get("menu.test"));
-		testItem.addActionListener(new OpenViewAction(LocalizationManager.getInstance().get("menu.animation_preview"), new OpenViewGetter() {
+		final JMenuItem testItem = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.test"));
+		testItem.addActionListener(new OpenViewAction(LocalizationManager.getInstance().get("matrixeater.menu.animation_preview"), new OpenViewGetter() {
 			@Override
 			public View getView() {
 				final JPanel testPanel = new JPanel();
@@ -2845,86 +2845,86 @@ public class MainPanel extends JPanel
 
 //		viewsMenu.add(testItem);
 
-		animationViewer = new JMenuItem(LocalizationManager.getInstance().get("menu.animation_preview"));
+		animationViewer = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.animation_preview"));
 		animationViewer.setMnemonic(KeyEvent.VK_A);
 		animationViewer.addActionListener(openAnimationViewerAction);
 		viewsMenu.add(animationViewer);
 
-		animationController = new JMenuItem(LocalizationManager.getInstance().get("menu.animation_controller"));
+		animationController = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.animation_controller"));
 		animationController.setMnemonic(KeyEvent.VK_C);
 		animationController.addActionListener(openAnimationControllerAction);
 		viewsMenu.add(animationController);
 
-		cameraController = new JMenuItem(LocalizationManager.getInstance().get("menu.camera_controller"));
+		cameraController = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.camera_controller"));
 		cameraController.addActionListener(openCameraControllerAction);
 		viewsMenu.add(cameraController);
 
 		viewsMenu.addSeparator();
 
-		modelingTab = new JMenuItem(LocalizationManager.getInstance().get("menu.modeling"));
+		modelingTab = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.modeling"));
 		modelingTab.setMnemonic(KeyEvent.VK_M);
 		modelingTab.addActionListener(openModelingTabAction);
 		viewsMenu.add(modelingTab);
 
-		final JMenuItem outlinerItem = new JMenuItem(LocalizationManager.getInstance().get("menu.outliner"));
+		final JMenuItem outlinerItem = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.outliner"));
 		outlinerItem.setMnemonic(KeyEvent.VK_O);
 		outlinerItem.addActionListener(openOutlinerAction);
 		viewsMenu.add(outlinerItem);
 
-		final JMenuItem perspectiveItem = new JMenuItem(LocalizationManager.getInstance().get("menu.perspective"));
+		final JMenuItem perspectiveItem = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.perspective"));
 		perspectiveItem.setMnemonic(KeyEvent.VK_P);
 		perspectiveItem.addActionListener(openPerspectiveAction);
 		viewsMenu.add(perspectiveItem);
 
-		final JMenuItem frontItem = new JMenuItem(LocalizationManager.getInstance().get("menu.front"));
+		final JMenuItem frontItem = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.front"));
 		frontItem.setMnemonic(KeyEvent.VK_F);
 		frontItem.addActionListener(openFrontAction);
 		viewsMenu.add(frontItem);
 
-		final JMenuItem sideItem = new JMenuItem(LocalizationManager.getInstance().get("menu.side"));
+		final JMenuItem sideItem = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.side"));
 		sideItem.setMnemonic(KeyEvent.VK_S);
 		sideItem.addActionListener(openSideAction);
 		viewsMenu.add(sideItem);
 
-		final JMenuItem bottomItem = new JMenuItem(LocalizationManager.getInstance().get("menu.bottom"));
+		final JMenuItem bottomItem = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.bottom"));
 		bottomItem.setMnemonic(KeyEvent.VK_B);
 		bottomItem.addActionListener(openBottomAction);
 		viewsMenu.add(bottomItem);
 
-		final JMenuItem toolsItem = new JMenuItem(LocalizationManager.getInstance().get("menu.tools"));
+		final JMenuItem toolsItem = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.tools"));
 		toolsItem.setMnemonic(KeyEvent.VK_T);
 		toolsItem.addActionListener(openToolsAction);
 		viewsMenu.add(toolsItem);
 
-		final JMenuItem timeItem = new JMenuItem(LocalizationManager.getInstance().get("menu.footer"));
+		final JMenuItem timeItem = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.footer"));
 		timeItem.addActionListener(openTimeSliderAction);
 		viewsMenu.add(timeItem);
 
 		viewsMenu.addSeparator();
 
-		final JMenuItem tracksItem = new JMenuItem(LocalizationManager.getInstance().get("menu.tracks"));
+		final JMenuItem tracksItem = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.tracks"));
 		tracksItem.addActionListener(openTracksViewAction);
 		viewsMenu.add(tracksItem);
 
 		viewsMenu.addSeparator();
 
-		final JMenuItem contentsItem = new JMenuItem(LocalizationManager.getInstance().get("menu.contents"));
+		final JMenuItem contentsItem = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.contents"));
 		contentsItem.setMnemonic(KeyEvent.VK_M);
 		contentsItem.addActionListener(openModelDataContentsViewAction);
 		viewsMenu.add(contentsItem);
 
-		final JMenuItem componentItem = new JMenuItem(LocalizationManager.getInstance().get("menu.component"));
+		final JMenuItem componentItem = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.component"));
 		componentItem.setMnemonic(KeyEvent.VK_C);
 		componentItem.addActionListener(openModelDataComponentsViewAction);
 		viewsMenu.add(componentItem);
 
 		viewsMenu.addSeparator();
 
-		final JMenuItem textItem = new JMenuItem(LocalizationManager.getInstance().get("menu.text"));
+		final JMenuItem textItem = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.text"));
 		textItem.addActionListener(openTextViewAction);
 		viewsMenu.add(textItem);
 
-		final JMenuItem hackerViewItem = new JMenuItem(LocalizationManager.getInstance().get("menu.matrix_eater_script"));
+		final JMenuItem hackerViewItem = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.matrix_eater_script"));
 		hackerViewItem.setMnemonic(KeyEvent.VK_H);
 		hackerViewItem.setAccelerator(KeyStroke.getKeyStroke("control P"));
 		hackerViewItem.addActionListener(hackerViewAction);
@@ -3385,7 +3385,7 @@ public class MainPanel extends JPanel
 		});
 		scriptsMenu.add(exportAnimatedToStaticMesh);
 
-		exportAnimatedFramePNG = new JMenuItem(LocalizationManager.getInstance().get("menu.export_animated_frame_png"));
+		exportAnimatedFramePNG = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.export_animated_frame_png"));
 		exportAnimatedFramePNG.setMnemonic(KeyEvent.VK_F);
 		exportAnimatedFramePNG.addActionListener(new ActionListener() {
 			@Override
@@ -3426,11 +3426,11 @@ public class MainPanel extends JPanel
 								}
 								final boolean write = ImageIO.write(bufferedImage, fileExtension, file);
 								if (!write) {
-									JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("dialog.error.file_type_unknown"));
+									JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("matrixeater.dialog.error.file_type_unknown"));
 								}
 							}
 							else {
-								JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("dialog.error.no_file_type_specified"));
+								JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("matrixeater.dialog.error.no_file_type_specified"));
 							}
 						}
 						catch (final IOException e1) {
@@ -3443,7 +3443,7 @@ public class MainPanel extends JPanel
 						}
 					}
 					else {
-						JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("dialog.error.no_output_file_specified"));
+						JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("matrixeater.dialog.error.no_output_file_specified"));
 					}
 				}
 			}
@@ -3865,35 +3865,35 @@ public class MainPanel extends JPanel
 		});
 //		scriptsMenu.add(fixReteraLand);
 
-		languageMenu = new JMenu(LocalizationManager.getInstance().get("menu.language"));
+		languageMenu = new JMenu(LocalizationManager.getInstance().get("matrixeater.menu.language"));
 		languageMenu.setMnemonic(KeyEvent.VK_L);
 		menuBar.add(languageMenu);
-		enItem = new JMenuItem(LocalizationManager.getInstance().get("language.en"));
-		languageMenu.setMnemonic(KeyEvent.VK_E);
+		enItem = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.language.en"));
+		enItem.setMnemonic(KeyEvent.VK_E);
 		enItem.addActionListener(e -> LocalizationManager.getInstance().setLocale(Locale.ENGLISH));
 		languageMenu.add(enItem);
-		zhItem = new JMenuItem(LocalizationManager.getInstance().get("language.zh_CN"));
-		languageMenu.setMnemonic(KeyEvent.VK_Z);
+		zhItem = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.language.zh_CN"));
+		zhItem.setMnemonic(KeyEvent.VK_Z);
 		zhItem.addActionListener(e -> LocalizationManager.getInstance().setLocale(new Locale("zh","CN")));
 		languageMenu.add(zhItem);
 
-		aboutMenu = new JMenu(LocalizationManager.getInstance().get("menu.about"));
+		aboutMenu = new JMenu(LocalizationManager.getInstance().get("matrixeater.menu.about"));
 		aboutMenu.setMnemonic(KeyEvent.VK_H);
 		menuBar.add(aboutMenu);
 
 		recentMenu.add(new JSeparator());
 
-		clearRecent = new JMenuItem(LocalizationManager.getInstance().get("menu.clear"));
+		clearRecent = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.clear"));
 		clearRecent.setMnemonic(KeyEvent.VK_C);
 		clearRecent.addActionListener(this);
 		recentMenu.add(clearRecent);
 
-		changelogButton = new JMenuItem(LocalizationManager.getInstance().get("menu.changelog"));
+		changelogButton = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.changelog"));
 		changelogButton.setMnemonic(KeyEvent.VK_A);
 		changelogButton.addActionListener(this);
 		aboutMenu.add(changelogButton);
 
-		creditsButton = new JMenuItem(LocalizationManager.getInstance().get("menu.about"));
+		creditsButton = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.about"));
 		creditsButton.setMnemonic(KeyEvent.VK_A);
 		creditsButton.addActionListener(this);
 		aboutMenu.add(creditsButton);
@@ -4959,7 +4959,7 @@ public class MainPanel extends JPanel
 								}
 							}
 							else {
-								JOptionPane.showMessageDialog(this, LocalizationManager.getInstance().get("dialog.error.no_file_type_specified"));
+								JOptionPane.showMessageDialog(this, LocalizationManager.getInstance().get("matrixeater.dialog.error.no_file_type_specified"));
 							}
 						}
 						catch (final IOException e1) {
@@ -5172,7 +5172,7 @@ public class MainPanel extends JPanel
 					model.add(death);
 				}
 
-				JOptionPane.showMessageDialog(this, LocalizationManager.getInstance().get("status.done"));
+				JOptionPane.showMessageDialog(this, LocalizationManager.getInstance().get("matrixeater.status.done"));
 			}
 			else if (e.getSource() == animFromFile) {
 				fc.setDialogTitle("Animation Source");
@@ -5723,21 +5723,21 @@ public class MainPanel extends JPanel
 				JOptionPane.QUESTION_MESSAGE, null, animationSourceModel.getAnims().toArray(),
 				animationSourceModel.getAnims().get(0));
 		if (choice == null) {
-			JOptionPane.showMessageDialog(this, LocalizationManager.getInstance().get("message.bad_choice_no_animation"));
+			JOptionPane.showMessageDialog(this, LocalizationManager.getInstance().get("matrixeater.message.bad_choice_no_animation"));
 			return;
 		}
 		final Animation visibilitySource = (Animation) JOptionPane.showInputDialog(this,
 				"Which animation from THIS model to copy visiblity from?", "Add Animation",
 				JOptionPane.QUESTION_MESSAGE, null, current.getAnims().toArray(), current.getAnims().get(0));
 		if (visibilitySource == null) {
-			JOptionPane.showMessageDialog(this, LocalizationManager.getInstance().get("message.no_visibility_will_be_copied"));
+			JOptionPane.showMessageDialog(this, LocalizationManager.getInstance().get("matrixeater.message.no_visibility_will_be_copied"));
 		}
 		final List<Animation> animationsAdded = current.addAnimationsFrom(animationSourceModel,
 				Collections.singletonList(choice));
 		for (final Animation anim : animationsAdded) {
 			current.copyVisibility(visibilitySource, anim);
 		}
-		JOptionPane.showMessageDialog(this, LocalizationManager.getInstance().get("message.added_animation_prefix") + animationSourceModel.getName() + "'s " + choice.getName()
+		JOptionPane.showMessageDialog(this, LocalizationManager.getInstance().get("matrixeater.message.added_animation_prefix") + animationSourceModel.getName() + "'s " + choice.getName()
 				+ " with " + visibilitySource.getName() + "'s visibility  OK!");
 		modelStructureChangeListener.animationsAdded(animationsAdded);
 	}
@@ -6979,7 +6979,7 @@ public class MainPanel extends JPanel
 					fileHandler.onClickOK(file, exportTextureDialog.getFileFilter());
 				}
 				else {
-					JOptionPane.showMessageDialog(parent, LocalizationManager.getInstance().get("dialog.error.no_import_file_specified"));
+					JOptionPane.showMessageDialog(parent, LocalizationManager.getInstance().get("matrixeater.dialog.error.no_import_file_specified"));
 				}
 			}
 		}

@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
+import com.matrixeater.localization.LocalizationManager;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.wc3.mdl.IdObject;
 
@@ -28,8 +29,8 @@ public final class ClonedNodeNamePickerImplementation implements ClonedNodeNameP
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		final Map<JTextField, IdObject> textFieldToObject = new HashMap<>();
 		for (final IdObject object : clonedNodes) {
-			final JTextField textField = new JTextField(object.getName() + " copy");
-			final JLabel oldNameLabel = new JLabel("Enter name for clone of \"" + object.getName() + "\":");
+			final JTextField textField = new JTextField(object.getName() + LocalizationManager.getInstance().get("matrixeater.clonednodename.copy"));
+			final JLabel oldNameLabel = new JLabel(LocalizationManager.getInstance().get("matrixeater.clonednodename.enter_name") + object.getName() + "\":");
 			panel.add(oldNameLabel);
 			panel.add(textField);
 			textFieldToObject.put(textField, object);
@@ -38,7 +39,7 @@ public final class ClonedNodeNamePickerImplementation implements ClonedNodeNameP
 		dumbPanel.add(panel);
 		final JScrollPane scrollPane = new JScrollPane(dumbPanel);
 		scrollPane.setPreferredSize(new Dimension(450, 300));
-		final int x = JOptionPane.showConfirmDialog(mainPanel, scrollPane, "Choose Node Names",
+		final int x = JOptionPane.showConfirmDialog(mainPanel, scrollPane, LocalizationManager.getInstance().get("matrixeater.clonednodename.choose_node_name"),
 				JOptionPane.OK_CANCEL_OPTION);
 		if (x != JOptionPane.OK_OPTION) {
 			return null;

@@ -5,10 +5,11 @@ import javax.swing.JScrollPane;
 
 import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.gui.modeledit.ModelPanel;
+import com.matrixeater.localization.LocalizationManager;
 
 public class AnimationFrame extends JFrame {
 	public AnimationFrame(final ModelPanel mdlDisp, final Runnable onFinish) {
-		super("Animation Editor: " + mdlDisp.getModel().getName());
+		super(LocalizationManager.getInstance().get("matrixeater.animationframe.title") + mdlDisp.getModel().getName());
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setIconImage(RMSIcons.animIcon.getImage());
 		setContentPane(new JScrollPane(
