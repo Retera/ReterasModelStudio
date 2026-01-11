@@ -46,25 +46,33 @@ public class LocalizationManager {
         props.clear();
         String[] candidates = new String[] { locale.toString(), locale.getLanguage(), "en" };
         for (String candidate : candidates) {
-            String path = "/lang/" + candidate + ".properties";
-            try (InputStream is = getClass().getResourceAsStream(path)) {
+            // 修复资源路径：从 /lang/ 改为 /res/lang/，并测试包路径
+            String[] possiblePaths = new String[] {
+                "/res/lang/" + candidate + ".properties",
+                "res/lang/" + candidate + ".properties",
+            };
+            for (String path : possiblePaths) {
+                try (InputStream is = getClass().getResourceAsStream(path)) {
                 if (is != null) {
                     // load as UTF-8
                     Properties p = new Properties();
                     p.load(new java.io.InputStreamReader(is, StandardCharsets.UTF_8));
                     props.putAll(p);
-                    // do not break; keep loading to allow fallback overrides if desired
+                    // 加载成功后立即返回
                     return;
                 }
             } catch (IOException e) {
-                // ignore and try next
+                // ignore and try next path
             }
+        }
         }
     }
 
     public String get(String key) {
         String v = props.getProperty(key);
         if (v == null) {
+            // 调试信息：显示找不到的键值，帮助诊断问题
+            System.err.println("LocalizationManager: 找不到键值 '" + key + "'，当前语言: " + locale + ", 已加载键数: " + props.size());
             return "!" + key + "!";
         }
         return v;
