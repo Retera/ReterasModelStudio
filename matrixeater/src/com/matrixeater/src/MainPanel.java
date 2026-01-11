@@ -286,6 +286,7 @@ public class MainPanel extends JPanel
 			duplicateSelection, riseFallBirth, animFromFile, animFromUnit, animFromModel, animFromObject, teamColor,
 			teamGlow;
 	JMenuItem cut, copy, paste;
+	JButton refresh, apply, mdlTextFind;
 	List<RecentItem> recentItems = new ArrayList<>();
 	List<RecentFetchItem> recentFetchItems = new ArrayList<>();
 	UndoMenuItem undo;
@@ -1501,9 +1502,9 @@ public class MainPanel extends JPanel
 		mdlEditorTextArea.setCodeFoldingEnabled(true);
 		mdlEditorTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
 		mdlEditorPanel.add(new RTextScrollPane(mdlEditorTextArea), BorderLayout.CENTER);
-		final JButton refresh = new JButton(LocalizationManager.getInstance().get("matrixeater.button.refresh"));
-		final JButton apply = new JButton(LocalizationManager.getInstance().get("matrixeater.button.apply"));
-		final JButton mdlTextFind = new JButton(LocalizationManager.getInstance().get("matrixeater.button.find_f3"));
+		refresh = new JButton(LocalizationManager.getInstance().get("matrixeater.button.refresh"));
+		apply = new JButton(LocalizationManager.getInstance().get("matrixeater.button.apply"));
+		mdlTextFind = new JButton(LocalizationManager.getInstance().get("matrixeater.button.find_f3"));
 		mdlTextFind.setEnabled(false);
 		refresh.addActionListener(new ActionListener() {
 			@Override
@@ -1733,6 +1734,30 @@ public class MainPanel extends JPanel
 				}
 			}
 		}));
+		
+		// Add locale change listener to notify user about language change
+		LocalizationManager.getInstance().addPropertyChangeListener(evt -> {
+			if ("locale".equals(evt.getPropertyName())) {
+				// Show message to inform user that restart is recommended for full UI update
+				final Locale newLocale = (Locale) evt.getNewValue();
+				final String languageName = newLocale.getDisplayLanguage(newLocale);
+				
+				SwingUtilities.invokeLater(() -> {
+					int result = JOptionPane.showConfirmDialog(
+						MainPanel.this,
+						"Language changed to " + languageName + ".\nRestart application now?",
+						"Language Change",
+						JOptionPane.YES_NO_OPTION,
+						JOptionPane.INFORMATION_MESSAGE
+					);
+					
+					if (result == JOptionPane.YES_OPTION) {
+						// Restart the application
+						System.exit(0);
+					}
+				});
+			}
+		});
 	}
 
 	private TabWindow createMainLayout() {
@@ -7085,4 +7110,6 @@ public class MainPanel extends JPanel
 			ExceptionPopup.display(exc);
 		}
 	}
+	
+	// Removed complex localization update method - user should restart app for full UI language change
 }
