@@ -4,7 +4,7 @@ on:
   push:
     branches: [ CN1 ]  # 可以在这里指定触发工作流的分支
   pull_request:
-    branches: [ CN1 ]  # 也可以为pull request设置触发
+    branches: [ CN ]  # 也可以为pull request设置触发
 
 jobs:
   build:
@@ -52,6 +52,7 @@ jobs:
       with:
         name: ReterasModelStudio-EXE
         path: D:/a/ReterasModelStudio/ReterasModelStudio/matrixeater/build/jpackage/matrixeater
+
 
 
 
