@@ -35,44 +35,10 @@ jobs:
       run: ./gradlew.bat
       working-directory: ./
 
-    - name: Try to create EXE with jpackage (if available)
+    - name: Try to create EXE with jpackage
       run: ./gradlew.bat jpackage
       working-directory: ./
       continue-on-error: true
-
-    # - name: Try to create EXE with launch4j (if available)
-    #   run: ./gradlew.bat launch4j
-    #   working-directory: ./
-    #   continue-on-error: true
-
-    - name: Check for EXE in common locations
-      id: check_exe
-      run: |
-        echo "Checking ./ for EXE files..."
-        if (Test-Path "./*.*") {
-          echo "Found EXE in ./"
-        } else {
-          echo "No EXE found in ./"
-        }
-      shell: pwsh
-
-    - name: List all files in build directory
-      run: |
-        echo "Listing all files in build directory:"
-        Get-ChildItem -Recurse ./ | Where-Object { $_.Extension -eq ".*" } | ForEach-Object {
-          echo "Found EXE: $_"
-        }
-        
-        echo "Listing all files in ./:"
-        Get-ChildItem ./ | ForEach-Object {
-          echo "File: $_"
-        }
-        
-        echo "Listing all files in ./:"
-        Get-ChildItem ./ | ForEach-Object {
-          echo "File: $_"
-        }
-      shell: pwsh
 
     # - name: 打包
     #   uses: TheDoctor0/zip-release@0.7.6
@@ -85,5 +51,6 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ReterasModelStudio-EXE
-        path: D:/a/ReterasModelStudio/ReterasModelStudio/matrixeater/src/com/matrixeater/build
+        path: D:/a/ReterasModelStudio/ReterasModelStudio/matrixeater/build/jpackage/matrixeater
+
 
