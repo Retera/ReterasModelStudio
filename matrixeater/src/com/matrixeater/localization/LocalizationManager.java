@@ -4,6 +4,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Properties;
@@ -16,24 +17,21 @@ public class LocalizationManager {
     private final Properties props = new Properties();
     private final Properties enProps = new Properties();
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-    private static final String PREF_KEY = "saved_locale";
+    private static final String LangKey = "savedlocale";
     private Preferences prefs = Preferences.userNodeForPackage(LocalizationManager.class);
 
     private LocalizationManager() {
-        // Try to load saved locale first
-        String savedLocale = System.getProperty(PREF_KEY);
-        if (savedLocale != null && !savedLocale.isEmpty()) {
-            setLocale(savedLocale);
+        // Try to load saved lang first
+        String savedLocaleStr = System.getProperty(LangKey);
+        if (savedLocaleStr != null && !savedLocaleStr.isEmpty()) {
+            setLocale(savedLocaleStr);
         } else {
-            String[] parts = savedLocale.split("_");
-            Locale defaultLocale = Locale.getDefault();
-            if (parts.length == 1) {
-                defaultLocale = new Locale(parts[0]);
-            } else if (parts.length >= 2) {
-                defaultLocale = new Locale(parts[0], parts[1]);
+            savedLocaleStr = Locale.getDefault();
+            if (savedLocaleStr == null) {
+              savedLocaleStr = Locale.ENGLISH;
             }
-            setLocale(defaultLocale);
-            saveLocaleToPrefs(defaultLocale);  // 保存系统默认语言
+            setLocale(savedLocaleStr);
+            saveLocaleToPrefs(savedLocaleStr);  // 保存系统默认语言
         }
         loadEnglishProperties();  // 初始化英语资源
     }
@@ -55,12 +53,12 @@ public class LocalizationManager {
     }
 
     private void saveLocaleToPrefs(Locale locale) {
-        prefs.put(PREF_KEY, locale.toLanguageTag());
+        prefs.put(LangKey, locale.toLanguageTag());
     }
 
     public void setLocale(Locale newLocale) {
         Locale old = this.locale;
-        this.locale = newLocale != null ? Locale.ENGLISH : newLocale;
+        this.locale = newLocale != null ? newLocale : Locale.ENGLISH;
         loadPropertiesForLocale(this.locale);
         saveLocaleToPrefs(this.locale);  // 更新保存的语言设置
         pcs.firePropertyChange("locale", old, this.locale);
