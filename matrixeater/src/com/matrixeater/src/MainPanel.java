@@ -1038,7 +1038,7 @@ public class MainPanel extends JPanel
 		});
 		setKeyframe = new JButton(RMSIcons.setKeyframeIcon);
 		setKeyframe.setMargin(new Insets(0, 0, 0, 0));
-		setKeyframe.setToolTipText("Create Keyframe");
+		setKeyframe.setToolTipText(LocalizationManager.getInstance().get("matrixeater.tooltip.create_keyframe"));
 		setKeyframe.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -1052,7 +1052,7 @@ public class MainPanel extends JPanel
 		});
 		setTimeBounds = new JButton(RMSIcons.setTimeBoundsIcon);
 		setTimeBounds.setMargin(new Insets(0, 0, 0, 0));
-		setTimeBounds.setToolTipText("Choose Time Bounds");
+		setTimeBounds.setToolTipText(LocalizationManager.getInstance().get("matrixeater.tooltip.choose_time_bounds"));
 		setTimeBounds.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -1734,26 +1734,44 @@ public class MainPanel extends JPanel
 				}
 			}
 		}));
-		
+
 		// Add locale change listener to notify user about language change
 		LocalizationManager.getInstance().addPropertyChangeListener(evt -> {
 			if ("locale".equals(evt.getPropertyName())) {
 				// Show message to inform user that restart is recommended for full UI update
 				final Locale newLocale = (Locale) evt.getNewValue();
 				final String languageName = newLocale.getDisplayLanguage(newLocale);
-				
+
 				SwingUtilities.invokeLater(() -> {
 					int result = JOptionPane.showConfirmDialog(
 						MainPanel.this,
-						"Language changed to " + languageName + ".\nRestart application now?",
-						"Language Change",
+						LocalizationManager.getInstance().get("matrixeater.dialog.change_language_text"),
+						LocalizationManager.getInstance().get("matrixeater.dialog.change_language"),
 						JOptionPane.YES_NO_OPTION,
 						JOptionPane.INFORMATION_MESSAGE
 					);
-					
+
 					if (result == JOptionPane.YES_OPTION) {
-						// Restart the application
-						System.exit(0);
+						// Save language preference to system properties
+						System.setProperty("matrixeater.locale", newLocale.toString());
+
+						// Restart using platform-specific method
+						try {
+							String[] cmd;
+							String jarPath = new File(MainPanel.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+
+							if (System.getProperty("os.name").toLowerCase().contains("win")) {
+								cmd = new String[]{"cmd", "/c", "start", "java", "-Dmatrixeater.locale=" + newLocale, "-jar", jarPath};
+							} else {
+								cmd = new String[]{"java", "-Dmatrixeater.locale=" + newLocale, "-jar", jarPath};
+							}
+
+							new ProcessBuilder(cmd).start();
+							System.exit(0);
+						} catch (Exception e) {
+							// Fallback to simple exit
+							System.exit(0);
+						}
 					}
 				});
 			}
@@ -1776,7 +1794,7 @@ public class MainPanel extends JPanel
 		editingTab.getWindowProperties().setTitleProvider(new DockingWindowTitleProvider() {
 			@Override
 			public String getTitle(final DockingWindow arg0) {
-				return "Edit";
+				return LocalizationManager.getInstance().get("matrixeater.title.edit");
 			}
 		});
 		ImageIcon imageIcon;
@@ -1786,14 +1804,14 @@ public class MainPanel extends JPanel
 
 		final UnitEditorTree unitEditorTree = createUnitEditorTree();
 		final TabWindow tabWindow = new TabWindow(new DockingWindow[] {
-				new View("Unit Browser", imageIcon, new JScrollPane(unitEditorTree)), mpqBrowserView });
+				new View(LocalizationManager.getInstance().get("matrixeater.tab.view_unit_browser"), imageIcon, new JScrollPane(unitEditorTree)), mpqBrowserView });
 		tabWindow.setSelectedTab(0);
 		final SplitWindow viewingTab = new SplitWindow(true, 0.8f, new SplitWindow(true, 0.8f, previewView,
 				new SplitWindow(false, 0.7f, animationControllerView, cameraControllerView)), tabWindow);
 		viewingTab.getWindowProperties().setTitleProvider(new DockingWindowTitleProvider() {
 			@Override
 			public String getTitle(final DockingWindow arg0) {
-				return "View";
+				return LocalizationManager.getInstance().get("matrixeater.title.view");
 			}
 		});
 		viewingTab.getWindowProperties().setCloseEnabled(false);
@@ -1802,7 +1820,7 @@ public class MainPanel extends JPanel
 		modelTab.getWindowProperties().setTitleProvider(new DockingWindowTitleProvider() {
 			@Override
 			public String getTitle(final DockingWindow arg0) {
-				return "Model";
+				return LocalizationManager.getInstance().get("matrixeater.title.model");
 			}
 		});
 
@@ -1869,7 +1887,7 @@ public class MainPanel extends JPanel
 				}
 			}
 		});
-		final View view = new View("Data Browser", imageIcon, mpqBrowser);
+		final View view = new View(LocalizationManager.getInstance().get("matrixeater.tab.view_data_browser"), imageIcon, mpqBrowser);
 		view.getWindowProperties().setCloseEnabled(true);
 		return view;
 	}
@@ -2107,7 +2125,7 @@ public class MainPanel extends JPanel
 	public JToolBar createJToolBar() {
 		toolbar = new JToolBar(JToolBar.HORIZONTAL);
 		toolbar.setFloatable(false);
-		toolbar.add(new AbstractAction("New", RMSIcons.loadToolBarImageIcon("new.png")) {
+		toolbar.add(new AbstractAction(LocalizationManager.getInstance().get("matrixeater.toobar.new"), RMSIcons.loadToolBarImageIcon("new.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -2119,7 +2137,7 @@ public class MainPanel extends JPanel
 				}
 			}
 		});
-		toolbar.add(new AbstractAction("Open", RMSIcons.loadToolBarImageIcon("open.png")) {
+		toolbar.add(new AbstractAction(LocalizationManager.getInstance().get("matrixeater.toobar.open"), RMSIcons.loadToolBarImageIcon("open.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -2131,7 +2149,7 @@ public class MainPanel extends JPanel
 				}
 			}
 		});
-		toolbar.add(new AbstractAction("Save", RMSIcons.loadToolBarImageIcon("save.png")) {
+		toolbar.add(new AbstractAction(LocalizationManager.getInstance().get("matrixeater.toobar.save"), RMSIcons.loadToolBarImageIcon("save.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -2144,7 +2162,7 @@ public class MainPanel extends JPanel
 			}
 		});
 		toolbar.addSeparator();
-		toolbar.add(new AbstractAction("Undo", RMSIcons.loadToolBarImageIcon("undo.png")) {
+		toolbar.add(new AbstractAction(LocalizationManager.getInstance().get("matrixeater.toobar.undo"), RMSIcons.loadToolBarImageIcon("undo.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -2160,7 +2178,7 @@ public class MainPanel extends JPanel
 				repaint();
 			}
 		});
-		toolbar.add(new AbstractAction("Redo", RMSIcons.loadToolBarImageIcon("redo.png")) {
+		toolbar.add(new AbstractAction(LocalizationManager.getInstance().get("matrixeater.toobar.redo"), RMSIcons.loadToolBarImageIcon("redo.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -2182,7 +2200,7 @@ public class MainPanel extends JPanel
 		selectionItemTypeGroup = new ToolbarButtonGroup<>(toolbar, SelectionItemTypes.values());
 		toolbar.addSeparator();
 		selectAndMoveDescriptor = new ToolbarActionButtonType(RMSIcons.loadToolBarImageIcon("move2.png"),
-				"Select and Move") {
+				LocalizationManager.getInstance().get("matrixeater.toobar.select_and_move")) {
 			@Override
 			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -2194,7 +2212,7 @@ public class MainPanel extends JPanel
 			}
 		};
 		selectAndRotateDescriptor = new ToolbarActionButtonType(RMSIcons.loadToolBarImageIcon("rotate.png"),
-				"Select and Rotate") {
+				LocalizationManager.getInstance().get("matrixeater.toobar.select_and_rotate")) {
 			@Override
 			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -2206,7 +2224,7 @@ public class MainPanel extends JPanel
 			}
 		};
 		selectAndScaleDescriptor = new ToolbarActionButtonType(RMSIcons.loadToolBarImageIcon("scale.png"),
-				"Select and Scale") {
+				LocalizationManager.getInstance().get("matrixeater.toobar.select_and_scale")) {
 			@Override
 			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -2218,7 +2236,7 @@ public class MainPanel extends JPanel
 			}
 		};
 		selectAndExtrudeDescriptor = new ToolbarActionButtonType(RMSIcons.loadToolBarImageIcon("extrude.png"),
-				"Select and Extrude") {
+				LocalizationManager.getInstance().get("matrixeater.toobar.select_and_extrude")) {
 			@Override
 			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -2230,7 +2248,7 @@ public class MainPanel extends JPanel
 			}
 		};
 		selectAndExtendDescriptor = new ToolbarActionButtonType(RMSIcons.loadToolBarImageIcon("extend.png"),
-				"Select and Extend") {
+				LocalizationManager.getInstance().get("matrixeater.toobar.select_and_extend")) {
 			@Override
 			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -2246,7 +2264,7 @@ public class MainPanel extends JPanel
 						selectAndScaleDescriptor, selectAndExtrudeDescriptor, selectAndExtendDescriptor, });
 		currentActivity = actionTypeGroup.getActiveButtonType();
 		toolbar.addSeparator();
-		snapButton = toolbar.add(new AbstractAction("Snap", RMSIcons.loadToolBarImageIcon("snap.png")) {
+		snapButton = toolbar.add(new AbstractAction(LocalizationManager.getInstance().get("matrixeater.toobar.snap"), RMSIcons.loadToolBarImageIcon("snap.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -2295,11 +2313,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("Redo", redoAction);
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control Y"),
 				"Redo");
-
 		root.getActionMap().put("Delete", deleteHotkeyAction);
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("DELETE"), "Delete");
 
-		root.getActionMap().put("CloneSelection", cloneAction);
+		root.getActionMap().put("Clone Selection", cloneAction);
 
 		root.getActionMap().put("MaximizeSpacebar", new AbstractAction() {
 			@Override
@@ -2582,7 +2599,7 @@ public class MainPanel extends JPanel
 						}
 					}
 					catch (final FaceCreationException exc) {
-						JOptionPane.showMessageDialog(MainPanel.this, exc.getMessage(), "Error",
+						JOptionPane.showMessageDialog(MainPanel.this, exc.getMessage(), LocalizationManager.getInstance().get("global.dialog.error"),
 								JOptionPane.ERROR_MESSAGE);
 					}
 					catch (final Exception exc) {
@@ -2955,38 +2972,38 @@ public class MainPanel extends JPanel
 		hackerViewItem.addActionListener(hackerViewAction);
 		viewsMenu.add(hackerViewItem);
 
-		final JMenu browsersMenu = new JMenu("Browsers");
+		final JMenu browsersMenu = new JMenu(LocalizationManager.getInstance().get("matrixeater.menu.browsers"));
 		browsersMenu.setMnemonic(KeyEvent.VK_B);
 		windowMenu.add(browsersMenu);
 
-		mpqViewer = new JMenuItem("Data Browser");
+		mpqViewer = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.data_browser"));
 		mpqViewer.setMnemonic(KeyEvent.VK_A);
 		mpqViewer.addActionListener(openMPQViewerAction);
 		browsersMenu.add(mpqViewer);
 
-		unitViewer = new JMenuItem("Unit Browser");
+		unitViewer = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.unit_browser"));
 		unitViewer.setMnemonic(KeyEvent.VK_U);
 		unitViewer.addActionListener(openUnitViewerAction);
 		browsersMenu.add(unitViewer);
 
-		final JMenuItem doodadViewer = new JMenuItem("Doodad Browser");
+		final JMenuItem doodadViewer = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.doodad_browser"));
 		doodadViewer.setMnemonic(KeyEvent.VK_D);
 		doodadViewer.addActionListener(openDoodadViewerAction);
 		browsersMenu.add(doodadViewer);
 
-		hiveViewer = new JMenuItem("Hive Browser");
+		hiveViewer = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.hive_browser"));
 		hiveViewer.setMnemonic(KeyEvent.VK_H);
 		hiveViewer.addActionListener(openHiveViewerAction);
 //		browsersMenu.add(hiveViewer);
 
 		windowMenu.addSeparator();
 
-		addMenu = new JMenu("Add");
+		addMenu = new JMenu(LocalizationManager.getInstance().get("matrixeater.menu.add"));
 		addMenu.setMnemonic(KeyEvent.VK_A);
-		addMenu.getAccessibleContext().setAccessibleDescription("Allows the user to add new components to the model.");
+		addMenu.getAccessibleContext().setAccessibleDescription(LocalizationManager.getInstance().get("matrixeater.menuitem.add"));
 		menuBar.add(addMenu);
 
-		addParticle = new JMenu("Particle");
+		addParticle = new JMenu(LocalizationManager.getInstance().get("matrixeater.menu.particle"));
 		addParticle.setMnemonic(KeyEvent.VK_P);
 		addMenu.add(addParticle);
 
@@ -3015,7 +3032,7 @@ public class MainPanel extends JPanel
 
 								final JPanel particlePanel = new JPanel();
 								final List<IdObject> idObjects = new ArrayList<>(currentMDL().getIdObjects());
-								final Bone nullBone = new Bone("No parent");
+								final Bone nullBone = new Bone(LocalizationManager.getInstance().get("matrixeater.stockFiles.no_parent"));
 								idObjects.add(0, nullBone);
 								final JComboBox<IdObject> parent = new JComboBox<>(idObjects.toArray(new IdObject[0]));
 								parent.setRenderer(new BasicComboBoxRenderer() {
@@ -3024,22 +3041,25 @@ public class MainPanel extends JPanel
 											final int index, final boolean isSelected, final boolean cellHasFocus) {
 										final IdObject idObject = (IdObject) value;
 										if (idObject == nullBone) {
-											return super.getListCellRendererComponent(list, "No parent", index,
-													isSelected, cellHasFocus);
+											return super.getListCellRendererComponent(list, 
+												LocalizationManager.getInstance().get("matrixeater.stockFiles.no_parent"), 
+												index, isSelected, cellHasFocus);
 										}
 										return super.getListCellRendererComponent(list,
 												value.getClass().getSimpleName() + " \"" + idObject.getName() + "\"",
 												index, isSelected, cellHasFocus);
 									}
 								});
-								final JLabel parentLabel = new JLabel("Parent:");
+								final JLabel parentLabel = new JLabel(LocalizationManager.getInstance().get("matrixeater.stockFiles.parent");
 								final JLabel imageLabel = new JLabel(
 										new ImageIcon(image.getScaledInstance(128, 128, Image.SCALE_SMOOTH)));
-								final JLabel titleLabel = new JLabel("Add " + basicName);
+								final JLabel titleLabel = new JLabel(
+									LocalizationManager.getInstance().get("matrixeater.stockFiles.add") + " " + basicName);
 								titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
 
-								final JLabel nameLabel = new JLabel("Particle Name:");
-								final JTextField nameField = new JTextField("MyBlizParticle");
+								final JLabel nameLabel = new JLabel(
+									LocalizationManager.getInstance().get("matrixeater.stockFiles.particle_name"));
+								final JTextField nameField = new JTextField(LocalizationManager.getInstance().get("matrixeater.stockFiles.defaults_particle_name"));
 
 								final JLabel xLabel = new JLabel("Z:");
 								final JSpinner xSpinner = new JSpinner(
@@ -3072,7 +3092,7 @@ public class MainPanel extends JPanel
 									checkBoxes[animIndex].setSelected(true);
 									animIndex++;
 								}
-								final JButton chooseAnimations = new JButton("Choose when to show!");
+								final JButton chooseAnimations = new JButton(LocalizationManager.getInstance().get("matrixeater.button.chooseanimations"));
 								chooseAnimations.addActionListener(new ActionListener() {
 									@Override
 									public void actionPerformed(final ActionEvent e) {
@@ -3086,7 +3106,7 @@ public class MainPanel extends JPanel
 									final Color color = new Color((int) (colorValues.z * 255),
 											(int) (colorValues.y * 255), (int) (colorValues.x * 255));
 
-									final JButton button = new JButton("Color " + (i + 1),
+									final JButton button = new JButton(LocalizationManager.getInstance().get("matrixeater.button.color") + (i + 1),
 											new ImageIcon(IconUtils.createBlank(color, 32, 32)));
 									colors[i] = color;
 									final int index = i;
@@ -3094,7 +3114,7 @@ public class MainPanel extends JPanel
 										@Override
 										public void actionPerformed(final ActionEvent e) {
 											final Color colorChoice = JColorChooser.showDialog(MainPanel.this,
-													"Chooser Color", colors[index]);
+													LocalizationManager.getInstance().get("matrixeater.dialog.color_chooser"), colors[index]);
 											if (colorChoice != null) {
 												colors[index] = colorChoice;
 												button.setIcon(
@@ -3161,7 +3181,7 @@ public class MainPanel extends JPanel
 									}
 									AnimFlag oldFlag = particle.getVisibilityFlag();
 									if (oldFlag == null) {
-										oldFlag = new AnimFlag("Visibility");
+										oldFlag = new AnimFlag(LocalizationManager.getInstance().get("matrixeater.button.visibility"));
 									}
 									final AnimFlag visFlag = AnimFlag.buildEmptyFrom(oldFlag);
 									animIndex = 0;
@@ -3226,14 +3246,14 @@ public class MainPanel extends JPanel
 		scriptsMenu.getAccessibleContext().setAccessibleDescription("Allows the user to execute model edit scripts.");
 		menuBar.add(scriptsMenu);
 
-		importButtonS = new JMenuItem("Oinkerwinkle-Style AnimTransfer");
+		importButtonS = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.oinkerwinkle_animtransfer"));
 		importButtonS.setAccelerator(KeyStroke.getKeyStroke("control shift S"));
 		importButtonS.setMnemonic(KeyEvent.VK_P);
 		importButtonS.addActionListener(this);
 		// importButtonS.setEnabled(false);
 		scriptsMenu.add(importButtonS);
 
-		mergeGeoset = new JMenuItem("Oinkerwinkle-Style Merge Geoset");
+		mergeGeoset = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.merge_geoset"));
 		mergeGeoset.setAccelerator(KeyStroke.getKeyStroke("control M"));
 		mergeGeoset.setMnemonic(KeyEvent.VK_M);
 		mergeGeoset.addActionListener(this);
@@ -4023,7 +4043,7 @@ public class MainPanel extends JPanel
 
 		newDirectory = new JMenuItem("Change Game Directory");
 		newDirectory.setAccelerator(KeyStroke.getKeyStroke("control shift D"));
-		newDirectory.setToolTipText("Changes the directory from which to load texture files for the 3D display.");
+		newDirectory.setToolTipText(LocalizationManager.getInstance().get("matrixeater.tooltip.change_game_directory"));
 		newDirectory.setMnemonic(KeyEvent.VK_D);
 		newDirectory.addActionListener(this);
 //		viewMenu.add(newDirectory);
