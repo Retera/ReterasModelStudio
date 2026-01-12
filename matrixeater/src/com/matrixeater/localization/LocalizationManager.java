@@ -24,15 +24,15 @@ public class LocalizationManager {
         // Try to load saved lang first
         String savedLocaleStr = System.getProperty(LangKey);
         if (savedLocaleStr != null && !savedLocaleStr.isEmpty()) {
-            setLocale(savedLocaleStr);
+            savedLocaleStr = Locale.forLanguageTag(savedLocaleStr);
         } else {
             savedLocaleStr = Locale.getDefault();
-            if (savedLocaleStr == null) {
-              savedLocaleStr = Locale.ENGLISH;
-            }
-            setLocale(savedLocaleStr);
-            saveLocaleToPrefs(savedLocaleStr);  // 保存系统默认语言
         }
+        if (savedLocaleStr == null) {
+            savedLocaleStr = Locale.ENGLISH;
+        }
+        setLocale(savedLocaleStr);
+        saveLocaleToPrefs(savedLocaleStr);  // 保存系统默认语言
         loadEnglishProperties();  // 初始化英语资源
     }
 
