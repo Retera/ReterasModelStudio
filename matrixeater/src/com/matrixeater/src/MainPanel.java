@@ -1754,18 +1754,28 @@ public class MainPanel extends JPanel
 						// Save language preference to system properties
 						System.setProperty("matrixeater.locale", newLocale.toString());
 
-						// Restart using platform-specific method
 						try {
-							String[] cmd;
-							String jarPath = new File(MainPanel.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+							String jarPath = MainPanel.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+							File exeFile = new File(jarPath).getParentFile();
+							String exeName = new File(jarPath).getName().replace(".jar", ".exe");
+							String exePath = new File(exeFile, exeName).getAbsolutePath();
 
-							if (System.getProperty("os.name").toLowerCase().contains("win")) {
-								cmd = new String[]{"cmd", "/c", "start", "java", "-Dmatrixeater.locale=" + newLocale, "-jar", jarPath};
-							} else {
-								cmd = new String[]{"java", "-Dmatrixeater.locale=" + newLocale, "-jar", jarPath};
+							if (!new File(exePath).exists()) {
+								exePath = System.getProperty("sun.java.command").split(" ")[0];
+								if (!exePath.endsWith(".exe")) {
+									throw new RuntimeException("Not running as EXE");
+								}
 							}
 
-							new ProcessBuilder(cmd).start();
+							// 保存语言到配置文件（因为 EXE 无法通过 -D 参数传 JVM 参数）
+							try (var out = new java.io.FileOutputStream("config.properties")) {
+								var props = new java.util.Properties();
+								props.setProperty("matrixeater.locale", newLocale.toString());
+								props.store(out, "");
+							}
+
+							// 重启 EXE
+							new ProcessBuilder(exePath).start();
 							System.exit(0);
 						} catch (Exception e) {
 							// Fallback to simple exit
@@ -1936,17 +1946,17 @@ public class MainPanel extends JPanel
 						final UnitEditorTree unitEditorTree = (UnitEditorTree) viewportView;
 						final WorldEditorDataType dataType = unitEditorTree.getDataType();
 						if (dataType == WorldEditorDataType.UNITS) {
-							System.out.println("saw unit tree");
+							System.out.println(LocalizationManager.getInstance().get("matrixeater.traverseandreloaddata.unit"));
 							unitEditorTree.setUnitDataAndReloadVerySlowly(getUnitData());
 						}
 						else if (dataType == WorldEditorDataType.DOODADS) {
-							System.out.println("saw doodad tree");
+							System.out.println(LocalizationManager.getInstance().get("matrixeater.traverseandreloaddata.doodad"));
 							unitEditorTree.setUnitDataAndReloadVerySlowly(getDoodadData());
 						}
 					}
 				}
 				else if (component instanceof MPQBrowser) {
-					System.out.println("saw mpq tree");
+					System.out.println(LocalizationManager.getInstance().get("matrixeater.traverseandreloaddata.mpq"));
 					final MPQBrowser comp = (MPQBrowser) component;
 					comp.refreshTree();
 				}
@@ -2124,7 +2134,7 @@ public class MainPanel extends JPanel
 	public JToolBar createJToolBar() {
 		toolbar = new JToolBar(JToolBar.HORIZONTAL);
 		toolbar.setFloatable(false);
-		toolbar.add(new AbstractAction(LocalizationManager.getInstance().get("matrixeater.toobar.new"), RMSIcons.loadToolBarImageIcon("new.png")) {
+		toolbar.add(new AbstractAction("New", RMSIcons.loadToolBarImageIcon("new.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -2136,7 +2146,7 @@ public class MainPanel extends JPanel
 				}
 			}
 		});
-		toolbar.add(new AbstractAction(LocalizationManager.getInstance().get("matrixeater.toobar.open"), RMSIcons.loadToolBarImageIcon("open.png")) {
+		toolbar.add(new AbstractAction("Open", RMSIcons.loadToolBarImageIcon("open.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -2148,7 +2158,7 @@ public class MainPanel extends JPanel
 				}
 			}
 		});
-		toolbar.add(new AbstractAction(LocalizationManager.getInstance().get("matrixeater.toobar.save"), RMSIcons.loadToolBarImageIcon("save.png")) {
+		toolbar.add(new AbstractAction("Save", RMSIcons.loadToolBarImageIcon("save.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -2161,7 +2171,7 @@ public class MainPanel extends JPanel
 			}
 		});
 		toolbar.addSeparator();
-		toolbar.add(new AbstractAction(LocalizationManager.getInstance().get("matrixeater.toobar.undo"), RMSIcons.loadToolBarImageIcon("undo.png")) {
+		toolbar.add(new AbstractAction("Undo", RMSIcons.loadToolBarImageIcon("undo.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -2177,7 +2187,7 @@ public class MainPanel extends JPanel
 				repaint();
 			}
 		});
-		toolbar.add(new AbstractAction(LocalizationManager.getInstance().get("matrixeater.toobar.redo"), RMSIcons.loadToolBarImageIcon("redo.png")) {
+		toolbar.add(new AbstractAction("Redo", RMSIcons.loadToolBarImageIcon("redo.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -2880,7 +2890,7 @@ public class MainPanel extends JPanel
 //					testPanel.add(animationController);
 				}
 				testPanel.setLayout(new GridLayout(1, 4));
-				return new View("Test", null, testPanel);
+				return new View(LocalizationManager.getInstance().get("matrixeater.menu.test"), null, testPanel);
 			}
 		}));
 
@@ -3161,7 +3171,7 @@ public class MainPanel extends JPanel
 																.addComponent(colorButtons[2]))));
 								particlePanel.setLayout(layout);
 								final int x = JOptionPane.showConfirmDialog(MainPanel.this, particlePanel,
-										"Add " + basicName, JOptionPane.OK_CANCEL_OPTION);
+										LocalizationManager.getInstance().get("matrixeater.dialog.ethorizontalgroup.add") + basicName, JOptionPane.OK_CANCEL_OPTION);
 								if (x == JOptionPane.OK_OPTION) {
 									// do stuff
 									particle.setPivotPoint(new Vertex(((Number) xSpinner.getValue()).doubleValue(),
