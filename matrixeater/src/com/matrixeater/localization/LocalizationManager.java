@@ -22,17 +22,18 @@ public class LocalizationManager {
 
     private LocalizationManager() {
         // Try to load saved lang first
+        Locale savedLang;
         String savedLocaleStr = System.getProperty(LangKey);
         if (savedLocaleStr != null && !savedLocaleStr.isEmpty()) {
-            savedLocaleStr = Locale.forLanguageTag(savedLocaleStr);
+            savedLang = Locale.forLanguageTag(savedLocaleStr);
         } else {
-            savedLocaleStr = Locale.getDefault();
+            savedLang = Locale.getDefault();
         }
-        if (savedLocaleStr == null) {
-            savedLocaleStr = Locale.ENGLISH;
+        if (savedLang == null) {
+            savedLang = Locale.ENGLISH;
         }
-        setLocale(savedLocaleStr);
-        saveLocaleToPrefs(savedLocaleStr);  // 保存系统默认语言
+        setLocale(savedLang);
+        saveLocaleToPrefs(savedLang);  // 保存系统默认语言
         loadEnglishProperties();  // 初始化英语资源
     }
 
