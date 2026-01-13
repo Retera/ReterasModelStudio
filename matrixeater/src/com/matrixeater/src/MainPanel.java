@@ -511,7 +511,7 @@ public class MainPanel extends JPanel
 					mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().rig());
 				}
 				else {
-					System.err.println("NOT RIGGING, NOT VALID");
+					System.err.println(LocalizationManager.getInstance().get("matrixeater.println.rigAction"));
 				}
 			}
 			repaint();
@@ -565,19 +565,19 @@ public class MainPanel extends JPanel
 				final ModelPanel mpanel = currentModelPanel();
 				if (mpanel != null) {
 					final JPanel messagePanel = new JPanel(new MigLayout());
-					messagePanel.add(new JLabel("This will calculate the extents of all model components. Proceed?"),
+					messagePanel.add(new JLabel(LocalizationManager.getInstance().get("matrixeater.calculate_extents.prompt")),
 							"wrap");
-					messagePanel.add(new JLabel("(It may destroy existing extents)"), "wrap");
-					final JRadioButton considerAllBtn = new JRadioButton("Consider all geosets for calculation");
+					messagePanel.add(new JLabel(LocalizationManager.getInstance().get("matrixeater.calculate_extents.warning")), "wrap");
+					final JRadioButton considerAllBtn = new JRadioButton(LocalizationManager.getInstance().get("matrixeater.calculate.button.all_geosets"));
 					final JRadioButton considerCurrentBtn = new JRadioButton(
-							"Consider current editable geosets for calculation");
+							LocalizationManager.getInstance().get("matrixeater.calculate.button.current_geosets"));
 					final ButtonGroup buttonGroup = new ButtonGroup();
 					buttonGroup.add(considerAllBtn);
 					buttonGroup.add(considerCurrentBtn);
 					considerAllBtn.setSelected(true);
 					messagePanel.add(considerAllBtn, "wrap");
 					messagePanel.add(considerCurrentBtn, "wrap");
-					final int userChoice = JOptionPane.showConfirmDialog(MainPanel.this, messagePanel, "Message",
+					final int userChoice = JOptionPane.showConfirmDialog(MainPanel.this, messagePanel, LocalizationManager.getInstance().get("global.dialog.message"),
 							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 					if (userChoice == JOptionPane.YES_OPTION) {
 						mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor()
@@ -819,7 +819,7 @@ public class MainPanel extends JPanel
 			// frame.setLocationRelativeTo(MainPanel.this);
 			// frame.setVisible(true);
 
-			final int ret = JOptionPane.showConfirmDialog(MainPanel.this, programPreferencesPanel, "Preferences",
+			final int ret = JOptionPane.showConfirmDialog(MainPanel.this, programPreferencesPanel, LocalizationManager.getInstance().get("matrixeater.dialog.openpreferencesaction"),
 					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 			if (ret == JOptionPane.OK_OPTION) {
 				prefs.loadFrom(programPreferences);
@@ -848,7 +848,7 @@ public class MainPanel extends JPanel
 		public void actionPerformed(final ActionEvent e) {
 			final UnitEditorTree unitEditorTree = createUnitEditorTree();
 			rootWindow.setWindow(new SplitWindow(true, 0.75f, rootWindow.getWindow(),
-					new View("Unit Browser",
+					new View(LocalizationManager.getInstance().get("matrixeater.window.openUnitViewerAction"),
 							new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
 							new JScrollPane(unitEditorTree))));
 		}
@@ -862,7 +862,7 @@ public class MainPanel extends JPanel
 			// final FloatingWindow floatingWindow =
 			// rootWindow.createFloatingWindow(rootWindow.getLocation(),
 			// mpqBrowser.getPreferredSize(),
-			// new View("MPQ Browser",
+			// new View(LocalizationManager.getInstance().get("matrixeater.window.openDoodadViewerAction"),
 			// new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16,
 			// Image.SCALE_FAST)),
 			// mpqBrowser));
@@ -895,7 +895,7 @@ public class MainPanel extends JPanel
 				}
 			});
 			rootWindow.setWindow(new SplitWindow(true, 0.75f, rootWindow.getWindow(),
-					new View("Doodad Browser",
+					new View(LocalizationManager.getInstance().get("matrixeater.view.openDoodadViewerAction"),
 							new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
 							new JScrollPane(unitEditorTree))));
 		}
@@ -907,13 +907,12 @@ public class MainPanel extends JPanel
 			panel.setLayout(new BorderLayout());
 			panel.add(BorderLayout.BEFORE_FIRST_LINE, new JLabel(POWERED_BY_HIVE));
 			// final JPanel resourceFilters = new JPanel();
-			// resourceFilters.setBorder(BorderFactory.createTitledBorder("Resource
-			// Filters"));
+			// resourceFilters.setBorder(BorderFactory.createTitledBorder(LocalizationManager.getInstance().get("matrixeater.border.openHiveViewerAction_resource")));
 			// panel.add(BorderLayout.BEFORE_LINE_BEGINS, resourceFilters);
-			// resourceFilters.add(new JLabel("Resource Type"));
-			// resourceFilters.add(new JComboBox<>(new String[] { "Any" }));
+			// resourceFilters.add(new JLabel(LocalizationManager.getInstance().get("matrixeater.label.openHiveViewerAction")));
+			// resourceFilters.add(new JComboBox<>(new String[] { LocalizationManager.getInstance().get("matrixeater.comboBox.openHiveViewerAction") }));
 			final JList<String> view = new JList<>(
-					new String[] { "Bongo Bongo (Phantom Shadow Beast)", "Other Model", "Other Model" });
+					new String[] {LocalizationManager.getInstance().get("matrixeater.view.openHiveViewerAction_bo"), LocalizationManager.getInstance().get("matrixeater.view.openHiveViewerAction_other"), LocalizationManager.getInstance().get("matrixeater.view.openHiveViewerAction_other") });
 			view.setCellRenderer(new DefaultListCellRenderer() {
 				@Override
 				public Component getListCellRendererComponent(final javax.swing.JList<?> list, final Object value,
@@ -928,16 +927,16 @@ public class MainPanel extends JPanel
 			panel.add(BorderLayout.BEFORE_LINE_BEGINS, new JScrollPane(view));
 
 			final JPanel tags = new JPanel();
-			tags.setBorder(BorderFactory.createTitledBorder("Tags"));
+			tags.setBorder(BorderFactory.createTitledBorder(LocalizationManager.getInstance().get("matrixeater.border.openHiveViewerAction_tags")));
 			tags.setLayout(new GridLayout(30, 1));
-			tags.add(new JCheckBox("Results must include all selected tags"));
+			tags.add(new JCheckBox(LocalizationManager.getInstance().get("matrixeater.checkbox.openhivevieweraction_results")));
 			tags.add(new JSeparator());
-			tags.add(new JLabel("Types (Models)"));
+			tags.add(new JLabel(LocalizationManager.getInstance().get("matrixeater.label.openHiveViewerAction_types")));
 			tags.add(new JSeparator());
-			tags.add(new JCheckBox("Building"));
-			tags.add(new JCheckBox("Doodad"));
-			tags.add(new JCheckBox("Item"));
-			tags.add(new JCheckBox("User Interface"));
+			tags.add(new JCheckBox(LocalizationManager.getInstance().get("matrixeater.checkbox.openhivevieweraction_build")));
+			tags.add(new JCheckBox(LocalizationManager.getInstance().get("matrixeater.checkbox.openhivevieweraction_doodad")));
+			tags.add(new JCheckBox(LocalizationManager.getInstance().get("matrixeater.checkbox.openhivevieweraction_item")));
+			tags.add(new JCheckBox(LocalizationManager.getInstance().get("matrixeater.checkbox.openhivevieweraction_ui")));
 			panel.add(BorderLayout.CENTER, tags);
 			// final FloatingWindow floatingWindow =
 			// rootWindow.createFloatingWindow(rootWindow.getLocation(),
@@ -947,7 +946,7 @@ public class MainPanel extends JPanel
 			// Image.SCALE_FAST)),
 			// mpqBrowser));
 			// floatingWindow.getTopLevelAncestor().setVisible(true);
-			rootWindow.setWindow(new SplitWindow(true, 0.75f, rootWindow.getWindow(), new View("Hive Browser",
+			rootWindow.setWindow(new SplitWindow(true, 0.75f, rootWindow.getWindow(), new View(LocalizationManager.getInstance().get("matrixeater.view.openHiveViewerAction_hive"),
 					new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)), panel)));
 		}
 	};
@@ -1058,7 +1057,7 @@ public class MainPanel extends JPanel
 			public void actionPerformed(final ActionEvent e) {
 				final ModelPanel modelPanel = currentModelPanel();
 				if (modelPanel == null) {
-					JOptionPane.showMessageDialog(MainPanel.this, "Please open a model file.", "Error",
+					JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("matrixeater.dialog.openmodelfile"), LocalizationManager.getInstance().get("global.dialog.error"),
 							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
@@ -1072,7 +1071,7 @@ public class MainPanel extends JPanel
 							}
 						});
 				final int confirmDialogResult = JOptionPane.showConfirmDialog(MainPanel.this, timeBoundChooserPanel,
-						"Set Time Bounds", JOptionPane.OK_CANCEL_OPTION);
+						LocalizationManager.getInstance().get("matrixeater.dialog.settime"), JOptionPane.OK_CANCEL_OPTION);
 				if (confirmDialogResult == JOptionPane.OK_OPTION) {
 					timeBoundChooserPanel.applyTo(animatedRenderEnvironment);
 					if (modelPanel != null) {
@@ -1085,19 +1084,19 @@ public class MainPanel extends JPanel
 			}
 		});
 
-		animationModeButton = new ModeButton("Animate");
+		animationModeButton = new ModeButton(LocalizationManager.getInstance().get("matrixeater.button.animate"));
 		animationModeButton.setVisible(false);// TODO remove this if unused
 
 		contextMenu = new JPopupMenu();
-		contextClose = new JMenuItem("Close");
+		contextClose = new JMenuItem(LocalizationManager.getInstance().get("global.button.close"));
 		contextClose.addActionListener(this);
 		contextMenu.add(contextClose);
 
-		contextCloseOthers = new JMenuItem("Close Others");
+		contextCloseOthers = new JMenuItem(LocalizationManager.getInstance().get("global.button.close_other"));
 		contextCloseOthers.addActionListener(this);
 		contextMenu.add(contextCloseOthers);
 
-		contextCloseAll = new JMenuItem("Close All");
+		contextCloseAll = new JMenuItem(LocalizationManager.getInstance().get("global.button.close_all"));
 		contextCloseAll.addActionListener(this);
 		contextMenu.add(contextCloseAll);
 
@@ -1202,17 +1201,17 @@ public class MainPanel extends JPanel
 		});
 		final JPanel jPanel = new JPanel();
 		jPanel.add(new JLabel("..."));
-		viewportControllerWindowView = new View("Outliner", null, jPanel);// GlobalIcons.geoIcon
+		viewportControllerWindowView = new View(LocalizationManager.getInstance().get("matrixeater.view.viewportcontrollerwindowviewport"), null, jPanel);// GlobalIcons.geoIcon
 //		viewportControllerWindowView.getWindowProperties().setCloseEnabled(false);
 //		viewportControllerWindowView.getWindowProperties().setMaximizeEnabled(true);
 //		viewportControllerWindowView.getWindowProperties().setMinimizeEnabled(true);
 //		viewportControllerWindowView.getWindowProperties().setRestoreEnabled(true);
-		toolView = new View("Tools", null, new JPanel());
+		toolView = new View(LocalizationManager.getInstance().get("matrixeater.view.toolview"), null, new JPanel());
 		final JPanel contentsDummy = new JPanel();
 		contentsDummy.add(new JLabel("..."));
-		modelDataView = new View("Contents", null, contentsDummy);
-		tracksView = new View("Tracks", null, new JPanel());
-		modelComponentView = new View("Component", null, new JPanel());
+		modelDataView = new View(LocalizationManager.getInstance().get("matrixeater.view.modeldataview"), null, contentsDummy);
+		tracksView = new View(LocalizationManager.getInstance().get("matrixeater.view.tracks"), null, new JPanel());
+		modelComponentView = new View(LocalizationManager.getInstance().get("matrixeater.view.component"), null, new JPanel());
 //		toolView.getWindowProperties().setCloseEnabled(false);
 		rootWindow.getWindowProperties().getTabProperties().getTitledTabProperties()
 				.setSizePolicy(TitledTabSizePolicy.EQUAL_SIZE);
@@ -1239,7 +1238,7 @@ public class MainPanel extends JPanel
 						final View view = (View) removedWindow;
 						view.getViewProperties().getViewTitleBarProperties().setVisible(true);
 						System.out.println(
-								view.getTitle() + ": (windowUndocking removedWindow as view) title bar visible now");
+								view.getTitle() + LocalizationManager.getInstance().get("matrixeater.view.windowundocking"));
 					}
 				}
 				else {
@@ -1278,7 +1277,7 @@ public class MainPanel extends JPanel
 						if (removedWindow instanceof View) {
 							final View view = (View) removedWindow;
 							view.getViewProperties().getViewTitleBarProperties().setVisible(true);
-							System.out.println(view.getTitle() + ": (removedWindow as view) title bar visible now");
+							System.out.println(view.getTitle() + LocalizationManager.getInstance().get("matrixeater.view.windowremoved_barproperties"));
 						}
 						final TabWindow tabWindow = (TabWindow) removedFromWindow;
 						if (tabWindow.getChildWindowCount() == 1) {
@@ -1286,13 +1285,13 @@ public class MainPanel extends JPanel
 							if (childWindow instanceof View) {
 								final View singleChildView = (View) childWindow;
 								System.out.println(singleChildView.getTitle()
-										+ ": (singleChildView, windowRemoved()) title bar visible now");
+										+ LocalizationManager.getInstance().get("matrixeater.view.windowremoved_singlechildview"));
 								singleChildView.getViewProperties().getViewTitleBarProperties().setVisible(true);
 							}
 						}
 						else if (tabWindow.getChildWindowCount() == 0) {
 							System.out.println(
-									tabWindow.getTitle() + ": force close because 0 child windows in windowRemoved()");
+									tabWindow.getTitle() + LocalizationManager.getInstance().get("matrixeater.view.windowremoved_force"));
 //						tabWindow.close();
 						}
 					}
@@ -1351,7 +1350,7 @@ public class MainPanel extends JPanel
 						if (closingWindow instanceof View) {
 							final View view = (View) closingWindow;
 							view.getViewProperties().getViewTitleBarProperties().setVisible(true);
-							System.out.println(view.getTitle() + ": (closingWindow as view) title bar visible now");
+							System.out.println(view.getTitle() + LocalizationManager.getInstance().get("matrixeater.view.windowclosing_barproperties"));
 						}
 						final TabWindow tabWindow = (TabWindow) closingWindow.getWindowParent();
 						if (tabWindow.getChildWindowCount() == 1) {
@@ -1360,12 +1359,12 @@ public class MainPanel extends JPanel
 								final View singleChildView = (View) childWindow;
 								singleChildView.getViewProperties().getViewTitleBarProperties().setVisible(true);
 								System.out.println(singleChildView.getTitle()
-										+ ": (singleChildView, windowClosing()) title bar visible now");
+										+ LocalizationManager.getInstance().get("matrixeater.view.windowclosing_singlechildview"));
 							}
 						}
 						else if (tabWindow.getChildWindowCount() == 0) {
 							System.out.println(
-									tabWindow.getTitle() + ": force close because 0 child windows in windowClosing()");
+									tabWindow.getTitle() + LocalizationManager.getInstance().get("matrixeater.view.windowclosing_force"));
 							tabWindow.close();
 						}
 					}
@@ -1391,14 +1390,14 @@ public class MainPanel extends JPanel
 									final View singleChildView = (View) childWindow;
 									singleChildView.getViewProperties().getViewTitleBarProperties().setVisible(false);
 									System.out.println(singleChildView.getTitle()
-											+ ": (singleChildView as view, windowAdded()) title bar NOT visible now");
+											+ LocalizationManager.getInstance().get("matrixeater.view.windowadd"));
 								}
 							}
 						}
 						if (addedWindow instanceof View) {
 							final View view = (View) addedWindow;
 							view.getViewProperties().getViewTitleBarProperties().setVisible(false);
-							System.out.println(view.getTitle() + ": (addedWindow as view) title bar NOT visible now");
+							System.out.println(view.getTitle() + LocalizationManager.getInstance().get("matrixeater.view.barproperties"));
 						}
 					}
 				}
@@ -1413,10 +1412,10 @@ public class MainPanel extends JPanel
 
 			}
 		});
-		leftView = new View("Side", null, new JPanel());
-		frontView = new View("Front", null, new JPanel());
-		bottomView = new View("Bottom", null, new JPanel());
-		perspectiveView = new View("Perspective", null, new JPanel());
+		leftView = new View(LocalizationManager.getInstance().get("matrixeater.view.side"), null, new JPanel());
+		frontView = new View(LocalizationManager.getInstance().get("matrixeater.view.front"), null, new JPanel());
+		bottomView = new View(LocalizationManager.getInstance().get("matrixeater.view.bottom"), null, new JPanel());
+		perspectiveView = new View(LocalizationManager.getInstance().get("matrixeater.view.perspective"), null, new JPanel());
 
 		final DefaultStyledDocument panel = new DefaultStyledDocument();
 		final JTextPane epane = new JTextPane();
@@ -1441,7 +1440,7 @@ public class MainPanel extends JPanel
 		}
 		epane.setDocument(panel);
 
-		previewView = new View("Preview", null, new JScrollPane(epane));
+		previewView = new View(LocalizationManager.getInstance().get("matrixeater.view.preview"), null, new JScrollPane(epane));
 		final JPanel timeSliderAndExtra = new JPanel();
 		final GroupLayout tsaeLayout = new GroupLayout(timeSliderAndExtra);
 		final Component horizontalGlue = Box.createHorizontalGlue();
@@ -1457,13 +1456,13 @@ public class MainPanel extends JPanel
 						.addComponent(horizontalGlue).addComponent(setKeyframe).addComponent(setTimeBounds)));
 		timeSliderAndExtra.setLayout(tsaeLayout);
 
-		timeSliderView = new View("Footer", null, timeSliderAndExtra);
+		timeSliderView = new View(LocalizationManager.getInstance().get("matrixeater.view.footer"), null, timeSliderAndExtra);
 		final JPanel hackerPanel = new JPanel(new BorderLayout());
 		final RSyntaxTextArea matrixEaterScriptTextArea = new RSyntaxTextArea(20, 60);
 		matrixEaterScriptTextArea.setCodeFoldingEnabled(true);
 		matrixEaterScriptTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
 		hackerPanel.add(new RTextScrollPane(matrixEaterScriptTextArea), BorderLayout.CENTER);
-		final JButton run = new JButton("Run",
+		final JButton run = new JButton(LocalizationManager.getInstance().get("matrixeater.view.run"),
 				new ImageIcon(BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNReplay-Play.blp")
 						.getScaledInstance(24, 24, Image.SCALE_FAST)));
 		run.addActionListener(new ActionListener() {
@@ -1483,12 +1482,12 @@ public class MainPanel extends JPanel
 					}
 					catch (final ScriptException e1) {
 						e1.printStackTrace();
-						JOptionPane.showMessageDialog(MainPanel.this, e1.getMessage(), "Error",
+						JOptionPane.showMessageDialog(MainPanel.this, e1.getMessage(), LocalizationManager.getInstance().get("global.dialog.error"),
 								JOptionPane.ERROR_MESSAGE);
 					}
 				}
 				else {
-					JOptionPane.showMessageDialog(MainPanel.this, "Must open a file!", "Error",
+					JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("matrixeater.dialog.actionperformed"), LocalizationManager.getInstance().get("global.dialog.error"),
 							JOptionPane.ERROR_MESSAGE);
 				}
 			}
@@ -1574,7 +1573,7 @@ public class MainPanel extends JPanel
 		mdlEditorButtonsPanel.add(mdlTextSearchField);
 		mdlEditorButtonsPanel.add(mdlTextFind);
 		mdlEditorPanel.add(mdlEditorButtonsPanel, BorderLayout.NORTH);
-		mdlTextView = new View("Text", null, mdlEditorPanel);
+		mdlTextView = new View(LocalizationManager.getInstance().get("matrixeater.view.text"), null, mdlEditorPanel);
 
 		creatorPanel = new CreatorModelingPanel(new ModelEditorChangeActivityListener() {
 
@@ -1584,9 +1583,9 @@ public class MainPanel extends JPanel
 				MainPanel.this.changeActivity(newType);
 			}
 		}, prefs, actionTypeGroup, activeViewportWatcher, animatedRenderEnvironment);
-		creatorView = new View("Modeling", null, creatorPanel);
-		animationControllerView = new View("Animation Controller", null, new JPanel());
-		cameraControllerView = new View("Camera Controller", null, new JPanel());
+		creatorView = new View(LocalizationManager.getInstance().get("matrixeater.view.modeling"), null, creatorPanel);
+		animationControllerView = new View(LocalizationManager.getInstance().get("matrixeater.view.animation_controller"), null, new JPanel());
+		cameraControllerView = new View(LocalizationManager.getInstance().get("matrixeater.view.camera_controller"), null, new JPanel());
 		final TabWindow startupTabWindow = createMainLayout();
 		rootWindow.setWindow(startupTabWindow);
 		rootWindow.getRootWindowProperties().getFloatingWindowProperties().setUseFrame(true);
@@ -1606,11 +1605,11 @@ public class MainPanel extends JPanel
 		fc.addChoosableFileFilter(filter);
 		fc.addChoosableFileFilter(new FileNameExtensionFilter("Wavefront OBJ '-.obj'", "obj"));
 		exportTextureDialog = new JFileChooser();
-		exportTextureDialog.setDialogTitle("Export Texture");
+		exportTextureDialog.setDialogTitle(LocalizationManager.getInstance().get("matrixeater.dialog.export_texture"));
 		final String[] imageTypes = ImageIO.getWriterFileSuffixes();
 		for (final String suffix : imageTypes) {
 			exportTextureDialog
-					.addChoosableFileFilter(new FileNameExtensionFilter(suffix.toUpperCase() + " Image File", suffix));
+					.addChoosableFileFilter(new FileNameExtensionFilter(suffix.toUpperCase() + LocalizationManager.getInstance().get("matrixeater.dialog.image_file"), suffix));
 		}
 
 		// getInputMap(JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_Y,
@@ -1639,7 +1638,7 @@ public class MainPanel extends JPanel
 				if (newType == SelectionItemTypes.TPOSE) {
 
 					final Object[] settings = { "Move Linked", "Move Single" };
-					final Object dialogResult = JOptionPane.showInputDialog(null, "Choose settings:", "T-Pose Settings",
+					final Object dialogResult = JOptionPane.showInputDialog(null, LocalizationManager.getInstance().get("matrixeater.dialog.addtoolbar_choose"), LocalizationManager.getInstance().get("matrixeater.dialog.addtoolbar_tp_settings"),
 							JOptionPane.PLAIN_MESSAGE, null, settings, settings[0]);
 					final boolean moveLinked = dialogResult == settings[0];
 					ModelEditorManager.MOVE_LINKED = moveLinked;
@@ -3042,7 +3041,7 @@ public class MainPanel extends JPanel
 										final IdObject idObject = (IdObject) value;
 										if (idObject == nullBone) {
 											return super.getListCellRendererComponent(list, 
-												LocalizationManager.getInstance().get("matrixeater.stockFiles.no_parent"), 
+												LocalizationManager.getInstance().get("matrixeater.stockFiles.no_parent"),
 												index, isSelected, cellHasFocus);
 										}
 										return super.getListCellRendererComponent(list,
@@ -3050,7 +3049,7 @@ public class MainPanel extends JPanel
 												index, isSelected, cellHasFocus);
 									}
 								});
-								final JLabel parentLabel = new JLabel(LocalizationManager.getInstance().get("matrixeater.stockFiles.parent");
+								final JLabel parentLabel = new JLabel(LocalizationManager.getInstance().get("matrixeater.stockFiles.parent"));
 								final JLabel imageLabel = new JLabel(
 										new ImageIcon(image.getScaledInstance(128, 128, Image.SCALE_SMOOTH)));
 								final JLabel titleLabel = new JLabel(
@@ -3059,7 +3058,7 @@ public class MainPanel extends JPanel
 
 								final JLabel nameLabel = new JLabel(
 									LocalizationManager.getInstance().get("matrixeater.stockFiles.particle_name"));
-								final JTextField nameField = new JTextField(LocalizationManager.getInstance().get("matrixeater.stockFiles.defaults_particle_name"));
+								final JTextField nameField = new JTextField("MyBlizParticle");
 
 								final JLabel xLabel = new JLabel("Z:");
 								final JSpinner xSpinner = new JSpinner(
