@@ -17,13 +17,12 @@ public class LocalizationManager {
     private final Properties props = new Properties();
     private final Properties enProps = new Properties();
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-    private static final String LangKey = "savedlocale";
+    private static final String LANG_KEY = "savedlocale";
     private Preferences prefs = Preferences.userNodeForPackage(LocalizationManager.class);
 
     private LocalizationManager() {
-        // Try to load saved lang first
+        String savedLocaleStr = prefs.get(LANG_KEY, null);
         Locale savedLang;
-        String savedLocaleStr = System.getProperty(LangKey);
         if (savedLocaleStr != null && !savedLocaleStr.isEmpty()) {
             savedLang = Locale.forLanguageTag(savedLocaleStr);
         } else {
@@ -32,9 +31,8 @@ public class LocalizationManager {
         if (savedLang == null) {
             savedLang = Locale.ENGLISH;
         }
-        setLocale(savedLang);
-        saveLocaleToPrefs(savedLang);  // 保存系统默认语言
-        loadEnglishProperties();  // 初始化英语资源
+        setLocale(savedLang); // 这里会自动加载资源并保存 prefs
+        loadEnglishProperties();
     }
 
     public static LocalizationManager getInstance() {
@@ -54,14 +52,14 @@ public class LocalizationManager {
     }
 
     private void saveLocaleToPrefs(Locale locale) {
-        prefs.put(LangKey, locale.toLanguageTag());
+        prefs.put(LANG_KEY, locale.toLanguageTag());
     }
 
     public void setLocale(Locale newLocale) {
         Locale old = this.locale;
         this.locale = newLocale != null ? newLocale : Locale.ENGLISH;
         loadPropertiesForLocale(this.locale);
-        saveLocaleToPrefs(this.locale);  // 更新保存的语言设置
+        saveLocaleToPrefs(this.locale); // 更新保存的语言设置
         pcs.firePropertyChange("locale", old, this.locale);
     }
 
@@ -86,13 +84,13 @@ public class LocalizationManager {
             if (is != null) {
                 // load as UTF-8
                 Properties p = new Properties();
-                p.load(new java.io.InputStreamReader(is, StandardCharsets.UTF_8));
+                p.load(new InputStreamReader(is, StandardCharsets.UTF_8));
                 props.putAll(p);
                 // 加载成功后立即返回
                 return;
             }
             } catch (IOException e) {
-                // ignore and try next path
+                System.err.println("❌ Failed to load " + path + ": " + e.getMessage());
             }
         }
     }
@@ -104,8 +102,7 @@ public class LocalizationManager {
             if (v != null) {
               return v;
             }
-            // 调试信息：显示找不到的键值，帮助诊断问题
-            System.err.println("LocalizationManager: 找不到键值 '" + key + "'，当前语言: " + locale + ", 已加载键数: " + props.size());
+            System.err.println("LocalizationManager: Missing key '" + key + "' for locale " + locale);
             return "!" + key + "!";
         }
         return v;
