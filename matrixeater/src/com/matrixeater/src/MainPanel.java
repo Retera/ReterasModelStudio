@@ -1753,35 +1753,21 @@ public class MainPanel extends JPanel
 					if (result == JOptionPane.YES_OPTION) {
 						// Save language preference to system properties
 						System.setProperty("matrixeater.locale", newLocale.toString());
+						String exePath = System.getProperty("sun.java.command");
+						File configFile = new File(new File(exePath).getParentFile(), "config.properties");
+
+						try (var out = new java.io.FileOutputStream("config.properties")) {
+							var props = new java.util.Properties();
+							props.setProperty("matrixeater.locale", newLocale.toString());
+							props.store(out, "");
+						}
 
 						try {
-							// 保存语言到配置文件（因为 EXE 无法通过 -D 参数传 JVM 参数）
-							try (var out = new java.io.FileOutputStream("config.properties")) {
-								var props = new java.util.Properties();
-								props.setProperty("matrixeater.locale", newLocale.toString());
-								props.store(out, "");
-							}
-
-							File tempScript = File.createTempFile("restart_", ".bat");
-							tempScript.deleteOnExit();
-
-							String scriptContent = 
-								"@echo off\n" +
-								"timeout /t 2 /nobreak >nul\n" +     // 等待2秒确保原进程退出
-								"\"" + exePath.replace("/", "\\") + "\"\n" +
-								"del \"%~f0\"\n";                    // 自删除
-
-							Files.write(tempScript.toPath(), scriptContent.getBytes(StandardCharsets.UTF_8));
-
-							// 启动脚本（隐藏窗口）
-							new ProcessBuilder("cmd.exe", "/c", tempScript.getAbsolutePath())
-								.start();
-
-							System.exit(0);
-						} catch (Exception e) {
-							// Fallback to simple exit
-							System.exit(0);
+							new ProcessBuilder(exePath).start();
+						} catch (Exception ignored) {
+							// 即使重启失败，配置已保存，用户可手动重开
 						}
+						System.exit(0);
 					}
 				});
 			}
@@ -3648,7 +3634,7 @@ public class MainPanel extends JPanel
 					optionNames.add(model);
 				}
 				final EditableModel choice = (EditableModel) JOptionPane.showInputDialog(MainPanel.this,
-						LocalizationManager.getInstance().get("matrixeater.dialog.skinsplicefromworkspace"),
+						LocalizationManager.getInstance().get("matrixeater.dialog.skinsplicefromworkspace"), LocalizationManager.getInstance().get("matrixeater.dialog.skinsplicefromworkspace_import"),
 						JOptionPane.OK_CANCEL_OPTION, null, optionNames.toArray(), optionNames.get(0));
 				if (choice != null) {
 					final EditableModel mdl = EditableModel.deepClone(choice, choice.getHeaderName());
