@@ -1757,12 +1757,12 @@ public class MainPanel extends JPanel
 						String exePath = System.getProperty("sun.java.command");
 						File configFile = new File(new File(exePath).getParentFile(), "config.properties");
 
-						try (FileOutputStream out = new FileOutputStream(configFile)) {
-							Properties props = new Properties();
+						try (java.io.FileOutputStream out = new java.io.FileOutputStream(configFile)) {
+							java.util.Properties props = new java.util.Properties();
 							props.setProperty("matrixeater.locale", newLocale.toString());
 							props.store(out, "");
 						} catch (IOException e) {
-							// 即使失败，也继续尝试重启
+							// handle or ignore
 						}
 
 						try {
@@ -1771,7 +1771,7 @@ public class MainPanel extends JPanel
 							// 即使重启失败，配置已尽力保存
 						}
 
-System.exit(0);
+						System.exit(0);
 					}
 				});
 			}
