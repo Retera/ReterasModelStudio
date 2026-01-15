@@ -1781,16 +1781,6 @@ public class MainPanel extends JPanel
 		});
 	}
 
-	private String[] getMainArguments() {
-		String cmd = System.getProperty("sun.java.command");
-		if (cmd != null) {
-			String[] parts = cmd.split(" ");
-			if (parts.length > 1) {
-				return Arrays.copyOfRange(parts, 1, parts.length);
-			}
-		}
-		return null;
-	}
 
 	private TabWindow createMainLayout() {
 		final TabWindow leftHandTabWindow = new TabWindow(
