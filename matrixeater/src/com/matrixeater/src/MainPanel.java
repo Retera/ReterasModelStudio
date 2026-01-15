@@ -1753,21 +1753,25 @@ public class MainPanel extends JPanel
 					if (result == JOptionPane.YES_OPTION) {
 						// Save language preference to system properties
 						System.setProperty("matrixeater.locale", newLocale.toString());
+
 						String exePath = System.getProperty("sun.java.command");
 						File configFile = new File(new File(exePath).getParentFile(), "config.properties");
 
-						try (var out = new java.io.FileOutputStream("config.properties")) {
-							var props = new java.util.Properties();
+						try (FileOutputStream out = new FileOutputStream(configFile)) {
+							Properties props = new Properties();
 							props.setProperty("matrixeater.locale", newLocale.toString());
 							props.store(out, "");
+						} catch (IOException e) {
+							// 即使失败，也继续尝试重启
 						}
 
 						try {
 							new ProcessBuilder(exePath).start();
 						} catch (Exception ignored) {
-							// 即使重启失败，配置已保存，用户可手动重开
+							// 即使重启失败，配置已尽力保存
 						}
-						System.exit(0);
+
+System.exit(0);
 					}
 				});
 			}
@@ -4416,17 +4420,17 @@ public class MainPanel extends JPanel
 		});
 		optimizeMenu.add(sortBones);
 
-		final JMenuItem flushUnusedTexture = new JMenuItem("Flush Unused Texture");
+		final JMenuItem flushUnusedTexture = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.flushunusedtexture"));
 		flushUnusedTexture.setEnabled(false);
 		flushUnusedTexture.setMnemonic(KeyEvent.VK_F);
 		optimizeMenu.add(flushUnusedTexture);
 
-		final JMenuItem recalcNormals = new JMenuItem("Recalculate Normals");
+		final JMenuItem recalcNormals = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.recalcnormals"));
 		recalcNormals.setAccelerator(KeyStroke.getKeyStroke("control N"));
 		recalcNormals.addActionListener(recalcNormalsAction);
 		editMenu.add(recalcNormals);
 
-		final JMenuItem recalcExtents = new JMenuItem("Recalculate Extents");
+		final JMenuItem recalcExtents = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.recalcextents"));
 		recalcExtents.setAccelerator(KeyStroke.getKeyStroke("control shift E"));
 		recalcExtents.addActionListener(recalcExtentsAction);
 		editMenu.add(recalcExtents);
@@ -4451,25 +4455,25 @@ public class MainPanel extends JPanel
 				}
 			}
 		};
-		cut = new JMenuItem("Cut");
+		cut = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.cut"));
 		cut.addActionListener(copyActionListener);
 		cut.setActionCommand((String) TransferHandler.getCutAction().getValue(Action.NAME));
 		cut.setAccelerator(KeyStroke.getKeyStroke("control X"));
 		editMenu.add(cut);
 
-		copy = new JMenuItem("Copy");
+		copy = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.copy"));
 		copy.addActionListener(copyActionListener);
 		copy.setActionCommand((String) TransferHandler.getCopyAction().getValue(Action.NAME));
 		copy.setAccelerator(KeyStroke.getKeyStroke("control C"));
 		editMenu.add(copy);
 
-		paste = new JMenuItem("Paste");
+		paste = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.paste"));
 		paste.addActionListener(copyActionListener);
 		paste.setActionCommand((String) TransferHandler.getPasteAction().getValue(Action.NAME));
 		paste.setAccelerator(KeyStroke.getKeyStroke("control V"));
 		editMenu.add(paste);
 
-		duplicateSelection = new JMenuItem("Duplicate");
+		duplicateSelection = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.duplicateselection"));
 		// divideVertices.setMnemonic(KeyEvent.VK_V);
 		duplicateSelection.setAccelerator(KeyStroke.getKeyStroke("control D"));
 		duplicateSelection.addActionListener(cloneAction);
@@ -4477,43 +4481,43 @@ public class MainPanel extends JPanel
 
 		editMenu.add(new JSeparator());
 
-		snapVertices = new JMenuItem("Snap Vertices");
+		snapVertices = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.snapvertices"));
 		snapVertices.setAccelerator(KeyStroke.getKeyStroke("control shift W"));
 		snapVertices.addActionListener(snapVerticesAction);
 		editMenu.add(snapVertices);
 
-		snapNormals = new JMenuItem("Snap Normals");
+		snapNormals = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.snapnormals"));
 		snapNormals.setAccelerator(KeyStroke.getKeyStroke("control L"));
 		snapNormals.addActionListener(snapNormalsAction);
 		editMenu.add(snapNormals);
 
 		editMenu.add(new JSeparator());
 
-		selectAll = new JMenuItem("Select All");
+		selectAll = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.selectall"));
 		selectAll.setAccelerator(KeyStroke.getKeyStroke("control A"));
 		selectAll.addActionListener(selectAllAction);
 		editMenu.add(selectAll);
 
-		invertSelect = new JMenuItem("Invert Selection");
+		invertSelect = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.invertselection"));
 		invertSelect.setAccelerator(KeyStroke.getKeyStroke("control I"));
 		invertSelect.addActionListener(invertSelectAction);
 		editMenu.add(invertSelect);
 
-		expandSelection = new JMenuItem("Expand Selection");
+		expandSelection = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.expandselection"));
 		expandSelection.setAccelerator(KeyStroke.getKeyStroke("control E"));
 		expandSelection.addActionListener(expandSelectionAction);
 		editMenu.add(expandSelection);
 
 		editMenu.addSeparator();
 
-		final JMenuItem deleteButton = new JMenuItem("Delete");
+		final JMenuItem deleteButton = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.deletebutton"));
 		deleteButton.setMnemonic(KeyEvent.VK_D);
 		deleteButton.addActionListener(deleteAction);
 		editMenu.add(deleteButton);
 
 		editMenu.addSeparator();
 
-		preferencesWindow = new JMenuItem("Preferences Window");
+		preferencesWindow = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.preferenceswindow"));
 		preferencesWindow.setMnemonic(KeyEvent.VK_P);
 		preferencesWindow.addActionListener(openPreferencesAction);
 		editMenu.add(preferencesWindow);
@@ -4560,7 +4564,7 @@ public class MainPanel extends JPanel
 							}
 						}
 						if (replacement == null) {
-							warnings.add("Failed to replace: " + boneName);
+							warnings.add(LocalizationManager.getInstance().get("matrixeater.warnings.newgeosets") + boneName);
 							replacement = animationModel.getBone(0);
 //							throw new IllegalStateException("failed to replace: " + boneName);
 						}
