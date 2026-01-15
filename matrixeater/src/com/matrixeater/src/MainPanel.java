@@ -1751,31 +1751,45 @@ public class MainPanel extends JPanel
 					);
 
 					if (result == JOptionPane.YES_OPTION) {
-						// Save language preference to system properties
-						System.setProperty("matrixeater.locale", newLocale.toString());
-
+						// 获取可执行文件所在的目录
 						String exePath = System.getProperty("sun.java.command");
-						File configFile = new File(new File(exePath).getParentFile(), "config.properties");
+						File exeFile = new File(exePath);
+						File configFile = new File(exeFile.getParentFile(), "config.properties");
 
+						// 保存配置
 						try (java.io.FileOutputStream out = new java.io.FileOutputStream(configFile)) {
 							java.util.Properties props = new java.util.Properties();
 							props.setProperty("matrixeater.locale", newLocale.toString());
 							props.store(out, "");
-						} catch (IOException e) {
-							// handle or ignore
 						}
-
 						try {
-							new ProcessBuilder(exePath).start();
-						} catch (Exception ignored) {
-							// 即使重启失败，配置已尽力保存
-						}
+							ProcessBuilder pb = new ProcessBuilder(exePath);
+							pb.inheritIO();  // 继承输入输出
+							Process process = pb.start();
 
-						System.exit(0);
+							Thread.sleep(1000);
+
+							System.exit(0);
+
+						} catch (Exception e) {
+							e.printStackTrace();
+							// 配置已保存，重启失败时用户可手动重启
+						}
 					}
 				});
 			}
 		});
+	}
+
+	private String[] getMainArguments() {
+		String cmd = System.getProperty("sun.java.command");
+		if (cmd != null) {
+			String[] parts = cmd.split(" ");
+			if (parts.length > 1) {
+				return Arrays.copyOfRange(parts, 1, parts.length);
+			}
+		}
+		return null;
 	}
 
 	private TabWindow createMainLayout() {
@@ -3259,13 +3273,13 @@ public class MainPanel extends JPanel
 		mergeGeoset.addActionListener(this);
 		scriptsMenu.add(mergeGeoset);
 
-		nullmodelButton = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.nullmodel"));
+		nullmodelButton = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.nullmodel"));
 		nullmodelButton.setAccelerator(KeyStroke.getKeyStroke("control E"));
 		nullmodelButton.setMnemonic(KeyEvent.VK_E);
 		nullmodelButton.addActionListener(this);
 		scriptsMenu.add(nullmodelButton);
 
-		exportAnimatedToStaticMesh = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.exportanimated"));
+		exportAnimatedToStaticMesh = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.exportanimated"));
 		exportAnimatedToStaticMesh.setMnemonic(KeyEvent.VK_E);
 		exportAnimatedToStaticMesh.addActionListener(new ActionListener() {
 			@Override
@@ -3495,7 +3509,7 @@ public class MainPanel extends JPanel
 		});
 		scriptsMenu.add(exportAnimatedFramePNG);
 
-		combineAnims = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.combineanims"));
+		combineAnims = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.combineanims"));
 		combineAnims.setMnemonic(KeyEvent.VK_P);
 		combineAnims.addActionListener(new ActionListener() {
 			@Override
@@ -3537,12 +3551,12 @@ public class MainPanel extends JPanel
 		});
 		scriptsMenu.add(combineAnims);
 
-		scaleAnimations = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.scaleanimations"));
+		scaleAnimations = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.itemscaleanimations"));
 		scaleAnimations.setMnemonic(KeyEvent.VK_A);
 		scaleAnimations.addActionListener(this);
 		scriptsMenu.add(scaleAnimations);
 
-		final JMenuItem version800Toggle = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.version800"));
+		final JMenuItem version800Toggle = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.version800"));
 		version800Toggle.setMnemonic(KeyEvent.VK_A);
 		version800Toggle.addActionListener(new ActionListener() {
 			@Override
@@ -3552,7 +3566,7 @@ public class MainPanel extends JPanel
 		});
 		scriptsMenu.add(version800Toggle);
 
-		final JMenuItem version1000Toggle = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.version1000"));
+		final JMenuItem version1000Toggle = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.version1000"));
 		version1000Toggle.setMnemonic(KeyEvent.VK_A);
 		version1000Toggle.addActionListener(new ActionListener() {
 			@Override
@@ -4566,7 +4580,7 @@ public class MainPanel extends JPanel
 						if (replacement == null) {
 							warnings.add(LocalizationManager.getInstance().get("matrixeater.warnings.newgeosets") + boneName);
 							replacement = animationModel.getBone(0);
-//							throw new IllegalStateException("failed to replace: " + boneName);
+//							throw new IllegalStateException(LocalizationManager.getInstance().get("matrixeater.exception.newgeosets") + boneName);
 						}
 						else {
 							while ((upwardDepth > 0) && (replacement.getChildrenNodes().size() == 1)
@@ -4683,7 +4697,7 @@ public class MainPanel extends JPanel
 				}
 			}
 			else if (e.getSource() == importButton) {
-				fc.setDialogTitle("Import");
+				fc.setDialogTitle(LocalizationManager.getInstance().get("matrixeater.dialog.import"));
 				final EditableModel current = currentMDL();
 				if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 					fc.setCurrentDirectory(current.getFile().getParentFile());
@@ -4697,7 +4711,7 @@ public class MainPanel extends JPanel
 					final File currentFile = fc.getSelectedFile();
 					profile.setPath(currentFile.getParent());
 					toolsMenu.getAccessibleContext().setAccessibleDescription(
-							"Allows the user to control which parts of the model are displayed for editing.");
+							LocalizationManager.getInstance().get("matrixeater.menuitem.import_description"));
 					toolsMenu.setEnabled(true);
 					importFile(currentFile);
 				}
@@ -4728,8 +4742,7 @@ public class MainPanel extends JPanel
 				// }
 				// catch (Exception exc )
 				// {
-				// JOptionPane.showMessageDialog(this,"Opening command failed:
-				// "+exc.getLocalizedMessage());
+				// JOptionPane.showMessageDialog(this,LocalizationManager.getInstance().get("matrixeater.message.opencomfail")+exc.getLocalizedMessage());
 				// }
 				// }
 				//
@@ -4741,8 +4754,7 @@ public class MainPanel extends JPanel
 				// }
 				// catch (IOException exc)
 				// {
-				// JOptionPane.showMessageDialog(this,"Problem opening file:
-				// "+exc.getLocalizedMessage());
+				// JOptionPane.showMessageDialog(this,LocalizationManager.getInstance().get("matrixeater.message.proopen")+exc.getLocalizedMessage());
 				// }
 				// }
 				refreshController();
@@ -4793,7 +4805,7 @@ public class MainPanel extends JPanel
 					optionNames.add(model);
 				}
 				final EditableModel choice = (EditableModel) JOptionPane.showInputDialog(this,
-						"Choose a workspace item to import data from:", "Import from Workspace",
+						LocalizationManager.getInstance().get("matrixeater.dialog.importfromworkspace"), LocalizationManager.getInstance().get("matrixeater.dialog.importfromworkspace_import"),
 						JOptionPane.OK_CANCEL_OPTION, null, optionNames.toArray(), optionNames.get(0));
 				if (choice != null) {
 					importFile(EditableModel.deepClone(choice, choice.getHeaderName()));
@@ -4801,7 +4813,7 @@ public class MainPanel extends JPanel
 				refreshController();
 			}
 			else if (e.getSource() == importButtonS) {
-				final JFrame frame = new JFrame("Animation Transferer");
+				final JFrame frame = new JFrame(LocalizationManager.getInstance().get("matrixeater.frame.animationtransferer"));
 				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 				frame.setContentPane(new AnimationTransfer(frame));
 				frame.setIconImage(RMSIcons.AnimIcon.getImage());
@@ -4810,7 +4822,7 @@ public class MainPanel extends JPanel
 				frame.setVisible(true);
 			}
 			else if (e.getSource() == mergeGeoset) {
-				fc.setDialogTitle("Merge Single Geoset (Oinker-based)");
+				fc.setDialogTitle(LocalizationManager.getInstance().get("matrixeater.dialog.mergegeoset"));
 				final EditableModel current = currentMDL();
 				if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 					fc.setCurrentDirectory(current.getFile().getParentFile());
@@ -4828,7 +4840,7 @@ public class MainPanel extends JPanel
 					Geoset host = null;
 					while (going) {
 						final String s = JOptionPane.showInputDialog(this,
-								"Geoset into which to Import: (1 to " + current.getGeosetsSize() + ")");
+								LocalizationManager.getInstance().get("matrixeater.dialog.geosetinto") + current.getGeosetsSize() + ")");
 						try {
 							final int x = Integer.parseInt(s);
 							if ((x >= 1) && (x <= current.getGeosetsSize())) {
@@ -4844,7 +4856,7 @@ public class MainPanel extends JPanel
 					going = true;
 					while (going) {
 						final String s = JOptionPane.showInputDialog(this,
-								"Geoset to Import: (1 to " + geoSource.getGeosetsSize() + ")");
+								LocalizationManager.getInstance().get("matrixeater.dialog.geosetimport") + geoSource.getGeosetsSize() + ")");
 						try {
 							final int x = Integer.parseInt(s);
 							if (x <= geoSource.getGeosetsSize()) {
@@ -4857,7 +4869,7 @@ public class MainPanel extends JPanel
 						}
 					}
 					newGeoset.updateToObjects(current);
-					System.out.println("putting " + newGeoset.numUVLayers() + " into a nice " + host.numUVLayers());
+					System.out.println("putting " + newGeoset.numUVLayers() + LocalizationManager.getInstance().get("matrixeater.println.numuvlayers") + host.numUVLayers());
 					for (int i = 0; i < newGeoset.numVerteces(); i++) {
 						final GeosetVertex ver = newGeoset.getVertex(i);
 						host.add(ver);
@@ -4878,7 +4890,7 @@ public class MainPanel extends JPanel
 			}
 			else if (e.getSource() == clearRecent) {
 				final int dialogResult = JOptionPane.showConfirmDialog(this,
-						"Are you sure you want to clear the Recent history?", "Confirm Clear",
+						LocalizationManager.getInstance().get("matrixeater.dialog.yes_no"), LocalizationManager.getInstance().get("matrixeater.dialog.yes_no_confirm"),
 						JOptionPane.YES_NO_OPTION);
 				if (dialogResult == JOptionPane.YES_OPTION) {
 					SaveProfile.get().clearRecent();
@@ -4992,7 +5004,7 @@ public class MainPanel extends JPanel
 								if (fileExtension.equals("BMP") || fileExtension.equals("JPG")
 										|| fileExtension.equals("JPEG")) {
 									JOptionPane.showMessageDialog(this,
-											"Warning: Alpha channel was converted to black. Some data will be lost\nif you convert this texture back to Warcraft BLP.");
+											LocalizationManager.getInstance().get("matrixeater.message.exporttextures_warning"));
 									bufferedImage = BLPHandler.removeAlphaChannel(bufferedImage);
 								}
 								if (fileExtension.equals("BLP")) {
@@ -5000,11 +5012,11 @@ public class MainPanel extends JPanel
 								}
 								final boolean write = ImageIO.write(bufferedImage, fileExtension, file);
 								if (!write) {
-									JOptionPane.showMessageDialog(this, "File type unknown or unavailable");
+									JOptionPane.showMessageDialog(this, LocalizationManager.getInstance().get("matrixeater.message.exporttextures_unknown"));
 								}
 							}
 							else {
-								JOptionPane.showMessageDialog(this, LocalizationManager.getInstance().get("matrixeater.dialog.error.no_file_type_specified"));
+								JOptionPane.showMessageDialog(this, LocalizationManager.getInstance().get("matrixeater.message.exporttextures_nofiletype"));
 							}
 						}
 						catch (final IOException e1) {
@@ -5017,7 +5029,7 @@ public class MainPanel extends JPanel
 						}
 					}
 					else {
-						JOptionPane.showMessageDialog(this, "No output file was specified");
+						JOptionPane.showMessageDialog(this, LocalizationManager.getInstance().get("matrixeater.message.exporttextures_nooutput"));
 					}
 				}
 			}
@@ -5042,8 +5054,8 @@ public class MainPanel extends JPanel
 			}
 			else if (e.getSource() == linearizeAnimations) {
 				final int x = JOptionPane.showConfirmDialog(this,
-						"This is an irreversible process that will lose some of your model data,\nin exchange for making it a smaller storage size.\n\nContinue and simplify animations?",
-						"Warning: Linearize Animations", JOptionPane.OK_CANCEL_OPTION);
+						LocalizationManager.getInstance().get("matrixeater.dialog.linearizeanimations"),
+						LocalizationManager.getInstance().get("matrixeater.dialog.linearizeanimations_warn"), JOptionPane.OK_CANCEL_OPTION);
 				if (x == JOptionPane.OK_OPTION) {
 					final List<AnimFlag> allAnimFlags = currentMDL().getAllAnimFlags();
 					for (final AnimFlag flag : allAnimFlags) {
