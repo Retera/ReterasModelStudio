@@ -1757,10 +1757,22 @@ public class MainPanel extends JPanel
 						File configFile = new File(exeFile.getParentFile(), "config.properties");
 
 						// 保存配置
-						try (java.io.FileOutputStream out = new java.io.FileOutputStream(configFile)) {
+						java.io.FileOutputStream out = null;
+						try {
+							out = new java.io.FileOutputStream(configFile);
 							java.util.Properties props = new java.util.Properties();
 							props.setProperty("matrixeater.locale", newLocale.toString());
 							props.store(out, "");
+						} catch (java.io.IOException e) {
+							e.printStackTrace();
+						} finally {
+							if (out != null) {
+								try {
+									out.close();
+								} catch (java.io.IOException e) {
+									e.printStackTrace();
+								}
+							}
 						}
 						try {
 							ProcessBuilder pb = new ProcessBuilder(exePath);
