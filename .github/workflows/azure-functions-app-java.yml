@@ -6,13 +6,13 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest  # 使用Windows最新版本来编译EXE
+    runs-on: windows-latest
     strategy:
       matrix:
         java: [ '17' ]  # 项目需要 JDK 17
 
     steps:
-    - uses: actions/checkout@v4  # 检出仓库代码
+    - uses: actions/checkout@v4
 
     - name: Set up Java
       uses: actions/setup-java@v4
@@ -33,7 +33,7 @@ jobs:
       run: ./gradlew.bat
       working-directory: ./
 
-    - name: Try to create EXE with jpackage
+    - name: create EXE with jpackage
       run: ./gradlew.bat jpackage
       working-directory: ./
       continue-on-error: true
@@ -50,10 +50,3 @@ jobs:
       with:
         name: ReterasModelStudio-EXE
         path: D:/a/ReterasModelStudio/ReterasModelStudio/matrixeater/build/jpackage/matrixeater
-
-
-
-
-
-
-
