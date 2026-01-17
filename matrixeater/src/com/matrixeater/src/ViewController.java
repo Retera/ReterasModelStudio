@@ -6,6 +6,7 @@ import javax.swing.JTabbedPane;
 
 import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.gui.modeledit.ModelViewManagingTree;
+import com.matrixeater.localization.LocalizationManager;
 
 /**
  * A view control, containing several control options
@@ -20,13 +21,13 @@ public class ViewController extends JTabbedPane {
 	public ViewController(final ModelViewManagingTree disp, final boolean spawnFrame) {
 		super();
 		if (spawnFrame) {
-			frame = new JFrame("View Controller");
+			frame = new JFrame(LocalizationManager.getInstance().get("matrixeater.frame.viewcontroller"));
 			frame.setContentPane(this);
 			frame.setIconImage(RMSIcons.redIcon.getImage());
 		}
 		modelViewManagingTree = disp;
 		geoScroll = new JScrollPane(modelViewManagingTree);
-		addTab("", RMSIcons.geoIcon, geoScroll, "Controls visibility");
+		addTab(LocalizationManager.getInstance().get("matrixeater.tab.geoscroll"), RMSIcons.geoIcon, geoScroll, "");
 		if (spawnFrame) {
 			frame.setVisible(true);
 			frame.pack();

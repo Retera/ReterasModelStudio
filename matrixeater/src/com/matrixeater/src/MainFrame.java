@@ -38,6 +38,7 @@ import com.hiveworkshop.wc3.units.UnitOptionPanel;
 import com.hiveworkshop.wc3.user.SaveProfile;
 import com.owens.oobjloader.builder.Build;
 import com.owens.oobjloader.parser.Parse;
+import com.matrixeater.localization.LocalizationManager;
 
 import de.wc3data.image.TgaFile;
 import net.infonode.gui.laf.InfoNodeLookAndFeel;
@@ -80,7 +81,7 @@ public class MainFrame extends JFrame {
 						}
 						final File result = new File(destination);
 						model.printTo(result, alwaysUseMinimalMatricesInHD);
-						System.out.println(RETERA_MODEL_STUDIO_VERSION + " converted: " + result);
+						System.out.println(RETERA_MODEL_STUDIO_VERSION + LocalizationManager.getInstance().get("matrixeater.println.startupmodelpaths") + result);
 					}
 					else if (mdlInput) {
 						final EditableModel model = EditableModel.read(new File(path));
@@ -90,7 +91,7 @@ public class MainFrame extends JFrame {
 						}
 						final File result = new File(destination);
 						model.printTo(result, alwaysUseMinimalMatricesInHD);
-						System.out.println(RETERA_MODEL_STUDIO_VERSION + " converted: " + result);
+						System.out.println(RETERA_MODEL_STUDIO_VERSION + LocalizationManager.getInstance().get("matrixeater.println.startupmodelpaths") + result);
 					}
 					else {
 						String destination = path.substring(0, path.lastIndexOf('.')) + ".mdx";
@@ -104,7 +105,7 @@ public class MainFrame extends JFrame {
 							final EditableModel mdl = builder.createMDL();
 							final File result = new File(destination);
 							mdl.printTo(result, alwaysUseMinimalMatricesInHD);
-							System.out.println(RETERA_MODEL_STUDIO_VERSION + " converted: " + result);
+							System.out.println(RETERA_MODEL_STUDIO_VERSION + LocalizationManager.getInstance().get("matrixeater.println.startupmodelpaths") + result);
 						}
 						catch (final FileNotFoundException e) {
 							ExceptionPopup.display(e);
@@ -129,7 +130,7 @@ public class MainFrame extends JFrame {
 						else {
 							ImageIO.write(sourceImage, destination.substring(destination.lastIndexOf('.') + 1), result);
 						}
-						System.out.println(RETERA_MODEL_STUDIO_VERSION + " converted: " + result);
+						System.out.println(RETERA_MODEL_STUDIO_VERSION + LocalizationManager.getInstance().get("matrixeater.println.startupmodelpaths") + result);
 					}
 					catch (final IOException e) {
 						e.printStackTrace();
@@ -138,7 +139,7 @@ public class MainFrame extends JFrame {
 				}
 				else {
 					System.out.println(
-							"Unable to convert. If you are converting an image, provide an output path to tell me what file extension to save as.");
+							LocalizationManager.getInstance().get("matrixeater.println.startupmodelpaths_unable"));
 				}
 				return;
 			}
@@ -219,7 +220,7 @@ public class MainFrame extends JFrame {
 				break;
 			case WINDOWS:
 				try {
-					UIManager.put("desktop", new ColorUIResource(Color.WHITE));
+					UIManager.put(LocalizationManager.getInstance().get("matrixeater.put.datapromptforced"), new ColorUIResource(Color.WHITE));
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					System.out.println(UIManager.getLookAndFeel());
 				}
@@ -377,7 +378,7 @@ public class MainFrame extends JFrame {
 							final DataSourceChooserPanel dataSourceChooserPanel = new DataSourceChooserPanel(
 									dataSources);
 //							JF
-							final JFrame jFrame = new JFrame(RETERA_MODEL_STUDIO_VERSION + ": Setup");
+							final JFrame jFrame = new JFrame(RETERA_MODEL_STUDIO_VERSION + LocalizationManager.getInstance().get("matrixeater.put.dataprompt_frame"));
 //							jFrame.setContentPane(dataSourceChooserPanel);
 							jFrame.setUndecorated(true);
 							jFrame.pack();
@@ -388,7 +389,7 @@ public class MainFrame extends JFrame {
 							jFrame.setVisible(true);
 							try {
 								if (JOptionPane.showConfirmDialog(jFrame, dataSourceChooserPanel,
-										"Retera Model Studio: Setup", JOptionPane.OK_CANCEL_OPTION,
+										LocalizationManager.getInstance().get("matrixeater.dialog.wingutilities_setup"), JOptionPane.OK_CANCEL_OPTION,
 										JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION) {
 									return;
 								}
@@ -429,8 +430,8 @@ public class MainFrame extends JFrame {
 						}
 						else {
 							JOptionPane.showMessageDialog(null,
-									"Retera Model Studio startup sequence has failed for two attempts. The program will now exit.",
-									"Error", JOptionPane.ERROR_MESSAGE);
+									LocalizationManager.getInstance().get("matrixeater.dialog.wingutilities_exit"),
+									LocalizationManager.getInstance().get("global.dialog.error"), JOptionPane.ERROR_MESSAGE);
 							System.exit(-1);
 						}
 					}
@@ -453,8 +454,8 @@ public class MainFrame extends JFrame {
 					@Override
 					public void run() {
 						JOptionPane.showMessageDialog(null,
-								"Retera Model Studio startup sequence has failed for two attempts. The program will now exit.",
-								"Error", JOptionPane.ERROR_MESSAGE);
+								LocalizationManager.getInstance().get("matrixeater.dialog.swingutilities"),
+								LocalizationManager.getInstance().get("global.dialog.error"), JOptionPane.ERROR_MESSAGE);
 						System.exit(-1);
 					}
 				});
@@ -491,8 +492,8 @@ public class MainFrame extends JFrame {
 		currentThread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 			@Override
 			public void uncaughtException(final Thread t, final Throwable e) {
-				ExceptionPopup.display("Uncaught exception on Thread \"" + t.getName() + "\"", e);
-				System.err.println("Uncaught exception on thread: " + t.getName());
+				ExceptionPopup.display(LocalizationManager.getInstance().get("matrixeater.display.defaultexceptionhandler=") + t.getName() + "\"", e);
+				System.err.println(LocalizationManager.getInstance().get("matrixeater.println.defaultexceptionhandler") + t.getName());
 				e.printStackTrace();
 			}
 		});
