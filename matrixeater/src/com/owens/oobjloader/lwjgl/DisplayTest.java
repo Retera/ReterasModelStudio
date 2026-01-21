@@ -33,13 +33,14 @@ import com.owens.oobjloader.builder.Face;
 import com.owens.oobjloader.builder.FaceVertex;
 import com.owens.oobjloader.builder.Material;
 import com.owens.oobjloader.parser.Parse;
+import com.matrixeater.localization.LocalizationManager;
 
 // Based on tutorial code from http://lwjgl.org/wiki/doku.php/lwjgl/tutorials/opengl/basicopengl
 public class DisplayTest {
     
     private static Logger log = Logger.getLogger(DisplayTest.class.getName());
     
-    public static final String WINDOW_TITLE = "Test OBJ loader";
+    public static final String WINDOW_TITLE = LocalizationManager.getInstance().get("matrixeater.string.displaytest_title");
     /**
      * Desired frame time
      */
@@ -76,7 +77,7 @@ public class DisplayTest {
             run(filename, defaultTextureMaterial);
         } catch (Exception e) {
             e.printStackTrace(System.err);
-            Sys.alert(WINDOW_TITLE, "An error occured and the program will exit.");
+            Sys.alert(WINDOW_TITLE, LocalizationManager.getInstance().get("matrixeater.alert.displaytest_exit"));
         } finally {
             cleanup();
         }

@@ -767,24 +767,24 @@ public class Build implements BuilderInterface {
 			// =========================================
 			if (loadbar.isVisible()) {
 				loadbar.setPercent(0f);
-				loadbar.setText(LocalizationManager.getInstance().get("status.collapsing_mdl_representation"));
+				loadbar.setText(LocalizationManager.getInstance().get("matrixeater.settext.materialtosubgroup_collapsing"));
 			}
 			mdl.doSavePreps(false);
 			if (loadbar.isVisible()) {
 				loadbar.setPercent(0.5f);
-				loadbar.setText(LocalizationManager.getInstance().get("status.preparing_model_editing"));
+				loadbar.setText(LocalizationManager.getInstance().get("matrixeater.settext.materialtosubgroup_preparing"));
 			}
 			mdl.doPostRead();
 			if (loadbar.isVisible()) {
 				loadbar.setPercent(1.0f);
-				loadbar.setText(LocalizationManager.getInstance().get("status.adding_stand_animation"));
+				loadbar.setText(LocalizationManager.getInstance().get("matrixeater.settext.materialtosubgroup_adding_stand"));
 			}
 			mdl.add(new Animation("Stand", 333, 1333));
 			boolean allLessThan2 = true;
 			final int sizeLimit = 10;
 			if (loadbar.isVisible()) {
 				loadbar.setPercent(0.0f);
-				loadbar.setText(LocalizationManager.getInstance().get("status.scanning_wow_sizing"));
+				loadbar.setText(LocalizationManager.getInstance().get("matrixeater.settext.materialtosubgroup_scanning_wow"));
 			}
 			for (final Geoset geo : mdl.getGeosets()) {
 				for (final GeosetVertex gv : geo.getVertices()) {
@@ -800,19 +800,19 @@ public class Build implements BuilderInterface {
 			}
 			if (allLessThan2) {
 				final String[] options = {
-				LocalizationManager.getInstance().get("option.scale_x32"),
-				LocalizationManager.getInstance().get("option.scale_x64"),
-				LocalizationManager.getInstance().get("option.scale_x128"),
-				LocalizationManager.getInstance().get("option.no")
-			};
+					"x32",
+					"x64",
+					"x128",
+					LocalizationManager.getInstance().get("matrixeater.string.materialtosubgroup_option_no")
+				};
 				final int option = JOptionPane.showOptionDialog(null,
-						LocalizationManager.getInstance().get("dialog.wow_scaling.message"),
-						LocalizationManager.getInstance().get("dialog.wow_scaling.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+						LocalizationManager.getInstance().get("matrixeater.dialog.materialtosubgroup_increase_1"),
+						LocalizationManager.getInstance().get("matrixeater.dialog.materialtosubgroup_increase_2"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
 						options[1]);
-				// final int result = JOptionPane.showConfirmDialog(null, "This
-				// model might be a WoW model, or peculiarly small. Would you
-				// like to increase its size?","WoW
-				// Scaling",JOptionPane.YES_NO_OPTION);
+				// final int result = JOptionPane.showConfirmDialog(null, 
+				// LocalizationManager.getInstance().get("matrixeater.dialog.materialtosubgroup_increase_1"),
+				// LocalizationManager.getInstance().get("matrixeater.dialog.materialtosubgroup_increase_2"),
+				// JOptionPane.YES_NO_OPTION);
 				if (option != JOptionPane.CLOSED_OPTION && option != 3) {
 					final int factor = (int) (32 * Math.pow(2, option));
 					for (final Geoset geo : mdl.getGeosets()) {
@@ -831,7 +831,7 @@ public class Build implements BuilderInterface {
 			}
 			if (loadbar.isVisible()) {
 				loadbar.setPercent(0.0f);
-				loadbar.setText(LocalizationManager.getInstance().get("status.scanning_convertable_textures"));
+				loadbar.setText(LocalizationManager.getInstance().get("matrixeater.settext.materialtosubgroup_scan_textures"));
 			}
 			boolean hasPNGs = false;
 			int index = 0;
@@ -847,15 +847,15 @@ public class Build implements BuilderInterface {
 				}
 				if (loadbar.isVisible()) {
 					loadbar.setPercent(index / (float) mdl.getMaterials().size());
-					loadbar.setText(LocalizationManager.getInstance().get("status.scanning_convertable_textures"));
+					loadbar.setText(LocalizationManager.getInstance().get("matrixeater.settext.materialtosubgroup_scan_textures"));
 					index++;
 				}
 			}
 			boolean userWantsSwapToBLP = false;
 			if (hasPNGs) {
 				final int result = JOptionPane.showConfirmDialog(null,
-						LocalizationManager.getInstance().get("dialog.convert_textures.message"),
-						LocalizationManager.getInstance().get("dialog.convert_textures.title"), JOptionPane.YES_NO_OPTION);
+						LocalizationManager.getInstance().get("matrixeater.dialog.materialtosubgroup_generated"),
+						LocalizationManager.getInstance().get("matrixeater.dialog.materialtosubgroup_convert_textures"), JOptionPane.YES_NO_OPTION);
 				userWantsSwapToBLP = result == JOptionPane.YES_OPTION;
 			}
 			final File objFile = new File(objFilename);
@@ -867,7 +867,7 @@ public class Build implements BuilderInterface {
 			}
 			if (loadbar.isVisible()) {
 				loadbar.setPercent(0.0f);
-				loadbar.setText(LocalizationManager.getInstance().get("status.converting_textures"));
+				loadbar.setText(LocalizationManager.getInstance().get("matrixeater.settext.materialtosubgroup_converting_textures"));
 				index = 0;
 			}
 			for (final com.hiveworkshop.wc3.mdl.Material material : mdl.getMaterials()) {
@@ -894,7 +894,7 @@ public class Build implements BuilderInterface {
 									imageData = TargaReader.getImage(imageFilePNG.getPath());
 								}
 								if (imageData == null) {
-									throw new RuntimeException("Java/MatrixEater failed to read image data: "
+									throw new RuntimeException(LocalizationManager.getInstance().get("matrixeater.exception.materialtosubgroup_readimage")
 											+ imageFilePNG.getAbsolutePath());
 								}
 								final File imageFileBLP = new File(
@@ -905,7 +905,7 @@ public class Build implements BuilderInterface {
 								// BlpFile.writePalettedBLP(imageData,
 								// imageFileBLP, true, true, false);
 							} catch (final Exception e) {
-								ExceptionPopup.display(LocalizationManager.getInstance().get("error.unable_convert_png") + ": " + imageFilePNG.toString(), e);
+								ExceptionPopup.display(LocalizationManager.getInstance().get("matrixeater.display.materialtosubgroup_unable_convert_png") + ": " + imageFilePNG.toString(), e);
 							}
 						}
 						name = name.substring(0, name.lastIndexOf('.')) + ".blp";
@@ -913,7 +913,7 @@ public class Build implements BuilderInterface {
 					}
 					if (loadbar.isVisible()) {
 						loadbar.setPercent(index / (float) nLayers);
-						loadbar.setText(LocalizationManager.getInstance().get("status.converting_textures"));
+						loadbar.setText(LocalizationManager.getInstance().get("matrixeater.settext.materialtosubgroup_converting_textures"));
 						index++;
 					}
 				}
@@ -921,7 +921,7 @@ public class Build implements BuilderInterface {
 			if (userWantsSwapToBLP) {
 				if (loadbar.isVisible()) {
 					loadbar.setPercent(0);
-					loadbar.setText(LocalizationManager.getInstance().get("status.saving_file"));
+					loadbar.setText(LocalizationManager.getInstance().get("matrixeater.settext.materialtosubgroup_saving_file"));
 				}
 				mdl.saveFile(false);
 			}
@@ -936,7 +936,7 @@ public class Build implements BuilderInterface {
 	private void convertMesh(final EditableModel mdl, final Set<Face> processedFaces, final String groupName,
 			final Map<Material, Subgroup> materialToSubgroup, final ArrayList<Face> faceList) {
 		if (loadbar.isVisible()) {
-			loadbar.setText(String.format(LocalizationManager.getInstance().get("status.converting_group"), groupName));
+			loadbar.setText(String.format(LocalizationManager.getInstance().get("matrixeater.settext.materialtosubgroup_converting"), groupName));
 		}
 		FaceIteration: for (final Face face : faceList) {
 			if (processedFaces.contains(face)) {
@@ -1031,13 +1031,9 @@ public class Build implements BuilderInterface {
 				for (final Layer layer : layers) {
 					layer.getShaderTextures().get(ShaderTextureTypeHD.Diffuse).setWrapHeight(true);
 					layer.getShaderTextures().get(ShaderTextureTypeHD.Diffuse).setWrapWidth(true);
-					// JOptionPane.showMessageDialog(null, "One or more meshes
-					// were imported with texture coordinates stretching outside
-					// the texture.\n\nThese will not render correctly in the
-					// Matrix Eater viewport, but their\ncorresponding textures
-					// will be flagged to WrapWidth and WrapHeight and
-					// render\ncorrectly in the Warcraft III game and Magos's
-					// viewer.");
+					// JOptionPane.showMessageDialog(null, 
+					// LocalizationManager.getInstance().get("matrixeater.dialog.materialtosubgroup_mdlmaterial")
+					// );
 				}
 			}
 			geo.setMaterial(mdlMaterial);
@@ -1107,7 +1103,7 @@ public class Build implements BuilderInterface {
 			break;
 		// 9. Transparency: Glass on, Reflection: Ray trace off
 		case 10:
-			ExceptionPopup.display("Casting shadows not supported in WC3", new Exception("Not supported"));
+			ExceptionPopup.display(LocalizationManager.getInstance().get("matrixeater.exception.materialtosubgroup_shadows_1"), new Exception(LocalizationManager.getInstance().get("matrixeater.exception.materialtosubgroup_shadows_2")));
 			break;
 		// 10. Casts shadows onto invisible surfaces
 		}

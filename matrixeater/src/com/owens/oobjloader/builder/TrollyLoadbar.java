@@ -21,10 +21,10 @@ public class TrollyLoadbar {
 	private final JLabel text;
 	private final JProgressBar bar;
 	public TrollyLoadbar() {
-		frame = new JFrame(LocalizationManager.getInstance().get("status.loading"));
+		frame = new JFrame(LocalizationManager.getInstance().get("matrixeater.frame.trollyloadbar"));
 		frame.setUndecorated(true);
 		panel = new JPanel();
-		text = new JLabel(LocalizationManager.getInstance().get("status.loading"));
+		text = new JLabel(LocalizationManager.getInstance().get("matrixeater.label.trollyloadbar"));
 		bar = new JProgressBar(0, 100);
 		bar.setPreferredSize(new Dimension(270,20));
 		panel.add(text);

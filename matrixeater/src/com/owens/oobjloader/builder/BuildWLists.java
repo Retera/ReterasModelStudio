@@ -775,17 +775,18 @@ public class BuildWLists implements BuilderInterface {
 		}
 		if (allLessThan2) {
 			final String[] options = {
-				LocalizationManager.getInstance().get("option.scale_x32"),
-				LocalizationManager.getInstance().get("option.scale_x64"),
-				LocalizationManager.getInstance().get("option.scale_x128"),
-				LocalizationManager.getInstance().get("option.no")
+				"x32",
+				"x64",
+				"x128",
+				LocalizationManager.getInstance().get("matrixeater.string.buildwlists_option_no")
 			};
 			final int option = JOptionPane.showOptionDialog(null,
-					LocalizationManager.getInstance().get("dialog.wow_scaling.message"),
-					LocalizationManager.getInstance().get("dialog.wow_scaling.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
-			// final int result = JOptionPane.showConfirmDialog(null, "This
-			// model might be a WoW model, or peculiarly small. Would you like
-			// to increase its size?","WoW Scaling",JOptionPane.YES_NO_OPTION);
+					LocalizationManager.getInstance().get("matrixeater.dialog.buildwlists_increase_1"),
+					LocalizationManager.getInstance().get("matrixeater.dialog.buildwlists_increase_2"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
+			// final int result = JOptionPane.showConfirmDialog(null,
+			// LocalizationManager.getInstance().get("matrixeater.dialog.buildwlists_increase_1"),
+			// LocalizationManager.getInstance().get("matrixeater.dialog.buildwlists_increase_2"),
+			// JOptionPane.YES_NO_OPTION);
 			if (option != JOptionPane.CLOSED_OPTION && option != 3) {
 				final int factor = (int) (32 * Math.pow(2, option));
 				for (final Geoset geo : mdl.getGeosets()) {
@@ -815,8 +816,8 @@ public class BuildWLists implements BuilderInterface {
 		boolean userWantsSwapToBLP = false;
 		if (hasPNGs) {
 			final int result = JOptionPane.showConfirmDialog(null,
-				LocalizationManager.getInstance().get("dialog.convert_textures.message"),
-				LocalizationManager.getInstance().get("dialog.convert_textures.title"), JOptionPane.YES_NO_OPTION);
+				LocalizationManager.getInstance().get("matrixeater.settext.userwantsswaptoblp_1"),
+				LocalizationManager.getInstance().get("matrixeater.settext.userwantsswaptoblp_2"), JOptionPane.YES_NO_OPTION);
 			userWantsSwapToBLP = result == JOptionPane.YES_OPTION;
 		}
 		final File objFile = new File(objFilename);
@@ -850,7 +851,7 @@ public class BuildWLists implements BuilderInterface {
 								imageData = TargaReader.getImage(imageFilePNG.getPath());
 							}
 							if (imageData == null) {
-								throw new RuntimeException("Java/MatrixEater failed to read image data: "
+								throw new RuntimeException(LocalizationManager.getInstance().get("matrixeater.exception.imagefilepng")
 										+ imageFilePNG.getAbsolutePath());
 							}
 							final File imageFileBLP = new File(
@@ -861,7 +862,7 @@ public class BuildWLists implements BuilderInterface {
 							// BlpFile.writePalettedBLP(imageData, imageFileBLP,
 							// true, true, false);
 						} catch (final Exception e) {
-							ExceptionPopup.display(LocalizationManager.getInstance().get("error.unable_convert_png"), e);
+							ExceptionPopup.display(LocalizationManager.getInstance().get("matrixeater.display.imagefilepng"), e);
 						}
 					}
 					name = name.replace(".png", ".blp").replace(".PNG", ".BLP");
@@ -958,13 +959,8 @@ public class BuildWLists implements BuilderInterface {
 				for (final Layer layer : layers) {
 					layer.getShaderTextures().get(ShaderTextureTypeHD.Diffuse).setWrapHeight(true);
 					layer.getShaderTextures().get(ShaderTextureTypeHD.Diffuse).setWrapWidth(true);
-					// JOptionPane.showMessageDialog(null, "One or more meshes
-					// were imported with texture coordinates stretching outside
-					// the texture.\n\nThese will not render correctly in the
-					// Matrix Eater viewport, but their\ncorresponding textures
-					// will be flagged to WrapWidth and WrapHeight and
-					// render\ncorrectly in the Warcraft III game and Magos's
-					// viewer.");
+					// JOptionPane.showMessageDialog(null,
+					// LocalizationManager.getInstance().get("matrixeater.dialog.noteformatrixeateraboutwrap"));
 				}
 			}
 			geo.setMaterial(mdlMaterial);
@@ -1034,7 +1030,7 @@ public class BuildWLists implements BuilderInterface {
 			break;
 		// 9. Transparency: Glass on, Reflection: Ray trace off
 		case 10:
-			ExceptionPopup.display("Casting shadows not supported in WC3", new Exception("Not supported"));
+			ExceptionPopup.display(LocalizationManager.getInstance().get("matrixeater.exception.convertmaterial_1"), new Exception(LocalizationManager.getInstance().get("matrixeater.exception.convertmaterial_2")));
 			break;
 		// 10. Casts shadows onto invisible surfaces
 		}
