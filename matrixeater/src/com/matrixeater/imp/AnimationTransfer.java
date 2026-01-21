@@ -31,6 +31,7 @@ import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.user.SaveProfile;
 import com.matrixeater.src.MainFrame;
 import com.matrixeater.src.MainPanel;
+import com.matrixeater.localization.LocalizationManager;
 
 public class AnimationTransfer extends JPanel implements ActionListener {
 	JLabel baseFileLabel, animFileLabel, outFileLabel, transSingleLabel, pickAnimLabel, visFromLabel;
@@ -57,7 +58,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 			fc.setCurrentDirectory(new File(SaveProfile.get().getPath()));
 		}
 
-		baseFileLabel = new JLabel("Base file:");
+		baseFileLabel = new JLabel(LocalizationManager.getInstance().get("matrixeater.label.basefilelabel"));
 		baseFileInput = new JTextField("");
 		baseFileInput.setMinimumSize(new Dimension(200, 18));
 		baseBrowse = new JButton("...");
@@ -67,7 +68,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 		baseBrowse.setPreferredSize(dim);
 		baseBrowse.addActionListener(this);
 
-		animFileLabel = new JLabel("Animation file:");
+		animFileLabel = new JLabel(LocalizationManager.getInstance().get("matrixeater.label.animfilelabel"));
 		animFileInput = new JTextField("");
 		animFileInput.setMinimumSize(new Dimension(200, 18));
 		animBrowse = new JButton("...");
@@ -76,7 +77,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 		animBrowse.setPreferredSize(dim);
 		animBrowse.addActionListener(this);
 
-		outFileLabel = new JLabel("Output file:");
+		outFileLabel = new JLabel(LocalizationManager.getInstance().get("matrixeater.label.outfilelabel"));
 		outFileInput = new JTextField("");
 		outFileInput.setMinimumSize(new Dimension(200, 18));
 		outBrowse = new JButton("...");
@@ -87,31 +88,31 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 
 		transferSingleAnimation = new JCheckBox("", false);
 		transferSingleAnimation.addActionListener(this);
-		transSingleLabel = new JLabel("Transfer single animation:");
+		transSingleLabel = new JLabel(LocalizationManager.getInstance().get("matrixeater.label.transsinglelabel"));
 
-		pickAnimLabel = new JLabel("Animation to transfer:");
+		pickAnimLabel = new JLabel(LocalizationManager.getInstance().get("matrixeater.label.pickanimlabel"));
 		pickAnimBox = new JComboBox<>();
 		pickAnimBox.setEnabled(false);
 
-		visFromLabel = new JLabel("Get visibility from:");
+		visFromLabel = new JLabel(LocalizationManager.getInstance().get("matrixeater.label.visfromlabel"));
 		visFromBox = new JComboBox<>();
 		visFromBox.setEnabled(false);
 
-		transfer = new JButton("Transfer");
+		transfer = new JButton(LocalizationManager.getInstance().get("matrixeater.button.transfer"));
 		transfer.setMnemonic(KeyEvent.VK_T);
 		transfer.setMinimumSize(new Dimension(200, 35));
 		transfer.addActionListener(this);
 
-		done = new JButton("Done");
+		done = new JButton(LocalizationManager.getInstance().get("matrixeater.button.done"));
 		done.setMnemonic(KeyEvent.VK_D);
 		done.setMinimumSize(new Dimension(80, 35));
 		done.addActionListener(this);
 
-		goAdvanced = new JButton("Go Advanced");
+		goAdvanced = new JButton(LocalizationManager.getInstance().get(""));
 		goAdvanced.setMnemonic(KeyEvent.VK_G);
 		goAdvanced.addActionListener(this);
 		goAdvanced.setToolTipText(
-				"Opens the traditional MatrixEater Import window responsible for this Simple Import, so that you can micro-manage particular settings before finishing the operation.");
+				LocalizationManager.getInstance().get("matrixeater.settooltiptext.goadvanced"));
 
 		final GroupLayout layout = new GroupLayout(this);
 		layout.setHorizontalGroup(layout.createSequentialGroup().addGap(12).addGroup(layout
@@ -179,12 +180,12 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 		// if( (sourceFile == null && !baseFileInput.getText().equals("")) ||
 		// !baseFileInput.getText().equals(sourceFile.getFile().getPath()) ) {
 		sourceFile = EditableModel.read(new File(baseFileInput.getText()));
-		// JOptionPane.showMessageDialog(null,"Reloaded base model");
+		// JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("matrixeater.dialog.forcerefreshmodels_base"));
 		// }
 		// if( (animFile == null && !animFileInput.getText().equals("")) ||
 		// !animFileInput.getText().equals(animFile.getFile().getPath()) ) {
 		animFile = EditableModel.read(new File(animFileInput.getText()));
-		// JOptionPane.showMessageDialog(null,"Reloaded anim model");
+		// JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("matrixeater.dialog.forcerefreshmodels_anim"));
 		// }
 		updateBoxes();
 	}
@@ -239,7 +240,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(final ActionEvent e) {
 		if (e.getSource() == baseBrowse) {
-			fc.setDialogTitle("Open");
+			fc.setDialogTitle(LocalizationManager.getInstance().get("matrixeater.dialog.actionperformed_title_base"));
 			final int returnValue = fc.showOpenDialog(this);
 
 			if (returnValue == JFileChooser.APPROVE_OPTION) {
@@ -252,7 +253,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 				updateBoxes();
 			}
 		} else if (e.getSource() == animBrowse) {
-			fc.setDialogTitle("Open");
+			fc.setDialogTitle(LocalizationManager.getInstance().get("matrixeater.dialog.actionperformed_title_anim"));
 			final int returnValue = fc.showOpenDialog(this);
 
 			if (returnValue == JFileChooser.APPROVE_OPTION) {
@@ -265,7 +266,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 				updateBoxes();
 			}
 		} else if (e.getSource() == outBrowse) {
-			fc.setDialogTitle("Save");
+			fc.setDialogTitle(LocalizationManager.getInstance().get("matrixeater.dialog.actionperformed_title_out"));
 			final int returnValue = fc.showSaveDialog(this);
 
 			if (returnValue == JFileChooser.APPROVE_OPTION) {
@@ -289,7 +290,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 			// visFromBox.getItemAt(visFromBox.getSelectedIndex()),false);
 			//
 			// sourceFile.printTo(new File(outFileInput.getText()));
-			// JOptionPane.showMessageDialog(null, "Animation transfer done!");
+			// JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("matrixeater.dialog.forcerefreshmodels_outfileinput"));
 			//
 			// forceRefreshModels();
 			// }
@@ -312,7 +313,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 			// visFromBox.getItemAt(visFromBox.getSelectedIndex()),false);
 			//
 			// sourceFile.printTo(new File(outFileInput.getText()));
-			// JOptionPane.showMessageDialog(null, "Animation transfer done!");
+			// JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("matrixeater.dialog.forcerefreshmodels_outfileinput"));
 			//
 			// forceRefreshModels();
 			//
@@ -344,20 +345,18 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 							visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
 					while (importPanel.getParentFrame().isVisible()
 							&& (!importPanel.importStarted() || importPanel.importEnded())) {
-						// JOptionPane.showMessageDialog(null, "check 1!");
+						// JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("matrixeater.dialog.dotransfer_check1"));
 						try {
 							Thread.sleep(1);
 						} catch (final Exception e) {
-							ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
+							ExceptionPopup.display(LocalizationManager.getInstance().get("matrixeater.display.dotransfer"), e);
 						}
 					}
 					// if( !importPanel.getParentFrame().isVisible() &&
 					// !importPanel.importEnded() )
-					// JOptionPane.showMessageDialog(null,"bad voodoo
-					// "+importPanel.importSuccessful());
+					// JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("matrixeater.dialog.dotransfer_bad")+importPanel.importSuccessful());
 					// else
-					// JOptionPane.showMessageDialog(null,"good voodoo
-					// "+importPanel.importSuccessful());
+					// JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("matrixeater.dialog.dotransfer_good")+importPanel.importSuccessful());
 					// if( importPanel.importSuccessful() )
 					// {
 					// newModel.saveFile();
@@ -366,11 +365,11 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 
 					if (importPanel.importStarted()) {
 						while (!importPanel.importEnded()) {
-							// JOptionPane.showMessageDialog(null, "check 2!");
+							// JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("matrixeater.dialog.dotransfer_check2"));
 							try {
 								Thread.sleep(1);
 							} catch (final Exception e) {
-								ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
+								ExceptionPopup.display(LocalizationManager.getInstance().get("matrixeater.display.dotransfer"), e);
 							}
 						}
 
@@ -383,7 +382,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 								filepath += ".mdl";
 							}
 							sourceFile.printTo(new File(filepath), preferences.isAlwaysUseMinimalMatricesInHD());
-							JOptionPane.showMessageDialog(null, "Animation transfer done!");
+							JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("matrixeater.dialog.dotransfer_done"));
 						}
 					}
 
@@ -404,20 +403,18 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 					// importPanel.importEnded()) )
 					while (importPanel.getParentFrame().isVisible()
 							&& (!importPanel.importStarted() || importPanel.importEnded())) {
-						// JOptionPane.showMessageDialog(null, "check 1!");
+						// JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("matrixeater.dialog.dotransfer_check1"));
 						try {
 							Thread.sleep(1);
 						} catch (final Exception e) {
-							ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
+							ExceptionPopup.display(LocalizationManager.getInstance().get("matrixeater.display.dotransfer"), e);
 						}
 					}
 					// if( !importPanel.getParentFrame().isVisible() &&
 					// !importPanel.importEnded() )
-					// JOptionPane.showMessageDialog(null,"bad voodoo
-					// "+importPanel.importSuccessful());
+					// JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("matrixeater.dialog.dotransfer_bad")+importPanel.importSuccessful());
 					// else
-					// JOptionPane.showMessageDialog(null,"good voodoo
-					// "+importPanel.importSuccessful());
+					// JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("matrixeater.dialog.dotransfer_good")+importPanel.importSuccessful());
 					// if( importPanel.importSuccessful() )
 					// {
 					// newModel.saveFile();
@@ -426,16 +423,15 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 
 					if (importPanel.importStarted()) {
 						while (!importPanel.importEnded()) {
-							// JOptionPane.showMessageDialog(null, "check 2!");
+							// JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("matrixeater.dialog.dotransfer_check2"));
 							try {
 								Thread.sleep(1);
 							} catch (final Exception e) {
-								ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
+								ExceptionPopup.display(LocalizationManager.getInstance().get("matrixeater.display.dotransfer"), e);
 							}
 						}
 
-						// JOptionPane.showMessageDialog(null, "Animation
-						// transfer 99% done!");
+						// JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("matrixeater.dialog.dotransfer_just_done"));
 
 						if (importPanel.importSuccessful()) {
 							final ImportPanel importPanel2 = new ImportPanel(sourceFile,
@@ -446,21 +442,18 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 
 							while (importPanel2.getParentFrame().isVisible()
 									&& (!importPanel2.importStarted() || importPanel2.importEnded())) {
-								// JOptionPane.showMessageDialog(null, "check
-								// 1!");
+								// JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("matrixeater.dialog.dotransfer_check1"));
 								try {
 									Thread.sleep(1);
 								} catch (final Exception e) {
-									ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
+									ExceptionPopup.display(LocalizationManager.getInstance().get("matrixeater.display.dotransfer"), e);
 								}
 							}
 							// if( !importPanel.getParentFrame().isVisible() &&
 							// !importPanel.importEnded() )
-							// JOptionPane.showMessageDialog(null,"bad voodoo
-							// "+importPanel.importSuccessful());
+							// JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("matrixeater.dialog.dotransfer_bad")+importPanel.importSuccessful());
 							// else
-							// JOptionPane.showMessageDialog(null,"good voodoo
-							// "+importPanel.importSuccessful());
+							// JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("matrixeater.dialog.dotransfer_good")+importPanel.importSuccessful());
 							// if( importPanel.importSuccessful() )
 							// {
 							// newModel.saveFile();
@@ -469,21 +462,18 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 
 							if (importPanel2.importStarted()) {
 								while (!importPanel2.importEnded()) {
-									// JOptionPane.showMessageDialog(null,
-									// "check 2!");
+									// JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("matrixeater.dialog.dotransfer_check2"));
 									try {
 										Thread.sleep(1);
 									} catch (final Exception e) {
-										ExceptionPopup.display("MatrixEater detected error with Java's wait function",
-												e);
+										ExceptionPopup.display(LocalizationManager.getInstance().get("matrixeater.display.dotransfer"), e);
 									}
 								}
 
-								// JOptionPane.showMessageDialog(null,
-								// "Animation transfer 99% done!");
+								// JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("matrixeater.dialog.dotransfer_just_done"));
 
 								if (importPanel2.importSuccessful()) {
-									JOptionPane.showMessageDialog(null, "Animation transfer done!");
+									JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("matrixeater.dialog.dotransfer_done"));
 									sourceFile.printTo(new File(outFileInput.getText()),
 											preferences.isAlwaysUseMinimalMatricesInHD());
 

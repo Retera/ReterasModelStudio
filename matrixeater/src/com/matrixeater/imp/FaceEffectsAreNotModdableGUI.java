@@ -7,16 +7,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import com.matrixeater.localization.LocalizationManager;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.EditableModel;
+import com.matrixeater.localization.LocalizationManager;
 
 public class FaceEffectsAreNotModdableGUI extends JPanel {
 	public FaceEffectsAreNotModdableGUI(final EditableModel model) {
-		final JLabel audioFileLabel = new JLabel("Audio File:");
+		final JLabel audioFileLabel = new JLabel(LocalizationManager.getInstance().get("matrixeater.label.audiofilelabel"));
 		final JTextField audioFilePath = new JTextField();
-		final JButton audioFileBrowseBtn = new JButton(LocalizationManager.getInstance().get("button.browse"));
-		final JLabel baseSequenceLabel = new JLabel("Base Sequence:");
+		final JButton audioFileBrowseBtn = new JButton(LocalizationManager.getInstance().get("matrixeater.button.audiofilebrowse"));
+		final JLabel baseSequenceLabel = new JLabel(LocalizationManager.getInstance().get("matrixeater.label.basesequencelabel"));
 		final DefaultComboBoxModel<Animation> animations = new DefaultComboBoxModel<>();
 		final JComboBox<Animation> baseSequenceChooser = new JComboBox<>();
 	}

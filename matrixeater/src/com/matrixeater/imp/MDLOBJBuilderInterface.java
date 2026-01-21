@@ -17,6 +17,7 @@ import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.owens.oobjloader.parser.BuilderInterface;
+import com.matrixeater.localization.LocalizationManager;
 
 public class MDLOBJBuilderInterface implements BuilderInterface {
 
@@ -38,7 +39,7 @@ public class MDLOBJBuilderInterface implements BuilderInterface {
 
 	@Override
 	public void addVertexGeometric(final float x, final float y, final float z) {
-		System.out.println("addVertexGeometric(" + x + "," + y + "," + z + ")");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.addvertexgeometric") + x + "," + y + "," + z + ")");
 		final GeosetVertex v = new GeosetVertex(x, y, z);
 		currentGeoset.add(v);
 		v.setGeoset(currentGeoset);
@@ -46,29 +47,29 @@ public class MDLOBJBuilderInterface implements BuilderInterface {
 
 	@Override
 	public void addVertexTexture(final float u, final float v) {
-		System.out.println("addVertexTexture(" + u + "," + v + ")");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.addvertextexture") + u + "," + v + ")");
 		tvertices.add(new TVertex(u, v));
 	}
 
 	@Override
 	public void addVertexNormal(final float x, final float y, final float z) {
-		System.out.println("addVertexNormal(" + x + "," + y + "," + z + ")");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.addvertexnormal") + x + "," + y + "," + z + ")");
 		normals.add(new Normal(x, y, z));
 	}
 
 	@Override
 	public void addPoints(final int[] values) {
-		throw new RuntimeException("addPoints not yet implemented for OBJ->MDL converter");
+		throw new RuntimeException(LocalizationManager.getInstance().get("matrixeater.exception.addpoints"));
 	}
 
 	@Override
 	public void addLine(final int[] values) {
-		throw new RuntimeException("addLine not yet implemented for OBJ->MDL converter");
+		throw new RuntimeException(LocalizationManager.getInstance().get("matrixeater.exception.addline"));
 	}
 
 	@Override
 	public void addFace(final int[] vertexIndices) {
-		System.out.println("addFace(" + Arrays.toString(vertexIndices) + ")");
+		System.out.println(LocalizationManager.getInstance().get("") + Arrays.toString(vertexIndices) + ")");
 //		currentGeoset.addTriangle(new Triangle(vertexIndices[0],vertexIndices[1],vertexIndices[2]));
 //		if( vertexIndices.length > 3 ) {
 //			currentGeoset.addTriangle(new Triangle(vertexIndices[2],vertexIndices[3],vertexIndices[0]));
@@ -77,7 +78,7 @@ public class MDLOBJBuilderInterface implements BuilderInterface {
 
 	@Override
 	public void addObjectName(final String name) {
-		System.out.println("addObjectName(" + name + ")");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.addobjectname") + name + ")");
 //		model.add(new Bone(name));
 //		if( currentGeoset != null ) {
 //			model.add(currentGeoset);
@@ -87,92 +88,92 @@ public class MDLOBJBuilderInterface implements BuilderInterface {
 
 	@Override
 	public void addMapLib(final String[] names) {
-		System.out.println("addMapLib" + Arrays.toString(names));
-		throw new RuntimeException("addMapLib not yet implemented for OBJ->MDL converter");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.addmaplib") + Arrays.toString(names));
+		throw new RuntimeException("");
 	}
 
 	@Override
 	public void setCurrentGroupNames(final String[] names) {
-		System.out.println("setCurrentGroupNames" + Arrays.toString(names));
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.exception.addmaplib") + Arrays.toString(names));
 	}
 
 	@Override
 	public void setCurrentSmoothingGroup(final int groupNumber) {
-		System.out.println("setCurrentSmoothingGroup(" + groupNumber + ")");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.setcurrentsmoothinggroup") + groupNumber + ")");
 	}
 
 	@Override
 	public void setCurrentUseMap(final String name) {
-		System.out.println("setCurrentUseMap(" + name + ")");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.setcurrentusemap") + name + ")");
 	}
 
 	@Override
 	public void setCurrentUseMaterial(final String name) {
-		System.out.println("setCurrentUseMaterial(" + name + ")");
-		final Layer lay = new Layer("None", -1);
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.setcurrentusematerial") + name + ")");
+		final Layer lay = new Layer(LocalizationManager.getInstance().get("matrixeater.layer.setcurrentusematerial"), -1);
 		currentGeoset.setMaterial(new Material(lay));
 		lay.getShaderTextures().put(ShaderTextureTypeHD.Diffuse, new Bitmap(name, -1));
 	}
 
 	@Override
 	public void newMtl(final String name) {
-		System.out.println("newMtl(" + name + ")");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.newmtl") + name + ")");
 
 	}
 
 	@Override
 	public void setXYZ(final int type, final float x, final float y, final float z) {
-		System.out.println("newMtl(type=" + type + ",x=" + x + ",y=" + y + ",z=" + z + ")");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.xyz") + type + ",x=" + x + ",y=" + y + ",z=" + z + ")");
 	}
 
 	@Override
 	public void setRGB(final int type, final float r, final float g, final float b) {
-		System.out.println("setRGB(type=" + type + ",r=" + r + ",g=" + g + ",b=" + b + ")");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.rgb") + type + ",r=" + r + ",g=" + g + ",b=" + b + ")");
 	}
 
 	@Override
 	public void setIllum(final int illumModel) {
-		System.out.println("setIllum(illumModel=" + illumModel + ")");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.illummodel") + illumModel + ")");
 	}
 
 	@Override
 	public void setD(final boolean halo, final float factor) {
-		System.out.println("setD(halo=" + halo + ",factor=" + factor + ")");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.setd_1") + halo + LocalizationManager.getInstance().get("matrixeater.println.setd_2") + factor + ")");
 	}
 
 	@Override
 	public void setNs(final float exponent) {
-		System.out.println("setNs(exponent=" + exponent + ")");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.setns") + exponent + ")");
 	}
 
 	@Override
 	public void setSharpness(final float value) {
-		System.out.println("setSharpness(value=" + value + ")");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.setsharpness") + value + ")");
 	}
 
 	@Override
 	public void setNi(final float opticalDensity) {
-		System.out.println("setNi(opticalDensity=" + opticalDensity + ")");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.setni") + opticalDensity + ")");
 	}
 
 	@Override
 	public void setMapDecalDispBump(final int type, final String filename) {
-		System.out.println("setMapDecalDispBump(type=" + type + ",filename=" + filename + ")");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.setmapdecaldispbump_1") + type + LocalizationManager.getInstance().get("matrixeater.println.setmapdecaldispbump_2") + filename + ")");
 	}
 
 	@Override
 	public void setRefl(final int type, final String filename) {
-		System.out.println("setRefl(type=" + type + ",filename=" + filename + ")");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.setrefl_1") + type + LocalizationManager.getInstance().get("matrixeater.println.setrefl_2") + filename + ")");
 	}
 
 	@Override
 	public void doneParsingMaterial() {
-		System.out.println("doneParsingMaterial()");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.doneparsingmaterial"));
 	}
 
 	@Override
 	public void doneParsingObj(final String filename) {
-		System.out.println("doneParsingObj(filename=" + filename + ")");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.doneparsiongobj") + filename + ")");
 	}
 
 	public EditableModel createModel() {
