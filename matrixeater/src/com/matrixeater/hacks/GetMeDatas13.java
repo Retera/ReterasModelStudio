@@ -7,6 +7,7 @@ import com.hiveworkshop.wc3.mdx.MaterialChunk;
 import com.hiveworkshop.wc3.mdx.MdxModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
+import com.matrixeater.localization.LocalizationManager;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 
@@ -42,13 +43,13 @@ public class GetMeDatas13 {
 			}
 			index++;
 			if ((index % 600) == 0) {
-				System.out.println("Reading... " + index + "/" + listFileSize);
+				System.out.println(LocalizationManager.getInstance().get("matrixeater.println.getmedatas13_main_read") + index + "/" + listFileSize);
 			}
 		}
 		for (int i = 0; i < tallies.length; i++) {
 			System.out.println(i + ": " + tallies[i]);
 		}
-		System.out.println("Crazy outliers: " + crazyOutliers);
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.getmedatas13_main_out") + crazyOutliers);
 	}
 
 }

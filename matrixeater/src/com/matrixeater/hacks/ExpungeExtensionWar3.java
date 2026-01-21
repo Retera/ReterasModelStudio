@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.matrixeater.localization.LocalizationManager;
+
 public final class ExpungeExtensionWar3 {
 	private static final List<String> failed = new ArrayList<>();
 	private static final List<String> passed = new ArrayList<>();
@@ -11,15 +13,15 @@ public final class ExpungeExtensionWar3 {
 
 	public static void main(final String[] args) {
 		if (args.length != 1) {
-			System.err.println("Usage: <mutableModelsDirectory>");
+			System.err.println(LocalizationManager.getInstance().get("matrixeater.println.expungeextension_main_usage"));
 			System.exit(-1);
 		}
 		final File target = new File(args[0]);
 		root = target;
 		squish(target);
-		System.out.println("Passed: " + passed.size());
-		System.out.println("Failed: " + failed.size());
-		System.out.println("Fail list:");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.expungeextension_main_passed") + passed.size());
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.expungeextension_main_failed") + failed.size());
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.expungeextension_main_faillist"));
 		for (final String failedName : failed) {
 			System.out.println(failedName);
 		}

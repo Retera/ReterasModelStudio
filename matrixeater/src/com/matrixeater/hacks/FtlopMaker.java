@@ -12,6 +12,7 @@ import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
+import com.matrixeater.localization.LocalizationManager;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 
@@ -29,10 +30,10 @@ public class FtlopMaker {
 		}
 		final String outputDump = "E:\\Games\\FtlopMod\\_dev\\Build\\";
 		final int targetLevelOfDetail = 3;
-		System.out.println("Going to attempt to port " + betterList.size() + " items");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.ftlopmaker_go") + betterList.size() + LocalizationManager.getInstance().get("matrixeater.println.ftlopmaker_items"));
 		for (int i = 0; i < betterList.size(); i++) {
 			if (i % 100 == 0) {
-				System.out.println("Processed 100 items... now at " + i);
+				System.out.println(LocalizationManager.getInstance().get("matrixeater.println.ftlopmaker_processed") + i);
 			}
 			final String item = betterList.get(i);
 			System.out.println(item);

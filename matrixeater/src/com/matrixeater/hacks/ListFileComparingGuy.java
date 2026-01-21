@@ -1,4 +1,5 @@
 package com.matrixeater.hacks;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.File;
 
@@ -20,7 +21,7 @@ public class ListFileComparingGuy {
 			final String partialPathEnding = file.getAbsolutePath().substring(myPath.length());
 			final String zezulaPathOfFile = zezulaPath + partialPathEnding;
 			if (!new File(zezulaPathOfFile).exists()) {
-				System.out.println("Not in MPQ Editor out: " + partialPathEnding);
+				System.out.println(LocalizationManager.getInstance().get("matrixeater.println.listfilecomparingguy_mpq") + partialPathEnding);
 			}
 		}
 	}
@@ -34,7 +35,7 @@ public class ListFileComparingGuy {
 			final String partialPathEnding = file.getAbsolutePath().substring(zezulaPath.length());
 			final String myPathOfFile = myPath + partialPathEnding;
 			if (!new File(myPathOfFile).exists()) {
-				System.out.println("Not in My Java code out: " + partialPathEnding);
+				System.out.println(LocalizationManager.getInstance().get("matrixeater.println.listfilecomparingguy_java") + partialPathEnding);
 			}
 		}
 	}

@@ -12,6 +12,7 @@ import com.hiveworkshop.wc3.units.Warcraft3MapObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
+import com.matrixeater.localization.LocalizationManager;
 
 import de.wc3data.stream.BlizzardDataOutputStream;
 import mpq.MPQException;
@@ -134,19 +135,19 @@ public class GridHotkeyMaker {
 						key = key.substring(0, 4);
 					}
 					if (key.equals("R00T")) {
-						System.err.println("Found Zear Backpack 1!");
+						System.err.println(LocalizationManager.getInstance().get("matrixeater.println.sharedcommandcardbuttonsfound_zear1"));
 					}
 					final War3ID trainedUnitId = War3ID.fromString(key);
 					final MutableObjectData dataByType = objectData.getDataByType(menuMakingKey.getDataType());
 					if (dataByType == null) {
-						throw new IllegalStateException(menuMakingKey.getDataType() + " is null");
+						throw new IllegalStateException(menuMakingKey.getDataType() + LocalizationManager.getInstance().get("matrixeater.exception.sharedcommandcardbuttonsfound_null"));
 					}
 					final MutableGameObject trainedUnit = dataByType.get(trainedUnitId);
 					if (trainedUnit == null) {
 						System.err.println(trainedUnitId);
 					} else {
 						if (unitId.toString().equals("h013")) {
-							System.err.println("Assigning " + trainedUnit.getFieldAsString(
+							System.err.println(LocalizationManager.getInstance().get("matrixeater.println.sharedcommandcardbuttonsfound_ass") + trainedUnit.getFieldAsString(
 									menuMakingKey.getDataType() == MutableObjectData.WorldEditorDataType.UPGRADES
 											? War3ID.fromString("gnam")
 											: menuMakingKey
@@ -196,15 +197,15 @@ public class GridHotkeyMaker {
 						int xPosition = trainedUnit.getFieldAsInteger(buttonX, 0);
 						int yPosition = trainedUnit.getFieldAsInteger(buttonY, 0);
 						if (key.equals("R00T")) {
-							System.err.println("Found Zear Backpack!");
-							System.err.println("Lookup to data got " + trainedUnit.getFieldAsString(
+							System.err.println(LocalizationManager.getInstance().get("matrixeater.println.sharedcommandcardbuttonsfound_zear"));
+							System.err.println(LocalizationManager.getInstance().get("matrixeater.println.sharedcommandcardbuttonsfound_look") + trainedUnit.getFieldAsString(
 									menuMakingKey.getDataType() == MutableObjectData.WorldEditorDataType.UPGRADES
 											? War3ID.fromString("gnam")
 											: menuMakingKey
 													.getDataType() == MutableObjectData.WorldEditorDataType.ABILITIES
 															? War3ID.fromString("anam")
 															: War3ID.fromString("unam"),
-									0) + " to (" + xPosition + "," + yPosition + ")");
+									0) + LocalizationManager.getInstance().get("matrixeater.println.sharedcommandcardbuttonsfound_to") + xPosition + "," + yPosition + ")");
 
 						}
 						while ((xPosition >= 0) && (xPosition <= 3) && (yPosition >= 0) && (yPosition <= 2)
@@ -217,14 +218,14 @@ public class GridHotkeyMaker {
 						}
 						if ((xPosition >= 0) && (xPosition <= 3) && (yPosition >= 0) && (yPosition <= 2)) {
 							if (unitId.toString().equals("h013")) {
-								System.err.println("Assigning " + trainedUnit.getFieldAsString(
+								System.err.println(LocalizationManager.getInstance().get("matrixeater.println.sharedcommandcardbuttonsfound_ass") + trainedUnit.getFieldAsString(
 										menuMakingKey.getDataType() == MutableObjectData.WorldEditorDataType.UPGRADES
 												? War3ID.fromString("gnam")
 												: menuMakingKey
 														.getDataType() == MutableObjectData.WorldEditorDataType.ABILITIES
 																? War3ID.fromString("anam")
 																: War3ID.fromString("unam"),
-										0) + " to (" + xPosition + "," + yPosition + ")");
+										0) + LocalizationManager.getInstance().get("matrixeater.println.sharedcommandcardbuttonsfound_to") + xPosition + "," + yPosition + ")");
 							}
 							usedButtonPositions[yPosition][xPosition] = true;
 							if (HERO_ABILITIES.equals(menuMakingKey.getFieldMetaKey())) {

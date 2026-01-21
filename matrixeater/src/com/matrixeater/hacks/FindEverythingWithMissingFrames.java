@@ -12,6 +12,7 @@ import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Named;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
+import com.matrixeater.localization.LocalizationManager;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 
@@ -49,15 +50,15 @@ public class FindEverythingWithMissingFrames {
 								}
 								if (hasSequence) {
 									if (!hasStart) {
-										writer.println(path + ":" + getSource(model, flag) + ":GlobalSeqId"
-												+ flag.getGlobalSeqId() + ":Missing start at " + 0 + " for track "
+										writer.println(path + ":" + getSource(model, flag) + LocalizationManager.getInstance().get("matrixeater.println.findmiss_main_globa")
+												+ flag.getGlobalSeqId() + LocalizationManager.getInstance().get("matrixeater.println.findmiss_main_start") + 0 + LocalizationManager.getInstance().get("matrixeater.println.findmiss_main_track")
 												+ flag.getName());
 									}
 									if (!hasEnd) {
 										if (!hasStart || (inSequence > 1)) {
-											writer.println(path + ":" + getSource(model, flag) + ":GlobalSeqId"
-													+ flag.getGlobalSeqId() + ":Missing end at " + flag.getGlobalSeq()
-													+ " for track " + flag.getName());
+											writer.println(path + ":" + getSource(model, flag) + LocalizationManager.getInstance().get("matrixeater.println.findmiss_main_globa")
+													+ flag.getGlobalSeqId() + LocalizationManager.getInstance().get("matrixeater.println.findmiss_main_end") + flag.getGlobalSeq()
+													+ LocalizationManager.getInstance().get("matrixeater.println.findmiss_main_track") + flag.getName());
 										}
 									}
 								}
@@ -85,13 +86,13 @@ public class FindEverythingWithMissingFrames {
 									if (hasSequence) {
 										if (!hasStart) {
 											writer.println(path + ":" + getSource(model, flag) + ":"
-													+ sequence.getName() + ":Missing start at " + start + " for track "
+													+ sequence.getName() + LocalizationManager.getInstance().get("matrixeater.println.findmiss_main_start") + start + LocalizationManager.getInstance().get("matrixeater.println.findmiss_main_track")
 													+ flag.getName());
 										}
 										if (!hasEnd) {
 											if (!hasStart || (inSequence > 1)) {
 												writer.println(path + ":" + getSource(model, flag) + ":"
-														+ sequence.getName() + ":Missing end at " + end + " for track "
+														+ sequence.getName() + LocalizationManager.getInstance().get("matrixeater.println.findmiss_main_end") + end + LocalizationManager.getInstance().get("matrixeater.println.findmiss_main_track")
 														+ flag.getName());
 											}
 										}
@@ -111,7 +112,7 @@ public class FindEverythingWithMissingFrames {
 		} catch (final FileNotFoundException e1) {
 			e1.printStackTrace();
 		}
-		System.out.println("done");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.findmiss_main_done"));
 
 	}
 

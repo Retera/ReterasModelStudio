@@ -24,6 +24,7 @@ import com.hiveworkshop.wc3.units.objectdata.ObjectDataChangeEntry;
 import com.hiveworkshop.wc3.units.objectdata.ObjectMap;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 import com.hiveworkshop.wc3.units.objectdata.War3ObjectDataChangeset;
+import com.matrixeater.localization.LocalizationManager;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
@@ -71,7 +72,7 @@ public class ReignOfChaosMissionFixerTool {
 							for (final Entry<War3ID, List<Change>> changeEntry : changes) {
 								if (changeEntry.getKey().equals(UABI)) {
 									for (final Change change : changeEntry.getValue()) {
-										System.out.println("adding to hero: " + entry.getKey() + "   "
+										System.out.println(LocalizationManager.getInstance().get("matrixeater.println.blizzarddatainputstream") + entry.getKey() + "   "
 												+ change.getStrval() + ",AInv");
 										change.setStrval(change.getStrval() + ",AInv");
 									}

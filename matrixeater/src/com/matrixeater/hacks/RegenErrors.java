@@ -1,4 +1,5 @@
 package com.matrixeater.hacks;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,7 +16,7 @@ public class RegenErrors {
 			String line;
 			while ((line = reader.readLine()) != null) {
 				final String replace = line.replace("msquish", "squish");
-				System.out.println("Source then target:");
+				System.out.println(LocalizationManager.getInstance().get("matrixeater.println.inputstreamreader"));
 				System.out.println(replace);
 				System.out.println(line);
 				Files.copy(Paths.get(replace), Paths.get(line), StandardCopyOption.REPLACE_EXISTING);

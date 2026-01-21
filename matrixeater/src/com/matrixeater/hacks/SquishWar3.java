@@ -7,6 +7,7 @@ import java.util.List;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdx.MdxModel;
+import com.matrixeater.localization.LocalizationManager;
 
 import de.wc3data.stream.BlizzardDataOutputStream;
 import de.wc3data.stream.SquishingBlizzardDataOutputStream;
@@ -19,16 +20,16 @@ public final class SquishWar3 {
 
 	public static void main(final String[] args) {
 		if (args.length != 1) {
-			System.err.println("Usage: <mutableModelsDirectory>");
+			System.err.println(LocalizationManager.getInstance().get("matrixeater.println.squish_uasge"));
 			System.exit(-1);
 		}
 		final File target = new File(args[0]);
 		root = target;
 		texRoot = new File(target.getParent() + "/" + "CompressorStep2");
 		squish(target);
-		System.out.println("Passed: " + passed.size());
-		System.out.println("Failed: " + failed.size());
-		System.out.println("Fail list:");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.squish_passed") + passed.size());
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.squish_fail") + failed.size());
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.squish_faillist"));
 		for (final String failedName : failed) {
 			System.out.println(failedName);
 		}

@@ -1,4 +1,5 @@
 package com.matrixeater.hacks;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -14,16 +15,16 @@ public final class Mp3ExtractWar3 {
 
 	public static void main(final String[] args) {
 		if (args.length != 1) {
-			System.err.println("Usage: <mutableModelsDirectory>");
+			System.err.println(LocalizationManager.getInstance().get("matrixeater.println.mp3extract_uasge"));
 			System.exit(-1);
 		}
 		final File target = new File(args[0]);
 		root = target;
 		texRoot = new File(target.getParent() + "/" + "mp3sqalot");
 		operate(target);
-		System.out.println("Passed: " + passed.size());
-		System.out.println("Failed: " + failed.size());
-		System.out.println("Fail list:");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.mp3extract_passed") + passed.size());
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.mp3extract_fail") + failed.size());
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.mp3extract_faillist"));
 		for (final String failedName : failed) {
 			System.out.println(failedName);
 		}

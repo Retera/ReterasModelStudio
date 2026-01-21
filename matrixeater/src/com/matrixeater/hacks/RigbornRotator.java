@@ -31,6 +31,7 @@ import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
+import com.matrixeater.localization.LocalizationManager;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 
@@ -41,8 +42,8 @@ public class RigbornRotator extends JPanel {
 		jFileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft 3 Model", "mdl", "mdx"));
 		jFileChooser.setAcceptAllFileFilterUsed(true);
 		final JTextField inputField = new JTextField(45);
-		final JLabel inputLabel = new JLabel("Input: ");
-		final JButton inputButton = new JButton("Browse");
+		final JLabel inputLabel = new JLabel(LocalizationManager.getInstance().get("matrixeater.label.inputlabel"));
+		final JButton inputButton = new JButton(LocalizationManager.getInstance().get("matrixeater.button.inputbutton"));
 		inputButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -56,8 +57,8 @@ public class RigbornRotator extends JPanel {
 		});
 
 		final JTextField outputField = new JTextField(45);
-		final JLabel outputLabel = new JLabel("Output: ");
-		final JButton outputButton = new JButton("Browse");
+		final JLabel outputLabel = new JLabel(LocalizationManager.getInstance().get("matrixeater.label.outputlabel"));
+		final JButton outputButton = new JButton(LocalizationManager.getInstance().get("matrixeater.button.outputbutton"));
 		outputButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -72,26 +73,26 @@ public class RigbornRotator extends JPanel {
 
 		final JPanel rotatePanel = new JPanel();
 		rotatePanel.setLayout(new GridLayout(4, 3));
-		rotatePanel.setBorder(BorderFactory.createTitledBorder("Rotate"));
-		final JLabel axisXLabel = new JLabel("Axis X:");
+		rotatePanel.setBorder(BorderFactory.createTitledBorder(LocalizationManager.getInstance().get("matrixeater.border.borderfactory")));
+		final JLabel axisXLabel = new JLabel(LocalizationManager.getInstance().get("matrixeater.label.axisx"));
 		rotatePanel.add(axisXLabel);
 		final JSpinner axisXSpinner = new JSpinner(new SpinnerNumberModel(0.0, -Long.MAX_VALUE, Long.MAX_VALUE, 1));
 		rotatePanel.add(axisXSpinner);
-		final JLabel axisYLabel = new JLabel("Axis Y:");
+		final JLabel axisYLabel = new JLabel(LocalizationManager.getInstance().get("matrixeater.label.axisy"));
 		rotatePanel.add(axisYLabel);
 		final JSpinner axisYSpinner = new JSpinner(new SpinnerNumberModel(0.0, -Long.MAX_VALUE, Long.MAX_VALUE, 1));
 		rotatePanel.add(axisYSpinner);
-		final JLabel axisZLabel = new JLabel("Axis Z:");
+		final JLabel axisZLabel = new JLabel(LocalizationManager.getInstance().get("matrixeater.label.axisz"));
 		rotatePanel.add(axisZLabel);
 		final JSpinner axisZSpinner = new JSpinner(new SpinnerNumberModel(1.0, -Long.MAX_VALUE, Long.MAX_VALUE, 1));
 		rotatePanel.add(axisZSpinner);
 
-		final JLabel angleLabel = new JLabel("Angle: ");
+		final JLabel angleLabel = new JLabel(LocalizationManager.getInstance().get("matrixeater.label.angle"));
 		rotatePanel.add(angleLabel);
 		final JSpinner angleSpinner = new JSpinner(new SpinnerNumberModel(0.0, -Long.MAX_VALUE, Long.MAX_VALUE, 1));
 		rotatePanel.add(angleSpinner);
 
-		final JButton generateButton = new JButton("Generate");
+		final JButton generateButton = new JButton(LocalizationManager.getInstance().get("matrixeater.button.generatebutton"));
 		generateButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -193,7 +194,7 @@ public class RigbornRotator extends JPanel {
 	}
 
 	public static void main(final String[] args) {
-		final JFrame frame = new JFrame("Rigborn Rotator");
+		final JFrame frame = new JFrame(LocalizationManager.getInstance().get("matrixeater.frame.setcontentpane"));
 		frame.setContentPane(new RigbornRotator());
 		frame.pack();
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

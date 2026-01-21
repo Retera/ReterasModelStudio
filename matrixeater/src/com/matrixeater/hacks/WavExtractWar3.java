@@ -1,4 +1,5 @@
 package com.matrixeater.hacks;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -14,16 +15,16 @@ public final class WavExtractWar3 {
 
 	public static void main(final String[] args) {
 		if (args.length != 1) {
-			System.err.println("Usage: <mutableModelsDirectory>");
+			System.err.println(LocalizationManager.getInstance().get("matrixeater.println.wavextract_uasge"));
 			System.exit(-1);
 		}
 		final File target = new File(args[0]);
 		root = target;
 		texRoot = new File(target.getParent() + "/" + "wavbase");
 		operate(target);
-		System.out.println("Passed: " + passed.size());
-		System.out.println("Failed: " + failed.size());
-		System.out.println("Fail list:");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.wavextract_passed") + passed.size());
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.wavextract_fail") + failed.size());
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.wavextract_faillist"));
 		for (final String failedName : failed) {
 			System.out.println(failedName);
 		}
