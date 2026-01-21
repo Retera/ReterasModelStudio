@@ -5,11 +5,12 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
+import com.matrixeater.localization.LocalizationManager;
 
 public class HayateMatrixEater extends JPanel {
 
 	public static void main(final String[] args) {
-		final JFrame frame = new JFrame("New Hayate Matrix Eater");
+		final JFrame frame = new JFrame(LocalizationManager.getInstance().get("matrixeater.frame.hayatematrixeater"));
 		final HayateMatrixEater hayateMatrixEater = new HayateMatrixEater();
 		frame.setIconImage(BLPHandler.get().getGameTex("Textures\\Blue_star2.blp"));
 		frame.setContentPane(hayateMatrixEater);
