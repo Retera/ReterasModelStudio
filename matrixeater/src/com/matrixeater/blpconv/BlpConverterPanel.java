@@ -40,6 +40,7 @@ import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.util.Callback;
 import com.matrixeater.src.EditorDisplayManager;
+import com.matrixeater.localization.LocalizationManager;
 
 import de.wc3data.image.BlpFile;
 import de.wc3data.image.TgaFile;
@@ -57,18 +58,18 @@ public class BlpConverterPanel extends JPanel {
 	public BlpConverterPanel() {
 		fileChooser = new JFileChooser();
 		fileChooser.setAcceptAllFileFilterUsed(false);
-		final FileNameExtensionFilter blpFilter = new FileNameExtensionFilter("BLP image", "blp");
-		final FileNameExtensionFilter tgaFilter = new FileNameExtensionFilter("TGA image", "tga");
+		final FileNameExtensionFilter blpFilter = new FileNameExtensionFilter(LocalizationManager.getInstance().get("matrixeater.ExtensionFilter.blpconverterpanel_blp"), "blp");
+		final FileNameExtensionFilter tgaFilter = new FileNameExtensionFilter(LocalizationManager.getInstance().get("matrixeater.ExtensionFilter.blpconverterpanel_tga"), "tga");
 		fileChooser.addChoosableFileFilter(blpFilter);
 		fileChooser.addChoosableFileFilter(tgaFilter);
 		for (final String ext : ImageIO.getReaderFileSuffixes()) {
-			fileChooser.addChoosableFileFilter(new FileNameExtensionFilter(ext.toUpperCase() + " image", ext));
+			fileChooser.addChoosableFileFilter(new FileNameExtensionFilter(ext.toUpperCase() + LocalizationManager.getInstance().get("matrixeater.ExtensionFilter.blpconverterpanel_image"), ext));
 		}
-		loadFile = new JButton("Load File");
+		loadFile = new JButton(LocalizationManager.getInstance().get("matrixeater.button.blpconverterpanel_load"));
 		preview = new JLabel();
 		preview.setMinimumSize(new Dimension(512, 512));
 		preview.setPreferredSize(new Dimension(512, 512));
-		saveFile = new JButton("Save File");
+		saveFile = new JButton(LocalizationManager.getInstance().get("matrixeater.button.blpconverterpanel_save"));
 
 		setLayout(new BorderLayout());
 
@@ -116,20 +117,20 @@ public class BlpConverterPanel extends JPanel {
 							if ((fileFilter == blpFilter) || selectedFile.getName().toLowerCase().endsWith("blp")) {
 								final BufferedImage image = BlpFile.read(selectedFile);
 								if (image == null) {
-									throw new RuntimeException("unable to load: " + selectedFile);
+									throw new RuntimeException(LocalizationManager.getInstance().get("matrixeater.exception.blpconverterpanel_blp") + selectedFile);
 								}
 								setCurrentImage(image);
 							} else if ((fileFilter == tgaFilter)
 									|| selectedFile.getName().toLowerCase().endsWith("tga")) {
 								final BufferedImage image = TgaFile.readTGA(selectedFile);
 								if (image == null) {
-									throw new RuntimeException("unable to load: " + selectedFile);
+									throw new RuntimeException(LocalizationManager.getInstance().get("matrixeater.exception.blpconverterpanel_tga") + selectedFile);
 								}
 								setCurrentImage(image);
 							} else {
 								final BufferedImage image = ImageIO.read(selectedFile);
 								if (image == null) {
-									throw new RuntimeException("Unable to load (bad format?): " + selectedFile);
+									throw new RuntimeException(LocalizationManager.getInstance().get("matrixeater.exception.blpconverterpanel_image") + selectedFile);
 								}
 								setCurrentImage(image);
 							}
@@ -150,14 +151,14 @@ public class BlpConverterPanel extends JPanel {
 						if (selectedFile != null) {
 							final FileFilter fileFilter = fileChooser.getFileFilter();
 							if ((fileFilter == blpFilter) || selectedFile.getName().toLowerCase().endsWith("blp")) {
-								final String[] types = { "Jpg", "Paletted" };
+								final String[] types = { "Jpg", LocalizationManager.getInstance().get("matrixeater.combobox.blpconverterpanel_paletted") };
 								final JComboBox<String> type = new JComboBox<>(types);
 								type.setEditable(false);
-								final JCheckBox useAlpha = new JCheckBox("Use Alpha", true);
+								final JCheckBox useAlpha = new JCheckBox(LocalizationManager.getInstance().get("matrixeater.checkbox.blpconverterpanel_usealpha"), true);
 								final JSpinner quality = new JSpinner(new SpinnerNumberModel(100, 0, 100, 0.01));
 
-								final JCheckBox generateMipMaps = new JCheckBox("Generate Mip Maps", true);
-								final JCheckBox antiDither = new JCheckBox("Anti Dither", true);
+								final JCheckBox generateMipMaps = new JCheckBox(LocalizationManager.getInstance().get("matrixeater.checkbox.blpconverterpanel_generate"), true);
+								final JCheckBox antiDither = new JCheckBox(LocalizationManager.getInstance().get("matrixeater.checkbox.blpconverterpanel_anti"), true);
 
 								type.addActionListener(new ActionListener() {
 									@Override
@@ -171,9 +172,9 @@ public class BlpConverterPanel extends JPanel {
 								generateMipMaps.setEnabled(false);
 								antiDither.setEnabled(false);
 								JOptionPane.showMessageDialog(BlpConverterPanel.this,
-										new Object[] { type, useAlpha, new JLabel("Quality: "), quality,
+										new Object[] { type, useAlpha, new JLabel(LocalizationManager.getInstance().get("matrixeater.dialog.blpconverterpanel_quality")), quality,
 												generateMipMaps, antiDither },
-										"BLP Export Options", JOptionPane.PLAIN_MESSAGE);
+										LocalizationManager.getInstance().get("matrixeater.dialog.blpconverterpanel_blp"), JOptionPane.PLAIN_MESSAGE);
 
 								final boolean isJpg = type.getSelectedItem() == types[0];
 								if (isJpg) {
@@ -210,30 +211,30 @@ public class BlpConverterPanel extends JPanel {
 	public static void main(final String[] args) {
 		LwjglNativesLoader.load();
 		EditorDisplayManager.setupLookAndFeel();
-		final JFrame frame = new JFrame("BLP Converter (Using DrSuperGood blp-iio-plugin)");
+		final JFrame frame = new JFrame(LocalizationManager.getInstance().get("matrixeater.frame.editordisplaymanager"));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		final JPanel leftHandCardPanel = new JPanel();
 		final CardLayout cardLayout = new CardLayout();
 		leftHandCardPanel.setLayout(cardLayout);
 		final BlpConverterPanel converterPanel = new BlpConverterPanel();
-		leftHandCardPanel.add("tex", converterPanel);
+		leftHandCardPanel.add(LocalizationManager.getInstance().get("matrixeater.layout.lefthandcardpanel_tex"), converterPanel);
 		final EditableModel emptyModel = new EditableModel();
 		final PerspDisplayPanel modelViewport = new PerspDisplayPanel("", new ModelViewManager(emptyModel),
 				new ProgramPreferences(), new RenderModel(emptyModel, null));
-		leftHandCardPanel.add("model", modelViewport);
+		leftHandCardPanel.add(LocalizationManager.getInstance().get("matrixeater.layout.lefthandcardpanel_model"), modelViewport);
 		final MpqCodebase mpqCodebase = MpqCodebase.get();
-		cardLayout.show(leftHandCardPanel, "tex");
+		cardLayout.show(leftHandCardPanel, LocalizationManager.getInstance().get("matrixeater.layout.lefthandcardpanel_tex"));
 		final MPQBrowser mpqBrowser = new MPQBrowser(mpqCodebase, new Callback<String>() {
 			@Override
 			public void run(final String object) {
 				try {
 					if (object.toLowerCase().endsWith("mdx")) {
-						cardLayout.show(leftHandCardPanel, "model");
+						cardLayout.show(leftHandCardPanel, LocalizationManager.getInstance().get("matrixeater.layout.lefthandcardpanel_model"));
 						modelViewport.setViewport(new ModelViewManager(
 								MdxUtils.loadModel(new BlizzardDataInputStream(mpqCodebase.getResourceAsStream(object)))
 										.toMDL()));
 					} else {
-						cardLayout.show(leftHandCardPanel, "tex");
+						cardLayout.show(leftHandCardPanel, LocalizationManager.getInstance().get("matrixeater.layout.lefthandcardpanel_tex"));
 						converterPanel.setCurrentImage(BlpFile.read(object, mpqCodebase.getResourceAsStream(object)));
 					}
 				} catch (final IOException e) {
@@ -244,7 +245,7 @@ public class BlpConverterPanel extends JPanel {
 		}, new Callback<String>() {
 			@Override
 			public void run(final String object) {
-				JOptionPane.showMessageDialog(leftHandCardPanel, "Not yet implemented for this application.");
+				JOptionPane.showMessageDialog(leftHandCardPanel, LocalizationManager.getInstance().get("matrixeater.dialog.lefthandcardpanel_run"));
 			}
 		});
 		final JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftHandCardPanel, mpqBrowser);

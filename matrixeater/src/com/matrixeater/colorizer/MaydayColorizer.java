@@ -1,4 +1,5 @@
 package com.matrixeater.colorizer;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -35,7 +36,7 @@ public class MaydayColorizer extends JPanel {
 	private final JEditorPane editorPane;
 
 	public MaydayColorizer() {
-		final JLabel label = new JLabel("Enter text:");
+		final JLabel label = new JLabel(LocalizationManager.getInstance().get("matrixeater.label.maydaycolorizer"));
 		inputTextArea = new JTextArea();
 		inputTextArea.setLineWrap(true);
 		final JButton leftColorDisplay = new JButton() {
@@ -66,7 +67,7 @@ public class MaydayColorizer extends JPanel {
 		leftColorDisplay.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				final Color userValue = JColorChooser.showDialog(MaydayColorizer.this, "Choose Color", leftColor);
+				final Color userValue = JColorChooser.showDialog(MaydayColorizer.this, LocalizationManager.getInstance().get("matrixeater.dialog.colorchooser"), leftColor);
 				if (userValue != null) {
 					leftColor = userValue;
 					repaint();
@@ -77,7 +78,7 @@ public class MaydayColorizer extends JPanel {
 		rightColorDisplay.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				final Color userValue = JColorChooser.showDialog(MaydayColorizer.this, "Choose Color", rightColor);
+				final Color userValue = JColorChooser.showDialog(MaydayColorizer.this, LocalizationManager.getInstance().get("matrixeater.dialog.colorchooser"), rightColor);
 				if (userValue != null) {
 					rightColor = userValue;
 					repaint();
@@ -85,21 +86,21 @@ public class MaydayColorizer extends JPanel {
 			}
 		});
 		gradientDisplay.setMinimumSize(new Dimension(500, 25));
-		final JButton applyLeftColor = new JButton("Apply Color");
+		final JButton applyLeftColor = new JButton(LocalizationManager.getInstance().get("matrixeater.button.applyleftcolor"));
 		applyLeftColor.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				applyColor(leftColor);
 			}
 		});
-		final JButton applyRightColor = new JButton("Apply Color");
+		final JButton applyRightColor = new JButton(LocalizationManager.getInstance().get("matrixeater.button.apprightcolor"));
 		applyRightColor.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				applyColor(rightColor);
 			}
 		});
-		final JButton applyGradient = new JButton("Apply Gradient");
+		final JButton applyGradient = new JButton(LocalizationManager.getInstance().get("matrixeater.button.applygradient"));
 		applyGradient.setMinimumSize(new Dimension(500, 25));
 		applyGradient.addActionListener(new ActionListener() {
 
@@ -108,9 +109,9 @@ public class MaydayColorizer extends JPanel {
 				applyColor(leftColor, rightColor);
 			}
 		});
-		final JCheckBox valueLink = new JCheckBox("Value Link");
+		final JCheckBox valueLink = new JCheckBox(LocalizationManager.getInstance().get("matrixeater.button.valuelink"));
 		valueLink.setEnabled(false);
-		final JButton newLine = new JButton("New Line");
+		final JButton newLine = new JButton(LocalizationManager.getInstance().get("matrixeater.button.newline"));
 		newLine.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -340,7 +341,7 @@ public class MaydayColorizer extends JPanel {
 	}
 
 	public static void main(final String[] args) {
-		final JFrame frame = new JFrame("Colorizer");
+		final JFrame frame = new JFrame(LocalizationManager.getInstance().get("matrixeater.frame.main"));
 		frame.setContentPane(new MaydayColorizer());
 		frame.setBounds(0, 0, 800, 600);
 		frame.setLocationRelativeTo(null);
@@ -398,7 +399,7 @@ public class MaydayColorizer extends JPanel {
 						return super.getMinimumSpan(axis);
 					}
 					default: {
-						throw new IllegalArgumentException("Invalid axis: " + axis);
+						throw new IllegalArgumentException(LocalizationManager.getInstance().get("matrixeater.exception.illegalargumentexception") + axis);
 					}
 					}
 				}
