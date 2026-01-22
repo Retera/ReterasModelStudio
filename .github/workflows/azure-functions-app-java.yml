@@ -2,7 +2,7 @@ name: Build Reteras Model Studio EXE
 
 on:
   push:
-    branches: [ CN ]  # 可以在这里指定触发工作流的分支
+    branches: [ CNx ]  # 可以在这里指定触发工作流的分支
 
 jobs:
   build:
@@ -50,4 +50,5 @@ jobs:
       with:
         name: ReterasModelStudio-EXE
         path: D:/a/ReterasModelStudio/ReterasModelStudio/matrixeater/build/jpackage/matrixeater
+
 
