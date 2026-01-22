@@ -3556,7 +3556,7 @@ public class MainPanel extends JPanel
 		});
 		scriptsMenu.add(combineAnims);
 
-		scaleAnimations = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.itemscaleanimations"));
+		scaleAnimations = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.scaleanimations"));
 		scaleAnimations.setMnemonic(KeyEvent.VK_A);
 		scaleAnimations.addActionListener(this);
 		scriptsMenu.add(scaleAnimations);
@@ -4133,13 +4133,13 @@ public class MainPanel extends JPanel
 		fetch.setMnemonic(KeyEvent.VK_F);
 		fileMenu.add(fetch);
 
-		fetchUnit = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.unit"));
+		fetchUnit = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.fetchunit"));
 		fetchUnit.setAccelerator(KeyStroke.getKeyStroke("control U"));
 		fetchUnit.setMnemonic(KeyEvent.VK_U);
 		fetchUnit.addActionListener(this);
 		fetch.add(fetchUnit);
 
-		fetchModel = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.model"));
+		fetchModel = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.fetchmodel"));
 		fetchModel.setAccelerator(KeyStroke.getKeyStroke("control M"));
 		fetchModel.setMnemonic(KeyEvent.VK_M);
 		fetchModel.addActionListener(this);
