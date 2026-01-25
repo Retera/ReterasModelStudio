@@ -240,7 +240,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(final ActionEvent e) {
 		if (e.getSource() == baseBrowse) {
-			fc.setDialogTitle(LocalizationManager.getInstance().get("matrixeater.dialog.actionperformed_title_base"));
+			fc.setDialogTitle(LocalizationManager.getInstance().get("matrixeater.dialog.basebrowse_title_base"));
 			final int returnValue = fc.showOpenDialog(this);
 
 			if (returnValue == JFileChooser.APPROVE_OPTION) {
@@ -253,7 +253,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 				updateBoxes();
 			}
 		} else if (e.getSource() == animBrowse) {
-			fc.setDialogTitle(LocalizationManager.getInstance().get("matrixeater.dialog.actionperformed_title_anim"));
+			fc.setDialogTitle(LocalizationManager.getInstance().get("matrixeater.dialog.basebrowse_title_anim"));
 			final int returnValue = fc.showOpenDialog(this);
 
 			if (returnValue == JFileChooser.APPROVE_OPTION) {
@@ -266,7 +266,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 				updateBoxes();
 			}
 		} else if (e.getSource() == outBrowse) {
-			fc.setDialogTitle(LocalizationManager.getInstance().get("matrixeater.dialog.actionperformed_title_out"));
+			fc.setDialogTitle(LocalizationManager.getInstance().get("matrixeater.dialog.basebrowse_title_out"));
 			final int returnValue = fc.showSaveDialog(this);
 
 			if (returnValue == JFileChooser.APPROVE_OPTION) {

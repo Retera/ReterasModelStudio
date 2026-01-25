@@ -36,7 +36,7 @@ public class ImportPanelSimple extends JPanel implements ActionListener {
 	public void actionPerformed(final ActionEvent e) {
 		if (e.getSource() == animationTransfer) {
 			frame.setContentPane(new AnimationTransfer(frame));
-			frame.setTitle(LocalizationManager.getInstance().get("matrixeater.title.actionperformed"));
+			frame.setTitle(LocalizationManager.getInstance().get("matrixeater.title.animationtransfer"));
 			frame.setIconImage(RMSIcons.AnimIcon.getImage());
 			frame.revalidate();
 			frame.pack();
