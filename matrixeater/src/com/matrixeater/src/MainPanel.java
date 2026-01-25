@@ -1487,7 +1487,7 @@ public class MainPanel extends JPanel
 					}
 				}
 				else {
-					JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("matrixeater.dialog.actionperformed"), LocalizationManager.getInstance().get("global.dialog.error"),
+					JOptionPane.showMessageDialog(MainPanel.this, LocalizationManager.getInstance().get("matrixeater.dialog.matrixeaterscripttextarea"), LocalizationManager.getInstance().get("global.dialog.error"),
 							JOptionPane.ERROR_MESSAGE);
 				}
 			}
@@ -5655,15 +5655,15 @@ public class MainPanel extends JPanel
 	private void newModel() {
 		final JPanel newModelPanel = new JPanel();
 		newModelPanel.setLayout(new MigLayout());
-		newModelPanel.add(new JLabel(LocalizationManager.getInstance().get("matrixeater.newmodel.layout")), LocalizationManager.getInstance().get("matrixeater.newmodel.cell") + " 0 0");
+		newModelPanel.add(new JLabel(LocalizationManager.getInstance().get("matrixeater.newmodel.layout")), "cell 0 0");
 		final JTextField newModelNameField = new JTextField("MrNew", 25);
-		newModelPanel.add(newModelNameField, LocalizationManager.getInstance().get("matrixeater.newmodel.cell") + " 1 0");
+		newModelPanel.add(newModelNameField, "cell 1 0");
 		final JRadioButton createEmptyButton = new JRadioButton(LocalizationManager.getInstance().get("matrixeater.newmodel.empty"), true);
-		newModelPanel.add(createEmptyButton, LocalizationManager.getInstance().get("matrixeater.newmodel.cell") + " 0 1");
+		newModelPanel.add(createEmptyButton, "cell 0 1");
 		final JRadioButton createPlaneButton = new JRadioButton(LocalizationManager.getInstance().get("matrixeater.newmodel.plane"));
-		newModelPanel.add(createPlaneButton, LocalizationManager.getInstance().get("matrixeater.newmodel.cell") + " 0 2");
+		newModelPanel.add(createPlaneButton, "cell 0 2");
 		final JRadioButton createBoxButton = new JRadioButton(LocalizationManager.getInstance().get("matrixeater.newmodel.box"));
-		newModelPanel.add(createBoxButton, LocalizationManager.getInstance().get("matrixeater.newmodel.cell") + " 0 3");
+		newModelPanel.add(createBoxButton, "cell 0 3");
 		final ButtonGroup buttonGroup = new ButtonGroup();
 		buttonGroup.add(createBoxButton);
 		buttonGroup.add(createPlaneButton);

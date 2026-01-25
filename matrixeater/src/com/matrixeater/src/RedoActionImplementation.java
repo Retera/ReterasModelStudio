@@ -25,7 +25,7 @@ public final class RedoActionImplementation extends AbstractAction {
 			try {
 				mpanel.getUndoManager().redo();
 			} catch (final NoSuchElementException exc) {
-				JOptionPane.showMessageDialog(mainPanel, LocalizationManager.getInstance().get("matrixeater.dialog.actionperformed_redo"));
+				JOptionPane.showMessageDialog(mainPanel, LocalizationManager.getInstance().get("matrixeater.dialog.mpanel_redo"));
 			} catch (final Exception exc) {
 				ExceptionPopup.display(exc);
 			}

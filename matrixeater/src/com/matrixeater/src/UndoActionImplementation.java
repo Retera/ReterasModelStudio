@@ -25,7 +25,7 @@ public final class UndoActionImplementation extends AbstractAction {
 			try {
 				mpanel.getUndoManager().undo();
 			} catch (final NoSuchElementException exc) {
-				JOptionPane.showMessageDialog(mainPanel, LocalizationManager.getInstance().get("matrixeater.dialog.actionperformed_undo"));
+				JOptionPane.showMessageDialog(mainPanel, LocalizationManager.getInstance().get("matrixeater.dialog.mpanel_undo"));
 			} catch (final Exception exc) {
 				ExceptionPopup.display(exc);
 			}
