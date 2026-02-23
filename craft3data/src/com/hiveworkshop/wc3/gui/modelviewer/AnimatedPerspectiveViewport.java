@@ -465,10 +465,19 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			// JAVA 9+ or maybe WIN 10 allow ridiculous virtual pixes, this combination of
 			// old library code and java std library code give me a metric for the
 			// ridiculous ratio:
-			xRatio = (float) (Display.getDisplayMode().getWidth()
-					/ Toolkit.getDefaultToolkit().getScreenSize().getWidth());
-			yRatio = (float) (Display.getDisplayMode().getHeight()
-					/ Toolkit.getDefaultToolkit().getScreenSize().getHeight());
+			int lwjglWidth = Display.getDisplayMode().getWidth();
+			double awtWidth = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
+			int lwjglHeight = Display.getDisplayMode().getHeight();
+			double awtHeight = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
+			if (awtWidth > awtHeight != lwjglWidth > lwjglHeight) {
+				int temp = lwjglHeight;
+				lwjglHeight = lwjglWidth;
+				lwjglWidth = temp;
+			}
+			xRatio = (float) (lwjglWidth
+					/ awtWidth);
+			yRatio = (float) (lwjglHeight
+					/ awtHeight);
 			// These ratios will be wrong and users will see corrupted visuals (bad scale,
 			// only fits part of window,
 			// etc) if they are using Windows 10 differing UI scale per monitor. I don't
@@ -653,7 +662,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 				NGGLDP.pipeline.glEnableIfNeeded(GL11.GL_TEXTURE_2D);
 			}
 			GL11.glClearColor(backgroundRed, backgroundGreen, backgroundBlue, autoRepainting ? 1.0f : 0.0f);
-			// glClearColor(0f, 0f, 0f, 1.0f);
+			//GL11.glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
+			/// glClearColor(0f, 0f, 0f, 1.0f);
 			NGGLDP.pipeline.glMatrixMode(GL_PROJECTION);
 			NGGLDP.pipeline.glLoadIdentity();
 //			NGGLDP.pipeline.gluPerspective(45f, (float) getWidth() / (float) getHeight(), 20.0f, 60000.0f);

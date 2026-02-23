@@ -483,7 +483,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private static final class ChooseableModelRoot extends ChooseableDisplayElement<EditableModel> {
 		private static final ImageIcon MODEL_ROOT_ICON = new ImageIcon(IconUtils.worldEditStyleIcon(
-				BLPHandler.get().getGameTex("replaceabletextures\\worldeditui\\editor-trigger.blp")));
+				BLPHandler.get().getGameTex("ReplaceableTextures/WorldEditUI/Editor-Trigger.blp")));
 
 		public ChooseableModelRoot(final ModelViewManager modelViewManager, final UndoActionListener undoActionListener,
 				final ModelStructureChangeListener modelStructureChangeListener, final EditableModel item) {
@@ -1201,9 +1201,9 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private static final class ChooseableDummyItem extends ChooseableDisplayElement<Void> {
 		private static final ImageIcon GROUP_ICON = new ImageIcon(IconUtils.worldEditStyleIcon(
-				BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp")));
+				BLPHandler.get().getGameTex("ReplaceableTextures/WorldEditUI/Editor-TriggerGroup.blp")));
 		private static final ImageIcon GROUP_ICON_EXPANDED = new ImageIcon(IconUtils.worldEditStyleIcon(
-				BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp")));
+				BLPHandler.get().getGameTex("ReplaceableTextures/WorldEditUI/Editor-TriggerGroup-Open.blp")));
 		private final String name2;
 
 		public ChooseableDummyItem(final ModelViewManager modelViewManager, final UndoActionListener undoActionListener,

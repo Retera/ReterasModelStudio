@@ -93,10 +93,15 @@ public class Geoset implements Named, VisibilitySource {
 		// on the web (i.e. quads).
 		// if you wanted to fix that, you'd want to do it below
 		for (int i = 0; i < mdxGeo.faces.length; i += 3) {
-			final Triangle triangle = new Triangle(convertPossiblyBuggedShort(mdxGeo.faces[i + 0]),
-					convertPossiblyBuggedShort(mdxGeo.faces[i + 1]), convertPossiblyBuggedShort(mdxGeo.faces[i + 2]),
-					this);
-			add(triangle);
+			int triangleIdxA = convertPossiblyBuggedShort(mdxGeo.faces[i + 0]);
+			int triangleIdxB = convertPossiblyBuggedShort(mdxGeo.faces[i + 1]);
+			int triangleIdxC = convertPossiblyBuggedShort(mdxGeo.faces[i + 2]);
+			if(triangleIdxA != 0xFFFF && triangleIdxB != 0xFFFF && triangleIdxC != 0xFFFF) {
+				final Triangle triangle = new Triangle(triangleIdxA,
+						triangleIdxB, triangleIdxC,
+						this);
+				add(triangle);
+			}
 		}
 		if (mdxGeo.selectionType == 4) {
 			addFlag("Unselectable");
