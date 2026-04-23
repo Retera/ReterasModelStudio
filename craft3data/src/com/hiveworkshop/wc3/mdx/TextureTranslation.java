@@ -69,7 +69,7 @@ public class TextureTranslation {
 			out.writeInt(time);
 			if (translation.length % 3 != 0) {
 				throw new IllegalArgumentException(
-						LocalizationManager.getInstance().get("exception.texturetranslation_save_array_translation"
+						LocalizationManager.getInstance().get("exception.texturetranslation_save_array_translation")
 								+ translation.length + ")");
 			}
 			MdxUtils.saveFloatArray(out, translation);

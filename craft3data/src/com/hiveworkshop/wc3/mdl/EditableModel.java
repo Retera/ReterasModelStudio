@@ -1293,7 +1293,7 @@ public class EditableModel implements Named {
 		}
 		catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					LocalizationManager.getInstance().get("global.dialog.error") +  " {" + input + + "}: " LocalizationManager.getInstance().get("dialog.editablemodel_parse12floatbpos_interpreted"));
+					LocalizationManager.getInstance().get("global.dialog.error") +  " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.editablemodel_parse12floatbpos_interpreted"));
 		}
 		for (int i = 1; i < 11; i++) {
 			try {
