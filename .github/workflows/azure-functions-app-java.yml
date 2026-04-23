@@ -16,18 +16,18 @@ jobs:
     steps:
     - uses: actions/checkout@v4  # 检出仓库代码
 
-    - name: Set up Java
+    - name: 安装 Java
       uses: actions/setup-java@v4
       with:
         java-version: ${{ matrix.java }}
         distribution: 'temurin'
         cache: 'gradle'
 
-    - name: Grant execute permission for gradlew
+    - name: 授权gradlew执行
       run: chmod +x ./gradlew  # 在Windows上这一步可能不是必需的，取决于你的脚本权限
       working-directory: ./  # 根据实际情况调整工作目录
 
-    - name: List all available Gradle tasks
+    - name: 查找Gradle可用任务
       run: ./gradlew.bat tasks --all
       working-directory: ./
 
@@ -35,17 +35,17 @@ jobs:
       run: ./gradlew.bat
       working-directory: ./
 
-    - name: Try to create EXE with jpackage (if available)
+    - name: 尝试打包 - jpackage
       run: ./gradlew.bat jpackage
       working-directory: ./
       continue-on-error: true
 
-    - name: Try to create EXE with launch4j (if available)
+    - name: 尝试打包 -  launch4j
       run: ./gradlew.bat launch4j
       working-directory: ./
       continue-on-error: true
 
-    - name: Check for EXE in common locations
+    - name: 检查公共位置
       id: check_exe
       run: |
         echo "Checking ./ for EXE files..."
@@ -56,33 +56,32 @@ jobs:
         }
       shell: pwsh
 
-    - name: List all files in build directory
+    - name: 列出构建目录所有文件
       run: |
         echo "Listing all files in build directory:"
         Get-ChildItem -Recurse ./ | Where-Object { $_.Extension -eq ".*" } | ForEach-Object {
           echo "Found EXE: $_"
         }
-        
+
         echo "Listing all files in ./:"
         Get-ChildItem ./ | ForEach-Object {
           echo "File: $_"
         }
-        
+
         echo "Listing all files in ./:"
         Get-ChildItem ./ | ForEach-Object {
           echo "File: $_"
         }
       shell: pwsh
 
-
-    # - name: 打包
+    # - name: 压缩
     #   uses: TheDoctor0/zip-release@0.7.6
     #   with:
     #     filename: ReterasModelStudio.zip
     #     path: D:/a/ReterasModelStudio/ReterasModelStudio
     #     directory: D:/a/ReterasModelStudio/ReterasModelStudio
-  
-    - name: Upload EXE Artifact
+
+    - name: 上传附件
       uses: actions/upload-artifact@v4
       with:
         name: ReterasModelStudio-EXE
