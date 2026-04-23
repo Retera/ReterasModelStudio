@@ -18,12 +18,12 @@ public class Triangle {
 	}
 
 	public Triangle(final int a, final int b, final int c, final Geoset geoRef) {
-		vertIds[0] = a;
-		vertIds[1] = b;
-		vertIds[2] = c;
-		verts[0] = geoRef.getVertex(a);
-		verts[1] = geoRef.getVertex(b);
-		verts[2] = geoRef.getVertex(c);
+		vertIds[0] = ((a & 0xFFFF)==0xFFFF) ? 0 : a;
+		vertIds[1] = ((b & 0xFFFF)==0xFFFF) ? 0 : b;
+		vertIds[2] = ((c & 0xFFFF)==0xFFFF) ? 0 : c;
+		verts[0] = geoRef.getVertex(vertIds[0]);
+		verts[1] = geoRef.getVertex(vertIds[1]);
+		verts[2] = geoRef.getVertex(vertIds[2]);
 		geoset = geoRef;
 	}
 

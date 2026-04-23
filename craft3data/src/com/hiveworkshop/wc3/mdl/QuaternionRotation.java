@@ -465,4 +465,13 @@ public class QuaternionRotation {
 		}
 		return 0;
 	}
+
+	public boolean equalContents(QuaternionRotation v) {
+		return a == v.a && b == v.b && c == v.c && d == v.d;
+	}
+
+	public boolean roughlyEqualContents(QuaternionRotation v) {
+		return Math.abs(a - v.a) <= Double.MIN_VALUE && Math.abs(b - v.b) <= Double.MIN_VALUE
+				&& Math.abs(c - v.c) <= Double.MIN_VALUE && Math.abs(d - v.d) <= Double.MIN_VALUE;
+	}
 }

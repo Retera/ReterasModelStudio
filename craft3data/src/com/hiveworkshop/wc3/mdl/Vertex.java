@@ -119,6 +119,11 @@ public class Vertex {
 		return (x == v.x) && (y == v.y) && (z == v.z);
 	}
 
+	public boolean roughlyEqualContents(Vertex v) {
+		return (Math.abs(x - v.x) <= Double.MIN_VALUE) && (Math.abs(y - v.y) <= Double.MIN_VALUE)
+				&& (Math.abs(z - v.z) <= Double.MIN_VALUE);
+	}
+
 	public double getX() {
 		return x;
 	}
