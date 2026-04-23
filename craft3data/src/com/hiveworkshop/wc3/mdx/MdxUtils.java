@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdx;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.IOException;
 
@@ -52,7 +53,7 @@ public class MdxUtils {
 	public static void checkId(final BlizzardDataInputStream in, final String name) throws IOException {
 		final String found = in.readCharsAsString(4);
 		if (!found.equals(name)) {
-			throw new IOException("Error loading model: CheckID failed, required " + name + " found " + found);
+			throw new IOException(LocalizationManager.getInstance().get("exception.mdxutils_checkId_loading") + name + LocalizationManager.getInstance().get("exception.mdxutils_checkId_found") + found);
 		}
 	}
 
@@ -69,16 +70,16 @@ public class MdxUtils {
 	 * if(lastCheck != null){
 	 *
 	 * if(!name.equals(lastCheck)){ throw new IOException(
-	 * "Error loading model: CheckID failed after optinal check, required " + name +
-	 * " found " + lastCheck); }
+	 * LocalizationManager.getInstance().get("exception.mdxutils_checkId_loading_check") + name +
+	 * LocalizationManager.getInstance().get("exception.mdxutils_checkId_found") + lastCheck); }
 	 *
 	 * lastCheck=null;
 	 *
 	 * }else{
 	 *
 	 * String found = in.readCharsAsString(4); if (!found.equals(name)) { throw new
-	 * IOException("Error loading model: CheckID failed, required " + name +
-	 * " found " + found); } } }
+	 * IOException(LocalizationManager.getInstance().get("exception.mdxutils_checkId_loading") + name +
+	 * LocalizationManager.getInstance().get("exception.mdxutils_checkId_found") + found); } } }
 	 */
 
 	public static float[] loadFloatArray(final BlizzardDataInputStream in, final int size) throws IOException {

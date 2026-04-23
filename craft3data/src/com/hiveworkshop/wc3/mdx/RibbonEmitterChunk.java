@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdx;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -117,7 +118,7 @@ public class RibbonEmitterChunk {
 			out.writeFloat(alpha);
 			if (color.length % 3 != 0) {
 				throw new IllegalArgumentException(
-						"The array color needs either the length 3 or a multiple of this number. (got " + color.length
+						LocalizationManager.getInstance().get("exception.ribbonemitterchunk_save_array_color") + color.length
 								+ ")");
 			}
 			MdxUtils.saveFloatArray(out, color);
@@ -320,7 +321,7 @@ public class RibbonEmitterChunk {
 					colorFound = true;
 				} else {
 					if (Node.LOG_DISCARDED_FLAGS) {
-						System.err.println("discarded flag " + af.getName());
+						System.err.println(LocalizationManager.getInstance().get("println.ribbonemitterchunk_ribbonemitter_discarded_flag") + af.getName());
 					}
 				}
 			}

@@ -1,4 +1,5 @@
 package mpq.compression;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.nio.ByteBuffer;
 import java.util.zip.DataFormatException;
@@ -88,21 +89,21 @@ public class Compression {
 			break;
 		case FLAG_BZIP2:
 			// TODO add support
-			throw new DecompressionException(in, "unsupported compression type: BZIP2");
+			throw new DecompressionException(in, LocalizationManager.getInstance().get("exception.compression_blockdecompress3_unsupported") + ": BZIP2");
 		case FLAG_SPARSE:
 			// TODO add support
-			throw new DecompressionException(in, "unsupported compression type: SPARSE");
+			throw new DecompressionException(in, LocalizationManager.getInstance().get("exception.compression_blockdecompress3_unsupported") + ": SPARSE");
 		case FLAG_LZMA:
 			// TODO add support
-			throw new DecompressionException(in, "unsupported compression type: LZMA");
+			throw new DecompressionException(in, LocalizationManager.getInstance().get("exception.compression_blockdecompress3_unsupported") + ": LZMA");
 		case FLAG_SPARSE_DEFLATE:
 			// TODO add support
-			throw new DecompressionException(in, "unsupported compression type: SPARSE");
+			throw new DecompressionException(in, LocalizationManager.getInstance().get("exception.compression_blockdecompress3_unsupported") + ": SPARSE");
 		case FLAG_SPARSE_BZIP2:
 			// TODO add support
-			throw new DecompressionException(in, "unsupported compression type: SPARSE");
+			throw new DecompressionException(in, LocalizationManager.getInstance().get("exception.compression_blockdecompress3_unsupported") + ": SPARSE");
 		default:
-			throw new DecompressionException(in, "sector has unknown compression");
+			throw new DecompressionException(in, LocalizationManager.getInstance().get("exception.compression_blockdecompress3_unknown"));
 		}
 		
 		if( size >= 0 )
@@ -138,7 +139,7 @@ public class Compression {
 		// apply decompression flag at a time
 		if( (mask & FLAG_BZIP2) != 0 ){
 			// TODO add support
-			throw new DecompressionException(in, "unsupported compression type: BZIP2");
+			throw new DecompressionException(in, LocalizationManager.getInstance().get("exception.compression_blockdecompress2_unsupported") + ": BZIP2");
 		}
 		if( (mask & FLAG_IMPLODE) != 0 ){
 			sectorExplode(flip ? out : in, flip ? in : out);
@@ -165,7 +166,7 @@ public class Compression {
 			(flip ? out : in).clear();
 			flip = !flip;
 		}
-		if( (mask & FLAG_SPARSE) != 0 )	System.err.println("sparse compression flag present in mpq version that lacked support");
+		if( (mask & FLAG_SPARSE) != 0 )	System.err.println(LocalizationManager.getInstance().get("exception.compression_blockdecompress2_compression"));
 		
 		if( flip ){
 			bufferCache[size] = in;
@@ -195,7 +196,7 @@ public class Compression {
 		try {
 			pkexploderDecompress.explode(in, out);
 		} catch (PKException e) {
-			throw new DecompressionException(in, "sector explode exception", e);
+			throw new DecompressionException(in, LocalizationManager.getInstance().get("exception.compression_sectorexplode_explode"), e);
 		}
 		
 		out.flip();
@@ -208,7 +209,7 @@ public class Compression {
 			zlibInflater.setInput(in.array(), in.position(), in.remaining());
 			out.position(zlibInflater.inflate(out.array()));
 		} catch ( DataFormatException e ) {
-			throw new DecompressionException(in, "sector deflae exception", e);
+			throw new DecompressionException(in, LocalizationManager.getInstance().get("exception.compression_sectorinflated_deflae"), e);
 		}
 		
 		out.flip();
@@ -218,7 +219,7 @@ public class Compression {
 		try {
 			huffmanDecompress.Decompress(in, out);
 		} catch ( Exception e ) {
-			throw new DecompressionException(in, "sector huffman expand exception", e);
+			throw new DecompressionException(in, LocalizationManager.getInstance().get("exception.compression_sectorhuffmanexpand_huffman"), e);
 		}
 		
 		out.flip();
@@ -228,7 +229,7 @@ public class Compression {
 		try {
 			adpcmDecompress.decompress(in, out, channeln);
 		} catch ( Exception e ) {
-			throw new DecompressionException(in, "sector adpcm reconstruction exception", e);
+			throw new DecompressionException(in, LocalizationManager.getInstance().get("exception.compression_sectoradpcmreconstruct_adpcm"), e);
 		}
 		
 		out.flip();
@@ -266,11 +267,11 @@ public class Compression {
 		try {
 			pkexploderDecompress.explode(block, extra);
 		} catch (PKException e) {
-			System.err.println("pkware decompression exception: "+e.getLocalizedMessage());
+			System.err.println(LocalizationManager.getInstance().get("println.compression_blockexplode_decompression") + e.getLocalizedMessage());
 		}
 		
 		if( extra.position() != extra.limit() ){
-			System.err.println("a block failed exploding");
+			System.err.println(LocalizationManager.getInstance().get("println.compression_blockexplode_exploding"));
 		}
 		
 		block.clear();
@@ -285,7 +286,7 @@ public class Compression {
 		byte mask = block.get();
 		
 		if( strict ){
-			System.err.println("strict compression flag mode not supported");
+			System.err.println(LocalizationManager.getInstance().get("println.compression_blockdecompress_supported"));
 		}
 		
 		boolean swap = false;
@@ -293,15 +294,15 @@ public class Compression {
 		// BZIP2
 		if( (mask & 0x10) > 0 ){
 			// TODO add support
-			throw new DecompressionException(block, "unsupported compression type: BZIP2");
+			throw new DecompressionException(block, LocalizationManager.getInstance().get("exception.compression_blockdecompress_bzip2"));
 		}
 		
 		// PKWARE
-		if( (mask & 0x08) > 0 ){			
+		if( (mask & 0x08) > 0 ){
 			try {
 				pkexploderDecompress.explode(block, extra);
 			} catch (PKException e) {
-				throw new DecompressionException(block, "failed PKWARE decompression", e);
+				throw new DecompressionException(block, LocalizationManager.getInstance().get("exception.compression_blockdecompress_pkware_decompression"), e);
 			}
 			block.rewind();
 			block.limit(extra.limit());
@@ -315,13 +316,13 @@ public class Compression {
 		}
 		
 		// ZLIB
-		if( (mask & 0x02) > 0 ){			
+		if( (mask & 0x02) > 0 ){
 			try {
 				Inflater zlibInflater = new Inflater();
 				zlibInflater.setInput(block.array(), block.position(), block.remaining());
 				extra.position(zlibInflater.inflate(extra.array()));
 			} catch ( DataFormatException e ) {
-				throw new DecompressionException(block, "failed ZLIB decompression", e);
+				throw new DecompressionException(block, LocalizationManager.getInstance().get("exception.compression_blockdecompress_zlib_decompression"), e);
 			}
 			block.rewind();
 			block.limit(extra.limit());
@@ -382,12 +383,12 @@ public class Compression {
 		// SPARSE
 		if( (mask & 0x20) > 0 ){
 			// TODO add support
-			throw new DecompressionException(block, "unsupported compression type: SPARSE");
+			throw new DecompressionException(block, LocalizationManager.getInstance().get("exception.compression_blockdecompress_sparse"));
 		}
 		
 		if( block.limit() != extra.limit() ){
-			throw new DecompressionException(block, "decompression result was smaller than expected");
-			//System.err.println("a sector passed decompression but failed to meet the expected size");
+			throw new DecompressionException(block, LocalizationManager.getInstance().get("exception.compression_blockdecompress_smaller"));
+			//System.err.println(LocalizationManager.getInstance().get("println.compression_blockdecompress_size"));
 			//block.limit(extra.limit());
 		}
 		

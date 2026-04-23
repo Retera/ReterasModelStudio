@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.triggers;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -35,7 +36,7 @@ public class TriggerTreeCellRenderer extends DefaultTreeCellRenderer implements 
 	@Override
 	public Component getTreeCellRendererComponent(final JTree tree, final Object node, final boolean selected,
 			final boolean expanded, final boolean leaf, final int row, final boolean hasFocus) {
-		System.out.println("getTreeCellRendererComponent");
+		System.out.println(LocalizationManager.getInstance().get("println.triggertreecellrenderer_component_gettreecellrenderercomponent"));
 		if (defaultBackgroundSelectionColor == null) {
 			defaultBackgroundSelectionColor = getBackgroundSelectionColor();
 		}
@@ -52,7 +53,7 @@ public class TriggerTreeCellRenderer extends DefaultTreeCellRenderer implements 
 				setOpenIcon(mapIcon);
 				setClosedIcon(mapIcon);
 				setLeafIcon(mapIcon);
-				System.out.println("leaf is MAP");
+				System.out.println(LocalizationManager.getInstance().get("println.triggertreecellrenderer_component_leaf_map"));
 			} catch (final Exception exc) {
 				exc.printStackTrace();
 			}
@@ -65,10 +66,10 @@ public class TriggerTreeCellRenderer extends DefaultTreeCellRenderer implements 
 			try {
 				if (trigger.isComment()) {
 					setLeafIcon(worldEditArt.getIcon("SEIcon_TriggerComment"));
-					System.out.println("leaf is COMMENT");
+					System.out.println(LocalizationManager.getInstance().get("println.triggertreecellrenderer_component_leaf_comment"));
 				} else {
 					setLeafIcon(worldEditArt.getIcon("SEIcon_Trigger"));
-					System.out.println("leaf is TRIGGER");
+					System.out.println(LocalizationManager.getInstance().get("println.triggertreecellrenderer_component_leaf_trigger"));
 				}
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -85,7 +86,7 @@ public class TriggerTreeCellRenderer extends DefaultTreeCellRenderer implements 
 			try {
 				setOpenIcon(worldEditArt.getIcon("SEIcon_TriggerCategoryOpen"));
 				setLeafIcon(worldEditArt.getIcon("SEIcon_TriggerCategory"));
-				System.out.println("leaf is CATEGORY");
+				System.out.println(LocalizationManager.getInstance().get("println.triggertreecellrenderer_component_leaf_category"));
 				setClosedIcon(worldEditArt.getIcon("SEIcon_TriggerCategory"));
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -93,7 +94,7 @@ public class TriggerTreeCellRenderer extends DefaultTreeCellRenderer implements 
 			super.getTreeCellRendererComponent(tree, displayName, selected, expanded, leaf, row, hasFocus);
 		} else {
 			setLeafIcon(worldEditArt.getIcon("SEIcon_FunctionDisabled"));
-			System.out.println("leaf is STATE CORRUPTION");
+			System.out.println(LocalizationManager.getInstance().get("println.triggertreecellrenderer_component_leaf_state_corruption"));
 			// final TreePath selectionPath = tree.getSelectionPath();
 			// if (tree.getSelectionCount() == 1) {
 			// switch (selectionPath.getPathCount()) {

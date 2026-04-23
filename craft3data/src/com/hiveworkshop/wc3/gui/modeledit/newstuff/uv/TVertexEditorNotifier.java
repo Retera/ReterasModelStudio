@@ -25,6 +25,7 @@ import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.matrixeater.localization.LocalizationManager;
 
 public class TVertexEditorNotifier extends SubscriberSetNotifier<TVertexEditor> implements TVertexEditor {
 	private CloneContextHelper cloneContextHelper;
@@ -288,7 +289,7 @@ public class TVertexEditorNotifier extends SubscriberSetNotifier<TVertexEditor> 
 				uvLayerIndex = handler.getUVLayerIndex();
 			}
 			else if (uvLayerIndex != handler.getUVLayerIndex()) {
-				throw new IllegalStateException("Differing UV Layer Indices between editors: " + uvLayerIndex + " != "
+				throw new IllegalStateException(LocalizationManager.getInstance().get("exception.tvertexeditornotifier_getuvlayerindex") + uvLayerIndex + " != "
 						+ handler.getUVLayerIndex());
 			}
 		}

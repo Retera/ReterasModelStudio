@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.File;
 import java.util.HashMap;

@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.actions;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexEditor;
 import com.hiveworkshop.wc3.mdl.TVertex;
+import com.matrixeater.localization.LocalizationManager;
 
 public final class StaticMeshUVRotateAction implements GenericRotateAction {
 	private final TVertexEditor modelEditor;
@@ -32,7 +33,7 @@ public final class StaticMeshUVRotateAction implements GenericRotateAction {
 
 	@Override
 	public String actionName() {
-		return "rotate";
+		return LocalizationManager.getInstance().get("string.staticmeshuvrotateaction_actionname");
 	}
 
 	@Override

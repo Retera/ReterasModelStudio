@@ -5,6 +5,7 @@ import java.util.List;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
+import com.matrixeater.localization.LocalizationManager;
 
 public final class HideGeosetsAction implements UndoAction {
 	private final List<Geoset> geosets;
@@ -36,7 +37,7 @@ public final class HideGeosetsAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "hide geosets";
+		return LocalizationManager.getInstance().get("string.hidegeosetsaction_actionname");
 	}
 
 }

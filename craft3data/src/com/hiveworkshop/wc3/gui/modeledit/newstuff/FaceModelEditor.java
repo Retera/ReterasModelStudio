@@ -33,6 +33,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import com.matrixeater.localization.LocalizationManager;
 
 public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 	private final ProgramPreferences programPreferences;
@@ -46,17 +47,17 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 
 	@Override
 	public UndoAction autoCenterSelectedBones() {
-		throw new UnsupportedOperationException("This feature is not available in Face mode");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.facemodeleditor_autocenterselectedbones"));
 	}
 
 	@Override
 	public UndoAction setSelectedBoneName(final String name) {
-		throw new UnsupportedOperationException("This feature is not available in Face mode");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.facemodeleditor_setselectedbonename"));
 	}
 
 	@Override
 	public UndoAction addSelectedBoneSuffix(final String name) {
-		throw new UnsupportedOperationException("This feature is not available in Face mode");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.facemodeleditor_addselectedbonesuffix"));
 	}
 
 	@Override
@@ -110,7 +111,7 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 			expandSelection(triangle, expandedSelection);
 		}
 		selectionManager.addSelection(expandedSelection);
-		return new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, "expand selection");
+		return new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("action.facemodeleditor_expandselection"));
 	}
 
 	private void expandSelection(final Triangle currentTriangle, final Set<Triangle> selection) {
@@ -139,7 +140,7 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 			}
 		}
 		selectionManager.setSelection(invertedSelection);
-		return new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection");
+		return new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("action.facemodeleditor_invertselection"));
 	}
 
 	@Override
@@ -152,7 +153,7 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 			}
 		}
 		selectionManager.setSelection(allSelection);
-		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all");
+		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("action.facemodeleditor_selectall"));
 	}
 
 	@Override
@@ -160,7 +161,7 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 		final Set<Triangle> oldSelection = new HashSet<>(selectionManager.getSelection());
 		final Set<Triangle> allSelection = new HashSet<>();
 		selectionManager.setSelection(allSelection);
-		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select HD unused");
+		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("action.facemodeleditor_selecthdunusednodes"));
 	}
 
 	@Override
@@ -317,22 +318,22 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 	@Override
 	public UndoAction addVertex(final double x, final double y, final double z,
 			final Vertex preferredNormalFacingVector) {
-		throw new WrongModeException("Unable to add vertex in face selection mode");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.facemodeleditor_addvertex"));
 	}
 
 	@Override
 	public UndoAction createFaceFromSelection(final Vertex preferredFacingVector) {
-		throw new WrongModeException("Unable to create face from vertices in face selection mode");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.facemodeleditor_createfacefromselection"));
 	}
 
 	@Override
 	public UndoAction setParent(final IdObject node) {
-		throw new UnsupportedOperationException("This feature is not available in Face mode");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.facemodeleditor_setparent"));
 	}
 
 	@Override
 	public UndoAction reLinkRFBone(IdObject node) {
-		throw new UnsupportedOperationException("This feature is not available in Face mode");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.facemodeleditor_relinkrfbone"));
 	}
 
 	public VertexSelectionHelper getVertexSelectionHelper() {

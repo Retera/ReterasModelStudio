@@ -57,6 +57,7 @@ import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
+import com.matrixeater.localization.LocalizationManager;
 
 public class TracksEditorPanel extends JPanel {
 	private static final float TIME_SCALE_SETTING_DIVISOR = 1000.0f;
@@ -95,9 +96,9 @@ public class TracksEditorPanel extends JPanel {
 
 		final JPanel controlsPanel = new JPanel();
 		mouseTimeField.setEditable(false);
-		controlsPanel.add(new JLabel("Scale:"));
+		controlsPanel.add(new JLabel(LocalizationManager.getInstance().get("label.trackseditorpanel_trackseditorpanel_scale")));
 		controlsPanel.add(scaleSlider);
-		controlsPanel.add(new JLabel("Mouse:"));
+		controlsPanel.add(new JLabel(LocalizationManager.getInstance().get("label.trackseditorpanel_trackseditorpanel_mouse")));
 		controlsPanel.add(mouseTimeField);
 		timelinePanel.addMouseMotionListener(new MouseMotionListener() {
 			@Override
@@ -259,12 +260,12 @@ public class TracksEditorPanel extends JPanel {
 									// (Copy&Paste cannot use this optimization, and must create deep copies
 									// of the keyframe values)
 									if (track.tans()) {
-										deleteFrameAction = new ReversedAction("delete keyframe",
+										deleteFrameAction = new ReversedAction(LocalizationManager.getInstance().get("label.trackseditorpanel_deletekeyframes_delete_keyframe"),
 												new AddKeyframeAction(container, track, time,
 														track.getValues().get(index), track.getInTans().get(index),
 														track.getOutTans().get(index), modelStructureChangeListener));
 									} else {
-										deleteFrameAction = new ReversedAction("delete keyframe",
+										deleteFrameAction = new ReversedAction(LocalizationManager.getInstance().get("label.trackseditorpanel_deletekeyframes_delete_keyframe"),
 												new AddKeyframeAction(container, track, time,
 														track.getValues().get(index), modelStructureChangeListener));
 									}
@@ -278,7 +279,7 @@ public class TracksEditorPanel extends JPanel {
 
 			}
 
-			final CompoundAction compoundAction = new CompoundAction("Delete Keyframe(s)", actions);
+			final CompoundAction compoundAction = new CompoundAction(LocalizationManager.getInstance().get("label.trackseditorpanel_deletekeyframes_delete_keyframe_s"), actions);
 			compoundAction.redo();
 			undoActionListener.pushAction(compoundAction);
 			repaint();
@@ -354,7 +355,7 @@ public class TracksEditorPanel extends JPanel {
 							actions.add(new SlideKeyframeByIndexAction(track, index, timeDelta, repainter));
 						}
 					}
-					final CompoundAction compoundAction = new CompoundAction("Slide Keyframe(s)", actions);
+					final CompoundAction compoundAction = new CompoundAction(LocalizationManager.getInstance().get("label.trackseditorpanel_mousereleased"), actions);
 					compoundAction.redo();
 					undoActionListener.pushAction(compoundAction);
 				} else {

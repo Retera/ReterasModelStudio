@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -147,7 +148,7 @@ public class GeosetVertex extends Vertex {
 		}
 		catch (final Exception e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error in Matrices: VertexGroup does not reference a real matrix id!");
+					LocalizationManager.getInstance().get("dialog.geosetvertex_updatematrixref_real_matrix_id"));
 		}
 	}
 
@@ -174,21 +175,21 @@ public class GeosetVertex extends Vertex {
 		}
 		catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") + " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.geosetvertex_parsetext_interpreted"));
 		}
 		try {
 			y = Double.parseDouble(entries[1]);
 		}
 		catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") + " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.geosetvertex_parsetext_interpreted"));
 		}
 		try {
 			z = Double.parseDouble(entries[2].split("}")[0]);
 		}
 		catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") + " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.geosetvertex_parsetext_interpreted"));
 		}
 		temp = new GeosetVertex(x, y, z);
 		return temp;

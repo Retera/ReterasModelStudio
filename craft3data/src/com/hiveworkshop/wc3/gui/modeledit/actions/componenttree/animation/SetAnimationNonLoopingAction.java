@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.animation;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.Animation;
+import com.matrixeater.localization.LocalizationManager;
 
 public class SetAnimationNonLoopingAction implements UndoAction {
 	private final boolean prevValue;
@@ -33,9 +34,9 @@ public class SetAnimationNonLoopingAction implements UndoAction {
 	@Override
 	public String actionName() {
 		if (newValue) {
-			return "set animation looping";
+			return LocalizationManager.getLocalized("data.string.setanimationnonloopingaction_actionname_1") + newValue;
 		}
-		return "set animation non looping";
+		return LocalizationManager.getLocalized("data.string.setanimationnonloopingaction_actionname_2");
 	}
 
 }

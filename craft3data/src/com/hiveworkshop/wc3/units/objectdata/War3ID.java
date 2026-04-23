@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.units.objectdata;
+import com.matrixeater.localization.LocalizationManager;
 
 import com.hiveworkshop.wc3.util.CharInt;
 
@@ -17,12 +18,12 @@ public final class War3ID implements Comparable<War3ID> {
 	public static War3ID fromString(String idString) {
 		if (idString.length() == 3) {
 			System.out.println(
-					"Loaded custom data for the ability CURSE whose MetaData field, 'Crs', is the only 3 letter War3ID in the game. This might cause unexpected errors, so watch your % chance to miss in custom curse abilities carefully.");
+					LocalizationManager.getInstance().get("println.war3id_fromString_metadata"));
 			idString += '\0';
 		}
 		if (idString.length() != 4) {
 			throw new IllegalArgumentException(
-					"A War3ID must be 4 ascii characters in length (got " + idString.length() + ") '" + idString + "'");
+					LocalizationManager.getInstance().get("exception.war3id_fromString_war3id") + idString.length() + ") '" + idString + "'");
 		}
 		return new War3ID(CharInt.toInt(idString));
 	}

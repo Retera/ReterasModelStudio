@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.IdObject.NodeFlags;
 import com.hiveworkshop.wc3.mdx.CameraChunk;
+import com.matrixeater.localization.LocalizationManager;
 
 /**
  * Camera class, these are the things most people would think of as a particle
@@ -116,15 +117,15 @@ public class Camera implements Named {
 							MDLReader.reset(mdl);
 							c.targetAnimFlags.add(AnimFlag.read(mdl));
 						} else {
-							JOptionPane.showMessageDialog(null, "Camera target did not recognize data at: " + line
-									+ "\nThis is probably not a major issue?");
+							JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.camera_read_target_not_recognize") + line
+									+ LocalizationManager.getInstance().get("dialog.camera_read_major_issue"));
 						}
 						MDLReader.mark(mdl);
 						line = MDLReader.nextLine(mdl);
 					}
 				} else {
 					JOptionPane.showMessageDialog(null,
-							"Camera did not recognize data at: " + line + "\nThis is probably not a major issue?");
+							LocalizationManager.getInstance().get("dialog.camera_read_camera_not_recognize") + line + LocalizationManager.getInstance().get("dialog.camera_read_major_issue"));
 				}
 
 				MDLReader.mark(mdl);
@@ -133,7 +134,7 @@ public class Camera implements Named {
 			return c;
 		} else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse Camera: Missing or unrecognized open statement.");
+					LocalizationManager.getInstance().get("dialog.camera_read_parse_camera"));
 		}
 		return null;
 	}
@@ -144,7 +145,7 @@ public class Camera implements Named {
 		// -- uses parentId value of idObject superclass
 		// -- uses the parent (java Object reference) of idObject superclass
 		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
-		writer.println("\tPosition " + Position.toString() + ",");
+		writer.println(LocalizationManager.getInstance().get("println.camera_printto_position") + Position.toString() + ",");
 		for (int i = 0; i < animFlags.size(); i++) {
 			if (animFlags.get(i).getName().equals("Translation")) {
 				animFlags.get(i).printTo(writer, 1);
@@ -155,11 +156,11 @@ public class Camera implements Named {
 				animFlags.get(i).printTo(writer, 1);
 			}
 		}
-		writer.println("\tFieldOfView " + MDLReader.doubleToString(FieldOfView) + ",");
-		writer.println("\tFarClip " + MDLReader.doubleToString(FarClip) + ",");
-		writer.println("\tNearClip " + MDLReader.doubleToString(NearClip) + ",");
-		writer.println("\tTarget {");
-		writer.println("\t\tPosition " + targetPosition.toString() + ",");
+		writer.println(LocalizationManager.getInstance().get("println.camera_printto_view") + MDLReader.doubleToString(FieldOfView) + ",");
+		writer.println(LocalizationManager.getInstance().get("println.camera_printto_farclip") + MDLReader.doubleToString(FarClip) + ",");
+		writer.println(LocalizationManager.getInstance().get("println.camera_printto_nearclip") + MDLReader.doubleToString(NearClip) + ",");
+		writer.println(LocalizationManager.getInstance().get("println.camera_printto_target"));
+		writer.println(LocalizationManager.getInstance().get("println.camera_printto_position_t") + targetPosition.toString() + ",");
 		for (int i = 0; i < targetAnimFlags.size(); i++) {
 			targetAnimFlags.get(i).printTo(writer, 2);
 		}
@@ -277,7 +278,7 @@ public class Camera implements Named {
 
 		@Override
 		public String getName() {
-			return "Source of: " + parent.name;
+			return LocalizationManager.getInstance().get("string.camera_sourcenode") + parent.name;
 		}
 
 		@Override
@@ -387,7 +388,7 @@ public class Camera implements Named {
 
 		@Override
 		public String getName() {
-			return "Target of: " + parent.name;
+			return LocalizationManager.getInstance().get("string.camera_target") + parent.name;
 		}
 
 		@Override

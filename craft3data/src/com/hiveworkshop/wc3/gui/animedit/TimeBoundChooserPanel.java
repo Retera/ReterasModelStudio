@@ -33,6 +33,7 @@ import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.EventObject;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.util.Callback;
+import com.matrixeater.localization.LocalizationManager;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -97,11 +98,11 @@ public class TimeBoundChooserPanel extends JPanel {
 			}
 		};
 
-		animationTimeButton = new JRadioButton("Animation Sequence");
+		animationTimeButton = new JRadioButton(LocalizationManager.getInstance().get("button.timeboundchooserpanel_animationtime"));
 		// animationTimeButton.addChangeListener(buttonStatesChangeListener);
-		customTimeButton = new JRadioButton("Custom Time");
+		customTimeButton = new JRadioButton(LocalizationManager.getInstance().get("button.timeboundchooserpanel_customtime"));
 		// customTimeButton.addChangeListener(buttonStatesChangeListener);
-		globalSequencesButton = new JRadioButton("Global Sequence");
+		globalSequencesButton = new JRadioButton(LocalizationManager.getInstance().get("button.timeboundchooserpanel_globalsequences"));
 		// globalSequencesButton.addChangeListener(buttonStatesChangeListener);
 		buttonGroup = new ButtonGroup();
 		buttonGroup.add(animationTimeButton);
@@ -109,8 +110,8 @@ public class TimeBoundChooserPanel extends JPanel {
 		buttonGroup.add(globalSequencesButton);
 		timeStart = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
 		timeEnd = new JSpinner(new SpinnerNumberModel(1000, 0, Integer.MAX_VALUE, 1));
-		startLabel = new JLabel("Start:");
-		endLabel = new JLabel("End:");
+		startLabel = new JLabel(LocalizationManager.getInstance().get("label.timeboundchooserpanel_start"));
+		endLabel = new JLabel(LocalizationManager.getInstance().get("label.timeboundchooserpanel_end"));
 		animationScrollPane = new JScrollPane(animationBox);
 		globalSeqScrollPane = new JScrollPane(globalSeqBox);
 
@@ -138,14 +139,16 @@ public class TimeBoundChooserPanel extends JPanel {
 		animationScrollPane.setPreferredSize(new Dimension(640, 320));
 		globalSeqScrollPane.setPreferredSize(new Dimension(640, 320));
 		animationPanel.add(animationScrollPane, "cell 0 0 5 12");
-		final JButton createAnimation = new JButton("Create");
-		final JButton duplicateAnimation = new JButton("Duplicate");
+		final JButton createAnimation = new JButton(LocalizationManager.getInstance().get("button.timeboundchooserpanel_createanimation"));
+		final JButton duplicateAnimation = new JButton(LocalizationManager.getInstance().get("button.timeboundchooserpanel_duplicateanimation"));
 		duplicateAnimation.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				final Animation selectedAnimation = animationBox.getSelectedValue();
 				final String userChosenName = JOptionPane.showInputDialog(TimeBoundChooserPanel.this,
-						"Choose new animation name:", selectedAnimation.getName() + " Second");
+						LocalizationManager.getInstance().get("dialog.timeboundchooserpanel_userchosenname_1"), 
+						selectedAnimation.getName()
+						+ LocalizationManager.getInstance().get("dialog.timeboundchooserpanel_userchosenname_2"));
 				if (userChosenName != null) {
 					final Animation copyAnimation = new Animation(selectedAnimation);
 					final Animation lastAnim = modelView.getModel().getAnim(modelView.getModel().getAnimsSize() - 1);
@@ -161,8 +164,8 @@ public class TimeBoundChooserPanel extends JPanel {
 				}
 			}
 		});
-		final JButton deleteAnimation = new JButton("Delete");
-		final JButton editAnimation = new JButton("Edit");
+		final JButton deleteAnimation = new JButton(LocalizationManager.getInstance().get("button.timeboundchooserpanel_deleteanimation"));
+		final JButton editAnimation = new JButton(LocalizationManager.getInstance().get("button.timeboundchooserpanel_editanimation"));
 		editAnimation.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -178,9 +181,9 @@ public class TimeBoundChooserPanel extends JPanel {
 			public void actionPerformed(final ActionEvent e) {
 				final JPanel createAnimQuestionPanel = new JPanel();
 				final JTextField nameField = new JTextField(24);
-				final JRadioButton lengthButton = new JRadioButton("Length");
+				final JRadioButton lengthButton = new JRadioButton(LocalizationManager.getInstance().get("button.timeboundchooserpanel_length"));
 				final JSpinner newAnimLength = new JSpinner(new SpinnerNumberModel(1000, 0, Integer.MAX_VALUE, 1));
-				final JRadioButton timeRangeButton = new JRadioButton("Time Range");
+				final JRadioButton timeRangeButton = new JRadioButton(LocalizationManager.getInstance().get("button.timeboundchooserpanel_timerange"));
 				final Animation lastAnimation = modelView.getModel().getAnimsSize() == 0 ? null
 						: modelView.getModel().getAnim(modelView.getModel().getAnimsSize() - 1);
 				final int lastAnimationEnd = lastAnimation == null ? 0 : lastAnimation.getEnd();
@@ -222,33 +225,33 @@ public class TimeBoundChooserPanel extends JPanel {
 				});
 				timeRangeButton.addActionListener(actions);
 				createAnimQuestionPanel.setLayout(new MigLayout());
-				createAnimQuestionPanel.add(new JLabel("Name: "), "cell 0 0");
+				createAnimQuestionPanel.add(new JLabel(LocalizationManager.getInstance().get("label.timeboundchooserpanel_createanim_name")), "cell 0 0");
 				createAnimQuestionPanel.add(nameField, "cell 1 0");
 				createAnimQuestionPanel.add(lengthButton, "cell 0 1");
-				createAnimQuestionPanel.add(new JLabel("Length: "), "cell 0 2");
+				createAnimQuestionPanel.add(new JLabel(LocalizationManager.getInstance().get("label.timeboundchooserpanel_createanim_length")), "cell 0 2");
 				createAnimQuestionPanel.add(newAnimLength, "cell 1 2");
 				createAnimQuestionPanel.add(timeRangeButton, "cell 0 3");
-				createAnimQuestionPanel.add(new JLabel("Start: "), "cell 0 4");
+				createAnimQuestionPanel.add(new JLabel(LocalizationManager.getInstance().get("label.timeboundchooserpanel_createanim_start")), "cell 0 4");
 				createAnimQuestionPanel.add(newAnimTimeStart, "cell 1 4");
-				createAnimQuestionPanel.add(new JLabel("End: "), "cell 2 4");
+				createAnimQuestionPanel.add(new JLabel(LocalizationManager.getInstance().get("label.timeboundchooserpanel_createanim_end")), "cell 2 4");
 				createAnimQuestionPanel.add(newAnimTimeEnd, "cell 3 4");
 				final JPanel extraProperties = new JPanel();
 				createAnimQuestionPanel.add(extraProperties, "cell 0 5");
 
 				final JSpinner rarityChooser = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
 				final JSpinner moveSpeedChooser = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
-				extraProperties.setBorder(BorderFactory.createTitledBorder("Misc"));
+				extraProperties.setBorder(BorderFactory.createTitledBorder(LocalizationManager.getInstance().get("border.timeboundchooserpanel_extraproperties_misc")));
 				extraProperties.setLayout(new MigLayout());
-				final JCheckBox nonLoopingChooser = new JCheckBox("NonLooping");
+				final JCheckBox nonLoopingChooser = new JCheckBox(LocalizationManager.getInstance().get("checkbox.timeboundchooserpanel_nonloopingchooser_nonlooping"));
 				extraProperties.add(nonLoopingChooser, "cell 0 0");
-				extraProperties.add(new JLabel("Rarity"), "cell 0 1");
+				extraProperties.add(new JLabel(LocalizationManager.getInstance().get("label.timeboundchooserpanel_extraproperties_rarity")), "cell 0 1");
 				extraProperties.add(rarityChooser, "cell 1 1");
-				extraProperties.add(new JLabel("MoveSpeed"), "cell 0 2");
+				extraProperties.add(new JLabel(LocalizationManager.getInstance().get("label.timeboundchooserpanel_extraproperties_movespeed")), "cell 0 2");
 				extraProperties.add(moveSpeedChooser, "cell 1 2");
 
 				lengthButton.doClick();
 				final int result = JOptionPane.showConfirmDialog(TimeBoundChooserPanel.this, createAnimQuestionPanel,
-						"Create Animation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+						LocalizationManager.getInstance().get("dialog.timeboundchooserpanel_result_create_animation"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 				if (result == JOptionPane.OK_OPTION) {
 					final Animation newAnimation = new Animation(nameField.getText(),
 							((Number) newAnimTimeStart.getValue()).intValue(),
@@ -274,8 +277,8 @@ public class TimeBoundChooserPanel extends JPanel {
 		deleteAnimation.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				final int result = JOptionPane.showConfirmDialog(TimeBoundChooserPanel.this, "Also delete keyframes?",
-						"Delete Animation", JOptionPane.YES_NO_CANCEL_OPTION);
+				final int result = JOptionPane.showConfirmDialog(TimeBoundChooserPanel.this, LocalizationManager.getInstance().get("dialog.timeboundchooserpanel_deleteanimation_actionperformed_1"),
+						LocalizationManager.getInstance().get("dialog.timeboundchooserpanel_deleteanimation_actionperformed_2"), JOptionPane.YES_NO_CANCEL_OPTION);
 				final Animation selectedValue = animationBox.getSelectedValue();
 				if (result == JOptionPane.YES_OPTION) {
 					// del keys
@@ -302,21 +305,21 @@ public class TimeBoundChooserPanel extends JPanel {
 		customTimePanel.add(timeEnd, "cell 3 0");
 		tabs.addTab("Custom Time", customTimePanel);
 		final JPanel globSeq = new JPanel(new MigLayout());
-		final JButton createGlobalSeq = new JButton("Create");
+		final JButton createGlobalSeq = new JButton(LocalizationManager.getInstance().get("button.timeboundchooserpanel_createglobalseq"));
 		createGlobalSeq.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				final SpinnerNumberModel sModel = new SpinnerNumberModel(1000, 1, Integer.MAX_VALUE, 1);
 				final JSpinner spinner = new JSpinner(sModel);
 				final int userChoice = JOptionPane.showConfirmDialog(TimeBoundChooserPanel.this, spinner,
-						"Enter Length", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+						LocalizationManager.getInstance().get("dialog.timeboundchooserpanel_createglobalseq_userchoice"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 				if (userChoice != JOptionPane.OK_OPTION) {
 					return;
 				}
 				if (globalSeqs.contains(spinner.getValue())) {
 					JOptionPane.showMessageDialog(TimeBoundChooserPanel.this,
-							"A Global Sequence with that length already exists.\nThis program does not support multiple Global Sequences of the same length.\nInstead, simply add animation data to the sequence of that length which already exists.",
-							"Error", JOptionPane.ERROR_MESSAGE);
+							LocalizationManager.getInstance().get("dialog.timeboundchooserpanel_createglobalseq_globalseqs_1"),
+							LocalizationManager.getInstance().get("dialog.timeboundchooserpanel_createglobalseq_globalseqs_2"), JOptionPane.ERROR_MESSAGE);
 				}
 				else {
 					globalSeqs.addElement((Integer) spinner.getValue());
@@ -324,12 +327,13 @@ public class TimeBoundChooserPanel extends JPanel {
 				}
 			}
 		});
-		final JButton deleteGlobalSeq = new JButton("Delete");
+		final JButton deleteGlobalSeq = new JButton(LocalizationManager.getInstance().get("button.timeboundchooserpanel_deleteglobalseq"));
 		deleteGlobalSeq.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				final int result = JOptionPane.showConfirmDialog(TimeBoundChooserPanel.this,
-						"Also delete linked timelines and their keyframes?", "Delete Animation",
+						LocalizationManager.getInstance().get("dialog.timeboundchooserpanel_deleteglobalseq_result_1"),
+						LocalizationManager.getInstance().get("dialog.timeboundchooserpanel_deleteglobalseq_result_2"),
 						JOptionPane.YES_NO_CANCEL_OPTION);
 				final Integer selectedValue = globalSeqBox.getSelectedValue();
 				if (result == JOptionPane.YES_OPTION) {
@@ -368,8 +372,10 @@ public class TimeBoundChooserPanel extends JPanel {
 				timeEnvironmentImpl.setGlobalSeq(selectedValue);
 			}
 			else {
-				JOptionPane.showMessageDialog(this, "You didn't select a global sequence!", "Error",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this,
+					LocalizationManager.getInstance().get("dialog.timeboundchooserpanel_applyto_timeenvironmentimpl_1"),
+					LocalizationManager.getInstance().get("dialog.timeboundchooserpanel_applyto_timeenvironmentimpl_2"),
+					JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}

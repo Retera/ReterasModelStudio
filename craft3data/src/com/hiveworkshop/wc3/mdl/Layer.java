@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -745,7 +746,7 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		}
 		else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse Layer: Missing or unrecognized open statement.");
+					LocalizationManager.getInstance().get("dialog.layer_read_parse_layer"));
 		}
 		return null;
 	}
@@ -768,31 +769,31 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		for (int i = 0; i < tabHeight; i++) {
 			tabs = tabs + "\t";
 		}
-		writer.println(tabs + "Layer {");
-		writer.println(tabs + "\tFilterMode " + filterMode + ",");
+		writer.println(tabs + LocalizationManager.getInstance().get("println.layer_printto_layer") + " {");
+		writer.println(tabs + LocalizationManager.getInstance().get("println.layer_printto_filtermode") + filterMode + ",");
 		for (int i = 0; i < flags.size(); i++) {
 			writer.println(tabs + "\t" + flags.get(i) + ",");
 		}
 		if (ModelUtils.isCombinedHDLayerSupported(version)) {
 			if (layerShader == null) {
-				writer.println(tabs + "\tShaderTypeId 0, // null");
+				writer.println(tabs + LocalizationManager.getInstance().get("println.layer_printto_shadertypeid") + " 0, // null");
 			}
 			else {
-				writer.println(tabs + "\tShaderTypeId " + layerShader.ordinal() + ", //" + layerShader.name());
+				writer.println(tabs + LocalizationManager.getInstance().get("println.layer_printto_shadertypeid") + layerShader.ordinal() + ", //" + layerShader.name());
 			}
 			for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
 				final Integer textureId = shaderTextureIds.get(shaderTextureTypeHD);
 				if ((textureId != null) && (textureId != -1)) {
 					final String name = shaderTextureTypeHD == ShaderTextureTypeHD.Diffuse ? ""
 							: shaderTextureTypeHD.name();
-					writer.println(tabs + "\tstatic " + name + "TextureID " + textureId + ",");
+					writer.println(tabs + LocalizationManager.getInstance().get("println.layer_printto_static") + name + LocalizationManager.getInstance().get("println.layer_printto_textureid") + textureId + ",");
 				}
 			}
 		}
 		else {
 			final Integer textureId = shaderTextureIds.get(ShaderTextureTypeHD.Diffuse);
 			if ((textureId != null) && (textureId != -1)) {
-				writer.println(tabs + "\tstatic TextureID " + textureId + ",");
+				writer.println(tabs + LocalizationManager.getInstance().get("println.layer_printto_static_textureid") + textureId + ",");
 			}
 		}
 		for (int i = 0; i < anims.size(); i++) {
@@ -804,10 +805,10 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 			}
 		}
 		if (hasTexAnim()) {
-			writer.println(tabs + "\tTVertexAnimId " + TVertexAnimId + ",");
+			writer.println(tabs + LocalizationManager.getInstance().get("println.layer_printto_tvertexanimid") + TVertexAnimId + ",");
 		}
 		if (useCoords) {
-			writer.println(tabs + "\tCoordId " + CoordId + ",");
+			writer.println(tabs + LocalizationManager.getInstance().get("println.layer_printto_coordid") + CoordId + ",");
 		}
 		boolean foundAlpha = false;
 		for (int i = 0; i < anims.size(); i++) {
@@ -818,7 +819,7 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 			}
 		}
 		if ((staticAlpha != -1) && !foundAlpha) {
-			writer.println(tabs + "\tstatic Alpha " + staticAlpha + ",");
+			writer.println(tabs + LocalizationManager.getInstance().get("println.layer_printto_static_alpha") + staticAlpha + ",");
 		}
 		if (ModelUtils.isEmissiveLayerSupported(version)) {
 			boolean foundEmissive = false;
@@ -830,7 +831,7 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 				}
 			}
 			if (!Double.isNaN(emissiveGain) && (emissiveGain != 1.0) && !foundEmissive) {
-				writer.println(tabs + "\tstatic EmissiveGain " + MDLReader.doubleToString(emissiveGain) + ",");
+				writer.println(tabs + LocalizationManager.getInstance().get("println.layer_printto_static_emissivegain") + MDLReader.doubleToString(emissiveGain) + ",");
 			}
 		}
 		if (ModelUtils.isFresnelColorLayerSupported(version)) {
@@ -845,7 +846,7 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 			if ((fresnelColor != null)
 					&& ((fresnelColor.x != 1.0) || (fresnelColor.y != 1.0) || (fresnelColor.z != 1.0))
 					&& !foundFresnelColor) {
-				writer.println(tabs + "\tstatic FresnelColor " + fresnelColor + ",");
+				writer.println(tabs + LocalizationManager.getInstance().get("println.layer_printto_static_fresnelcolor") + fresnelColor + ",");
 			}
 			boolean foundFresnelOpacity = false;
 			for (int i = 0; i < anims.size(); i++) {
@@ -856,7 +857,7 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 				}
 			}
 			if (!Double.isNaN(fresnelOpacity) && (fresnelOpacity != 0) && !foundFresnelOpacity) {
-				writer.println(tabs + "\tstatic FresnelOpacity " + MDLReader.doubleToString(fresnelOpacity) + ",");
+				writer.println(tabs + LocalizationManager.getInstance().get("println.layer_printto_static_fresnelopacity") + MDLReader.doubleToString(fresnelOpacity) + ",");
 			}
 			boolean foundFresnelTeamColor = false;
 			for (int i = 0; i < anims.size(); i++) {
@@ -867,7 +868,7 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 				}
 			}
 			if (!Double.isNaN(fresnelTeamColor) && (fresnelTeamColor != 0) && !foundFresnelTeamColor) {
-				writer.println(tabs + "\tstatic FresnelTeamColor " + MDLReader.doubleToString(fresnelTeamColor) + ",");
+				writer.println(tabs + LocalizationManager.getInstance().get("println.layer_printto_static_fresnelteamcolor") + MDLReader.doubleToString(fresnelTeamColor) + ",");
 			}
 		}
 		writer.println(tabs + "}");
@@ -876,12 +877,12 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 	@Override
 	public String getName() {
 		final Bitmap texture = shaderTextures.get(ShaderTextureTypeHD.Diffuse);
-		return getTextureName(texture, "multi-textured layer (mode " + filterMode + ") ");
+		return getTextureName(texture, LocalizationManager.getInstance().get("string.layer_getname_multi_textured") + filterMode + ") ");
 	}
 
 	public String getTextureName(final Bitmap texture, final String nullText) {
 		if (texture != null) {
-			return texture.getName() + " layer (mode " + filterMode + ") ";
+			return texture.getName() + LocalizationManager.getInstance().get("string.layer_gettexturename_layer") + filterMode + ") ";
 		}
 		return nullText;
 	}
@@ -897,7 +898,7 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		}
 		if (count > 1) {
 			JOptionPane.showMessageDialog(null,
-					"Some " + what + " animation data was lost unexpectedly during retrieval in " + getName() + ".");
+					LocalizationManager.getInstance().get("dialog.layer_getflag_some") + what + LocalizationManager.getInstance().get("dialog.layer_getflag_retrieval") + getName() + ".");
 		}
 		return output;
 	}
@@ -919,7 +920,7 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		}
 		if (count > 1) {
 			JOptionPane.showMessageDialog(null,
-					"Some visiblity animation data was lost unexpectedly during overwrite in " + getName() + ".");
+					LocalizationManager.getInstance().get("dialog.layer_setvisibilityflag_overwrite") + getName() + ".");
 		}
 	}
 
@@ -935,7 +936,7 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		}
 		if (count > 1) {
 			JOptionPane.showMessageDialog(null,
-					"Some visiblity animation data was lost unexpectedly during retrieval in " + getName() + ".");
+					LocalizationManager.getInstance().get("dialog.layer_getvisibilityflag_retrieval") + getName() + ".");
 		}
 		return output;
 	}
@@ -1079,12 +1080,12 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 
 	@Override
 	public Animatable<Bitmap> getTexture() {
-		throw new UnsupportedOperationException("not yet implemented");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.layer_animatable"));
 	}
 
 	@Override
 	public Animatable<Double> getAlpha() {
-		throw new UnsupportedOperationException("not yet implemented");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.layer_animatable"));
 	}
 
 	public Vertex getFresnelColor() {

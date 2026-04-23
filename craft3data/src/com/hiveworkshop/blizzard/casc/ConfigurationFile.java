@@ -12,6 +12,7 @@ import java.util.Scanner;
 
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
 import com.hiveworkshop.nio.ByteBufferInputStream;
+import com.matrixeater.localization.LocalizationManager;
 
 /**
  * File containing CASC configuration information. This is basically a
@@ -91,7 +92,7 @@ public class ConfigurationFile {
 					final int assignmentIndex = record.indexOf('=');
 					if (assignmentIndex == -1) {
 						throw new MalformedCASCStructureException(
-								"configuration file line contains record with no assignment");
+								LocalizationManager.getInstance().get("exception.configurationfile_configuration_no_assignment"));
 					}
 
 					final String key = record.substring(0, assignmentIndex).trim();
@@ -99,7 +100,7 @@ public class ConfigurationFile {
 
 					if (configuration.putIfAbsent(key, value) != null) {
 						throw new MalformedCASCStructureException(
-								"configuration file contains duplicate key declarations");
+								LocalizationManager.getInstance().get("exception.configurationfile_configuration_key_duplicate"));
 					}
 				}
 			}

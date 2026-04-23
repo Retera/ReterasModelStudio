@@ -26,6 +26,7 @@ import com.hiveworkshop.wc3.mdl.render3d.RenderNode;
 import com.hiveworkshop.wc3.mdl.render3d.RenderResourceAllocator;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.util.MathUtils;
+import com.matrixeater.localization.LocalizationManager;
 
 public final class ReLinkRFBoneAction implements UndoAction {
 	private EditableModel model;
@@ -137,7 +138,7 @@ public final class ReLinkRFBoneAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "re-link bone probably for RF";
+		return LocalizationManager.getInstance().get("string.reLinkrfboneaction_actionname");
 	}
 
 	Quaternion tempQuatDelta = new Quaternion();

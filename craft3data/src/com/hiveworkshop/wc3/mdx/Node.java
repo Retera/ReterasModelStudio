@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdx;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.IOException;
 
@@ -178,7 +179,7 @@ public class Node {
 				}
 			} else {
 				if (Node.LOG_DISCARDED_FLAGS) {
-					System.err.println("node discarded flag " + af.getName());
+					System.err.println(LocalizationManager.getInstance().get("println.node_node_node") + af.getName());
 				}
 			}
 		}

@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.wipdesign.units.enums;
+import com.matrixeater.localization.LocalizationManager;
 
 import com.hiveworkshop.wc3.resources.WEString;
 
@@ -22,6 +23,6 @@ public enum AttackBits {
 				return cat;
 			}
 		}
-		throw new IllegalArgumentException("AttackBits does not exist: " + name);
+		throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.attackbits_fromcodename_exist") + name);
 	}
 }

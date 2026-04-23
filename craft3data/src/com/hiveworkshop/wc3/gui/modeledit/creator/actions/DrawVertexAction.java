@@ -2,6 +2,7 @@ package com.hiveworkshop.wc3.gui.modeledit.creator.actions;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.matrixeater.localization.LocalizationManager;
 
 public class DrawVertexAction implements UndoAction {
 	private final GeosetVertex vertex;
@@ -22,7 +23,7 @@ public class DrawVertexAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "add vertex";
+		return LocalizationManager.getInstance().get("string.drawvertexaction_actionname");
 	}
 
 }

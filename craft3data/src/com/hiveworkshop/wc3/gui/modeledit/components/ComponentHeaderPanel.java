@@ -21,6 +21,7 @@ import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorJSpi
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorTextField;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
+import com.matrixeater.localization.LocalizationManager;
 
 public class ComponentHeaderPanel extends JPanel implements ComponentPanel {
 	private static final Dimension MAXIMUM_SIZE = new Dimension(99999, 25);
@@ -33,7 +34,7 @@ public class ComponentHeaderPanel extends JPanel implements ComponentPanel {
 	private ModelStructureChangeListener changeListener;
 
 	public ComponentHeaderPanel() {
-		final JLabel modelNameLabel = new JLabel("Model Name:");
+		final JLabel modelNameLabel = new JLabel(LocalizationManager.getInstance().get("label.componentheaderpanel_componentheaderpanel_model_name"));
 		modelNameField = new ComponentEditorTextField();
 		modelNameField.setMaximumSize(MAXIMUM_SIZE);
 		modelNameField.addActionListener(new ActionListener() {
@@ -47,7 +48,7 @@ public class ComponentHeaderPanel extends JPanel implements ComponentPanel {
 				}
 			}
 		});
-		final JLabel versionLabel = new JLabel("Format Version:");
+		final JLabel versionLabel = new JLabel(LocalizationManager.getInstance().get("label.componentheaderpanel_componentheaderpanel_format_version"));
 		formatVersionSpinner = new ComponentEditorJSpinner(
 				new SpinnerNumberModel(800, Integer.MIN_VALUE, Integer.MAX_VALUE, 1));
 		formatVersionSpinner.setMaximumSize(MAXIMUM_SIZE);
@@ -63,7 +64,7 @@ public class ComponentHeaderPanel extends JPanel implements ComponentPanel {
 				}
 			}
 		});
-		final JLabel blendTimeLabel = new JLabel("Blend Time:");
+		final JLabel blendTimeLabel = new JLabel(LocalizationManager.getInstance().get("label.componentheaderpanel_componentheaderpanel_blend_time"));
 		blendTimeSpinner = new ComponentEditorJSpinner(
 				new SpinnerNumberModel(150, Integer.MIN_VALUE, Integer.MAX_VALUE, 1));
 		blendTimeSpinner.setMaximumSize(MAXIMUM_SIZE);
@@ -81,7 +82,7 @@ public class ComponentHeaderPanel extends JPanel implements ComponentPanel {
 		});
 
 		extLogEditor = new ExtLogEditor();
-		extLogEditor.setBorder(BorderFactory.createTitledBorder("Extents"));
+		extLogEditor.setBorder(BorderFactory.createTitledBorder(LocalizationManager.getInstance().get("border.componentheaderpanel_componentheaderpanel_extents")));
 		extLogEditor.addActionListener(new Runnable() {
 			@Override
 			public void run() {

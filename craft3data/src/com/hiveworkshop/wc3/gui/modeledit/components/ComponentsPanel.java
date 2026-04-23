@@ -32,6 +32,7 @@ import com.hiveworkshop.wc3.mdl.TextureAnim;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mdx.BindPoseChunk;
 import com.hiveworkshop.wc3.mdx.FaceEffectsChunk.FaceEffect;
+import com.matrixeater.localization.LocalizationManager;
 
 public class ComponentsPanel extends JPanel implements ModelComponentListener {
 	private static final String BLANK = "BLANK";
@@ -55,7 +56,7 @@ public class ComponentsPanel extends JPanel implements ModelComponentListener {
 		cardLayout = new CardLayout();
 		setLayout(cardLayout);
 		blankPanel = new JPanel();
-		blankPanel.add(new JLabel("Select a model component to get started..."));
+		blankPanel.add(new JLabel(LocalizationManager.getInstance().get("label.componentspanel_componentspanel_blankpanel")));
 		add(blankPanel, BLANK);
 		headerPanel = new ComponentHeaderPanel();
 		add(headerPanel, HEADER);

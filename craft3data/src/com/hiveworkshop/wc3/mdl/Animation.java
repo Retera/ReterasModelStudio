@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.hiveworkshop.wc3.gui.animedit.BasicTimeBoundProvider;
 import com.hiveworkshop.wc3.mdx.SequenceChunk;
+import com.matrixeater.localization.LocalizationManager;
 
 /**
  * A java object to represent MDL "Sequences" ("Animations").
@@ -61,13 +62,13 @@ public class Animation implements BasicTimeBoundProvider {
 		this(seq.name, seq.intervalStart, seq.intervalEnd);
 		setExtents(new ExtLog(seq.minimumExtent, seq.maximumExtent, seq.boundsRadius));
 		if (seq.moveSpeed != 0) {
-			addTag("MoveSpeed " + seq.moveSpeed);
+			addTag(LocalizationManager.getInstance().get("addtag.animation_animation_movespeed") + seq.moveSpeed);
 		}
 		if (seq.nonLooping == 1) {
-			addTag("NonLooping");
+			addTag(LocalizationManager.getInstance().get("addtag.animation_animation_nonlooping"));
 		}
 		if (seq.rarity > 0) {
-			addTag("Rarity " + seq.rarity);
+			addTag(LocalizationManager.getInstance().get("addtag.animation_animation_rarity") + seq.rarity);
 		}
 	}
 
@@ -85,12 +86,12 @@ public class Animation implements BasicTimeBoundProvider {
 		for (int i = 0; (i < tags.size()) && !foundTag; i++) {
 			final String tag = tags.get(i);
 			if (tag.startsWith("Rarity")) {
-				tags.set(i, "Rarity " + MDLReader.doubleToString(newRarity));
+				tags.set(i, LocalizationManager.getInstance().get("addtag.animation_setrarity_rarity") + MDLReader.doubleToString(newRarity));
 				foundTag = true;
 			}
 		}
 		if (!foundTag) {
-			tags.add("Rarity " + MDLReader.doubleToString(newRarity));
+			tags.add(LocalizationManager.getInstance().get("addtag.animation_setrarity_rarity") + MDLReader.doubleToString(newRarity));
 		}
 	}
 
@@ -99,12 +100,12 @@ public class Animation implements BasicTimeBoundProvider {
 		for (int i = 0; (i < tags.size()) && !foundTag; i++) {
 			final String tag = tags.get(i);
 			if (tag.startsWith("MoveSpeed")) {
-				tags.set(i, "MoveSpeed " + MDLReader.doubleToString(newMoveSpeed));
+				tags.set(i, LocalizationManager.getInstance().get("addtag.animation_setmovespeed_movespeed") + MDLReader.doubleToString(newMoveSpeed));
 				foundTag = true;
 			}
 		}
 		if (!foundTag) {
-			tags.add("MoveSpeed " + MDLReader.doubleToString(newMoveSpeed));
+			tags.add(LocalizationManager.getInstance().get("addtag.animation_setmovespeed_movespeed") + MDLReader.doubleToString(newMoveSpeed));
 		}
 	}
 
@@ -154,17 +155,17 @@ public class Animation implements BasicTimeBoundProvider {
 	}
 
 	public boolean isNonLooping() {
-		return tags.contains("NonLooping");
+		return tags.contains(LocalizationManager.getInstance().get("Naddtag.animation_isnonlooping_nonlooping"));
 	}
 
 	public void setNonLooping(final boolean nonLooping) {
 		if (isNonLooping()) {
 			if (!nonLooping) {
-				tags.remove("NonLooping");
+				tags.remove(LocalizationManager.getInstance().get("addtag.animation_setnonlooping_nonlooping"));
 			}
 		} else {
 			if (nonLooping) {
-				tags.add("NonLooping");
+				tags.add(LocalizationManager.getInstance().get("addtag.animation_setnonlooping_nonlooping"));
 			}
 		}
 	}
@@ -292,17 +293,17 @@ public class Animation implements BasicTimeBoundProvider {
 				anim.name = " ";
 			}
 		} catch (final Exception e) {
-			// System.out.println("Throwing nameless anim from:
-			// "+MDLReader.nextLine(mdl));//Read the word "Anim" from the top
+			// System.out.println(LocalizationManager.getInstance().get("println.animation_read_nameless")
+			// +MDLReader.nextLine(mdl));//Read the word "Anim" from the top
 			limited = true;
 		}
 		if (!limited) {
-			// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"This
-			// popup means Anims were interpreted as outside geoset!");
+			// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+			// LocalizationManager.getInstance().get("dialog.animation_read_outside_geoset"));
 			// try
 			// {
-			// String [] entries = MDLReader.nextLine(mdl).split("Interval
-			// ")[1].split(",");//Split the line into pieces, forming two
+			// String [] entries = MDLReader.nextLine(mdl).split(LocalizationManager.getInstance().get("string.animation_read_interval"))
+			// [1].split(",");//Split the line into pieces, forming two
 			// entries that are before and after the comma in "{ <number>,
 			// <number> }"
 			// entries[0] = entries[0].substring(2,entries[0].length());//Shave
@@ -315,9 +316,8 @@ public class Animation implements BasicTimeBoundProvider {
 			// }
 			// catch (NumberFormatException e)
 			// {
-			// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Unable
-			// to parse animation: Interval could not be interpreted
-			// numerically.\nThis may break lots of things.");
+			// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+			// LocalizationManager.getInstance().get("dialog.animation_read_interval"));
 			// }
 		}
 		MDLReader.mark(mdl);
@@ -341,12 +341,12 @@ public class Animation implements BasicTimeBoundProvider {
 			tabs = tabs + "\t";
 		}
 		if (!this.name.equals("")) {
-			writer.println(tabs + "Anim \"" + this.name + "\" {");
+			writer.println(tabs + LocalizationManager.getInstance().get("println.animation_printto_anim") + " \"" + this.name + "\" {");
 		} else {
-			writer.println(tabs + "Anim {");
+			writer.println(tabs + LocalizationManager.getInstance().get("println.animation_printto_anim") + " {");
 		}
 		if ((intervalEnd - intervalStart) > 0) {
-			writer.println(tabs + "\tInterval { " + intervalStart + ", " + intervalEnd + " },");
+			writer.println(tabs + "\t" + LocalizationManager.getInstance().get("println.animation_printto_interval") + " { " + intervalStart + ", " + intervalEnd + " },");
 		}
 		for (int i = 0; i < tags.size(); i++) {
 			writer.println(tabs + "\t" + tags.get(i) + ",");

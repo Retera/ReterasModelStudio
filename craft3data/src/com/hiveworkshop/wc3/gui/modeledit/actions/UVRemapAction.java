@@ -6,6 +6,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UVPanel;
 import com.hiveworkshop.wc3.gui.modeledit.UVPanel.UnwrapDirection;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.TVertex;
+import com.matrixeater.localization.LocalizationManager;
 
 public class UVRemapAction implements UndoAction {
 
@@ -38,7 +39,7 @@ public class UVRemapAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "remap TVertices " + direction;
+		return LocalizationManager.getInstance().get("string.uvremapaction_actionname") + direction;
 	}
 
 }

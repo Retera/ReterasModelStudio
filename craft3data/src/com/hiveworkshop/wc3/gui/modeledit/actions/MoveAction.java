@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.matrixeater.localization.LocalizationManager;
 
 /**
  * MotionAction -- something for you to undo when you screw up with motion
@@ -95,22 +96,22 @@ public class MoveAction implements UndoAction {
 		String outName = "";
 		switch (actType) {
 		case MOVE:
-			outName = "move";
+			outName = LocalizationManager.getInstance().get("string.moveaction_actionname_move");
 			break;
 		case ROTATE:
-			outName = "rotate";
+			outName = LocalizationManager.getInstance().get("string.moveaction_actionname_rotate");
 			break;
 		case SCALE:
-			outName = "scale";
+			outName = LocalizationManager.getInstance().get("string.moveaction_actionname_scale");
 			break;
 		case UNKNOWN:
-			outName = "unknown error-type action";
+			outName = LocalizationManager.getInstance().get("string.moveaction_actionname_unknown");
 			break;
 		}
 		if (outName.equals("")) {
-			outName = "actionType_" + actType;
+			outName = LocalizationManager.getInstance().get("string.moveaction_actionname_actiontype") + actType;
 		}
-		return outName + " vertices";
+		return outName + LocalizationManager.getInstance().get("string.moveaction_actionname_vertices");
 	}
 
 	public List<Vertex> getMoveVectors() {

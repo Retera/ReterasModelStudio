@@ -17,6 +17,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import com.matrixeater.localization.LocalizationManager;
 
 public class CloneContextHelper {
 	private final ModelView model;
@@ -67,7 +68,7 @@ public class CloneContextHelper {
 			final java.util.Map<IdObject, String> nodeToNamePicked = clonedNodeNamePicker.pickNames(newBones);
 			if (nodeToNamePicked == null) {
 				throw new RuntimeException(
-						"user does not wish to continue so we put in an error to interrupt clone so model is OK");
+						LocalizationManager.getInstance().get("exception.clonecontexthelper_cloneselectedcomponents"));
 			}
 			for (final IdObject node : nodeToNamePicked.keySet()) {
 				node.setName(nodeToNamePicked.get(node));

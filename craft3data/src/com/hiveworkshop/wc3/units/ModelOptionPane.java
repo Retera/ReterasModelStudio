@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.units;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.awt.Component;
 
@@ -7,7 +8,7 @@ import javax.swing.JOptionPane;
 public class ModelOptionPane {
 	public static String show(final Component what) {
 		final ModelOptionPanel uop = new ModelOptionPanel();
-		final int x = JOptionPane.showConfirmDialog(what, uop, "Choose Model", JOptionPane.OK_CANCEL_OPTION,
+		final int x = JOptionPane.showConfirmDialog(what, uop, LocalizationManager.getInstance().get("dialog.modeloptionpane_modeloptionpane_choose"), JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.PLAIN_MESSAGE);
 		if (x == JOptionPane.OK_OPTION) {
 			return uop.getSelection();
@@ -17,7 +18,7 @@ public class ModelOptionPane {
 
 	public static ModelElement showAndLogIcon(final Component what) {
 		final ModelOptionPanel uop = new ModelOptionPanel();
-		final int x = JOptionPane.showConfirmDialog(what, uop, "Choose Model", JOptionPane.OK_CANCEL_OPTION,
+		final int x = JOptionPane.showConfirmDialog(what, uop, LocalizationManager.getInstance().get("dialog.modeloptionpane_modeloptionpane_choose"), JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.PLAIN_MESSAGE);
 		if (x == JOptionPane.OK_OPTION) {
 			return new ModelElement(uop.getSelection(), uop.getCachedIconPath());
@@ -28,7 +29,7 @@ public class ModelOptionPane {
 	public static String show(final Component what, final String startingFile) {
 		final ModelOptionPanel uop = new ModelOptionPanel();
 		uop.setSelection(startingFile);
-		final int x = JOptionPane.showConfirmDialog(what, uop, "Choose Model", JOptionPane.OK_CANCEL_OPTION,
+		final int x = JOptionPane.showConfirmDialog(what, uop, LocalizationManager.getInstance().get("dialog.modeloptionpane_modeloptionpane_choose"), JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.PLAIN_MESSAGE);
 		if (x == JOptionPane.OK_OPTION) {
 			return uop.getSelection();

@@ -9,6 +9,7 @@ import com.hiveworkshop.ReteraCASCUtils;
 import com.hiveworkshop.blizzard.casc.nio.HashMismatchException;
 import com.hiveworkshop.blizzard.casc.nio.LittleHashBlockProcessor;
 import com.hiveworkshop.lang.Hex;
+import com.matrixeater.localization.LocalizationManager;
 
 public class LocalIndexFile {
 	private byte bucketIndex;
@@ -44,7 +45,7 @@ public class LocalIndexFile {
 
 		final int headerLength = hashBlockProcessor.processBlock(encodedFileBuffer);
 		if (headerLength < 0) {
-			throw new HashMismatchException("index header corrupt");
+			throw new HashMismatchException(LocalizationManager.getInstance().get("exception.localindexfile_decode_header_corrupt"));
 		}
 
 		encodedFileBuffer.limit(encodedFileBuffer.position() + headerLength);
@@ -69,7 +70,7 @@ public class LocalIndexFile {
 
 		final int entriesLength = hashBlockProcessor.processBlock(encodedFileBuffer);
 		if (entriesLength < 0) {
-			throw new HashMismatchException("index entries corrupt");
+			throw new HashMismatchException(LocalizationManager.getInstance().get("exception.localindexfile_decode_entries_corrupt"));
 		}
 
 		encodedFileBuffer.limit(encodedFileBuffer.position() + entriesLength);

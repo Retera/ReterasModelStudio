@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.components.material;
 import javax.swing.table.AbstractTableModel;
 
 import com.hiveworkshop.wc3.mdl.AnimFlag;
+import com.matrixeater.localization.LocalizationManager;
 
 public class FloatTrackTableModel extends AbstractTableModel {
 	private AnimFlag track;
@@ -16,24 +17,24 @@ public class FloatTrackTableModel extends AbstractTableModel {
 		if ((track != null) && track.tans()) {
 			switch (column) {
 			case 0:
-				return "Keyframe";
+				return LocalizationManager.getInstance().get("string.floattracktablemodel_getcolumnname_keyframe");
 			case 1:
-				return "Value";
+				return LocalizationManager.getInstance().get("string.floattracktablemodel_getcolumnname_value");
 			case 2:
-				return "InTan";
+				return LocalizationManager.getInstance().get("string.floattracktablemodel_getcolumnname_intan");
 			case 3:
-				return "OutTan";
+				return LocalizationManager.getInstance().get("string.floattracktablemodel_getcolumnname_outtan");
 			case 4:
-				return "Delete";
+				return LocalizationManager.getInstance().get("string.floattracktablemodel_getcolumnname_delete");
 			}
 		} else {
 			switch (column) {
 			case 0:
-				return "Keyframe";
+				return LocalizationManager.getInstance().get("string.floattracktablemodel_getcolumnname_keyframe");
 			case 1:
-				return "Value";
+				return LocalizationManager.getInstance().get("string.floattracktablemodel_getcolumnname_value");
 			case 2:
-				return "Delete";
+				return LocalizationManager.getInstance().get("string.floattracktablemodel_getcolumnname_delete");
 			}
 		}
 		return null;
@@ -99,7 +100,7 @@ public class FloatTrackTableModel extends AbstractTableModel {
 			case 3:
 				return track.getOutTans().get(rowIndex);
 			case 4:
-				return "Delete";
+				return LocalizationManager.getInstance().get("string.floattracktablemodel_getvalueat_delete");
 			}
 		} else {
 			switch (columnIndex) {
@@ -108,7 +109,7 @@ public class FloatTrackTableModel extends AbstractTableModel {
 			case 1:
 				return track.getValues().get(rowIndex);
 			case 2:
-				return "Delete";
+				return LocalizationManager.getInstance().get("string.floattracktablemodel_getvalueat_delete");
 			}
 		}
 		return null;

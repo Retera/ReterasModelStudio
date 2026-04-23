@@ -2,6 +2,7 @@ package com.hiveworkshop.blizzard.casc;
 
 import com.hiveworkshop.ReteraCASCUtils;
 import com.hiveworkshop.lang.Hex;
+import com.matrixeater.localization.LocalizationManager;
 
 /**
  * Class representing a CASC related key such as an encoding key.
@@ -66,7 +67,7 @@ public final class Key implements Comparable<Key> {
 
 	@Override
 	public int hashCode() {
-		throw new UnsupportedOperationException("key hash code not safe to use due to variable sizes between systems");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.key_hashcode"));
 	}
 
 	@Override

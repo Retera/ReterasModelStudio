@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.wipdesign.units.meta;
+import com.matrixeater.localization.LocalizationManager;
 
 import com.hiveworkshop.wc3.resources.WEString;
 
@@ -21,7 +22,7 @@ public enum Category {
 				return cat;
 			}
 		}
-		throw new IllegalArgumentException("category does not exist: " + name);
+		throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.category_fromcodename_exist") + name);
 	}
 	private static String categoryName(final String cat) {
 		switch (cat.toLowerCase()) {

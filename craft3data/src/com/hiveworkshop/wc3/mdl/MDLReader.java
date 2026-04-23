@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.awt.Component;
 import java.io.BufferedReader;
@@ -47,7 +48,7 @@ public class MDLReader {
 //             }
 //             catch (NumberFormatException exce)
 //             {
-//                 JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Error while parsing: Could not interpret integer from: "+line);
+//                 JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),LocalizationManager.getInstance().get("dialog.mdlreader_readint_parsing")+line);
 //             }
 //         }
 		if (line.contains(".")) {
@@ -75,7 +76,7 @@ public class MDLReader {
 //         }
 //         catch (NumberFormatException e)
 //         {
-//             JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Error while parsing: Could not interpret integer from: "+line);
+//             JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),LocalizationManager.getInstance().get("dialog.mdlreader_readbeforecolon_parsing")+line);
 //         }
 //         return -99999;//give them the feeling that there was a mistake
 		return splitToInts(line)[0];
@@ -89,7 +90,7 @@ public class MDLReader {
 		}
 		catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error while parsing: Could not interpret double from: " + line);
+					LocalizationManager.getInstance().get("dialog.mdlreader_readdouble_parsing") + line);
 		}
 		return out;
 	}
@@ -163,15 +164,15 @@ public class MDLReader {
 				"           InTan { 0.00423933, 0.112796, 0.0302428, 0.993149 },",
 				"           OutTan { 0.00423933, 0.112796, 0.0302428, 0.993149 },", "       }", "       john",
 				"       aup", "       jones" };
-		final Vertex vez = Vertex.parseText("     MaximumExtent { -3.40282e+038, -3.40282e+038, -3.40282e+038 },");
-		final Matrix mrx = Matrix.parseText("     Matrices { 2 },");
+		final Vertex vez = Vertex.parseText("     " + LocalizationManager.getInstance().get("println.mdlreader_rmain_maximum_extent") + " { -3.40282e+038, -3.40282e+038, -3.40282e+038 },");
+		final Matrix mrx = Matrix.parseText("     " + LocalizationManager.getInstance().get("println.mdlreader_rmain_matrices") + " { 2 },");
 		System.out.println(vez.getX() + "," + vez.getY() + "," + vez.getZ());// mrx.size()+":"+mrx.getBoneId(0));//+","+mrx.getBoneId(1)+","+mrx.getBoneId(2)+","+mrx.getBoneId(3)+","+mrx.getBoneId(4));//
 		final String[] eatTest = breakElement(test, 1);
 		System.out.println(readIntTitle(test[1]));
 		for (int i = 0; i < eatTest.length; i++) {
 			System.out.println(eatTest[i]);
 		}
-		System.out.println((occurrencesIn("yo", "yo mana so low yo dun know it you dog you")));
+		System.out.println((occurrencesIn("yo", LocalizationManager.getInstance().get("println.mdlreader_rmain_dog"))));
 		System.out.println((new Double(5.3)).toString());
 		final ArrayList<IdObject> testList = new ArrayList<IdObject>();
 		testList.add(new Helper(5));
@@ -180,8 +181,8 @@ public class MDLReader {
 		System.out.println(Bone.class.isAssignableFrom((testList.get(1).getClass())));
 		final String name[] = String.class.getName().split("\\.");
 
-		System.out.println("The name of a String is: " + name[name.length - 1]);
-		System.out.println("It is: " + (new Date(System.currentTimeMillis())).toString());
+		System.out.println(LocalizationManager.getInstance().get("println.mdlreader_rmain_name") + name[name.length - 1]);
+		System.out.println(LocalizationManager.getInstance().get("println.mdlreader_rmain_it") + (new Date(System.currentTimeMillis())).toString());
 	}
 
 	public static String getClassName(final Class what) {
@@ -197,10 +198,10 @@ public class MDLReader {
 //             System.out.println(output);
 		}
 		catch (final IOException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "Error reading file.");
+			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), LocalizationManager.getInstance().get("println.mdlreader_nextlinespecial_error"));
 		}
 		if (output == null) {
-			output = "COMPLETED PARSING";
+			output = LocalizationManager.getInstance().get("string.mdlreader_nextlinespecial_parsing");
 		}
 		return output;
 	}
@@ -212,10 +213,10 @@ public class MDLReader {
 			output = reader.readLine();
 		}
 		catch (final IOException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "Error reading file.");
+			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), LocalizationManager.getInstance().get("println.mdlreader_nextline_error"));
 		}
 		if (output == null) {
-			output = "COMPLETED PARSING";
+			output = LocalizationManager.getInstance().get("string.mdlreader_nextline_parsing");
 		}
 		else {
 			output = output.replace("    ", "\t");
@@ -227,7 +228,7 @@ public class MDLReader {
 	}
 
 	public static void reset(final BufferedReader reader) {
-		// System.out.println("Line reset from line "+c+" back to line "+markc);
+		// System.out.println(LocalizationManager.getInstance().get("println.mdlreader_reset_reset")+c+LocalizationManager.getInstance().get("println.mdlreader_reset_back")+markc);
 		if ((c == (markc + 1)) && (markc == lastMark)) {
 			lastMark = markc;
 			followMarks++;
@@ -237,16 +238,16 @@ public class MDLReader {
 		}
 //		if (followMarks > 30) {
 //			throw new RuntimeException(
-//					"Program detected infinite loop in file reading sequence. Probably bad model, or error in interpreter!");
+//					LocalizationManager.getInstance().get("exception.mdlreader_reset_infinite_loop"));
 //		}
 		try {
 			reader.reset();
 		}
 		catch (final IOException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Critical error in IO: Maybe length between line " + markc + " and line " + c
-							+ " got longer than expected?\nPortions of model data will be lost.");
-			System.out.println("Line reset error: " + e);
+					LocalizationManager.getInstance().get("dialog.mdlreader_reset_io") + markc + LocalizationManager.getInstance().get("dialog.mdlreader_reset_line") + c
+							+ LocalizationManager.getInstance().get("dialog.mdlreader_reset_expected"));
+			System.out.println(LocalizationManager.getInstance().get("println.mdlreader_reset_error") + e);
 		}
 		c = markc;
 	}
@@ -259,11 +260,11 @@ public class MDLReader {
 		}
 		catch (final IOException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Critical error: Read/write abilities lost. Loading will possibly be severely damaged and disfunctional.");
-			System.out.println("Mark error: " + e);
+					LocalizationManager.getInstance().get("dialog.mdlreader_mark_read_write"));
+			System.out.println(LocalizationManager.getInstance().get("println.mdlreader_mark_mark") + e);
 //             System.out.println(e);
-//             System.out.println("did not mark "+nextLine(reader));
-//             JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Critical error: Read/write abilities lost. Loading will be severely damaged and disfunctional.");
+//             System.out.println(LocalizationManager.getInstance().get("println.mdlreader_not_mark")+nextLine(reader));
+//             JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),LocalizationManager.getInstance().get("dialog.mdlreader_mark_read_write_will"));
 		}
 
 //        lastMark = markc;
@@ -481,7 +482,7 @@ public class MDLReader {
 	public static String doubleToString(final double n) {
 		String base = ((float) n + "").toLowerCase();
 		if (base.equals("nan")) {
-			JOptionPane.showMessageDialog(null, "Major problems with numeric data.");
+			JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.mdlreader_doubletostring_numeric"));
 			new Exception().printStackTrace();
 			base = "0";
 		}

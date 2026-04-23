@@ -4,6 +4,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.Layer;
 import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
+import com.matrixeater.localization.LocalizationManager;
 
 public class SetLayerFilterModeAction implements UndoAction {
 	private final Layer layer;
@@ -33,7 +34,7 @@ public class SetLayerFilterModeAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set Layer FilterMode";
+		return LocalizationManager.getInstance().get("string.setlayerfiltermodeaction_actionname");
 	}
 
 }

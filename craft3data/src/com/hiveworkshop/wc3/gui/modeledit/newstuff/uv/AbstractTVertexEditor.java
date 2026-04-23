@@ -27,6 +27,7 @@ import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import com.matrixeater.localization.LocalizationManager;
 
 public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexEditor<T> implements TVertexEditor {
 	protected final ModelView model;
@@ -211,7 +212,7 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 		final Set<T> previousSelection = selectionManager.getSelection();
 		selectByVertices(viewerSelectionView.getSelectedVertices());
 		final SetSelectionAction<T> setSelectionAction = new SetSelectionAction<>(selectionManager.getSelection(),
-				previousSelection, selectionManager, "select UV from viewer");
+				previousSelection, selectionManager, LocalizationManager.getInstance().get("string.abstracttvertexeditor_selectfromviewer"));
 		return setSelectionAction;
 	}
 

@@ -8,6 +8,7 @@ import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
 //import com.hiveworkshop.blizzard.casc.vfs.path.Container;
 //import com.hiveworkshop.blizzard.casc.vfs.path.FileFactory;
 //import com.hiveworkshop.blizzard.casc.vfs.path.Node;
+import com.matrixeater.localization.LocalizationManager;
 
 public class VirtualFileSystem {
 
@@ -22,7 +23,7 @@ public class VirtualFileSystem {
 
 		if (localBuffer.remaining() < IDENTIFIER.remaining()
 				|| !localBuffer.limit(IDENTIFIER.remaining()).equals(IDENTIFIER)) {
-			throw new MalformedCASCStructureException("missing TVFS identifier");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.virtualfilesystem_missing_tvfs"));
 		}
 
 		// decode header
@@ -32,11 +33,11 @@ public class VirtualFileSystem {
 
 		final byte version = localBuffer.get();
 		if (version != 1) {
-			throw new UnsupportedOperationException("unsupported vfs version: " + version);
+			throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.virtualfilesystem_unsupported_version") + version);
 		}
 		final int headerSize = Byte.toUnsignedInt(localBuffer.get());
 		if (headerSize < 0x26) {
-			throw new MalformedCASCStructureException("vfs header too small");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.virtualfilesystem_header_small"));
 		}
 		localBuffer.limit(headerSize);
 

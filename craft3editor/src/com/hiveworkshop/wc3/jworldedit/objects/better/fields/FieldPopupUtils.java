@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.objects.better.fields;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -89,7 +90,7 @@ public enum FieldPopupUtils {
 						spinner.commitEdit();
 					} catch (final ParseException e1) {
 						JOptionPane.showMessageDialog(parentComponent,
-								"Unable to commit edit because: " + e1.getClass() + ": " + e1.getMessage());
+								LocalizationManager.getInstance().get("dialog.fieldpopuputils_showconfirmdialog_edit") + e1.getClass() + ": " + e1.getMessage());
 						e1.printStackTrace();
 					}
 				}

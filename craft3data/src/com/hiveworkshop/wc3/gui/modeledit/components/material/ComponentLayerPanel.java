@@ -46,6 +46,7 @@ import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.util.Callback;
 import com.hiveworkshop.wc3.util.IconUtils;
 import com.hiveworkshop.wc3.util.ModelUtils;
+import com.matrixeater.localization.LocalizationManager;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -73,11 +74,11 @@ public class ComponentLayerPanel extends JPanel {
 		setLayout(new MigLayout("fill", "", "[fill][fill]"));
 		final JPanel leftHandSettingsPanel = new JPanel();
 		layerFlagsPanel = new LayerFlagsPanel();
-		layerFlagsPanel.setBorder(BorderFactory.createTitledBorder("Flags"));
+		layerFlagsPanel.setBorder(BorderFactory.createTitledBorder(LocalizationManager.getInstance().get("border.componentlayerpanel_setlayout_flags")));
 		add(leftHandSettingsPanel);
 		add(layerFlagsPanel);
 		leftHandSettingsPanel.setLayout(new MigLayout());
-		leftHandSettingsPanel.add(new JLabel("Filter Mode:"));
+		leftHandSettingsPanel.add(new JLabel(LocalizationManager.getInstance().get("label.componentlayerpanel_setlayout_filter")));
 		filterModeDropdown = new JComboBox<Layer.FilterMode>(Layer.FilterMode.values());
 		filterModeDropdown.addActionListener(new ActionListener() {
 			@Override
@@ -108,17 +109,17 @@ public class ComponentLayerPanel extends JPanel {
 				}
 			}
 		});
-		leftHandSettingsPanel.add(new JLabel("Shader:"));
+		leftHandSettingsPanel.add(new JLabel(LocalizationManager.getInstance().get("label.componentlayerpanel_setlayout_shader")));
 		leftHandSettingsPanel.add(shaderOptionComboBox, "wrap, growx, span 2");
 
 		textureTypeToButton = new EnumMap<>(ShaderTextureTypeHD.class);
 		for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
-			final JLabel shaderTextureLabel = new JLabel(shaderTextureTypeHD.name() + " Texture:");
+			final JLabel shaderTextureLabel = new JLabel(shaderTextureTypeHD.name() + LocalizationManager.getInstance().get("label.componentlayerpanel_setlayout_texture"));
 			if (shaderTextureTypeHD != ShaderTextureTypeHD.Diffuse) {
 				nonDiffuseTextureLabels.add(shaderTextureLabel);
 			}
 			leftHandSettingsPanel.add(shaderTextureLabel);
-			final JButton textureButton = new JButton("Choose Texture");
+			final JButton textureButton = new JButton(LocalizationManager.getInstance().get("button.componentlayerpanel_setlayout_choose_texture"));
 			textureButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(final ActionEvent e) {
@@ -132,7 +133,7 @@ public class ComponentLayerPanel extends JPanel {
 					final JList<Bitmap> bitmapList = new JList<>(bitmapListModel);
 					bitmapList.setCellRenderer(new BitmapListCellRenderer(model));
 					if (JOptionPane.showConfirmDialog(ComponentLayerPanel.this.getRootPane(),
-							new JScrollPane(bitmapList), "Choose BItmap",
+							new JScrollPane(bitmapList), LocalizationManager.getInstance().get("scrollpane.componentlayerpanel_setlayout_choose_bitmap"),
 							JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
 						final Bitmap selectedValue = bitmapList.getSelectedValue();
 						final SetLayerBitmapAction setLayerBitmapAction = new SetLayerBitmapAction(layer,
@@ -157,8 +158,8 @@ public class ComponentLayerPanel extends JPanel {
 				undoActionListener.pushAction(setLayerCoordIdAction);
 			}
 		});
-		leftHandSettingsPanel.add(new JLabel("TVertex Anim:"));
-		tVertexAnimButton = new JButton("Choose TVertex Anim");
+		leftHandSettingsPanel.add(new JLabel(LocalizationManager.getInstance().get("label.componentlayerpanel_setlayout_tvertex_anim")));
+		tVertexAnimButton = new JButton(LocalizationManager.getInstance().get("button.componentlayerpanel_setlayout_choose_tvertex_anim"));
 		tVertexAnimButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -172,7 +173,7 @@ public class ComponentLayerPanel extends JPanel {
 				final JList<TextureAnim> textureAnimList = new JList<>(textureAnimsListModel);
 				textureAnimList.setCellRenderer(new TextureAnimListCellRenderer(model));
 				if (JOptionPane.showConfirmDialog(ComponentLayerPanel.this.getRootPane(),
-						new JScrollPane(textureAnimList), "Choose TextureAnim",
+						new JScrollPane(textureAnimList), LocalizationManager.getInstance().get("scrollpane.componentlayerpanel_setlayout_choose_textureanim"),
 						JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
 					final TextureAnim selectedValue = textureAnimList.getSelectedValue();
 					final SetLayerTextureAnimAction setLayerTextureAnimAction = new SetLayerTextureAnimAction(layer,
@@ -183,18 +184,18 @@ public class ComponentLayerPanel extends JPanel {
 			}
 		});
 		leftHandSettingsPanel.add(tVertexAnimButton, "wrap, growx");
-		leftHandSettingsPanel.add(new JLabel("CoordID:"));
+		leftHandSettingsPanel.add(new JLabel(LocalizationManager.getInstance().get("label.componentlayerpanel_setlayout_coordid")));
 		leftHandSettingsPanel.add(coordIdSpinner, "wrap, growx");
 
-		alphaPanel = new FloatValuePanel("Alpha");
+		alphaPanel = new FloatValuePanel(LocalizationManager.getInstance().get("floatvaluepanel.componentlayerpanel_setlayout_alpha"));
 		leftHandSettingsPanel.add(alphaPanel, "wrap, span 2");
-		emissiveGainPanel = new FloatValuePanel("Emissive Gain");
+		emissiveGainPanel = new FloatValuePanel(LocalizationManager.getInstance().get("floatvaluepanel.componentlayerpanel_setlayout_emissive_gain"));
 		leftHandSettingsPanel.add(emissiveGainPanel, "wrap, span 2, hidemode 2");
-		fresnelColorPanel = new ColorValuePanel("Fresnel Color");
+		fresnelColorPanel = new ColorValuePanel(LocalizationManager.getInstance().get("floatvaluepanel.componentlayerpanel_setlayout_fresnel_color"));
 		leftHandSettingsPanel.add(fresnelColorPanel, "wrap, span 2, hidemode 2");
-		fresnelOpacityPanel = new FloatValuePanel("Fresnel Opacity");
+		fresnelOpacityPanel = new FloatValuePanel(LocalizationManager.getInstance().get("floatvaluepanel.componentlayerpanel_setlayout_fresnel_opacity"));
 		leftHandSettingsPanel.add(fresnelOpacityPanel, "wrap, span 2, hidemode 2");
-		fresnelTeamColor = new FloatValuePanel("Fresnel Team Color");
+		fresnelTeamColor = new FloatValuePanel(LocalizationManager.getInstance().get("floatvaluepanel.componentlayerpanel_setlayout_fresnel_team_color"));
 		leftHandSettingsPanel.add(fresnelTeamColor, "wrap, span 2, hidemode 2");
 
 	}
@@ -225,7 +226,7 @@ public class ComponentLayerPanel extends JPanel {
 			if (!hasIcon) {
 				textureButton.setIcon(null);
 			}
-			textureButton.setText(layer.getTextureName(textureBitmap, "None"));
+			textureButton.setText(layer.getTextureName(textureBitmap, LocalizationManager.getInstance().get("text.componentlayerpanel_setlayer_texture")));
 			if (shaderTextureTypeHD != ShaderTextureTypeHD.Diffuse) {
 				textureButton.setVisible(hdShader);
 			}
@@ -234,8 +235,8 @@ public class ComponentLayerPanel extends JPanel {
 			label.setVisible(hdShader);
 		}
 		coordIdSpinner.reloadNewValue(layer.getCoordId());
-		tVertexAnimButton.setText(layer.getTextureAnim() == null ? "None"
-				: "TextureAnim " + modelViewManager.getModel().getTextureAnimId(layer.getTextureAnim()));
+		tVertexAnimButton.setText(layer.getTextureAnim() == null ? LocalizationManager.getInstance().get("text.componentlayerpanel_setlayer_tvertexanim_1")
+				: LocalizationManager.getInstance().get("text.componentlayerpanel_setlayer_tvertexanim_2") + modelViewManager.getModel().getTextureAnimId(layer.getTextureAnim()));
 		alphaPanel.reloadNewValue((float) layer.getStaticAlpha(), new Callback<Float>() {
 			@Override
 			public void run(final Float value) {

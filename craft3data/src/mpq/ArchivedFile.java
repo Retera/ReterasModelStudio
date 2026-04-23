@@ -1,4 +1,5 @@
 package mpq;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -50,7 +51,7 @@ public class ArchivedFile implements Serializable {
 		
 		if( hasFlag(BlockTable.FLAG_COMPRESS | BlockTable.FLAG_IMPLODE) ){
 			// blocks cannot be both compressed and imploded
-			if( hasFlag(BlockTable.FLAG_COMPRESS) && hasFlag(BlockTable.FLAG_IMPLODE) ) throw new MPQException("invalid block: a block is both compressed and imploded");
+			if( hasFlag(BlockTable.FLAG_COMPRESS) && hasFlag(BlockTable.FLAG_IMPLODE) ) throw new MPQException(LocalizationManager.getInstance().get("exception.archivedfile_invalid_block"));
 			
 			// determine the type of sector compression to use
 			if( hasFlag(BlockTable.FLAG_COMPRESS) ){
@@ -104,21 +105,21 @@ public class ArchivedFile implements Serializable {
 		
 		// validate offsets in case of corruption
 		if( blockOffsets[0] >= 0 && blockOffsets[0] < blockOffsets.length * 4 ||
-				blockOffsets[0] < 0 && blockOffsets[blockOffsets.length - 1] > 0 ) throw new MPQException("block sector intersects sector offset table");
+				blockOffsets[0] < 0 && blockOffsets[blockOffsets.length - 1] > 0 ) throw new MPQException(LocalizationManager.getInstance().get("exception.archivedfile_loadoffsets_intersects"));
 		else if( blockOffsets[0] < 0 || blockOffsets[0] > blockOffsets.length * 4 ) 
-			System.err.printf("block at %X has detached sectors starting at %X (%d bytes from end of sector table)%n",
+			System.err.printf(LocalizationManager.getInstance().get("printf.archivedfile_loadoffsets_detached"),
 					fileOffset, fileOffset + blockOffsets[0], blockOffsets[0] - blockOffsets.length * 4);
 		if( fileOffset + blockOffsets[0] < 0 || fileOffset + blockOffsets[blockOffsets.length - 1] > in.size() )
-			throw new MPQException("block sector located outside channel");
+			throw new MPQException(LocalizationManager.getInstance().get("exception.archivedfile_loadoffsets_outside"));
 		for( int i = 1, prevoff = blockOffsets[0] ; i < blockOffsets.length ; i+= 1){
 			int curroff = blockOffsets[i];
-			if( curroff < prevoff ) throw new MPQException("block sector with negative size");
+			if( curroff < prevoff ) throw new MPQException(LocalizationManager.getInstance().get("exception.archivedfile_loadoffsets_negative"));
 			prevoff = curroff;
 		}
 		
 		// load CRC sector if present
 		if( hasFlag(BlockTable.FLAG_SECTOR_CRC) && blockOffsets[blockOffsets.length - 1] != blockOffsets[blockOffsets.length - 2] ){
-			System.err.println("block sector CRC reading currently not supported");
+			System.err.println(LocalizationManager.getInstance().get("printf.archivedfile_loadoffsets_supported="));
 		}
 		
 		ready = true;

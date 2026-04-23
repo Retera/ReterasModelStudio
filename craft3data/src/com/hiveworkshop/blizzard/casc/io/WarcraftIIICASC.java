@@ -14,6 +14,7 @@ import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
 import com.hiveworkshop.blizzard.casc.storage.Storage;
 import com.hiveworkshop.blizzard.casc.vfs.VirtualFileSystem;
 import com.hiveworkshop.blizzard.casc.vfs.VirtualFileSystem.PathResult;
+import com.matrixeater.localization.LocalizationManager;
 
 /**
  * A convenient access to locally stored Warcraft III data files. Intended for
@@ -115,9 +116,9 @@ public class WarcraftIIICASC implements AutoCloseable {
 			final PathResult resolveResult = vfs.resolvePath(pathFragments);
 
 			if (!resolveResult.isFile()) {
-				throw new FileNotFoundException("the specified file path does not resolve to a file");
+				throw new FileNotFoundException(LocalizationManager.getInstance().get("exception.readfiledata_isfile"));
 			} else if (!resolveResult.existsInStorage()) {
-				throw new FileNotFoundException("the specified file is not in local storage");
+				throw new FileNotFoundException(LocalizationManager.getInstance().get("exception.readfiledata_existsinstorage"));
 			}
 
 			final ByteBuffer fileBuffer = resolveResult.readFile(null);
@@ -187,13 +188,13 @@ public class WarcraftIIICASC implements AutoCloseable {
 
 		final int recordCount = buildInfo.getRecordCount();
 		if (recordCount < 1) {
-			throw new MalformedCASCStructureException("build info contains no records");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.warcraftIIIcasc_1"));
 		}
 
 		// resolve the active record
 		final int activeFiledIndex = buildInfo.getFieldIndex("Active");
 		if (activeFiledIndex == -1) {
-			throw new MalformedCASCStructureException("build info contains no active field");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.warcraftIIIcasc_2"));
 		}
 		int productFieldIndex = buildInfo.getFieldIndex("Product");
 		int recordIndex = 0;
@@ -205,21 +206,21 @@ public class WarcraftIIICASC implements AutoCloseable {
 			}
 		}
 		if (recordIndex == recordCount) {
-			throw new MalformedCASCStructureException("build info contains no active record");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.warcraftIIIcasc_3"));
 		}
 		activeInfoRecord = recordIndex;
 
 		// resolve build configuration file
 		final int buildKeyFieldIndex = buildInfo.getFieldIndex("Build Key");
 		if (buildKeyFieldIndex == -1) {
-			throw new MalformedCASCStructureException("build info contains no build key field");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.warcraftIIIcasc_4"));
 		}
 		final String buildKey = buildInfo.getField(activeInfoRecord, buildKeyFieldIndex);
 
 		// resolve data folder
 		dataPath = installFolder.resolve(WC3_DATA_FOLDER_NAME);
 		if (!Files.isDirectory(dataPath)) {
-			throw new MalformedCASCStructureException("data folder is missing");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.warcraftIIIcasc_5"));
 		}
 
 		// resolve build configuration file
@@ -268,7 +269,7 @@ public class WarcraftIIICASC implements AutoCloseable {
 		// resolve branch
 		final int branchFieldIndex = buildInfo.getFieldIndex("Branch");
 		if (branchFieldIndex == -1) {
-			throw new MalformedCASCStructureException("build info contains no branch field");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.getbranch"));
 		}
 		return buildInfo.getField(activeInfoRecord, branchFieldIndex);
 	}

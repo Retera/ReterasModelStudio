@@ -6,6 +6,7 @@ import com.etheller.collections.Map;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.TVertex;
+import com.matrixeater.localization.LocalizationManager;
 
 public class DeleteDownToOneTVerticesLayerAction implements UndoAction {
 	private final Map<GeosetVertex, List<TVertex>> vertexToTVertexRemoved;
@@ -36,7 +37,7 @@ public class DeleteDownToOneTVerticesLayerAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "delete down to one TVertices layer";
+		return LocalizationManager.getInstance().get("string.deletedowntoonetverticeslayeraction_actionname");
 	}
 
 }

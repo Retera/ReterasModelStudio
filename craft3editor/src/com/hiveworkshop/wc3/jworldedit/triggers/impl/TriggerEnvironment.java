@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.triggers.impl;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +34,7 @@ public final class TriggerEnvironment implements TriggerTreeController {
 	@Override
 	public Trigger createTrigger(final TriggerCategory triggerCategory) {
 		if (!categories.contains(triggerCategory)) {
-			throw new IllegalStateException("creating trigger in invalid category!");
+			throw new IllegalStateException(LocalizationManager.getInstance().get("exception.triggerenvironment_createtrigger_invalid"));
 		}
 		String triggerName;
 		int triggerNameIndex = 0;
@@ -52,7 +53,7 @@ public final class TriggerEnvironment implements TriggerTreeController {
 	@Override
 	public Trigger createTriggerComment(final TriggerCategory triggerCategory) {
 		if (!categories.contains(triggerCategory)) {
-			throw new IllegalStateException("creating trigger in invalid category!");
+			throw new IllegalStateException(LocalizationManager.getInstance().get("exception.triggerenvironment_createtrigger_invalid"));
 		}
 		final TriggerComment comment = new TriggerComment(WEString.getString("WESTRING_TRIGGERCOMMENT_DEFAULT"));
 		comment.setCategory(triggerCategory);

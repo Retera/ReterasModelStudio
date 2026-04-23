@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.wipdesign.units.enums;
+import com.matrixeater.localization.LocalizationManager;
 
 import com.hiveworkshop.wc3.resources.WEString;
 
@@ -22,6 +23,6 @@ public enum DefenseTypeInt {
 				return cat;
 			}
 		}
-		throw new IllegalArgumentException("DefenseTypeInt does not exist: " + name);
+		throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.defensetypeint_fromcodename_exist") + name);
 	}
 }

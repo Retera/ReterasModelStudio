@@ -10,6 +10,7 @@ import com.hiveworkshop.wc3.gui.animedit.NodeAnimationModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.wc3.mdl.IdObject;
+import com.matrixeater.localization.LocalizationManager;
 
 public class TranslationKeyframeAction implements GenericMoveAction {
 	private final UndoAction addingTimelinesOrKeyframesAction;
@@ -55,7 +56,7 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 
 	@Override
 	public String actionName() {
-		return "edit translation";
+		return LocalizationManager.getInstance().get("string.translationkeyframeaction_actionname");
 	}
 
 	@Override

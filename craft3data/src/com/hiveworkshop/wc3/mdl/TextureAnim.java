@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -66,7 +67,7 @@ public class TextureAnim implements TimelineContainer {
 			return tan;
 		} else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse TextureAnim: Missing or unrecognized open statement.");
+					LocalizationManager.getInstance().get("dialog.textureanim_read_parse"));
 		}
 		return null;
 	}

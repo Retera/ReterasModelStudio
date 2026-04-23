@@ -11,6 +11,7 @@ import com.hiveworkshop.blizzard.casc.Key;
 import com.hiveworkshop.blizzard.casc.nio.HashMismatchException;
 import com.hiveworkshop.blizzard.casc.nio.LittleHashBlockProcessor;
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
+import com.matrixeater.localization.LocalizationManager;
 
 public class IndexFile {
 	/**
@@ -47,7 +48,7 @@ public class IndexFile {
 		try {
 			headerBuffer = hashBlockProcessor.getBlock(sourceBuffer);
 		} catch (final HashMismatchException e) {
-			throw new MalformedCASCStructureException("header block corrupt", e);
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.hashblockprocessor"), e);
 		}
 
 		headerBuffer.order(ByteOrder.LITTLE_ENDIAN);
@@ -66,7 +67,7 @@ public class IndexFile {
 			dataFileSizeBits = Byte.toUnsignedInt(headerBuffer.get());
 			dataSizeMaximum = headerBuffer.getLong();
 		} catch (final BufferUnderflowException e) {
-			throw new MalformedCASCStructureException("header block too small");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.hashblockprocessor_header_block_small"));
 		}
 
 		// decode entries
@@ -78,7 +79,7 @@ public class IndexFile {
 		try {
 			entryBuffer = hashBlockProcessor.getBlock(sourceBuffer);
 		} catch (final HashMismatchException e) {
-			throw new MalformedCASCStructureException("entries block corrupt", e);
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.hashblockprocessor_entries_corrupt"), e);
 		}
 
 		final int entryLength = fileSizeLength + dataOffsetLength + encodingKeyLength;
@@ -109,7 +110,7 @@ public class IndexFile {
 		}
 
 		if (entryBuffer.hasRemaining()) {
-			throw new MalformedCASCStructureException("unable to fully process entries block");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.hashblockprocessor_unable_fully"));
 		}
 
 		fileBuffer.position(fileBuffer.position() + sourceBuffer.position());
@@ -138,7 +139,7 @@ public class IndexFile {
 				final Key ekey = (Key) right;
 				return entry.getKey().compareTo(ekey);
 			}
-			throw new IllegalArgumentException("binary search comparing in inverted order");
+			throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.hashblockprocessor_binary_search_inverted"));
 		});
 
 		return index >= 0 ? entries.get(index) : null;

@@ -24,6 +24,7 @@
  */
 
 package com.etheller.collections;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -1498,7 +1499,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K, 
 						final boolean toEnd, final KWERTY hi, final boolean hiInclusive) {
 			if (!fromStart && !toEnd) {
 				if (m.compare(lo, hi) > 0) {
-					throw new IllegalArgumentException("fromKey > toKey");
+					throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.navigablesubmap"));
 				}
 			} else {
 				if (!fromStart) {
@@ -1653,7 +1654,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K, 
 		@Override
 		public final SECONDONE put(final KWERTY key, final SECONDONE value) {
 			if (!inRange(key)) {
-				throw new IllegalArgumentException("key out of range");
+				throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.navigablesubmap_secondone"));
 			}
 			return m.put(key, value);
 		}
@@ -2007,10 +2008,10 @@ public class TreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K, 
 		public NavigableMap<K, V> subMap(final K fromKey, final boolean fromInclusive, final K toKey,
 				final boolean toInclusive) {
 			if (!inRange(fromKey, fromInclusive)) {
-				throw new IllegalArgumentException("fromKey out of range");
+				throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.navigablemap_fromkey"));
 			}
 			if (!inRange(toKey, toInclusive)) {
-				throw new IllegalArgumentException("toKey out of range");
+				throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.navigablemap_tokey"));
 			}
 			return new AscendingSubMap(m, false, fromKey, fromInclusive, false, toKey, toInclusive);
 		}
@@ -2018,7 +2019,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K, 
 		@Override
 		public NavigableMap<K, V> headMap(final K toKey, final boolean inclusive) {
 			if (!inRange(toKey, inclusive)) {
-				throw new IllegalArgumentException("toKey out of range");
+				throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.navigablemap_tokey"));
 			}
 			return new AscendingSubMap(m, fromStart, lo, loInclusive, false, toKey, inclusive);
 		}
@@ -2026,7 +2027,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K, 
 		@Override
 		public NavigableMap<K, V> tailMap(final K fromKey, final boolean inclusive) {
 			if (!inRange(fromKey, inclusive)) {
-				throw new IllegalArgumentException("fromKey out of range");
+				throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.navigablemap_fromkey"));
 			}
 			return new AscendingSubMap(m, false, fromKey, inclusive, toEnd, hi, hiInclusive);
 		}
@@ -2141,10 +2142,10 @@ public class TreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K, 
 		public NavigableMap<K, V> subMap(final K fromKey, final boolean fromInclusive, final K toKey,
 				final boolean toInclusive) {
 			if (!inRange(fromKey, fromInclusive)) {
-				throw new IllegalArgumentException("fromKey out of range");
+				throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.navigablemap_fromkey"));
 			}
 			if (!inRange(toKey, toInclusive)) {
-				throw new IllegalArgumentException("toKey out of range");
+				throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.navigablemap_tokey"));
 			}
 			return new DescendingSubMap(m, false, toKey, toInclusive, false, fromKey, fromInclusive);
 		}
@@ -2152,7 +2153,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K, 
 		@Override
 		public NavigableMap<K, V> headMap(final K toKey, final boolean inclusive) {
 			if (!inRange(toKey, inclusive)) {
-				throw new IllegalArgumentException("toKey out of range");
+				throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.navigablemap_tokey"));
 			}
 			return new DescendingSubMap(m, false, toKey, inclusive, toEnd, hi, hiInclusive);
 		}
@@ -2160,7 +2161,7 @@ public class TreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K, 
 		@Override
 		public NavigableMap<K, V> tailMap(final K fromKey, final boolean inclusive) {
 			if (!inRange(fromKey, inclusive)) {
-				throw new IllegalArgumentException("fromKey out of range");
+				throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.navigablemap_fromkey"));
 			}
 			return new DescendingSubMap(m, fromStart, lo, loInclusive, false, fromKey, inclusive);
 		}

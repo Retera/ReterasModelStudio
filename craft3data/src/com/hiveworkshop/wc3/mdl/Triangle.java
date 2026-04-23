@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.util.ArrayList;
@@ -216,7 +217,7 @@ public class Triangle {
 							Integer.parseInt(s[t + 2])));
 				} catch (final NumberFormatException e) {
 					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-							"Error: Unable to interpret information in Triangles: " + s[t] + ", " + s[t + 1] + ", or "
+							LocalizationManager.getInstance().get("dialog.triangle_parsetext_interpret") + s[t] + ", " + s[t + 1] + ", " + LocalizationManager.getInstance().get("dialog.triangle_parsetext_or")
 									+ s[t + 2]);
 				}
 			}
@@ -246,7 +247,7 @@ public class Triangle {
 							Integer.parseInt(s[t + 2])));
 				} catch (final NumberFormatException e) {
 					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-							"Error: Unable to interpret information in Triangles: " + s[t] + ", " + s[t + 1] + ", or "
+							LocalizationManager.getInstance().get("dialog.triangle_read_interpret") + s[t] + ", " + s[t + 1] + ", " + LocalizationManager.getInstance().get("dialog.triangle_read_or")
 									+ s[t + 2]);
 				}
 			}
@@ -276,7 +277,7 @@ public class Triangle {
 							Integer.parseInt(s[t + 2]), geoRef));
 				} catch (final NumberFormatException e) {
 					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-							"Error: Unable to interpret information in Triangles: " + s[t] + ", " + s[t + 1] + ", or "
+							LocalizationManager.getInstance().get("dialog.triangle_read_interpret") + s[t] + ", " + s[t + 1] + ", " + LocalizationManager.getInstance().get("dialog.triangle_read_or")
 									+ s[t + 2]);
 				}
 			}

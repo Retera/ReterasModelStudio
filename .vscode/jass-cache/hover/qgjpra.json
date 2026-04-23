@@ -1,0 +1,21 @@
+{
+  "filePath": "g:\\Downloads\\BUG MORE AI (AMAI cn) 3.6.0\\Work\\war3map.j",
+  "items": [
+    {
+      "symbolName": "InitCustomTriggers",
+      "filePath": "g:\\Downloads\\BUG MORE AI (AMAI cn) 3.6.0\\Work\\war3map.j",
+      "content": "\n```jass\nfunction InitCustomTriggers takes nothing returns nothing\n```\n\n\n---\n\n===========================================================================\n\n**文件:** `g:\\Downloads\\BUG MORE AI (AMAI cn) 3.6.0\\Work\\war3map.j`"
+    },
+    {
+      "symbolName": "InitTrig_Melee_Initialization",
+      "filePath": "g:\\Downloads\\BUG MORE AI (AMAI cn) 3.6.0\\Work\\war3map.j",
+      "content": "\n```jass\nfunction InitTrig_Melee_Initialization takes nothing returns nothing\n```\n\n\n---\n\n===========================================================================\n\n**文件:** `g:\\Downloads\\BUG MORE AI (AMAI cn) 3.6.0\\Work\\war3map.j`"
+    },
+    {
+      "symbolName": "Trig_Melee_Initialization_Actions",
+      "filePath": "g:\\Downloads\\BUG MORE AI (AMAI cn) 3.6.0\\Work\\war3map.j",
+      "content": "\n```jass\nfunction Trig_Melee_Initialization_Actions takes nothing returns nothing\n```\n\n\n---\n\n***************************************************************************\n\n*\n\n*  Triggers\n\n*\n\n***************************************************************************\n\n===========================================================================\n\nTrigger: Melee Initialization\n\nDefault melee game initialization for all players\n\n===========================================================================\n\n**文件:** `g:\\Downloads\\BUG MORE AI (AMAI cn) 3.6.0\\Work\\war3map.j`"
+    }
+  ],
+  "timestamp": 1774365761641
+}

@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.gui.datachooser;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.nio.file.Paths;
 
@@ -20,7 +21,7 @@ public class FolderDataSourceDescriptor implements DataSourceDescriptor {
 
 	@Override
 	public String getDisplayName() {
-		return "Folder: " + folderPath;
+		return LocalizationManager.getLocalized("data.string.folderdatasourcedescriptor_getdisplayname") + folderPath;
 	}
 
 	@Override

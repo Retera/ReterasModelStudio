@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.awt.geom.Rectangle2D;
 import java.io.BufferedReader;
@@ -141,7 +142,7 @@ public class Geoset implements Named, VisibilitySource {
 
 	@Override
 	public String getName() {
-		return "Geoset " + (parentModel.getGeosetId(this) + 1);// parentModel.getName()
+		return LocalizationManager.getInstance().get("string.geoset_getname_geoset") + (parentModel.getGeosetId(this) + 1);// parentModel.getName()
 																// + "
 	}
 
@@ -150,7 +151,7 @@ public class Geoset implements Named, VisibilitySource {
 		if (getLevelOfDetailName() != null && getLevelOfDetailName().length() > 0) {
 			return "(" + uiNumber + ") " + getLevelOfDetailName();
 		}
-		return "Geoset " + uiNumber;
+		return LocalizationManager.getInstance().get("string.geoset_getuiname_geoset") + uiNumber;
 	}
 
 	public void addVertex(final GeosetVertex v) {
@@ -242,7 +243,7 @@ public class Geoset implements Named, VisibilitySource {
 		if (!triangles.contains(p)) {
 			triangles.add(p);
 		} else {
-			System.out.println("2x triangles");
+			System.out.println(LocalizationManager.getInstance().get("string.geoset_add_riangles"));
 		}
 	}
 
@@ -373,21 +374,21 @@ public class Geoset implements Named, VisibilitySource {
 			temp[0] = (byte) Short.parseShort(entries[0].split("\\{")[1].trim());
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Skin data could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") + " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.geoset_parse8byteskin_skin_data"));
 		}
 		for (int i = 1; i < 7; i++) {
 			try {
 				temp[i] = (byte) Short.parseShort(entries[i].trim());
 			} catch (final NumberFormatException e) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error {" + input + "}: Skin data could not be interpreted.");
+						LocalizationManager.getInstance().get("global.dialog.error") + " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.geoset_parse8byteskin_skin_data"));
 			}
 		}
 		try {
 			temp[7] = (byte) Short.parseShort(entries[7].split("}")[0].trim());
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Skin data could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") + " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.geoset_parse8byteskin_skin_data"));
 		}
 		return temp;
 	}
@@ -399,21 +400,21 @@ public class Geoset implements Named, VisibilitySource {
 			temp[0] = Float.parseFloat(entries[0].split("\\{")[1].trim());
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Tangent data could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") + " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.geoset_parse4floattangent_tangent_data"));
 		}
 		for (int i = 1; i < 3; i++) {
 			try {
 				temp[i] = Float.parseFloat(entries[i].trim());
 			} catch (final NumberFormatException e) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error {" + input + "}: Tangent data could not be interpreted.");
+						LocalizationManager.getInstance().get("global.dialog.error") + " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.geoset_parse4floattangent_tangent_data"));
 			}
 		}
 		try {
 			temp[3] = Float.parseFloat(entries[3].split("}")[0].trim());
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Tangent data could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") + " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.geoset_parse4floattangent_tangent_data"));
 		}
 		return temp;
 	}
@@ -425,7 +426,7 @@ public class Geoset implements Named, VisibilitySource {
 			final Geoset geo = new Geoset();
 			if (!line.contains("Vertices")) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error: Vertices not found at beginning of Geoset!");
+						LocalizationManager.getInstance().get("dialog.geoset_read_geoset_vertices"));
 			}
 			while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
 				geo.addVertex(GeosetVertex.parseText(line));
@@ -463,7 +464,7 @@ public class Geoset implements Named, VisibilitySource {
 			}
 			if (!line.contains("VertexGroup")) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error: VertexGroups missing or invalid!");
+						LocalizationManager.getInstance().get("dialog.geoset_read_vertex_groups"));
 			}
 			int i = 0;
 			while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
@@ -492,12 +493,12 @@ public class Geoset implements Named, VisibilitySource {
 			}
 
 			if (!line.contains("Faces")) {
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "Error: Faces missing or invalid!");
+				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), LocalizationManager.getInstance().get("dialog.geoset_read_faces"));
 			}
 			line = MDLReader.nextLine(mdl);
 			if (!line.contains("Triangles")) {
-				System.out.println("No triangles: " + line);
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "Error: Triangles missing or invalid!");
+				System.out.println(LocalizationManager.getInstance().get("println.geoset_read_no_triangles") + line);
+				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), LocalizationManager.getInstance().get("dialog.geoset_read_triangles"));
 			}
 			geo.setTriangles(Triangle.read(mdl, geo));
 			line = MDLReader.nextLine(mdl);// Throw away the \t} closer for
@@ -505,7 +506,7 @@ public class Geoset implements Named, VisibilitySource {
 			line = MDLReader.nextLine(mdl);
 			if (!line.contains("Groups")) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error: Groups (Matrices) missing or invalid!");
+						LocalizationManager.getInstance().get("dialog.geoset_read_groups"));
 			}
 			while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
 				geo.addMatrix(Matrix.parseText(line));
@@ -544,7 +545,7 @@ public class Geoset implements Named, VisibilitySource {
 			return geo;
 		} else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse Geoset: Missing or unrecognized open statement '" + line + "'.");
+					LocalizationManager.getInstance().get("dialog.geoset_read_parse_geoset") + line + "'.");
 		}
 		return null;
 	}
@@ -609,7 +610,7 @@ public class Geoset implements Named, VisibilitySource {
 					gv.addTVertex(uvlayers.get(l).getTVertex(i));
 				} catch (final Exception e) {
 					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-							"Error: Length of TVertices and Vertices chunk differ (Or some other unknown error has occurred)!");
+							LocalizationManager.getInstance().get("dialog.geoset_updatetoobjects_tvertices_and_vertices_length"));
 				}
 			}
 			Matrix mx;
@@ -648,7 +649,7 @@ public class Geoset implements Named, VisibilitySource {
 		try {
 			material = mdlr.getMaterial(materialID);
 		} catch (final ArrayIndexOutOfBoundsException e) {
-			JOptionPane.showMessageDialog(null, "Error: Material index out of bounds for geoset!");
+			JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.geoset_updatetoobjects_material_index"));
 		}
 		parentModel = mdlr;
 	}
@@ -700,8 +701,8 @@ public class Geoset implements Named, VisibilitySource {
 			}
 		}
 		if (anyVerticesCantBeSkinned && anyVerticesSkinned) {
-			throw new IllegalStateException("Geoset \"" + getUIName(mdlr)
-					+ "\": Both complex SD matrices that cannot convert to HD, and also HD weights that cannot be expressed in SD, have been used. This merged geoset cannot save this way without losing data. Please Split Geoset or reduce complexity and retry.");
+			throw new IllegalStateException(LocalizationManager.getInstance().get("exception.geoset_applyverticestomatrices_geoset") + getUIName(mdlr)
+					+ LocalizationManager.getInstance().get("exception.geoset_applyverticestomatrices_convert"));
 		}
 		final MatrixGeneratorStrategy matrixGeneratorStrategy;
 		if (anyVerticesSkinned) {
@@ -823,8 +824,8 @@ public class Geoset implements Named, VisibilitySource {
 	public void printTo(final PrintWriter writer, final EditableModel mdlr, final boolean trianglesTogether,
 			final boolean alwaysUseMinimalMatricesHD) {
 		purifyFaces();
-		writer.println("Geoset {");
-		writer.println("\tVertices " + vertex.size() + " {");
+		writer.println(LocalizationManager.getInstance().get("println.geoset_printto_geoset" + " {"));
+		writer.println(LocalizationManager.getInstance().get("println.geoset_printto_vertices") + vertex.size() + " {");
 
 		final String tabs = "\t\t";
 		// Normals cleared here, in case that becomes a problem later.
@@ -844,7 +845,7 @@ public class Geoset implements Named, VisibilitySource {
 		}
 		if (littleNum != bigNum) {
 			JOptionPane.showMessageDialog(null,
-					"Error: Attempting to save a Geoset with Verteces that have differing numbers of TVertices! Empty TVertices will be autogenerated.");
+					LocalizationManager.getInstance().get("println.geoset_printto_empty_tvertices"));
 		}
 		for (int i = 0; i < bigNum; i++) {
 			uvlayers.add(new UVLayer());
@@ -872,9 +873,9 @@ public class Geoset implements Named, VisibilitySource {
 		if (hasNormals) {
 			if (normals.size() != vertex.size()) {
 				JOptionPane.showMessageDialog(null,
-						"Number of normals differs from number of vertices. The model file will be corrupt.\nTo fix it, delete or fix the Normals chunk in MDL.");
+						LocalizationManager.getInstance().get("println.geoset_printto_normals_vertices"));
 			}
-			writer.println("\tNormals " + normals.size() + " {");
+			writer.println(LocalizationManager.getInstance().get("println.geoset_printto_normals") + normals.size() + " {");
 			for (int i = 0; i < normals.size(); i++) {
 				writer.println(tabs + normals.get(i).toString() + ",");
 			}
@@ -889,7 +890,7 @@ public class Geoset implements Named, VisibilitySource {
 				&& vertex.size() > 0 && vertex.get(0).getTangent() != null;
 		final boolean printSkinToFile = ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion())
 				&& vertex.size() > 0 && vertex.get(0).getSkinBoneIndexes() != null;
-		writer.println("\tVertexGroup {");
+		writer.println(LocalizationManager.getInstance().get("println.geoset_printto_vertexgroup" + " {"));
 		if (!printSkinToFile) {
 			for (int i = 0; i < vertex.size(); i++) {
 				final GeosetVertex geosetVertex = vertex.get(i);
@@ -898,7 +899,7 @@ public class Geoset implements Named, VisibilitySource {
 		}
 		writer.println("\t}");
 		if (printTangentsToFile) {
-			writer.println("\tTangents " + vertex.size() + " {");
+			writer.println(LocalizationManager.getInstance().get("println.geoset_printto_tangents") + vertex.size() + " {");
 			final StringBuilder tangentBuilder = new StringBuilder();
 			for (int i = 0; i < vertex.size(); i++) {
 				tangentBuilder.setLength(0);
@@ -912,7 +913,7 @@ public class Geoset implements Named, VisibilitySource {
 			writer.println("\t}");
 		}
 		if (printSkinToFile) {
-			writer.println("\tSkinWeights " + vertex.size() + " {");
+			writer.println(LocalizationManager.getInstance().get("println.geoset_printto_skinweights") + vertex.size() + " {");
 			final StringBuilder skinBuilder = new StringBuilder();
 			for (int i = 0; i < vertex.size(); i++) {
 				skinBuilder.setLength(0);
@@ -934,8 +935,8 @@ public class Geoset implements Named, VisibilitySource {
 			writer.println("\t}");
 		}
 		if (trianglesTogether) {
-			writer.println("\tFaces 1 " + triangles.size() * 3 + " {");
-			writer.println("\t\tTriangles {");
+			writer.println(LocalizationManager.getInstance().get("println.geoset_printto_faces") + "1 " + triangles.size() * 3 + " {");
+			writer.println(LocalizationManager.getInstance().get("println.geoset_printto_triangles") + " {");
 			String triangleOut = "\t\t\t{ ";
 			for (int i = 0; i < triangles.size(); i++) {
 				triangles.get(i).updateVertexIds(this);
@@ -948,8 +949,8 @@ public class Geoset implements Named, VisibilitySource {
 			writer.println(triangleOut + "},");
 			writer.println("\t\t}");
 		} else {
-			writer.println("\tFaces " + triangles.size() + " " + triangles.size() * 3 + " {");
-			writer.println("\t\tTriangles {");
+			writer.println(LocalizationManager.getInstance().get("println.geoset_printto_faces") + triangles.size() + " " + triangles.size() * 3 + " {");
+			writer.println(LocalizationManager.getInstance().get("println.geoset_printto_triangles") + " {");
 			final String triangleOut = "\t\t\t{ ";
 			for (int i = 0; i < triangles.size(); i++) {
 				triangles.get(i).updateVertexIds(this);
@@ -962,7 +963,7 @@ public class Geoset implements Named, VisibilitySource {
 		for (int i = 0; i < matrix.size(); i++) {
 			boneRefCount += matrix.get(i).bones.size();
 		}
-		writer.println("\tGroups " + matrix.size() + " " + boneRefCount + " {");
+		writer.println(LocalizationManager.getInstance().get("println.geoset_printto_groups") + matrix.size() + " " + boneRefCount + " {");
 		for (int i = 0; i < matrix.size(); i++) {
 			matrix.get(i).updateIds(mdlr);
 			matrix.get(i).printTo(writer, 2);// 2 is the tab height
@@ -975,11 +976,11 @@ public class Geoset implements Named, VisibilitySource {
 			anims.get(i).printTo(writer, 1);
 		}
 
-		writer.println("\tMaterialID " + materialID + ",");
-		writer.println("\tSelectionGroup " + selectionGroup + ",");
+		writer.println(LocalizationManager.getInstance().get("println.geoset_printto_materialid") + materialID + ",");
+		writer.println(LocalizationManager.getInstance().get("println.geoset_printto_selectiongroup") + selectionGroup + ",");
 		if (levelOfDetailName != null && ModelUtils.isLevelOfDetailSupported(mdlr.getFormatVersion())) {
-			writer.println("\tLevelOfDetail " + levelOfDetail + ",");
-			writer.println("\tName \"" + levelOfDetailName + "\",");
+			writer.println(LocalizationManager.getInstance().get("println.geoset_printto_levelofdetail") + levelOfDetail + ",");
+			writer.println(LocalizationManager.getInstance().get("println.geoset_printto_name") + levelOfDetailName + "\",");
 		}
 		for (int i = 0; i < flags.size(); i++) {
 			writer.println("\t" + flags.get(i) + ",");
@@ -1008,7 +1009,7 @@ public class Geoset implements Named, VisibilitySource {
 		}
 		if (littleNum != bigNum) {
 			JOptionPane.showMessageDialog(null,
-					"Error: Attempting to save a Geoset with Verteces that have differing numbers of TVertices! Empty TVertices will be autogenerated.");
+					LocalizationManager.getInstance().get("dialog.geoset_dosaveprep_empty_tvertices"));
 		}
 		for (int i = 0; i < bigNum; i++) {
 			uvlayers.add(new UVLayer());

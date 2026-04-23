@@ -2,6 +2,7 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
+import com.matrixeater.localization.LocalizationManager;
 
 public final class MakeNotEditableAction implements UndoAction {
 	private final EditabilityToggleHandler editabilityToggleHandler;
@@ -34,7 +35,7 @@ public final class MakeNotEditableAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "toggle visibility";
+		return LocalizationManager.getInstance().get("string.makenoteditableaction_actionname");
 	}
 
 }

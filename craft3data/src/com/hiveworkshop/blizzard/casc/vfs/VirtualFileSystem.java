@@ -22,6 +22,7 @@ import com.hiveworkshop.blizzard.casc.Key;
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
 import com.hiveworkshop.blizzard.casc.storage.BankStream;
 import com.hiveworkshop.blizzard.casc.storage.Storage;
+import com.matrixeater.localization.LocalizationManager;
 
 /**
  * High level file system API using TVFS directories to extract files from a
@@ -145,12 +146,12 @@ public final class VirtualFileSystem {
 		 */
 		public ByteBuffer readFile(ByteBuffer destBuffer) throws IOException {
 			if (!isFile()) {
-				throw new FileNotFoundException("result is not a file");
+				throw new FileNotFoundException(LocalizationManager.getInstance().get("exception.virtualfilesystem_readfile_result_not_file"));
 			}
 
 			final long fileSize = getFileSize();
 			if (fileSize > Integer.MAX_VALUE) {
-				throw new OutOfMemoryError("file too big to process");
+				throw new OutOfMemoryError(LocalizationManager.getInstance().get("error.virtualfilesystem_readfile_file_big"));
 			}
 
 			if (destBuffer == null) {
@@ -168,7 +169,7 @@ public final class VirtualFileSystem {
 
 				final long logicalSize = fileReference.getSize();
 				if (logicalSize != fileReference.getActualSize()) {
-					throw new MalformedCASCStructureException("inconsistent size");
+					throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.virtualfilesystem_readfile_inconsistent_size"));
 				}
 				final long logicalOffset = fileReference.getOffset();
 
@@ -402,7 +403,7 @@ public final class VirtualFileSystem {
 			throws IOException {
 		final long size = storageReference.getSize();
 		if (size > Integer.MAX_VALUE) {
-			throw new MalformedCASCStructureException("stored data too large to process");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.fetchstoredbuffer_stored_large"));
 		}
 
 		final BankStream bankStream = storage.getBanks(storageReference.getEncodingKey());
@@ -412,11 +413,11 @@ public final class VirtualFileSystem {
 				bankStream.getBank(storedBuffer);
 			}
 		} catch (final BufferOverflowException e) {
-			throw new MalformedCASCStructureException("stored data is bigger than expected");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.fetchstoredbuffer_stored_bigger"));
 		}
 
 		if (storedBuffer.hasRemaining()) {
-			throw new MalformedCASCStructureException("stored data is smaller than expected");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.fetchstoredbuffer_stored_smaller"));
 		}
 
 		storedBuffer.rewind();
@@ -506,7 +507,7 @@ public final class VirtualFileSystem {
                 try {
                     tvfsFile = resolveTVFS(encodingKey);
                 } catch(Exception e){
-                    System.out.println("Failed decoding tvfsFile at " + PathNode.toString(parentPathFragments) + currentNode + ".");
+                    System.out.println(LocalizationManager.getInstance().get("println.recursivefilepathretrieve_failed_decoding") + PathNode.toString(parentPathFragments) + currentNode + ".");
                     tvfsFile = null;
                 }
 
@@ -526,7 +527,7 @@ public final class VirtualFileSystem {
 				resultList.add(new PathResult(currentNode, currentPathFragments));
 			}
 		} else {
-			throw new IllegalArgumentException("unsupported node type");
+			throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.fetchstoredbuffer_unsupported"));
 		}
 	}
 
@@ -608,7 +609,7 @@ public final class VirtualFileSystem {
 					if (tvfsFile != null) {
 						// TVFS file to recursively resolve
 						if (tvfsFile.getRootNodeCount() != 1) {
-							throw new MalformedCASCStructureException("logic only defined for 1 TVFS root node");
+							throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.recursiveresolvepathfragments_logic_defined"));
 						}
 
 						fragmentIndex += 1;
@@ -620,7 +621,7 @@ public final class VirtualFileSystem {
 			}
 
 		} else {
-			throw new IllegalArgumentException("unsupported node type");
+			throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.recursiveresolvepathfragments_unsupported"));
 		}
 
 		// file not found
@@ -640,16 +641,16 @@ public final class VirtualFileSystem {
 	 */
 	public PathResult resolvePath(final byte[][] pathFragments) throws IOException {
 		if (pathFragments.length == 0) {
-			throw new IllegalArgumentException("pathFragments.length must be greater than 0");
+			throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.resolvepath_greater"));
 		}
 
 		if (tvfsRoot.getRootNodeCount() != 1) {
-			throw new MalformedCASCStructureException("logic only defined for 1 root node");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.resolvepath_logic_defined"));
 		}
 
 		final FileNode result = recursiveResolvePathFragments(pathFragments, 0, 0, tvfsRoot.getRootNode(0));
 		if (result == null) {
-			throw new FileNotFoundException("path not in storage");
+			throw new FileNotFoundException(LocalizationManager.getInstance().get("exception.resolvepath_not_storage"));
 		}
 
 		return new PathResult(result, pathFragments);

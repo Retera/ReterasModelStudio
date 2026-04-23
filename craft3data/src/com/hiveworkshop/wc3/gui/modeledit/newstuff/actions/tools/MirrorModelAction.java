@@ -9,6 +9,7 @@ import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Normal;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.matrixeater.localization.LocalizationManager;
 
 public final class MirrorModelAction implements UndoAction {
 	private final char[] DIMENSION_NAMES = { 'Z', 'X', 'Y' };
@@ -74,7 +75,7 @@ public final class MirrorModelAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "mirror " + DIMENSION_NAMES[mirrorDim];
+		return LocalizationManager.getInstance().get("string.mirrormodelaction_actionname") + DIMENSION_NAMES[mirrorDim];
 	}
 
 }

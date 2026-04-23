@@ -6,6 +6,7 @@ import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.CompoundAction;
+import com.matrixeater.localization.LocalizationManager;
 
 public abstract class AbstractExtrudeManipulator extends AbstractMoveManipulator {
 
@@ -23,7 +24,7 @@ public abstract class AbstractExtrudeManipulator extends AbstractMoveManipulator
 
 	@Override
 	public UndoAction finish(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
-		return new CompoundAction("extrude",
+		return new CompoundAction(LocalizationManager.getInstance().get("string.abstractextrudemanipulator_undoAction"),
 				ListView.Util.of(beginExtrudingSelection, super.finish(mouseStart, mouseEnd, dim1, dim2)));
 	}
 

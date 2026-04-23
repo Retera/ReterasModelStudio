@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.awt.Graphics;
 import java.awt.Image;
@@ -64,28 +65,28 @@ public class Material implements MaterialView {
 			if (layer1DiffuseTexture != null) {
 				name = layer1DiffuseTexture.getName();
 				if (layers.get(layers.size() - 1).getFlag("Alpha") != null) {
-					name = name + " (animated Alpha)";
+					name = name + LocalizationManager.getInstance().get("string.material_getname_animated");
 				}
 			}
 			else {
-				name = "animated texture layers";
+				name = LocalizationManager.getInstance().get("string.material_getname_texture");
 			}
 			for (int i = layers.size() - 2; i >= 0; i--) {
 				try {
-					name = name + " over "
+					name = name + LocalizationManager.getInstance().get("string.material_getname_over")
 							+ layers.get(i).getShaderTextures().get(ShaderTextureTypeHD.Diffuse).getName();
 					if (layers.get(i).getFlag("Alpha") != null) {
-						name = name + " (animated Alpha)";
+						name = name + LocalizationManager.getInstance().get("string.material_getname_animated");
 					}
 				}
 				catch (final NullPointerException e) {
-					name = name + " over " + "animated texture layers (" + layers.get(i).textures.get(0).getName()
+					name = name + LocalizationManager.getInstance().get("string.material_getname_over") + LocalizationManager.getInstance().get("string.material_getname_texture") + " (" + layers.get(i).textures.get(0).getName()
 							+ ")";
 				}
 			}
 		}
 		else {
-			name = "(Material with no layers)";
+			name = LocalizationManager.getInstance().get("string.material_getname_material");
 		}
 		return name;
 	}
@@ -171,7 +172,7 @@ public class Material implements MaterialView {
 		}
 		for (final Layer layer : layers) {
 			if (layer.getLayerShader() == null) {
-				throw new IllegalStateException("Null layer shader");
+				throw new IllegalStateException(LocalizationManager.getInstance().get("exception.material_material_null"));
 			}
 		}
 		setPriorityPlane(mat.priorityPlane);
@@ -336,7 +337,7 @@ public class Material implements MaterialView {
 		}
 		else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse Material: Missing or unrecognized open statement.");
+					LocalizationManager.getInstance().get("dialog.material_read_parse_material"));
 		}
 		return null;
 	}
@@ -356,8 +357,8 @@ public class Material implements MaterialView {
 		}
 		else {
 			MDLReader.reset(mdl);
-			// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Unable
-			// to parse Materials: Missing or unrecognized open statement.");
+			// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+			// LocalizationManager.getInstance().get("dialog.material_read_parse_material"));
 		}
 		return outputs;
 	}
@@ -367,7 +368,7 @@ public class Material implements MaterialView {
 		for (int i = 0; i < tabHeight; i++) {
 			tabs = tabs + "\t";
 		}
-		writer.println(tabs + "Material {");
+		writer.println(tabs + LocalizationManager.getInstance().get("println.material_printto_material") + " {");
 		if (ModelUtils.isShaderStringSupported(version)) {
 			String shaderString;
 			if ((layers.size() > 0) && (layers.get(0).getLayerShader() == LayerShader.HD)) {
@@ -376,10 +377,10 @@ public class Material implements MaterialView {
 			else {
 				shaderString = "";
 			}
-			writer.println(tabs + "\tShader \"" + shaderString + "\",");
+			writer.println(tabs + LocalizationManager.getInstance().get("println.material_printto_Shader") + shaderString + "\",");
 		}
 		if (priorityPlane != 0) {
-			writer.println(tabs + "\tPriorityPlane " + priorityPlane + ",");
+			writer.println(tabs + LocalizationManager.getInstance().get("println.material_printto_priorityplane") + priorityPlane + ",");
 		}
 		for (int i = 0; i < flags.size(); i++) {
 			writer.println(tabs + "\t" + flags.get(i) + ",");
@@ -475,25 +476,25 @@ public class Material implements MaterialView {
 					getRenderableTexturePath(zeroLayer.getShaderTextures().get(ShaderTextureTypeHD.Reflections)));
 			final int diffuseTextureDataWidth = diffuseTextureData.getWidth();
 			final int diffuseTextureDataHeight = diffuseTextureData.getHeight();
-			System.out.println("Diffuse: " + diffuseTextureDataWidth + " x " + diffuseTextureDataHeight);
+			System.out.println(LocalizationManager.getInstance().get("println.material_getbakedhdnonemissivebufferedimage_diffuse") + diffuseTextureDataWidth + " x " + diffuseTextureDataHeight);
 			final int normalTextureDataWidth = normalTextureData.getWidth();
 			final int normalTextureDataHeight = normalTextureData.getHeight();
-			System.out.println("Normal: " + normalTextureDataWidth + " x " + normalTextureDataHeight);
+			System.out.println(LocalizationManager.getInstance().get("println.material_getbakedhdnonemissivebufferedimage_normal") + normalTextureDataWidth + " x " + normalTextureDataHeight);
 			final int ormTextureDataWidth = ormTextureData.getWidth();
 			final int ormTextureDataHeight = ormTextureData.getHeight();
-			System.out.println("Orm: " + ormTextureDataWidth + " x " + ormTextureDataHeight);
+			System.out.println(LocalizationManager.getInstance().get("println.material_getbakedhdnonemissivebufferedimage_orm") + ormTextureDataWidth + " x " + ormTextureDataHeight);
 			System.out.println(
-					"Reflections: " + reflectionsTextureData.getWidth() + " x " + reflectionsTextureData.getHeight());
+					LocalizationManager.getInstance().get("println.material_getbakedhdnonemissivebufferedimage_reflections") + reflectionsTextureData.getWidth() + " x " + reflectionsTextureData.getHeight());
 //			if (diffuseTextureDataWidth != normalTextureDataWidth || normalTextureDataWidth != ormTextureDataWidth) {
 //				new IllegalStateException(
-//						"Baking failed because of differing texture widths; maybe we should update the algorithm?")
+//						LocalizationManager.getInstance().get("exception.material_getbakedhdnonemissivebufferedimage_texture_widths"))
 //								.printStackTrace();
 //				return null;
 //			}
 //			if (diffuseTextureDataHeight != normalTextureDataHeight
 //					|| normalTextureDataHeight != ormTextureDataHeight) {
 //				new IllegalStateException(
-//						"Baking failed because of differing texture heights; maybe we should update the algorithm?")
+//						LocalizationManager.getInstance().get("exception.material_getbakedhdnonemissivebufferedimage_texture_heights"))
 //								.printStackTrace();
 //				return null;
 //			}
@@ -776,8 +777,8 @@ public class Material implements MaterialView {
 					bakedImg.setRGB(j, i, bakingCell.outputARGB);
 				}
 			}
-			System.out.println("baked texture with " + nShadedPixels + " pixels loading shader data and "
-					+ nDiffusePixels + " pixels defaulting back to diffuse data");
+			System.out.println(LocalizationManager.getInstance().get("println.material_getbakedhdnonemissivebufferedimage_bake_texture") + nShadedPixels + LocalizationManager.getInstance().get("println.material_getbakedhdnonemissivebufferedimage_pixels")
+					+ nDiffusePixels + LocalizationManager.getInstance().get("println.material_getbakedhdnonemissivebufferedimage_defaulting="));
 
 			try {
 				final String diffusePath = zeroLayer.firstTexture().getPath();
@@ -796,7 +797,7 @@ public class Material implements MaterialView {
 
 		}
 		else {
-			throw new RuntimeException("Failed to begin baking HD -> SD texture, did not find 6 layers!");
+			throw new RuntimeException(LocalizationManager.getInstance().get("exception.material_getbakedhdnonemissivebufferedimage_baking_texture"));
 		}
 	}
 
@@ -897,7 +898,7 @@ public class Material implements MaterialView {
 	// catch (Exception exc2)
 	// {
 	// exc2.printStackTrace();
-	// JOptionPane.showMessageDialog(null, "BLP texture-loader failed.");
+	// JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.material_bufferediimage_blp"));
 	// }
 	// }
 	// }

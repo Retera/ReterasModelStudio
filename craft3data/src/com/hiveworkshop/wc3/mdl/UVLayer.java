@@ -2,6 +2,8 @@ package com.hiveworkshop.wc3.mdl;
 import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
+import com.matrixeater.localization.LocalizationManager;
+
 /**
  * A layer of TVertices (UV Mapping)
  * 
@@ -50,7 +52,7 @@ public class UVLayer
         if( addHeader )
         {
             inTabs = inTabs + "\t";
-            writer.println(tabs + "TVertices "+tverts.size() +" {");
+            writer.println(tabs + LocalizationManager.getInstance().get("println.uvlayer_printto_tvertices")+tverts.size() +" {");
         }
         for( int i = 0; i < tverts.size(); i++ )
         {

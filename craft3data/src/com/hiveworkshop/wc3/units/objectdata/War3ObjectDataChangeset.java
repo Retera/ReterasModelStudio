@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.units.objectdata;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -488,7 +489,7 @@ public final class War3ObjectDataChangeset {
 			ObjectDataChangeEntry existingObject;
 			if (isOriginal) {
 				if (noid.equals(origid)) {
-					throw new IOException("the input stream might be screwed");
+					throw new IOException(LocalizationManager.getInstance().get("exception.war3objectdatachangeset_loadtable_screwed"));
 				}
 				existingObject = map.get(origid);
 				if (existingObject == null) {
@@ -498,7 +499,7 @@ public final class War3ObjectDataChangeset {
 			} else {
 				newid = readWar3ID(stream);
 				if (noid.equals(origid) || noid.equals(newid)) {
-					throw new IOException("the input stream might be screwed");
+					throw new IOException(LocalizationManager.getInstance().get("exception.war3objectdatachangeset_loadtable_screwed"));
 				}
 				existingObject = map.get(newid);
 				if (existingObject == null) {
@@ -513,9 +514,8 @@ public final class War3ObjectDataChangeset {
 			}
 			final int ccount = stream.readInt();// Retera: I assume this is change count?
 			if (ccount == 0 && isOriginal) {
-				// throw new IOException("we seem to have reached the end of the stream and get
-				// zeroes");
-				System.err.println("we seem to have reached the end of the stream and get zeroes");
+				// throw new IOException(LocalizationManager.getInstance().get("println.war3objectdatachangeset_loadtable_zeroes");
+				System.err.println(LocalizationManager.getInstance().get("println.war3objectdatachangeset_loadtable_zeroes"));
 			}
 			if (isOriginal) {
 				debugprint("StandardUnit \"" + origid + "\" " + ccount + " {");
@@ -525,7 +525,7 @@ public final class War3ObjectDataChangeset {
 			for (int j = 0; j < ccount; j++) {
 				final War3ID chid = readWar3ID(stream);
 				if (noid.equals(chid)) {
-					throw new IOException("the input stream might be screwed");
+					throw new IOException(LocalizationManager.getInstance().get("exception.war3objectdatachangeset_loadtable_screwed"));
 				}
 				if (!detected) {
 					detected = detectKind(chid);
@@ -610,7 +610,7 @@ public final class War3ObjectDataChangeset {
 			}
 			debugprint("}");
 			if (newid == null && !isOriginal) {
-				throw new IllegalStateException("custom unit has no ID!");
+				throw new IllegalStateException(LocalizationManager.getInstance().get("exception.war3objectdatachangeset_loadtable_custom_unit"));
 			}
 			map.put(isOriginal ? origid : newid, existingObject);
 			final long endNanoTime = System.nanoTime();
@@ -779,15 +779,15 @@ public final class War3ObjectDataChangeset {
 
 	public boolean save(final BlizzardDataOutputStream outputStream, final boolean generateWTS) throws IOException {
 		if (generateWTS) {
-			throw new UnsupportedOperationException("FAIL cannot generate WTS, needs more code");
+			throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.war3objectdatachangeset_save_generate"));
 		}
 		version = 2;
 		outputStream.writeInt(version);
 		if (!saveTable(outputStream, original, true)) {
-			throw new RuntimeException("Failed to save standard unit custom data");
+			throw new RuntimeException(LocalizationManager.getInstance().get("exception.war3objectdatachangeset_save_standard"));
 		}
 		if (!saveTable(outputStream, custom, false)) {
-			throw new RuntimeException("Failed to save custom unit custom data");
+			throw new RuntimeException(LocalizationManager.getInstance().get("exception.war3objectdatachangeset_save_custom"));
 		}
 		return true;
 	}

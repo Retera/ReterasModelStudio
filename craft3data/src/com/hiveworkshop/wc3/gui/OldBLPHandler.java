@@ -22,6 +22,7 @@ import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
+import com.matrixeater.localization.LocalizationManager;
 
 import de.wc3data.image.TgaFile;
 
@@ -69,8 +70,9 @@ public class OldBLPHandler {
 //			throw new RuntimeException("Failed to load game texture: " + filepath + " (in " + workingDirectory + ")");
 		}
 		catch (final Exception exc2) {
-			throw new RuntimeException("Failed to load game texture: " + filepath + " (in " + workingDirectory + ")",
-					exc2);
+			throw new RuntimeException(LocalizationManager.getInstance().get("exception.oldblphandler_getTexture_failed_load_texture_1")
+			+ filepath + " (" + LocalizationManager.getInstance().get("exception.oldblphandler_getTexture_failed_load_texture_2") + workingDirectory + ")",
+			exc2);
 		}
 	}
 
@@ -93,7 +95,7 @@ public class OldBLPHandler {
 			return in;
 		}
 		if (inCS.getNumComponents() != sRGBCS.getNumComponents()) {
-			throw new IllegalArgumentException("Input color space has different number of components from sRGB.");
+			throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.oldblphandler_forcebufferedimagesrgb_color_different"));
 		}
 
 		// Draw input.
@@ -188,7 +190,7 @@ public class OldBLPHandler {
 	public static BufferedImage readCustom(final File file) throws IOException {
 		final ImageInputStream stream = new FileImageInputStream(file);
 		if (stream == null) {
-			throw new IllegalArgumentException("stream == null!");
+			throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.oldblphandler_readcustom_stream") + " == null!");
 		}
 
 		final Iterator iter = ImageIO.getImageReaders(stream);

@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.actions;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.util.Callback;
+import com.matrixeater.localization.LocalizationManager;
 
 public class SetModelContentsAction implements UndoAction {
 	private final EditableModel newModel;
@@ -28,7 +29,7 @@ public class SetModelContentsAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "Apply edits from text";
+		return LocalizationManager.getInstance().get("string.setmodelcontentsaction_actionname");
 	}
 
 }

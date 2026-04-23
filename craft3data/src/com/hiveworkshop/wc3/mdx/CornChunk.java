@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdx;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -288,7 +289,7 @@ public class CornChunk {
 					}
 				} else {
 					if (Node.LOG_DISCARDED_FLAGS) {
-						System.err.println("discarded flag " + af.getName());
+						System.err.println(LocalizationManager.getInstance().get("println.cornchunk_particleemitterpopcorn_discarded") + af.getName());
 					}
 				}
 			}

@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdx;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -90,7 +91,7 @@ public class CameraChunk {
 			out.writeNByteString(name, 80);
 			if ((position.length % 3) != 0) {
 				throw new IllegalArgumentException(
-						"The array position needs either the length 3 or a multiple of this number. (got "
+						LocalizationManager.getInstance().get("exception.camerachunk_save_array_position")
 								+ position.length + ")");
 			}
 			MdxUtils.saveFloatArray(out, position);
@@ -99,7 +100,7 @@ public class CameraChunk {
 			out.writeFloat(nearClippingPlane);
 			if ((targetPosition.length % 3) != 0) {
 				throw new IllegalArgumentException(
-						"The array targetPosition needs either the length 3 or a multiple of this number. (got "
+						LocalizationManager.getInstance().get("exception.camerachunk_save_target_position")
 								+ targetPosition.length + ")");
 			}
 			MdxUtils.saveFloatArray(out, targetPosition);
@@ -186,7 +187,7 @@ public class CameraChunk {
 					}
 				} else {
 					if (Node.LOG_DISCARDED_FLAGS) {
-						System.err.println("discarded flag " + af.getName());
+						System.err.println(LocalizationManager.getInstance().get("println.camerachunk_camera_discarded") + af.getName());
 					}
 				}
 			}
@@ -210,7 +211,7 @@ public class CameraChunk {
 					}
 				} else {
 					if (Node.LOG_DISCARDED_FLAGS) {
-						System.err.println("discarded flag " + af.getName());
+						System.err.println(LocalizationManager.getInstance().get("println.camerachunk_camera_discarded") + af.getName());
 					}
 				}
 			}

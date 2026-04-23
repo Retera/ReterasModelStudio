@@ -34,6 +34,7 @@ import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
+import com.matrixeater.localization.LocalizationManager;
 
 public class ViewportTransferHandler extends TransferHandler {
 
@@ -57,10 +58,10 @@ public class ViewportTransferHandler extends TransferHandler {
 			data = (String) info.getTransferable().getTransferData(DataFlavor.stringFlavor);
 			pastedModel = EditableModel.read(new ByteArrayInputStream(data.getBytes()));
 		} catch (final UnsupportedFlavorException ufe) {
-			System.out.println("importData: unsupported data flavor");
+			System.out.println(LocalizationManager.getInstance().get("println.viewporttransferhandler_importdata_unsupportedflavorexception"));
 			return false;
 		} catch (final IOException ioe) {
-			System.out.println("importData: I/O exception");
+			System.out.println(LocalizationManager.getInstance().get("println.viewporttransferhandler_importdata_ioexception"));
 			return false;
 		}
 

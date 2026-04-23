@@ -4,6 +4,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexEditor;
 import com.hiveworkshop.wc3.mdl.TVertex;
+import com.matrixeater.localization.LocalizationManager;
 
 public final class StaticMeshUVMoveAction implements UndoAction, GenericMoveAction {
 	private final TVertexEditor modelEditor;
@@ -26,7 +27,7 @@ public final class StaticMeshUVMoveAction implements UndoAction, GenericMoveActi
 
 	@Override
 	public String actionName() {
-		return "move UV";
+		return LocalizationManager.getInstance().get("string.staticmeshuvmoveaction_actionname") + " UV";
 	}
 
 	@Override

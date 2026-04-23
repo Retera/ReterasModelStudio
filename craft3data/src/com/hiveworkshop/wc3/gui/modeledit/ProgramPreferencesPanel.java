@@ -22,6 +22,7 @@ import com.hiveworkshop.wc3.gui.datachooser.DataSourceChooserPanel;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
 import com.hiveworkshop.wc3.gui.util.ColorChooserIcon;
 import com.hiveworkshop.wc3.gui.util.ColorChooserIcon.ColorListener;
+import com.matrixeater.localization.LocalizationManager;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -34,9 +35,9 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		this.programPreferences = programPreferences;
 
 		final JPanel generalPrefsPanel = new JPanel();
-		final JLabel viewModeLabel = new JLabel("3D View Mode");
-		final JRadioButton wireframeViewMode = new JRadioButton("Wireframe");
-		final JRadioButton solidViewMode = new JRadioButton("Solid");
+		final JLabel viewModeLabel = new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_viewmodelabel"));
+		final JRadioButton wireframeViewMode = new JRadioButton(LocalizationManager.getInstance().get("radiobutton.programpreferencespanel_programpreferencespanel_wireframeviewmode"));
+		final JRadioButton solidViewMode = new JRadioButton(LocalizationManager.getInstance().get("radiobutton.programpreferencespanel_programpreferencespanel_solidviewmode"));
 		final JCheckBox invertedDisplay = new JCheckBox();
 		final JCheckBox useBoxesForNodes = new JCheckBox();
 		final JCheckBox quickBrowse = new JCheckBox();
@@ -91,28 +92,28 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		generalPrefsPanel.add(viewModeLabel, "cell 0 0");
 		generalPrefsPanel.add(wireframeViewMode, "cell 0 1");
 		generalPrefsPanel.add(solidViewMode, "cell 0 2");
-		generalPrefsPanel.add(new JLabel("Show Viewport Gridlines:"), "cell 0 3");
+		generalPrefsPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_gridlines")), "cell 0 3");
 		generalPrefsPanel.add(invertedDisplay, "cell 1 3");
-		generalPrefsPanel.add(new JLabel("Use Boxes for Nodes:"), "cell 0 4");
+		generalPrefsPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_boxes")), "cell 0 4");
 		generalPrefsPanel.add(useBoxesForNodes, "cell 1 4");
-		generalPrefsPanel.add(new JLabel("Quick Browse:"), "cell 0 5");
-		quickBrowse.setToolTipText("When opening a new model, close old ones if they have not been modified.");
+		generalPrefsPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_browse")), "cell 0 5");
+		quickBrowse.setToolTipText(LocalizationManager.getInstance().get("settooltiptext.programpreferencespanel_programpreferencespanel_close_model"));
 		generalPrefsPanel.add(quickBrowse, "cell 1 5");
-		generalPrefsPanel.add(new JLabel("Allow Loading Non BLP Textures:"), "cell 0 6");
-		allowLoadingNonBlpTextures.setToolTipText("Needed for opening PNGs with standard File Open");
+		generalPrefsPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_loading_blp")), "cell 0 6");
+		allowLoadingNonBlpTextures.setToolTipText(LocalizationManager.getInstance().get("settooltiptext.programpreferencespanel_programpreferencespanel_opening_png"));
 		generalPrefsPanel.add(allowLoadingNonBlpTextures, "cell 1 6");
-		generalPrefsPanel.add(new JLabel("Render Particle Emitters:"), "cell 0 7");
+		generalPrefsPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_render")), "cell 0 7");
 		generalPrefsPanel.add(renderParticles, "cell 1 7");
-		generalPrefsPanel.add(new JLabel("Auto Refresh MDL Text (enabled=more lag):"), "cell 0 8");
+		generalPrefsPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_mdl_text")), "cell 0 8");
 		generalPrefsPanel.add(autoPopulateMdlTextEditor, "cell 1 8");
-		generalPrefsPanel.add(new JLabel("Force Use OpenGL (may fix Windows UI bugs):"), "cell 0 9");
+		generalPrefsPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_opengl")), "cell 0 9");
 		generalPrefsPanel.add(disableDirectXToPreventArtifacts, "cell 1 9");
-		generalPrefsPanel.add(new JLabel("Always use minimal Matrices in HD (the \"4.5\" save format):"), "cell 0 10");
+		generalPrefsPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_minimal_matrices")), "cell 0 10");
 		generalPrefsPanel.add(alwaysUseMinimalMatricesInHD, "cell 1 10");
 		// final BoxLayout boxLayout = new BoxLayout(generalPrefsPanel,
 		// BoxLayout.PAGE_AXIS);
 
-		addTab("General", generalPrefsPanel);
+		addTab(LocalizationManager.getInstance().get("addtab.programpreferencespanel_programpreferencespanel_general"), generalPrefsPanel);
 
 		final JPanel modelEditorPanel = new JPanel();
 		modelEditorPanel.setLayout(new MigLayout());
@@ -307,73 +308,74 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 				if (!hasWarned) {
 					hasWarned = true;
 					JOptionPane.showMessageDialog(ProgramPreferencesPanel.this,
-							"Some settings may not take effect until you restart the application.", "Warning",
+							LocalizationManager.getInstance().get("dialog.programpreferencespanel_programpreferencespanel_restart"),
+							LocalizationManager.getInstance().get("dialog.programpreferencespanel_programpreferencespanel_restart_1"),
 							JOptionPane.WARNING_MESSAGE);
 				}
 			}
 		});
 		int row = 0;
-		modelEditorPanel.add(new JLabel("Background Color:"), "cell 0 " + row);
+		modelEditorPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_background_color")), "cell 0 " + row);
 		modelEditorPanel.add(backgroundColorIcon, "cell 1 " + row);
 		row++;
-		modelEditorPanel.add(new JLabel("Vertex Color:"), "cell 0 " + row);
+		modelEditorPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_vertex_color")), "cell 0 " + row);
 		modelEditorPanel.add(vertexColorIcon, "cell 1 " + row);
 		row++;
-		modelEditorPanel.add(new JLabel("Triangle Color:"), "cell 0 " + row);
+		modelEditorPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_triangle_color")), "cell 0 " + row);
 		modelEditorPanel.add(triangleColorIcon, "cell 1 " + row);
 		row++;
-		modelEditorPanel.add(new JLabel("Select Color:"), "cell 0 " + row);
+		modelEditorPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_select_color")), "cell 0 " + row);
 		modelEditorPanel.add(selectColorIcon, "cell 1 " + row);
 		row++;
-		modelEditorPanel.add(new JLabel("Triangle Highlight Color:"), "cell 0 " + row);
+		modelEditorPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_triangle_highlight_color")), "cell 0 " + row);
 		modelEditorPanel.add(triangleHighlightColorIcon, "cell 1 " + row);
 		row++;
-		modelEditorPanel.add(new JLabel("Vertex Highlight Color:"), "cell 0 " + row);
+		modelEditorPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_vertex_highlight_color")), "cell 0 " + row);
 		modelEditorPanel.add(vertexHighlightColorIcon, "cell 1 " + row);
 		row++;
-		modelEditorPanel.add(new JLabel("Perspective Background Color:"), "cell 0 " + row);
+		modelEditorPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_perspective_background_color")), "cell 0 " + row);
 		modelEditorPanel.add(perspectiveBackgroundColorIcon, "cell 1 " + row);
 		row++;
-		modelEditorPanel.add(new JLabel("Visible Uneditable Mesh Color:"), "cell 0 " + row);
+		modelEditorPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_visible_uneditable_mesh_color")), "cell 0 " + row);
 		modelEditorPanel.add(visibleUneditableColorIcon, "cell 1 " + row);
 		row++;
-		modelEditorPanel.add(new JLabel("Animation Editor Bone Color:"), "cell 0 " + row);
+		modelEditorPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_animation_bone_color")), "cell 0 " + row);
 		modelEditorPanel.add(animtedBoneUnselectedColorIcon, "cell 1 " + row);
 		row++;
-		modelEditorPanel.add(new JLabel("Animation Editor Selected Bone Color:"), "cell 0 " + row);
+		modelEditorPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_animation_selected_bone_color")), "cell 0 " + row);
 		modelEditorPanel.add(animtedBoneSelectedColorIcon, "cell 1 " + row);
 		row++;
-		modelEditorPanel.add(new JLabel("Animation Editor Selected Upstream Color:"), "cell 0 " + row);
+		modelEditorPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_animation_selected_upstream_color")), "cell 0 " + row);
 		modelEditorPanel.add(animtedBoneSelectedUpstreamColorIcon, "cell 1 " + row);
 		row++;
-		modelEditorPanel.add(new JLabel("Pivot Point Color:"), "cell 0 " + row);
+		modelEditorPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_pivot_color")), "cell 0 " + row);
 		modelEditorPanel.add(pivotPointColorIcon, "cell 1 " + row);
 		row++;
-		modelEditorPanel.add(new JLabel("Pivot Point Selected Color:"), "cell 0 " + row);
+		modelEditorPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_pivot_selected_color")), "cell 0 " + row);
 		modelEditorPanel.add(pivotPointSelectedColorIcon, "cell 1 " + row);
 		row++;
-		modelEditorPanel.add(new JLabel("Button B Color 1:"), "cell 0 " + row);
+		modelEditorPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_button_color_b1")), "cell 0 " + row);
 		modelEditorPanel.add(buttonColorB1Icon, "cell 1 " + row);
 		row++;
-		modelEditorPanel.add(new JLabel("Button B Color 2:"), "cell 0 " + row);
+		modelEditorPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_button_color_b2")), "cell 0 " + row);
 		modelEditorPanel.add(buttonColorB2Icon, "cell 1 " + row);
 		row++;
-		modelEditorPanel.add(new JLabel("Button Color 1:"), "cell 0 " + row);
+		modelEditorPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_button_color_1")), "cell 0 " + row);
 		modelEditorPanel.add(buttonColor1Icon, "cell 1 " + row);
 		row++;
-		modelEditorPanel.add(new JLabel("Button Color 2:"), "cell 0 " + row);
+		modelEditorPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_button_color_2")), "cell 0 " + row);
 		modelEditorPanel.add(buttonColor2Icon, "cell 1 " + row);
 		row++;
-		modelEditorPanel.add(new JLabel("Button R Color 1:"), "cell 0 " + row);
+		modelEditorPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_button_color_r1")), "cell 0 " + row);
 		modelEditorPanel.add(buttonColorR1Icon, "cell 1 " + row);
 		row++;
-		modelEditorPanel.add(new JLabel("Button R Color 2:"), "cell 0 " + row);
+		modelEditorPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_button_color_r2")), "cell 0 " + row);
 		modelEditorPanel.add(buttonColorR2Icon, "cell 1 " + row);
 		row++;
-		modelEditorPanel.add(new JLabel("Window Borders (Theme):"), "cell 0 " + row);
+		modelEditorPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_theme")), "cell 0 " + row);
 		modelEditorPanel.add(themeCheckBox, "cell 1 " + row);
 
-		addTab("Colors/Theme", new JScrollPane(modelEditorPanel));
+		addTab(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_color_theme"), new JScrollPane(modelEditorPanel));
 
 		final JPanel hotkeysPanel = new JPanel();
 		hotkeysPanel.setLayout(new MigLayout());
@@ -394,16 +396,16 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 				programPreferences.setThreeDCameraPanButton((MouseButtonPreference) cameraPanBox.getSelectedItem());
 			}
 		});
-		hotkeysPanel.add(new JLabel("3D Camera Spin"), "cell 0 " + row);
+		hotkeysPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_camera_spin")), "cell 0 " + row);
 		hotkeysPanel.add(cameraSpinBox, "cell 1 " + row);
 		row++;
-		hotkeysPanel.add(new JLabel("3D Camera Pan"), "cell 0 " + row);
+		hotkeysPanel.add(new JLabel(LocalizationManager.getInstance().get("label.programpreferencespanel_programpreferencespanel_camera_pan")), "cell 0 " + row);
 		hotkeysPanel.add(cameraPanBox, "cell 1 " + row);
 		row++;
-		addTab("Hotkeys", hotkeysPanel);
+		addTab(LocalizationManager.getInstance().get("addtab.programpreferencespanel_programpreferencespanel_hotkeys"), hotkeysPanel);
 
 		dataSourceChooserPanel = new DataSourceChooserPanel(dataSources);
-		addTab("Warcraft Data", dataSourceChooserPanel);
+		addTab(LocalizationManager.getInstance().get("addtab.programpreferencespanel_programpreferencespanel_data"), dataSourceChooserPanel);
 	}
 
 	public List<DataSourceDescriptor> getDataSources() {

@@ -14,6 +14,7 @@ import javax.swing.SpinnerNumberModel;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.matrixeater.localization.LocalizationManager;
 
 public class ExtLogEditor extends JPanel {
 	private static final Dimension MAXIMUM_SIZE = new Dimension(99999, 25);
@@ -29,7 +30,7 @@ public class ExtLogEditor extends JPanel {
 	private final ComponentEditorJSpinner boundsRadius;
 
 	public ExtLogEditor() {
-		minimumExtentBox = new JCheckBox("Minimum Extent");
+		minimumExtentBox = new JCheckBox(LocalizationManager.getInstance().get("checkbox.extLogeditor_extLogeditor_minimum_extent"));
 		minimumExtentX = new ComponentEditorJSpinner(
 				new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		minimumExtentX.setMaximumSize(MAXIMUM_SIZE);
@@ -45,7 +46,7 @@ public class ExtLogEditor extends JPanel {
 				updateMinExtOptionsAvailable();
 			}
 		});
-		maximumExtentBox = new JCheckBox("Maximum Extent");
+		maximumExtentBox = new JCheckBox(LocalizationManager.getInstance().get("checkbox.extLogeditor_extLogeditor_maximum_extent"));
 		maximumExtentX = new ComponentEditorJSpinner(
 				new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		maximumExtentX.setMaximumSize(MAXIMUM_SIZE);
@@ -61,7 +62,7 @@ public class ExtLogEditor extends JPanel {
 				updateMaxExtOptionsAvailable();
 			}
 		});
-		boundsRadiusBox = new JCheckBox("Bounds Radius");
+		boundsRadiusBox = new JCheckBox(LocalizationManager.getInstance().get("checkbox.extLogeditor_extLogeditor_bounds_radius"));
 		boundsRadius = new ComponentEditorJSpinner(new SpinnerNumberModel(0., -Long.MAX_VALUE, Long.MAX_VALUE, 1.0));
 		boundsRadius.setMaximumSize(MAXIMUM_SIZE);
 		boundsRadiusBox.addActionListener(new ActionListener() {

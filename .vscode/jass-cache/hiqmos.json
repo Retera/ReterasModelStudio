@@ -1,0 +1,1464 @@
+{
+  "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+  "items": [
+    {
+      "label": "DzAPI_Map_SaveServerValue",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_SaveServerValue takes player whichPlayer, string key, string value returns boolean\n```\n\n\n---\n\n保存值\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_SaveServerValue",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetServerValue",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_GetServerValue takes player whichPlayer, string key returns string\n```\n\n\n---\n\n获取值\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_GetServerValue",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_Ladder_SetStat",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_Ladder_SetStat takes player whichPlayer, string key, string value returns nothing\n```\n\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_Ladder_SetStat",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_IsRPGLadder",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_IsRPGLadder takes nothing returns boolean\n```\n\n\n---\n\nrpg阶梯\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_IsRPGLadder",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetGameStartTime",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_GetGameStartTime takes nothing returns integer\n```\n\n\n---\n\n游戏开始时间\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_GetGameStartTime",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_Stat_SetStat",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_Stat_SetStat takes player whichPlayer, string key, string value returns nothing\n```\n\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_Stat_SetStat",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetMatchType",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_GetMatchType takes nothing returns integer\n```\n\n\n---\n\n匹配类型\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_GetMatchType",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_Ladder_SetPlayerStat",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_Ladder_SetPlayerStat takes player whichPlayer, string key, string value returns nothing\n```\n\n\n---\n\n玩家状态\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_Ladder_SetPlayerStat",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetServerValueErrorCode",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_GetServerValueErrorCode takes player whichPlayer returns integer\n```\n\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_GetServerValueErrorCode",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetLadderLevel",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_GetLadderLevel takes player whichPlayer returns integer\n```\n\n\n---\n\n得到阶梯水平\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_GetLadderLevel",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_IsRedVIP",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_IsRedVIP takes player whichPlayer returns boolean\n```\n\n\n---\n\n红名vip\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_IsRedVIP",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_IsBlueVIP",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_IsBlueVIP takes player whichPlayer returns boolean\n```\n\n\n---\n\n蓝名vip\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_IsBlueVIP",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetLadderRank",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_GetLadderRank takes player whichPlayer returns integer\n```\n\n\n---\n\n得到梯阶\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_GetLadderRank",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetMapLevelRank",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_GetMapLevelRank takes player whichPlayer returns integer\n```\n\n\n---\n\n地图排名\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_GetMapLevelRank",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetGuildName",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_GetGuildName takes player whichPlayer returns string\n```\n\n\n---\n\n工会名称\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_GetGuildName",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetGuildRole",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_GetGuildRole takes player whichPlayer returns integer\n```\n\n\n---\n\n工会权限\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_GetGuildRole",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_IsRPGLobby",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_IsRPGLobby takes nothing returns boolean\n```\n\n\n---\n\nrpg大厅\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_IsRPGLobby",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetMapLevel",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_GetMapLevel takes player whichPlayer returns integer\n```\n\n\n---\n\n获取地图等级\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_GetMapLevel",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_MissionComplete",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_MissionComplete takes player whichPlayer, string key, string value returns nothing\n```\n\n\n---\n\n任务完成\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_MissionComplete",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetActivityData",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_GetActivityData takes nothing returns string\n```\n\n\n---\n\n活动数据\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_GetActivityData",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetMapConfig",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_GetMapConfig takes string key returns string\n```\n\n\n---\n\n地图配置\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_GetMapConfig",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_HasMallItem",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_HasMallItem takes player whichPlayer, string key returns boolean\n```\n\n\n---\n\n是否有购物中心项目\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_HasMallItem",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_SavePublicArchive",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_SavePublicArchive takes player whichPlayer, string key, string value returns boolean\n```\n\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_SavePublicArchive",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetPublicArchive",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_GetPublicArchive takes player whichPlayer, string key returns string\n```\n\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_GetPublicArchive",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_UseConsumablesItem",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_UseConsumablesItem takes player whichPlayer, string key returns nothing\n```\n\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_UseConsumablesItem",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_OrpgTrigger",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_OrpgTrigger takes player whichPlayer, string key returns nothing\n```\n\n\n---\n\nOrpg触发\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_OrpgTrigger",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetServerArchiveDrop",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_GetServerArchiveDrop takes player whichPlayer, string key returns string\n```\n\n\n---\n\n获取服务器存档\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_GetServerArchiveDrop",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetServerArchiveEquip",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzAPI_Map_GetServerArchiveEquip takes player whichPlayer, string key returns integer\n```\n\n\n---\n\n服务器存档设备\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzAPI_Map_GetServerArchiveEquip",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetMouseTerrainX",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetMouseTerrainX takes nothing returns real\n```\n\n\n---\n\n获取鼠标在游戏内的坐标X\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetMouseTerrainX",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetMouseTerrainY",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetMouseTerrainY takes nothing returns real\n```\n\n\n---\n\n获取鼠标在游戏内的坐标Y\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetMouseTerrainY",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetMouseTerrainZ",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetMouseTerrainZ takes nothing returns real\n```\n\n\n---\n\n获取鼠标在游戏内的坐标Z\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetMouseTerrainZ",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzIsMouseOverUI",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzIsMouseOverUI takes nothing returns boolean\n```\n\n\n---\n\n鼠标是否在游戏内\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzIsMouseOverUI",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetMouseX",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetMouseX takes nothing returns integer\n```\n\n\n---\n\n获取鼠标屏幕坐标X\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetMouseX",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetMouseY",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetMouseY takes nothing returns integer\n```\n\n\n---\n\n获取鼠标屏幕坐标Y\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetMouseY",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetMouseXRelative",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetMouseXRelative takes nothing returns integer\n```\n\n\n---\n\n获取鼠标游戏窗口坐标X\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetMouseXRelative",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetMouseYRelative",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetMouseYRelative takes nothing returns integer\n```\n\n\n---\n\n获取鼠标游戏窗口坐标Y\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetMouseYRelative",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzSetMousePos",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzSetMousePos takes integer x, integer y returns nothing\n```\n\n\n---\n\n设置鼠标位置\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzSetMousePos",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzTriggerRegisterMouseEvent",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzTriggerRegisterMouseEvent takes trigger trig, integer btn, integer status, boolean sync, string func returns nothing\n```\n\n\n---\n\n注册鼠标点击触发（sync为true时，调用TriggerExecute。为false时，直接运行action函数，可以异步不掉线，action里不要有同步操作）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzTriggerRegisterMouseEvent",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzTriggerRegisterMouseEventByCode",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzTriggerRegisterMouseEventByCode takes trigger trig, integer btn, integer status, boolean sync, code funcHandle returns nothing\n```\n\n\n---\n\n注册鼠标点击触发（sync为true时，调用TriggerExecute。为false时，直接运行action函数，可以异步不掉线，action里不要有同步操作）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzTriggerRegisterMouseEventByCode",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzTriggerRegisterKeyEvent",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzTriggerRegisterKeyEvent takes trigger trig, integer key, integer status, boolean sync, string func returns nothing\n```\n\n\n---\n\n注册键盘点击触发\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzTriggerRegisterKeyEvent",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzTriggerRegisterKeyEventByCode",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzTriggerRegisterKeyEventByCode takes trigger trig, integer key, integer status, boolean sync, code funcHandle returns nothing\n```\n\n\n---\n\n注册键盘点击触发\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzTriggerRegisterKeyEventByCode",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzTriggerRegisterMouseWheelEvent",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzTriggerRegisterMouseWheelEvent takes trigger trig, boolean sync, string func returns nothing\n```\n\n\n---\n\n注册鼠标滚轮触发\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzTriggerRegisterMouseWheelEvent",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzTriggerRegisterMouseWheelEventByCode",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzTriggerRegisterMouseWheelEventByCode takes trigger trig, boolean sync, code funcHandle returns nothing\n```\n\n\n---\n\n注册鼠标滚轮触发\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzTriggerRegisterMouseWheelEventByCode",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzTriggerRegisterMouseMoveEvent",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzTriggerRegisterMouseMoveEvent takes trigger trig, boolean sync, string func returns nothing\n```\n\n\n---\n\n注册鼠标移动触发\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzTriggerRegisterMouseMoveEvent",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzTriggerRegisterMouseMoveEventByCode",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzTriggerRegisterMouseMoveEventByCode takes trigger trig, boolean sync, code funcHandle returns nothing\n```\n\n\n---\n\n注册鼠标移动触发\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzTriggerRegisterMouseMoveEventByCode",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetTriggerKey",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetTriggerKey takes nothing returns integer\n```\n\n\n---\n\n获取触发器的按键码\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetTriggerKey",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetWheelDelta",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetWheelDelta takes nothing returns integer\n```\n\n\n---\n\n获取滚轮delta\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetWheelDelta",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzIsKeyDown",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzIsKeyDown takes integer iKey returns boolean\n```\n\n\n---\n\n判断按键是否按下\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzIsKeyDown",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetTriggerKeyPlayer",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetTriggerKeyPlayer takes nothing returns player\n```\n\n\n---\n\n获取触发key的玩家\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetTriggerKeyPlayer",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetWindowWidth",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetWindowWidth takes nothing returns integer\n```\n\n\n---\n\n获取war3窗口宽度\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetWindowWidth",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetWindowHeight",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetWindowHeight takes nothing returns integer\n```\n\n\n---\n\n获取war3窗口高度\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetWindowHeight",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetWindowX",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetWindowX takes nothing returns integer\n```\n\n\n---\n\n获取war3窗口X坐标\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetWindowX",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetWindowY",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetWindowY takes nothing returns integer\n```\n\n\n---\n\n获取war3窗口Y坐标\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetWindowY",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzTriggerRegisterWindowResizeEvent",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzTriggerRegisterWindowResizeEvent takes trigger trig, boolean sync, string func returns nothing\n```\n\n\n---\n\n注册war3窗口大小变化事件\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzTriggerRegisterWindowResizeEvent",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzTriggerRegisterWindowResizeEventByCode",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzTriggerRegisterWindowResizeEventByCode takes trigger trig, boolean sync, code funcHandle returns nothing\n```\n\n\n---\n\n注册war3窗口大小变化事件\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzTriggerRegisterWindowResizeEventByCode",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzIsWindowActive",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzIsWindowActive takes nothing returns boolean\n```\n\n\n---\n\n判断窗口是否激活\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzIsWindowActive",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzDestructablePosition",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzDestructablePosition takes destructable d, real x, real y returns nothing\n```\n\n\n---\n\n设置可摧毁物位置\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzDestructablePosition",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzSetUnitPosition",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzSetUnitPosition takes unit whichUnit, real x, real y returns nothing\n```\n\n\n---\n\n设置单位位置-本地调用\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzSetUnitPosition",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzExecuteFunc",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzExecuteFunc takes string funcName returns nothing\n```\n\n\n---\n\n异步执行函数\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzExecuteFunc",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetUnitUnderMouse",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetUnitUnderMouse takes nothing returns unit\n```\n\n\n---\n\n取鼠标指向的单位\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetUnitUnderMouse",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzSetUnitTexture",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzSetUnitTexture takes unit whichUnit, string path, integer texId returns nothing\n```\n\n\n---\n\n设置单位的贴图\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzSetUnitTexture",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzSetMemory",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzSetMemory takes integer address, real value returns nothing\n```\n\n\n---\n\n设置内存数值\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzSetMemory",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzSetUnitID",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzSetUnitID takes unit whichUnit, integer id returns nothing\n```\n\n\n---\n\n替换单位类型 [BZAPI]\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzSetUnitID",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzSetUnitModel",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzSetUnitModel takes unit whichUnit, string path returns nothing\n```\n\n\n---\n\n替换单位模型 [BZAPI]\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzSetUnitModel",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzSetWar3MapMap",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzSetWar3MapMap takes string map returns nothing\n```\n\n\n---\n\n原生 - 设置小地图背景贴图\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzSetWar3MapMap",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzTriggerRegisterSyncData",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzTriggerRegisterSyncData takes trigger trig, string prefix, boolean server returns nothing\n```\n\n\n---\n\n注册数据同步触发器\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzTriggerRegisterSyncData",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzSyncData",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzSyncData takes string prefix, string data returns nothing\n```\n\n\n---\n\n同步游戏数据\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzSyncData",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetTriggerSyncData",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetTriggerSyncData takes nothing returns string\n```\n\n\n---\n\n获取同步的数据\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetTriggerSyncData",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetTriggerSyncPlayer",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetTriggerSyncPlayer takes nothing returns player\n```\n\n\n---\n\n获取同步数据的玩家\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetTriggerSyncPlayer",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameHideInterface",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameHideInterface takes nothing returns nothing\n```\n\n\n---\n\n隐藏界面元素\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameHideInterface",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameEditBlackBorders",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameEditBlackBorders takes real upperHeight, real bottomHeight returns nothing\n```\n\n\n---\n\n修改游戏世界窗口位置\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameEditBlackBorders",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameGetPortrait",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameGetPortrait takes nothing returns integer\n```\n\n\n---\n\n头像\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameGetPortrait",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameGetMinimap",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameGetMinimap takes nothing returns integer\n```\n\n\n---\n\n小地图\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameGetMinimap",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameGetCommandBarButton",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameGetCommandBarButton takes integer row, integer column returns integer\n```\n\n\n---\n\n技能按钮\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameGetCommandBarButton",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameGetHeroBarButton",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameGetHeroBarButton takes integer buttonId returns integer\n```\n\n\n---\n\n英雄按钮\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameGetHeroBarButton",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameGetHeroHPBar",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameGetHeroHPBar takes integer buttonId returns integer\n```\n\n\n---\n\n英雄血条\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameGetHeroHPBar",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameGetHeroManaBar",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameGetHeroManaBar takes integer buttonId returns integer\n```\n\n\n---\n\n英雄蓝条\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameGetHeroManaBar",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameGetItemBarButton",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameGetItemBarButton takes integer buttonId returns integer\n```\n\n\n---\n\n道具按钮\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameGetItemBarButton",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameGetMinimapButton",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameGetMinimapButton takes integer buttonId returns integer\n```\n\n\n---\n\n小地图按钮\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameGetMinimapButton",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameGetUpperButtonBarButton",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameGetUpperButtonBarButton takes integer buttonId returns integer\n```\n\n\n---\n\n左上菜单按钮\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameGetUpperButtonBarButton",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameGetTooltip",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameGetTooltip takes nothing returns integer\n```\n\n\n---\n\n鼠标提示\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameGetTooltip",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameGetChatMessage",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameGetChatMessage takes nothing returns integer\n```\n\n\n---\n\n聊天信息\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameGetChatMessage",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameGetUnitMessage",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameGetUnitMessage takes nothing returns integer\n```\n\n\n---\n\n单位信息\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameGetUnitMessage",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameGetTopMessage",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameGetTopMessage takes nothing returns integer\n```\n\n\n---\n\n获取最上的信息\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameGetTopMessage",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetColor",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetColor takes integer a, integer r, integer g, integer b returns integer\n```\n\n\n---\n\n取rgba色值\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetColor",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetUpdateCallback",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetUpdateCallback takes string func returns nothing\n```\n\n\n---\n\n设置界面更新回调（非同步）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetUpdateCallback",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetUpdateCallbackByCode",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetUpdateCallbackByCode takes code funcHandle returns nothing\n```\n\n\n---\n\n界面更新回调\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetUpdateCallbackByCode",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameShow",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameShow takes integer frame, boolean enable returns nothing\n```\n\n\n---\n\n显示/隐藏窗体\n\n**Parameters:**\n- **`enable`**: [true: 显示| false: 隐藏]\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameShow",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzCreateFrame",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzCreateFrame takes string frame, integer parent, integer id returns integer\n```\n\n\n---\n\n创建窗体\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzCreateFrame",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzCreateSimpleFrame",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzCreateSimpleFrame takes string frame, integer parent, integer id returns integer\n```\n\n\n---\n\n创建简单的窗体 部分原生窗体设置父窗体或者被设置父窗体直接崩溃 可用简单窗体\n\n**Parameters:**\n- **`frame`**: fdf中预设的窗体控件名 可用汉字\n- **`parent`**: id 如果需要设置两个相同的fdf模板可用此id区分 获取时通过 DzFrameFindByName 函数填写对应的 id\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzCreateSimpleFrame",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzDestroyFrame",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzDestroyFrame takes integer frame returns nothing\n```\n\n\n---\n\n销毁窗体\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzDestroyFrame",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzLoadToc",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzLoadToc takes string fileName returns nothing\n```\n\n\n---\n\n加载内容目录 (Toc table of contents)\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzLoadToc",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetPoint",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetPoint takes integer frame, integer point, integer relativeFrame, integer relativePoint, real x, real y returns nothing\n```\n\n\n---\n\n设置窗体相对位置\n\n**Parameters:**\n- **`point`**: [0:左上|1:上|2:右上|3:左|4:中|5:右|6:左下|7:下|8:右下]\n- **`relativeFrame`**: 相对容器,一般使用DzGetGameUI() frame窗体会根据relativeFrame确定自己的位置，当relativeFrame窗体移动时frame窗体也会相对移动\n- **`relativePoint`**: [0:左上|1:上|2:右上|3:左|4:中|5:右|6:左下|7:下|8:右下]\n- **`x`**: 为0.8比例\n- **`y`**: 为0.6比例\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetPoint",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetAbsolutePoint",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetAbsolutePoint takes integer frame, integer point, real x, real y returns nothing\n```\n\n\n---\n\n设置窗体绝对位置\n\n**Parameters:**\n- **`point`**: [0:左上|1:上|2:右上|3:左|4:中|5:右|6:左下|7:下|8:右下]\n- **`x`**: 为0.8比例\n- **`y`**: 为0.6比例\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetAbsolutePoint",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameClearAllPoints",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameClearAllPoints takes integer frame returns nothing\n```\n\n\n---\n\n清空窗体锚点\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameClearAllPoints",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetEnable",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetEnable takes integer name, boolean enable returns nothing\n```\n\n\n---\n\n设置窗体禁用/启用\n\n**Parameters:**\n- **`enable`**: false 禁用后 按钮 或者文本 不再遮挡鼠标\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetEnable",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetScript",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetScript takes integer frame, integer eventId, string func, boolean sync returns nothing\n```\n\n\n---\n\n注册用户界面事件回调\n\n**Parameters:**\n- **`eventId`**: [1: 鼠标点击| 2: 鼠标进入|3: 鼠标离开|4: 鼠标释放|5: 未知|6: 鼠标滚轮|7: 未知|8: 未知|9: 未知|10: 未知|11: 未知|12: 鼠标双击]\n- **`sync`**: [true: 同步|false: 异步]\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetScript",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetScriptByCode",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetScriptByCode takes integer frame, integer eventId, code funcHandle, boolean sync returns nothing\n```\n\n\n---\n\n注册UI事件回调(func handle) 注册点击按钮触发的动作\n\n**Parameters:**\n- **`eventId`**: [1: 鼠标点击| 2: 鼠标进入|3: 鼠标离开|4: 鼠标释放|5: 未知|6: 鼠标滚轮|7: 未知|8: 未知|9: 未知|10: 未知|11: 未知|12: 鼠标双击]\n- **`sync`**: [true: 同步|false: 异步]\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetScriptByCode",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetTriggerUIEventPlayer",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetTriggerUIEventPlayer takes nothing returns player\n```\n\n\n---\n\n获取触发用户界面事件的玩家\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetTriggerUIEventPlayer",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetTriggerUIEventFrame",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetTriggerUIEventFrame takes nothing returns integer\n```\n\n\n---\n\n获取触发用户界面事件的窗体\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetTriggerUIEventFrame",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameFindByName",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameFindByName takes string name, integer id returns integer\n```\n\n\n---\n\n通过名称查找窗体 name为fdf内设置好的窗体模板名\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameFindByName",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzSimpleFrameFindByName",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzSimpleFrameFindByName takes string name, integer id returns integer\n```\n\n\n---\n\n通过名称查找普通窗体\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzSimpleFrameFindByName",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzSimpleFontStringFindByName",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzSimpleFontStringFindByName takes string name, integer id returns integer\n```\n\n\n---\n\n查找字符串\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzSimpleFontStringFindByName",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzSimpleTextureFindByName",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzSimpleTextureFindByName takes string name, integer id returns integer\n```\n\n\n---\n\n查找BACKDROP frame\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzSimpleTextureFindByName",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetGameUI",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetGameUI takes nothing returns integer\n```\n\n\n---\n\n获取游戏用户界面\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetGameUI",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzClickFrame",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzClickFrame takes integer frame returns nothing\n```\n\n\n---\n\n点击窗体\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzClickFrame",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzSetCustomFovFix",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzSetCustomFovFix takes real value returns nothing\n```\n\n\n---\n\n自定义屏幕比例\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzSetCustomFovFix",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzEnableWideScreen",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzEnableWideScreen takes boolean enable returns nothing\n```\n\n\n---\n\n使用宽屏模式\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzEnableWideScreen",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetText",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetText takes integer frame, string text returns nothing\n```\n\n\n---\n\n设置文字（支持EditBox, TextFrame, TextArea, SimpleFontString、GlueEditBoxWar3、SlashChatBox、TimerTextFrame、TextButtonFrame、GlueTextButton）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetText",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameGetText",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameGetText takes integer frame returns string\n```\n\n\n---\n\n获取文字（支持EditBox, TextFrame, TextArea, SimpleFontString）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameGetText",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetTextSizeLimit",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetTextSizeLimit takes integer frame, integer size returns nothing\n```\n\n\n---\n\n设置字数限制（支持EditBox）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetTextSizeLimit",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameGetTextSizeLimit",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameGetTextSizeLimit takes integer frame returns integer\n```\n\n\n---\n\n获取字数限制（支持EditBox）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameGetTextSizeLimit",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetTextColor",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetTextColor takes integer frame, integer color returns nothing\n```\n\n\n---\n\n设置文字颜色（支持TextFrame, EditBox）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetTextColor",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzGetMouseFocus",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzGetMouseFocus takes nothing returns integer\n```\n\n\n---\n\n获取鼠标所在位置的用户界面控件指针\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzGetMouseFocus",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetAllPoints",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetAllPoints takes integer frame, integer relativeFrame returns boolean\n```\n\n\n---\n\n设置所有锚点到目标窗体上\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetAllPoints",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetFocus",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetFocus takes integer frame, boolean enable returns boolean\n```\n\n\n---\n\n设置焦点\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetFocus",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetModel",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetModel takes integer frame, string modelFile, integer modelType, integer flag returns nothing\n```\n\n\n---\n\n设置模型（支持Sprite、Model、StatusBar）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetModel",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameGetEnable",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameGetEnable takes integer frame returns boolean\n```\n\n\n---\n\n获取控件是否启用\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameGetEnable",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetAlpha",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetAlpha takes integer frame, integer alpha returns nothing\n```\n\n\n---\n\n设置透明度（0-255）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetAlpha",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameGetAlpha",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameGetAlpha takes integer frame returns integer\n```\n\n\n---\n\n获取透明度（0-255）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameGetAlpha",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetAnimate",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetAnimate takes integer frame, integer animId, boolean autocast returns nothing\n```\n\n\n---\n\n设置动画\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetAnimate",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetAnimateOffset",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetAnimateOffset takes integer frame, real offset returns nothing\n```\n\n\n---\n\n设置动画进度（autocast为false是可用）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetAnimateOffset",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetTexture",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetTexture takes integer frame, string texture, integer flag returns nothing\n```\n\n\n---\n\n设置texture（支持Backdrop、SimpleStatusBar）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetTexture",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetScale",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetScale takes integer frame, real scale returns nothing\n```\n\n\n---\n\n设置缩放\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetScale",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetTooltip",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetTooltip takes integer frame, integer tooltip returns nothing\n```\n\n\n---\n\n设置提示 鼠标进入按钮时的提示窗体 有数量限制 建议自己用进入事件模拟\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetTooltip",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameCageMouse",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameCageMouse takes integer frame, boolean enable returns nothing\n```\n\n\n---\n\n鼠标限制在用户界面内\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameCageMouse",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameGetValue",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameGetValue takes integer frame returns real\n```\n\n\n---\n\n获取当前值（支持Slider、SimpleStatusBar、StatusBar）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameGetValue",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetMinMaxValue",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetMinMaxValue takes integer frame, real minValue, real maxValue returns nothing\n```\n\n\n---\n\n设置最大最小值（支持Slider、SimpleStatusBar、StatusBar）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetMinMaxValue",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetStepValue",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetStepValue takes integer frame, real step returns nothing\n```\n\n\n---\n\n设置Step值（支持Slider）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetStepValue",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetValue",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetValue takes integer frame, real value returns nothing\n```\n\n\n---\n\n设置当前值（支持Slider、SimpleStatusBar、StatusBar）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetValue",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetSize",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetSize takes integer frame, real w, real h returns nothing\n```\n\n\n---\n\n设置窗体大小\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetSize",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzCreateFrameByTagName",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzCreateFrameByTagName takes string frameType, string name, integer parent, string template, integer id returns integer\n```\n\n\n---\n\n根据tag创建窗体\n\n**Parameters:**\n- **`frameType`**: [\"BACKDROP\", \"TEXT\", \"BUTTON\", \"GLUEBUTTON\", \"GLUETEXTBUTTON\", \"FRAME\"]\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzCreateFrameByTagName",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetVertexColor",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetVertexColor takes integer frame, integer color returns nothing\n```\n\n\n---\n\n设置颜色（支持SimpleStatusBar）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetVertexColor",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzOriginalUIAutoResetPoint",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzOriginalUIAutoResetPoint takes boolean enable returns nothing\n```\n\n\n---\n\n自动重置原生UI\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzOriginalUIAutoResetPoint",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetPriority",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetPriority takes integer frame, integer priority returns nothing\n```\n\n\n---\n\n设置优先级 [NEW]\n\n**Parameters:**\n- **`priority`**: 当两个frame重叠时,值大的覆盖值少的, 正常情况是后创建的覆盖前创建的\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetPriority",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetParent",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetParent takes integer frame, integer parent returns nothing\n```\n\n\n---\n\n设置父窗口 [NEW]\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetParent",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetFont",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetFont takes integer frame, string fileName, real height, integer flag returns nothing\n```\n\n\n---\n\n设置字体 [NEW]\n\n修改字体大小\n\n**Parameters:**\n- **`fileName`**: 可选值[\"Fonts\\dffn_b31.ttf\", \"Fonts\\\\DFHeiMd.ttf\", \"Fonts\\\\dfst-m3u.ttf\", \"Fonts\\\\FRIZQT__.TTF\", \"Fonts\\\\NIM_____.ttf\", \"Fonts\\\\tt5500m_.ttf\"]\n- **`height`**: 字体大小\n- **`flag`**: 加粗、斜体或者加粗+斜体\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetFont",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameGetHeight",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameGetHeight takes integer frame returns real\n```\n\n\n---\n\n获取 Frame 的 高度 [NEW]\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameGetHeight",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameSetTextAlignment",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameSetTextAlignment takes integer frame, integer align returns nothing\n```\n\n\n---\n\n设置对齐方式 [NEW]\n\n**Parameters:**\n- **`align`**: 对齐方式 [0:左|1:中|2:右]\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameSetTextAlignment",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "DzFrameGetParent",
+      "kind": 2,
+      "detail": "Native Function",
+      "documentation": "\n```jass\nnative DzFrameGetParent takes integer frame returns integer\n```\n\n\n---\n\n获取 Frame 的 Parent [NEW]\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_native_DzFrameGetParent",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "NativeDeclaration"
+    },
+    {
+      "label": "GetPlayerServerValueSuccess",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction GetPlayerServerValueSuccess takes player whichPlayer returns boolean\n```\n\n\n---\n\n获得玩家服务器值是否成功\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_GetPlayerServerValueSuccess",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_StoreInteger",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_StoreInteger takes player whichPlayer, string key, integer value returns nothing\n```\n\n\n---\n\n保存整数数据\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_StoreInteger",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetStoredInteger",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_GetStoredInteger takes player whichPlayer, string key returns integer\n```\n\n\n---\n\n获取整数数据\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_GetStoredInteger",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_StoreReal",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_StoreReal takes player whichPlayer, string key, real value returns nothing\n```\n\n\n---\n\n保存实数数据\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_StoreReal",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetStoredReal",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_GetStoredReal takes player whichPlayer, string key returns real\n```\n\n\n---\n\n获取实数数据\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_GetStoredReal",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_StoreBoolean",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_StoreBoolean takes player whichPlayer, string key, boolean value returns nothing\n```\n\n\n---\n\n保存布尔数据\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_StoreBoolean",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetStoredBoolean",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_GetStoredBoolean takes player whichPlayer, string key returns boolean\n```\n\n\n---\n\n获取布尔数据\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_GetStoredBoolean",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_StoreString",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_StoreString takes player whichPlayer, string key, string value returns nothing\n```\n\n\n---\n\n保存字符串数据\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_StoreString",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetStoredString",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_GetStoredString takes player whichPlayer, string key returns string\n```\n\n\n---\n\n获取字符串数据\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_GetStoredString",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetStoredUnitType",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_GetStoredUnitType takes player whichPlayer, string key returns integer\n```\n\n\n---\n\n保存单位数据\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_GetStoredUnitType",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_GetStoredAbilityId",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_GetStoredAbilityId takes player whichPlayer, string key returns integer\n```\n\n\n---\n\n获取技能id\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_GetStoredAbilityId",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_FlushStoredMission",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_FlushStoredMission takes player whichPlayer, string key returns nothing\n```\n\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_FlushStoredMission",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_Ladder_SubmitIntegerData",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_Ladder_SubmitIntegerData takes player whichPlayer, string key, integer value returns nothing\n```\n\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_Ladder_SubmitIntegerData",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_Stat_SubmitUnitIdData",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_Stat_SubmitUnitIdData takes player whichPlayer, string key, integer value returns nothing\n```\n\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_Stat_SubmitUnitIdData",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_Stat_SubmitUnitData",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_Stat_SubmitUnitData takes player whichPlayer, string key, unit value returns nothing\n```\n\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_Stat_SubmitUnitData",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_Ladder_SubmitAblityIdData",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_Ladder_SubmitAblityIdData takes player whichPlayer, string key, integer value returns nothing\n```\n\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_Ladder_SubmitAblityIdData",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_Ladder_SubmitItemIdData",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_Ladder_SubmitItemIdData takes player whichPlayer, string key, integer value returns nothing\n```\n\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_Ladder_SubmitItemIdData",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_Ladder_SubmitItemData",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_Ladder_SubmitItemData takes player whichPlayer, string key, item value returns nothing\n```\n\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_Ladder_SubmitItemData",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_Ladder_SubmitBooleanData",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_Ladder_SubmitBooleanData takes player whichPlayer, string key, boolean value returns nothing\n```\n\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_Ladder_SubmitBooleanData",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_Ladder_SubmitTitle",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_Ladder_SubmitTitle takes player whichPlayer, string value returns nothing\n```\n\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_Ladder_SubmitTitle",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_Ladder_SubmitPlayerRank",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_Ladder_SubmitPlayerRank takes player whichPlayer, integer value returns nothing\n```\n\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_Ladder_SubmitPlayerRank",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "DzAPI_Map_Ladder_SubmitPlayerExtraExp",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction DzAPI_Map_Ladder_SubmitPlayerExtraExp takes player whichPlayer, integer value returns nothing\n```\n\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j`",
+      "sortText": "1_func_DzAPI_Map_Ladder_SubmitPlayerExtraExp",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\DzAPI.j",
+      "statementType": "FunctionDeclaration"
+    }
+  ],
+  "timestamp": 1774441114954
+}

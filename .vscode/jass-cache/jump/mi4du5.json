@@ -1,0 +1,23 @@
+{
+  "filePath": "g:\\Downloads\\暴雪AI修复版\\Work\\war3map.j",
+  "items": [
+    {
+      "symbolName": "TasHeroLearnEx_Parent",
+      "location": {
+        "uri": "g:\\Downloads\\暴雪AI修复版\\Work\\war3map.j",
+        "range": {
+          "start": {
+            "line": 52,
+            "character": 12
+          },
+          "end": {
+            "line": 52,
+            "character": 33
+          }
+        }
+      },
+      "filePath": "g:\\Downloads\\暴雪AI修复版\\Work\\war3map.j"
+    }
+  ],
+  "timestamp": 1774447200165
+}

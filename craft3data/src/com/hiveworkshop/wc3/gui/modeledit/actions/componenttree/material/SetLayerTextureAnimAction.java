@@ -4,6 +4,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.Layer;
 import com.hiveworkshop.wc3.mdl.TextureAnim;
+import com.matrixeater.localization.LocalizationManager;
 
 public class SetLayerTextureAnimAction implements UndoAction {
 	private final Layer layer;
@@ -33,7 +34,7 @@ public class SetLayerTextureAnimAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set Layer TVertexAnim";
+		return LocalizationManager.getInstance().get("string.setlayertextureanimaction_actionname");
 	}
 
 }

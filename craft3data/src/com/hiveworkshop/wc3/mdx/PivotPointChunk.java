@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdx;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.IOException;
 
@@ -22,7 +23,7 @@ public class PivotPointChunk {
 		out.writeInt(getSize() - 8);// ChunkSize
 		if (pivotPoints.length % 3 != 0) {
 			throw new IllegalArgumentException(
-					"The array pivotPoints needs either the length 3 or a multiple of this number. (got "
+					LocalizationManager.getInstance().get("exception.pivotpointchunk_save_array_pivotpoints")
 							+ pivotPoints.length + ")");
 		}
 		MdxUtils.saveFloatArray(out, pivotPoints);

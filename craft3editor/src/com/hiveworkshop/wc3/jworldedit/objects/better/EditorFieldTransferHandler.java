@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.objects.better;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
@@ -50,11 +51,11 @@ public class EditorFieldTransferHandler extends TransferHandler {
 				pastedObjects.load(inputStream, null, false);
 			}
 		} catch (final UnsupportedFlavorException ufe) {
-			System.out.println("importData: unsupported data flavor");
+			System.out.println(LocalizationManager.getInstance().get("println.editorfieldtransferhandler_importdata_unsupported"));
 			ufe.printStackTrace();
 			return false;
 		} catch (final IOException ioe) {
-			System.out.println("importData: I/O exception");
+			System.out.println(LocalizationManager.getInstance().get("println.editorfieldtransferhandler_importdata_exception"));
 			ioe.printStackTrace();
 			return false;
 		}
@@ -82,10 +83,10 @@ public class EditorFieldTransferHandler extends TransferHandler {
 		try (BlizzardDataOutputStream blizzardStream = new BlizzardDataOutputStream(outputStream)) {
 			selectedUnitsAsChangeset.save(blizzardStream, false);
 		} catch (final FileNotFoundException e) {
-			System.out.println("failed to copy");
+			System.out.println(LocalizationManager.getInstance().get("println.editorfieldtransferhandler_createtransferable_copy"));
 			e.printStackTrace();
 		} catch (final IOException e) {
-			System.out.println("failed to copy");
+			System.out.println(LocalizationManager.getInstance().get("println.editorfieldtransferhandler_createtransferable_copy"));
 			e.printStackTrace();
 		}
 		final byte[] byteArray = outputStream.toByteArray();

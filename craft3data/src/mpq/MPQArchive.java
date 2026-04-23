@@ -1,4 +1,5 @@
 package mpq;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -35,7 +36,7 @@ public class MPQArchive {
 			in.position(archiveOffset);
 			while( buffer.hasRemaining() )
 				if( in.read(buffer) == -1 )
-					throw new MPQException("channel does not contain a MPQ archive");
+					throw new MPQException(LocalizationManager.getInstance().get("exception.mqparchive_locatearchive_contain"));
 			buffer.clear();
 			
 			// check header validity
@@ -99,7 +100,7 @@ public class MPQArchive {
 			return;
 		// hashtable size not power of 2
 		}else if( (htsize & htsize - 1) != 0 )
-			throw new MPQException("hashtable was not power of two ( was " + htsize + " )");
+			throw new MPQException(LocalizationManager.getInstance().get("exception.mqparchive_deserializehashtable_power") + htsize + " )");
 		
 		// *** read MPQ archive hashtable
 		ByteBuffer buffer = ByteBuffer.allocate(rsize);
@@ -116,7 +117,7 @@ public class MPQArchive {
 		// *** decompress hashtable
 		if( csize < rsize ){
 			buffer = new Compression().blockDecompressAny(buffer, ByteBuffer.allocate(rsize));
-			if( buffer.limit() != buffer.capacity() ) System.err.println("hashtable decompressed size did not match expected size");
+			if( buffer.limit() != buffer.capacity() ) System.err.println(LocalizationManager.getInstance().get("println.mqparchive_deserializehashtable_expected"));
 		}
 		
 		// *** deserialize hashtable
@@ -170,7 +171,7 @@ public class MPQArchive {
 			return;
 		// blocktable size clamp
 		}else if( btsize > 1 << 20 || btsize < 0 ){
-			System.err.println("blocktable is stupidly large ( " + btsize + " ) so was clamped to " + (1 << 20));
+			System.err.println(LocalizationManager.getInstance().get("println.mqparchive_deserializeblocktable_large") + " ( " + btsize + " ) " + LocalizationManager.getInstance().get("println.mqparchive_deserializeblocktable_clamped") + (1 << 20));
 			btsize = 1 << 20;
 		}
 		
@@ -189,7 +190,7 @@ public class MPQArchive {
 		// *** decompress blocktable
 		if( csize < rsize ){
 			buffer = new Compression().blockDecompressAny(buffer, ByteBuffer.allocate(rsize));
-			if( buffer.limit() != buffer.capacity() ) System.err.println("blocktable decompressed size did not match expected size");
+			if( buffer.limit() != buffer.capacity() ) System.err.println(LocalizationManager.getInstance().get("println.mqparchive_deserializeblocktable_expected"));
 		}
 		
 		// *** deserialize blocktable
@@ -220,7 +221,7 @@ public class MPQArchive {
 			// decompress high blocktable
 			if( chsize < rhsize ){
 				buffer = new Compression().blockDecompressAny(buffer, ByteBuffer.allocate(rhsize));
-				if( buffer.limit() != buffer.capacity() ) System.err.println("high blocktable decompressed size did not match expected size");
+				if( buffer.limit() != buffer.capacity() ) System.err.println(LocalizationManager.getInstance().get("println.mqparchive_deserializeblocktable_high_expected"));
 			}
 			
 			// deserialize high blocktable
@@ -247,7 +248,7 @@ public class MPQArchive {
 		// *** deserialize archive components
 		deserializeHashTable(in, archiveheader);
 		deserializeBlockTable(in, archiveheader);
-		if( version >= 2 ) System.err.println("het and bet tables not supported");
+		if( version >= 2 ) System.err.println(LocalizationManager.getInstance().get("println.mqparchive_loadarchive_supported"));
 	}
 	
 	public MPQArchive(SeekableByteChannel in) throws MPQException, IOException{

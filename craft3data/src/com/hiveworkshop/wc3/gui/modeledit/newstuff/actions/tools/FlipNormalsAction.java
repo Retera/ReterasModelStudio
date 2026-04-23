@@ -8,6 +8,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Normal;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.matrixeater.localization.LocalizationManager;
 
 public final class FlipNormalsAction implements UndoAction {
 	private final List<Vertex> selection;
@@ -42,7 +43,7 @@ public final class FlipNormalsAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "flip normals";
+		return LocalizationManager.getInstance().get("string.flipnormalsaction_actionname");
 	}
 
 }

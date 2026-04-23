@@ -24,6 +24,7 @@
  */
 
 package com.etheller.collections;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -271,7 +272,7 @@ public abstract class AbstractCollection<E> implements Collection<E> {
 
 	private static int hugeCapacity(final int minCapacity) {
 		if (minCapacity < 0) {
-			throw new OutOfMemoryError("Required array size too large");
+			throw new OutOfMemoryError(LocalizationManager.getInstance().get("memoryerror.hugecapacity"));
 		}
 		return (minCapacity > MAX_ARRAY_SIZE) ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
 	}

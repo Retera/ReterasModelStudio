@@ -22,6 +22,7 @@ import com.hiveworkshop.wc3.gui.modeledit.components.material.FloatTrackTableMod
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 import com.hiveworkshop.wc3.util.Callback;
+import com.matrixeater.localization.LocalizationManager;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -41,8 +42,8 @@ public class FloatValuePanel extends JPanel {
 		setBorder(BorderFactory.createTitledBorder(title));
 		setLayout(new MigLayout());
 		final ButtonGroup staticDynamicGroup = new ButtonGroup();
-		staticButton = new JRadioButton("Static");
-		dynamicButton = new JRadioButton("Dynamic");
+		staticButton = new JRadioButton(LocalizationManager.getInstance().get("button.floatvaluepanel_static"));
+		dynamicButton = new JRadioButton(LocalizationManager.getInstance().get("button.floatvaluepanel_dynamic"));
 		staticDynamicGroup.add(staticButton);
 		staticDynamicGroup.add(dynamicButton);
 		add(staticButton);

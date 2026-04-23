@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdx;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.IOException;
 
@@ -68,20 +69,20 @@ public class GeosetColor {
 			out.writeInt(time);
 			if (color.length % 3 != 0) {
 				throw new IllegalArgumentException(
-						"The array color needs either the length 3 or a multiple of this number. (got "
+						LocalizationManager.getInstance().get("exception.geosetcolor_save_array_color")
 								+ color.length + ")");
 			}
 			MdxUtils.saveFloatArray(out, color);
 			if (interpolationType > 1) {
 				if (inTan.length % 3 != 0) {
 					throw new IllegalArgumentException(
-							"The array inTan needs either the length 3 or a multiple of this number. (got "
+							LocalizationManager.getInstance().get("exception.geosetcolor_save_array_intan")
 									+ inTan.length + ")");
 				}
 				MdxUtils.saveFloatArray(out, inTan);
 				if (outTan.length % 3 != 0) {
 					throw new IllegalArgumentException(
-							"The array outTan needs either the length 3 or a multiple of this number. (got "
+							LocalizationManager.getInstance().get("exception.geosetcolor_save_array_outtan")
 									+ outTan.length + ")");
 				}
 				MdxUtils.saveFloatArray(out, outTan);

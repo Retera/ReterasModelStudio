@@ -9,6 +9,7 @@ import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 import com.hiveworkshop.wc3.util.MathUtils;
+import com.matrixeater.localization.LocalizationManager;
 
 /**
  * A camera class, ported from Warsmash which was ported from mdx-m3-viewer
@@ -189,7 +190,7 @@ public class ViewerCamera {
 		this.rotation.setIdentity();
 //		this.rotateAngles(horizontalAngle, verticalAngle);
 		throw new UnsupportedOperationException(
-				"Ghostwolf called a function that does not exist, so I did not know what to do here");
+			LocalizationManager.getInstance().get("exception.viewercamera_setrotationangles_function_not_exist"));
 	}
 
 	public void face(final Vector3f point, final Vector3f worldUp) {

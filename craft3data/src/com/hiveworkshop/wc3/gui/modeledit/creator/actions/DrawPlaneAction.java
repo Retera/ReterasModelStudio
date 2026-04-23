@@ -8,6 +8,7 @@ import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.util.ModelUtils;
 import com.hiveworkshop.wc3.util.ModelUtils.Mesh;
+import com.matrixeater.localization.LocalizationManager;
 
 public class DrawPlaneAction implements GenericMoveAction {
 
@@ -108,7 +109,7 @@ public class DrawPlaneAction implements GenericMoveAction {
 
 	@Override
 	public String actionName() {
-		return "create plane";
+		return LocalizationManager.getInstance().get("string.drawplaneaction_actionname");
 	}
 
 	public Mesh getPlane() {

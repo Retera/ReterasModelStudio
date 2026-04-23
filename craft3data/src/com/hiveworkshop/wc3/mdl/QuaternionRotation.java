@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import com.matrixeater.localization.LocalizationManager;
 
 import javax.swing.JOptionPane;
 
@@ -248,25 +249,25 @@ public class QuaternionRotation {
 			a = Double.parseDouble(str[1]);
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: QuaternionRotation coordinates could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") + " {" + input + "}" + LocalizationManager.getInstance().get("dialog.quaternionrotation_quaternionrotation_interpreted"));
 		}
 		try {
 			b = Double.parseDouble(entries[1]);
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: QuaternionRotation coordinates could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") + " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.quaternionrotation_quaternionrotation_interpreted"));
 		}
 		try {
 			c = Double.parseDouble(entries[2]);
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: QuaternionRotation coordinates could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") + " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.quaternionrotation_quaternionrotation_interpreted"));
 		}
 		try {
 			d = Double.parseDouble(entries[3].split("}")[0]);
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: QuaternionRotation coordinates could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") + " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.quaternionrotation_quaternionrotation_interpreted"));
 		}
 		temp = new QuaternionRotation(a, b, c, d);
 		return temp;
@@ -428,7 +429,7 @@ public class QuaternionRotation {
 		System.out.println(
 				new QuaternionRotation(4.329780281177466E-017, 0.707107, 4.329780281177466E-017, 0.707107).toEuler());
 
-		System.out.println("Time for a spin!");
+		System.out.println(LocalizationManager.getInstance().get("println.quaternionrotation_main_time"));
 		System.out.println(new QuaternionRotation(0.7071203316249954, 0.0, 0.7071203316249954, 0.0)
 				.applyToVertex(new Vertex(0, 0, 0), new Vertex(1, 0, 0)));
 	}

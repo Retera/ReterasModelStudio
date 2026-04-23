@@ -80,6 +80,7 @@ import com.hiveworkshop.wc3.mdl.v2.MaterialView;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.visitor.GeosetVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.ModelVisitor;
+import com.matrixeater.localization.LocalizationManager;
 
 public class Viewport extends JPanel implements MouseListener, ActionListener, MouseWheelListener, CoordinateSystem,
 		ViewportView, MouseMotionListener, ModelEditorChangeListener {
@@ -175,43 +176,43 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		addMouseMotionListener(this);
 
 		contextMenu = new JPopupMenu();
-		createFace = new JMenuItem("Create Face");
+		createFace = new JMenuItem(LocalizationManager.getInstance().get("menuitem.viewport_viewport_createface"));
 		createFace.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
 		createFace.addActionListener(this);
 		contextMenu.add(createFace);
-		addTeamColor = new JMenuItem("Split Geoset and Add Team Color");
+		addTeamColor = new JMenuItem(LocalizationManager.getInstance().get("menuitem.viewport_viewport_addteamcolor"));
 		addTeamColor.addActionListener(this);
 		contextMenu.add(addTeamColor);
-		splitGeo = new JMenuItem("Split Geoset");
+		splitGeo = new JMenuItem(LocalizationManager.getInstance().get("menuitem.viewport_viewport_splitgeo"));
 		splitGeo.addActionListener(this);
 		contextMenu.add(splitGeo);
 		contextMenu.addSeparator();
-		manualMove = new JMenuItem("Translation Type-in");
+		manualMove = new JMenuItem(LocalizationManager.getInstance().get("menuitem.viewport_viewport_manualmove"));
 		manualMove.addActionListener(this);
 		contextMenu.add(manualMove);
-		manualRotate = new JMenuItem("Rotate Type-in");
+		manualRotate = new JMenuItem(LocalizationManager.getInstance().get("menuitem.viewport_viewport_manualrotate"));
 		manualRotate.addActionListener(this);
 		contextMenu.add(manualRotate);
-		manualSet = new JMenuItem("Position Type-in");
+		manualSet = new JMenuItem(LocalizationManager.getInstance().get("menuitem.viewport_viewport_manualset"));
 		manualSet.addActionListener(this);
 		contextMenu.add(manualSet);
-		manualScale = new JMenuItem("Scale Type-in");
+		manualScale = new JMenuItem(LocalizationManager.getInstance().get("menuitem.viewport_viewport_manualscale"));
 		manualScale.addActionListener(this);
 		contextMenu.add(manualScale);
 		contextMenu.addSeparator();
-		reAssignMatrix = new JMenuItem("Re-assign Matrix");
+		reAssignMatrix = new JMenuItem(LocalizationManager.getInstance().get("menuitem.viewport_viewport_reassignmatrix"));
 		reAssignMatrix.addActionListener(this);
 		contextMenu.add(reAssignMatrix);
-		setParent = new JMenuItem("Set Parent");
+		setParent = new JMenuItem(LocalizationManager.getInstance().get("menuitem.viewport_viewport_setparent"));
 		setParent.addActionListener(this);
 		contextMenu.add(setParent);
-		cogBone = new JMenuItem("Auto-Center Bone(s)");
+		cogBone = new JMenuItem(LocalizationManager.getInstance().get("menuitem.viewport_viewport_cogbone"));
 		cogBone.addActionListener(this);
 		contextMenu.add(cogBone);
-		renameBone = new JMenuItem("Rename Bone");
+		renameBone = new JMenuItem(LocalizationManager.getInstance().get("menuitem.viewport_viewport_renamebone"));
 		renameBone.addActionListener(this);
 		contextMenu.add(renameBone);
-		appendBoneBone = new JMenuItem("Append Bone Suffix");
+		appendBoneBone = new JMenuItem(LocalizationManager.getInstance().get("menuitem.viewport_viewport_appendbonebone"));
 		appendBoneBone.addActionListener(this);
 		contextMenu.add(appendBoneBone);
 
@@ -445,8 +446,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		// }
 		// } catch (final Exception exc) {
 		// exc.printStackTrace();
-		// // JOptionPane.showMessageDialog(null,"Error retrieving mouse
-		// // coordinates. (Probably not a major issue. Due to sleep mode?)");
+		// // JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("dialog.viewport_paintcomponent_mouse_coordinates"));
 		// }
 
 		final long renderEnd = System.nanoTime();
@@ -463,11 +463,11 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			final long millis = runningSum / count / 1000000L + 1;
 			if (millis > paintTimer.getDelay()) {
 				final int millis2 = (int) (millis * 5);
-				System.out.println("delay=" + millis2);
+				System.out.println(LocalizationManager.getInstance().get("println.viewport_paintcomponent_delay") + "=" + millis2);
 				paintTimer.setDelay(millis2);
 			} else if (millis < paintTimer.getDelay()) {
 				final int max2 = Math.max(16, (int) (millis * 5));
-				System.out.println("delay=" + max2);
+				System.out.println(LocalizationManager.getInstance().get("println.viewport_paintcomponent_delay") + "=" + max2);
 				paintTimer.setDelay(max2);
 			}
 			min = Long.MAX_VALUE;
@@ -557,11 +557,11 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 //				repaint();
 			} else if (e.getSource() == reAssignMatrix) {
 				final MatrixPopup matrixPopup = new MatrixPopup(modelView.getModel());
-				final String[] words = { "Accept", "Cancel" };
-				final int i = JOptionPane.showOptionDialog(this, matrixPopup, "Rebuild Matrix",
+				final String[] words = { LocalizationManager.getInstance().get("global.button.accept"), LocalizationManager.getInstance().get("global.button.cancel") };
+				final int i = JOptionPane.showOptionDialog(this, matrixPopup, LocalizationManager.getInstance().get("dialog.viewport_paintcomponent_rebuild_matrix"),
 						JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_OPTION, null, words, words[1]);
 				if (i == 0) {
-					// JOptionPane.showMessageDialog(null,"action approved");
+					// JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("dialog.viewport_paintcomponent_action_approved"));
 					modelEditor.setMatrix(BoneShell.toBonesList(CollectionUtils.asList(matrixPopup.newRefs)));
 				}
 			} else if (e.getSource() == setParent) {
@@ -579,7 +579,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 					@Override
 					public String toString() {
 						if (node == null) {
-							return "(No parent)";
+							return LocalizationManager.getInstance().get("string.viewport_paintcomponent_no_parent");
 						}
 						return node.getName();
 					}
@@ -593,20 +593,20 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 					final IdObject node = idObjects.get(i);
 					nodeOptions[i + 1] = new NodeShell(node);
 				}
-				final NodeShell result = (NodeShell) JOptionPane.showInputDialog(this, "Choose a parent node",
-						"Set Parent Node", JOptionPane.PLAIN_MESSAGE, null, nodeOptions, defaultChoice);
+				final NodeShell result = (NodeShell) JOptionPane.showInputDialog(this, LocalizationManager.getInstance().get("dialog.viewport_paintcomponent_parent_node"),
+						LocalizationManager.getInstance().get("dialog.viewport_paintcomponent_set_parent_node"), JOptionPane.PLAIN_MESSAGE, null, nodeOptions, defaultChoice);
 				final MatrixPopup matrixPopup = new MatrixPopup(modelView.getModel());
 				if (result != null) {
-					// JOptionPane.showMessageDialog(null,"action approved");
+					// JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("dialog.viewport_paintcomponent_action_approved"));
 					modelEditor.setParent(result.getNode());
 				}
 			} else if (e.getSource() == renameBone) {
-				final String name = JOptionPane.showInputDialog(this, "Enter bone name:");
+				final String name = JOptionPane.showInputDialog(this, LocalizationManager.getInstance().get("dialog.viewport_paintcomponent_bone_name"));
 				if (name != null) {
 					modelEditor.setSelectedBoneName(name);
 				}
 			} else if (e.getSource() == appendBoneBone) {
-				final String name = JOptionPane.showInputDialog(this, "Enter bone suffix:");
+				final String name = JOptionPane.showInputDialog(this, LocalizationManager.getInstance().get("dialog.viewport_paintcomponent_bone_suffix"));
 				if (name != null) {
 					modelEditor.addSelectedBoneSuffix(name);
 				}
@@ -628,7 +628,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 				try {
 					undoListener.pushAction(modelEditor.createFaceFromSelection(facingVector));
 				} catch (final FaceCreationException exc) {
-					JOptionPane.showMessageDialog(this, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(this, exc.getMessage(), LocalizationManager.getInstance().get("global.dialog.error"), JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		} catch (final Exception exc) {
@@ -641,13 +641,13 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		final GridLayout layout = new GridLayout(6, 1);
 		inputPanel.setLayout(layout);
 		final JSpinner[] spinners = new JSpinner[3];
-		inputPanel.add(new JLabel("Move X:"));
+		inputPanel.add(new JLabel(LocalizationManager.getInstance().get("label.viewport_manualmove_move_x")));
 		inputPanel.add(spinners[0] = new JSpinner(new SpinnerNumberModel(0.0, -100000.00, 100000.0, 0.0001)));
-		inputPanel.add(new JLabel("Move Y:"));
+		inputPanel.add(new JLabel(LocalizationManager.getInstance().get("label.viewport_manualmove_move_y")));
 		inputPanel.add(spinners[1] = new JSpinner(new SpinnerNumberModel(0.0, -100000.00, 100000.0, 0.0001)));
-		inputPanel.add(new JLabel("Move Z:"));
+		inputPanel.add(new JLabel(LocalizationManager.getInstance().get("label.viewport_manualmove_move_z")));
 		inputPanel.add(spinners[2] = new JSpinner(new SpinnerNumberModel(0.0, -100000.00, 100000.0, 0.0001)));
-		final int x = JOptionPane.showConfirmDialog(getRootPane(), inputPanel, "Manual Translation",
+		final int x = JOptionPane.showConfirmDialog(getRootPane(), inputPanel, LocalizationManager.getInstance().get("dialog.viewport_manualmove_manual_translation"),
 				JOptionPane.OK_CANCEL_OPTION);
 		if (x != JOptionPane.OK_OPTION) {
 			return;
@@ -664,13 +664,13 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		final GridLayout layout = new GridLayout(6, 1);
 		inputPanel.setLayout(layout);
 		final JSpinner[] spinners = new JSpinner[3];
-		inputPanel.add(new JLabel("Rotate X degrees (around axis facing front):"));
+		inputPanel.add(new JLabel(LocalizationManager.getInstance().get("label.viewport_manualrotate_rotate_x")));
 		inputPanel.add(spinners[0] = new JSpinner(new SpinnerNumberModel(0.0, -100000.00, 100000.0, 0.0001)));
-		inputPanel.add(new JLabel("Rotate Y degrees (around axis facing left):"));
+		inputPanel.add(new JLabel(LocalizationManager.getInstance().get("label.viewport_manualrotate_rotate_y")));
 		inputPanel.add(spinners[1] = new JSpinner(new SpinnerNumberModel(0.0, -100000.00, 100000.0, 0.0001)));
-		inputPanel.add(new JLabel("Rotate Z degrees (around axis facing up):"));
+		inputPanel.add(new JLabel(LocalizationManager.getInstance().get("label.viewport_manualrotate_rotate_z")));
 		inputPanel.add(spinners[2] = new JSpinner(new SpinnerNumberModel(0.0, -100000.00, 100000.0, 0.0001)));
-		final int x = JOptionPane.showConfirmDialog(getRootPane(), inputPanel, "Manual Rotation",
+		final int x = JOptionPane.showConfirmDialog(getRootPane(), inputPanel, LocalizationManager.getInstance().get("dialog.viewport_manualrotate_manual_rotation"),
 				JOptionPane.OK_CANCEL_OPTION);
 		if (x != JOptionPane.OK_OPTION) {
 			return;
@@ -690,13 +690,13 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		final GridLayout layout = new GridLayout(6, 1);
 		inputPanel.setLayout(layout);
 		final JSpinner[] spinners = new JSpinner[3];
-		inputPanel.add(new JLabel("New Position X:"));
+		inputPanel.add(new JLabel(LocalizationManager.getInstance().get("label.viewport_manualset_new_position_x")));
 		inputPanel.add(spinners[0] = new JSpinner(new SpinnerNumberModel(0.0, -100000.00, 100000.0, 0.0001)));
-		inputPanel.add(new JLabel("New Position Y:"));
+		inputPanel.add(new JLabel(LocalizationManager.getInstance().get("label.viewport_manualset_new_position_y")));
 		inputPanel.add(spinners[1] = new JSpinner(new SpinnerNumberModel(0.0, -100000.00, 100000.0, 0.0001)));
-		inputPanel.add(new JLabel("New Position Z:"));
+		inputPanel.add(new JLabel(LocalizationManager.getInstance().get("Ndata.label.viewport_manualset_new_position_z")));
 		inputPanel.add(spinners[2] = new JSpinner(new SpinnerNumberModel(0.0, -100000.00, 100000.0, 0.0001)));
-		final int x = JOptionPane.showConfirmDialog(getRootPane(), inputPanel, "Manual Position",
+		final int x = JOptionPane.showConfirmDialog(getRootPane(), inputPanel, LocalizationManager.getInstance().get("dialog.viewport_manualset_manual_rotation"),
 				JOptionPane.OK_CANCEL_OPTION);
 		if (x != JOptionPane.OK_OPTION) {
 			return;
@@ -715,23 +715,23 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		inputPanel.setLayout(layout);
 		final JSpinner[] spinners = new JSpinner[3];
 		final JSpinner[] centerSpinners = new JSpinner[3];
-		inputPanel.add(new JLabel("Scale X:"));
+		inputPanel.add(new JLabel(LocalizationManager.getInstance().get("label.viewport_manualscale_scale_x")));
 		inputPanel.add(spinners[0] = new JSpinner(new SpinnerNumberModel(1.0, -100000.00, 100000.0, 0.0001)));
-		inputPanel.add(new JLabel("Scale Y:"));
+		inputPanel.add(new JLabel(LocalizationManager.getInstance().get("label.viewport_manualscale_scale_y")));
 		inputPanel.add(spinners[1] = new JSpinner(new SpinnerNumberModel(1.0, -100000.00, 100000.0, 0.0001)));
-		inputPanel.add(new JLabel("Scale Z:"));
+		inputPanel.add(new JLabel(LocalizationManager.getInstance().get("label.viewport_manualscale_scale_z")));
 		inputPanel.add(spinners[2] = new JSpinner(new SpinnerNumberModel(1.0, -100000.00, 100000.0, 0.0001)));
-		final JCheckBox customOrigin = new JCheckBox("Custom Scaling Origin");
+		final JCheckBox customOrigin = new JCheckBox(LocalizationManager.getInstance().get("checkbox.viewport_manualscale_scale_origin"));
 		inputPanel.add(customOrigin);
 
 		final Vertex selectionCenter = modelEditor.getSelectionCenter();
-		inputPanel.add(new JLabel("Center X:"));
+		inputPanel.add(new JLabel(LocalizationManager.getInstance().get("label.viewport_manualscale_center_x")));
 		inputPanel.add(centerSpinners[0] = new JSpinner(
 				new SpinnerNumberModel(selectionCenter.x, -100000.00, 100000.0, 0.0001)));
-		inputPanel.add(new JLabel("Center Y:"));
+		inputPanel.add(new JLabel(LocalizationManager.getInstance().get("label.viewport_manualscale_center_y")));
 		inputPanel.add(centerSpinners[1] = new JSpinner(
 				new SpinnerNumberModel(selectionCenter.y, -100000.00, 100000.0, 0.0001)));
-		inputPanel.add(new JLabel("Center Z:"));
+		inputPanel.add(new JLabel(LocalizationManager.getInstance().get("label.viewport_manualscale_center_z")));
 		inputPanel.add(centerSpinners[2] = new JSpinner(
 				new SpinnerNumberModel(selectionCenter.z, -100000.00, 100000.0, 0.0001)));
 		for (final JSpinner spinner : centerSpinners) {
@@ -746,7 +746,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			}
 		});
 
-		final int x = JOptionPane.showConfirmDialog(getRootPane(), inputPanel, "Manual Scaling",
+		final int x = JOptionPane.showConfirmDialog(getRootPane(), inputPanel, LocalizationManager.getInstance().get("dialog.viewport_manualscale_manual_scaling"),
 				JOptionPane.OK_CANCEL_OPTION);
 		if (x != JOptionPane.OK_OPTION) {
 			return;

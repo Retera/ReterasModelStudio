@@ -8,6 +8,7 @@ import com.etheller.collections.MapView;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.IdObject;
+import com.matrixeater.localization.LocalizationManager;
 
 public final class SetParentAction implements UndoAction {
 	private final Map<IdObject, IdObject> nodeToOldParent;
@@ -46,7 +47,7 @@ public final class SetParentAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set parent";
+		return LocalizationManager.getInstance().get("string.setparentaction_actionname");
 	}
 
 }

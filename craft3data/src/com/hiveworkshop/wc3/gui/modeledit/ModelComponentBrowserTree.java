@@ -50,6 +50,7 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.BindPoseChunk;
 import com.hiveworkshop.wc3.mdx.FaceEffectsChunk.FaceEffect;
 import com.hiveworkshop.wc3.util.IconUtils;
+import com.matrixeater.localization.LocalizationManager;
 
 public final class ModelComponentBrowserTree extends JTree {
 	private final ModelViewManager modelViewManager;
@@ -223,14 +224,14 @@ public final class ModelComponentBrowserTree extends JTree {
 		root.add(new DefaultMutableTreeNode(new ChooseableModelHeader(modelViewManager, undoActionListener,
 				modelStructureChangeListener, modelViewManager.getModel())));
 		final DefaultMutableTreeNode sequences = new DefaultMutableTreeNode(new ChooseableDummyItem(modelViewManager,
-				undoActionListener, modelStructureChangeListener, "Sequences"));
+				undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_buildtreemodel_sequences")));
 		for (final Animation item : modelViewManager.getModel().getAnims()) {
 			sequences.add(new DefaultMutableTreeNode(new ChooseableAnimationItem(modelViewManager, undoActionListener,
 					modelStructureChangeListener, item)));
 		}
 		root.add(sequences);
 		final DefaultMutableTreeNode globalSequences = new DefaultMutableTreeNode(new ChooseableDummyItem(
-				modelViewManager, undoActionListener, modelStructureChangeListener, "GlobalSequences"));
+				modelViewManager, undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_buildtreemodel_globalsequences")));
 		for (int globalSeqId = 0; globalSeqId < modelViewManager.getModel().getGlobalSeqs().size(); globalSeqId++) {
 			globalSequences.add(new DefaultMutableTreeNode(
 					new ChooseableGlobalSequenceItem(modelViewManager, undoActionListener, modelStructureChangeListener,
@@ -238,35 +239,35 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 		root.add(globalSequences);
 		final DefaultMutableTreeNode textures = new DefaultMutableTreeNode(new ChooseableDummyItem(modelViewManager,
-				undoActionListener, modelStructureChangeListener, "Textures"));
+				undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_buildtreemodel_textures")));
 		for (final Bitmap item : modelViewManager.getModel().getTextures()) {
 			textures.add(new DefaultMutableTreeNode(new ChooseableBitmapItem(modelViewManager, undoActionListener,
 					modelStructureChangeListener, item)));
 		}
 		root.add(textures);
 		final DefaultMutableTreeNode materials = new DefaultMutableTreeNode(new ChooseableDummyItem(modelViewManager,
-				undoActionListener, modelStructureChangeListener, "Materials"));
+				undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_buildtreemodel_materials")));
 		for (final Material item : modelViewManager.getModel().getMaterials()) {
 			materials.add(new DefaultMutableTreeNode(new ChooseableMaterialItem(modelViewManager, undoActionListener,
 					modelStructureChangeListener, item)));
 		}
 		root.add(materials);
 		final DefaultMutableTreeNode tVertexAnims = new DefaultMutableTreeNode(new ChooseableDummyItem(modelViewManager,
-				undoActionListener, modelStructureChangeListener, "TVertexAnims"));
+				undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_buildtreemodel_tvertexanims")));
 		for (final TextureAnim item : modelViewManager.getModel().getTexAnims()) {
 			tVertexAnims.add(new DefaultMutableTreeNode(new ChooseableTextureAnimItem(modelViewManager,
 					undoActionListener, modelStructureChangeListener, item)));
 		}
 		root.add(tVertexAnims);
 		final DefaultMutableTreeNode geosets = new DefaultMutableTreeNode(
-				new ChooseableDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "Geosets"));
+				new ChooseableDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("Geosets")));
 		for (final Geoset item : modelViewManager.getModel().getGeosets()) {
 			geosets.add(new DefaultMutableTreeNode(new ChooseableGeosetItem(modelViewManager, undoActionListener,
 					modelStructureChangeListener, item)));
 		}
 		root.add(geosets);
 		final DefaultMutableTreeNode geosetAnims = new DefaultMutableTreeNode(new ChooseableDummyItem(modelViewManager,
-				undoActionListener, modelStructureChangeListener, "GeosetAnims"));
+				undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_buildtreemodel_geosets")));
 		for (final GeosetAnim item : modelViewManager.getModel().getGeosetAnims()) {
 			geosetAnims.add(new DefaultMutableTreeNode(new ChooseableGeosetAnimItem(modelViewManager,
 					undoActionListener, modelStructureChangeListener, item)));
@@ -309,7 +310,7 @@ public final class ModelComponentBrowserTree extends JTree {
 		final Map<IdObject, DefaultMutableTreeNode> nodeToTreeElement = new HashMap<>();
 		final Map<IdObject, List<DefaultMutableTreeNode>> nodeToChildrenAwaitingLink = new HashMap<>();
 		final DefaultMutableTreeNode nodes = new DefaultMutableTreeNode(
-				new ChooseableDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "Nodes"));
+				new ChooseableDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_buildtreemodel_nodes")));
 		nodeToTreeElement.put(null, nodes);
 		for (final IdObject object : modelViewManager.getModel().getIdObjects()) {
 			object.apply(converter);
@@ -344,7 +345,7 @@ public final class ModelComponentBrowserTree extends JTree {
 		root.add(nodes);
 
 		final DefaultMutableTreeNode cameras = new DefaultMutableTreeNode(
-				new ChooseableDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "Cameras"));
+				new ChooseableDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_buildtreemodel_cameras")));
 		for (final Camera item : modelViewManager.getModel().getCameras()) {
 			cameras.add(new DefaultMutableTreeNode(new ChooseableCameraItem(modelViewManager, undoActionListener,
 					modelStructureChangeListener, item)));
@@ -499,7 +500,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final EditableModel item, final ModelViewManager modelViewManager) {
-			return "Model \"" + item.getHeaderName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseablemodelroot_model") + " \"" + item.getHeaderName() + "\"";
 		}
 
 		@Override
@@ -530,7 +531,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final EditableModel item, final ModelViewManager modelViewManager) {
-			return "Comment";
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseablemodelcomment_comment");
 		}
 
 		@Override
@@ -561,7 +562,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final EditableModel item, final ModelViewManager modelViewManager) {
-			return "Header";
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseablemodelheader_header");
 		}
 
 		@Override
@@ -591,7 +592,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final Animation item, final ModelViewManager modelViewManager) {
-			return "Anim \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseableanimationitem_anim") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -626,7 +627,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final Integer item, final ModelViewManager modelViewManager) {
-			return "GlobalSequence " + globalSeqId + ": Duration " + item;
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseableglobalsequenceitem_globalsequence") + globalSeqId + LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseableglobalsequenceitem_duration") + item;
 		}
 
 		@Override
@@ -662,7 +663,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final Bitmap item, final ModelViewManager modelViewManager) {
-			return "Bitmap \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseablebitmapitem_bitmap") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -693,7 +694,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final Material item, final ModelViewManager modelViewManager) {
-			return "Material " + modelViewManager.getModel().getMaterials().indexOf(item);
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseablematerialitem_material") + modelViewManager.getModel().getMaterials().indexOf(item);
 		}
 
 		@Override
@@ -724,7 +725,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final TextureAnim item, final ModelViewManager modelViewManager) {
-			return "TextureAnim " + modelViewManager.getModel().getTexAnims().indexOf(item);
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseabletextureanimitem_textureanim") + modelViewManager.getModel().getTexAnims().indexOf(item);
 		}
 
 		@Override
@@ -788,7 +789,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final GeosetAnim item, final ModelViewManager modelViewManager) {
-			return "GeosetAnim " + modelViewManager.getModel().getGeosetAnims().indexOf(item);
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseablegeosetanimitem_geosetanim") + modelViewManager.getModel().getGeosetAnims().indexOf(item);
 		}
 
 		@Override
@@ -818,7 +819,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final Bone item, final ModelViewManager modelViewManager) {
-			return "Bone \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseableboneitem_bone") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -849,7 +850,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final Helper item, final ModelViewManager modelViewManager) {
-			return "Helper \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseablehelperitem_helper") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -879,7 +880,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final Light item, final ModelViewManager modelViewManager) {
-			return "Light \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseablelightitem_light") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -910,7 +911,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final Attachment item, final ModelViewManager modelViewManager) {
-			return "Attachment \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseableattachmentitem_attachment") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -941,7 +942,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final ParticleEmitter item, final ModelViewManager modelViewManager) {
-			return "ParticleEmitter \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseableparticleemitteritem_particleemitter") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -972,7 +973,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final ParticleEmitter2 item, final ModelViewManager modelViewManager) {
-			return "ParticleEmitter2 \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseableparticleemitter2item_particleemitter") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -1004,7 +1005,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final ParticleEmitterPopcorn item, final ModelViewManager modelViewManager) {
-			return "ParticleEmitterPopcorn \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseableparticleemitterpopcornitem_particleemitter") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -1035,7 +1036,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final RibbonEmitter item, final ModelViewManager modelViewManager) {
-			return "RibbonEmitter \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseableribbonemitteritem_ribbonemitter") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -1066,7 +1067,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final EventObject item, final ModelViewManager modelViewManager) {
-			return "EventObject \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseableeventobjectitem_eventobject") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -1096,7 +1097,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final CollisionShape item, final ModelViewManager modelViewManager) {
-			return "CollisionShape \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseablecollisionshapeitem_collisionshape") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -1126,7 +1127,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final Camera item, final ModelViewManager modelViewManager) {
-			return "Camera \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseablecameraitem_camera") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -1156,7 +1157,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final FaceEffect item, final ModelViewManager modelViewManager) {
-			return "FaceFX \"" + item.faceEffectTarget + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseablefaceeffectschunkitem_facefx") + " \"" + item.faceEffectTarget + "\"";
 		}
 
 		@Override
@@ -1187,7 +1188,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final BindPoseChunk item, final ModelViewManager modelViewManager) {
-			return "BindPoseChunk";
+			return LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_chooseablebindposechunkitem_bindposechunk");
 		}
 
 		@Override

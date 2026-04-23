@@ -15,9 +15,9 @@ import javax.swing.JTextField;
 
 public class DirectorySelector extends JPanel implements ActionListener {
 	final static long serialVersionUID = 5L;
-	JLabel text = new JLabel("Please select a valid Warcraft III game directory:");
+	JLabel text = new JLabel(LocalizationManager.getInstance().get("label.directoryselector_directoryselector_directory"));
 	JTextField pathField;
-	JButton browseButton = new JButton("Browse");
+	JButton browseButton = new JButton(LocalizationManager.getInstance().get("button.directoryselector_directoryselector_browse"));
 	public DirectorySelector(final String defaultDir, final String specialText)
 	{
 		text.setText(text.getText());
@@ -89,7 +89,7 @@ public class DirectorySelector extends JPanel implements ActionListener {
 				}
 				if( !good )
 				{
-					JOptionPane.showMessageDialog(null, "You do not have permissions to access the chosen folder.\nYou should \"Run as Administrator\" on this program, or otherwise gain file permissions to the target folder, for the texture loader to work on that folder.","WARNING: Texture-Loader Won't Work", JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.directoryselector_directoryselector_permissions"), LocalizationManager.getInstance().get("dialog.directoryselector_directoryselector_warning"), JOptionPane.WARNING_MESSAGE);
 				}
 
 				pathField.setText(jfc.getSelectedFile().getAbsolutePath());

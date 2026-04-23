@@ -13,6 +13,7 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeLis
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.animation.AddKeyframeAction;
 import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.render3d.RenderNode;
+import com.matrixeater.localization.LocalizationManager;
 
 public abstract class AbstractAnimatedNode implements AnimatedNode {
 	private static final Vector4f translationHeap = new Vector4f();
@@ -154,7 +155,7 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 		// impl
 		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
 				.getAnimatedRenderEnvironment();
-		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Translation",
+		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), LocalizationManager.getInstance().get("string.abstractanimatednode_updatetranslationkeyframe_translation"),
 				timeEnvironmentImpl.getGlobalSeq());
 		if (translationFlag == null) {
 			return;
@@ -236,7 +237,7 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 		// impl
 		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
 				.getAnimatedRenderEnvironment();
-		final AnimFlag rotationTimeline = AnimFlag.find(getAnimFlags(), "Rotation", timeEnvironmentImpl.getGlobalSeq());
+		final AnimFlag rotationTimeline = AnimFlag.find(getAnimFlags(), LocalizationManager.getInstance().get("string.abstractanimatednode_updaterotationkeyframe_rotation"), timeEnvironmentImpl.getGlobalSeq());
 		if (rotationTimeline == null) {
 			return;
 		}
@@ -363,7 +364,7 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 		// impl
 		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
 				.getAnimatedRenderEnvironment();
-		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Scaling", timeEnvironmentImpl.getGlobalSeq());
+		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), LocalizationManager.getInstance().get("string.abstractanimatednode_updatescalingkeyframe_scaling"), timeEnvironmentImpl.getGlobalSeq());
 		if (translationFlag == null) {
 			return;
 		}
@@ -427,7 +428,7 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
-		final AnimFlag rotationTimeline = AnimFlag.find(getAnimFlags(), "Rotation", trackGlobalSeq);
+		final AnimFlag rotationTimeline = AnimFlag.find(getAnimFlags(), LocalizationManager.getInstance().get("string.abstractanimatednode_updatelocalrotationkeyframe_rotation"), trackGlobalSeq);
 		if (rotationTimeline == null) {
 			return;
 		}
@@ -483,7 +484,7 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
-		final AnimFlag rotationTimeline = AnimFlag.find(getAnimFlags(), "Rotation", trackGlobalSeq);
+		final AnimFlag rotationTimeline = AnimFlag.find(getAnimFlags(), LocalizationManager.getInstance().get("string.abstractanimatednode_updateLocalrotationkeyframeinverse_rotation"), trackGlobalSeq);
 		if (rotationTimeline == null) {
 			return;
 		}
@@ -542,7 +543,7 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 			final double newDeltaX, final double newDeltaY, final double newDeltaZ) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
-		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Translation", trackGlobalSeq);
+		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), LocalizationManager.getInstance().get("string.abstractanimatednode_updatelocaltranslationkeyframe_translation"), trackGlobalSeq);
 		if (translationFlag == null) {
 			return;
 		}
@@ -576,7 +577,7 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 			final Vector3f localScaling) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
-		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Scaling", trackGlobalSeq);
+		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), LocalizationManager.getInstance().get("string.abstractanimatednode_updatelocalscalingkeyframe_scaling"), trackGlobalSeq);
 		if (translationFlag == null) {
 			return;
 		}

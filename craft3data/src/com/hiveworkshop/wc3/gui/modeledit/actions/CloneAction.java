@@ -8,6 +8,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.matrixeater.localization.LocalizationManager;
 
 /**
  * CloneAction -- allowing you to undo clone!
@@ -115,14 +116,15 @@ public class CloneAction implements UndoAction {
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				for (final Triangle t : gv.getTriangles()) {
-					System.out.println("SHOULD be one: " + Collections.frequency(gv.getTriangles(), t));
+					System.out.println(LocalizationManager.getInstance().get("println.cloneaction_redo_1") + Collections.frequency(gv.getTriangles(), t));
 					if (!t.containsRef(gv)) {
 						probs++;
 					}
 				}
 			}
 		}
-		System.out.println("Redo " + actionName() + " finished with " + probs + " inexplicable errors.");
+		System.out.println(LocalizationManager.getInstance().get("println.cloneaction_redo_2") + actionName()
+		+ LocalizationManager.getInstance().get("println.cloneaction_redo_3") + probs + LocalizationManager.getInstance().get("println.cloneaction_redo_4"));
 	}
 
 	@Override
@@ -202,22 +204,23 @@ public class CloneAction implements UndoAction {
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				for (final Triangle t : gv.getTriangles()) {
-					System.out.println("SHOULD be one: " + Collections.frequency(gv.getTriangles(), t));
+					System.out.println(LocalizationManager.getInstance().get("println.cloneaction_undo_1") + Collections.frequency(gv.getTriangles(), t));
 					if (!t.containsRef(gv)) {
 						probs++;
 					}
 				}
 			}
 		}
-		System.out.println("Undo " + actionName() + " finished with " + probs + " inexplicable errors.");
+		System.out.println(LocalizationManager.getInstance().get("println.cloneaction_undo_2") + actionName()
+		+ LocalizationManager.getInstance().get("println.cloneaction_undo_3") + probs + LocalizationManager.getInstance().get("println.cloneaction_undo_4"));
 	}
 
 	@Override
 	public String actionName() {
 		if (type) {
-			return "extrude";
+			return LocalizationManager.getInstance().get("string.cloneaction_actionname_1");
 		} else {
-			return "extrude";
+			return LocalizationManager.getInstance().get("string.cloneaction_actionname_2");
 		}
 	}
 }

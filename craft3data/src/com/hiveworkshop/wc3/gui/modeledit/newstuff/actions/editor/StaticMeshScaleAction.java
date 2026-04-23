@@ -2,6 +2,7 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor;
 
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericScaleAction;
+import com.matrixeater.localization.LocalizationManager;
 
 public class StaticMeshScaleAction implements GenericScaleAction {
 	private final ModelEditor modelEditor;
@@ -35,7 +36,7 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 
 	@Override
 	public String actionName() {
-		return "scale";
+		return LocalizationManager.getInstance().get("string.staticmeshscaleaction_actionname");
 	}
 
 	@Override

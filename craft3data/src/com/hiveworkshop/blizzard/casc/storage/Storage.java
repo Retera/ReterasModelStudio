@@ -20,6 +20,7 @@ import java.util.Map;
 
 import com.hiveworkshop.blizzard.casc.Key;
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
+import com.matrixeater.localization.LocalizationManager;
 
 /**
  * Main data storage of a CASC archive. It consists of index files which point
@@ -159,7 +160,7 @@ public class Storage implements AutoCloseable {
 		for (int index = 0; index < indicies.length; index += 1) {
 			final ArrayList<IndexFileNameMeta> bucketList = metaMap.get(index);
 			if (bucketList == null) {
-				throw new MalformedCASCStructureException("storage index file missing");
+				throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.storage_index_file_missing"));
 			}
 
 			Collections.sort(bucketList, bucketOrder);
@@ -174,7 +175,7 @@ public class Storage implements AutoCloseable {
 		encodingKeyLength = indicies[index++].getEncodingKeyLength();
 		for (; index < indicies.length; index += 1) {
 			if (encodingKeyLength != indicies[index].getEncodingKeyLength()) {
-				throw new MalformedCASCStructureException("inconsistent encoding key length between index files");
+				throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.storage_inconsistent_encoding_key_length"));
 			}
 		}
 	}
@@ -201,7 +202,7 @@ public class Storage implements AutoCloseable {
 		closed = true;
 
 		if (exception != null) {
-			throw new IOException("IOExceptions occured during closure", exception);
+			throw new IOException(LocalizationManager.getInstance().get("exception.close_closure"), exception);
 		}
 	}
 
@@ -219,7 +220,7 @@ public class Storage implements AutoCloseable {
 		final IndexEntry indexEntry = index.getEntry(encodingKey);
 
 		if (indexEntry == null) {
-			throw new FileNotFoundException("encoding key not in store indicies");
+			throw new FileNotFoundException(LocalizationManager.getInstance().get("exception.getbanks_encoding_indicies"));
 		}
 
 		final long dataOffset = indexEntry.getDataOffset();
@@ -239,7 +240,7 @@ public class Storage implements AutoCloseable {
 		FileChannel fileChannel = channelMap.get(index);
 		if (fileChannel == null) {
 			if (index > DATA_FILE_INDEX_MAXIMUM) {
-				throw new MalformedCASCStructureException("storage data file index too large");
+				throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.getdatafilechannel_data_file_index_large"));
 			}
 
 			final StringBuilder builder = new StringBuilder();
@@ -272,7 +273,7 @@ public class Storage implements AutoCloseable {
 	private ByteBuffer getStorageBuffer(final int index, final long offset, final long length) throws IOException {
 		final FileChannel fileChannel = getDataFileChannel(index);
 		if (length > Integer.MAX_VALUE) {
-			throw new MalformedCASCStructureException("data buffer too large to process");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.getstoragebuffer_data_buffer_large"));
 		}
 
 		final ByteBuffer storageBuffer;
@@ -288,7 +289,7 @@ public class Storage implements AutoCloseable {
 			}
 
 			if (storageBuffer.hasRemaining()) {
-				throw new EOFException("unexpected end of file");
+				throw new EOFException(LocalizationManager.getInstance().get("exception.getstoragebuffer_unexpected_end"));
 			}
 			storageBuffer.clear();
 		}
@@ -308,7 +309,7 @@ public class Storage implements AutoCloseable {
 		try (final FileChannel channel = FileChannel.open(file, StandardOpenOption.READ)) {
 			final long fileLength = channel.size();
 			if (fileLength > Integer.MAX_VALUE) {
-				throw new MalformedCASCStructureException("file too large to process");
+				throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.loadfilefully_failed_file_fully"));
 			}
 
 			if (useMemoryMapping) {
@@ -322,7 +323,7 @@ public class Storage implements AutoCloseable {
 				}
 
 				if (fileBuffer.hasRemaining()) {
-					throw new EOFException("unexpected end of file");
+					throw new EOFException(LocalizationManager.getInstance().get("exception.loadfilefully__unexpected_end"));
 				}
 				fileBuffer.clear();
 			}

@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.objects;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -18,7 +19,7 @@ public class ObjectEditorFrame extends JFrame {
 	ObjectEditorPanel panel;
 
 	public ObjectEditorFrame() {
-		super("Object Editor");
+		super(LocalizationManager.getInstance().get("super.objecteditorframe_objecteditorframe_editor"));
 		try {
 			final List<BufferedImage> images = ICODecoder.read(this.getClass().getResourceAsStream("worldedit.ico"));
 			final List<BufferedImage> finalImages = new ArrayList<>();
@@ -62,11 +63,11 @@ public class ObjectEditorFrame extends JFrame {
 		final ObjectEditorFrame frame = new ObjectEditorFrame();
 		frame.setVisible(true);
 		final JMenuBar menubar = new JMenuBar();
-		menubar.add(new JMenu("File"));
-		menubar.add(new JMenu("Edit"));
-		menubar.add(new JMenu("View"));
-		menubar.add(new JMenu("Module"));
-		menubar.add(new JMenu("Window"));
+		menubar.add(new JMenu(LocalizationManager.getInstance().get("menu.objecteditorframe_objecteditorframe_file")));
+		menubar.add(new JMenu(LocalizationManager.getInstance().get("menu.objecteditorframe_objecteditorframe_edit")));
+		menubar.add(new JMenu(LocalizationManager.getInstance().get("menu.objecteditorframe_objecteditorframe_view")));
+		menubar.add(new JMenu(LocalizationManager.getInstance().get("menu.objecteditorframe_objecteditorframe_module")));
+		menubar.add(new JMenu(LocalizationManager.getInstance().get("menu.objecteditorframe_objecteditorframe_window")));
 		frame.setJMenuBar(menubar);
 		frame.panel.loadHotkeys();
 	}

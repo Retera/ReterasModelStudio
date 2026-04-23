@@ -4,6 +4,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.TimelineContainer;
+import com.matrixeater.localization.LocalizationManager;
 
 public class AddKeyframeAction implements UndoAction {
 	private final TimelineContainer node;
@@ -42,7 +43,7 @@ public class AddKeyframeAction implements UndoAction {
 		if (timeline.tans()) {
 			if (keyframeInTan == null) {
 				throw new IllegalStateException(
-						"Cannot add interpolation information (inTan/outTan) for keyframe, animation data was \"Linear\" or \"DontInterp\" during previous user action");
+					LocalizationManager.getInstance().get("exception.addkeyframeaction_redo"));
 			}
 			timeline.addKeyframe(trackTime, keyframeValue, keyframeInTan, keyframeOutTan);
 		} else {
@@ -53,7 +54,7 @@ public class AddKeyframeAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "add keyframe";
+		return LocalizationManager.getInstance().get("string.addkeyframeaction_actionname");
 	}
 
 }

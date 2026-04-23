@@ -20,6 +20,7 @@ import com.hiveworkshop.wc3.gui.modeledit.creator.actions.DrawCameraAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import com.matrixeater.localization.LocalizationManager;
 
 public class CameraManagerPanel extends JPanel {
 	private ModelView mdlDisp;
@@ -49,7 +50,7 @@ public class CameraManagerPanel extends JPanel {
 			@Override
 			public Component getListCellRendererComponent(final JList list, final Object value, final int index,
 					final boolean isSelected, final boolean cellHasFocus) {
-				Object display = value == null ? "(Free)" : value;
+				Object display = value == null ? LocalizationManager.getInstance().get("string.cameramanagerpanel_cameramanagerpanel_free") : value;
 				if (value != null) {
 					String displayToString;
 					if (display instanceof Camera) {
@@ -80,7 +81,7 @@ public class CameraManagerPanel extends JPanel {
 
 		final JScrollPane cameraScroll = new JScrollPane(cameraBox);
 
-		final JButton createCameraFromView = new JButton("Create Camera from Current View");
+		final JButton createCameraFromView = new JButton(LocalizationManager.getInstance().get("button.cameramanagerpanel_cameramanagerpanel_createcamerafromview"));
 		createCameraFromView.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {

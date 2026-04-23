@@ -1,4 +1,5 @@
 package com.hiveworkshop.lang;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.util.Arrays;
 
@@ -52,7 +53,7 @@ public abstract class Hex {
 		for (int nibbleIndex = 0; nibbleIndex < nibbleCount; nibbleIndex += 1) {
 			final byte nibble = decodeNibble(hex.charAt(nibbleIndex));
 			if (nibble == NO_VALUE) {
-				throw new NumberFormatException("non-hex character");
+				throw new NumberFormatException(LocalizationManager.getInstance().get("exception.hex_decodehex_non_hex_character"));
 			}
 
 			value |= nibble << valueNibbleShift;

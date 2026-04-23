@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.objects;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -38,7 +39,7 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 
 		selectFirstUnit();
 		final JPopupMenu popupMenu = new JPopupMenu();
-		final JMenuItem openItem = new JMenuItem("Open");
+		final JMenuItem openItem = new JMenuItem(LocalizationManager.getInstance().get("menuitem.uniteditortreebrowser_uniteditortreebrowser_open"));
 		openItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -59,7 +60,7 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 			}
 		});
 		popupMenu.add(openItem);
-		final JMenuItem openPortraitItem = new JMenuItem("Open Portrait");
+		final JMenuItem openPortraitItem = new JMenuItem(LocalizationManager.getInstance().get("menuitem.uniteditortreebrowser_uniteditortreebrowser_open_portrait"));
 		openPortraitItem.addActionListener(new ActionListener() {
 
 			@Override
@@ -83,7 +84,7 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 		});
 		popupMenu.add(openPortraitItem);
 		popupMenu.addSeparator();
-		final JMenuItem extract = new JMenuItem("Extract");
+		final JMenuItem extract = new JMenuItem(LocalizationManager.getInstance().get("menuitem.uniteditortreebrowser_uniteditortreebrowser_extract"));
 		popupMenu.add(extract);
 		extract.addActionListener(new ActionListener() {
 			@Override

@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdx;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -85,13 +86,13 @@ public class SequenceChunk {
 			out.writeFloat(boundsRadius);
 			if (minimumExtent.length % 3 != 0) {
 				throw new IllegalArgumentException(
-						"The array minimumExtent needs either the length 3 or a multiple of this number. (got "
+						LocalizationManager.getInstance().get("exception.sequencechunk_save_array_minimumextent")
 								+ minimumExtent.length + ")");
 			}
 			MdxUtils.saveFloatArray(out, minimumExtent);
 			if (maximumExtent.length % 3 != 0) {
 				throw new IllegalArgumentException(
-						"The array maximumExtent needs either the length 3 or a multiple of this number. (got "
+						LocalizationManager.getInstance().get("exception.sequencechunk_save_array_maximumextent")
 								+ maximumExtent.length + ")");
 			}
 			MdxUtils.saveFloatArray(out, maximumExtent);

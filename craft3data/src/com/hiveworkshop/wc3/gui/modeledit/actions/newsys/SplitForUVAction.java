@@ -4,6 +4,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.wc3.mdl.*;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.util.*;
 
@@ -99,7 +100,7 @@ public final class SplitForUVAction<T> implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "split geoset";
+		return LocalizationManager.getLocalizedText("data.string.splitforuvaction_actionname");
 	}
 
 }

@@ -15,6 +15,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectio
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
+import com.matrixeater.localization.LocalizationManager;
 
 public abstract class AbstractSelectingEditor<T> implements ModelEditor {
 	protected final SelectionManager<T> selectionManager;
@@ -44,7 +45,7 @@ public abstract class AbstractSelectingEditor<T> implements ModelEditor {
 	protected final UndoAction setSelectionWithAction(final List<T> newSelection) {
 		final Set<T> previousSelection = new HashSet<>(selectionManager.getSelection());
 		selectionManager.setSelection(newSelection);
-		return (new SetSelectionAction<>(newSelection, previousSelection, selectionManager, "select"));
+		return (new SetSelectionAction<>(newSelection, previousSelection, selectionManager, LocalizationManager.getInstance().get("action.abstractselectingeditor_setselectionwithaction")));
 	}
 
 	protected final UndoAction removeSelectionWithAction(final List<T> newSelection) {

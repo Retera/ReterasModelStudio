@@ -1,4 +1,5 @@
 package com.matrixeater.hacks;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class SanityFixer {
                     final Animation curSeq = getSeqAtTime(model, time);
                     final Animation nextSeq = getSeqAtTime(model, nextTime);
                     if (prevSeq == curSeq && curSeq == nextSeq) {
-                        System.out.println(i + ": same values (" + times.get(i) + ")");
+                        System.out.println(i + ": " + LocalizationManager.getInstance().get("matrixeater.println.sanityfixer_processmodel_values") + " (" + times.get(i) + ")");
                         unused++;
                         if (fix) {
                             removeIndex(flag, values, times, i);
@@ -116,8 +117,8 @@ public class SanityFixer {
         for (EventObject eventObject: evtsToNuke) {
         	model.remove(eventObject);
         }
-        System.out.println("unused: " + unused);
-        System.out.println("warn: " + warn);
+        System.out.println(LocalizationManager.getInstance().get("matrixeater.println.sanityfixer_processmodel_unused") + unused);
+        System.out.println(LocalizationManager.getInstance().get("matrixeater.println.sanityfixer_processmodel_warn") + warn);
 
         model.printTo(
                 new File(PATHNAME + "/Output/" + model.getName() + ".mdx"),

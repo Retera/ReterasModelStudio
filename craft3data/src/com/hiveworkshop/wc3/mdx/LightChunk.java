@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdx;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -123,14 +124,14 @@ public class LightChunk {
 			out.writeFloat(attenuationEnd);
 			if ((color.length % 3) != 0) {
 				throw new IllegalArgumentException(
-						"The array color needs either the length 3 or a multiple of this number. (got " + color.length
+						LocalizationManager.getInstance().get("exception.lightchunk_save_array_color") + color.length
 								+ ")");
 			}
 			MdxUtils.saveFloatArray(out, color);
 			out.writeFloat(intensity);
 			if ((ambientColor.length % 3) != 0) {
 				throw new IllegalArgumentException(
-						"The array ambientColor needs either the length 3 or a multiple of this number. (got "
+						LocalizationManager.getInstance().get("exception.lightchunk_save_array_ambientcolor")
 								+ ambientColor.length + ")");
 			}
 			MdxUtils.saveFloatArray(out, ambientColor);
@@ -331,7 +332,7 @@ public class LightChunk {
 					}
 				} else {
 					if (Node.LOG_DISCARDED_FLAGS) {
-						System.err.println("discarded flag " + af.getName());
+						System.err.println(LocalizationManager.getInstance().get("println.lightchunk_light_discarded_flag") + af.getName());
 					}
 				}
 			}

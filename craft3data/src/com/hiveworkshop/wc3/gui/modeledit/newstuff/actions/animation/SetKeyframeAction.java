@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.animation;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.TimelineContainer;
+import com.matrixeater.localization.LocalizationManager;
 
 public class SetKeyframeAction implements UndoAction {
 	private final TimelineContainer node;
@@ -43,7 +44,7 @@ public class SetKeyframeAction implements UndoAction {
 		if (timeline.tans()) {
 			if (keyframeOldInTan == null) {
 				throw new IllegalStateException(
-						"Cannot add interpolation information (inTan/outTan) for keyframe, animation data was \"Linear\" or \"DontInterp\" during previous user action");
+					LocalizationManager.getInstance().get("exception.setkeyframeaction_undo"));
 			}
 			timeline.setKeyframe(trackTime, keyframeOldValue, keyframeOldInTan, keyframeOldOutTan);
 		} else {
@@ -57,7 +58,7 @@ public class SetKeyframeAction implements UndoAction {
 		if (timeline.tans()) {
 			if (keyframeInTan == null) {
 				throw new IllegalStateException(
-						"Cannot set interpolation information (inTan/outTan) for keyframe, animation data was \"Linear\" or \"DontInterp\" during previous user action");
+					LocalizationManager.getInstance().get("exception.setkeyframeaction_redo"));
 			}
 			timeline.setKeyframe(trackTime, keyframeValue, keyframeInTan, keyframeOutTan);
 		} else {
@@ -68,7 +69,7 @@ public class SetKeyframeAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set keyframe";
+		return LocalizationManager.getInstance().get("string.setkeyframeaction_actionname");
 	}
 
 }

@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -73,8 +74,8 @@ public class ParticleEmitter extends EmitterIdObject implements VisibilitySource
 		this(emitter.node.name);
 		// debug print:
 		if ((emitter.node.flags & 4096) != 4096) {
-			System.err.println("MDX -> MDL error: A particle emitter '" + emitter.node.name
-					+ "' not flagged as particle emitter in MDX!");
+			System.err.println(LocalizationManager.getInstance().get("println.particleemitter_particleemitter_particle_emitter") + emitter.node.name
+					+ LocalizationManager.getInstance().get("println.particleemitter_particleemitter_not_flagged"));
 		}
 		// System.out.println(emitter.node.name + ": " +
 		// Integer.toBinaryString(emitter.node.flags));
@@ -83,7 +84,7 @@ public class ParticleEmitter extends EmitterIdObject implements VisibilitySource
 		// ----- End Base NODE to "IDOBJECT" -----
 
 		if (emitter.unknownNull != 0) {
-			System.err.println("Surprise! This model has a special emitter data point worthy of documenting! " + name);
+			System.err.println(LocalizationManager.getInstance().get("println.particleemitter_particleemitter_special_emitter") + name);
 		}
 		// System.out.println(attachment.node.name + ": " +
 		// Integer.toBinaryString(attachment.unknownNull));
@@ -124,7 +125,7 @@ public class ParticleEmitter extends EmitterIdObject implements VisibilitySource
 		setMDLEmitter(((emitter.node.flags >> 15) & 1) == 1);
 		if (!isMDLEmitter() && (((emitter.node.flags >> 8) & 1) == 1)) {
 			System.err.println(
-					"WARNING in MDX -> MDL: ParticleEmitter of unknown type! Defaults to EmitterUsesTGA in my MDL code!");
+					LocalizationManager.getInstance().get("println.particleemitter_particleemitter_unknown_type"));
 		}
 		setPath(emitter.spawnModelFileName);
 		// if( emitter. != null ) {
@@ -210,7 +211,7 @@ public class ParticleEmitter extends EmitterIdObject implements VisibilitySource
 			return pe;
 		} else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse ParticleEmitter: Missing or unrecognized open statement.");
+					LocalizationManager.getInstance().get("dialog.particleemitter_read_parse"));
 		}
 		return null;
 	}
@@ -224,21 +225,21 @@ public class ParticleEmitter extends EmitterIdObject implements VisibilitySource
 		final ArrayList<AnimFlag> pAnimFlags = new ArrayList<>(this.animFlags);
 		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
 		if (objectId != -1) {
-			writer.println("\tObjectId " + objectId + ",");
+			writer.println(LocalizationManager.getInstance().get("println.particleemitter_printto_objectid") + objectId + ",");
 		}
 		if (parentId != -1) {
-			writer.println("\tParent " + parentId + ",\t// \"" + getParent().getName() + "\"");
+			writer.println(LocalizationManager.getInstance().get("println.particleemitter_printto_parent") + parentId + ",\t// \"" + getParent().getName() + "\"");
 		}
 		if (MDLEmitter) {
-			writer.println("\tEmitterUsesMDL,");
+			writer.println(LocalizationManager.getInstance().get("println.particleemitter_printto_emitterusesmdl"));
 		} else {
-			writer.println("\tEmitterUsesTGA,");
+			writer.println(LocalizationManager.getInstance().get("println.particleemitter_printto_emitterusestga"));
 		}
 		String currentFlag = "";
 		for (int i = 0; i < 4; i++) {
 			currentFlag = timeDoubleNames[i];
 			if (timeDoubleData[i] != 0) {
-				writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
+				writer.println(LocalizationManager.getInstance().get("println.particleemitter_printto_static") + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
 			} else {
 				boolean set = false;
 				for (int a = 0; (a < pAnimFlags.size()) && !set; a++) {
@@ -249,7 +250,7 @@ public class ParticleEmitter extends EmitterIdObject implements VisibilitySource
 					}
 				}
 				if (!set) {
-					writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
+					writer.println(LocalizationManager.getInstance().get("println.particleemitter_printto_static") + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
 				}
 			}
 		}
@@ -260,11 +261,11 @@ public class ParticleEmitter extends EmitterIdObject implements VisibilitySource
 				pAnimFlags.remove(i);
 			}
 		}
-		writer.println("\tParticle {");
+		writer.println(LocalizationManager.getInstance().get("println.particleemitter_printto_particle") + " {");
 		for (int i = 4; i < 6; i++) {
 			currentFlag = timeDoubleNames[i];
 			if (timeDoubleData[i] != 0) {
-				writer.println("\t\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
+				writer.println("\t" + LocalizationManager.getInstance().get("println.particleemitter_printto_static") + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
 			} else {
 				boolean set = false;
 				for (int a = 0; (a < pAnimFlags.size()) && !set; a++) {
@@ -276,12 +277,12 @@ public class ParticleEmitter extends EmitterIdObject implements VisibilitySource
 				}
 				if (!set) {
 					writer.println(
-							"\t\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
+							"\t" + LocalizationManager.getInstance().get("println.particleemitter_printto_static") + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
 				}
 			}
 		}
 		if (path != null) {
-			writer.println("\t\tPath \"" + path + "\",");
+			writer.println("\t" + LocalizationManager.getInstance().get("println.particleemitter_printto_path") + " \"" + path + "\",");
 		}
 		writer.println("\t}");
 
@@ -327,7 +328,7 @@ public class ParticleEmitter extends EmitterIdObject implements VisibilitySource
 		}
 		if (count > 1) {
 			JOptionPane.showMessageDialog(null,
-					"Some visiblity animation data was lost unexpectedly during overwrite in " + getName() + ".");
+					LocalizationManager.getInstance().get("println.particleemitter_setvisibilityflag_overwrite") + getName() + ".");
 		}
 	}
 
@@ -343,7 +344,7 @@ public class ParticleEmitter extends EmitterIdObject implements VisibilitySource
 		}
 		if (count > 1) {
 			JOptionPane.showMessageDialog(null,
-					"Some visiblity animation data was lost unexpectedly during retrieval in " + getName() + ".");
+					LocalizationManager.getInstance().get("println.particleemitter_getvisibilityflag_retrieval") + getName() + ".");
 		}
 		return output;
 	}

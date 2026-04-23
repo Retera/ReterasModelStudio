@@ -19,6 +19,7 @@ import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.matrixeater.localization.LocalizationManager;
 
 public final class SplitGeosetAction<T> implements UndoAction {
 
@@ -144,7 +145,7 @@ public final class SplitGeosetAction<T> implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "split geoset";
+		return LocalizationManager.getLocalizedText("data.string.splitgeosetaction_actionname");
 	}
 
 }

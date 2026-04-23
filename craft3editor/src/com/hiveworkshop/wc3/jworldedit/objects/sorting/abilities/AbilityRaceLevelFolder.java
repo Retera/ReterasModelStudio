@@ -32,9 +32,9 @@ public final class AbilityRaceLevelFolder extends AbstractSortingFolderTreeNode 
 		super(displayName);
 		this.units = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UNITS"), MUTABLE_GAME_ABIL_COMPARATOR);
 		this.heroes = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UTYPE_HEROES"),
-				MUTABLE_GAME_ABIL_COMPARATOR);
+			MUTABLE_GAME_ABIL_COMPARATOR);
 		this.items = new BottomLevelCategoryFolder(WEString.getString("WESTRING_AE_ITEMS"),
-				MUTABLE_GAME_ABIL_COMPARATOR);
+			MUTABLE_GAME_ABIL_COMPARATOR);
 		this.hidden = new BottomLevelCategoryFolder(WEString.getString("WESTRING_ITEMSTATUS_HIDDEN"),
 				MUTABLE_GAME_ABIL_COMPARATOR);
 		folders.add(units);

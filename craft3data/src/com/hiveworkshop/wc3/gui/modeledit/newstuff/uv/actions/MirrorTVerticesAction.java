@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.TVertex;
+import com.matrixeater.localization.LocalizationManager;
 
 public final class MirrorTVerticesAction implements UndoAction {
 	private final char[] DIMENSION_NAMES = { 'X', 'Y' };
@@ -41,7 +42,7 @@ public final class MirrorTVerticesAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "mirror UV " + DIMENSION_NAMES[mirrorDim];
+		return LocalizationManager.getInstance().get("string.mirrortverticesaction_actionname") + " UV " + DIMENSION_NAMES[mirrorDim];
 	}
 
 }

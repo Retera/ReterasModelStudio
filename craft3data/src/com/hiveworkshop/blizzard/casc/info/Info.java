@@ -11,6 +11,7 @@ import java.util.Scanner;
 
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
 import com.hiveworkshop.nio.ByteBufferInputStream;
+import com.matrixeater.localization.LocalizationManager;
 
 /**
  * Top level CASC information file containing configuration information and
@@ -66,7 +67,7 @@ public class Info {
 				records.add(new ArrayList<>(Arrays.asList(separateFields(lineScanner.nextLine()))));
 			}
 		} catch (final NoSuchElementException e) {
-			throw new MalformedCASCStructureException("missing headers");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.nosuchelementexception"));
 		}
 	}
 

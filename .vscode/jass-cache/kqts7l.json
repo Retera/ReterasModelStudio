@@ -1,0 +1,159 @@
+{
+  "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+  "items": [
+    {
+      "label": "gg_trg_Melee_Initialization",
+      "kind": 5,
+      "detail": "Global Variable",
+      "documentation": "\n```jass\ntrigger gg_trg_Melee_Initialization\n```\n\n\n---\n\nGenerated\n\n默认/对战地图初始化触发器\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j`",
+      "sortText": "2_var_gg_trg_Melee_Initialization",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+      "statementType": "VariableDeclaration"
+    },
+    {
+      "label": "InitGlobals",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction InitGlobals takes nothing returns nothing\n```\n\n\n---\n\n全局变量设置触发器\n\n默认没有变量，地图编辑器的自定义全局变量会被自动添加进来\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j`",
+      "sortText": "1_func_InitGlobals",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "CreateNeutralHostile",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction CreateNeutralHostile takes nothing returns nothing\n```\n\n\n---\n\n***************************************************************************\n\n*\n\n*  Unit Item Tables\n\n*\n\n***************************************************************************\n\n***************************************************************************\n\n*\n\n*  Unit Creation\n\n*\n\n***************************************************************************\n\n===========================================================================\n\n创建地形编辑器放置的单位-中立敌对玩家单位及建筑（即野怪，不含触发器或自定义代码创建的单位）\n\n同时会设置单位皮肤（1.32＋）、对战颜色和掉落物品（如有）\n\n掉落会以 UnitXXXXXX_DropItems 命名的触发器动作设置（按地形编辑器的掉落设置）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j`",
+      "sortText": "1_func_CreateNeutralHostile",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "CreateNeutralPassiveBuildings",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction CreateNeutralPassiveBuildings takes nothing returns nothing\n```\n\n\n---\n\n===========================================================================\n\n创建地形编辑器放置的单位-中立被动玩家建筑（如金矿、商店、酒馆等，不含触发器或自定义代码创建的建筑）\n\n同时会设置单位皮肤（1.32＋）、队伍颜色和掉落物品（如有）\n\n掉落会以 UnitXXXXXX_DropItems 命名的触发器动作设置（按地形编辑器的掉落设置）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j`",
+      "sortText": "1_func_CreateNeutralPassiveBuildings",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "CreateNeutralPassive",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction CreateNeutralPassive takes nothing returns nothing\n```\n\n\n---\n\n===========================================================================\n\n创建地形编辑器放置的单位-中立被动玩家单位（如小动物、野怪的房子等，不含触发器或自定义代码创建的单位）\n\n同时会设置单位皮肤（1.32＋）、队伍颜色和掉落物品（如有）\n\n掉落会以 UnitXXXXXX_DropItems 命名的触发器动作设置（按地形编辑器的掉落设置）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j`",
+      "sortText": "1_func_CreateNeutralPassive",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "CreatePlayerBuildings",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction CreatePlayerBuildings takes nothing returns nothing\n```\n\n\n---\n\n===========================================================================\n\n创建地形编辑器放置的单位-非中立玩家建筑（不含触发器或自定义代码创建的建筑，默认无建筑）\n\n同时会设置单位皮肤（1.32＋）、队伍颜色和掉落物品（如有）\n\n掉落会以 UnitXXXXXX_DropItems 命名的触发器动作设置（按地形编辑器的掉落设置）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j`",
+      "sortText": "1_func_CreatePlayerBuildings",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "CreatePlayerUnits",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction CreatePlayerUnits takes nothing returns nothing\n```\n\n\n---\n\n===========================================================================\n\n创建地形编辑器放置的单位–非中立玩家单位（不含触发器或自定义代码创建的单位，默认无单位）\n\n同时会设置单位皮肤（1.32＋）、队伍颜色和掉落物品（如有）\n\n掉落会以 UnitXXXXXX_DropItems 命名的触发器动作设置（按地形编辑器的掉落设置）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j`",
+      "sortText": "1_func_CreatePlayerUnits",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "CreateAllUnits",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction CreateAllUnits takes nothing returns nothing\n```\n\n\n---\n\n===========================================================================\n\n初始化地形编辑器放置的单位/建筑及掉落物品（不含触发器或自定义代码创建单位和建筑，物品按地形编辑器的掉落设置）\n\n包括中立敌对玩家单位及建筑、中立被动玩家建筑、中立被动玩家单位、非中立玩家建筑、非中立玩家单位\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j`",
+      "sortText": "1_func_CreateAllUnits",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "Trig_Melee_Initialization_Actions",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction Trig_Melee_Initialization_Actions takes nothing returns nothing\n```\n\n\n---\n\n***************************************************************************\n\n*\n\n*  Triggers\n\n*\n\n***************************************************************************\n\n===========================================================================\n\nTrigger: Melee Initialization\n\nDefault melee game initialization for all players\n\n===========================================================================\n\n对战触发器动作\n\n对战地图默认8个动作\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j`",
+      "sortText": "1_func_Trig_Melee_Initialization_Actions",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "InitTrig_Melee_Initialization",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction InitTrig_Melee_Initialization takes nothing returns nothing\n```\n\n\n---\n\n===========================================================================\n\n对战初始化触发器\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j`",
+      "sortText": "1_func_InitTrig_Melee_Initialization",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "InitCustomTriggers",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction InitCustomTriggers takes nothing returns nothing\n```\n\n\n---\n\n===========================================================================\n\n初始化自定义触发器（默认地图只有对战初始化触发器）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j`",
+      "sortText": "1_func_InitCustomTriggers",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "RunInitializationTriggers",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction RunInitializationTriggers takes nothing returns nothing\n```\n\n\n---\n\n===========================================================================\n\n运行初始化触发器（无视条件）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j`",
+      "sortText": "1_func_RunInitializationTriggers",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "InitCustomPlayerSlots",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction InitCustomPlayerSlots takes nothing returns nothing\n```\n\n\n---\n\n***************************************************************************\n\n*\n\n*  Players\n\n*\n\n***************************************************************************\n\n初始化玩家插槽状态（按地图编辑器玩家设置）\n\n设置玩家出生点位、玩家颜色、默认种族、种族可选性、默认控制者类型\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j`",
+      "sortText": "1_func_InitCustomPlayerSlots",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "InitCustomTeams",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction InitCustomTeams takes nothing returns nothing\n```\n\n\n---\n\n初始化玩家自定义队伍（按地图编辑器玩家队伍设置）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j`",
+      "sortText": "1_func_InitCustomTeams",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "InitAllyPriorities",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction InitAllyPriorities takes nothing returns nothing\n```\n\n\n---\n\n设置盟友出生点优先权（盟友出生点相邻）\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j`",
+      "sortText": "1_func_InitAllyPriorities",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "main",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction main takes nothing returns nothing\n```\n\n\n---\n\n***************************************************************************\n\n*\n\n*  Main Initialization\n\n*\n\n***************************************************************************\n\n===========================================================================\n\n地图全局定义\n\n设置地图昼夜及天气效果、设置天气及昼夜各种音效、设置背景音乐、创建地图初始单位及掉落、唤起对战初始化触发器、唤起全局变量设置触发器、唤起自定义触发器、运行初始化触发\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j`",
+      "sortText": "1_func_main",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+      "statementType": "FunctionDeclaration"
+    },
+    {
+      "label": "config",
+      "kind": 2,
+      "detail": "Function",
+      "documentation": "\n```jass\nfunction config takes nothing returns nothing\n```\n\n\n---\n\n***************************************************************************\n\n*\n\n*  Map Configuration\n\n*\n\n***************************************************************************\n\n全局配置\n\n设置地图名称和说明、设置玩家数量、设置玩家队伍数量、配置游戏出生点放置方式、设置玩家默认队伍、初始化玩家插槽状态、设置玩家插槽可用性、唤起初始化玩家队伍、设置盟友出生点优先权\n\n**_>:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j`",
+      "sortText": "1_func_config",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+      "statementType": "FunctionDeclaration"
+    }
+  ],
+  "timestamp": 1774441114956
+}

@@ -3,6 +3,7 @@
  * and open the template in the editor.
  */
 package de.wc3data.image;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
@@ -62,10 +63,10 @@ public class TgaFile {
 
 		// Verify Header
 		if ((header[0] | header[1]) != 0) {
-			throw new IllegalStateException("Error " + name);
+			throw new IllegalStateException(LocalizationManager.getInstance().get("global.dialog.error") + " " + name);
 		}
 		if (header[2] != 2) {
-			throw new IllegalStateException("Error " + name);
+			throw new IllegalStateException(LocalizationManager.getInstance().get("global.dialog.error") + " " + name);
 		}
 		int w = 0, h = 0;
 		w |= (header[12] & 0xFF) << 0;
@@ -80,21 +81,21 @@ public class TgaFile {
 		} else if (header[16] == 32) {
 			alpha = true;
 		} else {
-			throw new IllegalStateException("Error " + name + " invalid pixel depth: " + header[16]);
+			throw new IllegalStateException(LocalizationManager.getInstance().get("global.dialog.error") + " " + name + LocalizationManager.getInstance().get("exception.tgafile_readtga_invalid_pixel_depth") + header[16]);
 		}
 
 		if ((header[17] & 15) != (alpha ? 8 : 0)) {
-			throw new IllegalStateException("Error " + name);
+			throw new IllegalStateException(LocalizationManager.getInstance().get("global.dialog.error") + " " + name);
 		}
 
 		final BufferedImage dst = new BufferedImage(w, h,
 				alpha ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
 		final int[] pixels = ((DataBufferInt) dst.getRaster().getDataBuffer()).getData();
 		if (pixels.length != w * h) {
-			throw new IllegalStateException("Error " + name);
+			throw new IllegalStateException(LocalizationManager.getInstance().get("global.dialog.error") + " " + name);
 		}
 		if (data.length < pixels.length * (alpha ? 4 : 3)) {
-			throw new IllegalStateException("Error " + name + " not enaugh pixel data");
+			throw new IllegalStateException(LocalizationManager.getInstance().get("global.dialog.error") + " " + name + LocalizationManager.getInstance().get("exception.tgafile_readtga_not_enaugh_pixel_data"));
 		}
 
 		if (alpha) {
@@ -142,7 +143,7 @@ public class TgaFile {
 			}
 		} else {
 			final int headerval = header[17] >> 4;
-			throw new UnsupportedOperationException("Error " + name + " (" + headerval + ")");
+			throw new UnsupportedOperationException(LocalizationManager.getInstance().get("global.dialog.error") + " " + name + " (" + headerval + ")");
 		}
 
 		return dst;

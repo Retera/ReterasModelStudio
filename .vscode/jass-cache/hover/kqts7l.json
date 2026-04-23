@@ -1,0 +1,21 @@
+{
+  "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+  "items": [
+    {
+      "symbolName": "InitCustomTriggers",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+      "content": "\n```jass\nfunction InitCustomTriggers takes nothing returns nothing\n```\n\n\n---\n\n===========================================================================\n\n初始化自定义触发器（默认地图只有对战初始化触发器）\n\n**文件:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j`"
+    },
+    {
+      "symbolName": "InitTrig_Melee_Initialization",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+      "content": "\n```jass\nfunction InitTrig_Melee_Initialization takes nothing returns nothing\n```\n\n\n---\n\n===========================================================================\n\n对战初始化触发器\n\n**文件:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j`"
+    },
+    {
+      "symbolName": "Trig_Melee_Initialization_Actions",
+      "filePath": "c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j",
+      "content": "\n```jass\nfunction Trig_Melee_Initialization_Actions takes nothing returns nothing\n```\n\n\n---\n\n***************************************************************************\n\n*\n\n*  Triggers\n\n*\n\n***************************************************************************\n\n===========================================================================\n\nTrigger: Melee Initialization\n\nDefault melee game initialization for all players\n\n===========================================================================\n\n对战触发器动作\n\n对战地图默认8个动作\n\n**文件:** `c:\\Users\\Administrator\\.vscode\\extensions\\jass.jass-1.9.7\\static\\war3map.j`"
+    }
+  ],
+  "timestamp": 1774365761640
+}

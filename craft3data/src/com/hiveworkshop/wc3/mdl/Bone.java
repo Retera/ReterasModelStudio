@@ -11,6 +11,7 @@ import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.BoneChunk;
+import com.matrixeater.localization.LocalizationManager;
 
 /**
  * Bones that make geometry animate.
@@ -62,7 +63,7 @@ public class Bone extends IdObject {
 		// System.out.println(mdlBone.getName() + ": " +
 		// Integer.toBinaryString(bone.node.flags));
 		if ((bone.node.flags & 256) != 256) {
-			System.err.println("MDX -> MDL error: A bone '" + bone.node.name + "' not flagged as bone in MDX!");
+			System.err.println("MDX -> MDL" + LocalizationManager.getInstance().get("println.bone_bone_bone_error") + " '" + bone.node.name + "' " + LocalizationManager.getInstance().get("println.bone_bone_flagged"));
 		}
 		// ----- Convert Base NODE to "IDOBJECT" -----
 		loadFrom(bone.node);
@@ -93,7 +94,7 @@ public class Bone extends IdObject {
 							b.multiGeoId = true;
 						} else {
 							JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-									"Error while parsing: Could not interpret integer from: " + line);
+								LocalizationManager.getInstance().get("println.bone_read_interpret_integer") + line);
 						}
 					}
 				} else if (line.contains("GeosetAnimId")) {
@@ -107,7 +108,7 @@ public class Bone extends IdObject {
 							b.geosetAnim = null;
 						} else {
 							JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-									"Error while parsing: Could not interpret integer from: " + line);
+								LocalizationManager.getInstance().get("println.bone_read_interpret_integer") + line);
 						}
 					}
 				} else if (line.contains("Parent")) {
@@ -127,7 +128,7 @@ public class Bone extends IdObject {
 			return b;
 		} else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse Bone: Missing or unrecognized open statement.");
+					LocalizationManager.getInstance().get("println.bone_read_parse_bone"));
 		}
 		return null;
 	}
@@ -142,33 +143,33 @@ public class Bone extends IdObject {
 		// -- uses geosetId
 		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
 		if (objectId != -1) {
-			writer.println("\tObjectId " + objectId + ",");
+			writer.println(LocalizationManager.getInstance().get("println.bone_printto_objectid") + objectId + ",");
 		}
 		if (parentId != -1) {
-			writer.println("\tParent " + parentId + ",\t// \"" + getParent().getName() + "\"");
+			writer.println(LocalizationManager.getInstance().get("println.bone_printto_parent") + parentId + ",\t// \"" + getParent().getName() + "\"");
 		}
 		for (int i = 0; i < flags.size(); i++) {
 			writer.println("\t" + flags.get(i) + ",");
 		}
 		if (multiGeoId) {
-			writer.println("\tGeosetId Multiple,");
+			writer.println(LocalizationManager.getInstance().get("println.bone_printto_geosetid_multiple"));
 		} else if (geosetId != -1) {
-			writer.println("\tGeosetId " + geosetId + ",");
+			writer.println(LocalizationManager.getInstance().get("println.bone_printto_geosetid") + geosetId + ",");
 		}
 		if (this.getClass() == Bone.class)// hasGeoAnim ) HELPERS DONT SEEM TO
 											// HAVE GEOSET ANIM ID
 		{
 			if (geosetAnim == null || geosetAnimId == -1) {
-				writer.println("\tGeosetAnimId None,");
+				writer.println(LocalizationManager.getInstance().get("println.bone_printto_geosetanimid_none"));
 			} else {
-				writer.println("\tGeosetAnimId " + geosetAnimId + ",");
+				writer.println(LocalizationManager.getInstance().get("println.bone_printto_geosetanimid") + geosetAnimId + ",");
 			}
 		}
 
 		// if( this.getClass() == Bone.class )
 		// {
-		// // writer.println("\tGeosetId Multiple,");
-		// writer.println("\tGeosetAnimId None,");
+		// // writer.println(LocalizationManager.getInstance().get("println.bone_printto_geosetid_multiple"));
+		// writer.println(LocalizationManager.getInstance().get("println.bone_printto_geosetanimid_none"));
 		// }
 		for (int i = 0; i < animFlags.size(); i++) {
 			animFlags.get(i).printTo(writer, 1);

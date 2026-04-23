@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.animation;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.Animation;
+import com.matrixeater.localization.LocalizationManager;
 
 public class SetAnimationIntervalStartAction implements UndoAction {
 	private final int prevIntervalStart;
@@ -32,6 +33,6 @@ public class SetAnimationIntervalStartAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set animation IntervalStart to " + newIntervalStart;
+		return LocalizationManager.getLocalized("data.string.setanimationintervalstartaction_actionname") + newIntervalStart;
 	}
 }

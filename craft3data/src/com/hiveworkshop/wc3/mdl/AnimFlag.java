@@ -1340,7 +1340,7 @@ public class AnimFlag {
 	}
 
 	public void setInterpType(final InterpolationType interpolationType) {
-		System.err.println("Unsafe call to setInterpType, please rewrite code in AnimFlag class");
+		System.err.println(LocalizationManager.getInstance().get("println.animflag_setinterptype"));
 		tags.clear();// we're pretty sure this is just interp type now
 		switch (interpolationType) {
 		case BEZIER:
@@ -1648,7 +1648,7 @@ public class AnimFlag {
 			typeid = 3;
 		} else if (!aflg.title.equals("Alpha")) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse \"" + aflg.title + "\": Missing or unrecognized open statement.");
+				LocalizationManager.getInstance().get("dialog.animflag_parsetext_1") + " \"" + aflg.title + "\": " + LocalizationManager.getInstance().get("dialog.animflag_parsetext_2"));
 		}
 		aflg.typeid = typeid;
 		for (int i = 1; i < line.length; i++) {
@@ -1709,8 +1709,8 @@ public class AnimFlag {
 					aflg.globalSeqId = MDLReader.readInt(line[i]);
 					aflg.hasGlobalSeq = true;
 				} else {
-					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "Error while parsing " + aflg.title
-							+ ": More than one Global Sequence Id is present in the same " + aflg.title + "!");
+					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), LocalizationManager.getInstance().get("dialog.animflag_parsetext_3") + aflg.title
+							+ LocalizationManager.getInstance().get("dialog.animflag_parsetext_4") + aflg.title + "!");
 				}
 			} else {
 				aflg.tags.add(MDLReader.readFlag(line[i]));
@@ -1843,8 +1843,8 @@ public class AnimFlag {
 					aflg.globalSeqId = MDLReader.readInt(line);
 					aflg.hasGlobalSeq = true;
 				} else {
-					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "Error while parsing " + aflg.title
-							+ ": More than one Global Sequence Id is present in the same " + aflg.title + "!");
+					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), LocalizationManager.getInstance().get("dialog.animflag_read_1") + aflg.title
+							+ LocalizationManager.getInstance().get("dialog.animflag_read_2") + aflg.title + "!");
 				}
 			} else {
 				aflg.tags.add(MDLReader.readFlag(line));
@@ -2178,7 +2178,7 @@ public class AnimFlag {
 				}
 			} else {
 				JOptionPane.showMessageDialog(null,
-						"Error: Program attempted to compare visibility with non-visibility animation component.\nThis... probably means something is horribly wrong. Save your work, if you can.");
+					LocalizationManager.getInstance().get("dialog.animflag_getmostvisible"));
 			}
 		}
 		return null;
@@ -2206,7 +2206,7 @@ public class AnimFlag {
 			outTans.addAll(source.outTans);
 		} else if (mtans) {
 			JOptionPane.showMessageDialog(null,
-					"Some animations will lose complexity due to transfer incombatibility. There will probably be no visible change.");
+				LocalizationManager.getInstance().get("dialog.animflag_copyfrom"));
 			inTans.clear();
 			outTans.clear();
 			tags = source.tags;
@@ -2234,7 +2234,7 @@ public class AnimFlag {
 				}
 			}
 		} else {
-			System.out.println("KeyFrame deleting was blocked by a GlobalSequence");
+			System.out.println(LocalizationManager.getInstance().get("println.animflag_deleteanim"));
 		}
 
 		// BOOM magic happens
@@ -2268,9 +2268,9 @@ public class AnimFlag {
 		boolean tans = source.tans();
 		if (tans && tags.contains("Linear")) {
 			final int x = JOptionPane.showConfirmDialog(null,
-					"ERROR! A source was found to have Linear and Nonlinear motion simultaneously. Does the following have non-zero data? "
+					LocalizationManager.getInstance().get("dialog.animflag_copyfrom_source_1")
 							+ source.inTans,
-					"Help This Program!", JOptionPane.YES_NO_OPTION);
+					LocalizationManager.getInstance().get("dialog.animflag_copyfrom_source_2"), JOptionPane.YES_NO_OPTION);
 			if (x == JOptionPane.NO_OPTION) {
 				tans = false;
 			}
@@ -2509,7 +2509,7 @@ public class AnimFlag {
 		case TEXTUREID:
 		// Integer
 		{
-			System.err.println("Texture identity used in renderer... TODO make this function more intelligent.");
+			System.err.println(LocalizationManager.getInstance().get("println.animflag_identity"));
 			return 0;
 		}
 		default:
@@ -2818,8 +2818,8 @@ public class AnimFlag {
 	public void removeKeyframe(final int trackTime) {
 		final int keyframeIndex = floorIndex(trackTime);
 		if (keyframeIndex >= size() || times.get(keyframeIndex) != trackTime) {
-			throw new IllegalStateException("Attempted to remove keyframe, but no keyframe was found (" + keyframeIndex
-					+ " @ time " + trackTime + ")");
+			throw new IllegalStateException(LocalizationManager.getInstance().get("exception.animflag_removekeyframe_1") + " (" + keyframeIndex
+					+ " @ " + LocalizationManager.getInstance().get("exception.animflag_removekeyframe_2") + trackTime + ")");
 		} else {
 			times.remove(keyframeIndex);
 			values.remove(keyframeIndex);
@@ -2885,12 +2885,12 @@ public class AnimFlag {
 
 	public void slideKeyframe(final int startTrackTime, final int endTrackTime) {
 		if (times.size() < 1) {
-			throw new IllegalStateException("Unable to slide keyframe: no frames exist");
+			throw new IllegalStateException(LocalizationManager.getInstance().get("exception.animflag_slidekeyframe_1"));
 		}
 		final int startIndex = floorIndex(startTrackTime);
 		final int endIndex = floorIndex(endTrackTime);
 		if (endIndex >= 0 && times.get(endIndex) == endTrackTime) {
-			throw new IllegalStateException("Sliding this keyframe would create duplicate entries at one time!");
+			throw new IllegalStateException(LocalizationManager.getInstance().get("exception.animflag_slidekeyframe_2"));
 		}
 		times.set(startIndex, endTrackTime);
 		sort();

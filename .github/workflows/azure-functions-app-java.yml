@@ -2,17 +2,19 @@ name: Build Reteras Model Studio EXE
 
 on:
   push:
-    branches: [ CNx ]  # 可以在这里指定触发工作流的分支
+    branches: [ CN ]  # 可以在这里指定触发工作流的分支
+  pull_request:
+    branches: [ CN ]  # 也可以为pull request设置触发
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-latest  # 使用Windows最新版本来编译EXE
     strategy:
       matrix:
         java: [ '17' ]  # 项目需要 JDK 17
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4  # 检出仓库代码
 
     - name: Set up Java
       uses: actions/setup-java@v4
@@ -22,8 +24,8 @@ jobs:
         cache: 'gradle'
 
     - name: Grant execute permission for gradlew
-      run: chmod +x ./gradlew
-      working-directory: ./
+      run: chmod +x ./gradlew  # 在Windows上这一步可能不是必需的，取决于你的脚本权限
+      working-directory: ./  # 根据实际情况调整工作目录
 
     - name: List all available Gradle tasks
       run: ./gradlew.bat tasks --all
@@ -33,10 +35,45 @@ jobs:
       run: ./gradlew.bat
       working-directory: ./
 
-    - name: create EXE with jpackage
+    - name: Try to create EXE with jpackage (if available)
       run: ./gradlew.bat jpackage
       working-directory: ./
       continue-on-error: true
+
+    - name: Try to create EXE with launch4j (if available)
+      run: ./gradlew.bat launch4j
+      working-directory: ./
+      continue-on-error: true
+
+    - name: Check for EXE in common locations
+      id: check_exe
+      run: |
+        echo "Checking ./ for EXE files..."
+        if (Test-Path "./*.*") {
+          echo "Found EXE in ./"
+        } else {
+          echo "No EXE found in ./"
+        }
+      shell: pwsh
+
+    - name: List all files in build directory
+      run: |
+        echo "Listing all files in build directory:"
+        Get-ChildItem -Recurse ./ | Where-Object { $_.Extension -eq ".*" } | ForEach-Object {
+          echo "Found EXE: $_"
+        }
+        
+        echo "Listing all files in ./:"
+        Get-ChildItem ./ | ForEach-Object {
+          echo "File: $_"
+        }
+        
+        echo "Listing all files in ./:"
+        Get-ChildItem ./ | ForEach-Object {
+          echo "File: $_"
+        }
+      shell: pwsh
+
 
     # - name: 打包
     #   uses: TheDoctor0/zip-release@0.7.6
@@ -49,6 +86,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ReterasModelStudio-EXE
-        path: D:/a/ReterasModelStudio/ReterasModelStudio/matrixeater/build/jpackage/matrixeater
-
-
+        path: D:/a/ReterasModelStudio/ReterasModelStudio

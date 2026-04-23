@@ -12,6 +12,7 @@ import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.CollisionShapeChunk;
 import com.hiveworkshop.wc3.mdx.Node;
+import com.matrixeater.localization.LocalizationManager;
 
 /**
  * A class for CollisionShapes, which handle unit selection and related matters
@@ -27,8 +28,8 @@ public class CollisionShape extends IdObject {
 	public CollisionShape(final CollisionShapeChunk.CollisionShape mdxSource) {
 		this.name = mdxSource.node.name;
 		if ((mdxSource.node.flags & 8192) != 8192) {
-			System.err.println("MDX -> MDL error: A collisionshape '" + mdxSource.node.name
-					+ "' not flagged as collisionshape in MDX!");
+			System.err.println("MDX -> MDL" + LocalizationManager.getInstance().get("println.collisionshape_collisionshape_error") + " '" + mdxSource.node.name
+					+ "' " + LocalizationManager.getInstance().get("println.collisionshape_collisionshape_flagged"));
 		}
 		if (mdxSource.type == 0) {
 			add("Box");
@@ -137,7 +138,7 @@ public class CollisionShape extends IdObject {
 			return e;
 		} else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse CollisionShape: Missing or unrecognized open statement.");
+				LocalizationManager.getInstance().get("dialog.collisionshape_read_parse"));
 		}
 		return null;
 	}
@@ -150,15 +151,15 @@ public class CollisionShape extends IdObject {
 		// -- uses the parent (java Object reference) of idObject superclass
 		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
 		if (objectId != -1) {
-			writer.println("\tObjectId " + objectId + ",");
+			writer.println(LocalizationManager.getInstance().get("println.collisionshape_printto_objectid") + objectId + ",");
 		}
 		if (parentId != -1) {
-			writer.println("\tParent " + parentId + ",\t// \"" + getParent().getName() + "\"");
+			writer.println(LocalizationManager.getInstance().get("println.collisionshape_printto_parent") + parentId + ",\t// \"" + getParent().getName() + "\"");
 		}
 		for (final String s : flags) {
 			writer.println("\t" + s + ",");
 		}
-		writer.println("\tVertices " + vertices.size() + " {");
+		writer.println(LocalizationManager.getInstance().get("println.collisionshape_printto_vertices") + vertices.size() + " {");
 		for (final Vertex v : vertices) {
 			writer.println("\t\t" + v.toString() + ",");
 		}

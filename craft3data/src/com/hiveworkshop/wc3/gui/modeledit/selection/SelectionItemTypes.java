@@ -4,14 +4,15 @@ import javax.swing.ImageIcon;
 
 import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonType;
+import com.matrixeater.localization.LocalizationManager;
 
 public enum SelectionItemTypes implements ToolbarButtonType {
-	VERTEX("Select Vertices", RMSIcons.loadToolBarImageIcon("vertex.png")),
-	FACE("Select Faces", RMSIcons.loadToolBarImageIcon("poly.png")),
-	GROUP("Select Groups", RMSIcons.loadToolBarImageIcon("bundle.png")),
-	ANIMATE("Select Nodes and Animate", RMSIcons.loadToolBarImageIcon("animate.png")),
-	CLUSTER("Select Cluster", RMSIcons.loadToolBarImageIcon("bundle.png")),
-	TPOSE("Select and T-Pose", RMSIcons.loadToolBarImageIcon("T.png"));
+	VERTEX(LocalizationManager.getInstance().get("string.selectionitemtypes_select_vertices"), RMSIcons.loadToolBarImageIcon("vertex.png")),
+	FACE(LocalizationManager.getInstance().get("string.selectionitemtypes_select_faces"), RMSIcons.loadToolBarImageIcon("poly.png")),
+	GROUP(LocalizationManager.getInstance().get("string.selectionitemtypes_select_groups"), RMSIcons.loadToolBarImageIcon("bundle.png")),
+	ANIMATE(LocalizationManager.getInstance().get("string.selectionitemtypes_select_nodes_animate"), RMSIcons.loadToolBarImageIcon("animate.png")),
+	CLUSTER(LocalizationManager.getInstance().get("string.selectionitemtypes_select_cluster"), RMSIcons.loadToolBarImageIcon("bundle.png")),
+	TPOSE(LocalizationManager.getInstance().get("string.selectionitemtypes_sSelect_tpose"), RMSIcons.loadToolBarImageIcon("T.png"));
 
 	private final String name;
 	private final ImageIcon imageIcon;

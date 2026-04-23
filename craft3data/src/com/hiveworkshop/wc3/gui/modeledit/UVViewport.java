@@ -38,6 +38,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexEditorChangeListene
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.viewport.UVViewportModelRenderer;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportView;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import com.matrixeater.localization.LocalizationManager;
 
 public class UVViewport extends JPanel implements MouseListener, ActionListener, MouseWheelListener,
 		MouseMotionListener, CoordinateSystem, ViewportView, TVertexEditorChangeListener {
@@ -89,7 +90,7 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 		addMouseWheelListener(this);
 
 		contextMenu = new JPopupMenu();
-		placeholderButton = new JMenuItem("Placeholder Button");
+		placeholderButton = new JMenuItem(LocalizationManager.getInstance().get("menuitem.uvviewport_uvviewport_placeholder"));
 		placeholderButton.addActionListener(this);
 		contextMenu.add(placeholderButton);
 
@@ -300,7 +301,7 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 			repaint();
 		}
 		else if (e.getSource() == placeholderButton) {
-			JOptionPane.showMessageDialog(null, "Placeholder code.");
+			JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.uvviewport_uvviewport_placeholder"));
 		}
 	}
 

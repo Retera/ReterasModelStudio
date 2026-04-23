@@ -5,6 +5,7 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeLis
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Layer;
 import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
+import com.matrixeater.localization.LocalizationManager;
 
 public class SetLayerBitmapAction implements UndoAction {
 
@@ -41,14 +42,15 @@ public class SetLayerBitmapAction implements UndoAction {
 			layer.getShaderTextures().remove(shaderTextureTypeHD);
 		}
 		else {
-			layer.getShaderTextures().put(shaderTextureTypeHD, newBitmap);
+			layer.getShaderTextures().put(shaderTextureTypeHD, newBitma
+				p);
 		}
 		modelStructureChangeListener.texturesChanged();
 	}
 
 	@Override
 	public String actionName() {
-		return "set Layer Bitmap";
+		return LocalizationManager.getLocalizedString("data.string.setlayerbitmapaction_actionname");
 	}
 
 }

@@ -1,9 +1,20 @@
 package com.hiveworkshop.wc3.gui;
+import com.matrixeater.localization.LocalizationManager;
 
 public enum GUITheme {
-	FOREST_GREEN("Forest Green"), DARK("Noire"), WINDOWS("Windows"), WINDOWS_CLASSIC("Windows Classic"),
-	SOFT_GRAY("Soft Gray"), JAVA_DEFAULT("Java Default"), BLUE_ICE("Blue Ice"), DARK_BLUE_GREEN("Dark Blue-Green"),
-	GRAY("Gray"), HIFI("HiFi"), ACRYL("Acryl"), ALUMINIUM("Aluminium"), DEMONIC_MEME("DemonicMeme");
+	FOREST_GREEN(LocalizationManager.getInstance().get("string.guitheme_guitheme_forest_green")),
+	DARK(LocalizationManager.getInstance().get("string.guitheme_guitheme_noire")),
+	WINDOWS(LocalizationManager.getInstance().get("string.guitheme_guitheme_windows")),
+	WINDOWS_CLASSIC(LocalizationManager.getInstance().get("string.guitheme_guitheme_windows_lassic")),
+	SOFT_GRAY(LocalizationManager.getInstance().get("string.guitheme_guitheme_soft_gray")),
+	JAVA_DEFAULT(LocalizationManager.getInstance().get("string.guitheme_guitheme_java_default")),
+	BLUE_ICE(LocalizationManager.getInstance().get("string.guitheme_guitheme_blue_ice")),
+	DARK_BLUE_GREEN(LocalizationManager.getInstance().get("string.guitheme_guitheme_dark_blue_green")),
+	GRAY(LocalizationManager.getInstance().get("string.guitheme_guitheme_gray")),
+	HIFI(LocalizationManager.getInstance().get("string.guitheme_guitheme_hifi")),
+	ACRYL(LocalizationManager.getInstance().get("string.guitheme_guitheme_acryl")),
+	ALUMINIUM(LocalizationManager.getInstance().get("string.guitheme_guitheme_aluminium")),
+	DEMONIC_MEME(LocalizationManager.getInstance().get("string.guitheme_guitheme_demonicmeme"));
 
 	private String displayName;
 

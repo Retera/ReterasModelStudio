@@ -19,6 +19,7 @@ import com.hiveworkshop.blizzard.casc.io.WarcraftIIICASC.FileSystem;
 import com.hiveworkshop.json.JSONArray;
 import com.hiveworkshop.json.JSONObject;
 import com.hiveworkshop.json.JSONTokener;
+import com.matrixeater.localization.LocalizationManager;
 
 public class CascDataSource implements DataSource {
 	private final String[] prefixes;
@@ -106,7 +107,7 @@ public class CascDataSource implements DataSource {
 				return new ByteArrayInputStream(data);
 			}
 		} catch (final IOException e) {
-			throw new RuntimeException("CASC parser error for: " + tempFilepath, e);
+			throw new RuntimeException(LocalizationManager.getInstance().get("dialog.cascdatasource_internalgetresourceasstream") + tempFilepath, e);
 		}
 		return null;
 	}
@@ -135,7 +136,7 @@ public class CascDataSource implements DataSource {
 				return buffer;
 			}
 		} catch (final IOException e) {
-			throw new RuntimeException("CASC parser error for: " + tempFilepath, e);
+			throw new RuntimeException(LocalizationManager.getInstance().get("dialog.cascdatasource_internalread") + tempFilepath, e);
 		}
 		return null;
 	}
@@ -177,7 +178,7 @@ public class CascDataSource implements DataSource {
 				return tempProduct;
 			}
 		} catch (final IOException e) {
-			throw new RuntimeException("CASC parser error for: " + tempFilepath, e);
+			throw new RuntimeException(LocalizationManager.getInstance().get("dialog.cascdatasource_internalgetfile") + tempFilepath, e);
 		}
 		return null;
 	}
@@ -196,13 +197,13 @@ public class CascDataSource implements DataSource {
 					return true;
 				}
 			} catch (final IOException e) {
-				throw new RuntimeException("CASC parser error for: " + tempFilepath, e);
+				throw new RuntimeException(LocalizationManager.getInstance().get("dialog.cascdatasource_has_1") + tempFilepath, e);
 			}
 		}
 		try {
 			return rootFileSystem.isFile(filepath);
 		} catch (final IOException e) {
-			throw new RuntimeException("CASC parser error for: " + filepath, e);
+			throw new RuntimeException(LocalizationManager.getInstance().get("dialog.cascdatasource_has_2") + filepath, e);
 		}
 	}
 

@@ -4,11 +4,12 @@ import javax.swing.ImageIcon;
 
 import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonType;
+import com.matrixeater.localization.LocalizationManager;
 
 public enum SelectionMode implements ToolbarButtonType {
-	SELECT("Select", RMSIcons.loadToolBarImageIcon("selectSingle.png")),
-	ADD("Add Selection", RMSIcons.loadToolBarImageIcon("selectAdd.png")),
-	DESELECT("Deselect", RMSIcons.loadToolBarImageIcon("selectRemove.png"));
+	SELECT(LocalizationManager.getInstance().get("string.selectionmode_select"), RMSIcons.loadToolBarImageIcon("selectSingle.png")),
+	ADD(LocalizationManager.getInstance().get("string.selectionmode_add_selection"), RMSIcons.loadToolBarImageIcon("selectAdd.png")),
+	DESELECT(LocalizationManager.getInstance().get("string.selectionmode_deselect"), RMSIcons.loadToolBarImageIcon("selectRemove.png"));
 
 	private final String name;
 	private final ImageIcon imageIcon;

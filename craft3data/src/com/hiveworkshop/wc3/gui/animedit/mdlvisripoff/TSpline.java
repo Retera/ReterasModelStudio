@@ -13,6 +13,7 @@ import javax.swing.SpinnerNumberModel;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
+import com.matrixeater.localization.LocalizationManager;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -33,19 +34,19 @@ public class TSpline extends JPanel {
 //		der.next = new AnimFlag.Entry(null, null);
 //		der.prev = new AnimFlag.Entry(null, null);
 //		der.tang = new AnimFlag.Entry(null, null);
-		add(new JLabel("Curve properties"), "growx");
+		add(new JLabel(LocalizationManager.getInstance().get("label.tspline_curve_properties")), "growx");
 		add(new JButton("-"), "wrap");
 		curveRenderer = new CurveRenderer();
 		curveRenderer.setBackground(Color.WHITE);
 		add(curveRenderer, "wrap");
 
-		add(new JLabel("Tension:"), "growx");
+		add(new JLabel(LocalizationManager.getInstance().get("label.tspline_tension")), "growx");
 		tensionSpinner = new JSpinner(new SpinnerNumberModel(0.0, Long.MIN_VALUE, Long.MAX_VALUE, 0.01));
 		add(tensionSpinner, "wrap");
-		add(new JLabel("Continuity:"), "growx");
+		add(new JLabel(LocalizationManager.getInstance().get("label.tspline_continuity")), "growx");
 		continuitySpinner = new JSpinner(new SpinnerNumberModel(0.0, Long.MIN_VALUE, Long.MAX_VALUE, 0.01));
 		add(continuitySpinner, "wrap");
-		add(new JLabel("Bias:"), "growx");
+		add(new JLabel(LocalizationManager.getInstance().get("label.tspline_bias")), "growx");
 		biasSpinner = new JSpinner(new SpinnerNumberModel(0.0, Long.MIN_VALUE, Long.MAX_VALUE, 0.01));
 		add(biasSpinner, "wrap");
 	}
@@ -119,7 +120,7 @@ public class TSpline extends JPanel {
 		}
 
 		throw new UnsupportedOperationException(
-				"Not finished here, need to have shared access to storing keyframe data and UndoManager");
+				LocalizationManager.getInstance().get("exception.settcb_not_finished"));
 	}
 
 	private final class CurveRenderer extends JPanel {

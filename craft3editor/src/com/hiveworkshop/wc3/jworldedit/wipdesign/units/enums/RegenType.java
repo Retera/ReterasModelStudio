@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.wipdesign.units.enums;
+import com.matrixeater.localization.LocalizationManager;
 
 import com.hiveworkshop.wc3.resources.WEString;
 
@@ -22,6 +23,6 @@ public enum RegenType {
 				return cat;
 			}
 		}
-		throw new IllegalArgumentException("RegenType does not exist: " + name);
+		throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.regentype_fromcodename_exist=") + name);
 	}
 }

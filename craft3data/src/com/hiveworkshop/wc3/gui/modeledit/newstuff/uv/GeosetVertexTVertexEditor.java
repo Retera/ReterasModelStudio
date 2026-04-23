@@ -29,6 +29,7 @@ import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import com.matrixeater.localization.LocalizationManager;
 
 public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVertex> {
 	private final ProgramPreferences programPreferences;
@@ -61,7 +62,7 @@ public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVerte
 			expandSelection(v, expandedSelection);
 		}
 		selectionManager.setSelection(expandedSelection);
-		return new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, "expand selection");
+		return new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("string.geosetvertextvertexeditor_expandselection"));
 	}
 
 	private void expandSelection(final GeosetVertex currentVertex, final Set<GeosetVertex> selection) {
@@ -85,7 +86,7 @@ public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVerte
 			}
 		}
 		selectionManager.setSelection(invertedSelection);
-		return new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection");
+		return new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("string.geosetvertextvertexeditor_invertselection"));
 	}
 
 	private void toggleSelection(final Set<GeosetVertex> selection, final GeosetVertex position) {
@@ -106,7 +107,7 @@ public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVerte
 			}
 		}
 		selectionManager.setSelection(allSelection);
-		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all");
+		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("string.geosetvertextvertexeditor_selectall"));
 	}
 
 	@Override

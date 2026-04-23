@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -30,7 +31,7 @@ public class GoodSLKEdit extends JPanel {
 	private final DefaultTableModel defaultTableModel;
 
 	public GoodSLKEdit() {
-		jfc.setFileFilter(new FileNameExtensionFilter("SLK Files of Warcraft", "slk"));
+		jfc.setFileFilter(new FileNameExtensionFilter(LocalizationManager.getInstance().get("exception.goodslkedit_goodslkedit_slk"), "slk"));
 		setLayout(new BorderLayout());
 		defaultTableModel = new DefaultTableModel();
 		table = new JTable(defaultTableModel);
@@ -38,7 +39,7 @@ public class GoodSLKEdit extends JPanel {
 	}
 
 	public static void main(final String[] args) {
-		final JFrame frame = new JFrame("Good SLK Edit");
+		final JFrame frame = new JFrame(LocalizationManager.getInstance().get("frame.goodslkedit_goodslkedit_slk"));
 		final GoodSLKEdit goodSLKEdit = new GoodSLKEdit();
 		frame.setJMenuBar(goodSLKEdit.createJMenuBar());
 		frame.setContentPane(goodSLKEdit);
@@ -51,8 +52,8 @@ public class GoodSLKEdit extends JPanel {
 	public JMenuBar createJMenuBar() {
 		final JMenuBar menuBar = new JMenuBar();
 
-		final JMenu fileMenu = new JMenu("File");
-		final JMenuItem openMenuItem = new JMenuItem("Open");
+		final JMenu fileMenu = new JMenu(LocalizationManager.getInstance().get("menu.goodslkedit_goodslkedit_file="));
+		final JMenuItem openMenuItem = new JMenuItem(LocalizationManager.getInstance().get("menu.goodslkedit_goodslkedit_open"));
 
 		openMenuItem.addActionListener(new ActionListener() {
 

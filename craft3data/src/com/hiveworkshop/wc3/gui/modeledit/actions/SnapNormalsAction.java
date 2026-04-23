@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.matrixeater.localization.LocalizationManager;
 
 /**
  * Undoable snap action.
@@ -38,6 +39,6 @@ public class SnapNormalsAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "snap normals";
+		return LocalizationManager.getInstance().get("string.snapnormalsaction_actionname");
 	}
 }

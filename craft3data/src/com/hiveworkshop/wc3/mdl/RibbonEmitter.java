@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -66,8 +67,8 @@ public class RibbonEmitter extends EmitterIdObject implements VisibilitySource {
 	public RibbonEmitter(final RibbonEmitterChunk.RibbonEmitter emitter) {
 		// debug print:
 		if ((emitter.node.flags & 16384) != 16384) {
-			System.err.println("MDX -> MDL error: A ribbon emitter '" + emitter.node.name
-					+ "' not flagged as ribbon emitter in MDX!");
+			System.err.println(LocalizationManager.getInstance().get("println.ribbonemitter_ribbonemitter_error") + emitter.node.name
+					+ LocalizationManager.getInstance().get("println.ribbonemitter_ribbonemitter_not_flagged"));
 		}
 		// System.out.println(emitter.node.name + ": " +
 		// Integer.toBinaryString(emitter.node.flags));
@@ -216,8 +217,8 @@ public class RibbonEmitter extends EmitterIdObject implements VisibilitySource {
 					}
 				}
 				if (!foundType) {
-					JOptionPane.showMessageDialog(null, "Ribbon emitter did not recognize data at: " + line
-							+ "\nThis is probably not a major issue?");
+					JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.ribbonemitter_read_recognize") + line
+							+ LocalizationManager.getInstance().get("dialog.ribbonemitter_read_major"));
 				}
 
 				MDLReader.mark(mdl);
@@ -227,7 +228,7 @@ public class RibbonEmitter extends EmitterIdObject implements VisibilitySource {
 		}
 		else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse RibbonEmitter: Missing or unrecognized open statement.");
+					LocalizationManager.getInstance().get("dialog.ribbonemitter_read_parse"));
 		}
 		return null;
 	}
@@ -241,16 +242,16 @@ public class RibbonEmitter extends EmitterIdObject implements VisibilitySource {
 		final ArrayList<AnimFlag> pAnimFlags = new ArrayList<>(this.animFlags);
 		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
 		if (objectId != -1) {
-			writer.println("\tObjectId " + objectId + ",");
+			writer.println(LocalizationManager.getInstance().get("println.ribbonemitter_printto_objectid") + objectId + ",");
 		}
 		if (parentId != -1) {
-			writer.println("\tParent " + parentId + ",\t// \"" + getParent().getName() + "\"");
+			writer.println(LocalizationManager.getInstance().get("println.ribbonemitter_printto_parent") + parentId + ",\t// \"" + getParent().getName() + "\"");
 		}
 		String currentFlag = "";
 		for (int i = 0; i < 3; i++) {
 			currentFlag = timeDoubleNames[i];
 			if (timeDoubleData[i] != 0) {
-				writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
+				writer.println(LocalizationManager.getInstance().get("println.ribbonemitter_printto_static") + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
 			}
 			else {
 				boolean set = false;
@@ -262,7 +263,7 @@ public class RibbonEmitter extends EmitterIdObject implements VisibilitySource {
 					}
 				}
 				if (!set) {
-					writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
+					writer.println(LocalizationManager.getInstance().get("println.ribbonemitter_printto_static") + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
 				}
 			}
 		}
@@ -278,12 +279,12 @@ public class RibbonEmitter extends EmitterIdObject implements VisibilitySource {
 			}
 		}
 		else {
-			writer.println("\tstatic " + currentFlag + " " + staticColor.toString() + ",");
+			writer.println(LocalizationManager.getInstance().get("println.ribbonemitter_printto_static") + currentFlag + " " + staticColor.toString() + ",");
 		}
 		for (int i = 3; i < 4; i++) {
 			currentFlag = timeDoubleNames[i];
 			if (timeDoubleData[i] != 0) {
-				writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
+				writer.println(LocalizationManager.getInstance().get("println.ribbonemitter_printto_static") + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
 			}
 			else {
 				set = false;
@@ -295,7 +296,7 @@ public class RibbonEmitter extends EmitterIdObject implements VisibilitySource {
 					}
 				}
 				if (!set) {
-					writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
+					writer.println(LocalizationManager.getInstance().get("println.ribbonemitter_printto_static") + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
 				}
 			}
 		}
@@ -359,7 +360,7 @@ public class RibbonEmitter extends EmitterIdObject implements VisibilitySource {
 		}
 		if (count > 1) {
 			JOptionPane.showMessageDialog(null,
-					"Some visiblity animation data was lost unexpectedly during overwrite in " + getName() + ".");
+					LocalizationManager.getInstance().get("dialog.ribbonemitter_setvisibilityflag_overwrite") + getName() + ".");
 		}
 	}
 
@@ -375,7 +376,7 @@ public class RibbonEmitter extends EmitterIdObject implements VisibilitySource {
 		}
 		if (count > 1) {
 			JOptionPane.showMessageDialog(null,
-					"Some visiblity animation data was lost unexpectedly during retrieval in " + getName() + ".");
+					LocalizationManager.getInstance().get("dialog.ribbonemitter_getvisibilityflag_retrieval") + getName() + ".");
 		}
 		return output;
 	}
@@ -490,7 +491,7 @@ public class RibbonEmitter extends EmitterIdObject implements VisibilitySource {
 
 	@Override
 	public void add(final String flag) {
-		System.err.println("ERROR: RibbonEmitter given unknown flag: " + flag);
+		System.err.println(LocalizationManager.getInstance().get("println.ribbonemitter_add_error") + flag);
 	}
 
 	@Override

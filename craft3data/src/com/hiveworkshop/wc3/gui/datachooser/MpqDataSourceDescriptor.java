@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.gui.datachooser;
+import com.matrixeater.localization.LocalizationManager;
 
 import java.io.IOException;
 import java.nio.channels.SeekableByteChannel;
@@ -36,7 +37,7 @@ public class MpqDataSourceDescriptor implements DataSourceDescriptor {
 
 	@Override
 	public String getDisplayName() {
-		return "MPQ Archive: " + mpqFilePath;
+		return LocalizationManager.getLocalized("data.string.mpqdatasourcedescriptor_getdisplayname") + mpqFilePath;
 	}
 
 	@Override

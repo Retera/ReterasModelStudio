@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import com.matrixeater.localization.LocalizationManager;
 
 public enum LayerShader {
 	SD,
@@ -8,7 +9,7 @@ public enum LayerShader {
 
 	public static LayerShader fromId(final int id) {
 		if ((id < 0) || (id >= VALUES.length)) {
-			throw new IllegalArgumentException("Unknown LayerShader ID: " + id);
+			throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.layershader_layershader") + id);
 		}
 		return VALUES[id];
 	}

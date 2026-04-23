@@ -10,6 +10,7 @@ import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.AttachmentChunk;
+import com.matrixeater.localization.LocalizationManager;
 
 /**
  * Write a description of class Attachment here.
@@ -39,7 +40,7 @@ public class Attachment extends IdObject implements VisibilitySource {
 		// Integer.toBinaryString(bone.node.flags));
 		if ((attachment.node.flags & 2048) != 2048) {
 			System.err.println(
-					"MDX -> MDL error: An attachment '" + attachment.node.name + "' not flagged as attachment in MDX!");
+					"MDX -> MDL " + LocalizationManager.getInstance().get("println.attachment_attachment_1") + " '" + attachment.node.name + "' " + LocalizationManager.getInstance().get("println.attachment_attachment_2"));
 		}
 		// ----- Convert Base NODE to "IDOBJECT" -----
 		loadFrom(attachment.node);
@@ -47,7 +48,7 @@ public class Attachment extends IdObject implements VisibilitySource {
 
 		if (attachment.unknownNull != 0) {
 			System.err
-					.println("Surprise! This model has a special attachment data point worthy of documenting! " + name);
+					.println(LocalizationManager.getInstance().get("println.attachment_attachment_3") + name);
 		}
 		// System.out.println(attachment.node.name + ": " +
 		// Integer.toBinaryString(attachment.unknownNull));
@@ -113,7 +114,7 @@ public class Attachment extends IdObject implements VisibilitySource {
 			return at;
 		} else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse Attachment: Missing or unrecognized open statement.");
+				LocalizationManager.getInstance().get("dialog.attachment_read"));
 		}
 		return null;
 	}
@@ -128,16 +129,16 @@ public class Attachment extends IdObject implements VisibilitySource {
 		// -- uses geosetId
 		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
 		if (objectId != -1) {
-			writer.println("\tObjectId " + objectId + ",");
+			writer.println(LocalizationManager.getInstance().get("println.attachment_printto_object") + objectId + ",");
 		}
 		if (parentId != -1) {
-			writer.println("\tParent " + parentId + ",\t// \"" + getParent().getName() + "\"");
+			writer.println(LocalizationManager.getInstance().get("println.attachment_printto_parent") + parentId + ",\t// \"" + getParent().getName() + "\"");
 		}
 		if (path != null) {
-			writer.println("\tPath \"" + path + "\",");
+			writer.println(LocalizationManager.getInstance().get("println.attachment_printto_path") + path + "\",");
 		}
 		if (AttachmentID != 0) {
-			writer.println("\tAttachmentID " + AttachmentID + ",");
+			writer.println(LocalizationManager.getInstance().get("println.attachment_printto_attachment") + AttachmentID + ",");
 		}
 		for (int i = 0; i < flags.size(); i++) {
 			writer.println("\t" + flags.get(i) + ",");
@@ -166,7 +167,7 @@ public class Attachment extends IdObject implements VisibilitySource {
 		}
 		if (count > 1) {
 			JOptionPane.showMessageDialog(null,
-					"Some visiblity animation data was lost unexpectedly during overwrite in " + getName() + ".");
+					LocalizationManager.getInstance().get("dialog.attachment_setvisibilityflag") + getName() + ".");
 		}
 	}
 
@@ -182,7 +183,7 @@ public class Attachment extends IdObject implements VisibilitySource {
 		}
 		if (count > 1) {
 			System.err.println(
-					"Some visiblity animation data was lost unexpectedly during retrieval in " + getName() + ".");
+					LocalizationManager.getInstance().get("dialog.attachment_getvisibilityflag") + getName() + ".");
 		}
 		return output;
 	}
