@@ -23,7 +23,7 @@ jobs:
         distribution: 'temurin'
         cache: 'gradle'
 
-    - name: 授权gradlew执行
+    - name: 授权 gradlew 执行
       run: chmod +x ./gradlew  # 在Windows上这一步可能不是必需的，取决于你的脚本权限
       working-directory: ./  # 根据实际情况调整工作目录
 
@@ -31,7 +31,7 @@ jobs:
       run: ./gradlew.bat tasks --all
       working-directory: ./
 
-    - name: Build with Gradle
+    - name: 构建 Gradle
       run: ./gradlew.bat
       working-directory: ./
 
@@ -56,7 +56,7 @@ jobs:
         }
       shell: pwsh
 
-    - name: 列出构建目录所有文件
+    - name: 列出构建目录文件
       run: |
         echo "Listing all files in build directory:"
         Get-ChildItem -Recurse ./ | Where-Object { $_.Extension -eq ".*" } | ForEach-Object {
