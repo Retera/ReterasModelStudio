@@ -42,8 +42,7 @@ public class SetLayerBitmapAction implements UndoAction {
 			layer.getShaderTextures().remove(shaderTextureTypeHD);
 		}
 		else {
-			layer.getShaderTextures().put(shaderTextureTypeHD, newBitma
-				p);
+			layer.getShaderTextures().put(shaderTextureTypeHD, newBitmap);
 		}
 		modelStructureChangeListener.texturesChanged();
 	}
