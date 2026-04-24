@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.wc3.mdl.IdObject;
 

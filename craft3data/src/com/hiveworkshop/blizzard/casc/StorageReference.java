@@ -1,5 +1,5 @@
 package com.hiveworkshop.blizzard.casc;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import java.util.Map;
 

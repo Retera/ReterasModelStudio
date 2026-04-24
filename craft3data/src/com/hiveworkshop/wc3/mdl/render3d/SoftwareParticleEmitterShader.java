@@ -3,7 +3,7 @@ package com.hiveworkshop.wc3.mdl.render3d;
 import org.lwjgl.opengl.GL11;
 
 import com.hiveworkshop.rms.editor.render3d.NGGLDP;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public class SoftwareParticleEmitterShader implements ParticleEmitterShader {
 	private static final byte TFF = (byte) (255);

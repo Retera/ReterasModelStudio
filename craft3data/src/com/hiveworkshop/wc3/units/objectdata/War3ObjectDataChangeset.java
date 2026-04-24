@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.units.objectdata;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import java.io.File;
 import java.io.FileInputStream;

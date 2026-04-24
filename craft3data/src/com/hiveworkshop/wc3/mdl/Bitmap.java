@@ -10,7 +10,7 @@ import javax.swing.JOptionPane;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.mdx.TextureChunk;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 /**
  * A class to represent MDL texture references. (Not materials)

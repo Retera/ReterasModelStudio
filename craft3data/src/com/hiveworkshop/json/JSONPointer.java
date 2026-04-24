@@ -1,5 +1,5 @@
 package com.hiveworkshop.json;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import static java.lang.String.format;
 

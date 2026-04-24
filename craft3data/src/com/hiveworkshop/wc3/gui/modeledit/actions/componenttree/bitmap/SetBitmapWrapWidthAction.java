@@ -3,7 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.bitmap;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.Bitmap;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public class SetBitmapWrapWidthAction implements UndoAction {
 	private final Bitmap bitmap;

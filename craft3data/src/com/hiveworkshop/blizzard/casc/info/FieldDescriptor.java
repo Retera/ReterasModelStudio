@@ -1,5 +1,5 @@
 package com.hiveworkshop.blizzard.casc.info;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public class FieldDescriptor {
 	private static final int NAME_TERMINATOR = '!';

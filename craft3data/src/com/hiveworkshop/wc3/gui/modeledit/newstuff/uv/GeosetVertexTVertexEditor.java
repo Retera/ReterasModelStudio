@@ -29,7 +29,7 @@ import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVertex> {
 	private final ProgramPreferences programPreferences;

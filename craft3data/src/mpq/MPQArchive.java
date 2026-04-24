@@ -1,5 +1,5 @@
 package mpq;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

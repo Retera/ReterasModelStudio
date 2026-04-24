@@ -40,7 +40,7 @@ import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.util.Callback;
 import com.matrixeater.src.EditorDisplayManager;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import de.wc3data.image.BlpFile;
 import de.wc3data.image.TgaFile;

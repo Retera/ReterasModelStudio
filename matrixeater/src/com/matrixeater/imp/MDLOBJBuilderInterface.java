@@ -17,7 +17,7 @@ import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.owens.oobjloader.parser.BuilderInterface;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public class MDLOBJBuilderInterface implements BuilderInterface {
 

@@ -1,5 +1,5 @@
 package de.wc3data.stream;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import java.io.IOException;
 

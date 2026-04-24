@@ -6,7 +6,7 @@ import java.util.NoSuchElementException;
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.modeledit.ModelPanel;
 

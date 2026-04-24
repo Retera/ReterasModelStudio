@@ -14,7 +14,7 @@ import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
 import com.hiveworkshop.blizzard.casc.storage.Storage;
 import com.hiveworkshop.blizzard.casc.vfs.VirtualFileSystem;
 import com.hiveworkshop.blizzard.casc.vfs.VirtualFileSystem.PathResult;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 /**
  * A convenient access to locally stored Warcraft III data files. Intended for

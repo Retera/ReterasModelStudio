@@ -20,7 +20,7 @@ import com.hiveworkshop.wc3.gui.modeledit.creator.actions.DrawCameraAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public class CameraManagerPanel extends JPanel {
 	private ModelView mdlDisp;

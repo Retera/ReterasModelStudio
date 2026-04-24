@@ -1,5 +1,5 @@
 package com.hiveworkshop.lang;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import java.util.Arrays;
 

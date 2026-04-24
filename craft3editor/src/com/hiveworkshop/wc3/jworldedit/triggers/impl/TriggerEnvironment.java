@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.triggers.impl;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import java.util.ArrayList;
 import java.util.List;

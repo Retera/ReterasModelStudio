@@ -1,5 +1,5 @@
 package com.matrixeaterhayate;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import java.awt.GridLayout;
 

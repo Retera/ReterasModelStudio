@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.hiveworkshop.wc3.gui.OldBLPHandler;
 import com.hiveworkshop.wc3.mdl.EditableModel;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public final class RecompileModelsDirectory {
 	private static final List<String> failed = new ArrayList<>();

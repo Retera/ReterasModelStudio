@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.hiveworkshop.wc3.gui.animedit.BasicTimeBoundProvider;
 import com.hiveworkshop.wc3.mdx.SequenceChunk;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 /**
  * A java object to represent MDL "Sequences" ("Animations").

@@ -65,7 +65,7 @@ import com.hiveworkshop.wc3.mdl.render3d.RenderNode;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> {
 	private final ProgramPreferences programPreferences;

@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;

@@ -1,5 +1,5 @@
 package com.matrixeater.imp;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import java.awt.Font;
 

@@ -3,7 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.mdl.Vertex;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public class ScaleAction implements UndoAction {
 	private final ModelEditor modelEditor;

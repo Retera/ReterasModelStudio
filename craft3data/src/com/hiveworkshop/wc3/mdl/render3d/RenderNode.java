@@ -11,7 +11,7 @@ import com.hiveworkshop.wc3.mdl.IdObject.NodeFlags;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.util.MathUtils;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public final class RenderNode {
 	private final AnimatedNode idObject;

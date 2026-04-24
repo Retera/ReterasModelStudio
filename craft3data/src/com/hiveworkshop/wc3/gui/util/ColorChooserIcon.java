@@ -9,7 +9,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.JColorChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public final class ColorChooserIcon extends JLabel {
 	private Color currentColor;

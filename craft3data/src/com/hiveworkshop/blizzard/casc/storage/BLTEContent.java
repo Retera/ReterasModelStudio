@@ -7,7 +7,7 @@ import java.nio.ByteOrder;
 
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
 import com.hiveworkshop.lang.Hex;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 /**
  * BLTE content entry, used to decode BLTE file data that follows it.

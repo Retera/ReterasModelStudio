@@ -2,7 +2,7 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.animation;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public class SlideKeyframeByIndexAction implements UndoAction {
 

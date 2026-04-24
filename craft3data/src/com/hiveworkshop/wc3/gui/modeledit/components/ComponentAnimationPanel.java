@@ -19,7 +19,7 @@ import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorTextField;
 import com.hiveworkshop.wc3.mdl.Animation;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import net.miginfocom.swing.MigLayout;
 

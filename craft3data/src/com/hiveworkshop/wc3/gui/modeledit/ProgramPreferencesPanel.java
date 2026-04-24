@@ -22,7 +22,7 @@ import com.hiveworkshop.wc3.gui.datachooser.DataSourceChooserPanel;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
 import com.hiveworkshop.wc3.gui.util.ColorChooserIcon;
 import com.hiveworkshop.wc3.gui.util.ColorChooserIcon.ColorListener;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import net.miginfocom.swing.MigLayout;
 

@@ -49,7 +49,7 @@ import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	private final ProgramPreferences programPreferences;

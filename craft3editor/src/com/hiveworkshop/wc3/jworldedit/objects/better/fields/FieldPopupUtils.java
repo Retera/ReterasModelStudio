@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.objects.better.fields;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;

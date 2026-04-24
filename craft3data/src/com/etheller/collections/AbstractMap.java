@@ -23,7 +23,7 @@
  *
  */
 package com.etheller.collections;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import java.util.Iterator;
 

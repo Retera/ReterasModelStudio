@@ -2,7 +2,7 @@ package com.hiveworkshop.wc3.gui.modeledit.creator.actions;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public class DrawVertexAction implements UndoAction {
 	private final GeosetVertex vertex;

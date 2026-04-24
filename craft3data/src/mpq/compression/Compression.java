@@ -1,5 +1,5 @@
 package mpq.compression;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import java.nio.ByteBuffer;
 import java.util.zip.DataFormatException;

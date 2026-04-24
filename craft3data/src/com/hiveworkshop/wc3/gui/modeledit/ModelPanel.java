@@ -44,7 +44,7 @@ import com.hiveworkshop.wc3.mdl.GeosetVertexBoneLink;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 /**
  * The ModelPanel is a pane holding the display of a given MDL model. I plan to

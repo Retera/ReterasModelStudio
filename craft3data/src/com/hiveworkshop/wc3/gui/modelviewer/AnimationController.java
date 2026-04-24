@@ -26,7 +26,7 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimationControllerListener.LoopType;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public class AnimationController extends JPanel {
 	private ModelView mdlDisp;

@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.gui.datachooser;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import java.nio.file.Paths;
 

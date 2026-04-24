@@ -37,7 +37,7 @@ import com.hiveworkshop.wc3.mdl.renderer.TriangleRenderer;
 import com.hiveworkshop.wc3.mdl.v2.MaterialView;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.visitor.VertexVisitor;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public class ViewportModelRenderer implements ModelRenderer {
 	private Graphics2D graphics;

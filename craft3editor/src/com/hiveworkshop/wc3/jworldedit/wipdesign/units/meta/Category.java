@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.wipdesign.units.meta;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import com.hiveworkshop.wc3.resources.WEString;
 

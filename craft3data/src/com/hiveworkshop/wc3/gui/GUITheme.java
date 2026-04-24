@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.gui;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public enum GUITheme {
 	FOREST_GREEN(LocalizationManager.getInstance().get("string.guitheme_guitheme_forest_green")),

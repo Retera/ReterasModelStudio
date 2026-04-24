@@ -1,5 +1,5 @@
 package mpq.compression.pkware;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;

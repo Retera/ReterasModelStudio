@@ -12,7 +12,7 @@ import java.util.Scanner;
 
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
 import com.hiveworkshop.nio.ByteBufferInputStream;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 /**
  * File containing CASC configuration information. This is basically a

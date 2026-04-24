@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.TVertex;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public final class MirrorTVerticesAction implements UndoAction {
 	private final char[] DIMENSION_NAMES = { 'X', 'Y' };

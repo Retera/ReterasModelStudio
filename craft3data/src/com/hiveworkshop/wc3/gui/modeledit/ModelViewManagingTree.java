@@ -25,7 +25,7 @@ import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public final class ModelViewManagingTree extends JCheckBoxTree {
 	private final ModelViewManager modelViewManager;

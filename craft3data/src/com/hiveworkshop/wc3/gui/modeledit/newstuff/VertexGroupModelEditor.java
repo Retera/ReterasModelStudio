@@ -33,7 +33,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGroupModelEditor.VertexGroupBundle> {
 	private final ProgramPreferences programPreferences;

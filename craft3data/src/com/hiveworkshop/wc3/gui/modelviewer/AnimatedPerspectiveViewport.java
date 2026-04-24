@@ -101,7 +101,7 @@ import com.hiveworkshop.wc3.mdl.render3d.RenderRibbonEmitter;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.util.MathUtils;
 import com.hiveworkshop.wc3.util.ModelUtils;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements MouseListener, ActionListener,
 		MouseWheelListener, AnimatedRenderEnvironment, RenderResourceAllocator {

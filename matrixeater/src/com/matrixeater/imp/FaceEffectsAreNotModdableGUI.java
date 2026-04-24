@@ -9,7 +9,7 @@ import javax.swing.JTextField;
 
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.EditableModel;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public class FaceEffectsAreNotModdableGUI extends JPanel {
 	public FaceEffectsAreNotModdableGUI(final EditableModel model) {

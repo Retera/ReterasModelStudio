@@ -10,7 +10,7 @@ import java.util.zip.Inflater;
 
 import com.hiveworkshop.blizzard.casc.Key;
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 /**
  * Allows high level access to stored file data banks. These data banks can be

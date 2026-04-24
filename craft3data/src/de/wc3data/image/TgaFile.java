@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 package de.wc3data.image;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;

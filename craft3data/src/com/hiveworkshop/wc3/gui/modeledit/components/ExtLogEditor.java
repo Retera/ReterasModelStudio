@@ -14,7 +14,7 @@ import javax.swing.SpinnerNumberModel;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.Vertex;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 public class ExtLogEditor extends JPanel {
 	private static final Dimension MAXIMUM_SIZE = new Dimension(99999, 25);

@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.models;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import java.awt.Dimension;
 import java.io.FileNotFoundException;

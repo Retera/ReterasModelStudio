@@ -21,7 +21,7 @@ package com.badlogic.gdx.backends.lwjgl;
 import static com.badlogic.gdx.utils.SharedLibraryLoader.*;
 
 import com.badlogic.gdx.utils.SharedLibraryLoader;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 import java.io.File;
 import java.lang.reflect.Method;

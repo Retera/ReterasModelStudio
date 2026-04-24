@@ -6,7 +6,7 @@ import javax.swing.JTabbedPane;
 
 import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.gui.modeledit.ModelViewManagingTree;
-import com.matrixeater.localization.LocalizationManager;
+import com.localizationmanager.localization.LocalizationManager;
 
 /**
  * A view control, containing several control options
