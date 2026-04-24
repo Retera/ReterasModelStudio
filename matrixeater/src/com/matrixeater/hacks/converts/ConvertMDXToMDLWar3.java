@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.hiveworkshop.wc3.mdl.MDXHandler;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 public final class ConvertMDXToMDLWar3 {
 	private static final List<String> failed = new ArrayList<>();

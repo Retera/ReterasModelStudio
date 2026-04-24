@@ -33,7 +33,7 @@ import com.hiveworkshop.wc3.mdl.renderer.TriangleRenderer;
 import com.hiveworkshop.wc3.mdl.v2.MaterialView;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.visitor.VertexVisitor;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 public class AnimatedViewportModelRenderer implements ModelRenderer {
 	private Graphics2D graphics;

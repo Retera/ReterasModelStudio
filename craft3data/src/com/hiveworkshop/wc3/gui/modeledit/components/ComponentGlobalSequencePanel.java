@@ -9,7 +9,7 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeLis
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.wc3.mdl.EditableModel;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import net.miginfocom.swing.MigLayout;
 

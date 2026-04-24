@@ -19,7 +19,7 @@ import org.lwjgl.LWJGLException;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 public class AnimationViewer extends JPanel {
 	private ModelView mdlDisp;

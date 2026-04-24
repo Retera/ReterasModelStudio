@@ -1,4 +1,4 @@
-package com.localizationmanager.localization;
+package hiveworkshop.localizationmanager;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;

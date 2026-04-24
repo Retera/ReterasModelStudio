@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.models;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;

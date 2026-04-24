@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.units.objectdata;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import java.io.File;
 import java.io.FileInputStream;

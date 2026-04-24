@@ -5,7 +5,7 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 public class HayateMatrixEater extends JPanel {
 

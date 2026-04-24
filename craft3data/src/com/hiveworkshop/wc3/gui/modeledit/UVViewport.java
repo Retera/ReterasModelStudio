@@ -38,7 +38,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexEditorChangeListene
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.viewport.UVViewportModelRenderer;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportView;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 public class UVViewport extends JPanel implements MouseListener, ActionListener, MouseWheelListener,
 		MouseMotionListener, CoordinateSystem, ViewportView, TVertexEditorChangeListener {

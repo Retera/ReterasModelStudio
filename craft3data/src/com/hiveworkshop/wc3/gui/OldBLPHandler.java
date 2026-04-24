@@ -22,7 +22,7 @@ import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import de.wc3data.image.TgaFile;
 

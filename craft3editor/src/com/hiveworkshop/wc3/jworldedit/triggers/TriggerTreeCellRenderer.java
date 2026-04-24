@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.triggers;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import java.awt.Color;
 import java.awt.Component;

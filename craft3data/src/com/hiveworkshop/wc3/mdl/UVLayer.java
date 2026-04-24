@@ -2,7 +2,7 @@ package com.hiveworkshop.wc3.mdl;
 import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 /**
  * A layer of TVertices (UV Mapping)

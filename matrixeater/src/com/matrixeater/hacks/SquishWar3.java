@@ -7,7 +7,7 @@ import java.util.List;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdx.MdxModel;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import de.wc3data.stream.BlizzardDataOutputStream;
 import de.wc3data.stream.SquishingBlizzardDataOutputStream;

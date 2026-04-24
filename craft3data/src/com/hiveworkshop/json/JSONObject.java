@@ -1,5 +1,5 @@
 package com.hiveworkshop.json;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import java.io.Closeable;
 

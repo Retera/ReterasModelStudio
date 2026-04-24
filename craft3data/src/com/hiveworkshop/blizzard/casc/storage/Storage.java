@@ -20,7 +20,7 @@ import java.util.Map;
 
 import com.hiveworkshop.blizzard.casc.Key;
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 /**
  * Main data storage of a CASC archive. It consists of index files which point

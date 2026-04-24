@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import java.awt.geom.Rectangle2D;
 import java.io.BufferedReader;

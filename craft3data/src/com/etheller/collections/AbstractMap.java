@@ -23,7 +23,7 @@
  *
  */
 package com.etheller.collections;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import java.util.Iterator;
 

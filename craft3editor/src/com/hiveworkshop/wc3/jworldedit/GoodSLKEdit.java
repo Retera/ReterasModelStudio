@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;

@@ -1,5 +1,5 @@
 package de.wc3data.stream;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import java.io.IOException;
 

@@ -21,7 +21,7 @@ package com.badlogic.gdx.backends.lwjgl;
 import static com.badlogic.gdx.utils.SharedLibraryLoader.*;
 
 import com.badlogic.gdx.utils.SharedLibraryLoader;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import java.io.File;
 import java.lang.reflect.Method;

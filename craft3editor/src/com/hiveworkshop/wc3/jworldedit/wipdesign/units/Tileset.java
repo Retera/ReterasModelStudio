@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.wipdesign.units;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import com.hiveworkshop.wc3.resources.WEString;
 

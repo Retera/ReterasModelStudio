@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.triggers;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import static com.hiveworkshop.wc3.jworldedit.AbstractWorldEditorPanel.getIcon;
 import static com.hiveworkshop.wc3.jworldedit.AbstractWorldEditorPanel.makeButton;

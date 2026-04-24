@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 package de.wc3data.image;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;

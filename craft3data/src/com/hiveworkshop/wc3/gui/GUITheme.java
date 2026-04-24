@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.gui;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 public enum GUITheme {
 	FOREST_GREEN(LocalizationManager.getInstance().get("string.guitheme_guitheme_forest_green")),

@@ -1,5 +1,5 @@
 package com.hiveworkshop.blizzard.casc.nio;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import java.io.IOException;
 import java.nio.BufferUnderflowException;

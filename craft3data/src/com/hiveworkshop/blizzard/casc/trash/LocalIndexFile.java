@@ -9,7 +9,7 @@ import com.hiveworkshop.ReteraCASCUtils;
 import com.hiveworkshop.blizzard.casc.nio.HashMismatchException;
 import com.hiveworkshop.blizzard.casc.nio.LittleHashBlockProcessor;
 import com.hiveworkshop.lang.Hex;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 public class LocalIndexFile {
 	private byte bucketIndex;

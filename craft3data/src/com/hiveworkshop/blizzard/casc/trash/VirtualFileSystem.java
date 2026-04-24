@@ -8,7 +8,7 @@ import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
 //import com.hiveworkshop.blizzard.casc.vfs.path.Container;
 //import com.hiveworkshop.blizzard.casc.vfs.path.FileFactory;
 //import com.hiveworkshop.blizzard.casc.vfs.path.Node;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 public class VirtualFileSystem {
 

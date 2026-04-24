@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.units;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;

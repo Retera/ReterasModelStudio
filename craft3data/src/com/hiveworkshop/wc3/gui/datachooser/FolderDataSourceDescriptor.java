@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.gui.datachooser;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import java.nio.file.Paths;
 

@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.triggers.impl;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import java.util.ArrayList;
 import java.util.List;

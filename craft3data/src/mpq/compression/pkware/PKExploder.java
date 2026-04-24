@@ -1,5 +1,5 @@
 package mpq.compression.pkware;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;

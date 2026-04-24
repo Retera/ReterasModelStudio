@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.objects.better;
-import com.localizationmanager.localization.localizationmanager;
+import hiveworkshop.localizationmanager.localizationmanager;
 
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
