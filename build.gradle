@@ -88,6 +88,15 @@ project(":craft3data") {
     }
 }
 
+project(":localizationmanager") {
+    apply plugin: "java-library"
+
+
+    dependencies {
+        // 添加该模块需要的依赖
+    }
+}
+
 tasks.eclipse.doLast {
     delete ".project"
 }
