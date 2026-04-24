@@ -60,7 +60,6 @@ project(":craft3editor") {
 
 
     dependencies {
-        implementation project(":matrixeater")
         implementation project(":craft3data")
         api "org.jclarion:image4j:$image4jVersion"
     }
@@ -71,7 +70,6 @@ project(":craft3data") {
 
 
     dependencies {
-        implementation project(":matrixeater")
         api "com.jtattoo:JTattoo:$jtattooVersion"
         api "com.miglayout:miglayout-swing:$miglayoutVersion"
 		api "org.lwjgl.lwjgl:lwjgl:${lwjglVersion}"
