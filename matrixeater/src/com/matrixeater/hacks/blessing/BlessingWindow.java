@@ -23,7 +23,7 @@ import javax.swing.WindowConstants;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 public class BlessingWindow extends JPanel {
 

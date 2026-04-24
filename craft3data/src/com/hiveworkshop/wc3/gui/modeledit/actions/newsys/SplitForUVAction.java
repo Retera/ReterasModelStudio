@@ -4,7 +4,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.wc3.mdl.*;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 import java.util.*;
 

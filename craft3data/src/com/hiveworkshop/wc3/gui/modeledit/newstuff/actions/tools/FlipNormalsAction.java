@@ -8,7 +8,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Normal;
 import com.hiveworkshop.wc3.mdl.Vertex;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 public final class FlipNormalsAction implements UndoAction {
 	private final List<Vertex> selection;

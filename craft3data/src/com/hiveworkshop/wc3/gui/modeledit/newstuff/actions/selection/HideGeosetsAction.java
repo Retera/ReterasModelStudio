@@ -5,7 +5,7 @@ import java.util.List;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 public final class HideGeosetsAction implements UndoAction {
 	private final List<Geoset> geosets;

@@ -31,7 +31,7 @@
  */
 
 package com.matrixeater.hacks;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 import java.awt.BorderLayout;
 import java.awt.Component;

@@ -11,7 +11,7 @@ import com.hiveworkshop.json.JSONArray;
 import com.hiveworkshop.json.JSONObject;
 import com.hiveworkshop.json.JSONTokener;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 public class FtlopMaker2 {
 

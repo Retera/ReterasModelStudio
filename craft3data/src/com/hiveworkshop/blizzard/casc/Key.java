@@ -2,7 +2,7 @@ package com.hiveworkshop.blizzard.casc;
 
 import com.hiveworkshop.ReteraCASCUtils;
 import com.hiveworkshop.lang.Hex;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 /**
  * Class representing a CASC related key such as an encoding key.

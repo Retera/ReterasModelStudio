@@ -3,7 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.header;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 public class SetFormatVersionAction implements UndoAction {
 	private final int prevVersion;

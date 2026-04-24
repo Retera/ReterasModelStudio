@@ -12,7 +12,7 @@ import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.CollisionShapeChunk;
 import com.hiveworkshop.wc3.mdx.Node;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 /**
  * A class for CollisionShapes, which handle unit selection and related matters

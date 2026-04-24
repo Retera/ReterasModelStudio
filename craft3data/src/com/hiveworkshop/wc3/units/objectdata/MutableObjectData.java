@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.units.objectdata;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 import java.util.Arrays;
 import java.util.HashMap;

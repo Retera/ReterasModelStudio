@@ -38,7 +38,7 @@ import com.hiveworkshop.wc3.units.UnitOptionPanel;
 import com.hiveworkshop.wc3.user.SaveProfile;
 import com.owens.oobjloader.builder.Build;
 import com.owens.oobjloader.parser.Parse;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 import de.wc3data.image.TgaFile;
 import net.infonode.gui.laf.InfoNodeLookAndFeel;

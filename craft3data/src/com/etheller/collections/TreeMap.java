@@ -24,7 +24,7 @@
  */
 
 package com.etheller.collections;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 import java.io.IOException;
 import java.util.Collections;

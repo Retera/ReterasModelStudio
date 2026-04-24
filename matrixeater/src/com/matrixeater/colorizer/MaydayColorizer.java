@@ -1,5 +1,5 @@
 package com.matrixeater.colorizer;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 import java.awt.Color;
 import java.awt.Dimension;

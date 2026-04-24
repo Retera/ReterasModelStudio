@@ -8,7 +8,7 @@ import javax.swing.JList;
 
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.TextureAnim;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 public class TextureAnimListCellRenderer extends DefaultListCellRenderer {
 	Font theFont = new Font("Arial", Font.BOLD, 32);

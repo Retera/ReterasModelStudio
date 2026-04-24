@@ -11,7 +11,7 @@ import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 public class RecalculateExtentsAction implements UndoAction {
 	private static boolean EACH_GEOSET_GETS_ITS_OWN_BOUNDS = false;

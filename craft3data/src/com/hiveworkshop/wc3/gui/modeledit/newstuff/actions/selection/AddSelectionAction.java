@@ -5,7 +5,7 @@ import java.util.Collection;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 public final class AddSelectionAction<T> implements UndoAction {
 

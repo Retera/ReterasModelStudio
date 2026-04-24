@@ -31,7 +31,7 @@ import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.user.SaveProfile;
 import com.matrixeater.src.MainFrame;
 import com.matrixeater.src.MainPanel;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 public class AnimationTransfer extends JPanel implements ActionListener {
 	JLabel baseFileLabel, animFileLabel, outFileLabel, transSingleLabel, pickAnimLabel, visFromLabel;

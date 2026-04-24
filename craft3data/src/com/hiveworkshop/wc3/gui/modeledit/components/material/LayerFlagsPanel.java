@@ -4,7 +4,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import com.hiveworkshop.wc3.mdl.Layer;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 import net.miginfocom.swing.MigLayout;
 

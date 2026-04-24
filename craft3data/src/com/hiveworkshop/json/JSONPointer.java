@@ -1,5 +1,5 @@
 package com.hiveworkshop.json;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 import static java.lang.String.format;
 

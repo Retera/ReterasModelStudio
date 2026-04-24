@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.hiveworkshop.wc3.gui.OldBLPHandler;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 public final class ConvertBLPToTGAWar3 {
 	private static final List<String> failed = new ArrayList<>();

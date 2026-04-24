@@ -24,7 +24,7 @@ import com.hiveworkshop.wc3.units.objectdata.ObjectDataChangeEntry;
 import com.hiveworkshop.wc3.units.objectdata.ObjectMap;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 import com.hiveworkshop.wc3.units.objectdata.War3ObjectDataChangeset;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;

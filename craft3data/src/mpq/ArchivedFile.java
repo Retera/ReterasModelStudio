@@ -1,5 +1,5 @@
 package mpq;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 import java.io.IOException;
 import java.io.Serializable;

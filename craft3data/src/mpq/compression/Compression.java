@@ -1,5 +1,5 @@
 package mpq.compression;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 import java.nio.ByteBuffer;
 import java.util.zip.DataFormatException;

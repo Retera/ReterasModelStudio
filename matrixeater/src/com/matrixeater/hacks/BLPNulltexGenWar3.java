@@ -1,6 +1,6 @@
 package com.matrixeater.hacks;
 
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 import java.io.File;
 import java.nio.file.Files;

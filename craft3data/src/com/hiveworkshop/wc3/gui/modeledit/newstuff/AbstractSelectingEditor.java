@@ -15,7 +15,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectio
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 public abstract class AbstractSelectingEditor<T> implements ModelEditor {
 	protected final SelectionManager<T> selectionManager;

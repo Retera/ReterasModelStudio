@@ -22,7 +22,7 @@ import com.hiveworkshop.blizzard.casc.Key;
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
 import com.hiveworkshop.blizzard.casc.storage.BankStream;
 import com.hiveworkshop.blizzard.casc.storage.Storage;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 /**
  * High level file system API using TVFS directories to extract files from a

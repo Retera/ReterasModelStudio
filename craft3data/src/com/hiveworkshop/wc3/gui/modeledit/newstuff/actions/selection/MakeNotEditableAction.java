@@ -2,7 +2,7 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 public final class MakeNotEditableAction implements UndoAction {
 	private final EditabilityToggleHandler editabilityToggleHandler;

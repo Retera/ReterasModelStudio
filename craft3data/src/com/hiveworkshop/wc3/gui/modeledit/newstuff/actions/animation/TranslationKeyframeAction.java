@@ -10,7 +10,7 @@ import com.hiveworkshop.wc3.gui.animedit.NodeAnimationModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.wc3.mdl.IdObject;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 public class TranslationKeyframeAction implements GenericMoveAction {
 	private final UndoAction addingTimelinesOrKeyframesAction;

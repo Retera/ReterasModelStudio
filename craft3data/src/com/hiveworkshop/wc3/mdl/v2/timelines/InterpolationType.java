@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.mdl.v2.timelines;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 public enum InterpolationType {
 	DONT_INTERP(LocalizationManager.getInstance().get("string.interpolationyype_interpolationyype_dontinterp")),

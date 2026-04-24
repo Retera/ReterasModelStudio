@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.units.objectdata;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 import com.hiveworkshop.wc3.util.CharInt;
 

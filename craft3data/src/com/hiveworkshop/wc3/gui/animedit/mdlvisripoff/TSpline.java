@@ -13,7 +13,7 @@ import javax.swing.SpinnerNumberModel;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 import net.miginfocom.swing.MigLayout;
 

@@ -1,5 +1,5 @@
 package com.etheller.collections;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;

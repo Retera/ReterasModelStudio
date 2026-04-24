@@ -26,7 +26,7 @@ import com.hiveworkshop.wc3.units.Warcraft3MapObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 import mpq.MPQException;
 

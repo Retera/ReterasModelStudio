@@ -21,7 +21,7 @@ import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorJSpi
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorTextField;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 public class ComponentHeaderPanel extends JPanel implements ComponentPanel {
 	private static final Dimension MAXIMUM_SIZE = new Dimension(99999, 25);

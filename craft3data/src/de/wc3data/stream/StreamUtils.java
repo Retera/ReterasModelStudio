@@ -1,5 +1,5 @@
 package de.wc3data.stream;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 import java.io.IOException;
 

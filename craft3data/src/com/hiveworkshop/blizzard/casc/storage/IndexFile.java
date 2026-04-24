@@ -11,7 +11,7 @@ import com.hiveworkshop.blizzard.casc.Key;
 import com.hiveworkshop.blizzard.casc.nio.HashMismatchException;
 import com.hiveworkshop.blizzard.casc.nio.LittleHashBlockProcessor;
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 public class IndexFile {
 	/**

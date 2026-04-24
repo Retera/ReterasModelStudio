@@ -22,7 +22,7 @@ import com.hiveworkshop.json.JSONTokener;
 import com.hiveworkshop.wc3.gui.datachooser.CascDataSource;
 import com.hiveworkshop.wc3.mpq.Codebase;
 import com.hiveworkshop.wc3.user.WindowsRegistry;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 /**
  * CASC was dangerously close to put Matrix Eater in a casket, so we named it

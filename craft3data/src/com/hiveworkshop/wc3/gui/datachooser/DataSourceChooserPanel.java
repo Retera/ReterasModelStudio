@@ -64,7 +64,7 @@ import com.jtattoo.plaf.acryl.AcrylLookAndFeel;
 import com.jtattoo.plaf.aluminium.AluminiumLookAndFeel;
 import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
 import com.jtattoo.plaf.noire.NoireLookAndFeel;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 public class DataSourceChooserPanel extends JPanel {
 	private static final ImageIcon CASCIcon = RMSIcons.loadDataSourceImageIcon("CASC.png");

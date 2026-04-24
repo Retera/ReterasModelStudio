@@ -3,7 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.globalsequence;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.EditableModel;
-import com.localizationmanager.localization.LocalizationManager;
+import com.localizationmanager.localization.localizationmanager;
 
 public class SetGlobalSequenceLengthAction implements UndoAction {
 	private final EditableModel model;
