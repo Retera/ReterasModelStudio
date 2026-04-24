@@ -50,7 +50,7 @@ project(":matrixeater") {
     dependencies {
         implementation project(":craft3data")
         implementation project(":craft3editor")
-        implementation project(":LocalizationManager")
+        implementation project(":localizationmanager")
         api "com.fifesoft:rsyntaxtextarea:$rsyntaxtextareaVersion"
         api "org.openjdk.nashorn:nashorn-core:${nashornVersion}"
     }
@@ -62,7 +62,7 @@ project(":craft3editor") {
 
     dependencies {
         implementation project(":craft3data")
-        implementation project(":LocalizationManager")
+        implementation project(":localizationmanager")
         api "org.jclarion:image4j:$image4jVersion"
     }
 }
@@ -72,7 +72,7 @@ project(":craft3data") {
 
 
     dependencies {
-		implementation project(":LocalizationManager")
+		implementation project(":localizationmanager")
 		api "com.jtattoo:JTattoo:$jtattooVersion"
 		api "com.miglayout:miglayout-swing:$miglayoutVersion"
 		api "org.lwjgl.lwjgl:lwjgl:${lwjglVersion}"
