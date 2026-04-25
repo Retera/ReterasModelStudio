@@ -37,7 +37,7 @@ public class MpqDataSourceDescriptor implements DataSourceDescriptor {
 
 	@Override
 	public String getDisplayName() {
-		return LocalizationManager.getInstance().get"string.mpqdatasourcedescriptor_getdisplayname") + mpqFilePath;
+		return LocalizationManager.getInstance().get("string.mpqdatasourcedescriptor_getdisplayname") + mpqFilePath;
 	}
 
 	@Override

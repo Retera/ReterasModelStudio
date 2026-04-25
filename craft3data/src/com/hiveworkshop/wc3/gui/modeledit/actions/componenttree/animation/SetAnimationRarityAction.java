@@ -33,6 +33,6 @@ public class SetAnimationRarityAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return LocalizationManager.getInstance().get"string.setanimationrarityaction_actionname") + newRarity;
+		return LocalizationManager.getInstance().get("string.setanimationrarityaction_actionname") + newRarity;
 	}
 }

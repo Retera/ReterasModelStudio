@@ -34,9 +34,9 @@ public class SetAnimationNonLoopingAction implements UndoAction {
 	@Override
 	public String actionName() {
 		if (newValue) {
-			return LocalizationManager.getInstance().get"string.setanimationnonloopingaction_actionname_1") + newValue;
+			return LocalizationManager.getInstance().get("string.setanimationnonloopingaction_actionname_1") + newValue;
 		}
-		return LocalizationManager.getInstance().get"string.setanimationnonloopingaction_actionname_2");
+		return LocalizationManager.getInstance().get("string.setanimationnonloopingaction_actionname_2");
 	}
 
 }
