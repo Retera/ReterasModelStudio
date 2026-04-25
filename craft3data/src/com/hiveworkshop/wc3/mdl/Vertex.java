@@ -5,6 +5,7 @@ import java.util.Collection;
 import javax.swing.JOptionPane;
 
 import org.lwjgl.util.vector.Vector4f;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class Vertex {
 	public static final Vertex ORIGIN = new Vertex(0, 0, 0);

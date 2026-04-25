@@ -33,6 +33,6 @@ public class SetAnimationIntervalStartAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return LocalizationManager.getLocalized("data.string.setanimationintervalstartaction_actionname") + newIntervalStart;
+		return LocalizationManager.getInstance().get"string.setanimationintervalstartaction_actionname") + newIntervalStart;
 	}
 }

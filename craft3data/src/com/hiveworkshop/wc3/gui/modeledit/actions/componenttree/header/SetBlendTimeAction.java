@@ -33,7 +33,7 @@ public class SetBlendTimeAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return LocalizationManager.getInstance().get("data.string.setblendtimeaction_actionname") + newBlendTime;
+		return LocalizationManager.getInstance().get("string.setblendtimeaction_actionname") + newBlendTime;
 	}
 
 }

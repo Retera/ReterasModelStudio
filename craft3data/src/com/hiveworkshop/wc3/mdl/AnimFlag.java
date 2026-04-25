@@ -63,6 +63,7 @@ import com.hiveworkshop.wc3.mdx.TextureRotation;
 import com.hiveworkshop.wc3.mdx.TextureScaling;
 import com.hiveworkshop.wc3.mdx.TextureTranslation;
 import com.hiveworkshop.wc3.util.MathUtils;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or

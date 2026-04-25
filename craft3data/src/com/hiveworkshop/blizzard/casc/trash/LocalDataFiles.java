@@ -20,6 +20,7 @@ import java.util.zip.Inflater;
 import com.hiveworkshop.blizzard.casc.nio.HashMismatchException;
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
 import com.hiveworkshop.lang.Hex;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class LocalDataFiles implements Closeable {
 	private static final int FRAGMENTATION_SIZE_BITS = 30;

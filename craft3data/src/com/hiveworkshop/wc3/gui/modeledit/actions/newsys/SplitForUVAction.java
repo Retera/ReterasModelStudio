@@ -100,7 +100,7 @@ public final class SplitForUVAction<T> implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return LocalizationManager.getInstance().get("data.string.splitforuvaction_actionname");
+		return LocalizationManager.getInstance().get("string.splitforuvaction_actionname");
 	}
 
 }

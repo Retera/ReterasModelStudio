@@ -33,6 +33,6 @@ public class SetAnimationNameAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return LocalizationManager.getLocalized("data.string.setanimationnameaction_actionname") + "\"" + newName + "\"";
+		return LocalizationManager.getInstance().get"string.setanimationnameaction_actionname") + "\"" + newName + "\"";
 	}
 }

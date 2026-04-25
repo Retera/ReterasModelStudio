@@ -3232,7 +3232,7 @@ class GeosetAnimationPanel extends JTabbedPane {
 
 		// vp = new
 		// VisibilityPane(thePanel.currentModel.m_geosets.size(),thePanel.currentModel.getName(),thePanel.importedModel.m_geosets.size(),thePanel.importedModel.getName(),geoIndex);
-		// addTab(LocalizationManager.getInstance().get("tab.importpanel_geosetanimationpanel_visibility"),ImportPanel.animIcon,vp,ocalizationManager.getInstance().get("data.tab.importpanel_geosetanimationpanel_edit_visibility"));
+		// addTab(LocalizationManager.getInstance().get("tab.importpanel_geosetanimationpanel_visibility"),ImportPanel.animIcon,vp,ocalizationManager.getInstance().get("tab.importpanel_geosetanimationpanel_edit_visibility"));
 	}
 
 	public void refreshLists() {

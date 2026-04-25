@@ -31,6 +31,6 @@ public class SetFloat3StaticValueAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return LocalizationManager.getInstance().get("data.string.setfloat3staticvalueaction_actionname") + valueTypeName;
+		return LocalizationManager.getInstance().get("string.setfloat3staticvalueaction_actionname") + valueTypeName;
 	}
 }

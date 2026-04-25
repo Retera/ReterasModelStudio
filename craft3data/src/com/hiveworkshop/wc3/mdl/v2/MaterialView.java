@@ -5,6 +5,7 @@ import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.v2.timelines.AnimatableVisitor;
 import com.hiveworkshop.wc3.mdl.v2.timelines.TangentialKeyFrame;
 import com.hiveworkshop.wc3.mdl.v2.timelines.Timeline;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public interface MaterialView {
 	ListView<? extends LayerView> getLayers();

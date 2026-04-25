@@ -33,6 +33,6 @@ public class SetBitmapWrapWidthAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return LocalizationManager.getInstance().get("data.string.setbitmapwrapwidthaction_actionname");
+		return LocalizationManager.getInstance().get("string.setbitmapwrapwidthaction_actionname");
 	}
 }

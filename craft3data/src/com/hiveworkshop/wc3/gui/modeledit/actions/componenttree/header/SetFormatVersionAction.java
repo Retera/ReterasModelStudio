@@ -33,7 +33,7 @@ public class SetFormatVersionAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return LocalizationManager.getInstance().get("data.string.setformatversionaction_actionname") + newVersion;
+		return LocalizationManager.getInstance().get("string.setformatversionaction_actionname") + newVersion;
 	}
 
 }

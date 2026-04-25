@@ -33,6 +33,6 @@ public class SetBitmapReplaceableIdAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return LocalizationManager.getInstance().get("data.string.setbitmapreplaceableidaction_actionname");
+		return LocalizationManager.getInstance().get("string.setbitmapreplaceableidaction_actionname");
 	}
 }

@@ -30,6 +30,6 @@ public class SetFloatStaticValueAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return LocalizationManager.getInstance().get("data.string.setfloatstaticvalueaction_actionname") + valueTypeName;
+		return LocalizationManager.getInstance().get("string.setfloatstaticvalueaction_actionname") + valueTypeName;
 	}
 }

@@ -21,7 +21,7 @@ public class FolderDataSourceDescriptor implements DataSourceDescriptor {
 
 	@Override
 	public String getDisplayName() {
-		return LocalizationManager.getLocalized("data.string.folderdatasourcedescriptor_getdisplayname") + folderPath;
+		return LocalizationManager.getInstance().get("string.folderdatasourcedescriptor_getdisplayname") + folderPath;
 	}
 
 	@Override

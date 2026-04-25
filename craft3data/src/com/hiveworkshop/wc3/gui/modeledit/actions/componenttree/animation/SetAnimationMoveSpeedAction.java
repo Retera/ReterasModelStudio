@@ -33,6 +33,6 @@ public class SetAnimationMoveSpeedAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return LocalizationManager.getLocalized("data.string.setanimationmovespeedaction_actionname") + newMoveSpeed;
+		return LocalizationManager.getInstance().get"string.setanimationmovespeedaction_actionname") + newMoveSpeed;
 	}
 }
