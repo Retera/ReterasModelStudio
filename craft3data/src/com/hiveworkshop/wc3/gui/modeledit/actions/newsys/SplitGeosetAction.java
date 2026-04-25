@@ -145,7 +145,7 @@ public final class SplitGeosetAction<T> implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return LocalizationManager.getLocalizedText("data.string.splitgeosetaction_actionname");
+		return LocalizationManager.getInstance().get("string.splitgeosetaction_actionname");
 	}
 
 }

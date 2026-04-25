@@ -33,6 +33,6 @@ public class SetBitmapWrapHeightAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return LocalizationManager.getLocalizedText("data.string.setbitmapwrapheightaction_actionname");
+		return LocalizationManager.getInstance().get("data.string.setbitmapwrapheightaction_actionname");
 	}
 }

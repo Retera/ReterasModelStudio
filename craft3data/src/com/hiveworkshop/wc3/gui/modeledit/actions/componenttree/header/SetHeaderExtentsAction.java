@@ -35,6 +35,6 @@ public class SetHeaderExtentsAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return LocalizationManager.getLocalizedText("data.string.setheaderextentsaction_actionname");
+		return LocalizationManager.getInstance().get("data.string.setheaderextentsaction_actionname");
 	}
 }

@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.user;
+import hiveworkshop.localizationmanager.LocalizationManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;

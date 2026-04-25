@@ -35,6 +35,6 @@ public class SetGlobalSequenceLengthAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return LocalizationManager.getLocalizedText("data.string.setglobalsequencelengthaction_actionname");
+		return LocalizationManager.getInstance().get("data.string.setglobalsequencelengthaction_actionname");
 	}
 }

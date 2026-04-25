@@ -33,6 +33,6 @@ public class SetBitmapPathAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return LocalizationManager.getLocalizedText("data.string.setbitmappathaction_actionname");
+		return LocalizationManager.getInstance().get("data.string.setbitmappathaction_actionname");
 	}
 }

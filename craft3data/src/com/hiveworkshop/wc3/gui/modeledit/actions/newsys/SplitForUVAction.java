@@ -1,10 +1,10 @@
 package com.hiveworkshop.wc3.gui.modeledit.actions.newsys;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.wc3.mdl.*;
-import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.util.*;
 
@@ -100,7 +100,7 @@ public final class SplitForUVAction<T> implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return LocalizationManager.getLocalizedText("data.string.splitforuvaction_actionname");
+		return LocalizationManager.getInstance().get("data.string.splitforuvaction_actionname");
 	}
 
 }
