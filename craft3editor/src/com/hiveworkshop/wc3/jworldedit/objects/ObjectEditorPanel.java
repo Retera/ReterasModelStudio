@@ -166,7 +166,7 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 		pasteButton.addActionListener(transferActionListener);
 		pasteButton.setActionCommand((String) TransferHandler.getPasteAction().getValue(Action.NAME));
 		toolBar.add(Box.createHorizontalStrut(8));
-		createNewButton = makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.objecteditorpanel_createtoolbar_createnew") "ToolBarIcon_OE_NewUnit",
+		createNewButton = makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.objecteditorpanel_createtoolbar_createnew"), "ToolBarIcon_OE_NewUnit",
 				"WESTRING_MENU_OE_UNIT_NEW");
 		createNewButton.addActionListener(new ActionListener() {
 			@Override
