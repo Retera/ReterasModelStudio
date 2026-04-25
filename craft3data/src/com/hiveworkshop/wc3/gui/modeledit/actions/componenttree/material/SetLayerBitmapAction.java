@@ -49,7 +49,7 @@ public class SetLayerBitmapAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return LocalizationManager.getLocalizedString("data.string.setlayerbitmapaction_actionname");
+		return LocalizationManager.getInstance().get("string.setlayerbitmapaction_actionname");
 	}
 
 }
