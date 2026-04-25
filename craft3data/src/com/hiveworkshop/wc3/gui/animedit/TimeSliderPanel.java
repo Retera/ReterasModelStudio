@@ -68,7 +68,7 @@ import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.TimelineContainer;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, SelectionListener {
 	private static final Color GLASS_TICK_COVER_COLOR = new Color(100, 190, 255, 100);

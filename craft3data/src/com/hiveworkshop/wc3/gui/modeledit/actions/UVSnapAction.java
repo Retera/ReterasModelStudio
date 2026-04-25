@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.TVertex;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * Undoable snap action.

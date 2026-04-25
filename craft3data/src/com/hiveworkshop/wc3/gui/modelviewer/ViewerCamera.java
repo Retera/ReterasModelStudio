@@ -9,7 +9,7 @@ import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 import com.hiveworkshop.wc3.util.MathUtils;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * A camera class, ported from Warsmash which was ported from mdx-m3-viewer

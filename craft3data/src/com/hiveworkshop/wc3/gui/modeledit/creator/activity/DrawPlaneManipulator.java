@@ -14,7 +14,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.DoNothingAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.AbstractManipulator;
 import com.hiveworkshop.wc3.mdl.Vertex;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class DrawPlaneManipulator extends AbstractManipulator {
 	private final ModelEditor modelEditor;

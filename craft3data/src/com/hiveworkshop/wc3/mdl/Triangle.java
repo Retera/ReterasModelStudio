@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.util.ArrayList;

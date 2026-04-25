@@ -84,7 +84,7 @@ import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.user.SaveProfile;
 import com.hiveworkshop.wc3.util.IconUtils;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import net.infonode.docking.View;
 

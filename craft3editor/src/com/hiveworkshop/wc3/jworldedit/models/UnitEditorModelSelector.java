@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.models;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;

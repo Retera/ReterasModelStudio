@@ -26,7 +26,7 @@ import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public final class TeamColorAddAction<T> implements UndoAction {
 

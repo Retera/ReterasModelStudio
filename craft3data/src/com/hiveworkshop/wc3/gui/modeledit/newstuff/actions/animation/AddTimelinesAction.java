@@ -6,7 +6,7 @@ import com.etheller.util.Pair;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.TimelineContainer;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class AddTimelinesAction implements UndoAction {
 	private final Collection<Pair<TimelineContainer, AnimFlag>> containersAndTimelines;

@@ -1,5 +1,5 @@
 package com.matrixeater.hacks;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;

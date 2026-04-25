@@ -7,7 +7,7 @@ import com.hiveworkshop.wc3.mdx.MaterialChunk;
 import com.hiveworkshop.wc3.mdx.MdxModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 

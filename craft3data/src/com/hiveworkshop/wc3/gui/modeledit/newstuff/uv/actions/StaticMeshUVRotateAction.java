@@ -3,7 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.actions;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexEditor;
 import com.hiveworkshop.wc3.mdl.TVertex;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public final class StaticMeshUVRotateAction implements GenericRotateAction {
 	private final TVertexEditor modelEditor;

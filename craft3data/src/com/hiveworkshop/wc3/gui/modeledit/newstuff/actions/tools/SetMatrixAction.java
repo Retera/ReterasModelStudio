@@ -10,7 +10,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.GeosetVertexBoneLink;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public final class SetMatrixAction implements UndoAction {
 	private final Map<GeosetVertex, List<GeosetVertexBoneLink>> vertexToOldBoneReferences;

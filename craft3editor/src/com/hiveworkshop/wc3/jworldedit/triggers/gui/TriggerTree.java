@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.triggers.gui;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;

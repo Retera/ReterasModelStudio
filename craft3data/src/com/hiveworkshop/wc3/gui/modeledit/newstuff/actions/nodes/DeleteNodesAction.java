@@ -16,7 +16,7 @@ import com.hiveworkshop.wc3.mdl.GeosetVertexBoneLink;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class DeleteNodesAction implements UndoAction {
 	private final List<IdObject> objects;

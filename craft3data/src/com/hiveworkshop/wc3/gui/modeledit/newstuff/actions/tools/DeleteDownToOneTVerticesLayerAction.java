@@ -6,7 +6,7 @@ import com.etheller.collections.Map;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.TVertex;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class DeleteDownToOneTVerticesLayerAction implements UndoAction {
 	private final Map<GeosetVertex, List<TVertex>> vertexToTVertexRemoved;

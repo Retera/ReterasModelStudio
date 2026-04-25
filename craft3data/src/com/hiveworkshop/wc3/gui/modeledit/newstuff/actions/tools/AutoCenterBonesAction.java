@@ -6,7 +6,7 @@ import com.etheller.collections.MapView;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Vertex;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public final class AutoCenterBonesAction implements UndoAction {
 	private final Map<Bone, Vertex> boneToOldPosition;

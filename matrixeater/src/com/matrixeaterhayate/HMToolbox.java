@@ -1,5 +1,5 @@
 package com.matrixeaterhayate;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.awt.GridLayout;
 

@@ -3,7 +3,7 @@ package com.hiveworkshop.wc3.gui.animedit.mdlvisripoff;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.Vertex;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * Aiming to copy some behaviors from Mdlvis with this

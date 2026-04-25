@@ -6,7 +6,7 @@ import java.util.NoSuchElementException;
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.modeledit.ModelPanel;
 

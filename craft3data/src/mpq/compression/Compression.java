@@ -1,5 +1,5 @@
 package mpq.compression;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.nio.ByteBuffer;
 import java.util.zip.DataFormatException;

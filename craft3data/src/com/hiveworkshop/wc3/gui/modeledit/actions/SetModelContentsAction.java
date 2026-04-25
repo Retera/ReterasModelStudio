@@ -3,7 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.actions;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.util.Callback;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class SetModelContentsAction implements UndoAction {
 	private final EditableModel newModel;

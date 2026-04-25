@@ -54,7 +54,7 @@ import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 	private final ProgramPreferences programPreferences;

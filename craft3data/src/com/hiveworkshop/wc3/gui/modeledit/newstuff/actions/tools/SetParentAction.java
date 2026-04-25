@@ -8,7 +8,7 @@ import com.etheller.collections.MapView;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.IdObject;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public final class SetParentAction implements UndoAction {
 	private final Map<IdObject, IdObject> nodeToOldParent;

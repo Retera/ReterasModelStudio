@@ -1,7 +1,7 @@
 package com.matrixeater.imp;
 
 import com.hiveworkshop.wc3.gui.icons.RMSIcons;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;

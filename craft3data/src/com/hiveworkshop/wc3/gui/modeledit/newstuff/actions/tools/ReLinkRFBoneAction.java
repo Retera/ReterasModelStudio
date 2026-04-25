@@ -26,7 +26,7 @@ import com.hiveworkshop.wc3.mdl.render3d.RenderNode;
 import com.hiveworkshop.wc3.mdl.render3d.RenderResourceAllocator;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.util.MathUtils;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public final class ReLinkRFBoneAction implements UndoAction {
 	private EditableModel model;

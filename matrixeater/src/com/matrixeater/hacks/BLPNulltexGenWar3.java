@@ -1,6 +1,6 @@
 package com.matrixeater.hacks;
 
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.File;
 import java.nio.file.Files;

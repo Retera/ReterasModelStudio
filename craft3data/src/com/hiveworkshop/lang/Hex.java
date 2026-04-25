@@ -1,5 +1,5 @@
 package com.hiveworkshop.lang;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.util.Arrays;
 

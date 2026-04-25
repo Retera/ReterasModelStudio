@@ -25,7 +25,7 @@ import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 import com.hiveworkshop.wc3.util.Callback;
 import com.hiveworkshop.wc3.util.IconUtils;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import net.miginfocom.swing.MigLayout;
 

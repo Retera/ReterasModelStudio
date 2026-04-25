@@ -3,7 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.material;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.Layer;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class SetLayerCoordIdAction implements UndoAction {
 	private final Layer layer;

@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import javax.swing.JOptionPane;
 

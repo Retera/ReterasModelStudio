@@ -14,7 +14,7 @@ import com.hiveworkshop.wc3.units.Warcraft3MapObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 

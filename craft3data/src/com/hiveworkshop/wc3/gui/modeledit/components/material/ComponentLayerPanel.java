@@ -46,7 +46,7 @@ import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.util.Callback;
 import com.hiveworkshop.wc3.util.IconUtils;
 import com.hiveworkshop.wc3.util.ModelUtils;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import net.miginfocom.swing.MigLayout;
 

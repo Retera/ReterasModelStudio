@@ -1,5 +1,5 @@
 package com.matrixeater.colorizer;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.awt.Color;
 import java.awt.Dimension;

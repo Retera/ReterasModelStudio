@@ -44,7 +44,7 @@ import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class CreatorModelingPanel extends JPanel
 		implements ModelEditorChangeActivityListener, TimeSliderTimeSelectionListener {

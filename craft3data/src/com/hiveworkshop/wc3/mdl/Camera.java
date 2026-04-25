@@ -11,7 +11,7 @@ import javax.swing.JOptionPane;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.IdObject.NodeFlags;
 import com.hiveworkshop.wc3.mdx.CameraChunk;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * Camera class, these are the things most people would think of as a particle

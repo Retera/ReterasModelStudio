@@ -24,7 +24,7 @@
  */
 
 package com.etheller.collections;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.IOException;
 import java.util.Collections;

@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.objects.better.fields;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.awt.Component;
 import java.awt.Dimension;

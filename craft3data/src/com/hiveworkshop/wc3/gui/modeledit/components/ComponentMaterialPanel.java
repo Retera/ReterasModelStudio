@@ -12,7 +12,7 @@ import com.hiveworkshop.wc3.gui.modeledit.components.material.ComponentMaterialL
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import net.miginfocom.swing.MigLayout;
 

@@ -1,5 +1,5 @@
 package com.matrixeater.imp;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.awt.Font;
 

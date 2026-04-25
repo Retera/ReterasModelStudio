@@ -3,7 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.animation;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.Animation;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class SetAnimationNameAction implements UndoAction {
 	private final String prevName;

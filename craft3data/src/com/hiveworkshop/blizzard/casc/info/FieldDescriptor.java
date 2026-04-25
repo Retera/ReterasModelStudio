@@ -1,5 +1,5 @@
 package com.hiveworkshop.blizzard.casc.info;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class FieldDescriptor {
 	private static final int NAME_TERMINATOR = '!';

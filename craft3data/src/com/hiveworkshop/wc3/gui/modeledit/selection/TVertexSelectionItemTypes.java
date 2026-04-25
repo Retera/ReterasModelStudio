@@ -4,7 +4,7 @@ import javax.swing.ImageIcon;
 
 import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonType;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public enum TVertexSelectionItemTypes implements ToolbarButtonType {
 	VERTEX(LocalizationManager.getInstance().get("string.tvertexselectionitemtypes_select_vertices"), RMSIcons.loadToolBarImageIcon("vertex.png")),

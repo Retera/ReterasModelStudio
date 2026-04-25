@@ -1,5 +1,5 @@
 package mpq;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import mpq.data.HashTableEntry;
 

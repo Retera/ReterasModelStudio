@@ -6,7 +6,7 @@ import javax.swing.UIManager;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
 import com.hiveworkshop.wc3.gui.BLPHandler;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class YseraFrame extends JFrame {
 	public YseraFrame() {

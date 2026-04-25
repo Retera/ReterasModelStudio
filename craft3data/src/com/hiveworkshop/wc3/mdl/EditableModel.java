@@ -74,7 +74,7 @@ import com.hiveworkshop.wc3.util.ModelUtils.Mesh;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * A java object to represent and store an MDL 3d model (Warcraft III file

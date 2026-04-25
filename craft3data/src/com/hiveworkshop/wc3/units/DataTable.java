@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.units;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.io.File;

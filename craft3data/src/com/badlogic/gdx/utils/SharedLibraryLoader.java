@@ -17,7 +17,7 @@
 /* Included in MatrixEater by Retera for deployability */
 
 package com.badlogic.gdx.utils;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.File;
 import java.io.FileInputStream;

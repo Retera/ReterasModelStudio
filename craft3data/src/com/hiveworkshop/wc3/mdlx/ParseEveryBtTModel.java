@@ -1,5 +1,5 @@
 package com.hiveworkshop.wc3.mdlx;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.File;
 import java.io.IOException;

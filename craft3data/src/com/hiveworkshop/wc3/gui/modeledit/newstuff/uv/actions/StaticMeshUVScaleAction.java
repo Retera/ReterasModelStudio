@@ -2,7 +2,7 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.actions;
 
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexEditor;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class StaticMeshUVScaleAction implements GenericScaleAction {
 	private final TVertexEditor modelEditor;

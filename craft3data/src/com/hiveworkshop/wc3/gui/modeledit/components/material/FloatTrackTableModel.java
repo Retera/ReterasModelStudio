@@ -3,7 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.components.material;
 import javax.swing.table.AbstractTableModel;
 
 import com.hiveworkshop.wc3.mdl.AnimFlag;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class FloatTrackTableModel extends AbstractTableModel {
 	private AnimFlag track;

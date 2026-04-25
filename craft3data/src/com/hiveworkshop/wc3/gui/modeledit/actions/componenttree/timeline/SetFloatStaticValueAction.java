@@ -2,7 +2,7 @@ package com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.timeline;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.util.Callback;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class SetFloatStaticValueAction implements UndoAction {
 	private final String valueTypeName;

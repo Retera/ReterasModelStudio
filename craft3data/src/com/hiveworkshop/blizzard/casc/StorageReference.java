@@ -1,5 +1,5 @@
 package com.hiveworkshop.blizzard.casc;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.util.Map;
 

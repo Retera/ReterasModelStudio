@@ -10,7 +10,7 @@ import java.util.List;
 import com.hiveworkshop.ReteraCASCUtils;
 import com.hiveworkshop.blizzard.casc.Key;
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * Decodes file data for file value nodes.

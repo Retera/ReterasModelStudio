@@ -5,7 +5,7 @@ import javax.swing.JScrollPane;
 
 import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.gui.modeledit.ModelPanel;
-import hiveworkshop.localizationmanager.localizationmanager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class AnimationFrame extends JFrame {
 	public AnimationFrame(final ModelPanel mdlDisp, final Runnable onFinish) {
