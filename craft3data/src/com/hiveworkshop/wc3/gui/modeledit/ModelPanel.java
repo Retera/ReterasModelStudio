@@ -388,7 +388,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 				LocalizationManager.getInstance().get("global.button.no"), 
 				LocalizationManager.getInstance().get("global.button.cancel") };
 			final int n = JOptionPane.showOptionDialog(parent,
-					LocalizationManager.getInstance().get("dialog.modelpanel_close_") + model.getName()/* parent.tabbedPane.getTitleAt(myIndex) */ + " (\""
+					LocalizationManager.getInstance().get("dialog.modelpanel_close_1") + model.getName()/* parent.tabbedPane.getTitleAt(myIndex) */ + " (\""
 							+ model.getHeaderName() + "\")" + LocalizationManager.getInstance().get("dialog.modelpanel_close_2"),
 					LocalizationManager.getInstance().get("dialog.modelpanel_close_3"), JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
 					options[2]);
