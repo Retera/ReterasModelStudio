@@ -277,7 +277,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 				copies.add(null);
 				// System.out.println(LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextrudingselection_geosetvertex")
 				// + i + 
-				// LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextrudingselection_not_found="));
+				// LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextrudingselection_not_found"));
 			}
 		}
 		for (final Triangle tri : selTris) {

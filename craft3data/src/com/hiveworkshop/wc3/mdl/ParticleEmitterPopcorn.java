@@ -312,7 +312,7 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 			}
 		}
 		if (!foundFlag) {
-			writer.println(LocalizationManager.getInstance().get("println.particleemitterpopcorn_printto_static_alpha=") + MDLReader.doubleToString(alpha) + ",");
+			writer.println(LocalizationManager.getInstance().get("println.particleemitterpopcorn_printto_static_alpha") + MDLReader.doubleToString(alpha) + ",");
 		}
 		if (replaceableId != 0) {
 			writer.println(LocalizationManager.getInstance().get("println.particleemitterpopcorn_printto_replaceableid") + replaceableId + ",");

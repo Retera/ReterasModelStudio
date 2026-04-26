@@ -492,7 +492,7 @@ public class MainFrame extends JFrame {
 		currentThread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 			@Override
 			public void uncaughtException(final Thread t, final Throwable e) {
-				ExceptionPopup.display(LocalizationManager.getInstance().get("matrixeater.display.defaultexceptionhandler=") + t.getName() + "\"", e);
+				ExceptionPopup.display(LocalizationManager.getInstance().get("matrixeater.display.defaultexceptionhandler") + t.getName() + "\"", e);
 				System.err.println(LocalizationManager.getInstance().get("matrixeater.println.defaultexceptionhandler") + t.getName());
 				e.printStackTrace();
 			}

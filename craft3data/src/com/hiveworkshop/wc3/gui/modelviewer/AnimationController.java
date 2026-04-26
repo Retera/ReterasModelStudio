@@ -117,8 +117,8 @@ public class AnimationController extends JPanel {
 		};
 		playAnimationButton.addActionListener(playAnimationActionListener);
 
-		final JRadioButton defaultLoopButton = new JRadioButton(LocalizationManager.getInstance().get("button.animationcontroller_animationcontroller_defaultloop="));
-		final JRadioButton alwaysLoopButton = new JRadioButton(LocalizationManager.getInstance().get("button.animationcontroller_animationcontroller_alwaysloop="));
+		final JRadioButton defaultLoopButton = new JRadioButton(LocalizationManager.getInstance().get("button.animationcontroller_animationcontroller_defaultloop"));
+		final JRadioButton alwaysLoopButton = new JRadioButton(LocalizationManager.getInstance().get("button.animationcontroller_animationcontroller_alwaysloop"));
 		final JRadioButton neverLoopButton = new JRadioButton(LocalizationManager.getInstance().get("button.animationcontroller_animationcontroller_neverloop"));
 
 		final ButtonGroup buttonGroup = new ButtonGroup();

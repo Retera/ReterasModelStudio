@@ -52,7 +52,7 @@ public class GoodSLKEdit extends JPanel {
 	public JMenuBar createJMenuBar() {
 		final JMenuBar menuBar = new JMenuBar();
 
-		final JMenu fileMenu = new JMenu(LocalizationManager.getInstance().get("menu.goodslkedit_goodslkedit_file="));
+		final JMenu fileMenu = new JMenu(LocalizationManager.getInstance().get("menu.goodslkedit_goodslkedit_file"));
 		final JMenuItem openMenuItem = new JMenuItem(LocalizationManager.getInstance().get("menu.goodslkedit_goodslkedit_open"));
 
 		openMenuItem.addActionListener(new ActionListener() {

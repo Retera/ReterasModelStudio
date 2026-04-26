@@ -778,7 +778,7 @@ public class Material implements MaterialView {
 				}
 			}
 			System.out.println(LocalizationManager.getInstance().get("println.material_getbakedhdnonemissivebufferedimage_bake_texture") + nShadedPixels + LocalizationManager.getInstance().get("println.material_getbakedhdnonemissivebufferedimage_pixels")
-					+ nDiffusePixels + LocalizationManager.getInstance().get("println.material_getbakedhdnonemissivebufferedimage_defaulting="));
+					+ nDiffusePixels + LocalizationManager.getInstance().get("println.material_getbakedhdnonemissivebufferedimage_defaulting"));
 
 			try {
 				final String diffusePath = zeroLayer.firstTexture().getPath();

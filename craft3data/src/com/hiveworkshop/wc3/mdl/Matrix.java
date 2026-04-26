@@ -114,7 +114,7 @@ public class Matrix {
 			}
 			else {
 //				JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.matrix_updatebones_referencing"));
-				System.err.println(LocalizationManager.getInstance().get("dialog.matrix_updatebones_referencing=") + m_boneIds.get(i));
+				System.err.println(LocalizationManager.getInstance().get("dialog.matrix_updatebones_referencing") + m_boneIds.get(i));
 			}
 		}
 	}

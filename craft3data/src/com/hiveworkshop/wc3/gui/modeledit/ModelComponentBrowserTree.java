@@ -260,14 +260,14 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 		root.add(tVertexAnims);
 		final DefaultMutableTreeNode geosets = new DefaultMutableTreeNode(
-				new ChooseableDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("Geosets")));
+				new ChooseableDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_buildtreemodel_geosets")));
 		for (final Geoset item : modelViewManager.getModel().getGeosets()) {
 			geosets.add(new DefaultMutableTreeNode(new ChooseableGeosetItem(modelViewManager, undoActionListener,
 					modelStructureChangeListener, item)));
 		}
 		root.add(geosets);
 		final DefaultMutableTreeNode geosetAnims = new DefaultMutableTreeNode(new ChooseableDummyItem(modelViewManager,
-				undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_buildtreemodel_geosets")));
+				undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_buildtreemodel_geosetsanims")));
 		for (final GeosetAnim item : modelViewManager.getModel().getGeosetAnims()) {
 			geosetAnims.add(new DefaultMutableTreeNode(new ChooseableGeosetAnimItem(modelViewManager,
 					undoActionListener, modelStructureChangeListener, item)));

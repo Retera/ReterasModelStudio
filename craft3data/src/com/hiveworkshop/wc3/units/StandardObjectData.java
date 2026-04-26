@@ -72,7 +72,7 @@ public class StandardObjectData {
 		units.add(profile, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_profile"), false);
 		units.add(unitAbilities, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_unitabilities"), true);
 		units.add(unitBalance, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_unitbalance"), true);
-		units.add(unitData, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_unitdata="), true);
+		units.add(unitData, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_unitdata"), true);
 		units.add(unitUI, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_unitui"), true);
 		units.add(unitWeapons, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_unitweapons"), true);
 		// TODO: The actual War3 game engine does not use this string, "ProfileSkin",

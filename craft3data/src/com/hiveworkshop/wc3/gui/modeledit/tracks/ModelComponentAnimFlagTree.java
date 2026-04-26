@@ -230,7 +230,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 				undoActionListener, modelStructureChangeListener, modelViewManager.getModel()));
 
 		final DefaultMutableTreeNode materials = new DefaultMutableTreeNode(new ChooseableDummyItem(modelViewManager,
-				undoActionListener, modelStructureChangeListener, "Materials"));
+				undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_buildtreemodel_materials")));
 		for (final Material item : modelViewManager.getModel().getMaterials()) {
 			final DefaultMutableTreeNode materialNode = new DefaultMutableTreeNode(new ChooseableMaterialItem(
 					modelViewManager, undoActionListener, modelStructureChangeListener, item));
@@ -353,7 +353,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		root.add(nodes);
 
 		final DefaultMutableTreeNode cameras = new DefaultMutableTreeNode(
-				new ChooseableDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_buildtreemodel_cameras=")));
+				new ChooseableDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_buildtreemodel_cameras")));
 		for (final Camera item : modelViewManager.getModel().getCameras()) {
 			cameras.add(new DefaultMutableTreeNode(new ChooseableCameraItem(modelViewManager, undoActionListener,
 					modelStructureChangeListener, item)));

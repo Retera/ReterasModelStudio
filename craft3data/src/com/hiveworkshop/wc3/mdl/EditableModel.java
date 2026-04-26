@@ -1274,7 +1274,7 @@ public class EditableModel implements Named {
 			}
 			catch (final NumberFormatException e) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						LocalizationManager.getInstance().get("global.dialog.error") +  " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.editablemodel_parse4floatbpos_interpreted="));
+						LocalizationManager.getInstance().get("global.dialog.error") +  " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.editablemodel_parse4floatbpos_interpreted"));
 			}
 		}
 		try {
@@ -1282,7 +1282,7 @@ public class EditableModel implements Named {
 		}
 		catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					LocalizationManager.getInstance().get("global.dialog.error") +  " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.editablemodel_parse4floatbpos_interpreted="));
+					LocalizationManager.getInstance().get("global.dialog.error") +  " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.editablemodel_parse4floatbpos_interpreted"));
 		}
 	}
 

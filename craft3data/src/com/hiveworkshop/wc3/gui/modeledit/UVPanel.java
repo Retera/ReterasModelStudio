@@ -464,7 +464,7 @@ public class UVPanel extends JPanel
 //
 //				if (newType == SelectionItemTypes.TPOSE) {
 //
-//					final Object[] settings = { LocalizationManager.getInstance().get("string.uvpanel_uvpanel_move_linked"), LocalizationManager.getInstance().get("string.uvpanel_uvpanel_move_single=") };
+//					final Object[] settings = { LocalizationManager.getInstance().get("string.uvpanel_uvpanel_move_linked"), LocalizationManager.getInstance().get("string.uvpanel_uvpanel_move_single") };
 //					final Object dialogResult = JOptionPane.showInputDialog(null, LocalizationManager.getInstance().get("string.uvpanel_uvpanel_choose_settings"), LocalizationManager.getInstance().get("string.uvpanel_uvpanel_tpose_settings"),
 //							JOptionPane.PLAIN_MESSAGE, null, settings, settings[0]);
 //					final boolean moveLinked = dialogResult == settings[0];
@@ -1248,10 +1248,10 @@ public class UVPanel extends JPanel
 	}
 
 	public static enum UnwrapDirection {
-		FRONT("Front"),
-		RIGHT("Right"),
-		BOTTOM("Bottom"),
-		PERSPECTIVE("Perspective");
+		FRONT(LocalizationManager.getInstance().get("label.uvpanel_unwrapdirection_front")),
+		RIGHT(LocalizationManager.getInstance().get("label.uvpanel_unwrapdirection_right")),
+		BOTTOM(LocalizationManager.getInstance().get("label.uvpanel_unwrapdirection_bottom")),
+		PERSPECTIVE(LocalizationManager.getInstance().get("label.uvpanel_unwrapdirection_perspective"));
 
 		private final String displayText;
 

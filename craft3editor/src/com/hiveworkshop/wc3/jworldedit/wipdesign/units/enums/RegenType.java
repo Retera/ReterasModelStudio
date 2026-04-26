@@ -23,6 +23,6 @@ public enum RegenType {
 				return cat;
 			}
 		}
-		throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.regentype_fromcodename_exist=") + name);
+		throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.regentype_fromcodename_exist") + name);
 	}
 }

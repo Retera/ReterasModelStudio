@@ -119,7 +119,7 @@ public class ArchivedFile implements Serializable {
 		
 		// load CRC sector if present
 		if( hasFlag(BlockTable.FLAG_SECTOR_CRC) && blockOffsets[blockOffsets.length - 1] != blockOffsets[blockOffsets.length - 2] ){
-			System.err.println(LocalizationManager.getInstance().get("printf.archivedfile_loadoffsets_supported="));
+			System.err.println(LocalizationManager.getInstance().get("printf.archivedfile_loadoffsets_supported"));
 		}
 		
 		ready = true;

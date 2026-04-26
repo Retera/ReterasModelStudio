@@ -207,7 +207,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		this.importedModel = importedModel;
 
 		// Geoset Panel
-		addTab(LocalizationManager.getInstance().get("tab.importpanel_importpanel_geosets="), geoIcon, geosetsPanel, LocalizationManager.getInstance().get("tab.importpanel_importpanel_geosets_imported"));
+		addTab(LocalizationManager.getInstance().get("tab.importpanel_importpanel_geosets"), geoIcon, geosetsPanel, LocalizationManager.getInstance().get("tab.importpanel_importpanel_geosets_imported"));
 
 		final DefaultListModel materials = new DefaultListModel();
 		for (int i = 0; i < currentModel.getMaterials().size(); i++) {
