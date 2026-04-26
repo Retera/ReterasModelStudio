@@ -3,6 +3,11 @@
 sourceCompatibility = 1.17
 
 sourceSets.main.java.srcDirs = [ "src/" ]
+sourceSets.main.resources.srcDirs = [ "src/" ]  // 将src目录也作为资源目录
+
+processResources {
+    include 'hiveworkshop/localizationmanager/lang/*.properties'
+}
 
 
 eclipse.project {
