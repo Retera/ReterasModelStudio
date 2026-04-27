@@ -1599,11 +1599,11 @@ public class MainPanel extends JPanel
 		filterFile = new File("", ".mdl");
 		filter = new MDLFilter();
 		fc.setAcceptAllFileFilterUsed(false);
-		fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III Binary Model '-.mdx'", "mdx"));
-		fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III Texture '-.blp'", "blp"));
-		fc.addChoosableFileFilter(new FileNameExtensionFilter("PNG Image '-.png'", "png"));
+		fc.addChoosableFileFilter(new FileNameExtensionFilter(LocalizationManager.getInstance().get("matrixeater.filefilter_mdx"), "mdx"));
+		fc.addChoosableFileFilter(new FileNameExtensionFilter(LocalizationManager.getInstance().get("matrixeater.filefilter_blp"), "blp"));
+		fc.addChoosableFileFilter(new FileNameExtensionFilter(LocalizationManager.getInstance().get("matrixeater.filefilter_png"), "png"));
 		fc.addChoosableFileFilter(filter);
-		fc.addChoosableFileFilter(new FileNameExtensionFilter("Wavefront OBJ '-.obj'", "obj"));
+		fc.addChoosableFileFilter(new FileNameExtensionFilter(LocalizationManager.getInstance().get("matrixeater.filefilter_obj"), "obj"));
 		exportTextureDialog = new JFileChooser();
 		exportTextureDialog.setDialogTitle(LocalizationManager.getInstance().get("matrixeater.dialog.export_texture"));
 		final String[] imageTypes = ImageIO.getWriterFileSuffixes();
@@ -4133,13 +4133,13 @@ public class MainPanel extends JPanel
 		fetch.setMnemonic(KeyEvent.VK_F);
 		fileMenu.add(fetch);
 
-		fetchUnit = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.fetchunit"));
+		fetchUnit = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.fetchunit"));
 		fetchUnit.setAccelerator(KeyStroke.getKeyStroke("control U"));
 		fetchUnit.setMnemonic(KeyEvent.VK_U);
 		fetchUnit.addActionListener(this);
 		fetch.add(fetchUnit);
 
-		fetchModel = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menu.fetchmodel"));
+		fetchModel = new JMenuItem(LocalizationManager.getInstance().get("matrixeater.menuitem.fetchmodel"));
 		fetchModel.setAccelerator(KeyStroke.getKeyStroke("control M"));
 		fetchModel.setMnemonic(KeyEvent.VK_M);
 		fetchModel.addActionListener(this);
@@ -4394,8 +4394,8 @@ public class MainPanel extends JPanel
 				if ((first.getStaticColor() != null) && !first.getStaticColor().equalLocs(second.getStaticColor())) {
 					return false;
 				}
-				final AnimFlag firstAnimatedColor = AnimFlag.find(first.getAnimFlags(), "Color");
-				final AnimFlag secondAnimatedColor = AnimFlag.find(second.getAnimFlags(), "Color");
+				final AnimFlag firstAnimatedColor = AnimFlag.find(first.getAnimFlags(), LocalizationManager.getInstance().get("matrixeater.animflag.color"));
+				final AnimFlag secondAnimatedColor = AnimFlag.find(second.getAnimFlags(), LocalizationManager.getInstance().get("matrixeater.animflag.color"));
 				if ((firstAnimatedColor == null) != (secondAnimatedColor == null)) {
 					return false;
 				}
@@ -4874,7 +4874,7 @@ public class MainPanel extends JPanel
 						}
 					}
 					newGeoset.updateToObjects(current);
-					System.out.println("putting " + newGeoset.numUVLayers() + LocalizationManager.getInstance().get("matrixeater.println.numuvlayers") + host.numUVLayers());
+					System.out.println(LocalizationManager.getInstance().get("matrixeater.println.putting") + newGeoset.numUVLayers() + LocalizationManager.getInstance().get("matrixeater.println.numuvlayers") + host.numUVLayers());
 					for (int i = 0; i < newGeoset.numVerteces(); i++) {
 						final GeosetVertex ver = newGeoset.getVertex(i);
 						host.add(ver);
@@ -5388,7 +5388,7 @@ public class MainPanel extends JPanel
 					new ImageIcon(
 							BLPHandler.get().getGameTex(objectFetched.getFieldAsString(UnitFields.INTERFACE_ICON, 0))
 									.getScaledInstance(16, 16, Image.SCALE_FAST)));
-			final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
+			final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + LocalizationManager.getInstance().get("matrixeater.menuitem.fetchedobject_portrait")
 					+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
 			if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
 				loadStreamMdx(MpqCodebase.get().getResourceAsStream(portrait), true, false,
@@ -5410,7 +5410,7 @@ public class MainPanel extends JPanel
 					BLPHandler.get().getGameTex(model.getCachedIconPath()).getScaledInstance(16, 16, Image.SCALE_FAST))
 					: RMSIcons.MDLIcon;
 			loadStreamMdx(MpqCodebase.get().getResourceAsStream(filepath), true, true, icon);
-			final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
+			final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + LocalizationManager.getInstance().get("matrixeater.menuitem.fetchedobject_portrait")
 					+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
 			if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
 				loadStreamMdx(MpqCodebase.get().getResourceAsStream(portrait), true, false, icon);
@@ -5426,7 +5426,7 @@ public class MainPanel extends JPanel
 		if (filepath != null) {
 			loadStreamMdx(MpqCodebase.get().getResourceAsStream(filepath), true, true,
 					new ImageIcon(unitFetched.getImage().getScaledInstance(16, 16, Image.SCALE_DEFAULT)));
-			final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
+			final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + LocalizationManager.getInstance().get("matrixeater.menuitem.fetchedobject_portrait")
 					+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
 			if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
 				loadStreamMdx(MpqCodebase.get().getResourceAsStream(portrait), true, false,
@@ -5520,7 +5520,7 @@ public class MainPanel extends JPanel
 
 	private boolean onClickSaveAs(final EditableModel current, final Consumer<File> fileCallback) {
 		try {
-			fc.setDialogTitle("Save as");
+			fc.setDialogTitle(LocalizationManager.getInstance().get("matrixeater.exception.save_as"));
 			if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 				fc.setCurrentDirectory(current.getFile().getParentFile());
 				fc.setSelectedFile(current.getFile());

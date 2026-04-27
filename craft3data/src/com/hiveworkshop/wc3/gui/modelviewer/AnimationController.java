@@ -58,7 +58,7 @@ public class AnimationController extends JPanel {
 			@Override
 			public Component getListCellRendererComponent(final JList list, final Object value, final int index,
 					final boolean isSelected, final boolean cellHasFocus) {
-				Object display = value == null ? "(Unanimated)" : value;
+				Object display = value == null ? LocalizationManager.getInstance().get("object.animationcontroller_animationcontroller_unanimated") : value;
 				if (value != null) {
 					display = "(" + mdlDisp.getModel().getAnims().indexOf(value) + ") " + display;
 				}
