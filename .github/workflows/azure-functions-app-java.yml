@@ -35,15 +35,15 @@ jobs:
       run: ./gradlew.bat
       working-directory: ./
 
-    - name: 尝试打包 - jpackage
-      run: ./gradlew.bat jpackage
-      working-directory: ./
-      continue-on-error: true
-
-    # - name: 尝试打包 -  launch4j
-    #   run: ./gradlew.bat launch4j
+    # - name: 尝试打包 - jpackage
+    #   run: ./gradlew.bat jpackage
     #   working-directory: ./
     #   continue-on-error: true
+
+    - name: 尝试打包 -  launch4j
+      run: ./gradlew.bat launch4j
+      working-directory: ./
+      continue-on-error: true
 
     - name: 检查公共位置
       id: check_exe
