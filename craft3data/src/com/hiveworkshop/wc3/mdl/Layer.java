@@ -31,13 +31,13 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 	// 5: modulate
 	// 6: modulate 2x
 	public static enum FilterMode {
-		NONE("None"),
-		TRANSPARENT("Transparent"),
-		BLEND("Blend"),
-		ADDITIVE("Additive"),
-		ADDALPHA("AddAlpha"),
-		MODULATE("Modulate"),
-		MODULATE2X("Modulate2x");
+		NONE(LocalizationManager.getInstance().get("string.layer_layer_none")),
+		TRANSPARENT(LocalizationManager.getInstance().get("string.layer_layer_transparent")),
+		BLEND(LocalizationManager.getInstance().get("string.layer_layer_blend")),
+		ADDITIVE(LocalizationManager.getInstance().get("string.layer_layer_additive")),
+		ADDALPHA(LocalizationManager.getInstance().get("string.layer_layer_addalpha")),
+		MODULATE(LocalizationManager.getInstance().get("string.layer_layer_modulate")),
+		MODULATE2X(LocalizationManager.getInstance().get("string.layer_layer_modulate2x"));
 
 		String mdlText;
 
