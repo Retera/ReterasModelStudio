@@ -35,13 +35,17 @@ jobs:
       run: ./gradlew.bat
       working-directory: ./
 
-    - name: jpackage打包生成EXE安装程序
-      run: ./gradlew.bat :matrixeater:jpackage
+    - name: jpackageImage打包生成EXE运行文件
+      run: ./gradlew.bat :matrixeater:jpackageImage
       working-directory: ./
 
-    - name: runtime打包生成扁平化目录
-      run: ./gradlew.bat :matrixeater:runtime
-      working-directory: ./
+    # - name: jpackage打包生成EXE安装程序
+    #   run: ./gradlew.bat :matrixeater:jpackage
+    #   working-directory: ./
+
+    # - name: runtime打包生成扁平化目录
+    #   run: ./gradlew.bat :matrixeater:runtime
+    #   working-directory: ./
 
     - name: 检查公共位置
       id: check_exe
@@ -72,14 +76,20 @@ jobs:
         }
       shell: pwsh
 
-    - name: 上传EXE安装程序
+    - name: 上传EXE运行文件
       uses: actions/upload-artifact@v4
       with:
-        name: ReterasModelStudio-Installer
-        path: matrixeater/build/jpackage/*.exe
+        name: ReterasModelStudio
+        path: matrixeater/build/jpackage/ReterasModelStudio
 
-    - name: 上传扁平化运行目录
-      uses: actions/upload-artifact@v4
-      with:
-        name: ReterasModelStudio-Portable
-        path: matrixeater/build/image/
+    # - name: 上传EXE安装程序
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: ReterasModelStudio-Installer
+    #     path: matrixeater/build/jpackage/*.exe
+
+    # - name: 上传扁平化运行目录
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: ReterasModelStudio-Portable
+    #     path: matrixeater/build/image/
