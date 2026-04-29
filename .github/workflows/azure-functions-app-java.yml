@@ -37,26 +37,36 @@ jobs:
     #   run: ./gradlew.bat :matrixeater:jpackageImage
     #   working-directory: ./
 
-    - name: 打包 distribution
-      run: .\gradlew dist
+    - name: Build with Gradle
+        run: ./gradlew clean build --parallel
+
+    - name: Download Launch4j
+        run: |
+          wget https://github.com/lukesampson/launch4j/releases/download/v3.14/launch4j-3.14-win32.zip -OutFile launch4j.zip
+          Expand-Archive launch4j.zip -DestinationPath launch4j
+
+    - name: Package with Launch4j
+        run: |
+          mkdir -p release/bin release/conf release/lib release/legal release/stock
+          cp build/libs/*.jar release/lib/
+          $config = @"
+          <launch4jConfig>
+            <headerType>gui</headerType>
+            <outfile>release/ReteraModelStudio.exe</outfile>
+            <jar>lib/your-app.jar</jar>
+            <classPath>
+              <mainClass>com.matrixeater.MainFrame</mainClass>
+            </classPath>
+          </launch4jConfig>
+          "@
+          $config | Out-File -Encoding ASCII launch4j-config.xml
+          java -jar launch4j/launch4j.jar launch4j-config.xml
 
     - name: 上传
       uses: actions/upload-artifact@v4
       with:
         name: ReteraModelStudio
-        path: matrixeater/build
-
-    # - name: 上传EXE安装程序
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: ReterasModelStudio-Installer
-    #     path: matrixeater/build/jpackage/*.exe
-
-    # - name: 上传扁平化运行目录
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: ReterasModelStudio-Portable
-    #     path: matrixeater/build/image/
+        path: D:\a\ReterasModelStudio\ReterasModelStudio
 
     - name: 检查公共位置
       id: check_exe
