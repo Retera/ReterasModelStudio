@@ -3,12 +3,10 @@ name: Build Reteras Model Studio EXE
 on:
   push:
     branches: [ CN ]  # 可以在这里指定触发工作流的分支
-  pull_request:
-    branches: [ CN ]  # 也可以为pull request设置触发
 
 jobs:
   build:
-    runs-on: windows-latest  # 使用Windows最新版本来编译EXE
+    runs-on: windows-latest
     strategy:
       matrix:
         java: [ '17' ]  # 项目需要 JDK 17
@@ -16,88 +14,33 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up GraalVM
-      uses: graalvm/setup-graalvm@v1
+    - name: Set up Java
+      uses: actions/setup-java@v4
       with:
-        java-version: '17'
-        distribution: 'graalvm'
-        components: 'native-image'
+        java-version: ${{ matrix.java }}
+        distribution: 'temurin'
+        cache: 'gradle'
 
-    # - name: 授权 gradlew 执行
-    #   run: chmod +x ./gradlew  # 在Windows上这一步可能不是必需的，取决于你的脚本权限
-    #   working-directory: ./  # 根据实际情况调整工作目录
+    - name: Grant execute permission for gradlew
+      run: chmod +x ./gradlew
+      working-directory: ./
 
-    # - name: 构建运行时环境和 JAR
-    #   run: |
-    #     ./gradlew.bat :matrixeater:runtime
-    #     ./gradlew.bat :matrixeater:dist
-    #   working-directory: ./
-
-    # - name: jpackageImage打包生成EXE运行文件
-    #   run: ./gradlew.bat :matrixeater:jpackageImage
-    #   working-directory: ./
+    - name: List all available Gradle tasks
+      run: ./gradlew.bat tasks --all
+      working-directory: ./
 
     - name: Build with Gradle
-      run: ./gradlew clean build --parallel
+      run: ./gradlew.bat
+      working-directory: ./
 
-    - name: Download Launch4j
-      run: |
-        Invoke-WebRequest -Uri "https://github.com/lukesampson/launch4j/releases/download/v3.14/launch4j-3.14-win32.zip" -OutFile "launch4j.zip"
-        Expand-Archive -Path launch4j.zip -DestinationPath launch4j
-
-    - name: Package with Launch4j
-      run: |
-        # 创建官方目录结构
-        mkdir -p release/bin release/conf release/lib release/legal release/stock
-        cp build/libs/*.jar release/lib/
-        
-        # 配置 Launch4j XML
-        $config = @'
-        <launch4jConfig>
-          <headerType>gui</headerType>
-          <outfile>release/ReteraModelStudio.exe</outfile>
-          <jar>lib/your-app.jar</jar>
-          <classPath>
-            <mainClass>com.matrixeater.MainFrame</mainClass>
-          </classPath>
-        </launch4jConfig>
-        '@
-        $config | Out-File -Encoding ASCII launch4j-config.xml
-        
-        # 生成 EXE
-        java -jar launch4j/launch4j.jar launch4j-config.xml
-
-    - name: 上传
+    - name: create EXE with jpackage
+      run: ./gradlew.bat jpackage
+      working-directory: ./
+      continue-on-error: true
+  
+    - name: Upload EXE Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ReteraModelStudio
-        path: D:\a\ReterasModelStudio\ReterasModelStudio
+        name: ReterasModelStudio-EXE
+        path: D:/a/ReterasModelStudio/ReterasModelStudio/matrixeater/build/jpackage/matrixeater
 
-    - name: 检查公共位置
-      id: check_exe
-      run: |
-        echo "Checking ./ for EXE files..."
-        if (Test-Path "./*.*") {
-          echo "Found EXE in ./"
-        } else {
-          echo "No EXE found in ./"
-        }
-      shell: pwsh
-
-    - name: 列出构建目录文件
-      run: |
-        echo "Listing all files in build directory:"
-        Get-ChildItem -Recurse ./ | Where-Object { $_.Extension -eq ".*" } | ForEach-Object {
-          echo "Found EXE: $_"
-        }
-
-        echo "Listing all files in ./:"
-        Get-ChildItem ./ | ForEach-Object {
-          echo "File: $_"
-        }
-
-        echo "Listing all files in ./:"
-        Get-ChildItem ./ | ForEach-Object {
-          echo "File: $_"
-        }
-      shell: pwsh
