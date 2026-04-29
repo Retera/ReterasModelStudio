@@ -42,14 +42,17 @@ jobs:
 
     - name: Download Launch4j
       run: |
-        wget https://github.com/lukesampson/launch4j/releases/download/v3.14/launch4j-3.14-win32.zip -OutFile launch4j.zip
-        Expand-Archive launch4j.zip -DestinationPath launch4j
+        Invoke-WebRequest -Uri "https://github.com/lukesampson/launch4j/releases/download/v3.14/launch4j-3.14-win32.zip" -OutFile "launch4j.zip"
+        Expand-Archive -Path launch4j.zip -DestinationPath launch4j
 
     - name: Package with Launch4j
       run: |
+        # 创建官方目录结构
         mkdir -p release/bin release/conf release/lib release/legal release/stock
         cp build/libs/*.jar release/lib/
-        $config = @"
+        
+        # 配置 Launch4j XML
+        $config = @'
         <launch4jConfig>
           <headerType>gui</headerType>
           <outfile>release/ReteraModelStudio.exe</outfile>
@@ -58,8 +61,10 @@ jobs:
             <mainClass>com.matrixeater.MainFrame</mainClass>
           </classPath>
         </launch4jConfig>
-        "@
+        '@
         $config | Out-File -Encoding ASCII launch4j-config.xml
+        
+        # 生成 EXE
         java -jar launch4j/launch4j.jar launch4j-config.xml
 
     - name: 上传
