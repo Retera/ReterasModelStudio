@@ -35,15 +35,23 @@ jobs:
       run: ./gradlew.bat
       working-directory: ./
 
+    - name: runtime打包
+      run: ./gradlew.bat :matrixeater:runtime
+      working-directory: ./
+
     # - name: jpackage打包
-    #   run: ./gradlew.bat jpackage
+    #   run: ./gradlew.bat :matrixeater:jpackage
+    #   working-directory: ./
+
+    # - name: jpackage打包并扁平化目录
+    #   run: ./gradlew.bat :matrixeater:flattenJpackage
     #   working-directory: ./
     #   continue-on-error: true
 
-    - name: launch4j打包
-      run: ./gradlew.bat launch4j
-      working-directory: ./
-      continue-on-error: true
+    # - name: launch4j打包
+    #   run: ./gradlew.bat launch4j
+    #   working-directory: ./
+    #   continue-on-error: true
 
     - name: 检查公共位置
       id: check_exe
@@ -84,5 +92,5 @@ jobs:
     - name: 上传附件
       uses: actions/upload-artifact@v4
       with:
-        name: ReterasModelStudio-EXE
-        path: D:/a/ReterasModelStudio/ReterasModelStudio/matrixeater/build/jpackage/matrixeater
+        name: ReterasModelStudio
+        path: matrixeater/build/image/*
