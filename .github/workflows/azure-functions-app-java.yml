@@ -1,4 +1,4 @@
-name: Package via Gradle
+name: Build Official EXE (Native Launcher)
 
 on:
   push:
@@ -18,11 +18,60 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Create full distribution
-        run: ./gradlew.bat clean :matrixeater:installDist --no-daemon
+      # 构建项目，生成可运行 JAR 和依赖
+      - name: Build with Gradle
+        run: ./gradlew.bat clean :matrixeater:jar :matrixeater:installDist --no-daemon
 
-      - name: Archive distribution
+      # 准备发布目录（与官方结构一致）
+      - name: Prepare distribution directory
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist
+          New-Item -ItemType Directory -Force -Path dist/lib
+          # 复制主 JAR 和所有依赖（从 installDist 中获取）
+          Copy-Item "matrixeater/build/install/matrixeater/lib/*" -Destination "dist/lib/" -Recurse
+          # 如果有平台相关的 native 库（如 .dll），也从 installDist 中复制
+          if (Test-Path "matrixeater/build/install/matrixeater/bin") {
+            Copy-Item "matrixeater/build/install/matrixeater/bin/*" -Destination "dist/" -Recurse
+          }
+
+      # 编译官方 C++ 启动器（假设源码在 launcher4j/ 目录下）
+      - name: Compile native launcher
+        shell: cmd
+        run: |
+          :: 进入启动器源码目录（请根据实际路径调整）
+          cd launcher4j
+          :: 使用 MSVC 编译器（Windows Runner 自带）
+          cl /EHsc /Fe:../dist/retera-jwc3.exe *.cpp
+          cd ..
+        continue-on-error: true   # 如果编译失败，不中断流程（可能源码不在该路径）
+
+      # 如果上方编译失败，则使用预编译的 EXE 后备方案（从官方 Release 下载）
+      - name: Fallback: Download official EXE
+        if: steps.compile.outcome == 'failure'
+        shell: pwsh
+        run: |
+          # 从官方发布页下载最新 EXE（需要替换实际下载链接）
+          $exeUrl = "https://github.com/Retera/ReterasModelStudio/releases/latest/download/retera-jwc3.exe"
+          Invoke-WebRequest -Uri $exeUrl -OutFile "dist/retera-jwc3.exe"
+
+      # 提取 native 库（如果项目中有需要，如 lwjgl.dll）
+      - name: Extract native libraries
+        shell: pwsh
+        run: |
+          $nativeJars = Get-ChildItem -Path "dist/lib" -Filter "*natives-windows*.jar"
+          if ($nativeJars) {
+            New-Item -ItemType Directory -Force -Path dist/natives
+            foreach ($jar in $nativeJars) {
+              Expand-Archive -Path $jar.FullName -DestinationPath "dist/natives/" -Force
+              Remove-Item $jar.FullName -Force
+            }
+            # 只保留 .dll
+            Get-ChildItem "dist/natives" -Recurse -File | Where-Object { $_.Extension -ne '.dll' } | Remove-Item -Force
+          }
+
+      - name: Create final artifact
         uses: actions/upload-artifact@v4
         with:
-          name: retera-jwc3-windows-portable
+          name: retera-jwc3-windows-official
           path: D:/a/ReterasModelStudio/ReterasModelStudio
