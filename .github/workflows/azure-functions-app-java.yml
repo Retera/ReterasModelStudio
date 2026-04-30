@@ -35,23 +35,22 @@ jobs:
 
     - name: Create EXE with jpackage (Direct Call)
       run: |
-        # 1. 先用 Gradle 生成 image（确保有 JAR 和依赖）
-        ./gradlew.bat jlink -PimageName=ReterasModelStudio
-
-        # 2. 手动调用 jpackage 生成 EXE（扁平结构）
-        jpackage ^
+        cmd /C "jpackage ^
           --name ReterasModelStudio ^
-          --input build/jlink/ReterasModelStudio ^
-          --main-jar your-jar-file.jar ^
+          --input build/libs ^
+          --main-jar *.jar ^
           --main-class your.main.Class ^
           --type app-image ^
-          --dest build/dist/ReterasModelStudio
+          --dest build/dist/ReterasModelStudio"
 
-    - name: Validate Output Structure
+    - name: Verify EXE Location
       run: |
-        Get-ChildItem -Path build/dist/ReterasModelStudio -Recurse | 
-        Where-Object { $_.Extension -eq ".exe" } | 
-        Select-Object FullName
+        if (Test-Path -Path "build/dist/ReterasModelStudio/ReterasModelStudio.exe" -PathType Leaf) {
+          Write-Output "✅ EXE found at: build/dist/ReterasModelStudio/ReterasModelStudio.exe"
+        } else {
+          Write-Output "❌ EXE not found!"
+          exit 1
+        }
 
     - name: Upload EXE Artifact
       uses: actions/upload-artifact@v4
