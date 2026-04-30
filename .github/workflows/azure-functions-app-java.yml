@@ -43,6 +43,13 @@ jobs:
           --type app-image ^
           --dest build/dist/ReterasModelStudio"
 
+    - name: Debug Output Structure
+      run: |
+        Get-ChildItem -Path ./build -Recurse -File | Select-Object FullName
+        # 或检查jpackage默认输出路径
+        Get-ChildItem -Path ./matrixeater/build/jpackage -Recurse -File | Select-Object FullName
+
+
     # - name: Verify EXE Location
     #   run: |
     #     if (Test-Path -Path "build/dist/ReterasModelStudio/ReterasModelStudio.exe" -PathType Leaf) {
