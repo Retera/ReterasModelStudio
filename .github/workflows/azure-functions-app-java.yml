@@ -2,7 +2,7 @@ name: Build Windows Executable
 
 on:
   push:
-    tags: ['v*']                  # 当你推送一个 'v' 开头的 tag 时自动运行
+    tags: [CN]                  # 当你推送一个 'v' 开头的 tag 时自动运行
   workflow_dispatch:              # 同时也支持在网页上手动运行
 
 jobs:
