@@ -43,22 +43,6 @@ jobs:
           --type app-image ^
           --dest build/dist/ReterasModelStudio"
 
-    - name: Debug Output Structure
-      run: |
-        Get-ChildItem -Path ./build -Recurse -File | Select-Object FullName
-        # 或检查jpackage默认输出路径
-        Get-ChildItem -Path ./matrixeater/build/jpackage -Recurse -File | Select-Object FullName
-
-
-    # - name: Verify EXE Location
-    #   run: |
-    #     if (Test-Path -Path "build/dist/ReterasModelStudio/ReterasModelStudio.exe" -PathType Leaf) {
-    #       Write-Output "✅ EXE found at: build/dist/ReterasModelStudio/ReterasModelStudio.exe"
-    #     } else {
-    #       Write-Output "❌ EXE not found!"
-    #       exit 1
-    #     }
-
     - name: Upload EXE Artifact
       uses: actions/upload-artifact@v4
       with:
