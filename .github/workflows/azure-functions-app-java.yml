@@ -33,15 +33,19 @@ jobs:
       run: ./gradlew.bat
       working-directory: ./
 
-    - name: Create EXE with jpackage (Flat Structure)
+    - name: Create EXE with jpackage (Direct Call)
       run: |
-        ./gradlew.bat jpackage -PoutputDir=build/dist -PimageName=ReterasModelStudio \
-          --dest=build/dist/ReterasModelStudio \
-          --type=EXE \
-          --name=ReterasModelStudio \
-          --main-class=your.main.Class \  # 替换为实际主类
-          --main-jar=your-jar-file.jar   # 替换为实际JAR文件名
-      continue-on-error: false  # 移除错误跳过
+        # 1. 先用 Gradle 生成 image（确保有 JAR 和依赖）
+        ./gradlew.bat jlink -PimageName=ReterasModelStudio
+
+        # 2. 手动调用 jpackage 生成 EXE（扁平结构）
+        jpackage ^
+          --name ReterasModelStudio ^
+          --input build/jlink/ReterasModelStudio ^
+          --main-jar your-jar-file.jar ^
+          --main-class your.main.Class ^
+          --type app-image ^
+          --dest build/dist/ReterasModelStudio
 
     - name: Validate Output Structure
       run: |
