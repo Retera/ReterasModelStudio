@@ -21,22 +21,148 @@ jobs:
         distribution: 'temurin'
         cache: 'gradle'
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x ./gradlew
-      working-directory: ./
+    # 1. 完整构建所有模块（生成 jar）
+    - name: Build all subprojects with Gradle
+      run: ./gradlew.bat clean build --no-daemon
 
-    - name: List all available Gradle tasks
-      run: ./gradlew.bat tasks --all
-      working-directory: ./
 
-    - name: Build with Gradle
-      run: ./gradlew.bat
-      working-directory: ./
+     # 2. 调试：列出所有生成的 jar 文件
+    - name: List all built JARs
+      shell: pwsh
+      run: |
+        Get-ChildItem -Path . -Recurse -Filter "*.jar" | Where-Object { $_.FullName -like "*\build\libs\*" } | ForEach-Object { Write-Host $_.FullName }
 
-    - name: create EXE with jpackage
-      run: ./gradlew.bat jpackage
-      working-directory: ./
-      continue-on-error: true
+    # 3. 准备发布目录结构
+    - name: Prepare dist directory
+      shell: pwsh
+      run: |
+        New-Item -ItemType Directory -Force -Path dist
+        New-Item -ItemType Directory -Force -Path dist/lib
+        New-Item -ItemType Directory -Force -Path dist/natives
+        New-Item -ItemType Directory -Force -Path dist/tmp_unzip
+
+    # 4. 复制所有子模块生成的 jar 到 dist/lib
+    - name: Copy subproject JARs to lib
+      shell: pwsh
+      run: |
+        # 查找所有模块下的 build/libs/*.jar（排除 *-plain.jar 等）
+        $jarFiles = Get-ChildItem -Path . -Recurse -Filter "*.jar" | Where-Object {
+          $_.FullName -like "*\build\libs\*" -and $_.Name -notlike "*-plain.jar"
+        }
+        if ($jarFiles.Count -eq 0) {
+          Write-Host "::error::No JAR files found in any build/libs! Check Gradle build output."
+          exit 1
+        }
+        $jarFiles | ForEach-Object {
+          Copy-Item $_.FullName -Destination "dist/lib/" -Force
+          Write-Host "Copied: $($_.Name)"
+        }
+
+    # 5. 收集外部依赖 jar（使用 Gradle 的 runtimeClasspath）
+    #    注意：这一步依赖 Gradle 已经下载了所有依赖到本地缓存
+    - name: Collect external dependencies
+      shell: pwsh
+      run: |
+        # 使用 gradle 的依赖报告，提取所有 jar 文件的绝对路径（通过解析缓存路径）
+        $depsOutput = ./gradlew.bat :matrixeater:dependencies --configuration runtimeClasspath --no-daemon
+        # 匹配类似 "C:\Users\runneradmin\.gradle\caches\modules-2\files-2.1\..." 的行
+        $jarPaths = $depsOutput | Select-String -Pattern '[A-Za-z]:\\.*\.jar' | ForEach-Object { $_.Matches.Value } | Sort-Object -Unique
+        
+        if ($jarPaths.Count -eq 0) {
+          Write-Host "Warning: No external dependency JARs found via regex. Trying alternative method..."
+          # 备用方案：直接复制 Gradle 缓存中属于该项目依赖的 jar（按时间最近或使用项目配置）
+          # 这里简化：从 build/ 下的 runtimeClasspath 文件列表获取（需要额外配置，略）
+          Write-Host "Please check if :matrixeater has runtime dependencies."
+        } else {
+          $jarPaths | ForEach-Object {
+            if (Test-Path $_) {
+              Copy-Item $_ -Destination "dist/lib/" -Force
+              Write-Host "Copied dependency: $(Split-Path $_ -Leaf)"
+            }
+          }
+        }
+        
+        # 额外处理项目根目录下的 jars 文件夹（flatDir）
+        if (Test-Path "jars") {
+          Get-ChildItem "jars/*.jar" | ForEach-Object {
+            Copy-Item $_.FullName -Destination "dist/lib/" -Force
+            Write-Host "Copied local jar: $($_.Name)"
+          }
+        }
+
+    # 6. 提取 Windows 原生库（lwjgl.dll 等）
+    - name: Extract native libraries
+      shell: pwsh
+      run: |
+        $nativeJars = Get-ChildItem -Path "dist/lib" -Filter "*natives-windows*.jar"
+        foreach ($jar in $nativeJars) {
+          & jar xf $jar.FullName -C dist/natives/ *.dll 2>$null
+          Write-Host "Extracted .dll from $($jar.Name)"
+          Remove-Item $jar.FullName -Force
+        }
+
+    # 7. 下载 Launch4j
+    - name: Download Launch4j
+      shell: pwsh
+      run: |
+        $launch4jVersion = "3.14"
+        $url = "https://sourceforge.net/projects/launch4j/files/launch4j-3/${launch4jVersion}/launch4j-${launch4jVersion}-win32.zip/download"
+        Invoke-WebRequest -Uri $url -OutFile launch4j.zip
+        Expand-Archive -Path launch4j.zip -DestinationPath .
+        Move-Item -Path "launch4j-${launch4jVersion}-win32" -Destination launch4j
+
+    # 8. 生成 Launch4j 配置（动态获取主 jar 文件名）
+    - name: Create Launch4j config
+      shell: pwsh
+      run: |
+        $mainJar = Get-ChildItem "dist/lib/matrixeater-*.jar" | Select-Object -First 1
+        if (-not $mainJar) {
+          Write-Host "::error::Main JAR (matrixeater-*.jar) not found in dist/lib"
+          exit 1
+        }
+        $mainJarName = $mainJar.Name
+        # 检测是否有图标
+        $iconPath = ""
+        if (Test-Path "matrixeater/src/main/resources/app.ico") {
+          $iconPath = "matrixeater/src/main/resources/app.ico"
+        }
+        @"
+        <?xml version="1.0" encoding="UTF-8"?>
+        <launch4jConfig>
+          <dontWrapJar>true</dontWrapJar>
+          <headerType>gui</headerType>
+          <jar>lib/$mainJarName</jar>
+          <outfile>dist/retera-jwc3.exe</outfile>
+          <chdir>.</chdir>
+          <classPath>
+            <mainClass>com.retera.matrixeater.Main</mainClass>
+            <cp>lib/*.jar</cp>
+          </classPath>
+          <jre>
+            <minVersion>11</minVersion>
+            <jdkPreference>jreOnly</jdkPreference>
+            <opt>-Djava.library.path=./natives</opt>
+          </jre>
+          <versionInfo>
+            <fileVersion>0.4.5.0</fileVersion>
+            <txtFileVersion>0.4.5</txtFileVersion>
+            <fileDescription>RETERA JWC3 Matrix Eater</fileDescription>
+            <productVersion>0.4.5.0</productVersion>
+            <productName>retera-jwc3</productName>
+            <originalFilename>retera-jwc3.exe</originalFilename>
+          </versionInfo>
+        </launch4jConfig>
+        "@ | Out-File -FilePath launch4j/config.xml -Encoding utf8
+
+    # 9. 生成 EXE
+    - name: Build EXE with Launch4j
+      shell: pwsh
+      run: |
+        .\launch4j\launch4j.exe .\launch4j\config.xml
+        if (-not (Test-Path "dist/retera-jwc3.exe")) {
+          Write-Host "::error::Launch4j failed to generate EXE"
+          exit 1
+          }
   
     - name: Upload EXE Artifact
       uses: actions/upload-artifact@v4
