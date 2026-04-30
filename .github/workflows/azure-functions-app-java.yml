@@ -1,177 +1,167 @@
-name: Build Reteras Model Studio EXE
+name: Build Windows Executable (No Runtime Bundled)
 
 on:
   push:
-    branches: [ CN ]  # 可以在这里指定触发工作流的分支
+    tags: ['v*']
+  workflow_dispatch:
 
 jobs:
-  build:
+  build-exe:
     runs-on: windows-latest
-    strategy:
-      matrix:
-        java: [ '17' ]  # 项目需要 JDK 17
-
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Java
-      uses: actions/setup-java@v4
-      with:
-        java-version: ${{ matrix.java }}
-        distribution: 'temurin'
-        cache: 'gradle'
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-    # 1. 完整构建所有模块（生成 jar）
-    - name: Build all subprojects with Gradle
-      run: ./gradlew.bat clean build --no-daemon
+      # 使用项目自带的 Gradle Wrapper 构建（不修改任何代码）
+      - name: Build with Gradle
+        run: ./gradlew.bat clean build --no-daemon
 
+      - name: Prepare distribution directory
+        shell: pwsh
+        run: |
+          Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path dist/lib
+          New-Item -ItemType Directory -Force -Path dist/natives
 
-     # 2. 调试：列出所有生成的 jar 文件
-    - name: List all built JARs
-      shell: pwsh
-      run: |
-        Get-ChildItem -Path . -Recurse -Filter "*.jar" | Where-Object { $_.FullName -like "*\build\libs\*" } | ForEach-Object { Write-Host $_.FullName }
+      # 复制所有子模块生成的 JAR（matrixeater, craft3data, craft3editor, localizationmanager）
+      - name: Copy subproject JARs
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path . -Recurse -Filter "*.jar" | Where-Object {
+            $_.FullName -like "*\build\libs\*" -and $_.Name -notlike "*-plain.jar"
+          } | ForEach-Object {
+            Copy-Item $_.FullName -Destination "dist/lib/" -Force
+            Write-Host "Copied: $($_.Name)"
+          }
 
-    # 3. 准备发布目录结构
-    - name: Prepare dist directory
-      shell: pwsh
-      run: |
-        New-Item -ItemType Directory -Force -Path dist
-        New-Item -ItemType Directory -Force -Path dist/lib
-        New-Item -ItemType Directory -Force -Path dist/natives
-        New-Item -ItemType Directory -Force -Path dist/tmp_unzip
-
-    # 4. 复制所有子模块生成的 jar 到 dist/lib
-    - name: Copy subproject JARs to lib
-      shell: pwsh
-      run: |
-        # 查找所有模块下的 build/libs/*.jar（排除 *-plain.jar 等）
-        $jarFiles = Get-ChildItem -Path . -Recurse -Filter "*.jar" | Where-Object {
-          $_.FullName -like "*\build\libs\*" -and $_.Name -notlike "*-plain.jar"
-        }
-        if ($jarFiles.Count -eq 0) {
-          Write-Host "::error::No JAR files found in any build/libs! Check Gradle build output."
-          exit 1
-        }
-        $jarFiles | ForEach-Object {
-          Copy-Item $_.FullName -Destination "dist/lib/" -Force
-          Write-Host "Copied: $($_.Name)"
-        }
-
-    # 5. 收集外部依赖 jar（使用 Gradle 的 runtimeClasspath）
-    #    注意：这一步依赖 Gradle 已经下载了所有依赖到本地缓存
-    - name: Collect external dependencies
-      shell: pwsh
-      run: |
-        # 使用 gradle 的依赖报告，提取所有 jar 文件的绝对路径（通过解析缓存路径）
-        $depsOutput = ./gradlew.bat :matrixeater:dependencies --configuration runtimeClasspath --no-daemon
-        # 匹配类似 "C:\Users\runneradmin\.gradle\caches\modules-2\files-2.1\..." 的行
-        $jarPaths = $depsOutput | Select-String -Pattern '[A-Za-z]:\\.*\.jar' | ForEach-Object { $_.Matches.Value } | Sort-Object -Unique
-        
-        if ($jarPaths.Count -eq 0) {
-          Write-Host "Warning: No external dependency JARs found via regex. Trying alternative method..."
-          # 备用方案：直接复制 Gradle 缓存中属于该项目依赖的 jar（按时间最近或使用项目配置）
-          # 这里简化：从 build/ 下的 runtimeClasspath 文件列表获取（需要额外配置，略）
-          Write-Host "Please check if :matrixeater has runtime dependencies."
-        } else {
-          $jarPaths | ForEach-Object {
-            if (Test-Path $_) {
-              Copy-Item $_ -Destination "dist/lib/" -Force
-              Write-Host "Copied dependency: $(Split-Path $_ -Leaf)"
+      # 收集所有外部依赖（通过 Gradle 的 runtimeClasspath）
+      - name: Collect external dependencies
+        shell: pwsh
+        run: |
+          # 获取 matrixeater 模块的运行时依赖路径（以系统分隔符输出）
+          $deps = ./gradlew.bat :matrixeater:printRuntimeClasspath --no-daemon -q
+          if (-not $deps) {
+            Write-Host "printRuntimeClasspath task not available, using fallback..."
+            # 备用方案：从 dependencies 输出中提取 jar 路径
+            $deps = ./gradlew.bat :matrixeater:dependencies --configuration runtimeClasspath --no-daemon |
+                     Select-String -Pattern '[A-Za-z]:\\.*\.jar' |
+                     ForEach-Object { $_.Matches.Value } |
+                     Sort-Object -Unique
+          }
+          if ($deps) {
+            $deps -split ";" | ForEach-Object {
+              if ($_ -and (Test-Path $_)) {
+                Copy-Item $_ -Destination "dist/lib/" -Force
+                Write-Host "Copied dependency: $(Split-Path $_ -Leaf)"
+              }
             }
           }
-        }
-        
-        # 额外处理项目根目录下的 jars 文件夹（flatDir）
-        if (Test-Path "jars") {
-          Get-ChildItem "jars/*.jar" | ForEach-Object {
-            Copy-Item $_.FullName -Destination "dist/lib/" -Force
-            Write-Host "Copied local jar: $($_.Name)"
+          # 处理项目根目录下的 jars 文件夹（flatDir）
+          if (Test-Path "jars") {
+            Get-ChildItem "jars/*.jar" | ForEach-Object {
+              Copy-Item $_.FullName -Destination "dist/lib/" -Force
+            }
           }
-        }
+          Write-Host "Total JARs in lib: $((Get-ChildItem dist/lib/*.jar).Count)"
 
-    # 6. 提取 Windows 原生库（lwjgl.dll 等）
-    - name: Extract native libraries
-      shell: pwsh
-      run: |
-        $nativeJars = Get-ChildItem -Path "dist/lib" -Filter "*natives-windows*.jar"
-        foreach ($jar in $nativeJars) {
-          & jar xf $jar.FullName -C dist/natives/ *.dll 2>$null
-          Write-Host "Extracted .dll from $($jar.Name)"
-          Remove-Item $jar.FullName -Force
-        }
-
-    # 7. 下载 Launch4j
-    - name: Download Launch4j (using curl with redirect)
-      shell: cmd
-      run: |
-        set LAUNCH4J_VERSION=3.50
-        set DOWNLOAD_URL=https://github.com/lukaszlenart/launch4j/releases/download/launch4j-%LAUNCH4J_VERSION%/launch4j-%LAUNCH4J_VERSION%-win32.zip
-        curl -L -o launch4j.zip %DOWNLOAD_URL%
-        if %ERRORLEVEL% neq 0 (
-          echo "Fallback to SourceForge..."
-          curl -L -o launch4j.zip "https://sourceforge.net/projects/launch4j/files/launch4j-3/3.50/launch4j-3.50-win32.zip/download"
-        )
-        if not exist launch4j.zip exit /b 1
-        tar -xf launch4j.zip
-        move launch4j-3.50-win32 launch4j
-
-    # 8. 生成 Launch4j 配置（动态获取主 jar 文件名）
-    - name: Create Launch4j config
-      shell: pwsh
-      run: |
-        $mainJar = Get-ChildItem "dist/lib/matrixeater-*.jar" | Select-Object -First 1
-        if (-not $mainJar) {
-          Write-Host "::error::Main JAR (matrixeater-*.jar) not found in dist/lib"
-          exit 1
-        }
-        $mainJarName = $mainJar.Name
-        # 检测是否有图标
-        $iconPath = ""
-        if (Test-Path "matrixeater/src/main/resources/app.ico") {
-          $iconPath = "matrixeater/src/main/resources/app.ico"
-        }
-        @"
-        <?xml version="1.0" encoding="UTF-8"?>
-        <launch4jConfig>
-          <dontWrapJar>true</dontWrapJar>
-          <headerType>gui</headerType>
-          <jar>lib/$mainJarName</jar>
-          <outfile>dist/retera-jwc3.exe</outfile>
-          <chdir>.</chdir>
-          <classPath>
-            <mainClass>com.retera.matrixeater.Main</mainClass>
-            <cp>lib/*.jar</cp>
-          </classPath>
-          <jre>
-            <minVersion>11</minVersion>
-            <jdkPreference>jreOnly</jdkPreference>
-            <opt>-Djava.library.path=./natives</opt>
-          </jre>
-          <versionInfo>
-            <fileVersion>0.4.5.0</fileVersion>
-            <txtFileVersion>0.4.5</txtFileVersion>
-            <fileDescription>RETERA JWC3 Matrix Eater</fileDescription>
-            <productVersion>0.4.5.0</productVersion>
-            <productName>retera-jwc3</productName>
-            <originalFilename>retera-jwc3.exe</originalFilename>
-          </versionInfo>
-        </launch4jConfig>
-        "@ | Out-File -FilePath launch4j/config.xml -Encoding utf8
-
-    # 9. 生成 EXE
-    - name: Build EXE with Launch4j
-      shell: pwsh
-      run: |
-        .\launch4j\launch4j.exe .\launch4j\config.xml
-        if (-not (Test-Path "dist/retera-jwc3.exe")) {
-          Write-Host "::error::Launch4j failed to generate EXE"
-          exit 1
+      # 提取 Windows 原生库（LWJGL 的 .dll 等）
+      - name: Extract native libraries
+        shell: pwsh
+        run: |
+          $nativeJars = Get-ChildItem -Path "dist/lib" -Filter "*natives-windows*.jar"
+          foreach ($jar in $nativeJars) {
+            Expand-Archive -Path $jar.FullName -DestinationPath "dist/natives/" -Force
+            Remove-Item $jar.FullName -Force
+            Write-Host "Extracted natives from $($jar.Name)"
           }
-  
-    - name: Upload EXE Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: ReterasModelStudio-EXE
-        path: D:/a/ReterasModelStudio/ReterasModelStudio/matrixeater/build/jpackage/matrixeater
+          # 只保留 .dll 文件，删除其他文件
+          Get-ChildItem "dist/natives" -Recurse -File | Where-Object { $_.Extension -ne '.dll' } | Remove-Item -Force
 
+      # 下载 Launch4j（使用稳定镜像 + 重试）
+      - name: Download Launch4j
+        shell: pwsh
+        run: |
+          $version = "3.50"
+          $zipName = "launch4j.zip"
+          $urls = @(
+            "https://netcologne.dl.sourceforge.net/project/launch4j/launch4j-3/$version/launch4j-$version-win32.zip",
+            "https://github.com/lukaszlenart/launch4j/releases/download/launch4j-$version/launch4j-$version-win32.zip"
+          )
+          $downloaded = $false
+          foreach ($url in $urls) {
+            try {
+              Write-Host "Trying $url"
+              Invoke-WebRequest -Uri $url -OutFile $zipName -UseBasicParsing -MaximumRedirection 10
+              if ((Get-Item $zipName).Length -gt 1MB) {
+                $downloaded = $true
+                break
+              }
+            } catch { Write-Host "Failed: $_" }
+          }
+          if (-not $downloaded) { throw "Launch4j download failed" }
+          Expand-Archive -Path $zipName -DestinationPath . -Force
+          $dir = Get-ChildItem -Directory | Where-Object { $_.Name -like "launch4j*" } | Select-Object -First 1
+          Move-Item $dir.FullName -Destination launch4j -Force
+          if (-not (Test-Path "launch4j/launch4j.exe")) { throw "Launch4j executable not found" }
+
+      # 动态生成 Launch4j 配置文件
+      - name: Create Launch4j config
+        shell: pwsh
+        run: |
+          $mainJar = Get-ChildItem "dist/lib/matrixeater-*.jar" | Select-Object -First 1
+          if (-not $mainJar) { throw "Main JAR (matrixeater-*.jar) not found in dist/lib" }
+          $mainJarName = $mainJar.Name
+          $iconPath = ""
+          if (Test-Path "matrixeater/src/main/resources/app.ico") {
+            $iconPath = "matrixeater/src/main/resources/app.ico"
+          }
+          $xml = @"
+          <?xml version="1.0" encoding="UTF-8"?>
+          <launch4jConfig>
+            <dontWrapJar>true</dontWrapJar>
+            <headerType>gui</headerType>
+            <jar>lib/$mainJarName</jar>
+            <outfile>dist/retera-jwc3.exe</outfile>
+            <chdir>.</chdir>
+            <classPath>
+              <mainClass>com.retera.matrixeater.Main</mainClass>
+              <cp>lib/*.jar</cp>
+            </classPath>
+            <jre>
+              <minVersion>11</minVersion>
+              <jdkPreference>jreOnly</jdkPreference>
+              <opt>-Djava.library.path=./natives</opt>
+            </jre>
+            <versionInfo>
+              <fileVersion>0.4.5.0</fileVersion>
+              <txtFileVersion>0.4.5</txtFileVersion>
+              <fileDescription>RETERA JWC3 Matrix Eater</fileDescription>
+              <productVersion>0.4.5.0</productVersion>
+              <productName>retera-jwc3</productName>
+              <originalFilename>retera-jwc3.exe</originalFilename>
+            </versionInfo>
+          </launch4jConfig>
+          "@
+          if ($iconPath) {
+            $xml = $xml -replace '(<launch4jConfig>)', "`$1`n  <icon>$iconPath</icon>"
+          }
+          $xml | Out-File -FilePath launch4j/config.xml -Encoding utf8
+
+      # 生成 EXE
+      - name: Generate EXE
+        shell: cmd
+        run: |
+          .\launch4j\launch4j.exe .\launch4j\config.xml
+          if not exist dist\retera-jwc3.exe exit /b 1
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: retera-jwc3-windows
+          path: dist/
