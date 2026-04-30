@@ -102,14 +102,19 @@ jobs:
         }
 
     # 7. 下载 Launch4j
-    - name: Download Launch4j
-      shell: pwsh
+    - name: Download Launch4j (using curl with redirect)
+      shell: cmd
       run: |
-        $launch4jVersion = "3.14"
-        $url = "https://sourceforge.net/projects/launch4j/files/launch4j-3/${launch4jVersion}/launch4j-${launch4jVersion}-win32.zip/download"
-        Invoke-WebRequest -Uri $url -OutFile launch4j.zip
-        Expand-Archive -Path launch4j.zip -DestinationPath .
-        Move-Item -Path "launch4j-${launch4jVersion}-win32" -Destination launch4j
+        set LAUNCH4J_VERSION=3.50
+        set DOWNLOAD_URL=https://github.com/lukaszlenart/launch4j/releases/download/launch4j-%LAUNCH4J_VERSION%/launch4j-%LAUNCH4J_VERSION%-win32.zip
+        curl -L -o launch4j.zip %DOWNLOAD_URL%
+        if %ERRORLEVEL% neq 0 (
+          echo "Fallback to SourceForge..."
+          curl -L -o launch4j.zip "https://sourceforge.net/projects/launch4j/files/launch4j-3/3.50/launch4j-3.50-win32.zip/download"
+        )
+        if not exist launch4j.zip exit /b 1
+        tar -xf launch4j.zip
+        move launch4j-3.50-win32 launch4j
 
     # 8. 生成 Launch4j 配置（动态获取主 jar 文件名）
     - name: Create Launch4j config
