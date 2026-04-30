@@ -1,36 +1,56 @@
-name: Build Official EXE (Native Launcher)
+name: Build Reteras Model Studio EXE
 
 on:
   push:
-    tags: ['CN']
-  workflow_dispatch:
+    branches: [ CNx ]  # 可以在这里指定触发工作流的分支
 
 jobs:
   build:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        java: [ '17' ]  # 项目需要 JDK 17
+
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ matrix.java }}
+        distribution: 'temurin'
+        cache: 'gradle'
 
-      - name: Maven 编译打包
-        run: mvn package -DskipTests
+    - name: Grant execute permission for gradlew
+      run: chmod +x ./gradlew
+      working-directory: ./
 
-      - name: 整理输出到根目录（无APP RUNTIME）
-        run: |
-          $jarFile = Get-ChildItem -Path "target" -Filter "*.jar" | Select-Object -First 1
-          if ($jarFile) {
-            Copy-Item -Path $jarFile.FullName -Destination "."
-            Get-ChildItem -Path "target" -Exclude "*.jar" | Copy-Item -Destination "." -Recurse -Force
-          }
+    - name: List all available Gradle tasks
+      run: ./gradlew.bat tasks --all
+      working-directory: ./
 
-      - name: Create final artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: retera-jwc3-windows-official
-          path: D:/a/ReterasModelStudio/ReterasModelStudio
+    - name: Build with Gradle
+      run: ./gradlew.bat
+      working-directory: ./
+
+    - name: Create EXE with jpackage (Flat Structure)
+      # 2. 使用 -P 参数传递属性，尝试覆盖默认的输出目录配置
+      # 注意：这里假设插件遵循通用的 outputDir 命名规范
+      run: |
+        ./gradlew.bat jpackage -PoutputDir=build/dist -PimageName=ReterasModelStudio
+      working-directory: ./
+      continue-on-error: true
+
+    - name: Debug Directory Structure
+      # 3. 打印目录结构，确认 exe 到底在哪里
+      shell: pwsh
+      run: |
+        Get-ChildItem -Path . -Recurse -Filter "*.exe" | ForEach-Object { $_.FullName }
+      working-directory: ./matrixeater
+
+    - name: Upload EXE Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ReterasModelStudio-EXE
+        path: D:/a/ReterasModelStudio/ReterasModelStudio/matrixeater/build/jpackage/matrixeater
+
