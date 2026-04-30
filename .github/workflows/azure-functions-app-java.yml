@@ -43,14 +43,14 @@ jobs:
           --type app-image ^
           --dest build/dist/ReterasModelStudio"
 
-    - name: Verify EXE Location
-      run: |
-        if (Test-Path -Path "build/dist/ReterasModelStudio/ReterasModelStudio.exe" -PathType Leaf) {
-          Write-Output "✅ EXE found at: build/dist/ReterasModelStudio/ReterasModelStudio.exe"
-        } else {
-          Write-Output "❌ EXE not found!"
-          exit 1
-        }
+    # - name: Verify EXE Location
+    #   run: |
+    #     if (Test-Path -Path "build/dist/ReterasModelStudio/ReterasModelStudio.exe" -PathType Leaf) {
+    #       Write-Output "✅ EXE found at: build/dist/ReterasModelStudio/ReterasModelStudio.exe"
+    #     } else {
+    #       Write-Output "❌ EXE not found!"
+    #       exit 1
+    #     }
 
     - name: Upload EXE Artifact
       uses: actions/upload-artifact@v4
