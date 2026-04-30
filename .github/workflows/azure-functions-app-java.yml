@@ -12,12 +12,11 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      - name: 设置 Java 17
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
           distribution: 'temurin'
-          cache: maven
+          java-version: '17'
 
       - name: Maven 编译打包
         run: mvn package -DskipTests
