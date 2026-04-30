@@ -2,7 +2,7 @@ name: Build Reteras Model Studio EXE
 
 on:
   push:
-    branches: [ CNx ]  # 可以在这里指定触发工作流的分支
+    branches: [ CN ]  # 可以在这里指定触发工作流的分支
 
 jobs:
   build:
