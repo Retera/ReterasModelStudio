@@ -34,23 +34,24 @@ jobs:
       working-directory: ./
 
     - name: Create EXE with jpackage (Flat Structure)
-      # 2. 使用 -P 参数传递属性，尝试覆盖默认的输出目录配置
-      # 注意：这里假设插件遵循通用的 outputDir 命名规范
       run: |
-        ./gradlew.bat jpackage -PoutputDir=build/dist -PimageName=ReterasModelStudio
-      working-directory: ./
-      continue-on-error: true
+        ./gradlew.bat jpackage -PoutputDir=build/dist -PimageName=ReterasModelStudio \
+          --dest=build/dist/ReterasModelStudio \
+          --type=EXE \
+          --name=ReterasModelStudio \
+          --main-class=your.main.Class \  # 替换为实际主类
+          --main-jar=your-jar-file.jar   # 替换为实际JAR文件名
+      continue-on-error: false  # 移除错误跳过
 
-    - name: Debug Directory Structure
-      # 3. 打印目录结构，确认 exe 到底在哪里
-      shell: pwsh
+    - name: Validate Output Structure
       run: |
-        Get-ChildItem -Path . -Recurse -Filter "*.exe" | ForEach-Object { $_.FullName }
-      working-directory: ./matrixeater
+        Get-ChildItem -Path build/dist/ReterasModelStudio -Recurse | 
+        Where-Object { $_.Extension -eq ".exe" } | 
+        Select-Object FullName
 
     - name: Upload EXE Artifact
       uses: actions/upload-artifact@v4
       with:
         name: ReterasModelStudio-EXE
-        path: D:/a/ReterasModelStudio/ReterasModelStudio/matrixeater/build/jpackage/matrixeater
+        path: D:/a/ReterasModelStudio/ReterasModelStudio
 
