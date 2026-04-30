@@ -1,25 +1,28 @@
-name: Package via Gradle
+name: Build Windows Executable
 
 on:
   push:
-    tags: ['CN']
-  workflow_dispatch:
+    tags: [CN]                  # 当你推送一个 'v' 开头的 tag 时自动运行
+  workflow_dispatch:              # 同时也支持在网页上手动运行
 
 jobs:
-  build-windows:
+  build:
     runs-on: windows-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
+      
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-      - name: Create full distribution
-        run: ./gradlew.bat clean :matrixeater:installDist --no-daemon
-      - name: Archive distribution
+      
+      - name: Build with Gradle and Create EXE
+        run: ./gradlew.bat clean :matrixeater:createExe --no-daemon
+      
+      - name: Upload EXE Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: retera-jwc3-windows-portable
-          path: matrixeater/build/install/matrixeater
+          name: retera-jwc3-windows-exe
+          path: matrixeater/build/launch4j/
