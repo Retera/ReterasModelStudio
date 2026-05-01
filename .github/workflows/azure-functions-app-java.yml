@@ -21,17 +21,22 @@ jobs:
         distribution: 'temurin'
         cache: 'gradle'
 
-    - name: Gradle 编译生成 JAR
+    - name: Gradle 编译生成可执行JAR
       run: |
-        ./gradlew.bat assemble
+        ./gradlew.bat :matrixeater:dist
 
-    - name: 查找JAR
+    - name: 查找可执行JAR
       run: |
-        $jar = Get-ChildItem -Path "." -Recurse -Filter "*.jar" | Where-Object { $_.Name -notmatch "plain|javadoc|sources" } | Select-Object -First 1
+        $jar = Get-ChildItem -Path "matrixeater\build\libs" -Filter "*.jar" | Where-Object { $_.Name -notmatch "plain|javadoc|sources" } | Select-Object -First 1
+        if ($null -eq $jar) {
+          Write-Error "未找到可执行JAR文件"
+          exit 1
+        }
         echo "JARFILE=$($jar.Name)" | Out-File -FilePath $env:GITHUB_ENV -Append
         echo "JARPATH=$($jar.DirectoryName)" | Out-File -FilePath $env:GITHUB_ENV -Append
+        Write-Host "找到JAR: $($jar.FullName)"
 
-    - name: 生成exe
+    - name: 生成精简JRE
       run: |
         jlink --add-modules ALL-MODULE-PATH --output jre
 
@@ -40,13 +45,23 @@ jobs:
         jpackage --type app-image `
           --input "${{ env.JARPATH }}" `
           --main-jar "${{ env.JARFILE }}" `
+          --main-class "com.matrixeater.src.MainFrame" `
           --dest "." `
-          --name "final" `
-          --runtime-image "jre"
+          --name "ReterasModelStudio" `
+          --runtime-image "jre" `
+
+    - name: 重命名并整理输出
+      run: |
+        # 将生成的应用目录移动到根目录并重命名
+        if (Test-Path "ReterasModelStudio") {
+          Move-Item -Path "ReterasModelStudio" -Destination "ReterasModelStudio-App" -Force
+        }
+        
+        # 列出最终输出内容
+        Get-ChildItem -Recurse | Select-Object FullName, Length | Format-Table -AutoSize
 
     - name: Upload EXE Artifact
       uses: actions/upload-artifact@v4
       with:
         name: ReterasModelStudio-EXE
-        path: D:/a/ReterasModelStudio/ReterasModelStudio
-
+        path: .
