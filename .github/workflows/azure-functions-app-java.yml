@@ -25,24 +25,25 @@ jobs:
       run: |
         ./gradlew.bat assemble
 
-    - name: 查找构建好的JAR
+    - name: 查找JAR
       run: |
-        $jar = Get-ChildItem -Path "D:\a\ReterasModelStudio\ReterasModelStudio\build\libs\*.jar" | Select-Object -First 1
+        $jar = Get-ChildItem -Path "." -Recurse -Filter "*.jar" | Where-Object { $_.Name -notmatch "plain|javadoc|sources" } | Select-Object -First 1
         echo "JARFILE=$($jar.Name)" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "JARPATH=$($jar.DirectoryName)" | Out-File -FilePath $env:GITHUB_ENV -Append
 
-    - name: 自动创建精简JRE
+    - name: 生成运行时
       run: |
         jlink --add-modules ALL-MODULE-PATH --output jre
 
-    - name: 打包EXE(无app无runtime 全部平铺根目录)
+    - name: 打包EXE
       run: |
         jpackage --type app-image `
-          --input "D:\a\ReterasModelStudio\ReterasModelStudio\build\libs" `
-          --main-jar "${{ env.JAR }}" `
+          --input "${{ env.JARPATH }}" `
+          --main-jar "${{ env.JARFILE }}" `
           --dest "output" `
           --name "app" `
           --runtime-image "jre" `
-          --app-image "output\final"
+          --app-image "D:/a/ReterasModelStudio/ReterasModelStudio"
 
     - name: Upload EXE Artifact
       uses: actions/upload-artifact@v4
