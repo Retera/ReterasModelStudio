@@ -33,19 +33,33 @@ jobs:
       run: ./gradlew.bat
       working-directory: ./
 
-    - name: Create EXE with jpackage (Direct Call)
+    - name: 使用jpackage生成EXE文件
       run: |
-        cmd /C "jpackage ^
-          --name ReterasModelStudio ^
-          --input build/libs ^
-          --main-jar *.jar ^
-          --main-class your.main.Class ^
-          --type app-image ^
-          --dest build/dist/ReterasModelStudio"
+        $version = "0.4.5"
+        $commitHash = $env:GITHUB_SHA.substring(0,7)
+        $exeName = "ReterasModelStudio_$commitHash"
+
+        jpackage `
+          --type exe `
+          --name "ReterasModelStudio" `
+          --input "matrixeater/build/libs" `
+          --main-jar "drms-0.4.5.jar" `
+          --main-class "com.matrixeater.src.MainFrame" `
+          --dest "$exeName" `
+          --java-options "-Xmx2G" `
+          --win-menu `
+          --win-shortcut `
+          --win-dir-chooser `
+          --app-version "$version"
+
+        Write-Host "生成的EXE文件："
+        Get-ChildItem "$exeName" -Recurse -Include *.exe | ForEach-Object { 
+            Write-Host "  EXE文件: $($_.FullName)"
+        }
 
     - name: Upload EXE Artifact
       uses: actions/upload-artifact@v4
       with:
         name: ReterasModelStudio-EXE
-        path: D:/a
+        path: D:/a/ReterasModelStudio
 
