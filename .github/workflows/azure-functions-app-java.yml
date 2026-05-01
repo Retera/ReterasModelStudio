@@ -47,6 +47,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ReterasModelStudio-EXE
-        path: |
-        build/dist/ReterasModelStudio/**/*
+        path: D:/a/ReterasModelStudio
 
