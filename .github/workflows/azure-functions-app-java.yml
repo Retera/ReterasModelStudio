@@ -50,18 +50,18 @@ jobs:
           --name "ReterasModelStudio" `
           --runtime-image "jre" `
 
-    - name: 重命名并整理输出
+    - name: 扁平化目录（无 app 无 runtime）
       run: |
-        # 将生成的应用目录移动到根目录并重命名
-        if (Test-Path "ReterasModelStudio") {
-          Move-Item -Path "ReterasModelStudio" -Destination "ReterasModelStudio-App" -Force
-        }
-        
-        # 列出最终输出内容
-        Get-ChildItem -Recurse | Select-Object FullName, Length | Format-Table -AutoSize
+        mkdir final
+        mv output/app/*.exe final/
+        mv output/app/*.cfg final/
+        mv output/app/*.jar final/
+        Get-ChildItem output/app/runtime/ -Recurse -File | mv -Destination final/
+        rm -r output/app
+        rm -r jre
 
     - name: Upload EXE Artifact
       uses: actions/upload-artifact@v4
       with:
         name: ReterasModelStudio-EXE
-        path: .
+        path: ./ReterasModelStudio-App
