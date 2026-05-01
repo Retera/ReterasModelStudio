@@ -40,25 +40,17 @@ jobs:
       run: |
         jlink --add-modules ALL-MODULE-PATH --output jre
 
-    - name: 打包EXE到根目录
+    - name: ✅ 原生平铺打包（无app、无runtime、代码路径不变）
       run: |
-        jpackage --type app-image `
+        jpackage `
+          --type app-image `
           --input "${{ env.JARPATH }}" `
           --main-jar "${{ env.JARFILE }}" `
           --main-class "com.matrixeater.src.MainFrame" `
           --dest "." `
           --name "ReterasModelStudio" `
-          --runtime-image "jre" `
-
-    - name: 扁平化目录（无 app 无 runtime）
-      run: |
-        mkdir final
-        mv output/app/*.exe final/
-        mv output/app/*.cfg final/
-        mv output/app/*.jar final/
-        Get-ChildItem output/app/runtime/ -Recurse -File | mv -Destination final/
-        rm -r output/app
-        rm -r jre
+          --runtime-image "final" `
+          --app-image "final"
 
     - name: Upload EXE Artifact
       uses: actions/upload-artifact@v4
