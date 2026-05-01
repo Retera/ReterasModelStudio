@@ -23,12 +23,12 @@ jobs:
 
     - name: Gradle 编译生成 JAR
       run: |
-        gradlew.bat assemble
+        ./gradlew.bat assemble
 
-    - name: 自动寻找JAR
+    - name: 查找构建好的JAR
       run: |
-        $JAR = Get-ChildItem -Path target -Filter *.jar | Select-Object -First 1
-        echo "JARFILE=$($JAR.Name)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        $jar = Get-ChildItem -Path "D:\a\ReterasModelStudio\ReterasModelStudio\build\libs\*.jar" | Select-Object -First 1
+        echo "JARFILE=$($jar.Name)" | Out-File -FilePath $env:GITHUB_ENV -Append
 
     - name: 自动创建精简JRE
       run: |
