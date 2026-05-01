@@ -21,45 +21,32 @@ jobs:
         distribution: 'temurin'
         cache: 'gradle'
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x ./gradlew
-      working-directory: ./
-
-    - name: List all available Gradle tasks
-      run: ./gradlew.bat tasks --all
-      working-directory: ./
-
-    - name: Build with Gradle
-      run: ./gradlew.bat
-      working-directory: ./
-
-    - name: 使用jpackage生成EXE文件
+    - name: Gradle 编译生成 JAR
       run: |
-        $version = "0.4.5"
-        $commitHash = $env:GITHUB_SHA.substring(0,7)
-        $exeName = "ReterasModelStudio_$commitHash"
+        gradlew.bat assemble
 
-        jpackage `
-          --type exe `
-          --name "ReterasModelStudio" `
-          --input "matrixeater/build/libs" `
-          --main-jar "drms-0.4.5.jar" `
-          --main-class "com.matrixeater.src.MainFrame" `
-          --dest "$exeName" `
-          --java-options "-Xmx2G" `
-          --win-menu `
-          --win-shortcut `
-          --win-dir-chooser `
-          --app-version "$version"
+    - name: 自动寻找JAR
+      run: |
+        $JAR = Get-ChildItem -Path target -Filter *.jar | Select-Object -First 1
+        echo "JARFILE=$($JAR.Name)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-        Write-Host "生成的EXE文件："
-        Get-ChildItem "$exeName" -Recurse -Include *.exe | ForEach-Object { 
-            Write-Host "  EXE文件: $($_.FullName)"
-        }
+    - name: 自动创建精简JRE
+      run: |
+        jlink --add-modules ALL-MODULE-PATH --output jre
+
+    - name: 打包EXE(无app无runtime 全部平铺根目录)
+      run: |
+        jpackage --type app-image `
+          --input "D:\a\ReterasModelStudio\ReterasModelStudio\build\libs" `
+          --main-jar "${{ env.JAR }}" `
+          --dest "output" `
+          --name "app" `
+          --runtime-image "jre" `
+          --app-image "output\final"
 
     - name: Upload EXE Artifact
       uses: actions/upload-artifact@v4
       with:
         name: ReterasModelStudio-EXE
-        path: D:/a/ReterasModelStudio
+        path: D:/a/ReterasModelStudio/ReterasModelStudio
 
