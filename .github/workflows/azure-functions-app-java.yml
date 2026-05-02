@@ -24,6 +24,12 @@ jobs:
     - name: Gradle 编译生成可执行JAR
       run: |
         ./gradlew.bat :matrixeater:dist
+
+    - name: 查找可执行JAR
+      run: |
+        $jar = Get-ChildItem -Path "matrixeater\build\libs" -Filter "*.jar" | Where-Object { $_.Name -notmatch "plain|javadoc|sources" } | Select-Object -First 1
+        echo "JARFILE=$($jar.Name)" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "JARPATH=$($jar.DirectoryName)" | Out-File -FilePath $env:GITHUB_ENV -Append
   
     - name: 生成 JRE 到打包目录（根目录结构）
       run: |
@@ -36,7 +42,6 @@ jobs:
           --input "${{ env.JARPATH }}" `
           --main-class "com.matrixeater.src.MainFrame" `
           --dest "." `
-          --runtime-image "." `
 
     - name: 上传最终程序
       uses: actions/upload-artifact@v4
