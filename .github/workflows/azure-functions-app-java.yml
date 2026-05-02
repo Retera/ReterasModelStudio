@@ -33,7 +33,7 @@ jobs:
 
     - name: 生成 JRE 到打包目录（根目录结构）
       run: |
-        jlink --add-modules ALL-MODULE-PATH --output ac
+        jlink --add-modules ALL-MODULE-PATH
 
     - name: ✅ 原生平铺打包（无 app / 无 runtime / 不移动文件）
       run: |
@@ -43,8 +43,7 @@ jobs:
           --main-jar "${{ env.JARFILE }}" `
           --main-class "com.matrixeater.src.MainFrame" `
           --dest "." `
-          --name "ac" `
-          --runtime-image "ac"
+          --runtime-image "./ReterasModelStudio"
 
     - name: 上传最终程序
       uses: actions/upload-artifact@v4
