@@ -40,8 +40,10 @@ jobs:
       run: |
         jlink --add-modules ALL-MODULE-PATH --output jre
 
-    - name: ✅ 原生平铺打包（无app、无runtime、代码路径不变）
+    - name: ✅ 打包
       run: |
+        # 使用 jpackage 生成便携镜像 (app-image 类型)
+        # 注意: --type app-image 时不能指定 --app-image 参数,输出由 --dest 控制
         jpackage `
           --type app-image `
           --input "${{ env.JARPATH }}" `
@@ -49,11 +51,40 @@ jobs:
           --main-class "com.matrixeater.src.MainFrame" `
           --dest "." `
           --name "ReterasModelStudio" `
-          --runtime-image "final" `
-          --app-image "final"
+          --runtime-image "jre"
+
+    - name: 🔧 扁平化处理
+      run: |
+        # 根据用户偏好:必须输出扁平化结构 (无 app/runtime 子文件夹)
+        $appName = "ReterasModelStudio"
+        $outputDir = "./${appName}"
+        
+        Write-Host "开始扁平化处理..."
+        Write-Host "输出目录: $outputDir"
+        
+        # 检查目录结构
+        if (Test-Path "$outputDir/app") {
+            Write-Host "检测到 app/runtime 分离结构,开始合并..."
+            
+            # 将 app 目录内容移动到根目录
+            Get-ChildItem "$outputDir/app" -Force | ForEach-Object {
+                Move-Item $_.FullName $outputDir -Force
+                Write-Host "  移动: $($_.Name)"
+            }
+            
+            # 删除空的 app 目录
+            Remove-Item "$outputDir/app" -Recurse -Force
+            Write-Host "已删除 app 目录"
+        } else {
+            Write-Host "目录已是扁平化结构,无需处理"
+        }
+        
+        # 列出最终结构
+        Write-Host "`n最终目录结构:"
+        Get-ChildItem $outputDir | Select-Object Name, Length | Format-Table
 
     - name: Upload EXE Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ReterasModelStudio-EXE
-        path: ./ReterasModelStudio-App
+        name: ReterasModelStudio-Portable
+        path: ./ReterasModelStudio
