@@ -42,10 +42,8 @@ jobs:
 
     - name: ✅ 打包
       run: |
-        # 使用 jpackage 生成便携镜像 (app-image 类型)
-        # 注意: --type app-image 时不能指定 --app-image 参数,输出由 --dest 控制
         jpackage `
-          --type app-image `
+          --type runtime-image `
           --input "${{ env.JARPATH }}" `
           --main-jar "${{ env.JARFILE }}" `
           --main-class "com.matrixeater.src.MainFrame" `
