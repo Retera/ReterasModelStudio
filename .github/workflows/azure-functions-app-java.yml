@@ -30,7 +30,7 @@ jobs:
         $jar = Get-ChildItem -Path "matrixeater\build\libs" -Filter "*.jar" | Where-Object { $_.Name -notmatch "plain|javadoc|sources" } | Select-Object -First 1
         echo "JARFILE=$($jar.Name)" | Out-File -FilePath $env:GITHUB_ENV -Append
         echo "JARPATH=$($jar.DirectoryName)" | Out-File -FilePath $env:GITHUB_ENV -Append
-  
+
     - name: 生成 JRE 到打包目录（根目录结构）
       run: |
         jlink --add-modules ALL-MODULE-PATH --output ./ReterasModelStudio
@@ -40,8 +40,11 @@ jobs:
         jpackage `
           --type app-image `
           --input "${{ env.JARPATH }}" `
+          --main-jar "${{ env.JARFILE }}" `
           --main-class "com.matrixeater.src.MainFrame" `
           --dest "." `
+          --name "ReterasModelStudio" `
+          --runtime-image "." `
 
     - name: 上传最终程序
       uses: actions/upload-artifact@v4
