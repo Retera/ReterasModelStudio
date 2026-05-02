@@ -44,7 +44,6 @@ jobs:
           --main-class "com.matrixeater.src.MainFrame" `
           --dest "." `
           --name "ReterasModelStudio" `
-          --runtime-image "." `
 
     - name: 上传最终程序
       uses: actions/upload-artifact@v4
