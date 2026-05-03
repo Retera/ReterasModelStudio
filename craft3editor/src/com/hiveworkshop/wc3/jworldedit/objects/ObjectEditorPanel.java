@@ -186,7 +186,7 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 		// "ToolBarIcon_Module_ObjectEditor", "WESTRING_MENU_OBJECTEDITOR");
 		final JToggleButton objectEditorButton = new JToggleButton(
 				getIcon(worldEditorData, "ToolBarIcon_Module_ObjectEditor"));
-			objectEditorButton.setToolTipText(WEString.getString("WESTRING_MENU_OBJECTEDITOR"));
+		objectEditorButton.setToolTipText(WEString.getString("WESTRING_MENU_OBJECTEDITOR").replace("&", ""));
 		objectEditorButton.setPreferredSize(new Dimension(24, 24));
 		objectEditorButton.setMargin(new Insets(1, 1, 1, 1));
 		objectEditorButton.setSelected(true);

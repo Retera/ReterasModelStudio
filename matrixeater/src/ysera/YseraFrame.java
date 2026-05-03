@@ -10,20 +10,15 @@ import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class YseraFrame extends JFrame {
 	public YseraFrame() {
+		// super("The Great and Powerful Warcraft 3 Model Editor Written in Java and
+		// Chosen By Retera to Have the
+		// Greatest of All Names Given to a Model Editor of All Time");
 		super(LocalizationManager.getInstance().get("ysera.app.title"));
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		final YseraPanel contentPane = new YseraPanel();
 		setContentPane(contentPane);
 		setIconImage(BLPHandler.get().getGameTex("war3.w3mod/ReplaceableTextures\\CommandButtons\\BTNGreenDragon.blp"));
 		setJMenuBar(contentPane.createJMenuBar());
-		// listen for locale changes and rebuild UI strings
-		LocalizationManager.getInstance().addPropertyChangeListener(evt -> {
-			if ("locale".equals(evt.getPropertyName())) {
-				setJMenuBar(contentPane.createJMenuBar());
-				setTitle(LocalizationManager.getInstance().get("ysera.app.title"));
-				SwingUtilities.updateComponentTreeUI(this);
-			}
-		});
 		pack();
 		setLocationRelativeTo(null);
 	}

@@ -6,7 +6,6 @@ import java.io.IOException;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import hiveworkshop.localizationmanager.LocalizationManager;
@@ -50,18 +49,17 @@ public class YseraPanel extends JPanel {
 	}
 
 	public JMenuBar createJMenuBar() {
-		final LocalizationManager lm = LocalizationManager.getInstance();
 		final JMenuBar jMenuBar = new JMenuBar();
 
-		final JMenu fileMenu = new JMenu(lm.get("ysera.menu.file"));
+		final JMenu fileMenu = new JMenu(LocalizationManager.getInstance().get("ysera.menu.file"));
 		jMenuBar.add(fileMenu);
-		jMenuBar.add(new JMenu(lm.get("ysera.menu.recent_files")));
-		jMenuBar.add(new JMenu(lm.get("ysera.menu.edit")));
-		jMenuBar.add(new JMenu(lm.get("ysera.menu.view")));
-		jMenuBar.add(new JMenu(lm.get("ysera.menu.team_color")));
-		jMenuBar.add(new JMenu(lm.get("ysera.menu.windows")));
-		jMenuBar.add(new JMenu(lm.get("ysera.menu.extras")));
-		jMenuBar.add(new JMenu(lm.get("ysera.menu.help")));
+		jMenuBar.add(new JMenu(LocalizationManager.getInstance().get("ysera.menu.recent_files")));
+		jMenuBar.add(new JMenu(LocalizationManager.getInstance().get("ysera.menu.edit")));
+		jMenuBar.add(new JMenu(LocalizationManager.getInstance().get("ysera.menu.view")));
+		jMenuBar.add(new JMenu(LocalizationManager.getInstance().get("ysera.menu.team_color")));
+		jMenuBar.add(new JMenu(LocalizationManager.getInstance().get("ysera.menu.windows")));
+		jMenuBar.add(new JMenu(LocalizationManager.getInstance().get("ysera.menu.extras")));
+		jMenuBar.add(new JMenu(LocalizationManager.getInstance().get("ysera.menu.help")));
 
 		return jMenuBar;
 	}

@@ -286,7 +286,6 @@ public class MainPanel extends JPanel
 			duplicateSelection, riseFallBirth, animFromFile, animFromUnit, animFromModel, animFromObject, teamColor,
 			teamGlow;
 	JMenuItem cut, copy, paste;
-	JButton refresh, apply, mdlTextFind;
 	List<RecentItem> recentItems = new ArrayList<>();
 	List<RecentFetchItem> recentFetchItems = new ArrayList<>();
 	UndoMenuItem undo;
@@ -1501,9 +1500,9 @@ public class MainPanel extends JPanel
 		mdlEditorTextArea.setCodeFoldingEnabled(true);
 		mdlEditorTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
 		mdlEditorPanel.add(new RTextScrollPane(mdlEditorTextArea), BorderLayout.CENTER);
-		refresh = new JButton(LocalizationManager.getInstance().get("matrixeater.button.refresh"));
-		apply = new JButton(LocalizationManager.getInstance().get("matrixeater.button.apply"));
-		mdlTextFind = new JButton(LocalizationManager.getInstance().get("matrixeater.button.find_f3"));
+		final JButton refresh = new JButton(LocalizationManager.getInstance().get("matrixeater.button.refresh"));
+		final JButton apply = new JButton(LocalizationManager.getInstance().get("matrixeater.button.apply"));
+		final JButton mdlTextFind = new JButton(LocalizationManager.getInstance().get("matrixeater.button.find_f3"));
 		mdlTextFind.setEnabled(false);
 		refresh.addActionListener(new ActionListener() {
 			@Override
@@ -2332,6 +2331,7 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("Redo", redoAction);
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control Y"),
 				"Redo");
+
 		root.getActionMap().put("Delete", deleteHotkeyAction);
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("DELETE"), "Delete");
 
@@ -7155,6 +7155,4 @@ public class MainPanel extends JPanel
 			ExceptionPopup.display(exc);
 		}
 	}
-	
-	// Removed complex localization update method - user should restart app for full UI language change
 }
