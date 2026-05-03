@@ -33,9 +33,10 @@ jobs:
       run: ./gradlew.bat jpackage
       working-directory: ./
       continue-on-error: true
+      appImage: true
 
     - name: 上传最终程序
       uses: actions/upload-artifact@v4
       with:
         name: ReterasModelStudio-Portable
-        path: ./ReterasModelStudio
+        Path: D:/a/ReterasModelStudio/ReterasModelStudio
