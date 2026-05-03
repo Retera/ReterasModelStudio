@@ -35,7 +35,7 @@ jobs:
       run: |
         jlink --add-modules ALL-MODULE-PATH --output ./ReterasModelStudio
 
-    - name: ✅ 原生平铺打包（无 app / 无 runtime / 不移动文件）
+    - name: 打包EXE（自动生成到 app 目录）
       run: |
         jpackage `
           --type app-image `
@@ -45,6 +45,12 @@ jobs:
           --dest "." `
           --name "ac" `
           --runtime-image "./ReterasModelStudio"
+
+    - name: 合并成纯净根目录（只移动，不破坏程序）
+      run: |
+        Move-Item app/* ./ReterasModelStudio
+        Remove-Item app -Recurse -Force
+        Remove-Item runtime -Recurse -Force
 
     - name: 上传最终程序
       uses: actions/upload-artifact@v4
