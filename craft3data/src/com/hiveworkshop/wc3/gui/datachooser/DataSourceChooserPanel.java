@@ -340,23 +340,24 @@ public class DataSourceChooserPanel extends JPanel {
 					if (selectedFile != null) {
 						CascDataSource.Product product = Product.WARCRAFT_III;
 						final int optionChoice = JOptionPane.showOptionDialog(DataSourceChooserPanel.this,
-						LocalizationManager.getInstance().get("dialog.datasourcechooserpanel_addCASC_choose_version_1"),
-						LocalizationManager.getInstance().get("dialog.datasourcechooserpanel_addCASC_choose_version_2"),
-						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
-						new Object[] {
-							"Warcraft III",
-							LocalizationManager.getInstance().get("dialog.datasourcechooserpanel_addCASC_public_test")
-						},
-						LocalizationManager.getInstance().get("dialog.datasourcechooserpanel_addCASC_public_test"));
+							LocalizationManager.getInstance().get("dialog.datasourcechooserpanel_addCASC_choose_version_1"),
+							LocalizationManager.getInstance().get("dialog.datasourcechooserpanel_addCASC_choose_version_2"),
+							JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
+							new Object[] {
+								"Warcraft III",
+								LocalizationManager.getInstance().get("dialog.datasourcechooserpanel_addCASC_public_test")
+							},
+							LocalizationManager.getInstance().get("dialog.datasourcechooserpanel_addCASC_public_test"));
 						if ((optionChoice < 0) || (optionChoice > 1)) {
-							if (optionChoice == 1) {
-								product = Product.WARCRAFT_III_PUBLIC_TEST;
-							}
-
-							dataSourceDescriptors.add(
-									new CascDataSourceDescriptor(selectedFile.getPath(), new ArrayList<String>(), product));
-							reloadTree();
+							return;
 						}
+						if (optionChoice == 1) {
+							product = Product.WARCRAFT_III_PUBLIC_TEST;
+						}
+
+						dataSourceDescriptors.add(
+								new CascDataSourceDescriptor(selectedFile.getPath(), new ArrayList<String>(), product));
+						reloadTree();
 					}
 				}
 			}

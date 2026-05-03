@@ -2893,7 +2893,7 @@ class BonePanel extends JPanel implements ListSelectionListener, ActionListener 
 		final long nanoStart = System.nanoTime();
 		futureBones = getImportPanel().getFutureBoneListExtended(false);
 		final long nanoEnd = System.nanoTime();
-		System.out.println(LocalizationManager.getInstance().get("println.importpanel_updateselectionpicks") + (nanoEnd - nanoStart) + " s");
+		System.out.println(LocalizationManager.getInstance().get("println.importpanel_updateselectionpicks") + (nanoEnd - nanoStart) + " ns");
 	}
 
 	// public void reorderToModel(DefaultListModel order)
@@ -3031,7 +3031,7 @@ class MultiBonePanel extends BonePanel {
 			getImportPanel().setSelectedItem((String) importTypeBox.getSelectedItem());
 		}
 		final long nanoEnd = System.nanoTime();
-		System.out.println(LocalizationManager.getInstance().get("println.importpanel_actionperformed") + (nanoEnd - nanoStart) + " s");
+		System.out.println(LocalizationManager.getInstance().get("println.importpanel_actionperformed") + (nanoEnd - nanoStart) + " ns");
 	}
 }
 
