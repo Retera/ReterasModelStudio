@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdx;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -334,7 +335,7 @@ public class ParticleEmitterChunk {
 					}
 				}
 				else if (Node.LOG_DISCARDED_FLAGS) {
-					System.err.println("discarded flag " + af.getName());
+					System.err.println(LocalizationManager.getInstance().get("println.particleemitterchunk_particleemitter_discarded_flag") + af.getName());
 				}
 			}
 		}

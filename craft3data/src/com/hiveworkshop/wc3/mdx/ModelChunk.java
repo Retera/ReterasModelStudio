@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdx;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.IOException;
 
@@ -22,7 +23,7 @@ public class ModelChunk {
 		unknownNull = in.readInt();
 		if (unknownNull != 0) {
 			System.err
-					.println("He said he didn't know what this was: " + unknownNull + " (possible loss of model data)");
+					.println(LocalizationManager.getInstance().get("println.modelchunk_load_know") + unknownNull + LocalizationManager.getInstance().get("println.modelchunk_load_possible"));
 		}
 		boundsRadius = in.readFloat();
 		minimumExtent = MdxUtils.loadFloatArray(in, 3);
@@ -38,13 +39,13 @@ public class ModelChunk {
 		out.writeFloat(boundsRadius);
 		if ((minimumExtent.length % 3) != 0) {
 			throw new IllegalArgumentException(
-					"The array minimumExtent needs either the length 3 or a multiple of this number. (got "
+					LocalizationManager.getInstance().get("exception.modelchunk_save_array_minimumextent")
 							+ minimumExtent.length + ")");
 		}
 		MdxUtils.saveFloatArray(out, minimumExtent);
 		if ((maximumExtent.length % 3) != 0) {
 			throw new IllegalArgumentException(
-					"The array maximumExtent needs either the length 3 or a multiple of this number. (got "
+					LocalizationManager.getInstance().get("exception.modelchunk_save_array_maximumextent")
 							+ maximumExtent.length + ")");
 		}
 		MdxUtils.saveFloatArray(out, maximumExtent);

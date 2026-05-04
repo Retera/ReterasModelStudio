@@ -44,6 +44,7 @@ import com.hiveworkshop.wc3.mdl.GeosetVertexBoneLink;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * The ModelPanel is a pane holding the display of a given MDL model. I plan to
@@ -123,17 +124,17 @@ public class ModelPanel implements ActionListener, MouseListener {
 		// dispModel = new MDLDisplay(model,this);
 		loadModel(input);
 
-		frontArea = new DisplayPanel("Front", (byte) 1, (byte) 2, modelView, modelEditorManager.getModelEditor(),
+		frontArea = new DisplayPanel(LocalizationManager.getInstance().get("displayPanel.modelpanel_modelpanel_frontarea"), (byte) 1, (byte) 2, modelView, modelEditorManager.getModelEditor(),
 				modelStructureChangeListener, viewportActivityManager, prefs, undoManager, coordDisplayListener,
 				undoHandler, modelEditorChangeNotifier, viewportTransferHandler, editorRenderModel, viewportListener,
 				animationModeDeleteListener);
 		// frontArea.setViewport(1,2);
-		botArea = new DisplayPanel("Bottom", (byte) 1, (byte) 0, modelView, modelEditorManager.getModelEditor(),
+		botArea = new DisplayPanel(LocalizationManager.getInstance().get("displayPanel.modelpanel_modelpanel_botarea"), (byte) 1, (byte) 0, modelView, modelEditorManager.getModelEditor(),
 				modelStructureChangeListener, viewportActivityManager, prefs, undoManager, coordDisplayListener,
 				undoHandler, modelEditorChangeNotifier, viewportTransferHandler, editorRenderModel, viewportListener,
 				animationModeDeleteListener);
 		// botArea.setViewport(0,1);
-		sideArea = new DisplayPanel("Side", (byte) 0, (byte) 2, modelView, modelEditorManager.getModelEditor(),
+		sideArea = new DisplayPanel(LocalizationManager.getInstance().get("displayPanel.modelpanel_modelpanel_sidearea"), (byte) 0, (byte) 2, modelView, modelEditorManager.getModelEditor(),
 				modelStructureChangeListener, viewportActivityManager, prefs, undoManager, coordDisplayListener,
 				undoHandler, modelEditorChangeNotifier, viewportTransferHandler, editorRenderModel, viewportListener,
 				animationModeDeleteListener);
@@ -151,7 +152,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 		botArea.setControlsVisible(prefs.showVMControls());
 		sideArea.setControlsVisible(prefs.showVMControls());
 
-		perspArea = new PerspDisplayPanel("Perspective", modelView, prefs, editorRenderModel);
+		perspArea = new PerspDisplayPanel(LocalizationManager.getInstance().get("displayPanel.modelpanel_modelpanel_persparea"), modelView, prefs, editorRenderModel);
 		componentsPanel = new ComponentsPanel(textureExporter);
 
 		modelComponentBrowserTree.addSelectListener(componentsPanel);
@@ -261,9 +262,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 		// frontArea.clearGeosets();
 		// sideArea.clearGeosets();
 		// botArea.clearGeosets();
-		// modelMenu.getAccessibleContext().setAccessibleDescription("Allows the
-		// user to control which parts of the model are displayed for
-		// editing.");
+		// modelMenu.getAccessibleContext().setAccessibleDescription(LocalizationManager.getInstance().get("description.modelpanel_actionperformed_control_model_editing"));
 		// modelMenu.setEnabled(true);
 		// loadFile(currentFile);
 		// }
@@ -293,8 +292,8 @@ public class ModelPanel implements ActionListener, MouseListener {
 		// // }
 		// // catch (Exception exc )
 		// // {
-		// // JOptionPane.showMessageDialog(this,"Opening command failed:
-		// "+exc.getLocalizedMessage());
+		// // JOptionPane.showMessageDialog(this,LocalizationManager.getInstance().get("dialog.modelpanel_actionperformed_opening_command_failed")
+		// +exc.getLocalizedMessage());
 		// // }
 		// // }
 		// //
@@ -306,8 +305,8 @@ public class ModelPanel implements ActionListener, MouseListener {
 		// // }
 		// // catch (IOException exc)
 		// // {
-		// // JOptionPane.showMessageDialog(this,"Problem opening file:
-		// "+exc.getLocalizedMessage());
+		// // JOptionPane.showMessageDialog(this,LocalizationManager.getInstance().get("dialog.modelpanel_actionperformed_opening_file")
+		// +exc.getLocalizedMessage());
 		// // }
 		// // }
 		// }
@@ -318,9 +317,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 		// if( returnValue == JFileChooser.APPROVE_OPTION )
 		// {
 		// currentFile = fc.getSelectedFile();
-		// modelMenu.getAccessibleContext().setAccessibleDescription("Allows the
-		// user to control which parts of the model are displayed for
-		// editing.");
+		// modelMenu.getAccessibleContext().setAccessibleDescription(LocalizationManager.getInstance().get("description.modelpanel_actionperformed_control_model_editing"));
 		// modelMenu.setEnabled(true);
 		// loadFile(currentFile);
 		// }
@@ -350,8 +347,8 @@ public class ModelPanel implements ActionListener, MouseListener {
 		// // }
 		// // catch (Exception exc )
 		// // {
-		// // JOptionPane.showMessageDialog(this,"Opening command failed:
-		// "+exc.getLocalizedMessage());
+		// // JOptionPane.showMessageDialog(this,LocalizationManager.getInstance().get("dialog.modelpanel_actionperformed_opening_command_failed")
+		// +exc.getLocalizedMessage());
 		// // }
 		// // }
 		// //
@@ -363,8 +360,8 @@ public class ModelPanel implements ActionListener, MouseListener {
 		// // }
 		// // catch (IOException exc)
 		// // {
-		// // JOptionPane.showMessageDialog(this,"Problem opening file:
-		// "+exc.getLocalizedMessage());
+		// // JOptionPane.showMessageDialog(this,LocalizationManager.getInstance().get("dialog.modelpanel_actionperformed_opening_file")
+		// +exc.getLocalizedMessage());
 		// // }
 		// // }
 		// }
@@ -386,11 +383,14 @@ public class ModelPanel implements ActionListener, MouseListener {
 		boolean canceled = false;
 		// int myIndex = parent.tabbedPane.indexOfComponent(this);
 		if (!undoManager.isUndoListEmpty()) {
-			final Object[] options = { "Yes", "No", "Cancel" };
+			final Object[] options = { 
+				LocalizationManager.getInstance().get("global.button.yes"), 
+				LocalizationManager.getInstance().get("global.button.no"), 
+				LocalizationManager.getInstance().get("global.button.cancel") };
 			final int n = JOptionPane.showOptionDialog(parent,
-					"Would you like to save " + model.getName()/* parent.tabbedPane.getTitleAt(myIndex) */ + " (\""
-							+ model.getHeaderName() + "\") before closing?",
-					"Warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
+					LocalizationManager.getInstance().get("dialog.modelpanel_close_1") + model.getName()/* parent.tabbedPane.getTitleAt(myIndex) */ + " (\""
+							+ model.getHeaderName() + "\")" + LocalizationManager.getInstance().get("dialog.modelpanel_close_2"),
+					LocalizationManager.getInstance().get("dialog.modelpanel_close_3"), JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
 					options[2]);
 			switch (n) {
 			case JOptionPane.YES_OPTION:
@@ -508,7 +508,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 		String boneList = "";
 		for (int i = 0; i < boneRefs.size(); i++) {
 			if (i == (boneRefs.size() - 2)) {
-				boneList = boneList + boneRefs.get(i).getName() + " and ";
+				boneList = boneList + boneRefs.get(i).getName() + LocalizationManager.getInstance().get("string.modelpanel_viewmatrices_1");
 			}
 			else if (i == (boneRefs.size() - 1)) {
 				boneList = boneList + boneRefs.get(i).getName();
@@ -518,7 +518,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 			}
 		}
 		if (boneRefs.size() == 0) {
-			boneList = "Nothing was selected that was attached to any bones.";
+			boneList = LocalizationManager.getInstance().get("string.modelpanel_viewmatrices_2");
 		}
 		final JTextArea tpane = new JTextArea(boneList);
 		tpane.setLineWrap(true);

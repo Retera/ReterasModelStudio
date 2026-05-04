@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class Sequences {
 					seqs.add(an);
 				} else {
 					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-							"Unable to parse sequences: Confused by anim opener line '" + line + "'.");
+							LocalizationManager.getInstance().get("dialog.sequences_sequences_parse") + line + "'.");
 				}
 				MDLReader.mark(mdl);
 				line = MDLReader.nextLine(mdl);

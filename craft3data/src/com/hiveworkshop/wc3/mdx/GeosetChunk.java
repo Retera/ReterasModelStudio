@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdx;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -181,7 +182,7 @@ public class GeosetChunk {
 			out.writeInt(nrOfVertexPositions);
 			if ((vertexPositions.length % 3) != 0) {
 				throw new IllegalArgumentException(
-						"The array vertexPositions needs either the length 3 or a multiple of this number. (got "
+						LocalizationManager.getInstance().get("exception.gosetchunk_save_array_vertexpositions")
 								+ vertexPositions.length + ")");
 			}
 			MdxUtils.saveFloatArray(out, vertexPositions);
@@ -189,7 +190,7 @@ public class GeosetChunk {
 			out.writeInt(nrOfVertexNormals);
 			if ((vertexNormals.length % 3) != 0) {
 				throw new IllegalArgumentException(
-						"The array vertexNormals needs either the length 3 or a multiple of this number. (got "
+						LocalizationManager.getInstance().get("exception.gosetchunk_save_array_vertexNormals")
 								+ vertexNormals.length + ")");
 			}
 			MdxUtils.saveFloatArray(out, vertexNormals);
@@ -223,13 +224,13 @@ public class GeosetChunk {
 			out.writeFloat(boundsRadius);
 			if ((minimumExtent.length % 3) != 0) {
 				throw new IllegalArgumentException(
-						"The array minimumExtent needs either the length 3 or a multiple of this number. (got "
+						LocalizationManager.getInstance().get("exception.gosetchunk_save_array_minimumextent")
 								+ minimumExtent.length + ")");
 			}
 			MdxUtils.saveFloatArray(out, minimumExtent);
 			if ((maximumExtent.length % 3) != 0) {
 				throw new IllegalArgumentException(
-						"The array maximumExtent needs either the length 3 or a multiple of this number. (got "
+						LocalizationManager.getInstance().get("exception.gosetchunk_save_array_maximumextent")
 								+ maximumExtent.length + ")");
 			}
 			MdxUtils.saveFloatArray(out, maximumExtent);
@@ -259,7 +260,7 @@ public class GeosetChunk {
 				out.writeInt(nrOfVertexTexturePositions);
 				if ((vertexTexturePositions[i].length % 2) != 0) {
 					throw new IllegalArgumentException(
-							"The array vertexTexturePositions needs either the length 2 or a multiple of this number. (got "
+							LocalizationManager.getInstance().get("exception.gosetchunk_save_array_vertextexturepositions")
 									+ vertexTexturePositions[i].length + ")");
 				}
 				MdxUtils.saveFloatArray(out, vertexTexturePositions[i]);
@@ -348,14 +349,14 @@ public class GeosetChunk {
 			public void save(final BlizzardDataOutputStream out) throws IOException {
 				if ((minimumExtent.length % 3) != 0) {
 					throw new IllegalArgumentException(
-							"The array minimumExtent needs either the length 3 or a multiple of this number. (got "
+							LocalizationManager.getInstance().get("exception.gosetchunk_save_array_minimumextent")
 									+ minimumExtent.length + ")");
 				}
 				out.writeFloat(bounds);
 				MdxUtils.saveFloatArray(out, minimumExtent);
 				if ((maximumExtent.length % 3) != 0) {
 					throw new IllegalArgumentException(
-							"The array maximumExtent needs either the length 3 or a multiple of this number. (got "
+							LocalizationManager.getInstance().get("exception.gosetchunk_save_array_maximumextent")
 									+ maximumExtent.length + ")");
 				}
 				MdxUtils.saveFloatArray(out, maximumExtent);

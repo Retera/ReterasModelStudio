@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.JColorChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public final class ColorChooserIcon extends JLabel {
 	private Color currentColor;
@@ -20,7 +21,7 @@ public final class ColorChooserIcon extends JLabel {
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(final MouseEvent e) {
-				final Color chosenColor = JColorChooser.showDialog(ColorChooserIcon.this, "Choose Background Color",
+				final Color chosenColor = JColorChooser.showDialog(ColorChooserIcon.this, "data.dialog.colorchoosericon_colorchoosericon_choose_background_color",
 						currentColor);
 				if (chosenColor != null) {
 					setCurrentColor(chosenColor);

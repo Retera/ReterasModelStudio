@@ -33,6 +33,7 @@ import com.hiveworkshop.wc3.mdl.renderer.TriangleRenderer;
 import com.hiveworkshop.wc3.mdl.v2.MaterialView;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.visitor.VertexVisitor;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class AnimatedViewportModelRenderer implements ModelRenderer {
 	private Graphics2D graphics;
@@ -263,7 +264,7 @@ public class AnimatedViewportModelRenderer implements ModelRenderer {
 				firstCoord = vertexSumHeap.z;
 				break;
 			default:
-				throw new IllegalStateException("Invalid x dimension");
+				throw new IllegalStateException(LocalizationManager.getInstance().get("exception.animatedviewportmodelrenderer_trianglerendererimpl_x"));
 			}
 			switch (yDimension) {
 			case 0:
@@ -276,7 +277,7 @@ public class AnimatedViewportModelRenderer implements ModelRenderer {
 				secondCoord = vertexSumHeap.z;
 				break;
 			default:
-				throw new IllegalStateException("Invalid y dimension");
+				throw new IllegalStateException(LocalizationManager.getInstance().get("exception.animatedviewportmodelrenderer_trianglerendererimpl_y"));
 			}
 			final Point point = new Point((int) coordinateSystem.convertX(firstCoord),
 					(int) coordinateSystem.convertY(secondCoord));
@@ -303,7 +304,7 @@ public class AnimatedViewportModelRenderer implements ModelRenderer {
 					firstNormalCoord = normalSumHeap.z;
 					break;
 				default:
-					throw new IllegalStateException("Invalid x dimension");
+					throw new IllegalStateException(LocalizationManager.getInstance().get("exception.animatedviewportmodelrenderer_trianglerendererimpl_x"));
 				}
 				switch (yDimension) {
 				case 0:
@@ -316,7 +317,7 @@ public class AnimatedViewportModelRenderer implements ModelRenderer {
 					secondNormalCoord = normalSumHeap.z;
 					break;
 				default:
-					throw new IllegalStateException("Invalid y dimension");
+					throw new IllegalStateException(LocalizationManager.getInstance().get("exception.animatedviewportmodelrenderer_trianglerendererimpl_y"));
 				}
 				graphics.setColor(programPreferences.getNormalsColor());
 				final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);

@@ -1,4 +1,5 @@
 package mpq;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -50,7 +51,7 @@ public class ArchivedFileStream implements SeekableByteChannel{
 	public SeekableByteChannel position(long newPosition)
 			throws IOException {
 		// *** argument validation as described by SeekableByteChannel interface
-		if( newPosition < 0 ) throw new IllegalArgumentException("files cannot have a negative positon");
+		if( newPosition < 0 ) throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.archivedfilestream_position_negative"));
 		
 		// update stream position
 		position = newPosition;

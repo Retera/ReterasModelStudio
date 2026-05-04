@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdx;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -103,7 +104,7 @@ public class LayerChunk {
 			if (ModelUtils.isCombinedHDLayerSupported(version)) {
 				shaderTypeId = in.readInt();
 				if ((shaderTypeId != 0) && (shaderTypeId != 1)) {
-					System.err.println("MDX1100 parser reached unexpected shader type ID: " + shaderTypeId);
+					System.err.println(LocalizationManager.getInstance().get("println.layerchunk_load_parser") + shaderTypeId);
 				}
 				final int textureIdCount = in.readInt();
 				textureIdsMDLX1100 = new int[TEXTURE_TYPE_INDICES];
@@ -116,7 +117,7 @@ public class LayerChunk {
 						if (MdxUtils.checkOptionalId(in, MaterialTextureId.key)) {
 							textureTypeIndex = i; // TODO this is blizztarded
 							if (animatedTextureIdsMDLX1100[textureTypeIndex] != null) {
-								throw new IllegalStateException("what?");
+								throw new IllegalStateException(LocalizationManager.getInstance().get("exception.layerchunk_load_what"));
 							}
 							animatedTextureIdsMDLX1100[textureTypeIndex] = new MaterialTextureId();
 							animatedTextureIdsMDLX1100[textureTypeIndex].load(in);
@@ -124,9 +125,9 @@ public class LayerChunk {
 						textureIdsMDLX1100[textureTypeIndex] = singleTextureId;
 					}
 					else {
-						throw new IllegalStateException("Invalid texture type index: " + textureTypeIndex
-								+ ": you may be loading a model from a future version of War3 this was not built to handle."
-								+ "\n Editing the model editor's sourcecode can work around this if you really want to open this file.");
+						throw new IllegalStateException(LocalizationManager.getInstance().get("exception.layerchunk_load_invalid") + textureTypeIndex
+								+ LocalizationManager.getInstance().get("exception.layerchunk_load_loading")
+								+ LocalizationManager.getInstance().get("exception.layerchunk_load_sourcecode"));
 					}
 				}
 			}
@@ -483,7 +484,7 @@ public class LayerChunk {
 						}
 					}
 					if (!found && Node.LOG_DISCARDED_FLAGS) {
-						System.err.println("discarded flag " + af.getName());
+						System.err.println(LocalizationManager.getInstance().get("println.layerchunk_layer_discarded_flag") + af.getName());
 					}
 				}
 			}

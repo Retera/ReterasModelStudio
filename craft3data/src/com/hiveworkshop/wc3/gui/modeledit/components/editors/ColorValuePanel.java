@@ -25,6 +25,7 @@ import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 import com.hiveworkshop.wc3.util.Callback;
 import com.hiveworkshop.wc3.util.IconUtils;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -44,17 +45,17 @@ public class ColorValuePanel extends JPanel {
 		setBorder(BorderFactory.createTitledBorder(title));
 		setLayout(new MigLayout());
 		final ButtonGroup staticDynamicGroup = new ButtonGroup();
-		staticButton = new JRadioButton("Static");
-		dynamicButton = new JRadioButton("Dynamic");
+		staticButton = new JRadioButton(LocalizationManager.getInstance().get("button.colorvaluepanel_static"));
+		dynamicButton = new JRadioButton(LocalizationManager.getInstance().get("button.colorvaluepanel_dynamic"));
 		staticDynamicGroup.add(staticButton);
 		staticDynamicGroup.add(dynamicButton);
 		add(staticButton);
-		staticColorButton = new JButton("Choose Color");
+		staticColorButton = new JButton(LocalizationManager.getInstance().get("button.colorvaluepanel_choose_color"));
 		add(staticColorButton, "wrap");
 		staticColorButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				final Color newColor = JColorChooser.showDialog(ColorValuePanel.this.getRootPane(), "Choose " + title,
+				final Color newColor = JColorChooser.showDialog(ColorValuePanel.this.getRootPane(), LocalizationManager.getInstance().get("dialog.colorvaluepanel_choose") + title,
 						new Color((float) lastLoadedStaticColor.z, (float) lastLoadedStaticColor.y,
 								(float) lastLoadedStaticColor.x));
 

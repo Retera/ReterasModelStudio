@@ -8,6 +8,7 @@ import javax.swing.JList;
 
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.TextureAnim;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class TextureAnimListCellRenderer extends DefaultListCellRenderer {
 	Font theFont = new Font("Arial", Font.BOLD, 32);
@@ -22,10 +23,10 @@ public class TextureAnimListCellRenderer extends DefaultListCellRenderer {
 			final boolean iss, final boolean chf) {
 		String name;
 		if (value == null) {
-			name = "(No value)";
+			name = LocalizationManager.getInstance().get("string.textureanimListcellrenderer_textureanimListcellrenderer_no_value");
 		}
 		else {
-			name = "TextureAnim " + model.getTextureAnimId((TextureAnim) value);
+			name = LocalizationManager.getInstance().get("string.textureanimListcellrenderer_textureanimListcellrenderer_textureanim") + model.getTextureAnimId((TextureAnim) value);
 		}
 		super.getListCellRendererComponent(list, name, index, iss, chf);
 		setFont(theFont);

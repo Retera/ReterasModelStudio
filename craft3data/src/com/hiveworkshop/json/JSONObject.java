@@ -1,4 +1,5 @@
 package com.hiveworkshop.json;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.Closeable;
 
@@ -2129,7 +2130,7 @@ public class JSONObject {
             }
             return bi;
         }
-        throw new NumberFormatException("val ["+val+"] is not a valid number.");
+        throw new NumberFormatException(LocalizationManager.getInstance().get("exception.jsonobject_invalid_number_1")+val+LocalizationManager.getInstance().get("exception.jsonobject_invalid_number_2"));
     }
 
     /**

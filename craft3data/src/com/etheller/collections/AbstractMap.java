@@ -23,6 +23,7 @@
  *
  */
 package com.etheller.collections;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.util.Iterator;
 
@@ -383,7 +384,7 @@ public abstract class AbstractMap<K, V> implements Map<K, V> {
 
 						@Override
 						public void remove() {
-							throw new UnsupportedOperationException("iterator is read only");
+							throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.keysetforeachadapter"));
 							// i.remove();
 						}
 					};
@@ -459,7 +460,7 @@ public abstract class AbstractMap<K, V> implements Map<K, V> {
 
 						@Override
 						public void remove() {
-							throw new UnsupportedOperationException("iterator is read only");
+							throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.abstractcollection"));
 							// i.remove();
 						}
 					};

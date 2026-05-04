@@ -11,6 +11,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class RotationKeyframeAction implements GenericRotateAction {
 	private final UndoAction addingTimelinesOrKeyframesAction;
@@ -61,7 +62,7 @@ public class RotationKeyframeAction implements GenericRotateAction {
 
 	@Override
 	public String actionName() {
-		return "edit rotation";
+		return LocalizationManager.getInstance().get("string.rotationkeyframeaction_actionname");
 	}
 
 	@Override

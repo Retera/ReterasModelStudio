@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.animedit.mdlvisripoff;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * Aiming to copy some behaviors from Mdlvis with this
@@ -241,7 +242,7 @@ public class TTan {
 			((QuaternionRotation) value).setCoord((byte) index, ((Number) newValue).doubleValue());
 			return value;
 		}
-		throw new IllegalArgumentException("Unknown subscripting (set): " + value + ", " + index + ", " + newValue);
+		throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.assignsubscript_unknown") + value + ", " + index + ", " + newValue);
 	}
 
 	public static Number getSubscript(final Object value, final int index) {
@@ -252,7 +253,7 @@ public class TTan {
 		} else if (value instanceof QuaternionRotation) {
 			return ((QuaternionRotation) value).getCoord((byte) index);
 		}
-		throw new IllegalArgumentException("Unknown subscripting (get): " + value + ", " + index);
+		throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.getsubscript_unknown") + value + ", " + index);
 	}
 
 	private static void getInverseQuaternion(final QuaternionRotation qsrc, final QuaternionRotation qdest) {

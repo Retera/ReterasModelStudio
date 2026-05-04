@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class SlideKeyframeAction implements UndoAction {
 	private final int startTrackTime;
@@ -37,7 +38,7 @@ public class SlideKeyframeAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "slide keyframe";
+		return LocalizationManager.getInstance().get("string.slidekeyframeaction_actionname");
 	}
 
 }

@@ -33,6 +33,7 @@ import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -70,7 +71,7 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel {
 				undoListener.pushAction(setBitmapReplaceableIdAction);
 			}
 		});
-		wrapWidthBox = new JCheckBox("Wrap Width");
+		wrapWidthBox = new JCheckBox(LocalizationManager.getInstance().get("checkbox.componentbitmappanel_componentbitmappanel_width"));
 		wrapWidthBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -80,7 +81,7 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel {
 				undoListener.pushAction(setBitmapWrapWidthAction);
 			}
 		});
-		wrapHeightBox = new JCheckBox("Wrap Height");
+		wrapHeightBox = new JCheckBox(LocalizationManager.getInstance().get("checkbox.componentbitmappanel_componentbitmappanel_height"));
 		wrapHeightBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -91,17 +92,17 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel {
 			}
 		});
 		previewPanel = new JPanel();
-		previewPanel.setBorder(new TitledBorder(null, "Previewer", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		previewPanel.setBorder(new TitledBorder(null, LocalizationManager.getInstance().get("border.componentbitmappanel_componentbitmappanel_previewer"), TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		previewPanel.setLayout(new BorderLayout());
 
 		setLayout(new MigLayout("fillx", "[][grow][]", "[][][][][grow]"));
-		add(new JLabel("Path: "), "cell 0 0");
+		add(new JLabel(LocalizationManager.getInstance().get("label.componentbitmappanel_componentbitmappanel_path")), "cell 0 0");
 		add(texturePathField, "cell 1 0 2, growx");
-		add(new JLabel("ReplaceableId: "), "cell 0 1");
+		add(new JLabel(LocalizationManager.getInstance().get("label.componentbitmappanel_componentbitmappanel_replaceableId")), "cell 0 1");
 		add(replaceableIdSpinner, "cell 1 1 2");
 		add(wrapWidthBox, "cell 0 2 3");
 		add(wrapHeightBox, "cell 0 3");
-		final JButton exportTextureImageFile = new JButton("Export Texture Image File");
+		final JButton exportTextureImageFile = new JButton(LocalizationManager.getInstance().get("label.componentbitmappanel_componentbitmappanel_export_texture"));
 		exportTextureImageFile.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {

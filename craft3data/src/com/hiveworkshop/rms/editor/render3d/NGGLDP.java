@@ -287,12 +287,12 @@ public class NGGLDP {
 				"		if(u_lightingEnabled != 0) {\r\n" + //
 				"			vec3 lightFactorContribution = vec3(clamp(dot(a_normal.xyz, u_lightDirection), 0.0, 1.0));\r\n"
 				+ //
-				"		    if(u_usingModelCamera != 0) {\r\n" + //
-				"			    v_color.rgb = v_color.rgb * clamp(lightFactorContribution + 0.3f, 0.0, 1.0);\r\n" + //
-				"		    } else {\r\n" + //
-				"			    v_color.rgb = v_color.rgb * clamp(lightFactorContribution * 1.3 + vec3(0.5f, 0.5f, 0.5f), 0.0, 1.0);\r\n"
+				"			if(u_usingModelCamera != 0) {\r\n" + //
+				"				v_color.rgb = v_color.rgb * clamp(lightFactorContribution + 0.3f, 0.0, 1.0);\r\n" + //
+				"			} else {\r\n" + //
+				"				v_color.rgb = v_color.rgb * clamp(lightFactorContribution * 1.3 + vec3(0.5f, 0.5f, 0.5f), 0.0, 1.0);\r\n"
 				+ //
-				"		    }\r\n" + //
+				"			}\r\n" + //
 				"		}\r\n" + //
 				"}\r\n\0";
 		private static final String fragmentShader = "#version 330 core\r\n" + //

@@ -22,6 +22,7 @@ import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * The panel to handle re-assigning Matrices.
@@ -48,7 +49,7 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 	JScrollPane bonesPane;
 	JButton useBone;
 
-	JCheckBox displayParents = new JCheckBox("Display parents", false);
+	JCheckBox displayParents = new JCheckBox(LocalizationManager.getInstance().get("checkbox.matrixpopup_matrixpopup_displayparents"), false);
 
 	EditableModel model;
 
@@ -58,7 +59,7 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 		final ParentToggleRenderer renderer = new ParentToggleRenderer(displayParents, disp, null);
 		displayParents.addChangeListener(this);
 
-		bonesLabel = new JLabel("Bones");
+		bonesLabel = new JLabel(LocalizationManager.getInstance().get("label.matrixpopup_matrixpopup_boneslabel"));
 		buildBonesList();
 		// Built before oldBoneRefs, so that the MatrixShells can default to
 		// using New Refs with the same name as their first bone
@@ -67,17 +68,17 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 		bonesPane = new JScrollPane(bonesList);
 		bonesPane.setPreferredSize(new Dimension(400, 500));
 
-		useBone = new JButton("Use Bone(s)", ImportPanel.greenArrowIcon);
+		useBone = new JButton(LocalizationManager.getInstance().get("label.matrixpopup_matrixpopup_usebone"), ImportPanel.greenArrowIcon);
 		useBone.addActionListener(this);
 
-		newRefsLabel = new JLabel("New Refs");
+		newRefsLabel = new JLabel(LocalizationManager.getInstance().get("label.matrixpopup_matrixpopup_newrefslabel"));
 		newRefs = new DefaultListModel<>();
 		newRefsList = new JList(newRefs);
 		newRefsList.setCellRenderer(renderer);
 		newRefsPane = new JScrollPane(newRefsList);
 		newRefsPane.setPreferredSize(new Dimension(400, 500));
 
-		removeNewRef = new JButton("Remove", ImportPanel.redXIcon);
+		removeNewRef = new JButton(LocalizationManager.getInstance().get("button.matrixpopup_matrixpopup_removenewref"), ImportPanel.redXIcon);
 		removeNewRef.addActionListener(this);
 		moveUp = new JButton(ImportPanel.moveUpIcon);
 		moveUp.addActionListener(this);

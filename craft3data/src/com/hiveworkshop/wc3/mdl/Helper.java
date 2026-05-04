@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.BufferedReader;
 
@@ -37,7 +38,7 @@ public class Helper extends Bone// Haha blizz
 		// System.out.println(mdlBone.getName() + ": " +
 		// Integer.toBinaryString(bone.node.flags));
 		if ((helper.node.flags & 1) != 0) {
-			System.err.println("MDX -> MDL error: A helper '" + helper.node.name + "' not flagged as helper in MDX!");
+			System.err.println(LocalizationManager.getInstance().get("println.helper_helper_error") + helper.node.name + LocalizationManager.getInstance().get("println.helper_helper_not_flagged"));
 		}
 		// ----- Convert Base NODE to "IDOBJECT" -----
 		loadFrom(helper.node);
@@ -66,7 +67,7 @@ public class Helper extends Bone// Haha blizz
 							b.multiGeoId = true;
 						} else {
 							JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-									"Error while parsing: Could not interpret integer from: " + line);
+									LocalizationManager.getInstance().get("println.helper_read_error") + line);
 						}
 					}
 				} else if (line.contains("GeosetAnimId")) {
@@ -80,7 +81,7 @@ public class Helper extends Bone// Haha blizz
 							b.geosetAnim = null;
 						} else {
 							JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-									"Error while parsing: Could not interpret integer from: " + line);
+									LocalizationManager.getInstance().get("println.helper_read_error") + line);
 						}
 					}
 				} else if (line.contains("Parent")) {
@@ -100,7 +101,7 @@ public class Helper extends Bone// Haha blizz
 			return b;
 		} else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse Bone: Missing or unrecognized open statement.");
+					LocalizationManager.getInstance().get("println.helper_read_parse_bone"));
 		}
 		return null;
 	}

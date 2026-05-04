@@ -68,6 +68,7 @@ import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.TimelineContainer;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, SelectionListener {
 	private static final Color GLASS_TICK_COVER_COLOR = new Color(100, 190, 255, 100);
@@ -192,7 +193,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 							timeIndicator.setEnabled(false);
 							popupMenu.add(timeIndicator);
 							popupMenu.addSeparator();
-							final JMenuItem deleteAll = new JMenuItem("Delete All");
+							final JMenuItem deleteAll = new JMenuItem(LocalizationManager.getInstance().get("menuitem.timesliderpanel_deleteall"));
 							deleteAll.addActionListener(new ActionListener() {
 								@Override
 								public void actionPerformed(final ActionEvent e) {
@@ -202,7 +203,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 							});
 							popupMenu.add(deleteAll);
 							popupMenu.addSeparator();
-							final JMenuItem cutItem = new JMenuItem("Cut");
+							final JMenuItem cutItem = new JMenuItem(LocalizationManager.getInstance().get("menuitem.timesliderpanel_cut"));
 							cutItem.addActionListener(new ActionListener() {
 
 								@Override
@@ -213,7 +214,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 								}
 							});
 							popupMenu.add(cutItem);
-							final JMenuItem copyItem = new JMenuItem("Copy");
+							final JMenuItem copyItem = new JMenuItem(LocalizationManager.getInstance().get("menuitem.timesliderpanel_copy"));
 							copyItem.addActionListener(new ActionListener() {
 								@Override
 								public void actionPerformed(final ActionEvent e) {
@@ -221,7 +222,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 								}
 							});
 							popupMenu.add(copyItem);
-							final JMenuItem copyFrameItem = new JMenuItem("Copy Frame (whole model)");
+							final JMenuItem copyFrameItem = new JMenuItem(LocalizationManager.getInstance().get("menuitem.timesliderpanel_copyframe"));
 							copyFrameItem.addActionListener(new ActionListener() {
 								@Override
 								public void actionPerformed(final ActionEvent e) {
@@ -229,7 +230,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 								}
 							});
 							popupMenu.add(copyFrameItem);
-							final JMenuItem pasteItem = new JMenuItem("Paste");
+							final JMenuItem pasteItem = new JMenuItem(LocalizationManager.getInstance().get("menuitem.timesliderpanel_paste"));
 							pasteItem.addActionListener(new ActionListener() {
 								@Override
 								public void actionPerformed(final ActionEvent ae) {
@@ -245,7 +246,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 											&& flag.getTimes().get(flooredTimeIndex).equals(timeAndKey.getKey())) {
 										final JMenu subMenu = new JMenu(object.getName() + ": " + flag.getName());
 										popupMenu.add(subMenu);
-										final JMenuItem deleteSpecificItem = new JMenuItem("Delete");
+										final JMenuItem deleteSpecificItem = new JMenuItem(LocalizationManager.getInstance().get("menuitem.timesliderpanel_delete"));
 										deleteSpecificItem.addActionListener(new ActionListener() {
 											@Override
 											public void actionPerformed(final ActionEvent e) {
@@ -255,7 +256,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 										});
 										subMenu.add(deleteSpecificItem);
 										subMenu.addSeparator();
-										final JMenuItem cutSpecificItem = new JMenuItem("Cut");
+										final JMenuItem cutSpecificItem = new JMenuItem(LocalizationManager.getInstance().get("menuitem.timesliderpanel_cut_specific"));
 										cutSpecificItem.addActionListener(new ActionListener() {
 											@Override
 											public void actionPerformed(final ActionEvent e) {
@@ -266,7 +267,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 											}
 										});
 										subMenu.add(cutSpecificItem);
-										final JMenuItem copySpecificItem = new JMenuItem("Copy");
+										final JMenuItem copySpecificItem = new JMenuItem(LocalizationManager.getInstance().get("menuitem.timesliderpanel_copy_specific"));
 										copySpecificItem.addActionListener(new ActionListener() {
 											@Override
 											public void actionPerformed(final ActionEvent e) {
@@ -275,7 +276,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 											}
 										});
 										subMenu.add(copySpecificItem);
-										final JMenuItem pasteSpecificItem = new JMenuItem("Paste");
+										final JMenuItem pasteSpecificItem = new JMenuItem(LocalizationManager.getInstance().get("menuitem.timesliderpanel_paste_specific"));
 										pasteSpecificItem.addActionListener(new ActionListener() {
 											@Override
 											public void actionPerformed(final ActionEvent e) {
@@ -296,7 +297,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 						timeIndicator.setEnabled(false);
 						popupMenu.add(timeIndicator);
 						popupMenu.addSeparator();
-						final JMenuItem copyItem = new JMenuItem("Copy");
+						final JMenuItem copyItem = new JMenuItem(LocalizationManager.getInstance().get("menuitem.timesliderpanel_copy"));
 						copyItem.addActionListener(new ActionListener() {
 							@Override
 							public void actionPerformed(final ActionEvent e) {
@@ -304,7 +305,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 							}
 						});
 						popupMenu.add(copyItem);
-						final JMenuItem copyFrameItem = new JMenuItem("Copy Frame (whole model)");
+						final JMenuItem copyFrameItem = new JMenuItem(LocalizationManager.getInstance().get("menuitem.timesliderpanel_copyframe"));
 						copyFrameItem.addActionListener(new ActionListener() {
 							@Override
 							public void actionPerformed(final ActionEvent e) {
@@ -312,7 +313,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 							}
 						});
 						popupMenu.add(copyFrameItem);
-						final JMenuItem pasteItem = new JMenuItem("Paste");
+						final JMenuItem pasteItem = new JMenuItem(LocalizationManager.getInstance().get("menuitem.timesliderpanel_paste"));
 						pasteItem.addActionListener(new ActionListener() {
 							@Override
 							public void actionPerformed(final ActionEvent ae) {
@@ -1203,7 +1204,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		}
 		if (!foundCopiedMatch) {
 			JOptionPane.showMessageDialog(TimeSliderPanel.this,
-					"Tell Retera to code in the ability to paste cross-node data!");
+					LocalizationManager.getInstance().get("dialog.timesliderpanel_pastetospecifictimeline"));
 		}
 		revalidateKeyframeDisplay();
 	}

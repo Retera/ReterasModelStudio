@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.models;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.awt.Dimension;
 import java.io.FileNotFoundException;
@@ -68,7 +69,7 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 		final JPanel temp = new JPanel();
 		temp.add(debugLabel);
 
-		modelPanel = new PerspDisplayPanel("blank", modelDisp, new ProgramPreferences(),
+		modelPanel = new PerspDisplayPanel(LocalizationManager.getInstance().get("panel.betteruniteditormodelselector_betteruniteditormodelselector_blank"), modelDisp, new ProgramPreferences(),
 				new RenderModel(modelDisp.getModel(), null));
 		fillTable();
 
@@ -116,15 +117,13 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 				e.printStackTrace();
 			}
 			// loadFile(MPQHandler.get().getGameFile(filepath), true);
-			// modelMenu.getAccessibleContext().setAccessibleDescription("Allows
-			// the user to control which parts of the model are displayed for
-			// editing.");
+			// modelMenu.getAccessibleContext().setAccessibleDescription(LocalizationManager.getInstance().get("description.betteruniteditormodelselector_filltable_control"));
 			// modelMenu.setEnabled(true);
 			// modelDisp = new MDLDisplay(toLoad, null);
 		} catch (final Exception exc) {
 			exc.printStackTrace();
 			// bad model!
-			JOptionPane.showMessageDialog(getParent(), "The chosen model could not be used.", "Program Error",
+			JOptionPane.showMessageDialog(getParent(), LocalizationManager.getInstance().get("dialog.betteruniteditormodelselector_filltable_chosen"), LocalizationManager.getInstance().get("dialog.betteruniteditormodelselector_filltable_error"),
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}

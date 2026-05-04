@@ -12,6 +12,7 @@ import com.hiveworkshop.wc3.gui.modeledit.components.material.ComponentMaterialL
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -43,7 +44,7 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel {
 		multipleLayersPanel = new ComponentMaterialLayersPanel();
 
 		setLayout(new MigLayout("fill", "[][grow][grow]", "[][][grow]"));
-		add(new JLabel("Priority Plane:"));
+		add(new JLabel(LocalizationManager.getInstance().get("label.componentmaterialpanel_componentmaterialpanel_priority")));
 		add(priorityPlaneSpinner, "wrap, growx, span 2");
 		add(multipleLayersPanel, "growx, growy, span 3");
 	}

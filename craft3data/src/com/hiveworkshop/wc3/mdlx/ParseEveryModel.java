@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdlx;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.IOException;
 
@@ -37,8 +38,8 @@ public class ParseEveryModel {
 				}
 			}
 		}
-		System.err.println("parsed " + parsed + " successfully");
-		System.out.println("Max was: " + maxVertexGroup);
+		System.err.println(LocalizationManager.getInstance().get("println.parseeverymodel_main_parsed") + parsed + LocalizationManager.getInstance().get("println.parseeverymodel_main_successfully"));
+		System.out.println(LocalizationManager.getInstance().get("println.parseeverymodel_main_max_was") + maxVertexGroup);
 	}
 
 }

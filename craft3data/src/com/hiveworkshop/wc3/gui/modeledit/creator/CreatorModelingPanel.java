@@ -44,6 +44,7 @@ import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class CreatorModelingPanel extends JPanel
 		implements ModelEditorChangeActivityListener, TimeSliderTimeSelectionListener {
@@ -116,10 +117,10 @@ public class CreatorModelingPanel extends JPanel
 
 		animationChooserBoxModel = new DefaultComboBoxModel<>();
 		modeChooserBoxModel = new DefaultComboBoxModel<>();
-		modeChooserBoxModel.addElement("Mesh Basics");
-		modeChooserBoxModel.addElement("Standard Primitives");
-		modeChooserBoxModel.addElement("Extended Primitives");
-		modeChooserBoxModel.addElement("Animation Nodes");
+		modeChooserBoxModel.addElement(LocalizationManager.getInstance().get("element.creatormodelingpanel_creatormodelingpanel_mesh_basics"));
+		modeChooserBoxModel.addElement(LocalizationManager.getInstance().get("element.creatormodelingpanel_creatormodelingpanel_standard_primitives"));
+		modeChooserBoxModel.addElement(LocalizationManager.getInstance().get("element.creatormodelingpanel_creatormodelingpanel_extended_primitives"));
+		modeChooserBoxModel.addElement(LocalizationManager.getInstance().get("element.creatormodelingpanel_creatormodelingpanel_animation_nodes"));
 		modeChooserBox = new JComboBox<>(modeChooserBoxModel);
 		animationChooserBox = new JComboBox<>(animationChooserBoxModel);
 		animationChooserBox.setVisible(false);
@@ -148,21 +149,21 @@ public class CreatorModelingPanel extends JPanel
 
 		final JPanel standardPrimitivesPanel = new JPanel(new BorderLayout());
 		final JPanel drawPrimitivesPanel = new JPanel(new GridLayout(16, 1));
-		drawPrimitivesPanel.setBorder(BorderFactory.createTitledBorder("Draw"));
-		final ModeButton planeButton = new ModeButton("Plane");
+		drawPrimitivesPanel.setBorder(BorderFactory.createTitledBorder(LocalizationManager.getInstance().get("border.creatormodelingpanel_creatormodelingpanel_drawprimitivespanel")));
+		final ModeButton planeButton = new ModeButton(LocalizationManager.getInstance().get("button.creatormodelingpanel_creatormodelingpanel_planebutton"));
 		planeButton.addActionListener(new ActionListenerImplementation(
 				new DrawPlaneActivityDescriptor(programPreferences, activeViewportWatcher), programPreferences,
 				listener, planeButton));
 		modeButtons.add(planeButton);
 		drawPrimitivesPanel.add(planeButton);
-		final ModeButton boxButton = new ModeButton("Box");
+		final ModeButton boxButton = new ModeButton(LocalizationManager.getInstance().get("button.creatormodelingpanel_creatormodelingpanel_box"));
 		boxButton.addActionListener(new ActionListenerImplementation(
 				new DrawBoxActivityDescriptor(programPreferences, activeViewportWatcher), programPreferences, listener,
 				boxButton));
 		modeButtons.add(boxButton);
 		drawPrimitivesPanel.add(boxButton);
 		final JPanel spOptionsPanel = new JPanel(new GridLayout(16, 1));
-		spOptionsPanel.setBorder(BorderFactory.createTitledBorder("Options"));
+		spOptionsPanel.setBorder(BorderFactory.createTitledBorder(LocalizationManager.getInstance().get("border.creatormodelingpanel_creatormodelingpanel_options")));
 		standardPrimitivesPanel.add(drawPrimitivesPanel, BorderLayout.NORTH);
 		standardPrimitivesPanel.add(spOptionsPanel, BorderLayout.CENTER);
 
@@ -186,9 +187,9 @@ public class CreatorModelingPanel extends JPanel
 			final ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup,
 			final ActiveViewportWatcher activeViewportWatcher, final DefaultComboBoxModel<String> modeChooserBoxModel,
 			final JPanel cardPanel) {
-		final ModeButton vertexButton = new ModeButton("Vertex");
-		final ModeButton faceButton = new ModeButton("Face from Selection");
-		final ModeButton boneButton = new ModeButton("Bone");
+		final ModeButton vertexButton = new ModeButton(LocalizationManager.getInstance().get("button.creatormodelingpanel_makemeshbasicspanel_vertex"));
+		final ModeButton faceButton = new ModeButton(LocalizationManager.getInstance().get("button.creatormodelingpanel_makemeshbasicspanel_face_election"));
+		final ModeButton boneButton = new ModeButton(LocalizationManager.getInstance().get("button.creatormodelingpanel_makemeshbasicspanel_bone"));
 		faceButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -203,15 +204,16 @@ public class CreatorModelingPanel extends JPanel
 					undoActionListener.pushAction(createFaceFromSelection);
 				} catch (final WrongModeException exc) {
 					JOptionPane.showMessageDialog(CreatorModelingPanel.this,
-							"Unable to create face, wrong selection mode", "Error", JOptionPane.ERROR_MESSAGE);
+							LocalizationManager.getInstance().get("dialog.creatormodelingpanel_makemeshbasicspanel_unable_create_face"),
+							LocalizationManager.getInstance().get("global.dialog.error"), JOptionPane.ERROR_MESSAGE);
 				} catch (final FaceCreationException exc) {
-					JOptionPane.showMessageDialog(CreatorModelingPanel.this, exc.getMessage(), "Error",
+					JOptionPane.showMessageDialog(CreatorModelingPanel.this, exc.getMessage(), LocalizationManager.getInstance().get("global.dialog.error"),
 							JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
 		final JPanel drawToolsPanel = new JPanel(new GridLayout(2, 1));
-		drawToolsPanel.setBorder(BorderFactory.createTitledBorder("Draw"));
+		drawToolsPanel.setBorder(BorderFactory.createTitledBorder(LocalizationManager.getInstance().get("border.creatormodelingpanel_makemeshbasicspanel_draw")));
 		drawToolsPanel.add(vertexButton);
 		drawToolsPanel.add(faceButton);
 		drawToolsPanel.add(boneButton);
@@ -221,7 +223,7 @@ public class CreatorModelingPanel extends JPanel
 		meshBasicsPanel.add(drawToolsPanel, BorderLayout.NORTH);
 
 		final JPanel editToolsPanel = new JPanel(new GridLayout(16, 1));
-		editToolsPanel.setBorder(BorderFactory.createTitledBorder("Manipulate"));
+		editToolsPanel.setBorder(BorderFactory.createTitledBorder(LocalizationManager.getInstance().get("border.creatormodelingpanel_makemeshbasicspanel_manipulate")));
 
 		for (final ToolbarActionButtonType type : actionTypeGroup.getToolbarButtonTypes()) {
 			final String typeName = type.getName();
@@ -271,7 +273,7 @@ public class CreatorModelingPanel extends JPanel
 		final JPanel meshBasicsPanel = new JPanel(new BorderLayout());
 		cardPanel.add(meshBasicsPanel, ANIMATIONBASICS);
 		final JPanel editToolsPanel = new JPanel(new GridLayout(16, 1));
-		editToolsPanel.setBorder(BorderFactory.createTitledBorder("Manipulate"));
+		editToolsPanel.setBorder(BorderFactory.createTitledBorder(LocalizationManager.getInstance().get("border.creatormodelingpanel_makeanimationbasicspanel_manipulate")));
 
 		int index = 0;
 		for (final ToolbarActionButtonType type : actionTypeGroup.getToolbarButtonTypes()) {
@@ -372,9 +374,9 @@ public class CreatorModelingPanel extends JPanel
 		final Object thingSelected = selectedItem == null ? null : selectedItem.getThing();
 		thingToChooseableItem.clear();
 		boolean sawLast = selectedItem == null;
-		final ChooseableDoNothing doNothingItem = new ChooseableDoNothing("Custom Timeframe");
+		final ChooseableDoNothing doNothingItem = new ChooseableDoNothing(LocalizationManager.getInstance().get("println.creatormodelingpanel_reloadanimationlist_custom_timeframe"));
 		animationChooserBoxModel.addElement(doNothingItem);
-		thingToChooseableItem.put("Custom Timeframe", doNothingItem);
+		thingToChooseableItem.put(LocalizationManager.getInstance().get("println.creatormodelingpanel_reloadanimationlist_custom_timeframe"), doNothingItem);
 		for (final Animation animation : modelView.getModel().getAnims()) {
 			final ChooseableAnimation choosableItem = new ChooseableAnimation(animation);
 			thingToChooseableItem.put(animation, choosableItem);

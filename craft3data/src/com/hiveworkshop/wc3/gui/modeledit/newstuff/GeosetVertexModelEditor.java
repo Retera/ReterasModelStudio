@@ -44,6 +44,7 @@ import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	private final ProgramPreferences programPreferences;
@@ -57,17 +58,17 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 
 	@Override
 	public UndoAction autoCenterSelectedBones() {
-		throw new UnsupportedOperationException("This feature is not available in Geoset Vertex mode");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.geosetvertexmodeleditor_autocenterselectedbones"));
 	}
 
 	@Override
 	public UndoAction setSelectedBoneName(final String name) {
-		throw new UnsupportedOperationException("This feature is not available in Geoset Vertex mode");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.geosetvertexmodeleditor_setselectedbonename"));
 	}
 
 	@Override
 	public UndoAction addSelectedBoneSuffix(final String name) {
-		throw new UnsupportedOperationException("This feature is not available in Geoset Vertex mode");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.geosetvertexmodeleditor_addselectedbonesuffix"));
 	}
 
 	@Override
@@ -109,7 +110,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 			expandSelection(v, expandedSelection);
 		}
 		selectionManager.setSelection(expandedSelection);
-		return (new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, "expand selection"));
+		return (new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("action.geosetvertexmodeleditor_expandselection")));
 	}
 
 	private void expandSelection(final GeosetVertex currentVertex, final Set<GeosetVertex> selection) {
@@ -133,7 +134,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 			}
 		}
 		selectionManager.setSelection(invertedSelection);
-		return (new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection"));
+		return (new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("action.geosetvertexmodeleditor_invertselection")));
 	}
 
 	private void toggleSelection(final Set<GeosetVertex> selection, final GeosetVertex position) {
@@ -155,7 +156,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 			}
 		}
 		selectionManager.setSelection(allSelection);
-		return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all"));
+		return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("action.geosetvertexmodeleditor_selectall")));
 	}
 
 	@Override
@@ -163,7 +164,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 		final ArrayList<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
 		final Set<GeosetVertex> allSelection = new HashSet<>();
 		selectionManager.setSelection(allSelection);
-		return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select HD unused"));
+		return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("action.geosetvertexmodeleditor_selecthdunusednodes")));
 	}
 
 	@Override
@@ -331,7 +332,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 		boolean needsGeosetAction = false;
 		if (solidWhiteGeoset == null) {
 			solidWhiteGeoset = new Geoset();
-			solidWhiteGeoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
+			solidWhiteGeoset.setMaterial(new Material(new Layer(LocalizationManager.getInstance().get("layer.geosetvertexmodeleditor_addVertex_none"), new Bitmap("Textures\\white.blp"))));
 			needsGeosetAction = true;
 		}
 		final GeosetVertex geosetVertex = new GeosetVertex(x, y, z, new Normal(preferredNormalFacingVector.x,
@@ -343,7 +344,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 		if (needsGeosetAction) {
 			final NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, model.getModel(),
 					structureChangeListener);
-			action = new CompoundAction("add vertex", ListView.Util.of(newGeosetAction, drawVertexAction));
+			action = new CompoundAction(LocalizationManager.getInstance().get("action.geosetvertexmodeleditor_addVertex_add_vertex"), ListView.Util.of(newGeosetAction, drawVertexAction));
 		}
 		else {
 			action = drawVertexAction;
@@ -357,7 +358,8 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 		final Set<GeosetVertex> selection = selectionManager.getSelection();
 		if (selection.size() != 3) {
 			throw new FaceCreationException(
-					"A face can only be created from exactly 3 vertices (you have " + selection.size() + " selected)");
+				LocalizationManager.getInstance().get("exception.geosetvertexmodeleditor_createfacefromselection_create_vertices")
+				+ selection.size() + LocalizationManager.getInstance().get("exception.geosetvertexmodeleditor_createfacefromselection_selected"));
 		}
 		int index = 0;
 		final GeosetVertex[] verticesArray = new GeosetVertex[3];
@@ -369,13 +371,13 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 			}
 			else if (geoset != vertex.getGeoset()) {
 				throw new FaceCreationException(
-						"All three vertices to create a face must be a part of the same Geoset");
+					LocalizationManager.getInstance().get("exception.geosetvertexmodeleditor_createfacefromselection_all_create"));
 			}
 		}
 		for (final Triangle existingTriangle : verticesArray[0].getTriangles()) {
 			if (existingTriangle.contains(verticesArray[0]) && existingTriangle.contains(verticesArray[1])
 					&& existingTriangle.contains(verticesArray[2])) {
-				throw new FaceCreationException("Triangle already exists");
+				throw new FaceCreationException(LocalizationManager.getInstance().get("exception.geosetvertexmodeleditor_createfacefromselection_exists"));
 			}
 		}
 
@@ -395,12 +397,12 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 
 	@Override
 	public UndoAction setParent(final IdObject node) {
-		throw new UnsupportedOperationException("This feature is not available in Geoset Vertex mode");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.geosetvertexmodeleditor_setparent"));
 	}
 
 	@Override
 	public UndoAction reLinkRFBone(IdObject node) {
-		throw new UnsupportedOperationException("This feature is not available in Geoset Vertex mode");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.geosetvertexmodeleditor_relinkrfbone"));
 	}
 
 	public VertexSelectionHelper getVertexSelectionHelper() {

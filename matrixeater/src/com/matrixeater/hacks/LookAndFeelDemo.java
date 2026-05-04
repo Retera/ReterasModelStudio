@@ -31,6 +31,7 @@
  */
 
 package com.matrixeater.hacks;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -55,7 +56,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
 
 public class LookAndFeelDemo implements ActionListener {
-	private static String labelPrefix = "Number of button clicks: ";
+	private static String labelPrefix = LocalizationManager.getInstance().get("matrixeater.string.lookandfeeldemo_labelPrefix");
 	private int numClicks = 0;
 	final JLabel label = new JLabel(labelPrefix + "0    ");
 
@@ -70,7 +71,7 @@ public class LookAndFeelDemo implements ActionListener {
 	final static String THEME = "Ocean";
 
 	public Component createComponents() {
-		final JButton button = new JButton("I'm a Swing button!");
+		final JButton button = new JButton(LocalizationManager.getInstance().get("matrixeater.button.lookandfeeldemo_createcomponents"));
 		button.setMnemonic(KeyEvent.VK_I);
 		button.addActionListener(this);
 		label.setLabelFor(button);
@@ -147,19 +148,25 @@ public class LookAndFeelDemo implements ActionListener {
 			}
 
 			catch (final ClassNotFoundException e) {
-				System.err.println("Couldn't find class for specified look and feel:" + lookAndFeel);
-				System.err.println("Did you include the L&F library in the class path?");
-				System.err.println("Using the default look and feel.");
+				System.err.println(LocalizationManager.getInstance().get("matrixeater.println.lookandfeeldemo_classnotfoundexception_1") + lookAndFeel);
+				System.err.println(LocalizationManager.getInstance().get("matrixeater.println.lookandfeeldemo_classnotfoundexception_2"));
+				System.err.println(LocalizationManager.getInstance().get("matrixeater.println.lookandfeeldemo_classnotfoundexception_3"));
 			}
 
 			catch (final UnsupportedLookAndFeelException e) {
-				System.err.println("Can't use the specified look and feel (" + lookAndFeel + ") on this platform.");
-				System.err.println("Using the default look and feel.");
+				System.err.println(
+					LocalizationManager.getInstance().get("matrixeater.println.lookandfeeldemo_unsupportedlookandfeelexception_1")
+					+ lookAndFeel + 
+					LocalizationManager.getInstance().get("matrixeater.println.lookandfeeldemo_unsupportedlookandfeelexception_2"));
+				System.err.println(LocalizationManager.getInstance().get("matrixeater.println.lookandfeeldemo_unsupportedlookandfeelexception_3"));
 			}
 
 			catch (final Exception e) {
-				System.err.println("Couldn't get specified look and feel (" + lookAndFeel + "), for some reason.");
-				System.err.println("Using the default look and feel.");
+				System.err.println(
+					LocalizationManager.getInstance().get("matrixeater.println.lookandfeeldemo_exception_1")
+					+ lookAndFeel +
+					LocalizationManager.getInstance().get("matrixeater.println.lookandfeeldemo_exception_2"));
+				System.err.println(LocalizationManager.getInstance().get("matrixeater.println.lookandfeeldemo_exception_3"));
 				e.printStackTrace();
 			}
 		}
@@ -177,7 +184,7 @@ public class LookAndFeelDemo implements ActionListener {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 
 		// Create and set up the window.
-		final JFrame frame = new JFrame("SwingApplication");
+		final JFrame frame = new JFrame(LocalizationManager.getInstance().get("matrixeater.frame.createandshowgui"));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		final LookAndFeelDemo app = new LookAndFeelDemo();

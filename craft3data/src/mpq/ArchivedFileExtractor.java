@@ -1,4 +1,5 @@
 package mpq;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -44,13 +45,13 @@ public class ArchivedFileExtractor {
 		// *** CRC check goes here
 		if( file.blockChecksums != null ){
 			// TODO add support for CRC
-			System.err.println("block sector CRC validation currently not supported");
+			System.err.println(LocalizationManager.getInstance().get("println.archivedfileextractor_readblock_supported"));
 		}
 				
 		// *** decompress if required
 		if( file.compression > 0 ){
 			// only decompress if block is compressed
-			if( bufferold.limit() < currentSize ){				
+			if( bufferold.limit() < currentSize ){
 				// decompress block
 				if( file.compression >= 3 ){
 					bufferold = decompress.blockDecompress3(bufferold, file.blockShift);

@@ -14,12 +14,19 @@ import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.mdl.Layer;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import net.miginfocom.swing.MigLayout;
 
 public class ComponentMaterialLayersPanel extends JPanel {
-	public static final String[] REFORGED_LAYER_DEFINITIONS = { "Diffuse", "Normal", "ORM", "Emissive", "Team Color",
-			"Reflections" };
+	public static final String[] REFORGED_LAYER_DEFINITIONS = {
+		LocalizationManager.getInstance().get("string.componentmateriallayerspanel_reforged_layer_definitions_diffuse"),
+		LocalizationManager.getInstance().get("string.componentmateriallayerspanel_reforged_layer_definitions_normal"),
+		LocalizationManager.getInstance().get("string.componentmateriallayerspanel_reforged_layer_definitions_orm"),
+		LocalizationManager.getInstance().get("string.componentmateriallayerspanel_reforged_layer_definitions_emissive"),
+		LocalizationManager.getInstance().get("string.componentmateriallayerspanel_reforged_layer_definitions_team_color"),
+		LocalizationManager.getInstance().get("string.componentmateriallayerspanel_reforged_layer_definitions_reflections")
+	};
 	private static final Color HIGHLIGHT_BUTTON_BACKGROUND_COLOR = new Color(100, 118, 135);
 	private Material material;
 	private UndoActionListener undoActionListener;
@@ -32,7 +39,7 @@ public class ComponentMaterialLayersPanel extends JPanel {
 
 	public ComponentMaterialLayersPanel() {
 		setLayout(new MigLayout());
-		addLayerButton = new JButton("Add Layer");
+		addLayerButton = new JButton(LocalizationManager.getInstance().get("button.componentmateriallayerspanel_add_layer"));
 		addLayerButton.setBackground(HIGHLIGHT_BUTTON_BACKGROUND_COLOR);
 		addLayerButton.setForeground(Color.WHITE);
 	}
@@ -59,8 +66,8 @@ public class ComponentMaterialLayersPanel extends JPanel {
 				}
 				else {
 					panel = new ComponentLayerPanel();
-					layerLabel = new JLabel("Layer");
-					layerDeleteButton = new JButton("Delete");
+					layerLabel = new JLabel(LocalizationManager.getInstance().get("button.componentmateriallayerspanel_layer"));
+					layerDeleteButton = new JButton(LocalizationManager.getInstance().get("button.componentmateriallayerspanel_layerdelete"));
 					layerDeleteButton.setBackground(Color.RED);
 					layerDeleteButton.setForeground(Color.WHITE);
 					cachedLayerPanels.add(panel);
@@ -73,13 +80,13 @@ public class ComponentMaterialLayersPanel extends JPanel {
 						reforgedDefintion = REFORGED_LAYER_DEFINITIONS[i];
 					}
 					else {
-						reforgedDefintion = "Unknown";
+						reforgedDefintion = LocalizationManager.getInstance().get("string.componentmateriallayerspanel_reforged_layer_definitions_unknown");
 					}
-					layerLabel.setText(reforgedDefintion + " Layer");
+					layerLabel.setText(reforgedDefintion + " " + LocalizationManager.getInstance().get("text.componentmateriallayerspanel_layer"));
 					layerLabel.setFont(layerLabel.getFont().deriveFont(Font.BOLD));
 				}
 				else {
-					layerLabel.setText("Layer " + (i + 1));
+					layerLabel.setText(LocalizationManager.getInstance().get("text.componentmateriallayerspanel_layer") + " " + (i + 1));
 					layerLabel.setFont(layerLabel.getFont().deriveFont(Font.PLAIN));
 				}
 				panel.setLayer(modelViewManager.getModel().getWrappedDataSource(), layer,

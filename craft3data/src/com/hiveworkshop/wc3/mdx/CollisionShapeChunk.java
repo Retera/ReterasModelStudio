@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdx;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -71,7 +72,7 @@ public class CollisionShapeChunk {
 			out.writeInt(type);
 			if (vertexs.length % 3 != 0) {
 				throw new IllegalArgumentException(
-						"The array vertexs needs either the length 3 or a multiple of this number. (got "
+						LocalizationManager.getInstance().get("exception.collisionshapechunk_array_vertexs")
 								+ vertexs.length + ")");
 			}
 			MdxUtils.saveFloatArray(out, vertexs);

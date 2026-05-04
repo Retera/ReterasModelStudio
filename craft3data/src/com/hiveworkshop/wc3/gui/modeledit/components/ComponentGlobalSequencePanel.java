@@ -9,6 +9,7 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeLis
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.wc3.mdl.EditableModel;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -34,10 +35,10 @@ public class ComponentGlobalSequencePanel extends JPanel {
 				undoActionListener.pushAction(setGlobalSequenceLengthAction);
 			}
 		});
-		add(new JLabel("GlobalSequence "), "cell 0 0");
+		add(new JLabel(LocalizationManager.getInstance().get("label.componentglobalsequencepanel_componentglobalsequencepanel_global_sequence")), "cell 0 0");
 		indexLabel = new JLabel();
 		add(indexLabel, "cell 1 0");
-		add(new JLabel("Duration: "), "cell 0 1");
+		add(new JLabel(LocalizationManager.getInstance().get("label.componentglobalsequencepanel_componentglobalsequencepanel_duration")), "cell 0 1");
 		add(lengthSpinner, "cell 1 1");
 	}
 

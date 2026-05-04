@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.globalsequence;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.EditableModel;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class SetGlobalSequenceLengthAction implements UndoAction {
 	private final EditableModel model;
@@ -34,6 +35,6 @@ public class SetGlobalSequenceLengthAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "change GlobalSequence length to " + newLength;
+		return LocalizationManager.getInstance().get("string.setglobalsequencelengthaction_actionname");
 	}
 }

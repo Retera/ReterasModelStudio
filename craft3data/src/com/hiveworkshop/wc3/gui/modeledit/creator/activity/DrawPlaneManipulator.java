@@ -14,6 +14,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.DoNothingAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.AbstractManipulator;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class DrawPlaneManipulator extends AbstractManipulator {
 	private final ModelEditor modelEditor;
@@ -44,7 +45,7 @@ public class DrawPlaneManipulator extends AbstractManipulator {
 					addPlane = modelEditor.addPlane(activityStart.x, activityStart.y, mouseEnd.x, mouseEnd.y, dim1,
 							dim2, facingVector, numberOfWidthSegments, numberOfHeightSegments);
 				} catch (final WrongModeException exc) {
-					JOptionPane.showMessageDialog(null, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, exc.getMessage(), LocalizationManager.getInstance().get("global.dialog.error"), JOptionPane.ERROR_MESSAGE);
 				}
 			} else {
 				// TODO remove 0 arg
@@ -57,7 +58,7 @@ public class DrawPlaneManipulator extends AbstractManipulator {
 	@Override
 	public UndoAction finish(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
 		if (addPlane == null) {
-			return new DoNothingAction("do nothing");
+			return new DoNothingAction(LocalizationManager.getInstance().get("println.drawplanemnipulator.undoaction"));
 		}
 		return addPlane;
 	}

@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.mdl.render3d;
 import org.lwjgl.opengl.GL11;
 
 import com.hiveworkshop.rms.editor.render3d.NGGLDP;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class SoftwareParticleEmitterShader implements ParticleEmitterShader {
 	private static final byte TFF = (byte) (255);
@@ -15,8 +16,8 @@ public class SoftwareParticleEmitterShader implements ParticleEmitterShader {
 		GL11.glBlendFunc(blendSrc, blendDst);
 		NGGLDP.pipeline.glBegin(GL11.GL_TRIANGLES);
 		if ((numItemsToRender * 5) > bufferData.length) {
-//			throw new IllegalStateException(numItemsToRender + " alive items, " + bufferData.length + " len buffer");
-			new IllegalStateException(numItemsToRender + " alive items, " + bufferData.length + " len buffer")
+//			throw new IllegalStateException(numItemsToRender + LocalizationManager.getInstance().get("exception.softwareparticleemittershader_renderparticles_alive") + bufferData.length + LocalizationManager.getInstance().get("exception.softwareparticleemittershader_renderparticles_buffer"));
+			new IllegalStateException(numItemsToRender + LocalizationManager.getInstance().get("exception.softwareparticleemittershader_renderparticles_alive") + bufferData.length + LocalizationManager.getInstance().get("exception.softwareparticleemittershader_renderparticles_buffer"))
 					.printStackTrace();
 			return;
 		}

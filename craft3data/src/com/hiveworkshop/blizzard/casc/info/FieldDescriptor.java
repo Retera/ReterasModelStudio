@@ -1,4 +1,5 @@
 package com.hiveworkshop.blizzard.casc.info;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class FieldDescriptor {
 	private static final int NAME_TERMINATOR = '!';
@@ -16,11 +17,11 @@ public class FieldDescriptor {
 	public FieldDescriptor(final String encoded) {
 		final int nameEnd = encoded.indexOf(NAME_TERMINATOR);
 		if (nameEnd == -1) {
-			throw new IllegalArgumentException("missing name terminator");
+			throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.fielddescriptor_nameend"));
 		}
 		final int dataTypeEnd = encoded.indexOf(DATA_TYPE_TERMINATOR, nameEnd + 1);
 		if (dataTypeEnd == -1) {
-			throw new IllegalArgumentException("missing data type terminator");
+			throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.fielddescriptor_datatypeend"));
 		}
 
 		name = encoded.substring(0, nameEnd);

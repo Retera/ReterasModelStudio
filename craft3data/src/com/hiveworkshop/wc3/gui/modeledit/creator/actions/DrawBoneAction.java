@@ -8,6 +8,7 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeLis
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class DrawBoneAction implements UndoAction {
 	private final ModelView modelView;
@@ -38,7 +39,7 @@ public class DrawBoneAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "add " + bone.getName();
+		return LocalizationManager.getInstance().get("string.drawboneaction_actionname") + bone.getName();
 	}
 
 }

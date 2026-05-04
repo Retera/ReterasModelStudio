@@ -10,6 +10,7 @@ import javax.swing.JOptionPane;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.mdx.TextureChunk;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * A class to represent MDL texture references. (Not materials)
@@ -33,17 +34,17 @@ public class Bitmap {
 				return bits[bits.length - 1].split("\\.")[0];
 			}
 			catch (final Exception e) {
-				return "bad blp path";
+				return LocalizationManager.getInstance().get("string.bitmap_getpath_blp_path");
 			}
 		}
 		else if (replaceableId == 1) {
-			return "Team Color";
+			return LocalizationManager.getInstance().get("string.bitmap_getpath_team_color");
 		}
 		else if (replaceableId == 2) {
-			return "Team Glow";
+			return LocalizationManager.getInstance().get("string.bitmap_getpath_team_glow");
 		}
 		else {
-			return "Replaceable" + replaceableId;
+			return LocalizationManager.getInstance().get("string.bitmap_getpath_replaceable") + replaceableId;
 		}
 	}
 
@@ -203,14 +204,14 @@ public class Bitmap {
 				}
 				else {
 					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-							"Error parsing Bitmap: Unrecognized statement '" + line + "'.");
+						LocalizationManager.getInstance().get("dialog.bitmap_read_parsing_bitmap") + " '" + line + "'.");
 				}
 			}
 			return tex;
 		}
 		else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse Bitmap: Missing or unrecognized open statement.");
+					LocalizationManager.getInstance().get("dialog.bitmap_read_parse_bitmap"));
 		}
 		return null;
 	}
@@ -241,23 +242,23 @@ public class Bitmap {
 		for (int i = 0; i < tabHeight; i++) {
 			tabs = tabs + "\t";
 		}
-		writer.println(tabs + "Bitmap {");
-		writer.println(tabs + "\tImage \"" + imagePath + "\",");
+		writer.println(tabs + LocalizationManager.getInstance().get("println.bitmap_printto_bitmap") + " {");
+		writer.println(tabs + LocalizationManager.getInstance().get("println.bitmap_printto_image") + " \"" + imagePath + "\",");
 		if (replaceableId != -1) {
-			writer.println(tabs + "\tReplaceableId " + replaceableId + ",");
+			writer.println(tabs + LocalizationManager.getInstance().get("\tReplaceableId ") + replaceableId + ",");
 		}
 		switch (wrapStyle) {
 		case 0:
 			break;
 		case 1:
-			writer.println(tabs + "\tWrapWidth,");
+			writer.println(tabs + LocalizationManager.getInstance().get("println.bitmap_printto_wrapwidth"));
 			break;
 		case 2:
-			writer.println(tabs + "\tWrapHeight,");
+			writer.println(tabs + LocalizationManager.getInstance().get("println.bitmap_printto_wrapheight"));
 			break;
 		case 3:
-			writer.println(tabs + "\tWrapWidth,");
-			writer.println(tabs + "\tWrapHeight,");
+			writer.println(tabs + LocalizationManager.getInstance().get("println.bitmap_printto_wrapwidth"));
+			writer.println(tabs + LocalizationManager.getInstance().get("println.bitmap_printto_wrapheight"));
 			break;
 		}
 		writer.println(tabs + "}");

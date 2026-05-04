@@ -29,6 +29,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class FaceTVertexEditor extends AbstractTVertexEditor<Triangle> {
 	private final ProgramPreferences programPreferences;
@@ -67,7 +68,7 @@ public class FaceTVertexEditor extends AbstractTVertexEditor<Triangle> {
 			expandSelection(triangle, expandedSelection);
 		}
 		selectionManager.addSelection(expandedSelection);
-		return new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, "expand selection");
+		return new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("string.facetvertexeditor_expandselection"));
 	}
 
 	private void expandSelection(final Triangle currentTriangle, final Set<Triangle> selection) {
@@ -95,7 +96,7 @@ public class FaceTVertexEditor extends AbstractTVertexEditor<Triangle> {
 			}
 		}
 		selectionManager.setSelection(invertedSelection);
-		return new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection");
+		return new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("string.facetvertexeditor_invertselection"));
 	}
 
 	@Override
@@ -108,7 +109,7 @@ public class FaceTVertexEditor extends AbstractTVertexEditor<Triangle> {
 			}
 		}
 		selectionManager.setSelection(allSelection);
-		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all");
+		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("string.facetvertexeditor_selectall"));
 	}
 
 	@Override

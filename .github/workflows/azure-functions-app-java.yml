@@ -1,0 +1,41 @@
+name: Build Reteras Model Studio EXE
+
+on:
+  push:
+    branches: [ CN ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        java: [ '17' ]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ matrix.java }}
+        distribution: 'temurin'
+        cache: 'gradle'
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x ./gradlew
+      working-directory: ./
+
+    - name: List all available Gradle tasks
+      run: ./gradlew.bat tasks --all
+      working-directory: ./
+
+    - name: Try to create EXE with jpackage
+      run: ./gradlew.bat jpackage
+      working-directory: ./
+      continue-on-error: true
+
+    - name: 上传最终程序
+      uses: actions/upload-artifact@v4
+      with:
+        name: ReterasModelStudio-Portable
+        Path: D:/a/ReterasModelStudio/ReterasModelStudio

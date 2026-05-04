@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -104,7 +105,7 @@ public class GeosetAnim implements VisibilitySource, Named, TimelineContainer {
 			return geo;
 		} else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse GeosetAnim: Missing or unrecognized open statement.");
+					LocalizationManager.getInstance().get("dialog.geosetanim_read_parse_geosetanim"));
 		}
 		return null;
 	}
@@ -117,21 +118,21 @@ public class GeosetAnim implements VisibilitySource, Named, TimelineContainer {
 		}
 		String inTabs = tabs;
 		inTabs = inTabs + "\t";
-		writer.println(tabs + "GeosetAnim {");
+		writer.println(tabs + LocalizationManager.getInstance().get("println.geosetanim_printto_geosetanim") + " {");
 		if (dropShadow) {
-			writer.println(inTabs + "DropShadow,");
+			writer.println(inTabs + LocalizationManager.getInstance().get("println.geosetanim_printto_dropshadow"));
 		}
 		for (int i = 0; i < animFlags.size(); i++) {
 			animFlags.get(i).printTo(writer, 1);
 		}
 		if (staticAlpha != -1) {
-			writer.println(inTabs + "static Alpha " + staticAlpha + ",");
+			writer.println(inTabs + LocalizationManager.getInstance().get("println.geosetanim_printto_static_alpha") + staticAlpha + ",");
 		}
 		if (staticColor != null) {
-			writer.println(inTabs + "static Color " + staticColor + ",");
+			writer.println(inTabs + LocalizationManager.getInstance().get("println.geosetanim_printto_static_color") + staticColor + ",");
 		}
 		if (geosetId != -1) {
-			writer.println("\tGeosetId " + geosetId + ",");
+			writer.println(LocalizationManager.getInstance().get("println.geosetanim_printto_geosetid") + geosetId + ",");
 		}
 		writer.println(tabs + "}");
 	}
@@ -154,7 +155,7 @@ public class GeosetAnim implements VisibilitySource, Named, TimelineContainer {
 		}
 		if (count > 1) {
 			JOptionPane.showMessageDialog(null,
-					"Some visiblity animation data was lost unexpectedly during overwrite in " + getVisTagname() + ".");
+					LocalizationManager.getInstance().get("dialog.geosetanim_setvisibilityflag_overwrite") + getVisTagname() + ".");
 		}
 	}
 
@@ -170,7 +171,7 @@ public class GeosetAnim implements VisibilitySource, Named, TimelineContainer {
 		}
 		if (count > 1) {
 			JOptionPane.showMessageDialog(null,
-					"Some visiblity animation data was lost unexpectedly during retrieval in " + getVisTagname() + ".");
+					LocalizationManager.getInstance().get("dialog.geosetanim_getvisibilityflag_retrieval") + getVisTagname() + ".");
 		}
 		return output;
 	}

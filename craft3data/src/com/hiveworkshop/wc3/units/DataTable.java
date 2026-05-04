@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.units;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -480,7 +481,7 @@ public class DataTable implements ObjectData {
 				}
 				if (builder.length() > 0) {
 					if (currentUnit == null) {
-						System.out.println("null for " + input);
+						System.out.println(LocalizationManager.getInstance().get("println.datatable_readtxt_null") + input);
 					}
 					currentUnit.setField(fieldName, builder.toString().trim(), fieldIndex++);
 				}
@@ -497,7 +498,7 @@ public class DataTable implements ObjectData {
 		Element currentUnit = null;
 		input = reader.readLine();
 		if (!input.contains("ID")) {
-			System.err.println("Formatting of SLK is unusual.");
+			System.err.println(LocalizationManager.getInstance().get("println.datatable_readslk_unusual"));
 		}
 		input = reader.readLine();
 		while (input.startsWith("P;") || input.startsWith("F;")) {
@@ -711,29 +712,29 @@ public class DataTable implements ObjectData {
 	// UnitDataTable table = new UnitDataTable();
 	// table.loadDefaults();
 	// Unit villager = table.get("h02Z");
-	// System.out.println(villager.getField("Name")+ " can build: ");
+	// System.out.println(villager.getField("Name")+ LocalizationManager.getInstance().get("println.datatable_main_build"));
 	// System.out.println(villager.builds());
 	//
 	// System.out.println();
 	//
 	// Unit townSquare = table.get("owtw");
-	// System.out.println(townSquare.getField("Name")+ " trains: ");
+	// System.out.println(townSquare.getField("Name")+ LocalizationManager.getInstance().get("println.datatable_main_trains"));
 	// System.out.println(townSquare.trains());
 	//
-	// System.out.println(townSquare.getField("Name")+ " upgrades: ");
+	// System.out.println(townSquare.getField("Name")+ LocalizationManager.getInstance().get("println.datatable_main_upgrades"));
 	// System.out.println(townSquare.upgrades());
 	//
-	// System.out.println(townSquare.getField("Name")+ " researches: ");
+	// System.out.println(townSquare.getField("Name")+ LocalizationManager.getInstance().get("println.datatable_main_researches"));
 	// System.out.println(townSquare.researches());
 	//
-	// System.out.println(townSquare.getField("Name")+ " stats: ");
+	// System.out.println(townSquare.getField("Name")+ LocalizationManager.getInstance().get("println.datatable_main_stats"));
 	// for( String field: townSquare.fields.keySet() ) {
 	// System.out.println(field +": "+townSquare.getField(field));
 	// }
-	//// System.out.println(townSquare.getField("goldcost"));
-	//// System.out.println(townSquare.getField("lumbercost"));
-	//// System.out.println(townSquare.getField("fmade"));
-	//// System.out.println(townSquare.getField("fmade"));
+	//// System.out.println(townSquare.getField(LocalizationManager.getInstance().get("println.datatable_main_goldcost")));
+	//// System.out.println(townSquare.getField(LocalizationManager.getInstance().get("println.datatable_main_lumbercost")));
+	//// System.out.println(townSquare.getField(LocalizationManager.getInstance().get("println.datatable_main_fmade")));
+	//// System.out.println(townSquare.getField(LocalizationManager.getInstance().get("println.datatable_main_fmade")));
 	//
 	// List<Unit> abils = table.getTideWorker().abilities();
 	// System.out.println(abils);

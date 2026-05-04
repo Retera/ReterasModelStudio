@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -43,7 +44,7 @@ public class Light extends IdObject implements VisibilitySource {
 		// System.out.println(mdlBone.getName() + ": " +
 		// Integer.toBinaryString(bone.node.flags));
 		if ((light.node.flags & 512) != 512) {
-			System.err.println("MDX -> MDL error: A light '" + light.node.name + "' not flagged as light in MDX!");
+			System.err.println(LocalizationManager.getInstance().get("println.light_light_error") + light.node.name + LocalizationManager.getInstance().get("println.light_light_not_flagged"));
 		}
 		// ----- Convert Base NODE to "IDOBJECT" -----
 		loadFrom(light.node);
@@ -192,7 +193,7 @@ public class Light extends IdObject implements VisibilitySource {
 		}
 		else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse Light: Missing or unrecognized open statement.");
+					LocalizationManager.getInstance().get("dialog.light_read_parse_light"));
 		}
 		return null;
 	}
@@ -206,10 +207,10 @@ public class Light extends IdObject implements VisibilitySource {
 		final ArrayList<AnimFlag> pAnimFlags = new ArrayList<>(this.animFlags);
 		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
 		if (objectId != -1) {
-			writer.println("\tObjectId " + objectId + ",");
+			writer.println(LocalizationManager.getInstance().get("println.light_printto_objectid") + objectId + ",");
 		}
 		if (parentId != -1) {
-			writer.println("\tParent " + parentId + ",\t// \"" + getParent().getName() + "\"");
+			writer.println(LocalizationManager.getInstance().get("println.light_printto_parent") + parentId + ",\t// \"" + getParent().getName() + "\"");
 		}
 		// for( int i = 0; i < flags.size(); i++ )
 		// {
@@ -222,9 +223,9 @@ public class Light extends IdObject implements VisibilitySource {
 		}
 
 		// AttenuationStart
-		String currentFlag = "AttenuationStart";
+		String currentFlag = LocalizationManager.getInstance().get("string.light_printto_attenuationstart");
 		if (AttenuationStart != -1) {
-			writer.println("\tstatic " + currentFlag + " " + AttenuationStart + ",");
+			writer.println(LocalizationManager.getInstance().get("println.light_printto_static") + currentFlag + " " + AttenuationStart + ",");
 		}
 		else {
 			boolean set = false;
@@ -236,9 +237,9 @@ public class Light extends IdObject implements VisibilitySource {
 				}
 			}
 		}
-		currentFlag = "AttenuationEnd";
+		currentFlag = LocalizationManager.getInstance().get("string.light_printto_attenuationend");
 		if (AttenuationEnd != -1) {
-			writer.println("\tstatic " + currentFlag + " " + AttenuationEnd + ",");
+			writer.println(LocalizationManager.getInstance().get("println.light_printto_static") + currentFlag + " " + AttenuationEnd + ",");
 		}
 		else {
 			boolean set = false;
@@ -250,9 +251,9 @@ public class Light extends IdObject implements VisibilitySource {
 				}
 			}
 		}
-		currentFlag = "Intensity";
+		currentFlag = LocalizationManager.getInstance().get("string.light_printto_intensity");
 		if (Intensity != -1) {
-			writer.println("\tstatic " + currentFlag + " " + Intensity + ",");
+			writer.println(LocalizationManager.getInstance().get("println.light_printto_static") + currentFlag + " " + Intensity + ",");
 		}
 		else {
 			boolean set = false;
@@ -264,9 +265,9 @@ public class Light extends IdObject implements VisibilitySource {
 				}
 			}
 		}
-		currentFlag = "Color";
+		currentFlag = LocalizationManager.getInstance().get("string.light_printto_color");
 		if (staticColor != null) {
-			writer.println("\tstatic " + currentFlag + " " + staticColor.toString() + ",");
+			writer.println(LocalizationManager.getInstance().get("println.light_printto_static") + currentFlag + " " + staticColor.toString() + ",");
 		}
 		else {
 			boolean set = false;
@@ -278,9 +279,9 @@ public class Light extends IdObject implements VisibilitySource {
 				}
 			}
 		}
-		currentFlag = "AmbIntensity";
+		currentFlag = LocalizationManager.getInstance().get("string.light_printto_ambintensity");
 		if (AmbIntensity != -1) {
-			writer.println("\tstatic " + currentFlag + " " + AmbIntensity + ",");
+			writer.println(LocalizationManager.getInstance().get("println.light_printto_static") + currentFlag + " " + AmbIntensity + ",");
 		}
 		else {
 			boolean set = false;
@@ -293,9 +294,9 @@ public class Light extends IdObject implements VisibilitySource {
 			}
 		}
 		if (ModelUtils.isLightShadowIntensitySupported(version)) {
-			currentFlag = "ShadowIntensity";
+			currentFlag = LocalizationManager.getInstance().get("string.light_printto_shadowintensity");
 			if (ShadowIntensity != -1) {
-				writer.println("\tstatic " + currentFlag + " " + ShadowIntensity + ",");
+				writer.println(LocalizationManager.getInstance().get("println.light_printto_static") + currentFlag + " " + ShadowIntensity + ",");
 			}
 			else {
 				// TODO: Does shadow intensity have animations? Most likely does
@@ -309,9 +310,9 @@ public class Light extends IdObject implements VisibilitySource {
 				}
 			}
 		}
-		currentFlag = "AmbColor";
+		currentFlag = LocalizationManager.getInstance().get("string.light_printto_ambcolor");
 		if (staticAmbColor != null) {
-			writer.println("\tstatic " + currentFlag + " " + staticAmbColor.toString() + ",");
+			writer.println(LocalizationManager.getInstance().get("println.light_printto_static") + currentFlag + " " + staticAmbColor.toString() + ",");
 		}
 		else {
 			boolean set = false;
@@ -348,7 +349,7 @@ public class Light extends IdObject implements VisibilitySource {
 		}
 		if (count > 1) {
 			JOptionPane.showMessageDialog(null,
-					"Some visiblity animation data was lost unexpectedly during overwrite in " + getName() + ".");
+					LocalizationManager.getInstance().get("dialog.light_setvisibilityflag_overwrite") + getName() + ".");
 		}
 	}
 
@@ -364,7 +365,7 @@ public class Light extends IdObject implements VisibilitySource {
 		}
 		if (count > 1) {
 			JOptionPane.showMessageDialog(null,
-					"Some visiblity animation data was lost unexpectedly during retrieval in " + getName() + ".");
+					LocalizationManager.getInstance().get("dialog.light_getvisibilityflag_retrieval") + getName() + ".");
 		}
 		return output;
 	}

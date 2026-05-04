@@ -20,6 +20,7 @@ import java.util.zip.Inflater;
 import com.hiveworkshop.blizzard.casc.nio.HashMismatchException;
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
 import com.hiveworkshop.lang.Hex;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class LocalDataFiles implements Closeable {
 	private static final int FRAGMENTATION_SIZE_BITS = 30;
@@ -60,7 +61,7 @@ public class LocalDataFiles implements Closeable {
 		}
 
 		if (exception != null) {
-			throw new IOException("one or more IOExceptions occured during closure", exception);
+			throw new IOException(LocalizationManager.getInstance().get("exception.localdatafiles_close_exception"), exception);
 		}
 	}
 
@@ -72,7 +73,7 @@ public class LocalDataFiles implements Closeable {
 		final long fileOffset = dataOffset & (1L << FRAGMENTATION_SIZE_BITS) - 1L;
 		final FileChannel channel = dataFiles.get(dataFile);
 		if (channel.read(fileHeader, fileOffset) != fileHeader.limit()) {
-			throw new EOFException("unexpected incomplete read");
+			throw new EOFException(LocalizationManager.getInstance().get("exception.localdatafiles_getfileentry_incomplete_read"));
 		}
 		fileHeader.flip();
 
@@ -89,7 +90,7 @@ public class LocalDataFiles implements Closeable {
 			key[i] = fileHeader.get(--keyPos);
 		}
 		if (!indexEntry.compareKey(key)) {
-			throw new HashMismatchException("file entry does not match index entry");
+			throw new HashMismatchException(LocalizationManager.getInstance().get("exception.localdatafiles_getfileentry_file_not_match_index"));
 		}
 		fileEntry.key = key;
 
@@ -111,12 +112,12 @@ public class LocalDataFiles implements Closeable {
 		long currentOffset = blteOffset;
 		final long blteLimit = file.fileOffset + file.size;
 		if (blteLimit - currentOffset < blteDeclareHeader.capacity()) {
-			throw new MalformedCASCStructureException("BLTE header extends beyond file limits");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.localdatafiles_getbltechunks_header_beyond_limits"));
 		}
 
 		currentOffset += channel.read(blteDeclareHeader, currentOffset);
 		if (blteDeclareHeader.hasRemaining()) {
-			throw new EOFException("unexpected incomplete read");
+			throw new EOFException(LocalizationManager.getInstance().get("exception.localdatafiles_getfileentry_incomplete_read"));
 		}
 		blteDeclareHeader.flip();
 
@@ -124,7 +125,7 @@ public class LocalDataFiles implements Closeable {
 		final byte[] mime = new byte[BLTE_MIME.length];
 		blteDeclareHeader.get(mime);
 		if (!Arrays.equals(mime, BLTE_MIME)) {
-			throw new MalformedCASCStructureException("expected BLTE mime");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.localdatafiles_getfileentry_blte_mime"));
 		}
 		final long headerSize = Integer.toUnsignedLong(blteDeclareHeader.getInt());
 
@@ -133,16 +134,16 @@ public class LocalDataFiles implements Closeable {
 			final long headerBodySize = headerSize - blteDeclareHeader.capacity();
 
 			if (headerBodySize > Integer.MAX_VALUE) {
-				throw new MalformedCASCStructureException("BLTE header too large to process");
+				throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.localdatafiles_getbltechunks_header_larges"));
 			} else if (blteOffset + headerBodySize > blteLimit) {
-				throw new MalformedCASCStructureException("BLTE header extends beyond file limits");
+				throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.localdatafiles_getbltechunks_header_beyond_limits"));
 			}
 
 			final ByteBuffer blteHeaderBody = ByteBuffer.allocate((int) headerBodySize);
 
 			currentOffset += channel.read(blteHeaderBody, currentOffset);
 			if (blteHeaderBody.hasRemaining()) {
-				throw new EOFException("unexpected incomplete read");
+				throw new EOFException(LocalizationManager.getInstance().get("exception.localdatafiles_getfileentry_incomplete_read"));
 			}
 			blteHeaderBody.flip();
 
@@ -150,7 +151,7 @@ public class LocalDataFiles implements Closeable {
 			blteHeaderBody.mark();
 			final byte flags = blteHeaderBody.get();
 			if (flags != 0xF) {
-				throw new MalformedCASCStructureException("unknown BLTE flags");
+				throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.localdatafiles_getbltechunks_unknown_flags"));
 			}
 			// BE24 read
 			blteHeaderBody.reset();
@@ -159,9 +160,9 @@ public class LocalDataFiles implements Closeable {
 
 			final int chunkCount = blteHeaderBody.getInt();
 			if (chunkCount < 0) {
-				throw new MalformedCASCStructureException("BLTE chunk count too large to process");
+				throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.localdatafiles_getbltechunks_chunk_large"));
 			} else if (chunkCount == 0) {
-				throw new MalformedCASCStructureException("invalid BLTE chunk count");
+				throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.localdatafiles_getbltechunks_invalid_chunk"));
 			}
 
 			chunks = new BLTEChunk[chunkCount];
@@ -202,7 +203,7 @@ public class LocalDataFiles implements Closeable {
 	public ByteBuffer getBLTEData(final FileEntry file, final BLTEChunk chunk, ByteBuffer blteDataBuffer)
 			throws IOException {
 		if (chunk.compressedSize + chunk.compressedOffset > file.size) {
-			throw new MalformedCASCStructureException("BLTE data extends beyond file data");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.localdatafiles_getbltedata_beyond_data"));
 		}
 
 		if (blteDataBuffer == null || blteDataBuffer.remaining() < chunk.compressedSize) {
@@ -228,7 +229,7 @@ public class LocalDataFiles implements Closeable {
 	public ByteBuffer getFileData(final BLTEChunk chunk, final ByteBuffer blteDataBuffer, ByteBuffer fileDataBuffer)
 			throws IOException {
 		if (blteDataBuffer.remaining() < chunk.compressedSize) {
-			throw new MalformedCASCStructureException("BLTE data too small");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.localdatafiles_getfiledata_data_small"));
 		}
 
 		if (fileDataBuffer == null || fileDataBuffer.remaining() < chunk.decompressedSize) {
@@ -244,7 +245,7 @@ public class LocalDataFiles implements Closeable {
 			switch (encodingMode) {
 			case 'N':
 				if (blteDataBuffer.remaining() != chunk.decompressedSize) {
-					throw new MalformedCASCStructureException("not enough uncompressed bytes");
+					throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.localdatafiles_getfiledata_not_uncompressed"));
 				}
 				fileDataBuffer.put(blteDataBuffer);
 				break;
@@ -256,16 +257,16 @@ public class LocalDataFiles implements Closeable {
 					resultSize = zlib.inflate(fileDataBuffer.array(), fileDataBuffer.position(),
 							fileDataBuffer.remaining());
 				} catch (final DataFormatException e) {
-					throw new MalformedCASCStructureException("zlib inflate exception", e);
+					throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.localdatafiles_getfiledata_zlib_inflate"), e);
 				}
 				if (resultSize != chunk.decompressedSize) {
-					throw new MalformedCASCStructureException("not enough bytes generated: " + resultSize + "B");
+					throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.localdatafiles_getfiledata_not_generated") + resultSize + "B");
 				} else if (!zlib.finished()) {
-					throw new MalformedCASCStructureException("unfinished inflate operation");
+					throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.localdatafiles_getfiledata_unfinished_inflate"));
 				}
 				break;
 			default:
-				throw new UnsupportedEncodingException("unsupported encoding mode: " + encodingMode);
+				throw new UnsupportedEncodingException(LocalizationManager.getInstance().get("exception.localdatafiles_getfiledata_unsupported_encoding") + encodingMode);
 			}
 		} finally {
 			blteDataBuffer.position(blteDataBuffer.limit());

@@ -16,6 +16,8 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
+import hiveworkshop.localizationmanager.LocalizationManager;
+
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.modeledit.TargaReader;
 import com.hiveworkshop.wc3.mdl.Animation;
@@ -772,13 +774,19 @@ public class BuildWLists implements BuilderInterface {
 			}
 		}
 		if (allLessThan2) {
-			final String[] options = { "x32", "x64", "x128", "No" };
+			final String[] options = {
+				"x32",
+				"x64",
+				"x128",
+				LocalizationManager.getInstance().get("matrixeater.string.buildwlists_option_no")
+			};
 			final int option = JOptionPane.showOptionDialog(null,
-					"This model might be a WoW model, or peculiarly small. Would you like to increase its size?",
-					"WoW Scaling", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
-			// final int result = JOptionPane.showConfirmDialog(null, "This
-			// model might be a WoW model, or peculiarly small. Would you like
-			// to increase its size?","WoW Scaling",JOptionPane.YES_NO_OPTION);
+					LocalizationManager.getInstance().get("matrixeater.dialog.buildwlists_increase_1"),
+					LocalizationManager.getInstance().get("matrixeater.dialog.buildwlists_increase_2"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
+			// final int result = JOptionPane.showConfirmDialog(null,
+			// LocalizationManager.getInstance().get("matrixeater.dialog.buildwlists_increase_1"),
+			// LocalizationManager.getInstance().get("matrixeater.dialog.buildwlists_increase_2"),
+			// JOptionPane.YES_NO_OPTION);
 			if (option != JOptionPane.CLOSED_OPTION && option != 3) {
 				final int factor = (int) (32 * Math.pow(2, option));
 				for (final Geoset geo : mdl.getGeosets()) {
@@ -808,8 +816,8 @@ public class BuildWLists implements BuilderInterface {
 		boolean userWantsSwapToBLP = false;
 		if (hasPNGs) {
 			final int result = JOptionPane.showConfirmDialog(null,
-					"This OBJ model contains references to non-BLP files in its materials. Automatically create corresponding BLP files?\n\nIf you choose YES, the MDL format of this OBJ will also be generated to support Matrix Eater 3D viewing.",
-					"Convert Textures to BLPs", JOptionPane.YES_NO_OPTION);
+				LocalizationManager.getInstance().get("matrixeater.settext.userwantsswaptoblp_1"),
+				LocalizationManager.getInstance().get("matrixeater.settext.userwantsswaptoblp_2"), JOptionPane.YES_NO_OPTION);
 			userWantsSwapToBLP = result == JOptionPane.YES_OPTION;
 		}
 		final File objFile = new File(objFilename);
@@ -843,7 +851,7 @@ public class BuildWLists implements BuilderInterface {
 								imageData = TargaReader.getImage(imageFilePNG.getPath());
 							}
 							if (imageData == null) {
-								throw new RuntimeException("Java/MatrixEater failed to read image data: "
+								throw new RuntimeException(LocalizationManager.getInstance().get("matrixeater.exception.imagefilepng")
 										+ imageFilePNG.getAbsolutePath());
 							}
 							final File imageFileBLP = new File(
@@ -854,7 +862,7 @@ public class BuildWLists implements BuilderInterface {
 							// BlpFile.writePalettedBLP(imageData, imageFileBLP,
 							// true, true, false);
 						} catch (final Exception e) {
-							ExceptionPopup.display("Unable to convert PNG to BLP.", e);
+							ExceptionPopup.display(LocalizationManager.getInstance().get("matrixeater.display.imagefilepng"), e);
 						}
 					}
 					name = name.replace(".png", ".blp").replace(".PNG", ".BLP");
@@ -951,13 +959,8 @@ public class BuildWLists implements BuilderInterface {
 				for (final Layer layer : layers) {
 					layer.getShaderTextures().get(ShaderTextureTypeHD.Diffuse).setWrapHeight(true);
 					layer.getShaderTextures().get(ShaderTextureTypeHD.Diffuse).setWrapWidth(true);
-					// JOptionPane.showMessageDialog(null, "One or more meshes
-					// were imported with texture coordinates stretching outside
-					// the texture.\n\nThese will not render correctly in the
-					// Matrix Eater viewport, but their\ncorresponding textures
-					// will be flagged to WrapWidth and WrapHeight and
-					// render\ncorrectly in the Warcraft III game and Magos's
-					// viewer.");
+					// JOptionPane.showMessageDialog(null,
+					// LocalizationManager.getInstance().get("matrixeater.dialog.noteformatrixeateraboutwrap"));
 				}
 			}
 			geo.setMaterial(mdlMaterial);
@@ -1027,7 +1030,7 @@ public class BuildWLists implements BuilderInterface {
 			break;
 		// 9. Transparency: Glass on, Reflection: Ray trace off
 		case 10:
-			ExceptionPopup.display("Casting shadows not supported in WC3", new Exception("Not supported"));
+			ExceptionPopup.display(LocalizationManager.getInstance().get("matrixeater.exception.convertmaterial_1"), new Exception(LocalizationManager.getInstance().get("matrixeater.exception.convertmaterial_2")));
 			break;
 		// 10. Casts shadows onto invisible surfaces
 		}

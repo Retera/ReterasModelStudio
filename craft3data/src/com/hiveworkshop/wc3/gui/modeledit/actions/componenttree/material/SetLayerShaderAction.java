@@ -4,6 +4,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.Layer;
 import com.hiveworkshop.wc3.mdl.LayerShader;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class SetLayerShaderAction implements UndoAction {
 	private final Layer layer;
@@ -33,7 +34,7 @@ public class SetLayerShaderAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set layer Shader";
+		return LocalizationManager.getInstance().get("string.setlayershaderaction_actionname");
 	}
 
 }

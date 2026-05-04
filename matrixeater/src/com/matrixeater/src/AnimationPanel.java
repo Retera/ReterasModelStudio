@@ -16,6 +16,7 @@ import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
+import hiveworkshop.localizationmanager.LocalizationManager;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.EditAnimationLengthsAction;
 import com.hiveworkshop.wc3.mdl.Animation;
@@ -62,7 +63,7 @@ public class AnimationPanel extends JPanel implements ActionListener {
 		}
 		int i = 0;
 		for (final Integer globalSeq : mdlDisp.getModel().getGlobalSeqs()) {
-			final JLabel label = new JLabel("Global Sequence " + ++i + " (" + globalSeq / 1000.00 + " s)");
+			final JLabel label = new JLabel(LocalizationManager.getInstance().get("matrixeater.animationpanel.global_sequence") + ++i + " (" + globalSeq / 1000.00 + " s)");
 			final int maxLength = Math.max(100000, globalSeq * 4);
 			final JSlider bar = new JSlider(0, maxLength);
 			bar.setValue(globalSeq);
@@ -82,9 +83,9 @@ public class AnimationPanel extends JPanel implements ActionListener {
 			add(spinner);
 		}
 
-		okay = new JButton("OK");
+		okay = new JButton(LocalizationManager.getInstance().get("global.button.ok"));
 		okay.addActionListener(this);
-		cancel = new JButton("Cancel");
+		cancel = new JButton(LocalizationManager.getInstance().get("global.button.cancel"));
 		cancel.addActionListener(this);
 		add(cancel);
 		add(okay);

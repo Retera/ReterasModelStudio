@@ -19,6 +19,7 @@ import org.lwjgl.LWJGLException;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class AnimationViewer extends JPanel {
 	private ModelView mdlDisp;
@@ -53,7 +54,7 @@ public class AnimationViewer extends JPanel {
 			@Override
 			public Component getListCellRendererComponent(final JList list, final Object value, final int index,
 					final boolean isSelected, final boolean cellHasFocus) {
-				return super.getListCellRendererComponent(list, value == null ? "(Unanimated)" : value, index,
+				return super.getListCellRendererComponent(list, value == null ? LocalizationManager.getInstance().get("string.animationviewer_animationviewer_unanimated") : value, index,
 						isSelected, cellHasFocus);
 			}
 		});

@@ -10,6 +10,7 @@ import java.util.List;
 import com.hiveworkshop.ReteraCASCUtils;
 import com.hiveworkshop.blizzard.casc.Key;
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * Decodes file data for file value nodes.
@@ -99,7 +100,7 @@ public class TVFSDecoder {
 				pathBuffer.position(pathBuffer.position() - Integer.BYTES);
 
 				if (containerSize > pathBuffer.remaining()) {
-					throw new MalformedCASCStructureException("prefix node container extends beyond path container");
+					throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.tvfsdecoder_decode_node_beyond_path"));
 				}
 
 				pathBuffer.limit(pathBuffer.position() + containerSize);
@@ -121,7 +122,7 @@ public class TVFSDecoder {
 				node = new FileNode(pathFragments, Arrays.asList(fileReferences));
 			}
 		} catch (final BufferUnderflowException e) {
-			throw new MalformedCASCStructureException("path stream goes beyond path container");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.tvfsdecoder_decode_path_beyond_path"));
 		}
 
 		return node;
@@ -129,7 +130,7 @@ public class TVFSDecoder {
 
 	private StorageReference[] getFileReferences(final int fileOffset) throws MalformedCASCStructureException {
 		if (fileOffset > logicalBuffer.limit()) {
-			throw new MalformedCASCStructureException("logical offset beyond file reference chunk");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.tvfsdecoder_storagereference_logical_beyond_file"));
 		}
 		logicalBuffer.position(fileOffset);
 
@@ -147,7 +148,7 @@ public class TVFSDecoder {
 				final int cascReferenceOffset = contentsOffsetDecoder.getInt(0);
 
 				if (cascReferenceOffset > storageBuffer.limit()) {
-					throw new MalformedCASCStructureException("storage offset beyond casc reference chunk");
+					throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.tvfsdecoder_storagereference_storage_beyond_casc"));
 				}
 				storageBuffer.position(cascReferenceOffset);
 
@@ -165,11 +166,11 @@ public class TVFSDecoder {
 							physicalSize, actualSize);
 					references[i] = reference;
 				} catch (final BufferUnderflowException e) {
-					throw new MalformedCASCStructureException("storage goes out of bounds");
+					throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.tvfsdecoder_storagereference_storage_out"));
 				}
 			}
 		} catch (final BufferUnderflowException e) {
-			throw new MalformedCASCStructureException("logical reference goes out of bounds");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.tvfsdecoder_storagereference_logical_out"));
 		}
 
 		return references;
@@ -182,7 +183,7 @@ public class TVFSDecoder {
 
 		if (localBuffer.remaining() < IDENTIFIER.remaining()
 				|| !localBuffer.limit(IDENTIFIER.remaining()).equals(IDENTIFIER)) {
-			throw new MalformedCASCStructureException("missing TVFS identifier");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.tvfsdecoder_loadfile_missing_tvfs"));
 		}
 
 		// decode header
@@ -193,11 +194,11 @@ public class TVFSDecoder {
 		try {
 			version = localBuffer.get();
 			if (version != 1) {
-				throw new UnsupportedOperationException("unsupported TVFS version: " + version);
+				throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.tvfsdecoder_loadfile_unsupported_version") + version);
 			}
 			final int headerSize = Byte.toUnsignedInt(localBuffer.get());
 			if (headerSize > localBuffer.capacity()) {
-				throw new MalformedCASCStructureException("TVFS header extends past end of file");
+				throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.tvfsdecoder_loadfile_header_past_end"));
 			}
 			localBuffer.limit(headerSize);
 
@@ -208,26 +209,26 @@ public class TVFSDecoder {
 			pathOffset = localBuffer.getInt();
 			pathSize = localBuffer.getInt();
 			if (Integer.toUnsignedLong(pathOffset) + Integer.toUnsignedLong(pathSize) > localBuffer.capacity()) {
-				throw new MalformedCASCStructureException("path stream extends past end of file");
+				throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.tvfsdecoder_loadfile_path_past_end"));
 			}
 
 			fileReferenceOffset = localBuffer.getInt();
 			fileReferenceSize = localBuffer.getInt();
 			if (Integer.toUnsignedLong(fileReferenceOffset) + Integer.toUnsignedLong(fileReferenceSize) > localBuffer
 					.capacity()) {
-				throw new MalformedCASCStructureException("logical data extends past end of file");
+				throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.tvfsdecoder_loadfile_file_reference_past_end"));
 			}
 
 			cascReferenceOffset = localBuffer.getInt();
 			cascReferenceSize = localBuffer.getInt();
 			if (Integer.toUnsignedLong(cascReferenceOffset) + Integer.toUnsignedLong(cascReferenceSize) > localBuffer
 					.capacity()) {
-				throw new MalformedCASCStructureException("storage data extends past end of file");
+				throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.tvfsdecoder_loadfile_logical_past_end"));
 			}
 
 			maximumPathDepth = Short.toUnsignedInt(localBuffer.getShort());
 		} catch (final BufferUnderflowException e) {
-			throw new MalformedCASCStructureException("header goes out of bounds");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.tvfsdecoder_loadfile_header_past_end"));
 		}
 
 		contentsOffsetSize = Math.max(1, Integer.BYTES - Integer.numberOfLeadingZeros(cascReferenceSize) / Byte.SIZE);

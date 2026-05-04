@@ -8,6 +8,7 @@ import java.util.Map;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * Undoable snap action.
@@ -56,7 +57,7 @@ public class RecalculateNormalsAction2 implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "recalculate normals";
+		return LocalizationManager.getInstance().get("string.recalculatenormalsaction2_actionname");
 	}
 
 	private static final class Tuplet {

@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.header;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class SetFormatVersionAction implements UndoAction {
 	private final int prevVersion;
@@ -32,7 +33,7 @@ public class SetFormatVersionAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set FormatVersion to " + newVersion;
+		return LocalizationManager.getInstance().get("string.setformatversionaction_actionname") + newVersion;
 	}
 
 }

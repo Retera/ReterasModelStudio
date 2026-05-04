@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.units.objectdata;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -95,7 +96,7 @@ public final class MutableObjectData {
 			final War3ID nextDefaultEditorId = /* War3ID.fromString(newId); */getNextDefaultEditorId(
 					War3ID.fromString(entry.getKey().charAt(0) + "000"));
 			;
-			System.out.println("Merging " + nextDefaultEditorId + " for  " + entry.getKey());
+			System.out.println(LocalizationManager.getInstance().get("println.mutableobjectdata_mergechangset_merging") + nextDefaultEditorId + LocalizationManager.getInstance().get("println.mutableobjectdata_mergechangset_for") + entry.getKey());
 			// createNew API will notifier the changeNotifier
 			final MutableGameObject newObject = createNew(nextDefaultEditorId, entry.getValue().getOldId(), false);
 			for (final MapView.Entry<War3ID, List<Change>> changeList : entry.getValue().getChanges()) {
@@ -419,8 +420,8 @@ public final class MutableObjectData {
 			this.parentWC3Object = parentWC3Object;
 			if (parentWC3Object == null) {
 				System.err.println(
-						"Parent object is null for " + customUnitData.getNewId() + ":" + customUnitData.getOldId());
-				throw new AssertionError("parentWC3Object cannot be null");
+						LocalizationManager.getInstance().get("println.mutableobjectdata_mutablegameobject_null") + customUnitData.getNewId() + ":" + customUnitData.getOldId());
+				throw new AssertionError(LocalizationManager.getInstance().get("assertionerror.mutableobjectdata_mutablegameobject_null"));
 //				this.parentWC3Object = new Element("", new DataTable());
 			}
 			this.customUnitData = customUnitData;
@@ -442,9 +443,9 @@ public final class MutableObjectData {
 			if (value.equals(getFieldStringFromSLKs(field, level))) {
 				if (!value.equals(getFieldAsString(field, level))) {
 					fireChangedEvent(field, level);
-					System.out.println("field was reset");
+					System.out.println(LocalizationManager.getInstance().get("println.mutableobjectdata_setfield_reset"));
 				} else {
-					System.out.println("field was unmodified");
+					System.out.println(LocalizationManager.getInstance().get("println.mutableobjectdata_setfield_unmodified"));
 				}
 				resetFieldToDefaults(field, level);
 				return;
@@ -452,7 +453,7 @@ public final class MutableObjectData {
 			final Change matchingChange = getOrCreateMatchingChange(field, level);
 			matchingChange.setStrval(value);
 			matchingChange.setVartype(War3ObjectDataChangeset.VAR_TYPE_STRING);
-			System.out.println("field created change");
+			System.out.println(LocalizationManager.getInstance().get("println.mutableobjectdata_setfield_change"));
 			fireChangedEvent(field, level);
 		}
 
@@ -552,13 +553,13 @@ public final class MutableObjectData {
 			if (matchingChange != null) {
 				if (matchingChange.getVartype() != War3ObjectDataChangeset.VAR_TYPE_STRING) {
 					throw new IllegalStateException(
-							"Requested string value of '" + field + "' from '" + parentWC3Object.getId()
-									+ "', but this field was not a string! vartype=" + matchingChange.getVartype());
+							LocalizationManager.getInstance().get("exception.mutableobjectdata_getfieldasstring_requested") + " '" + field + "' " + LocalizationManager.getInstance().get("exception.mutableobjectdata_getfieldasstring_from") + " '" + parentWC3Object.getId()
+									+ "', " + LocalizationManager.getInstance().get("exception.mutableobjectdata_getfieldasstring_vartype") + "=" + matchingChange.getVartype());
 				}
 				return matchingChange.getStrval();
 			}
 			// no luck with custom data, look at the standard data
-			int slkLevel = level;
+			int slkLevel = level;	
 			if (worldEditorDataType == WorldEditorDataType.UPGRADES) {
 				slkLevel -= 1;
 			}
@@ -697,10 +698,10 @@ public final class MutableObjectData {
 					}
 				}
 				throw new IllegalStateException(
-						"Program requested " + field.toString() + " from " + worldEditorDataType);
+						LocalizationManager.getInstance().get("exception.mutableobjectdata_getfieldstringfromslks_requested") + field.toString() + LocalizationManager.getInstance().get("exception.mutableobjectdata_getfieldstringfromslks_from") + worldEditorDataType);
 			}
 			if (parentWC3Object == null) {
-				throw new IllegalStateException("corrupted unit, no parent unit id");
+				throw new IllegalStateException(LocalizationManager.getInstance().get("exception.mutableobjectdata_getfieldstringfromslks_corrupted"));
 			}
 			int index = metaData.getFieldValue("index");
 			final String upgradeHack = metaData.getField("appendIndex");
@@ -729,8 +730,8 @@ public final class MutableObjectData {
 			if (matchingChange != null) {
 				if (matchingChange.getVartype() != War3ObjectDataChangeset.VAR_TYPE_INT) {
 					throw new IllegalStateException(
-							"Requested integer value of '" + field + "' from '" + parentWC3Object.getId()
-									+ "', but this field was not an int! vartype=" + matchingChange.getVartype());
+							LocalizationManager.getInstance().get("exception.mutableobjectdata_getfieldasinteger_requested") + " '" + field + "' " + LocalizationManager.getInstance().get("exception.mutableobjectdata_getfieldasinteger_from") + " '" + parentWC3Object.getId()
+									+ "', " + LocalizationManager.getInstance().get("exception.mutableobjectdata_getfieldasinteger_vartype") + "=" + matchingChange.getVartype());
 				}
 				return matchingChange.getLongval();
 			}
@@ -750,8 +751,8 @@ public final class MutableObjectData {
 						return matchingChange.getLongval() == 1;
 					} else {
 						throw new IllegalStateException(
-								"Requested boolean value of '" + field + "' from '" + parentWC3Object.getId()
-										+ "', but this field was not a bool! vartype=" + matchingChange.getVartype());
+								LocalizationManager.getInstance().get("exception.mutableobjectdata_getfieldasboolean_requested") + " '" + field + "' " + LocalizationManager.getInstance().get("exception.mutableobjectdata_getfieldasboolean_from") + " '" + parentWC3Object.getId()
+										+ "', " + LocalizationManager.getInstance().get("exception.mutableobjectdata_getfieldasboolean_vartype") + "=" + matchingChange.getVartype());
 					}
 				}
 				return matchingChange.isBoolval();
@@ -770,8 +771,8 @@ public final class MutableObjectData {
 				if (matchingChange.getVartype() != War3ObjectDataChangeset.VAR_TYPE_REAL
 						&& matchingChange.getVartype() != War3ObjectDataChangeset.VAR_TYPE_UNREAL) {
 					throw new IllegalStateException(
-							"Requested float value of '" + field + "' from '" + parentWC3Object.getId()
-									+ "', but this field was not a float! vartype=" + matchingChange.getVartype());
+							LocalizationManager.getInstance().get("exception.mutableobjectdata_getfieldasfloat_requested") + " '" + field + "' " + LocalizationManager.getInstance().get("exception.mutableobjectdata_getfieldasfloat_from") + " '" + parentWC3Object.getId()
+									+ "', " + LocalizationManager.getInstance().get("exception.mutableobjectdata_getfieldasfloat_vartype") + "=" + matchingChange.getVartype());
 				}
 				return matchingChange.getRealval();
 			}

@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -84,17 +85,17 @@ public class ExtLog {
 						extLog.setBounds(Double.parseDouble(s));
 					} catch (final NumberFormatException e) {
 						JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-								"Error {" + s + "}: BoundsRadius could not be interpreted.");
+								LocalizationManager.getInstance().get("global.dialog.error") + " {" + s + "}: " + LocalizationManager.getInstance().get("dialog.extLog_parsetext_bounds_radius"));
 					}
 				} else {
 					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-							"Unable to parse ExtLog; unrecognized input: " + line[i]);
+							LocalizationManager.getInstance().get("dialog.extLog_parsetext_unrecognized_input") + line[i]);
 				}
 			}
 			return extLog;
 		} else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse ExtLog: Missing or unrecognized open statement.");
+					LocalizationManager.getInstance().get("dialog.extLog_parsetext_open_statement"));
 		}
 		return null;
 	}
@@ -117,11 +118,11 @@ public class ExtLog {
 						extLog.setBounds(Double.parseDouble(s));
 					} catch (final NumberFormatException e) {
 						JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-								"Error {" + s + "}: BoundsRadius could not be interpreted.");
+								LocalizationManager.getInstance().get("global.dialog.error") + " {" + s + "}: " + LocalizationManager.getInstance().get("dialog.extLog_parsetext_bounds_radius"));
 					}
 				} else {
 					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-							"Unable to parse ExtLog; unrecognized input: " + line);
+							LocalizationManager.getInstance().get("dialog.extLog_parsetext_unrecognized_input") + line);
 				}
 				MDLReader.mark(mdl);
 				line = MDLReader.nextLine(mdl);
@@ -130,7 +131,7 @@ public class ExtLog {
 			return extLog;
 		} else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse ExtLog: Missing or unrecognized open statement: " + line);
+					LocalizationManager.getInstance().get("dialog.extLog_parsetext_open_statement") + line);
 		}
 		return null;
 	}
@@ -141,13 +142,13 @@ public class ExtLog {
 			tabs = tabs + "\t";
 		}
 		if (minimumExtent != null) {
-			writer.println(tabs + "MinimumExtent " + minimumExtent.toString() + ",");
+			writer.println(tabs + LocalizationManager.getInstance().get("println.extLog_printto_minimum_extent") + minimumExtent.toString() + ",");
 		}
 		if (maximumExtent != null) {
-			writer.println(tabs + "MaximumExtent " + maximumExtent.toString() + ",");
+			writer.println(tabs + LocalizationManager.getInstance().get("println.extLog_printto_maximum_extent") + maximumExtent.toString() + ",");
 		}
 		if (boundsRadius != NO_BOUNDS_RADIUS) {
-			writer.println(tabs + "BoundsRadius " + MDLReader.doubleToString(boundsRadius) + ",");
+			writer.println(tabs + LocalizationManager.getInstance().get("println.extLog_printto_bounds_radius") + MDLReader.doubleToString(boundsRadius) + ",");
 		}
 	}
 

@@ -1,4 +1,5 @@
 package com.hiveworkshop.json;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import static java.lang.String.format;
 
@@ -87,7 +88,7 @@ public class JSONPointer {
          */
         public Builder append(String token) {
             if (token == null) {
-                throw new NullPointerException("token cannot be null");
+                throw new NullPointerException(LocalizationManager.getInstance().get("exception.jsonpointer_builder_token_not_null"));
             }
             this.refTokens.add(token);
             return this;
@@ -138,7 +139,7 @@ public class JSONPointer {
      */
     public JSONPointer(final String pointer) {
         if (pointer == null) {
-            throw new NullPointerException("pointer cannot be null");
+            throw new NullPointerException(LocalizationManager.getInstance().get("exception.jsonpointer_builder_pointer_not_null"));
         }
         if (pointer.isEmpty() || pointer.equals("#")) {
             this.refTokens = Collections.emptyList();
@@ -155,7 +156,7 @@ public class JSONPointer {
         } else if (pointer.startsWith("/")) {
             refs = pointer.substring(1);
         } else {
-            throw new IllegalArgumentException("a JSON pointer should start with '/' or '#/'");
+            throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.jsonpointer_builder_pointer_should"));
         }
         this.refTokens = new ArrayList<String>();
         int slashIdx = -1;

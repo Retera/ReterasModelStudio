@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.TVertex;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * Undoable snap action.
@@ -40,6 +41,6 @@ public class UVSnapAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "snap TVerteces";
+		return LocalizationManager.getInstance().get("string.uvsnapaction_actionname");
 	}
 }

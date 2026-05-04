@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.util.Collection;
 
@@ -177,13 +178,13 @@ public class TVertex {
 			x = Double.parseDouble(entries[0].split("\\{")[1]);
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") + " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.tvertex_parsetext_interpreted"));
 		}
 		try {
 			y = Double.parseDouble(entries[1].split("}")[0]);
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") + " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.tvertex_parsetext_interpreted"));
 		}
 		temp = new TVertex(x, y);
 		return temp;

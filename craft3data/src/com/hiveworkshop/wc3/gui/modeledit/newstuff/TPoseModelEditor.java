@@ -49,6 +49,7 @@ import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	private final ProgramPreferences programPreferences;
@@ -121,11 +122,11 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	@Override
 	public UndoAction setSelectedBoneName(final String name) {
 		if (selectionManager.getSelection().size() != 1) {
-			throw new IllegalStateException("Only one bone can be renamed at a time.");
+			throw new IllegalStateException(LocalizationManager.getInstance().get("exception.tposemodeleditor_setselectedbonename"));
 		}
 		final IdObject node = selectionManager.getSelection().iterator().next();
 		if (node == null) {
-			throw new IllegalStateException("Selection is not a node");
+			throw new IllegalStateException(LocalizationManager.getInstance().get("exception.tposemodeleditor_setselectedbonename_selection"));
 		}
 		final RenameBoneAction renameBoneAction = new RenameBoneAction(node.getName(), name, node);
 		renameBoneAction.redo();
@@ -141,17 +142,17 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 			renameBoneAction.redo();
 			actions.add(renameBoneAction);
 		}
-		return new CompoundAction("add selected bone suffix", actions);
+		return new CompoundAction(LocalizationManager.getInstance().get("exception.tposemodeleditor_setselectedbonename_add_bone"), actions);
 	}
 
 	@Override
 	public UndoAction addTeamColor() {
-		return new DoNothingAction("add team color");
+		return new DoNothingAction(LocalizationManager.getInstance().get("exception.tposemodeleditor_addteamcolor"));
 	}
 
 	@Override
 	public UndoAction splitGeoset() {
-		return new DoNothingAction("split geoset");
+		return new DoNothingAction(LocalizationManager.getInstance().get("exception.tposemodeleditor_split_geoset"));
 	}
 
 	@Override
@@ -226,12 +227,12 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 
 	@Override
 	public UndoAction expandSelection() {
-		throw new WrongModeException("Not supported in T-Pose mode");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.tposemodeleditor_expandselection"));
 	}
 
 	@Override
 	public UndoAction invertSelection() {
-		throw new WrongModeException("Not supported in T-Pose mode");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.tposemodeleditor_invertselection"));
 		// final ArrayList<Vertex> oldSelection = new
 		// ArrayList<>(selectionManager.getSelection());
 		// final Set<Vertex> invertedSelection = new
@@ -313,7 +314,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 
 	@Override
 	public UndoAction selectAll() {
-		throw new WrongModeException("Not supported in T-Pose mode");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.tposemodeleditor_selectall"));
 		// final ArrayList<Vertex> oldSelection = new
 		// ArrayList<>(selectionManager.getSelection());
 		// final Set<Vertex> allSelection = new HashSet<>();
@@ -385,7 +386,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 
 	@Override
 	public UndoAction selectHDUnusedNodes() {
-		throw new WrongModeException("Not supported in T-Pose mode");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.tposemodeleditor_selecthdunusednodes"));
 	}
 
 	@Override
@@ -798,13 +799,13 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 
 	@Override
 	public UndoAction createFaceFromSelection(final Vertex preferredFacingVector) {
-		return new DoNothingAction("create face");
+		return new DoNothingAction(LocalizationManager.getInstance().get("action.tposemodeleditor_createfacefromselection"));
 	}
 
 	@Override
 	public UndoAction addVertex(final double x, final double y, final double z,
 			final Vertex preferredNormalFacingVector) {
-		return new DoNothingAction("add vertex");
+		return new DoNothingAction(LocalizationManager.getInstance().get("action.tposemodeleditor_addvertex"));
 	}
 
 	public VertexSelectionHelper getVertexSelectionHelper() {

@@ -2,6 +2,7 @@ package com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.timeline;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.util.Callback;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class SetFloatStaticValueAction implements UndoAction {
 	private final String valueTypeName;
@@ -29,6 +30,6 @@ public class SetFloatStaticValueAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set " + valueTypeName;
+		return LocalizationManager.getInstance().get("string.setfloatstaticvalueaction_actionname") + valueTypeName;
 	}
 }

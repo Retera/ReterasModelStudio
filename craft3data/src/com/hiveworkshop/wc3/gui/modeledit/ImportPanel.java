@@ -78,6 +78,7 @@ import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.VisibilitySource;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * The panel to handle the import function.
@@ -143,10 +144,10 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	ArrayList<BoneShell> oldBones;
 	ArrayList<BoneShell> newBones;
 
-	JCheckBox displayParents = new JCheckBox("Display parent names");
-	JButton allMatrOriginal = new JButton("Reset all Matrices"),
-			allMatrSameName = new JButton("Set all to available, original names"),
-			applySmartMapping = new JButton("Apply Smart Mapping");
+	JCheckBox displayParents = new JCheckBox(LocalizationManager.getInstance().get("checkbox.importpanel_displayparents"));
+	JButton allMatrOriginal = new JButton(LocalizationManager.getInstance().get("button.importpanel_allmatroriginal")),
+			allMatrSameName = new JButton(LocalizationManager.getInstance().get("button.importpanel_allmatrsamename")),
+			applySmartMapping = new JButton(LocalizationManager.getInstance().get("button.importpanel_applysmartmapping"));
 
 	// Objects
 	JPanel objectsPanel = new JPanel();
@@ -190,23 +191,23 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		super();
 		if (currentModel.getName().equals(importedModel.getName())) {
 			importedModel.setFileRef(new File(
-					importedModel.getFile().getParent() + "/" + importedModel.getName() + " (Imported)" + ".mdl"));
-			frame = new JFrame("Importing " + currentModel.getName() + " into itself");
+					importedModel.getFile().getParent() + "/" + importedModel.getName() + LocalizationManager.getInstance().get("string.importpanel_importpanel_imported") + ".mdl"));
+			frame = new JFrame(LocalizationManager.getInstance().get("frame.importpanel_importpanel_imported") + currentModel.getName() + LocalizationManager.getInstance().get("frame.importpanel_importpanel_into_itself"));
 		} else {
-			frame = new JFrame("Importing " + importedModel.getName() + " into " + currentModel.getName());
+			frame = new JFrame(LocalizationManager.getInstance().get("frame.importpanel_importpanel_imported") + importedModel.getName() + LocalizationManager.getInstance().get("frame.importpanel_importpanel_into") + currentModel.getName());
 		}
 		currentModel.doSavePreps(preferences.isAlwaysUseMinimalMatricesInHD());
 		try {
 			frame.setIconImage(RMSIcons.MDLIcon.getImage());
 		} catch (final Exception e) {
 			JOptionPane.showMessageDialog(null,
-					"Error: Image files were not found! Due to bad programming, this might break the program!");
+					LocalizationManager.getInstance().get("dialog.importpanel_importpanel_error"));
 		}
 		this.currentModel = currentModel;
 		this.importedModel = importedModel;
 
 		// Geoset Panel
-		addTab("Geosets", geoIcon, geosetsPanel, "Controls which geosets will be imported.");
+		addTab(LocalizationManager.getInstance().get("tab.importpanel_importpanel_geosets"), geoIcon, geosetsPanel, LocalizationManager.getInstance().get("tab.importpanel_importpanel_geosets_imported"));
 
 		final DefaultListModel materials = new DefaultListModel();
 		for (int i = 0; i < currentModel.getMaterials().size(); i++) {
@@ -227,20 +228,20 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			final GeosetPanel geoPanel = new GeosetPanel(false, currentModel, i, materials, materialsRenderer);
 
 			geosetTabs.addTab(currentModel.getName() + " " + (i + 1), greenIcon, geoPanel,
-					"Click to modify material data for this geoset.");
+					LocalizationManager.getInstance().get("tab.importpanel_importpanel_modify_geoset"));
 		}
 		for (int i = 0; i < importedModel.getGeosets().size(); i++) {
 			final GeosetPanel geoPanel = new GeosetPanel(true, importedModel, i, materials, materialsRenderer);
 
 			geosetTabs.addTab(importedModel.getName() + " " + (i + 1), orangeIcon, geoPanel,
-					"Click to modify importing and material data for this geoset.");
+					LocalizationManager.getInstance().get("tab.importpanel_importpanel_modify_importing_geoset"));
 		}
 
-		importAllGeos = new JButton("Import All");
+		importAllGeos = new JButton(LocalizationManager.getInstance().get("button.importpanel_importpanel_importallgeos"));
 		importAllGeos.addActionListener(this);
 		geosetsPanel.add(importAllGeos);
 
-		uncheckAllGeos = new JButton("Leave All");
+		uncheckAllGeos = new JButton(LocalizationManager.getInstance().get("button.importpanel_importpanel_uncheckallgeos"));
 		uncheckAllGeos.addActionListener(this);
 		geosetsPanel.add(uncheckAllGeos);
 
@@ -258,7 +259,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		geosetsPanel.setLayout(geosetLayout);
 
 		// Animation Panel
-		addTab("Animation", animIcon, animPanel, "Controls which animations will be imported.");
+		addTab(LocalizationManager.getInstance().get("tab.importpanel_importpanel_animation"), animIcon, animPanel, LocalizationManager.getInstance().get("tab.importpanel_importpanel_animations_imported"));
 
 		existingAnims = new DefaultListModel();
 		for (int i = 0; i < currentModel.getAnims().size(); i++) {
@@ -267,23 +268,23 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 
 		final AnimListCellRenderer animsRenderer = new AnimListCellRenderer();
 
-		importAllAnims = new JButton("Import All");
+		importAllAnims = new JButton(LocalizationManager.getInstance().get("button.importpanel_importpanel_importallanims"));
 		importAllAnims.addActionListener(this);
 		animPanel.add(importAllAnims);
 
-		timescaleAllAnims = new JButton("Time-scale All");
+		timescaleAllAnims = new JButton(LocalizationManager.getInstance().get("button.importpanel_importpanel_timescaleallanims"));
 		timescaleAllAnims.addActionListener(this);
 		animPanel.add(timescaleAllAnims);
 
-		renameAllAnims = new JButton("Import and Rename All");
+		renameAllAnims = new JButton(LocalizationManager.getInstance().get("button.importpanel_importpanel_renameallanims"));
 		renameAllAnims.addActionListener(this);
 		animPanel.add(renameAllAnims);
 
-		uncheckAllAnims = new JButton("Leave All");
+		uncheckAllAnims = new JButton(LocalizationManager.getInstance().get("button.importpanel_importpanel_uncheckallanims"));
 		uncheckAllAnims.addActionListener(this);
 		animPanel.add(uncheckAllAnims);
 
-		clearExistingAnims = new JCheckBox("Clear pre-existing animations");
+		clearExistingAnims = new JCheckBox(LocalizationManager.getInstance().get("checkbox.importpanel_importpanel_clearexistinganims"));
 
 		// Build the animTabs list of AnimPanels
 		for (int i = 0; i < importedModel.getAnims().size(); i++) {
@@ -291,7 +292,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			final AnimPanel iAnimPanel = new AnimPanel(anim, existingAnims, animsRenderer);
 
 			animTabs.addTab(anim.getName(), orangeIcon, iAnimPanel,
-					"Click to modify data for this animation sequence.");
+					LocalizationManager.getInstance().get("tab.importpanel_importpanel_modify_animation_sequence"));
 		}
 		animTabs.addChangeListener(this);
 
@@ -311,7 +312,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		animPanel.setLayout(animLayout);
 
 		// Bone Panel
-		addTab("Bones", boneIcon, bonesPanel, "Controls which bones will be imported.");
+		addTab(LocalizationManager.getInstance().get("tab.importpanel_importpanel_bones"), boneIcon, bonesPanel, LocalizationManager.getInstance().get("tab.importpanel_importpanel_bones_imported"));
 		existingBones = new DefaultListModel<BoneShell>();
 		final ArrayList<Bone> currentMDLBones = currentModel.sortedIdObjects(Bone.class);
 		final ArrayList<Helper> currentMDLHelpers = currentModel.sortedIdObjects(Helper.class);
@@ -325,7 +326,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		final ArrayList<Bone> importedMDLBones = importedModel.sortedIdObjects(Bone.class);
 		final ArrayList<Helper> importedMDLHelpers = importedModel.sortedIdObjects(Helper.class);
 
-		clearExistingBones = new JCheckBox("Clear pre-existing bones and helpers");
+		clearExistingBones = new JCheckBox(LocalizationManager.getInstance().get("checkbox.importpanel_importpanel_clear_bones_helpers"));
 		currentModelManager = new ModelViewManager(currentModel);
 		importedModelManager = new ModelViewManager(importedModel);
 		final BonePanelListCellRenderer bonePanelRenderer = new BonePanelListCellRenderer(currentModelManager,
@@ -362,19 +363,19 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		boneTabs.setSelectedIndex(0);
 		bonePanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
 
-		importAllBones = new JButton("Import All");
+		importAllBones = new JButton(LocalizationManager.getInstance().get("button.importpanel_importpanel_importallbones"));
 		importAllBones.addActionListener(this);
 		bonesPanel.add(importAllBones);
 
-		uncheckAllBones = new JButton("Leave All");
+		uncheckAllBones = new JButton(LocalizationManager.getInstance().get("button.importpanel_importpanel_uncheckAllBones"));
 		uncheckAllBones.addActionListener(this);
 		bonesPanel.add(uncheckAllBones);
 
-		motionFromBones = new JButton("Motion From All");
+		motionFromBones = new JButton(LocalizationManager.getInstance().get("button.importpanel_importpanel_motionfrombones"));
 		motionFromBones.addActionListener(this);
 		bonesPanel.add(motionFromBones);
 
-		uncheckUnusedBones = new JButton("Uncheck Unused");
+		uncheckUnusedBones = new JButton(LocalizationManager.getInstance().get("button.importpanel_importpanel_uncheckunusedbones"));
 		uncheckUnusedBones.addActionListener(this);
 		bonesPanel.add(uncheckUnusedBones);
 
@@ -403,7 +404,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		bonesPanel.setLayout(boneLayout);
 
 		// Matrices Panel
-		addTab("Matrices", greenIcon, geosetAnimPanel, "Controls which bones geosets are attached to.");
+		addTab(LocalizationManager.getInstance().get("tab.importpanel_importpanel_matrices"), greenIcon, geosetAnimPanel, LocalizationManager.getInstance().get("tab.importpanel_importpanel_bones_attached"));
 //		addTab("Skin", orangeIcon, new JPanel(), "Edit SKIN chunk");
 
 		final ParentToggleRenderer ptr = new ParentToggleRenderer(displayParents, currentModelManager,
@@ -421,14 +422,14 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 					this);
 
 			geosetAnimTabs.addTab(currentModel.getName() + " " + (i + 1), greenIcon, geoPanel,
-					"Click to modify animation data for Geoset " + i + " from " + currentModel.getName() + ".");
+				LocalizationManager.getInstance().get("tab.importpanel_importpanel_modify_animation") + i + LocalizationManager.getInstance().get("tab.importpanel_importpanel_from") + currentModel.getName() + ".");
 		}
 		for (int i = 0; i < importedModel.getGeosets().size(); i++) {
 			final BoneAttachmentPane geoPanel = new BoneAttachmentPane(importedModel, importedModel.getGeoset(i), ptr,
 					this);
 
 			geosetAnimTabs.addTab(importedModel.getName() + " " + (i + 1), orangeIcon, geoPanel,
-					"Click to modify animation data for Geoset " + i + " from " + importedModel.getName() + ".");
+				LocalizationManager.getInstance().get("tab.importpanel_importpanel_modify_animation") + i + LocalizationManager.getInstance().get("tab.importpanel_importpanel_from") + importedModel.getName() + ".");
 		}
 		geosetAnimTabs.addChangeListener(this);
 
@@ -443,7 +444,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		geosetAnimPanel.setLayout(gaLayout);
 
 		// Objects Panel
-		addTab("Objects", objIcon, objectsPanel, "Controls which objects are imported.");
+		addTab(LocalizationManager.getInstance().get("tab.importpanel_importpanel_objects"), objIcon, objectsPanel, LocalizationManager.getInstance().get("tab.importpanel_importpanel_objects_imported"));
 		getFutureBoneListExtended(false);
 
 		// Build the objectTabs list of ObjectPanels
@@ -480,11 +481,11 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		objectTabs.setSelectedIndex(0);
 		objectPanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
 
-		importAllObjs = new JButton("Import All");
+		importAllObjs = new JButton(LocalizationManager.getInstance().get("button.importpanel_importpanel_importallobjs"));
 		importAllObjs.addActionListener(this);
 		bonesPanel.add(importAllObjs);
 
-		uncheckAllObjs = new JButton("Leave All");
+		uncheckAllObjs = new JButton(LocalizationManager.getInstance().get("button.importpanel_importpanel_uncheckallobjs"));
 		uncheckAllObjs.addActionListener(this);
 		bonesPanel.add(uncheckAllObjs);
 
@@ -504,7 +505,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		objectsPanel.setLayout(objectLayout);
 
 		// Visibility Panel
-		addTab("Visibility", orangeIcon, visPanel, "Controls the visibility of portions of the model.");
+		addTab(LocalizationManager.getInstance().get("tab.importpanel_importpanel_visibility"), orangeIcon, visPanel, LocalizationManager.getInstance().get("tab.importpanel_importpanel_visibility_model"));
 
 		initVisibilityList();
 		visibilityList();
@@ -529,21 +530,21 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		visTabs.setSelectedIndex(0);
 		visPanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
 
-		allInvisButton = new JButton("All Invisible in Exotic Anims");
+		allInvisButton = new JButton(LocalizationManager.getInstance().get("button.importpanel_importpanel_invisible_exotic_anims"));
 		allInvisButton.addActionListener(this);
 		allInvisButton.setToolTipText(
-				"Forces everything to be always invisibile in animations other than their own original animations.");
+			LocalizationManager.getInstance().get("settooltiptext.importpanel_importpanel_forces_invisibile"));
 		visPanel.add(allInvisButton);
 
-		allVisButton = new JButton("All Visible in Exotic Anims");
+		allVisButton = new JButton(LocalizationManager.getInstance().get("button.importpanel_importpanel_visible_exotic_anims"));
 		allVisButton.addActionListener(this);
 		allVisButton.setToolTipText(
-				"Forces everything to be always visibile in animations other than their own original animations.");
+			LocalizationManager.getInstance().get("settooltiptext.importpanel_importpanel_forces_visibile"));
 		visPanel.add(allVisButton);
 
-		selSimButton = new JButton("Select Similar Options");
+		selSimButton = new JButton(LocalizationManager.getInstance().get("button.importpanel_importpanel_select_similar_options"));
 		selSimButton.addActionListener(this);
-		selSimButton.setToolTipText("Similar components will be selected as visibility sources in exotic animations.");
+		selSimButton.setToolTipText(LocalizationManager.getInstance().get("settooltiptext.importpanel_importpanel_similar_options"));
 		visPanel.add(selSimButton);
 
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, visTabsPane, visPanelCards);
@@ -560,9 +561,9 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		// Listen all
 		addChangeListener(this);
 
-		okayButton = new JButton("Finish");
+		okayButton = new JButton(LocalizationManager.getInstance().get("global.button.finish"));
 		okayButton.addActionListener(this);
-		cancelButton = new JButton("Cancel");
+		cancelButton = new JButton(LocalizationManager.getInstance().get("global.button.cancel"));
 		cancelButton.addActionListener(this);
 
 		final JPanel finalPanel = new JPanel();
@@ -583,8 +584,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(final WindowEvent e) {
-				final Object[] options = { "Yes", "No" };
-				final int n = JOptionPane.showOptionDialog(frame, "Really cancel this import?", "Confirmation",
+				final Object[] options = { LocalizationManager.getInstance().get("global.button.yes"), LocalizationManager.getInstance().get("global.button.no") };
+				final int n = JOptionPane.showOptionDialog(frame, LocalizationManager.getInstance().get("dialog.importpanel_importpanel_really_cancel_import"), LocalizationManager.getInstance().get("global.button.confirmation"),
 						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
 				if (n == 0) {
 					frame.setVisible(false);
@@ -621,7 +622,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			}
 		} else if (e.getSource() == renameAllAnims) {
 			final String newTagString = JOptionPane.showInputDialog(this,
-					"Choose additional naming (i.e. swim or alternate)");
+					LocalizationManager.getInstance().get("dialog.importpanel_importpanel_choose_naming"));
 			if (newTagString != null) {
 				for (int i = 0; i < animTabs.getTabCount(); i++) {
 					final AnimPanel aniPanel = (AnimPanel) animTabs.getComponentAt(i);
@@ -686,14 +687,14 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			for (int i = 0; i < objectPanels.size(); i++) {
 				final ObjectPanel objectPanel = objectPanels.get(i);
 				if (objectPanel.doImport.isSelected() && objectPanel.parentsList != null) {
-					// System.out.println("Performing check on base:
-					// "+objectPanel.object.getName());
+					// System.out.println(LocalizationManager.getInstance().get("println.importpanel_importpanel_check_base")
+					// +objectPanel.object.getName());
 					BoneShell shell = (BoneShell) objectPanel.parentsList.getSelectedValue();
 					if (shell != null && shell.bone != null) {
 						BonePanel current = getPanelOf(shell.bone);
 						if (!usedBonePanels.contains(current)) {
-							// System.out.println(" @adding base:
-							// "+current.bone.getName());
+							// System.out.println(LocalizationManager.getInstance().get("println.importpanel_importpanel_adding_base")
+							// +current.bone.getName());
 							usedBonePanels.add(current);
 						}
 
@@ -714,8 +715,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 								if (usedBonePanels.contains(current)) {
 									good = false;
 								} else {
-									// System.out.println(" @Redirected +
-									// adding: "+current.bone.getName());
+									// System.out.println(LocalizationManager.getInstance().get("println.importpanel_importpanel_redirected_adding")
+									// +current.bone.getName());
 									// current.setSelectedIndex(0);
 									usedBonePanels.add(current);
 								}
@@ -723,7 +724,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 							k++;
 							if (k > 1000) {
 								JOptionPane.showMessageDialog(null,
-										"Unexpected error has occurred: IdObject to Bone parent loop, circular logic");
+										LocalizationManager.getInstance().get("dialog.importpanel_importpanel_object_bone_parent_loop"));
 								break;
 							}
 						}
@@ -732,22 +733,22 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			}
 			for (int i = 0; i < geosetAnimTabs.getTabCount(); i++) {
 				if (geosetAnimTabs.isEnabledAt(i)) {
-					System.out.println("Performing check on geoset: " + i);
+					System.out.println(LocalizationManager.getInstance().get("println.importpanel_importpanel_check_geoset") + i);
 					final BoneAttachmentPane bap = (BoneAttachmentPane) geosetAnimTabs.getComponentAt(i);
 					for (int mk = 0; mk < bap.oldBoneRefs.size(); mk++) {
 						final MatrixShell ms = bap.oldBoneRefs.get(mk);
-						// System.out.println("Performing check on MatrixShell:
-						// "+ms);
+						// System.out.println(LocalizationManager.getInstance().get("println.importpanel_importpanel_check_matrixshell")
+						// +ms);
 						for (final BoneShell bs : ms.newBones) {
 							BoneShell shell = bs;
 							BonePanel current = getPanelOf(shell.bone);
 							if (!usedBonePanels.contains(current)) {
-								// System.out.println(" @adding base:
-								// "+current.bone.getName());
+								// System.out.println(LocalizationManager.getInstance().get("println.importpanel_importpanel_adding_base")
+								// +current.bone.getName());
 								usedBonePanels.add(current);
 							}
-							// System.out.println("Performing check on
-							// MatrixShell's sub: "+ms+": "+bs);
+							// System.out.println(LocalizationManager.getInstance().get("println.importpanel_importpanel_check_matrixshell_sub")
+							// +ms+": "+bs);
 
 							boolean good = true;
 							int k = 0;
@@ -768,8 +769,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 									if (usedBonePanels.contains(current)) {
 										good = false;
 									} else {
-										// System.out.println(" @Redirected +
-										// adding: "+current.bone.getName());
+										// System.out.println(LocalizationManager.getInstance().get("println.importpanel_importpanel_redirected_adding")
+										// +current.bone.getName());
 										// current.setSelectedIndex(0);
 										usedBonePanels.add(current);
 									}
@@ -777,7 +778,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 								k++;
 								if (k > 1000) {
 									JOptionPane.showMessageDialog(null,
-											"Unexpected error has occurred: IdObject to Bone parent loop, circular logic");
+											LocalizationManager.getInstance().get("dialog.importpanel_importpanel_object_bone_parent_loop"));
 									break;
 								}
 							}
@@ -789,8 +790,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				final BonePanel bonePanel = bonePanels.get(i);
 				if (bonePanel.getSelectedIndex() != 1) {
 					if (usedBonePanels.contains(bonePanel)) {
-						// System.out.println("Performing check on base:
-						// "+bonePanel.bone.getName());
+						// System.out.println(LocalizationManager.getInstance().get("println.importpanel_importpanel_check_base")
+						// +bonePanel.bone.getName());
 						BonePanel current = bonePanel;
 						boolean good = true;
 						int k = 0;
@@ -809,8 +810,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 								if (usedBonePanels.contains(current)) {
 									good = false;
 								} else {
-									// System.out.println(" @Redirected +
-									// adding: "+current.bone.getName());
+									// System.out.println(LocalizationManager.getInstance().get("println.importpanel_importpanel_redirected_adding")
+									// +current.bone.getName());
 									// current.setSelectedIndex(0);
 									usedBonePanels.add(current);
 								}
@@ -818,7 +819,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 							k++;
 							if (k > 1000) {
 								JOptionPane.showMessageDialog(null,
-										"Unexpected error has occurred: Bone parent loop, circular logic");
+										LocalizationManager.getInstance().get("dialog.importpanel_importpanel_object_bone_parent_loop"));
 								break;
 							}
 						}
@@ -877,8 +878,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			doImport();
 			frame.setVisible(false);
 		} else if (e.getSource() == cancelButton) {
-			final Object[] options = { "Yes", "No" };
-			final int n = JOptionPane.showOptionDialog(frame, "Really cancel this import?", "Confirmation",
+			final Object[] options = { LocalizationManager.getInstance().get("global.button.yes"), LocalizationManager.getInstance().get("global.button.no") };
+			final int n = JOptionPane.showOptionDialog(frame, LocalizationManager.getInstance().get("dialog.importpanel_importpanel_really_cancel_import"), LocalizationManager.getInstance().get("global.button.confirmation"),
 					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
 			if (n == 0) {
 				frame.setVisible(false);
@@ -901,7 +902,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		} else if (e.getSource() == applySmartMapping) {
 			final SmartMappingChooserPanel smartMapChooserPanel = new SmartMappingChooserPanel(importedModelManager,
 					currentModelManager, getFutureBoneListExtended(true));
-			final int userResult = JOptionPane.showConfirmDialog(this, smartMapChooserPanel, "Apply Smart Mapping",
+			final int userResult = JOptionPane.showConfirmDialog(this, smartMapChooserPanel, LocalizationManager.getInstance().get("dialog.importpanel_importpanel_applysmartmapping"),
 					JOptionPane.OK_CANCEL_OPTION);
 			if (userResult == JOptionPane.OK_OPTION) {
 				final DefaultListModel<Pairing> pairings = smartMapChooserPanel.getPairingListModel();
@@ -1326,12 +1327,12 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			}
 		}
 		if (addCount != 0) {
-			System.out.println("average add time: " + totalAddTime / addCount);
-			System.out.println("add count: " + addCount);
+			System.out.println(LocalizationManager.getInstance().get("println.importpanel_getfutureboneListeextended_average_add_time") + totalAddTime / addCount);
+			System.out.println(LocalizationManager.getInstance().get("println.importpanel_getfutureboneListeextended_add_count") + addCount);
 		}
 		if (removeCount != 0) {
-			System.out.println("average remove time: " + totalRemoveTime / removeCount);
-			System.out.println("remove count: " + removeCount);
+			System.out.println(LocalizationManager.getInstance().get("println.importpanel_getfutureboneListeextended_average_remove_time") + totalRemoveTime / removeCount);
+			System.out.println(LocalizationManager.getInstance().get("println.importpanel_getfutureboneListeextended_remove_count") + removeCount);
 		}
 
 		DefaultListModel<BoneShell> listModelToReturn;
@@ -1522,12 +1523,12 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			}
 		}
 
-		System.out.println("allVisShells:");
+		System.out.println(LocalizationManager.getInstance().get("println.importpanel_getfutureboneListeextended_allvisshells"));
 		for (final VisibilityShell vs : allVisShells) {
 			System.out.println(vs.source.getName());
 		}
 
-		System.out.println("new/old:");
+		System.out.println(LocalizationManager.getInstance().get("println.importpanel_getfutureboneListeextended_new_old"));
 		for (final Object o : currentModel.getAllVisibilitySources()) {
 			if (o.getClass() != GeosetAnim.class) {
 				visSourcesOld.add(shellFromObject(o));
@@ -1646,7 +1647,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	public void setParentMultiBones() {
 		final JList<BoneShell> list = new JList<>(getFutureBoneListExtended(true));
 		list.setCellRenderer(boneShellRenderer);
-		final int x = JOptionPane.showConfirmDialog(this, new JScrollPane(list), "Set Parent for All Selected Bones",
+		final int x = JOptionPane.showConfirmDialog(this, new JScrollPane(list), LocalizationManager.getInstance().get("dialog.importpanel_setparentmultibones_bones_set_parent"),
 				JOptionPane.OK_CANCEL_OPTION);
 		if (x == JOptionPane.OK_OPTION) {
 			final Object[] selected = boneTabs.getSelectedValuesList().toArray();
@@ -1708,7 +1709,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			// The engine for actually performing the model to model import.
 
 			if (currentModel == importedModel) {
-				JOptionPane.showMessageDialog(null, "The program has confused itself.");
+				JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.importpanel_doimport_confused"));
 			}
 
 			// ArrayList<Geoset> newGeosets = new ArrayList<Geoset>();//Just for
@@ -1813,7 +1814,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 										// "+animShell.anim.getStart()+",
 										// "+animShell.anim.getEnd());
 										System.out.println(
-												"Attempting to clear animation for " + bs.bone.getName() + " values "
+												LocalizationManager.getInstance().get("println.importpanel_doimport_clear_animation") + bs.bone.getName() + LocalizationManager.getInstance().get("println.importpanel_doimport_values")
 														+ animShell.anim.getStart() + ", " + animShell.anim.getEnd());
 										bs.bone.clearAnimation(animShell.anim);
 									}
@@ -1890,16 +1891,16 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 							if (currentModel.contains(bs.bone)) {
 								if (bs.bone.getClass() == Helper.class) {
 									JOptionPane.showMessageDialog(null,
-											"Error: Holy fo shizzle my grizzle! A geoset is trying to attach to a helper, not a bone!");
+										LocalizationManager.getInstance().get("dialog.importpanel_doimport_geoset_attach_helper"));
 								}
 								ms.matrix.add(bs.bone);
 							} else {
-								System.out.println("Boneshaving " + bs.bone.getName() + " out of use");
+								System.out.println(LocalizationManager.getInstance().get("dialog.importpanel_doimport_bone_shaving") + bs.bone.getName() + LocalizationManager.getInstance().get("dialog.importpanel_doimport_out_use"));
 							}
 						}
 						if (ms.matrix.size() == 0) {
 							JOptionPane.showMessageDialog(null,
-									"Error: A matrix was functionally destroyed while importing, and may take the program with it!");
+									LocalizationManager.getInstance().get("dialog.importpanel_doimport_matrix_destroyed"));
 						}
 						if (ms.matrix.getBones().size() < 1) {
 							if (dummyBone == null) {
@@ -1912,9 +1913,9 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 							}
 							if (!shownEmpty) {
 								JOptionPane.showMessageDialog(null,
-										"Warning: You left some matrices empty. This was detected, and a dummy bone at { 0, 0, 0 } has been generated for them named "
+										LocalizationManager.getInstance().get("dialog.importpanel_doimport_matrices_empty_dummy_bone")
 												+ dummyBone.getName()
-												+ "\nMultiple geosets may be attached to this bone, and the error will only be reported once for your convenience.");
+												+ LocalizationManager.getInstance().get("dialog.importpanel_doimport_multiple_geosets_attached_bone"));
 								shownEmpty = true;
 							}
 							if (!ms.matrix.getBones().contains(dummyBone)) {
@@ -2235,11 +2236,11 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				}
 			}
 		} else {
-			JOptionPane.showMessageDialog(null, "Bug in anim transfer: attempted unnecessary 2-part transfer");
+			JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.importpanel_animtransferparttwo_transfer_bug"));
 		}
 		for (int i = 0; i < visComponents.getSize(); i++) {
 			final VisibilityPane vp = visComponents.get(i);
-			// JOptionPane.showMessageDialog(null,"Visibility component: "+i +",
+			// JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("dialog.importpanel_animtransferparttwo_visibility_component")+i +",
 			// "+vp.sourceShell.source.getName());
 			vp.favorOld.doClick();
 		}
@@ -2281,7 +2282,7 @@ class GeosetPanel extends JPanel implements ChangeListener {
 		geoTitle = new JLabel(model.getName() + " " + (index + 1));
 		geoTitle.setFont(new Font("Arial", Font.BOLD, 26));
 
-		doImport = new JCheckBox("Import this Geoset");
+		doImport = new JCheckBox(LocalizationManager.getInstance().get("checkbox.importpanel_geosetpanel_import_geoset"));
 		doImport.setSelected(true);
 		if (imported) {
 			doImport.addChangeListener(this);
@@ -2289,7 +2290,7 @@ class GeosetPanel extends JPanel implements ChangeListener {
 			doImport.setEnabled(false);
 		}
 
-		materialText = new JLabel("Material:");
+		materialText = new JLabel(LocalizationManager.getInstance().get("label.importpanel_geosetpanel_material"));
 		// Header for materials list
 
 		materialList = new JList(materials);
@@ -2368,7 +2369,7 @@ class MaterialListCellRenderer extends DefaultListCellRenderer {
 			final boolean iss, final boolean chf) {
 		String name = ((Material) value).getName();
 		if (value == myMaterial) {
-			name = name + " (Original)";
+			name = name + LocalizationManager.getInstance().get("string.importpanel_getListcellrenderercomponent_original");
 		}
 		if (myModel.contains((Material) value)) {
 			super.getListCellRendererComponent(list, name, index, iss, chf);
@@ -2382,7 +2383,7 @@ class MaterialListCellRenderer extends DefaultListCellRenderer {
 
 			setIcon(myIcon);
 		} else {
-			super.getListCellRendererComponent(list, "Import: " + name, index, iss, chf);
+			super.getListCellRendererComponent(list, LocalizationManager.getInstance().get("string.importpanel_getListcellrenderercomponent_import") + name, index, iss, chf);
 			ImageIcon myIcon = map.get(value);
 			if (myIcon == null) {
 				myIcon = new ImageIcon(Material.mergeImageScaled(ImportPanel.orangeIcon.getImage(),
@@ -2412,10 +2413,10 @@ class AnimPanel extends JPanel implements ChangeListener, ItemListener, ListSele
 	// The animation for this panel
 	Animation anim;
 
-	static final String IMPORTBASIC = "Import as-is";
-	static final String CHANGENAME = "Change name to:";
-	static final String TIMESCALE = "Time-scale into pre-existing:";
-	static final String GLOBALSEQ = "Rebuild as global sequence";
+	static final String IMPORTBASIC = LocalizationManager.getInstance().get("string.importpanel_animpanel_import");
+	static final String CHANGENAME = LocalizationManager.getInstance().get("string.importpanel_animpanel_change");
+	static final String TIMESCALE = LocalizationManager.getInstance().get("string.importpanel_animpanel_time_scale");
+	static final String GLOBALSEQ = LocalizationManager.getInstance().get("string.importpanel_animpanel_rebuild");
 
 	String[] animOptions = { IMPORTBASIC, CHANGENAME, TIMESCALE, GLOBALSEQ };
 
@@ -2446,11 +2447,11 @@ class AnimPanel extends JPanel implements ChangeListener, ItemListener, ListSele
 		title = new JLabel(anim.getName());
 		title.setFont(new Font("Arial", Font.BOLD, 26));
 
-		doImport = new JCheckBox("Import this Sequence");
+		doImport = new JCheckBox(LocalizationManager.getInstance().get("checkbox.importpanel_animpanel_animpanel_import_sequence"));
 		doImport.setSelected(true);
 		doImport.addChangeListener(this);
 
-		inReverse = new JCheckBox("Reverse");
+		inReverse = new JCheckBox(LocalizationManager.getInstance().get("checkbox.importpanel_animpanel_animpanel_reverse"));
 		inReverse.setSelected(false);
 		inReverse.addChangeListener(this);
 
@@ -2680,9 +2681,9 @@ class BonePanel extends JPanel implements ListSelectionListener, ActionListener 
 
 	JLabel title;
 
-	static final String IMPORT = "Import this bone";
-	static final String MOTIONFROM = "Import motion to pre-existing:";
-	static final String LEAVE = "Do not import";
+	static final String IMPORT = LocalizationManager.getInstance().get("string.importpanel_bonepanel_import_bone");
+	static final String MOTIONFROM = LocalizationManager.getInstance().get("string.importpanel_bonepanel_import_motion");
+	static final String LEAVE = LocalizationManager.getInstance().get("string.importpanel_bonepanel_not_import");
 
 	String[] impOptions = { IMPORT, MOTIONFROM, LEAVE };
 
@@ -2747,9 +2748,9 @@ class BonePanel extends JPanel implements ListSelectionListener, ActionListener 
 		futureBonesList.setCellRenderer(renderer);
 		futureBonesListPane = new JScrollPane(futureBonesList);
 		if (bone.getParent() != null) {
-			parentTitle = new JLabel("Parent:      (Old Parent: " + bone.getParent().getName() + ")");
+			parentTitle = new JLabel(LocalizationManager.getInstance().get("string.importpanel_bonepanel_parent_old") + bone.getParent().getName() + ")");
 		} else {
-			parentTitle = new JLabel("Parent:      (Old Parent: {no parent})");
+			parentTitle = new JLabel(LocalizationManager.getInstance().get("string.importpanel_bonepanel_parent_old_no"));
 		}
 
 		add(importTypeBox);
@@ -2892,7 +2893,7 @@ class BonePanel extends JPanel implements ListSelectionListener, ActionListener 
 		final long nanoStart = System.nanoTime();
 		futureBones = getImportPanel().getFutureBoneListExtended(false);
 		final long nanoEnd = System.nanoTime();
-		System.out.println("updating future bone list took " + (nanoEnd - nanoStart) + " ns");
+		System.out.println(LocalizationManager.getInstance().get("println.importpanel_updateselectionpicks") + (nanoEnd - nanoStart) + " ns");
 	}
 
 	// public void reorderToModel(DefaultListModel order)
@@ -2936,7 +2937,7 @@ class MultiBonePanel extends BonePanel {
 	JButton setAllParent;
 
 	public MultiBonePanel(final DefaultListModel existingBonesList, final ListCellRenderer renderer) {
-		setAllParent = new JButton("Set Parent for All");
+		setAllParent = new JButton(LocalizationManager.getInstance().get("button.importpanel_multibonepanel_setallparent"));
 		setAllParent.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -2946,7 +2947,7 @@ class MultiBonePanel extends BonePanel {
 		bone = null;
 		existingBones = existingBonesList;
 
-		title = new JLabel("Multiple Selected");
+		title = new JLabel(LocalizationManager.getInstance().get("label.importpanel_multibonepanel_multiple_selected"));
 		title.setFont(new Font("Arial", Font.BOLD, 26));
 
 		importTypeBox.setEditable(false);
@@ -3006,7 +3007,7 @@ class MultiBonePanel extends BonePanel {
 	public void setMultiTypes() {
 		listenForChange = false;
 		importTypeBox.setEditable(true);
-		importTypeBox.setSelectedItem("Multiple selected");
+		importTypeBox.setSelectedItem(LocalizationManager.getInstance().get("importtypebox.importpanel_setmultitypes"));
 		importTypeBox.setEditable(false);
 		// boneListPane.setVisible(false);
 		// boneList.setVisible(false);
@@ -3030,7 +3031,7 @@ class MultiBonePanel extends BonePanel {
 			getImportPanel().setSelectedItem((String) importTypeBox.getSelectedItem());
 		}
 		final long nanoEnd = System.nanoTime();
-		System.out.println("MultiBonePanel.actionPerformed() took " + (nanoEnd - nanoStart) + " ns");
+		System.out.println(LocalizationManager.getInstance().get("println.importpanel_actionperformed") + (nanoEnd - nanoStart) + " ns");
 	}
 }
 
@@ -3124,7 +3125,7 @@ class ParentToggleRenderer extends BoneShellListCellRenderer {
 			if (((BoneShell) value).bone.getParent() != null) {
 				comp.setText(value.toString() + "; " + ((BoneShell) value).bone.getParent().getName());
 			} else {
-				comp.setText(value.toString() + "; (no parent)");
+				comp.setText(value.toString() + ";" + LocalizationManager.getInstance().get("settext.importpanel_getlistcellrenderercomponent"));
 			}
 		} else {
 			super.getListCellRendererComponent(list, value, index, iss, chf);
@@ -3227,12 +3228,11 @@ class GeosetAnimationPanel extends JTabbedPane {
 		isImported = imported;
 
 		bap = new BoneAttachmentPane(model, geoset, null, getImportPanel());
-		addTab("Bones", ImportPanel.boneIcon, bap, "Allows you to edit bone references.");
+		addTab(LocalizationManager.getInstance().get("tab.importpanel_geosetanimationpanel_bones"), ImportPanel.boneIcon, bap, LocalizationManager.getInstance().get("tab.importpanel_geosetanimationpanel_edit_bone_references"));
 
 		// vp = new
 		// VisibilityPane(thePanel.currentModel.m_geosets.size(),thePanel.currentModel.getName(),thePanel.importedModel.m_geosets.size(),thePanel.importedModel.getName(),geoIndex);
-		// addTab("Visibility",ImportPanel.animIcon,vp,"Allows you to edit
-		// visibility.");
+		// addTab(LocalizationManager.getInstance().get("tab.importpanel_geosetanimationpanel_visibility"),ImportPanel.animIcon,vp,ocalizationManager.getInstance().get("tab.importpanel_geosetanimationpanel_edit_visibility"));
 	}
 
 	public void refreshLists() {
@@ -3287,7 +3287,7 @@ class BoneAttachmentPane extends JPanel implements ActionListener, ListSelection
 		geoset = whichGeoset;
 		impPanel = thePanel;
 
-		bonesLabel = new JLabel("Bones");
+		bonesLabel = new JLabel(LocalizationManager.getInstance().get("label.importpanel_boneattachmentpane_bones"));
 		updateBonesList();
 		// Built before oldBoneRefs, so that the MatrixShells can default to
 		// using New Refs with the same name as their first bone
@@ -3295,10 +3295,10 @@ class BoneAttachmentPane extends JPanel implements ActionListener, ListSelection
 		bonesList.setCellRenderer(renderer);
 		bonesPane = new JScrollPane(bonesList);
 
-		useBone = new JButton("Use Bone(s)", ImportPanel.greenArrowIcon);
+		useBone = new JButton(LocalizationManager.getInstance().get("button.importpanel_boneattachmentpane_use_bones"), ImportPanel.greenArrowIcon);
 		useBone.addActionListener(this);
 
-		oldBoneRefsLabel = new JLabel("Old Bone References");
+		oldBoneRefsLabel = new JLabel(LocalizationManager.getInstance().get("label.importpanel_boneattachmentpane_old_bone_references"));
 		buildOldRefsList();
 		oldBoneRefsList = new JList(oldBoneRefs);
 		oldBoneRefsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -3307,13 +3307,13 @@ class BoneAttachmentPane extends JPanel implements ActionListener, ListSelection
 		oldBoneRefsList.addListSelectionListener(this);
 		oldBoneRefsPane = new JScrollPane(oldBoneRefsList);
 
-		newRefsLabel = new JLabel("New Refs");
+		newRefsLabel = new JLabel(LocalizationManager.getInstance().get("label.importpanel_boneattachmentpane_new_refs"));
 		newRefs = new DefaultListModel<>();
 		newRefsList = new JList(newRefs);
 		newRefsList.setCellRenderer(renderer);
 		newRefsPane = new JScrollPane(newRefsList);
 
-		removeNewRef = new JButton("Remove", ImportPanel.redXIcon);
+		removeNewRef = new JButton(LocalizationManager.getInstance().get("button.importpanel_boneattachmentpane_remove"), ImportPanel.redXIcon);
 		removeNewRef.addActionListener(this);
 		moveUp = new JButton(ImportPanel.moveUpIcon);
 		moveUp.addActionListener(this);
@@ -3475,9 +3475,7 @@ class BoneAttachmentPane extends JPanel implements ActionListener, ListSelection
 				// }
 				// catch (NullPointerException e)
 				// {
-				// System.out.println("We have a null in a matrix process,
-				// probably not good but it was assumed that this might
-				// happen.");
+				// System.out.println(LocalizationManager.getInstance().get("println.importpanel_buildoldrefslist"));
 				// }
 			}
 			oldBoneRefs.addElement(ms);
@@ -3595,13 +3593,13 @@ class ObjectPanel extends JPanel {
 		title = new JLabel(object.getClass().getSimpleName() + " \"" + object.getName() + "\"");
 		title.setFont(new Font("Arial", Font.BOLD, 26));
 
-		doImport = new JCheckBox("Import this object");
+		doImport = new JCheckBox(LocalizationManager.getInstance().get("checkbox.importpanel_objectpanel_import_object"));
 		doImport.setSelected(true);
-		parentLabel = new JLabel("Parent:");
+		parentLabel = new JLabel(LocalizationManager.getInstance().get("label.importpanel_objectpanel_parent"));
 		if (object.getParent() != null) {
-			oldParentLabel = new JLabel("(Old Parent: " + object.getParent().getName() + ")");
+			oldParentLabel = new JLabel(LocalizationManager.getInstance().get("label.importpanel_objectpanel_old_parent") + object.getParent().getName() + ")");
 		} else {
-			oldParentLabel = new JLabel("(Old Parent: {no parent})");
+			oldParentLabel = new JLabel(LocalizationManager.getInstance().get("label.importpanel_objectpanel_old_parent_no"));
 		}
 
 		parents = possibleParents;
@@ -3633,10 +3631,10 @@ class ObjectPanel extends JPanel {
 		title = new JLabel(c.getClass().getSimpleName() + " \"" + c.getName() + "\"");
 		title.setFont(new Font("Arial", Font.BOLD, 26));
 
-		doImport = new JCheckBox("Import this object");
+		doImport = new JCheckBox(LocalizationManager.getInstance().get("checkbox.importpanel_objectpanel_import_object"));
 		doImport.setSelected(true);
-		parentLabel = new JLabel("Parent:");
-		oldParentLabel = new JLabel("(Cameras don't have parents)");
+		parentLabel = new JLabel(LocalizationManager.getInstance().get("label.importpanel_objectpanel_parent"));
+		oldParentLabel = new JLabel(LocalizationManager.getInstance().get("label.importpanel_objectpanel_cameras_no_parents"));
 
 		final GroupLayout layout = new GroupLayout(this);
 		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(title)
@@ -3650,14 +3648,14 @@ class ObjectPanel extends JPanel {
 
 class MultiObjectPanel extends ObjectPanel implements ChangeListener {
 	public MultiObjectPanel(final DefaultListModel<BoneShell> possibleParents) {
-		title = new JLabel("Multiple Selected");
+		title = new JLabel(LocalizationManager.getInstance().get("label.importpanel_multiobjectpanel_multiple_selected"));
 		title.setFont(new Font("Arial", Font.BOLD, 26));
 
-		doImport = new JCheckBox("Import these objects (click to apply to all)");
+		doImport = new JCheckBox(LocalizationManager.getInstance().get("checkbox.importpanel_multiobjectpanel_doImport"));
 		doImport.setSelected(true);
 		doImport.addChangeListener(this);
-		parentLabel = new JLabel("Parent:");
-		oldParentLabel = new JLabel("(Old parent can only be displayed for a single object)");
+		parentLabel = new JLabel(LocalizationManager.getInstance().get("label.importpanel_multiobjectpanel_parent"));
+		oldParentLabel = new JLabel(LocalizationManager.getInstance().get("label.importpanel_multiobjectpanel_parent_displayed"));
 
 		parents = possibleParents;
 		parentsList = new JList(parents);
@@ -3754,8 +3752,8 @@ class VisShellBoxCellRenderer extends javax.swing.plaf.basic.BasicComboBoxRender
 }
 
 class VisibilityPane extends JPanel {
-	static final String NOTVISIBLE = "Not visible";
-	static final String VISIBLE = "Always visible";
+	static final String NOTVISIBLE = LocalizationManager.getInstance().get("string.importpanel_visibilitypane_not_visible");
+	static final String VISIBLE = LocalizationManager.getInstance().get("string.importpanel_visibilitypane_always_visible");
 	JLabel oldAnimsLabel;
 	JComboBox oldSourcesBox;
 	JLabel newAnimsLabel;
@@ -3775,7 +3773,7 @@ class VisibilityPane extends JPanel {
 		title = new JLabel(sourceShell.model.getName() + ": " + sourceShell.source.getName());
 		title.setFont(new Font("Arial", Font.BOLD, 26));
 
-		oldAnimsLabel = new JLabel("Existing animation visibility from: ");
+		oldAnimsLabel = new JLabel(LocalizationManager.getInstance().get("label.importpanel_visibilitypane_existing_animation_visibility"));
 		oldSourcesBox = new JComboBox(oldSources);
 		oldSourcesBox.setEditable(false);
 		oldSourcesBox.setMaximumSize(new Dimension(1000, 25));
@@ -3792,7 +3790,7 @@ class VisibilityPane extends JPanel {
 			oldSourcesBox.setSelectedItem(VISIBLE);
 		}
 
-		newAnimsLabel = new JLabel("Imported animation visibility from: ");
+		newAnimsLabel = new JLabel(LocalizationManager.getInstance().get("label.importpanel_visibilitypane_imported_animation_visibility"));
 		newSourcesBox = new JComboBox(newSources);
 		newSourcesBox.setEditable(false);
 		newSourcesBox.setMaximumSize(new Dimension(1000, 25));
@@ -3809,7 +3807,7 @@ class VisibilityPane extends JPanel {
 			newSourcesBox.setSelectedItem(VISIBLE);
 		}
 
-		favorOld = new JCheckBox("Favor component's original visibility when combining");
+		favorOld = new JCheckBox(LocalizationManager.getInstance().get("checkbox.importpanel_visibilitypane_original_visibility"));
 		favorOld.setSelected(true);
 
 		final GroupLayout layout = new GroupLayout(this);
@@ -3851,24 +3849,24 @@ class VisibilityPane extends JPanel {
 class MultiVisibilityPane extends VisibilityPane implements ChangeListener, ItemListener {
 	public MultiVisibilityPane(final DefaultComboBoxModel oldSources, final DefaultComboBoxModel newSources,
 			final ListCellRenderer renderer) {
-		title = new JLabel("Multiple Selected");
+		title = new JLabel(LocalizationManager.getInstance().get("label.importpanel_multivisibilitypane_multiple_selected"));
 		title.setFont(new Font("Arial", Font.BOLD, 26));
 
-		oldAnimsLabel = new JLabel("Existing animation visibility from: ");
+		oldAnimsLabel = new JLabel(LocalizationManager.getInstance().get("label.importpanel_multivisibilitypane_existing_animation_visibilit"));
 		oldSourcesBox = new JComboBox(oldSources);
 		oldSourcesBox.setEditable(false);
 		oldSourcesBox.setMaximumSize(new Dimension(1000, 25));
 		oldSourcesBox.setRenderer(renderer);
 		oldSourcesBox.addItemListener(this);
 
-		newAnimsLabel = new JLabel("Imported animation visibility from: ");
+		newAnimsLabel = new JLabel(LocalizationManager.getInstance().get("label.importpanel_multivisibilitypane_imported_animation_visibility"));
 		newSourcesBox = new JComboBox(newSources);
 		newSourcesBox.setEditable(false);
 		newSourcesBox.setMaximumSize(new Dimension(1000, 25));
 		newSourcesBox.setRenderer(renderer);
 		newSourcesBox.addItemListener(this);
 
-		favorOld = new JCheckBox("Favor component's original visibility when combining");
+		favorOld = new JCheckBox(LocalizationManager.getInstance().get("checkbox.importpanel_multivisibilitypane_original_visibility"));
 		favorOld.setSelected(true);
 		favorOld.addChangeListener(this);
 
@@ -3905,13 +3903,13 @@ class MultiVisibilityPane extends VisibilityPane implements ChangeListener, Item
 
 	public void setMultipleOld() {
 		oldSourcesBox.setEditable(true);
-		oldSourcesBox.setSelectedItem("Multiple selected");
+		oldSourcesBox.setSelectedItem(LocalizationManager.getInstance().get("string.importpanel_setmultipleold"));
 		oldSourcesBox.setEditable(false);
 	}
 
 	public void setMultipleNew() {
 		newSourcesBox.setEditable(true);
-		newSourcesBox.setSelectedItem("Multiple selected");
+		newSourcesBox.setSelectedItem(LocalizationManager.getInstance().get("string.importpanel_setmultiplenew"));
 		newSourcesBox.setEditable(false);
 	}
 

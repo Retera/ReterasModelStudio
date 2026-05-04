@@ -26,6 +26,7 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimationControllerListener.LoopType;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class AnimationController extends JPanel {
 	private ModelView mdlDisp;
@@ -57,7 +58,7 @@ public class AnimationController extends JPanel {
 			@Override
 			public Component getListCellRendererComponent(final JList list, final Object value, final int index,
 					final boolean isSelected, final boolean cellHasFocus) {
-				Object display = value == null ? "(Unanimated)" : value;
+				Object display = value == null ? LocalizationManager.getInstance().get("object.animationcontroller_animationcontroller_unanimated") : value;
 				if (value != null) {
 					display = "(" + mdlDisp.getModel().getAnims().indexOf(value) + ") " + display;
 				}
@@ -98,16 +99,16 @@ public class AnimationController extends JPanel {
 			}
 		});
 		final JSlider speedSlider = new JSlider(0, 100, 50);
-		final JLabel speedSliderLabel = new JLabel("Speed: 100%");
+		final JLabel speedSliderLabel = new JLabel(LocalizationManager.getInstance().get("label.animationcontroller_animationcontroller_speed") + "100%");
 		speedSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
-				speedSliderLabel.setText("Speed: " + (speedSlider.getValue() * 2) + "%");
+				speedSliderLabel.setText(LocalizationManager.getInstance().get("label.animationcontroller_animationcontroller_speed") + (speedSlider.getValue() * 2) + "%");
 				listener.setSpeed(speedSlider.getValue() / 50f);
 			}
 		});
 
-		final JButton playAnimationButton = new JButton("Play Animation");
+		final JButton playAnimationButton = new JButton(LocalizationManager.getInstance().get("button.animationcontroller_animationcontroller_playanimation"));
 		final ActionListener playAnimationActionListener = new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -116,9 +117,9 @@ public class AnimationController extends JPanel {
 		};
 		playAnimationButton.addActionListener(playAnimationActionListener);
 
-		final JRadioButton defaultLoopButton = new JRadioButton("Default Loop");
-		final JRadioButton alwaysLoopButton = new JRadioButton("Always Loop");
-		final JRadioButton neverLoopButton = new JRadioButton("Never Loop");
+		final JRadioButton defaultLoopButton = new JRadioButton(LocalizationManager.getInstance().get("button.animationcontroller_animationcontroller_defaultloop"));
+		final JRadioButton alwaysLoopButton = new JRadioButton(LocalizationManager.getInstance().get("button.animationcontroller_animationcontroller_alwaysloop"));
+		final JRadioButton neverLoopButton = new JRadioButton(LocalizationManager.getInstance().get("button.animationcontroller_animationcontroller_neverloop"));
 
 		final ButtonGroup buttonGroup = new ButtonGroup();
 		buttonGroup.add(defaultLoopButton);
@@ -148,7 +149,7 @@ public class AnimationController extends JPanel {
 		alwaysLoopButton.addActionListener(setLoopTypeActionListener);
 		neverLoopButton.addActionListener(setLoopTypeActionListener);
 
-		final JLabel levelOfDetailLabel = new JLabel("Level of Detail");
+		final JLabel levelOfDetailLabel = new JLabel(LocalizationManager.getInstance().get("label.animationcontroller_animationcontroller_levelofdetail"));
 		final JSpinner levelOfDetailSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 5, 1));
 		levelOfDetailSpinner.addChangeListener(new ChangeListener() {
 			@Override

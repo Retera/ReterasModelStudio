@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.wipdesign.units;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import com.hiveworkshop.wc3.resources.WEString;
 
@@ -22,6 +23,6 @@ public enum Tileset {
 				return cat;
 			}
 		}
-		throw new IllegalArgumentException("TileSets does not exist: " + name);
+		throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.tileset_fromcodename_exist") + name);
 	}
 }

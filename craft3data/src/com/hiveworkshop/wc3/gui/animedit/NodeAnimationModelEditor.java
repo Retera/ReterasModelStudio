@@ -65,6 +65,7 @@ import com.hiveworkshop.wc3.mdl.render3d.RenderNode;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> {
 	private final ProgramPreferences programPreferences;
@@ -88,22 +89,22 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public UndoAction autoCenterSelectedBones() {
-		throw new WrongModeException("Unable to autocenter bones in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_autocenterselectedbones"));
 	}
 
 	@Override
 	public UndoAction setSelectedBoneName(final String name) {
-		throw new WrongModeException("Unable to change bone names in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_setselectedbonename"));
 	}
 
 	@Override
 	public UndoAction addSelectedBoneSuffix(final String name) {
-		throw new WrongModeException("Unable to change bone names in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_setselectedbonesuffix"));
 	}
 
 	@Override
 	public UndoAction addTeamColor() {
-		throw new WrongModeException("Unable to add team color in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_addteamcolor"));
 	}
 
 	@Override
@@ -180,7 +181,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public UndoAction expandSelection() {
-		throw new WrongModeException("Unable to expand selection in Node Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("setselection.nodeanimationmodeleditor_invertselection"));
 	}
 
 	@Override
@@ -191,7 +192,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 			toggleSelection(invertedSelection, node);
 		}
 		selectionManager.setSelection(invertedSelection);
-		return new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection");
+		return new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("setselection.invertselection_invert"));
 	}
 
 	private void toggleSelection(final Set<IdObject> selection, final IdObject position) {
@@ -211,7 +212,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 			allSelection.add(node);
 		}
 		selectionManager.setSelection(allSelection);
-		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all");
+		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("setselection.nodeanimationmodeleditor_selectall"));
 	}
 
 	@Override
@@ -219,7 +220,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		final ArrayList<IdObject> oldSelection = new ArrayList<>(selectionManager.getSelection());
 		final Set<IdObject> allSelection = new HashSet<>();
 		selectionManager.setSelection(allSelection);
-		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select HD unused");
+		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("setselection.selecthdunusednodes_unused"));
 	}
 
 	@Override
@@ -403,7 +404,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 		@Override
 		public void camera(final Camera camera) {
-			System.err.println("CAMERA processed in NodeAnimationModelEditor!!!");
+			System.err.println(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_selectionatpointttester"));
 			// if (hitTest(camera.getPosition(), CoordinateSystem.Util.geom(axes, point),
 			// axes,
 			// programPreferences.getVertexSize(), worldMatrix)) {
@@ -511,7 +512,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 		@Override
 		public void camera(final Camera camera) {
-			System.err.println("Attempted to process camera with Node Animation Editor generic selector!!!");
+			System.err.println(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_genericselectorvisitor"));
 		}
 
 		@Override
@@ -532,92 +533,92 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public CopiedModelData copySelection() {
-		throw new WrongModeException("Unable to copy selection in animation editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_copyselection"));
 	}
 
 	@Override
 	public UndoAction deleteSelectedComponents() {
-		throw new WrongModeException("Unable to delete selection in animation editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_deleteselectedcomponents"));
 	}
 
 	@Override
 	public UndoAction setMatrix(final Collection<Bone> bones) {
-		throw new WrongModeException("Unable to set Matrix in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_setmatrix"));
 	}
 
 	@Override
 	public UndoAction snapNormals() {
-		throw new WrongModeException("Unable to modify normals in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_snapnormals"));
 	}
 
 	@Override
 	public UndoAction recalcNormals() {
-		throw new WrongModeException("Unable to modify normals in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_recalcnormals"));
 	}
 
 	@Override
 	public UndoAction recalcExtents(final boolean onlyIncludeEditableGeosets) {
-		throw new WrongModeException("Unable to modify extents in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_recalcextents"));
 	}
 
 	@Override
 	public UndoAction mirror(final byte dim, final boolean flipModel, final double centerX, final double centerY,
 			final double centerZ) {
-		throw new WrongModeException("Mirror has not yet been coded in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_mirror"));
 	}
 
 	@Override
 	public UndoAction flipSelectedFaces() {
-		throw new WrongModeException("Unable to flip faces in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_flipselectedfaces"));
 	}
 
 	@Override
 	public UndoAction flipSelectedNormals() {
-		throw new WrongModeException("Unable to flip normals in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_flipselectednormals"));
 	}
 
 	@Override
 	public UndoAction snapSelectedVertices() {
-		throw new WrongModeException("Unable to snap vertices in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_snapselectedvertices"));
 	}
 
 	@Override
 	public UndoAction snapSelectedNormals() {
-		throw new WrongModeException("Unable to modify normals in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_snapselectednormals"));
 	}
 
 	@Override
 	public UndoAction beginExtrudingSelection() {
-		throw new WrongModeException("Unable to extrude in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_beginextrudingselection"));
 	}
 
 	@Override
 	public UndoAction beginExtendingSelection() {
-		throw new WrongModeException("Unable to extrude in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_beginextendingselection"));
 	}
 
 	@Override
 	public CloneAction cloneSelectedComponents(final ClonedNodeNamePicker clonedNodeNamePicker) {
-		throw new WrongModeException("Unable to clone components in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_cloneselectedcomponents"));
 	}
 
 	@Override
 	public UndoAction addVertex(final double x, final double y, final double z,
 			final Vertex preferredNormalFacingVector) {
-		throw new WrongModeException("Unable to add vertices in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_addvertex"));
 	}
 
 	@Override
 	public GenericMoveAction addPlane(final double x, final double y, final double x2, final double y2, final byte dim1,
 			final byte dim2, final Vertex facingVector, final int numberOfWidthSegments,
 			final int numberOfHeightSegments) {
-		throw new WrongModeException("Unable to add plane in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_addplane"));
 	}
 
 	@Override
 	public void rawScale(final double centerX, final double centerY, final double centerZ, final double scaleX,
 			final double scaleY, final double scaleZ) {
-		throw new UnsupportedOperationException("Unable to scale directly in animation mode, use other system");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_rawscale"));
 	}
 
 	public void rawScale(final double centerX, final double centerY, final double centerZ, final double scaleX,
@@ -646,7 +647,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	@Override
 	public void rawRotate2d(final double centerX, final double centerY, final double centerZ, final double radians,
 			final byte firstXYZ, final byte secondXYZ) {
-		throw new UnsupportedOperationException("Unable to rotate directly in animation mode, use other system");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_rawrotate2d"));
 	}
 
 	public void rawRotate2d(final double centerX, final double centerY, final double centerZ, final double radians,
@@ -875,19 +876,19 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public UndoAction createFaceFromSelection(final Vertex preferredFacingVector) {
-		throw new WrongModeException("Unable to create face in animation editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_createfacefromselection"));
 	}
 
 	@Override
 	public GenericMoveAction addBox(final double x, final double y, final double x2, final double y2, final byte dim1,
 			final byte dim2, final Vertex facingVector, final int numberOfLengthSegments,
 			final int numberOfWidthSegments, final int numberOfHeightSegments) {
-		throw new WrongModeException("Unable to create box in animation editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_addbox"));
 	}
 
 	@Override
 	public UndoAction splitGeoset() {
-		throw new WrongModeException("Unable to split geoset in animation editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_splitgeoset"));
 	}
 
 	@Override
@@ -933,27 +934,27 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public UndoAction setParent(final IdObject node) {
-		throw new WrongModeException("Can't set parent in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_setparent"));
 	}
 
 	@Override
 	public UndoAction reLinkRFBone(IdObject node) {
-		throw new WrongModeException("Can't set parent in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_reLinkrfbone"));
 	}
 
 	@Override
 	public RigAction rig() {
-		throw new WrongModeException("Unable to rig in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_rig"));
 	}
 
 	@Override
 	public UndoAction addBone(final double x, final double y, final double z) {
-		throw new WrongModeException("Unable to add bone in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_addbone"));
 	}
 
 	@Override
 	public UndoAction deleteDownToOneTVerticesLayer() {
-		throw new WrongModeException("Unable to delete mesh in Animation Editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.nodeanimationmodeleditor_deletedowntoonetverticeslayer"));
 	}
 
 }

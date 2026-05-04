@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.user;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -212,8 +213,8 @@ public class SaveProfile implements Serializable {
 		final File datat = new File(wcDirectory + "/Data");
 		if (!temp.exists() && !datat.exists()) {
 			JOptionPane.showMessageDialog(null,
-					"Could not find war3.mpq. Please choose a valid Warcraft III installation.",
-					"WARNING: Needs WC3 Installation", JOptionPane.WARNING_MESSAGE);
+					LocalizationManager.getInstance().get("dialog.saveprofile_testtargetfolderreadonly_find"),
+					LocalizationManager.getInstance().get("dialog.saveprofile_testtargetfolderreadonly_needs"), JOptionPane.WARNING_MESSAGE);
 			// requestNewWc3Directory();
 			return false;
 		}

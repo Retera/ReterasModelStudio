@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 
+import hiveworkshop.localizationmanager.LocalizationManager;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.modeledit.ModelPanel;
 
@@ -24,7 +25,7 @@ public final class UndoActionImplementation extends AbstractAction {
 			try {
 				mpanel.getUndoManager().undo();
 			} catch (final NoSuchElementException exc) {
-				JOptionPane.showMessageDialog(mainPanel, "Nothing to undo!");
+				JOptionPane.showMessageDialog(mainPanel, LocalizationManager.getInstance().get("matrixeater.dialog.mpanel_undo"));
 			} catch (final Exception exc) {
 				ExceptionPopup.display(exc);
 			}

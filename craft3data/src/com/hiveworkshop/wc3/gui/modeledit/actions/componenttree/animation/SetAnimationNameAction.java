@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.animation;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.Animation;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class SetAnimationNameAction implements UndoAction {
 	private final String prevName;
@@ -32,6 +33,6 @@ public class SetAnimationNameAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set animation name to \"" + newName + "\"";
+		return LocalizationManager.getInstance().get("string.setanimationnameaction_actionname") + "\"" + newName + "\"";
 	}
 }

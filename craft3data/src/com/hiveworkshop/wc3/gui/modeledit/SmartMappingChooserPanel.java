@@ -30,6 +30,7 @@ import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -95,7 +96,7 @@ public class SmartMappingChooserPanel extends JPanel {
 
 		setLayout(new MigLayout("fill", "[fill, grow][fill, grow][fill, grow]", "[][fill, grow]"));
 
-		final JCheckBox showParentsBox = new JCheckBox("Show parents");
+		final JCheckBox showParentsBox = new JCheckBox(LocalizationManager.getInstance().get("checkbox.smartmappingchooserpanel_smartmappingchooserpanel_showparentsbox"));
 		final ParentToggleRenderer parentToggleRenderer = new ParentToggleRenderer(showParentsBox, currentModelView,
 				importModelView);
 		showParentsBox.addChangeListener(new ChangeListener() {
@@ -136,13 +137,13 @@ public class SmartMappingChooserPanel extends JPanel {
 		currentList.list.addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(final ListSelectionEvent e) {
-				System.out.println("select");
+				System.out.println(LocalizationManager.getInstance().get("println.smartmappingchooserpanel_smartmappingchooserpanel_select"));
 				if (!e.getValueIsAdjusting()) {
-					System.out.println("select good");
+					System.out.println(LocalizationManager.getInstance().get("println.smartmappingchooserpanel_smartmappingchooserpanel_select_good"));
 					final BoneShell left = importList.list.getSelectedValue();
 					final BoneShell right = currentList.list.getSelectedValue();
 					if ((left != null) && (right != null)) {
-						System.out.println("select real stuff");
+						System.out.println(LocalizationManager.getInstance().get("println.smartmappingchooserpanel_smartmappingchooserpanel_select_real"));
 						int indexToRemove = -1;
 						for (int i = 0; i < pairingListModel.size(); i++) {
 							final Pairing existingPairing = pairingListModel.get(i);
@@ -154,7 +155,7 @@ public class SmartMappingChooserPanel extends JPanel {
 							pairingListModel.remove(indexToRemove);
 						}
 
-						System.out.println("add");
+						System.out.println(LocalizationManager.getInstance().get("println.smartmappingchooserpanel_smartmappingchooserpanel_add"));
 						pairingListModel.addElement(new Pairing(left, right));
 						hasPairingSet.add(left);
 						currentList.list.setSelectedValue(null, false);

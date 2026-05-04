@@ -7,6 +7,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * ExtrudeAction -- something extruded that you can undo!
@@ -210,9 +211,9 @@ public class ExtrudeAction implements UndoAction {
 	@Override
 	public String actionName() {
 		if (type) {
-			return "extrude";
+			return LocalizationManager.getInstance().get("string.extrudeaction_actionname_1");
 		} else {
-			return "extrude";
+			return LocalizationManager.getInstance().get("string.extrudeaction_actionname_2");
 		}
 	}
 

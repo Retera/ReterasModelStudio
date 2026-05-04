@@ -35,6 +35,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public final class VertexClusterModelEditor extends AbstractModelEditor<VertexClusterModelEditor.VertexGroupBundle> {
 	private final ProgramPreferences programPreferences;
@@ -106,17 +107,17 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexCl
 
 	@Override
 	public UndoAction autoCenterSelectedBones() {
-		throw new UnsupportedOperationException("This feature is not available in Vertex Group mode");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.vertexclustermodeleditor_autocenterselectedbones"));
 	}
 
 	@Override
 	public UndoAction setSelectedBoneName(final String name) {
-		throw new UnsupportedOperationException("This feature is not available in Vertex Group mode");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.vertexclustermodeleditor_setselectedbonename"));
 	}
 
 	@Override
 	public UndoAction addSelectedBoneSuffix(final String name) {
-		throw new UnsupportedOperationException("This feature is not available in Vertex Group mode");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.vertexclustermodeleditor_addselectedbonesuffix"));
 	}
 
 	@Override
@@ -139,7 +140,7 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexCl
 
 	@Override
 	public UndoAction expandSelection() {
-		return new DoNothingAction("expand selection");
+		return new DoNothingAction(LocalizationManager.getInstance().get("action.vertexclustermodeleditor_expandselection"));
 	}
 
 	@Override
@@ -159,7 +160,7 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexCl
 			}
 		}
 		selectionManager.setSelection(invertedSelection);
-		return (new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection"));
+		return (new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("action.vertexclustermodeleditor_invertselection")));
 	}
 
 	@Override
@@ -174,7 +175,7 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexCl
 			}
 		}
 		selectionManager.setSelection(allSelection);
-		return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all"));
+		return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("action.vertexclustermodeleditor_selectall")));
 	}
 
 	@Override
@@ -182,7 +183,7 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexCl
 		final Set<VertexGroupBundle> oldSelection = new HashSet<>(selectionManager.getSelection());
 		final Set<VertexGroupBundle> allSelection = new HashSet<>();
 		selectionManager.setSelection(allSelection);
-		return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select HD unused"));
+		return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("action.vertexclustermodeleditor_selecthdunusednodes")));
 	}
 
 	@Override
@@ -348,23 +349,23 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexCl
 
 	@Override
 	public UndoAction createFaceFromSelection(final Vertex preferredFacingVector) {
-		throw new WrongModeException("Unable to create face from vertices in vertex group selection mode");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.vertexclustermodeleditor_createfacefromselection"));
 	}
 
 	@Override
 	public UndoAction addVertex(final double x, final double y, final double z,
 			final Vertex preferredNormalFacingVector) {
-		throw new WrongModeException("Unable to draw vertices in vertex group selection mode");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.vertexclustermodeleditor_addvertex"));
 	}
 
 	@Override
 	public UndoAction setParent(final IdObject node) {
-		throw new UnsupportedOperationException("This feature is not available in Vertex Group mode");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.vertexclustermodeleditor_setparent"));
 	}
 
 	@Override
 	public UndoAction reLinkRFBone(IdObject node) {
-		throw new UnsupportedOperationException("This feature is not available in Vertex Group mode");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.vertexclustermodeleditor_relinkrfbone"));
 	}
 
 	public VertexSelectionHelper getVertexSelectionHelper() {

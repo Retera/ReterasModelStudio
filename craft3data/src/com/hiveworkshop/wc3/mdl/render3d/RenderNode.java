@@ -11,6 +11,7 @@ import com.hiveworkshop.wc3.mdl.IdObject.NodeFlags;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.util.MathUtils;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public final class RenderNode {
 	private final AnimatedNode idObject;
@@ -180,11 +181,11 @@ public final class RenderNode {
 		for (final AnimatedNode childNode : idObject.getChildrenNodes()) {
 			if (model.getRenderNode(childNode) == null) {
 				if (childNode instanceof IdObject) {
-					throw new NullPointerException("Cannot find child \"" + childNode.getName() + ":"
-							+ ((IdObject) childNode).getObjectId() + "\" of \"" + idObject.getName() + "\"");
+					throw new NullPointerException(LocalizationManager.getInstance().get("exception.rendernode_updatechildren_not_find_child") + " \"" + childNode.getName() + ":"
+							+ ((IdObject) childNode).getObjectId() + "\" " + LocalizationManager.getInstance().get("exception.rendernode_updatechildren_of") + " \"" + idObject.getName() + "\"");
 				} else {
 					throw new NullPointerException(
-							"Cannot find child \"" + childNode.getName() + "\" of \"" + idObject.getName() + "\"");
+							LocalizationManager.getInstance().get("exception.rendernode_updatechildren_not_find_child") + " \"" + childNode.getName() + "\" " + LocalizationManager.getInstance().get("exception.rendernode_updatechildren_of") + " \"" + idObject.getName() + "\"");
 				}
 			}
 			model.getRenderNode(childNode).update();

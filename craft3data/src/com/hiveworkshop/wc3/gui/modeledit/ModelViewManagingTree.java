@@ -25,6 +25,7 @@ import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public final class ModelViewManagingTree extends JCheckBoxTree {
 	private final ModelViewManager modelViewManager;
@@ -128,7 +129,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 	private static DefaultTreeModel buildTreeModel(final ModelViewManager modelViewManager) {
 		final JCheckBoxTreeNode root = new JCheckBoxTreeNode(new CheckableModelElement(modelViewManager));
 
-		final JCheckBoxTreeNode mesh = new JCheckBoxTreeNode(new CheckableDummyElement(modelViewManager, "Mesh"));
+		final JCheckBoxTreeNode mesh = new JCheckBoxTreeNode(new CheckableDummyElement(modelViewManager, LocalizationManager.getInstance().get("checkboxtreenode.modelviewmanagingtree_buildtreemodel_mesh")));
 
 		for (final Geoset geoset : modelViewManager.getModel().getGeosets()) {
 			final boolean contains = modelViewManager.getEditableGeosets().contains(geoset);
@@ -141,7 +142,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 
 		final Map<IdObject, JCheckBoxTreeNode> nodeToTreeElement = new HashMap<>();
 		final Map<IdObject, List<JCheckBoxTreeNode>> nodeToChildrenAwaitingLink = new HashMap<>();
-		final JCheckBoxTreeNode nodes = new JCheckBoxTreeNode(new CheckableDummyElement(modelViewManager, "Nodes"));
+		final JCheckBoxTreeNode nodes = new JCheckBoxTreeNode(new CheckableDummyElement(modelViewManager, LocalizationManager.getInstance().get("checkboxtreenode.modelviewmanagingtree_buildtreemodel_nodes")));
 		nodeToTreeElement.put(null, nodes);
 		for (final IdObject object : modelViewManager.getModel().getIdObjects()) {
 			final JCheckBoxTreeNode treeNode = new JCheckBoxTreeNode(new CheckableNodeElement(modelViewManager, object),
@@ -175,7 +176,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 			root.add(nodes);
 		}
 
-		final JCheckBoxTreeNode cameras = new JCheckBoxTreeNode(new CheckableDummyElement(modelViewManager, "Cameras"));
+		final JCheckBoxTreeNode cameras = new JCheckBoxTreeNode(new CheckableDummyElement(modelViewManager, LocalizationManager.getInstance().get("checkboxtreenode.modelviewmanagingtree_buildtreemodel_cameras")));
 		for (final Camera camera : modelViewManager.getModel().getCameras()) {
 			cameras.add(new JCheckBoxTreeNode(new CheckableCameraElement(modelViewManager, camera),
 					modelViewManager.getEditableCameras().contains(camera)));

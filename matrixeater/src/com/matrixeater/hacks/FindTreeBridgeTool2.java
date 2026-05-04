@@ -24,6 +24,7 @@ import com.hiveworkshop.wc3.units.Warcraft3MapObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import mpq.MPQException;
 
@@ -155,7 +156,7 @@ public class FindTreeBridgeTool2 {
 			}
 		}
 		if (match) {
-			System.err.println(gameFile + " at index  " + i);
+			System.err.println(gameFile + LocalizationManager.getInstance().get("matrixeater.println.findtreebridge_checktb") + i);
 		}
 	}
 

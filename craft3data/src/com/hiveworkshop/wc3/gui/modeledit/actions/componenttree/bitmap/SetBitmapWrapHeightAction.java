@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.bitmap;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.Bitmap;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class SetBitmapWrapHeightAction implements UndoAction {
 	private final Bitmap bitmap;
@@ -32,6 +33,6 @@ public class SetBitmapWrapHeightAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "change texture ReplaceableId";
+		return LocalizationManager.getInstance().get("string.setbitmapwrapheightaction_actionname");
 	}
 }

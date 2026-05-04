@@ -32,9 +32,9 @@ public final class UnitMeleeLevelFolder extends AbstractSortingFolderTreeNode {
 		super(displayName);
 		this.units = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UNITS"), MUTABLE_GAME_UNIT_COMPARATOR);
 		this.heroes = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UTYPE_HEROES"),
-				MUTABLE_GAME_UNIT_COMPARATOR);
+			MUTABLE_GAME_UNIT_COMPARATOR);
 		this.buildings = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UTYPE_BUILDINGS"),
-				MUTABLE_GAME_UNIT_COMPARATOR);
+			MUTABLE_GAME_UNIT_COMPARATOR);
 		this.special = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UTYPE_SPECIAL"),
 				MUTABLE_GAME_UNIT_COMPARATOR);
 		folders.add(units);

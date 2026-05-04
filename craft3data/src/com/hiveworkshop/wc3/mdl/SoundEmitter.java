@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -91,7 +92,7 @@ public class SoundEmitter extends IdObject implements VisibilitySource {
 			return lit;
 		} else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse SoundEmitter: Missing or unrecognized open statement.");
+					LocalizationManager.getInstance().get("dialog.soundemitter_read_parse"));
 		}
 		return null;
 	}
@@ -105,10 +106,10 @@ public class SoundEmitter extends IdObject implements VisibilitySource {
 		final ArrayList<AnimFlag> pAnimFlags = new ArrayList<>(this.animFlags);
 		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
 		if (objectId != -1) {
-			writer.println("\tObjectId " + objectId + ",");
+			writer.println(LocalizationManager.getInstance().get("rintln.soundemitter_printto_objectid") + objectId + ",");
 		}
 		if (parentId != -1) {
-			writer.println("\tParent " + parentId + ",\t// \"" + getParent().getName() + "\"");
+			writer.println(LocalizationManager.getInstance().get("println.soundemitter_printto_parent") + parentId + ",\t// \"" + getParent().getName() + "\"");
 		}
 
 		for (int i = 0; i < pAnimFlags.size(); i++) {
@@ -135,7 +136,7 @@ public class SoundEmitter extends IdObject implements VisibilitySource {
 		}
 		if (count > 1) {
 			JOptionPane.showMessageDialog(null,
-					"Some visiblity animation data was lost unexpectedly during overwrite in " + getName() + ".");
+					LocalizationManager.getInstance().get("dialog.soundemitter_setvisibilityflag_overwrite") + getName() + ".");
 		}
 	}
 
@@ -151,7 +152,7 @@ public class SoundEmitter extends IdObject implements VisibilitySource {
 		}
 		if (count > 1) {
 			JOptionPane.showMessageDialog(null,
-					"Some visiblity animation data was lost unexpectedly during retrieval in " + getName() + ".");
+					LocalizationManager.getInstance().get("dialog.soundemitter_getvisibilityflag_retrieval") + getName() + ".");
 		}
 		return output;
 	}
@@ -172,7 +173,7 @@ public class SoundEmitter extends IdObject implements VisibilitySource {
 		}
 		if (count > 1) {
 			JOptionPane.showMessageDialog(null,
-					"Some SoundTrack animation data was lost unexpectedly during overwrite in " + getName() + ".");
+					LocalizationManager.getInstance().get("dialog.soundemitter_setsoundtrackglag_overwrite") + getName() + ".");
 		}
 	}
 
@@ -187,7 +188,7 @@ public class SoundEmitter extends IdObject implements VisibilitySource {
 		}
 		if (count > 1) {
 			JOptionPane.showMessageDialog(null,
-					"Some SoundTrack animation data was lost unexpectedly during retrieval in " + getName() + ".");
+					LocalizationManager.getInstance().get("dialog.soundemitter_getsoundtrackglag_retrieval") + getName() + ".");
 		}
 		return output;
 	}
