@@ -4,6 +4,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public final class StaticMeshMoveAction implements UndoAction, GenericMoveAction {
 	private final ModelEditor modelEditor;
@@ -26,7 +27,7 @@ public final class StaticMeshMoveAction implements UndoAction, GenericMoveAction
 
 	@Override
 	public String actionName() {
-		return "move";
+		return LocalizationManager.getInstance().get("string.staticmeshmoveaction_actionname");
 	}
 
 	@Override

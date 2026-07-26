@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.TVertex;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * MotionAction -- something for you to undo when you screw up with motion
@@ -91,19 +92,19 @@ public class UVMoveAction implements UndoAction {
 		String outName = "";
 		switch (actType) {
 		case MOVE:
-			outName = "move";
+			outName = LocalizationManager.getInstance().get("string.uvmoveaction_actionname_move");
 			break;
 		case ROTATE:
-			outName = "rotate";
+			outName = LocalizationManager.getInstance().get("string.uvmoveaction_actionname_rotate");
 			break;
 		case SCALE:
-			outName = "scale";
+			outName = LocalizationManager.getInstance().get("string.uvmoveaction_actionname_scale");
 			break;
 		}
 		if (outName.equals("")) {
-			outName = "actionType_" + actType;
+			outName = LocalizationManager.getInstance().get("string.uvmoveaction_actionname_actiontype") + actType;
 		}
-		return outName + " TVertices";
+		return outName + LocalizationManager.getInstance().get("string.uvmoveaction_actionname_vertices");
 	}
 
 	public void setActType(final VertexActionType actType) {

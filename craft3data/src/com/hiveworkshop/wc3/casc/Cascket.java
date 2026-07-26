@@ -22,6 +22,7 @@ import com.hiveworkshop.json.JSONTokener;
 import com.hiveworkshop.wc3.gui.datachooser.CascDataSource;
 import com.hiveworkshop.wc3.mpq.Codebase;
 import com.hiveworkshop.wc3.user.WindowsRegistry;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * CASC was dangerously close to put Matrix Eater in a casket, so we named it
@@ -192,13 +193,13 @@ public class Cascket implements Codebase {
 					return true;
 				}
 			} catch (final IOException e) {
-				throw new RuntimeException("CASC parser error for: " + tempFilepath, e);
+				throw new RuntimeException(LocalizationManager.getInstance().get("exception.has_error") + tempFilepath, e);
 			}
 		}
 		try {
 			return rootFileSystem.isFile(filepath);
 		} catch (final IOException e) {
-			throw new RuntimeException("CASC parser error for: " + filepath, e);
+			throw new RuntimeException(LocalizationManager.getInstance().get("exception.has_error") + filepath, e);
 		}
 	}
 

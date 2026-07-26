@@ -22,6 +22,7 @@ import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class DrawBoxActivity implements ModelEditorViewportActivity {
 
@@ -158,7 +159,7 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 							dim2, facingVector, numSegsX, numSegsY, numSegsZ);
 				} catch (final WrongModeException exc) {
 					drawingState = DrawingState.NOTHING;
-					JOptionPane.showMessageDialog(null, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, exc.getMessage(), LocalizationManager.getInstance().get("global.dialog.error"), JOptionPane.ERROR_MESSAGE);
 				}
 			} else {
 				boxAction.updateTranslation(mouseEnd.x - this.lastMousePoint.x, mouseEnd.y - this.lastMousePoint.y, 0);

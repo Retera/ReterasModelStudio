@@ -1,4 +1,5 @@
 package com.etheller.collections;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;
@@ -366,7 +367,7 @@ public final class HashMap<KEY, VALUE> implements Map<KEY, VALUE> {
 
 		protected final Entry<KEY, VALUE> nextEntry() {
 			if (node == null) {
-				throw new IllegalStateException("no more nodes for iterator");
+				throw new IllegalStateException(LocalizationManager.getInstance().get("exception.hashiterator_nextentry"));
 			}
 			final Node<KEY, VALUE> current = node;
 			node = node.getNext();
@@ -383,7 +384,7 @@ public final class HashMap<KEY, VALUE> implements Map<KEY, VALUE> {
 
 		@Override
 		public void remove() {
-			throw new UnsupportedOperationException("iterator is read only");
+			throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.hashiterator_remove"));
 		}
 
 		private void advanceIndexAndNode() {

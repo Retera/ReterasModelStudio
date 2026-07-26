@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -148,8 +149,8 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		final ParticleEmitter2 mdlEmitter = this;
 		// debug print:
 		if ((emitter.node.flags & 4096) != 4096) {
-			System.err.println("MDX -> MDL error: A particle emitter '" + emitter.node.name
-					+ "' not flagged as particle emitter in MDX!");
+			System.err.println(LocalizationManager.getInstance().get("println.particleemitter2_particleemitter2_particle_emitter") + emitter.node.name
+					+ LocalizationManager.getInstance().get("println.particleemitter_particleemitter2_not_flagged"));
 		}
 		// System.out.println(emitter.node.name + ": " +
 		// Integer.toBinaryString(emitter.node.flags));
@@ -240,7 +241,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 			add("AlphaKey");
 			break;
 		default:
-			System.err.println("Unkown filter mode error");
+			System.err.println(LocalizationManager.getInstance().get("println.particleemitter2_particleemitter2_filter"));
 			add("UnknownFilterMode");
 			break;
 		}
@@ -257,7 +258,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 			add("Both");
 			break;
 		default:
-			System.err.println("Unkown head or tail error");
+			System.err.println(LocalizationManager.getInstance().get("println.particleemitter2_particleemitter2_head_tail"));
 			add("UnknownHeadOrTail");
 			break;
 		}
@@ -338,24 +339,24 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 					&& !line.equals("COMPLETED PARSING")) {
 				boolean foundType = false;
 				if (line.contains("ObjectId")) {
-					// JOptionPane.showMessageDialog(null,"Read an object id!");
+					// JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("dialog.particleemitter2_read_read"));
 					pe.objectId = MDLReader.readInt(line);
 					foundType = true;
-					// JOptionPane.showMessageDialog(null,"ObjectId from line:
-					// "+line);
+					// JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("dialog.particleemitter2_read_objectid_from")
+					// +line);
 				}
 				else if (line.contains("Parent")) {
 					pe.parentId = MDLReader.splitToInts(line)[0];
 					foundType = true;
-					// JOptionPane.showMessageDialog(null,"Parent from line:
-					// "+line);
+					// JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("dialog.particleemitter2_read_parent_from")
+					// +line);
 					// lit.parent = mdlr.getIdObject(lit.parentId);
 				}
 				else if (line.contains("SegmentColor")) {
 					boolean reading = true;
 					foundType = true;
-					// JOptionPane.showMessageDialog(null,"SegmentColor from
-					// line: "+line);
+					// JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("dialog.particleemitter2_read_segmentcolor_from")
+					// +line);
 					for (int i = 0; reading && (i < 3); i++) {
 						line = MDLReader.nextLine(mdl);
 						if (line.contains("Color")) {
@@ -373,39 +374,39 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 					if (line.contains("\t" + vertexDataNames[i] + " ")) {
 						foundType = true;
 						pe.vertexData[i] = Vertex.parseText(line);
-						// JOptionPane.showMessageDialog(null,vertexDataNames[i]+"
-						// from line: "+line);
+						// JOptionPane.showMessageDialog(null,vertexDataNames[i]+LocalizationManager.getInstance().get("dialog.particleemitter2_read_from")
+						// +line);
 					}
 				}
 				for (int i = 0; (i < loneDoubleNames.length) && !foundType; i++) {
 					if (line.contains(loneDoubleNames[i])) {
 						foundType = true;
 						pe.loneDoubleData[i] = MDLReader.readDouble(line);
-						// JOptionPane.showMessageDialog(null,loneDoubleNames[i]+"
-						// from line: "+line);
+						// JOptionPane.showMessageDialog(null,loneDoubleNames[i]+LocalizationManager.getInstance().get("dialog.particleemitter2_read_from")
+						// +line);
 					}
 				}
 				for (int i = 0; (i < loneIntNames.length) && !foundType; i++) {
 					if (line.contains(loneIntNames[i])) {
 						foundType = true;
 						pe.loneIntData[i] = MDLReader.readInt(line);
-						// JOptionPane.showMessageDialog(null,loneIntNames[i]+"
-						// from line: "+line);
+						// JOptionPane.showMessageDialog(null,loneIntNames[i]+LocalizationManager.getInstance().get("dialog.particleemitter2_read_from")
+						// +line);
 					}
 				}
 				for (int i = 0; (i < knownFlagNames.length) && !foundType; i++) {
 					if (line.contains(knownFlagNames[i])) {
 						foundType = true;
 						pe.knownFlags[i] = true;
-						// JOptionPane.showMessageDialog(null,knownFlagNames[i]+"
-						// from line: "+line);
+						// JOptionPane.showMessageDialog(null,knownFlagNames[i]+LocalizationManager.getInstance().get("dialog.particleemitter2_read_from")
+						// +line);
 					}
 				}
 				for (int i = 0; (i < timeDoubleNames.length) && !foundType; i++) {
 					if (line.contains(timeDoubleNames[i])) {
 						foundType = true;
-						// JOptionPane.showMessageDialog(null,timeDoubleNames[i]+"
-						// from line: "+line);
+						// JOptionPane.showMessageDialog(null,timeDoubleNames[i]+LocalizationManager.getInstance().get("dialog.particleemitter2_read_from")
+						// +line);
 						if (line.contains("static")) {
 							pe.timeDoubleData[i] = MDLReader.readDouble(line);
 						}
@@ -420,13 +421,12 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 					MDLReader.reset(mdl);
 					pe.animFlags.add(AnimFlag.read(mdl));
 					foundType = true;
-					// JOptionPane.showMessageDialog(null,"AnimFlag from line:
-					// "+line);
+					// JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("dialog.particleemitter2_read_animflag_from")
+					// +line);
 				}
 				if (!foundType) {
-					// JOptionPane.showMessageDialog(null,"Particle emitter 2
-					// did not recognize data at: "+line+"\nThis is probably not
-					// a major issue?");
+					// JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("dialog.particleemitter2_read_recognize"))
+					// +line+LocalizationManager.getInstance().get("dialog.particleemitter2_read_issue"));
 					pe.unknownFlags.add(MDLReader.readFlag(line));
 				}
 				MDLReader.mark(mdl);
@@ -436,7 +436,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		}
 		else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse ParticleEmitter2: Missing or unrecognized open statement.");
+					LocalizationManager.getInstance().get("dialog.particleemitter2_read_parse"));
 		}
 		return null;
 	}
@@ -451,10 +451,10 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		final ArrayList<AnimFlag> pAnimFlags = new ArrayList<>(animFlags);
 		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
 		if (objectId != -1) {
-			writer.println("\tObjectId " + objectId + ",");
+			writer.println(LocalizationManager.getInstance().get("println.particleemitter2_printto_objectid") + objectId + ",");
 		}
 		if (parentId != -1) {
-			writer.println("\tParent " + parentId + ",\t// \"" + getParent().getName() + "\"");
+			writer.println(LocalizationManager.getInstance().get("println.particleemitter2_printto_parent") + parentId + ",\t// \"" + getParent().getName() + "\"");
 		}
 		for (int i = 0; i < 9; i++) {
 			if (knownFlags[i]) {
@@ -465,7 +465,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		for (int i = 0; i < 4; i++) {
 			currentFlag = timeDoubleNames[i];
 			if (timeDoubleData[i] != 0) {
-				writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
+				writer.println(LocalizationManager.getInstance().get("println.particleemitter2_printto_static") + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
 			}
 			else {
 				boolean set = false;
@@ -477,7 +477,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 					}
 				}
 				if (!set) {
-					writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
+					writer.println(LocalizationManager.getInstance().get("println.particleemitter2_printto_static") + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
 				}
 			}
 		}
@@ -499,7 +499,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		for (int i = 4; i < 7; i++) {
 			currentFlag = timeDoubleNames[i];
 			if (timeDoubleData[i] != 0) {
-				writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
+				writer.println(LocalizationManager.getInstance().get("println.particleemitter2_printto_static") + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
 			}
 			else {
 				boolean set = false;
@@ -511,7 +511,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 					}
 				}
 				if (!set) {
-					writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
+					writer.println(LocalizationManager.getInstance().get("println.particleemitter2_printto_static") + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
 				}
 			}
 		}
@@ -531,9 +531,9 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		for (int i = 1; i < 3; i++) {
 			writer.println("\t" + loneDoubleNames[i] + " " + MDLReader.doubleToString(loneDoubleData[i]) + ",");
 		}
-		writer.println("\tSegmentColor {");
+		writer.println(LocalizationManager.getInstance().get("println.particleemitter2_printto_segmentcolor") + " {");
 		for (int i = 0; i < segmentColor.length; i++) {
-			writer.println("\t\tColor " + segmentColor[i].toString() + ",");
+			writer.println("\t" + LocalizationManager.getInstance().get("println.particleemitter2_printto_color") + segmentColor[i].toString() + ",");
 		}
 		writer.println("\t},");
 		for (int i = 0; i < vertexData.length; i++) {
@@ -589,7 +589,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		}
 		if (count > 1) {
 			JOptionPane.showMessageDialog(null,
-					"Some visiblity animation data was lost unexpectedly during overwrite in " + getName() + ".");
+					LocalizationManager.getInstance().get("println.particleemitter2_setvisibilityflag_overwrite") + getName() + ".");
 		}
 	}
 
@@ -605,7 +605,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		}
 		if (count > 1) {
 			JOptionPane.showMessageDialog(null,
-					"Some visiblity animation data was lost unexpectedly during retrieval in " + getName() + ".");
+					LocalizationManager.getInstance().get("println.particleemitter2_getvisibilityflag_retrieval") + getName() + ".");
 		}
 		return output;
 	}

@@ -14,6 +14,7 @@ import com.hiveworkshop.wc3.units.Warcraft3MapObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 
@@ -39,7 +40,7 @@ public class GetMeDatas14 {
 //				}
 				n++;
 			}
-			System.out.println("Checked " + static_counter + " of " + n + " units.");
+			System.out.println(LocalizationManager.getInstance().get("matrixeater.println.getmedatas14_main_checked") + static_counter + LocalizationManager.getInstance().get("matrixeater.println.getmedatas14_main_of") + n + LocalizationManager.getInstance().get("matrixeater.println.getmedatas14_main_units"));
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
@@ -58,7 +59,7 @@ public class GetMeDatas14 {
 					model = EditableModel.read(inputStream);
 				}
 			} catch (final Exception e) {
-				System.err.println("FAIL: " + item);
+				System.err.println(LocalizationManager.getInstance().get("matrixeater.println.getmedatas14_main_fail") + item);
 				e.printStackTrace();
 				return;
 			}
@@ -66,14 +67,14 @@ public class GetMeDatas14 {
 		if (item.toLowerCase().endsWith(".mdx")) {
 			try (InputStream inputStream = mpqCodebase.getResourceAsStream(item)) {
 				if (inputStream == null) {
-					System.err.println("skip: " + item);
+					System.err.println(LocalizationManager.getInstance().get("matrixeater.println.getmedatas14_main_skip") + item);
 					return;
 				}
 				try (BlizzardDataInputStream blzStream = new BlizzardDataInputStream(inputStream)) {
 					model = new EditableModel(MdxUtils.loadModel(blzStream));
 				}
 			} catch (final Exception e) {
-				System.err.println("FAIL: " + item);
+				System.err.println(LocalizationManager.getInstance().get("matrixeater.println.getmedatas14_main_fail") + item);
 				e.printStackTrace();
 				return;
 			}
@@ -90,11 +91,11 @@ public class GetMeDatas14 {
 				final double intensity = light.getIntensity();
 				final double ambIntensity = light.getAmbIntensity();
 				if (!light.getFlags().contains("Omnidirectional")) {
-					System.out.println("BAD: " + item);
+					System.out.println(LocalizationManager.getInstance().get("matrixeater.println.getmedatas14_main_bad") + item);
 					return;
 				}
 				if (intensity > 10000 || ambIntensity > 10000) {
-					System.out.println("BAD: " + item);
+					System.out.println(LocalizationManager.getInstance().get("matrixeater.println.getmedatas14_main_bad") + item);
 					return;
 				} else {
 					{
@@ -103,7 +104,7 @@ public class GetMeDatas14 {
 							for (int i = 0; i < animIntensity.size(); i++) {
 								final Double value = (Double) animIntensity.getValues().get(i);
 								if (value > 10000) {
-									System.out.println("BAD: " + item);
+									System.out.println(LocalizationManager.getInstance().get("matrixeater.println.getmedatas14_main_bad") + item);
 									return;
 								}
 							}
@@ -115,7 +116,7 @@ public class GetMeDatas14 {
 							for (int i = 0; i < animIntensity.size(); i++) {
 								final Double value = (Double) animIntensity.getValues().get(i);
 								if (value > 10000) {
-									System.out.println("BAD: " + item);
+									System.out.println(LocalizationManager.getInstance().get("matrixeater.println.getmedatas14_main_bad") + item);
 									return;
 								}
 							}

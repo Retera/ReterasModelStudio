@@ -11,6 +11,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class ScalingKeyframeAction implements GenericScaleAction {
 	private final UndoAction addingTimelinesOrKeyframesAction;
@@ -61,7 +62,7 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 
 	@Override
 	public String actionName() {
-		return "edit rotation";
+		return LocalizationManager.getInstance().get("string.scalingkeyframeaction_actionname");
 	}
 
 	@Override

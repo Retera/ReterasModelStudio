@@ -54,6 +54,7 @@ import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 	private final ProgramPreferences programPreferences;
@@ -126,7 +127,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 	@Override
 	public UndoAction setSelectedBoneName(final String name) {
 		if (selectionManager.getSelection().size() != 1) {
-			throw new IllegalStateException("Only one bone can be renamed at a time.");
+			throw new IllegalStateException(LocalizationManager.getInstance().get("exception.pivotpointmodeleditor_setselectedbonename_rename"));
 		}
 		final Vertex selectedVertex = selectionManager.getSelection().iterator().next();
 		IdObject node = null;
@@ -134,13 +135,13 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			if (bone.getPivotPoint() == selectedVertex) {
 				if (node != null) {
 					throw new IllegalStateException(
-							"Flagrant error. Multiple bones are bound to the same memory addresses. Save your work and restart the application.");
+						LocalizationManager.getInstance().get("exception.pivotpointmodeleditor_setselectedbonename_error"));
 				}
 				node = bone;
 			}
 		}
 		if (node == null) {
-			throw new IllegalStateException("Selection is not a node");
+			throw new IllegalStateException(LocalizationManager.getInstance().get("exception.pivotpointmodeleditor_setselectedbonename_selection"));
 		}
 		final RenameBoneAction renameBoneAction = new RenameBoneAction(node.getName(), name, node);
 		renameBoneAction.redo();
@@ -159,17 +160,17 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 				actions.add(renameBoneAction);
 			}
 		}
-		return new CompoundAction("add selected bone suffix", actions);
+		return new CompoundAction(LocalizationManager.getInstance().get("action.pivotpointmodeleditor_addselectedbonesuffix"), actions);
 	}
 
 	@Override
 	public UndoAction addTeamColor() {
-		return new DoNothingAction("add team color");
+		return new DoNothingAction(LocalizationManager.getInstance().get("action.pivotpointmodeleditor_addteamcolor"));
 	}
 
 	@Override
 	public UndoAction splitGeoset() {
-		return new DoNothingAction("split geoset");
+		return new DoNothingAction(LocalizationManager.getInstance().get("action.pivotpointmodeleditor_split_geoset"));
 	}
 
 	@Override
@@ -332,7 +333,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			visitor.camera(camera);
 		}
 		selectionManager.setSelection(expandedSelection);
-		return new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, "expand selection");
+		return new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("action.pivotpointmodeleditor_expandselection"));
 	}
 
 	@Override
@@ -406,7 +407,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			visitor.camera(object);
 		}
 		selectionManager.setSelection(invertedSelection);
-		return new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection");
+		return new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("action.pivotpointmodeleditor_invertselection"));
 	}
 
 	private void toggleSelection(final Set<Vertex> selection, final Vertex position) {
@@ -489,7 +490,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			visitor.camera(object);
 		}
 		selectionManager.setSelection(allSelection);
-		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all");
+		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("action.pivotpointmodeleditor_selectall"));
 	}
 
 	@Override
@@ -507,13 +508,13 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		for (final IdObject node : model.getEditableIdObjects()) {
 			if ((node instanceof Bone) && !usedBones.contains(node) && !(node instanceof Helper)) {
 				if ((node.getChildrenNodes() != null) && !node.getChildrenNodes().isEmpty()) {
-					System.out.println("note: should maybe be helper: " + node.getName());
+					System.out.println(LocalizationManager.getInstance().get("println.pivotpointmodeleditor_selecthdunusednodes") + node.getName());
 				}
 				allSelection.add(node.getPivotPoint());
 			}
 		}
 		selectionManager.setSelection(allSelection);
-		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select HD unused");
+		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, LocalizationManager.getInstance().get("action.pivotpointmodeleditor_selecthdunusednodes"));
 	}
 
 	@Override
@@ -1038,13 +1039,13 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 
 	@Override
 	public UndoAction createFaceFromSelection(final Vertex preferredFacingVector) {
-		return new DoNothingAction("create face");
+		return new DoNothingAction(LocalizationManager.getInstance().get("action.pivotpointmodeleditor_createfacefromselection"));
 	}
 
 	@Override
 	public UndoAction addVertex(final double x, final double y, final double z,
 			final Vertex preferredNormalFacingVector) {
-		return new DoNothingAction("add vertex");
+		return new DoNothingAction(LocalizationManager.getInstance().get("action.pivotpointmodeleditor_addvertex"));
 	}
 
 	public VertexSelectionHelper getVertexSelectionHelper() {

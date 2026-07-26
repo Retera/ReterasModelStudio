@@ -7,6 +7,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class DrawCameraAction implements UndoAction {
 	private final ModelView modelView;
@@ -37,7 +38,7 @@ public class DrawCameraAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "add " + camera.getName();
+		return LocalizationManager.getInstance().get("string.drawcameraaction_actionname") + camera.getName();
 	}
 
 }

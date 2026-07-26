@@ -23,16 +23,19 @@ import javax.swing.WindowConstants;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class BlessingWindow extends JPanel {
 
-	private static final String CHOOSE_YOUR_BLESSING = "Choose your Blessing";
+	private static final String CHOOSE_YOUR_BLESSING = LocalizationManager.getInstance().get("matrixeater.string.blessingwindow");
 	private Font font;
 	private Font subtitleFont;
 	private Font titleFont;
-	private final List<Blessing> possibleBlessings = Arrays.asList(new Blessing("Gonk", "Loa of the Pack"),
-			new Blessing("Pa'ku", "Loa of the Winds"), new Blessing("Rezan", "Loa of Kings"),
-			new Blessing("Bwonsamdi", "Loa of Graves"));
+	private final List<Blessing> possibleBlessings = Arrays.asList(
+		new Blessing("Gonk", LocalizationManager.getInstance().get("matrixeater.blessing.gonk")),
+		new Blessing("Pa'ku", LocalizationManager.getInstance().get("matrixeater.blessing.pa")),
+		new Blessing("Rezan", LocalizationManager.getInstance().get("matrixeater.blessing.rezan")),
+		new Blessing("Bwonsamdi", LocalizationManager.getInstance().get("matrixeater.blessing.bwonsamdi")));
 	private BorderedBox borderedBox;
 	private BufferedImage optionsMenuBorder;
 	private final Rectangle windowBounds;
@@ -59,21 +62,24 @@ public class BlessingWindow extends JPanel {
 			frameHandles.add(borderedBox);
 			frameHandles.add(new BlessingItem(new Rectangle(windowBounds.x + 80, windowBounds.y + 350, 64, 64),
 					BLPHandler.get().getGameTex("replaceabletextures\\commandbuttons\\btnberserkfortrolls.blp"),
-					"Feral Swipes", 50,
-					"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. Suspendisse urna nibh"));
+					LocalizationManager.getInstance().get("matrixeater.blessingitem.feralswipes"), 50,
+					LocalizationManager.getInstance().get("matrixeater.blessingitem.feralswipes_text")));
 			frameHandles.add(new BlessingItem(new Rectangle(windowBounds.x + 150, windowBounds.y + 350, 64, 64),
 					BLPHandler.get().getGameTex("replaceabletextures\\commandbuttons\\btnsacrificialdagger.blp"),
-					"Troll Daggers", 75, "Increases the damage of all poison based skills and abilities."));
+					LocalizationManager.getInstance().get("matrixeater.blessingitem.trolldaggers"), 75,
+					LocalizationManager.getInstance().get("matrixeater.blessingitem.trolldaggers_text")));
 			frameHandles.add(new BlessingItem(new Rectangle(windowBounds.x + 220, windowBounds.y + 350, 64, 64),
 					BLPHandler.get().getGameTex("replaceabletextures\\commandbuttons\\btncloudoffog.blp"),
-					"Mystic Fogs", 65,
-					"Provides an AoE around all allies structures that prevents the casting of enemy spells."));
+					LocalizationManager.getInstance().get("matrixeater.blessingitem.mysticfogs"), 65,
+					LocalizationManager.getInstance().get("matrixeater.blessingitem.mysticfogs_text")));
 			frameHandles.add(new BlessingItem(new Rectangle(windowBounds.x + 820, windowBounds.y + 350, 64, 64),
 					BLPHandler.get().getGameTex("replaceabletextures\\commandbuttons\\btnsunderingblades.blp"),
-					"Shield Smash", 65, "Causes all troll towers to do Chaos damage which ignores enemy armor."));
+					LocalizationManager.getInstance().get("matrixeater.blessingitem.shieldsmash"), 65,
+					LocalizationManager.getInstance().get("matrixeater.blessingitem.shieldsmash_text")));
 			frameHandles.add(new BlessingItem(new Rectangle(windowBounds.x + 890, windowBounds.y + 350, 64, 64),
 					BLPHandler.get().getGameTex("replaceabletextures\\commandbuttons\\btnhelmutpurple.blp"),
-					"Crown of Kings", 65, "Provides a +5 attribute bonus to all Troll heroes."));
+					LocalizationManager.getInstance().get("matrixeater.blessingitem.crownofkings"), 65,
+					LocalizationManager.getInstance().get("matrixeater.blessingitem.crownofkings_text")));
 			tooltipBox = new BorderedBox(new Rectangle(384, 128),
 					BLPHandler.get().getGameTex("ui\\widgets\\tooltips\\human\\human-tooltip-border.blp"));
 			stonesIcon = BLPHandler.get().getGameTex("ui\\widgets\\tooltips\\human\\tooltipstonesicon.blp");
@@ -200,7 +206,7 @@ public class BlessingWindow extends JPanel {
 	}
 
 	public static void main(final String[] args) {
-		final JFrame game = new JFrame("The Game");
+		final JFrame game = new JFrame(LocalizationManager.getInstance().get("matrixeater.frame.main"));
 		final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		final Rectangle windowBounds = new Rectangle(0, 0, screenSize.width, screenSize.height);
 		final int borderBoxWidth = 64 * 24;

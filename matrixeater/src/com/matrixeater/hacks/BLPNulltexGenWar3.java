@@ -1,5 +1,7 @@
 package com.matrixeater.hacks;
 
+import hiveworkshop.localizationmanager.LocalizationManager;
+
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -19,7 +21,7 @@ public final class BLPNulltexGenWar3 {
 
 	public static void main(final String[] args) {
 		if (args.length != 1) {
-			System.err.println("Usage: <mutableModelsDirectory>");
+			System.err.println(LocalizationManager.getInstance().get("matrixeater.println.blpnulltexgen_main_usage"));
 			System.exit(-1);
 		}
 		final File target = new File(args[0]);
@@ -30,9 +32,9 @@ public final class BLPNulltexGenWar3 {
 		nulltex = new File(target.getParent() + "/scratch/nulltex.blp");
 		nullgenRoot = new File(target.getParent() + "/nullgenTextures");
 		operate(target);
-		System.out.println("Passed: " + passed.size());
-		System.out.println("Failed: " + failed.size());
-		System.out.println("Fail list:");
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.blpnulltexgen_main_passed") + passed.size());
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.blpnulltexgen_main_failed") + failed.size());
+		System.out.println(LocalizationManager.getInstance().get("matrixeater.println.blpnulltexgen_main_faillist"));
 		for (final String failedName : failed) {
 			System.out.println(failedName);
 		}

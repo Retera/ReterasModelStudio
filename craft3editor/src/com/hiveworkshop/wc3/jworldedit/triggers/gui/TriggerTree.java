@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.triggers.gui;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -243,7 +244,7 @@ public class TriggerTree extends JTree {
 	private Trigger createTrigger(final TypedTriggerInstantiator instantiator) {
 		final TreePath selectionPath = getSelectionPath();
 		if (!canCreateTrigger(selectionPath)) {
-			throw new IllegalStateException("Cannot create trigger at selection");
+			throw new IllegalStateException(LocalizationManager.getInstance().get("exception.triggertree_createtrigger_cannot_create_at"));
 		}
 		final Object lastPathComponent = selectionPath.getLastPathComponent();
 		if (lastPathComponent instanceof TriggerCategoryTreeNode) {
@@ -257,7 +258,7 @@ public class TriggerTree extends JTree {
 			controller.moveTrigger(trigger, trigger.getCategory(), newTriggerIndex);
 			return trigger;
 		} else {
-			throw new IllegalStateException("Cannot create trigger with selection");
+			throw new IllegalStateException(LocalizationManager.getInstance().get("exception.triggertree_createtrigger_cannot__create_with"));
 		}
 	}
 
@@ -327,7 +328,7 @@ public class TriggerTree extends JTree {
 			if (node instanceof TriggerElementTreeNode) {
 				return ((TriggerElementTreeNode) node).copy();
 			}
-			throw new RuntimeException("unable to copy: " + node);
+			throw new RuntimeException(LocalizationManager.getInstance().get("exception.triggertree_triggerelementtreenode_copy") + node);
 		}
 
 		@Override
@@ -384,9 +385,9 @@ public class TriggerTree extends JTree {
 				triggers = (DraggableNode[]) t.getTransferData(nodeFlavors[0]);
 				System.out.println(Arrays.toString(transferDataFlavors));
 			} catch (final UnsupportedFlavorException ufe) {
-				System.out.println("UnsupportedFlavor: " + ufe.getMessage());
+				System.out.println(LocalizationManager.getInstance().get("println.triggertree_importdata_unsupported") + ufe.getMessage());
 			} catch (final java.io.IOException ioe) {
-				System.out.println("I/O error: " + ioe.getMessage());
+				System.out.println(LocalizationManager.getInstance().get("println.triggertree_importdata_error") + ioe.getMessage());
 			}
 			// Get drop location info.
 			final JTree.DropLocation dl = (JTree.DropLocation) support.getDropLocation();

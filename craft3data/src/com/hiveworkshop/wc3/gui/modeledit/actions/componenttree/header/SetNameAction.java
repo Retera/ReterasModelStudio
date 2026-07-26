@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.header;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class SetNameAction implements UndoAction {
 	private final String prevName;
@@ -33,7 +34,7 @@ public class SetNameAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set name to \"" + newName + "\"";
+		return LocalizationManager.getInstance().get("string.setnameaction_actionname") + newName;
 	}
 
 }

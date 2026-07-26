@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdx;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -180,19 +181,19 @@ public class ParticleEmitter2Chunk {
 			out.writeFloat(time);
 			if ((segmentColor.length % 9) != 0) {
 				throw new IllegalArgumentException(
-						"The array segmentColor needs either the length 9 or a multiple of this number. (got "
+						LocalizationManager.getInstance().get("exception.particleemitter2chunk_save_array_segmentcolor")
 								+ segmentColor.length + ")");
 			}
 			MdxUtils.saveFloatArray(out, segmentColor);
 			if ((segmentAlpha.length % 3) != 0) {
 				throw new IllegalArgumentException(
-						"The array segmentAlpha needs either the length 3 or a multiple of this number. (got "
+						LocalizationManager.getInstance().get("exception.particleemitter2chunk_save_array_segmentalpha")
 								+ segmentAlpha.length + ")");
 			}
 			MdxUtils.saveByteArray(out, segmentAlpha);
 			if ((segmentScaling.length % 3) != 0) {
 				throw new IllegalArgumentException(
-						"The array segmentScaling needs either the length 3 or a multiple of this number. (got "
+						LocalizationManager.getInstance().get("exception.particleemitter2chunk_save_array_segmentscaling")
 								+ segmentScaling.length + ")");
 			}
 			MdxUtils.saveFloatArray(out, segmentScaling);
@@ -542,7 +543,7 @@ public class ParticleEmitter2Chunk {
 					}
 				} else {
 					if (Node.LOG_DISCARDED_FLAGS) {
-						System.err.println("discarded flag " + af.getName());
+						System.err.println(LocalizationManager.getInstance().get("println.particleemitter2chunk_particleemitter2_discarded_flag") + af.getName());
 					}
 				}
 			}

@@ -37,6 +37,7 @@ import com.hiveworkshop.wc3.mdl.renderer.TriangleRenderer;
 import com.hiveworkshop.wc3.mdl.v2.MaterialView;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.visitor.VertexVisitor;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class ViewportModelRenderer implements ModelRenderer {
 	private Graphics2D graphics;
@@ -208,7 +209,7 @@ public class ViewportModelRenderer implements ModelRenderer {
 				firstCoord = z;
 				break;
 			default:
-				throw new IllegalStateException("Invalid x dimension");
+				throw new IllegalStateException(LocalizationManager.getInstance().get("exception.viewportmodelrenderer_trianglerendererimpl_x"));
 			}
 			switch (yDimension) {
 			case 0:
@@ -221,7 +222,7 @@ public class ViewportModelRenderer implements ModelRenderer {
 				secondCoord = z;
 				break;
 			default:
-				throw new IllegalStateException("Invalid y dimension");
+				throw new IllegalStateException(LocalizationManager.getInstance().get("exception.viewportmodelrenderer_trianglerendererimpl_y"));
 			}
 			final Point point = new Point((int) coordinateSystem.convertX(firstCoord),
 					(int) coordinateSystem.convertY(secondCoord));
@@ -248,7 +249,7 @@ public class ViewportModelRenderer implements ModelRenderer {
 					firstNormalCoord = normalZ;
 					break;
 				default:
-					throw new IllegalStateException("Invalid x dimension");
+					throw new IllegalStateException(LocalizationManager.getInstance().get("exception.viewportmodelrenderer_trianglerendererimpl_x"));
 				}
 				switch (yDimension) {
 				case 0:
@@ -261,7 +262,7 @@ public class ViewportModelRenderer implements ModelRenderer {
 					secondNormalCoord = normalZ;
 					break;
 				default:
-					throw new IllegalStateException("Invalid y dimension");
+					throw new IllegalStateException(LocalizationManager.getInstance().get("exception.viewportmodelrenderer_trianglerendererimpl_y"));
 				}
 				graphics.setColor(programPreferences.getNormalsColor());
 				final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);

@@ -16,6 +16,7 @@ import com.hiveworkshop.wc3.mdl.GeosetVertexBoneLink;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class DeleteNodesAction implements UndoAction {
 	private final List<IdObject> objects;
@@ -93,7 +94,7 @@ public class DeleteNodesAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "delete nodes";
+		return LocalizationManager.getInstance().get("string.deletenodesaction_actionname");
 	}
 
 	private static final class GeosetVertexNodeDeleteOperation {

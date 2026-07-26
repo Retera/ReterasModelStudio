@@ -1,4 +1,5 @@
 package com.matrixeater.hacks;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,7 +17,7 @@ public class RegenTexErrors {
 			while ((line = reader.readLine()) != null) {
 				line = "M:\\MiniWc3Lite\\explode\\wc3nosound\\" + line;
 				final String replace = line.replace("wc3nosound", "squish");
-				System.out.println("Source then target:");
+				System.out.println(LocalizationManager.getInstance().get("matrixeater.println.inputstreamreader"));
 				System.out.println(replace);
 				System.out.println(line);
 				Files.copy(Paths.get(replace), Paths.get(line), StandardCopyOption.REPLACE_EXISTING);

@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.triggers;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import static com.hiveworkshop.wc3.jworldedit.AbstractWorldEditorPanel.getIcon;
 import static com.hiveworkshop.wc3.jworldedit.AbstractWorldEditorPanel.makeButton;
@@ -70,9 +71,9 @@ public class TriggerEditor extends JPanel {
 
 	private JToolBar createToolbar(final DataTable worldEditorData) {
 		final JToolBar toolBar = new JToolBar();
-		makeButton(worldEditorData, toolBar, "newMap", "ToolBarIcon_New", "WESTRING_TOOLBAR_NEW");
-		makeButton(worldEditorData, toolBar, "openMap", "ToolBarIcon_Open", "WESTRING_TOOLBAR_OPEN");
-		final JButton saveButton = makeButton(worldEditorData, toolBar, "saveMap", "ToolBarIcon_Save",
+		makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.triggereditor_triggereditor_newmap"), "ToolBarIcon_New", "WESTRING_TOOLBAR_NEW");
+		makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.triggereditor_triggereditor_openmap"), "ToolBarIcon_Open", "WESTRING_TOOLBAR_OPEN");
+		final JButton saveButton = makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.triggereditor_triggereditor_savemap"), "ToolBarIcon_Save",
 				"WESTRING_TOOLBAR_SAVE");
 		saveButton.addActionListener(new ActionListener() {
 			@Override
@@ -80,7 +81,7 @@ public class TriggerEditor extends JPanel {
 				final JFileChooser jFileChooser = new JFileChooser(
 						new File(System.getProperty("user.home") + "/Documents/Warcraft III/Maps"));
 				jFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				jFileChooser.setDialogTitle("Save Map");
+				jFileChooser.setDialogTitle(LocalizationManager.getInstance().get("dialog.triggereditor_triggereditor_savemap"));
 				if (jFileChooser.showSaveDialog(TriggerEditor.this) == JFileChooser.APPROVE_OPTION) {
 
 				}
@@ -89,14 +90,14 @@ public class TriggerEditor extends JPanel {
 		});
 		toolBar.add(Box.createHorizontalStrut(8));
 		final TransferActionListener transferActionListener = new TransferActionListener();
-		copyButton = makeButton(worldEditorData, toolBar, "copy", "ToolBarIcon_Copy", "WESTRING_MENU_OE_UNIT_COPY");
+		copyButton = makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.triggereditor_triggereditor_copy"), "ToolBarIcon_Copy", "WESTRING_MENU_OE_UNIT_COPY");
 		copyButton.addActionListener(transferActionListener);
 		copyButton.setActionCommand((String) TransferHandler.getCopyAction().getValue(Action.NAME));
-		pasteButton = makeButton(worldEditorData, toolBar, "paste", "ToolBarIcon_Paste", "WESTRING_MENU_OE_UNIT_PASTE");
+		pasteButton = makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.triggereditor_triggereditor_paste"), "ToolBarIcon_Paste", "WESTRING_MENU_OE_UNIT_PASTE");
 		pasteButton.addActionListener(transferActionListener);
 		pasteButton.setActionCommand((String) TransferHandler.getPasteAction().getValue(Action.NAME));
 		toolBar.add(Box.createHorizontalStrut(8));
-		createNewCategoryButton = makeButton(worldEditorData, toolBar, "createNewCategory",
+		createNewCategoryButton = makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.triggereditor_triggereditor_createnewcategory"),
 				"ToolBarIcon_SE_NewCategory", "WESTRING_TOOLBAR_SE_NEWCAT");
 		createNewCategoryButton.addActionListener(new ActionListener() {
 			@Override
@@ -106,7 +107,7 @@ public class TriggerEditor extends JPanel {
 				triggerTree.startEditingAtPath(triggerTree.getSelectionPath());
 			}
 		});
-		createNewTriggerButton = makeButton(worldEditorData, toolBar, "createNewTrigger", "ToolBarIcon_SE_NewTrigger",
+		createNewTriggerButton = makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.triggereditor_triggereditor_createnewtrigger"), "ToolBarIcon_SE_NewTrigger",
 				"WESTRING_TOOLBAR_SE_NEWTRIG");
 		createNewTriggerButton.addActionListener(new ActionListener() {
 			@Override
@@ -117,7 +118,7 @@ public class TriggerEditor extends JPanel {
 				triggerTree.startEditingAtPath(selectionPath);
 			}
 		});
-		createNewCommentButton = makeButton(worldEditorData, toolBar, "createNewTriggerComment",
+		createNewCommentButton = makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.triggereditor_triggereditor_createnewtriggercomment"),
 				"ToolBarIcon_SE_NewTriggerComment", "WESTRING_TOOLBAR_SE_NEWTRIGCOM");
 		createNewCommentButton.addActionListener(new ActionListener() {
 			@Override
@@ -128,7 +129,7 @@ public class TriggerEditor extends JPanel {
 			}
 		});
 		toolBar.add(Box.createHorizontalStrut(8));
-		makeButton(worldEditorData, toolBar, "terrainEditor", "ToolBarIcon_Module_Terrain",
+		makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.triggereditor_triggereditor_terraineditor"), "ToolBarIcon_Module_Terrain",
 				"WESTRING_MENU_MODULE_TERRAIN");
 		final JToggleButton scriptEditorButton = new JToggleButton(
 				getIcon(worldEditorData, "ToolBarIcon_Module_Script"));
@@ -139,18 +140,18 @@ public class TriggerEditor extends JPanel {
 		scriptEditorButton.setEnabled(false);
 		scriptEditorButton.setDisabledIcon(scriptEditorButton.getIcon());
 		toolBar.add(scriptEditorButton);
-		makeButton(worldEditorData, toolBar, "soundEditor", "ToolBarIcon_Module_Sound", "WESTRING_MENU_MODULE_SOUND");
-		makeButton(worldEditorData, toolBar, "objectEditor", "ToolBarIcon_Module_ObjectEditor",
+		makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.triggereditor_triggereditor_soundeditor"), "ToolBarIcon_Module_Sound", "WESTRING_MENU_MODULE_SOUND");
+		makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.triggereditor_triggereditor_objecteditor"), "ToolBarIcon_Module_ObjectEditor",
 				"WESTRING_MENU_OBJECTEDITOR");
-		makeButton(worldEditorData, toolBar, "campaignEditor", "ToolBarIcon_Module_Campaign",
+		makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.triggereditor_triggereditor_campaigneditor"), "ToolBarIcon_Module_Campaign",
 				"WESTRING_MENU_MODULE_CAMPAIGN");
-		makeButton(worldEditorData, toolBar, "aiEditor", "ToolBarIcon_Module_AIEditor", "WESTRING_MENU_MODULE_AI");
-		makeButton(worldEditorData, toolBar, "objectEditor", "ToolBarIcon_Module_ObjectManager",
+		makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.triggereditor_triggereditor_aieditor"), "ToolBarIcon_Module_AIEditor", "WESTRING_MENU_MODULE_AI");
+		makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.triggereditor_triggereditor_objecteditor"), "ToolBarIcon_Module_ObjectManager",
 				"WESTRING_MENU_OBJECTMANAGER");
-		makeButton(worldEditorData, toolBar, "importEditor", "ToolBarIcon_Module_ImportManager",
+		makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.triggereditor_triggereditor_importeditor"), "ToolBarIcon_Module_ImportManager",
 				"WESTRING_MENU_IMPORTMANAGER");
 		toolBar.add(Box.createHorizontalStrut(8));
-		makeButton(worldEditorData, toolBar, "testMap",
+		makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.triggereditor_triggereditor_testmap"),
 				new ImageIcon(IconUtils.worldEditStyleIcon(getIcon(worldEditorData, "ToolBarIcon_TestMap").getImage())),
 				"WESTRING_TOOLBAR_TESTMAP");
 		return toolBar;
@@ -173,7 +174,7 @@ public class TriggerEditor extends JPanel {
 			}
 		}
 
-		final JFrame frame = new JFrame("Trigger Editor");
+		final JFrame frame = new JFrame(LocalizationManager.getInstance().get("frame.triggereditor_main_trigger_editor"));
 
 		final TriggerEditor contentPane = new TriggerEditor();
 		final JToolBar toolbar = contentPane.createToolbar(DataTable.getWorldEditorData());

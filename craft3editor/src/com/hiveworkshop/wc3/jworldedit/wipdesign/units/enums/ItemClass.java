@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.wipdesign.units.enums;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import com.hiveworkshop.wc3.resources.WEString;
 
@@ -22,6 +23,6 @@ public enum ItemClass {
 				return cat;
 			}
 		}
-		throw new IllegalArgumentException("ItemClass does not exist: " + name);
+		throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.itemclass_fromcodename_exist") + name);
 	}
 }

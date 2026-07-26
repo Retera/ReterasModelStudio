@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.objects;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
@@ -51,12 +52,12 @@ public class ObjectTabTreeBrowserTransferHandler extends TransferHandler {
 					pastedObjects.load(inputStream, null, false);
 				}
 			} catch (final UnsupportedFlavorException ufe) {
-				System.out.println("importData: unsupported data flavor");
+				System.out.println(LocalizationManager.getInstance().get("println.objecttabtreebrowsertransferhandler_importdata_unsupported"));
 				ufe.printStackTrace();
 				ExceptionPopup.display(ufe);
 				return false;
 			} catch (final IOException ioe) {
-				System.out.println("importData: I/O exception");
+				System.out.println(LocalizationManager.getInstance().get("println.objecttabtreebrowsertransferhandler_importdata_exception"));
 				ioe.printStackTrace();
 				ExceptionPopup.display(ioe);
 				return false;
@@ -91,10 +92,10 @@ public class ObjectTabTreeBrowserTransferHandler extends TransferHandler {
 			try (BlizzardDataOutputStream blizzardStream = new BlizzardDataOutputStream(outputStream)) {
 				selectedUnitsAsChangeset.save(blizzardStream, false);
 			} catch (final FileNotFoundException e) {
-				System.out.println("failed to copy");
+				System.out.println(LocalizationManager.getInstance().get("println.objecttabtreebrowsertransferhandler_createtransferable_copy"));
 				e.printStackTrace();
 			} catch (final IOException e) {
-				System.out.println("failed to copy");
+				System.out.println(LocalizationManager.getInstance().get("println.objecttabtreebrowsertransferhandler_createtransferable_copy"));
 				e.printStackTrace();
 			}
 			final byte[] byteArray = outputStream.toByteArray();

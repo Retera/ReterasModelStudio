@@ -7,6 +7,7 @@ import java.nio.ByteOrder;
 
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
 import com.hiveworkshop.lang.Hex;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * BLTE content entry, used to decode BLTE file data that follows it.
@@ -39,7 +40,7 @@ public class BLTEContent {
 
 		if ((contentBuffer.remaining() < IDENTIFIER.remaining())
 				|| !contentBuffer.limit(IDENTIFIER.remaining()).equals(IDENTIFIER)) {
-			throw new MalformedCASCStructureException("missing BLTE identifier");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.decodecontent"));
 		}
 
 		// decode header
@@ -52,14 +53,14 @@ public class BLTEContent {
 		try {
 			headerSize = Integer.toUnsignedLong(contentBuffer.getInt());
 		} catch (final BufferUnderflowException e) {
-			throw new MalformedCASCStructureException("header preamble goes out of bounds");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.decodecontent_header_preamble_out"));
 		}
 
 		if (headerSize == 0L) {
 			storageBuffer.position(storageBuffer.position() + contentBuffer.position());
 			return new BLTEContent[0];
 		} else if (headerSize > contentBuffer.capacity()) {
-			throw new MalformedCASCStructureException("BLTE header extends beyond storage buffer bounds");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.decodecontent_header_extends_buffer"));
 		}
 
 		contentBuffer.limit((int) headerSize);
@@ -73,7 +74,7 @@ public class BLTEContent {
 		try {
 			flags = blteBuffer.get();
 			if (flags != 0xF) {
-				throw new MalformedCASCStructureException("unknown flags");
+				throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.decodecontent_flags"));
 			}
 			// BE24 read
 			final int be24Bytes = 3;
@@ -82,10 +83,10 @@ public class BLTEContent {
 			blteBuffer.get(be24Buffer.array(), Integer.BYTES - be24Bytes, be24Bytes);
 			entryCount = be24Buffer.getInt(0);
 			if (entryCount == 0) {
-				throw new MalformedCASCStructureException("explicit zero entry count");
+				throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.decodecontent_zero_entry_count"));
 			}
 		} catch (final BufferUnderflowException e) {
-			throw new MalformedCASCStructureException("header goes out of bounds");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.decodecontent_header_goes_out"));
 		}
 
 		final BLTEContent[] content = new BLTEContent[entryCount];
@@ -95,7 +96,7 @@ public class BLTEContent {
 		}
 
 		if (blteBuffer.hasRemaining()) {
-			throw new MalformedCASCStructureException("unprocessed BLTE bytes");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.decodecontent_unprocessed_blte_bytes"));
 		}
 
 		storageBuffer.position(storageBuffer.position() + contentBuffer.position());

@@ -1,4 +1,5 @@
 package com.matrixeaterhayate;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.awt.GridLayout;
 
@@ -10,12 +11,12 @@ public class HMToolbox extends JPanel {
 	public HMToolbox() {
 		setLayout(new GridLayout(2, 1));
 		final JPanel createPanel = new JPanel();
-		createPanel.setBorder(BorderFactory.createTitledBorder("Create"));
+		createPanel.setBorder(BorderFactory.createTitledBorder(LocalizationManager.getInstance().get("matrixeater.border.createpanel")));
 		createPanel.setLayout(new GridLayout(3, 2));
 		createPanel.add(new JButton(""));
 
 		final JPanel transformPanel = new JPanel();
-		transformPanel.setBorder(BorderFactory.createTitledBorder("Transform"));
+		transformPanel.setBorder(BorderFactory.createTitledBorder(LocalizationManager.getInstance().get("matrixeater.border.transformpanel")));
 		transformPanel.setLayout(new GridLayout(3, 2));
 	}
 }

@@ -9,6 +9,7 @@ import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class SpecialDeleteAction extends DeleteAction {
 
@@ -53,6 +54,6 @@ public class SpecialDeleteAction extends DeleteAction {
 
 	@Override
 	public String actionName() {
-		return "delete vertices and geoset";
+		return LocalizationManager.getInstance().get("string.specialdeleteaction_actionname");
 	}
 }

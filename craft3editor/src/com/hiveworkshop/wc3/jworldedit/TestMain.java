@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.File;
 import java.util.HashMap;
@@ -40,7 +41,7 @@ public class TestMain {
 		myRoot.add(translation);
 
 		final Geoset geoset = new Geoset();
-		geoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
+		geoset.setMaterial(new Material(new Layer(LocalizationManager.getInstance().get("layer.testmain_main_none"), new Bitmap("Textures\\white.blp"))));
 		final int nFaces = 42;
 		final double ang = Math.PI * 2 / nFaces;
 		for (int i = 0; i < nFaces; i++) {

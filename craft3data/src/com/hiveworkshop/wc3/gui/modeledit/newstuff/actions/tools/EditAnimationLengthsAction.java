@@ -6,6 +6,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.EditableModel;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public final class EditAnimationLengthsAction implements UndoAction {
 	private final EditableModel mdl;
@@ -101,7 +102,7 @@ public final class EditAnimationLengthsAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "edit animation length(s)";
+		return LocalizationManager.getInstance().get("string.editanimationlengthsaction_actionname");
 	}
 
 }

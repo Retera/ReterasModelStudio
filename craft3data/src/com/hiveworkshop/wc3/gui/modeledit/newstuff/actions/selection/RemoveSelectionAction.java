@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public final class RemoveSelectionAction<T> implements UndoAction {
 
@@ -32,6 +33,6 @@ public final class RemoveSelectionAction<T> implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "deselect";
+		return LocalizationManager.getInstance().get("string.removeselectionaction_actionname");
 	}
 }

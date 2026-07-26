@@ -5,6 +5,7 @@ import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.v2.timelines.AnimatableVisitor;
 import com.hiveworkshop.wc3.mdl.v2.timelines.TangentialKeyFrame;
 import com.hiveworkshop.wc3.mdl.v2.timelines.Timeline;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public interface MaterialView {
 	ListView<? extends LayerView> getLayers();
@@ -27,11 +28,11 @@ public interface MaterialView {
 			for (int i = layers.size() - 1; i >= 0; i--) {
 				final LayerView layer = layers.get(i);
 				if (name.length() > 0) {
-					name.append(" over ");
+					name.append(LocalizationManager.getInstance().get("append.materialview_createdefaultname_over"));
 				}
 				name.append(layer.getTexture().visit(TEXTURE_NAME_GETTER));
 				if (layer.getAlpha().visit(IS_ALPHA_ANIMATED_CHECKER)) {
-					name.append(" (animated Alpha)");
+					name.append(LocalizationManager.getInstance().get("append.materialview_createdefaultname_alpha"));
 				}
 			}
 			return name.toString();
@@ -49,12 +50,12 @@ public interface MaterialView {
 				// SortedMapView<Integer, Bitmap> timeToKey =
 				// timeline.getTimeToKey();
 				// return timeToKey.get(timeToKey.firstKey()).getName();
-				return "animated texture layers";
+				return LocalizationManager.getInstance().get("string.materialview_createdefaultname_texture");
 			}
 
 			@Override
 			public String animatedTangentialValues(final Timeline<TangentialKeyFrame<Bitmap>> timeline) {
-				return "animated texture layers";
+				return LocalizationManager.getInstance().get("string.materialview_createdefaultname_texture");
 			}
 
 		}

@@ -74,6 +74,7 @@ import com.hiveworkshop.wc3.util.ModelUtils.Mesh;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * A java object to represent and store an MDL 3d model (Warcraft III file
@@ -305,7 +306,7 @@ public class EditableModel implements Named {
 		// For MDL api, this is currently embedded right inside the
 		// MDL class
 		setName(mdx.modelChunk.name);
-		addToHeader("//This model was converted from MDX by ogre-lord's Java MDX API and Retera's Java MDL API");
+		addToHeader(LocalizationManager.getInstance().get("addtoheader.editablemodel_editablemodel_converted"));
 		setBlendTime(mdx.modelChunk.blendTime);
 		setExtents(new ExtLog(mdx.modelChunk.minimumExtent, mdx.modelChunk.maximumExtent, mdx.modelChunk.boundsRadius));
 		setFormatVersion(mdx.versionChunk.version);
@@ -427,10 +428,10 @@ public class EditableModel implements Named {
 						|| (mdlCam.getName().length() > 20) || (mdlCam.getName().length() <= 0))) {
 					corruptedCameraWarningGiven = true;
 					JOptionPane.showMessageDialog(null, "--- " + this.getName()
-							+ " ---\nWARNING: Java Warcraft Libraries thinks we are loading a camera with corrupted data due to bug in Native MDX Parser.\nPlease DISABLE \"View > Use Native MDX Parser\" if you want to correctly edit \""
+							+ LocalizationManager.getInstance().get("dialog.editablemodel_editablemodel_bug")
 							+ getName()
-							+ "\".\nYou may continue to work, but portions of the model's data have been lost, and will be missing if you save.",
-							"Warning", JOptionPane.WARNING_MESSAGE);
+							+ LocalizationManager.getInstance().get("dialog.editablemodel_editablemodel_continue"),
+							LocalizationManager.getInstance().get("dialog.editablemodel_editablemodel_warning"), JOptionPane.WARNING_MESSAGE);
 				}
 				add(mdlCam);
 			}
@@ -470,7 +471,7 @@ public class EditableModel implements Named {
 		}
 		catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error (on line " + c + "): Vertex coordinates could not be interpreted.");
+				LocalizationManager.getInstance().get("dialog.editablemodel_parsevertex_error") + c + LocalizationManager.getInstance().get("dialog.editablemodel_parsevertex_interpreted"));
 		}
 	}
 
@@ -491,7 +492,7 @@ public class EditableModel implements Named {
 			}
 			catch (final NumberFormatException e) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error: Unable to interpret information in Triangles: " + s[t] + ", " + s[t + 1] + ", or "
+						LocalizationManager.getInstance().get("dialog.editablemodel_parsevertex_triangles") + s[t] + ", " + s[t + 1] + ", or "
 								+ s[t + 2]);
 			}
 		}
@@ -503,7 +504,7 @@ public class EditableModel implements Named {
 			output = reader.readLine();
 		}
 		catch (final IOException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "Error reading file.");
+			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), LocalizationManager.getInstance().get("dialog.editablemodel_nextline_error"));
 		}
 		c++;
 		if (output == null) {
@@ -651,7 +652,7 @@ public class EditableModel implements Named {
 			}
 		}
 		catch (final Exception e) {
-			JOptionPane.showMessageDialog(null, "Bone reference broken or invalid!");
+			JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.editablemodel_getbone_reference"));
 		}
 		return null;
 	}
@@ -855,7 +856,7 @@ public class EditableModel implements Named {
 	public List<Animation> addAnimationsFrom(EditableModel other, final List<Animation> anims) {
 		// this process destroys the "other" model inside memory, so destroy
 		// a copy instead
-		other = EditableModel.deepClone(other, "animation source file");
+		other = EditableModel.deepClone(other, LocalizationManager.getInstance().get("string.editablemodel_addanimationsfrom_animation_source_file"));
 
 		final List<AnimFlag> flags = getAllAnimFlags();
 		final List<EventObject> eventObjs = sortedIdObjects(EventObject.class);
@@ -993,10 +994,10 @@ public class EditableModel implements Named {
 			return mdlObject;
 		}
 		catch (final FileNotFoundException e) {
-			JOptionPane.showMessageDialog(null, "The file chosen was not found: " + e.getMessage());
+			JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.editablemodel_read_not_found") + e.getMessage());
 		}
 		catch (final IOException e) {
-			JOptionPane.showMessageDialog(null, "The file chosen could not be read: " + e.getMessage());
+			JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.editablemodel_read_not_read") + e.getMessage());
 		}
 		return null;
 	}
@@ -1023,19 +1024,19 @@ public class EditableModel implements Named {
 				}
 			}
 			if (!line.contains("Version")) {
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "The file version is missing!");
+				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), LocalizationManager.getInstance().get("dialog.editablemodel_read_version_missing"));
 			}
 			line = MDLReader.nextLine(mdl);
 			mdlr.formatVersion = MDLReader.readInt(line);
 			if ((mdlr.formatVersion != 800) && (mdlr.formatVersion != 900) && (mdlr.formatVersion != 1000)
 					&& (mdlr.formatVersion != 1100) && (mdlr.formatVersion != 1200)) {
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "The format version was confusing!");
+				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), LocalizationManager.getInstance().get("dialog.editablemodel_read_format_confusing"));
 			}
 			line = MDLReader.nextLine(mdl);// this is "}" for format version
 			if (!line.startsWith("}")) // now I'll prove it
 			{ // gotta have that sense of humor, right?
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Model could not be understood. Program does not understand this type of file.");
+						LocalizationManager.getInstance().get("dialog.editablemodel_read_understood"));
 			}
 			line = MDLReader.nextLine(mdl);
 			mdlr.setName(MDLReader.readName(line));
@@ -1209,7 +1210,7 @@ public class EditableModel implements Named {
 							}
 						}
 						else {
-							throw new IllegalStateException("Bad tokens in BindPose chunk: " + line);
+							throw new IllegalStateException(LocalizationManager.getInstance().get("dialog.editablemodel_read_bindpose") + line);
 						}
 					}
 					mdlr.bindPoseChunk.bindPose = new float[bindPoseElements.size()][];
@@ -1265,7 +1266,7 @@ public class EditableModel implements Named {
 		}
 		catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: BindPose Matrix could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") +  " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.editablemodel_parse4floatbpos_interpreted"));
 		}
 		for (int i = 1; i < 3; i++) {
 			try {
@@ -1273,7 +1274,7 @@ public class EditableModel implements Named {
 			}
 			catch (final NumberFormatException e) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error {" + input + "}: BindPose Matrix could not be interpreted.");
+						LocalizationManager.getInstance().get("global.dialog.error") +  " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.editablemodel_parse4floatbpos_interpreted"));
 			}
 		}
 		try {
@@ -1281,7 +1282,7 @@ public class EditableModel implements Named {
 		}
 		catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: BindPose Matrix could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") +  " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.editablemodel_parse4floatbpos_interpreted"));
 		}
 	}
 
@@ -1292,7 +1293,7 @@ public class EditableModel implements Named {
 		}
 		catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: BindPose Matrix could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") +  " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.editablemodel_parse12floatbpos_interpreted"));
 		}
 		for (int i = 1; i < 11; i++) {
 			try {
@@ -1300,7 +1301,7 @@ public class EditableModel implements Named {
 			}
 			catch (final NumberFormatException e) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error {" + input + "}: BindPose Matrix could not be interpreted.");
+						LocalizationManager.getInstance().get("global.dialog.error") +  " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.editablemodel_parse12floatbpos_interpreted"));
 			}
 		}
 		try {
@@ -1308,7 +1309,7 @@ public class EditableModel implements Named {
 		}
 		catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: BindPose Matrix could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") +  " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.editablemodel_parse12floatbpos_interpreted"));
 		}
 	}
 
@@ -1332,7 +1333,7 @@ public class EditableModel implements Named {
 		}
 		if (badAnims.size() > 0) {
 			JOptionPane.showMessageDialog(null,
-					"We discovered GeosetAnim data pointing to an invalid GeosetID! Bad data will be deleted. Please backup your model file.");
+					LocalizationManager.getInstance().get("dialog.editablemodel_dopostread_invalid_geosetid"));
 		}
 		for (final GeosetAnim bad : badAnims) {
 			this.geosetAnims.remove(bad);
@@ -1407,66 +1408,66 @@ public class EditableModel implements Named {
 			writer = new PrintWriter(outputStream);
 		}
 		catch (final Exception e) {
-			JOptionPane.showMessageDialog(null, "Unable to save MDL to file.");
+			JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.editablemodel_printto_unable_to_save"));
 		}
 
 		for (final String s : header) {
 			writer.println(s);
 		}
-		writer.println("// Saved by Retera's MDL Toolkit on " + new Date(System.currentTimeMillis()).toString());
-		writer.println("Version {");
-		writer.println("\tFormatVersion " + formatVersion + ",");
+		writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_save_mdl_toolkit") + new Date(System.currentTimeMillis()).toString());
+		writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_version"));
+		writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_format_version") + formatVersion + ",");
 		writer.println("}");
-		writer.println("Model \"" + name + "\" {");
+		writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_model") + " \"" + name + "\" {");
 		int sz = geosets.size();
 		if (sz > 0) {
-			writer.println("\tNumGeosets " + sz + ",");
+			writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_numgeosets") + sz + ",");
 		}
 		sz = geosetAnims.size();
 		if (sz > 0) {
-			writer.println("\tNumGeosetAnims " + sz + ",");
+			writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_numgeosetanims") + sz + ",");
 		}
 		sz = countIdObjectsOfClass(Helper.class);
 		if (sz > 0) {
-			writer.println("\tNumHelpers " + sz + ",");
+			writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_numhelpers") + sz + ",");
 		}
 		sz = countIdObjectsOfClass(Light.class);
 		if (sz > 0) {
-			writer.println("\tNumLights " + sz + ",");
+			writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_numlights") + sz + ",");
 		}
 		sz = countIdObjectsOfClass(Bone.class);
 		if (sz > 0) {
-			writer.println("\tNumBones " + sz + ",");
+			writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_numbones") + sz + ",");
 		}
 		sz = countIdObjectsOfClass(Attachment.class);
 		if (sz > 0) {
-			writer.println("\tNumAttachments " + sz + ",");
+			writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_numattachments") + sz + ",");
 		}
 		sz = countIdObjectsOfClass(ParticleEmitter.class);
 		if (sz > 0) {
-			writer.println("\tNumParticleEmitters " + sz + ",");
+			writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_numparticleemitters") + sz + ",");
 		}
 		sz = countIdObjectsOfClass(ParticleEmitter2.class);
 		if (sz > 0) {
-			writer.println("\tNumParticleEmitters2 " + sz + ",");
+			writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_numparticleemitters2") + sz + ",");
 		}
 		sz = countIdObjectsOfClass(ParticleEmitterPopcorn.class);
 		if (sz > 0) {
-			writer.println("\tNumParticleEmittersPopcorn " + sz + ",");
+			writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_numparticleemitterspopcorn") + sz + ",");
 		}
 		sz = countIdObjectsOfClass(RibbonEmitter.class);
 		if (sz > 0) {
-			writer.println("\tNumRibbonEmitters " + sz + ",");
+			writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_numribbonemitters") + sz + ",");
 		}
 		sz = countIdObjectsOfClass(EventObject.class);
 		if (sz > 0) {
-			writer.println("\tNumEvents " + sz + ",");
+			writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_numevents") + sz + ",");
 		}
 		sz = faceEffects.size();
 		if (sz > 0) {
-			writer.println("\tNumFaceFX " + sz + ",");
+			writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_numfacefx") + sz + ",");
 		}
-		writer.println("\tBlendTime " + BlendTime + ",");
+		writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_blendtime") + BlendTime + ",");
 		if (extents != null) {
 			extents.printTo(writer, 1);
 		}
@@ -1475,7 +1476,7 @@ public class EditableModel implements Named {
 		// Animations
 		if (anims != null) {
 			if (anims.size() > 0) {
-				writer.println("Sequences " + anims.size() + " {");
+				writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_sequences") + anims.size() + " {");
 				for (int i = 0; i < anims.size(); i++) {
 					anims.get(i).printTo(writer, 1);
 				}
@@ -1486,9 +1487,9 @@ public class EditableModel implements Named {
 		// Global Sequences
 		if (globalSeqs != null) {
 			if (globalSeqs.size() > 0) {
-				writer.println("GlobalSequences " + globalSeqs.size() + " {");
+				writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_globalsequences") + globalSeqs.size() + " {");
 				for (int i = 0; i < globalSeqs.size(); i++) {
-					writer.println("\tDuration " + globalSeqs.get(i).toString() + ",");
+					writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_duration") + globalSeqs.get(i).toString() + ",");
 				}
 				writer.println("}");
 			}
@@ -1497,7 +1498,7 @@ public class EditableModel implements Named {
 		// Textures
 		if (textures != null) {
 			if (textures.size() > 0) {
-				writer.println("Textures " + textures.size() + " {");
+				writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_textures") + textures.size() + " {");
 				for (int i = 0; i < textures.size(); i++) {
 					textures.get(i).printTo(writer, 1);
 				}
@@ -1508,7 +1509,7 @@ public class EditableModel implements Named {
 		// Materials
 		if (materials != null) {
 			if (materials.size() > 0) {
-				writer.println("Materials " + materials.size() + " {");
+				writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_materials") + materials.size() + " {");
 				for (int i = 0; i < materials.size(); i++) {
 					materials.get(i).printTo(writer, 1, formatVersion);
 				}
@@ -1519,7 +1520,7 @@ public class EditableModel implements Named {
 		// TextureAnims
 		if (texAnims != null) {
 			if (texAnims.size() > 0) {
-				writer.println("TextureAnims " + texAnims.size() + " {");
+				writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_texture_anims") + texAnims.size() + " {");
 				for (int i = 0; i < texAnims.size(); i++) {
 					texAnims.get(i).printTo(writer, 1);
 				}
@@ -1594,7 +1595,7 @@ public class EditableModel implements Named {
 					|| (obj.getClass() == ParticleEmitter2.class) || (obj.getClass() == ParticleEmitterPopcorn.class)
 					|| (obj.getClass() == RibbonEmitter.class) || (obj.getClass() == EventObject.class)
 					|| (obj.getClass() == CollisionShape.class))) {
-				writer.println("PivotPoints " + pivots.size() + " {");
+				writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_pivotpoints") + pivots.size() + " {");
 				for (int p = 0; p < pivots.size(); p++) {
 					writer.println("\t" + pivots.get(p).toString() + ",");
 				}
@@ -1612,7 +1613,7 @@ public class EditableModel implements Named {
 		}
 
 		if (!pivotsPrinted) {
-			writer.println("PivotPoints " + pivots.size() + " {");
+			writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_pivotpoints") + pivots.size() + " {");
 			for (int p = 0; p < pivots.size(); p++) {
 				writer.println("\t" + pivots.get(p).toString() + ",");
 			}
@@ -1628,15 +1629,15 @@ public class EditableModel implements Named {
 		if (ModelUtils.isBindPoseSupported(formatVersion)) {
 			for (int i = 0; i < faceEffects.size(); i++) {
 				final FaceEffect faceEffect = faceEffects.get(i);
-				writer.println("FaceFX \"" + faceEffect.faceEffectTarget + "\" {");
-				writer.println("\tPath \"" + faceEffect.faceEffect + "\",");
+				writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_facefx") + " \"" + faceEffect.faceEffectTarget + "\" {");
+				writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_path") + " \"" + faceEffect.faceEffect + "\",");
 				writer.println("}");
 			}
 		}
 
 		if ((bindPoseChunk != null) && ModelUtils.isBindPoseSupported(formatVersion)) {
 			if (RETERA_FORMAT_BPOS_MATRICES) {
-				writer.println("BindPose " + bindPoseChunk.bindPose.length + " {");
+				writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_bindpose") + bindPoseChunk.bindPose.length + " {");
 				final StringBuilder matrixStringBuilder = new StringBuilder();
 				for (int i = 0; i < bindPoseChunk.bindPose.length; i++) {
 					Named matrixPredictedParent = null;
@@ -1647,10 +1648,10 @@ public class EditableModel implements Named {
 						matrixPredictedParent = cameras.get(i - idObjects.size());
 					}
 					if (matrixPredictedParent != null) {
-						writer.println("\tMatrix { // for \"" + matrixPredictedParent.getName() + "\"");
+						writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_matrix") + " { //" + LocalizationManager.getInstance().get("println.editablemodel_printto_for") + " \"" + matrixPredictedParent.getName() + "\"");
 					}
 					else {
-						writer.println("\tMatrix {");
+						writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_matrix") + " {");
 					}
 					final float[] matrix = bindPoseChunk.bindPose[i];
 					for (int j = 0; j < 3; j++) {
@@ -1670,8 +1671,8 @@ public class EditableModel implements Named {
 				writer.println("}");
 			}
 			else {
-				writer.println("BindPose {");
-				writer.println("\tMatrices " + bindPoseChunk.bindPose.length + " {");
+				writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_bindpose") + "{");
+				writer.println(LocalizationManager.getInstance().get("println.editablemodel_printto_matrices") + bindPoseChunk.bindPose.length + " {");
 				final StringBuilder matrixStringBuilder = new StringBuilder();
 				for (int i = 0; i < bindPoseChunk.bindPose.length; i++) {
 					Named matrixPredictedParent = null;
@@ -1692,7 +1693,7 @@ public class EditableModel implements Named {
 					}
 					matrixStringBuilder.append(" },");
 					if (matrixPredictedParent != null) {
-						matrixStringBuilder.append("// for \"");
+						matrixStringBuilder.append("// " + LocalizationManager.getInstance().get("println.editablemodel_printto_for") + " \"");
 						matrixStringBuilder.append(matrixPredictedParent.getName());
 						matrixStringBuilder.append("\"");
 					}
@@ -1707,7 +1708,7 @@ public class EditableModel implements Named {
 			writer.close();
 		}
 		catch (final Exception e) {
-			JOptionPane.showMessageDialog(null, "Unable to close MDL writer -- did you run out of hard drive space?");
+			JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.editablemodel_printto_close_mdl"));
 			ExceptionPopup.display(e);
 		}
 	}
@@ -1915,7 +1916,7 @@ public class EditableModel implements Named {
 			}
 			if (i >= pivots.size()) {
 				JOptionPane.showMessageDialog(null,
-						"Error: More objects than PivotPoints were found.\nAdditional pivot at {0,0,0} will be added.");
+					LocalizationManager.getInstance().get("dialog.editablemodel_updateIdobjectreferences_additional_pivot"));
 				pivots.add(new Vertex(0, 0, 0));
 			}
 			obj.setPivotPoint(pivots.get(i));
@@ -1954,7 +1955,7 @@ public class EditableModel implements Named {
 				}
 			}
 			for (final AnimFlag badFlag : bad) {
-				System.err.println("Gleaning out " + badFlag.getName() + " chunk with size of 0");
+				System.err.println(LocalizationManager.getInstance().get("dialog.editablemodel_updateobjectIds_gleaning") + badFlag.getName() + LocalizationManager.getInstance().get("dialog.editablemodel_updateobjectIds_chunk_with_size"));
 				animFlags.remove(badFlag);
 			}
 		}
@@ -2056,7 +2057,7 @@ public class EditableModel implements Named {
 				}
 				else {
 					JOptionPane.showMessageDialog(null,
-							"WARNING: Error with processing time-scale from TextureAnims! Program will attempt to proceed.");
+						LocalizationManager.getInstance().get("dialog.editablemodel_getallanimflags_time_scale_textureanims"));
 				}
 			}
 		}
@@ -2067,7 +2068,7 @@ public class EditableModel implements Named {
 				}
 				else {
 					JOptionPane.showMessageDialog(null,
-							"WARNING: Error with processing time-scale from GeosetAnims! Program will attempt to proceed.");
+						LocalizationManager.getInstance().get("dialog.editablemodel_getallanimflags_time_scale_geosetanims"));
 				}
 			}
 		}
@@ -2415,7 +2416,7 @@ public class EditableModel implements Named {
 	public void add(final Animation x) {
 		if (x == null) {
 			JOptionPane.showMessageDialog(null,
-					"Added null Anim component to model, which is really bad. Tell Retera you saw this once you have errors.");
+				LocalizationManager.getInstance().get("dialog.editablemodel_add_anim"));
 		}
 		anims.add(x);
 	}
@@ -2423,7 +2424,7 @@ public class EditableModel implements Named {
 	public void add(final Integer x) {
 		if (x == null) {
 			JOptionPane.showMessageDialog(null,
-					"Added null GlobalSeq component to model, which is really bad. Tell Retera you saw this once you have errors.");
+				LocalizationManager.getInstance().get("dialog.editablemodel_add_globalseq"));
 		}
 		globalSeqs.add(x);
 	}
@@ -2431,7 +2432,7 @@ public class EditableModel implements Named {
 	public void add(final Bitmap x) {
 		if (x == null) {
 			JOptionPane.showMessageDialog(null,
-					"Added null Bitmap component to model, which is really bad. Tell Retera you saw this once you have errors.");
+				LocalizationManager.getInstance().get("dialog.editablemodel_add_bitmap"));
 		}
 		textures.add(x);
 	}
@@ -2439,7 +2440,7 @@ public class EditableModel implements Named {
 	public void add(final Material x) {
 		if (x == null) {
 			JOptionPane.showMessageDialog(null,
-					"Added null Material component to model, which is really bad. Tell Retera you saw this once you have errors.");
+				LocalizationManager.getInstance().get("dialog.editablemodel_add_material"));
 		}
 		materials.add(x);
 	}
@@ -2447,7 +2448,7 @@ public class EditableModel implements Named {
 	public void add(final TextureAnim x) {
 		if (x == null) {
 			JOptionPane.showMessageDialog(null,
-					"Added null TextureAnim component to model, which is really bad. Tell Retera you saw this once you have errors.");
+				LocalizationManager.getInstance().get("dialog.editablemodel_add_textureanim"));
 		}
 		texAnims.add(x);
 	}
@@ -2455,7 +2456,7 @@ public class EditableModel implements Named {
 	public void add(final Geoset x) {
 		if (x == null) {
 			JOptionPane.showMessageDialog(null,
-					"Added null Geoset component to model, which is really bad. Tell Retera you saw this once you have errors.");
+				LocalizationManager.getInstance().get("dialog.editablemodel_add_geoset"));
 		}
 		x.parentModel = this;
 		geosets.add(x);
@@ -2464,7 +2465,7 @@ public class EditableModel implements Named {
 	public void add(final GeosetVertex x) {
 		if (x == null) {
 			JOptionPane.showMessageDialog(null,
-					"Added null GeosetVertex component to model, which is really bad. Tell Retera you saw this once you have errors.");
+				LocalizationManager.getInstance().get("dialog.editablemodel_add_geosetvertex"));
 		}
 		if (!contains(x.geoset)) {
 			add(x.geoset);
@@ -2478,7 +2479,7 @@ public class EditableModel implements Named {
 	public void add(final Triangle x) {
 		if (x == null) {
 			JOptionPane.showMessageDialog(null,
-					"Added null Triangle component to model, which is really bad. Tell Retera you saw this once you have errors.");
+				LocalizationManager.getInstance().get("dialog.editablemodel_add_triangle"));
 		}
 		if (!contains(x.geoset)) {
 			add(x.geoset);
@@ -2492,7 +2493,7 @@ public class EditableModel implements Named {
 	public void add(final GeosetAnim x) {
 		if (x == null) {
 			JOptionPane.showMessageDialog(null,
-					"Added null GeosetAnim component to model, which is really bad. Tell Retera you saw this once you have errors.");
+				LocalizationManager.getInstance().get("dialog.editablemodel_add_geosetanim"));
 		}
 		geosetAnims.add(x);
 	}
@@ -2500,7 +2501,7 @@ public class EditableModel implements Named {
 	public void add(final IdObject x) {
 		if (x == null) {
 			JOptionPane.showMessageDialog(null,
-					"Added null IdObject component to model, which is really bad. Tell Retera you saw this once you have errors.");
+				LocalizationManager.getInstance().get("dialog.editablemodel_add_idobject"));
 		}
 		idObjects.add(x);
 		if ((x.pivotPoint != null) && !pivots.contains(x.pivotPoint)) {
@@ -2516,7 +2517,7 @@ public class EditableModel implements Named {
 	public void add(final Camera x) {
 		if (x == null) {
 			JOptionPane.showMessageDialog(null,
-					"Added null Camera component to model, which is really bad. Tell Retera you saw this once you have errors.");
+				LocalizationManager.getInstance().get("dialog.editablemodel_add_camera"));
 		}
 		cameras.add(x);
 		if (ModelUtils.isBindPoseSupported(formatVersion) && (bindPoseChunk != null)) {
@@ -2941,7 +2942,7 @@ public class EditableModel implements Named {
 				}
 				else {
 					JOptionPane.showMessageDialog(null,
-							"WARNING: Error with processing time-scale from TextureAnims! Program will attempt to proceed.");
+							LocalizationManager.getInstance().get("dialog.editablemodel_removealltimelinesforglobalseq_time_scale_textureanims"));
 				}
 			}
 		}
@@ -2958,7 +2959,7 @@ public class EditableModel implements Named {
 				}
 				else {
 					JOptionPane.showMessageDialog(null,
-							"WARNING: Error with processing time-scale from GeosetAnims! Program will attempt to proceed.");
+							LocalizationManager.getInstance().get("dialog.editablemodel_removealltimelinesforglobalseq_time_scale_geosetanims"));
 				}
 			}
 		}
@@ -3193,7 +3194,7 @@ public class EditableModel implements Named {
 			if (idObject instanceof ParticleEmitterPopcorn) {
 				incompatibleObjects.add(idObject);
 				if (((ParticleEmitterPopcorn) idObject).getPath().toLowerCase().contains("hero_glow")) {
-					System.out.println("HERO HERO HERO");
+					System.out.println(LocalizationManager.getInstance().get("dialog.editablemodel_converttov800_hero"));
 					final Bone dummyHeroGlowNode = new Bone("hero_reforged");
 					// this model needs hero glow
 					final Geoset heroGlow = new Geoset();
@@ -3461,7 +3462,7 @@ public class EditableModel implements Named {
 			if (idObject instanceof ParticleEmitterPopcorn) {
 				incompatibleObjects.add(idObject);
 				if (((ParticleEmitterPopcorn) idObject).getPath().toLowerCase().contains("hero_glow")) {
-					System.out.println("HERO HERO HERO");
+					System.out.println(LocalizationManager.getInstance().get("dialog.editablemodel_converttov800_hero"));
 					final Bone dummyHeroGlowNode = new Bone("hero_reforged");
 					// this model needs hero glow
 					final Geoset heroGlow = new Geoset();
@@ -3800,11 +3801,11 @@ public class EditableModel implements Named {
 		}
 		if (parent != null) {
 			JOptionPane.showMessageDialog(parent,
-					"Tangent generation completed.\nGood tangents: " + goodTangents + ", bad tangents: " + badTangents);
+					LocalizationManager.getInstance().get("dialog.editablemodel_recalculatetangents_tangent_generation") + goodTangents + ", " + LocalizationManager.getInstance().get("dialog.editablemodel_recalculatetangents_tangent_bad") + ": " + badTangents);
 		}
 		else {
 			System.out.println(
-					"Tangent generation completed.\nGood tangents: " + goodTangents + ", bad tangents: " + badTangents);
+					LocalizationManager.getInstance().get("dialog.editablemodel_recalculatetangents_tangent_generation") + goodTangents + ", " + LocalizationManager.getInstance().get("dialog.editablemodel_recalculatetangents_tangent_bad") + ": " + badTangents);
 		}
 	}
 

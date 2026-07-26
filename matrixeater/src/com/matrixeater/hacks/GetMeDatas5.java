@@ -16,13 +16,14 @@ import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 
 public class GetMeDatas5 {
 
 	public static void main(final String[] args) {
-		final JFrame frame = new JFrame("Rigborn Rotator");
+		final JFrame frame = new JFrame(LocalizationManager.getInstance().get("matrixeater.frame.getmedatas5_main"));
 
 		for (int ang = 0; ang < 36; ang++) {
 			final InputStream footman = MpqCodebase.get()

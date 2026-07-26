@@ -1,1 +1,1 @@
-include 'craft3data', 'craft3editor', 'matrixeater'
+include 'localizationmanager', 'craft3data', 'craft3editor', 'matrixeater'

@@ -21,6 +21,7 @@ import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class DrawVertexActivity implements ModelEditorViewportActivity {
 
@@ -79,7 +80,7 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 					locationCalculator.z, facingVector);
 			undoActionListener.pushAction(action);
 		} catch (final WrongModeException exc) {
-			JOptionPane.showMessageDialog(null, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, exc.getMessage(), LocalizationManager.getInstance().get("global.dialog.error"), JOptionPane.ERROR_MESSAGE);
 		}
 	}
 

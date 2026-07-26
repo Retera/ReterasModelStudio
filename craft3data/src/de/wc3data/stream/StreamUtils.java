@@ -1,4 +1,5 @@
 package de.wc3data.stream;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.IOException;
 
@@ -63,8 +64,8 @@ public class StreamUtils {
 		final String found = in.readCharsAsString(4);
 		if (!found.equals(name)) {
 			throw new IOException(
-					"Error loading model: CheckID failed, required " + name
-							+ " found " + found);
+					LocalizationManager.getInstance().get("exception.streamutils_checkId_failed") + name
+							+ LocalizationManager.getInstance().get("exception.streamutils_checkId_found") + found);
 		}
 	}
 
@@ -81,16 +82,16 @@ public class StreamUtils {
 	 * if(lastCheck != null){
 	 *
 	 * if(!name.equals(lastCheck)){ throw new IOException(
-	 * "Error loading model: CheckID failed after optinal check, required " +
-	 * name + " found " + lastCheck); }
+	 * LocalizationManager.getInstance().get("exception.streamutils_checkId_failed_optional") +
+	 * name + LocalizationManager.getInstance().get("exception.streamutils_checkId_found") + lastCheck); }
 	 *
 	 * lastCheck=null;
 	 *
 	 * }else{
 	 *
 	 * String found = in.readCharsAsString(4); if (!found.equals(name)) { throw
-	 * new IOException("Error loading model: CheckID failed, required " + name +
-	 * " found " + found); } } }
+	 * new IOException(LocalizationManager.getInstance().get("exception.streamutils_checkId_failed") + name +
+	 * LocalizationManager.getInstance().get("exception.streamutils_checkId_found") + found); } } }
 	 */
 
 	public static float[] loadFloatArray(final BlizzardDataInputStream in, final int size)

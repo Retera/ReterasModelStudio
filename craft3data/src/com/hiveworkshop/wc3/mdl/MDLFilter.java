@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.File;
 import java.util.Locale;
@@ -30,6 +31,6 @@ public class MDLFilter extends FileFilter {
 
 	@Override
 	public String getDescription() {
-		return "Warcraft III Model Files \"-.mdl\"";
+		return LocalizationManager.getInstance().get("exception.mdlfilter_mdlfilter_files") + " \"-.mdl\"";
 	}
 }

@@ -1,4 +1,5 @@
 package mpq;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import mpq.data.HashTableEntry;
 
@@ -22,7 +23,7 @@ public class HashTable {
 			pos = ( pos + 1 ) & mask;
 			if(pos == index) break;
 		}
-		throw new MPQException("lookup not found");
+		throw new MPQException(LocalizationManager.getInstance().get("exception.hashtable_lookupblock_found"));
 	}
 	
 	/*public static int lookupBlock(Entry[] hashtable, byte[] file) throws FileNotFoundException{

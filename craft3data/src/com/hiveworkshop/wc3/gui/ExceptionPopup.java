@@ -9,6 +9,8 @@ import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+import hiveworkshop.localizationmanager.LocalizationManager;
+
 public class ExceptionPopup {
 	public static void display(final Throwable e) {
 
@@ -20,7 +22,7 @@ public class ExceptionPopup {
 					doc.insertString(doc.getLength(), s, null);
 				}
 				catch (final BadLocationException e) {
-					JOptionPane.showMessageDialog(null, "MDL open error popup failed to create info popup.");
+					JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.exceptionpopup_display_create_info_popup_failed"));
 					e.printStackTrace();
 				}
 			}
@@ -41,7 +43,7 @@ public class ExceptionPopup {
 			}
 		};
 		final PrintStream ps = new PrintStream(stream);
-		ps.println("Unknown error occurred:");
+		ps.println(LocalizationManager.getInstance().get("println.exceptionpopup_display_unknown"));
 		e.printStackTrace(ps);
 		JOptionPane.showMessageDialog(null, pane);
 	}
@@ -56,7 +58,7 @@ public class ExceptionPopup {
 					doc.insertString(doc.getLength(), s, null);
 				}
 				catch (final BadLocationException e) {
-					JOptionPane.showMessageDialog(null, "MDL open error popup failed to create info popup.");
+					JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.exceptionpopup_display_create_info_popup_failed"));
 					e.printStackTrace();
 				}
 			}

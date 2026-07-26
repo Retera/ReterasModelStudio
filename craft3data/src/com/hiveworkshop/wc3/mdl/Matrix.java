@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public class Matrix {
 				}
 			}
 			else {
-				out = "Error bad bone list";
+				out = LocalizationManager.getInstance().get("string.matrix_getname_list");
 			}
 		}
 		else if (m_boneIds != null) {
@@ -54,7 +55,7 @@ public class Matrix {
 				}
 			}
 			else {
-				out = "Error bad bone ids";
+				out = LocalizationManager.getInstance().get("string.matrix_getname_ids");
 			}
 		}
 		return out;
@@ -76,19 +77,19 @@ public class Matrix {
 				m_boneIds.add(newId);
 			}
 			else {
-				new Exception("Matrix error").printStackTrace();
+				new Exception("exception.matrix_updateids_matrix").printStackTrace();
 				if ((System.currentTimeMillis() - lastPopupTimeHack) > 2000) {
 					JOptionPane.showMessageDialog(null,
-							"Error: A matrix's bone reference was missing in the model!\nDid you move geometry between models and forget to update bones?");
+							LocalizationManager.getInstance().get("dialog.matrix_updateids_model"));
 					lastPopupTimeHack = System.currentTimeMillis();
 				}
 			}
 		}
 		if ((m_boneIds.size() < sz1) || ((sz1 != 0) && (m_boneIds.size() == 0))) {
-			new Exception("Matrix error").printStackTrace();
+			new Exception("exception.matrix_updateids_matrix").printStackTrace();
 			if ((System.currentTimeMillis() - lastPopupTimeHack) > 2000) {
-				JOptionPane.showMessageDialog(null, "Error: bad sizes in matrix (" + (sz1 - m_boneIds.size())
-						+ " as difference, should be same size)");
+				JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.matrix_updateids_bad_sizes") + (sz1 - m_boneIds.size())
+						+ LocalizationManager.getInstance().get("dialog.matrix_updateids_same_size"));
 				lastPopupTimeHack = System.currentTimeMillis();
 			}
 		}
@@ -105,16 +106,15 @@ public class Matrix {
 			final Bone b = mdlr.getBone((Integer) m_boneIds.get(i));
 			// if( b.getClass() == Helper.class )
 			// {
-			// JOptionPane.showMessageDialog(null,"Error: Holy fo shizzle my
-			// grizzle! There's geometry attached to Helper "+b.getName()+" and
-			// that is very bad!");
+			// JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("dialog.matrix_updatebones_attached")+b.getName()+
+			// LocalizationManager.getInstance().get("dialog.matrix_updatebones_bad"));
 			// }
 			if (b != null) {
 				bones.add(b);
 			}
 			else {
-//				JOptionPane.showMessageDialog(null, "Error: A matrix's bone id was not referencing a real bone!");
-				System.err.println("Error: A matrix's bone id was not referencing a real bone! " + m_boneIds.get(i));
+//				JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.matrix_updatebones_referencing"));
+				System.err.println(LocalizationManager.getInstance().get("dialog.matrix_updatebones_referencing") + m_boneIds.get(i));
 			}
 		}
 	}
@@ -161,9 +161,8 @@ public class Matrix {
 		else if ((bones != null) && (bones.size() > 0)) {
 			return bones.size();
 		}
-		// JOptionPane.showMessageDialog(null,"Warning: A matrix with no
-		// contents was used!");
-		// System.out.println("Warning: A matrix with no contents was used!");
+		// JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("dialog.matrix_size_warning"));
+		// System.out.println(LocalizationManager.getInstance().get("dialog.matrix_size_warning"));
 		return -1;// bad stuff
 	}
 
@@ -180,7 +179,7 @@ public class Matrix {
 			}
 			catch (final NumberFormatException e) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error \"" + input + "\": Matrix data could not be interpreted.");
+						LocalizationManager.getInstance().get("global.dialog.error") + " \"" + input + "\": " + LocalizationManager.getInstance().get("dialog.matrix_parsetext_interpreted"));
 			}
 		}
 		else {
@@ -189,7 +188,7 @@ public class Matrix {
 			}
 			catch (final NumberFormatException e) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error \"" + input + "\": Matrix data could not be interpreted.");
+						LocalizationManager.getInstance().get("global.dialog.error") + " \"" + input + "\": " + LocalizationManager.getInstance().get("dialog.matrix_parsetext_interpreted"));
 			}
 			for (int i = 1; i < size; i++) {
 				try {
@@ -197,7 +196,7 @@ public class Matrix {
 				}
 				catch (final NumberFormatException e) {
 					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-							"Error \"" + input + "\": Matrix data could not be interpreted.");
+							LocalizationManager.getInstance().get("global.dialog.error") + " \"" + input + "\": " + LocalizationManager.getInstance().get("dialog.matrix_parsetext_interpreted"));
 				}
 			}
 		}
@@ -216,12 +215,12 @@ public class Matrix {
 			tabs = tabs + "\t";
 		}
 		if (m_boneIds.size() > 0) {
-			writer.print(tabs + "Matrices { " + m_boneIds.get(0).toString());
+			writer.print(tabs + LocalizationManager.getInstance().get("println.matrix_printto_matrices") + " { " + m_boneIds.get(0).toString());
 		}
 		else {
-			writer.print(tabs + "Matrices { -1");
+			writer.print(tabs + LocalizationManager.getInstance().get("println.matrix_printto_matrices") + " { -1");
 		}
-		// writer.print(tabs+"Matrices { "+bones.get(0).getClass().getName());
+		// writer.print(tabs+LocalizationManager.getInstance().get("println.matrix_printto_matrices") + " { "+bones.get(0).getClass().getName());
 		for (int i = 1; i < bones.size(); i++) {
 			writer.print(", " + m_boneIds.get(i));
 			// writer.print(", "+bones.get(i).getClass().getName());

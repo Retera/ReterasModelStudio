@@ -8,6 +8,7 @@ import java.nio.ByteOrder;
 import com.hiveworkshop.blizzard.casc.Key;
 import com.hiveworkshop.blizzard.casc.nio.HashMismatchException;
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * High level storage container representing a storage entry.
@@ -48,16 +49,16 @@ public class StorageContainer {
 			checksumA = containerBuffer.getInt();
 			checksumB = containerBuffer.getInt();
 		} catch (final BufferUnderflowException e) {
-			throw new MalformedCASCStructureException("storage buffer too small");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.storagecontainer_storage_buffer_small"));
 		}
 
 		final int computedA = checksumA; // TODO compute this
 		final int computedB = checksumB; // TODO compute this
 		if (checksumA != computedA) {
-			throw new HashMismatchException("container checksum A mismatch");
+			throw new HashMismatchException(LocalizationManager.getInstance().get("exception.storagecontainer_a_mismatch"));
 		}
 		if (checksumB != computedB) {
-			throw new HashMismatchException("container checksum B mismatch");
+			throw new HashMismatchException(LocalizationManager.getInstance().get("exception.storagecontainer_b_mismatch"));
 		}
 
 		storageBuffer.position(storageBuffer.position() + containerBuffer.position());

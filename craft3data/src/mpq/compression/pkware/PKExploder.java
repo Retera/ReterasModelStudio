@@ -1,4 +1,5 @@
 package mpq.compression.pkware;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -132,7 +133,7 @@ public class PKExploder {
 		        	if(source >= 0)
 		        		out.put(target++, out.get(source++));
 		        	else{
-		        		throw new PKException("distance pointing before output");
+		        		throw new PKException(LocalizationManager.getInstance().get("exception.pkexploder_expand_pointing"));
 		        	}
 		        	length_code-= 1;
 		        }
@@ -155,9 +156,9 @@ public class PKExploder {
 					break;
 				case CMP_ASCII:
 					// TODO add ASCII decompression stuff here
-					System.err.println("pkware ascii compression not supported");
+					System.err.println(LocalizationManager.getInstance().get("exception.pkexploder_expand_compression"));
 					return;
-				default: throw new PKException("invalid compression mode");
+				default: throw new PKException(LocalizationManager.getInstance().get("exception.pkexploder_expand_invalid"));
 				}
 			}
 		}
@@ -167,7 +168,7 @@ public class PKExploder {
 		// set in and out buffers
 		this.in = in;
 		this.out = out;
-		if( in.remaining() <= 4 ) throw new PKException("received bad data");
+		if( in.remaining() <= 4 ) throw new PKException(LocalizationManager.getInstance().get("exception.pkexploder_explode_received"));
 		
 		// initialize state with compression header
 		ctype = in.get();
@@ -176,7 +177,7 @@ public class PKExploder {
 		extra_bits = 0;
 		
 		// dictionary size mask
-		if( dsize_bits < 4 || 6 < dsize_bits  ) throw new PKException("invalid dictionary size");
+		if( dsize_bits < 4 || 6 < dsize_bits  ) throw new PKException(LocalizationManager.getInstance().get("exception.pkexploder_explode_dictionary"));
 		dsize_mask = (byte) (0xFFFF >> (0x10 - dsize_bits));
 		
 		// setup compression type dependent data
@@ -184,16 +185,16 @@ public class PKExploder {
 		case CMP_BINARY: break;
 		case CMP_ASCII:
 			// TODO add ASCII decompression stuff here
-			System.err.println("pkware ascii compression not supported");
+			System.err.println(LocalizationManager.getInstance().get("exception.pkexploder_explode_compression"));
 			return;
-		default: throw new PKException("invalid compression mode");
+		default: throw new PKException(LocalizationManager.getInstance().get("exception.pkexploder_explode_invalid"));
 		}
 		
 		// perform explode
         try{
         	expand();
         }catch( BufferUnderflowException e ){
-        	throw new PKException("unexpected end of data");
+        	throw new PKException(LocalizationManager.getInstance().get("exception.pkexploder_explode_unexpected"));
         }
 		
 	}

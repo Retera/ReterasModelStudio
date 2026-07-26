@@ -5,6 +5,7 @@ import java.util.Collection;
 import javax.swing.JOptionPane;
 
 import org.lwjgl.util.vector.Vector4f;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class Vertex {
 	public static final Vertex ORIGIN = new Vertex(0, 0, 0);
@@ -146,19 +147,19 @@ public class Vertex {
 			x = Double.parseDouble(entries[0].split("\\{")[1]);
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") + " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.vertex_parsetext_interpreted"));
 		}
 		try {
 			y = Double.parseDouble(entries[1]);
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.erroror") + " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.vertex_parsetext_interpreted"));
 		}
 		try {
 			z = Double.parseDouble(entries[2].split("}")[0]);
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") + " {" + input + "}: " +LocalizationManager.getInstance().get("dialog.vertex_parsetext_interpreted"));
 		}
 		temp = new Vertex(x, y, z);
 		return temp;

@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import javax.swing.JOptionPane;
 
@@ -21,19 +22,19 @@ public class Normal extends Vertex {
 			x = Double.parseDouble(entries[0].split("\\{")[1]);
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") +" {" + input + "}: " + LocalizationManager.getInstance().get("dialog.normal_parsetext_coordinates"));
 		}
 		try {
 			y = Double.parseDouble(entries[1]);
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") + " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.normal_parsetext_coordinates"));
 		}
 		try {
 			z = Double.parseDouble(entries[2].split("}")[0]);
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
+					LocalizationManager.getInstance().get("global.dialog.error") + " {" + input + "}: " + LocalizationManager.getInstance().get("dialog.normal_parsetext_coordinates"));
 		}
 		temp = new Normal(x, y, z);
 		return temp;

@@ -8,6 +8,7 @@ import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.util.ModelUtils;
 import com.hiveworkshop.wc3.util.ModelUtils.Mesh;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class DrawBoxAction implements GenericMoveAction {
 
@@ -117,7 +118,7 @@ public class DrawBoxAction implements GenericMoveAction {
 
 	@Override
 	public String actionName() {
-		return "create box";
+		return LocalizationManager.getInstance().get("string.drawboxaction_actionname");
 	}
 
 	public Mesh getPlane() {

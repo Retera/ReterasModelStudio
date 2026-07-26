@@ -92,6 +92,7 @@ import com.hiveworkshop.wc3.mdl.render3d.RenderResourceAllocator;
 import com.hiveworkshop.wc3.mdl.render3d.RenderRibbonEmitter;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.util.MathUtils;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class PerspectiveViewport extends BetterAWTGLCanvas
 		implements MouseListener, ActionListener, MouseWheelListener, RenderResourceAllocator {
@@ -159,10 +160,10 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		addMouseWheelListener(this);
 
 		contextMenu = new JPopupMenu();
-		reAssignMatrix = new JMenuItem("Re-assign Matrix");
+		reAssignMatrix = new JMenuItem(LocalizationManager.getInstance().get("menuitem.perspectiveviewport_perspectiveviewport_reassign_matrix"));
 		reAssignMatrix.addActionListener(this);
 		contextMenu.add(reAssignMatrix);
-		cogBone = new JMenuItem("Auto-Center Bone(s)");
+		cogBone = new JMenuItem(LocalizationManager.getInstance().get("menuitem.perspectiveviewport_perspectiveviewport_aAuto_center_bone"));
 		cogBone.addActionListener(this);
 		contextMenu.add(cogBone);
 
@@ -367,7 +368,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			}
 		}
 		catch (final Throwable e) {
-			JOptionPane.showMessageDialog(null, "initGL failed because of this exact reason:\n"
+			JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.perspectiveviewport_initgl_failed")
 					+ e.getClass().getSimpleName() + ": " + e.getMessage());
 			throw new RuntimeException(e);
 		}
@@ -455,7 +456,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			}
 			catch (final Exception e) {
 				e.printStackTrace();
-				ExceptionPopup.display("Error loading textures:", e);
+				ExceptionPopup.display(LocalizationManager.getInstance().get("display.perspectiveviewport_paintgl_loading_textures"), e);
 			}
 		}
 		else if (wantReload) {
@@ -465,7 +466,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			}
 			catch (final Exception e) {
 				e.printStackTrace();
-				ExceptionPopup.display("Error loading new texture:", e);
+				ExceptionPopup.display(LocalizationManager.getInstance().get("display.perspectiveviewport_paintgl_loading_new_textures"), e);
 			}
 		}
 		else if (!texLoaded && ((programPreferences == null) || programPreferences.textureModels())) {
@@ -1103,20 +1104,20 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		}
 		else if (e.getSource() == reAssignMatrix) {
 			// MatrixPopup matrixPopup = new MatrixPopup(dispMDL.getMDL());
-			// String[] words = { "Accept", "Cancel" };
+			// String[] words = { LocalizationManager.getInstance().get("global.button.accept"), LocalizationManager.getInstance().get("global.button.cancel") };
 			// int i = JOptionPane.showOptionDialog(MainFrame.panel,
 			// matrixPopup,
-			// "Rebuild Matrix", JOptionPane.PLAIN_MESSAGE,
+			// LocalizationManager.getInstance().get("dialog.perspectiveviewport_actionperformed_rebuild_matrix"), JOptionPane.PLAIN_MESSAGE,
 			// JOptionPane.YES_NO_OPTION, null, words, words[1]);
 			// if (i == 0) {
-			// // JOptionPane.showMessageDialog(null,"action approved");
+			// // JOptionPane.showMessageDialog(null,LocalizationManager.getInstance().get("dialog.perspectiveviewport_actionperformed_approved"));
 			// dispMDL.setMatrix(matrixPopup.newRefs);
 			// }
 		}
 		else if (e.getSource() == cogBone) {
 			// modelView.cogBones();
 			JOptionPane.showMessageDialog(this,
-					"Please use other viewport, this action is not implemented for this viewport.");
+					LocalizationManager.getInstance().get("dialog.perspectiveviewport_actionperformed_viewport_not_implemented"));
 		}
 	}
 

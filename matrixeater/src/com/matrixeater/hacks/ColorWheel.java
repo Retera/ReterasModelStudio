@@ -12,6 +12,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
+import hiveworkshop.localizationmanager.LocalizationManager;
+
 public class ColorWheel extends JPanel {
 	private double angle;
 
@@ -108,7 +110,7 @@ public class ColorWheel extends JPanel {
 	}
 
 	public static void main(final String[] args) {
-		final JFrame frame = new JFrame("Test");
+		final JFrame frame = new JFrame(LocalizationManager.getInstance().get("matrixeater.frame.main"));
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.setContentPane(new ColorWheel());
 		frame.pack();

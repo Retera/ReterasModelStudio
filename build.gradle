@@ -50,6 +50,7 @@ project(":matrixeater") {
     dependencies {
         implementation project(":craft3data")
         implementation project(":craft3editor")
+        implementation project(":localizationmanager")
         api "com.fifesoft:rsyntaxtextarea:$rsyntaxtextareaVersion"
         api "org.openjdk.nashorn:nashorn-core:${nashornVersion}"
     }
@@ -61,6 +62,7 @@ project(":craft3editor") {
 
     dependencies {
         implementation project(":craft3data")
+        implementation project(":localizationmanager")
         api "org.jclarion:image4j:$image4jVersion"
     }
 }
@@ -70,8 +72,9 @@ project(":craft3data") {
 
 
     dependencies {
-        api "com.jtattoo:JTattoo:$jtattooVersion"
-        api "com.miglayout:miglayout-swing:$miglayoutVersion"
+		implementation project(":localizationmanager")
+		api "com.jtattoo:JTattoo:$jtattooVersion"
+		api "com.miglayout:miglayout-swing:$miglayoutVersion"
 		api "org.lwjgl.lwjgl:lwjgl:${lwjglVersion}"
 		api "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-windows"
 		api "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-linux"
@@ -82,6 +85,15 @@ project(":craft3data") {
 //        compile "com.github.ebourg:infonode:master"
 //        compile "com.github.DrSuperGood:blp-iio-plugin:master"
 		api files(fileTree(dir:'../jars', includes: ['*.jar']))
+    }
+}
+
+project(":localizationmanager") {
+    apply plugin: "java-library"
+
+
+    dependencies {
+        // 添加该模块需要的依赖
     }
 }
 

@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public final class SimpleRotateAction implements UndoAction {
 	private final ModelEditor modelEditor;
@@ -32,7 +33,7 @@ public final class SimpleRotateAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "rotate";
+		return LocalizationManager.getInstance().get("string.simplerotateaction_actionname");
 	}
 
 }

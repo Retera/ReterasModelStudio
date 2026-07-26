@@ -19,6 +19,7 @@ import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public final class VertexGroupSelectionManager extends AbstractSelectionManager<VertexGroupBundle> {
 	private static final Color GROUP_SELECTED_COLOR = new Color(1f, 0.75f, 0.45f, 0.3f);
@@ -108,22 +109,22 @@ public final class VertexGroupSelectionManager extends AbstractSelectionManager<
 
 	@Override
 	public TVertex getUVCenter(final int tvertexLayerId) {
-		throw new UnsupportedOperationException("Not yet implemented");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.vertexgroupselectionmanager_getuvcenter"));
 	}
 
 	@Override
 	public Collection<? extends TVertex> getSelectedTVertices(final int tvertexLayerId) {
-		throw new UnsupportedOperationException("Not yet implemented");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.vertexgroupselectionmanager_getselectedtvertices"));
 	}
 
 	@Override
 	public double getCircumscribedSphereRadius(final TVertex center, final int tvertexLayerId) {
-		throw new UnsupportedOperationException("Not yet implemented");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.vertexgroupselectionmanager_getcircumscribedsphereradius"));
 	}
 
 	@Override
 	public void renderUVSelection(final TVertexModelElementRenderer renderer, final ModelView modelView,
 			final ProgramPreferences programPreferences, final int tvertexLayerId) {
-		throw new UnsupportedOperationException("Not yet implemented");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.vertexgroupselectionmanager_renderuvselection"));
 	}
 }

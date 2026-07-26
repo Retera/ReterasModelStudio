@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdlx;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +36,7 @@ public class ParseEveryBtTModel {
 							for (int seq = 0; seq < loadModel.sequenceChunk.sequence.length; seq++) {
 								final Sequence sequence = loadModel.sequenceChunk.sequence[seq];
 								if (sequence.syncPoint != 0) {
-									System.err.println("SYNC POINT NONZERO: " + sequence.syncPoint + " in " + str);
+									System.err.println(LocalizationManager.getInstance().get("println.parseeverybttmodel_main_sync") + sequence.syncPoint + LocalizationManager.getInstance().get("println.parseeverybttmodel_main_in") + str);
 								}
 							}
 						}
@@ -45,7 +46,7 @@ public class ParseEveryBtTModel {
 					}
 				}
 			}
-			System.err.println("parsed " + parsed + " successfully");
+			System.err.println(LocalizationManager.getInstance().get("println.parseeverybttmodel_main_parsed") + parsed + LocalizationManager.getInstance().get("println.parseeverybttmodel_main_successfully"));
 		} catch (final MPQException e1) {
 			e1.printStackTrace();
 		} catch (final IOException e1) {

@@ -33,6 +33,7 @@ import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import de.wc3data.image.TgaFile;
 
@@ -191,7 +192,7 @@ public class BLPHandler {
 			return in;
 		}
 		if (inCS.getNumComponents() != sRGBCS.getNumComponents()) {
-			throw new IllegalArgumentException("Input color space has different number of components from sRGB.");
+			throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.blphandler_forcebufferedimagesrgb_color_space"));
 		}
 
 		// Draw input.
@@ -217,7 +218,7 @@ public class BLPHandler {
 	public static BufferedImage readCustom(final File file) throws IOException {
 		final ImageInputStream stream = new FileImageInputStream(file);
 		if (stream == null) {
-			throw new IllegalArgumentException("stream == null!");
+			throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.blphandler_readcustom_stream") + " == null!");
 		}
 
 		final Iterator iter = ImageIO.getImageReaders(stream);
@@ -307,7 +308,7 @@ public class BLPHandler {
 			final Bitmap selectedValue, final File file) {
 		if (file.exists()) {
 			final int confirmOption = JOptionPane.showConfirmDialog(component,
-					"File \"" + file.getPath() + "\" already exists. Continue?", "Confirm Export",
+					LocalizationManager.getInstance().get("dialog.blphandler_exportbitmaptexturefile_1") + " \"" + file.getPath() + "\" " + LocalizationManager.getInstance().get("dialog.blphandler_exportbitmaptexturefile_2"), LocalizationManager.getInstance().get("dialog.blphandler_exportbitmaptexturefile_3"),
 					JOptionPane.YES_NO_OPTION);
 			if (confirmOption == JOptionPane.NO_OPTION) {
 				return;
@@ -319,7 +320,7 @@ public class BLPHandler {
 		String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1).toUpperCase();
 		if (fileExtension.equals("BMP") || fileExtension.equals("JPG") || fileExtension.equals("JPEG")) {
 			JOptionPane.showMessageDialog(component,
-					"Warning: Alpha channel was converted to black. Some data will be lost\nif you convert this texture back to Warcraft BLP.");
+					LocalizationManager.getInstance().get("dialog.blphandler_exportbitmaptexturefile_alpha_black"));
 			bufferedImage = removeAlphaChannel(bufferedImage);
 		}
 		if (fileExtension.equals("BLP")) {
@@ -359,7 +360,7 @@ public class BLPHandler {
 			try {
 				write = ImageIO.write(bufferedImage, fileExtension, file);
 				if (!write) {
-					JOptionPane.showMessageDialog(component, "File type unknown or unavailable");
+					JOptionPane.showMessageDialog(component, LocalizationManager.getInstance().get("dialog.blphandler_exportbitmaptexturefile_file_unknown"));
 				}
 			}
 			catch (final IOException e) {

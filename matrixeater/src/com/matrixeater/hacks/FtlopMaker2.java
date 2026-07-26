@@ -11,6 +11,7 @@ import com.hiveworkshop.json.JSONArray;
 import com.hiveworkshop.json.JSONObject;
 import com.hiveworkshop.json.JSONTokener;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class FtlopMaker2 {
 
@@ -30,7 +31,7 @@ public class FtlopMaker2 {
 //								dest.toLowerCase(Locale.US).replace('/', '\\'));
 				final Path resolve = Paths.get("E:\\Games\\FtlopModLocalFiles\\").resolve(src);
 				Files.createDirectories(resolve.getParent());
-				System.out.println("copying " + dest + " -> " + src);
+				System.out.println(LocalizationManager.getInstance().get("matrixeater.println.ftlopmaker2_copy") + dest + " -> " + src);
 				try {
 					Files.copy(Paths.get("E:\\Games\\FtlopModLocalFiles\\").resolve(dest), resolve,
 							StandardCopyOption.REPLACE_EXISTING);

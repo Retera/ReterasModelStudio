@@ -17,6 +17,7 @@
 /* Included in MatrixEater by Retera for deployability */
 
 package com.badlogic.gdx.utils;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -88,7 +89,7 @@ public class SharedLibraryLoader {
 	/** Returns a CRC of the remaining bytes in the stream. */
 	public String crc(final InputStream input) {
 		if (input == null) {
-			throw new IllegalArgumentException("input cannot be null.");
+			throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.streamutils"));
 		}
 		final CRC32 crc = new CRC32();
 		final byte[] buffer = new byte[4096];
@@ -146,7 +147,7 @@ public class SharedLibraryLoader {
 				}
 				setLoaded(libraryName);
 			} catch (final Throwable ex) {
-				throw new RuntimeException("Couldn't load shared library '" + platformName + "' for target: "
+				throw new RuntimeException(LocalizationManager.getInstance().get("exception.platformname_1") + platformName + LocalizationManager.getInstance().get("exception.platformname_2")
 						+ System.getProperty("os.name") + (is64Bit ? ", 64-bit" : ", 32-bit"), ex);
 			}
 		}
@@ -156,7 +157,7 @@ public class SharedLibraryLoader {
 		if (nativesJar == null) {
 			final InputStream input = SharedLibraryLoader.class.getResourceAsStream("/" + path);
 			if (input == null) {
-				throw new RuntimeException("Unable to read file for extraction: " + path);
+				throw new RuntimeException(LocalizationManager.getInstance().get("exception.readfile") + path);
 			}
 			return input;
 		}
@@ -166,11 +167,11 @@ public class SharedLibraryLoader {
 			final ZipFile file = new ZipFile(nativesJar);
 			final ZipEntry entry = file.getEntry(path);
 			if (entry == null) {
-				throw new RuntimeException("Couldn't find '" + path + "' in JAR: " + nativesJar);
+				throw new RuntimeException(LocalizationManager.getInstance().get("exception.zipfile_1") + path + LocalizationManager.getInstance().get("exception.zipfile_2") + nativesJar);
 			}
 			return file.getInputStream(entry);
 		} catch (final IOException ex) {
-			throw new RuntimeException("Error reading '" + path + "' in JAR: " + nativesJar, ex);
+			throw new RuntimeException(LocalizationManager.getInstance().get("exception.zipfile_catch_1") + path + LocalizationManager.getInstance().get("exception.zipfile_catch_2") + nativesJar, ex);
 		}
 	}
 
@@ -196,7 +197,7 @@ public class SharedLibraryLoader {
 				extractedFile = getExtractedFile(UUID.randomUUID().toString(), new File(sourcePath).getName());
 				if (extractedFile == null) {
 					throw new RuntimeException(
-							"Unable to find writable path to extract file. Is the user home directory writable?");
+							LocalizationManager.getInstance().get("exception.extractfile_extractedfile"));
 				}
 			}
 			return extractFile(sourcePath, sourceCrc, extractedFile);
@@ -346,7 +347,7 @@ public class SharedLibraryLoader {
 				output.close();
 			} catch (final IOException ex) {
 				throw new RuntimeException(
-						"Error extracting file: " + sourcePath + "\nTo: " + extractedFile.getAbsolutePath(), ex);
+						LocalizationManager.getInstance().get("exception.extractfile_extractedcrc_1") + sourcePath + LocalizationManager.getInstance().get("exception.extractfile_extractedcrc_2") + extractedFile.getAbsolutePath(), ex);
 			}
 		}
 

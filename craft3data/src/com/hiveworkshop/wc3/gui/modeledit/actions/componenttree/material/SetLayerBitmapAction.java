@@ -5,6 +5,7 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeLis
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Layer;
 import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class SetLayerBitmapAction implements UndoAction {
 
@@ -48,7 +49,7 @@ public class SetLayerBitmapAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set Layer Bitmap";
+		return LocalizationManager.getInstance().get("string.setlayerbitmapaction_actionname");
 	}
 
 }

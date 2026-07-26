@@ -53,6 +53,7 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.BindPoseChunk;
 import com.hiveworkshop.wc3.mdx.FaceEffectsChunk.FaceEffect;
 import com.hiveworkshop.wc3.util.IconUtils;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public final class ModelComponentAnimFlagTree extends JTree {
 	private static boolean TREEIFY_NODES = false;
@@ -125,7 +126,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 	}
 
 	public void reloadFromModelView() {
-		System.out.println("Reloading ModelComponentBrowserTree");
+		System.out.println(LocalizationManager.getInstance().get("println.modelcomponentanimflagtree"));
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -229,7 +230,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 				undoActionListener, modelStructureChangeListener, modelViewManager.getModel()));
 
 		final DefaultMutableTreeNode materials = new DefaultMutableTreeNode(new ChooseableDummyItem(modelViewManager,
-				undoActionListener, modelStructureChangeListener, "Materials"));
+				undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("string.modelcomponentbrowsertree_buildtreemodel_materials")));
 		for (final Material item : modelViewManager.getModel().getMaterials()) {
 			final DefaultMutableTreeNode materialNode = new DefaultMutableTreeNode(new ChooseableMaterialItem(
 					modelViewManager, undoActionListener, modelStructureChangeListener, item));
@@ -247,7 +248,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		}
 		root.add(materials);
 		final DefaultMutableTreeNode tVertexAnims = new DefaultMutableTreeNode(new ChooseableDummyItem(modelViewManager,
-				undoActionListener, modelStructureChangeListener, "TVertexAnims"));
+				undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_buildtreemodel_tvertexanims")));
 		for (final TextureAnim item : modelViewManager.getModel().getTexAnims()) {
 			final DefaultMutableTreeNode tvertexAnimNode = new DefaultMutableTreeNode(new ChooseableTextureAnimItem(
 					modelViewManager, undoActionListener, modelStructureChangeListener, item));
@@ -260,7 +261,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		}
 		root.add(tVertexAnims);
 		final DefaultMutableTreeNode geosetAnims = new DefaultMutableTreeNode(new ChooseableDummyItem(modelViewManager,
-				undoActionListener, modelStructureChangeListener, "GeosetAnims"));
+				undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_buildtreemodel_geosetanims")));
 		for (final GeosetAnim item : modelViewManager.getModel().getGeosetAnims()) {
 			final DefaultMutableTreeNode geosetAnimNode = new DefaultMutableTreeNode(new ChooseableGeosetAnimItem(
 					modelViewManager, undoActionListener, modelStructureChangeListener, item));
@@ -309,7 +310,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		final Map<IdObject, DefaultMutableTreeNode> nodeToTreeElement = new HashMap<>();
 		final Map<IdObject, List<DefaultMutableTreeNode>> nodeToChildrenAwaitingLink = new HashMap<>();
 		final DefaultMutableTreeNode nodes = new DefaultMutableTreeNode(
-				new ChooseableDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "Nodes"));
+				new ChooseableDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_buildtreemodel_nodes")));
 		nodeToTreeElement.put(null, nodes);
 		for (final IdObject object : modelViewManager.getModel().getIdObjects()) {
 			object.apply(converter);
@@ -352,7 +353,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		root.add(nodes);
 
 		final DefaultMutableTreeNode cameras = new DefaultMutableTreeNode(
-				new ChooseableDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "Cameras"));
+				new ChooseableDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_buildtreemodel_cameras")));
 		for (final Camera item : modelViewManager.getModel().getCameras()) {
 			cameras.add(new DefaultMutableTreeNode(new ChooseableCameraItem(modelViewManager, undoActionListener,
 					modelStructureChangeListener, item)));
@@ -509,7 +510,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final EditableModel item, final ModelViewManager modelViewManager) {
-			return "Model \"" + item.getHeaderName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseablemodelroot_model") + " \"" + item.getHeaderName() + "\"";
 		}
 
 		@Override
@@ -540,7 +541,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final EditableModel item, final ModelViewManager modelViewManager) {
-			return "Comment";
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseablemodelcomment_comment");
 		}
 
 		@Override
@@ -571,7 +572,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final EditableModel item, final ModelViewManager modelViewManager) {
-			return "Header";
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseablemodelheader_header");
 		}
 
 		@Override
@@ -601,7 +602,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final Animation item, final ModelViewManager modelViewManager) {
-			return "Anim \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseableanimationitem_anim") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -636,7 +637,9 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final Integer item, final ModelViewManager modelViewManager) {
-			return "GlobalSequence " + globalSeqId + ": Duration " + item;
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseableglobalsequenceitem_1")
+			+ globalSeqId +
+			LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseableglobalsequenceitem_2") + item;
 		}
 
 		@Override
@@ -672,7 +675,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final Bitmap item, final ModelViewManager modelViewManager) {
-			return "Bitmap \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseablebitmapitem") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -703,7 +706,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final Material item, final ModelViewManager modelViewManager) {
-			return "Material " + modelViewManager.getModel().getMaterials().indexOf(item);
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseablematerialitem") + modelViewManager.getModel().getMaterials().indexOf(item);
 		}
 
 		@Override
@@ -787,7 +790,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final AnimFlag item, final ModelViewManager modelViewManager) {
-			return item.getName() + " Track";
+			return item.getName() + LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseableanimflagitem");
 		}
 
 		@Override
@@ -822,7 +825,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final TextureAnim item, final ModelViewManager modelViewManager) {
-			return "TextureAnim " + modelViewManager.getModel().getTexAnims().indexOf(item);
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseabletextureanimitem") + modelViewManager.getModel().getTexAnims().indexOf(item);
 		}
 
 		@Override
@@ -853,7 +856,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final Geoset item, final ModelViewManager modelViewManager) {
-			final String numberName = "Geoset " + (modelViewManager.getModel().getGeosetId(item) + 1);
+			final String numberName = LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseablegeosetitem") + (modelViewManager.getModel().getGeosetId(item) + 1);
 			if (item.getLevelOfDetailName() != null && item.getLevelOfDetailName().length() > 0) {
 				return numberName + ": " + item.getLevelOfDetailName();
 			}
@@ -891,8 +894,9 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		@Override
 		protected String getName(final GeosetAnim item, final ModelViewManager modelViewManager) {
 			final Geoset geoset = item.getGeoset();
-			return "GeosetAnim " + modelViewManager.getModel().getGeosetAnims().indexOf(item) + ": "
-					+ (geoset == null ? "GeosetId " + item.getGeosetId()
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseablegeosetanimitem_1")
+				+ modelViewManager.getModel().getGeosetAnims().indexOf(item) + ": "
+					+ (geoset == null ? LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseablegeosetanimitem_2") + item.getGeosetId()
 							: geoset.getUIName(modelViewManager.getModel()));
 		}
 
@@ -923,7 +927,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final Bone item, final ModelViewManager modelViewManager) {
-			return "Bone \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseableboneitem") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -954,7 +958,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final Helper item, final ModelViewManager modelViewManager) {
-			return "Helper \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseablehelperitem") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -984,7 +988,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final Light item, final ModelViewManager modelViewManager) {
-			return "Light \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseablelightiItem") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -1015,7 +1019,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final Attachment item, final ModelViewManager modelViewManager) {
-			return "Attachment \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseableattachmentitem") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -1046,7 +1050,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final ParticleEmitter item, final ModelViewManager modelViewManager) {
-			return "ParticleEmitter \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseableparticleemitteritem") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -1077,7 +1081,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final ParticleEmitter2 item, final ModelViewManager modelViewManager) {
-			return "ParticleEmitter2 \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseableparticleemitter2item") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -1109,7 +1113,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final ParticleEmitterPopcorn item, final ModelViewManager modelViewManager) {
-			return "ParticleEmitterPopcorn \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseableparticleemitterpopcornitem") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -1140,7 +1144,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final RibbonEmitter item, final ModelViewManager modelViewManager) {
-			return "RibbonEmitter \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseableribbonemitteritem") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -1171,7 +1175,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final EventObject item, final ModelViewManager modelViewManager) {
-			return "EventObject \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseableeventobjectitem") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -1201,7 +1205,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final CollisionShape item, final ModelViewManager modelViewManager) {
-			return "CollisionShape \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseablecollisionshapeitem") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -1231,7 +1235,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final Camera item, final ModelViewManager modelViewManager) {
-			return "Camera \"" + item.getName() + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseablecameraitem") + " \"" + item.getName() + "\"";
 		}
 
 		@Override
@@ -1261,7 +1265,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final FaceEffect item, final ModelViewManager modelViewManager) {
-			return "FaceFX \"" + item.faceEffectTarget + "\"";
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseablefaceeffectschunkitem") + " \"" + item.faceEffectTarget + "\"";
 		}
 
 		@Override
@@ -1292,7 +1296,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final BindPoseChunk item, final ModelViewManager modelViewManager) {
-			return "BindPoseChunk";
+			return LocalizationManager.getInstance().get("string.modelcomponentanimflagtree_chooseablebindposechunkitem");
 		}
 
 		@Override

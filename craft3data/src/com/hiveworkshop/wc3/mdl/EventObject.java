@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -44,8 +45,8 @@ public class EventObject extends IdObject {
 		// System.out.println(getName() + ": " +
 		// Integer.toBinaryString(mdxSource.node.flags));
 		if ((mdxSource.node.flags & 1024) != 1024) {
-			System.err.println("MDX -> MDL error: An eventobject '" + mdxSource.node.name
-					+ "' not flagged as eventobject in MDX!");
+			System.err.println(LocalizationManager.getInstance().get("println.eventobject_eventobject_error") + " '" + mdxSource.node.name
+					+ "' " + LocalizationManager.getInstance().get("println.eventobject_eventobject_not_flagged"));
 		}
 		// System.out.println(emitter.node.name + ": " +
 		// Integer.toBinaryString(emitter.node.flags));
@@ -129,7 +130,7 @@ public class EventObject extends IdObject {
 						e.hasGlobalSeq = true;
 					} else {
 						JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-								"Error while parsing event object: More than one Global Sequence Id is present in the same object!");
+								LocalizationManager.getInstance().get("dialog.eventobject_eventobject_more_global_sequence"));
 					}
 				} else if (!line.contains("{") && !line.contains("}")) {
 					e.eventTrack.add(new Integer(MDLReader.readInt(line)));
@@ -140,7 +141,7 @@ public class EventObject extends IdObject {
 			return e;
 		} else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse EventObject: Missing or unrecognized open statement.");
+					LocalizationManager.getInstance().get("dialog.eventobject_eventobject_unable_parse"));
 		}
 		return null;
 	}
@@ -154,21 +155,21 @@ public class EventObject extends IdObject {
 		final ArrayList<AnimFlag> pAnimFlags = new ArrayList<>(this.animFlags);
 		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
 		if (objectId != -1) {
-			writer.println("\tObjectId " + objectId + ",");
+			writer.println(LocalizationManager.getInstance().get("println.eventobject_printto_objectid") + objectId + ",");
 		}
 		if (parentId != -1) {
-			writer.println("\tParent " + parentId + ",\t// \"" + getParent().getName() + "\"");
+			writer.println(LocalizationManager.getInstance().get("println.eventobject_printto_parent") + parentId + ",\t// \"" + getParent().getName() + "\"");
 		}
 		if (eventTrack.size() <= 0) {
-			writer.println("\tEventTrack " + 1 + " {");
+			writer.println(LocalizationManager.getInstance().get("println.eventobject_printto_eventtrack") + 1 + " {");
 			if (hasGlobalSeq) {
-				writer.println("\t\tGlobalSeqId " + globalSeqId + ",");
+				writer.println(LocalizationManager.getInstance().get("println.eventobject_printto_globalseqid") + globalSeqId + ",");
 			}
 			writer.println("\t\t" + 0 + ",");
 		} else {
-			writer.println("\tEventTrack " + eventTrack.size() + " {");
+			writer.println(LocalizationManager.getInstance().get("println.eventobject_printto_eventtrack") + eventTrack.size() + " {");
 			if (hasGlobalSeq) {
-				writer.println("\t\tGlobalSeqId " + globalSeqId + ",");
+				writer.println(LocalizationManager.getInstance().get("println.eventobject_printto_globalseqid") + globalSeqId + ",");
 			}
 			for (int i = 0; i < eventTrack.size(); i++) {
 				writer.println("\t\t" + eventTrack.get(i).toString() + ",");
@@ -319,7 +320,7 @@ public class EventObject extends IdObject {
 
 	@Override
 	public void add(final String flag) {
-		System.err.println("ERROR: EventObject given unknown flag: " + flag);
+		System.err.println(LocalizationManager.getInstance().get("println.eventobject_add") + flag);
 	}
 
 	@Override

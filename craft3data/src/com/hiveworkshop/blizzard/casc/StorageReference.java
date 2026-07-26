@@ -1,4 +1,5 @@
 package com.hiveworkshop.blizzard.casc;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.util.Map;
 
@@ -25,11 +26,11 @@ public class StorageReference {
 	public StorageReference(final String name, final Map<String, String> configuration) {
 		final String keys = configuration.get(name);
 		if (keys == null) {
-			throw new IllegalArgumentException("name does not exist in configuration");
+			throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.storagereference_storagereference_not_exist"));
 		}
 		final String sizes = configuration.get(name + SIZES_SUFFIX);
 		if (sizes == null) {
-			throw new IllegalArgumentException("size missing in configuration");
+			throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.storagereference_storagereference_size_missing"));
 		}
 
 		final String[] keyStrings = keys.split(" ");

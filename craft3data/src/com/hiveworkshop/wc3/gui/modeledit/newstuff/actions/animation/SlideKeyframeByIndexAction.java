@@ -2,6 +2,7 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.animation;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class SlideKeyframeByIndexAction implements UndoAction {
 
@@ -34,7 +35,7 @@ public class SlideKeyframeByIndexAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "slide keyframe";
+		return LocalizationManager.getInstance().get("string.slidekeyframebyiindexaction_actionname");
 	}
 
 }

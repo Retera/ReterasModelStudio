@@ -26,6 +26,7 @@ import com.hiveworkshop.wc3.units.Warcraft3MapObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import mpq.MPQException;
 
@@ -45,7 +46,7 @@ public class ListFileFinder {
 					for (final War3ID unitId : unitData.keySet()) {
 						final MutableGameObject unit = unitData.get(unitId);
 						if (unit == null) {
-							System.err.println("no unit for id: " + unitId);
+							System.err.println(LocalizationManager.getInstance().get("matrixeater.println.listfilefinder_mutablegamedata") + unitId);
 							continue;
 						}
 						final List<War3ID> idsToCheck = new ArrayList<>();
@@ -71,7 +72,7 @@ public class ListFileFinder {
 							final String afterQuote = line.substring(firstQuote + 1);
 							final int nextQuote = afterQuote.indexOf('"');
 							if (nextQuote == -1) {
-								System.err.println("invalid quoted string: " + startingLine);
+								System.err.println(LocalizationManager.getInstance().get("matrixeater.println.listfilefinder_startingline") + startingLine);
 								break;
 							}
 							final String betweenQuotes = afterQuote.substring(nextQuote);
@@ -133,7 +134,7 @@ public class ListFileFinder {
 					}
 				}
 			} catch (final Exception e) {
-				System.err.println("unable to parse model: " + fieldAsString);
+				System.err.println(LocalizationManager.getInstance().get("matrixeater.println.listfilefinder_fieldasstring") + fieldAsString);
 				e.printStackTrace();
 			}
 		} else if (mpq.has(extension(fieldAsString, "blp"))) {

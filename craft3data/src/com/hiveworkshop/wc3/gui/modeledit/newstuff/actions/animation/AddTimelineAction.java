@@ -4,6 +4,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.TimelineContainer;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class AddTimelineAction implements UndoAction {
 	private final AnimFlag timeline;
@@ -31,7 +32,7 @@ public class AddTimelineAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "add timeline";
+		return LocalizationManager.getInstance().get("string.addtimelineaction_actionname");
 	}
 
 }

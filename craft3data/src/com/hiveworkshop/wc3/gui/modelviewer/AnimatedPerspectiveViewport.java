@@ -101,6 +101,7 @@ import com.hiveworkshop.wc3.mdl.render3d.RenderRibbonEmitter;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.util.MathUtils;
 import com.hiveworkshop.wc3.util.ModelUtils;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements MouseListener, ActionListener,
 		MouseWheelListener, AnimatedRenderEnvironment, RenderResourceAllocator {
@@ -485,7 +486,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			// to query that information yet, though.
 		}
 		catch (final Throwable e) {
-			JOptionPane.showMessageDialog(null, "initGL failed because of this exact reason:\n"
+			JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.animatedperspectiveviewport_initgl_failed")
 					+ e.getClass().getSimpleName() + ": " + e.getMessage());
 			throw new RuntimeException(e);
 		}
@@ -586,7 +587,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		NGGLDP.setPipeline(pipeline);
 		setSize(getParent().getSize());
 		if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 5000) {
-			System.err.println("AnimatedPerspectiveViewport omitting frames due to avoid Exception log spam");
+			System.err.println(LocalizationManager.getInstance().get("println.animatedperspectiveviewport_paintgl_omitting_frames"));
 			return;
 		}
 		if (wantReloadAll) {
@@ -600,7 +601,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			}
 			catch (final Exception e) {
 				e.printStackTrace();
-				ExceptionPopup.display("Error loading textures:", e);
+				ExceptionPopup.display(LocalizationManager.getInstance().get("display.animatedperspectiveviewport_paintgl_loading_textures"), e);
 			}
 		}
 		else if (wantReload) {
@@ -610,7 +611,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			}
 			catch (final Exception e) {
 				e.printStackTrace();
-				ExceptionPopup.display("Error loading new texture:", e);
+				ExceptionPopup.display(LocalizationManager.getInstance().get("display.animatedperspectiveviewport_paintgl_loading_new_textures"), e);
 			}
 		}
 		else if (!texLoaded && ((programPreferences == null) || programPreferences.textureModels())) {
@@ -656,8 +657,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			NGGLDP.pipeline.glEnableIfNeeded(GL_LIGHT1);
 			NGGLDP.pipeline.glEnableIfNeeded(GL_NORMALIZE);
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-			// System.out.println("max:
-			// "+GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE));
+			// System.out.println(LocalizationManager.getInstance().get("println.animatedperspectiveviewport_paintgl_max")
+			// +GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE));
 			if (renderTextures()) {
 				NGGLDP.pipeline.glEnableIfNeeded(GL11.GL_TEXTURE_2D);
 			}
@@ -876,7 +877,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	// initGL();
 	// initialized = true;
 	// }
-	// System.out.println("printingGL");
+	// System.out.println(LocalizationManager.getInstance().get("println.animatedperspectiveviewport_paintgl_printinggl"));
 	//// makeCurrent();
 	// GL11.glBegin(GL11.GL_QUADS);
 	// GL11.glColor3f(0f,1f,1f);
@@ -1320,8 +1321,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	// }
 	// catch (Exception exc)
 	// {
-	// JOptionPane.showMessageDialog(null,"Error retrieving mouse coordinates.
-	// (Probably not a major issue. Due to sleep mode?)");
+	// JOptionPane.showMessageDialog(null, LocalizationManager.getInstance().get("dialog.animatedperspectiveviewport_paintcomponent_retrieving_mouse"));
 	// }
 	// }
 

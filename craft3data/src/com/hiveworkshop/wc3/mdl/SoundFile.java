@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -63,7 +64,7 @@ public class SoundFile {
 			return lay;
 		} else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse SoundFile: Missing or unrecognized open statement.");
+					LocalizationManager.getInstance().get("dialog.soundfile_read_parse"));
 		}
 		return null;
 	}
@@ -73,11 +74,11 @@ public class SoundFile {
 		for (int i = 0; i < tabHeight; i++) {
 			tabs = tabs + "\t";
 		}
-		writer.println(tabs + "SoundFile {");
-		writer.println(tabs + "\tPath \"" + path + "\",");
-		writer.println(tabs + "\tVolume " + MDLReader.doubleToString(volume) + ",");
-		writer.println(tabs + "\tPitch " + MDLReader.doubleToString(pitch) + ",");
-		writer.println(tabs + "\tSoundChannel " + soundChannel + ",");
+		writer.println(tabs + LocalizationManager.getInstance().get("println.soundfile_printto_soundfile") + " {");
+		writer.println(tabs + LocalizationManager.getInstance().get("println.soundfile_printto_path") + " \"" + path + "\",");
+		writer.println(tabs + LocalizationManager.getInstance().get("println.soundfile_printto_volume") + MDLReader.doubleToString(volume) + ",");
+		writer.println(tabs + LocalizationManager.getInstance().get("println.soundfile_printto_pitch") + MDLReader.doubleToString(pitch) + ",");
+		writer.println(tabs + LocalizationManager.getInstance().get("println.soundfile_printto_soundchannel") + soundChannel + ",");
 		writer.println(tabs + "}");
 	}
 }

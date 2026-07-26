@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.objects;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -101,16 +102,16 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 				getIcon(worldEditorData, "ToolBarIcon_OE_NewBuff"), createAbilityBuffEditor());
 		tabbedPane.addTab(WEString.getString("WESTRING_OBJTAB_UPGRADES"),
 				getIcon(worldEditorData, "ToolBarIcon_OE_NewUpgr"), createUpgradeEditor());
-		tabbedPane.addTab("Terrain", getIcon(worldEditorData, "ToolBarIcon_Module_Terrain"), createUpgradeEditor());
-		tabbedPane.addTab("Lighting Effects",
+		tabbedPane.addTab(LocalizationManager.getInstance().get("addtab.objecteditorpanel_objecteditorpanel_terrain"), getIcon(worldEditorData, "ToolBarIcon_Module_Terrain"), createUpgradeEditor());
+		tabbedPane.addTab(LocalizationManager.getInstance().get("addtab.objecteditorpanel_objecteditorpanel_lighting_effects"),
 				new ImageIcon(IconUtils.worldEditStyleIcon(
 						BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNChainLightning.blp"))),
 				createUpgradeEditor());
-		tabbedPane.addTab("Weather",
+		tabbedPane.addTab(LocalizationManager.getInstance().get("addtab.objecteditorpanel_objecteditorpanel_weather"),
 				new ImageIcon(IconUtils.worldEditStyleIcon(
 						BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNMonsoon.blp"))),
 				createUpgradeEditor());
-		tabbedPane.addTab("Soundsets", getIcon(worldEditorData, "ToolBarIcon_Module_Sound"), createUpgradeEditor());
+		tabbedPane.addTab(LocalizationManager.getInstance().get("addtab.objecteditorpanel_objecteditorpanel_soundsets"), getIcon(worldEditorData, "ToolBarIcon_Module_Sound"), createUpgradeEditor());
 
 		final JToolBar toolBar = createToolbar(worldEditorData);
 		toolBar.setFloatable(false);
@@ -128,9 +129,9 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 				createNewButton.setIcon(getIcon(worldEditorData, editorTabCustomToolbarButtonData.getIconKey()));
 				createNewButton.setToolTipText(
 						WEString.getString(editorTabCustomToolbarButtonData.getNewCustomObject()).replace("&", ""));
-				copyButton.setToolTipText(
+			copyButton.setToolTipText(
 						WEString.getString(editorTabCustomToolbarButtonData.getCopyObject()).replace("&", ""));
-				pasteButton.setToolTipText(
+			pasteButton.setToolTipText(
 						WEString.getString(editorTabCustomToolbarButtonData.getPasteObject()).replace("&", ""));
 			}
 		});
@@ -139,8 +140,8 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 
 	private JToolBar createToolbar(final DataTable worldEditorData) {
 		final JToolBar toolBar = new JToolBar();
-		makeButton(worldEditorData, toolBar, "newMap", "ToolBarIcon_New", "WESTRING_TOOLBAR_NEW");
-		final JButton openButton = makeButton(worldEditorData, toolBar, "openMap", "ToolBarIcon_Open",
+		makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.objecteditorpanel_createtoolbar_newmap"), "ToolBarIcon_New", "WESTRING_TOOLBAR_NEW");
+		final JButton openButton = makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.objecteditorpanel_createtoolbar_openmap"), "ToolBarIcon_Open",
 				"WESTRING_TOOLBAR_OPEN");
 		openButton.addActionListener(new ActionListener() {
 			@Override
@@ -148,7 +149,7 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 				openSpecificTabData();
 			}
 		});
-		final JButton saveButton = makeButton(worldEditorData, toolBar, "saveMap", "ToolBarIcon_Save",
+		final JButton saveButton = makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.objecteditorpanel_createtoolbar_savemap"), "ToolBarIcon_Save",
 				"WESTRING_TOOLBAR_SAVE");
 		saveButton.addActionListener(new ActionListener() {
 			@Override
@@ -158,14 +159,14 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 		});
 		toolBar.add(Box.createHorizontalStrut(8));
 		final TransferActionListener transferActionListener = new TransferActionListener();
-		copyButton = makeButton(worldEditorData, toolBar, "copy", "ToolBarIcon_Copy", "WESTRING_MENU_OE_UNIT_COPY");
+		copyButton = makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.objecteditorpanel_createtoolbar_copy·"), "ToolBarIcon_Copy", "WESTRING_MENU_OE_UNIT_COPY");
 		copyButton.addActionListener(transferActionListener);
 		copyButton.setActionCommand((String) TransferHandler.getCopyAction().getValue(Action.NAME));
-		pasteButton = makeButton(worldEditorData, toolBar, "paste", "ToolBarIcon_Paste", "WESTRING_MENU_OE_UNIT_PASTE");
+		pasteButton = makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.objecteditorpanel_createtoolbar_paste"), "ToolBarIcon_Paste", "WESTRING_MENU_OE_UNIT_PASTE");
 		pasteButton.addActionListener(transferActionListener);
 		pasteButton.setActionCommand((String) TransferHandler.getPasteAction().getValue(Action.NAME));
 		toolBar.add(Box.createHorizontalStrut(8));
-		createNewButton = makeButton(worldEditorData, toolBar, "createNew", "ToolBarIcon_OE_NewUnit",
+		createNewButton = makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.objecteditorpanel_createtoolbar_createnew"), "ToolBarIcon_OE_NewUnit",
 				"WESTRING_MENU_OE_UNIT_NEW");
 		createNewButton.addActionListener(new ActionListener() {
 			@Override
@@ -175,11 +176,11 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 			}
 		});
 		toolBar.add(Box.createHorizontalStrut(8));
-		makeButton(worldEditorData, toolBar, "terrainEditor", "ToolBarIcon_Module_Terrain",
+		makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.objecteditorpanel_createtoolbar_terraineditor"), "ToolBarIcon_Module_Terrain",
 				"WESTRING_MENU_MODULE_TERRAIN");
-		makeButton(worldEditorData, toolBar, "scriptEditor", "ToolBarIcon_Module_Script",
+		makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.objecteditorpanel_createtoolbar_scripteditor"), "ToolBarIcon_Module_Script",
 				"WESTRING_MENU_MODULE_SCRIPTS");
-		makeButton(worldEditorData, toolBar, "soundEditor", "ToolBarIcon_Module_Sound", "WESTRING_MENU_MODULE_SOUND");
+		makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.objecteditorpanel_createtoolbar_soundeditor"), "ToolBarIcon_Module_Sound", "WESTRING_MENU_MODULE_SOUND");
 		// final JButton objectEditorButton = makeButton(worldEditorData, toolBar,
 		// "objectEditor",
 		// "ToolBarIcon_Module_ObjectEditor", "WESTRING_MENU_OBJECTEDITOR");
@@ -192,10 +193,10 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 		objectEditorButton.setEnabled(false);
 		objectEditorButton.setDisabledIcon(objectEditorButton.getIcon());
 		toolBar.add(objectEditorButton);
-		makeButton(worldEditorData, toolBar, "campaignEditor", "ToolBarIcon_Module_Campaign",
+		makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.objecteditorpanel_createtoolbar_campaigneditor"), "ToolBarIcon_Module_Campaign",
 				"WESTRING_MENU_MODULE_CAMPAIGN");
-		makeButton(worldEditorData, toolBar, "aiEditor", "ToolBarIcon_Module_AIEditor", "WESTRING_MENU_MODULE_AI");
-		makeButton(worldEditorData, toolBar, "objectEditor", "ToolBarIcon_Module_ObjectManager",
+		makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.objecteditorpanel_createtoolbar_aieditor"), "ToolBarIcon_Module_AIEditor", "WESTRING_MENU_MODULE_AI");
+		makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.objecteditorpanel_createtoolbar_objecteditor"), "ToolBarIcon_Module_ObjectManager",
 				"WESTRING_MENU_OBJECTMANAGER");
 		final String legacyImportManagerIcon = worldEditorData.get("WorldEditArt")
 				.getField("ToolBarIcon_Module_ImportManager");
@@ -205,9 +206,9 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 			importManagerIconPath = "ToolBarIcon_Module_AssetManager";
 			importManagerMenuName = "WESTRING_MENU_ASSETMANAGER";
 		}
-		makeButton(worldEditorData, toolBar, "importEditor", importManagerIconPath, importManagerMenuName);
+		makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.objecteditorpanel_createtoolbar_importeditor"), importManagerIconPath, importManagerMenuName);
 		toolBar.add(Box.createHorizontalStrut(8));
-		makeButton(worldEditorData, toolBar, "testMap",
+		makeButton(worldEditorData, toolBar, LocalizationManager.getInstance().get("makebutton.objecteditorpanel_createtoolbar_testmap"),
 				new ImageIcon(IconUtils.worldEditStyleIcon(getIcon(worldEditorData, "ToolBarIcon_TestMap").getImage())),
 				"WESTRING_TOOLBAR_TESTMAP").addActionListener(new ActionListener() {
 					@Override
@@ -469,11 +470,11 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 		// jFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		jFileChooser.resetChoosableFileFilters();
 		jFileChooser.setAcceptAllFileFilterUsed(false);
-		jFileChooser.setDialogTitle("Export Data from this Tab");
+		jFileChooser.setDialogTitle(LocalizationManager.getInstance().get("dialog.objecteditorpanel_savespecifictabdata_export"));
 		final int selectedIndex = tabbedPane.getSelectedIndex();
 		final UnitEditorPanel unitEditorPanel = editors.get(selectedIndex);
 		JOptionPane.showMessageDialog(ObjectEditorPanel.this,
-				"OK, friend, we are going to export " + unitEditorPanel.getUnitData().getWorldEditorDataType());
+				LocalizationManager.getInstance().get("dialog.objecteditorpanel_savespecifictabdata_export_go") + unitEditorPanel.getUnitData().getWorldEditorDataType());
 		jFileChooser.addChoosableFileFilter(
 				new FileNameExtensionFilter(getFileTypeName(unitEditorPanel.getUnitData().getWorldEditorDataType()),
 						unitEditorPanel.getUnitData().getWorldEditorDataType().getExtension()));
@@ -488,7 +489,7 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 				final File w3uFile = new File(path);
 				if (w3uFile.exists()) {
 					final int result = JOptionPane.showConfirmDialog(ObjectEditorPanel.this,
-							w3uFile.getName() + " already exists. Ok to overwrite?", "Warning",
+							w3uFile.getName() + LocalizationManager.getInstance().get("dialog.objecteditorpanel_savespecifictabdata_overwrite"), LocalizationManager.getInstance().get("global.dialog.warning"),
 							JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 					if (result != JOptionPane.OK_OPTION) {
 						return;
@@ -532,12 +533,12 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 		// jFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		jFileChooser.resetChoosableFileFilters();
 		jFileChooser.setAcceptAllFileFilterUsed(false);
-		jFileChooser.setDialogTitle("Import Data to this Tab");
+		jFileChooser.setDialogTitle(LocalizationManager.getInstance().get("dialog.objecteditorpanel_openspecifictabdata_export"));
 		final int selectedIndex = tabbedPane.getSelectedIndex();
 		final UnitEditorPanel unitEditorPanel = editors.get(selectedIndex);
 		JOptionPane.showMessageDialog(ObjectEditorPanel.this,
-				"OK, friend, we are going to import " + unitEditorPanel.getUnitData().getWorldEditorDataType()
-						+ ". This will replace all settings, like WE.");
+				LocalizationManager.getInstance().get("dialog.objecteditorpanel_openspecifictabdata_export_go") + unitEditorPanel.getUnitData().getWorldEditorDataType()
+						+ LocalizationManager.getInstance().get("dialog.objecteditorpanel_openspecifictabdata_replace"));
 		jFileChooser.addChoosableFileFilter(
 				new FileNameExtensionFilter(getFileTypeName(unitEditorPanel.getUnitData().getWorldEditorDataType()),
 						unitEditorPanel.getUnitData().getWorldEditorDataType().getExtension()));
@@ -548,7 +549,7 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 				final String path = selectedFile.getPath();
 				final File w3uFile = new File(path);
 				if (!w3uFile.exists()) {
-					JOptionPane.showMessageDialog(ObjectEditorPanel.this, "Error. Chosen file did not exist. Retry?");
+					JOptionPane.showMessageDialog(ObjectEditorPanel.this, LocalizationManager.getInstance().get("dialog.objecteditorpanel_openspecifictabdata_error"));
 					return;
 				}
 				try {

@@ -10,6 +10,7 @@ import java.util.zip.Inflater;
 
 import com.hiveworkshop.blizzard.casc.Key;
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 /**
  * Allows high level access to stored file data banks. These data banks can be
@@ -37,16 +38,16 @@ public class BankStream {
 		ByteBuffer streamBuffer = storageBuffer.slice();
 		container = new StorageContainer(streamBuffer);
 		if ((encodingKey != null) && !container.getKey().equals(encodingKey)) {
-			throw new MalformedCASCStructureException("container encoding key mismatch");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.bankstream_1"));
 		}
 
 		final int storageSize = (int) container.getSize();
 		final int storageSizeDiff = Integer.compare(streamBuffer.capacity(), storageSize);
 
 		if (storageSizeDiff < 0) {
-			throw new MalformedCASCStructureException("container buffer smaller than container");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.bankstream_2"));
 		} else if ((encodingKey != null) && (storageSizeDiff != 0)) {
-			throw new MalformedCASCStructureException("container buffer size mismatch");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.bankstream_3"));
 		} else if (storageSizeDiff > 0) {
 			// resize buffer to match file
 			final int streamPos = streamBuffer.position();
@@ -76,7 +77,7 @@ public class BankStream {
 	 */
 	public long getNextBankLength() throws EOFException {
 		if (!hasNextBank()) {
-			throw new EOFException("no more banks to decode");
+			throw new EOFException(LocalizationManager.getInstance().get("exception.getnextbanklLength"));
 		}
 
 		return content.length != 0 ? content[bank].getDecompressedSize() : streamBuffer.remaining();
@@ -96,7 +97,7 @@ public class BankStream {
 	 */
 	public ByteBuffer getBank(ByteBuffer bankBuffer) throws IOException {
 		if (!hasNextBank()) {
-			throw new EOFException("no more banks to decode");
+			throw new EOFException(LocalizationManager.getInstance().get("exception.bytebuffer_hasnextbank"));
 		}
 
 		if (content.length != 0) {
@@ -105,10 +106,10 @@ public class BankStream {
 			final long decodedSize = blteEntry.getDecompressedSize();
 
 			if (streamBuffer.remaining() < encodedSize) {
-				throw new MalformedCASCStructureException("encoded data beyond end of file");
+				throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.bytebuffer_streambuffer"));
 			} else if (bankBuffer == null) {
 				if (decodedSize > Integer.MAX_VALUE) {
-					throw new MalformedCASCStructureException("bank too large for Java to manipulate");
+					throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.bytebuffer_bankbuffer"));
 				}
 				bankBuffer = ByteBuffer.allocate((int) decodedSize);
 			} else if (bankBuffer.remaining() < decodedSize) {
@@ -125,7 +126,7 @@ public class BankStream {
 			case 'N':
 				// uncompressed data
 				if (encodedBuffer.remaining() != decodedSize) {
-					throw new MalformedCASCStructureException("not enough uncompressed bytes");
+					throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.bytebuffer_encodedbuffer"));
 				}
 				decodedBuffer.put(encodedBuffer);
 				break;
@@ -139,16 +140,16 @@ public class BankStream {
 					resultSize = zlib.inflate(intermediateDecodedCopy);
 					decodedBuffer.put(intermediateDecodedCopy, 0, resultSize);
 				} catch (final DataFormatException e) {
-					throw new MalformedCASCStructureException("zlib inflate exception", e);
+					throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.bytebuffer_dataformatexception"), e);
 				}
 				if (resultSize != decodedSize) {
-					throw new MalformedCASCStructureException("not enough bytes generated: " + resultSize + "B");
+					throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.bytebuffer_decodedsize") + resultSize + "B");
 				} else if (!zlib.finished()) {
-					throw new MalformedCASCStructureException("unfinished inflate operation");
+					throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.bytebuffer_zlib"));
 				}
 				break;
 			default:
-				throw new UnsupportedEncodingException("unsupported encoding mode: " + encodingMode);
+				throw new UnsupportedEncodingException(LocalizationManager.getInstance().get("exception.bytebuffer_default") + encodingMode);
 			}
 
 			streamBuffer.position(streamBuffer.position() + encodedBuffer.position());
@@ -163,7 +164,7 @@ public class BankStream {
 			if (bankBuffer == null) {
 				bankBuffer = ByteBuffer.allocate(streamBuffer.remaining());
 			} else if (bankBuffer.remaining() < streamBuffer.remaining()) {
-				throw new MalformedCASCStructureException("bank buffer too small");
+				throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.bytebuffer_bankbuffer_streambuffer"));
 			}
 
 			bankBuffer.put(streamBuffer);

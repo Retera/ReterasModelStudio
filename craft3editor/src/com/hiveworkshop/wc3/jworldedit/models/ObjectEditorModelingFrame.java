@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.models;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -21,7 +22,7 @@ public class ObjectEditorModelingFrame extends JFrame {
 	UnitEditorModelSelector panel;
 	
 	public ObjectEditorModelingFrame() {
-		super("Object Editor - Model Selection");
+		super(LocalizationManager.getInstance().get("super.objecteditormodelingframe_objecteditormodelingframe_editor"));
 		try {
 			List<BufferedImage> images = ICODecoder.read(ObjectEditorFrame.class.getResourceAsStream("worldedit.ico"));
 			List<BufferedImage> finalImages = new ArrayList<BufferedImage>();
@@ -39,8 +40,8 @@ public class ObjectEditorModelingFrame extends JFrame {
 		}
 		JPanel overPanel = new JPanel();
 		panel = new UnitEditorModelSelector();
-		JButton ok = new JButton("OK!");
-		JButton cancel = new JButton("Cancel");
+		JButton ok = new JButton(LocalizationManager.getInstance().get("global.button.ok"));
+		JButton cancel = new JButton(LocalizationManager.getInstance().get("global.button.cancel"));
 		overPanel.add(panel);
 		overPanel.add(cancel);
 		overPanel.add(ok);
@@ -54,7 +55,7 @@ public class ObjectEditorModelingFrame extends JFrame {
 		layout.setVerticalGroup(layout.createSequentialGroup()
 				.addComponent(panel)
 				.addGroup(layout.createParallelGroup()
-						.addComponent(cancel) 
+						.addComponent(cancel)
 						.addComponent(ok) )
 				);
 		overPanel.setLayout(layout);

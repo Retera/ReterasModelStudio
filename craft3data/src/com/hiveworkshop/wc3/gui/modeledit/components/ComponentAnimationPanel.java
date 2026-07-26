@@ -19,6 +19,7 @@ import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorTextField;
 import com.hiveworkshop.wc3.mdl.Animation;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -68,11 +69,11 @@ public class ComponentAnimationPanel extends JPanel {
 		});
 
 		setLayout(new MigLayout());
-		add(new JLabel("Name: "), "cell 0 0");
+		add(new JLabel(LocalizationManager.getInstance().get("label.componentanimationpanel_componentanimationpanel_name")), "cell 0 0");
 		add(nameField, "cell 1 0");
-		add(new JLabel("Start: "), "cell 0 1");
+		add(new JLabel(LocalizationManager.getInstance().get("label.componentanimationpanel_componentanimationpanel_start")), "cell 0 1");
 		add(newAnimTimeStart, "cell 1 1");
-		add(new JLabel("End: "), "cell 2 1");
+		add(new JLabel(LocalizationManager.getInstance().get("label.componentanimationpanel_componentanimationpanel_end")), "cell 2 1");
 		add(newAnimTimeEnd, "cell 3 1");
 
 		rarityChooser = new ComponentEditorJSpinner(new SpinnerNumberModel(0d, 0d, Long.MAX_VALUE, 1d));
@@ -97,7 +98,7 @@ public class ComponentAnimationPanel extends JPanel {
 				undoListener.pushAction(setAnimationMoveSpeedAction);
 			}
 		});
-		nonLoopingChooser = new JCheckBox("NonLooping");
+		nonLoopingChooser = new JCheckBox(LocalizationManager.getInstance().get("checkbox.componentanimationpanel_componentanimationpanel_nonloopingchooser"));
 		nonLoopingChooser.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -110,9 +111,9 @@ public class ComponentAnimationPanel extends JPanel {
 		});
 
 		add(nonLoopingChooser, "cell 0 2");
-		add(new JLabel("Rarity"), "cell 0 3");
+		add(new JLabel(LocalizationManager.getInstance().get("label.componentanimationpanel_componentanimationpanel_rarity")), "cell 0 3");
 		add(rarityChooser, "cell 1 3");
-		add(new JLabel("MoveSpeed"), "cell 0 4");
+		add(new JLabel(LocalizationManager.getInstance().get("label.componentanimationpanel_componentanimationpanel_movespeed")), "cell 0 4");
 		add(moveSpeedChooser, "cell 1 4");
 	}
 

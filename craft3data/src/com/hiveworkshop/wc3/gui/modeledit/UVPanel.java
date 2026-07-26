@@ -84,6 +84,7 @@ import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.user.SaveProfile;
 import com.hiveworkshop.wc3.util.IconUtils;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import net.infonode.docking.View;
 
@@ -125,7 +126,7 @@ public class UVPanel extends JPanel
 	ModelEditorActionType actionType;
 
 	View view;
-	AbstractAction selectAllAction = new AbstractAction("Select All") {
+	AbstractAction selectAllAction = new AbstractAction(LocalizationManager.getInstance().get("string.uvpanel_uvpanel_selectallaction")) {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
 
@@ -136,7 +137,7 @@ public class UVPanel extends JPanel
 			repaint();
 		}
 	};
-	AbstractAction invertSelectAction = new AbstractAction("Invert Selection") {
+	AbstractAction invertSelectAction = new AbstractAction(LocalizationManager.getInstance().get("string.uvpanel_uvpanel_invertselectaction")) {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = currentModelPanel();
@@ -146,7 +147,7 @@ public class UVPanel extends JPanel
 			repaint();
 		}
 	};
-	AbstractAction expandSelectionAction = new AbstractAction("Expand Selection") {
+	AbstractAction expandSelectionAction = new AbstractAction(LocalizationManager.getInstance().get("string.uvpanel_uvpanel_expandselectionaction")) {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = currentModelPanel();
@@ -156,7 +157,7 @@ public class UVPanel extends JPanel
 			repaint();
 		}
 	};
-	AbstractAction selFromMainAction = new AbstractAction("Sel From Main") {
+	AbstractAction selFromMainAction = new AbstractAction(LocalizationManager.getInstance().get("string.uvpanel_uvpanel_selfrommainaction")) {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = currentModelPanel();
@@ -167,7 +168,7 @@ public class UVPanel extends JPanel
 			repaint();
 		}
 	};
-	AbstractAction mirrorXAction = new AbstractAction("Mirror X") {
+	AbstractAction mirrorXAction = new AbstractAction(LocalizationManager.getInstance().get("string.uvpanel_uvpanel_mirrorxaction")) {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = currentModelPanel();
@@ -179,7 +180,7 @@ public class UVPanel extends JPanel
 			repaint();
 		}
 	};
-	AbstractAction mirrorYAction = new AbstractAction("Mirror Y") {
+	AbstractAction mirrorYAction = new AbstractAction(LocalizationManager.getInstance().get("string.uvpanel_uvpanel_mirroryaction")) {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = currentModelPanel();
@@ -238,15 +239,15 @@ public class UVPanel extends JPanel
 		this.dispMDL = dispMDL;
 
 		// Copied from MainPanel
-		selectButton = new ModeButton("Select");
+		selectButton = new ModeButton(LocalizationManager.getInstance().get("button.uvpanel_uvpanel_select"));
 		modeToButton.put(selectionModeGroup.getToolbarButtonTypes()[0], selectButton);
 		selectButton.addActionListener(new ButtonModeChangeListener(0));
 		selectionModeButtons.add(selectButton);
-		addButton = new ModeButton("Add");
+		addButton = new ModeButton(LocalizationManager.getInstance().get("button.uvpanel_uvpanel_add"));
 		modeToButton.put(selectionModeGroup.getToolbarButtonTypes()[1], addButton);
 		addButton.addActionListener(new ButtonModeChangeListener(1));
 		selectionModeButtons.add(addButton);
-		deselectButton = new ModeButton("Deselect");
+		deselectButton = new ModeButton(LocalizationManager.getInstance().get("button.uvpanel_uvpanel_deselect"));
 		modeToButton.put(selectionModeGroup.getToolbarButtonTypes()[2], deselectButton);
 		deselectButton.addActionListener(new ButtonModeChangeListener(2));
 		selectionModeButtons.add(deselectButton);
@@ -260,15 +261,15 @@ public class UVPanel extends JPanel
 			mouseCoordDisplay[i].setMinimumSize(new Dimension(50, 15));
 			mouseCoordDisplay[i].setEditable(false);
 		}
-		loadImage = new ModeButton("Load Image");
-		moveButton = new ModeButton("Move");
+		loadImage = new ModeButton(LocalizationManager.getInstance().get("button.uvpanel_uvpanel_loadimage"));
+		moveButton = new ModeButton(LocalizationManager.getInstance().get("button.uvpanel_uvpanel_move"));
 		moveButton.addActionListener(new ButtonActionChangeListener(0));
-		rotateButton = new ModeButton("Rotate");
+		rotateButton = new ModeButton(LocalizationManager.getInstance().get("button.uvpanel_uvpanel_rotate"));
 		rotateButton.addActionListener(new ButtonActionChangeListener(1));
-		scaleButton = new ModeButton("Scale");
+		scaleButton = new ModeButton(LocalizationManager.getInstance().get("button.uvpanel_uvpanel_scale"));
 		scaleButton.addActionListener(new ButtonActionChangeListener(2));
 		unwrapDirectionBox = new JComboBox<>(UnwrapDirection.values());
-		unwrapButton = new ModeButton("Remap UVs");
+		unwrapButton = new ModeButton(LocalizationManager.getInstance().get("button.uvpanel_uvpanel_unwrap"));
 		unwrapButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -289,7 +290,7 @@ public class UVPanel extends JPanel
 					}
 				}
 				else {
-					JOptionPane.showMessageDialog(UVPanel.this, "Please select a direction", "Error",
+					JOptionPane.showMessageDialog(UVPanel.this, LocalizationManager.getInstance().get("dialog.uvpanel_uvpanel_select_direction"), LocalizationManager.getInstance().get("global.dialog.error"),
 							JOptionPane.ERROR_MESSAGE);
 				}
 			}
@@ -311,7 +312,7 @@ public class UVPanel extends JPanel
 		buttons.add(loadImage);
 		buttons.add(unwrapButton);
 
-		final JLabel uvLayerIndexLabel = new JLabel("UV Layer Index:");
+		final JLabel uvLayerIndexLabel = new JLabel(LocalizationManager.getInstance().get("label.uvpanel_uvpanel_uvlayerindexlabel"));
 		uvLayerIndexSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 9999, 1));
 		uvLayerIndexSpinner.addChangeListener(new ChangeListener() {
 			@Override
@@ -463,8 +464,8 @@ public class UVPanel extends JPanel
 //
 //				if (newType == SelectionItemTypes.TPOSE) {
 //
-//					final Object[] settings = { "Move Linked", "Move Single" };
-//					final Object dialogResult = JOptionPane.showInputDialog(null, "Choose settings:", "T-Pose Settings",
+//					final Object[] settings = { LocalizationManager.getInstance().get("string.uvpanel_uvpanel_move_linked"), LocalizationManager.getInstance().get("string.uvpanel_uvpanel_move_single") };
+//					final Object dialogResult = JOptionPane.showInputDialog(null, LocalizationManager.getInstance().get("string.uvpanel_uvpanel_choose_settings"), LocalizationManager.getInstance().get("string.uvpanel_uvpanel_tpose_settings"),
 //							JOptionPane.PLAIN_MESSAGE, null, settings, settings[0]);
 //					final boolean moveLinked = dialogResult == settings[0];
 //					ModelEditorManager.MOVE_LINKED = moveLinked;
@@ -491,7 +492,7 @@ public class UVPanel extends JPanel
 		final JPanel menuHolderPanel = new JPanel(new BorderLayout());
 		menuHolderPanel.add(this, BorderLayout.CENTER);
 		menuHolderPanel.add(createMenuBar(), BorderLayout.BEFORE_FIRST_LINE);
-		view = new View("Texture Coordinate Editor: " + currentModelPanel().getModel().getName(), UVIcon,
+		view = new View(LocalizationManager.getInstance().get("view.uvpanel_uvpanel_texture_coordinate_editor") + currentModelPanel().getModel().getName(), UVIcon,
 				menuHolderPanel);
 	}
 
@@ -507,14 +508,14 @@ public class UVPanel extends JPanel
 		toolbar = new JToolBar(JToolBar.HORIZONTAL);
 		toolbar.setFloatable(false);
 		toolbar.addSeparator();
-		undoAction = new AbstractAction("Undo", RMSIcons.loadToolBarImageIcon("undo.png")) {
+		undoAction = new AbstractAction(LocalizationManager.getInstance().get("string.uvpanel_createjtoolbar_undo"), RMSIcons.loadToolBarImageIcon("undo.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
 					currentModelPanel().getUndoManager().undo();
 				}
 				catch (final NoSuchElementException exc) {
-					JOptionPane.showMessageDialog(UVPanel.this, "Nothing to undo!");
+					JOptionPane.showMessageDialog(UVPanel.this, LocalizationManager.getInstance().get("dialog.uvpanel_createjtoolbar_nothing_undo"));
 				}
 				catch (final Exception exc) {
 					ExceptionPopup.display(exc);
@@ -524,14 +525,14 @@ public class UVPanel extends JPanel
 			}
 		};
 		toolbar.add(undoAction);
-		redoAction = new AbstractAction("Redo", RMSIcons.loadToolBarImageIcon("redo.png")) {
+		redoAction = new AbstractAction(LocalizationManager.getInstance().get("string.uvpanel_createjtoolbar_redo"), RMSIcons.loadToolBarImageIcon("redo.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
 					currentModelPanel().getUndoManager().redo();
 				}
 				catch (final NoSuchElementException exc) {
-					JOptionPane.showMessageDialog(UVPanel.this, "Nothing to redo!");
+					JOptionPane.showMessageDialog(UVPanel.this, LocalizationManager.getInstance().get("dialog.uvpanel_createjtoolbar_nothing_redo"));
 				}
 				catch (final Exception exc) {
 					ExceptionPopup.display(exc);
@@ -547,7 +548,7 @@ public class UVPanel extends JPanel
 		selectionItemTypeGroup = new ToolbarButtonGroup<>(toolbar, TVertexSelectionItemTypes.values());
 		toolbar.addSeparator();
 		selectAndMoveDescriptor = new TVertexToolbarActionButtonType(RMSIcons.loadToolBarImageIcon("move2.png"),
-				"Select and Move") {
+				LocalizationManager.getInstance().get("string.uvpanel_createjtoolbar_selectandmovedescriptor")) {
 			@Override
 			public TVertexEditorViewportActivity createActivity(final TVertexEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -559,7 +560,7 @@ public class UVPanel extends JPanel
 			}
 		};
 		selectAndRotateDescriptor = new TVertexToolbarActionButtonType(RMSIcons.loadToolBarImageIcon("rotate.png"),
-				"Select and Rotate") {
+				LocalizationManager.getInstance().get("string.uvpanel_createjtoolbar_selectandrotatedescriptor")) {
 			@Override
 			public TVertexEditorViewportActivity createActivity(final TVertexEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -571,7 +572,7 @@ public class UVPanel extends JPanel
 			}
 		};
 		selectAndScaleDescriptor = new TVertexToolbarActionButtonType(RMSIcons.loadToolBarImageIcon("scale.png"),
-				"Select and Scale") {
+				LocalizationManager.getInstance().get("string.uvpanel_createjtoolbar_selectandscale")) {
 			@Override
 			public TVertexEditorViewportActivity createActivity(final TVertexEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -586,7 +587,7 @@ public class UVPanel extends JPanel
 				selectAndMoveDescriptor, selectAndRotateDescriptor, selectAndScaleDescriptor });
 		currentActivity = actionTypeGroup.getActiveButtonType();
 		toolbar.addSeparator();
-		snapButton = toolbar.add(new AbstractAction("Snap", RMSIcons.loadToolBarImageIcon("snap.png")) {
+		snapButton = toolbar.add(new AbstractAction(LocalizationManager.getInstance().get("string.uvpanel_createjtoolbar_snap"), RMSIcons.loadToolBarImageIcon("snap.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -602,7 +603,7 @@ public class UVPanel extends JPanel
 			}
 		});
 		toolbar.addSeparator();
-		snapXButton = toolbar.add(new AbstractAction("SnapX", RMSIcons.loadToolBarImageIcon("snapX.png")) {
+		snapXButton = toolbar.add(new AbstractAction(LocalizationManager.getInstance().get("string.uvpanel_createjtoolbar_snapx"), RMSIcons.loadToolBarImageIcon("snapX.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -617,7 +618,7 @@ public class UVPanel extends JPanel
 				}
 			}
 		});
-		snapYButton = toolbar.add(new AbstractAction("SnapY", RMSIcons.loadToolBarImageIcon("snapY.png")) {
+		snapYButton = toolbar.add(new AbstractAction(LocalizationManager.getInstance().get("string.uvpanel_createjtoolbar_snapy"), RMSIcons.loadToolBarImageIcon("snapY.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -640,39 +641,39 @@ public class UVPanel extends JPanel
 		// Create my menu bar
 		menuBar = new JMenuBar();
 
-		editMenu = new JMenu("Edit");
+		editMenu = new JMenu(LocalizationManager.getInstance().get("menu.uvpanel_createmenubar_editmenu"));
 		editMenu.setMnemonic(KeyEvent.VK_E);
 		editMenu.getAccessibleContext().setAccessibleDescription(
-				"Allows the user to use various tools to edit the currently selected model's TVertices.");
+				LocalizationManager.getInstance().get("description.uvpanel_createmenubar_editmenu"));
 		menuBar.add(editMenu);
 
-		dispMenu = new JMenu("View");
+		dispMenu = new JMenu(LocalizationManager.getInstance().get("menu.uvpanel_createmenubar_dispmenu"));
 		dispMenu.setMnemonic(KeyEvent.VK_V);
 		dispMenu.getAccessibleContext()
-				.setAccessibleDescription("Control display settings for this Texture Coordinate Editor window.");
+				.setAccessibleDescription(LocalizationManager.getInstance().get("description.uvpanel_createmenubar_dispmenu"));
 		menuBar.add(dispMenu);
 
-		selectAll = new JMenuItem("Select All");
+		selectAll = new JMenuItem(LocalizationManager.getInstance().get("menuitem.uvpanel_createmenubar_selectall"));
 		selectAll.setAccelerator(KeyStroke.getKeyStroke("control A"));
 		selectAll.addActionListener(selectAllAction);
 		editMenu.add(selectAll);
 
-		invertSelect = new JMenuItem("Invert Selection");
+		invertSelect = new JMenuItem(LocalizationManager.getInstance().get("menuitem.uvpanel_createmenubar_invertselect"));
 		invertSelect.setAccelerator(KeyStroke.getKeyStroke("control I"));
 		invertSelect.addActionListener(invertSelectAction);
 		editMenu.add(invertSelect);
 
-		expandSelection = new JMenuItem("Expand Selection");
+		expandSelection = new JMenuItem(LocalizationManager.getInstance().get("menuitem.uvpanel_createmenubar_expandselection"));
 		expandSelection.setAccelerator(KeyStroke.getKeyStroke("control E"));
 		expandSelection.addActionListener(expandSelectionAction);
 		editMenu.add(expandSelection);
 
-		selFromMain = new JMenuItem("Select from Viewer");
+		selFromMain = new JMenuItem(LocalizationManager.getInstance().get("menuitem.uvpanel_createmenubar_selfrommain"));
 		selFromMain.setAccelerator(KeyStroke.getKeyStroke("control V"));
 		selFromMain.addActionListener(selFromMainAction);
 		editMenu.add(selFromMain);
 
-		final JMenuItem splitVertex = new JMenuItem("Split Vertex");
+		final JMenuItem splitVertex = new JMenuItem(LocalizationManager.getInstance().get("menuitem.uvpanel_createmenubar_splitvertex"));
 		splitVertex.setAccelerator(KeyStroke.getKeyStroke("control V"));
 		splitVertex.addActionListener(new ActionListener() {
 			@Override
@@ -719,33 +720,33 @@ public class UVPanel extends JPanel
 		});
 		editMenu.add(splitVertex);
 
-		wrapImage = new JCheckBoxMenuItem("Wrap Image", false);
+		wrapImage = new JCheckBoxMenuItem(LocalizationManager.getInstance().get("menuitem.uvpanel_createmenubar_wrapimage"), false);
 		wrapImage.setToolTipText(
-				"Repeat the texture many times in a grid-like display. This feature does not edit the model in any way; only this viewing window.");
+				LocalizationManager.getInstance().get("settooltiptext.uvpanel_createmenubar_wrapimage"));
 		// wrapImage.addActionListener(this);
 		dispMenu.add(wrapImage);
 
-		setAspectRatio = new JMenuItem("Set Aspect Ratio");
+		setAspectRatio = new JMenuItem(LocalizationManager.getInstance().get("menuitem.uvpanel_createmenubar_setaspectratio"));
 		setAspectRatio.setMnemonic(KeyEvent.VK_S);
 		setAspectRatio.setAccelerator(KeyStroke.getKeyStroke("control R"));
 		setAspectRatio.setToolTipText(
-				"Sets the amount by which the texture display is stretched, for editing textures with non-uniform width and height.");
+				LocalizationManager.getInstance().get("settooltiptext.uvpanel_createmenubar_etaspectratio"));
 		setAspectRatio.addActionListener(this);
 		dispMenu.add(setAspectRatio);
 
 		editMenu.add(new JSeparator());
 
-		mirrorSubmenu = new JMenu("Mirror");
+		mirrorSubmenu = new JMenu(LocalizationManager.getInstance().get("menuitem.uvpanel_createmenubar_mirrorsubmenu"));
 		mirrorSubmenu.setMnemonic(KeyEvent.VK_M);
-		mirrorSubmenu.getAccessibleContext().setAccessibleDescription("Allows the user to mirror objects.");
+		mirrorSubmenu.getAccessibleContext().setAccessibleDescription(LocalizationManager.getInstance().get("description.uvpanel_createmenubar_mirrorsubmenu"));
 		editMenu.add(mirrorSubmenu);
 
-		mirrorX = new JMenuItem("Mirror X");
+		mirrorX = new JMenuItem(LocalizationManager.getInstance().get("menuitem.uvpanel_createmenubar_mirrorx"));
 		mirrorX.setMnemonic(KeyEvent.VK_X);
 		mirrorX.addActionListener(mirrorXAction);
 		mirrorSubmenu.add(mirrorX);
 
-		mirrorY = new JMenuItem("Mirror Y");
+		mirrorY = new JMenuItem(LocalizationManager.getInstance().get("menuitem.uvpanel_createmenubar_mirrory"));
 		mirrorY.setMnemonic(KeyEvent.VK_Y);
 		mirrorY.addActionListener(mirrorYAction);
 		mirrorSubmenu.add(mirrorY);
@@ -1043,8 +1044,8 @@ public class UVPanel extends JPanel
 		else if (e.getSource() == loadImage) {
 
 			final int x = JOptionPane.showConfirmDialog(this,
-					"Do you want to use the texture auto-loader to find available textures?\nIf you choose \"No\", then you will have to find a file on your hard drive instead.",
-					"Load Image", JOptionPane.YES_NO_CANCEL_OPTION);
+					LocalizationManager.getInstance().get("dialog.uvpanel_actionperformed_loadimage_1"),
+					LocalizationManager.getInstance().get("dialog.uvpanel_actionperformed_loadimage_2"), JOptionPane.YES_NO_CANCEL_OPTION);
 			if (x == JOptionPane.YES_OPTION) {
 				final DefaultListModel<Material> materials = new DefaultListModel<>();
 				for (int i = 0; i < dispMDL.getModel().getMaterials().size(); i++) {
@@ -1104,7 +1105,7 @@ public class UVPanel extends JPanel
 						}
 						catch (final Exception e1) {
 							e1.printStackTrace();
-							ExceptionPopup.display("Unable to load (special case TGA) image file:", e1);
+							ExceptionPopup.display(LocalizationManager.getInstance().get("display.uvpanel_actionperformed_unable_load_tag"), e1);
 						}
 					}
 					else {
@@ -1114,7 +1115,7 @@ public class UVPanel extends JPanel
 						}
 						catch (final IOException e1) {
 							e1.printStackTrace();
-							ExceptionPopup.display("Unable to load image file:", e1);
+							ExceptionPopup.display(LocalizationManager.getInstance().get("display.uvpanel_actionperformed_unable_load_image"), e1);
 						}
 					}
 				}
@@ -1148,8 +1149,7 @@ public class UVPanel extends JPanel
 				//// catch (Exception exc2)
 				//// {
 				//// exc2.printStackTrace();
-				//// JOptionPane.showMessageDialog(this, "BLP texture-loader
-				// failed.");
+				//// JOptionPane.showMessageDialog(this, LocalizationManager.getInstance().get("dialog.uvpanel_actionperformed_blp_loader_failed"));
 				//// }
 				//// }
 				//// }
@@ -1160,7 +1160,7 @@ public class UVPanel extends JPanel
 			final JPanel panel = new JPanel();
 			final JSpinner widthVal = new JSpinner(new SpinnerNumberModel(1, 1, 10000, 1));
 			final JSpinner heightVal = new JSpinner(new SpinnerNumberModel(1, 1, 10000, 1));
-			final JLabel toLabel = new JLabel(" to ");
+			final JLabel toLabel = new JLabel(LocalizationManager.getInstance().get("label.uvpanel_actionperformed_to"));
 			panel.add(widthVal);
 			panel.add(toLabel);
 			panel.add(heightVal);
@@ -1248,10 +1248,10 @@ public class UVPanel extends JPanel
 	}
 
 	public static enum UnwrapDirection {
-		FRONT("Front"),
-		RIGHT("Right"),
-		BOTTOM("Bottom"),
-		PERSPECTIVE("Perspective");
+		FRONT(LocalizationManager.getInstance().get("label.uvpanel_unwrapdirection_front")),
+		RIGHT(LocalizationManager.getInstance().get("label.uvpanel_unwrapdirection_right")),
+		BOTTOM(LocalizationManager.getInstance().get("label.uvpanel_unwrapdirection_bottom")),
+		PERSPECTIVE(LocalizationManager.getInstance().get("label.uvpanel_unwrapdirection_perspective"));
 
 		private final String displayText;
 

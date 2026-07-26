@@ -44,6 +44,7 @@ import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.user.SaveProfile;
 import com.hiveworkshop.wc3.util.Callback;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public final class MPQBrowser extends JPanel {
 	private final class MouseAdapterExtension extends MouseAdapter {
@@ -80,22 +81,22 @@ public final class MPQBrowser extends JPanel {
 			final Callback<String> useAsTextureCallback) {
 		this.mpqCodebase = mpqCodebase;
 		final JMenuBar menuBar = new JMenuBar();
-		final JMenu fileMenu = new JMenu("File");
+		final JMenu fileMenu = new JMenu(LocalizationManager.getInstance().get("menu.mpqbrowser_mpqbrowser_filemenu"));
 		fileMenu.setEnabled(false);
 		menuBar.add(fileMenu);
-		final JMenu filtersMenu = new JMenu("Filters");
+		final JMenu filtersMenu = new JMenu(LocalizationManager.getInstance().get("menu.mpqbrowser_mpqbrowser_filtersmenu"));
 		menuBar.add(filtersMenu);
 		filters = new ArrayList<>();
-		filters.add(new Filter("Text", new String[] { ".txt" }));
-		filters.add(new Filter("Sylk", new String[] { ".slk" }));
-		filters.add(new Filter("Script", new String[] { ".ai", ".wai", ".j", ".js", ".pld" }));
-		filters.add(new Filter("Html", new String[] { ".htm", ".html" }));
-		filters.add(new Filter("Models", new String[] { ".mdl", ".mdx" }));
-		filters.add(new Filter("Images", new String[] { ".bmp", ".tga", ".jpg", ".jpeg", ".pcx", ".blp", ".dds" }));
-		filters.add(new Filter("Maps", new String[] { ".w3m", ".w3x", ".w3n" }));
-		filters.add(new Filter("Sounds", new String[] { ".wav", ".flac" }));
-		filters.add(new Filter("Music", new String[] { ".mp3", ".mid" }));
-		otherFilter = new Filter("Other", true);
+		filters.add(new Filter(LocalizationManager.getInstance().get("filter.mpqbrowser_mpqbrowser_text"), new String[] { ".txt" }));
+		filters.add(new Filter(LocalizationManager.getInstance().get("filter.mpqbrowser_mpqbrowser_sylk"), new String[] { ".slk" }));
+		filters.add(new Filter(LocalizationManager.getInstance().get("filter.mpqbrowser_mpqbrowser_script"), new String[] { ".ai", ".wai", ".j", ".js", ".pld" }));
+		filters.add(new Filter(LocalizationManager.getInstance().get("filter.mpqbrowser_mpqbrowser_html"), new String[] { ".htm", ".html" }));
+		filters.add(new Filter(LocalizationManager.getInstance().get("filter.mpqbrowser_mpqbrowser_models"), new String[] { ".mdl", ".mdx" }));
+		filters.add(new Filter(LocalizationManager.getInstance().get("filter.mpqbrowser_mpqbrowser_images"), new String[] { ".bmp", ".tga", ".jpg", ".jpeg", ".pcx", ".blp", ".dds" }));
+		filters.add(new Filter(LocalizationManager.getInstance().get("filter.mpqbrowser_mpqbrowser_maps"), new String[] { ".w3m", ".w3x", ".w3n" }));
+		filters.add(new Filter(LocalizationManager.getInstance().get("filter.mpqbrowser_mpqbrowser_sounds"), new String[] { ".wav", ".flac" }));
+		filters.add(new Filter(LocalizationManager.getInstance().get("filter.mpqbrowser_mpqbrowser_music"), new String[] { ".mp3", ".mid" }));
+		otherFilter = new Filter(LocalizationManager.getInstance().get("filter.mpqbrowser_mpqbrowser_other"), true);
 		filters.add(otherFilter);
 		for (final Filter filter : filters) {
 			filtersMenu.add(filter.getFilterCheckBoxItem());
@@ -110,7 +111,7 @@ public final class MPQBrowser extends JPanel {
 			}
 		}
 		filtersMenu.addSeparator();
-		final JMenuItem allItem = new JMenuItem("All");
+		final JMenuItem allItem = new JMenuItem(LocalizationManager.getInstance().get("menuitem.mpqbrowser_mpqbrowser_allitem"));
 		filtersMenu.add(allItem);
 		allItem.addActionListener(new ActionListener() {
 			@Override
@@ -121,7 +122,7 @@ public final class MPQBrowser extends JPanel {
 				refreshTree();
 			}
 		});
-		final JMenuItem noneItem = new JMenuItem("None");
+		final JMenuItem noneItem = new JMenuItem(LocalizationManager.getInstance().get("menuitem.mpqbrowser_mpqbrowser_noneitem"));
 		filtersMenu.add(noneItem);
 		noneItem.addActionListener(new ActionListener() {
 			@Override
@@ -191,7 +192,7 @@ public final class MPQBrowser extends JPanel {
 		exportFileChooser = new JFileChooser(SaveProfile.get().getPath());
 
 		final JPopupMenu contextMenu = new JPopupMenu();
-		final JMenuItem openItem = new JMenuItem("Open");
+		final JMenuItem openItem = new JMenuItem(LocalizationManager.getInstance().get("menuitem.mpqbrowser_mpqbrowser_openitem"));
 		openItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -199,7 +200,7 @@ public final class MPQBrowser extends JPanel {
 						.run(((MPQTreeNode) mouseAdapterExtension.getClickedPath().getLastPathComponent()).getPath());
 			}
 		});
-		final JMenuItem extractItem = new JMenuItem("Export");
+		final JMenuItem extractItem = new JMenuItem(LocalizationManager.getInstance().get("menuitem.mpqbrowser_mpqbrowser_extractitem"));
 		extractItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -212,8 +213,9 @@ public final class MPQBrowser extends JPanel {
 					if (selectedFile != null) {
 						if (selectedFile.exists()) {
 							if (JOptionPane.showConfirmDialog(MPQBrowser.this,
-									"File \"" + selectedFile.getName() + "\" already exists. Overwrite anyway?",
-									"Export File", JOptionPane.WARNING_MESSAGE,
+									LocalizationManager.getInstance().get("dialog.mpqbrowser_exportfilechooser_1") +  "\"" + selectedFile.getName() + "\" " +
+									LocalizationManager.getInstance().get("dialog.mpqbrowser_exportfilechooser_2"),
+									LocalizationManager.getInstance().get("dialog.mpqbrowser_exportfilechooser_3"), JOptionPane.WARNING_MESSAGE,
 									JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION) {
 								return;
 							}
@@ -235,7 +237,7 @@ public final class MPQBrowser extends JPanel {
 				}
 			}
 		});
-		final JMenuItem copyPathToClipboardItem = new JMenuItem("Copy Path to Clipboard");
+		final JMenuItem copyPathToClipboardItem = new JMenuItem(LocalizationManager.getInstance().get("menuitem.mpqbrowser_mpqbrowser_copypathtoclipboarditem"));
 		copyPathToClipboardItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -250,7 +252,7 @@ public final class MPQBrowser extends JPanel {
 		contextMenu.add(extractItem);
 		contextMenu.addSeparator();
 		contextMenu.add(copyPathToClipboardItem);
-		final JMenuItem useAsTextureItem = new JMenuItem("Use as Texture");
+		final JMenuItem useAsTextureItem = new JMenuItem(LocalizationManager.getInstance().get("menuitem.mpqbrowser_mpqbrowser_useastextureitem"));
 		useAsTextureItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {

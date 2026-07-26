@@ -2,6 +2,7 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.IdObject;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public final class RenameBoneAction implements UndoAction {
 	private final String oldName;
@@ -26,6 +27,6 @@ public final class RenameBoneAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "rename " + oldName + " to " + newName;
+		return LocalizationManager.getInstance().get("string.renameboneaction_actionname_rename") + oldName + LocalizationManager.getInstance().get("string.renameboneaction_actionname_to") + newName;
 	}
 }

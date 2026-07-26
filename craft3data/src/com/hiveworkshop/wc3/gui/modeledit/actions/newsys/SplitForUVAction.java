@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.gui.modeledit.actions.newsys;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
@@ -99,7 +100,7 @@ public final class SplitForUVAction<T> implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "split geoset";
+		return LocalizationManager.getInstance().get("string.splitforuvaction_actionname");
 	}
 
 }

@@ -1,4 +1,5 @@
 package com.hiveworkshop.blizzard.casc.nio;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
@@ -21,7 +22,7 @@ public class LittleHashBlockProcessor {
 			length = encoded.getInt();
 			expectedHash = encoded.getInt();
 		} catch (final BufferUnderflowException e) {
-			throw new MalformedCASCStructureException("little hash block header out of bounds");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.processblock"));
 		}
 
 		final int actualHash = expectedHash; // TODO generate actual hash
@@ -51,11 +52,11 @@ public class LittleHashBlockProcessor {
 			length = workingBuffer.getInt();
 			expectedHash = workingBuffer.getInt();
 		} catch (final BufferUnderflowException e) {
-			throw new MalformedCASCStructureException("little hash block header out of bounds");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.bytebuffer_hash_block_header_out"));
 		}
 
 		if (workingBuffer.remaining() < length) {
-			throw new MalformedCASCStructureException("little hash block out of bounds");
+			throw new MalformedCASCStructureException(LocalizationManager.getInstance().get("exception.bytebuffer_hash_block_out"));
 		}
 
 		workingBuffer.limit(workingBuffer.position() + length);
@@ -66,7 +67,7 @@ public class LittleHashBlockProcessor {
 		final int actualHash = expectedHash; // TODO generate actual hash
 
 		if (actualHash != expectedHash) {
-			throw new HashMismatchException("little hash block");
+			throw new HashMismatchException(LocalizationManager.getInstance().get("exception.bytebuffer_hash_block"));
 		}
 
 		sourceBuffer.position(sourceBuffer.position() + workingBuffer.position());

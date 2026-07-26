@@ -21,6 +21,7 @@ package com.badlogic.gdx.backends.lwjgl;
 import static com.badlogic.gdx.utils.SharedLibraryLoader.*;
 
 import com.badlogic.gdx.utils.SharedLibraryLoader;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -61,7 +62,7 @@ public final class LwjglNativesLoader {
 					loader.extractFileTo(is64Bit ? "libopenal64.so" : "libopenal.so", nativesDir);
 			}
 		} catch (Throwable ex) {
-			throw new RuntimeException("Unable to extract LWJGL natives.", ex);
+			throw new RuntimeException(LocalizationManager.getInstance().get("exception.sharedlibraryloader"), ex);
 		}
 		System.setProperty("org.lwjgl.librarypath", nativesDir.getAbsolutePath());
 		load = false;

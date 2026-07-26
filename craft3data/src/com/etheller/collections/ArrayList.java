@@ -1,4 +1,5 @@
 package com.etheller.collections;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;
@@ -18,7 +19,7 @@ public final class ArrayList<TYPE> implements List<TYPE> {
 	@SuppressWarnings("unchecked")
 	public ArrayList(final int defaultSize) {
 		if (defaultSize < 0) {
-			throw new IllegalArgumentException("Negative size not allowed on ArrayList: " + defaultSize);
+			throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.defaultsize") + defaultSize);
 		}
 		elementData = (TYPE[]) new Object[defaultSize];
 	}
@@ -137,13 +138,13 @@ public final class ArrayList<TYPE> implements List<TYPE> {
 
 	private void rangeCheck(final int index) {
 		if (index >= size || index < 0) {
-			throw new IndexOutOfBoundsException(index + " not in [0," + (size - 1) + "]");
+			throw new IndexOutOfBoundsException(index + LocalizationManager.getInstance().get("exception.rangecheck") + "[0," + (size - 1) + "]");
 		}
 	}
 
 	private void rangeCheckForAdd(final int index) {
 		if (index > size || index < 0) {
-			throw new IndexOutOfBoundsException(index + " not in [0," + (size - 1) + "]");
+			throw new IndexOutOfBoundsException(index + LocalizationManager.getInstance().get("exception.rangecheck") + "[0," + (size - 1) + "]");
 		}
 	}
 
@@ -168,7 +169,7 @@ public final class ArrayList<TYPE> implements List<TYPE> {
 
 		@Override
 		public void remove() {
-			throw new IllegalStateException("iterator is read only");
+			throw new IllegalStateException(LocalizationManager.getInstance().get("exception.abstractmap_remove"));
 		}
 
 		@Override
@@ -202,7 +203,7 @@ public final class ArrayList<TYPE> implements List<TYPE> {
 
 	public ListIterator<TYPE> listIterator(final int index) {
 		if (index < 0 || index > size) {
-			throw new IndexOutOfBoundsException("Index: " + index);
+			throw new IndexOutOfBoundsException(LocalizationManager.getInstance().get("exception.listiterator") + index);
 		}
 		return new ListItr(index);
 	}

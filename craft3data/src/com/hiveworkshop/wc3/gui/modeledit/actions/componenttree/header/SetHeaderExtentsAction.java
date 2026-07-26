@@ -4,6 +4,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class SetHeaderExtentsAction implements UndoAction {
 	private final ExtLog prevExtLog;
@@ -34,6 +35,6 @@ public class SetHeaderExtentsAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set extents";
+		return LocalizationManager.getInstance().get("string.setheaderextentsaction_actionname");
 	}
 }

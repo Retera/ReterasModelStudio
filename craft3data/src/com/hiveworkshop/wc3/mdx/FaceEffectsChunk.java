@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdx;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -77,7 +78,7 @@ public class FaceEffectsChunk {
 				return e;
 			} else {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Unable to parse FaceEffect: Missing or unrecognized open statement.");
+						LocalizationManager.getInstance().get("dialog.faceeffectschunk_read_parse"));
 			}
 			return null;
 		}

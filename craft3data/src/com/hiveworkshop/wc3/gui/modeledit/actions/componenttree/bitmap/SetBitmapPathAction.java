@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.bitmap;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.Bitmap;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public class SetBitmapPathAction implements UndoAction {
 	private final Bitmap bitmap;
@@ -32,6 +33,6 @@ public class SetBitmapPathAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "change texture Path";
+		return LocalizationManager.getInstance().get("string.setbitmappathaction_actionname");
 	}
 }

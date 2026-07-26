@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.models;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -115,7 +116,7 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 		temp.add(debugLabel);
 
 		// TODO null prefs
-		modelPanel = new PerspDisplayPanel("blank", modelDisp, null, new RenderModel(modelDisp.getModel(), null));
+		modelPanel = new PerspDisplayPanel(LocalizationManager.getInstance().get("panel.uniteditormodelselector_uniteditormodelselector_blank"), modelDisp, null, new RenderModel(modelDisp.getModel(), null));
 		// table.setShowGrid(false);
 		fillTable();
 
@@ -201,7 +202,7 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 		} catch (final Exception exc) {
 			exc.printStackTrace();
 			// bad model!
-			JOptionPane.showMessageDialog(getParent(), "The chosen model could not be used.", "Program Error",
+			JOptionPane.showMessageDialog(getParent(), LocalizationManager.getInstance().get("dialog.uniteditormodelselector_filltable_chosen"), LocalizationManager.getInstance().get("dialog.uniteditormodelselector_filltable_error"),
 					JOptionPane.ERROR_MESSAGE);
 		}
 		// Vector colNames = new Vector();
@@ -278,7 +279,7 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 
 	public void loadRaceData(final DefaultMutableTreeNode folder, final RaceData data) {
 		final DefaultMutableTreeNode units = new DefaultMutableTreeNode(WEString.getString("WESTRING_UNITS"));
-		final DefaultMutableTreeNode buildings = new DefaultMutableTreeNode(
+			final DefaultMutableTreeNode buildings = new DefaultMutableTreeNode(
 				WEString.getString("WESTRING_UTYPE_BUILDINGS"));
 		final DefaultMutableTreeNode heroes = new DefaultMutableTreeNode(WEString.getString("WESTRING_UTYPE_HEROES"));
 		final DefaultMutableTreeNode special = new DefaultMutableTreeNode(WEString.getString("WESTRING_UTYPE_SPECIAL"));

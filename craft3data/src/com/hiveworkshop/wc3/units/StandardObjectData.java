@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.units;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -68,12 +69,12 @@ public class StandardObjectData {
 
 		final WarcraftData units = new WarcraftData();
 
-		units.add(profile, "Profile", false);
-		units.add(unitAbilities, "UnitAbilities", true);
-		units.add(unitBalance, "UnitBalance", true);
-		units.add(unitData, "UnitData", true);
-		units.add(unitUI, "UnitUI", true);
-		units.add(unitWeapons, "UnitWeapons", true);
+		units.add(profile, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_profile"), false);
+		units.add(unitAbilities, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_unitabilities"), true);
+		units.add(unitBalance, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_unitbalance"), true);
+		units.add(unitData, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_unitdata"), true);
+		units.add(unitUI, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_unitui"), true);
+		units.add(unitWeapons, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_unitweapons"), true);
 		// TODO: The actual War3 game engine does not use this string, "ProfileSkin",
 		// it appears that their architecture for handling this data is quite different.
 		// They give the skin data a lower load priority than UnitUI, which has a lower
@@ -82,7 +83,7 @@ public class StandardObjectData {
 		// "ProfileSkin" here, my custom object editor will be unable to modify skin
 		// data until further notice. But the model studio will work nicely with the
 		// data being formatted visually the same as the game.
-		units.add(skin, "ProfileSkin", false);
+		units.add(skin, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_profileskin"), false);
 
 		return units;
 	}
@@ -103,8 +104,8 @@ public class StandardObjectData {
 
 		final WarcraftData units = new WarcraftData();
 
-		units.add(profile, "Profile", false);
-		units.add(itemData, "ItemData", true);
+		units.add(profile, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_profile"), false);
+		units.add(itemData, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_itemdata"), true);
 
 		return units;
 	}
@@ -122,7 +123,7 @@ public class StandardObjectData {
 
 		final WarcraftData units = new WarcraftData();
 
-		units.add(destructableData, "DestructableData", true);
+		units.add(destructableData, LocalizationManager.getInstance().get("DestructableData"), true);
 
 		return units;
 	}
@@ -144,7 +145,7 @@ public class StandardObjectData {
 
 		final WarcraftData units = new WarcraftData();
 
-		units.add(destructableData, "DoodadData", true);
+		units.add(destructableData, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_doodaddata"), true);
 
 		return units;
 	}
@@ -218,8 +219,8 @@ public class StandardObjectData {
 
 		final WarcraftData abilities = new WarcraftData();
 
-		abilities.add(profile, "Profile", false);
-		abilities.add(abilityData, "AbilityData", true);
+		abilities.add(profile, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_profile"), false);
+		abilities.add(abilityData, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_abilitydata"), true);
 
 		return abilities;
 	}
@@ -255,8 +256,8 @@ public class StandardObjectData {
 
 		final WarcraftData abilities = new WarcraftData();
 
-		abilities.add(profile, "Profile", false);
-		abilities.add(abilityData, "AbilityData", true);
+		abilities.add(profile, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_profile"), false);
+		abilities.add(abilityData, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_abilitydata"), true);
 
 		return abilities;
 	}
@@ -288,8 +289,8 @@ public class StandardObjectData {
 
 		final WarcraftData units = new WarcraftData();
 
-		units.add(profile, "Profile", false);
-		units.add(upgradeData, "UpgradeData", true);
+		units.add(profile, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_profile"), false);
+		units.add(upgradeData, LocalizationManager.getInstance().get("txt.standardobjectdata_warcraftdata_upgradedata"), true);
 
 		return units;
 	}
@@ -475,7 +476,7 @@ public class StandardObjectData {
 					return;
 				}
 			}
-			throw new IllegalArgumentException("no field");
+			throw new IllegalArgumentException(LocalizationManager.getInstance().get("exception.standardobjectdata_setfield_no_field"));
 		}
 
 		@Override

@@ -61,6 +61,7 @@ import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> implements ModelEditor {
 	protected final ModelView model;
@@ -274,7 +275,9 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 			}
 			else {
 				copies.add(null);
-				// System.out.println("GeosetVertex " + i + " was not found.");
+				// System.out.println(LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextrudingselection_geosetvertex")
+				// + i + 
+				// LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextrudingselection_not_found"));
 			}
 		}
 		for (final Triangle tri : selTris) {
@@ -286,15 +289,15 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 						tri.set(i, b);
 						a.getTriangles().remove(tri);
 						// if (a.getTriangles().contains(tri)) {
-						// System.out.println("It's a bloody war!");
+						// System.out.println(LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextrudingselection_bloody"));
 						// }
 						b.getTriangles().add(tri);
 					}
 				}
 			}
 		}
-		// System.out.println(selection.size() + " verteces cloned into " +
-		// copies.size() + " more.");
+		// System.out.println(selection.size() + LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextrudingselection_verteces") +
+		// copies.size() + LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextrudingselection_more"));
 		final ArrayList<Triangle> newTriangles = new ArrayList<>();
 		for (int k = 0; k < selection.size(); k++) {
 			final Vertex vert = selection.get(k);
@@ -320,7 +323,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 					// for (final GeosetVertex copyVer : copies) {
 					// if (copyVer != null) {
 					// if (tri.containsRef(copyVer)) {
-					// System.out.println("holy brejeezers!");
+					// System.out.println(LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextrudingselection_holy"));
 					// }
 					// }
 					// }
@@ -343,10 +346,10 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 								final GeosetVertex gvCopy = copies.get(selection.indexOf(gv));
 								final GeosetVertex gvTempCopy = copies.get(selection.indexOf(gvTemp));
 								// if (gvCopy == null) {
-								// System.out.println("Vertex (gvCopy) copy found as null!");
+								// System.out.println(LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextrudingselection_vertex_gvcopy"));
 								// }
 								// if (gvTempCopy == null) {
-								// System.out.println("Vertex (gvTempCopy) copy found as null!");
+								// System.out.println(LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextrudingselection_vertex_gvtempcopy"));
 								// }
 								Triangle newFace = new Triangle(null, null, null, gv.getGeoset());
 
@@ -360,7 +363,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 									}
 								}
 
-								// System.out.println(" Indeces: " + indexA + "," + indexB + "," + indexC);
+								// System.out.println(LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextrudingselection_indeces")
+								// + indexA + "," + indexB + "," + indexC);
 
 								newFace.set(indexA, gv);
 								newFace.set(indexB, gvTemp);
@@ -385,7 +389,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 								if (!bad) {
 									newTriangles.add(newFace);
 
-									// System.out.println("New Face: ");
+									// System.out.println(LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextrudingselection_new_face"));
 									// System.out.println(newFace.get(0));
 									// System.out.println(newFace.get(1));
 									// System.out.println(newFace.get(2));
@@ -398,7 +402,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 									// Make sure it's included later
 									newTriangles.add(newFace);
 
-									// System.out.println("New Alternate Face: ");
+									// System.out.println(LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextrudingselection_new_alternate_face"));
 									// System.out.println(newFace.get(0));
 									// System.out.println(newFace.get(1));
 									// System.out.println(newFace.get(2));
@@ -441,7 +445,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				for (final Triangle t : gv.getTriangles()) {
-					// System.out.println("SHOULD be one: " +
+					// System.out.println(LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextrudingselection_should") +
 					// Collections.frequency(gv.getTriangles(), t));
 					if (!t.containsRef(gv)) {
 						probs++;
@@ -449,8 +453,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 				}
 			}
 		}
-		// System.out.println("Extrude finished with " + probs + " inexplicable
-		// errors.");
+		// System.out.println(LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextrudingselection_extrude") + probs
+		// + LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextrudingselection_inexplicable"));
 		final ExtrudeAction tempe = new ExtrudeAction(); // TODO better code
 		tempe.storeSelection(selection);
 		tempe.setType(true);
@@ -486,10 +490,12 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 			}
 			else {
 				// copies.add(null);
-				// System.out.println("GeosetVertex " + i + " was not found.");
+				// System.out.println(LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextendingselection_geosetvertex")
+				// + i
+				// + LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextendingselection_not_found"));
 			}
 		}
-		System.out.println(selection.size() + " verteces cloned into " + copies.size() + " more.");
+		System.out.println(selection.size() + " " + copies.size() + LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextendingselection_more"));
 		final ArrayList<GeosetVertex> copiedGroup = new ArrayList<>();
 		for (final Triangle tri : selTris) {
 			if (!selection.contains(tri.get(0)) || !selection.contains(tri.get(1)) || !selection.contains(tri.get(2))) {
@@ -520,10 +526,10 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 				}
 				if (selVerts == 2) {
 					// if (gvCopy == null) {
-					// System.out.println("Vertex (gvCopy) copy found as null!");
+					// System.out.println(LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextendingselection_vertex_gvcopy"));
 					// }
 					// if (gvTempCopy == null) {
-					// System.out.println("Vertex (gvTempCopy) copy found as null!");
+					// System.out.println(LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextendingselection_vertex_gvtempcopy"));
 					// }
 					Triangle newFace = new Triangle(null, null, null, gv.getGeoset());
 
@@ -537,7 +543,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 						}
 					}
 
-					// System.out.println(" Indeces: " + indexA + "," + indexB + "," + indexC);
+					// System.out.println(LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextendingselection_indeces"） + indexA + "," + indexB + "," + indexC);
 
 					newFace.set(indexA, gv);
 					newFace.set(indexB, gvTemp);
@@ -549,7 +555,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 					gv.getGeoset().addTriangle(newFace);
 					newTriangles.add(newFace);
 
-					// System.out.println("New Face: ");
+					// System.out.println(LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextendingselection_new_face"));
 					// System.out.println(newFace.get(0));
 					// System.out.println(newFace.get(1));
 					// System.out.println(newFace.get(2));
@@ -566,7 +572,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 					gv.getGeoset().addTriangle(newFace);
 					newTriangles.add(newFace);
 
-					// System.out.println("New Alternate Face: ");
+					// System.out.println(LocalizationManager.getInstance().get("println.abstractmodeleditor_beginextendingselection_new_alternate_face"));
 					// System.out.println(newFace.get(0));
 					// System.out.println(newFace.get(1));
 					// System.out.println(newFace.get(2));
@@ -631,7 +637,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 			final java.util.Map<IdObject, String> nodeToNamePicked = clonedNodeNamePicker.pickNames(newBones);
 			if (nodeToNamePicked == null) {
 				throw new RuntimeException(
-						"user does not wish to continue so we put in an error to interrupt clone so model is OK");
+						LocalizationManager.getInstance().get("exception.abstractmodeleditor_cloneselectedcomponents"));
 			}
 			for (final IdObject node : nodeToNamePicked.keySet()) {
 				node.setName(nodeToNamePicked.get(node));
@@ -754,7 +760,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 	@Override
 	public UndoAction rotate(final Vertex center, final double rotateX, final double rotateY, final double rotateZ) {
 
-		final CompoundAction compoundAction = new CompoundAction("rotate",
+		final CompoundAction compoundAction = new CompoundAction(LocalizationManager.getInstance().get("action.abstractmodeleditor_rotate"),
 				ListView.Util.of(new SimpleRotateAction(this, center, rotateX, (byte) 2, (byte) 1),
 						new SimpleRotateAction(this, center, rotateY, (byte) 0, (byte) 2),
 						new SimpleRotateAction(this, center, rotateZ, (byte) 1, (byte) 0)));
@@ -786,7 +792,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 	@Override
 	public GenericRotateAction beginSquatTool(final double centerX, final double centerY, final double centerZ,
 			final byte firstXYZ, final byte secondXYZ) {
-		throw new WrongModeException("Unable to use squat tool outside animation editor mode");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.abstractmodeleditor_beginsquattool"));
 	}
 
 	@Override
@@ -796,7 +802,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
 	@Override
 	public UndoAction createKeyframe(final ModelEditorActionType actionType) {
-		throw new UnsupportedOperationException("Cannot create keyframe outside of animation mode");
+		throw new UnsupportedOperationException(LocalizationManager.getInstance().get("exception.abstractmodeleditor_createkeyframe"));
 	}
 
 	@Override
@@ -816,7 +822,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		boolean needsGeosetAction = false;
 		if (solidWhiteGeoset == null) {
 			solidWhiteGeoset = new Geoset();
-			solidWhiteGeoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
+			solidWhiteGeoset.setMaterial(new Material(new Layer(LocalizationManager.getInstance().get("layer.abstractmodeleditor_addplane_solidwhitegeoset"), new Bitmap("Textures\\white.blp"))));
 			needsGeosetAction = true;
 		}
 		GenericMoveAction action;
@@ -825,7 +831,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		if (needsGeosetAction) {
 			final NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, model.getModel(),
 					structureChangeListener);
-			action = new CompoundMoveAction("create plane",
+			action = new CompoundMoveAction(LocalizationManager.getInstance().get("action.abstractmodeleditor_addplane_create_plane"),
 					ListView.Util.of(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
 		}
 		else {
@@ -853,7 +859,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		boolean needsGeosetAction = false;
 		if (solidWhiteGeoset == null) {
 			solidWhiteGeoset = new Geoset();
-			solidWhiteGeoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
+			solidWhiteGeoset.setMaterial(new Material(new Layer(LocalizationManager.getInstance().get("layer.abstractmodeleditor_addbox_solidwhitegeoset"), new Bitmap("Textures\\white.blp"))));
 			needsGeosetAction = true;
 		}
 		GenericMoveAction action;
@@ -862,7 +868,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		if (needsGeosetAction) {
 			final NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, model.getModel(),
 					structureChangeListener);
-			action = new CompoundMoveAction("create plane",
+			action = new CompoundMoveAction(LocalizationManager.getInstance().get("action.abstractmodeleditor_addbox_create_plane"),
 					ListView.Util.of(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
 		}
 		else {
@@ -880,7 +886,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
 	@Override
 	public UndoAction addBone(final double x, final double y, final double z) {
-		throw new WrongModeException("Unable to add bone outside of pivot point editor");
+		throw new WrongModeException(LocalizationManager.getInstance().get("exception.abstractmodeleditor_addbone"));
 	}
 
 	@Override

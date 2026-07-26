@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -220,7 +221,7 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 
 		{
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse ParticleEmitterPopcorn: Missing or unrecognized open statement.");
+					LocalizationManager.getInstance().get("dialog.particleemitterpopcorn_read_parse"));
 		}
 		return null;
 	}
@@ -234,10 +235,10 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 		final ArrayList<AnimFlag> pAnimFlags = new ArrayList<>(this.animFlags);
 		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
 		if (objectId != -1) {
-			writer.println("\tObjectId " + objectId + ",");
+			writer.println(LocalizationManager.getInstance().get("println.particleemitterpopcorn_printto_objectid") + objectId + ",");
 		}
 		if (parentId != -1) {
-			writer.println("\tParent " + parentId + ",\t// \"" + getParent().getName() + "\"");
+			writer.println(LocalizationManager.getInstance().get("println.particleemitterpopcorn_printto_parent") + parentId + ",\t// \"" + getParent().getName() + "\"");
 		}
 		for (final String s : flags) {
 			writer.println("\t" + s + ",");
@@ -254,7 +255,7 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 			}
 		}
 		if (!foundFlag) {
-			writer.println("\tstatic LifeSpan " + MDLReader.doubleToString(lifeSpan) + ",");
+			writer.println(LocalizationManager.getInstance().get("println.particleemitterpopcorn_printto_static_lifespan") + MDLReader.doubleToString(lifeSpan) + ",");
 		}
 		currentFlag = "EmissionRate";
 		foundFlag = false;
@@ -266,7 +267,7 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 			}
 		}
 		if (!foundFlag) {
-			writer.println("\tstatic EmissionRate " + MDLReader.doubleToString(emissionRate) + ",");
+			writer.println(LocalizationManager.getInstance().get("println.particleemitterpopcorn_printto_static_emissionrate") + MDLReader.doubleToString(emissionRate) + ",");
 		}
 		currentFlag = "Speed";
 		foundFlag = false;
@@ -278,7 +279,7 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 			}
 		}
 		if (!foundFlag) {
-			writer.println("\tstatic Speed " + MDLReader.doubleToString(speed) + ",");
+			writer.println(LocalizationManager.getInstance().get("println.particleemitterpopcorn_printto_static_speed") + MDLReader.doubleToString(speed) + ",");
 		}
 		currentFlag = "Color";
 		foundFlag = false;
@@ -290,7 +291,7 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 			}
 		}
 		if (!foundFlag && (color != null)) {
-			writer.println("\tstatic Color " + color.toString() + ",");
+			writer.println(LocalizationManager.getInstance().get("println.particleemitterpopcorn_printto_static_color") + color.toString() + ",");
 		}
 		currentFlag = "Visibility";
 		foundFlag = false;
@@ -311,16 +312,16 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 			}
 		}
 		if (!foundFlag) {
-			writer.println("\tstatic Alpha " + MDLReader.doubleToString(alpha) + ",");
+			writer.println(LocalizationManager.getInstance().get("println.particleemitterpopcorn_printto_static_alpha") + MDLReader.doubleToString(alpha) + ",");
 		}
 		if (replaceableId != 0) {
-			writer.println("\tReplaceableId " + replaceableId + ",");
+			writer.println(LocalizationManager.getInstance().get("println.particleemitterpopcorn_printto_replaceableid") + replaceableId + ",");
 		}
 		if (path != null) {
-			writer.println("\tPath \"" + path + "\",");
+			writer.println(LocalizationManager.getInstance().get("println.particleemitterpopcorn_printto_path") + " \"" + path + "\",");
 		}
 		if (animVisibilityGuide != null) {
-			writer.println("\tAnimVisibilityGuide \"" + animVisibilityGuide + "\",");
+			writer.println(LocalizationManager.getInstance().get("println.particleemitterpopcorn_printto_animvisibilityguide") + " \"" + animVisibilityGuide + "\",");
 		}
 
 		for (int i = pAnimFlags.size() - 1; i >= 0; i--) {
@@ -362,7 +363,7 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 		}
 		if (count > 1) {
 			JOptionPane.showMessageDialog(null,
-					"Some visiblity animation data was lost unexpectedly during overwrite in " + getName() + ".");
+					LocalizationManager.getInstance().get("println.particleemitterpopcorn_setvisibilityflag_overwrite") + getName() + ".");
 		}
 	}
 
@@ -378,7 +379,7 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 		}
 		if (count > 1) {
 			JOptionPane.showMessageDialog(null,
-					"Some visiblity animation data was lost unexpectedly during retrieval in " + getName() + ".");
+					LocalizationManager.getInstance().get("println.particleemitterpopcorn_getvisibilityflag_retrieval") + getName() + ".");
 		}
 		return output;
 	}

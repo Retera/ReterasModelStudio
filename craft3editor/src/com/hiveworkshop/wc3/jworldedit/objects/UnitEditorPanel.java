@@ -1,4 +1,5 @@
 package com.hiveworkshop.wc3.jworldedit.objects;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.awt.Component;
 import java.awt.Image;
@@ -233,18 +234,18 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 		}
 
 		final String filepath = "replaceabletextures\\commandbuttons\\btnstormbolt.blp";
-		final BehaviorTreeNode behaviorRoot = new BehaviorTreeNode(niceIcon(filepath), "Storm Bolt");
+		final BehaviorTreeNode behaviorRoot = new BehaviorTreeNode(niceIcon(filepath), LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_storm_bolt"));
 		final BehaviorTreeNode localVarNode = new BehaviorTreeNode(
-				niceIcon("replaceabletextures\\worldeditui\\editor-scriptvariable.blp"), "Local Variables");
+				niceIcon("replaceabletextures\\worldeditui\\editor-scriptvariable.blp"), LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_local_variables"));
 		behaviorRoot.add(localVarNode);
 		localVarNode.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-setvariables.blp"),
-				"LocalLevel"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_local_level")));
 		localVarNode.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-setvariables.blp"),
-				"LocalDuration"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_local_duration")));
 		localVarNode.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-setvariables.blp"),
-				"LocalBuffType"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_local_buff_type")));
 		final BehaviorTreeNode actionsOnLearn = new BehaviorTreeNode(
-				niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), "On Learn - Actions");
+				niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_on_learn_actions"));
 		behaviorRoot.add(actionsOnLearn);
 		// (Ability: This_ability's Real Level Field Cooldown ('acdn'), of Level: level)
 		// Greater than or equal to 10.00
@@ -253,99 +254,99 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 		// (Ability: This_ability's Integer Field: Missile Speed ('amsp')) Equal to 0
 
 		actionsOnLearn.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-setvariables.blp"),
-				"Set LocalLevel = (Level of (This ability) for (Triggering unit))"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_set_local_level_triggering_unit")));
 		actionsOnLearn.add(new BehaviorTreeNode(niceIcon("ui\\widgets\\tooltips\\human\\tooltipmanaicon.blp"),
-				"Command Card - Add a (Unit target) command card icon for (This ability) using ((Ability: (This ability)'s Integer Field: Button Position - Normal (X) ('abpx')), (Ability: (This ability)'s Integer Field: Button Position - Normal (Y) ('abpy')))"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_command_card_add_icon")));
 		actionsOnLearn.add(new BehaviorTreeNode(niceIcon("ui\\widgets\\tooltips\\human\\tooltipmanaicon.blp"),
-				"Command Card - Set the icon of (Last created Command Card Icon) to (Icon of (This ability))"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_command_card_set_icon")));
 		actionsOnLearn.add(new BehaviorTreeNode(niceIcon("ui\\widgets\\tooltips\\human\\tooltipmanaicon.blp"),
-				"Command Card - Set the Mana Cost of (Last created Command Card Icon) to (Ability: (This ability)'s Integer Level Field Mana Cost ('amcs'), of Level: LocalLevel)"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_command_card_set_mana_cost")));
 		actionsOnLearn.add(new BehaviorTreeNode(niceIcon("ui\\widgets\\tooltips\\human\\tooltipmanaicon.blp"),
-				"Command Card - Set the Cooldown of (Last created Command Card Icon) to (Ability: (This ability)'s Real Level Field Cooldown ('acdn'), of Level: LocalLevel)"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_command_card_set_cooldown")));
 		final BehaviorTreeNode actionsOnCast = new BehaviorTreeNode(
-				niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), "On Cast - Actions");
+				niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_on_cast_actions"));
 		behaviorRoot.add(actionsOnCast);
 		actionsOnCast.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-setvariables.blp"),
-				"Set LocalLevel = (Level of (This ability) for (Casting unit))"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_set_local_level")));
 		actionsOnCast.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Missile.blp"),
-				"Missile - Create an initially unlaunched missile at (Position of (Casting unit)) with Z height 0.00 that will home in on (Target unit of ability being cast) above its head at Z height 0.00"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_create_missile")));
 		actionsOnCast.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Missile.blp"),
-				"Missile - Change the model file of (Last created missile) to be (Art path of (This ability) Missile Art (index 0))"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_model_missile")));
 		actionsOnCast.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Missile.blp"),
-				"Missile - Change the owner of (Last created missile) to be (Owner of (Casting unit))"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_owner_missile")));
 		actionsOnCast.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Missile.blp"),
-				"Missile - Launch (Last created missile) with a speed of (Ability: (This ability)'s Integer Field: Missile Speed ('amsp')) and arc of (Ability: (This ability)'s Real Field: Missile Arc ('amac'))"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_launch_missile")));
 		actionsOnCast.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Ability.blp"),
-				"Unit - Cause (Casting unit) to damage (Target unit of ability being cast), dealing (Ability: (This ability)'s Real Level Field Damage ('Htb1'), of Level: LocalLevel) damage of attack type Spells and damage type Normal"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_damage_unit")));
 		actionsOnCast.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-setvariables.blp"),
-				"Set LocalBuffType = (Ability: (This ability)'s Buff Level Field Buffs ('abuf'), of Level: LocalLevel)"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_set_local_buff_type")));
 
 		{
 
 			final BehaviorTreeNode ifBlockStarter2 = new BehaviorTreeNode(
 					niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Logical.blp"),
-					"If (All Conditions are True) then do (Then Actions) else do (Else Actions)");
+					LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_conditions"));
 			actionsOnCast.add(ifBlockStarter2);
 			final BehaviorTreeNode ifConditions2 = new BehaviorTreeNode(
-					niceIcon("replaceabletextures\\worldeditui\\editor-triggercondition.blp"), "If - Conditions");
+					niceIcon("replaceabletextures\\worldeditui\\editor-triggercondition.blp"), LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_if"));
 			ifBlockStarter2.add(ifConditions2);
 			ifConditions2.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Logical.blp"),
-					"((Target unit of ability being cast) is A Hero) Equal to True"));
+					LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_hero_equal_true")));
 			// (Ability: This_ability's Real Level Field Duration - Normal ('adur'), of
 			// Level: level) Greater than or equal to 10.00
 
 			final BehaviorTreeNode thenActions2 = new BehaviorTreeNode(
-					niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), "Then - Actions");
+					niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_then"));
 			ifBlockStarter2.add(thenActions2);
 			thenActions2.add(new BehaviorTreeNode(
 					niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-setvariables.blp"),
-					"Set LocalDuration = (Ability: (This ability)'s Real Level Field Duration - Hero ('ahdu'), of Level: LocalLevel)"));
+					LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_set_localduration_hero")));
 			final BehaviorTreeNode elseActions2 = new BehaviorTreeNode(
-					niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), "Else - Actions");
+					niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_else"));
 			ifBlockStarter2.add(elseActions2);
 			elseActions2.add(new BehaviorTreeNode(
 					niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-setvariables.blp"),
-					"Set LocalDuration = (Ability: (This ability)'s Real Level Field Duration - Normal ('adur'), of Level: LocalLevel)"));
+					LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_set_localduration_normal")));
 		}
 
 		final BehaviorTreeNode ifBlockStarter = new BehaviorTreeNode(
 				niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Logical.blp"),
-				"If (All Conditions are True) then do (Then Actions) else do (Else Actions)");
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_conditions"));
 		actionsOnCast.add(ifBlockStarter);
 		final BehaviorTreeNode ifConditions = new BehaviorTreeNode(
-				niceIcon("replaceabletextures\\worldeditui\\editor-triggercondition.blp"), "If - Conditions");
+				niceIcon("replaceabletextures\\worldeditui\\editor-triggercondition.blp"), LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_if"));
 		ifBlockStarter.add(ifConditions);
 		ifConditions.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Logical.blp"),
-				"(Level of LocalBuffType for (Target unit of ability being cast)) Greater than 0"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_local_buff_type_greater")));
 		final BehaviorTreeNode thenActions = new BehaviorTreeNode(
-				niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), "Then - Actions");
+				niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_then"));
 		ifBlockStarter.add(thenActions);
 		thenActions.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-CasterSystem.blp"),
-				"Buff - Add LocalDuration to the duration for (Buff of (Target unit of ability being cast) of type LocalBuffType and ability type (This ability))"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_buff_duration")));
 		final BehaviorTreeNode elseActions = new BehaviorTreeNode(
-				niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), "Else - Actions");
+				niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_else"));
 		ifBlockStarter.add(elseActions);
 
 		elseActions.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-CasterSystem.blp"),
-				"Buff - Apply a new buff with Level: LocalLevel to (Target unit of ability being cast) of type LocalBuffType"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_buff_new")));
 		elseActions.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-CasterSystem.blp"),
-				"Buff - Set the remaining duration for (Last applied buff) to LocalDuration"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_buff_remaining_duration")));
 		final BehaviorTreeNode actionsOnBuffApplied = new BehaviorTreeNode(
-				niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), "On Buff Applied - Actions");
+				niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_buff_applied_actions"));
 		behaviorRoot.add(actionsOnBuffApplied);
 		actionsOnBuffApplied
 				.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-SetVariables.blp"),
-						"Set LocalLevel = (Level of (This ability) for (Buffed unit))"));
+						LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_set_local_level_buffed")));
 		actionsOnBuffApplied.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Ability.blp"),
-				"Stun (Buffed unit)"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_stun_buffed")));
 		final BehaviorTreeNode actionsOnBuffRemoved = new BehaviorTreeNode(
-				niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), "On Buff Removed - Actions");
+				niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_buff_removed_actions"));
 		behaviorRoot.add(actionsOnBuffRemoved);
 		actionsOnBuffRemoved
 				.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-SetVariables.blp"),
-						"Set LocalLevel = (Level of (This ability) for (Buffed unit))"));
+						LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_set_local_level_buffed")));
 		actionsOnBuffRemoved.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Ability.blp"),
-				"Unstun (Buffed unit)"));
+				LocalizationManager.getInstance().get("add.uniteditopanel_uniteditopanel_unstun_buffed")));
 		final JTree behaviorTree = new JTree(behaviorRoot);
 		behaviorTree.setCellRenderer(new DefaultTreeCellRenderer() {
 			@Override
@@ -362,8 +363,8 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 		for (int i = 0; i < behaviorTree.getRowCount(); i++) {
 			behaviorTree.expandRow(i);
 		}
-		splitWithBehaviorEditor.addTab("Stats", new JScrollPane(table));
-		splitWithBehaviorEditor.addTab("Behavior", new JScrollPane(behaviorTree));
+		splitWithBehaviorEditor.addTab(LocalizationManager.getInstance().get("addtab.uniteditopanel_uniteditopanel_stats"), new JScrollPane(table));
+		splitWithBehaviorEditor.addTab(LocalizationManager.getInstance().get("addtab.uniteditopanel_uniteditopanel_behavior"), new JScrollPane(behaviorTree));
 		setRightComponent(splitWithBehaviorEditor);
 //		setRightComponent(new JScrollPane(table));
 
@@ -403,7 +404,7 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 
 			@Override
 			public void categoriesChanged(final War3ID changedObject) {
-				System.out.println("categoriesChanged(" + changedObject + ")");
+				System.out.println(LocalizationManager.getInstance().get("println.uniteditopanel_uniteditopanel_categories") + changedObject + ")");
 				final UnitEditorTreeModel treeModel = tree.getModel();
 				final TreeNode changedNode = treeModel.getNodeById(changedObject);
 				if (changedNode != null) {
@@ -413,7 +414,7 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 							new TreeNodeLinkerFromModel(treeModel));
 					selectTreeNode(newObjectNode);
 				} else {
-					System.out.println("Changed node was not found");
+					System.out.println(LocalizationManager.getInstance().get("println.uniteditopanel_uniteditopanel_found"));
 				}
 			}
 

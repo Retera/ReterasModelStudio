@@ -13,6 +13,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBVertexBufferObject;
 
 import com.owens.oobjloader.builder.Face;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 // This code was written by myself, Sean R. Owens, sean at guild dot net,
 // and is released to the public domain. Share and enjoy. Since some
@@ -34,7 +35,7 @@ public class VBOFactory {
         //	log.log(INFO, "building a vbo!");
 
         if (triangles.size() <= 0) {
-            throw new RuntimeException("Can not build a VBO if we have no triangles with which to build it.");
+            throw new RuntimeException(LocalizationManager.getInstance().get("matrixeater.exception.vbofactory"));
         }
 
         // Now sort out the triangle/vertex indices, so we can use a

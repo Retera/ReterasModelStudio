@@ -1,6 +1,7 @@
 package com.matrixeater.imp;
 
 import com.hiveworkshop.wc3.gui.icons.RMSIcons;
+import hiveworkshop.localizationmanager.LocalizationManager;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -20,7 +21,7 @@ public class ImportPanelSimple extends JPanel implements ActionListener {
 		animationTransfer.addActionListener(this);
 
 		setPreferredSize(new Dimension(800, 600));
-		frame = new JFrame("Simple Import Handler");
+		frame = new JFrame(LocalizationManager.getInstance().get("matrixeater.frame.importpanelsimple"));
 		frame.setContentPane(this);
 
 		frame.pack();
@@ -35,7 +36,7 @@ public class ImportPanelSimple extends JPanel implements ActionListener {
 	public void actionPerformed(final ActionEvent e) {
 		if (e.getSource() == animationTransfer) {
 			frame.setContentPane(new AnimationTransfer(frame));
-			frame.setTitle("Animation Transferer");
+			frame.setTitle(LocalizationManager.getInstance().get("matrixeater.title.animationtransfer"));
 			frame.setIconImage(RMSIcons.AnimIcon.getImage());
 			frame.revalidate();
 			frame.pack();
