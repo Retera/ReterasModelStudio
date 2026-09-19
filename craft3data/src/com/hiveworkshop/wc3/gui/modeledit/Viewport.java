@@ -25,14 +25,10 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -45,6 +41,7 @@ import javax.swing.Timer;
 import javax.swing.TransferHandler;
 
 import com.etheller.util.CollectionUtils;
+import com.hiveworkshop.wc3.gui.modeledit.util.EditingHotkeys;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.ProgramPreferencesChangeListener;
@@ -246,23 +243,14 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 
 	private void setupCopyPaste(final ViewportTransferHandler viewportTransferHandler,
 			final Runnable animationModeDeleteListener) {
-		setTransferHandler(viewportTransferHandler);
-		final ActionMap map = getActionMap();
-		map.put(TransferHandler.getCutAction().getValue(Action.NAME), TransferHandler.getCutAction());
-		map.put(TransferHandler.getCopyAction().getValue(Action.NAME), TransferHandler.getCopyAction());
-		map.put(TransferHandler.getPasteAction().getValue(Action.NAME), TransferHandler.getPasteAction());
-		map.put("Delete", new AbstractAction() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				if (modelEditor.editorWantsAnimation()) {
-					animationModeDeleteListener.run();
-				} else {
-					undoListener.pushAction(modelEditor.deleteSelectedComponents());
-				}
+		EditingHotkeys.installClipboard(this, viewportTransferHandler);
+		EditingHotkeys.installDelete(this, () -> {
+			if (modelEditor.editorWantsAnimation()) {
+				animationModeDeleteListener.run();
+			} else {
+				undoListener.pushAction(modelEditor.deleteSelectedComponents());
 			}
 		});
-		getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("DELETE"), "Delete");
-		setFocusable(true);
 	}
 
 	public void setPosition(final double a, final double b) {

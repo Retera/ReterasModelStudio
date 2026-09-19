@@ -79,7 +79,6 @@ import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
@@ -161,6 +160,7 @@ import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
 import com.hiveworkshop.wc3.gui.modeledit.util.TextureExporter;
+import com.hiveworkshop.wc3.gui.modeledit.util.EditingHotkeys;
 import com.hiveworkshop.wc3.gui.modeledit.util.TransferActionListener;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimationViewer;
 import com.hiveworkshop.wc3.gui.mpqbrowser.BLPPanel;
@@ -7040,7 +7040,7 @@ public class MainPanel extends JPanel
 	}
 
 	private boolean focusedComponentNeedsTyping(final Component focusedComponent) {
-		return (focusedComponent instanceof JTextArea) || (focusedComponent instanceof JTextField);
+		return EditingHotkeys.needsTyping(focusedComponent);
 	}
 
 	private void mdlEditorFindNext() {

@@ -10,7 +10,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -20,15 +19,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.AbstractAction;
-import javax.swing.ActionMap;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -39,6 +34,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
+import com.hiveworkshop.wc3.gui.modeledit.util.EditingHotkeys;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
@@ -169,14 +165,7 @@ public class TracksEditorPanel extends JPanel {
 		timelinePanel.setPreferredSize(
 				new Dimension(getMaxX(modelViewManager), modelComponentAnimFlagTree.getPreferredSize().height));
 
-		final ActionMap map = getActionMap();
-		map.put("Delete", new AbstractAction() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				timelinePanel.deleteKeyframes();
-			}
-		});
-		getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("DELETE"), "Delete");
+		EditingHotkeys.installDelete(this, timelinePanel::deleteKeyframes);
 	}
 
 	private static final class TracksEditorTimelinePanel extends JPanel
