@@ -188,6 +188,34 @@ Single from File/Unit/Model/Object.
   Selected, Lock (visible, not editable), Select in Model tab, Open in Tracks. All undoable through the existing
   `showComponent`/`hideComponent` path.
 
+### Preview fidelity
+
+- [ ] **W12. Particle preview that matches the game, including Popcorn (PKB).** Today `RenderParticleEmitter2`
+  and `RenderRibbonEmitter` in `wc3/mdl/render3d` are a hand port of Ghostwolf's mdx-m3-viewer as it stood
+  years ago, `ParticleEmitter` (model-spawning) has no preview, and `ParticleEmitterPopcorn` renders nothing.
+  Users want all three drawn together in the preview. Plan:
+  1. **Classic emitters.** Re-port `ParticleEmitter2` and ribbons from the newer, more faithful Java port in
+     WarsmashModEngine (`com.etheller.warsmash.viewer5.handlers.mdx` package: `ParticleEmitter2Object`,
+     `Particle2`, `RibbonEmitter`, `EventObjectSpn/Spl/Ubr`), which is closer to the original game, then add
+     `ParticleEmitter` (spawns the referenced model per particle, with its own animation) and the event object
+     splats and spawned models. Keep the software particle path but move quad building into buffers (ties to R4).
+  2. **Popcorn / PKB.** Reforged popcorn emitters reference `.pkb` Blizzard particle files. FernandoS27's
+     WhiteoutFlakes project has shown a fan PKB renderer is feasible. Investigate its format decoding and node
+     graph evaluation, write a `pkb/` parser in `craft3data` (headless, tested with F1-style round trips on the
+     stock `.pkb` files), then a `RenderPopcornEmitter` that evaluates the graph on the CPU first and on the GPU
+     later. Show a placeholder glyph and the emitter's path until the parser lands so users at least see where
+     the emitter sits.
+  3. **A shared emitter contract** so the preview, the 2D viewports and the future GL viewport (W10) all draw
+     emitters through one `RenderEmitter` interface with `update(dt)` and `fill(buffer)`.
+  Treat this like Ghostwolf treated his viewer: keep the emitter code small and rewrite it cleanly rather than
+  patching the current port. It is one of the few places where starting over is cheaper than carrying the stack.
+- [ ] **W13. Fix the "view camera" editing mode.** The graphical camera-animation editing view (the "View"
+  camera function that looks through a model `Camera` while editing its keyframes) applies wrong rotations and
+  was never finished. Make its orientation match the game: position and target from the camera tracks, roll from
+  `KCRL`, field of view from the camera, and verify against a stock cinematic camera model in game footage or
+  the Reforged World Editor. Also let the perspective view "look through" any camera and write the current view
+  back to the camera as a keyframe.
+
 ## Phase M: data model modernisation (incremental, never a rewrite)
 
 `EditableModel` keeps both object pointers and integer ids on most components and reconciles them only in
@@ -204,11 +232,20 @@ references only; the save-time automation stays but becomes visible and optional
   map, and delete the corresponding `updateIds` step. Round-trip with F1 after each component. The fork did this
   wholesale (`EditableModel.getId(Object)`, `modelIdObjects` lazy maps, `BitmapAnimFlag` holding `Bitmap`); we do
   it per component so Import can be checked at each step.
-- [ ] **M3. Make save-time cleanup explicit.** Split `doSavePreps` into "make consistent" (always: ids, pivots,
-  matrices) and "optimise" (remove unused textures, materials, texture anims, global sequences, empty geosets).
-  The optimise half runs by default, controlled by a `ProgramPreferences` flag surfaced as File > "Clean unused
-  on save", and is also available as an undoable Tools action so the user can see what it will remove. Import
-  keeps calling both.
+- [ ] **M3. Reconcile at event time, prune only on request.** `doSavePreps` does two different jobs and they
+  need different timing. *Deriving* (ids from pointers, pivots from nodes, matrices from vertex groups, geoset
+  anim to geoset links, bone geoset ids) is idempotent and safe to run whenever the structure changes, so run it
+  from the `ModelStructureChangeListener` after imports, pastes, deletes and node reparenting, and again in the
+  writer. *Pruning* (unused textures, materials, texture anims, global sequences, empty geosets) must not run on
+  every event or adding a texture in the Model tab would delete it immediately. Pruning moves into an expanded
+  **Edit > Optimize** that also merges identical texture references and identical materials, regenerates geoset
+  and geoset-anim ids on bones, and reports what it changed, all as one undo action. Preferences get two
+  checkboxes, "Optimize after import" and "Optimize on save", both **on** by default so the current workflow is
+  unchanged; Import calls the same optimize step directly. Answer to "would this break the code": no, provided the
+  derive and prune halves are separated first. The code paths that depend on save-time reconciliation are
+  Import (`ImportPanel`), OBJ import (`Build`, `BuildWLists`), the Add > Particle path, and the MDL text Apply
+  action; each of them already calls `doPostRead` or relies on the next save, and each can call the derive step
+  explicitly instead.
 - [ ] **M4. Stop mutating the live model during save.** Today saving removes empty geosets from the open model
   and reorders `idObjects`. After M2 and M3 the writer should work from the live model without mutating it, or on
   a shallow copy, so that "save then keep editing" is not a hidden edit.
@@ -271,7 +308,7 @@ references only; the save-time automation stays but becomes visible and optional
 
 F6, F3, F4 (small, immediate). C1 partially (extract menus and dispatch) so W-items do not grow `MainPanel`.
 Then W1 + W2 + W4 together (one tree, one popup, one drag handler), W5 + W6, W7, W8, W9, W11. F1 and F2 before
-Phase M. W10 is the largest single item; stage 1 and 2 can be done any time, stage 3 after R2. Keep interleaving
+Phase M. W10 and W12 are the largest items; stage 1 and 2 can be done any time, stage 3 after R2. Keep interleaving
 one C item per two feature items.
 
 ## Appendix A: reading list in the twilac fork
@@ -309,8 +346,21 @@ Do not copy:
 - The wholesale package relayout and class renames. Our history and the user community's bug reports refer to
   the current names.
 
+## Appendix B: external references
+
+- Ghostwolf's mdx-m3-viewer (https://github.com/flowtsohg/mdx-m3-viewer): the origin of `RenderModel`,
+  `RenderNode` and the particle code; no longer maintained.
+- WarsmashModEngine (https://github.com/Retera/WarsmashModEngine): the maintainer's later, more faithful Java
+  port of the same renderer for classic graphics, and the reference for W12 step 1 and for MDX/MDL parsing
+  choices.
+- WhiteoutFlakes (https://github.com/FernandoS27/WhiteoutFlakes): a fan renderer for Reforged PKB popcorn
+  effects; the reference for W12 step 2.
+- twilac's fork (https://github.com/tw1lac/ReterasModelStudio): see Appendix A.
+
 ## Log
 
 - 2026-09-18: branch created; `CLAUDE.md` and this roadmap added on top of the 3.0.0 and CASC fixes.
 - 2026-09-18: maintainer wishlist folded in as Phase W after a survey of the current Model, Tracks, Add,
   Modeling, Outliner and viewport code and of the twilac fork's branches.
+- 2026-09-18: added W12 (particle and PKB preview), W13 (view camera), reworked M3 around event-time
+  reconciliation and an expanded Optimize tool, added Appendix B.
