@@ -51,6 +51,31 @@ public class WarcraftIIICASC implements AutoCloseable {
 		}
 
 		/**
+		 * Resolve a file path string to a path result.
+		 * <p>
+		 * The path is first resolved as UTF-8. If that fails and the path contains
+		 * non-ASCII characters it is retried using the legacy fallback encoding, so
+		 * that names produced by enumerateFiles for non-UTF-8 entries round trip.
+		 *
+		 * @param filePath Path of file to resolve.
+		 * @return Resolved path result.
+		 * @throws FileNotFoundException If the path does not exist in the file system.
+		 * @throws IOException           If an exception occurs when resolving.
+		 */
+		private PathResult resolvePath(final String filePath) throws IOException {
+			final byte[][] pathFragments = VirtualFileSystem.convertFilePath(filePath);
+			try {
+				return vfs.resolvePath(pathFragments);
+			} catch (final FileNotFoundException e) {
+				final byte[][] fallbackFragments = VirtualFileSystem.convertFilePathFallback(filePath);
+				if (fallbackFragments == null) {
+					throw e;
+				}
+				return vfs.resolvePath(fallbackFragments);
+			}
+		}
+
+		/**
 		 * Test if the specified file path is a file.
 		 *
 		 * @param filePath Path of file to test.
@@ -58,9 +83,8 @@ public class WarcraftIIICASC implements AutoCloseable {
 		 * @throws IOException In an exception occurs when resolving files.
 		 */
 		public boolean isFile(final String filePath) throws IOException {
-			final byte[][] pathFragments = VirtualFileSystem.convertFilePath(filePath);
 			try {
-				final PathResult resolveResult = vfs.resolvePath(pathFragments);
+				final PathResult resolveResult = resolvePath(filePath);
 				return resolveResult.isFile();
 			} catch (final FileNotFoundException e) {
 				return false;
@@ -75,8 +99,7 @@ public class WarcraftIIICASC implements AutoCloseable {
 		 * @throws IOException In an exception occurs when resolving files.
 		 */
 		public boolean isFileAvailable(final String filePath) throws IOException {
-			final byte[][] pathFragments = VirtualFileSystem.convertFilePath(filePath);
-			final PathResult resolveResult = vfs.resolvePath(pathFragments);
+			final PathResult resolveResult = resolvePath(filePath);
 			return resolveResult.existsInStorage();
 		}
 
@@ -94,9 +117,8 @@ public class WarcraftIIICASC implements AutoCloseable {
 		 * @throws IOException In an exception occurs when resolving files.
 		 */
 		public boolean isNestedFileSystem(final String filePath) throws IOException {
-			final byte[][] pathFragments = VirtualFileSystem.convertFilePath(filePath);
 			try {
-				final PathResult resolveResult = vfs.resolvePath(pathFragments);
+				final PathResult resolveResult = resolvePath(filePath);
 				return resolveResult.isTVFS();
 			} catch (final FileNotFoundException e) {
 				return false;
@@ -111,8 +133,7 @@ public class WarcraftIIICASC implements AutoCloseable {
 		 * @throws IOException If an error occurs when reading the file.
 		 */
 		public ByteBuffer readFileData(final String filePath) throws IOException {
-			final byte[][] pathFragments = VirtualFileSystem.convertFilePath(filePath);
-			final PathResult resolveResult = vfs.resolvePath(pathFragments);
+			final PathResult resolveResult = resolvePath(filePath);
 
 			if (!resolveResult.isFile()) {
 				throw new FileNotFoundException("the specified file path does not resolve to a file");

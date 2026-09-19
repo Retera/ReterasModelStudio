@@ -203,6 +203,16 @@ public final class VirtualFileSystem {
 	public static final Charset PATH_ENCODING = Charset.forName("UTF8");
 
 	/**
+	 * Fallback character encoding for path fragments that are not valid UTF-8.
+	 * <p>
+	 * Some game builds (observed with Warcraft III 3.0.0 "Forsaken Kingdom" and its
+	 * localized w3mod layers) ship TVFS entries whose names were written using a
+	 * legacy single byte Windows code page rather than UTF-8. Every byte value is
+	 * defined in this charset so decoding with it can never fail.
+	 */
+	public static final Charset PATH_FALLBACK_ENCODING = Charset.forName("windows-1252");
+
+	/**
 	 * Path separator used by path strings.
 	 */
 	public static final String PATH_SEPERATOR = "\\";
@@ -286,12 +296,58 @@ public final class VirtualFileSystem {
 		final CharsetDecoder decoder = PATH_ENCODING.newDecoder();
 		decoder.onMalformedInput(CodingErrorAction.REPORT);
 		decoder.onUnmappableCharacter(CodingErrorAction.REPORT);
+		CharsetDecoder fallbackDecoder = null;
 
 		for (int index = 0; index < fragmentStrings.length; index += 1) {
-			fragmentStrings[index] = decoder.decode(ByteBuffer.wrap(pathFragments[index])).toString();
+			final byte[] fragment = pathFragments[index];
+			try {
+				fragmentStrings[index] = decoder.decode(ByteBuffer.wrap(fragment)).toString();
+			} catch (final CharacterCodingException e) {
+				// Not valid UTF-8. Rather than failing the whole enumeration for one odd
+				// file name, decode this fragment with the legacy fallback code page,
+				// which is defined for every byte value and therefore cannot fail.
+				if (fallbackDecoder == null) {
+					fallbackDecoder = PATH_FALLBACK_ENCODING.newDecoder();
+					fallbackDecoder.onMalformedInput(CodingErrorAction.REPLACE);
+					fallbackDecoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
+				}
+				decoder.reset();
+				fragmentStrings[index] = fallbackDecoder.decode(ByteBuffer.wrap(fragment)).toString();
+			}
 		}
 
 		return String.join(PATH_SEPERATOR, fragmentStrings);
+	}
+
+	/**
+	 * Convert a path string into path fragments using the legacy fallback encoding.
+	 * <p>
+	 * This is the inverse of the fallback used by convertPathFragments for names
+	 * that were not valid UTF-8. Callers should first try convertFilePath and only
+	 * retry with this method when the UTF-8 fragments do not resolve.
+	 *
+	 * @param filePath Path string to convert.
+	 * @return Path fragments, or null if the path is pure ASCII (in which case the
+	 *         fallback encoding would yield identical fragments to UTF-8).
+	 */
+	public static byte[][] convertFilePathFallback(final String filePath) {
+		boolean nonAscii = false;
+		for (int i = 0; i < filePath.length(); i += 1) {
+			if (filePath.charAt(i) > 0x7F) {
+				nonAscii = true;
+				break;
+			}
+		}
+		if (!nonAscii) {
+			return null;
+		}
+
+		final String[] fragmentStrings = filePath.toLowerCase(Locale.ROOT).split("\\" + PATH_SEPERATOR);
+		final byte[][] pathFragments = new byte[fragmentStrings.length][];
+		for (int index = 0; index < fragmentStrings.length; index += 1) {
+			pathFragments[index] = fragmentStrings[index].getBytes(PATH_FALLBACK_ENCODING);
+		}
+		return pathFragments;
 	}
 
 	/**
