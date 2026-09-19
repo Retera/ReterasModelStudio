@@ -1,6 +1,7 @@
 package com.hiveworkshop.wc3.gui.modeledit.tracks;
 
 import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -10,17 +11,25 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.IntConsumer;
 
+import javax.swing.AbstractAction;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
@@ -34,61 +43,93 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
-import com.hiveworkshop.wc3.gui.modeledit.util.EditingHotkeys;
+import com.etheller.collections.ListView;
+import com.hiveworkshop.wc3.gui.animedit.FixedTimeEnvironment;
+import com.hiveworkshop.wc3.gui.animedit.TimeEnvironmentImpl;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.animation.AddKeyframeAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.animation.SetKeyframeAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.animation.SetTrackGlobalSequenceAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.animation.SetTrackInterpolationAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.animation.SlideKeyframeByIndexAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.ReversedAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
+import com.hiveworkshop.wc3.gui.modeledit.util.EditingHotkeys;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
+import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.TimelineContainer;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 
+/**
+ * The Tracks view: a tree of animated components and their tracks on the
+ * left, a timeline of their keys in the middle, and a keyframe inspector on
+ * the right.
+ * <p>
+ * Left-drag on empty space rubber-band selects; left-drag on a selected key
+ * slides the selection; middle-drag slides too. Right-click opens the track
+ * menu (insert, copy, paste, duplicate, delete, interpolation, global
+ * sequence). Double-click a key to edit it in the inspector. Clicking the
+ * ruler strip at the bottom moves the shared playhead.
+ */
 public class TracksEditorPanel extends JPanel {
 	private static final float TIME_SCALE_SETTING_DIVISOR = 1000.0f;
+	private static final int ROW_HEIGHT = 16;
+	private static final int RULER_HEIGHT = 16;
+	private static final int KEY_HALF_WIDTH = 4;
+
 	private final ModelComponentAnimFlagTree modelComponentAnimFlagTree;
 	private final JSlider scaleSlider;
-	private final JTextField mouseTimeField;
 	private int lastScale;
+	private final JTextField mouseTimeField;
+	private final TracksEditorTimelinePanel timelinePanel;
+	private final KeyframeInspectorPanel inspector;
+	private final ModelViewManager modelViewManager;
 
 	public TracksEditorPanel(final ModelViewManager modelViewManager, final UndoActionListener undoActionListener,
 			final ModelEditorManager modelEditorManager, final ToolbarButtonGroup<SelectionMode> modeNotifier,
 			final ModelStructureChangeListener modelStructureChangeListener) {
+		this.modelViewManager = modelViewManager;
 		modelComponentAnimFlagTree = new ModelComponentAnimFlagTree(modelViewManager, undoActionListener,
 				modelEditorManager, modelStructureChangeListener);
 		setLayout(new BorderLayout());
-
 		scaleSlider = new JSlider(1, 3000, 500);
 		lastScale = scaleSlider.getValue();
 		mouseTimeField = new JTextField(35);
-		final TracksEditorTimelinePanel timelinePanel = new TracksEditorTimelinePanel(modelComponentAnimFlagTree,
-				modelViewManager, scaleSlider, undoActionListener, modelStructureChangeListener);
+		inspector = new KeyframeInspectorPanel(undoActionListener, this::repaint);
+		inspector.setModel(modelViewManager.getModel());
+		inspector.setPreferredSize(new Dimension(290, 200));
+		timelinePanel = new TracksEditorTimelinePanel(modelComponentAnimFlagTree, modelViewManager, scaleSlider,
+				undoActionListener, modelStructureChangeListener, inspector);
 		modeNotifier.addToolbarButtonListener(timelinePanel);
 		final JScrollPane pane = new JScrollPane(timelinePanel);
 		pane.setRowHeaderView(modelComponentAnimFlagTree);
+		final TimeRulerPanel ruler = new TimeRulerPanel(timelinePanel);
+		pane.setColumnHeaderView(ruler);
+		timelinePanel.ruler = ruler;
 		scaleSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
 				timelinePanel.setPreferredSize(
 						new Dimension(getMaxX(modelViewManager), modelComponentAnimFlagTree.getPreferredSize().height));
 				pane.setViewportView(timelinePanel);
+				ruler.setPreferredSize(new Dimension(getMaxX(modelViewManager), RULER_HEIGHT + 4));
+				pane.setColumnHeaderView(ruler);
 				final int newScale = scaleSlider.getValue();
 				pane.getHorizontalScrollBar().setValue(pane.getHorizontalScrollBar().getValue() * newScale / lastScale);
 				pane.repaint();
 				lastScale = newScale;
 			}
 		});
-
 		final JPanel controlsPanel = new JPanel();
 		mouseTimeField.setEditable(false);
 		controlsPanel.add(new JLabel("Scale:"));
@@ -98,20 +139,19 @@ public class TracksEditorPanel extends JPanel {
 		timelinePanel.addMouseMotionListener(new MouseMotionListener() {
 			@Override
 			public void mouseMoved(final MouseEvent e) {
-				final double scale = scaleSlider.getValue() / TIME_SCALE_SETTING_DIVISOR;
-				mouseTimeField.setText(Double.toString(e.getX() / scale));
+				mouseTimeField.setText(Integer.toString(timelinePanel.timeFromX(e.getX())));
 				timelinePanel.mouseMoved(e.getX(), e.getY());
 				timelinePanel.repaint();
 			}
 
 			@Override
 			public void mouseDragged(final MouseEvent e) {
-				if (timelinePanel.slidingKeys) {
-					final double scale = scaleSlider.getValue() / TIME_SCALE_SETTING_DIVISOR;
-					final int delta = (int) ((e.getX() - timelinePanel.mouseDragStart.x) / scale);
+				if (timelinePanel.slidingKeys && (timelinePanel.mouseDragStart != null)) {
+					final int delta = timelinePanel.timeFromX(e.getX())
+							- timelinePanel.timeFromX(timelinePanel.mouseDragStart.x);
 					mouseTimeField.setText(delta > 0 ? "+" + delta : Integer.toString(delta));
 				} else {
-					mouseTimeField.setText("");
+					mouseTimeField.setText(Integer.toString(timelinePanel.timeFromX(e.getX())));
 				}
 				timelinePanel.mouseDragged(e.getX(), e.getY());
 				timelinePanel.repaint();
@@ -131,13 +171,12 @@ public class TracksEditorPanel extends JPanel {
 				timelinePanel.repaint();
 				timelinePanel.requestFocus();
 			}
+
+			@Override
+			public void mouseClicked(final MouseEvent e) {
+				timelinePanel.mouseClicked(e);
+			}
 		});
-		add(controlsPanel, BorderLayout.BEFORE_FIRST_LINE);
-		add(pane, BorderLayout.CENTER);
-//		JTable table = new JTable();
-//		new TreeList<>(null, null, null)
-//		TreeTableSupport support = TreeTableSupport.install(table, null, 0);
-//		support.
 		modelComponentAnimFlagTree.addTreeExpansionListener(new TreeExpansionListener() {
 			@Override
 			public void treeExpanded(final TreeExpansionEvent event) {
@@ -156,521 +195,32 @@ public class TracksEditorPanel extends JPanel {
 			}
 		});
 		modelComponentAnimFlagTree.addTreeSelectionListener(new TreeSelectionListener() {
-
 			@Override
 			public void valueChanged(final TreeSelectionEvent e) {
-				timelinePanel.repaint();
+				pane.repaint();
 			}
 		});
 		timelinePanel.setPreferredSize(
 				new Dimension(getMaxX(modelViewManager), modelComponentAnimFlagTree.getPreferredSize().height));
-
+		ruler.setPreferredSize(new Dimension(getMaxX(modelViewManager), RULER_HEIGHT + 4));
 		EditingHotkeys.installDelete(this, timelinePanel::deleteKeyframes);
+		EditingHotkeys.installClipboard(this, timelinePanel::cutSelected, timelinePanel::copySelected,
+				() -> timelinePanel.pasteAt(timelinePanel.playheadOrHoverTime(), null));
+		add(controlsPanel, BorderLayout.BEFORE_FIRST_LINE);
+		add(pane, BorderLayout.CENTER);
+		add(inspector, BorderLayout.EAST);
 	}
 
-	private static final class TracksEditorTimelinePanel extends JPanel
-			implements ToolbarButtonListener<SelectionMode> {
-		private final GradientPaint keyframePaint;
-		private final GradientPaint keyframePaintBlue;
-		private final GradientPaint keyframePaintTeal;
-		private final GradientPaint keyframePaintHighlight;
-		private final GradientPaint keyframePaintRed;
-		private final ModelComponentAnimFlagTree tree;
-		private final ModelView modelView;
-		private final JSlider scaleSlider;
-		private final Rectangle recycleClipRect = new Rectangle();
-		private int mouseHoverX;
-		private Point mouseDragStart = null;
-		private final Point mouseDragEnd = new Point();
-		private boolean slidingKeys = false;
-		private final Map<AnimFlag, Set<Integer>> selectedTrackToIndices = new HashMap<>();
-		private int mouseHoverY;
-		private final UndoActionListener undoActionListener;
-		private final ModelStructureChangeListener modelStructureChangeListener;
-		private SelectionMode selectionType;
-
-		public TracksEditorTimelinePanel(final ModelComponentAnimFlagTree tree, final ModelView modelView,
-				final JSlider scaleSlider, final UndoActionListener undoActionListener,
-				final ModelStructureChangeListener modelStructureChangeListener) {
-			this.tree = tree;
-			this.modelView = modelView;
-			this.scaleSlider = scaleSlider;
-			this.undoActionListener = undoActionListener;
-			this.modelStructureChangeListener = modelStructureChangeListener;
-			keyframePaint = new GradientPaint(new Point(0, 10), new Color(200, 255, 200), new Point(0, getHeight()),
-					new Color(100, 255, 100), true);
-			keyframePaintBlue = new GradientPaint(new Point(0, 10), new Color(200, 200, 255), new Point(0, getHeight()),
-					new Color(100, 100, 255), true);
-			keyframePaintTeal = new GradientPaint(new Point(0, 10), new Color(200, 255, 255), new Point(0, getHeight()),
-					new Color(100, 255, 255), true);
-			keyframePaintRed = new GradientPaint(new Point(0, 10), new Color(255, 200, 200), new Point(0, getHeight()),
-					new Color(255, 100, 100), true);
-			keyframePaintHighlight = new GradientPaint(new Point(0, 10), new Color(255, 0, 0),
-					new Point(0, getHeight()), new Color(0, 0, 0), true);
-
-			setFocusable(true);
-		}
-
-		public void deleteKeyframes() {
-			final com.etheller.collections.ArrayList<UndoAction> actions = new com.etheller.collections.ArrayList();
-
-			final int rowCount = tree.getRowCount();
-			for (int i = 0; i < rowCount; i++) {
-				final TreePath pathForRow = tree.getPathForRow(i);
-				final DefaultMutableTreeNode node = (DefaultMutableTreeNode) pathForRow.getLastPathComponent();
-				final Object userObject = node.getUserObject();
-				if (userObject instanceof ModelComponentAnimFlagTree.ChooseableAnimFlagItem) {
-					final AnimFlag track = ((ModelComponentAnimFlagTree.ChooseableAnimFlagItem) userObject).getFlag();
-					final Set<Integer> selectedIndices = selectedTrackToIndices.get(track);
-
-					final Object parentTreeNodeUserObject = ((DefaultMutableTreeNode) node.getParent()).getUserObject();
-					if (parentTreeNodeUserObject instanceof ModelComponentAnimFlagTree.ChooseableDisplayElement) {
-						final Object editableModelComponentObject = ((ModelComponentAnimFlagTree.ChooseableDisplayElement) parentTreeNodeUserObject)
-								.getItem();
-						if (editableModelComponentObject instanceof TimelineContainer) {
-							final TimelineContainer container = (TimelineContainer) editableModelComponentObject;
-
-							if (selectedIndices != null) {
-								final ArrayList<Integer> times = track.getTimes();
-								for (final int index : selectedIndices) {
-									final Integer time = times.get(index);
-
-									final ReversedAction deleteFrameAction;
-									// NOTE: this comment is copied from TimeSliderPanel, and the code is mostly
-									// copied,
-									// maybe later they can become one function for easier code maintenance:
-									//
-									// I'm going to cheat a little bit.
-									// When this saves in the "undo stack" the list of keyframe values
-									// to put back if we CTRL+Z, it will store the memory references
-									// directly. This makes the assumption that we can't graphically edit
-									// deleted keyframes, and I'm pretty certain that should be true.
-									// (Copy&Paste cannot use this optimization, and must create deep copies
-									// of the keyframe values)
-									if (track.tans()) {
-										deleteFrameAction = new ReversedAction("delete keyframe",
-												new AddKeyframeAction(container, track, time,
-														track.getValues().get(index), track.getInTans().get(index),
-														track.getOutTans().get(index), modelStructureChangeListener));
-									} else {
-										deleteFrameAction = new ReversedAction("delete keyframe",
-												new AddKeyframeAction(container, track, time,
-														track.getValues().get(index), modelStructureChangeListener));
-									}
-									actions.add(deleteFrameAction);
-								}
-							}
-						}
-					}
-
-				}
-
-			}
-
-			final CompoundAction compoundAction = new CompoundAction("Delete Keyframe(s)", actions);
-			compoundAction.redo();
-			undoActionListener.pushAction(compoundAction);
-			repaint();
-			selectedTrackToIndices.clear();
-
-		}
-
-		public void mousePressed(final MouseEvent e) {
-			if (mouseDragStart == null) {
-				mouseDragStart = e.getPoint();
-				mouseDragEnd.setLocation(mouseDragStart);
-
-				if (SwingUtilities.isRightMouseButton(e)) {
-					slidingKeys = true;
-				} else {
-					slidingKeys = false;
-					final int rowHeight = 16;// tree.getLastRendererRowHeight();
-					final int rowCount = tree.getRowCount();
-					for (int i = 0; i < rowCount; i++) {
-						final TreePath pathForRow = tree.getPathForRow(i);
-						final DefaultMutableTreeNode node = (DefaultMutableTreeNode) pathForRow.getLastPathComponent();
-						final Object userObject = node.getUserObject();
-						if (userObject instanceof ModelComponentAnimFlagTree.ChooseableAnimFlagItem) {
-							final AnimFlag track = ((ModelComponentAnimFlagTree.ChooseableAnimFlagItem) userObject)
-									.getFlag();
-
-							final ArrayList<Integer> times = track.getTimes();
-							final Set<Integer> selectedIndices = selectedTrackToIndices.get(track);
-							if (selectedIndices != null) {
-								for (int j = 0; j < times.size(); j++) {
-									final Integer time = times.get(j);
-
-									final int currentTimePixelX = computeXFromTime(time);
-
-									// TODO the keyframeRectangle computation needs to match what is rendered --
-									// ideal code in the future
-									// would have code sharing between this and the render function, in order to
-									// have less copies of the same idea
-									// for programmers to maintain
-									final Rectangle keyframeRectangle = new Rectangle(currentTimePixelX - 4,
-											rowHeight * i, 8, rowHeight);
-
-									if (keyframeRectangle.contains(mouseDragStart) && selectedIndices.contains(j)) {
-										slidingKeys = true;
-									}
-								}
-							}
-						}
-
-					}
-				}
-			}
-		}
-
-		public void mouseReleased(final MouseEvent e) {
-			if (mouseDragStart != null) {
-				if (slidingKeys) {
-					final int xDelta = mouseDragEnd.x - mouseDragStart.x;
-					final double scale = scaleSlider.getValue() / TIME_SCALE_SETTING_DIVISOR;
-					final int timeDelta = (int) (xDelta / scale);
-
-					final com.etheller.collections.ArrayList<SlideKeyframeByIndexAction> actions = new com.etheller.collections.ArrayList();
-					final Runnable repainter = new Runnable() {
-						@Override
-						public void run() {
-							repaint();
-						}
-					};
-					for (final Map.Entry<AnimFlag, Set<Integer>> trackToIndices : selectedTrackToIndices.entrySet()) {
-						final AnimFlag track = trackToIndices.getKey();
-						final Set<Integer> selectedIndices = trackToIndices.getValue();
-						for (final Integer index : selectedIndices) {
-							actions.add(new SlideKeyframeByIndexAction(track, index, timeDelta, repainter));
-						}
-					}
-					final CompoundAction compoundAction = new CompoundAction("Slide Keyframe(s)", actions);
-					compoundAction.redo();
-					undoActionListener.pushAction(compoundAction);
-				} else {
-					// select everything in there
-					final int rowHeight = 16;// tree.getLastRendererRowHeight();
-					final int rowCount = tree.getRowCount();
-					final int dragMinX = Math.min(mouseDragStart.x, mouseDragEnd.x);
-					final int dragMinY = Math.min(mouseDragStart.y, mouseDragEnd.y);
-					final Rectangle dragArea = new Rectangle(dragMinX, dragMinY,
-							Math.abs(mouseDragStart.x - mouseDragEnd.x), Math.abs(mouseDragStart.y - mouseDragEnd.y));
-					if (dragArea.width == 0) {
-						dragArea.width = 1;
-					}
-					if (dragArea.height == 0) {
-						dragArea.height = 1;
-					}
-					if (selectionType == SelectionMode.SELECT) {
-						selectedTrackToIndices.clear();
-					}
-					for (int i = 0; i < rowCount; i++) {
-						final TreePath pathForRow = tree.getPathForRow(i);
-						final DefaultMutableTreeNode node = (DefaultMutableTreeNode) pathForRow.getLastPathComponent();
-						final Object userObject = node.getUserObject();
-						if (userObject instanceof ModelComponentAnimFlagTree.ChooseableAnimFlagItem) {
-							final AnimFlag track = ((ModelComponentAnimFlagTree.ChooseableAnimFlagItem) userObject)
-									.getFlag();
-
-							final ArrayList<Integer> times = track.getTimes();
-							Set<Integer> selectedIndices = selectedTrackToIndices.get(track);
-							for (int j = 0; j < times.size(); j++) {
-								final Integer time = times.get(j);
-
-								final int currentTimePixelX = computeXFromTime(time);
-
-								// TODO the keyframeRectangle computation needs to match what is rendered --
-								// ideal code in the future
-								// would have code sharing between this and the render function, in order to
-								// have less copies of the same idea
-								// for programmers to maintain
-								final Rectangle keyframeRectangle = new Rectangle(currentTimePixelX - 4, rowHeight * i,
-										8, rowHeight);
-
-								if (dragArea.intersects(keyframeRectangle)) {
-									if (selectionType == SelectionMode.DESELECT) {
-										if (selectedIndices != null) {
-											selectedIndices.remove(j);
-											if (selectedIndices.isEmpty()) {
-												selectedTrackToIndices.remove(track);
-												selectedIndices = null;
-											}
-										}
-
-									} else {
-										if (selectedIndices == null) {
-											selectedIndices = new HashSet<>();
-											selectedTrackToIndices.put(track, selectedIndices);
-										}
-										selectedIndices.add(j);
-									}
-								}
-							}
-						}
-
-					}
-				}
-			}
-			mouseDragStart = null;
-		}
-
-		public void mouseDragged(final int x, final int y) {
-			if (mouseDragStart == null) {
-				final Point dragStartingPoint = new Point(x, y);
-				mouseDragStart = dragStartingPoint;
-			}
-			mouseDragEnd.setLocation(x, y);
-		}
-
-		public void mouseMoved(final int mouseHoverX, final int mouseHoverY) {
-			this.mouseHoverX = mouseHoverX;
-			this.mouseHoverY = mouseHoverY;
-			mouseDragStart = null;
-		}
-
-		@Override
-		protected void paintComponent(final Graphics g) {
-			super.paintComponent(g);
-			final int rowHeight = 16;// tree.getLastRendererRowHeight();
-			final int rowCount = tree.getRowCount();
-			boolean mousedOverAnythingEditable = false;
-			for (int i = 0; i < rowCount; i++) {
-				final TreePath pathForRow = tree.getPathForRow(i);
-				final DefaultMutableTreeNode node = (DefaultMutableTreeNode) pathForRow.getLastPathComponent();
-				final Object userObject = node.getUserObject();
-				if (userObject instanceof ModelComponentAnimFlagTree.ChooseableAnimFlagItem) {
-					final AnimFlag track = ((ModelComponentAnimFlagTree.ChooseableAnimFlagItem) userObject).getFlag();
-					final Set<Integer> selectedIndices = selectedTrackToIndices.get(track);
-					final boolean afVisbility = "Visibility".equals(track.getName());
-					final boolean afAlpha = "Alpha".equals(track.getName());
-					final boolean afHideShow = afAlpha || afVisbility;
-					final boolean afColor = "Color".equals(track.getName());
-					boolean translation = false, rotation = false, scaling = false, other = false;
-					final boolean afTranslation = "Translation".equals(track.getName());
-					translation |= afTranslation;
-					final boolean afRotation = "Rotation".equals(track.getName());
-					rotation |= afRotation;
-					final boolean afScaling = "Scaling".equals(track.getName());
-					scaling |= afScaling;
-					other |= !(afTranslation || afRotation || afScaling);
-
-					g.setColor(Color.BLACK);
-					g.fillRect(0, rowHeight * i, getWidth(), rowHeight - 1);
-					g.setColor(Color.GRAY);
-					g.drawRect(0, rowHeight * i, getWidth(), rowHeight - 1);
-					final ArrayList<Integer> times = track.getTimes();
-					Object lastValue = null;
-					int lastEndX = 0;
-					final InterpolationType interpTypeAsEnum = track.getInterpTypeAsEnum();
-					for (int j = 0; j < times.size(); j++) {
-						final Integer time = times.get(j);
-
-						final int currentTimePixelX = computeXFromTime(time);
-						final boolean mouseOver = mouseHoverX >= currentTimePixelX - 4
-								&& mouseHoverX < currentTimePixelX + 4 && mouseHoverY >= rowHeight * i
-								&& mouseHoverY < rowHeight * (i + 1);// timeAndKey.getValue() == mouseOverFrame;
-						final boolean selected = selectedIndices != null && selectedIndices.contains(j);
-						if (mouseOver && selected) {
-							mousedOverAnythingEditable = true;
-						}
-						if (selected) {
-							((Graphics2D) g).setPaint(keyframePaintHighlight);
-						} else if (afHideShow) {
-							final Object value = track.getValues().get(j);
-							if (value instanceof Number) {
-								final float afHideShowNewValue = ((Number) value).floatValue();
-								if (afHideShowNewValue < 1.0f) {
-									g.setColor(new Color(0f, 1f, 1f, afHideShowNewValue));
-								} else {
-									((Graphics2D) g).setPaint(keyframePaintTeal);
-								}
-							}
-						} else if (afColor) {
-							final Object value = track.getValues().get(j);
-							if (value instanceof Vertex) {
-								final Vertex colorData = (Vertex) value;
-								g.setColor(new Color((float) colorData.x, (float) colorData.y, (float) colorData.z));
-							} else {
-								((Graphics2D) g).setPaint(keyframePaint);
-							}
-
-						} else if (scaling) {
-							((Graphics2D) g).setPaint(keyframePaintRed);
-						} else if (rotation) {
-							((Graphics2D) g).setPaint(keyframePaint);
-						} else if (translation) {
-							((Graphics2D) g).setPaint(keyframePaintBlue);
-						} else {
-							((Graphics2D) g).setPaint(keyframePaint);
-						}
-						g.fillRoundRect(currentTimePixelX - 4, rowHeight * i, 8, rowHeight, 2, 2);
-						Color color = Color.GREEN;
-						if (afHideShow) {
-							color = Color.CYAN;
-
-							final Object value = track.getValues().get(j);
-							if (value instanceof Number) {
-								float afHideShowLastValue;
-								if (lastValue instanceof Number) {
-									afHideShowLastValue = ((Number) lastValue).floatValue();
-								} else {
-									afHideShowLastValue = ((Number) track.getIdentity()).floatValue();
-								}
-								final float afHideShowNewValue = ((Number) value).floatValue();
-								if (interpTypeAsEnum == InterpolationType.DONT_INTERP) {
-									g.setColor(new Color(0f, 1f, 1f, afHideShowLastValue));
-								} else {
-									((Graphics2D) g).setPaint(new GradientPaint(lastEndX, 0,
-											new Color(0f, afHideShowLastValue, afHideShowLastValue,
-													afHideShowLastValue),
-											currentTimePixelX - 4, 0,
-											new Color(0f, afHideShowNewValue, afHideShowNewValue, afHideShowNewValue)));
-								}
-								g.fillRect(lastEndX, rowHeight * i + rowHeight / 4, currentTimePixelX - 4 - lastEndX,
-										rowHeight / 2);
-								lastValue = value;
-							}
-						} else if (afColor) {
-							color = Color.GRAY;
-
-							final Object value = track.getValues().get(j);
-							if (value instanceof Vertex) {
-								Color afHideShowLastValue;
-								if (lastValue instanceof Vertex) {
-									final Vertex colorData = (Vertex) lastValue;
-									afHideShowLastValue = new Color((float) colorData.x, (float) colorData.y,
-											(float) colorData.z);
-								} else {
-									final Object identity = track.getIdentity();
-									final Vertex colorData = (Vertex) identity;
-									afHideShowLastValue = new Color((float) colorData.x, (float) colorData.y,
-											(float) colorData.z);
-								}
-								final Vertex colorData = (Vertex) value;
-								final Color afHideShowNewValue = new Color((float) colorData.x, (float) colorData.y,
-										(float) colorData.z);
-								if (interpTypeAsEnum == InterpolationType.DONT_INTERP) {
-									g.setColor(afHideShowLastValue);
-								} else {
-									((Graphics2D) g).setPaint(new GradientPaint(lastEndX, 0, afHideShowLastValue,
-											currentTimePixelX - 4, 0, afHideShowNewValue));
-								}
-								g.fillRect(lastEndX, rowHeight * i + rowHeight / 4, currentTimePixelX - 4 - lastEndX,
-										rowHeight / 2);
-								lastValue = value;
-							}
-						} else if (scaling) {
-							color = Color.ORANGE;
-						} else if (rotation) {
-						} else if (translation) {
-							color = Color.BLUE;
-						}
-						g.setColor(mouseOver ? Color.WHITE : selected ? Color.RED : color);
-						g.drawRoundRect(currentTimePixelX - 4, rowHeight * i, 8, rowHeight, 2, 2);
-						lastEndX = currentTimePixelX + 4;
-					}
-				} else if (userObject instanceof ModelComponentAnimFlagTree.ChooseableModelRoot) {
-					g.setColor(Color.GRAY);
-					g.drawRect(0, rowHeight * i, getWidth(), rowHeight - 1);
-					for (final Animation anim : modelView.getModel().getAnims()) {
-						final int xEnd = computeXFromTime(anim.getStart());
-						final int xStart = computeXFromTime(anim.getEnd());
-						g.setColor(Color.RED.darker());
-						g.drawLine(xStart, 0, xStart, getHeight());
-						g.drawLine(xEnd, 0, xEnd, getHeight());
-						g.setColor(Color.BLACK);
-						final String animName = "\"" + anim.getName() + "\"";
-						g.drawString(animName, xStart, rowHeight * i + (rowHeight + g.getFont().getSize()) / 2);
-						g.drawString(animName, xEnd, rowHeight * i + (rowHeight + g.getFont().getSize()) / 2);
-					}
-				} else {
-					g.setColor(Color.GRAY);
-					g.drawRect(0, rowHeight * i, getWidth(), rowHeight - 1);
-				}
-
-			}
-			g.setColor(getBackground());
-			g.fill3DRect(0, getHeight() - 16, getWidth(), 16, true);
-			int tickSize = 1;
-			final double scale = scaleSlider.getValue() / TIME_SCALE_SETTING_DIVISOR;
-			final int minimumTickSize = (int) Math.max(1, 25 / scale);
-			while (tickSize < minimumTickSize) {
-				tickSize *= 10;
-			}
-			g.getClipBounds(recycleClipRect);
-			final int minTick = (int) Math.ceil(recycleClipRect.x / scale / tickSize);
-			final int maxTick = (int) Math.floor((recycleClipRect.x + recycleClipRect.width) / scale / tickSize);
-			final Color foreground = getForeground();
-			final Color brighterForeground = Color.GRAY;
-			for (int tick = minTick; tick <= maxTick; tick++) {
-				final int tickTime = tick * tickSize;
-				final int tickX = computeXFromTime(tickTime);
-				g.setColor(foreground);
-				g.drawLine(tickX, getHeight() - 16, tickX, getHeight());
-				g.setColor(brighterForeground);
-				g.drawString(Integer.toString(tickTime), tickX, getHeight() - 6);
-			}
-
-			if (mouseDragStart != null) {
-				if (slidingKeys) {
-					((Graphics2D) g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_IN, 0.5f));
-					for (int i = 0; i < rowCount; i++) {
-						final TreePath pathForRow = tree.getPathForRow(i);
-						final DefaultMutableTreeNode node = (DefaultMutableTreeNode) pathForRow.getLastPathComponent();
-						final Object userObject = node.getUserObject();
-						if (userObject instanceof ModelComponentAnimFlagTree.ChooseableAnimFlagItem) {
-							final AnimFlag track = ((ModelComponentAnimFlagTree.ChooseableAnimFlagItem) userObject)
-									.getFlag();
-							final Set<Integer> selectedIndices = selectedTrackToIndices.get(track);
-							if (selectedIndices != null) {
-								for (final Integer index : selectedIndices) {
-									final Integer time = track.getTimes().get(index);
-									final int xDelta = mouseDragEnd.x - mouseDragStart.x;
-									final int timeDelta = (int) (xDelta / scale);
-
-									final int newTime = time + timeDelta;
-									final int currentTimePixelX = computeXFromTime(newTime);
-									((Graphics2D) g).setPaint(keyframePaintHighlight);
-									g.fillRoundRect(currentTimePixelX - 4, rowHeight * i, 8, rowHeight, 2, 2);
-									g.setColor(Color.RED);
-									g.drawRoundRect(currentTimePixelX - 4, rowHeight * i, 8, rowHeight, 2, 2);
-									g.setColor(Color.WHITE);
-									g.drawString(Integer.toString(newTime), currentTimePixelX,
-											rowHeight * i + rowHeight - 6);
-								}
-							}
-						}
-					}
-
-				} else {
-					g.setColor(Color.RED);
-					final int dragMinX = Math.min(mouseDragStart.x, mouseDragEnd.x);
-					final int dragMinY = Math.min(mouseDragStart.y, mouseDragEnd.y);
-					g.drawRect(dragMinX, dragMinY, Math.abs(mouseDragStart.x - mouseDragEnd.x),
-							Math.abs(mouseDragStart.y - mouseDragEnd.y));
-				}
-			} else {
-				g.setColor(Color.GRAY);
-				g.drawLine(mouseHoverX, 0, mouseHoverX, getHeight());
-			}
-
-			if (mousedOverAnythingEditable) {
-				setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
-			} else {
-				setCursor(null);
-			}
-		}
-
-		private int computeXFromTime(final int time) {
-//		final double timeRatio = (time - start) / (double) (end - start);
-//		final int widthMinusOffsets = getWidth() - (SIDE_OFFSETS * 2);
-//		return (int) (widthMinusOffsets * timeRatio) + (timeChooserRect.width / 2);
-			return (int) (time * (scaleSlider.getValue() / TIME_SCALE_SETTING_DIVISOR));
-		}
-
-		@Override
-		public void typeChanged(final SelectionMode newType) {
-			this.selectionType = newType;
-		}
+	/**
+	 * Shares the animation playhead: the timeline draws the environment's
+	 * current time and clicking the ruler hands the chosen time to
+	 * {@code playheadSetter} (normally the time slider), which propagates it
+	 * back to the environment and the viewports.
+	 */
+	public void setTimeEnvironment(final TimeEnvironmentImpl environment, final IntConsumer playheadSetter) {
+		timelinePanel.timeEnvironment = environment;
+		timelinePanel.playheadSetter = playheadSetter;
+		repaint();
 	}
 
 	/**
@@ -689,22 +239,884 @@ public class TracksEditorPanel extends JPanel {
 
 	public void reloadFromModelView() {
 		modelComponentAnimFlagTree.reloadFromModelView();
+		inspector.setModel(modelViewManager.getModel());
+		SwingUtilities.invokeLater(timelinePanel::pruneSelection);
 	}
 
 	private int getMaxX(final ModelViewManager modelViewManager) {
 		int maxTime = 0;
 		for (final Animation anim : modelViewManager.getModel().getAnims()) {
-			if (anim.getIntervalEnd() > maxTime) {
-				maxTime = anim.getIntervalEnd();
-			}
+			maxTime = Math.max(maxTime, anim.getIntervalEnd());
 		}
 		for (final Integer globalSeq : modelViewManager.getModel().getGlobalSeqs()) {
-			if (globalSeq > maxTime) {
-				maxTime = globalSeq;
-			}
+			maxTime = Math.max(maxTime, globalSeq);
 		}
 		maxTime += 1000;
-		final int maxX = (int) (maxTime * (scaleSlider.getValue() / TIME_SCALE_SETTING_DIVISOR));
-		return maxX;
+		return (int) (maxTime * (scaleSlider.getValue() / TIME_SCALE_SETTING_DIVISOR));
+	}
+
+	/**
+	 * The time ruler, kept in the scroll pane's column header so it stays visible
+	 * however tall the track list gets. Click or drag on it to move the shared
+	 * playhead.
+	 */
+	private static final class TimeRulerPanel extends JPanel {
+		private final TracksEditorTimelinePanel timeline;
+
+		TimeRulerPanel(final TracksEditorTimelinePanel timeline) {
+			this.timeline = timeline;
+			setPreferredSize(new Dimension(100, RULER_HEIGHT + 4));
+			final MouseAdapter mouse = new MouseAdapter() {
+				@Override
+				public void mousePressed(final MouseEvent e) {
+					seek(e);
+				}
+
+				@Override
+				public void mouseDragged(final MouseEvent e) {
+					seek(e);
+				}
+
+				private void seek(final MouseEvent e) {
+					if (timeline.playheadSetter != null) {
+						timeline.playheadSetter.accept(Math.max(0, timeline.timeFromX(e.getX())));
+					}
+				}
+			};
+			addMouseListener(mouse);
+			addMouseMotionListener(mouse);
+		}
+
+		@Override
+		protected void paintComponent(final Graphics g) {
+			super.paintComponent(g);
+			final Graphics2D g2 = (Graphics2D) g;
+			g2.setColor(getBackground());
+			g2.fill3DRect(0, 0, getWidth(), getHeight(), true);
+			int tickSize = 1;
+			final double scale = timeline.scaleSlider.getValue() / TIME_SCALE_SETTING_DIVISOR;
+			final int minimumTickSize = (int) Math.max(1, 25 / scale);
+			while (tickSize < minimumTickSize) {
+				tickSize *= 10;
+			}
+			final Rectangle clip = g2.getClipBounds();
+			final int minTick = (int) Math.ceil(clip.x / scale / tickSize);
+			final int maxTick = (int) Math.floor((clip.x + clip.width) / scale / tickSize);
+			for (int tick = minTick; tick <= maxTick; tick++) {
+				final int tickTime = tick * tickSize;
+				final int tickX = timeline.xFromTime(tickTime);
+				g2.setColor(getForeground());
+				g2.drawLine(tickX, getHeight() - 6, tickX, getHeight());
+				g2.setColor(Color.GRAY);
+				g2.drawString(Integer.toString(tickTime), tickX + 2, getHeight() - 7);
+			}
+			for (final Animation anim : timeline.modelView.getModel().getAnims()) {
+				g2.setColor(Color.RED.darker());
+				g2.drawLine(timeline.xFromTime(anim.getStart()), 0, timeline.xFromTime(anim.getStart()), getHeight());
+				g2.drawLine(timeline.xFromTime(anim.getEnd()), 0, timeline.xFromTime(anim.getEnd()), getHeight());
+			}
+			if (timeline.timeEnvironment != null) {
+				final int x = timeline.xFromTime(timeline.playheadTime());
+				g2.setColor(new Color(255, 220, 0));
+				g2.fillPolygon(new int[] { x - 6, x + 6, x }, new int[] { 0, 0, getHeight() - 1 }, 3);
+				g2.setColor(Color.BLACK);
+				g2.drawPolygon(new int[] { x - 6, x + 6, x }, new int[] { 0, 0, getHeight() - 1 }, 3);
+			}
+		}
+	}
+
+	/** One tree row that shows a track. */
+	private static final class TrackRow {
+		final int row;
+		final AnimFlag track;
+		final TimelineContainer container;
+
+		TrackRow(final int row, final AnimFlag track, final TimelineContainer container) {
+			this.row = row;
+			this.track = track;
+			this.container = container;
+		}
+	}
+
+	private static final class TracksEditorTimelinePanel extends JPanel
+			implements ToolbarButtonListener<SelectionMode> {
+		private final GradientPaint keyframePaint;
+		private final GradientPaint keyframePaintBlue;
+		private final GradientPaint keyframePaintTeal;
+		private final GradientPaint keyframePaintRed;
+		private final GradientPaint keyframePaintHighlight;
+		private final ModelComponentAnimFlagTree tree;
+		private final ModelView modelView;
+		private final JSlider scaleSlider;
+		private final Rectangle recycleClipRect = new Rectangle();
+		private final UndoActionListener undoActionListener;
+		private final ModelStructureChangeListener modelStructureChangeListener;
+		private final KeyframeInspectorPanel inspector;
+		private int mouseHoverX;
+		private int mouseHoverY;
+		private Point mouseDragStart = null;
+		private final Point mouseDragEnd = new Point();
+		private boolean slidingKeys = false;
+		private boolean popupPending = false;
+		private final Map<AnimFlag, Set<Integer>> selectedTrackToIndices = new HashMap<>();
+		private SelectionMode selectionType = SelectionMode.SELECT;
+		private TimeEnvironmentImpl timeEnvironment;
+		private IntConsumer playheadSetter;
+		private TimeRulerPanel ruler;
+
+		@Override
+		public void repaint() {
+			super.repaint();
+			if (ruler != null) {
+				ruler.repaint();
+			}
+		}
+
+		TracksEditorTimelinePanel(final ModelComponentAnimFlagTree tree, final ModelView modelView,
+				final JSlider scaleSlider, final UndoActionListener undoActionListener,
+				final ModelStructureChangeListener modelStructureChangeListener,
+				final KeyframeInspectorPanel inspector) {
+			this.tree = tree;
+			this.modelView = modelView;
+			this.scaleSlider = scaleSlider;
+			this.undoActionListener = undoActionListener;
+			this.modelStructureChangeListener = modelStructureChangeListener;
+			this.inspector = inspector;
+			keyframePaint = new GradientPaint(new Point(0, 10), new Color(200, 255, 200), new Point(0, getHeight()),
+					new Color(100, 255, 100), true);
+			keyframePaintBlue = new GradientPaint(new Point(0, 10), new Color(200, 200, 255), new Point(0, getHeight()),
+					new Color(100, 100, 255), true);
+			keyframePaintTeal = new GradientPaint(new Point(0, 10), new Color(200, 255, 255), new Point(0, getHeight()),
+					new Color(100, 255, 255), true);
+			keyframePaintRed = new GradientPaint(new Point(0, 10), new Color(255, 200, 200), new Point(0, getHeight()),
+					new Color(255, 100, 100), true);
+			keyframePaintHighlight = new GradientPaint(new Point(0, 10), new Color(255, 0, 0),
+					new Point(0, getHeight()), new Color(0, 0, 0), true);
+			setFocusable(true);
+		}
+
+		// ---- geometry shared by hit testing and painting ----
+
+		int xFromTime(final int time) {
+			return (int) (time * (scaleSlider.getValue() / TIME_SCALE_SETTING_DIVISOR));
+		}
+
+		int timeFromX(final int x) {
+			return (int) Math.round(x / (scaleSlider.getValue() / TIME_SCALE_SETTING_DIVISOR));
+		}
+
+		private Rectangle keyRect(final int row, final int time) {
+			return new Rectangle(xFromTime(time) - KEY_HALF_WIDTH, ROW_HEIGHT * row, KEY_HALF_WIDTH * 2, ROW_HEIGHT);
+		}
+
+		/** Every tree row that carries a track, top to bottom. */
+		private List<TrackRow> trackRows() {
+			final List<TrackRow> rows = new ArrayList<>();
+			final int rowCount = tree.getRowCount();
+			for (int i = 0; i < rowCount; i++) {
+				final TreePath path = tree.getPathForRow(i);
+				final DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+				final Object userObject = node.getUserObject();
+				if (userObject instanceof ModelComponentAnimFlagTree.ChooseableAnimFlagItem) {
+					final AnimFlag track = ((ModelComponentAnimFlagTree.ChooseableAnimFlagItem) userObject).getFlag();
+					TimelineContainer container = null;
+					final Object parentUserObject = ((DefaultMutableTreeNode) node.getParent()).getUserObject();
+					if (parentUserObject instanceof ModelComponentAnimFlagTree.ChooseableDisplayElement) {
+						final Object item = ((ModelComponentAnimFlagTree.ChooseableDisplayElement<?>) parentUserObject)
+								.getItem();
+						if (item instanceof TimelineContainer) {
+							container = (TimelineContainer) item;
+						}
+					}
+					rows.add(new TrackRow(i, track, container));
+				}
+			}
+			return rows;
+		}
+
+		private TrackRow trackRowAt(final int y) {
+			final int row = y / ROW_HEIGHT;
+			for (final TrackRow trackRow : trackRows()) {
+				if (trackRow.row == row) {
+					return trackRow;
+				}
+			}
+			return null;
+		}
+
+		private KeyframeRef keyAt(final Point point) {
+			final TrackRow row = trackRowAt(point.y);
+			if (row == null) {
+				return null;
+			}
+			final ArrayList<Integer> times = row.track.getTimes();
+			for (int j = times.size() - 1; j >= 0; j--) {
+				if (keyRect(row.row, times.get(j)).contains(point)) {
+					return new KeyframeRef(row.container, row.track, j);
+				}
+			}
+			return null;
+		}
+
+		int playheadOrHoverTime() {
+			if (timeEnvironment != null) {
+				return playheadTime();
+			}
+			return Math.max(0, timeFromX(mouseHoverX));
+		}
+
+		private int playheadTime() {
+			if (timeEnvironment.getGlobalSeq() != null) {
+				return timeEnvironment.getAnimationTime();
+			}
+			return timeEnvironment.getStart() + timeEnvironment.getAnimationTime();
+		}
+
+		// ---- selection ----
+
+		private boolean isSelected(final AnimFlag track, final int index) {
+			final Set<Integer> indices = selectedTrackToIndices.get(track);
+			return (indices != null) && indices.contains(index);
+		}
+
+		private void select(final KeyframeRef ref, final boolean add) {
+			if (!add) {
+				selectedTrackToIndices.clear();
+			}
+			Set<Integer> indices = selectedTrackToIndices.get(ref.track);
+			if (indices == null) {
+				indices = new HashSet<>();
+				selectedTrackToIndices.put(ref.track, indices);
+			}
+			indices.add(ref.index);
+			selectionChanged();
+		}
+
+		private List<KeyframeRef> selectedRefs() {
+			final List<KeyframeRef> refs = new ArrayList<>();
+			for (final TrackRow row : trackRows()) {
+				final Set<Integer> indices = selectedTrackToIndices.get(row.track);
+				if (indices == null) {
+					continue;
+				}
+				final List<Integer> sorted = new ArrayList<>(indices);
+				java.util.Collections.sort(sorted);
+				for (final Integer index : sorted) {
+					if (index < row.track.getTimes().size()) {
+						refs.add(new KeyframeRef(row.container, row.track, index));
+					}
+				}
+			}
+			return refs;
+		}
+
+		/** Drops selection indices that no longer exist (after deletes or reloads). */
+		void pruneSelection() {
+			boolean changed = false;
+			for (final Map.Entry<AnimFlag, Set<Integer>> entry : new ArrayList<>(selectedTrackToIndices.entrySet())) {
+				final int size = entry.getKey().getTimes().size();
+				changed |= entry.getValue().removeIf(index -> index >= size);
+				if (entry.getValue().isEmpty()) {
+					selectedTrackToIndices.remove(entry.getKey());
+					changed = true;
+				}
+			}
+			if (changed) {
+				selectionChanged();
+			}
+			repaint();
+		}
+
+		private void selectionChanged() {
+			inspector.setSelection(selectedRefs());
+			repaint();
+		}
+
+		// ---- mouse ----
+
+		void mousePressed(final MouseEvent e) {
+			if (mouseDragStart != null) {
+				return;
+			}
+			mouseDragStart = e.getPoint();
+			mouseDragEnd.setLocation(mouseDragStart);
+			popupPending = false;
+			slidingKeys = false;
+			if (SwingUtilities.isRightMouseButton(e)) {
+				popupPending = true;
+				final KeyframeRef key = keyAt(e.getPoint());
+				if ((key != null) && !isSelected(key.track, key.index)) {
+					select(key, false);
+				}
+				return;
+			}
+			final KeyframeRef key = keyAt(e.getPoint());
+			if (SwingUtilities.isMiddleMouseButton(e)) {
+				slidingKeys = !selectedTrackToIndices.isEmpty();
+				return;
+			}
+			if (key != null) {
+				if (!isSelected(key.track, key.index)) {
+					select(key, e.isShiftDown() || e.isControlDown() || (selectionType == SelectionMode.ADD));
+				}
+				slidingKeys = true;
+			}
+		}
+
+		void mouseReleased(final MouseEvent e) {
+			if (mouseDragStart == null) {
+				return;
+			}
+			final boolean moved = mouseDragStart.distance(e.getPoint()) > 3;
+			if (popupPending) {
+				popupPending = false;
+				mouseDragStart = null;
+				if (!moved) {
+					showPopup(e.getPoint());
+				}
+				return;
+			}
+			if (slidingKeys) {
+				final int timeDelta = timeFromX(mouseDragEnd.x) - timeFromX(mouseDragStart.x);
+				if ((timeDelta != 0) && moved) {
+					final List<UndoAction> actions = new ArrayList<>();
+					final Runnable repainter = this::repaint;
+					for (final Map.Entry<AnimFlag, Set<Integer>> entry : selectedTrackToIndices.entrySet()) {
+						for (final Integer index : entry.getValue()) {
+							actions.add(new SlideKeyframeByIndexAction(entry.getKey(), index, timeDelta, repainter));
+						}
+					}
+					pushCompound("Slide Keyframe(s)", actions, true);
+					inspector.setSelection(selectedRefs());
+				}
+			} else {
+				rubberBandSelect();
+			}
+			mouseDragStart = null;
+		}
+
+		void mouseClicked(final MouseEvent e) {
+			if (SwingUtilities.isLeftMouseButton(e) && (e.getClickCount() == 2)) {
+				final KeyframeRef key = keyAt(e.getPoint());
+				if (key != null) {
+					select(key, false);
+					inspector.focusValue();
+				}
+			}
+		}
+
+		private void rubberBandSelect() {
+			final Rectangle dragArea = new Rectangle(Math.min(mouseDragStart.x, mouseDragEnd.x),
+					Math.min(mouseDragStart.y, mouseDragEnd.y), Math.max(1, Math.abs(mouseDragStart.x - mouseDragEnd.x)),
+					Math.max(1, Math.abs(mouseDragStart.y - mouseDragEnd.y)));
+			if (selectionType == SelectionMode.SELECT) {
+				selectedTrackToIndices.clear();
+			}
+			for (final TrackRow row : trackRows()) {
+				final ArrayList<Integer> times = row.track.getTimes();
+				Set<Integer> indices = selectedTrackToIndices.get(row.track);
+				for (int j = 0; j < times.size(); j++) {
+					if (!dragArea.intersects(keyRect(row.row, times.get(j)))) {
+						continue;
+					}
+					if (selectionType == SelectionMode.DESELECT) {
+						if (indices != null) {
+							indices.remove(j);
+							if (indices.isEmpty()) {
+								selectedTrackToIndices.remove(row.track);
+								indices = null;
+							}
+						}
+					} else {
+						if (indices == null) {
+							indices = new HashSet<>();
+							selectedTrackToIndices.put(row.track, indices);
+						}
+						indices.add(j);
+					}
+				}
+			}
+			selectionChanged();
+		}
+
+		void mouseDragged(final int x, final int y) {
+			if (mouseDragStart == null) {
+				mouseDragStart = new Point(x, y);
+			}
+			mouseDragEnd.setLocation(x, y);
+		}
+
+		void mouseMoved(final int mouseHoverX, final int mouseHoverY) {
+			this.mouseHoverX = mouseHoverX;
+			this.mouseHoverY = mouseHoverY;
+			mouseDragStart = null;
+		}
+
+		// ---- editing operations ----
+
+		private void pushCompound(final String name, final List<UndoAction> actions, final boolean redo) {
+			if (actions.isEmpty()) {
+				return;
+			}
+			final UndoAction action = actions.size() == 1 ? actions.get(0)
+					: new CompoundAction(name, ListView.Util.of(actions.toArray(new UndoAction[0])));
+			if (redo) {
+				action.redo();
+			}
+			undoActionListener.pushAction(action);
+			repaint();
+		}
+
+		void deleteKeyframes() {
+			final List<UndoAction> actions = new ArrayList<>();
+			for (final KeyframeRef ref : selectedRefs()) {
+				if (ref.container == null) {
+					continue;
+				}
+				final AddKeyframeAction add = ref.track.tans()
+						? new AddKeyframeAction(ref.container, ref.track, ref.time(), ref.value(), ref.inTan(),
+								ref.outTan(), modelStructureChangeListener)
+						: new AddKeyframeAction(ref.container, ref.track, ref.time(), ref.value(),
+								modelStructureChangeListener);
+				actions.add(new ReversedAction("delete keyframe", add));
+			}
+			selectedTrackToIndices.clear();
+			pushCompound("Delete Keyframe(s)", actions, true);
+			selectionChanged();
+		}
+
+		void copySelected() {
+			TrackKeyClipboard.copy(selectedRefs());
+		}
+
+		void cutSelected() {
+			copySelected();
+			deleteKeyframes();
+		}
+
+		/**
+		 * Pastes the clipboard so its earliest key lands at {@code time}. Keys go
+		 * back to the track they came from; a key already at the target time is
+		 * overwritten, otherwise one is added.
+		 */
+		void pasteAt(final int time, final TrackRow targetRow) {
+			if (TrackKeyClipboard.isEmpty()) {
+				return;
+			}
+			final List<UndoAction> actions = new ArrayList<>();
+			final List<TrackRow> rows = trackRows();
+			final boolean singleTrackPaste = (targetRow != null) && sameTrackForAll(TrackKeyClipboard.getEntries());
+			for (final TrackKeyClipboard.Entry entry : TrackKeyClipboard.getEntries()) {
+				final AnimFlag track = singleTrackPaste ? targetRow.track : entry.track;
+				TimelineContainer container = singleTrackPaste ? targetRow.container : entry.container;
+				boolean trackInModel = false;
+				for (final TrackRow row : rows) {
+					if (row.track == track) {
+						trackInModel = true;
+						if (container == null) {
+							container = row.container;
+						}
+					}
+				}
+				if (!trackInModel || (container == null)) {
+					continue;
+				}
+				if (!valueFits(track, entry.value)) {
+					continue;
+				}
+				final int targetTime = time + (entry.time - TrackKeyClipboard.getBaseTime());
+				actions.add(writeKeyAction(container, track, targetTime, AnimFlag.cloneValue(entry.value),
+						AnimFlag.cloneValue(entry.inTan), AnimFlag.cloneValue(entry.outTan)));
+			}
+			pushCompound("Paste Keyframe(s)", actions, true);
+		}
+
+		private static boolean sameTrackForAll(final List<TrackKeyClipboard.Entry> entries) {
+			for (final TrackKeyClipboard.Entry entry : entries) {
+				if (entry.track != entries.get(0).track) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		private static boolean valueFits(final AnimFlag track, final Object value) {
+			if (track.size() == 0) {
+				return true;
+			}
+			return track.getValues().get(0).getClass() == value.getClass();
+		}
+
+		/** Set the key at {@code time} if one exists there, otherwise add one. */
+		private UndoAction writeKeyAction(final TimelineContainer container, final AnimFlag track, final int time,
+				final Object value, final Object inTan, final Object outTan) {
+			final int existing = track.getTimes().indexOf(time);
+			final Object in = track.tans() ? (inTan == null ? AnimFlag.cloneValue(value) : inTan) : null;
+			final Object out = track.tans() ? (outTan == null ? AnimFlag.cloneValue(value) : outTan) : null;
+			if (existing >= 0) {
+				final Object oldValue = AnimFlag.cloneValue(track.getValues().get(existing));
+				if (track.tans()) {
+					return new SetKeyframeAction(container, track, time, value, in, out, oldValue,
+							AnimFlag.cloneValue(track.getInTans().get(existing)),
+							AnimFlag.cloneValue(track.getOutTans().get(existing)), this::repaint);
+				}
+				return new SetKeyframeAction(container, track, time, value, oldValue, this::repaint);
+			}
+			if (track.tans()) {
+				return new AddKeyframeAction(container, track, time, value, in, out, modelStructureChangeListener);
+			}
+			return new AddKeyframeAction(container, track, time, value, modelStructureChangeListener);
+		}
+
+		/** Adds a key at {@code time} whose value is the track's value there. */
+		void insertKeyAt(final TrackRow row, final int time) {
+			if ((row == null) || (row.container == null) || (time < 0)) {
+				return;
+			}
+			if (row.track.getTimes().contains(time)) {
+				return;
+			}
+			final Object value = AnimFlag
+					.cloneValue(row.track.interpolateAt(new FixedTimeEnvironment(modelView.getModel(), time)));
+			final List<UndoAction> actions = new ArrayList<>();
+			actions.add(writeKeyAction(row.container, row.track, time, value, null, null));
+			pushCompound("Insert Keyframe", actions, true);
+			final int index = row.track.getTimes().indexOf(time);
+			if (index >= 0) {
+				select(new KeyframeRef(row.container, row.track, index), false);
+			}
+		}
+
+		/** Copies each selected key one millisecond later (a hold key). */
+		void duplicateSelected() {
+			final List<UndoAction> actions = new ArrayList<>();
+			for (final KeyframeRef ref : selectedRefs()) {
+				if (ref.container == null) {
+					continue;
+				}
+				final int target = ref.time() + 1;
+				if (ref.track.getTimes().contains(target)) {
+					continue;
+				}
+				actions.add(writeKeyAction(ref.container, ref.track, target, AnimFlag.cloneValue(ref.value()),
+						AnimFlag.cloneValue(ref.inTan()), AnimFlag.cloneValue(ref.outTan())));
+			}
+			pushCompound("Duplicate Keyframe(s)", actions, true);
+		}
+
+		void setInterpolation(final AnimFlag track, final InterpolationType type) {
+			final SetTrackInterpolationAction action = new SetTrackInterpolationAction(track, type, this::repaint);
+			action.redo();
+			undoActionListener.pushAction(action);
+			inspector.setSelection(selectedRefs());
+		}
+
+		@SuppressWarnings({ "deprecation", "removal" })
+		void convertToGlobalSequence(final AnimFlag track) {
+			int length = 1000;
+			for (final Integer time : track.getTimes()) {
+				length = Math.max(length, time);
+			}
+			final Integer sequence = new Integer(length);
+			final SetTrackGlobalSequenceAction action = new SetTrackGlobalSequenceAction(modelView.getModel(), track,
+					sequence, true, modelStructureChangeListener);
+			action.redo();
+			undoActionListener.pushAction(action);
+			inspector.setSelection(selectedRefs());
+		}
+
+		void detachGlobalSequence(final AnimFlag track) {
+			final SetTrackGlobalSequenceAction action = new SetTrackGlobalSequenceAction(modelView.getModel(), track,
+					null, false, modelStructureChangeListener);
+			action.redo();
+			undoActionListener.pushAction(action);
+			inspector.setSelection(selectedRefs());
+		}
+
+		void selectAllInTrack(final TrackRow row) {
+			selectedTrackToIndices.clear();
+			final Set<Integer> indices = new HashSet<>();
+			for (int j = 0; j < row.track.getTimes().size(); j++) {
+				indices.add(j);
+			}
+			selectedTrackToIndices.put(row.track, indices);
+			selectionChanged();
+		}
+
+		// ---- popup ----
+
+		private void showPopup(final Point point) {
+			final TrackRow row = trackRowAt(point.y);
+			final int time = Math.max(0, timeFromX(point.x));
+			final KeyframeRef key = keyAt(point);
+			final boolean haveSelection = !selectedTrackToIndices.isEmpty();
+			final JPopupMenu menu = new JPopupMenu();
+			if (row != null) {
+				menu.add(item("Insert Key at " + time, () -> insertKeyAt(row, time)));
+			}
+			final JMenuItem copy = item("Copy", this::copySelected);
+			copy.setEnabled(haveSelection);
+			menu.add(copy);
+			final JMenuItem cut = item("Cut", this::cutSelected);
+			cut.setEnabled(haveSelection);
+			menu.add(cut);
+			final JMenuItem paste = item("Paste at " + time, () -> pasteAt(time, row));
+			paste.setEnabled(!TrackKeyClipboard.isEmpty());
+			menu.add(paste);
+			final JMenuItem duplicate = item("Duplicate (hold key +1 ms)", this::duplicateSelected);
+			duplicate.setEnabled(haveSelection);
+			menu.add(duplicate);
+			final JMenuItem delete = item("Delete", this::deleteKeyframes);
+			delete.setEnabled(haveSelection);
+			menu.add(delete);
+			if (row != null) {
+				menu.addSeparator();
+				menu.add(item("Select All Keys in Track", () -> selectAllInTrack(row)));
+				final JMenu interpolation = new JMenu("Interpolation (" + row.track.getInterpTypeAsEnum() + ")");
+				for (final InterpolationType type : InterpolationType.values()) {
+					final JMenuItem entry = item(type.toString(), () -> setInterpolation(row.track, type));
+					entry.setEnabled(type != row.track.getInterpTypeAsEnum());
+					interpolation.add(entry);
+				}
+				menu.add(interpolation);
+				if (row.track.hasGlobalSeq()) {
+					menu.add(item("Detach from Global Sequence " + row.track.getGlobalSeq(),
+							() -> detachGlobalSequence(row.track)));
+				} else {
+					menu.add(item("Convert to Global Sequence", () -> convertToGlobalSequence(row.track)));
+				}
+			}
+			if (key != null) {
+				menu.addSeparator();
+				menu.add(item("Edit in Inspector", () -> {
+					select(key, false);
+					inspector.focusValue();
+				}));
+			}
+			menu.show(this, point.x, point.y);
+		}
+
+		private static JMenuItem item(final String label, final Runnable action) {
+			return new JMenuItem(new AbstractAction(label) {
+				@Override
+				public void actionPerformed(final ActionEvent e) {
+					action.run();
+				}
+			});
+		}
+
+		// ---- painting ----
+
+		@Override
+		protected void paintComponent(final Graphics g) {
+			super.paintComponent(g);
+			final Graphics2D g2 = (Graphics2D) g;
+			final int rowCount = tree.getRowCount();
+			boolean mousedOverAnythingEditable = false;
+			final Map<Integer, TrackRow> rowsByIndex = new HashMap<>();
+			for (final TrackRow row : trackRows()) {
+				rowsByIndex.put(row.row, row);
+			}
+			for (int i = 0; i < rowCount; i++) {
+				final TrackRow trackRow = rowsByIndex.get(i);
+				if (trackRow != null) {
+					mousedOverAnythingEditable |= paintTrackRow(g2, trackRow);
+					continue;
+				}
+				final TreePath pathForRow = tree.getPathForRow(i);
+				final DefaultMutableTreeNode node = (DefaultMutableTreeNode) pathForRow.getLastPathComponent();
+				final Object userObject = node.getUserObject();
+				g.setColor(Color.GRAY);
+				g.drawRect(0, ROW_HEIGHT * i, getWidth(), ROW_HEIGHT - 1);
+				if (userObject instanceof ModelComponentAnimFlagTree.ChooseableModelRoot) {
+					for (final Animation anim : modelView.getModel().getAnims()) {
+						final int xEnd = xFromTime(anim.getStart());
+						final int xStart = xFromTime(anim.getEnd());
+						g.setColor(Color.RED.darker());
+						g.drawLine(xStart, 0, xStart, getHeight());
+						g.drawLine(xEnd, 0, xEnd, getHeight());
+						g.setColor(Color.BLACK);
+						final String animName = "\"" + anim.getName() + "\"";
+						g.drawString(animName, xStart, ROW_HEIGHT * i + (ROW_HEIGHT + g.getFont().getSize()) / 2);
+						g.drawString(animName, xEnd, ROW_HEIGHT * i + (ROW_HEIGHT + g.getFont().getSize()) / 2);
+					}
+				}
+			}
+			paintPlayhead(g2);
+			if (mouseDragStart != null) {
+				if (slidingKeys) {
+					paintSlidePreview(g2);
+				} else if (!popupPending) {
+					g.setColor(Color.RED);
+					g.drawRect(Math.min(mouseDragStart.x, mouseDragEnd.x), Math.min(mouseDragStart.y, mouseDragEnd.y),
+							Math.abs(mouseDragStart.x - mouseDragEnd.x), Math.abs(mouseDragStart.y - mouseDragEnd.y));
+				}
+			} else {
+				g.setColor(Color.GRAY);
+				g.drawLine(mouseHoverX, 0, mouseHoverX, getHeight());
+			}
+			setCursor(mousedOverAnythingEditable ? Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR) : null);
+		}
+
+		/** @return true when the mouse hovers a selected key */
+		private boolean paintTrackRow(final Graphics2D g, final TrackRow trackRow) {
+			final int i = trackRow.row;
+			final AnimFlag track = trackRow.track;
+			final Set<Integer> selectedIndices = selectedTrackToIndices.get(track);
+			final String name = track.getName();
+			final boolean afHideShow = "Alpha".equals(name) || "Visibility".equals(name);
+			final boolean afColor = "Color".equals(name) || name.endsWith("Color");
+			final boolean translation = "Translation".equals(name);
+			final boolean rotation = "Rotation".equals(name);
+			final boolean scaling = "Scaling".equals(name);
+			boolean mousedOverSelected = false;
+			g.setColor(Color.BLACK);
+			g.fillRect(0, ROW_HEIGHT * i, getWidth(), ROW_HEIGHT - 1);
+			g.setColor(Color.GRAY);
+			g.drawRect(0, ROW_HEIGHT * i, getWidth(), ROW_HEIGHT - 1);
+			final ArrayList<Integer> times = track.getTimes();
+			Object lastValue = null;
+			int lastEndX = 0;
+			final InterpolationType interpTypeAsEnum = track.getInterpTypeAsEnum();
+			for (int j = 0; j < times.size(); j++) {
+				final Integer time = times.get(j);
+				final int x = xFromTime(time);
+				final Rectangle rect = keyRect(i, time);
+				final boolean mouseOver = rect.contains(mouseHoverX, mouseHoverY);
+				final boolean selected = (selectedIndices != null) && selectedIndices.contains(j);
+				mousedOverSelected |= mouseOver && selected;
+				final Object value = track.getValues().get(j);
+				// span bar between the previous key and this one for alpha and color
+				if (afHideShow && (value instanceof Number)) {
+					final float now = ((Number) value).floatValue();
+					final float before = lastValue instanceof Number ? ((Number) lastValue).floatValue()
+							: ((Number) track.getIdentity()).floatValue();
+					if (interpTypeAsEnum == InterpolationType.DONT_INTERP) {
+						g.setColor(new Color(0f, 1f, 1f, clamp01(before)));
+					} else {
+						g.setPaint(new GradientPaint(lastEndX, 0, new Color(0f, clamp01(before), clamp01(before), clamp01(before)),
+								x - KEY_HALF_WIDTH, 0, new Color(0f, clamp01(now), clamp01(now), clamp01(now))));
+					}
+					g.fillRect(lastEndX, ROW_HEIGHT * i + ROW_HEIGHT / 4, x - KEY_HALF_WIDTH - lastEndX, ROW_HEIGHT / 2);
+					lastValue = value;
+				} else if (afColor && (value instanceof Vertex)) {
+					final Color now = toColor((Vertex) value);
+					final Color before = lastValue instanceof Vertex ? toColor((Vertex) lastValue)
+							: toColor((Vertex) track.getIdentity());
+					if (interpTypeAsEnum == InterpolationType.DONT_INTERP) {
+						g.setColor(before);
+					} else {
+						g.setPaint(new GradientPaint(lastEndX, 0, before, x - KEY_HALF_WIDTH, 0, now));
+					}
+					g.fillRect(lastEndX, ROW_HEIGHT * i + ROW_HEIGHT / 4, x - KEY_HALF_WIDTH - lastEndX, ROW_HEIGHT / 2);
+					lastValue = value;
+				}
+				// the key pill
+				if (selected) {
+					g.setPaint(keyframePaintHighlight);
+				} else if (afHideShow && (value instanceof Number)) {
+					final float v = ((Number) value).floatValue();
+					if (v < 1.0f) {
+						g.setColor(new Color(0f, 1f, 1f, clamp01(v)));
+					} else {
+						g.setPaint(keyframePaintTeal);
+					}
+				} else if (afColor && (value instanceof Vertex)) {
+					g.setColor(toColor((Vertex) value));
+				} else if (scaling) {
+					g.setPaint(keyframePaintRed);
+				} else if (translation) {
+					g.setPaint(keyframePaintBlue);
+				} else {
+					g.setPaint(keyframePaint);
+				}
+				g.fillRoundRect(rect.x, rect.y, rect.width, rect.height, 2, 2);
+				if (rotation && (value instanceof QuaternionRotation)) {
+					paintRotationGlyph(g, (QuaternionRotation) value, rect);
+				}
+				Color outline = Color.GREEN;
+				if (afHideShow) {
+					outline = Color.CYAN;
+				} else if (afColor) {
+					outline = Color.GRAY;
+				} else if (scaling) {
+					outline = Color.ORANGE;
+				} else if (translation) {
+					outline = Color.BLUE;
+				}
+				g.setColor(mouseOver ? Color.WHITE : selected ? Color.RED : outline);
+				g.drawRoundRect(rect.x, rect.y, rect.width, rect.height, 2, 2);
+				lastEndX = x + KEY_HALF_WIDTH;
+			}
+			return mousedOverSelected;
+		}
+
+		/**
+		 * A short needle whose angle is the rotation angle around the key's axis,
+		 * so a row of rotation keys reads as a sequence of angles instead of
+		 * identical pills.
+		 */
+		private static void paintRotationGlyph(final Graphics2D g, final QuaternionRotation q, final Rectangle rect) {
+			final double angle = q.getAngleAroundAxis();
+			final Vertex axis = q.getAxisOfRotation();
+			final double signed = (axis != null) && (axis.z < 0) ? -angle : angle;
+			final double cx = rect.getCenterX();
+			final double cy = rect.getCenterY();
+			final double r = rect.height / 2.0 - 1;
+			final Object oldAA = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g.setColor(new Color(0, 60, 0));
+			g.setStroke(new BasicStroke(1.5f));
+			g.drawLine((int) Math.round(cx), (int) Math.round(cy), (int) Math.round(cx + (r * Math.sin(signed))),
+					(int) Math.round(cy - (r * Math.cos(signed))));
+			g.setStroke(new BasicStroke(1f));
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAA);
+		}
+
+		private static float clamp01(final float f) {
+			return Math.max(0f, Math.min(1f, f));
+		}
+
+		private static Color toColor(final Vertex v) {
+			return new Color(clamp01((float) v.x), clamp01((float) v.y), clamp01((float) v.z));
+		}
+
+		private void paintPlayhead(final Graphics2D g) {
+			if (timeEnvironment == null) {
+				return;
+			}
+			final int x = xFromTime(playheadTime());
+			g.setColor(new Color(255, 220, 0));
+			g.drawLine(x, 0, x, getHeight());
+		}
+
+		private void paintSlidePreview(final Graphics2D g) {
+			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f));
+			final int timeDelta = timeFromX(mouseDragEnd.x) - timeFromX(mouseDragStart.x);
+			for (final TrackRow row : trackRows()) {
+				final Set<Integer> indices = selectedTrackToIndices.get(row.track);
+				if (indices == null) {
+					continue;
+				}
+				for (final Integer index : indices) {
+					if (index >= row.track.getTimes().size()) {
+						continue;
+					}
+					final int newTime = row.track.getTimes().get(index) + timeDelta;
+					final Rectangle rect = keyRect(row.row, newTime);
+					g.setPaint(keyframePaintHighlight);
+					g.fillRoundRect(rect.x, rect.y, rect.width, rect.height, 2, 2);
+					g.setColor(Color.RED);
+					g.drawRoundRect(rect.x, rect.y, rect.width, rect.height, 2, 2);
+					g.setColor(Color.WHITE);
+					g.drawString(Integer.toString(newTime), rect.x + rect.width, rect.y + ROW_HEIGHT - 4);
+				}
+			}
+		}
+
+		@Override
+		public void typeChanged(final SelectionMode newType) {
+			this.selectionType = newType;
+		}
 	}
 }

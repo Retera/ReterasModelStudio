@@ -1002,6 +1002,7 @@ public class MainPanel extends JPanel
 				if (currentModelPanel() != null) {
 					currentModelPanel().getEditorRenderModel().updateNodes(true, false);
 					currentModelPanel().repaintSelfAndRelatedChildren();
+					currentModelPanel().getTracksEditorPanel().repaint();
 				}
 			}
 		});
@@ -5951,6 +5952,7 @@ public class MainPanel extends JPanel
 		@Override
 		public void keyframeAdded(final TimelineContainer node, final AnimFlag timeline, final int trackTime) {
 			timeSliderPanel.revalidateKeyframeDisplay();
+			repaintTracks(modelReference.getModel());
 		}
 
 		@Override
@@ -5961,6 +5963,14 @@ public class MainPanel extends JPanel
 		@Override
 		public void keyframeRemoved(final TimelineContainer node, final AnimFlag timeline, final int trackTime) {
 			timeSliderPanel.revalidateKeyframeDisplay();
+			repaintTracks(modelReference.getModel());
+		}
+
+		private void repaintTracks(final EditableModel model) {
+			final ModelPanel display = displayFor(model);
+			if (display != null) {
+				display.getTracksEditorPanel().repaint();
+			}
 		}
 
 		@Override
@@ -6491,6 +6501,8 @@ public class MainPanel extends JPanel
 		modelPanels.add(temp);
 		temp.getModelComponentBrowserTree().setNavigationListener(componentNavigationListener);
 		temp.getModelViewManagingTree().setNavigationListener(componentNavigationListener);
+		temp.getTracksEditorPanel().setTimeEnvironment(animatedRenderEnvironment,
+				time -> timeSliderPanel.setCurrentTime(time));
 
 		// tabbedPane.addTab(f.getName().split("\\.")[0], icon, temp, f.getPath());
 		// if (selectNewTab) {

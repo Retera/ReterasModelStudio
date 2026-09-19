@@ -127,7 +127,7 @@ insertion, no copy or paste, no right-click. Rotation keys have no value renderi
 own time scale and no connection to the shared `TimeEnvironmentImpl` or `TimeSliderPanel`, so the two selections
 and the two playheads are independent.
 
-- [ ] **W7. Tracks: create and edit keyframe data.** (a) A side panel, open by default in the Tracks view, that
+- [x] **W7. Tracks: create and edit keyframe data.** (inspector panel with type-aware editors incl. Euler degrees and texture picker; right-click insert/copy/cut/paste/duplicate/delete/select-all/interpolation/global sequence; double-click edits; ruler in the column header drives the shared playhead; rotation keys draw an angle needle) (a) A side panel, open by default in the Tracks view, that
   shows the selected key's time, value and tangents in a type-aware editor: float spinner for alpha, color
   swatch plus RGB fields for color, texture chooser with thumbnail for TextureID, Euler-degrees plus raw
   quaternion for rotation, XYZ for translation and scaling. Edits go through `SetKeyframeAction`. (b) Right-click
@@ -397,3 +397,6 @@ Do not copy:
 - 2026-09-18: GUI verified under Xvfb (`xvfb-run`, `mate-wm`, `xdotool`, a Robot screenshot helper) against the
   3.0 install: Model tab popup, Delete, Undo, copy/paste, drag reparent and New all work with no exceptions.
   Full-install round trips: 1.22 all 3320 models clean, 2.0.x first 700 clean, 3.0 DE units first 40 clean.
+- 2026-09-19: W11 (Outliner tri-state), W9 (primitives) and W7 (Tracks keyframe editor) done and verified under Xvfb.
+  Note for GUI testing: the profile's "disable DirectX" preference turns on the Java2D OpenGL pipeline, which
+  leaves partial black repaints on the virtual display; switching tabs forces a full repaint.
