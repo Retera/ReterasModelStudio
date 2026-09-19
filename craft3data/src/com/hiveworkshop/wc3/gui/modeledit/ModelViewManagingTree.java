@@ -7,6 +7,7 @@ import java.util.Enumeration;
 
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
 import com.etheller.collections.ArrayList;
@@ -119,6 +120,39 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 			}
 
 		});
+	}
+
+	/**
+	 * Expands to and scrolls to the row showing the given geoset, node or camera.
+	 * The outliner does not support row selection, so this is the closest thing
+	 * to "select it" that it offers.
+	 */
+	public void scrollToObject(final Object object) {
+		final Object root = getModel().getRoot();
+		if (root instanceof DefaultMutableTreeNode) {
+			final TreePath path = findPathByItem((DefaultMutableTreeNode) root, object);
+			if (path != null) {
+				if (path.getParentPath() != null) {
+					expandPath(path.getParentPath());
+				}
+				scrollPathToVisible(path);
+			}
+		}
+	}
+
+	private TreePath findPathByItem(final DefaultMutableTreeNode node, final Object object) {
+		final Object userObject = node.getUserObject();
+		if ((userObject instanceof CheckableDisplayElement<?>)
+				&& (((CheckableDisplayElement<?>) userObject).item == object)) {
+			return new TreePath(node.getPath());
+		}
+		for (int i = 0; i < node.getChildCount(); i++) {
+			final TreePath path = findPathByItem((DefaultMutableTreeNode) node.getChildAt(i), object);
+			if (path != null) {
+				return path;
+			}
+		}
+		return null;
 	}
 
 	private CheckableDisplayElement<?> asElement(final Object userObject) {

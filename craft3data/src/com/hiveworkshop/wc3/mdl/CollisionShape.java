@@ -103,6 +103,18 @@ public class CollisionShape extends IdObject {
 
 	}
 
+	/**
+	 * A default box collision shape, 64 units square and 64 tall, centred on the
+	 * pivot. Used when a shape is created from the Model tab.
+	 */
+	public CollisionShape(final String name) {
+		this.name = name;
+		this.pivotPoint = new Vertex(0, 0, 0);
+		add("Box");
+		vertices.add(new Vertex(-32, -32, 0));
+		vertices.add(new Vertex(32, 32, 64));
+	}
+
 	public static CollisionShape read(final BufferedReader mdl) {
 		String line = MDLReader.nextLine(mdl);
 		if (line.contains("CollisionShape")) {

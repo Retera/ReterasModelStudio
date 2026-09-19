@@ -673,6 +673,20 @@ public class TracksEditorPanel extends JPanel {
 		}
 	}
 
+	/**
+	 * Selects the row for a component (a node, layer, camera... or one of its
+	 * tracks) and scrolls it into view. Used by "Open in Tracks".
+	 */
+	public void selectObject(final Object object) {
+		modelComponentAnimFlagTree.selectObject(object);
+		final TreePath path = modelComponentAnimFlagTree.getSelectionPath();
+		if (path != null) {
+			modelComponentAnimFlagTree.expandPath(path);
+			modelComponentAnimFlagTree.scrollPathToVisible(path);
+		}
+		repaint();
+	}
+
 	public void reloadFromModelView() {
 		modelComponentAnimFlagTree.reloadFromModelView();
 	}

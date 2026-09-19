@@ -175,15 +175,14 @@ public final class ModelComponentAnimFlagTree extends JTree {
 	}
 
 	private TreePath findPathByElement(final DefaultMutableTreeNode node, final Object object) {
-		if (node.isLeaf()) {
-			final Object userObject = node.getUserObject();
-			if (userObject instanceof ChooseableDisplayElement<?>) {
-				final ChooseableDisplayElement<?> nodeElement = (ChooseableDisplayElement<?>) userObject;
-				if (nodeElement.item == object) {
-					return new TreePath(node.getPath());
-				}
+		final Object userObject = node.getUserObject();
+		if (userObject instanceof ChooseableDisplayElement<?>) {
+			final ChooseableDisplayElement<?> nodeElement = (ChooseableDisplayElement<?>) userObject;
+			if ((nodeElement.item != null) && (nodeElement.item == object)) {
+				return new TreePath(node.getPath());
 			}
-		} else {
+		}
+		{
 			for (int i = 0; i < node.getChildCount(); i++) {
 				final DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(i);
 				TreePath path;

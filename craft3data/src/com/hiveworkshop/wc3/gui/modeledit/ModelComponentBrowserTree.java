@@ -1,12 +1,14 @@
 package com.hiveworkshop.wc3.gui.modeledit;
 
 import java.awt.Component;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.Enumeration;
 
 import javax.swing.ImageIcon;
+import javax.swing.DropMode;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
@@ -24,6 +26,13 @@ import com.etheller.collections.Map;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.componenttree.ComponentKind;
+import com.hiveworkshop.wc3.gui.modeledit.componenttree.ComponentRef;
+import com.hiveworkshop.wc3.gui.modeledit.componenttree.ModelComponentNavigationListener;
+import com.hiveworkshop.wc3.gui.modeledit.componenttree.ModelComponentTreeController;
+import com.hiveworkshop.wc3.gui.modeledit.componenttree.ModelComponentTreePopup;
+import com.hiveworkshop.wc3.gui.modeledit.componenttree.NodeReparentTransferHandler;
+import com.hiveworkshop.wc3.gui.modeledit.util.EditingHotkeys;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
 import com.hiveworkshop.wc3.mdl.Animation;
@@ -55,6 +64,8 @@ public final class ModelComponentBrowserTree extends JTree {
 	private final ModelViewManager modelViewManager;
 	private final UndoActionListener undoActionListener;
 	private final ModelStructureChangeListener modelStructureChangeListener;
+	private final ModelComponentTreeController controller;
+	private ModelComponentNavigationListener navigationListener = ModelComponentNavigationListener.NONE;
 
 	public ModelComponentBrowserTree(final ModelViewManager modelViewManager,
 			final UndoActionListener undoActionListener, final ModelEditorManager modelEditorManager,
@@ -88,7 +99,77 @@ public final class ModelComponentBrowserTree extends JTree {
 				return treeCellRendererComponent;
 			}
 		});
-		setFocusable(false);
+		controller = new ModelComponentTreeController(modelViewManager, undoActionListener,
+				modelStructureChangeListener, this);
+		controller.setSelectionCallback(component -> SwingUtilities.invokeLater(() -> selectObject(component)));
+		// the tree rebuilds itself after every structure change, so the popup,
+		// hotkeys and drag handler are installed once here and read the row under
+		// the mouse or the selection at the time they fire
+		EditingHotkeys.installDelete(this, () -> controller.delete(getSelectedRef(), false));
+		EditingHotkeys.installClipboard(this, () -> controller.cut(getSelectedRef()),
+				() -> controller.copy(getSelectedRef()), () -> controller.paste(getSelectedRef()));
+		setDragEnabled(true);
+		setDropMode(DropMode.ON);
+		setTransferHandler(new NodeReparentTransferHandler(this, controller));
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(final MouseEvent e) {
+				maybeShowPopup(e);
+			}
+
+			@Override
+			public void mouseReleased(final MouseEvent e) {
+				maybeShowPopup(e);
+			}
+		});
+	}
+
+	private void maybeShowPopup(final MouseEvent e) {
+		if (!e.isPopupTrigger()) {
+			return;
+		}
+		final TreePath path = getPathForLocation(e.getX(), e.getY());
+		ComponentRef ref = ComponentRef.none();
+		if (path != null) {
+			setSelectionPath(path);
+			ref = refAt(path);
+		}
+		requestFocusInWindow();
+		ModelComponentTreePopup.build(ref, controller, navigationListener).show(this, e.getX(), e.getY());
+	}
+
+	public void setNavigationListener(final ModelComponentNavigationListener navigationListener) {
+		this.navigationListener = navigationListener == null ? ModelComponentNavigationListener.NONE
+				: navigationListener;
+	}
+
+	public ModelComponentTreeController getController() {
+		return controller;
+	}
+
+	/** What the selected row refers to; never null. */
+	public ComponentRef getSelectedRef() {
+		final TreePath path = getSelectionPath();
+		return path == null ? ComponentRef.none() : refAt(path);
+	}
+
+	/** What the row at the end of the path refers to; never null. */
+	public ComponentRef refAt(final TreePath path) {
+		final Object last = path.getLastPathComponent();
+		if (!(last instanceof DefaultMutableTreeNode)) {
+			return ComponentRef.none();
+		}
+		final Object userObject = ((DefaultMutableTreeNode) last).getUserObject();
+		if (userObject instanceof ChooseableDummyItem) {
+			return ComponentRef.group(((ChooseableDummyItem) userObject).name2);
+		}
+		if (userObject instanceof ChooseableDisplayElement) {
+			final Object item = ((ChooseableDisplayElement<?>) userObject).item;
+			if ((item != null) && (ComponentKind.of(item) != null)) {
+				return ComponentRef.item(item);
+			}
+		}
+		return ComponentRef.none();
 	}
 
 	public void addSelectListener(final ModelComponentListener selectListener) {
@@ -164,16 +245,14 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	private TreePath findPathByElement(final DefaultMutableTreeNode node, final Object object) {
-		if (node.isLeaf()) {
-			final Object userObject = node.getUserObject();
-			if (userObject instanceof ChooseableDisplayElement<?>) {
-				final ChooseableDisplayElement<?> nodeElement = (ChooseableDisplayElement<?>) userObject;
-				if (nodeElement.item == object) {
-					return new TreePath(node.getPath());
-				}
+		final Object userObject = node.getUserObject();
+		if (userObject instanceof ChooseableDisplayElement<?>) {
+			final ChooseableDisplayElement<?> nodeElement = (ChooseableDisplayElement<?>) userObject;
+			if ((nodeElement.item != null) && (nodeElement.item == object)) {
+				return new TreePath(node.getPath());
 			}
 		}
-		else {
+		{
 			for (int i = 0; i < node.getChildCount(); i++) {
 				final DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(i);
 				TreePath path;

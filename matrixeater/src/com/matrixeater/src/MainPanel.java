@@ -160,6 +160,7 @@ import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
 import com.hiveworkshop.wc3.gui.modeledit.util.TextureExporter;
+import com.hiveworkshop.wc3.gui.modeledit.componenttree.ModelComponentNavigationListener;
 import com.hiveworkshop.wc3.gui.modeledit.util.EditingHotkeys;
 import com.hiveworkshop.wc3.gui.modeledit.util.TransferActionListener;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimationViewer;
@@ -5761,6 +5762,63 @@ public class MainPanel extends JPanel
 		EditableModel getModel();
 	}
 
+	/**
+	 * "Open in Editor" / "Open in Tracks" from the Model tab: bring the other
+	 * docked view to the front and point it at the component.
+	 */
+	private final ModelComponentNavigationListener componentNavigationListener = new ModelComponentNavigationListener() {
+		@Override
+		public void openInEditor(final Object component) {
+			final ModelPanel modelPanel = currentModelPanel();
+			if (modelPanel == null) {
+				return;
+			}
+			showDockedView(viewportControllerWindowView);
+			final ModelViewManager viewManager = modelPanel.getModelViewManager();
+			final List<Vertex> selection = new ArrayList<>();
+			if (component instanceof Geoset) {
+				viewManager.makeGeosetEditable((Geoset) component);
+				selection.addAll(((Geoset) component).getVertices());
+			} else if (component instanceof IdObject) {
+				viewManager.makeIdObjectVisible((IdObject) component);
+				if (((IdObject) component).getPivotPoint() != null) {
+					selection.add(((IdObject) component).getPivotPoint());
+				}
+			} else if (component instanceof Camera) {
+				viewManager.makeCameraVisible((Camera) component);
+				selection.add(((Camera) component).getPosition());
+			}
+			modelPanel.getModelViewManagingTree().reloadFromModelView();
+			SwingUtilities.invokeLater(() -> modelPanel.getModelViewManagingTree().scrollToObject(component));
+			if (!selection.isEmpty()) {
+				modelPanel.getModelEditorManager().getModelEditor().selectByVertices(selection);
+			}
+			repaintSelfAndChildren(modelPanel);
+		}
+
+		@Override
+		public void openInTracks(final Object component) {
+			final ModelPanel modelPanel = currentModelPanel();
+			if (modelPanel == null) {
+				return;
+			}
+			showDockedView(tracksView);
+			modelPanel.getTracksEditorPanel().selectObject(component);
+		}
+	};
+
+	private void showDockedView(final View view) {
+		try {
+			if (view.isMinimized() || (view.getRootWindow() == null)) {
+				view.restore();
+			}
+		} catch (final Exception e) {
+			e.printStackTrace();
+		}
+		view.makeVisible();
+		view.restoreFocus();
+	}
+
 	private final class ModelStructureChangeListenerImplementation implements ModelStructureChangeListener {
 		private final ModelReference modelReference;
 
@@ -6421,6 +6479,7 @@ public class MainPanel extends JPanel
 		}
 		addTabForView(temp, selectNewTab);
 		modelPanels.add(temp);
+		temp.getModelComponentBrowserTree().setNavigationListener(componentNavigationListener);
 
 		// tabbedPane.addTab(f.getName().split("\\.")[0], icon, temp, f.getPath());
 		// if (selectNewTab) {
