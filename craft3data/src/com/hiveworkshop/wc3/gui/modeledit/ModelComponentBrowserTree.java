@@ -105,15 +105,16 @@ public final class ModelComponentBrowserTree extends JTree {
 		// the tree rebuilds itself after every structure change, so the popup,
 		// hotkeys and drag handler are installed once here and read the row under
 		// the mouse or the selection at the time they fire
-		EditingHotkeys.installDelete(this, () -> controller.delete(getSelectedRef(), false));
-		EditingHotkeys.installClipboard(this, () -> controller.cut(getSelectedRef()),
-				() -> controller.copy(getSelectedRef()), () -> controller.paste(getSelectedRef()));
+		EditingHotkeys.installDelete(this, () -> controller.delete(getSelectedRefs(), false));
+		EditingHotkeys.installClipboard(this, () -> controller.cut(getSelectedRefs()),
+				() -> controller.copy(getSelectedRefs()), () -> controller.paste(getSelectedRef()));
 		setDragEnabled(true);
 		setDropMode(DropMode.ON);
 		setTransferHandler(new NodeReparentTransferHandler(this, controller));
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(final MouseEvent e) {
+				selectFullRow(e);
 				maybeShowPopup(e);
 			}
 
@@ -124,6 +125,35 @@ public final class ModelComponentBrowserTree extends JTree {
 		});
 	}
 
+	/**
+	 * JTree only reacts to presses on the label itself; a press to the right of a
+	 * short label on the same row should select that row too, honouring Shift
+	 * (range) and Ctrl (toggle) like a press on the label.
+	 */
+	private void selectFullRow(final MouseEvent e) {
+		if (!SwingUtilities.isLeftMouseButton(e) || (getPathForLocation(e.getX(), e.getY()) != null)) {
+			return;
+		}
+		final int row = getClosestRowForLocation(e.getX(), e.getY());
+		final java.awt.Rectangle bounds = row < 0 ? null : getRowBounds(row);
+		if ((bounds == null) || (e.getY() < bounds.y) || (e.getY() >= (bounds.y + bounds.height))
+				|| (e.getX() < bounds.x)) {
+			return;
+		}
+		if (e.isShiftDown()) {
+			final int anchor = getLeadSelectionRow() < 0 ? row : getLeadSelectionRow();
+			setSelectionInterval(Math.min(anchor, row), Math.max(anchor, row));
+		} else if (e.isControlDown()) {
+			if (isRowSelected(row)) {
+				removeSelectionRow(row);
+			} else {
+				addSelectionRow(row);
+			}
+		} else {
+			setSelectionRow(row);
+		}
+	}
+
 	private void maybeShowPopup(final MouseEvent e) {
 		if (!e.isPopupTrigger()) {
 			return;
@@ -131,11 +161,15 @@ public final class ModelComponentBrowserTree extends JTree {
 		final TreePath path = getPathForLocation(e.getX(), e.getY());
 		ComponentRef ref = ComponentRef.none();
 		if (path != null) {
-			setSelectionPath(path);
+			// right-clicking inside a multi-selection keeps it so the menu can act on all of it
+			if (!isPathSelected(path)) {
+				setSelectionPath(path);
+			}
 			ref = refAt(path);
 		}
 		requestFocusInWindow();
-		ModelComponentTreePopup.build(ref, controller, navigationListener).show(this, e.getX(), e.getY());
+		ModelComponentTreePopup.build(ref, getSelectedRefs(), controller, navigationListener).show(this, e.getX(),
+				e.getY());
 	}
 
 	public void setNavigationListener(final ModelComponentNavigationListener navigationListener) {
@@ -151,6 +185,24 @@ public final class ModelComponentBrowserTree extends JTree {
 	public ComponentRef getSelectedRef() {
 		final TreePath path = getSelectionPath();
 		return path == null ? ComponentRef.none() : refAt(path);
+	}
+
+	/** Every selected row that is a component, in tree order; never null. */
+	public java.util.List<ComponentRef> getSelectedRefs() {
+		final TreePath[] paths = getSelectionPaths();
+		final java.util.List<ComponentRef> refs = new java.util.ArrayList<>();
+		if (paths == null) {
+			return refs;
+		}
+		final TreePath[] ordered = paths.clone();
+		java.util.Arrays.sort(ordered, (a, b) -> Integer.compare(getRowForPath(a), getRowForPath(b)));
+		for (final TreePath path : ordered) {
+			final ComponentRef ref = refAt(path);
+			if (ref.isComponent()) {
+				refs.add(ref);
+			}
+		}
+		return refs;
 	}
 
 	/** What the row at the end of the path refers to; never null. */

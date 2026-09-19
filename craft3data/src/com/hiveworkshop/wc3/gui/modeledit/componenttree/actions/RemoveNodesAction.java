@@ -94,7 +94,10 @@ public final class RemoveNodesAction implements UndoAction {
 				}
 			}
 		}
-		for (final IdObject node : removed) {
+		// remove from the back so every recorded index is the node's original
+		// position; undo then re-inserts front to back and the order comes back exact
+		for (int i = removed.size() - 1; i >= 0; i--) {
+			final IdObject node = removed.get(i);
 			removedParents.put(node, node.getParent());
 			removedIndices.put(node, ComponentListUtil.removeIdentity(model.getIdObjects(), node));
 			node.setParent(null);

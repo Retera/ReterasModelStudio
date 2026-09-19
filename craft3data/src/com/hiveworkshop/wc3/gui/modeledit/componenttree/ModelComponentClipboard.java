@@ -1,51 +1,59 @@
 package com.hiveworkshop.wc3.gui.modeledit.componenttree;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.hiveworkshop.wc3.mdl.EditableModel;
 
 /**
  * In-process clipboard for Model tab components.
  * <p>
- * It remembers the original component and the model it came from; every paste
- * makes a fresh deep copy through {@link ModelComponentCopier}, so pasting
- * twice yields two independent components and pasting into another open model
- * remaps references by name.
+ * It remembers the original components and the model they came from; every
+ * paste makes fresh deep copies through {@link ModelComponentCopier}, so
+ * pasting twice yields two independent sets and pasting into another open
+ * model remaps references by name. A cut component stays on the clipboard
+ * after it is deleted, because the copy is made from the detached original.
  */
 public final class ModelComponentClipboard {
-	private static Object item;
-	private static ComponentKind kind;
+	private static List<Object> items = Collections.emptyList();
 	private static EditableModel sourceModel;
 
 	private ModelComponentClipboard() {
 	}
 
 	public static void set(final Object component, final EditableModel source) {
-		item = component;
-		kind = ComponentKind.of(component);
+		set(Collections.singletonList(component), source);
+	}
+
+	public static void set(final List<Object> components, final EditableModel source) {
+		items = new ArrayList<>(components);
 		sourceModel = source;
 	}
 
 	public static boolean isEmpty() {
-		return item == null;
+		return items.isEmpty();
 	}
 
+	/** The first component; use {@link #getItems()} for the whole selection. */
 	public static Object getItem() {
-		return item;
+		return items.isEmpty() ? null : items.get(0);
+	}
+
+	public static List<Object> getItems() {
+		return Collections.unmodifiableList(items);
 	}
 
 	public static ComponentKind getKind() {
-		return kind;
+		return items.isEmpty() ? null : ComponentKind.of(items.get(0));
 	}
 
 	public static EditableModel getSourceModel() {
 		return sourceModel;
 	}
 
-	/** Forget the component if it was the given one (after it is deleted). */
-	public static void forgetIfSame(final Object component) {
-		if (item == component) {
-			item = null;
-			kind = null;
-			sourceModel = null;
-		}
+	public static void clear() {
+		items = Collections.emptyList();
+		sourceModel = null;
 	}
 }

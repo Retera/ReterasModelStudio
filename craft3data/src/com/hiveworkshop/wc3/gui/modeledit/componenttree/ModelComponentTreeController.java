@@ -2,7 +2,10 @@ package com.hiveworkshop.wc3.gui.modeledit.componenttree;
 
 import java.awt.Component;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
@@ -18,6 +21,7 @@ import com.hiveworkshop.wc3.gui.modeledit.componenttree.actions.RemoveGlobalSequ
 import com.hiveworkshop.wc3.gui.modeledit.componenttree.actions.RemoveNodesAction;
 import com.hiveworkshop.wc3.gui.modeledit.componenttree.actions.RemoveTextureAnimAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.SetParentAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Attachment;
@@ -94,17 +98,48 @@ public final class ModelComponentTreeController {
 		return ref.isComponent() && ModelComponentCopier.canCopy(ref.getItem());
 	}
 
+	public boolean canCopy(final List<ComponentRef> refs) {
+		for (final ComponentRef ref : refs) {
+			if (canCopy(ref)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public void copy(final ComponentRef ref) {
-		if (canCopy(ref)) {
-			ModelComponentClipboard.set(ref.getItem(), model());
+		copy(Collections.singletonList(ref));
+	}
+
+	/** Copies every copyable component of the selection; the rest is ignored. */
+	public void copy(final List<ComponentRef> refs) {
+		final List<Object> items = new ArrayList<>();
+		for (final ComponentRef ref : refs) {
+			if (canCopy(ref) && !items.contains(ref.getItem())) {
+				items.add(ref.getItem());
+			}
+		}
+		if (!items.isEmpty()) {
+			ModelComponentClipboard.set(items, model());
 		}
 	}
 
 	public void cut(final ComponentRef ref) {
-		if (canCopy(ref)) {
-			copy(ref);
-			delete(ref, false);
+		cut(Collections.singletonList(ref));
+	}
+
+	public void cut(final List<ComponentRef> refs) {
+		final List<ComponentRef> copyable = new ArrayList<>();
+		for (final ComponentRef ref : refs) {
+			if (canCopy(ref)) {
+				copyable.add(ref);
+			}
 		}
+		if (copyable.isEmpty()) {
+			return;
+		}
+		copy(copyable);
+		delete(copyable, false);
 	}
 
 	public boolean canPaste() {
@@ -112,35 +147,91 @@ public final class ModelComponentTreeController {
 	}
 
 	/**
+	 * Pastes everything on the clipboard as one undoable step.
+	 *
 	 * @param target the row the paste was invoked on; a node row becomes the
-	 *               parent of a pasted node
+	 *               parent of pasted nodes whose own parent was not pasted too
 	 */
 	public void paste(final ComponentRef target) {
 		if (!canPaste()) {
 			return;
 		}
-		final Object original = ModelComponentClipboard.getItem();
+		final List<Object> originals = ModelComponentClipboard.getItems();
 		final EditableModel source = ModelComponentClipboard.getSourceModel();
-		final CopyResult copy = ModelComponentCopier.copy(original, source, model());
-		if (copy == null) {
-			JOptionPane.showMessageDialog(dialogParent, "This component cannot be pasted.");
+		final List<Object> components = new ArrayList<>();
+		final Map<Object, Object> copies = new LinkedHashMap<>();
+		Animation keyframeSource = null;
+		Animation keyframeTarget = null;
+		for (final Object original : originals) {
+			final CopyResult copy = ModelComponentCopier.copy(original, source, model());
+			if (copy == null) {
+				continue;
+			}
+			for (final Object extra : copy.getExtras()) {
+				if (!components.contains(extra)) {
+					components.add(extra);
+				}
+			}
+			copies.put(original, copy.getItem());
+			if ((source == model()) && wasCut(original)) {
+				// a cut component is being moved, not duplicated: keep its name
+				if (copy.getItem() instanceof IdObject) {
+					((IdObject) copy.getItem()).setName(((IdObject) original).getName());
+				} else if (copy.getItem() instanceof Animation) {
+					((Animation) copy.getItem()).setName(((Animation) original).getName());
+				}
+			}
+			if ((copy.getKeyframeSource() != null) && (keyframeSource == null)) {
+				// only one sequence per paste can carry keyframes; the rest come in empty
+				keyframeSource = copy.getKeyframeSource();
+				keyframeTarget = (Animation) copy.getItem();
+			}
+		}
+		if (copies.isEmpty()) {
+			JOptionPane.showMessageDialog(dialogParent, "Nothing on the clipboard can be pasted here.");
 			return;
 		}
-		if ((copy.getItem() instanceof IdObject) && (target != null) && target.isNode()
-				&& (target.getItem() != original)) {
-			// pasting onto another node makes the copy its child; pasting onto the node
-			// that was copied (the usual "duplicate") keeps it a sibling
-			((IdObject) copy.getItem()).setParent(target.asNode());
+		for (final Map.Entry<Object, Object> entry : copies.entrySet()) {
+			if (!(entry.getValue() instanceof IdObject)) {
+				continue;
+			}
+			final IdObject original = (IdObject) entry.getKey();
+			final IdObject copy = (IdObject) entry.getValue();
+			final Object copiedParent = original.getParent() == null ? null : copies.get(original.getParent());
+			if (copiedParent instanceof IdObject) {
+				// keep the hierarchy among the pasted nodes themselves
+				copy.setParent((IdObject) copiedParent);
+			} else if ((target != null) && target.isNode() && (target.getItem() != original)) {
+				// pasting onto another node makes the copy its child; pasting onto the node
+				// that was copied (the usual "duplicate") keeps it a sibling
+				copy.setParent(target.asNode());
+			}
 		}
-		final List<Object> components = new ArrayList<>(copy.getExtras());
-		components.add(copy.getItem());
-		final AddComponentsAction action = new AddComponentsAction(model(), components, structureListener,
-				"paste " + ComponentKind.of(copy.getItem()).getDisplayName().toLowerCase());
-		if (copy.getKeyframeSource() != null) {
-			action.withKeyframesFrom(copy.getKeyframeSource(), (Animation) copy.getItem());
+		components.addAll(copies.values());
+		final String name = copies.size() == 1
+				? "paste " + ComponentKind.of(copies.values().iterator().next()).getDisplayName().toLowerCase()
+				: "paste " + copies.size() + " components";
+		final AddComponentsAction action = new AddComponentsAction(model(), components, structureListener, name);
+		if (keyframeSource != null) {
+			action.withKeyframesFrom(keyframeSource, keyframeTarget);
 		}
 		push(action);
-		created(copy.getItem());
+		Object last = null;
+		for (final Object copy : copies.values()) {
+			last = copy;
+		}
+		created(last);
+	}
+
+	/** True when the component is no longer in the model (it was cut). */
+	private boolean wasCut(final Object original) {
+		if (original instanceof IdObject) {
+			return !model().getIdObjects().contains(original);
+		}
+		if (original instanceof Animation) {
+			return !model().getAnims().contains(original);
+		}
+		return false;
 	}
 
 	// ---- delete ----
@@ -149,13 +240,92 @@ public final class ModelComponentTreeController {
 		return ref.isComponent();
 	}
 
+	public boolean canDelete(final List<ComponentRef> refs) {
+		for (final ComponentRef ref : refs) {
+			if (canDelete(ref)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public void delete(final ComponentRef ref, final boolean deleteSubtree) {
-		if (!canDelete(ref)) {
+		delete(Collections.singletonList(ref), deleteSubtree);
+	}
+
+	/**
+	 * Deletes every component of the selection as one undoable step. Nodes go
+	 * in a single removal so reparenting and vertex unlinking see the whole set;
+	 * the other kinds keep their individual confirmations.
+	 */
+	public void delete(final List<ComponentRef> refs, final boolean deleteSubtree) {
+		final List<Object> items = new ArrayList<>();
+		for (final ComponentRef ref : refs) {
+			if (canDelete(ref) && !items.contains(ref.getItem())) {
+				items.add(ref.getItem());
+			}
+		}
+		if (items.isEmpty()) {
 			return;
 		}
-		final Object item = ref.getItem();
-		final ComponentKind kind = ref.getKind();
-		UndoAction action = null;
+		final List<IdObject> nodes = new ArrayList<>();
+		final List<Object> others = new ArrayList<>();
+		for (final Object item : items) {
+			if (item instanceof IdObject) {
+				nodes.add((IdObject) item);
+			} else {
+				others.add(item);
+			}
+		}
+		// each step runs as soon as it is built so later "in use" checks see the
+		// earlier removals (a material whose only geoset is being deleted too)
+		final com.etheller.collections.ArrayList<UndoAction> steps = new com.etheller.collections.ArrayList<>();
+		if (!nodes.isEmpty()) {
+			execute(new RemoveNodesAction(model(), nodes, deleteSubtree, structureListener), steps);
+		}
+		// geosets before their animations, then materials, texture anims, textures
+		others.sort((a, b) -> Integer.compare(deleteRank(a), deleteRank(b)));
+		for (final Object item : others) {
+			if ((item instanceof GeosetAnim) && items.contains(((GeosetAnim) item).getGeoset())) {
+				continue; // removed along with its geoset
+			}
+			final UndoAction step = removalFor(item);
+			if (step != null) {
+				execute(step, steps);
+			}
+		}
+		if (steps.size() == 1) {
+			undoListener.pushAction(steps.get(0));
+		} else if (steps.size() > 1) {
+			undoListener.pushAction(new CompoundAction("delete " + steps.size() + " components", steps));
+		}
+	}
+
+	private void execute(final UndoAction step, final com.etheller.collections.ArrayList<UndoAction> steps) {
+		step.redo();
+		steps.add(step);
+	}
+
+	private static int deleteRank(final Object item) {
+		switch (ComponentKind.of(item)) {
+		case GEOSET:
+			return 0;
+		case GEOSET_ANIM:
+			return 1;
+		case MATERIAL:
+			return 3;
+		case TEXTURE_ANIM:
+			return 4;
+		case TEXTURE:
+			return 5;
+		default:
+			return 2;
+		}
+	}
+
+	/** Builds (without running) the removal for one non-node component; null when the user cancels. */
+	private UndoAction removalFor(final Object item) {
+		final ComponentKind kind = ComponentKind.of(item);
 		switch (kind) {
 		case TEXTURE: {
 			final Bitmap bitmap = (Bitmap) item;
@@ -164,11 +334,10 @@ public final class ModelComponentTreeController {
 			if (references > 0) {
 				replacement = chooseReplacementTexture(bitmap, references);
 				if (replacement == null) {
-					return;
+					return null;
 				}
 			}
-			action = new RemoveBitmapAction(model(), bitmap, replacement, structureListener);
-			break;
+			return new RemoveBitmapAction(model(), bitmap, replacement, structureListener);
 		}
 		case MATERIAL: {
 			final int users = countMaterialUsers((Material) item);
@@ -177,10 +346,9 @@ public final class ModelComponentTreeController {
 						"This material is used by " + users + " geoset(s) or ribbon emitter(s).\n"
 								+ "Assign them another material first, or delete them.",
 						"Material in use", JOptionPane.WARNING_MESSAGE);
-				return;
+				return null;
 			}
-			action = new RemoveComponentAction(model(), item, structureListener);
-			break;
+			return new RemoveComponentAction(model(), item, structureListener);
 		}
 		case TEXTURE_ANIM: {
 			final int references = RemoveTextureAnimAction.countReferences(model(), (TextureAnim) item);
@@ -190,33 +358,20 @@ public final class ModelComponentTreeController {
 								+ " layer(s). Those layers will lose their texture animation.\nDelete anyway?",
 						"Texture anim in use", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 				if (choice != JOptionPane.OK_OPTION) {
-					return;
+					return null;
 				}
 			}
-			action = new RemoveTextureAnimAction(model(), (TextureAnim) item, structureListener);
-			break;
+			return new RemoveTextureAnimAction(model(), (TextureAnim) item, structureListener);
 		}
 		case GLOBAL_SEQUENCE:
-			action = new RemoveGlobalSequenceAction(model(), (Integer) item, structureListener);
-			break;
+			return new RemoveGlobalSequenceAction(model(), (Integer) item, structureListener);
 		case SEQUENCE:
 		case GEOSET:
 		case GEOSET_ANIM:
 		case CAMERA:
-			action = new RemoveComponentAction(model(), item, structureListener);
-			break;
-		default: {
-			final List<IdObject> nodes = new ArrayList<>();
-			nodes.add((IdObject) item);
-			action = new RemoveNodesAction(model(), nodes, deleteSubtree, structureListener);
-			break;
-		}
-		}
-		push(action);
-		ModelComponentClipboard.forgetIfSame(item);
-		if (item instanceof IdObject) {
-			// a cut node stays pasteable: keep it on the clipboard
-			ModelComponentClipboard.forgetIfSame(null);
+			return new RemoveComponentAction(model(), item, structureListener);
+		default:
+			return null;
 		}
 	}
 
