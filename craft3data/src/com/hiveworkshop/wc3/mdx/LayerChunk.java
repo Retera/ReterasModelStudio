@@ -318,6 +318,12 @@ public class LayerChunk {
 				case "Unlit":
 					shadingFlags |= 0x100;
 					break;
+				case "BackFacesForShadows":
+					shadingFlags |= 0x200;
+					break;
+				case "AmbientOcclusion":
+					shadingFlags |= 0x400;
+					break;
 				}
 			}
 			if (ModelUtils.isCombinedHDLayerSupported(version)) {
@@ -518,7 +524,8 @@ public class LayerChunk {
 			}
 			fresnelOpacity = fresnelOpacityFound ? 0 : (float) layer.getFresnelOpacity();
 			fresnelTeamColor = fresnelTeamColorFound ? 0 : (float) layer.getFresnelTeamColor();
-			shaderTypeId = layerShader.ordinal();
+			shaderTypeId = layer.getUnknownShaderTypeId() != -1 ? layer.getUnknownShaderTypeId()
+					: layerShader.ordinal();
 			if (ModelUtils.isCombinedHDLayerSupported(version)) {
 				textureIdsMDLX1100 = new int[TEXTURE_TYPE_INDICES];
 				Arrays.fill(textureIdsMDLX1100, NO_TEXTURE_ID);

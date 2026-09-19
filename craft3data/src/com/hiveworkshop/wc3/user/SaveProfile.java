@@ -157,12 +157,13 @@ public class SaveProfile implements Serializable {
 		boolean hd = false;
 		for (final DataSourceDescriptor desc : dataSources) {
 			if (desc instanceof FolderDataSourceDescriptor) {
-				if (((FolderDataSourceDescriptor) desc).getFolderPath().contains("_hd.w3mod")) {
+				final String folderPath = ((FolderDataSourceDescriptor) desc).getFolderPath();
+				if (folderPath.contains("_hd.w3mod") || folderPath.contains("_de.w3mod")) {
 					hd = true;
 				}
 			} else if (desc instanceof CascDataSourceDescriptor) {
 				for (final String prefix : ((CascDataSourceDescriptor) desc).getPrefixes()) {
-					if (prefix.contains("_hd.w3mod")) {
+					if (prefix.contains("_hd.w3mod") || prefix.contains("_de.w3mod")) {
 						hd = true;
 					}
 				}

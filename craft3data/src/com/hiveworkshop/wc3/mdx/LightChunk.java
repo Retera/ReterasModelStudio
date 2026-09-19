@@ -61,6 +61,18 @@ public class LightChunk {
 		public float[] ambientColor = new float[3];
 		public float ambientIntensity;
 		public float shadowIntensity;
+		/**
+		 * MDX 1800+ ("Casts Shadows" in the World Editor light properties). Stored right after the light type.
+		 */
+		public int shadowCasting;
+		/**
+		 * MDX 1800+ fields stored after shadowIntensity, in this order. Default values observed in stock 3.0 data.
+		 */
+		public float shadowCastingStart = 0;
+		public float shadowCastingEnd = 0;
+		public float quadraticFalloff = 0.0005f;
+		public float linearFalloff = 0;
+		public float damping = 0.00001f;
 		public LightVisibility lightVisibility;
 		public LightColor lightColor;
 		public LightIntensity lightIntensity;
@@ -74,6 +86,9 @@ public class LightChunk {
 			node = new Node();
 			node.load(in);
 			type = in.readInt();
+			if (ModelUtils.isExtendedLightSupported(version)) {
+				shadowCasting = in.readInt();
+			}
 			attenuationStart = in.readFloat();
 			attenuationEnd = in.readFloat();
 			color = MdxUtils.loadFloatArray(in, 3);
@@ -87,6 +102,13 @@ public class LightChunk {
 			else
 			{
 				shadowIntensity = 0.4f;
+			}
+			if (ModelUtils.isExtendedLightSupported(version)) {
+				shadowCastingStart = in.readFloat();
+				shadowCastingEnd = in.readFloat();
+				quadraticFalloff = in.readFloat();
+				linearFalloff = in.readFloat();
+				damping = in.readFloat();
 			}
 			for (int i = 0; i < 7; i++) {
 				if (MdxUtils.checkOptionalId(in, LightVisibility.key)) {
@@ -119,6 +141,9 @@ public class LightChunk {
 			out.writeInt(getSize(version));// InclusiveSize
 			node.save(out);
 			out.writeInt(type);
+			if (ModelUtils.isExtendedLightSupported(version)) {
+				out.writeInt(shadowCasting);
+			}
 			out.writeFloat(attenuationStart);
 			out.writeFloat(attenuationEnd);
 			if ((color.length % 3) != 0) {
@@ -137,6 +162,13 @@ public class LightChunk {
 			out.writeFloat(ambientIntensity);
 			if (ModelUtils.isLightShadowIntensitySupported(version)) {
 				out.writeFloat(shadowIntensity);
+			}
+			if (ModelUtils.isExtendedLightSupported(version)) {
+				out.writeFloat(shadowCastingStart);
+				out.writeFloat(shadowCastingEnd);
+				out.writeFloat(quadraticFalloff);
+				out.writeFloat(linearFalloff);
+				out.writeFloat(damping);
 			}
 			if (lightVisibility != null) {
 				lightVisibility.save(out);
@@ -175,6 +207,9 @@ public class LightChunk {
 			a += 4;
 			if (ModelUtils.isLightShadowIntensitySupported(version)) {
 				a += 4;
+			}
+			if (ModelUtils.isExtendedLightSupported(version)) {
+				a += 4 + 20;
 			}
 			if (lightVisibility != null) {
 				a += lightVisibility.getSize();
@@ -361,8 +396,16 @@ public class LightChunk {
 																// regardless
 																// currently
 			shadowIntensity = (float) light.getShadowIntensity();
+			shadowCastingStart = (float) light.getShadowCastingStart();
+			shadowCastingEnd = (float) light.getShadowCastingEnd();
+			quadraticFalloff = (float) light.getQuadraticFalloff();
+			linearFalloff = (float) light.getLinearFalloff();
+			damping = (float) light.getDamping();
 			for (final String flag : light.getFlags()) {
 				switch (flag) {
+				case "ShadowCasting":
+					shadowCasting = 1;
+					break;
 				case "Omnidirectional":
 					type = 0;
 					break;

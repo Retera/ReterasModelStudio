@@ -32,7 +32,7 @@ public class Geoset implements Named, VisibilitySource {
 
 	int levelOfDetail = 0;
 	String levelOfDetailName;
-	ArrayList<byte[]> skin;
+	ArrayList<int[]> skin;
 	ArrayList<float[]> tangents;
 
 	boolean skinFormat;
@@ -127,9 +127,9 @@ public class Geoset implements Named, VisibilitySource {
 			}
 		}
 		if (mdxGeo.skin != null && mdxGeo.skin.length > 0) {
-			skin = new ArrayList<byte[]>();
+			skin = new ArrayList<int[]>();
 			for (int i = 0; i < mdxGeo.skin.length; i += 8) {
-				skin.add(new byte[] { mdxGeo.skin[i], mdxGeo.skin[i + 1], mdxGeo.skin[i + 2], mdxGeo.skin[i + 3],
+				skin.add(new int[] { mdxGeo.skin[i], mdxGeo.skin[i + 1], mdxGeo.skin[i + 2], mdxGeo.skin[i + 3],
 						mdxGeo.skin[i + 4], mdxGeo.skin[i + 5], mdxGeo.skin[i + 6], mdxGeo.skin[i + 7] });
 			}
 		}
@@ -366,25 +366,25 @@ public class Geoset implements Named, VisibilitySource {
 		return temp;
 	}
 
-	public static byte[] parse8ByteSkin(final String input) {
+	public static int[] parse8ByteSkin(final String input) {
 		final String[] entries = input.split(",");
-		final byte[] temp = new byte[8];
+		final int[] temp = new int[8];
 		try {
-			temp[0] = (byte) Short.parseShort(entries[0].split("\\{")[1].trim());
+			temp[0] = Integer.parseInt(entries[0].split("\\{")[1].trim());
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Error {" + input + "}: Skin data could not be interpreted.");
 		}
 		for (int i = 1; i < 7; i++) {
 			try {
-				temp[i] = (byte) Short.parseShort(entries[i].trim());
+				temp[i] = Integer.parseInt(entries[i].trim());
 			} catch (final NumberFormatException e) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 						"Error {" + input + "}: Skin data could not be interpreted.");
 			}
 		}
 		try {
-			temp[7] = (byte) Short.parseShort(entries[7].split("}")[0].trim());
+			temp[7] = Integer.parseInt(entries[7].split("}")[0].trim());
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Error {" + input + "}: Skin data could not be interpreted.");
@@ -568,14 +568,8 @@ public class Geoset implements Named, VisibilitySource {
 				if (skin != null) {
 					gv.initV900Skin();
 					for (int j = 0; j < 4; j++) {
-						short boneLookupId = skin.get(i)[j];
-						if (boneLookupId < 0) {
-							boneLookupId += 256;
-						}
-						short boneWeight = skin.get(i)[j + 4];
-						if (boneWeight < 0) {
-							boneWeight += 256;
-						}
+						final int boneLookupId = skin.get(i)[j];
+						final short boneWeight = (short) skin.get(i)[j + 4];
 						if (boneWeight == 0) {
 							continue;
 						}
@@ -598,7 +592,7 @@ public class Geoset implements Named, VisibilitySource {
 						if (bone != null) {
 							gv.addBoneAttachment(boneWeight, bone);
 						}
-						gv.getSkinBoneIndexes()[j] = (byte) boneLookupId;
+						gv.getSkinBoneIndexes()[j] = boneLookupId;
 					}
 				}
 			}
@@ -662,7 +656,7 @@ public class Geoset implements Named, VisibilitySource {
 				final List<GeosetVertexBoneLink> boneAttachments = gv.getLinks();
 				for (int k = 0; k < boneAttachments.size() && k < gv.getSkinBoneIndexes().length; k++) {
 					final GeosetVertexBoneLink geosetVertexBoneLink = boneAttachments.get(k);
-					final byte index = gv.getSkinBoneIndexes()[k];
+					final int index = gv.getSkinBoneIndexes()[k];
 					final Matrix hdMatrix = getMatrix(index);
 					hdMatrix.updateIds(mdlr); // not sure why this is here, copied it from below old SD code
 					if (!hdMatrix.bones.isEmpty()) {
@@ -759,7 +753,7 @@ public class Geoset implements Named, VisibilitySource {
 								index = m;
 							}
 						}
-						geosetVertex.getSkinBoneIndexes()[skinIndex++] = (byte) index;
+						geosetVertex.getSkinBoneIndexes()[skinIndex++] = index;
 					}
 				}
 			}
@@ -783,7 +777,7 @@ public class Geoset implements Named, VisibilitySource {
 							e.updateIds(mdlr);
 							matrix.add(e);
 						}
-						geosetVertex.getSkinBoneIndexes()[skinIndex++] = index.byteValue();
+						geosetVertex.getSkinBoneIndexes()[skinIndex++] = index.intValue();
 					}
 				}
 				geosetVertex.VertexGroup = -1;
@@ -917,11 +911,7 @@ public class Geoset implements Named, VisibilitySource {
 			for (int i = 0; i < vertex.size(); i++) {
 				skinBuilder.setLength(0);
 				for (int j = 0; j < 4; j++) {
-					short skinBoneIndex = vertex.get(i).getSkinBoneIndexes()[j];
-					if (skinBoneIndex < 0) {
-						skinBoneIndex += 256;
-					}
-					skinBuilder.append(skinBoneIndex);
+					skinBuilder.append(vertex.get(i).getSkinBoneIndexes()[j]);
 					skinBuilder.append(", ");
 				}
 				for (int j = 0; j < 3; j++) {

@@ -3515,6 +3515,16 @@ public class MainPanel extends JPanel
 		});
 		scriptsMenu.add(version1000Toggle);
 
+		final JMenuItem version1800Toggle = new JMenuItem("Assign FormatVersion 1800 (Forsaken Kingdom)");
+		version1800Toggle.setMnemonic(KeyEvent.VK_A);
+		version1800Toggle.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				currentMDL().setFormatVersion(1800);
+			}
+		});
+		scriptsMenu.add(version1800Toggle);
+
 		final JMenuItem makeItHDItem = new JMenuItem("SD -> HD (highly experimental, requires 900 or 1000)");
 		makeItHDItem.setMnemonic(KeyEvent.VK_A);
 		makeItHDItem.addActionListener(new ActionListener() {
@@ -3559,7 +3569,7 @@ public class MainPanel extends JPanel
 		scriptsMenu.add(version800BakingToggle);
 
 		final JMenuItem recalculateTangents = new JMenuItem(
-				"Recalculate Tangents (requires 900 or 1000 or 1100 or 1200)");
+				"Recalculate Tangents (requires 900, 1000, 1100, 1200 or 1800)");
 		recalculateTangents.setMnemonic(KeyEvent.VK_A);
 		recalculateTangents.addActionListener(new ActionListener() {
 			@Override

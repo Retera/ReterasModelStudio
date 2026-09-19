@@ -97,6 +97,12 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 	private final EnumMap<ShaderTextureTypeHD, Integer> shaderTextureIds = new EnumMap<>(ShaderTextureTypeHD.class);
 	private final EnumMap<ShaderTextureTypeHD, Bitmap> shaderTextures = new EnumMap<>(ShaderTextureTypeHD.class);
 	private LayerShader layerShader;
+	/**
+	 * Shader type ids other than 0 (SD) and 1 (HD) exist in Forsaken Kingdom data (2 on the Forsaken Paladin
+	 * portrait, 24 on some cinematic ice props). They are preserved here for round-tripping and rendered with the
+	 * closest known shader.
+	 */
+	private int unknownShaderTypeId = -1;
 
 	public String getFilterModeString() {
 		return filterMode;
@@ -291,6 +297,7 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		fresnelOpacity = other.fresnelOpacity;
 		fresnelTeamColor = other.fresnelTeamColor;
 		layerShader = other.layerShader;
+		unknownShaderTypeId = other.unknownShaderTypeId;
 		shaderTextures.putAll(other.shaderTextures);
 		flags = new ArrayList<>(other.flags);
 		anims = new ArrayList<>();
@@ -339,6 +346,15 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		}
 		if (EditableModel.hasFlag(shadingFlags, 0x100)) {
 			add("Unlit");
+		}
+		// MDX 1800 (Forsaken Kingdom) added two shading flag bits and two MDL keywords ("BackFacesForShadows",
+		// "AmbientOcclusion"). The bit<->keyword pairing below is a best guess from the stock 3.0 data: 0x200 is
+		// only used by the cinematic "shadowblocker" doodads, 0x400 by large opaque buildings and walls.
+		if (EditableModel.hasFlag(shadingFlags, 0x200)) {
+			add("BackFacesForShadows");
+		}
+		if (EditableModel.hasFlag(shadingFlags, 0x400)) {
+			add("AmbientOcclusion");
 		}
 //		System.err.println("Creating MDL layer from shadingFlags: " + Integer.toBinaryString(lay.shadingFlags));
 		if (lay.materialEmissions != null) {
@@ -407,7 +423,7 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 			}
 		}
 		if (lay.shaderTypeId != LayerChunk.Layer.NO_SHADER_TYPE_ID) {
-			layerShader = LayerShader.fromId(lay.shaderTypeId);
+			setShaderTypeId(lay.shaderTypeId);
 		}
 		else {
 			layerShader = LayerShader.SD; // TODO determine this later on, probably from MDLX1000 parser
@@ -660,7 +676,7 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 					lay.CoordId = MDLReader.readInt(line);
 				}
 				else if (line.contains("ShaderTypeId")) {
-					lay.layerShader = LayerShader.fromId(MDLReader.readInt(line));
+					lay.setShaderTypeId(MDLReader.readInt(line));
 				}
 				else if (line.contains("static Emissive") && !line.contains("TextureID")) {
 					lay.emissiveGain = MDLReader.readDouble(line);
@@ -776,6 +792,10 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		if (ModelUtils.isCombinedHDLayerSupported(version)) {
 			if (layerShader == null) {
 				writer.println(tabs + "\tShaderTypeId 0, // null");
+			}
+			else if (unknownShaderTypeId != -1) {
+				writer.println(tabs + "\tShaderTypeId " + unknownShaderTypeId + ", // unknown, treated as "
+						+ layerShader.name());
 			}
 			else {
 				writer.println(tabs + "\tShaderTypeId " + layerShader.ordinal() + ", //" + layerShader.name());
@@ -970,8 +990,25 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		return layerShader;
 	}
 
+	public int getUnknownShaderTypeId() {
+		return unknownShaderTypeId;
+	}
+
+	public void setShaderTypeId(final int shaderTypeId) {
+		if ((shaderTypeId >= 0) && (shaderTypeId < LayerShader.values().length)) {
+			layerShader = LayerShader.fromId(shaderTypeId);
+			unknownShaderTypeId = -1;
+		}
+		else {
+			// unknown shader from a newer game version: keep the id, render as HD when more than one texture is set
+			unknownShaderTypeId = shaderTypeId;
+			layerShader = shaderTextures.size() > 1 ? LayerShader.HD : LayerShader.SD;
+		}
+	}
+
 	public void setLayerShader(final LayerShader layerShader) {
 		this.layerShader = layerShader;
+		this.unknownShaderTypeId = -1;
 	}
 
 //	public void setTexture(final Bitmap texture) {

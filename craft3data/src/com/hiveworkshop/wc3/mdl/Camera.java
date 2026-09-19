@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.IdObject.NodeFlags;
 import com.hiveworkshop.wc3.mdx.CameraChunk;
+import com.hiveworkshop.wc3.util.ModelUtils;
 
 /**
  * Camera class, these are the things most people would think of as a particle
@@ -36,6 +37,10 @@ public class Camera implements Named {
 	private final SourceNode sourceNode = new SourceNode(this);
 	private final TargetNode targetNode = new TargetNode(this);
 	protected float[] bindPose;
+	/**
+	 * MDX 1800 camera header byte (top byte of the inclusive size), -1 when unknown. See CameraChunk.Camera.
+	 */
+	private int headerByte = -1;
 
 	public SourceNode getSourceNode() {
 		return sourceNode;
@@ -75,6 +80,24 @@ public class Camera implements Named {
 		if (mdxSource.cameraRotation != null) {
 			add(new AnimFlag(mdxSource.cameraRotation));
 		}
+		if (mdxSource.cameraFocusDistance != null) {
+			add(new AnimFlag(mdxSource.cameraFocusDistance));
+		}
+		if (mdxSource.cameraFocalLength != null) {
+			add(new AnimFlag(mdxSource.cameraFocalLength));
+		}
+		if (mdxSource.cameraFStop != null) {
+			add(new AnimFlag(mdxSource.cameraFStop));
+		}
+		headerByte = mdxSource.headerByte;
+	}
+
+	public int getHeaderByte() {
+		return headerByte;
+	}
+
+	public void setHeaderByte(final int headerByte) {
+		this.headerByte = headerByte;
 	}
 
 	public void setName(final String text) {
@@ -100,6 +123,21 @@ public class Camera implements Named {
 				} else if (line.contains("Rotation") || line.contains("Translation")) {
 					MDLReader.reset(mdl);
 					c.animFlags.add(AnimFlag.read(mdl));
+				} else if (line.contains("DOFDistance") || line.contains("FocusDistanceKeys")) {
+					MDLReader.reset(mdl);
+					final AnimFlag focusDistance = AnimFlag.read(mdl);
+					focusDistance.setName("DOFDistance");
+					c.animFlags.add(focusDistance);
+				} else if (line.contains("FocalLength")) {
+					MDLReader.reset(mdl);
+					final AnimFlag focalLength = AnimFlag.read(mdl);
+					focalLength.setName("FocalLength");
+					c.animFlags.add(focalLength);
+				} else if (line.contains("FStop")) {
+					MDLReader.reset(mdl);
+					final AnimFlag fStop = AnimFlag.read(mdl);
+					fStop.setName("FStop");
+					c.animFlags.add(fStop);
 				} else if (line.contains("FieldOfView")) {
 					c.FieldOfView = MDLReader.readDouble(line);
 				} else if (line.contains("FarClip")) {
@@ -139,6 +177,10 @@ public class Camera implements Named {
 	}
 
 	public void printTo(final PrintWriter writer) {
+		printTo(writer, 800);
+	}
+
+	public void printTo(final PrintWriter writer, final int version) {
 		// Remember to update the ids of things before using this
 		// -- uses objectId value of idObject superclass
 		// -- uses parentId value of idObject superclass
@@ -153,6 +195,15 @@ public class Camera implements Named {
 		for (int i = 0; i < animFlags.size(); i++) {
 			if (animFlags.get(i).getName().equals("Rotation")) {
 				animFlags.get(i).printTo(writer, 1);
+			}
+		}
+		if (ModelUtils.isCameraDepthOfFieldSupported(version)) {
+			for (final String dofFlag : new String[] { "DOFDistance", "FocalLength", "FStop" }) {
+				for (int i = 0; i < animFlags.size(); i++) {
+					if (animFlags.get(i).getName().equals(dofFlag)) {
+						animFlags.get(i).printTo(writer, 1);
+					}
+				}
 			}
 		}
 		writer.println("\tFieldOfView " + MDLReader.doubleToString(FieldOfView) + ",");

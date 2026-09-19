@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.util.ModelUtils;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
@@ -15,7 +16,7 @@ public class CameraChunk {
 
 	public static final String key = "CAMS";
 
-	public void load(final BlizzardDataInputStream in) throws IOException {
+		public void load(final BlizzardDataInputStream in, final int version) throws IOException {
 		MdxUtils.checkId(in, "CAMS");
 		final int chunkSize = in.readInt();
 		final List<Camera> cameraList = new ArrayList();
@@ -23,30 +24,29 @@ public class CameraChunk {
 		while (cameraCounter > 0) {
 			final Camera tempcamera = new Camera();
 			cameraList.add(tempcamera);
-			tempcamera.load(in);
-			cameraCounter -= tempcamera.getSize();
+			tempcamera.load(in, version);
+			cameraCounter -= tempcamera.loadedInclusiveSize;
 		}
 		camera = cameraList.toArray(new Camera[cameraList.size()]);
 	}
 
-	public void save(final BlizzardDataOutputStream out) throws IOException {
+	public void save(final BlizzardDataOutputStream out, final int version) throws IOException {
 		final int nrOfCameras = camera.length;
 		out.writeNByteString("CAMS", 4);
-		out.writeInt(getSize() - 8);// ChunkSize
+		out.writeInt(getSize(version) - 8);// ChunkSize
 		for (int i = 0; i < camera.length; i++) {
-			camera[i].save(out);
+			camera[i].save(out, version);
 		}
 
 	}
 
-	public int getSize() {
+	public int getSize(final int version) {
 		int a = 0;
 		a += 4;
 		a += 4;
 		for (int i = 0; i < camera.length; i++) {
-			a += camera[i].getSize();
+			a += camera[i].getSize(version);
 		}
-
 		return a;
 	}
 
@@ -60,18 +60,51 @@ public class CameraChunk {
 		public CameraPositionTranslation cameraPositionTranslation;
 		public CameraTargetTranslation cameraTargetTranslation;
 		// TODO Needs rotation!
-		public CameraRotation cameraRotation;
+				public CameraRotation cameraRotation;
+		/**
+		 * MDX 1800+ depth of field focus distance ("IDUF").
+		 */
+		public CameraFocusDistance cameraFocusDistance;
+		/**
+		 * MDX 1800+ depth of field focal length ("ELAF") and f-stop ("PTSF").
+		 */
+		public CameraFocalLength cameraFocalLength;
+		public CameraFStop cameraFStop;
+		/**
+		 * Inclusive size read from the file (without the header byte), used to skip unknown trailing data.
+		 */
+		public int loadedInclusiveSize;
+		/**
+		 * MDX 1800+ stores an extra byte in the top 8 bits of the camera inclusive size. Every stock 3.0 camera
+		 * has the value 3 there. We preserve whatever was loaded, and write 3 for cameras created from scratch.
+		 */
+		public static final int DEFAULT_HEADER_BYTE_V1800 = 3;
+		public int headerByte = -1;
 
-		public void load(final BlizzardDataInputStream in) throws IOException {
-			final int inclusiveSize = in.readInt();
+		public void load(final BlizzardDataInputStream in, final int version) throws IOException {
+			final int inclusiveSizeRaw = in.readInt();
+			if (ModelUtils.isCameraDepthOfFieldSupported(version)) {
+				headerByte = inclusiveSizeRaw >>> 24;
+			}
+			final int inclusiveSize = inclusiveSizeRaw & 0xFFFFFF;
+			loadedInclusiveSize = inclusiveSize;
 			name = in.readCharsAsString(80);
 			position = MdxUtils.loadFloatArray(in, 3);
 			fieldOfView = in.readFloat();
 			farClippingPlane = in.readFloat();
 			nearClippingPlane = in.readFloat();
 			targetPosition = MdxUtils.loadFloatArray(in, 3);
-			for (int i = 0; i < 3; i++) {
-				if (MdxUtils.checkOptionalId(in, CameraPositionTranslation.key)) {
+			for (int i = 0; i < 6; i++) {
+				if (MdxUtils.checkOptionalId(in, CameraFocusDistance.key)) {
+					cameraFocusDistance = new CameraFocusDistance();
+					cameraFocusDistance.load(in);
+				} else if (MdxUtils.checkOptionalId(in, CameraFocalLength.key)) {
+					cameraFocalLength = new CameraFocalLength();
+					cameraFocalLength.load(in);
+				} else if (MdxUtils.checkOptionalId(in, CameraFStop.key)) {
+					cameraFStop = new CameraFStop();
+					cameraFStop.load(in);
+				} else if (MdxUtils.checkOptionalId(in, CameraPositionTranslation.key)) {
 					cameraPositionTranslation = new CameraPositionTranslation();
 					cameraPositionTranslation.load(in);
 				} else if (MdxUtils.checkOptionalId(in, CameraTargetTranslation.key)) {
@@ -83,10 +116,22 @@ public class CameraChunk {
 				}
 
 			}
+			final int consumed = getSize(version);
+			if (inclusiveSize > consumed) {
+				// unknown trailing data (for example a camera track from a newer game version): skip it
+				System.err.println("Camera '" + name + "' has " + (inclusiveSize - consumed)
+						+ " bytes of unknown trailing data (MDX version " + version + "); skipping");
+				in.skip(inclusiveSize - consumed);
+			}
 		}
 
-		public void save(final BlizzardDataOutputStream out) throws IOException {
-			out.writeInt(getSize());// InclusiveSize
+				public void save(final BlizzardDataOutputStream out, final int version) throws IOException {
+			int inclusiveSize = getSize(version);
+			if (ModelUtils.isCameraDepthOfFieldSupported(version)) {
+				final int usedHeaderByte = headerByte == -1 ? DEFAULT_HEADER_BYTE_V1800 : headerByte;
+				inclusiveSize |= (usedHeaderByte & 0xFF) << 24;
+			}
+			out.writeInt(inclusiveSize);// InclusiveSize
 			out.writeNByteString(name, 80);
 			if ((position.length % 3) != 0) {
 				throw new IllegalArgumentException(
@@ -103,19 +148,30 @@ public class CameraChunk {
 								+ targetPosition.length + ")");
 			}
 			MdxUtils.saveFloatArray(out, targetPosition);
+						// track order as written by Warcraft III 3.0: DoF tracks first, then position, rotation, target
+			if (ModelUtils.isCameraDepthOfFieldSupported(version)) {
+				if (cameraFocusDistance != null) {
+					cameraFocusDistance.save(out);
+				}
+				if (cameraFocalLength != null) {
+					cameraFocalLength.save(out);
+				}
+				if (cameraFStop != null) {
+					cameraFStop.save(out);
+				}
+			}
 			if (cameraPositionTranslation != null) {
 				cameraPositionTranslation.save(out);
-			}
-			if (cameraTargetTranslation != null) {
-				cameraTargetTranslation.save(out);
 			}
 			if (cameraRotation != null) {
 				cameraRotation.save(out);
 			}
-
+			if (cameraTargetTranslation != null) {
+				cameraTargetTranslation.save(out);
+			}
 		}
 
-		public int getSize() {
+		public int getSize(final int version) {
 			int a = 0;
 			a += 4;
 			a += 80;
@@ -130,10 +186,20 @@ public class CameraChunk {
 			if (cameraTargetTranslation != null) {
 				a += cameraTargetTranslation.getSize();
 			}
-			if (cameraRotation != null) {
+						if (cameraRotation != null) {
 				a += cameraRotation.getSize();
 			}
-
+						if (ModelUtils.isCameraDepthOfFieldSupported(version)) {
+				if (cameraFocusDistance != null) {
+					a += cameraFocusDistance.getSize();
+				}
+				if (cameraFocalLength != null) {
+					a += cameraFocalLength.getSize();
+				}
+				if (cameraFStop != null) {
+					a += cameraFStop.getSize();
+				}
+			}
 			return a;
 		}
 
@@ -147,7 +213,8 @@ public class CameraChunk {
 			fieldOfView = (float) mdlCam.getFieldOfView();
 			farClippingPlane = (float) mdlCam.getFarClip();
 			nearClippingPlane = (float) mdlCam.getNearClip();
-			targetPosition = mdlCam.getTargetPosition().toFloatArray();
+						targetPosition = mdlCam.getTargetPosition().toFloatArray();
+			headerByte = mdlCam.getHeaderByte();
 			for (final AnimFlag af : mdlCam.getAnimFlags()) {
 				if (af.getName().equals("Translation") && (af.size() > 0)) {
 					cameraPositionTranslation = new CameraPositionTranslation();
@@ -165,6 +232,57 @@ public class CameraChunk {
 						if (hasTans) {
 							mdxEntry.inTan = ((Vertex) mdlEntry.inTan).toFloatArray();
 							mdxEntry.outTan = ((Vertex) mdlEntry.outTan).toFloatArray();
+						}
+					}
+								} else if (af.getName().equals("DOFDistance") && (af.size() > 0)) {
+					cameraFocusDistance = new CameraFocusDistance();
+					cameraFocusDistance.globalSequenceId = af.getGlobalSeqId();
+					cameraFocusDistance.interpolationType = af.getInterpType();
+					cameraFocusDistance.translationTrack = new CameraFocusDistance.TranslationTrack[af.size()];
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final CameraFocusDistance.TranslationTrack mdxEntry = cameraFocusDistance.new TranslationTrack();
+						cameraFocusDistance.translationTrack[i] = mdxEntry;
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.focusDistance = ((Number) mdlEntry.value).floatValue();
+						mdxEntry.time = mdlEntry.time.intValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
+						}
+					}
+								} else if (af.getName().equals("FocalLength") && (af.size() > 0)) {
+					cameraFocalLength = new CameraFocalLength();
+					cameraFocalLength.globalSequenceId = af.getGlobalSeqId();
+					cameraFocalLength.interpolationType = af.getInterpType();
+					cameraFocalLength.translationTrack = new CameraFocalLength.TranslationTrack[af.size()];
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final CameraFocalLength.TranslationTrack mdxEntry = cameraFocalLength.new TranslationTrack();
+						cameraFocalLength.translationTrack[i] = mdxEntry;
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.focalLength = ((Number) mdlEntry.value).floatValue();
+						mdxEntry.time = mdlEntry.time.intValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
+						}
+					}
+				} else if (af.getName().equals("FStop") && (af.size() > 0)) {
+					cameraFStop = new CameraFStop();
+					cameraFStop.globalSequenceId = af.getGlobalSeqId();
+					cameraFStop.interpolationType = af.getInterpType();
+					cameraFStop.translationTrack = new CameraFStop.TranslationTrack[af.size()];
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final CameraFStop.TranslationTrack mdxEntry = cameraFStop.new TranslationTrack();
+						cameraFStop.translationTrack[i] = mdxEntry;
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.fStop = ((Number) mdlEntry.value).floatValue();
+						mdxEntry.time = mdlEntry.time.intValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
 						}
 					}
 				} else if (af.getName().equals("Rotation") && (af.size() > 0)) {

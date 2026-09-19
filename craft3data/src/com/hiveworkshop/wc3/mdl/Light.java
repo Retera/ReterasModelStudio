@@ -25,6 +25,12 @@ public class Light extends IdObject implements VisibilitySource {
 	Vertex staticColor;
 	double AmbIntensity = -1;
 	double ShadowIntensity = -1;
+	// MDX 1800 (Forsaken Kingdom) light properties; defaults match stock 3.0 data
+	double shadowCastingStart = 0;
+	double shadowCastingEnd = 0;
+	double quadraticFalloff = 0.0005;
+	double linearFalloff = 0;
+	double damping = 0.00001;
 	Vertex staticAmbColor;
 	ArrayList<AnimFlag> animFlags = new ArrayList<>();
 	ArrayList<String> flags = new ArrayList<>();
@@ -106,6 +112,14 @@ public class Light extends IdObject implements VisibilitySource {
 		}
 		// TODO: can shadow intensity be animated
 		setShadowIntensity(light.shadowIntensity);
+		if (light.shadowCasting != 0) {
+			add("ShadowCasting");
+		}
+		shadowCastingStart = light.shadowCastingStart;
+		shadowCastingEnd = light.shadowCastingEnd;
+		quadraticFalloff = light.quadraticFalloff;
+		linearFalloff = light.linearFalloff;
+		damping = light.damping;
 
 	}
 
@@ -125,6 +139,11 @@ public class Light extends IdObject implements VisibilitySource {
 		x.staticColor = staticColor;
 		x.AmbIntensity = AmbIntensity;
 		x.ShadowIntensity = ShadowIntensity;
+		x.shadowCastingStart = shadowCastingStart;
+		x.shadowCastingEnd = shadowCastingEnd;
+		x.quadraticFalloff = quadraticFalloff;
+		x.linearFalloff = linearFalloff;
+		x.damping = damping;
 		x.staticAmbColor = staticAmbColor;
 		for (final AnimFlag af : animFlags) {
 			x.animFlags.add(new AnimFlag(af));
@@ -165,6 +184,21 @@ public class Light extends IdObject implements VisibilitySource {
 				}
 				else if (line.contains("AmbIntensity")) {
 					lit.AmbIntensity = MDLReader.readDouble(line);
+				}
+				else if (line.contains("ShadowCastingStart")) {
+					lit.shadowCastingStart = MDLReader.readDouble(line);
+				}
+				else if (line.contains("ShadowCastingEnd")) {
+					lit.shadowCastingEnd = MDLReader.readDouble(line);
+				}
+				else if (line.contains("QuadraticFalloff")) {
+					lit.quadraticFalloff = MDLReader.readDouble(line);
+				}
+				else if (line.contains("LinearFalloff")) {
+					lit.linearFalloff = MDLReader.readDouble(line);
+				}
+				else if (line.contains("Damping")) {
+					lit.damping = MDLReader.readDouble(line);
 				}
 				else if (line.contains("ShadowIntensity")) {
 					// we allow parsing this even if it's a corrupted model with a ShadowIntensity
@@ -217,6 +251,9 @@ public class Light extends IdObject implements VisibilitySource {
 		// //Stuff like omnidirectional
 		// }
 		for (final String s : flags) {
+			if ("ShadowCasting".equals(s) && !ModelUtils.isExtendedLightSupported(version)) {
+				continue; // MDX 1800 only token
+			}
 			writer.println("\t" + s + ",");
 			// Stuff like omnidirectional
 		}
@@ -309,6 +346,13 @@ public class Light extends IdObject implements VisibilitySource {
 				}
 			}
 		}
+		if (ModelUtils.isExtendedLightSupported(version)) {
+			writer.println("\tstatic ShadowCastingStart " + MDLReader.doubleToString(shadowCastingStart) + ",");
+			writer.println("\tstatic ShadowCastingEnd " + MDLReader.doubleToString(shadowCastingEnd) + ",");
+			writer.println("\tstatic QuadraticFalloff " + MDLReader.doubleToString(quadraticFalloff) + ",");
+			writer.println("\tstatic LinearFalloff " + MDLReader.doubleToString(linearFalloff) + ",");
+			writer.println("\tstatic Damping " + MDLReader.doubleToString(damping) + ",");
+		}
 		currentFlag = "AmbColor";
 		if (staticAmbColor != null) {
 			writer.println("\tstatic " + currentFlag + " " + staticAmbColor.toString() + ",");
@@ -389,6 +433,57 @@ public class Light extends IdObject implements VisibilitySource {
 
 	public float getAttenuationStart() {
 		return AttenuationStart;
+	}
+
+	public boolean isShadowCasting() {
+		return flags.contains("ShadowCasting");
+	}
+
+	public void setShadowCasting(final boolean shadowCasting) {
+		flags.remove("ShadowCasting");
+		if (shadowCasting) {
+			flags.add("ShadowCasting");
+		}
+	}
+
+	public double getShadowCastingStart() {
+		return shadowCastingStart;
+	}
+
+	public void setShadowCastingStart(final double shadowCastingStart) {
+		this.shadowCastingStart = shadowCastingStart;
+	}
+
+	public double getShadowCastingEnd() {
+		return shadowCastingEnd;
+	}
+
+	public void setShadowCastingEnd(final double shadowCastingEnd) {
+		this.shadowCastingEnd = shadowCastingEnd;
+	}
+
+	public double getQuadraticFalloff() {
+		return quadraticFalloff;
+	}
+
+	public void setQuadraticFalloff(final double quadraticFalloff) {
+		this.quadraticFalloff = quadraticFalloff;
+	}
+
+	public double getLinearFalloff() {
+		return linearFalloff;
+	}
+
+	public void setLinearFalloff(final double linearFalloff) {
+		this.linearFalloff = linearFalloff;
+	}
+
+	public double getDamping() {
+		return damping;
+	}
+
+	public void setDamping(final double damping) {
+		this.damping = damping;
 	}
 
 	public void setAttenuationStart(final float attenuationStart) {

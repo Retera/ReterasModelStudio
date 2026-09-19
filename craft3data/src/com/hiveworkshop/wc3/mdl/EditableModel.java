@@ -46,6 +46,7 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.TriangleVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.VertexVisitor;
 import com.hiveworkshop.wc3.mdx.AttachmentChunk;
 import com.hiveworkshop.wc3.mdx.BindPoseChunk;
+import com.hiveworkshop.wc3.mdx.GliderChunk;
 import com.hiveworkshop.wc3.mdx.BoneChunk;
 import com.hiveworkshop.wc3.mdx.CameraChunk;
 import com.hiveworkshop.wc3.mdx.CollisionShapeChunk;
@@ -117,6 +118,7 @@ public class EditableModel implements Named {
 
 	private final List<FaceEffectsChunk.FaceEffect> faceEffects = new ArrayList<>();
 	private BindPoseChunk bindPoseChunk;
+	private GliderChunk gliderChunk;
 
 	private DataSource wrappedDataSource = MpqCodebase.get();
 
@@ -451,11 +453,18 @@ public class EditableModel implements Named {
 			}
 		}
 
-		if ((mdx.faceEffectsChunk != null) && ModelUtils.isBindPoseSupported(formatVersion)) {
-			for (final FaceEffect facefx : mdx.faceEffectsChunk.faceEffects) {
-				addFaceEffect(facefx);
+		if (ModelUtils.isBindPoseSupported(formatVersion)) {
+			if (mdx.faceEffectsChunk != null) {
+				for (final FaceEffect facefx : mdx.faceEffectsChunk.faceEffects) {
+					addFaceEffect(facefx);
+				}
 			}
+			// BPOS is independent of FAFX: many doodads and all lights-only environment models have a bind pose
+			// but no face effects, and used to lose it here
 			bindPoseChunk = mdx.bindPoseChunk;
+		}
+		if (ModelUtils.isGliderSupported(formatVersion)) {
+			gliderChunk = mdx.gliderChunk;
 		}
 
 		doPostRead(); // fixes all the things
@@ -1028,7 +1037,8 @@ public class EditableModel implements Named {
 			line = MDLReader.nextLine(mdl);
 			mdlr.formatVersion = MDLReader.readInt(line);
 			if ((mdlr.formatVersion != 800) && (mdlr.formatVersion != 900) && (mdlr.formatVersion != 1000)
-					&& (mdlr.formatVersion != 1100) && (mdlr.formatVersion != 1200)) {
+					&& (mdlr.formatVersion != 1100) && (mdlr.formatVersion != 1200)
+					&& !ModelUtils.isForsakenKingdomFormat(mdlr.formatVersion)) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "The format version was confusing!");
 			}
 			line = MDLReader.nextLine(mdl);// this is "}" for format version
@@ -1605,7 +1615,7 @@ public class EditableModel implements Named {
 					&& ((obj.getClass() == EventObject.class) || (obj.getClass() == CollisionShape.class))) {
 				camerasPrinted = true;
 				for (int c = 0; c < cameras.size(); c++) {
-					cameras.get(c).printTo(writer);
+					cameras.get(c).printTo(writer, formatVersion);
 				}
 			}
 			obj.printTo(writer, formatVersion);
@@ -1621,7 +1631,7 @@ public class EditableModel implements Named {
 
 		if (!camerasPrinted) {
 			for (int i = 0; i < cameras.size(); i++) {
-				cameras.get(i).printTo(writer);
+				cameras.get(i).printTo(writer, formatVersion);
 			}
 		}
 
@@ -1919,7 +1929,7 @@ public class EditableModel implements Named {
 				pivots.add(new Vertex(0, 0, 0));
 			}
 			obj.setPivotPoint(pivots.get(i));
-			if (bindPoseChunk != null) {
+			if ((bindPoseChunk != null) && (i < bindPoseChunk.bindPose.length)) {
 				obj.bindPose = bindPoseChunk.bindPose[i];
 			}
 		}
@@ -1933,7 +1943,8 @@ public class EditableModel implements Named {
 		}
 		for (int i = 0; i < cameras.size(); i++) {
 			final Camera camera = cameras.get(i);
-			if (bindPoseChunk != null) {
+			// Forsaken Kingdom (3.0) portraits ship a BPOS with one matrix per node but none for the cameras
+			if ((bindPoseChunk != null) && ((i + idObjects.size()) < bindPoseChunk.bindPose.length)) {
 				camera.setBindPose(bindPoseChunk.bindPose[i + idObjects.size()]);
 			}
 		}
@@ -3104,6 +3115,14 @@ public class EditableModel implements Named {
 
 	public List<FaceEffectsChunk.FaceEffect> getFaceEffects() {
 		return faceEffects;
+	}
+
+	public GliderChunk getGliderChunk() {
+		return gliderChunk;
+	}
+
+	public void setGliderChunk(final GliderChunk gliderChunk) {
+		this.gliderChunk = gliderChunk;
 	}
 
 	public BindPoseChunk getBindPoseChunk() {

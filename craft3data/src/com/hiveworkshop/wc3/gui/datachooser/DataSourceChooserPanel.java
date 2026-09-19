@@ -303,12 +303,12 @@ public class DataSourceChooserPanel extends JPanel {
 				enterSDMode();
 			}
 		});
-		final JButton enterHD2Mode = new JButton("Reforged2 Graphics Mode");
+		final JButton enterHD2Mode = new JButton("Definitive Edition Graphics Mode");
 		enterHD2Mode.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				enterHD2Mode();
+				enterDEMode();
 			}
 		});
 		final JButton enterSD2Mode = new JButton("Classic2 Graphics Mode");
@@ -564,6 +564,46 @@ public class DataSourceChooserPanel extends JPanel {
 		}
 	}
 
+	/**
+	 * Patch 3.0.0 (Forsaken Kingdom): mount the Definitive Edition layer (war3.w3mod\_de.w3mod) on top of the
+	 * Classic data, replacing any Reforged (_hd.w3mod) layers that are currently mounted.
+	 */
+	private void enterDEMode() {
+		if ((dataSourceDescriptors.size() == 1) && (dataSourceDescriptors.get(0) instanceof CascDataSourceDescriptor)) {
+			final CascDataSourceDescriptor cascDataSourceDescriptor = (CascDataSourceDescriptor) dataSourceDescriptors
+					.get(0);
+			String localesMod = null;
+			for (final String possiblePrefix : cascDataSourceDescriptor.getPrefixes()) {
+				if (possiblePrefix.contains("_locales") && !possiblePrefix.contains("_hd.w3mod")
+						&& !possiblePrefix.contains("_de.w3mod")) {
+					localesMod = possiblePrefix;
+					break;
+				}
+			}
+			if (localesMod != null) {
+				for (int i = cascDataSourceDescriptor.getPrefixes().size() - 1; i >= 0; i--) {
+					final String prefix = cascDataSourceDescriptor.getPrefixes().get(i);
+					if (prefix.contains("_hd.w3mod") || prefix.contains("_de.w3mod")) {
+						cascDataSourceDescriptor.deletePrefix(i);
+					}
+				}
+				cascDataSourceDescriptor.addPrefix("war3.w3mod\\_de.w3mod");
+				cascDataSourceDescriptor.addPrefix(localesMod.replace("_locales", "_de.w3mod\\_locales"));
+				reloadTree();
+			}
+			else {
+				JOptionPane.showMessageDialog(this,
+						"Your Warcraft III data CASC configuration is not configured in the expected way. You will need to apply Definitive Edition mode manually by adding the 'war3.w3mod\\_de.w3mod' CASC mod (requires Patch 3.0 / Forsaken Kingdom).",
+						"Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+		else {
+			JOptionPane.showMessageDialog(this,
+					"Your Warcraft III data configuration is not a standard Reforged CASC setup, so this automation feature is unavailable.\nTo use this feature, please press 'Clear All' and then 'Add War3 Install Directory' to choose a Reforged installation.",
+					"Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
 	private void enterSD2Mode() {
 		if ((dataSourceDescriptors.size() == 1) && (dataSourceDescriptors.get(0) instanceof CascDataSourceDescriptor)) {
 			final CascDataSourceDescriptor cascDataSourceDescriptor = (CascDataSourceDescriptor) dataSourceDescriptors
@@ -683,6 +723,14 @@ public class DataSourceChooserPanel extends JPanel {
 				dataSourceDescriptors.add(new FolderDataSourceDescriptor(
 						installPathPath.resolve("war3.w3mod/_hd.w3mod/_locales/enus.w3mod").toString()));
 			}
+			if (Files.exists(installPathPath.resolve("war3.w3mod/_de.w3mod"))) {
+				dataSourceDescriptors.add(
+						new FolderDataSourceDescriptor(installPathPath.resolve("war3.w3mod/_de.w3mod").toString()));
+			}
+			if (Files.exists(installPathPath.resolve("war3.w3mod/_de.w3mod/_locales/enus.w3mod"))) {
+				dataSourceDescriptors.add(new FolderDataSourceDescriptor(
+						installPathPath.resolve("war3.w3mod/_de.w3mod/_locales/enus.w3mod").toString()));
+			}
 		}
 	}
 
@@ -751,7 +799,7 @@ public class DataSourceChooserPanel extends JPanel {
 	}
 
 	private static enum SupportedCascPatchFormat {
-		PATCH130, PATCH131, PATCH132, UNKNOWN_FUTURE_PATCH;
+		PATCH130, PATCH131, PATCH132, PATCH300, UNKNOWN_FUTURE_PATCH;
 	}
 
 	public static void main(final String[] args) {
@@ -856,6 +904,11 @@ public class DataSourceChooserPanel extends JPanel {
 					patchFormat = SupportedCascPatchFormat.PATCH130;
 				}
 				else if (tempCascReader.getRootFileSystem()
+						.isFile("war3.w3mod\\_de.w3mod\\units\\human\\footman\\footman.mdx")) {
+					// Patch 3.0.0 (Forsaken Kingdom) added the Definitive Edition layer
+					patchFormat = SupportedCascPatchFormat.PATCH300;
+				}
+				else if (tempCascReader.getRootFileSystem()
 						.isFile("war3.w3mod\\_hd.w3mod\\units\\human\\footman\\footman.mdx")) {
 					patchFormat = SupportedCascPatchFormat.PATCH132;
 				}
@@ -920,6 +973,7 @@ public class DataSourceChooserPanel extends JPanel {
 							}
 							break;
 						}
+						case PATCH300:
 						case PATCH132:
 						case PATCH131: {
 							final String filePathToTest = "war3.w3mod\\_locales\\"
@@ -978,6 +1032,16 @@ public class DataSourceChooserPanel extends JPanel {
 					// This is what I have right now
 					final String[] prefixes = { "war3.w3mod", "war3.w3mod\\_deprecated.w3mod",
 							"war3.w3mod\\_locales\\" + lowerLocale + ".w3mod" };
+					defaultPrefixes = new ArrayList<>(Arrays.asList(prefixes));
+					break;
+				}
+				case PATCH300: {
+					System.out.println("Detected Patch 3.0+ (Forsaken Kingdom)");
+					// Same default as 1.32+: Reforged graphics on top of Classic. The "Definitive Edition Graphics
+					// Mode" button swaps the _hd.w3mod layers for the _de.w3mod layers.
+					final String[] prefixes = { "war3.w3mod", "war3.w3mod\\_deprecated.w3mod",
+							"war3.w3mod\\_locales\\" + lowerLocale + ".w3mod", "war3.w3mod\\_hd.w3mod",
+							"war3.w3mod\\_hd.w3mod\\_locales\\" + lowerLocale + ".w3mod" };
 					defaultPrefixes = new ArrayList<>(Arrays.asList(prefixes));
 					break;
 				}

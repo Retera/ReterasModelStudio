@@ -22,7 +22,7 @@ public class GeosetVertex extends Vertex {
 	List<TVertex> tverts = new ArrayList<>();
 	private List<GeosetVertexBoneLink> links = new ArrayList<>();
 	List<Triangle> triangles = new ArrayList<>();
-	private byte[] skinBoneIndexes;
+	private int[] skinBoneIndexes;
 	private float[] tangent;
 
 	Geoset geoset;
@@ -41,7 +41,7 @@ public class GeosetVertex extends Vertex {
 	}
 
 	public void initV900Skin() {
-		skinBoneIndexes = new byte[4];
+		skinBoneIndexes = new int[4];
 		while (links.size() > 4) {
 			links.remove(links.size() - 1);
 		}
@@ -86,7 +86,7 @@ public class GeosetVertex extends Vertex {
 			this.links.add(new GeosetVertexBoneLink(link.weight, link.bone));
 		}
 		if (old.skinBoneIndexes != null) {
-			this.skinBoneIndexes = new byte[old.skinBoneIndexes.length];
+			this.skinBoneIndexes = new int[old.skinBoneIndexes.length];
 			System.arraycopy(old.skinBoneIndexes, 0, this.skinBoneIndexes, 0, this.skinBoneIndexes.length);
 		}
 		this.tverts = new ArrayList<>();
@@ -218,7 +218,7 @@ public class GeosetVertex extends Vertex {
 		return tangent;
 	}
 
-	public byte[] getSkinBoneIndexes() {
+	public int[] getSkinBoneIndexes() {
 		return skinBoneIndexes;
 	}
 

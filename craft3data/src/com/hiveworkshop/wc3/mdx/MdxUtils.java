@@ -103,6 +103,39 @@ public class MdxUtils {
 		return array;
 	}
 
+	public static int[] loadUnsignedByteArrayAsInts(final BlizzardDataInputStream in, final int size)
+			throws IOException {
+		final int[] array = new int[size];
+		for (int i = 0; i < size; i++) {
+			array[i] = in.readByte() & 0xFF;
+		}
+		return array;
+	}
+
+	public static int[] loadUnsignedShortArrayAsInts(final BlizzardDataInputStream in, final int size)
+			throws IOException {
+		final int[] array = new int[size];
+		for (int i = 0; i < size; i++) {
+			array[i] = in.readShort() & 0xFFFF;
+		}
+		return array;
+	}
+
+	public static void saveUnsignedByteArrayFromInts(final BlizzardDataOutputStream out, final int[] array)
+			throws IOException {
+		for (final int value : array) {
+			out.writeByte(value & 0xFF);
+		}
+	}
+
+	public static void saveUnsignedShortArrayFromInts(final BlizzardDataOutputStream out, final int[] array)
+			throws IOException {
+		for (final int value : array) {
+			out.writeByte(value & 0xFF);
+			out.writeByte((value >>> 8) & 0xFF);
+		}
+	}
+
 	public static short[] loadShortArray(final BlizzardDataInputStream in, final int size) throws IOException {
 		final short array[] = new short[size];
 

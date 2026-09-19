@@ -52,6 +52,7 @@ public class MdxModel {
 	public CornChunk cornChunk;
 	public FaceEffectsChunk faceEffectsChunk;
 	public BindPoseChunk bindPoseChunk;
+	public GliderChunk gliderChunk;
 
 	public static final String key = "MDLX";
 
@@ -291,6 +292,9 @@ public class MdxModel {
 				collisionShapeChunk.collisionShape[i] = collisionShapeChunk.new CollisionShape(nodes.get(i));
 			}
 		}
+		if (ModelUtils.isGliderSupported(versionChunk.version)) {
+			gliderChunk = mdl.getGliderChunk();
+		}
 		if (ModelUtils.isBindPoseSupported(versionChunk.version)) {
 			bindPoseChunk = mdl.getBindPoseChunk();
 			if (!mdl.getFaceEffects().isEmpty()) {
@@ -306,7 +310,7 @@ public class MdxModel {
 	public void load(final BlizzardDataInputStream in) throws IOException {
 		MdxUtils.checkId(in, "MDLX");
 		int version = 800;
-		for (int i = 0; i < 23; i++) {
+		for (int i = 0; i < 25; i++) {
 			in.mark(8);
 			final String chunk = in.readCharsAsString(4);
 			in.reset();
@@ -370,7 +374,7 @@ public class MdxModel {
 				eventObjectChunk.load(in);
 			} else if (MdxUtils.checkOptionalId(in, CameraChunk.key)) {
 				cameraChunk = new CameraChunk();
-				cameraChunk.load(in);
+				cameraChunk.load(in, version);
 			} else if (MdxUtils.checkOptionalId(in, CollisionShapeChunk.key)) {
 				collisionShapeChunk = new CollisionShapeChunk();
 				collisionShapeChunk.load(in);
@@ -380,6 +384,9 @@ public class MdxModel {
 			} else if (MdxUtils.checkOptionalId(in, BindPoseChunk.key)) {
 				bindPoseChunk = new BindPoseChunk();
 				bindPoseChunk.load(in);
+			} else if (MdxUtils.checkOptionalId(in, GliderChunk.key)) {
+				gliderChunk = new GliderChunk();
+				gliderChunk.load(in);
 			} else {
 				final int available = in.available();
 				if (available > 0) {
@@ -462,7 +469,7 @@ public class MdxModel {
 			eventObjectChunk.save(out);
 		}
 		if (cameraChunk != null) {
-			cameraChunk.save(out);
+			cameraChunk.save(out, versionChunk.version);
 		}
 		if (collisionShapeChunk != null) {
 			collisionShapeChunk.save(out);
@@ -474,6 +481,9 @@ public class MdxModel {
 			if (bindPoseChunk != null) {
 				bindPoseChunk.save(out);
 			}
+		}
+		if (ModelUtils.isGliderSupported(versionChunk.version) && (gliderChunk != null)) {
+			gliderChunk.save(out);
 		}
 
 	}
@@ -542,7 +552,7 @@ public class MdxModel {
 			}
 		}
 		if (cameraChunk != null) {
-			a += cameraChunk.getSize();
+			a += cameraChunk.getSize(versionChunk.version);
 		}
 		if (collisionShapeChunk != null) {
 			a += collisionShapeChunk.getSize();
@@ -554,6 +564,9 @@ public class MdxModel {
 			if (bindPoseChunk != null) {
 				a += bindPoseChunk.getSize();
 			}
+		}
+		if (ModelUtils.isGliderSupported(versionChunk.version) && (gliderChunk != null)) {
+			a += gliderChunk.getSize();
 		}
 
 		return a;

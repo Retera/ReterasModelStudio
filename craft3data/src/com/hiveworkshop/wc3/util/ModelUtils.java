@@ -308,8 +308,25 @@ public final class ModelUtils {
 		model.add(geoset);
 	}
 
+	/**
+	 * Format version introduced by Warcraft III: Reforged - Forsaken Kingdom (Patch 3.0.0, build 24268). Every
+	 * stock model (Classic, Reforged and Definitive Edition layers) shipped with 3.0 uses this version.
+	 */
+	public static final int FORMAT_VERSION_1800 = 1800;
+	/**
+	 * Lowest format version that uses the Forsaken Kingdom layouts. Two stock day/night-cycle environment models
+	 * (cinematics/.../environment/*_dnc.mdx and dark.mdx) are versions 1600 and 1700 and already carry the new
+	 * 72-byte light block, so everything from 1600 upwards is treated like 1800.
+	 */
+	public static final int FORMAT_VERSION_FORSAKEN_KINGDOM_MIN = 1600;
+
+	public static boolean isForsakenKingdomFormat(final int formatVersion) {
+		return formatVersion >= FORMAT_VERSION_FORSAKEN_KINGDOM_MIN;
+	}
+
 	public static boolean isLevelOfDetailSupported(final int formatVersion) {
-		return (formatVersion == 900) || (formatVersion == 1000) || (formatVersion == 1100) || (formatVersion == 1200);
+		return (formatVersion == 900) || (formatVersion == 1000) || (formatVersion == 1100) || (formatVersion == 1200)
+				|| isForsakenKingdomFormat(formatVersion);
 	}
 
 	public static boolean isShaderStringSupported(final int formatVersion) {
@@ -317,27 +334,64 @@ public final class ModelUtils {
 	}
 
 	public static boolean isTangentAndSkinSupported(final int formatVersion) {
-		return (formatVersion == 900) || (formatVersion == 1000) || (formatVersion == 1100) || (formatVersion == 1200);
+		return (formatVersion == 900) || (formatVersion == 1000) || (formatVersion == 1100) || (formatVersion == 1200)
+				|| isForsakenKingdomFormat(formatVersion);
+	}
+
+	/**
+	 * Since MDX 1800 (Forsaken Kingdom), the geoset SKIN block stores 16-bit bone indices and 16-bit weights
+	 * (4 + 4 per vertex, weights still sum to 255). The SKIN count field is unchanged (vertexCount * 8 elements),
+	 * but each element is 2 bytes instead of 1.
+	 */
+	public static boolean isSkin16BitSupported(final int formatVersion) {
+		return isForsakenKingdomFormat(formatVersion);
+	}
+
+	/**
+	 * Since MDX 1800 the LITE chunk carries a "ShadowCasting" flag after the light type, and
+	 * ShadowCastingStart/ShadowCastingEnd/QuadraticFalloff/LinearFalloff/Damping after ShadowIntensity.
+	 */
+	public static boolean isExtendedLightSupported(final int formatVersion) {
+		return isForsakenKingdomFormat(formatVersion);
+	}
+
+	/**
+	 * Since MDX 1800 the CAMS chunk stores a header byte in the top 8 bits of each camera's inclusive size
+	 * (observed always 3 in stock data) and supports the depth-of-field focus distance track "IDUF".
+	 */
+	public static boolean isCameraDepthOfFieldSupported(final int formatVersion) {
+		return isForsakenKingdomFormat(formatVersion);
+	}
+
+	/**
+	 * Since MDX 1800 an optional "DILG" chunk (the "Glider" section in the MDL text keyword table) may follow BPOS.
+	 */
+	public static boolean isGliderSupported(final int formatVersion) {
+		return isForsakenKingdomFormat(formatVersion);
 	}
 
 	public static boolean isBindPoseSupported(final int formatVersion) {
-		return (formatVersion == 900) || (formatVersion == 1000) || (formatVersion == 1100) || (formatVersion == 1200);
+		return (formatVersion == 900) || (formatVersion == 1000) || (formatVersion == 1100) || (formatVersion == 1200)
+				|| isForsakenKingdomFormat(formatVersion);
 	}
 
 	public static boolean isEmissiveLayerSupported(final int formatVersion) {
-		return (formatVersion == 900) || (formatVersion == 1000) || (formatVersion == 1100) || (formatVersion == 1200);
+		return (formatVersion == 900) || (formatVersion == 1000) || (formatVersion == 1100) || (formatVersion == 1200)
+				|| isForsakenKingdomFormat(formatVersion);
 	}
 
 	public static boolean isFresnelColorLayerSupported(final int formatVersion) {
-		return (formatVersion == 1000) || (formatVersion == 1100) || (formatVersion == 1200);
+		return (formatVersion == 1000) || (formatVersion == 1100) || (formatVersion == 1200)
+				|| isForsakenKingdomFormat(formatVersion);
 	}
 
 	public static boolean isCornSupported(final int formatVersion) {
-		return (formatVersion == 900) || (formatVersion == 1000) || (formatVersion == 1100) || (formatVersion == 1200);
+		return (formatVersion == 900) || (formatVersion == 1000) || (formatVersion == 1100) || (formatVersion == 1200)
+				|| isForsakenKingdomFormat(formatVersion);
 	}
 
 	public static boolean isCombinedHDLayerSupported(final int formatVersion) {
-		return (formatVersion == 1100) || (formatVersion == 1200);
+		return (formatVersion == 1100) || (formatVersion == 1200) || isForsakenKingdomFormat(formatVersion);
 	}
 
 	public static boolean isLightShadowIntensitySupported(final int formatVersion) {

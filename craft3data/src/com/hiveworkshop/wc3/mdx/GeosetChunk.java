@@ -91,7 +91,7 @@ public class GeosetChunk {
 		 *
 		 * @since 900
 		 */
-		public byte[] skin = new byte[0];
+		public int[] skin = new int[0];
 		public int nrOfTextureVertexGroups;
 		public float[][] vertexTexturePositions = new float[0][];
 
@@ -152,7 +152,13 @@ public class GeosetChunk {
 				if (MdxUtils.checkOptionalId(in, "SKIN")) {
 					in.skip(4);// SKIN
 					final int skinLength = in.readInt();
-					this.skin = MdxUtils.loadByteArray(in, skinLength);
+					if (ModelUtils.isSkin16BitSupported(version)) {
+						// MDX 1800: 16-bit bone indices + 16-bit weights
+						this.skin = MdxUtils.loadUnsignedShortArrayAsInts(in, skinLength);
+					}
+					else {
+						this.skin = MdxUtils.loadUnsignedByteArrayAsInts(in, skinLength);
+					}
 				}
 			}
 			MdxUtils.checkId(in, "UVAS");
@@ -247,7 +253,12 @@ public class GeosetChunk {
 				if (this.skin.length > 0) {
 					out.writeNByteString("SKIN", 4);
 					out.writeInt(this.skin.length);
-					MdxUtils.saveByteArray(out, this.skin);
+					if (ModelUtils.isSkin16BitSupported(version)) {
+						MdxUtils.saveUnsignedShortArrayFromInts(out, this.skin);
+					}
+					else {
+						MdxUtils.saveUnsignedByteArrayFromInts(out, this.skin);
+					}
 				}
 			}
 
@@ -321,7 +332,7 @@ public class GeosetChunk {
 					a += 8 + (this.tangents.length * 4);
 				}
 				if (this.skin.length > 0) {
-					a += 8 + this.skin.length;
+					a += 8 + (this.skin.length * (ModelUtils.isSkin16BitSupported(version) ? 2 : 1));
 				}
 			}
 
@@ -499,12 +510,12 @@ public class GeosetChunk {
 			}
 			if (useSkin) {
 				// v900
-				skin = new byte[8 * numVertices];
+				skin = new int[8 * numVertices];
 				for (i = 0; i < numVertices; i++) {
 					for (int j = 0; j < 4; j++) {
 						final GeosetVertex vertex = mdlGeo.getVertex(i);
 						skin[(i * 8) + j] = vertex.getSkinBoneIndexes()[j];
-						skin[(i * 8) + j + 4] = (byte) vertex.getSkinBoneWeight(j);
+						skin[(i * 8) + j + 4] = vertex.getSkinBoneWeight(j);
 					}
 				}
 			}

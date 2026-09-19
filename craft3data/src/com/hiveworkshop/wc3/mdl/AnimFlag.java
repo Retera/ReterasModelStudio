@@ -12,6 +12,9 @@ import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 import com.hiveworkshop.wc3.mdx.AttachmentVisibility;
 import com.hiveworkshop.wc3.mdx.CameraPositionTranslation;
+import com.hiveworkshop.wc3.mdx.CameraFStop;
+import com.hiveworkshop.wc3.mdx.CameraFocalLength;
+import com.hiveworkshop.wc3.mdx.CameraFocusDistance;
 import com.hiveworkshop.wc3.mdx.CameraRotation;
 import com.hiveworkshop.wc3.mdx.CameraTargetTranslation;
 import com.hiveworkshop.wc3.mdx.CornAlpha;
@@ -1299,6 +1302,60 @@ public class AnimFlag {
 				addEntry(track.time, box(track.rotation), box(track.inTan), box(track.outTan));
 			} else {
 				addEntry(track.time, box(track.rotation));
+			}
+		}
+	}
+
+	public AnimFlag(final CameraFocusDistance focusDistance) {
+		title = "DOFDistance";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(focusDistance.interpolationType));
+		if (focusDistance.globalSequenceId >= 0) {
+			setGlobalSeqId(focusDistance.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = focusDistance.interpolationType > 1;
+		for (final CameraFocusDistance.TranslationTrack track : focusDistance.translationTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.focusDistance), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.focusDistance));
+			}
+		}
+	}
+
+	public AnimFlag(final CameraFocalLength focalLength) {
+		title = "FocalLength";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(focalLength.interpolationType));
+		if (focalLength.globalSequenceId >= 0) {
+			setGlobalSeqId(focalLength.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = focalLength.interpolationType > 1;
+		for (final CameraFocalLength.TranslationTrack track : focalLength.translationTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.focalLength), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.focalLength));
+			}
+		}
+	}
+
+	public AnimFlag(final CameraFStop fStop) {
+		title = "FStop";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(fStop.interpolationType));
+		if (fStop.globalSequenceId >= 0) {
+			setGlobalSeqId(fStop.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = fStop.interpolationType > 1;
+		for (final CameraFStop.TranslationTrack track : fStop.translationTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.fStop), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.fStop));
 			}
 		}
 	}
