@@ -200,8 +200,8 @@ Single from File/Unit/Model/Object.
 
 ### Preview fidelity
 
-- [ ] **W12. Particle preview that matches the game, including Popcorn (PKB).** (step 2 started 2026-09-19:
-  PKB parser done, approximate popcorn preview with the effect's textures and blending; VM port pending, plan below) Today `RenderParticleEmitter2`
+- [ ] **W12. Particle preview that matches the game, including Popcorn (PKB).** (step 2 done 2026-09-19:
+  PKB parser and a port of the PopcornFX runtime; status below) Today `RenderParticleEmitter2`
   and `RenderRibbonEmitter` in `wc3/mdl/render3d` are a hand port of Ghostwolf's mdx-m3-viewer as it stood
   years ago, `ParticleEmitter` (model-spawning) has no preview, and `ParticleEmitterPopcorn` renders nothing.
   Users want all three drawn together in the preview. Plan:
@@ -221,26 +221,21 @@ Single from File/Unit/Model/Object.
   Treat this like Ghostwolf treated his viewer: keep the emitter code small and rewrite it cleanly rather than
   patching the current port. It is one of the few places where starting over is cheaper than carrying the stack.
 
-  **PKB status and port plan (2026-09-19).** `wc3/pkb` reads the `.pkb` container (28 byte header, type table,
-  HBO objects with schema-typed fields, PString table; schemas in `res/pkb`), `PkbEffectSummary` lists layers and
-  renderers (class, blend mode, billboarding mode, diffuse texture, atlas), and `PopcornEffectCache` loads effects
-  through the model's data source. The preview (`RenderPopcornEmitter`) draws one approximate billboard system per
-  billboard renderer with the right texture and blend, honouring the MDX multipliers, colour, alpha, the
-  Visibility track and the animation visibility guide. The real behaviour lives in `CCompilerBlobCache` blobs:
-  PopcornFX bytecode (24 opcodes, register VM with const/local/input/stream scopes, native calls such as
-  `rand`, `generate`, `kick`, `sample`) that WhiteoutFlakes' `cornflakes` library interprets per particle.
-  A faithful Java port is roughly 8-10k lines in this order, each step testable against the stock effects:
-  1. bytecode decoder (`vm/bytecode_decoder.cpp`, `schema/opcodes.hpp`); disassemble every blob.
-  2. binder: `CCompilerBlobCache` blobs to Init/Physics/TimeFixed/TimeVarying programs, externals by name,
-     event routing from `CLayerGraphCompileCache_EventSlot.LayerTargets`, curve samplers.
-  3. register VM core (`cbem_core.hpp`, `cbem_interpreter.cpp`, `math_functions`), function calls stubbed.
-  4. native calls in dependency order: rand/vrand; generate/trigger/initPayload/kick/payloads (spawning);
-     sample/sampleCDF (curves); xform/rotate/orientation/effect.axis; shape sampling; noise.
-  5. sim: external store (SoA per layer), per-particle harness, pool, `EffectRuntime.tick` (lifeRatio +=
-     dt * invLife, evolve, route events), then packet extraction and billboard modes 0/5 first.
-  6. glue: attributes `__a_Game.*` from the MDX node (multipliers, colour, team colour, scale), the +90 degree Z
-     spawn frame, 1 corn unit = 100 game units.
-  Reference: WhiteoutFlakes `src/renderer/corn_effects/cornflakes` (BSD-3-Clause, see `licenses/`).
+  **PKB status (2026-09-19): step 2 done.** `wc3/pkb` reads the `.pkb` container (schemas in `res/pkb`) and
+  `PopcornEffectCache` loads effects through the model's data source. The runtime is a Java port of
+  WhiteoutFlakes' `cornflakes` (BSD-3-Clause, see `licenses/`; design notes in `docs/PKB_PORT_NOTES.md`):
+  `pkb.vm` (bytecode decoder, register VM, native call dispatchers, primitive shape sampling, simplex noise,
+  procedural turbulence), `pkb.bind` (layer programs, externals, functions, curve/shape/event-stream samplers,
+  renderers, event routing), `pkb.sim` (SoA external store, per-particle harness, pools, `EffectRuntime.tick`,
+  render packet extraction). `RenderPopcornEmitter` drives one runtime per MDX popcorn emitter with the node
+  transform (+90 degree Z spawn frame, 1 corn unit = 100 game units), the `__a_Game.*` attributes from the MDX
+  tracks and team colour, the animation visibility guide, and draws the billboard renderers (all six
+  billboarding modes, atlas, flips, depth sorted, per-renderer blend) through the software particle shader.
+  `wc3.tools.PkbSim` runs an effect headlessly and prints layers, programs, disassembly and packets; all eight
+  stock effects extracted so far run without VM issues. Not ported: mesh shapes (`.pkmm`), texture samplers,
+  external vector fields (`.pkvf`), ribbon/mesh/light renderers, LOD; the `0x40000` "corn fx scaling" node flag
+  is not carried by the editable model (the eight MDL flag names stop at bit 7), so scale always goes through
+  the matrix. Colour is 8 bit per channel in the software shader (HDR intensities clamp).
 - [ ] **W13. Fix the "view camera" editing mode.** The graphical camera-animation editing view (the "View"
   camera function that looks through a model `Camera` while editing its keyframes) applies wrong rotations and
   was never finished. Make its orientation match the game: position and target from the camera tracks, roll from
@@ -443,3 +438,9 @@ Do not copy:
 - 2026-09-19: Model tab multi-selection cut/copy/paste/delete, cut fixed. W12 step 2 started: PKB parser +
   dump tool, effect summary, and an approximate popcorn preview in both perspective viewports (textures and
   blend modes from the baked effect); VM port plan recorded under W12. WhiteoutFlakes notices under `licenses/`.
+- 2026-09-19: W12 step 2 done: full Java port of WhiteoutFlakes' `cornflakes` PopcornFX runtime (`pkb.vm`,
+  `pkb.bind`, `pkb.sim`, about 9k lines) replaces the approximate popcorn preview; `RenderPopcornEmitter` now
+  runs one effect runtime per MDX popcorn emitter. All 12 stock effects extracted from 2.0 and 3.0 (wisp,
+  hero glow, blade storm, acolyte cast/rune, chain lightning, healing wave, ...) simulate headlessly
+  (`wc3.tools.PkbSim`) with no VM issues; verified under Xvfb on the 2.0 wisp and Arthas (hero glow follows
+  the team colour) and the 3.0 Hellscream.

@@ -7,6 +7,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
+import com.hiveworkshop.wc3.pkb.bind.EffectBinder;
+import com.hiveworkshop.wc3.pkb.bind.EffectPlan;
 
 /**
  * Loads baked effects for popcorn emitters through the model's data source
@@ -15,6 +17,7 @@ import com.hiveworkshop.wc3.gui.datachooser.DataSource;
  */
 public final class PopcornEffectCache {
 	private static final Map<String, PkbEffectSummary> CACHE = new HashMap<>();
+	private static final Map<String, EffectPlan> PLAN_CACHE = new HashMap<>();
 	private static final PkbEffectSummary MISSING = null;
 
 	private PopcornEffectCache() {
@@ -22,6 +25,29 @@ public final class PopcornEffectCache {
 
 	public static synchronized void dropCache() {
 		CACHE.clear();
+		PLAN_CACHE.clear();
+	}
+
+	/** The bound, runnable effect, or null when the effect is missing or unreadable. Plans are shared. */
+	public static synchronized EffectPlan loadPlan(final DataSource dataSource, final String emitterPath) {
+		final String path = bakedPath(emitterPath);
+		if (path.isEmpty() || (dataSource == null)) {
+			return null;
+		}
+		final String key = path.toLowerCase(Locale.US);
+		if (PLAN_CACHE.containsKey(key)) {
+			return PLAN_CACHE.get(key);
+		}
+		EffectPlan plan = null;
+		try (InputStream stream = dataSource.getResourceAsStream(path)) {
+			if (stream != null) {
+				plan = EffectBinder.bind(PkbReader.read(stream));
+			}
+		} catch (final IOException | RuntimeException e) {
+			System.err.println("Popcorn effect " + path + " could not be bound: " + e);
+		}
+		PLAN_CACHE.put(key, plan);
+		return plan;
 	}
 
 	/** The baked path for an emitter path: {@code .pkfx} becomes {@code .pkb}, slashes become backslashes. */

@@ -24,7 +24,7 @@ import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
-import com.hiveworkshop.wc3.pkb.PkbEffectSummary;
+import com.hiveworkshop.wc3.pkb.bind.EffectPlan;
 import com.hiveworkshop.wc3.pkb.PopcornEffectCache;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -55,9 +55,8 @@ public final class RenderModel {
 	private final Map<RibbonEmitter, RenderRibbonEmitterView> ribbonEmitterToRenderer = new HashMap<>();
 	private final List<RenderRibbonEmitter> ribbonEmitters = new ArrayList<>();
 	private final List<RenderRibbonEmitterView> ribbonEmitterViews = new ArrayList<>();
-	private final Map<ParticleEmitterPopcorn, List<RenderPopcornEmitterView>> popcornToRenderers = new HashMap<>();
+	private final Map<ParticleEmitterPopcorn, RenderPopcornEmitter> popcornToRenderers = new HashMap<>();
 	private final List<RenderPopcornEmitter> popcornEmitters = new ArrayList<>();
-	private final List<RenderPopcornEmitterView> popcornEmitterViews = new ArrayList<>();
 
 	private final RenderNode rootPosition;
 
@@ -107,7 +106,6 @@ public final class RenderModel {
 		particleEmitterViews2.clear();
 		popcornToRenderers.clear();
 		popcornEmitters.clear();
-		popcornEmitterViews.clear();
 		particleEmitters2.clear();
 		this.animatedRenderEnvironment = animatedRenderEnvironment;
 		this.camera = viewerCamera;
@@ -175,29 +173,14 @@ public final class RenderModel {
 			ribbonEmitterToRenderer.put(emitterView.getEmitter(), emitterView);
 		}
 		for (final ParticleEmitterPopcorn popcorn : model.sortedIdObjects(ParticleEmitterPopcorn.class)) {
-			final PkbEffectSummary summary = PopcornEffectCache.load(model.getWrappedDataSource(), popcorn.getPath());
-			if (summary == null) {
+			final EffectPlan plan = PopcornEffectCache.loadPlan(model.getWrappedDataSource(), popcorn.getPath());
+			if ((plan == null) || (plan.layers.length == 0)) {
 				continue;
 			}
-			final List<PkbEffectSummary.Renderer> billboards = new ArrayList<>();
-			for (final PkbEffectSummary.Renderer renderer : summary.allRenderers()) {
-				if ((renderer.rendererClass == PkbEffectSummary.RendererClass.BILLBOARD) && renderer.renderingEnabled
-						&& !renderer.diffuseTexturePath.isEmpty() && (billboards.size() < 3)) {
-					billboards.add(renderer);
-				}
-			}
-			final List<RenderPopcornEmitterView> views = new ArrayList<>();
-			for (int i = 0; i < billboards.size(); i++) {
-				final PkbEffectSummary.Renderer renderer = billboards.get(i);
-				final Bitmap texture = new Bitmap(renderer.gameTexturePath());
-				final RenderPopcornEmitter renderEmitter = new RenderPopcornEmitter(popcorn, renderer, i,
-						billboards.size(), renderResourceAllocator.allocatePopcornTexture(texture, popcorn));
-				final RenderPopcornEmitterView view = new RenderPopcornEmitterView(this, renderEmitter);
-				popcornEmitters.add(renderEmitter);
-				popcornEmitterViews.add(view);
-				views.add(view);
-			}
-			popcornToRenderers.put(popcorn, views);
+			final RenderPopcornEmitter renderEmitter = new RenderPopcornEmitter(this, popcorn, plan,
+					renderResourceAllocator);
+			popcornEmitters.add(renderEmitter);
+			popcornToRenderers.put(popcorn, renderEmitter);
 		}
 		for (final AnimatedNode node : sortedNodes) {
 			getRenderNode(node).refreshFromEditor();
@@ -387,12 +370,10 @@ public final class RenderModel {
 								ribbRenderer.fill();
 							}
 						}
-						final List<RenderPopcornEmitterView> popcornViews = popcornToRenderers.get(idObject);
-						if ((popcornViews != null)
+						final RenderPopcornEmitter popcornEmitter = popcornToRenderers.get(idObject);
+						if ((popcornEmitter != null)
 								&& ((modelView == null) || modelView.getEditableIdObjects().contains((IdObject) idObject))) {
-							for (final RenderPopcornEmitterView popcornView : popcornViews) {
-								popcornView.fill();
-							}
+							popcornEmitter.fill();
 						}
 					}
 				}
@@ -430,12 +411,11 @@ public final class RenderModel {
 				for (final RenderRibbonEmitter renderRibbonEmitter : ribbonEmitters) {
 					renderRibbonEmitter.update();
 				}
-				for (final RenderPopcornEmitterView view : popcornEmitterViews) {
-					if ((modelView == null) || modelView.getEditableIdObjects().contains(view.getEmitter())) {
-						view.fill();
-					}
-				}
 				for (final RenderPopcornEmitter renderPopcornEmitter : popcornEmitters) {
+					if ((modelView == null)
+							|| modelView.getEditableIdObjects().contains(renderPopcornEmitter.getEmitter())) {
+						renderPopcornEmitter.fill();
+					}
 					renderPopcornEmitter.update();
 				}
 			}
@@ -477,6 +457,10 @@ public final class RenderModel {
 
 	public List<RenderPopcornEmitter> getPopcornEmitters() {
 		return popcornEmitters;
+	}
+
+	public ViewerCamera getCamera() {
+		return camera;
 	}
 
 	public List<RenderRibbonEmitter> getRibbonEmitters() {
