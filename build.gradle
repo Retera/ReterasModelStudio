@@ -17,11 +17,20 @@ repositories {
     mavenCentral()
 }
 
+// Read "Retera Model Studio v0.04.6c" out of MainFrame.java so the jar and the About box agree.
+def readStudioVersion() {
+    def mainFrame = file("matrixeater/src/com/matrixeater/src/MainFrame.java")
+    def matcher = (mainFrame.text =~ /RETERA_MODEL_STUDIO_VERSION\s*=\s*"[^"]*?v([0-9][^"\s]*)"/)
+    return matcher.find() ? matcher.group(1) : '0.0.0'
+}
+ext.studioVersion = readStudioVersion()
+
 allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
 
-    version = '0.4.5'
+    // Single source of truth for the version string is MainFrame.RETERA_MODEL_STUDIO_VERSION
+    version = rootProject.ext.studioVersion
     ext {
         appName = "retera-jwc3"
         jtattooVersion = '1.6.12'

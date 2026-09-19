@@ -42,54 +42,62 @@ public class MpqCodebase implements Codebase, DataSource {
 		if (cache.containsKey(filepath)) {
 			return cache.get(filepath);
 		}
-		try {
-			for (int i = mpqList.size() - 1; i >= 0; i--) {
-				final DataSource mpq = mpqList.get(i);
+		for (int i = mpqList.size() - 1; i >= 0; i--) {
+			final DataSource mpq = mpqList.get(i);
+			try {
 				final File tempProduct = mpq.getFile(filepath);
 				if (tempProduct != null) {
 					cache.put(filepath, tempProduct);
 					return tempProduct;
 				}
+			} catch (final IOException e) {
+				reportSourceFailure(mpq, filepath, e);
 			}
-		} catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return null;
 	}
 
 	@Override
 	public InputStream getResourceAsStream(final String filepath) {
-		try {
-			for (int i = mpqList.size() - 1; i >= 0; i--) {
-				final DataSource mpq = mpqList.get(i);
+		for (int i = mpqList.size() - 1; i >= 0; i--) {
+			final DataSource mpq = mpqList.get(i);
+			try {
 				final InputStream resourceAsStream = mpq.getResourceAsStream(filepath);
 				if (resourceAsStream != null) {
 					return resourceAsStream;
 				}
+			} catch (final IOException e) {
+				reportSourceFailure(mpq, filepath, e);
 			}
-		} catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return null;
 	}
 
 	@Override
 	public ByteBuffer read(final String path) throws IOException {
-		try {
-			for (int i = mpqList.size() - 1; i >= 0; i--) {
-				final DataSource mpq = mpqList.get(i);
+		for (int i = mpqList.size() - 1; i >= 0; i--) {
+			final DataSource mpq = mpqList.get(i);
+			try {
 				final ByteBuffer resourceAsStream = mpq.read(path);
 				if (resourceAsStream != null) {
 					return resourceAsStream;
 				}
+			} catch (final IOException e) {
+				reportSourceFailure(mpq, path, e);
 			}
-		} catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return null;
+	}
+
+	/**
+	 * One source failing to read a file should neither abort the lookup in the
+	 * remaining sources nor be silent. Failures show up later as missing textures
+	 * or data, so say which source and which path so they can be traced.
+	 */
+	private static void reportSourceFailure(final DataSource source, final String filepath, final IOException e) {
+		System.err.println("MpqCodebase: " + source.getClass().getSimpleName() + " failed to read \"" + filepath
+				+ "\": " + e);
+		e.printStackTrace();
 	}
 
 	@Override

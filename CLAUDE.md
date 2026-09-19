@@ -27,15 +27,15 @@ Add `--offline` when there is no network; all dependencies are already in the Gr
 Headless conversion, useful for testing the format layer without a GUI:
 
 ```
-java -jar matrixeater/build/libs/matrixeater-0.4.5.jar -convert in.mdx [out.mdl]   # mdx <-> mdl by extension
-java -jar matrixeater/build/libs/matrixeater-0.4.5.jar -convert in.obj [out.mdx]   # obj import (may pop dialogs)
-java -jar matrixeater/build/libs/matrixeater-0.4.5.jar -convert in.blp out.png     # image conversion
+java -jar matrixeater/build/libs/matrixeater-*.jar -convert in.mdx [out.mdl]   # mdx <-> mdl by extension
+java -jar matrixeater/build/libs/matrixeater-*.jar -convert in.obj [out.mdx]   # obj import (may pop dialogs)
+java -jar matrixeater/build/libs/matrixeater-*.jar -convert in.blp out.png     # image conversion
 ```
 
 There is no test suite. `test` is a no-op; files named `*Test*` are ad-hoc `main()` scratch programs. Verify
 format changes by round-tripping real models (see `docs/mdx-1800-forsaken-kingdom.md` for how 1800 was derived).
-The version string lives in two places: `version` in the root `build.gradle` and
-`MainFrame.RETERA_MODEL_STUDIO_VERSION`.
+The version string has one source, `MainFrame.RETERA_MODEL_STUDIO_VERSION`; the root `build.gradle` parses it
+out of that file, so bump it there only.
 
 ## Conventions
 

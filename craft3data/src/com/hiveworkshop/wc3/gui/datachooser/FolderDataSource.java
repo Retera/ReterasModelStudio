@@ -45,7 +45,7 @@ public class FolderDataSource implements DataSource {
 		if (!has(path)) {
 			return null;
 		}
-		return ByteBuffer.wrap(Files.readAllBytes(Paths.get(path)));
+		return ByteBuffer.wrap(Files.readAllBytes(folderPath.resolve(path)));
 	}
 
 	@Override
