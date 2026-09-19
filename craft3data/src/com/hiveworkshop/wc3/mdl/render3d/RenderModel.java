@@ -19,7 +19,11 @@ import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Camera.SourceNode;
 import com.hiveworkshop.wc3.mdl.Camera.TargetNode;
 import com.hiveworkshop.wc3.mdl.EditableModel;
+import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.IdObject;
+import com.hiveworkshop.wc3.mdl.Light;
+import com.hiveworkshop.rms.editor.render3d.SceneLights;
+import com.hiveworkshop.wc3.util.MathUtils;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
@@ -462,6 +466,94 @@ public final class RenderModel {
 	public ViewerCamera getCamera() {
 		return camera;
 	}
+
+	private static float trackValue(final Light light, final String name, final double fallback,
+			final AnimatedRenderEnvironment environment) {
+		final AnimFlag flag = AnimFlag.find(light.getAnimFlags(), name);
+		if ((flag != null) && (environment != null)) {
+			final Object value = flag.interpolateAt(environment);
+			if (value instanceof Number) {
+				return ((Number) value).floatValue();
+			}
+		}
+		return (float) fallback;
+	}
+
+	private static Vertex trackColor(final Light light, final String name, final Vertex fallback,
+			final AnimatedRenderEnvironment environment) {
+		final AnimFlag flag = AnimFlag.find(light.getAnimFlags(), name);
+		if ((flag != null) && (environment != null)) {
+			final Object value = flag.interpolateAt(environment);
+			if (value instanceof Vertex) {
+				return (Vertex) value;
+			}
+		}
+		return fallback;
+	}
+
+	/**
+	 * Collects the model's visible Light nodes in world space for the shader
+	 * pipelines. Colours follow the renderer's convention for model colours
+	 * (Vertex z is red, x is blue). Returns the number of lights written.
+	 */
+	public int gatherLights(final SceneLights out) {
+		out.clear();
+		out.mode = SceneLights.MODE_MODEL;
+		// Warsmash's model-viewer sun: a white directional light with a 0.3 ambient
+		// term; its direction is left unnormalised on purpose, as in the reference.
+		out.add(SceneLights.TYPE_DIRECTIONAL, 0, 0, 0, 0.3f, -0.3f, 0.25f, 1, 1, 1, 1, 1, 1, 1, 0.3f, 1, 2);
+		final AnimatedRenderEnvironment environment = animatedRenderEnvironment;
+		for (final Light light : model.sortedIdObjects(Light.class)) {
+			if (out.isFull()) {
+				break;
+			}
+			if ((modelView != null) && !modelView.getEditableIdObjects().contains(light)
+					&& !modelView.getVisibleIdObjects().contains(light)) {
+				continue;
+			}
+			final RenderNode node = getRenderNode(light);
+			if (node == null) {
+				continue;
+			}
+			final float visibility = environment == null ? 1 : light.getRenderVisibility(environment);
+			if (visibility <= 0) {
+				continue;
+			}
+			int type = SceneLights.TYPE_OMNI;
+			if (light.getFlags().contains("Directional")) {
+				type = SceneLights.TYPE_DIRECTIONAL;
+			} else if (light.getFlags().contains("Ambient")) {
+				type = SceneLights.TYPE_AMBIENT;
+			}
+			final Vector3f position = node.getPivot();
+			// a directional light shines along its node's local Z axis
+			lightDirectionHeap.set(0, 0, 1);
+			MathUtils.transform(node.getWorldRotation(), lightDirectionHeap);
+			if (lightDirectionHeap.lengthSquared() > 0) {
+				lightDirectionHeap.normalise();
+			}
+			final Vertex color = trackColor(light, "Color", light.getStaticColor(), environment);
+			final Vertex ambientColor = trackColor(light, "AmbColor", light.getStaticAmbColor(), environment);
+			final float intensity = trackValue(light, "Intensity", light.getIntensity() < 0 ? 1 : light.getIntensity(),
+					environment) * visibility;
+			final float ambientIntensity = trackValue(light, "AmbIntensity",
+					light.getAmbIntensity() < 0 ? 0 : light.getAmbIntensity(), environment) * visibility;
+			final float attenuationStart = trackValue(light, "AttenuationStart",
+					light.getAttenuationStart() < 0 ? 0 : light.getAttenuationStart(), environment);
+			final float attenuationEnd = trackValue(light, "AttenuationEnd",
+					light.getAttenuationEnd() < 0 ? 0 : light.getAttenuationEnd(), environment);
+			out.add(type, position.x, position.y, position.z, lightDirectionHeap.x, lightDirectionHeap.y,
+					lightDirectionHeap.z, color == null ? 1 : (float) color.z, color == null ? 1 : (float) color.y,
+					color == null ? 1 : (float) color.x, intensity, ambientColor == null ? 0 : (float) ambientColor.z,
+					ambientColor == null ? 0 : (float) ambientColor.y, ambientColor == null ? 0 : (float) ambientColor.x,
+					ambientIntensity, attenuationStart, attenuationEnd);
+			out.setLastFalloff((float) light.getQuadraticFalloff(), (float) light.getLinearFalloff(),
+					(float) light.getDamping(), light.getShadowIntensity() < 0 ? 0.4f : (float) light.getShadowIntensity());
+		}
+		return out.count;
+	}
+
+	private static final Vector3f lightDirectionHeap = new Vector3f();
 
 	public List<RenderRibbonEmitter> getRibbonEmitters() {
 		return ribbonEmitters;

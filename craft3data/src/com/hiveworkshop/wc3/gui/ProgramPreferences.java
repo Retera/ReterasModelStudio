@@ -59,6 +59,8 @@ public class ProgramPreferences implements Serializable {
 	private Boolean quickBrowse = true;
 	/** Pixel size of the Outliner's eye and check toggles; boxed so old profiles reload with the default. */
 	private Integer outlinerGlyphSize = DEFAULT_OUTLINER_GLYPH_SIZE;
+	/** Light models with their own Light nodes (true) or with the fixed viewer lights (false). */
+	private Boolean useModelLights = Boolean.TRUE;
 	private MouseButtonPreference threeDCameraSpinButton = MouseButtonPreference.LEFT;
 	private MouseButtonPreference threeDCameraPanButton = MouseButtonPreference.MIDDLE;
 
@@ -134,6 +136,9 @@ public class ProgramPreferences implements Serializable {
 		if (outlinerGlyphSize == null) {
 			outlinerGlyphSize = DEFAULT_OUTLINER_GLYPH_SIZE;
 		}
+		if (useModelLights == null) {
+			useModelLights = Boolean.TRUE;
+		}
 	}
 
 	public void loadFrom(final ProgramPreferences other) {
@@ -174,6 +179,7 @@ public class ProgramPreferences implements Serializable {
 		theme = other.theme;
 		quickBrowse = other.quickBrowse;
 		outlinerGlyphSize = other.outlinerGlyphSize;
+		useModelLights = other.useModelLights;
 		this.allowLoadingNonBlpTextures = other.allowLoadingNonBlpTextures;
 		this.renderParticles = other.renderParticles;
 		this.renderStaticPoseParticles = other.renderStaticPoseParticles;
@@ -682,6 +688,16 @@ public class ProgramPreferences implements Serializable {
 
 	public GUITheme getTheme() {
 		return theme;
+	}
+
+	public boolean isUseModelLights() {
+		return (useModelLights == null) || useModelLights;
+	}
+
+	public void setUseModelLights(final boolean useModelLights) {
+		this.useModelLights = useModelLights;
+		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public static final int DEFAULT_OUTLINER_GLYPH_SIZE = 20;

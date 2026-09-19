@@ -242,6 +242,17 @@ Single from File/Unit/Model/Object.
   `KCRL`, field of view from the camera, and verify against a stock cinematic camera model in game footage or
   the Reforged World Editor. Also let the perspective view "look through" any camera and write the current view
   back to the camera as a keyframe.
+- [x] **W14. Light nodes light the preview.** (done 2026-09-19) Both perspective viewports gather the model's
+  visible Light nodes each frame (`RenderModel.gatherLights` into `SceneLights`, up to 8, with the game's
+  colour convention and the MDX 1800 falloff fields) and hand them to the shader pipelines. SD models use
+  Warsmash's per-vertex light system (a white sun with 0.3 ambient plus omni `intensity / (d/64 + 1)^2`,
+  directional Lambert and ambient-by-attenuation lights, clamped and multiplied into the vertex colour). HD and
+  DE models use a GLSL port of the Reforged 3.0 HD pixel shader from Wc3Shaders (BSD-3, `licenses/`): linear
+  shading, hue-preserving team layer, GGX/Schlick with the shipped clamps, the main light with the split
+  ambient/probe mix, omni lights with the exp-damped rational falloff, and the fresnel rim, with the
+  environment-map texture standing in for the game's cube probe. As in the game, only omni lights reach the HD
+  pass; the main light is the baseline sun. "Use Model Lights" in Preferences > General switches back to the
+  previous fixed lighting (both shaders keep that path intact under `u_lightMode == 0`).
 
 ## Phase M: data model modernisation (incremental, never a rewrite)
 
@@ -444,3 +455,7 @@ Do not copy:
   hero glow, blade storm, acolyte cast/rune, chain lightning, healing wave, ...) simulate headlessly
   (`wc3.tools.PkbSim`) with no VM issues; verified under Xvfb on the 2.0 wisp and Arthas (hero glow follows
   the team colour) and the 3.0 Hellscream.
+- 2026-09-19: popcorn glow offset fixed (node pivot through the world matrix), Outliner toggle size preference,
+  theme-aware Outliner glyphs and editor field tints, two exception fixes (drag-over, MPQ browser). W14: model
+  Light nodes light both viewports (Warsmash math for SD, Wc3Shaders' Reforged 3.0 HD math for HD/DE) with a
+  preference to fall back to the fixed lighting.

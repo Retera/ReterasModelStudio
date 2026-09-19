@@ -55,6 +55,7 @@ import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 import com.hiveworkshop.rms.editor.render3d.NGGLDP;
+import com.hiveworkshop.rms.editor.render3d.SceneLights;
 import com.hiveworkshop.rms.editor.render3d.NGGLDP.Pipeline;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
@@ -129,6 +130,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 	};
 	Timer paintTimer;
 	private final ViewerCamera viewerCamera;
+	private final SceneLights sceneLights = new SceneLights();
 	private final PortraitCameraManager cameraManager;
 
 	public PerspectiveViewport(final ModelView modelView, final ProgramPreferences programPreferences,
@@ -513,6 +515,12 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			NGGLDP.pipeline.glLoadIdentity();
 
 			NGGLDP.pipeline.glCamera(viewerCamera, false);
+			if ((programPreferences != null) && programPreferences.isUseModelLights()
+					&& (editorRenderModel.gatherLights(sceneLights) > 0)) {
+				NGGLDP.pipeline.glSceneLights(sceneLights);
+			} else {
+				NGGLDP.pipeline.glSceneLights(null);
+			}
 
 			final FloatBuffer ambientColor = BufferUtils.createFloatBuffer(4);
 			ambientColor.put(0.6f).put(0.6f).put(0.6f).put(1f).flip();

@@ -118,6 +118,13 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 				.setOutlinerGlyphSize(((Number) outlinerGlyphSize.getValue()).intValue()));
 		generalPrefsPanel.add(new JLabel("Outliner Toggle Icon Size:"), "cell 0 11");
 		generalPrefsPanel.add(outlinerGlyphSize, "cell 1 11");
+		final JCheckBox useModelLights = new JCheckBox();
+		useModelLights.setSelected(programPreferences.isUseModelLights());
+		useModelLights.setToolTipText(
+				"Light models with their own Light nodes, as the game does. Uncheck to return to the fixed viewer lighting.");
+		useModelLights.addActionListener(e -> programPreferences.setUseModelLights(useModelLights.isSelected()));
+		generalPrefsPanel.add(new JLabel("Use Model Lights (Light nodes):"), "cell 0 12");
+		generalPrefsPanel.add(useModelLights, "cell 1 12");
 		// final BoxLayout boxLayout = new BoxLayout(generalPrefsPanel,
 		// BoxLayout.PAGE_AXIS);
 
