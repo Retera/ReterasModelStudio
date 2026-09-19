@@ -6,12 +6,16 @@ import org.lwjgl.util.vector.Vector3f;
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
+import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 
 public interface RenderResourceAllocator {
 	InternalResource allocateTexture(Bitmap bitmap, ParticleEmitter2 textureSource);
 
 	InternalResource allocateMaterial(Material material, RibbonEmitter ribbonEmitter);
+
+	/** Texture for a popcorn emitter preview; the bitmap path is a game texture path. */
+	InternalResource allocatePopcornTexture(Bitmap bitmap, ParticleEmitterPopcorn emitter);
 
 	public static final RenderResourceAllocator DO_NOTHING = new RenderResourceAllocator() {
 		@Override
@@ -53,6 +57,11 @@ public interface RenderResourceAllocator {
 					};
 				}
 			};
+		}
+
+		@Override
+		public InternalResource allocatePopcornTexture(final Bitmap bitmap, final ParticleEmitterPopcorn emitter) {
+			return allocateTexture(bitmap, null);
 		}
 
 		@Override

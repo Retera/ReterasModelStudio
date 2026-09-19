@@ -5,6 +5,7 @@ import java.util.List;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
+import com.hiveworkshop.wc3.pkb.PopcornEffectCache;
 import com.hiveworkshop.wc3.resources.Resources;
 import com.hiveworkshop.wc3.resources.WEString;
 import com.hiveworkshop.wc3.units.DataTable;
@@ -51,5 +52,6 @@ public final class WarcraftDataSourceCaches {
 		WEString.dropCache();
 		Resources.dropCache();
 		BLPHandler.get().dropCache();
+		PopcornEffectCache.dropCache();
 	}
 }

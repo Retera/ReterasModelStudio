@@ -80,6 +80,7 @@ import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
 import com.hiveworkshop.wc3.mdl.LayerShader;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
+import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
 import com.hiveworkshop.wc3.mdl.Triangle;
@@ -89,6 +90,7 @@ import com.hiveworkshop.wc3.mdl.render3d.InternalResource;
 import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.render3d.RenderParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.render3d.RenderResourceAllocator;
+import com.hiveworkshop.wc3.mdl.render3d.RenderPopcornEmitter;
 import com.hiveworkshop.wc3.mdl.render3d.RenderRibbonEmitter;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.util.MathUtils;
@@ -691,6 +693,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 				particle.render(editorRenderModel, editorRenderModel.getParticleShader());
 			}
 			for (final RenderRibbonEmitter emitter : editorRenderModel.getRibbonEmitters()) {
+				emitter.render(editorRenderModel, editorRenderModel.getParticleShader());
+			}
+			for (final RenderPopcornEmitter emitter : editorRenderModel.getPopcornEmitters()) {
 				emitter.render(editorRenderModel, editorRenderModel.getParticleShader());
 			}
 
@@ -1314,6 +1319,58 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 
 	}
 
+	/** Texture of a popcorn emitter preview; blending is set by the particle shader per draw. */
+	private final class PopcornTextureInstance implements InternalResource, InternalInstance {
+		private final Bitmap bitmap;
+		private boolean loaded = false;
+
+		PopcornTextureInstance(final Bitmap bitmap) {
+			this.bitmap = bitmap;
+		}
+
+		@Override
+		public void setTransformation(final Vector3f worldLocation, final Quaternion rotation, final Vector3f worldScale) {
+		}
+
+		@Override
+		public void setSequence(final int index) {
+		}
+
+		@Override
+		public void show() {
+		}
+
+		@Override
+		public void setPaused(final boolean paused) {
+		}
+
+		@Override
+		public void move(final Vector3f deltaPosition) {
+		}
+
+		@Override
+		public void hide() {
+		}
+
+		@Override
+		public void bind() {
+			pipeline.setCurrentPipeline(0);
+			if (!loaded) {
+				loadToTexMap(bitmap);
+				loaded = true;
+			}
+			bindTexture(bitmap, textureMap.get(bitmap));
+			NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
+			NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_LIGHTING);
+			GL11.glEnable(GL11.GL_BLEND);
+		}
+
+		@Override
+		public InternalInstance addInstance() {
+			return this;
+		}
+	}
+
 	private final class RibbonEmitterMaterialInstance implements InternalResource, InternalInstance {
 		private final Material material;
 		private final RibbonEmitter ribbonEmitter;
@@ -1391,6 +1448,11 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 	@Override
 	public InternalResource allocateTexture(final Bitmap bitmap, final ParticleEmitter2 textureSource) {
 		return new Particle2TextureInstance(bitmap, textureSource);
+	}
+
+	@Override
+	public InternalResource allocatePopcornTexture(final Bitmap bitmap, final ParticleEmitterPopcorn emitter) {
+		return new PopcornTextureInstance(bitmap);
 	}
 
 	@Override

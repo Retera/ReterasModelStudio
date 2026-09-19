@@ -1,8 +1,9 @@
 package com.hiveworkshop.wc3.mdl.render3d;
 
+import com.hiveworkshop.wc3.mdl.IdObject;
 import java.nio.ByteBuffer;
 
-public abstract class RenderSharedGeometryEmitter<MODEL_OBJECT extends EmitterIdObject, EMITTER_VIEW extends EmitterView>
+public abstract class RenderSharedGeometryEmitter<MODEL_OBJECT extends IdObject, EMITTER_VIEW extends EmitterView>
 		extends RenderSharedEmitter<MODEL_OBJECT, EMITTER_VIEW> {
 	private static final int MAX_POWER_OF_TWO = 1 << 30;
 	private final int elementsPerEmit;
