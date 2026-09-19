@@ -18,7 +18,7 @@ Gradle 7.3 wrapper, three modules: `craft3data` (model formats, game data, rende
 ./gradlew :craft3data:compileJava      # fastest check when only the data layer changed
 ./gradlew :matrixeater:run             # launch the editor
 ./gradlew :matrixeater:runtime         # release build: jlink image at matrixeater/build/image (bin/drms, drms.bat)
-./gradlew :matrixeater:dist            # quick fat jar at matrixeater/build/libs/matrixeater-<version>.jar
+./gradlew :matrixeater:dist            # fat jar at matrixeater/build/libs/matrixeater-<version>-all.jar
 ```
 
 Add `--offline` when there is no network; all dependencies are already in the Gradle cache plus `jars/`
@@ -27,9 +27,9 @@ Add `--offline` when there is no network; all dependencies are already in the Gr
 Headless conversion, useful for testing the format layer without a GUI:
 
 ```
-java -jar matrixeater/build/libs/matrixeater-*.jar -convert in.mdx [out.mdl]   # mdx <-> mdl by extension
-java -jar matrixeater/build/libs/matrixeater-*.jar -convert in.obj [out.mdx]   # obj import (may pop dialogs)
-java -jar matrixeater/build/libs/matrixeater-*.jar -convert in.blp out.png     # image conversion
+java -jar matrixeater/build/libs/matrixeater-*-all.jar -convert in.mdx [out.mdl]   # mdx <-> mdl by extension
+java -jar matrixeater/build/libs/matrixeater-*-all.jar -convert in.obj [out.mdx]   # obj import (may pop dialogs)
+java -jar matrixeater/build/libs/matrixeater-*-all.jar -convert in.blp out.png     # image conversion
 ```
 
 There is no unit test suite (`test` is a no-op; files named `*Test*` are ad-hoc `main()` scratch programs). The

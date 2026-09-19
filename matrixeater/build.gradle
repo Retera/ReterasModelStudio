@@ -37,6 +37,8 @@ task roundTrip(type: JavaExec) {
 }
 
 task dist(type: Jar) {
+    // the plain `jar` task writes matrixeater-<version>.jar; keep the fat jar apart
+    archiveClassifier = 'all'
  	duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
     doFirst {
         def serviceDir = file("$buildDir/META-INF/services")
@@ -57,7 +59,14 @@ task dist(type: Jar) {
 
     from files(sourceSets.main.output.classesDirs)
     from files(sourceSets.main.output.resourcesDir)
-    from {configurations.runtimeClasspath.collect {zipTree(it)}}
+    // the per-jar service files are replaced by the merged copies built in doFirst,
+    // otherwise only one ImageIO plugin (BLP or DDS) survives the duplicate exclusion
+    from({configurations.runtimeClasspath.collect {zipTree(it)}}) {
+        exclude 'META-INF/services/**'
+    }
+    from("$buildDir/META-INF/services") {
+        into 'META-INF/services'
+    }
 
     with jar
 }

@@ -281,9 +281,18 @@ D7 and F2.
 - [ ] **D5. Model validator** report with one-click fixes where safe (unreferenced bones, geosets with no matrix,
   keys outside any sequence, HD weights not summing, duplicate sequence names, missing textures, bad extents).
 - [ ] **D6. Keyframe simplifier v2**, tolerance-based with a preview of maximum deviation per track.
-- [ ] **D7. Writer fixed point.** Drive the round-trip tool to zero UNSTABLE and zero DIALOG across all three
-  installs, then keep it there. Known remaining sources after the first fixes: whatever the full-install runs
-  still report (record them here with the model path and the chunk from the chunk diff).
+- [~] **D7. Writer fixed point.** Drive the round-trip tool to zero UNSTABLE and zero DIALOG across all three
+  installs, then keep it there. Baseline after the first fixes (2026-09-18):
+
+  | install | models | EXACT | STABLE | failures |
+  |---|---|---|---|---|
+  | 1.22 (all MPQs) | 3320 | 1770 | 1550 | 0 |
+  | 2.0.x CASC (first 700 by path) | 700 | 411 | 289 | 0 |
+  | 3.0 CASC, `_de.w3mod\units\` first 40 | 40 | 0 | 40 | 0 |
+
+  The 3.0 Definitive Edition models are 1 to 4 MB each and the MDL text pass makes the check slow (about 4 s per
+  model); run 3.0 in batches with `--filter` and `--limit`, or add a `--no-mdl` switch if a faster smoke run is
+  needed. Record any new UNSTABLE or DIALOG here with the model path and the chunk from a chunk diff.
 
 ## Phase E: further editor features
 
