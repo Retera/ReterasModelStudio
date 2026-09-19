@@ -7,148 +7,310 @@ Read `CLAUDE.md` first; it explains the architecture and the invariants every it
 
 Status legend: `[ ]` not started, `[~]` in progress, `[x]` done (commit hash), `[-]` dropped (say why).
 
+## Guiding principle
+
+This is not a fork. Everything the maintainer's workflow relies on today keeps working, in particular:
+
+- **File > Import** and its ability to build combined models with partially or fully linked skeletons, with one
+  skeleton's keyframes copied onto another, or hybrids of both. Any data-model change is validated against that
+  dialog before it lands.
+- **Save-time automation** (`EditableModel.doSavePreps` -> `rebuildLists`, `updateObjectIds`, empty-geoset
+  removal) is what makes Import's recycled components resolve. It stays the default. Where a change makes it
+  optional, the default remains "on".
+- **Data-source switching** happens constantly. Every cache is dropped in one place (see F3) and this is tested
+  by actually switching SD/HD/DE sources after each feature that touches textures or game data.
+
+Where the twilac fork (https://github.com/tw1lac/ReterasModelStudio) solved the same problem, borrow the idea,
+not the code. Appendix A lists what is worth reading there and what to avoid.
+
 ## Working agreement
 
 - One item per commit series. Commit messages say what changed and why, and carry the
   `Co-Authored-By: Claude ...` trailer. Do not mix a cleanup with a feature in one commit.
 - Verify before claiming done. For anything touching `wc3/mdl` or `wc3/mdx`, round-trip real models
-  (`-convert` CLI or the harness from item F1) and diff the bytes or the MDL text. For GUI features, launch
-  `./gradlew :matrixeater:run` and exercise the path once.
+  (`-convert` CLI or the harness from F1) and diff the bytes or the MDL text. For GUI features, launch
+  `./gradlew :matrixeater:run` and exercise the path once, including undo and redo.
 - Preserve file line endings and tab indentation. Keep `docs/mdx-1800-forsaken-kingdom.md` current when the
   1800 handling changes.
-- Every edit the user can make must be an `UndoAction` that fires `ModelStructureChangeListener` in both
+- Every edit the user can make is an `UndoAction` that fires `ModelStructureChangeListener` in both
   directions. No feature ships without undo.
 - Prefer the `modeledit/newstuff` and `actions/newsys` generation of editor code. Do not extend the dead
   packages listed at the end of `CLAUDE.md`.
-- Behaviour that users rely on (odd as it is) stays unless an item explicitly changes it. When in doubt, add a
-  preference rather than change a default.
-- Update this file when an item finishes: flip the status, note the commit, add anything learned that the next
-  item needs.
+- Behaviour that users rely on stays unless an item explicitly changes it. When in doubt, add a preference
+  rather than change a default.
+- Update this file when an item finishes: flip the status, note the commit, add anything learned.
 
 ## Phase F: foundations (do these first)
 
-These make every later item cheaper and safer.
-
-- [ ] **F1. Round-trip regression harness.** A small headless Gradle task or `main` that reads every `.mdx` in a
+- [ ] **F1. Round-trip regression harness.** A headless Gradle task or `main` that reads every `.mdx` in a
   configured folder (a 3.0.0 install via CASC, or an extracted folder), writes it back through `EditableModel`,
-  and reports byte-level and MDL-text differences, plus load exceptions. Runs on classic, Reforged and 1800
-  data. This is the safety net for everything in Phase D and most of Phase E.
+  and reports byte-level and MDL-text differences plus load exceptions, across classic, Reforged and 1800 data.
+  This is the safety net for Phase M and Phase D.
 - [ ] **F2. Headless-clean data layer.** Remove the 33 `JOptionPane` uses from `wc3/mdl` and `wc3/mdx` by
-  routing through a `ModelLoadWarnings` collector (or exceptions with context) that the GUI turns into dialogs and
-  the CLI prints. Unblocks F1, the CLI, and batch tools.
+  routing through a warnings collector that the GUI turns into dialogs and the CLI prints.
 - [ ] **F3. One place for the data-source cache drop.** Factor the seven-call litany duplicated in
-  `MainPanel.dataSourcesChanged` and `MainFrame.main` into a single method, and make it also clear
-  `BLPHandler.gpuBufferCache`, which currently survives a data-source swap and shows stale textures.
+  `MainPanel.dataSourcesChanged` and `MainFrame.main` into one method, and make it also clear
+  `BLPHandler.gpuBufferCache`, which currently survives a data-source swap. (The fork got this wrong by tying
+  texture cache lifetime to a size limit instead of the data source; do not copy that.)
 - [ ] **F4. Small known bugs.** `FolderDataSource.read(String)` reads the relative path from the working
-  directory instead of resolving against the folder. `MpqCodebase` swallows IO errors with `printStackTrace` and
-  returns null. Version string is duplicated in `build.gradle` and `MainFrame`. Bundle these as one fix commit.
-- [ ] **F5. Linux and macOS parity pass.** Case-insensitive lookup in `FolderDataSource`, no `reg query` on
-  non-Windows, profile path handling without the backslash rewrite, and a check that `runtime` images launch on
-  Linux. The 3.0.0 work is already being done from Linux, so this is real usage.
+  directory. `MpqCodebase` swallows IO errors and returns null. Version string duplicated in `build.gradle` and
+  `MainFrame`. One fix commit.
+- [ ] **F5. Linux and macOS parity.** Case-insensitive `FolderDataSource` lookup, no `reg query` off Windows,
+  profile path without the backslash rewrite, confirm `runtime` images launch on Linux.
+- [ ] **F6. Focus and hotkey contract for docked views.** Today the global DEL binding on the root pane is a
+  no-op outside animation mode (`MainPanel.deleteHotkeyAction`, "NOTE delete was here"), and each view that
+  wants DEL (`Viewport.setupCopyPaste`, `TracksEditorPanel`, `TimeSliderPanel`) makes itself focusable,
+  requests focus on click, and shadows the root ActionMap with its own "Delete", "Cut", "Copy", "Paste" entries.
+  The Model tab and Outliner trees are `setFocusable(false)` so they can never receive DEL. Write this pattern
+  down as a small helper (`EditingHotkeys.install(JComponent, handlers)`) so W1 and every later view use the same
+  mechanism, and extend `MainPanel.focusedComponentNeedsTyping` to cover tree cell editors.
+
+## Phase W: maintainer wishlist
+
+The order below is the suggested build order, not priority. W1 through W4 share one tree infrastructure and
+should be built together in the Model tab; W5 and W6 fill in the missing editors; W7 onward are independent.
+
+### Model tab
+
+Current state, verified 2026-09-18: `ModelComponentBrowserTree` rebuilds its whole `DefaultTreeModel` on every
+structure event and restores selection by item identity. `ComponentsPanel` registers only seven cards (blank,
+header, comment, animation, global sequence, bitmap, material). `selected(...)` for TextureAnim, Geoset,
+GeosetAnim, every node type, Camera, FaceEffect and BindPose is an **empty method**, and the card is not even
+switched, so the previous editor stays on screen when a bone is clicked. In the material card, the seven layer
+flag checkboxes have no listeners, "Add Layer" and per-layer "Delete" have no listeners, the interpolation
+combo does nothing, and the dynamic keyframe table is read-only. The tree has no popup, no key bindings, no
+drag, no clipboard.
+
+- [ ] **W1. Model tab: delete, cut, copy, paste, and a right-click menu on every item.** Make the tree focusable
+  per F6. Popup on every item: Cut, Copy, Paste, Delete, and New with a submenu listing every component type
+  (Sequence, Global Sequence, Texture, Material, Texture Anim, Geoset, Geoset Anim, Bone, Helper, Light,
+  Attachment, Particle Emitter, Particle Emitter 2, Popcorn, Ribbon, Event Object, Collision Shape, Camera).
+  Delete on a node reparents its children to the deleted node's parent (offer "delete subtree" as a second
+  item). Copy produces a deep clone with fresh identity; because ids are recomputed on save, a pasted node only
+  needs new object identity and a unique name suffix, and a pasted geoset needs its matrices re-pointed at the
+  existing bones. Every operation is one `UndoAction` firing `nodesAdded/Removed`, `geosetsAdded/Removed`,
+  `texturesChanged`, etc. Clipboard is in-process (a static holder of cloned components) with a text fallback of
+  the MDL fragment so it can cross into a second open model.
+- [ ] **W2. Model tab: drag to reparent in the Nodes section.** `setDragEnabled(true)` plus a `TransferHandler`
+  on the tree, limited to IdObject rows. Dropping onto a node sets the parent; dropping onto the "Nodes" group
+  clears it. Reject drops that would create a cycle. Backed by one `SetParentAction` (does not exist yet; the
+  fork's `ParentChangeAction` is the reference). Because the tree rebuilds on every structure event, keep the
+  drop-target row identity, not the `TreePath`, across the rebuild.
+- [ ] **W3. Model tab: "Move Left" and "Move Right" on nodes.** Right-click items. Move Left makes the node a
+  child of its grandparent (placed after its former parent); Move Right makes it a child of the sibling above
+  it. Both are thin wrappers over the W2 action. Low priority, drop if the tree rebuild makes ordering unreliable.
+- [ ] **W4. Model tab: "Open in Editor" and "Open in Tracks".** Right-click items that switch to the other
+  InfoNode `View` (activate its tab if docked in the same `TabWindow`, via `View.restoreFocus()` /
+  `DockingUtil`), then select and expand the corresponding item. For Tracks this means selecting the matching
+  row in `ModelComponentAnimFlagTree` and scrolling `TracksEditorTimelinePanel` to it. Needs a small "select
+  this component" API on `TracksEditorPanel` and on the Outliner; the Outliner already has `ModelViewManager`
+  highlight support to reuse.
+- [ ] **W5. Model tab: finish the editors for every component type.** One card per type, all edits as undo
+  actions. Nodes share a base panel (name, parent chooser, pivot, billboard and inherit flags, per-type fields);
+  Geoset (material chooser, selection group, LoD, extents, vertex and face counts, UV layer count); GeosetAnim
+  (static alpha and color, or jump to Tracks); TextureAnim; Camera (position, target, field of view, near, far,
+  1800 depth-of-field static values); FaceEffect; Sequences overview table (name, interval, tags) for W8's
+  sequence manager. Fix the material card: layer flags wired, Add and Delete layer wired, layer reorder.
+  Reference: the fork's `ComponentIdObjectPanel` hierarchy for field inventory; do not copy its layout.
+- [ ] **W6. Static/dynamic split done right.** For Alpha, Color, TextureID, Emissive, Fresnel and similar
+  properties the Model tab edits only the **static** value. If the property is animated, the card shows the
+  interpolation type read-only, a per-sequence summary ("Birth: 3 keys, Stand: 1 key"), and two buttons:
+  "Open in Tracks" (W4) and "Make Static" (removes the track, undoable, seeded with the value at time 0).
+  "Make Dynamic" creates a one-key track and opens Tracks. The read-only keyframe `JTable` from the early draft
+  goes away. Tracks (W7) is where dynamic values are understood, with the colored gradient bars between keys
+  labelled by sequence name.
+
+### Tracks tab
+
+Current state: users can view keyframes as pills, rubber-band select, slide, and delete. No value editing, no
+insertion, no copy or paste, no right-click. Rotation keys have no value rendering. `TracksEditorPanel` has its
+own time scale and no connection to the shared `TimeEnvironmentImpl` or `TimeSliderPanel`, so the two selections
+and the two playheads are independent.
+
+- [ ] **W7. Tracks: create and edit keyframe data.** (a) A side panel, open by default in the Tracks view, that
+  shows the selected key's time, value and tangents in a type-aware editor: float spinner for alpha, color
+  swatch plus RGB fields for color, texture chooser with thumbnail for TextureID, Euler-degrees plus raw
+  quaternion for rotation, XYZ for translation and scaling. Edits go through `SetKeyframeAction`. (b) Right-click
+  on a track row at a time: Insert Key Here (value interpolated from neighbours, or the static value if the track
+  is empty), Copy, Paste, Duplicate, Delete, Set Interpolation for the track (`Linear`, `Hermite`, `Bezier`,
+  `DontInterp`, with tangent generation on the way up), Convert to Global Sequence. (c) Double-click a key to
+  focus the side panel. (d) Share the playhead: subscribe `TracksEditorPanel` to `TimeEnvironmentImpl`, and
+  clicking on the ruler sets the shared time so the 3D preview follows. (e) Render rotation keys with a small
+  axis glyph or at least the angle magnitude, so a track full of green pills becomes readable. The fork's
+  `TimeLinePopup` with per-node submenus and its interpolate-on-paste behaviour are the reference for (b).
+
+### Add menu and wizards
+
+Current state: Add has exactly two submenus. Add > Particle mutates the model directly with no undo, and is
+populated from `stock/particles/*.mdx`. Add > Animation has Rising/Falling Birth/Death (not undoable) and
+Single from File/Unit/Model/Object.
+
+- [ ] **W8. Technical "New" lives in the Model tab; friendly wizards live in Add.** New from W1 creates a bare,
+  correctly defaulted component with no dialog. Add becomes a menu of wizards, each undoable: Attachment Point
+  (pick an existing bone as parent, optional offset, standard name list such as `Overhead Ref`, `Weapon Ref`,
+  `Hand Left Ref`); Particle (existing dialog, made undoable); Collision Shape from selection bounds; Camera from
+  current perspective view; Event Object with the event browser; Sequence with duration, non-looping, rarity and
+  a checkbox to copy keyframes from an existing sequence; Global Sequence. Add > Animation Single keeps working.
+
+### Edit window
+
+- [ ] **W9. Primitives that actually draw.** `CreatorModelingPanel` offers Mesh Basics, Standard Primitives,
+  Extended Primitives, Animation Nodes, but only Plane and Box exist, the options panel is an empty 16-row grid,
+  Extended Primitives has no card, and Animation Nodes is unreachable from the combo because of a name mismatch.
+  Implement Sphere, Cylinder, Cone, Torus, and Geosphere under Standard Primitives; Capsule and Tube under
+  Extended; options panel with segment counts, radius and height, applied live to the drag preview. Each is a
+  `Draw*Activity` producing one `Draw*Action` like the existing Box path, and each new geoset gets the default
+  material and a `VertexGroup` on the selected bone or a new bone at its centre.
+- [ ] **W10. One 3D-accelerated viewport with Front/Side/Top/Bottom/Perspective as presets.** Today the three
+  ortho views are `Graphics2D` `Viewport`s that project two of three axes by byte index, and `PerspectiveViewport`
+  is a GL canvas with no `ModelEditor`, no activity manager and no `CoordinateSystem`, so editing in 3D is
+  literally absent. The activity and manipulator pipeline is `Graphics2D`-bound (`ViewportActivity.render`,
+  `Graphics2DToModelElementRendererAdapter`). Plan in stages, each shippable:
+  1. Introduce a camera-based `CoordinateSystem` (world to screen and screen ray to world via matrices) and make
+     the ortho `Viewport` use it instead of axis bytes. Add a **Top** preset, because Bottom is what everyone
+     expects Top to be. Presets in the title bar's right-click menu of each docked view.
+  2. Make `ActiveViewportWatcher` and `ViewportListener` accept an interface instead of the concrete `Viewport`.
+  3. Add a GL-backed implementation of the same interface (`GLViewport extends BetterAWTGLCanvas`) that owns a
+     `ModelEditorViewportActivityManager`, forwards mouse events with its `CoordinateSystem`, and draws the
+     manipulator overlays through a small vector-drawing interface that has both a `Graphics2D` and a GL
+     implementation. Per-view toggles: orthographic or perspective, axis lock, grid planes, textured or
+     wireframe, show nodes.
+  4. Retire the `Graphics2D` viewports once selection, move, rotate, scale, extrude, and the creator activities
+     all work in the GL one under both projections. Keep the old classes one release for fallback.
+  The fork's `DisplayViewCanvas` with `CameraHandler.setOrtho` proves the one-class approach works with this
+  code lineage; its shader pipeline and buffer fillers are worth reading before R4.
+- [ ] **W11. Outliner: visible-but-not-editable and a right-click menu.** `ModelViewManager` already has a
+  separate `visibleGeosets` set, `RenderByViewModelRenderer` and `PerspectiveViewport` already draw geosets that
+  are visible or editable, and every call to `makeGeosetVisible` is commented out, so the third state exists in
+  the data model and is unreachable in the UI. Add the same for nodes and cameras (today the checkbox says
+  "visible" but toggles editability). Render the checkbox as a three-state cycle: empty, eye (visible), check
+  (visible and editable), with Shift-click applying to siblings. Right-click: Show Only This, Show All, Hide
+  Selected, Lock (visible, not editable), Select in Model tab, Open in Tracks. All undoable through the existing
+  `showComponent`/`hideComponent` path.
+
+## Phase M: data model modernisation (incremental, never a rewrite)
+
+`EditableModel` keeps both object pointers and integer ids on most components and reconciles them only in
+`doPostRead` and `doSavePreps`. `rebuildLists` at save recomputes textures, materials, texture anims and global
+sequences from what is referenced, so an unused `Bitmap` added in the editor disappears after save and reopen.
+Import relies on that reconciliation. The goal is: **ids are a serialisation detail; editing state holds
+references only; the save-time automation stays but becomes visible and optional.**
+
+- [ ] **M1. Inventory the dual state.** List every field that is an id mirror of a pointer (`Layer.textureId`,
+  `GeosetAnim.geosetId`, `IdObject.objectId/parentId`, `AnimFlag.globalSeqId`, `Matrix` bone ids, `VertexGroup`
+  indices, ...) with the code paths that read the id rather than the pointer. Output: a table in this file.
+- [ ] **M2. Move id materialisation to the `MdxModel(EditableModel)` and MDL `printTo` boundary.** One component
+  at a time, delete the id field from the editing class, compute it in the writer from `indexOf` or a sorted node
+  map, and delete the corresponding `updateIds` step. Round-trip with F1 after each component. The fork did this
+  wholesale (`EditableModel.getId(Object)`, `modelIdObjects` lazy maps, `BitmapAnimFlag` holding `Bitmap`); we do
+  it per component so Import can be checked at each step.
+- [ ] **M3. Make save-time cleanup explicit.** Split `doSavePreps` into "make consistent" (always: ids, pivots,
+  matrices) and "optimise" (remove unused textures, materials, texture anims, global sequences, empty geosets).
+  The optimise half runs by default, controlled by a `ProgramPreferences` flag surfaced as File > "Clean unused
+  on save", and is also available as an undoable Tools action so the user can see what it will remove. Import
+  keeps calling both.
+- [ ] **M4. Stop mutating the live model during save.** Today saving removes empty geosets from the open model
+  and reorders `idObjects`. After M2 and M3 the writer should work from the live model without mutating it, or on
+  a shallow copy, so that "save then keep editing" is not a hidden edit.
+- [ ] **M5. Reference integrity guard.** A debug-mode validator run after every `UndoAction` (behind a
+  preference) that checks no component points at an object outside the model. Catches the class of bug Import
+  and paste are prone to, before it becomes a save-time surprise.
 
 ## Phase D: model data and formats
 
-- [ ] **D1. 1800 unknowns follow-up.** Confirm or swap the `BackFacesForShadows` / `AmbientOcclusion` shading bit
-  mapping once documented, and add `Sounds`/`SoundEmitter` and `ComponentSkin` support if any real model appears
-  with them. Track in `docs/mdx-1800-forsaken-kingdom.md`.
-- [ ] **D2. Version up/down conversion that is honest.** Today "Assign FormatVersion N" just sets the number.
-  Make it a real conversion: drop or warn about fields the target cannot hold (DOF tracks, 16-bit skin indices
-  over 255, extended light fields, Glider), and offer the 1800 -> 1000 -> 800 chain in one dialog.
-- [ ] **D3. glTF 2.0 export (static and skinned, with animations as clips).** The most requested interchange path
-  for Blender users. Textures exported as PNG alongside. Start with SD models; HD after.
-- [ ] **D4. glTF / FBX-via-glTF import** into a new model or as an imported geoset, reusing the OBJ import
-  settings UI where it fits.
-- [ ] **D5. Model validator.** A "Check model" report: unreferenced bones, geosets with no matrix, keyframes
-  outside any sequence, HD vertices whose weights do not sum, duplicate sequence names, textures missing from the
-  current data sources, extents that do not match geometry. Each finding with a one-click fix where safe.
-- [ ] **D6. Keyframe simplifier v2.** The existing "Simplify Keyframes (Experimental)" is per-track and lossy.
-  Implement tolerance-based simplification with a preview of the maximum deviation per track.
+- [ ] **D1. 1800 unknowns follow-up.** Confirm or swap the `BackFacesForShadows` / `AmbientOcclusion` bit
+  mapping once documented; add `Sounds`/`SoundEmitter` and `ComponentSkin` if a real model appears.
+- [ ] **D2. Honest version conversion.** "Assign FormatVersion N" only sets the number. Make it drop or warn
+  about fields the target cannot hold (DOF tracks, 16-bit skin indices over 255, extended light fields, Glider).
+- [ ] **D3. glTF 2.0 export** (static and skinned, animations as clips, PNG textures). SD first, HD after.
+- [ ] **D4. glTF import** into a new model or as an imported geoset.
+- [ ] **D5. Model validator** report with one-click fixes where safe (unreferenced bones, geosets with no matrix,
+  keys outside any sequence, HD weights not summing, duplicate sequence names, missing textures, bad extents).
+- [ ] **D6. Keyframe simplifier v2**, tolerance-based with a preview of maximum deviation per track.
 
-## Phase E: editor features ("I wish I had added this")
+## Phase E: further editor features
 
-Candidates from the codebase and from what users of the Hive thread and Discord usually ask for. The maintainer's
-own wishlist goes at the top of this section; the rest are proposals, reorder freely.
-
-### Maintainer wishlist
-
-- [ ] (fill in)
-
-### Modelling
-
-- [ ] **E1. Undoable material and layer editor rewrite.** The current texture and material dialogs mutate the
-  model directly in places. Make every field an `UndoAction` and support HD layer slots explicitly.
-- [ ] **E2. Weight painting for HD skin weights** in the perspective viewport, with a per-bone influence
-  overlay and normalisation.
-- [ ] **E3. Loop cut / edge split / bridge** in the vertex and face editors.
-- [ ] **E4. Snap to grid and snap to vertex** with a visible grid size in the status bar.
-- [ ] **E5. Better mirror.** Mirror geometry across a plane with automatic bone renaming (`_L` <-> `_R`) and
-  animation mirroring.
-
-### Animation
-
-- [ ] **E6. Graph editor for keyframes.** A curve view per track next to `TimeSliderPanel`, with tangent handles
-  for Hermite and Bezier keys.
-- [ ] **E7. Animation retargeting.** Transfer animations between models with different bone names via a mapping
-  dialog, replacing the Oinkerwinkle-style transfer for the common case.
-- [ ] **E8. Sequence manager.** A table for add, rename, reorder, set interval, `NonLooping`, `Rarity`,
-  `MoveSpeed`, with drag-to-retime and gap detection.
-- [ ] **E9. Onion skinning** in the 2D viewports and optional ghost in 3D.
-
-### Viewing and browsing
-
-- [ ] **E10. Search everywhere.** One search box over the unit browser, doodad browser, and the CASC/MPQ file
-  tree with fuzzy matching. `enumerateFiles` output is already available; index it once per data-source change.
-- [ ] **E11. Thumbnail grid in the model browser** rendered offscreen with `AnimatedPerspectiveViewport`, cached
-  on disk under the profile directory.
-- [ ] **E12. Reference image and grid planes** in the perspective view.
-- [ ] **E13. Screenshot and turntable GIF export** from the animation preview.
-
-### Workflow
-
-- [ ] **E14. Autosave and crash recovery** (timed `.mdx` snapshots under the profile directory; offer to restore
-  on next start).
-- [ ] **E15. Batch tools dialog** backed by F1/F2: convert a folder, assign version, flush unused textures,
-  recalculate extents, with a log panel. Replace the `hacks/` package as the place one-off jobs live.
-- [ ] **E16. Scripting API.** Turn the Nashorn console into something usable: a documented `rms` object with
-  stable model, selection and undo helpers, a snippets folder, and run-on-open scripts.
-- [ ] **E17. Preferences as JSON.** Migrate `SaveProfile` and `ProgramPreferences` off Java serialization with a
-  one-time import of the old `user.profile`. Removes the boxed-field dance and makes settings diffable.
+- [ ] **E1. Weight painting for HD skin weights** in the GL viewport (after W10), with per-bone overlay.
+- [ ] **E2. Loop cut, edge split, bridge** in the vertex and face editors.
+- [ ] **E3. Snap to grid and to vertex** with grid size in the status bar.
+- [ ] **E4. Better mirror** with `_L`/`_R` bone renaming and animation mirroring.
+- [ ] **E5. Graph editor for keyframes** next to Tracks, tangent handles for Hermite and Bezier.
+- [ ] **E6. Animation retargeting dialog** by bone-name mapping, complementing Import rather than replacing it.
+- [ ] **E7. Sequence manager table** (grows out of W5's sequences overview).
+- [ ] **E8. Search everywhere** across unit browser, doodad browser and the file tree, indexed once per
+  data-source change.
+- [ ] **E9. Thumbnails in the model browser**, rendered offscreen and cached under the profile directory.
+- [ ] **E10. Screenshot and turntable GIF export** from the preview.
+- [ ] **E11. Autosave and crash recovery.**
+- [ ] **E12. Batch tools dialog** backed by F1/F2, replacing the `hacks/` package as the home for one-off jobs.
+- [ ] **E13. Scripting API** for the Nashorn console: a documented, stable object with model, selection and
+  undo helpers.
+- [ ] **E14. Preferences as JSON** with one-time import of the old `user.profile`.
+- [ ] **E15. Event object browser** with previews (the fork's `EventBrowser` idea).
 
 ## Phase R: rendering
 
-- [ ] **R1. HD shading closer to the game.** ORM and emissive handling, team colour in HD, environment light
-  presets, and the 1800 light falloff fields (`QuadraticFalloff`, `LinearFalloff`, `Damping`) driving the preview.
-- [ ] **R2. Shaders as resources.** Move the inline GLSL strings out of `NGGLDP` into resource files with a hot
-  reload action, so R1 iterations do not need a rebuild.
-- [ ] **R3. Wireframe-over-shaded, backface and normals display toggles** in the perspective view.
-- [ ] **R4. Modernise the GL path** away from `glBegin` emulation towards buffered geometry per geoset. Big and
-  risky; only after R2 and with F1 as a smoke test for load paths.
+- [ ] **R1. HD shading closer to the game**: ORM, emissive, team colour in HD, environment presets, and the 1800
+  light falloff fields driving the preview.
+- [ ] **R2. Shaders as resources** with hot reload, out of the inline strings in `NGGLDP`.
+- [ ] **R3. Wireframe-over-shaded, backface and normals toggles.**
+- [ ] **R4. Buffered geometry** per geoset instead of `glBegin` emulation. After W10 and R2.
 
 ## Phase C: code health
 
-Do these opportunistically when an item above touches the area, or as dedicated sessions once Phase F is done.
-
-- [ ] **C1. Split `MainPanel`** (7084 lines) by extracting menu construction, the `actionPerformed` dispatch,
-  and the docking layout into separate classes. Mechanical, but it is the file every feature touches.
-- [ ] **C2. Delete dead code** listed in `CLAUDE.md` (`hacks/`, `matrixeaterhayate` except `TextureManager`,
-  `ysera`, `colorizer`, `blpconv`, `stuff`, oobjloader demos, standalone `craft3editor` frames). One commit per
-  package so any of them can be reverted.
-- [ ] **C3. Vendored copies.** `com/etheller/collections/TreeMap` and `com/hiveworkshop/json` are vendored
-  copies of standard code. Replace with the JDK `TreeMap` and the `org.json` artifact if nothing depends on the
-  local modifications.
-- [ ] **C4. Logging.** Replace the 349 `printStackTrace` calls with `java.util.logging` and a log file under the
-  profile directory, surfaced in the About or Help menu.
-- [ ] **C5. Unit tests for pure code.** Once F1 and F2 exist, add JUnit to `craft3data` for `AnimFlag`
-  interpolation, `ModelUtils` version predicates, MDL tokenizer edge cases, and CASC path decoding.
-- [ ] **C6. TODO triage.** 314 `TODO`/`FIXME`/`HACK` markers. Convert the real ones into items here and delete
-  the stale ones.
+- [ ] **C1. Split `MainPanel`** (7084 lines): menu construction, `actionPerformed` dispatch, docking layout.
+  Do this early so Phase W lands in small classes.
+- [ ] **C2. Delete dead code** listed in `CLAUDE.md`, one commit per package.
+- [ ] **C3. Vendored copies**: replace `com/etheller/collections/TreeMap` and `com/hiveworkshop/json` if nothing
+  depends on local modifications.
+- [ ] **C4. Logging** instead of 349 `printStackTrace` calls, with a log file under the profile directory.
+- [ ] **C5. Unit tests** for pure code once F1 and F2 exist.
+- [ ] **C6. TODO triage** of 314 markers.
 
 ## Suggested order
 
-F1, F2, F3, F4 (one or two sessions). Then interleave: one Phase E or D item, one Phase C item, so cleanup keeps
-pace with features. R2 before any other rendering work. C1 early enough that later E items land in small classes
-instead of adding to `MainPanel`.
+F6, F3, F4 (small, immediate). C1 partially (extract menus and dispatch) so W-items do not grow `MainPanel`.
+Then W1 + W2 + W4 together (one tree, one popup, one drag handler), W5 + W6, W7, W8, W9, W11. F1 and F2 before
+Phase M. W10 is the largest single item; stage 1 and 2 can be done any time, stage 3 after R2. Keep interleaving
+one C item per two feature items.
+
+## Appendix A: reading list in the twilac fork
+
+Clone with all branches; the useful work is on `timelinepanel_and_div` (2024), `better_activities` (2023) and
+`shader-render` (2022), not on `master`. Paths below are under `modelstudio/src/com/hiveworkshop/rms/` and are
+read with `git show <branch>:<path>`.
+
+Worth borrowing as ideas:
+
+- `util/TwiTextEditor/FlagPanel.java`, `EditorHelpers.java`: the static/dynamic property editor and typed
+  editors (alpha, color, texture with thumbnails, rotation). Borrow the typed-editor idea for W6 and W7, not
+  the per-sequence keyframe tables.
+- `ui/application/edit/animation/TimeLinePopup.java`, `KeyframeTransferHelper`: keyframe clipboard with
+  interpolate-on-paste and per-node submenus, for W7.
+- `ui/gui/modeledit/modelviewtree/NodeThing.java` and `editor/wrapper/v2/ModelView`: two-glyph visible and
+  editable toggles with Shift-click on siblings, for W11.
+- `editor/actions/nodes/ParentChangeAction`, `tools/IdObjectTypeChanger`: reparent and change-node-type
+  actions, for W2 and W5.
+- `ui/application/edit/mesh/viewport/DisplayViewCanvas.java`, `viewer/CameraHandler.java`: one GL canvas
+  with ortho as a mode, for W10. `viewer/twiTestRenderMaster/*BufferFiller` and `res/shaders/` for R2 and R4.
+- `ui/application/model/nodepanels/ComponentIdObjectPanel` family: field inventory per node type, for W5.
+- `editor/model/util/TempSaveModelStuff.toMdlx(model, clearUnused)` and File > "Optimize on Save": the
+  explicit-cleanup shape that M3 adopts.
+- `ui/application/model/nodepanels/EventBrowser`: event object browser with previews, for E15.
+
+Do not copy:
+
+- The data-source cache handling (`ui/preferences/dataSourceChooser/DataSourceChooserPanel` and
+  `ProgramPrefWindow`): two diverging copies of the drop list, and a size-capped `BLPHandler` whose lifetime is
+  unrelated to the data source.
+- The import rewrites (`ui/gui/modeledit/importpanel/ImportPanelNoGui2`, `tools/twilacimport/`): they carry
+  in-source `ToDo` notes about HD matrices and lost the partial-skeleton edge cases. Keep our `ImportPanel`
+  and refactor it in place if needed.
+- The wholesale package relayout and class renames. Our history and the user community's bug reports refer to
+  the current names.
 
 ## Log
 
 - 2026-09-18: branch created; `CLAUDE.md` and this roadmap added on top of the 3.0.0 and CASC fixes.
+- 2026-09-18: maintainer wishlist folded in as Phase W after a survey of the current Model, Tracks, Add,
+  Modeling, Outliner and viewport code and of the twilac fork's branches.
