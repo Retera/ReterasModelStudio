@@ -100,7 +100,9 @@ public class Geoset implements Named, VisibilitySource {
 				final Triangle triangle = new Triangle(triangleIdxA,
 						triangleIdxB, triangleIdxC,
 						this);
-				add(triangle);
+				// add(Triangle) scans the list for duplicates, which is quadratic on a
+				// bulk load; the file's faces are taken as they are here
+				triangles.add(triangle);
 			}
 		}
 		if (mdxGeo.selectionType == 4) {
@@ -629,15 +631,20 @@ public class Geoset implements Named, VisibilitySource {
 			if (normals != null && normals.size() > 0) {
 				gv.setNormal(normals.get(i));
 			}
-			for (final Triangle t : triangles) {
-				if (t.containsRef(gv)) {
-					gv.triangles.add(t);
-				}
-				t.geoset = this;
-			}
+			gv.triangles.clear();
 			gv.geoset = this;
 
 			// gv.addBoneAttachment(null);//Why was this here?
+		}
+		// one pass over the faces instead of one pass per vertex (that was
+		// vertices x triangles on every load)
+		for (final Triangle t : triangles) {
+			t.geoset = this;
+			for (final GeosetVertex tv : t.verts) {
+				if ((tv != null) && !tv.triangles.contains(t)) {
+					tv.triangles.add(t);
+				}
+			}
 		}
 		try {
 			material = mdlr.getMaterial(materialID);
@@ -787,26 +794,48 @@ public class Geoset implements Named, VisibilitySource {
 		}
 	}
 
+	/**
+	 * Drops faces that reference the same three vertices in the same order as an
+	 * earlier face. Faces with the same vertices in a different order are kept.
+	 * The first occurrence survives, as in the old pairwise scan, but this runs
+	 * in linear time instead of comparing every pair of faces.
+	 */
 	public void purifyFaces() {
-		for (int i = triangles.size() - 1; i >= 0; i--) {
-			final Triangle tri = triangles.get(i);
-			for (int ix = 0; ix < triangles.size(); ix++) {
-				final Triangle trix = triangles.get(ix);
-				if (trix != tri) {
-					if (trix.equalRefsNoIds(tri))// Changed this from
-													// "sameVerts" -- this means
-													// that
-													// triangles with the same
-													// vertices but in a
-													// different order will no
-													// longer be purged
-													// automatically.
-					{
-						triangles.remove(tri);
-						break;
-					}
-				}
+		final java.util.HashSet<FaceKey> seen = new java.util.HashSet<>(triangles.size() * 2);
+		final ArrayList<Triangle> kept = new ArrayList<>(triangles.size());
+		for (final Triangle tri : triangles) {
+			if (seen.add(new FaceKey(tri))) {
+				kept.add(tri);
 			}
+		}
+		if (kept.size() != triangles.size()) {
+			triangles.clear();
+			triangles.addAll(kept);
+		}
+	}
+
+	/** Identity of a face's three vertex references, in order. */
+	private static final class FaceKey {
+		private final GeosetVertex a, b, c;
+
+		FaceKey(final Triangle t) {
+			a = t.verts[0];
+			b = t.verts[1];
+			c = t.verts[2];
+		}
+
+		@Override
+		public int hashCode() {
+			return (System.identityHashCode(a) * 31 + System.identityHashCode(b)) * 31 + System.identityHashCode(c);
+		}
+
+		@Override
+		public boolean equals(final Object o) {
+			if (!(o instanceof FaceKey)) {
+				return false;
+			}
+			final FaceKey k = (FaceKey) o;
+			return (a == k.a) && (b == k.b) && (c == k.c);
 		}
 	}
 
@@ -1018,8 +1047,13 @@ public class Geoset implements Named, VisibilitySource {
 		}
 		// Clearing matrix list
 		applyVerticesToMatrices(mdlr, alwaysUseMinimalMatricesHD);
+		final java.util.IdentityHashMap<GeosetVertex, Integer> vertexIds = new java.util.IdentityHashMap<>(
+				vertex.size() * 2);
+		for (int i = 0; i < vertex.size(); i++) {
+			vertexIds.put(vertex.get(i), i);
+		}
 		for (int i = 0; i < triangles.size(); i++) {
-			triangles.get(i).updateVertexIds(this);
+			triangles.get(i).updateVertexIds(this, vertexIds);
 		}
 		int boneRefCount = 0;
 		for (int i = 0; i < matrix.size(); i++) {

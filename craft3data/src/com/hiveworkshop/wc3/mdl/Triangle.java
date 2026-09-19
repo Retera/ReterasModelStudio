@@ -82,6 +82,19 @@ public class Triangle {
 		updateVertexIds();
 	}
 
+	/**
+	 * Same as {@link #updateVertexIds(Geoset)} but with the vertex indices
+	 * precomputed, so a whole geoset's faces update in linear time. A vertex
+	 * missing from the map gets -1, as List.indexOf would return.
+	 */
+	public void updateVertexIds(final Geoset geoRef, final java.util.Map<GeosetVertex, Integer> vertexIds) {
+		geoset = geoRef;
+		for (int i = 0; i < 3; i++) {
+			final Integer id = vertexIds.get(verts[i]);
+			vertIds[i] = id == null ? -1 : id.intValue();
+		}
+	}
+
 	public void updateVertexRefs(final ArrayList<GeosetVertex> list) {
 		verts[0] = list.get(vertIds[0]);
 		verts[1] = list.get(vertIds[1]);
