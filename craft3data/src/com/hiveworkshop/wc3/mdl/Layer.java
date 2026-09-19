@@ -320,8 +320,8 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		final int shadingFlags = lay.shadingFlags;
 		// 0x1: unshaded
 		// 0x2: sphere environment map
-		// 0x4: ?
-		// 0x8: ?
+		// 0x4: wrap width
+		// 0x8: wrap height
 		// 0x10: two sided
 		// 0x20: unfogged
 		// 0x30: no depth test
@@ -331,6 +331,12 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		}
 		if (EditableModel.hasFlag(shadingFlags, 0x2)) {
 			add("SphereEnvMap");
+		}
+		if (EditableModel.hasFlag(shadingFlags, 0x4)) {
+			add("WrapWidth");
+		}
+		if (EditableModel.hasFlag(shadingFlags, 0x8)) {
+			add("WrapHeight");
 		}
 		if (EditableModel.hasFlag(shadingFlags, 0x10)) {
 			add("TwoSided");
@@ -683,15 +689,24 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 					lay.filterMode = MDLReader.readField(line);
 				}
 				else if (line.contains("static TextureID")) {
-					final int textureId = MDLReader.readInt(line);
-					lay.shaderTextureIds.put(ShaderTextureTypeHD.Diffuse, textureId);
-					lay.shaderTextures.put(ShaderTextureTypeHD.Diffuse, mdlr.getTexture(textureId));
+					// `static TextureID id,` or the game's `static TextureID id <= slot,`
+					final int[] ints = MDLReader.splitToInts(line);
+					final int textureId = ints[0];
+					final int slot = ints.length > 1 ? ints[1] : 0;
+					final ShaderTextureTypeHD slotType = (slot >= 0) && (slot < ShaderTextureTypeHD.VALUES.length)
+							? ShaderTextureTypeHD.VALUES[slot]
+							: ShaderTextureTypeHD.Diffuse;
+					lay.shaderTextureIds.put(slotType, textureId);
+					lay.shaderTextures.put(slotType, mdlr.getTexture(textureId));
 				}
 				else if (line.contains("CoordId")) {
 					lay.CoordId = MDLReader.readInt(line);
 				}
 				else if (line.contains("ShaderTypeId")) {
 					lay.setShaderTypeId(MDLReader.readInt(line));
+				}
+				else if (line.trim().startsWith("Shader ")) {
+					lay.setShaderByName(MDLReader.readName(line));
 				}
 				else if (line.contains("static Emissive") && !line.contains("TextureID")) {
 					lay.emissiveGain = MDLReader.readDouble(line);
@@ -738,7 +753,16 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 				}
 				else if (line.contains("TextureID") && line.contains("{")) {
 					MDLReader.reset(mdl);
-					lay.anims.add(AnimFlag.read(mdl));
+					final AnimFlag textureIdTrack = AnimFlag.read(mdl);
+					if (line.contains("<=")) {
+						// the game's designator names the slot: `TextureID 3 <= 2 { ... }`
+						final int[] ints = MDLReader.splitToInts(line.substring(0, line.indexOf('{')));
+						final int slot = ints.length > 1 ? ints[ints.length - 1] : 0;
+						if ((slot > 0) && (slot < ShaderTextureTypeHD.VALUES.length)) {
+							textureIdTrack.setName(getTextureIdTrackName(ShaderTextureTypeHD.VALUES[slot]));
+						}
+					}
+					lay.anims.add(textureIdTrack);
 					lay.buildTextureList(mdlr);
 				}
 				else {
@@ -794,6 +818,55 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		return TVertexAnimId != -1;
 	}
 
+	/** The track name this program uses for a texture slot: {@code TextureID}, {@code NormalTextureID}, ... */
+	public static String getTextureIdTrackName(final ShaderTextureTypeHD shaderTextureTypeHD) {
+		return (shaderTextureTypeHD == ShaderTextureTypeHD.Diffuse ? "" : shaderTextureTypeHD.name()) + "TextureID";
+	}
+
+	/** The slot index of one of this program's texture track names; 0 for the plain {@code TextureID}. */
+	public static int getTextureSlot(final String trackName) {
+		for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
+			if (getTextureIdTrackName(shaderTextureTypeHD).equals(trackName)) {
+				return shaderTextureTypeHD.ordinal();
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * The shader name the game registers for this layer's shader id, or null for a plain SD layer
+	 * (the game's writer omits the line there). Ids the editor does not model keep their registered
+	 * names so they survive a text round trip.
+	 */
+	public String getWarcraftShaderName() {
+		if (unknownShaderTypeId == 2) {
+			return Material.SHADER_SD_FIXED_FUNCTION;
+		}
+		if (unknownShaderTypeId == 24) {
+			return Material.SHADER_HD_CRYSTAL;
+		}
+		if ((unknownShaderTypeId == -1) && (layerShader == LayerShader.HD)) {
+			return Material.SHADER_HD_DEFAULT_UNIT;
+		}
+		return null;
+	}
+
+	/** Applies a `Shader "name",` line: the game matches the four registered names case-insensitively. */
+	public void setShaderByName(final String shaderName) {
+		if (Material.SHADER_HD_DEFAULT_UNIT.equalsIgnoreCase(shaderName)) {
+			setLayerShader(LayerShader.HD);
+		}
+		else if (Material.SHADER_HD_CRYSTAL.equalsIgnoreCase(shaderName)) {
+			setShaderTypeId(24);
+		}
+		else if (Material.SHADER_SD_FIXED_FUNCTION.equalsIgnoreCase(shaderName)) {
+			setShaderTypeId(2);
+		}
+		else {
+			setLayerShader(LayerShader.SD);
+		}
+	}
+
 	public void printTo(final PrintWriter writer, final int tabHeight, final boolean useCoords, final int version) {
 		String tabs = "";
 		for (int i = 0; i < tabHeight; i++) {
@@ -804,36 +877,43 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		for (int i = 0; i < flags.size(); i++) {
 			writer.println(tabs + "\t" + flags.get(i) + ",");
 		}
+		// Warcraft III dialect (the form the game's own MDL reader accepts): from version 1100 the
+		// shader is a per-layer `Shader "name",` line (omitted for SD layers), every texture slot is
+		// bound with `static TextureID id <= slot,`, and an animated slot is its track with the same
+		// designator (`TextureID 3 <= 2 { ... }`, no designator for slot 0). A slot that is animated
+		// is written as its track only, as the game does.
 		if (ModelUtils.isCombinedHDLayerSupported(version)) {
-			if (layerShader == null) {
-				writer.println(tabs + "\tShaderTypeId 0, // null");
-			}
-			else if (unknownShaderTypeId != -1) {
-				writer.println(tabs + "\tShaderTypeId " + unknownShaderTypeId + ", // unknown, treated as "
-						+ layerShader.name());
-			}
-			else {
-				writer.println(tabs + "\tShaderTypeId " + layerShader.ordinal() + ", //" + layerShader.name());
+			final String shaderName = getWarcraftShaderName();
+			if (shaderName != null) {
+				writer.println(tabs + "\tShader \"" + shaderName + "\",");
 			}
 			for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
+				final AnimFlag track = getFlag(getTextureIdTrackName(shaderTextureTypeHD));
+				if ((track != null) && (track.size() > 0)) {
+					continue;
+				}
 				final Integer textureId = shaderTextureIds.get(shaderTextureTypeHD);
 				if ((textureId != null) && (textureId != -1)) {
-					final String name = shaderTextureTypeHD == ShaderTextureTypeHD.Diffuse ? ""
-							: shaderTextureTypeHD.name();
-					writer.println(tabs + "\tstatic " + name + "TextureID " + textureId + ",");
+					writer.println(tabs + "\tstatic TextureID " + textureId + " <= " + shaderTextureTypeHD.ordinal()
+							+ ",");
 				}
 			}
 		}
 		else {
+			final AnimFlag track = getFlag("TextureID");
 			final Integer textureId = shaderTextureIds.get(ShaderTextureTypeHD.Diffuse);
-			if ((textureId != null) && (textureId != -1)) {
+			if ((textureId != null) && (textureId != -1) && ((track == null) || (track.size() == 0))) {
 				writer.println(tabs + "\tstatic TextureID " + textureId + ",");
 			}
 		}
 		for (int i = 0; i < anims.size(); i++) {
 			final AnimFlag temp = anims.get(i);
 			if (temp.getName().endsWith("TextureID")) {
-				if (ModelUtils.isCombinedHDLayerSupported(version) || temp.getName().equals("TextureID")) {
+				if (ModelUtils.isCombinedHDLayerSupported(version)) {
+					final int slot = getTextureSlot(temp.getName());
+					temp.printTo(writer, tabHeight + 1, "TextureID", slot == 0 ? "" : (" <= " + slot));
+				}
+				else if (temp.getName().equals("TextureID")) {
 					temp.printTo(writer, tabHeight + 1);
 				}
 			}

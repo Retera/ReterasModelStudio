@@ -120,7 +120,21 @@ public class Light extends IdObject implements VisibilitySource {
 		quadraticFalloff = light.quadraticFalloff;
 		linearFalloff = light.linearFalloff;
 		damping = light.damping;
-
+		if (light.lightShadowCastingStart != null) {
+			add(new AnimFlag(light.lightShadowCastingStart));
+		}
+		if (light.lightShadowCastingEnd != null) {
+			add(new AnimFlag(light.lightShadowCastingEnd));
+		}
+		if (light.lightQuadraticFalloff != null) {
+			add(new AnimFlag(light.lightQuadraticFalloff));
+		}
+		if (light.lightLinearFalloff != null) {
+			add(new AnimFlag(light.lightLinearFalloff));
+		}
+		if (light.lightDamping != null) {
+			add(new AnimFlag(light.lightDamping));
+		}
 	}
 
 	@Override
@@ -251,127 +265,78 @@ public class Light extends IdObject implements VisibilitySource {
 		// //Stuff like omnidirectional
 		// }
 		for (final String s : flags) {
-			if ("ShadowCasting".equals(s) && !ModelUtils.isExtendedLightSupported(version)) {
-				continue; // MDX 1800 only token
+			if ("ShadowCasting".equals(s)) {
+				continue; // written with the other MDX 1300 shadow keywords below
 			}
 			writer.println("\t" + s + ",");
 			// Stuff like omnidirectional
 		}
 
-		// AttenuationStart
-		String currentFlag = "AttenuationStart";
-		if (AttenuationStart != -1) {
-			writer.println("\tstatic " + currentFlag + " " + AttenuationStart + ",");
-		}
-		else {
-			boolean set = false;
-			for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
-				if (pAnimFlags.get(i).getName().equals(currentFlag)) {
-					pAnimFlags.get(i).printTo(writer, 1);
-					pAnimFlags.remove(i);
-					set = true;
-				}
-			}
-		}
-		currentFlag = "AttenuationEnd";
-		if (AttenuationEnd != -1) {
-			writer.println("\tstatic " + currentFlag + " " + AttenuationEnd + ",");
-		}
-		else {
-			boolean set = false;
-			for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
-				if (pAnimFlags.get(i).getName().equals(currentFlag)) {
-					pAnimFlags.get(i).printTo(writer, 1);
-					pAnimFlags.remove(i);
-					set = true;
-				}
-			}
-		}
-		currentFlag = "Intensity";
-		if (Intensity != -1) {
-			writer.println("\tstatic " + currentFlag + " " + Intensity + ",");
-		}
-		else {
-			boolean set = false;
-			for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
-				if (pAnimFlags.get(i).getName().equals(currentFlag)) {
-					pAnimFlags.get(i).printTo(writer, 1);
-					pAnimFlags.remove(i);
-					set = true;
-				}
-			}
-		}
-		currentFlag = "Color";
-		if (staticColor != null) {
-			writer.println("\tstatic " + currentFlag + " " + staticColor.toString() + ",");
-		}
-		else {
-			boolean set = false;
-			for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
-				if (pAnimFlags.get(i).getName().equals(currentFlag)) {
-					pAnimFlags.get(i).printTo(writer, 1);
-					pAnimFlags.remove(i);
-					set = true;
-				}
-			}
-		}
-		currentFlag = "AmbIntensity";
-		if (AmbIntensity != -1) {
-			writer.println("\tstatic " + currentFlag + " " + AmbIntensity + ",");
-		}
-		else {
-			boolean set = false;
-			for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
-				if (pAnimFlags.get(i).getName().equals(currentFlag)) {
-					pAnimFlags.get(i).printTo(writer, 1);
-					pAnimFlags.remove(i);
-					set = true;
-				}
-			}
-		}
+		// keyword order of the game's MDL writer; each group is gated on the MDX version that introduced it
+		printStaticOrTrack(writer, pAnimFlags, "AttenuationStart", AttenuationStart != -1,
+				Float.toString(AttenuationStart));
+		printStaticOrTrack(writer, pAnimFlags, "AttenuationEnd", AttenuationEnd != -1, Float.toString(AttenuationEnd));
+		printStaticOrTrack(writer, pAnimFlags, "Color", staticColor != null,
+				staticColor == null ? null : staticColor.toString());
+		printStaticOrTrack(writer, pAnimFlags, "Intensity", Intensity != -1, Double.toString(Intensity));
+		printStaticOrTrack(writer, pAnimFlags, "AmbColor", staticAmbColor != null,
+				staticAmbColor == null ? null : staticAmbColor.toString());
+		printStaticOrTrack(writer, pAnimFlags, "AmbIntensity", AmbIntensity != -1, Double.toString(AmbIntensity));
 		if (ModelUtils.isLightShadowIntensitySupported(version)) {
-			currentFlag = "ShadowIntensity";
-			if (ShadowIntensity != -1) {
-				writer.println("\tstatic " + currentFlag + " " + ShadowIntensity + ",");
-			}
-			else {
-				// TODO: Does shadow intensity have animations? Most likely does
-				boolean set = false;
-				for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
-					if (pAnimFlags.get(i).getName().equals(currentFlag)) {
-						pAnimFlags.get(i).printTo(writer, 1);
-						pAnimFlags.remove(i);
-						set = true;
-					}
-				}
-			}
+			printStaticOrTrack(writer, pAnimFlags, "ShadowIntensity", ShadowIntensity != -1,
+					Double.toString(ShadowIntensity));
 		}
-		if (ModelUtils.isExtendedLightSupported(version)) {
-			writer.println("\tstatic ShadowCastingStart " + MDLReader.doubleToString(shadowCastingStart) + ",");
-			writer.println("\tstatic ShadowCastingEnd " + MDLReader.doubleToString(shadowCastingEnd) + ",");
-			writer.println("\tstatic QuadraticFalloff " + MDLReader.doubleToString(quadraticFalloff) + ",");
-			writer.println("\tstatic LinearFalloff " + MDLReader.doubleToString(linearFalloff) + ",");
-			writer.println("\tstatic Damping " + MDLReader.doubleToString(damping) + ",");
-		}
-		currentFlag = "AmbColor";
-		if (staticAmbColor != null) {
-			writer.println("\tstatic " + currentFlag + " " + staticAmbColor.toString() + ",");
-		}
-		else {
-			boolean set = false;
-			for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
-				if (pAnimFlags.get(i).getName().equals(currentFlag)) {
-					pAnimFlags.get(i).printTo(writer, 1);
-					pAnimFlags.remove(i);
-					set = true;
-				}
+		if (ModelUtils.isLightShadowCastingSupported(version)) {
+			if (flags.contains("ShadowCasting")) {
+				writer.println("\tShadowCasting,");
 			}
+			printTrackOrStatic(writer, pAnimFlags, "ShadowCastingStart", shadowCastingStart);
+			printTrackOrStatic(writer, pAnimFlags, "ShadowCastingEnd", shadowCastingEnd);
+		}
+		if (ModelUtils.isLightFalloffSupported(version)) {
+			printTrackOrStatic(writer, pAnimFlags, "QuadraticFalloff", quadraticFalloff);
+			printTrackOrStatic(writer, pAnimFlags, "LinearFalloff", linearFalloff);
+			printTrackOrStatic(writer, pAnimFlags, "Damping", damping);
+		}
+		for (final String gated : new String[] { "ShadowIntensity", "ShadowCastingStart", "ShadowCastingEnd",
+				"QuadraticFalloff", "LinearFalloff", "Damping" }) {
+			// a track the target version cannot carry is dropped rather than written as an unknown keyword
+			pAnimFlags.removeIf(flag -> flag.getName().equals(gated));
 		}
 		for (int i = 0; i < pAnimFlags.size(); i++) {
 			pAnimFlags.get(i).printTo(writer, 1);
 			// This will probably just be visibility
 		}
 		writer.println("}");
+	}
+
+	/** Writes the static value when it is set, else the track of that name (and removes it from the list). */
+	private static void printStaticOrTrack(final PrintWriter writer, final ArrayList<AnimFlag> pAnimFlags,
+			final String name, final boolean hasStatic, final String staticText) {
+		if (hasStatic) {
+			writer.println("\tstatic " + name + " " + staticText + ",");
+			return;
+		}
+		for (int i = 0; i < pAnimFlags.size(); i++) {
+			if (pAnimFlags.get(i).getName().equals(name)) {
+				pAnimFlags.get(i).printTo(writer, 1);
+				pAnimFlags.remove(i);
+				return;
+			}
+		}
+	}
+
+	/** Writes the track of that name when there is one, else the static value; these keywords are always written. */
+	private static void printTrackOrStatic(final PrintWriter writer, final ArrayList<AnimFlag> pAnimFlags,
+			final String name, final double staticValue) {
+		for (int i = 0; i < pAnimFlags.size(); i++) {
+			if (pAnimFlags.get(i).getName().equals(name) && (pAnimFlags.get(i).size() > 0)) {
+				pAnimFlags.get(i).printTo(writer, 1);
+				pAnimFlags.remove(i);
+				return;
+			}
+		}
+		writer.println("\tstatic " + name + " " + MDLReader.doubleToString(staticValue) + ",");
 	}
 
 	// VisibilitySource methods

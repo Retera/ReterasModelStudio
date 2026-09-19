@@ -170,8 +170,9 @@ public class EditableModel implements Named {
 	public void setFileRef(final File file) {
 		fileRef = file;
 		if (fileRef != null) {
-			wrappedDataSource = new CompoundDataSource(
-					Arrays.asList(MpqCodebase.get(), new FolderDataSource(file.getParentFile().toPath())));
+			// a bare file name has no parent; resolve it against the working directory
+			wrappedDataSource = new CompoundDataSource(Arrays.asList(MpqCodebase.get(),
+					new FolderDataSource(file.getAbsoluteFile().getParentFile().toPath())));
 		}
 		else {
 			wrappedDataSource = MpqCodebase.get();
@@ -1197,6 +1198,19 @@ public class EditableModel implements Named {
 					mdlr.addFaceEffect(FaceEffect.read(mdl));
 					MDLReader.mark(mdl);
 				}
+				else if (line.trim().startsWith("Glider")) {
+					// one block per whitelisted geoset: Glider { GeosetId N, }
+					int geosetId = -1;
+					while (!(line = MDLReader.nextLine(mdl)).startsWith("}")) {
+						if (line.contains("GeosetId")) {
+							geosetId = MDLReader.readInt(line);
+						}
+					}
+					if (geosetId != -1) {
+						mdlr.addGliderGeosetId(geosetId);
+					}
+					MDLReader.mark(mdl);
+				}
 				else if (line.contains("BindPose ")) {
 					mdlr.bindPoseChunk = new BindPoseChunk();
 					final List<float[]> bindPoseElements = new ArrayList<>();
@@ -1371,7 +1385,10 @@ public class EditableModel implements Named {
 
 	public void printTo(final File baseFile, final boolean alwaysUseMinimalMatricesHD) {
 		File f = baseFile;
-		baseFile.getParentFile().mkdirs();
+		final File parentDirectory = baseFile.getAbsoluteFile().getParentFile();
+		if (parentDirectory != null) {
+			parentDirectory.mkdirs();
+		}
 		boolean mdx = false;
 		if (f.getPath().toLowerCase().endsWith(".mdx")) {
 			// String fp = baseFile.getPath();
@@ -1708,6 +1725,15 @@ public class EditableModel implements Named {
 					writer.println("\t\t" + matrixStringBuilder.toString());
 				}
 				writer.println("\t}");
+				writer.println("}");
+			}
+		}
+
+		// the ray-picking whitelist is written last, after BindPose, one block per geoset id
+		if ((gliderChunk != null) && ModelUtils.isGliderSupported(formatVersion)) {
+			for (final int geosetId : gliderChunk.getGeosetIds()) {
+				writer.println("Glider {");
+				writer.println("\tGeosetId " + geosetId + ",");
 				writer.println("}");
 			}
 		}
@@ -3148,6 +3174,18 @@ public class EditableModel implements Named {
 
 	public void setGliderChunk(final GliderChunk gliderChunk) {
 		this.gliderChunk = gliderChunk;
+	}
+
+	/** Appends a geoset id to the Glider (DILG) ray-picking whitelist, creating the chunk when needed. */
+	public void addGliderGeosetId(final int geosetId) {
+		if (gliderChunk == null) {
+			gliderChunk = new GliderChunk();
+		}
+		final int[] ids = gliderChunk.getGeosetIds();
+		final int[] grown = new int[ids.length + 1];
+		System.arraycopy(ids, 0, grown, 0, ids.length);
+		grown[ids.length] = geosetId;
+		gliderChunk.setGeosetIds(grown);
 	}
 
 	public BindPoseChunk getBindPoseChunk() {

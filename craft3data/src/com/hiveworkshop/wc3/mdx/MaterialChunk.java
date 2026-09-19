@@ -171,7 +171,13 @@ public class MaterialChunk {
 				if (flag.equals("ConstantColor")) {
 					flags |= 0x1;
 				}
-				if (flag.equals("SortPrimsFarZ")) {
+				if (flag.equals("Unfogged")) {
+					flags |= 0x4;
+				}
+				if (flag.equals("SortPrimsNearZ")) {
+					flags |= 0x8;
+				}
+				if (flag.equals("SortPrimsFarZ") || flag.equals("SortPrimitives")) {
 					flags |= 0x10;
 				}
 				if (flag.equals("FullResolution")) {

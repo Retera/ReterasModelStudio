@@ -39,6 +39,8 @@ import de.wc3data.image.TgaFile;
 public class Material implements MaterialView {
 	public static final String SHADER_HD_DEFAULT_UNIT = "Shader_HD_DefaultUnit";
 	public static final String SHADER_SD_FIXED_FUNCTION = "Shader_SD_FixedFunction";
+	public static final String SHADER_SD_LEGACY = "Shader_SD_Legacy";
+	public static final String SHADER_HD_CRYSTAL = "Shader_HD_Crystal";
 	public static int teamColor = 00;
 	com.etheller.collections.ArrayList<Layer> layers;
 	private int priorityPlane = 0;
@@ -175,18 +177,25 @@ public class Material implements MaterialView {
 			}
 		}
 		setPriorityPlane(mat.priorityPlane);
+		// keyword order of the game's MDL writer
 		if (EditableModel.hasFlag(mat.flags, 0x1)) {
 			add("ConstantColor");
+		}
+		if (ModelUtils.isShaderStringSupported(mdlObject.getFormatVersion())
+				&& EditableModel.hasFlag(mat.flags, 0x02)) {
+			add("TwoSided");
+		}
+		if (EditableModel.hasFlag(mat.flags, 0x4)) {
+			add("Unfogged");
+		}
+		if (EditableModel.hasFlag(mat.flags, 0x8)) {
+			add("SortPrimsNearZ");
 		}
 		if (EditableModel.hasFlag(mat.flags, 0x10)) {
 			add("SortPrimsFarZ");
 		}
 		if (EditableModel.hasFlag(mat.flags, 0x20)) {
 			add("FullResolution");
-		}
-		if (ModelUtils.isShaderStringSupported(mdlObject.getFormatVersion())
-				&& EditableModel.hasFlag(mat.flags, 0x02)) {
-			add("TwoSided");
 		}
 	}
 
@@ -299,7 +308,9 @@ public class Material implements MaterialView {
 					shaderString = MDLReader.readName(line);
 				}
 				else {
-					mat.flags.add(MDLReader.readFlag(line));
+					final String flag = MDLReader.readFlag(line);
+					// HiveWorkshop-dialect spelling of the game's SortPrimsFarZ
+					mat.flags.add("SortPrimitives".equals(flag) ? "SortPrimsFarZ" : flag);
 					// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Error
 					// parsing Material: Unrecognized statement
 					// '"+line[i]+"'.");

@@ -80,13 +80,18 @@ public class LightChunk {
 		public LightAmbientIntensity lightAmbientIntensity;
 		public LightAttenuationStart lightAttenuationStart;
 		public LightAttenuationEnd lightAttenuationEnd;
+		public LightShadowCastingStart lightShadowCastingStart;
+		public LightShadowCastingEnd lightShadowCastingEnd;
+		public LightQuadraticFalloff lightQuadraticFalloff;
+		public LightLinearFalloff lightLinearFalloff;
+		public LightDamping lightDamping;
 
 		public void load(final BlizzardDataInputStream in, final int version) throws IOException {
 			final int inclusiveSize = in.readInt();
 			node = new Node();
 			node.load(in);
 			type = in.readInt();
-			if (ModelUtils.isExtendedLightSupported(version)) {
+			if (ModelUtils.isLightShadowCastingSupported(version)) {
 				shadowCasting = in.readInt();
 			}
 			attenuationStart = in.readFloat();
@@ -103,14 +108,16 @@ public class LightChunk {
 			{
 				shadowIntensity = 0.4f;
 			}
-			if (ModelUtils.isExtendedLightSupported(version)) {
+			if (ModelUtils.isLightShadowCastingSupported(version)) {
 				shadowCastingStart = in.readFloat();
 				shadowCastingEnd = in.readFloat();
+			}
+			if (ModelUtils.isLightFalloffSupported(version)) {
 				quadraticFalloff = in.readFloat();
 				linearFalloff = in.readFloat();
 				damping = in.readFloat();
 			}
-			for (int i = 0; i < 7; i++) {
+			for (int i = 0; i < 12; i++) {
 				if (MdxUtils.checkOptionalId(in, LightVisibility.key)) {
 					lightVisibility = new LightVisibility();
 					lightVisibility.load(in);
@@ -132,6 +139,21 @@ public class LightChunk {
 				} else if (MdxUtils.checkOptionalId(in, LightAttenuationEnd.key)) {
 					lightAttenuationEnd = new LightAttenuationEnd();
 					lightAttenuationEnd.load(in);
+				} else if (MdxUtils.checkOptionalId(in, LightShadowCastingStart.key)) {
+					lightShadowCastingStart = new LightShadowCastingStart();
+					lightShadowCastingStart.load(in);
+				} else if (MdxUtils.checkOptionalId(in, LightShadowCastingEnd.key)) {
+					lightShadowCastingEnd = new LightShadowCastingEnd();
+					lightShadowCastingEnd.load(in);
+				} else if (MdxUtils.checkOptionalId(in, LightQuadraticFalloff.key)) {
+					lightQuadraticFalloff = new LightQuadraticFalloff();
+					lightQuadraticFalloff.load(in);
+				} else if (MdxUtils.checkOptionalId(in, LightLinearFalloff.key)) {
+					lightLinearFalloff = new LightLinearFalloff();
+					lightLinearFalloff.load(in);
+				} else if (MdxUtils.checkOptionalId(in, LightDamping.key)) {
+					lightDamping = new LightDamping();
+					lightDamping.load(in);
 				}
 
 			}
@@ -141,7 +163,7 @@ public class LightChunk {
 			out.writeInt(getSize(version));// InclusiveSize
 			node.save(out);
 			out.writeInt(type);
-			if (ModelUtils.isExtendedLightSupported(version)) {
+			if (ModelUtils.isLightShadowCastingSupported(version)) {
 				out.writeInt(shadowCasting);
 			}
 			out.writeFloat(attenuationStart);
@@ -163,9 +185,11 @@ public class LightChunk {
 			if (ModelUtils.isLightShadowIntensitySupported(version)) {
 				out.writeFloat(shadowIntensity);
 			}
-			if (ModelUtils.isExtendedLightSupported(version)) {
+			if (ModelUtils.isLightShadowCastingSupported(version)) {
 				out.writeFloat(shadowCastingStart);
 				out.writeFloat(shadowCastingEnd);
+			}
+			if (ModelUtils.isLightFalloffSupported(version)) {
 				out.writeFloat(quadraticFalloff);
 				out.writeFloat(linearFalloff);
 				out.writeFloat(damping);
@@ -191,6 +215,21 @@ public class LightChunk {
 			if (lightAttenuationEnd != null) {
 				lightAttenuationEnd.save(out);
 			}
+			if (lightShadowCastingStart != null) {
+				lightShadowCastingStart.save(out);
+			}
+			if (lightShadowCastingEnd != null) {
+				lightShadowCastingEnd.save(out);
+			}
+			if (lightQuadraticFalloff != null) {
+				lightQuadraticFalloff.save(out);
+			}
+			if (lightLinearFalloff != null) {
+				lightLinearFalloff.save(out);
+			}
+			if (lightDamping != null) {
+				lightDamping.save(out);
+			}
 
 		}
 
@@ -208,8 +247,11 @@ public class LightChunk {
 			if (ModelUtils.isLightShadowIntensitySupported(version)) {
 				a += 4;
 			}
-			if (ModelUtils.isExtendedLightSupported(version)) {
-				a += 4 + 20;
+			if (ModelUtils.isLightShadowCastingSupported(version)) {
+				a += 4 + 8;
+			}
+			if (ModelUtils.isLightFalloffSupported(version)) {
+				a += 12;
 			}
 			if (lightVisibility != null) {
 				a += lightVisibility.getSize();
@@ -231,6 +273,21 @@ public class LightChunk {
 			}
 			if (lightAttenuationEnd != null) {
 				a += lightAttenuationEnd.getSize();
+			}
+			if (lightShadowCastingStart != null) {
+				a += lightShadowCastingStart.getSize();
+			}
+			if (lightShadowCastingEnd != null) {
+				a += lightShadowCastingEnd.getSize();
+			}
+			if (lightQuadraticFalloff != null) {
+				a += lightQuadraticFalloff.getSize();
+			}
+			if (lightLinearFalloff != null) {
+				a += lightLinearFalloff.getSize();
+			}
+			if (lightDamping != null) {
+				a += lightDamping.getSize();
 			}
 
 			return a;
@@ -358,6 +415,91 @@ public class LightChunk {
 						lightAttenuationEnd.scalingTrack[i] = mdxEntry;
 						final AnimFlag.Entry mdlEntry = af.getEntry(i);
 						mdxEntry.attenuationEnd = ((Number) mdlEntry.value).floatValue();
+						mdxEntry.time = mdlEntry.time.intValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
+						}
+					}
+				} else if (af.getName().equals("ShadowCastingStart")) {
+					lightShadowCastingStart = new LightShadowCastingStart();
+					lightShadowCastingStart.globalSequenceId = af.getGlobalSeqId();
+					lightShadowCastingStart.interpolationType = af.getInterpType();
+					lightShadowCastingStart.scalingTrack = new LightShadowCastingStart.ScalingTrack[af.size()];
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final LightShadowCastingStart.ScalingTrack mdxEntry = lightShadowCastingStart.new ScalingTrack();
+						lightShadowCastingStart.scalingTrack[i] = mdxEntry;
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.shadowCastingStart = ((Number) mdlEntry.value).floatValue();
+						mdxEntry.time = mdlEntry.time.intValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
+						}
+					}
+				} else if (af.getName().equals("ShadowCastingEnd")) {
+					lightShadowCastingEnd = new LightShadowCastingEnd();
+					lightShadowCastingEnd.globalSequenceId = af.getGlobalSeqId();
+					lightShadowCastingEnd.interpolationType = af.getInterpType();
+					lightShadowCastingEnd.scalingTrack = new LightShadowCastingEnd.ScalingTrack[af.size()];
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final LightShadowCastingEnd.ScalingTrack mdxEntry = lightShadowCastingEnd.new ScalingTrack();
+						lightShadowCastingEnd.scalingTrack[i] = mdxEntry;
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.shadowCastingEnd = ((Number) mdlEntry.value).floatValue();
+						mdxEntry.time = mdlEntry.time.intValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
+						}
+					}
+				} else if (af.getName().equals("QuadraticFalloff")) {
+					lightQuadraticFalloff = new LightQuadraticFalloff();
+					lightQuadraticFalloff.globalSequenceId = af.getGlobalSeqId();
+					lightQuadraticFalloff.interpolationType = af.getInterpType();
+					lightQuadraticFalloff.scalingTrack = new LightQuadraticFalloff.ScalingTrack[af.size()];
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final LightQuadraticFalloff.ScalingTrack mdxEntry = lightQuadraticFalloff.new ScalingTrack();
+						lightQuadraticFalloff.scalingTrack[i] = mdxEntry;
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.quadraticFalloff = ((Number) mdlEntry.value).floatValue();
+						mdxEntry.time = mdlEntry.time.intValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
+						}
+					}
+				} else if (af.getName().equals("LinearFalloff")) {
+					lightLinearFalloff = new LightLinearFalloff();
+					lightLinearFalloff.globalSequenceId = af.getGlobalSeqId();
+					lightLinearFalloff.interpolationType = af.getInterpType();
+					lightLinearFalloff.scalingTrack = new LightLinearFalloff.ScalingTrack[af.size()];
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final LightLinearFalloff.ScalingTrack mdxEntry = lightLinearFalloff.new ScalingTrack();
+						lightLinearFalloff.scalingTrack[i] = mdxEntry;
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.linearFalloff = ((Number) mdlEntry.value).floatValue();
+						mdxEntry.time = mdlEntry.time.intValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
+						}
+					}
+				} else if (af.getName().equals("Damping")) {
+					lightDamping = new LightDamping();
+					lightDamping.globalSequenceId = af.getGlobalSeqId();
+					lightDamping.interpolationType = af.getInterpType();
+					lightDamping.scalingTrack = new LightDamping.ScalingTrack[af.size()];
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final LightDamping.ScalingTrack mdxEntry = lightDamping.new ScalingTrack();
+						lightDamping.scalingTrack[i] = mdxEntry;
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.damping = ((Number) mdlEntry.value).floatValue();
 						mdxEntry.time = mdlEntry.time.intValue();
 						if (hasTans) {
 							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();

@@ -60,14 +60,18 @@ public class Animation implements BasicTimeBoundProvider {
 	public Animation(final SequenceChunk.Sequence seq) {
 		this(seq.name, seq.intervalStart, seq.intervalEnd);
 		setExtents(new ExtLog(seq.minimumExtent, seq.maximumExtent, seq.boundsRadius));
-		if (seq.moveSpeed != 0) {
-			addTag("MoveSpeed " + seq.moveSpeed);
-		}
+		// the game's MDL writer order: NonLooping, MoveSpeed, Rarity, SyncPoint (zero values omitted)
 		if (seq.nonLooping == 1) {
 			addTag("NonLooping");
 		}
+		if (seq.moveSpeed != 0) {
+			addTag("MoveSpeed " + seq.moveSpeed);
+		}
 		if (seq.rarity > 0) {
 			addTag("Rarity " + seq.rarity);
+		}
+		if (seq.syncPoint != 0) {
+			addTag("SyncPoint " + seq.syncPoint);
 		}
 	}
 

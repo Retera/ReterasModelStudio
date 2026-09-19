@@ -368,29 +368,16 @@ public class Geoset implements Named, VisibilitySource {
 		return temp;
 	}
 
+	/** One SkinWeights row, braced (`{ 8, 7, 0, 0, 191, 64, 0, 0 },`) or bare as the game writes it. */
 	public static int[] parse8ByteSkin(final String input) {
-		final String[] entries = input.split(",");
 		final int[] temp = new int[8];
-		try {
-			temp[0] = Integer.parseInt(entries[0].split("\\{")[1].trim());
-		} catch (final NumberFormatException e) {
+		final int[] ints = MDLReader.splitToInts(input);
+		if ((ints == null) || (ints.length < 8)) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Error {" + input + "}: Skin data could not be interpreted.");
+			return temp;
 		}
-		for (int i = 1; i < 7; i++) {
-			try {
-				temp[i] = Integer.parseInt(entries[i].trim());
-			} catch (final NumberFormatException e) {
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error {" + input + "}: Skin data could not be interpreted.");
-			}
-		}
-		try {
-			temp[7] = Integer.parseInt(entries[7].split("}")[0].trim());
-		} catch (final NumberFormatException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Skin data could not be interpreted.");
-		}
+		System.arraycopy(ints, 0, temp, 0, 8);
 		return temp;
 	}
 
@@ -515,7 +502,20 @@ public class Geoset implements Named, VisibilitySource {
 			MDLReader.mark(mdl);
 			line = MDLReader.nextLine(mdl);
 			while (!line.contains("}") || line.contains("},")) {
-				if (line.contains("Extent") || line.contains("BoundsRadius")) {
+				if (line.contains("Tangents")) {
+					// the game's writer puts Tangents and SkinWeights after the extents
+					geo.tangents = new ArrayList<>();
+					while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
+						geo.tangents.add(parse4FloatTangent(line));
+					}
+					MDLReader.mark(mdl);
+				} else if (line.contains("SkinWeights")) {
+					geo.skin = new ArrayList<>();
+					while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
+						geo.skin.add(parse8ByteSkin(line));
+					}
+					MDLReader.mark(mdl);
+				} else if (line.contains("Extent") || line.contains("BoundsRadius")) {
 					MDLReader.reset(mdl);
 					geo.setExtLog(ExtLog.read(mdl));
 				} else if (line.contains("Anim")) {
@@ -913,45 +913,12 @@ public class Geoset implements Named, VisibilitySource {
 		final boolean printSkinToFile = ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion())
 				&& vertex.size() > 0 && vertex.get(0).getSkinBoneIndexes() != null;
 		writer.println("\tVertexGroup {");
-		if (!printSkinToFile) {
-			for (int i = 0; i < vertex.size(); i++) {
-				final GeosetVertex geosetVertex = vertex.get(i);
-				writer.println(tabs + geosetVertex.VertexGroup + ",");
-			}
+		// the legacy groups are carried alongside SkinWeights, as the game does, never instead of them
+		for (int i = 0; i < vertex.size(); i++) {
+			final GeosetVertex geosetVertex = vertex.get(i);
+			writer.println(tabs + geosetVertex.VertexGroup + ",");
 		}
 		writer.println("\t}");
-		if (printTangentsToFile) {
-			writer.println("\tTangents " + vertex.size() + " {");
-			final StringBuilder tangentBuilder = new StringBuilder();
-			for (int i = 0; i < vertex.size(); i++) {
-				tangentBuilder.setLength(0);
-				for (int j = 0; j < 3; j++) {
-					tangentBuilder.append(MDLReader.doubleToString(vertex.get(i).getTangent()[j]));
-					tangentBuilder.append(", ");
-				}
-				tangentBuilder.append(MDLReader.doubleToString(vertex.get(i).getTangent()[3]));
-				writer.println(tabs + "{ " + tangentBuilder.toString() + " },");
-			}
-			writer.println("\t}");
-		}
-		if (printSkinToFile) {
-			writer.println("\tSkinWeights " + vertex.size() + " {");
-			final StringBuilder skinBuilder = new StringBuilder();
-			for (int i = 0; i < vertex.size(); i++) {
-				skinBuilder.setLength(0);
-				for (int j = 0; j < 4; j++) {
-					skinBuilder.append(vertex.get(i).getSkinBoneIndexes()[j]);
-					skinBuilder.append(", ");
-				}
-				for (int j = 0; j < 3; j++) {
-					skinBuilder.append(vertex.get(i).getSkinBoneWeight(j));
-					skinBuilder.append(", ");
-				}
-				skinBuilder.append(vertex.get(i).getSkinBoneWeight(3));
-				writer.println(tabs + "{ " + skinBuilder.toString() + " },");
-			}
-			writer.println("\t}");
-		}
 		if (trianglesTogether) {
 			writer.println("\tFaces 1 " + triangles.size() * 3 + " {");
 			writer.println("\t\tTriangles {");
@@ -987,21 +954,55 @@ public class Geoset implements Named, VisibilitySource {
 			matrix.get(i).printTo(writer, 2);// 2 is the tab height
 		}
 		writer.println("\t}");
+		// property order of the game's MDL writer: ids and flags, extents, per-sequence extents, then the
+		// Reforged Tangents and SkinWeights blocks last
+		writer.println("\tMaterialID " + materialID + ",");
+		writer.println("\tSelectionGroup " + selectionGroup + ",");
+		for (int i = 0; i < flags.size(); i++) {
+			writer.println("\t" + flags.get(i) + ",");
+		}
+		if (levelOfDetailName != null && ModelUtils.isLevelOfDetailSupported(mdlr.getFormatVersion())) {
+			writer.println("\tLevelOfDetail " + levelOfDetail + ",");
+			writer.println("\tName \"" + levelOfDetailName + "\",");
+		}
 		if (extents != null) {
 			extents.printTo(writer, 1);
 		}
 		for (int i = 0; i < anims.size(); i++) {
 			anims.get(i).printTo(writer, 1);
 		}
-
-		writer.println("\tMaterialID " + materialID + ",");
-		writer.println("\tSelectionGroup " + selectionGroup + ",");
-		if (levelOfDetailName != null && ModelUtils.isLevelOfDetailSupported(mdlr.getFormatVersion())) {
-			writer.println("\tLevelOfDetail " + levelOfDetail + ",");
-			writer.println("\tName \"" + levelOfDetailName + "\",");
+		if (printTangentsToFile) {
+			writer.println("\tTangents " + vertex.size() + " {");
+			final StringBuilder tangentBuilder = new StringBuilder();
+			for (int i = 0; i < vertex.size(); i++) {
+				tangentBuilder.setLength(0);
+				for (int j = 0; j < 3; j++) {
+					tangentBuilder.append(MDLReader.doubleToString(vertex.get(i).getTangent()[j]));
+					tangentBuilder.append(", ");
+				}
+				tangentBuilder.append(MDLReader.doubleToString(vertex.get(i).getTangent()[3]));
+				writer.println(tabs + "{ " + tangentBuilder.toString() + " },");
+			}
+			writer.println("\t}");
 		}
-		for (int i = 0; i < flags.size(); i++) {
-			writer.println("\t" + flags.get(i) + ",");
+		if (printSkinToFile) {
+			writer.println("\tSkinWeights " + vertex.size() + " {");
+			final StringBuilder skinBuilder = new StringBuilder();
+			for (int i = 0; i < vertex.size(); i++) {
+				skinBuilder.setLength(0);
+				for (int j = 0; j < 4; j++) {
+					skinBuilder.append(vertex.get(i).getSkinBoneIndexes()[j]);
+					skinBuilder.append(", ");
+				}
+				for (int j = 0; j < 3; j++) {
+					skinBuilder.append(vertex.get(i).getSkinBoneWeight(j));
+					skinBuilder.append(", ");
+				}
+				skinBuilder.append(vertex.get(i).getSkinBoneWeight(3));
+				// bare rows: the game's MDL reader stops at a `{` inside SkinWeights and rejects the model
+				writer.println(tabs + skinBuilder.toString() + ",");
+			}
+			writer.println("\t}");
 		}
 
 		writer.println("}");

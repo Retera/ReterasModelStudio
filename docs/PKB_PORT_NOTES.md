@@ -1,6 +1,6 @@
 # PKB (PopcornFX baked effect) runtime port notes
 
-Java port of the `cornflakes` runtime from WhiteoutFlakes (see `licenses/WhiteoutFlakes-LICENSE*.txt`).
+Java port of the `cornflakes` runtime from WhiteoutFlakes (see `THIRD_PARTY.md` and `licenses/WhiteoutFlakes-LICENSE*`).
 Packages: `com.hiveworkshop.wc3.pkb` (container parser), `pkb.vm` (bytecode decoder, register VM,
 native call dispatchers, shape sampling, noise), `pkb.bind` (asset -> layer programs, samplers,
 renderers, event routing), `pkb.sim` (per-particle harness, pools, effect runtime, packet extraction).

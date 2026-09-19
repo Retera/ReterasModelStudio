@@ -921,7 +921,7 @@ public class NGGLDP {
 		/**
 		 * The lit branch for {@code u_lightMode == 1} is a port of Warcraft III
 		 * Reforged 3.0's HD mesh pixel shader as reconstructed in FernandoS27's
-		 * Wc3Shaders (BSD-3-Clause, see licenses/): the hue-preserving team layer,
+		 * Wc3Shaders (BSD-3-Clause, see THIRD_PARTY.md): the hue-preserving team layer,
 		 * GGX/Schlick specular with the shipped clamps and roughness remap, the
 		 * main light with the split ambient/probe mix, clustered point lights with
 		 * the exp-damped rational falloff, and the fresnel rim. The editor has no

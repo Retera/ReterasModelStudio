@@ -62,6 +62,10 @@ public class CameraChunk {
 		// TODO Needs rotation!
 				public CameraRotation cameraRotation;
 		/**
+		 * Camera visibility track ("KCVS").
+		 */
+		public CameraVisibility cameraVisibility;
+		/**
 		 * MDX 1800+ depth of field focus distance ("IDUF").
 		 */
 		public CameraFocusDistance cameraFocusDistance;
@@ -94,7 +98,7 @@ public class CameraChunk {
 			farClippingPlane = in.readFloat();
 			nearClippingPlane = in.readFloat();
 			targetPosition = MdxUtils.loadFloatArray(in, 3);
-			for (int i = 0; i < 6; i++) {
+			for (int i = 0; i < 7; i++) {
 				if (MdxUtils.checkOptionalId(in, CameraFocusDistance.key)) {
 					cameraFocusDistance = new CameraFocusDistance();
 					cameraFocusDistance.load(in);
@@ -113,6 +117,9 @@ public class CameraChunk {
 				} else if (MdxUtils.checkOptionalId(in, CameraRotation.key)) {
 					cameraRotation = new CameraRotation();
 					cameraRotation.load(in);
+				} else if (MdxUtils.checkOptionalId(in, CameraVisibility.key)) {
+					cameraVisibility = new CameraVisibility();
+					cameraVisibility.load(in);
 				}
 
 			}
@@ -169,6 +176,9 @@ public class CameraChunk {
 			if (cameraTargetTranslation != null) {
 				cameraTargetTranslation.save(out);
 			}
+			if (cameraVisibility != null) {
+				cameraVisibility.save(out);
+			}
 		}
 
 		public int getSize(final int version) {
@@ -188,6 +198,9 @@ public class CameraChunk {
 			}
 						if (cameraRotation != null) {
 				a += cameraRotation.getSize();
+			}
+			if (cameraVisibility != null) {
+				a += cameraVisibility.getSize();
 			}
 						if (ModelUtils.isCameraDepthOfFieldSupported(version)) {
 				if (cameraFocusDistance != null) {
@@ -279,6 +292,23 @@ public class CameraChunk {
 						cameraFStop.translationTrack[i] = mdxEntry;
 						final AnimFlag.Entry mdlEntry = af.getEntry(i);
 						mdxEntry.fStop = ((Number) mdlEntry.value).floatValue();
+						mdxEntry.time = mdlEntry.time.intValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
+						}
+					}
+				} else if (af.getName().equals("Visibility") && (af.size() > 0)) {
+					cameraVisibility = new CameraVisibility();
+					cameraVisibility.globalSequenceId = af.getGlobalSeqId();
+					cameraVisibility.interpolationType = af.getInterpType();
+					cameraVisibility.translationTrack = new CameraVisibility.TranslationTrack[af.size()];
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final CameraVisibility.TranslationTrack mdxEntry = cameraVisibility.new TranslationTrack();
+						cameraVisibility.translationTrack[i] = mdxEntry;
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.visibility = ((Number) mdlEntry.value).floatValue();
 						mdxEntry.time = mdlEntry.time.intValue();
 						if (hasTans) {
 							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();

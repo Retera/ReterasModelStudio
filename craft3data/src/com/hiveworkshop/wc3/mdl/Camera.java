@@ -89,6 +89,9 @@ public class Camera implements Named {
 		if (mdxSource.cameraFStop != null) {
 			add(new AnimFlag(mdxSource.cameraFStop));
 		}
+		if (mdxSource.cameraVisibility != null) {
+			add(new AnimFlag(mdxSource.cameraVisibility));
+		}
 		headerByte = mdxSource.headerByte;
 	}
 
@@ -123,21 +126,15 @@ public class Camera implements Named {
 				} else if (line.contains("Rotation") || line.contains("Translation")) {
 					MDLReader.reset(mdl);
 					c.animFlags.add(AnimFlag.read(mdl));
-				} else if (line.contains("DOFDistance") || line.contains("FocusDistanceKeys")) {
-					MDLReader.reset(mdl);
-					final AnimFlag focusDistance = AnimFlag.read(mdl);
-					focusDistance.setName("DOFDistance");
-					c.animFlags.add(focusDistance);
+				} else if (line.contains("DOFDistance") || line.contains("FocusDistance")) {
+					c.animFlags.add(readDepthOfField(mdl, line, "DOFDistance"));
 				} else if (line.contains("FocalLength")) {
-					MDLReader.reset(mdl);
-					final AnimFlag focalLength = AnimFlag.read(mdl);
-					focalLength.setName("FocalLength");
-					c.animFlags.add(focalLength);
+					c.animFlags.add(readDepthOfField(mdl, line, "FocalLength"));
 				} else if (line.contains("FStop")) {
+					c.animFlags.add(readDepthOfField(mdl, line, "FStop"));
+				} else if (line.contains("Visibility")) {
 					MDLReader.reset(mdl);
-					final AnimFlag fStop = AnimFlag.read(mdl);
-					fStop.setName("FStop");
-					c.animFlags.add(fStop);
+					c.animFlags.add(AnimFlag.read(mdl));
 				} else if (line.contains("FieldOfView")) {
 					c.FieldOfView = MDLReader.readDouble(line);
 				} else if (line.contains("FarClip")) {
@@ -176,6 +173,24 @@ public class Camera implements Named {
 		return null;
 	}
 
+	/**
+	 * A depth-of-field property in any of its spellings: the keyed block ({@code FocusDistanceKeys N { ... }},
+	 * also the {@code DOFDistance}/{@code FocusDistance}/{@code FocalLength}/{@code FStop} block forms) or the
+	 * World Editor's scalar keyword ({@code DOFDistance 180.0,}), which is one key at time 0.
+	 */
+	private static AnimFlag readDepthOfField(final BufferedReader mdl, final String line, final String name) {
+		if (line.contains("{")) {
+			MDLReader.reset(mdl);
+			final AnimFlag track = AnimFlag.read(mdl);
+			track.setName(name);
+			return track;
+		}
+		final AnimFlag track = new AnimFlag(name);
+		track.addTag("DontInterp");
+		track.addEntry(0, MDLReader.readDouble(line));
+		return track;
+	}
+
 	public void printTo(final PrintWriter writer) {
 		printTo(writer, 800);
 	}
@@ -185,6 +200,8 @@ public class Camera implements Named {
 		// -- uses objectId value of idObject superclass
 		// -- uses parentId value of idObject superclass
 		// -- uses the parent (java Object reference) of idObject superclass
+		// property order of the game's MDL writer: Position, Translation, Rotation, FieldOfView, FarClip,
+		// NearClip, FocusDistanceKeys, FocalLengthKeys, FStopKeys, Target, Visibility
 		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
 		writer.println("\tPosition " + Position.toString() + ",");
 		for (int i = 0; i < animFlags.size(); i++) {
@@ -197,24 +214,31 @@ public class Camera implements Named {
 				animFlags.get(i).printTo(writer, 1);
 			}
 		}
+		writer.println("\tFieldOfView " + MDLReader.doubleToString(FieldOfView) + ",");
+		writer.println("\tFarClip " + MDLReader.doubleToString(FarClip) + ",");
+		writer.println("\tNearClip " + MDLReader.doubleToString(NearClip) + ",");
 		if (ModelUtils.isCameraDepthOfFieldSupported(version)) {
-			for (final String dofFlag : new String[] { "DOFDistance", "FocalLength", "FStop" }) {
+			// the keyed spellings: the game's reader swaps the values of the scalar FocalLength and FStop
+			for (final String[] dofFlag : new String[][] { { "DOFDistance", "FocusDistanceKeys" },
+					{ "FocalLength", "FocalLengthKeys" }, { "FStop", "FStopKeys" } }) {
 				for (int i = 0; i < animFlags.size(); i++) {
-					if (animFlags.get(i).getName().equals(dofFlag)) {
-						animFlags.get(i).printTo(writer, 1);
+					if (animFlags.get(i).getName().equals(dofFlag[0])) {
+						animFlags.get(i).printTo(writer, 1, dofFlag[1], "");
 					}
 				}
 			}
 		}
-		writer.println("\tFieldOfView " + MDLReader.doubleToString(FieldOfView) + ",");
-		writer.println("\tFarClip " + MDLReader.doubleToString(FarClip) + ",");
-		writer.println("\tNearClip " + MDLReader.doubleToString(NearClip) + ",");
 		writer.println("\tTarget {");
 		writer.println("\t\tPosition " + targetPosition.toString() + ",");
 		for (int i = 0; i < targetAnimFlags.size(); i++) {
 			targetAnimFlags.get(i).printTo(writer, 2);
 		}
 		writer.println("\t}");
+		for (int i = 0; i < animFlags.size(); i++) {
+			if (animFlags.get(i).getName().equals("Visibility")) {
+				animFlags.get(i).printTo(writer, 1);
+			}
+		}
 		writer.println("}");
 	}
 

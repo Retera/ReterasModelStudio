@@ -303,6 +303,12 @@ public class LayerChunk {
 				case "SphereEnvMap":
 					shadingFlags |= 0x2;
 					break;
+				case "WrapWidth":
+					shadingFlags |= 0x4;
+					break;
+				case "WrapHeight":
+					shadingFlags |= 0x8;
+					break;
 				case "TwoSided":
 					shadingFlags |= 0x10;
 					break;

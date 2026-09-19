@@ -35,6 +35,12 @@ import com.hiveworkshop.wc3.mdx.LightAttenuationStart;
 import com.hiveworkshop.wc3.mdx.LightColor;
 import com.hiveworkshop.wc3.mdx.LightIntensity;
 import com.hiveworkshop.wc3.mdx.LightVisibility;
+import com.hiveworkshop.wc3.mdx.LightShadowCastingStart;
+import com.hiveworkshop.wc3.mdx.LightShadowCastingEnd;
+import com.hiveworkshop.wc3.mdx.LightQuadraticFalloff;
+import com.hiveworkshop.wc3.mdx.LightLinearFalloff;
+import com.hiveworkshop.wc3.mdx.LightDamping;
+import com.hiveworkshop.wc3.mdx.CameraVisibility;
 import com.hiveworkshop.wc3.mdx.MaterialAlpha;
 import com.hiveworkshop.wc3.mdx.MaterialEmissiveGain;
 import com.hiveworkshop.wc3.mdx.MaterialFresnelColor;
@@ -575,6 +581,114 @@ public class AnimFlag {
 				addEntry(track.time, box(track.ambientIntensity), box(track.inTan), box(track.outTan));
 			} else {
 				addEntry(track.time, box(track.ambientIntensity));
+			}
+		}
+	}
+
+	public AnimFlag(final LightShadowCastingStart trackData) {
+		title = "ShadowCastingStart";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1;
+		for (final LightShadowCastingStart.ScalingTrack track : trackData.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.shadowCastingStart), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.shadowCastingStart));
+			}
+		}
+	}
+
+	public AnimFlag(final LightShadowCastingEnd trackData) {
+		title = "ShadowCastingEnd";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1;
+		for (final LightShadowCastingEnd.ScalingTrack track : trackData.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.shadowCastingEnd), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.shadowCastingEnd));
+			}
+		}
+	}
+
+	public AnimFlag(final LightQuadraticFalloff trackData) {
+		title = "QuadraticFalloff";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1;
+		for (final LightQuadraticFalloff.ScalingTrack track : trackData.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.quadraticFalloff), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.quadraticFalloff));
+			}
+		}
+	}
+
+	public AnimFlag(final LightLinearFalloff trackData) {
+		title = "LinearFalloff";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1;
+		for (final LightLinearFalloff.ScalingTrack track : trackData.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.linearFalloff), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.linearFalloff));
+			}
+		}
+	}
+
+	public AnimFlag(final LightDamping trackData) {
+		title = "Damping";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1;
+		for (final LightDamping.ScalingTrack track : trackData.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.damping), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.damping));
+			}
+		}
+	}
+
+	public AnimFlag(final CameraVisibility trackData) {
+		title = "Visibility";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1;
+		for (final CameraVisibility.TranslationTrack track : trackData.translationTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.visibility));
 			}
 		}
 	}
@@ -2075,13 +2189,22 @@ public class AnimFlag {
 	}
 
 	public void printTo(final PrintWriter writer, final int tabHeight) {
+		printTo(writer, tabHeight, title, "");
+	}
+
+	/**
+	 * Writes the track under another keyword, with an optional header suffix
+	 * (the Warcraft III HD sub-texture designator, {@code TextureID 3 <= 2 { ... }}).
+	 */
+	public void printTo(final PrintWriter writer, final int tabHeight, final String printedTitle,
+			final String headerSuffix) {
 		if (size() > 0) {
 			sort();
 			String tabs = "";
 			for (int i = 0; i < tabHeight; i++) {
 				tabs = tabs + "\t";
 			}
-			writer.println(tabs + title + " " + times.size() + " {");
+			writer.println(tabs + printedTitle + " " + times.size() + headerSuffix + " {");
 			for (int i = 0; i < tags.size(); i++) {
 				writer.println(tabs + "\t" + tags.get(i) + ",");
 			}

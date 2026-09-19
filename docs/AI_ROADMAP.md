@@ -223,7 +223,7 @@ Single from File/Unit/Model/Object.
 
   **PKB status (2026-09-19): step 2 done.** `wc3/pkb` reads the `.pkb` container (schemas in `res/pkb`) and
   `PopcornEffectCache` loads effects through the model's data source. The runtime is a Java port of
-  WhiteoutFlakes' `cornflakes` (BSD-3-Clause, see `licenses/`; design notes in `docs/PKB_PORT_NOTES.md`):
+  WhiteoutFlakes' `cornflakes` (BSD-3-Clause, see `THIRD_PARTY.md`; design notes in `docs/PKB_PORT_NOTES.md`):
   `pkb.vm` (bytecode decoder, register VM, native call dispatchers, primitive shape sampling, simplex noise,
   procedural turbulence), `pkb.bind` (layer programs, externals, functions, curve/shape/event-stream samplers,
   renderers, event routing), `pkb.sim` (SoA external store, per-particle harness, pools, `EffectRuntime.tick`,
@@ -247,7 +247,7 @@ Single from File/Unit/Model/Object.
   colour convention and the MDX 1800 falloff fields) and hand them to the shader pipelines. SD models use
   Warsmash's per-vertex light system (a white sun with 0.3 ambient plus omni `intensity / (d/64 + 1)^2`,
   directional Lambert and ambient-by-attenuation lights, clamped and multiplied into the vertex colour). HD and
-  DE models use a GLSL port of the Reforged 3.0 HD pixel shader from Wc3Shaders (BSD-3, `licenses/`): linear
+  DE models use a GLSL port of the Reforged 3.0 HD pixel shader from Wc3Shaders (BSD-3, `THIRD_PARTY.md`): linear
   shading, hue-preserving team layer, GGX/Schlick with the shipped clamps, the main light with the split
   ambient/probe mix, omni lights with the exp-damped rational falloff, geometric specular anti-aliasing, and
   the fresnel rim. The probe is the game's own baked pair (`Environment/EnvironmentMap/*_IBL.dds`, a BC1 sRGB
@@ -260,6 +260,22 @@ Single from File/Unit/Model/Object.
   game, only omni lights reach the HD pass; the main light is the baseline sun. "Use Model Lights" in
   Preferences > General switches back to the previous fixed lighting (both shaders keep that path intact under
   `u_lightMode == 0`).
+
+- [x] **W15. MDL text in the Warcraft III dialect.** (done 2026-09-19) The MDL writer now produces the dialect the
+  game's own reader accepts, following FernandoS27's WhiteoutLib MDL/MDX specifications (`THIRD_PARTY.md`): from
+  version 1100 a per-layer `Shader "Shader_HD_DefaultUnit",` line (none for SD layers; `Shader_HD_Crystal` and
+  `Shader_SD_FixedFunction` ids survive by name) and `static TextureID id <= slot,` for every texture slot
+  (animated slots as `TextureID N <= slot { ... }`), replacing `ShaderTypeId` and the `NormalTextureID`-style
+  names; `SkinWeights` rows written bare (a `{` inside the block makes the game reject the model); geoset
+  properties in the game's order with `Tangents`/`SkinWeights` last; `Light` keywords in the game's order with
+  the MDX 1300 (`ShadowCasting`, `ShadowCastingStart/End`) and 1600 (`QuadraticFalloff`, `LinearFalloff`,
+  `Damping`) groups gated on those versions and animatable through the new KLSS/KLSE/KLQF/KLLF/KLDA tracks;
+  `Camera` in the game's order with the keyed `FocusDistanceKeys`/`FocalLengthKeys`/`FStopKeys` spellings and
+  the KCVS visibility track; `Glider { GeosetId N, }` blocks for the DILG ray-picking whitelist (now decoded as
+  geoset ids); sequence `SyncPoint`; material `Unfogged`/`SortPrimsNearZ` and layer `WrapWidth`/`WrapHeight`
+  flag bits. The reader accepts both dialects (the HiveWorkshop spellings, `SortPrimitives`, braced skin rows,
+  the scalar `DOFDistance`/`FocalLength`/`FStop` keywords as one key at time 0). Round-trip check unchanged on
+  all three installs.
 
 ## Phase M: data model modernisation (incremental, never a rewrite)
 
@@ -455,7 +471,7 @@ Do not copy:
   particle folder now ships inside the installed distribution. Verified under Xvfb on Malfurion (1.22).
 - 2026-09-19: Model tab multi-selection cut/copy/paste/delete, cut fixed. W12 step 2 started: PKB parser +
   dump tool, effect summary, and an approximate popcorn preview in both perspective viewports (textures and
-  blend modes from the baked effect); VM port plan recorded under W12. WhiteoutFlakes notices under `licenses/`.
+  blend modes from the baked effect); VM port plan recorded under W12. WhiteoutFlakes notices in `THIRD_PARTY.md` (licence files under `licenses/`).
 - 2026-09-19: W12 step 2 done: full Java port of WhiteoutFlakes' `cornflakes` PopcornFX runtime (`pkb.vm`,
   `pkb.bind`, `pkb.sim`, about 9k lines) replaces the approximate popcorn preview; `RenderPopcornEmitter` now
   runs one effect runtime per MDX popcorn emitter. All 12 stock effects extracted from 2.0 and 3.0 (wisp,

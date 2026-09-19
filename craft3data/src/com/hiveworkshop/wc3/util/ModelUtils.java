@@ -355,6 +355,16 @@ public final class ModelUtils {
 		return isForsakenKingdomFormat(formatVersion);
 	}
 
+	/** Light shadowCasting, ShadowCastingStart and ShadowCastingEnd (and their KLSS/KLSE tracks), MDX 1300+. */
+	public static boolean isLightShadowCastingSupported(final int formatVersion) {
+		return formatVersion >= 1300;
+	}
+
+	/** Light QuadraticFalloff, LinearFalloff and Damping (and their KLQF/KLLF/KLDA tracks), MDX 1600+. */
+	public static boolean isLightFalloffSupported(final int formatVersion) {
+		return formatVersion >= 1600;
+	}
+
 	/**
 	 * Since MDX 1800 the CAMS chunk stores a header byte in the top 8 bits of each camera's inclusive size
 	 * (observed always 3 in stock data) and supports the depth-of-field focus distance track "IDUF".

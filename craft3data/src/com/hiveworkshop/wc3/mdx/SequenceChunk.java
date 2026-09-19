@@ -134,6 +134,8 @@ public class SequenceChunk {
 					nonLooping = 1;
 				} else if (tag.startsWith("Rarity")) {
 					rarity = Float.parseFloat(tag.split(" ")[1]);
+				} else if (tag.startsWith("SyncPoint")) {
+					syncPoint = Integer.parseInt(tag.split(" ")[1].trim());
 				}
 			}
 		}
