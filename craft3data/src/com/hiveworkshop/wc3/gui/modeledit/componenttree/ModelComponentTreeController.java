@@ -126,7 +126,10 @@ public final class ModelComponentTreeController {
 			JOptionPane.showMessageDialog(dialogParent, "This component cannot be pasted.");
 			return;
 		}
-		if ((copy.getItem() instanceof IdObject) && (target != null) && target.isNode()) {
+		if ((copy.getItem() instanceof IdObject) && (target != null) && target.isNode()
+				&& (target.getItem() != original)) {
+			// pasting onto another node makes the copy its child; pasting onto the node
+			// that was copied (the usual "duplicate") keeps it a sibling
 			((IdObject) copy.getItem()).setParent(target.asNode());
 		}
 		final List<Object> components = new ArrayList<>(copy.getExtras());
