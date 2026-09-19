@@ -205,17 +205,14 @@ import com.hiveworkshop.wc3.mdx.FaceEffectsChunk.FaceEffect;
 import com.hiveworkshop.wc3.mdx.MdxModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
-import com.hiveworkshop.wc3.resources.Resources;
 import com.hiveworkshop.wc3.resources.WEString;
 import com.hiveworkshop.wc3.units.DataTable;
 import com.hiveworkshop.wc3.units.Element;
 import com.hiveworkshop.wc3.units.GameObject;
 import com.hiveworkshop.wc3.units.ModelOptionPane;
 import com.hiveworkshop.wc3.units.ModelOptionPane.ModelElement;
-import com.hiveworkshop.wc3.units.ModelOptionPanel;
 import com.hiveworkshop.wc3.units.StandardObjectData;
 import com.hiveworkshop.wc3.units.UnitOptionPane;
-import com.hiveworkshop.wc3.units.UnitOptionPanel;
 import com.hiveworkshop.wc3.units.fields.UnitFields;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject;
@@ -226,6 +223,7 @@ import com.hiveworkshop.wc3.units.objectdata.War3ObjectDataChangeset;
 import com.hiveworkshop.wc3.user.RecentFetch;
 import com.hiveworkshop.wc3.user.RecentFetchType;
 import com.hiveworkshop.wc3.user.SaveProfile;
+import com.hiveworkshop.wc3.user.WarcraftDataSourceCaches;
 import com.hiveworkshop.wc3.user.WarcraftDataSourceChangeListener;
 import com.hiveworkshop.wc3.user.WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier;
 import com.hiveworkshop.wc3.util.Callback;
@@ -2780,14 +2778,12 @@ public class MainPanel extends JPanel
 		directoryChangeNotifier.subscribe(new WarcraftDataSourceChangeListener() {
 			@Override
 			public void dataSourcesChanged() {
-				MpqCodebase.get().refresh(SaveProfile.get().getDataSources());
-				// cache priority order...
-				UnitOptionPanel.dropRaceCache();
-				DataTable.dropCache();
-				ModelOptionPanel.dropCache();
-				WEString.dropCache();
-				Resources.dropCache();
-				BLPHandler.get().dropCache();
+				WarcraftDataSourceCaches.refresh(SaveProfile.get().getDataSources());
+				// open models hold GL texture handles decoded from the old sources
+				for (final ModelPanel modelPanel : modelPanels) {
+					modelPanel.getAnimationViewer().reloadAllTextures();
+					modelPanel.getPerspArea().reloadAllTextures();
+				}
 				teamColorMenu.removeAll();
 				createTeamColorMenuItems();
 				traverseAndReloadData(rootWindow);

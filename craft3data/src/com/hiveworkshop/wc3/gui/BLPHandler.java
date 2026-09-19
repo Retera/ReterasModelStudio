@@ -287,6 +287,9 @@ public class BLPHandler {
 
 	public void dropCache() {
 		cache.clear();
+		// the GPU-ready copies were decoded from the same sources; keeping them
+		// would show the previous data source's textures after a switch
+		gpuBufferCache.clear();
 	}
 
 	public BufferedImage getGameTex(final String iconTexturePath) {

@@ -23,19 +23,14 @@ import javax.swing.WindowConstants;
 import javax.swing.plaf.ColorUIResource;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
-import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceChooserPanel;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
-import com.hiveworkshop.wc3.resources.Resources;
-import com.hiveworkshop.wc3.resources.WEString;
-import com.hiveworkshop.wc3.units.DataTable;
-import com.hiveworkshop.wc3.units.ModelOptionPanel;
-import com.hiveworkshop.wc3.units.UnitOptionPanel;
 import com.hiveworkshop.wc3.user.SaveProfile;
+import com.hiveworkshop.wc3.user.WarcraftDataSourceCaches;
 import com.owens.oobjloader.builder.Build;
 import com.owens.oobjloader.parser.Parse;
 
@@ -397,14 +392,7 @@ public class MainFrame extends JFrame {
 							}
 							SaveProfile.get().setDataSources(dataSourceChooserPanel.getDataSourceDescriptors());
 							SaveProfile.save();
-							MpqCodebase.get().refresh(SaveProfile.get().getDataSources());
-							// cache priority order...
-							UnitOptionPanel.dropRaceCache();
-							DataTable.dropCache();
-							ModelOptionPanel.dropCache();
-							WEString.dropCache();
-							Resources.dropCache();
-							BLPHandler.get().dropCache();
+							WarcraftDataSourceCaches.refresh(SaveProfile.get().getDataSources());
 						}
 
 						JPopupMenu.setDefaultLightWeightPopupEnabled(false);
