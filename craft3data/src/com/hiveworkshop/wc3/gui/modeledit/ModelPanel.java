@@ -104,7 +104,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 				(prefs.getRenderStaticPoseParticles() == null) || prefs.getRenderStaticPoseParticles());
 		modelEditorManager = new ModelEditorManager(modelView, prefs, modeNotifier, modelEditorChangeNotifier,
 				viewportActivityManager, editorRenderModel, modelStructureChangeListener);
-		modelViewManagingTree = new ModelViewManagingTree(modelView, undoManager, modelEditorManager);
+		modelViewManagingTree = new ModelViewManagingTree(modelView, undoManager, modelEditorManager, prefs);
 		modelViewManagingTree.setFocusable(false);
 		modelComponentBrowserTree = new ModelComponentBrowserTree(modelView, undoManager, modelEditorManager,
 				modelStructureChangeListener);

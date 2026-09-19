@@ -33,6 +33,7 @@ import javax.swing.tree.TreePath;
 
 import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
+import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.componenttree.ModelComponentNavigationListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetComponentVisibilityAction;
@@ -56,8 +57,11 @@ import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
  * editability go through the model editor so the selection stays consistent.
  */
 public final class ModelViewManagingTree extends JTree {
-	private static final int GLYPH_SIZE = 16;
+	/** The glyphs are drawn on a 16 pixel design grid and scaled to the preferred size. */
+	private static final int GLYPH_DESIGN_SIZE = 16;
 	private static final int GLYPH_COUNT = 2;
+	private final ProgramPreferences preferences;
+	private int glyphSize = ProgramPreferences.DEFAULT_OUTLINER_GLYPH_SIZE;
 
 	private final ModelViewManager modelViewManager;
 	private final UndoActionListener undoActionListener;
@@ -65,12 +69,19 @@ public final class ModelViewManagingTree extends JTree {
 	private ModelComponentNavigationListener navigationListener = ModelComponentNavigationListener.NONE;
 
 	public ModelViewManagingTree(final ModelViewManager modelViewManager, final UndoActionListener undoActionListener,
-			final ModelEditorManager modelEditorManager) {
+			final ModelEditorManager modelEditorManager, final ProgramPreferences preferences) {
 		super(buildTreeModel(modelViewManager));
 		this.modelViewManager = modelViewManager;
 		this.undoActionListener = undoActionListener;
 		this.modelEditorManager = modelEditorManager;
+		this.preferences = preferences;
+		if (preferences != null) {
+			glyphSize = preferences.getOutlinerGlyphSize();
+			preferences.addChangeListener(this::applyGlyphSizePreference);
+		}
 		setToggleClickCount(0);
+		// rows size themselves from the renderer so the glyph size sets the row height
+		setRowHeight(0);
 		setCellRenderer(new OutlinerCellRenderer());
 		final HighlightOnMouseoverListenerImpl hoverListener = new HighlightOnMouseoverListenerImpl();
 		addMouseMotionListener(hoverListener);
@@ -94,6 +105,19 @@ public final class ModelViewManagingTree extends JTree {
 		});
 	}
 
+	private void applyGlyphSizePreference() {
+		final int size = preferences.getOutlinerGlyphSize();
+		if (size == glyphSize) {
+			return;
+		}
+		glyphSize = size;
+		// poke the row height so the tree UI drops its cached row bounds
+		setRowHeight(1);
+		setRowHeight(0);
+		revalidate();
+		repaint();
+	}
+
 	public void setNavigationListener(final ModelComponentNavigationListener navigationListener) {
 		this.navigationListener = navigationListener == null ? ModelComponentNavigationListener.NONE
 				: navigationListener;
@@ -108,7 +132,7 @@ public final class ModelViewManagingTree extends JTree {
 		}
 		final Rectangle bounds = getPathBounds(path);
 		final OutlinerNode node = (OutlinerNode) path.getLastPathComponent();
-		final int glyph = bounds == null ? -1 : (e.getX() - bounds.x) / GLYPH_SIZE;
+		final int glyph = bounds == null ? -1 : (e.getX() - bounds.x) / glyphSize;
 		final List<OutlinerElement<?>> targets = node.componentElements();
 		if (targets.isEmpty()) {
 			return;
@@ -485,7 +509,7 @@ public final class ModelViewManagingTree extends JTree {
 		}
 	}
 
-	private static final class GlyphComponent extends JComponent {
+	private final class GlyphComponent extends JComponent {
 		GlyphState eye = GlyphState.OFF;
 		GlyphState check = GlyphState.OFF;
 		boolean enabled = true;
@@ -515,8 +539,12 @@ public final class ModelViewManagingTree extends JTree {
 		}
 
 		GlyphComponent() {
-			setPreferredSize(new Dimension(GLYPH_SIZE * GLYPH_COUNT, GLYPH_SIZE));
 			setOpaque(false);
+		}
+
+		@Override
+		public Dimension getPreferredSize() {
+			return new Dimension(glyphSize * GLYPH_COUNT, glyphSize);
 		}
 
 		@Override
@@ -527,8 +555,10 @@ public final class ModelViewManagingTree extends JTree {
 			final Graphics2D g2 = (Graphics2D) g.create();
 			try {
 				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				final double scale = glyphSize / (double) GLYPH_DESIGN_SIZE;
+				g2.scale(scale, scale);
 				paintEye(g2, 0, eye);
-				paintCheck(g2, GLYPH_SIZE, check);
+				paintCheck(g2, GLYPH_DESIGN_SIZE, check);
 			} finally {
 				g2.dispose();
 			}
@@ -547,28 +577,28 @@ public final class ModelViewManagingTree extends JTree {
 
 		private void paintEye(final Graphics2D g, final int x, final GlyphState state) {
 			g.setColor(colorFor(state));
-			final int cx = x + (GLYPH_SIZE / 2);
-			final int cy = GLYPH_SIZE / 2;
+			final int cx = x + (GLYPH_DESIGN_SIZE / 2);
+			final int cy = GLYPH_DESIGN_SIZE / 2;
 			// almond outline
-			g.drawArc(x + 2, cy - 4, GLYPH_SIZE - 4, 8, 0, 180);
-			g.drawArc(x + 2, cy - 4, GLYPH_SIZE - 4, 8, 180, 180);
+			g.drawArc(x + 2, cy - 4, GLYPH_DESIGN_SIZE - 4, 8, 0, 180);
+			g.drawArc(x + 2, cy - 4, GLYPH_DESIGN_SIZE - 4, 8, 180, 180);
 			if (state != GlyphState.OFF) {
 				g.fillOval(cx - 2, cy - 2, 5, 5);
 			} else {
 				// closed eye: a strike through
-				g.drawLine(x + 3, cy + 5, x + GLYPH_SIZE - 3, cy - 5);
+				g.drawLine(x + 3, cy + 5, x + GLYPH_DESIGN_SIZE - 3, cy - 5);
 			}
 		}
 
 		private void paintCheck(final Graphics2D g, final int x, final GlyphState state) {
 			g.setColor(colorFor(state == GlyphState.OFF ? GlyphState.OFF : GlyphState.ON));
-			g.drawRect(x + 2, 2, GLYPH_SIZE - 5, GLYPH_SIZE - 5);
+			g.drawRect(x + 2, 2, GLYPH_DESIGN_SIZE - 5, GLYPH_DESIGN_SIZE - 5);
 			if (state == GlyphState.ON) {
 				g.drawLine(x + 5, 8, x + 7, 11);
 				g.drawLine(x + 7, 11, x + 12, 4);
 			} else if (state == GlyphState.PARTIAL) {
 				g.setColor(colorFor(GlyphState.PARTIAL));
-				g.fillRect(x + 5, 5, GLYPH_SIZE - 10, GLYPH_SIZE - 10);
+				g.fillRect(x + 5, 5, GLYPH_DESIGN_SIZE - 10, GLYPH_DESIGN_SIZE - 10);
 			}
 		}
 	}

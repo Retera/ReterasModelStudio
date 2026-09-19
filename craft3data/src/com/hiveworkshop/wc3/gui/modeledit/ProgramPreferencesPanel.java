@@ -12,6 +12,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
@@ -109,6 +111,13 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		generalPrefsPanel.add(disableDirectXToPreventArtifacts, "cell 1 9");
 		generalPrefsPanel.add(new JLabel("Always use minimal Matrices in HD (the \"4.5\" save format):"), "cell 0 10");
 		generalPrefsPanel.add(alwaysUseMinimalMatricesInHD, "cell 1 10");
+		final JSpinner outlinerGlyphSize = new JSpinner(new SpinnerNumberModel(programPreferences.getOutlinerGlyphSize(),
+				ProgramPreferences.MIN_OUTLINER_GLYPH_SIZE, ProgramPreferences.MAX_OUTLINER_GLYPH_SIZE, 1));
+		outlinerGlyphSize.setToolTipText("Pixel size of the visible (eye) and editable (check) toggles in the Outliner.");
+		outlinerGlyphSize.addChangeListener(e -> programPreferences
+				.setOutlinerGlyphSize(((Number) outlinerGlyphSize.getValue()).intValue()));
+		generalPrefsPanel.add(new JLabel("Outliner Toggle Icon Size:"), "cell 0 11");
+		generalPrefsPanel.add(outlinerGlyphSize, "cell 1 11");
 		// final BoxLayout boxLayout = new BoxLayout(generalPrefsPanel,
 		// BoxLayout.PAGE_AXIS);
 

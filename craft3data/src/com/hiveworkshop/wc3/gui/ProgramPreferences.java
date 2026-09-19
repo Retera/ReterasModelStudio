@@ -57,6 +57,8 @@ public class ProgramPreferences implements Serializable {
 	private int vertexSize = 3;
 	int teamColor = 6;
 	private Boolean quickBrowse = true;
+	/** Pixel size of the Outliner's eye and check toggles; boxed so old profiles reload with the default. */
+	private Integer outlinerGlyphSize = DEFAULT_OUTLINER_GLYPH_SIZE;
 	private MouseButtonPreference threeDCameraSpinButton = MouseButtonPreference.LEFT;
 	private MouseButtonPreference threeDCameraPanButton = MouseButtonPreference.MIDDLE;
 
@@ -129,6 +131,9 @@ public class ProgramPreferences implements Serializable {
 		if (quickBrowse == null) {
 			quickBrowse = Boolean.TRUE;
 		}
+		if (outlinerGlyphSize == null) {
+			outlinerGlyphSize = DEFAULT_OUTLINER_GLYPH_SIZE;
+		}
 	}
 
 	public void loadFrom(final ProgramPreferences other) {
@@ -168,6 +173,7 @@ public class ProgramPreferences implements Serializable {
 		threeDCameraSpinButton = other.threeDCameraSpinButton;
 		theme = other.theme;
 		quickBrowse = other.quickBrowse;
+		outlinerGlyphSize = other.outlinerGlyphSize;
 		this.allowLoadingNonBlpTextures = other.allowLoadingNonBlpTextures;
 		this.renderParticles = other.renderParticles;
 		this.renderStaticPoseParticles = other.renderStaticPoseParticles;
@@ -676,6 +682,21 @@ public class ProgramPreferences implements Serializable {
 
 	public GUITheme getTheme() {
 		return theme;
+	}
+
+	public static final int DEFAULT_OUTLINER_GLYPH_SIZE = 20;
+	public static final int MIN_OUTLINER_GLYPH_SIZE = 12;
+	public static final int MAX_OUTLINER_GLYPH_SIZE = 32;
+
+	public int getOutlinerGlyphSize() {
+		final int size = outlinerGlyphSize == null ? DEFAULT_OUTLINER_GLYPH_SIZE : outlinerGlyphSize;
+		return Math.max(MIN_OUTLINER_GLYPH_SIZE, Math.min(MAX_OUTLINER_GLYPH_SIZE, size));
+	}
+
+	public void setOutlinerGlyphSize(final int size) {
+		outlinerGlyphSize = Math.max(MIN_OUTLINER_GLYPH_SIZE, Math.min(MAX_OUTLINER_GLYPH_SIZE, size));
+		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	private transient ProgramPreferencesChangeNotifier notifier = new ProgramPreferencesChangeNotifier();
