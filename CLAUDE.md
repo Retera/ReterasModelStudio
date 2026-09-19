@@ -32,8 +32,19 @@ java -jar matrixeater/build/libs/matrixeater-*.jar -convert in.obj [out.mdx]   #
 java -jar matrixeater/build/libs/matrixeater-*.jar -convert in.blp out.png     # image conversion
 ```
 
-There is no test suite. `test` is a no-op; files named `*Test*` are ad-hoc `main()` scratch programs. Verify
-format changes by round-tripping real models (see `docs/mdx-1800-forsaken-kingdom.md` for how 1800 was derived).
+There is no unit test suite (`test` is a no-op; files named `*Test*` are ad-hoc `main()` scratch programs). The
+regression check for the format layer is the headless round-trip tool. Run it before and after touching `wc3/mdl`
+or `wc3/mdx`, against each install you have (paths with spaces go in single quotes):
+
+```
+./gradlew :matrixeater:roundTrip -PrtArgs="--install '/path/to/Warcraft III' --limit 500"
+./gradlew :matrixeater:roundTrip -PrtArgs="--install /path/to/War3_1.22 --filter units\human"
+./gradlew :matrixeater:roundTrip -PrtArgs="--folder /extracted/models --verbose"
+```
+
+It reports EXACT (save equals the original bytes), STABLE (save is a fixed point), UNSTABLE, and which step failed
+(LOAD, SAVE, RELOAD, MDL text, or DIALOG when the format layer tried to open a Swing dialog). Install detection is
+headless (`WarcraftInstallDetector`: patch level, locale, prefixes, case-insensitive MPQ names).
 The version string has one source, `MainFrame.RETERA_MODEL_STUDIO_VERSION`; the root `build.gradle` parses it
 out of that file, so bump it there only.
 

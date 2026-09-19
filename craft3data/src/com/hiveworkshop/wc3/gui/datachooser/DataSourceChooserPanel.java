@@ -681,28 +681,8 @@ public class DataSourceChooserPanel extends JPanel {
 			addDefaultCASCPrefixes(installPathPath, dataSourceDesc, allowPopup);
 		}
 		else {
-			if (Files.exists(installPathPath.resolve("War3.mpq"))) {
-				dataSourceDescriptors.add(new MpqDataSourceDescriptor(installPathPath.resolve("War3.mpq").toString()));
-			}
-			if (Files.exists(installPathPath.resolve("War3Local.mpq"))) {
-				dataSourceDescriptors
-						.add(new MpqDataSourceDescriptor(installPathPath.resolve("War3Local.mpq").toString()));
-			}
-			if (Files.exists(installPathPath.resolve("War3x.mpq"))) {
-				dataSourceDescriptors.add(new MpqDataSourceDescriptor(installPathPath.resolve("War3x.mpq").toString()));
-			}
-			if (Files.exists(installPathPath.resolve("War3xlocal.mpq"))) {
-				dataSourceDescriptors
-						.add(new MpqDataSourceDescriptor(installPathPath.resolve("War3xlocal.mpq").toString()));
-			}
-			if (Files.exists(installPathPath.resolve("war3patch.mpq"))) {
-				dataSourceDescriptors
-						.add(new MpqDataSourceDescriptor(installPathPath.resolve("war3patch.mpq").toString()));
-			}
-			if (Files.exists(installPathPath.resolve("Deprecated.mpq"))) {
-				dataSourceDescriptors
-						.add(new MpqDataSourceDescriptor(installPathPath.resolve("Deprecated.mpq").toString()));
-			}
+			// case-insensitive: game folders copied to Linux keep "war3.mpq" next to "War3Patch.mpq"
+			dataSourceDescriptors.addAll(WarcraftInstallDetector.classicDescriptors(installPathPath));
 			if (Files.exists(installPathPath.resolve("war3.w3mod"))) {
 				dataSourceDescriptors
 						.add(new FolderDataSourceDescriptor(installPathPath.resolve("war3.w3mod").toString()));

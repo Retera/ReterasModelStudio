@@ -22,6 +22,20 @@ runtime {
     modules = ['java.desktop', 'java.scripting', 'java.logging', 'java.xml', 'java.datatransfer', 'jdk.dynalink', 'jdk.unsupported']
 }
 
+// Headless model format regression check, see com.hiveworkshop.wc3.tools.RoundTripCheck
+task roundTrip(type: JavaExec) {
+    group = 'verification'
+    description = 'Load/save/reload every .mdx from an install or folder: -PrtArgs="--install /path --limit 500"'
+    mainClass = 'com.hiveworkshop.wc3.tools.RoundTripCheck'
+    classpath = sourceSets.main.runtimeClasspath
+    systemProperty 'java.awt.headless', 'true'
+    def rtArgs = project.findProperty('rtArgs')
+    if (rtArgs) {
+        // split on spaces except inside single quotes so paths with spaces work
+        args = (rtArgs =~ /'[^']*'|\S+/).collect { it.replaceAll(/^'|'$/, '') }
+    }
+}
+
 task dist(type: Jar) {
  	duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
     doFirst {

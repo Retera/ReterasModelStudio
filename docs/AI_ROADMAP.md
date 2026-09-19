@@ -42,22 +42,22 @@ not the code. Appendix A lists what is worth reading there and what to avoid.
 
 ## Phase F: foundations (do these first)
 
-- [ ] **F1. Round-trip regression harness.** A headless Gradle task or `main` that reads every `.mdx` in a
+- [x] **F1. Round-trip regression harness.** (`RoundTripCheck`, `./gradlew :matrixeater:roundTrip`) A headless Gradle task or `main` that reads every `.mdx` in a
   configured folder (a 3.0.0 install via CASC, or an extracted folder), writes it back through `EditableModel`,
   and reports byte-level and MDL-text differences plus load exceptions, across classic, Reforged and 1800 data.
   This is the safety net for Phase M and Phase D.
 - [ ] **F2. Headless-clean data layer.** Remove the 33 `JOptionPane` uses from `wc3/mdl` and `wc3/mdx` by
   routing through a warnings collector that the GUI turns into dialogs and the CLI prints.
-- [ ] **F3. One place for the data-source cache drop.** Factor the seven-call litany duplicated in
+- [x] **F3. One place for the data-source cache drop.** (d06df33) Factor the seven-call litany duplicated in
   `MainPanel.dataSourcesChanged` and `MainFrame.main` into one method, and make it also clear
   `BLPHandler.gpuBufferCache`, which currently survives a data-source swap. (The fork got this wrong by tying
   texture cache lifetime to a size limit instead of the data source; do not copy that.)
-- [ ] **F4. Small known bugs.** `FolderDataSource.read(String)` reads the relative path from the working
+- [x] **F4. Small known bugs.** (6afc84d) `FolderDataSource.read(String)` reads the relative path from the working
   directory. `MpqCodebase` swallows IO errors and returns null. Version string duplicated in `build.gradle` and
   `MainFrame`. One fix commit.
-- [ ] **F5. Linux and macOS parity.** Case-insensitive `FolderDataSource` lookup, no `reg query` off Windows,
+- [~] **F5. Linux and macOS parity.** Case-insensitive MPQ lookup done in `WarcraftInstallDetector`; registry and profile path still open. Case-insensitive `FolderDataSource` lookup, no `reg query` off Windows,
   profile path without the backslash rewrite, confirm `runtime` images launch on Linux.
-- [ ] **F6. Focus and hotkey contract for docked views.** Today the global DEL binding on the root pane is a
+- [x] **F6. Focus and hotkey contract for docked views.** (bbab0aa, `EditingHotkeys`) Today the global DEL binding on the root pane is a
   no-op outside animation mode (`MainPanel.deleteHotkeyAction`, "NOTE delete was here"), and each view that
   wants DEL (`Viewport.setupCopyPaste`, `TracksEditorPanel`, `TimeSliderPanel`) makes itself focusable,
   requests focus on click, and shadows the root ActionMap with its own "Delete", "Cut", "Copy", "Paste" entries.
@@ -81,7 +81,7 @@ flag checkboxes have no listeners, "Add Layer" and per-layer "Delete" have no li
 combo does nothing, and the dynamic keyframe table is read-only. The tree has no popup, no key bindings, no
 drag, no clipboard.
 
-- [ ] **W1. Model tab: delete, cut, copy, paste, and a right-click menu on every item.** Make the tree focusable
+- [x] **W1. Model tab: delete, cut, copy, paste, and a right-click menu on every item.** (38f0c13) Make the tree focusable
   per F6. Popup on every item: Cut, Copy, Paste, Delete, and New with a submenu listing every component type
   (Sequence, Global Sequence, Texture, Material, Texture Anim, Geoset, Geoset Anim, Bone, Helper, Light,
   Attachment, Particle Emitter, Particle Emitter 2, Popcorn, Ribbon, Event Object, Collision Shape, Camera).
@@ -91,15 +91,15 @@ drag, no clipboard.
   existing bones. Every operation is one `UndoAction` firing `nodesAdded/Removed`, `geosetsAdded/Removed`,
   `texturesChanged`, etc. Clipboard is in-process (a static holder of cloned components) with a text fallback of
   the MDL fragment so it can cross into a second open model.
-- [ ] **W2. Model tab: drag to reparent in the Nodes section.** `setDragEnabled(true)` plus a `TransferHandler`
+- [x] **W2. Model tab: drag to reparent in the Nodes section.** (38f0c13) `setDragEnabled(true)` plus a `TransferHandler`
   on the tree, limited to IdObject rows. Dropping onto a node sets the parent; dropping onto the "Nodes" group
   clears it. Reject drops that would create a cycle. Backed by one `SetParentAction` (does not exist yet; the
   fork's `ParentChangeAction` is the reference). Because the tree rebuilds on every structure event, keep the
   drop-target row identity, not the `TreePath`, across the rebuild.
-- [ ] **W3. Model tab: "Move Left" and "Move Right" on nodes.** Right-click items. Move Left makes the node a
+- [x] **W3. Model tab: "Move Left" and "Move Right" on nodes.** (38f0c13) Right-click items. Move Left makes the node a
   child of its grandparent (placed after its former parent); Move Right makes it a child of the sibling above
   it. Both are thin wrappers over the W2 action. Low priority, drop if the tree rebuild makes ordering unreliable.
-- [ ] **W4. Model tab: "Open in Editor" and "Open in Tracks".** Right-click items that switch to the other
+- [x] **W4. Model tab: "Open in Editor" and "Open in Tracks".** (38f0c13; the Outliner scrolls to and highlights the item since it does not support row selection) Right-click items that switch to the other
   InfoNode `View` (activate its tab if docked in the same `TabWindow`, via `View.restoreFocus()` /
   `DockingUtil`), then select and expand the corresponding item. For Tracks this means selecting the matching
   row in `ModelComponentAnimFlagTree` and scrolling `TracksEditorTimelinePanel` to it. Needs a small "select
@@ -263,6 +263,15 @@ references only; the save-time automation stays but becomes visible and optional
 
 ## Phase D: model data and formats
 
+**Round-trip findings (2026-09-18, first run of F1 over the 1.22, 2.0.x and 3.0 installs).** Fixed in the
+same session: `AnimFlag.sort` was an unstable quicksort, so keys sharing a time swapped on every save;
+`Layer.updateIds` remapped animated texture-id tracks through a map it was overwriting while iterating, which
+collapsed a 45-frame water track into repeating triples on the first save and dropped 21 textures on the second;
+`cureBoneGeoAnimIds` derived bone ownership from load-time matrices, so HD models wrote different bone GeosetIds
+on the second save; fixed-width MDX names with embedded CR/LF (MalFurion's "Stand Ready") broke the MDL text
+form; the "camera name longer than 20 characters" corruption dialog fired on every 3.0 camera. Still open, see
+D7 and F2.
+
 - [ ] **D1. 1800 unknowns follow-up.** Confirm or swap the `BackFacesForShadows` / `AmbientOcclusion` bit
   mapping once documented; add `Sounds`/`SoundEmitter` and `ComponentSkin` if a real model appears.
 - [ ] **D2. Honest version conversion.** "Assign FormatVersion N" only sets the number. Make it drop or warn
@@ -272,6 +281,9 @@ references only; the save-time automation stays but becomes visible and optional
 - [ ] **D5. Model validator** report with one-click fixes where safe (unreferenced bones, geosets with no matrix,
   keys outside any sequence, HD weights not summing, duplicate sequence names, missing textures, bad extents).
 - [ ] **D6. Keyframe simplifier v2**, tolerance-based with a preview of maximum deviation per track.
+- [ ] **D7. Writer fixed point.** Drive the round-trip tool to zero UNSTABLE and zero DIALOG across all three
+  installs, then keep it there. Known remaining sources after the first fixes: whatever the full-install runs
+  still report (record them here with the model path and the chunk from the chunk diff).
 
 ## Phase E: further editor features
 
@@ -372,3 +384,4 @@ Do not copy:
   Modeling, Outliner and viewport code and of the twilac fork's branches.
 - 2026-09-18: added W12 (particle and PKB preview), W13 (view camera), reworked M3 around event-time
   reconciliation and an expanded Optimize tool, added Appendix B.
+- 2026-09-18: F1, F3, F4, F6 and W1 to W4 done; round-trip tool found and fixed four writer bugs (see Phase D).
