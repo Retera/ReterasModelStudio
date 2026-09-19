@@ -917,6 +917,16 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		}
 	}
 
+	/**
+	 * The game keys the HD baked-occlusion term on the layer's AmbientOcclusion flag, a second UV set to sample
+	 * it through, and an ORM texture to sample; most ORM textures leave the occlusion channel empty.
+	 */
+	private boolean usesAmbientOcclusionMap(final Layer layer, final Geoset geo) {
+		return (layer.getLayerShader() == LayerShader.HD) && layer.getFlags().contains("AmbientOcclusion")
+				&& (geo.numUVLayers() >= 2)
+				&& (layer.getRenderTexture(this, modelView.getModel(), ShaderTextureTypeHD.ORM) != null);
+	}
+
 	public void render(final Geoset geo, final boolean renderOpaque, final int formatVersion) {
 		if (ModelUtils.isLevelOfDetailSupported(formatVersion) && (geo.getLevelOfDetailName() != null)
 				&& (geo.getLevelOfDetailName().length() > 0)) {
@@ -1007,6 +1017,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 				NGGLDP.pipeline.glFresnelTeamColor1f(layer.getRenderFresnelTeamColor(this));
 				NGGLDP.pipeline.glFresnelOpacity1f(layer.getRenderFresnelOpacity(this));
 				NGGLDP.pipeline.glEmissiveGain1f(layer.getRenderEmissiveGain(this));
+				NGGLDP.pipeline.glAmbientOcclusionMap1i(usesAmbientOcclusionMap(layer, geo) ? 1 : 0);
 			}
 //			if (renderOpaque && (filterMode == FilterMode.ADDITIVE)) {
 //				GL11.glColorMask(true, true, true, true);
@@ -1134,6 +1145,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 							vertexHeap.x = (uvScaleHeap3.x * (vertexHeap.x - 0.5f)) + 0.5f;
 							vertexHeap.y = (uvScaleHeap3.y * (vertexHeap.y - 0.5f)) + 0.5f;
 						}
+						final TVertex secondaryTVertex = v.getTverts().get(v.getTverts().size() > 1 ? 1 : coordId);
+						NGGLDP.pipeline.glSecondaryTexCoord2f((float) secondaryTVertex.x, (float) secondaryTVertex.y);
 						NGGLDP.pipeline.glTexCoord2f(vertexHeap.x, vertexHeap.y);
 						NGGLDP.pipeline.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
 					}

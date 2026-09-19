@@ -297,6 +297,16 @@ public class NGGLDP {
 		}
 
 		@Override
+		public void glSecondaryTexCoord2f(final float u, final float v) {
+			currentPipeline.glSecondaryTexCoord2f(u, v);
+		}
+
+		@Override
+		public void glAmbientOcclusionMap1i(final int enabled) {
+			currentPipeline.glAmbientOcclusionMap1i(enabled);
+		}
+
+		@Override
 		public void glActiveHDTexture(final int textureUnit) {
 			currentPipeline.glActiveHDTexture(textureUnit);
 		}
@@ -807,6 +817,16 @@ public class NGGLDP {
 		}
 
 		@Override
+		public void glSecondaryTexCoord2f(final float u, final float v) {
+			// only the HD shader reads the second UV set
+		}
+
+		@Override
+		public void glAmbientOcclusionMap1i(final int enabled) {
+			// only the HD shader has a baked occlusion term
+		}
+
+		@Override
 		public void glActiveHDTexture(final int textureUnit) {
 			// TODO Auto-generated method stub
 
@@ -854,7 +874,7 @@ public class NGGLDP {
 	 */
 	public static final class HDDiffuseShaderPipeline implements Pipeline {
 		private static final int STRIDE = 4 /* position */ + 4 /* normal */ + 4 /* tangent */ + 2 /* uv */
-				+ 4 /* color */ ;
+				+ 4 /* color */ + 2 /* uv1, the ambient occlusion set */;
 		private static final int STRIDE_BYTES = STRIDE * Float.BYTES;
 		private static final String vertexShader = """
 				#version 330 core
@@ -864,12 +884,14 @@ public class NGGLDP {
 				layout (location = 2) in vec4 a_tangent;
 				layout (location = 3) in vec2 a_uv;
 				layout (location = 4) in vec4 a_color;
+				layout (location = 5) in vec2 a_uv1;
 
 				uniform vec3 u_lightDirection;
 				uniform vec3 u_viewPos;
 				uniform mat4 u_projection;
 
 				out vec2 v_uv;
+				out vec2 v_uv1;
 				out vec4 v_color;
 				out vec3 v_tangentLightPos;
 				out vec3 v_tangentViewPos;
@@ -881,6 +903,7 @@ public class NGGLDP {
 				void main() {
 					gl_Position = u_projection * a_position;
 					v_uv = a_uv;
+					v_uv1 = a_uv1;
 					v_color = a_color;
 					v_worldPos = a_position.xyz;
 					v_worldNormal = a_normal.xyz;
@@ -926,6 +949,7 @@ public class NGGLDP {
 				uniform vec3 u_viewBack;
 				uniform int u_lightMode;
 				uniform int u_lightCount;
+				uniform int u_aoMap;
 				uniform vec4 u_lightPosType[MAX_LIGHTS];
 				uniform vec4 u_lightColorInt[MAX_LIGHTS];
 				uniform vec4 u_lightAmbColorInt[MAX_LIGHTS];
@@ -938,6 +962,7 @@ public class NGGLDP {
 				uniform float u_iblScale;
 
 				in vec2 v_uv;
+				in vec2 v_uv1;
 				in vec4 v_color;
 				in vec3 v_tangentLightPos;
 				in vec3 v_tangentViewPos;
@@ -1175,7 +1200,11 @@ public class NGGLDP {
 							lit = hdMainLight(surf);
 						}
 						lit = hdPointLights(surf, v_worldPos, lit);
-						lit = lit * ormTexel.r;
+						// Baked occlusion is ORM.x sampled through the second UV set, and only for
+						// layers flagged AmbientOcclusion: most ORM textures leave that channel empty.
+						if (u_aoMap != 0) {
+							lit = lit * texture(u_textureORM, v_uv1).x;
+						}
 						shadedRGB = PI * lit;
 						shadedRGB = emissive * u_emissiveGain + shadedRGB;
 						shadedRGB = vertColor * shadedRGB;
@@ -1254,6 +1283,9 @@ public class NGGLDP {
 		private int uvCount = 0;
 		private int colorCount = 0;
 		private int fresnelColorCount = 0;
+		private int secondaryUvCount = 0;
+		private float secondaryU, secondaryV;
+		private int ambientOcclusionMap = 0;
 		private int glBeginType;
 		private int shaderProgram;
 		private int vertexBufferObjectId, vertexArrayObjectId; // has nothing to do with "object id" of war3 models
@@ -1302,6 +1334,7 @@ public class NGGLDP {
 			normalCount = 0;
 			colorCount = 0;
 			fresnelColorCount = 0;
+			secondaryUvCount = 0;
 			tangentCount = 0;
 			switch (type) {
 			case GL11.GL_TRIANGLES:
@@ -1370,9 +1403,8 @@ public class NGGLDP {
 			pushFloat(baseOffset + 15, color.y);
 			pushFloat(baseOffset + 16, color.z);
 			pushFloat(baseOffset + 17, color.w);
-			pushFloat(baseOffset + 18, fresnelColor.x);
-			pushFloat(baseOffset + 19, fresnelColor.y);
-			pushFloat(baseOffset + 20, fresnelColor.z);
+			pushFloat(baseOffset + 18, secondaryU);
+			pushFloat(baseOffset + 19, secondaryV);
 			vertexCount++;
 		}
 
@@ -1397,7 +1429,7 @@ public class NGGLDP {
 			GL20.glEnableVertexAttribArray(4);
 			GL20.glVertexAttribPointer(4, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 14 * Float.BYTES);
 			GL20.glEnableVertexAttribArray(5);
-			GL20.glVertexAttribPointer(5, 3, GL11.GL_FLOAT, false, STRIDE_BYTES, 18 * Float.BYTES);
+			GL20.glVertexAttribPointer(5, 2, GL11.GL_FLOAT, false, STRIDE_BYTES, 18 * Float.BYTES);
 
 			GL20.glUseProgram(shaderProgram);
 
@@ -1448,6 +1480,7 @@ public class NGGLDP {
 			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_mainLightColor"), 0.9f, 0.9f, 0.9f);
 			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_mainAmbient"), 0.3f, 0.3f, 0.3f);
 			GL20.glUniform1f(GL20.glGetUniformLocation(shaderProgram, "u_iblScale"), 0.15f);
+			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_aoMap"), ambientOcclusionMap);
 			pipelineMatrixBuffer.clear();
 			pipelineMatrixBuffer.put(currentMatrix.m00);
 			pipelineMatrixBuffer.put(currentMatrix.m01);
@@ -1490,6 +1523,7 @@ public class NGGLDP {
 			normalCount = 0;
 			colorCount = 0;
 			fresnelColorCount = 0;
+			secondaryUvCount = 0;
 			tangentCount = 0;
 			pipelineVertexBuffer.clear();
 		}
@@ -1532,6 +1566,22 @@ public class NGGLDP {
 		}
 
 		@Override
+		public void glSecondaryTexCoord2f(final float u, final float v) {
+			final int baseOffset = secondaryUvCount * STRIDE;
+			ensureCapacity(baseOffset + STRIDE);
+			secondaryU = u;
+			secondaryV = v;
+			pushFloat(baseOffset + 18, u);
+			pushFloat(baseOffset + 19, v);
+			secondaryUvCount++;
+		}
+
+		@Override
+		public void glAmbientOcclusionMap1i(final int enabled) {
+			ambientOcclusionMap = enabled;
+		}
+
+		@Override
 		public void glColor3f(final float r, final float g, final float b) {
 			final int baseOffset = colorCount * STRIDE;
 			ensureCapacity(baseOffset + STRIDE);
@@ -1559,13 +1609,7 @@ public class NGGLDP {
 
 		@Override
 		public void glFresnelColor3f(final float r, final float g, final float b) {
-			final int baseOffset = fresnelColorCount * STRIDE;
-			ensureCapacity(baseOffset + STRIDE);
 			fresnelColor.set(r, g, b);
-			pushFloat(baseOffset + 18, r);
-			pushFloat(baseOffset + 19, g);
-			pushFloat(baseOffset + 20, b);
-			fresnelColorCount++;
 		}
 
 		@Override
@@ -1893,6 +1937,16 @@ public class NGGLDP {
 		}
 
 		@Override
+		public void glSecondaryTexCoord2f(final float u, final float v) {
+			// only the HD shader reads the second UV set
+		}
+
+		@Override
+		public void glAmbientOcclusionMap1i(final int enabled) {
+			// only the HD shader has a baked occlusion term
+		}
+
+		@Override
 		public void glActiveHDTexture(final int textureUnit) {
 			// TODO Auto-generated method stub
 
@@ -1995,6 +2049,12 @@ public class NGGLDP {
 		void prepareToBindTexture();
 
 		void glTangent4f(float x, float y, float z, float w);
+
+		/** The second UV set of the coming vertex (HD ambient occlusion); pass the first set when there is none. */
+		void glSecondaryTexCoord2f(float u, float v);
+
+		/** Whether the coming HD draws multiply lighting by ORM.x sampled through the second UV set. */
+		void glAmbientOcclusionMap1i(int enabled);
 
 		void glActiveHDTexture(int textureUnit);
 

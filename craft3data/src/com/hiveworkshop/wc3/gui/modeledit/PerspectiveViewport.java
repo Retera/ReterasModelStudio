@@ -84,6 +84,7 @@ import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.ShaderTextureTypeHD;
+import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.render3d.InternalInstance;
@@ -861,6 +862,17 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		}
 	}
 
+	/**
+	 * The game keys the HD baked-occlusion term on the layer's AmbientOcclusion flag, a second UV set to sample
+	 * it through, and an ORM texture to sample; most ORM textures leave the occlusion channel empty.
+	 */
+	private boolean usesAmbientOcclusionMap(final Layer layer, final Geoset geo) {
+		return (layer.getLayerShader() == LayerShader.HD) && layer.getFlags().contains("AmbientOcclusion")
+				&& (geo.numUVLayers() >= 2)
+				&& (layer.getRenderTexture(editorRenderModel.getAnimatedRenderEnvironment(), modelView.getModel(),
+						ShaderTextureTypeHD.ORM) != null);
+	}
+
 	public void render(final Geoset geo, final boolean renderOpaque, final boolean overriddenMaterials,
 			final boolean overriddenColors, final int formatVersion) {
 		final GeosetAnim geosetAnim = geo.getGeosetAnim();
@@ -942,6 +954,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 					NGGLDP.pipeline.glFresnelTeamColor1f(layer.getRenderFresnelTeamColor(timeEnvironment));
 					NGGLDP.pipeline.glFresnelOpacity1f(layer.getRenderFresnelOpacity(timeEnvironment));
 					NGGLDP.pipeline.glEmissiveGain1f(layer.getRenderEmissiveGain(timeEnvironment));
+					NGGLDP.pipeline.glAmbientOcclusionMap1i(usesAmbientOcclusionMap(layer, geo) ? 1 : 0);
 				}
 			}
 
@@ -1044,6 +1057,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 						if (coordId >= v.getTverts().size()) {
 							coordId = v.getTverts().size() - 1;
 						}
+						final TVertex secondaryTVertex = v.getTverts().get(v.getTverts().size() > 1 ? 1 : coordId);
+						NGGLDP.pipeline.glSecondaryTexCoord2f((float) secondaryTVertex.x, (float) secondaryTVertex.y);
 						NGGLDP.pipeline.glTexCoord2f((float) v.getTverts().get(coordId).x,
 								(float) v.getTverts().get(coordId).y);
 						NGGLDP.pipeline.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
