@@ -944,9 +944,11 @@ public class NGGLDP {
 				uniform vec4 u_fresnelColor;
 				uniform vec2 u_viewportSize;
 				uniform vec3 u_viewPos;
-				uniform vec3 u_viewRight;
-				uniform vec3 u_viewUp;
-				uniform vec3 u_viewBack;
+				// the game's baked probe pair: irradiance convolution and roughness-prefiltered radiance
+				uniform samplerCube u_iblIrradiance;
+				uniform samplerCube u_iblRadiance;
+				uniform sampler2D u_brdfLut;
+				uniform float u_envMipEnd;
 				uniform int u_lightMode;
 				uniform int u_lightCount;
 				uniform int u_aoMap;
@@ -982,6 +984,7 @@ public class NGGLDP {
 				const float HD_IBL_SPLIT_UPPER = 0.675000012;
 				const float HD_IBL_SPLIT_LOWER = 0.324999988;
 				const float HD_ML_BLEND_SMOOTH = 0.949999988;
+				const float NDF_VAR_CLAMP = 0.180000007;
 				const float HD_DBG_MIN_RADIANCE = 0.00392156886;
 				const vec3 HD_FRESNEL_TARGET = vec3(0.0, 0.0, 0.999000967);
 
@@ -1012,9 +1015,20 @@ public class NGGLDP {
 					float kInv;
 				};
 
+				// Geometric specular anti-aliasing: the sub-pixel normal variance widens the lobe.
+				float specularAA(float roughnessMip, vec3 worldNormal) {
+					vec3 dnx = dFdx(worldNormal);
+					vec3 dny = dFdy(worldNormal);
+					float variance = 2.0 * (dot(dnx, dnx) + dot(dny, dny));
+					variance = min(NDF_VAR_CLAMP, variance);
+					float a2 = roughnessMip * roughnessMip + variance;
+					return sqrt(min(1.0, a2));
+				}
+
 				HDSurface hdBuildSurface(vec3 N, vec3 V, vec3 albedo, vec2 roughMetal) {
 					HDSurface s;
 					float roughness = clamp(roughMetal.x, 0.0, 1.0) * HD_ROUGHNESS_SCALE + HD_ROUGHNESS_BIAS;
+					roughness = specularAA(roughness, N);
 					s.N = N;
 					s.V = V;
 					s.albedo = albedo;
@@ -1047,20 +1061,46 @@ public class NGGLDP {
 					return (s.metal * -s.albedo + vec3(1.0)) * t5 + s.F0;
 				}
 
-				// Sphere-map lookup into the environment texture, in view space.
-				vec3 envSample(vec3 worldDir) {
-					vec3 v = vec3(dot(worldDir, u_viewRight), dot(worldDir, u_viewUp), dot(worldDir, u_viewBack));
-					vec2 uv = vec2(0.5 + 0.5 * v.x, 0.5 - 0.5 * v.y);
-					return srgbToLinear(texture(u_textureReflections, uv).rgb);
-				}
+				struct HDIBLSample {
+					vec3 irradiance;
+					vec3 radiance;
+					vec2 brdf;
+					float weight;
+				};
 
-				// Karis' analytic fit of the split-sum BRDF lookup (scale, bias).
-				vec2 envBrdfApprox(float rough, float ndv) {
-					vec4 c0 = vec4(-1.0, -0.0275, -0.572, 0.022);
-					vec4 c1 = vec4(1.0, 0.0425, 1.04, -0.04);
-					vec4 r = rough * c0 + c1;
-					float a004 = min(r.x * r.x, exp2(-9.28 * ndv)) * r.x + r.y;
-					return vec2(-1.04, 1.04) * a004 + r.zw;
+				// The probe pair, sampled in the frame the game bakes them in: +Z along the
+				// main light, with the engine's Z-up world to the cube map's Y-up shuffle.
+				// Pw is the direction from the eye to the point.
+				HDIBLSample sampleHDIBL(vec3 Pw, HDSurface s) {
+					HDIBLSample ibl;
+					if (u_envMipEnd * u_envMipEnd != 0.0) {
+						vec3 Nw = normalize(s.N);
+						vec3 Rw = normalize(Nw * -(dot(Pw, Nw) + dot(Pw, Nw)) + Pw);
+						vec3 Lw = normalize(u_mainLightDir);
+						vec3 axis = normalize(vec3(Lw.x, Lw.z, -Lw.y));
+						vec3 tangentA = cross(vec3(0.0, 1.0, 0.0), axis);
+						float lenSq = dot(tangentA.xz, tangentA.xz);
+						vec3 fallback = (0.999000013 < abs(axis.x)) ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
+						fallback = -axis * dot(fallback.xz, axis.xz) + fallback;
+						fallback = normalize(fallback);
+						tangentA = tangentA * inversesqrt(lenSq);
+						tangentA = (lenSq < 9.99999975e-05) ? fallback : tangentA;
+						vec3 bitangentA = normalize(cross(axis, tangentA));
+						vec3 nProbe = vec3(Nw.x, Nw.z, -Nw.y);
+						nProbe = vec3(dot(nProbe, tangentA), dot(nProbe, bitangentA), dot(nProbe, axis));
+						vec3 rProbe = vec3(Rw.x, Rw.z, -Rw.y);
+						rProbe = vec3(dot(rProbe, tangentA), dot(rProbe, bitangentA), dot(rProbe, axis));
+						ibl.irradiance = texture(u_iblIrradiance, nProbe).rgb;
+						ibl.radiance = textureLod(u_iblRadiance, rProbe, u_envMipEnd * s.rough).rgb;
+						ibl.brdf = texture(u_brdfLut, vec2(dot(s.N, s.V), s.rough)).xy;
+						ibl.weight = 1.0;
+					} else {
+						ibl.irradiance = vec3(0.0);
+						ibl.radiance = vec3(0.0);
+						ibl.brdf = vec2(0.0);
+						ibl.weight = 0.0;
+					}
+					return ibl;
 				}
 
 				// The main light, the probe and the ambient mix, in the shipped order of operations.
@@ -1074,12 +1114,11 @@ public class NGGLDP {
 					vec3 directSpec = hdFresnel(s, vdh) * hdGGX(ndh, s.a2);
 					directSpec = directSpec * hdVisibility(s, ndl, ndv);
 					float shadowedNdl = max(0.0, ndl);
-					// the probe stand-in: irradiance from the normal, radiance from the reflection
-					vec3 irradiance = envSample(s.N);
-					vec3 R = normalize(s.N * -(dot(-s.V, s.N) + dot(-s.V, s.N)) + -s.V);
-					vec3 radiance = mix(envSample(R), irradiance, s.rough);
-					vec2 brdf = envBrdfApprox(s.rough, max(ndv, 0.0));
-					float weight = 1.0;
+					HDIBLSample ibl = sampleHDIBL(-s.V, s);
+					vec3 irradiance = ibl.irradiance;
+					vec3 radiance = ibl.radiance;
+					vec2 brdf = ibl.brdf;
+					float weight = ibl.weight;
 					vec3 lightColor = u_mainLightColor;
 					float maxAmb = max(lightColor.x, max(lightColor.y, lightColor.z));
 					float invAmb = 1.0 / (SAFE_EPS + maxAmb);
@@ -1465,11 +1504,20 @@ public class NGGLDP {
 			GL20.glUniform4f(GL20.glGetUniformLocation(shaderProgram, "u_fresnelColor"), fresnelColor.x, fresnelColor.y,
 					fresnelColor.z, fresnelOpacity);
 			GL20.glUniform1f(GL20.glGetUniformLocation(shaderProgram, "u_emissiveGain"), renderEmissiveGain);
-			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewRight"), viewRight.x, viewRight.y,
-					viewRight.z);
-			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewUp"), viewUp.x, viewUp.y, viewUp.z);
-			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewBack"), viewBack.x, viewBack.y,
-					viewBack.z);
+			if (sceneLights != null && sceneLights.mode != SceneLights.MODE_LEGACY) {
+				environmentProbe.ensureLoaded();
+				GL13.glActiveTexture(GL13.GL_TEXTURE0 + PROBE_IRRADIANCE_UNIT);
+				GL11.glBindTexture(GL13.GL_TEXTURE_CUBE_MAP, environmentProbe.irradianceTexture);
+				GL13.glActiveTexture(GL13.GL_TEXTURE0 + PROBE_RADIANCE_UNIT);
+				GL11.glBindTexture(GL13.GL_TEXTURE_CUBE_MAP, environmentProbe.radianceTexture);
+				GL13.glActiveTexture(GL13.GL_TEXTURE0 + PROBE_LUT_UNIT);
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, environmentProbe.lutTexture);
+				GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureUnit);
+				GL20.glUniform1f(GL20.glGetUniformLocation(shaderProgram, "u_envMipEnd"), environmentProbe.envMipEnd);
+			}
+			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_iblIrradiance"), PROBE_IRRADIANCE_UNIT);
+			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_iblRadiance"), PROBE_RADIANCE_UNIT);
+			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_brdfLut"), PROBE_LUT_UNIT);
 			uploadSceneLights(shaderProgram, sceneLights, lightUploadBuffer);
 			// The main light of the Reforged path is the viewer's baseline sun (the
 			// game's own is the day/night rig); model directional and ambient lights
@@ -1656,18 +1704,15 @@ public class NGGLDP {
 			}
 		}
 
-		private final Vector3f viewRight = new Vector3f(1, 0, 0);
-		private final Vector3f viewUp = new Vector3f(0, 0, 1);
-		private final Vector3f viewBack = new Vector3f(0, -1, 0);
+		private static final int PROBE_IRRADIANCE_UNIT = 6;
+		private static final int PROBE_RADIANCE_UNIT = 7;
+		private static final int PROBE_LUT_UNIT = 8;
+		private final HDEnvironmentProbe.GLProbe environmentProbe = new HDEnvironmentProbe.GLProbe();
 
 		@Override
 		public void glCamera(final ViewerCamera viewerCamera, final boolean usingModelCamera) {
 			this.usingModelCamera = usingModelCamera;
 			cameraLocation.set(viewerCamera.location);
-			final Matrix4f view = viewerCamera.viewMatrix;
-			viewRight.set(view.m00, view.m10, view.m20);
-			viewUp.set(view.m01, view.m11, view.m21);
-			viewBack.set(view.m02, view.m12, view.m22);
 			Matrix4f.mul(viewerCamera.viewProjectionMatrix, currentMatrix, currentMatrix);
 		}
 
@@ -1799,6 +1844,7 @@ public class NGGLDP {
 		@Override
 		public void discard() {
 			GL20.glDeleteProgram(shaderProgram);
+			environmentProbe.delete();
 		}
 
 		@Override

@@ -17,6 +17,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
+import com.hiveworkshop.rms.editor.render3d.HDEnvironmentProbe;
 import com.hiveworkshop.wc3.gui.GUITheme;
 import com.hiveworkshop.wc3.gui.MouseButtonPreference;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
@@ -125,6 +126,15 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		useModelLights.addActionListener(e -> programPreferences.setUseModelLights(useModelLights.isSelected()));
 		generalPrefsPanel.add(new JLabel("Use Model Lights (Light nodes):"), "cell 0 12");
 		generalPrefsPanel.add(useModelLights, "cell 1 12");
+		final JComboBox<String> hdEnvironmentProbe = new JComboBox<>(HDEnvironmentProbe.PROBE_NAMES);
+		hdEnvironmentProbe.setSelectedIndex(Math.max(0,
+				Math.min(HDEnvironmentProbe.PROBE_NAMES.length - 1, programPreferences.getHdEnvironmentProbe())));
+		hdEnvironmentProbe.setToolTipText("Which of the game's baked environment probes lights HD and DE models "
+				+ "when model lights are on (Environment/EnvironmentMap in the game data).");
+		hdEnvironmentProbe.addActionListener(
+				e -> programPreferences.setHdEnvironmentProbe(hdEnvironmentProbe.getSelectedIndex()));
+		generalPrefsPanel.add(new JLabel("HD Environment Probe:"), "cell 0 13");
+		generalPrefsPanel.add(hdEnvironmentProbe, "cell 1 13");
 		// final BoxLayout boxLayout = new BoxLayout(generalPrefsPanel,
 		// BoxLayout.PAGE_AXIS);
 

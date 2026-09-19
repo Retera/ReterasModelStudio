@@ -61,6 +61,7 @@ public class ProgramPreferences implements Serializable {
 	private Integer outlinerGlyphSize = DEFAULT_OUTLINER_GLYPH_SIZE;
 	/** Light models with their own Light nodes (true) or with the fixed viewer lights (false). */
 	private Boolean useModelLights = Boolean.TRUE;
+	private Integer hdEnvironmentProbe = 0;
 	private MouseButtonPreference threeDCameraSpinButton = MouseButtonPreference.LEFT;
 	private MouseButtonPreference threeDCameraPanButton = MouseButtonPreference.MIDDLE;
 
@@ -139,6 +140,9 @@ public class ProgramPreferences implements Serializable {
 		if (useModelLights == null) {
 			useModelLights = Boolean.TRUE;
 		}
+		if (hdEnvironmentProbe == null) {
+			hdEnvironmentProbe = 0;
+		}
 	}
 
 	public void loadFrom(final ProgramPreferences other) {
@@ -180,6 +184,7 @@ public class ProgramPreferences implements Serializable {
 		quickBrowse = other.quickBrowse;
 		outlinerGlyphSize = other.outlinerGlyphSize;
 		useModelLights = other.useModelLights;
+		hdEnvironmentProbe = other.hdEnvironmentProbe;
 		this.allowLoadingNonBlpTextures = other.allowLoadingNonBlpTextures;
 		this.renderParticles = other.renderParticles;
 		this.renderStaticPoseParticles = other.renderStaticPoseParticles;
@@ -696,6 +701,17 @@ public class ProgramPreferences implements Serializable {
 
 	public void setUseModelLights(final boolean useModelLights) {
 		this.useModelLights = useModelLights;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	/** Index into {@code HDEnvironmentProbe.PROBE_PATHS}: which of the game's baked probes lights HD models. */
+	public int getHdEnvironmentProbe() {
+		return hdEnvironmentProbe == null ? 0 : hdEnvironmentProbe;
+	}
+
+	public void setHdEnvironmentProbe(final int hdEnvironmentProbe) {
+		this.hdEnvironmentProbe = hdEnvironmentProbe;
 		SaveProfile.save();
 		firePrefsChanged();
 	}

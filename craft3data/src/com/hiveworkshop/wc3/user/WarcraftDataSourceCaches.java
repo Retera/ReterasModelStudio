@@ -2,6 +2,7 @@ package com.hiveworkshop.wc3.user;
 
 import java.util.List;
 
+import com.hiveworkshop.rms.editor.render3d.HDEnvironmentProbe;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
@@ -53,5 +54,6 @@ public final class WarcraftDataSourceCaches {
 		Resources.dropCache();
 		BLPHandler.get().dropCache();
 		PopcornEffectCache.dropCache();
+		HDEnvironmentProbe.dropCache();
 	}
 }

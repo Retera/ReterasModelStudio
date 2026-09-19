@@ -58,6 +58,7 @@ import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
+import com.hiveworkshop.rms.editor.render3d.HDEnvironmentProbe;
 import com.hiveworkshop.rms.editor.render3d.NGGLDP;
 import com.hiveworkshop.rms.editor.render3d.SceneLights;
 import com.hiveworkshop.rms.editor.render3d.NGGLDP.Pipeline;
@@ -685,6 +686,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			NGGLDP.pipeline.glCamera(viewerCamera, cameraManager.modelCamera != null);
 			if ((programPreferences != null) && programPreferences.isUseModelLights()
 					&& (renderModel.gatherLights(sceneLights) > 0)) {
+				HDEnvironmentProbe.setSelectedProbe(programPreferences.getHdEnvironmentProbe());
 				NGGLDP.pipeline.glSceneLights(sceneLights);
 			} else {
 				NGGLDP.pipeline.glSceneLights(null);

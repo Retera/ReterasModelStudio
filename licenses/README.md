@@ -10,6 +10,11 @@ tables under `craft3data/res/pkb` were written with the WhiteoutFlakes project
 `WhiteoutFlakes-LICENSE.txt` and `WhiteoutFlakes-LICENSE-AI.md`. Neither the project nor its author endorses this
 program.
 
+The HD environment probe loader and split-sum BRDF table in
+`craft3data/src/com/hiveworkshop/rms/editor/render3d/HDEnvironmentProbe.java` follow the same project's
+`src/renderer/ibl/env_probe.cpp` and `split_sum.cpp` (the probe file layout, the engine mip count, the LUT
+construction and its channel layout), under the same notices.
+
 ## Wc3Shaders (BSD-3-Clause)
 
 The Reforged HD lighting in `craft3data/src/com/hiveworkshop/rms/editor/render3d/NGGLDP.java`
@@ -17,8 +22,8 @@ The Reforged HD lighting in `craft3data/src/com/hiveworkshop/rms/editor/render3d
 reconstructed in FernandoS27's Wc3Shaders (https://github.com/FernandoS27/Wc3Shaders, Copyright (c) 2026
 Fernando Sahmkow): the team-colour layer, the GGX/Schlick terms with the shipped clamps, the main light and
 ambient/probe mix, the clustered point-light falloff and the fresnel rim. Its BSD-3-Clause text and AI notice are
-reproduced in `Wc3Shaders-LICENSE.txt` and `Wc3Shaders-LICENSE-AI.md`. The editor substitutes its environment-map
-texture for the game's cube-map probe.
+reproduced in `Wc3Shaders-LICENSE.txt` and `Wc3Shaders-LICENSE-AI.md`. The probe pair is sampled the way the
+shader does it, from the game's own `Environment/EnvironmentMap/*_IBL.dds` files.
 
 ## WarsmashModEngine
 

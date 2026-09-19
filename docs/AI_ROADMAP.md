@@ -249,10 +249,17 @@ Single from File/Unit/Model/Object.
   directional Lambert and ambient-by-attenuation lights, clamped and multiplied into the vertex colour). HD and
   DE models use a GLSL port of the Reforged 3.0 HD pixel shader from Wc3Shaders (BSD-3, `licenses/`): linear
   shading, hue-preserving team layer, GGX/Schlick with the shipped clamps, the main light with the split
-  ambient/probe mix, omni lights with the exp-damped rational falloff, and the fresnel rim, with the
-  environment-map texture standing in for the game's cube probe. As in the game, only omni lights reach the HD
-  pass; the main light is the baseline sun. "Use Model Lights" in Preferences > General switches back to the
-  previous fixed lighting (both shaders keep that path intact under `u_lightMode == 0`).
+  ambient/probe mix, omni lights with the exp-damped rational falloff, geometric specular anti-aliasing, and
+  the fresnel rim. The probe is the game's own baked pair (`Environment/EnvironmentMap/*_IBL.dds`, a BC1 sRGB
+  cube array: irradiance convolution plus roughness-prefiltered radiance, mip = full-chain count x roughness)
+  loaded by `HDEnvironmentProbe` and sampled in the light-aligned frame the game bakes them in, with the
+  split-sum LUT generated as WhiteoutFlakes does; a missing probe falls back to the shader's own "no probe"
+  branch, never a dialog. Preferences > General picks the probe (portrait default, Lordaeron day/night, dungeon,
+  Northrend sunset). The baked-occlusion term is gated like the game: AmbientOcclusion layer flag, a second UV
+  set and an ORM texture (DE ORM textures leave that channel empty, which used to render them black). As in the
+  game, only omni lights reach the HD pass; the main light is the baseline sun. "Use Model Lights" in
+  Preferences > General switches back to the previous fixed lighting (both shaders keep that path intact under
+  `u_lightMode == 0`).
 
 ## Phase M: data model modernisation (incremental, never a rewrite)
 
