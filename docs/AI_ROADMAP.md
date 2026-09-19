@@ -179,6 +179,14 @@ Single from File/Unit/Model/Object.
      all work in the GL one under both projections. Keep the old classes one release for fallback.
   The fork's `DisplayViewCanvas` with `CameraHandler.setOrtho` proves the one-class approach works with this
   code lineage; its shader pipeline and buffer fillers are worth reading before R4.
+  **Why this is more than a feature.** The `Graphics2D` viewports repaint on Swing timers and, when all four views
+  are on screen, they eat enough CPU that the GL perspective view starves and stops updating. The code contains
+  a workaround where the 2D timers measure their own paint time and back off when lagging, and it is not
+  reliable. Many users are on Windows 11 where Swing itself only runs acceptably with the Java2D OpenGL pipeline
+  preference, so the program is already fighting itself for the GPU. Step 0 of W10 is therefore to measure the
+  current paint loop and stop repainting idle 2D views (repaint on model or camera change, not on a timer),
+  which relieves the starvation before the GL viewport exists; the finished W10 removes the fight entirely
+  because every view shares one GL context strategy.
 - [ ] **W11. Outliner: visible-but-not-editable and a right-click menu.** `ModelViewManager` already has a
   separate `visibleGeosets` set, `RenderByViewModelRenderer` and `PerspectiveViewport` already draw geosets that
   are visible or editable, and every call to `makeGeosetVisible` is commented out, so the third state exists in
