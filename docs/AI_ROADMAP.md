@@ -394,3 +394,6 @@ Do not copy:
 - 2026-09-18: added W12 (particle and PKB preview), W13 (view camera), reworked M3 around event-time
   reconciliation and an expanded Optimize tool, added Appendix B.
 - 2026-09-18: F1, F3, F4, F6 and W1 to W4 done; round-trip tool found and fixed four writer bugs (see Phase D).
+- 2026-09-18: GUI verified under Xvfb (`xvfb-run`, `mate-wm`, `xdotool`, a Robot screenshot helper) against the
+  3.0 install: Model tab popup, Delete, Undo, copy/paste, drag reparent and New all work with no exceptions.
+  Full-install round trips: 1.22 all 3320 models clean, 2.0.x first 700 clean, 3.0 DE units first 40 clean.
