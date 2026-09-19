@@ -479,6 +479,8 @@ public final class ModelViewManagingTree extends JTree {
 				label.setBackground(tree.getBackground());
 				label.setForeground(tree.getForeground());
 			}
+			// the glyphs sit on the tree background, not on the selection highlight
+			glyphs.setPalette(tree.getForeground(), tree.getBackground());
 			return this;
 		}
 	}
@@ -487,6 +489,30 @@ public final class ModelViewManagingTree extends JTree {
 		GlyphState eye = GlyphState.OFF;
 		GlyphState check = GlyphState.OFF;
 		boolean enabled = true;
+		private Color onColor = new Color(30, 30, 30);
+		private Color partialColor = new Color(30, 30, 30, 110);
+		private Color offColor = new Color(150, 150, 150, 120);
+
+		/**
+		 * Derives the glyph colours from the look and feel: "on" is the text colour,
+		 * "partial" is the text colour at reduced opacity, and "off" is a mix of text
+		 * and background so it reads as disabled on both light and dark themes.
+		 */
+		void setPalette(final Color foreground, final Color background) {
+			final Color fg = foreground == null ? UIManager.getColor("Tree.foreground") : foreground;
+			final Color bg = background == null ? UIManager.getColor("Tree.background") : background;
+			if (fg == null) {
+				return;
+			}
+			onColor = new Color(fg.getRed(), fg.getGreen(), fg.getBlue());
+			partialColor = new Color(fg.getRed(), fg.getGreen(), fg.getBlue(), 110);
+			if (bg == null) {
+				offColor = new Color(fg.getRed(), fg.getGreen(), fg.getBlue(), 70);
+			} else {
+				offColor = new Color((fg.getRed() + bg.getRed()) / 2, (fg.getGreen() + bg.getGreen()) / 2,
+						(fg.getBlue() + bg.getBlue()) / 2, 160);
+			}
+		}
 
 		GlyphComponent() {
 			setPreferredSize(new Dimension(GLYPH_SIZE * GLYPH_COUNT, GLYPH_SIZE));
@@ -508,18 +534,18 @@ public final class ModelViewManagingTree extends JTree {
 			}
 		}
 
-		private static Color colorFor(final GlyphState state) {
+		private Color colorFor(final GlyphState state) {
 			switch (state) {
 			case ON:
-				return new Color(30, 30, 30);
+				return onColor;
 			case PARTIAL:
-				return new Color(30, 30, 30, 110);
+				return partialColor;
 			default:
-				return new Color(150, 150, 150, 120);
+				return offColor;
 			}
 		}
 
-		private static void paintEye(final Graphics2D g, final int x, final GlyphState state) {
+		private void paintEye(final Graphics2D g, final int x, final GlyphState state) {
 			g.setColor(colorFor(state));
 			final int cx = x + (GLYPH_SIZE / 2);
 			final int cy = GLYPH_SIZE / 2;
@@ -534,7 +560,7 @@ public final class ModelViewManagingTree extends JTree {
 			}
 		}
 
-		private static void paintCheck(final Graphics2D g, final int x, final GlyphState state) {
+		private void paintCheck(final Graphics2D g, final int x, final GlyphState state) {
 			g.setColor(colorFor(state == GlyphState.OFF ? GlyphState.OFF : GlyphState.ON));
 			g.drawRect(x + 2, 2, GLYPH_SIZE - 5, GLYPH_SIZE - 5);
 			if (state == GlyphState.ON) {

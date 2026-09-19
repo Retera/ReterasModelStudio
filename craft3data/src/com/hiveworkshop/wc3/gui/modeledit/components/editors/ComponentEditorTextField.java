@@ -50,8 +50,8 @@ public class ComponentEditorTextField extends JTextField {
 	}
 
 	public void setColorToSaved() {
-		setForeground(UnsavedChangesDocumentListener.SAVED_FOREGROUND_COLOR);
-		setBackground(UnsavedChangesDocumentListener.SAVED_BACKGROUND_COLOR);
+		setForeground(UnsavedChangesDocumentListener.savedForegroundColor());
+		setBackground(UnsavedChangesDocumentListener.savedBackgroundColor());
 	}
 
 	/**

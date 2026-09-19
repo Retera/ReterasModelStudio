@@ -27,9 +27,9 @@ public class ComponentEditorJSpinner extends JSpinner {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
 				((JSpinner.DefaultEditor) getEditor()).getTextField()
-						.setForeground(UnsavedChangesDocumentListener.UNSAVED_FOREGROUND_COLOR);
+						.setForeground(UnsavedChangesDocumentListener.unsavedForegroundColor());
 				((JSpinner.DefaultEditor) getEditor()).getTextField()
-						.setBackground(UnsavedChangesDocumentListener.UNSAVED_BACKGROUND_COLOR);
+						.setBackground(UnsavedChangesDocumentListener.unsavedBackgroundColor());
 			}
 		});
 		final JFormattedTextField textField = ((JSpinner.DefaultEditor) getEditor()).getTextField();
@@ -41,9 +41,9 @@ public class ComponentEditorJSpinner extends JSpinner {
 	public void reloadNewValue(final Object value) {
 		setValue(value);
 		((JSpinner.DefaultEditor) getEditor()).getTextField()
-				.setForeground(UnsavedChangesDocumentListener.SAVED_FOREGROUND_COLOR);
+				.setForeground(UnsavedChangesDocumentListener.savedForegroundColor());
 		((JSpinner.DefaultEditor) getEditor()).getTextField()
-				.setBackground(UnsavedChangesDocumentListener.SAVED_BACKGROUND_COLOR);
+				.setBackground(UnsavedChangesDocumentListener.savedBackgroundColor());
 	}
 
 	public void addActionListener(final Runnable runnable) {
