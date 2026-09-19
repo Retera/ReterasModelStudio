@@ -143,6 +143,8 @@ import com.hiveworkshop.wc3.gui.modeledit.activity.ModelEditorChangeActivityList
 import com.hiveworkshop.wc3.gui.modeledit.activity.ModelEditorMultiManipulatorActivity;
 import com.hiveworkshop.wc3.gui.modeledit.activity.ModelEditorViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
+import com.hiveworkshop.wc3.gui.modeledit.wizards.AddComponentWizards;
+import com.hiveworkshop.wc3.gui.modeledit.wizards.WizardHost;
 import com.hiveworkshop.wc3.gui.modeledit.creator.CreatorModelingPanel;
 import com.hiveworkshop.wc3.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
@@ -2957,207 +2959,27 @@ public class MainPanel extends JPanel
 		addMenu.getAccessibleContext().setAccessibleDescription("Allows the user to add new components to the model.");
 		menuBar.add(addMenu);
 
-		addParticle = new JMenu("Particle");
-		addParticle.setMnemonic(KeyEvent.VK_P);
-		addMenu.add(addParticle);
-
-		final File stockFolder = new File("stock/particles");
-		final File[] stockFiles = stockFolder.listFiles(new FilenameFilter() {
+		new AddComponentWizards(new WizardHost() {
+			@Override
+			public ModelPanel currentModelPanel() {
+				return MainPanel.this.currentModelPanel();
+			}
 
 			@Override
-			public boolean accept(final File dir, final String name) {
-				return name.endsWith(".mdx");
+			public ModelStructureChangeListener structureListener() {
+				return modelStructureChangeListener;
 			}
-		});
-		if (stockFiles != null) {
-			for (final File file : stockFiles) {
-				final String basicName = file.getName().split("\\.")[0];
-				final File pngImage = new File(file.getParent() + File.separatorChar + basicName + ".png");
-				if (pngImage.exists()) {
-					try {
-						final Image image = ImageIO.read(pngImage);
-						final JMenuItem particleItem = new JMenuItem(basicName,
-								new ImageIcon(image.getScaledInstance(28, 28, Image.SCALE_DEFAULT)));
-						particleItem.addActionListener(new ActionListener() {
-							@Override
-							public void actionPerformed(final ActionEvent e) {
-								final ParticleEmitter2 particle = EditableModel.read(file)
-										.sortedIdObjects(ParticleEmitter2.class).get(0);
 
-								final JPanel particlePanel = new JPanel();
-								final List<IdObject> idObjects = new ArrayList<>(currentMDL().getIdObjects());
-								final Bone nullBone = new Bone("No parent");
-								idObjects.add(0, nullBone);
-								final JComboBox<IdObject> parent = new JComboBox<>(idObjects.toArray(new IdObject[0]));
-								parent.setRenderer(new BasicComboBoxRenderer() {
-									@Override
-									public Component getListCellRendererComponent(final JList list, final Object value,
-											final int index, final boolean isSelected, final boolean cellHasFocus) {
-										final IdObject idObject = (IdObject) value;
-										if (idObject == nullBone) {
-											return super.getListCellRendererComponent(list, "No parent", index,
-													isSelected, cellHasFocus);
-										}
-										return super.getListCellRendererComponent(list,
-												value.getClass().getSimpleName() + " \"" + idObject.getName() + "\"",
-												index, isSelected, cellHasFocus);
-									}
-								});
-								final JLabel parentLabel = new JLabel("Parent:");
-								final JLabel imageLabel = new JLabel(
-										new ImageIcon(image.getScaledInstance(128, 128, Image.SCALE_SMOOTH)));
-								final JLabel titleLabel = new JLabel("Add " + basicName);
-								titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
-
-								final JLabel nameLabel = new JLabel("Particle Name:");
-								final JTextField nameField = new JTextField("MyBlizParticle");
-
-								final JLabel xLabel = new JLabel("Z:");
-								final JSpinner xSpinner = new JSpinner(
-										new SpinnerNumberModel(0.0, -100000.00, 100000.0, 0.0001));
-
-								final JLabel yLabel = new JLabel("X:");
-								final JSpinner ySpinner = new JSpinner(
-										new SpinnerNumberModel(0.0, -100000.00, 100000.0, 0.0001));
-
-								final JLabel zLabel = new JLabel("Y:");
-								final JSpinner zSpinner = new JSpinner(
-										new SpinnerNumberModel(0.0, -100000.00, 100000.0, 0.0001));
-								parent.addActionListener(new ActionListener() {
-									@Override
-									public void actionPerformed(final ActionEvent e) {
-										final IdObject choice = parent.getItemAt(parent.getSelectedIndex());
-										xSpinner.setValue(choice.getPivotPoint().x);
-										ySpinner.setValue(choice.getPivotPoint().y);
-										zSpinner.setValue(choice.getPivotPoint().z);
-									}
-								});
-
-								final JPanel animPanel = new JPanel();
-								final List<Animation> anims = currentMDL().getAnims();
-								animPanel.setLayout(new GridLayout(anims.size() + 1, 1));
-								final JCheckBox[] checkBoxes = new JCheckBox[anims.size()];
-								int animIndex = 0;
-								for (final Animation anim : anims) {
-									animPanel.add(checkBoxes[animIndex] = new JCheckBox(anim.getName()));
-									checkBoxes[animIndex].setSelected(true);
-									animIndex++;
-								}
-								final JButton chooseAnimations = new JButton("Choose when to show!");
-								chooseAnimations.addActionListener(new ActionListener() {
-									@Override
-									public void actionPerformed(final ActionEvent e) {
-										JOptionPane.showMessageDialog(particlePanel, animPanel);
-									}
-								});
-								final JButton[] colorButtons = new JButton[3];
-								final Color[] colors = new Color[colorButtons.length];
-								for (int i = 0; i < colorButtons.length; i++) {
-									final Vertex colorValues = particle.getSegmentColor(i);
-									final Color color = new Color((int) (colorValues.z * 255),
-											(int) (colorValues.y * 255), (int) (colorValues.x * 255));
-
-									final JButton button = new JButton("Color " + (i + 1),
-											new ImageIcon(IconUtils.createBlank(color, 32, 32)));
-									colors[i] = color;
-									final int index = i;
-									button.addActionListener(new ActionListener() {
-										@Override
-										public void actionPerformed(final ActionEvent e) {
-											final Color colorChoice = JColorChooser.showDialog(MainPanel.this,
-													"Chooser Color", colors[index]);
-											if (colorChoice != null) {
-												colors[index] = colorChoice;
-												button.setIcon(
-														new ImageIcon(IconUtils.createBlank(colors[index], 32, 32)));
-											}
-										}
-									});
-									colorButtons[i] = button;
-								}
-
-								final GroupLayout layout = new GroupLayout(particlePanel);
-
-								layout.setHorizontalGroup(layout.createSequentialGroup().addComponent(imageLabel)
-										.addGap(8)
-										.addGroup(layout.createParallelGroup(Alignment.CENTER).addComponent(titleLabel)
-												.addGroup(layout.createSequentialGroup().addComponent(nameLabel)
-														.addGap(4).addComponent(nameField))
-												.addGroup(layout.createSequentialGroup().addComponent(parentLabel)
-														.addGap(4).addComponent(parent))
-												.addComponent(chooseAnimations)
-												.addGroup(layout.createSequentialGroup().addComponent(xLabel)
-														.addComponent(xSpinner).addGap(4).addComponent(yLabel)
-														.addComponent(ySpinner).addGap(4).addComponent(zLabel)
-														.addComponent(zSpinner))
-												.addGroup(layout.createSequentialGroup().addComponent(colorButtons[0])
-														.addGap(4).addComponent(colorButtons[1]).addGap(4)
-														.addComponent(colorButtons[2]))));
-								layout.setVerticalGroup(
-										layout.createParallelGroup(Alignment.CENTER).addComponent(imageLabel)
-												.addGroup(layout.createSequentialGroup().addComponent(titleLabel)
-														.addGroup(layout.createParallelGroup(Alignment.CENTER)
-																.addComponent(nameLabel).addComponent(nameField))
-														.addGap(4)
-														.addGroup(layout.createParallelGroup(Alignment.CENTER)
-																.addComponent(parentLabel).addComponent(parent))
-														.addGap(4).addComponent(chooseAnimations).addGap(4)
-														.addGroup(layout.createParallelGroup(Alignment.CENTER)
-																.addComponent(xLabel).addComponent(xSpinner)
-																.addComponent(yLabel).addComponent(ySpinner)
-																.addComponent(zLabel).addComponent(zSpinner))
-														.addGap(4)
-														.addGroup(layout.createParallelGroup(Alignment.CENTER)
-																.addComponent(colorButtons[0])
-																.addComponent(colorButtons[1])
-																.addComponent(colorButtons[2]))));
-								particlePanel.setLayout(layout);
-								final int x = JOptionPane.showConfirmDialog(MainPanel.this, particlePanel,
-										"Add " + basicName, JOptionPane.OK_CANCEL_OPTION);
-								if (x == JOptionPane.OK_OPTION) {
-									// do stuff
-									particle.setPivotPoint(new Vertex(((Number) xSpinner.getValue()).doubleValue(),
-											((Number) ySpinner.getValue()).doubleValue(),
-											((Number) zSpinner.getValue()).doubleValue()));
-									for (int i = 0; i < colors.length; i++) {
-										particle.setSegmentColor(i, new Vertex(colors[i].getBlue() / 255.00,
-												colors[i].getGreen() / 255.00, colors[i].getRed() / 255.00));
-									}
-									final IdObject parentChoice = parent.getItemAt(parent.getSelectedIndex());
-									if (parentChoice == nullBone) {
-										particle.setParent(null);
-									}
-									else {
-										particle.setParent(parentChoice);
-									}
-									AnimFlag oldFlag = particle.getVisibilityFlag();
-									if (oldFlag == null) {
-										oldFlag = new AnimFlag("Visibility");
-									}
-									final AnimFlag visFlag = AnimFlag.buildEmptyFrom(oldFlag);
-									animIndex = 0;
-									for (final Animation anim : anims) {
-										if (!checkBoxes[animIndex].isSelected()) {
-											visFlag.addEntry(anim.getStart(), new Integer(0));
-										}
-										animIndex++;
-									}
-									particle.setVisibilityFlag(visFlag);
-									particle.setName(nameField.getText());
-									currentMDL().add(particle);
-									modelStructureChangeListener
-											.nodesAdded(Collections.<IdObject>singletonList(particle));
-								}
-							}
-						});
-						addParticle.add(particleItem);
-					}
-					catch (final IOException e1) {
-						e1.printStackTrace();
-					}
-				}
+			@Override
+			public ModelComponentNavigationListener navigation() {
+				return componentNavigationListener;
 			}
-		}
+
+			@Override
+			public Component dialogParent() {
+				return MainPanel.this;
+			}
+		}).populate(addMenu, AddComponentWizards.findStockParticleFolder());
 
 		animationMenu = new JMenu("Animation");
 		animationMenu.setMnemonic(KeyEvent.VK_A);

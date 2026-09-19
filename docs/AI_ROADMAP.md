@@ -147,7 +147,7 @@ Current state: Add has exactly two submenus. Add > Particle mutates the model di
 populated from `stock/particles/*.mdx`. Add > Animation has Rising/Falling Birth/Death (not undoable) and
 Single from File/Unit/Model/Object.
 
-- [ ] **W8. Technical "New" lives in the Model tab; friendly wizards live in Add.** New from W1 creates a bare,
+- [x] **W8. Technical "New" lives in the Model tab; friendly wizards live in Add.** (done 2026-09-19) New from W1 creates a bare,
   correctly defaulted component with no dialog. Add becomes a menu of wizards, each undoable: Attachment Point
   (pick an existing bone as parent, optional offset, standard name list such as `Overhead Ref`, `Weapon Ref`,
   `Hand Left Ref`); Particle (existing dialog, made undoable); Collision Shape from selection bounds; Camera from
@@ -412,3 +412,9 @@ Do not copy:
   GUI-testing note: run the app with `-Duser.home=<scratch>` holding a copy of the profile with the
   DirectX preference off, so captures paint fully; JTree type-ahead (`xdotool type "Nodes"`) selects rows
   deterministically.
+- 2026-09-19: W8 done. Add is now `gui/modeledit/wizards/AddComponentWizards` (Attachment Point with the
+  standard name list, Event Object with a browser over the game's AnimLookups/AnimSounds, SplatData,
+  UberSplatData and SpawnData tables, Collision Shape from the selection bounds, Camera from the Edit
+  perspective view, Sequence with copy-keyframes, Global Sequence, and the stock Particle library made
+  undoable); every wizard pushes one `AddComponentsAction` and opens the result in the Model tab. The stock
+  particle folder now ships inside the installed distribution. Verified under Xvfb on Malfurion (1.22).

@@ -17,6 +17,17 @@ application {
     applicationDefaultJvmArgs = []
 }
 
+// ship the stock particle library with the app (Add > Particle)
+distributions {
+    main {
+        contents {
+            from('stock') {
+                into 'stock'
+            }
+        }
+    }
+}
+
 runtime {
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
     modules = ['java.desktop', 'java.scripting', 'java.logging', 'java.xml', 'java.datatransfer', 'jdk.dynalink', 'jdk.unsupported']
