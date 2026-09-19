@@ -1,46 +1,74 @@
 package com.hiveworkshop.wc3.gui.modeledit.components.material;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
+import com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.SetComponentPropertyAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.mdl.Layer;
 
 import net.miginfocom.swing.MigLayout;
 
+/**
+ * The layer's boolean flags; each check box is an undoable toggle of the MDL
+ * flag string in the layer's flag list.
+ */
 public class LayerFlagsPanel extends JPanel {
-	private final JCheckBox unshaded;
-	private final JCheckBox sphereEnvMap;
-	private final JCheckBox twoSided;
-	private final JCheckBox unfogged;
-	private final JCheckBox noDepthTest;
-	private final JCheckBox noDepthSet;
-	private final JCheckBox unlit;
+	private static final String[] FLAGS = { "Unshaded", "SphereEnvMap", "TwoSided", "Unfogged", "NoDepthTest",
+			"NoDepthSet", "Unlit" };
+	private final List<JCheckBox> boxes = new ArrayList<>();
+	private Layer layer;
+	private UndoActionListener undoActionListener;
+	private ModelStructureChangeListener modelStructureChangeListener;
+	private boolean loading;
 
 	public LayerFlagsPanel() {
-		setLayout(new MigLayout());
-		unshaded = new JCheckBox("Unshaded");
-		add(unshaded, "wrap");
-		sphereEnvMap = new JCheckBox("SphereEnvMap");
-		add(sphereEnvMap, "wrap");
-		twoSided = new JCheckBox("TwoSided");
-		add(twoSided, "wrap");
-		unfogged = new JCheckBox("Unfogged");
-		add(unfogged, "wrap");
-		noDepthTest = new JCheckBox("NoDepthTest");
-		add(noDepthTest, "wrap");
-		noDepthSet = new JCheckBox("NoDepthSet");
-		add(noDepthSet, "wrap");
-		unlit = new JCheckBox("Unlit");
-		add(unlit, "wrap");
+		setLayout(new MigLayout("wrap 2"));
+		for (final String flag : FLAGS) {
+			final JCheckBox box = new JCheckBox(flag);
+			box.addActionListener(e -> toggle(flag, box.isSelected()));
+			boxes.add(box);
+			add(box);
+		}
 	}
 
-	public void setLayer(final Layer layer) {
-		unshaded.setSelected(layer.isUnshaded());
-		sphereEnvMap.setSelected(layer.isSphereEnvironmentMap());
-		twoSided.setSelected(layer.isTwoSided());
-		unfogged.setSelected(layer.isUnfogged());
-		noDepthTest.setSelected(layer.isNoDepthTest());
-		noDepthSet.setSelected(layer.isNoDepthSet());
-		unlit.setSelected(layer.isUnlit());
+	private void toggle(final String flag, final boolean selected) {
+		if (loading || (layer == null)) {
+			return;
+		}
+		final Layer target = layer;
+		final ModelStructureChangeListener listener = modelStructureChangeListener;
+		final boolean was = target.getFlags().contains(flag);
+		if (was == selected) {
+			return;
+		}
+		final SetComponentPropertyAction<Boolean> action = new SetComponentPropertyAction<>("layer " + flag, was,
+				selected, value -> {
+					target.getFlags().remove(flag);
+					if (value) {
+						target.getFlags().add(flag);
+					}
+				}, () -> listener.componentChanged(target));
+		action.redo();
+		undoActionListener.pushAction(action);
+	}
+
+	public void setLayer(final Layer layer, final UndoActionListener undoActionListener,
+			final ModelStructureChangeListener modelStructureChangeListener) {
+		this.layer = layer;
+		this.undoActionListener = undoActionListener;
+		this.modelStructureChangeListener = modelStructureChangeListener;
+		loading = true;
+		try {
+			for (int i = 0; i < FLAGS.length; i++) {
+				boxes.get(i).setSelected(layer.getFlags().contains(FLAGS[i]));
+			}
+		} finally {
+			loading = false;
+		}
 	}
 }

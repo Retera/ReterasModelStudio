@@ -105,14 +105,16 @@ drag, no clipboard.
   row in `ModelComponentAnimFlagTree` and scrolling `TracksEditorTimelinePanel` to it. Needs a small "select
   this component" API on `TracksEditorPanel` and on the Outliner; the Outliner already has `ModelViewManager`
   highlight support to reuse.
-- [ ] **W5. Model tab: finish the editors for every component type.** One card per type, all edits as undo
+- [x] **W5. Model tab: finish the editors for every component type.** (done 2026-09-19; the Sequences
+  overview table is deferred to E7 / W8) One card per type, all edits as undo
   actions. Nodes share a base panel (name, parent chooser, pivot, billboard and inherit flags, per-type fields);
   Geoset (material chooser, selection group, LoD, extents, vertex and face counts, UV layer count); GeosetAnim
   (static alpha and color, or jump to Tracks); TextureAnim; Camera (position, target, field of view, near, far,
   1800 depth-of-field static values); FaceEffect; Sequences overview table (name, interval, tags) for W8's
   sequence manager. Fix the material card: layer flags wired, Add and Delete layer wired, layer reorder.
   Reference: the fork's `ComponentIdObjectPanel` hierarchy for field inventory; do not copy its layout.
-- [ ] **W6. Static/dynamic split done right.** For Alpha, Color, TextureID, Emissive, Fresnel and similar
+- [x] **W6. Static/dynamic split done right.** (done 2026-09-19; the per-sequence key summary is a key
+  count + interpolation + global sequence for now) For Alpha, Color, TextureID, Emissive, Fresnel and similar
   properties the Model tab edits only the **static** value. If the property is animated, the card shows the
   interpolation type read-only, a per-sequence summary ("Birth: 3 keys, Stand: 1 key"), and two buttons:
   "Open in Tracks" (W4) and "Make Static" (removes the track, undoable, seeded with the value at time 0).
@@ -400,3 +402,13 @@ Do not copy:
 - 2026-09-19: W11 (Outliner tri-state), W9 (primitives) and W7 (Tracks keyframe editor) done and verified under Xvfb.
   Note for GUI testing: the profile's "disable DirectX" preference turns on the Java2D OpenGL pipeline, which
   leaves partial black repaints on the virtual display; switching tabs forces a full repaint.
+- 2026-09-19: W5 and W6 done. Every component type now has an editor card (`components/cards/`, one
+  `ComponentCard<T>` base with bound-control helpers and a generic `SetComponentPropertyAction`); the new
+  `ModelStructureChangeListener.componentChanged(Object)` hook is the single "a property changed" refresh path.
+  `FloatValuePanel`/`ColorValuePanel` edit the static value only and offer Open in Tracks / Make Static /
+  Make Dynamic (`RemoveTimelineAction` added). Material card: layer flags, Add/Delete/Move layer wired.
+  Verified under Xvfb on 1.22 (Malfurion, HeroPaladin, cinematic), 2.0 HD wisp (popcorn) models, plus a
+  headless smoke test instantiating every card for 2582 components across 1.22/2.0/3.0 models.
+  GUI-testing note: run the app with `-Duser.home=<scratch>` holding a copy of the profile with the
+  DirectX preference off, so captures paint fully; JTree type-ahead (`xdotool type "Nodes"`) selects rows
+  deterministically.
