@@ -425,14 +425,13 @@ public class EditableModel implements Named {
 		if (mdx.cameraChunk != null) {
 			for (final CameraChunk.Camera cam : mdx.cameraChunk.camera) {
 				final Camera mdlCam = new Camera(cam);
-				if (!corruptedCameraWarningGiven && (mdlCam.getName().contains("????????")
-						|| (mdlCam.getName().length() > 20) || (mdlCam.getName().length() <= 0))) {
+				if (!corruptedCameraWarningGiven && mdlCam.getName().contains("????????")) {
+					// The old "name longer than 20 characters" heuristic dated from the external
+					// converter.exe days and fires on every 3.0 camera with a descriptive name.
 					corruptedCameraWarningGiven = true;
-					JOptionPane.showMessageDialog(null, "--- " + this.getName()
-							+ " ---\nWARNING: Java Warcraft Libraries thinks we are loading a camera with corrupted data due to bug in Native MDX Parser.\nPlease DISABLE \"View > Use Native MDX Parser\" if you want to correctly edit \""
-							+ getName()
-							+ "\".\nYou may continue to work, but portions of the model's data have been lost, and will be missing if you save.",
-							"Warning", JOptionPane.WARNING_MESSAGE);
+					System.err.println("--- " + this.getName()
+							+ " ---\nWARNING: camera \"" + mdlCam.getName()
+							+ "\" looks corrupted; portions of the model's camera data may be lost on save.");
 				}
 				add(mdlCam);
 			}
@@ -2310,6 +2309,32 @@ public class EditableModel implements Named {
 		return g.geosetAnim;
 	}
 
+	/**
+	 * The bones a geoset's vertices are skinned to, in first-use order.
+	 * <p>
+	 * This reads the vertex bone links, which are the editing-time truth for
+	 * both SD (matrix groups) and HD (skin weights) geosets. The old code read
+	 * {@code g.matrix}, which is only rebuilt from the links later in the save,
+	 * so on HD models the first save saw the matrices from the file and the
+	 * second save saw the rebuilt ones and wrote different bone GeosetIds.
+	 */
+	private static List<Bone> bonesReferencedBy(final Geoset g) {
+		final java.util.LinkedHashSet<Bone> bones = new java.util.LinkedHashSet<>();
+		for (final GeosetVertex vertex : g.getVertices()) {
+			for (final GeosetVertexBoneLink link : vertex.getLinks()) {
+				if (link.bone != null) {
+					bones.add(link.bone);
+				}
+			}
+		}
+		if (bones.isEmpty()) {
+			for (final Matrix m : g.matrix) {
+				bones.addAll(m.bones);
+			}
+		}
+		return new ArrayList<>(bones);
+	}
+
 	public void cureBoneGeoAnimIds() {
 		if (DISABLE_BONE_GEO_ID_VALIDATOR) {
 			return;
@@ -2322,8 +2347,8 @@ public class EditableModel implements Named {
 		}
 		for (final Geoset g : geosets) {
 			final GeosetAnim ga = getGeosetAnimOfGeoset(g);
-			for (final Matrix m : g.matrix) {
-				for (final Bone b : m.bones) {
+			for (final Bone b : bonesReferencedBy(g)) {
+				{
 					if (!b.multiGeoId) {
 						if (b.geoset == null) {
 							// The bone has been found by no prior matrices

@@ -614,29 +614,44 @@ public class Layer implements Named, VisibilitySource, LayerView, TimelineContai
 		if (textures != null) {
 			final AnimFlag txFlag = getFlag("TextureID");
 			if (txFlag != null) {
-				for (int i = 0; i < txFlag.values.size(); i++) {
-					final Bitmap textureFoundFromDirtyId = ridiculouslyWrongTextureIDToTexture
-							.get(((Integer) txFlag.values.get(i)).intValue());
-					final int newerTextureId = mdlr.getTextureId(textureFoundFromDirtyId);
-					txFlag.values.set(i, newerTextureId);
-					ridiculouslyWrongTextureIDToTexture.put(newerTextureId, textureFoundFromDirtyId);
-				}
+				remapTextureIdTrack(txFlag, ridiculouslyWrongTextureIDToTexture, mdlr);
 			}
 			for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
 				final AnimFlag shadTxFlag = getFlag(shaderTextureTypeHD.name() + "TextureID");
 				if (shadTxFlag != null) {
-					for (int i = 0; i < shadTxFlag.values.size(); i++) {
-						final Map<Integer, Bitmap> ridiculouslyWrongTextureIDToTexture2 = getRidiculouslyWrongTextureIDToTexture(
-								shaderTextureTypeHD);
-						final Bitmap textureFoundFromDirtyId = ridiculouslyWrongTextureIDToTexture2
-								.get(((Integer) shadTxFlag.values.get(i)).intValue());
-						final int newerTextureId = mdlr.getTextureId(textureFoundFromDirtyId);
-						shadTxFlag.values.set(i, newerTextureId);
-						ridiculouslyWrongTextureIDToTexture2.put(newerTextureId, textureFoundFromDirtyId);
-					}
+					remapTextureIdTrack(shadTxFlag, getRidiculouslyWrongTextureIDToTexture(shaderTextureTypeHD), mdlr);
 				}
 			}
 		}
+	}
+
+	/**
+	 * Rewrites an animated texture id track from the old texture ids to the ids
+	 * in the model's rebuilt texture list.
+	 * <p>
+	 * The old id to texture map must be read from a snapshot: the previous
+	 * implementation wrote each new id back into the same map while still
+	 * iterating, so when a new id collided with an old id that had not been
+	 * processed yet, the later key resolved to the wrong texture. On a model
+	 * whose water layer animated through 45 textures this collapsed the track
+	 * into repeating triples on the first save and dropped 21 textures on the
+	 * second.
+	 */
+	private static void remapTextureIdTrack(final AnimFlag track, final Map<Integer, Bitmap> oldIdToTexture,
+			final EditableModel mdlr) {
+		final Map<Integer, Bitmap> snapshot = new HashMap<>(oldIdToTexture);
+		final Map<Integer, Bitmap> newIdToTexture = new HashMap<>();
+		for (int i = 0; i < track.values.size(); i++) {
+			final int oldId = ((Integer) track.values.get(i)).intValue();
+			final Bitmap texture = snapshot.get(oldId);
+			final int newId = mdlr.getTextureId(texture);
+			track.values.set(i, newId);
+			if (texture != null) {
+				newIdToTexture.put(newId, texture);
+			}
+		}
+		oldIdToTexture.clear();
+		oldIdToTexture.putAll(newIdToTexture);
 	}
 
 	public void updateRefs(final EditableModel mdlr) {

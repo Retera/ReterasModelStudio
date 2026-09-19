@@ -136,10 +136,40 @@ public class BlizzardDataInputStream
         final char[] c = readChars(charCount);
         for (int i = 0; i < charCount; i++) {
             if (c[i] == 0) {
-                return String.valueOf(c, 0, i);
+                return cleanControlChars(String.valueOf(c, 0, i));
             }
         }
-        return String.valueOf(c);
+        return cleanControlChars(String.valueOf(c));
+    }
+
+    /**
+     * Some stock models carry stray carriage returns and line feeds inside
+     * fixed-width name fields (MalFurion.mdx has a sequence named "Stand Ready"
+     * followed by six CRs and an LF). Those characters break the MDL text form
+     * of the model, so they are dropped from the end and turned into spaces
+     * in the middle.
+     */
+    private static String cleanControlChars(final String value) {
+        boolean clean = true;
+        for (int i = 0; i < value.length(); i++) {
+            if (value.charAt(i) < ' ') {
+                clean = false;
+                break;
+            }
+        }
+        if (clean) {
+            return value;
+        }
+        int end = value.length();
+        while ((end > 0) && (value.charAt(end - 1) < ' ')) {
+            end--;
+        }
+        final StringBuilder result = new StringBuilder(end);
+        for (int i = 0; i < end; i++) {
+            final char ch = value.charAt(i);
+            result.append(ch < ' ' ? ' ' : ch);
+        }
+        return result.toString();
     }
 
     public String readCharsAsStringCheckNull(final int charCount)

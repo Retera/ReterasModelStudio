@@ -2388,71 +2388,46 @@ public class AnimFlag {
 		// BOOM magic happens
 	}
 
+	/**
+	 * Sorts the keyframes by time. The sort is stable: keys that share a time
+	 * keep their relative order, so repeated saves produce identical files and
+	 * the game keeps seeing the same first key at a duplicated time.
+	 */
 	public void sort() {
-		final int low = 0;
-		final int high = times.size() - 1;
-		if (size() > 1) {
-			quicksort(low, high);
+		final int size = times.size();
+		if (size < 2) {
+			return;
+		}
+		final java.util.List<Integer> order = new java.util.ArrayList<>(size);
+		for (int index = 0; index < size; index++) {
+			order.add(index);
+		}
+		boolean sorted = true;
+		for (int index = 1; index < size; index++) {
+			if (times.get(index - 1).intValue() > times.get(index).intValue()) {
+				sorted = false;
+				break;
+			}
+		}
+		if (sorted) {
+			return;
+		}
+		// List.sort is a stable merge sort
+		order.sort((a, b) -> Integer.compare(times.get(a).intValue(), times.get(b).intValue()));
+		permute(times, order);
+		permute(values, order);
+		if (inTans.size() == size) {
+			permute(inTans, order);
+		}
+		if (outTans.size() == size) {
+			permute(outTans, order);
 		}
 	}
 
-	private void quicksort(final int low, final int high) {
-		// Thanks to Lars Vogel for the quicksort concept code (something to
-		// look at), found on google
-		// (re-written by Eric "Retera" for use in AnimFlags)
-		int i = low, j = high;
-		final Integer pivot = times.get(low + (high - low) / 2);
-
-		while (i <= j) {
-			while (times.get(i).intValue() < pivot.intValue()) {
-				i++;
-			}
-			while (times.get(j).intValue() > pivot.intValue()) {
-				j--;
-			}
-			if (i <= j) {
-				exchange(i, j);
-				i++;
-				j--;
-			}
-		}
-
-		if (low < j) {
-			quicksort(low, j);
-		}
-		if (i < high) {
-			quicksort(i, high);
-		}
-	}
-
-	private void exchange(final int i, final int j) {
-		final Integer iTime = times.get(i);
-		final Object iValue = values.get(i);
-
-		times.set(i, times.get(j));
-		try {
-			values.set(i, values.get(j));
-		} catch (final Exception e) {
-			e.printStackTrace();
-			// System.out.println(getName()+":
-			// "+times.size()+","+values.size());
-			// System.out.println(times.get(0)+": "+values.get(0));
-			// System.out.println(times.get(1));
-		}
-
-		times.set(j, iTime);
-		values.set(j, iValue);
-
-		if (inTans.size() > 0)// if we have to mess with Tans
-		{
-			final Object iInTan = inTans.get(i);
-			final Object iOutTan = outTans.get(i);
-
-			inTans.set(i, inTans.get(j));
-			outTans.set(i, outTans.get(j));
-
-			inTans.set(j, iInTan);
-			outTans.set(j, iOutTan);
+	private static <T> void permute(final java.util.List<T> list, final java.util.List<Integer> order) {
+		final java.util.List<T> copy = new java.util.ArrayList<>(list);
+		for (int index = 0; index < order.size(); index++) {
+			list.set(index, copy.get(order.get(index)));
 		}
 	}
 
