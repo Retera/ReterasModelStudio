@@ -20,6 +20,18 @@ public interface ModelView {
 
 	SetView<Camera> getEditableCameras();
 
+	/** Nodes drawn but locked; editable nodes are not necessarily in this set. */
+	SetView<IdObject> getVisibleIdObjects();
+
+	/** Cameras drawn but locked; editable cameras are not necessarily in this set. */
+	SetView<Camera> getVisibleCameras();
+
+	ComponentVisibility getGeosetVisibility(Geoset geoset);
+
+	ComponentVisibility getIdObjectVisibility(IdObject node);
+
+	ComponentVisibility getCameraVisibility(Camera camera);
+
 	void addStateListener(ModelViewStateListener listener);
 
 	void visit(ModelVisitor visitor);

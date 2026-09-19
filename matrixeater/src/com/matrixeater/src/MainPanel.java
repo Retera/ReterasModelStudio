@@ -5805,6 +5805,16 @@ public class MainPanel extends JPanel
 			showDockedView(tracksView);
 			modelPanel.getTracksEditorPanel().selectObject(component);
 		}
+
+		@Override
+		public void openInModelTab(final Object component) {
+			final ModelPanel modelPanel = currentModelPanel();
+			if (modelPanel == null) {
+				return;
+			}
+			showDockedView(modelDataView);
+			modelPanel.getModelComponentBrowserTree().selectObject(component);
+		}
 	};
 
 	private void showDockedView(final View view) {
@@ -6480,6 +6490,7 @@ public class MainPanel extends JPanel
 		addTabForView(temp, selectNewTab);
 		modelPanels.add(temp);
 		temp.getModelComponentBrowserTree().setNavigationListener(componentNavigationListener);
+		temp.getModelViewManagingTree().setNavigationListener(componentNavigationListener);
 
 		// tabbedPane.addTab(f.getName().split("\\.")[0], icon, temp, f.getPath());
 		// if (selectNewTab) {

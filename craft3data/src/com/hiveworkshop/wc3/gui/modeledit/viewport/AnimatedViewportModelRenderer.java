@@ -94,13 +94,16 @@ public class AnimatedViewportModelRenderer implements ModelRenderer {
 	}
 
 	private void resetIdObjectRendererWithNode(final IdObject object) {
-		idObjectRenderer.reset(coordinateSystem, graphics,
-				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor()
-						: programPreferences.getLightsColor(),
-				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor()
-						: programPreferences.getAnimatedBoneUnselectedColor(),
-				modelView.getHighlightedNode() == object ? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED,
-				renderModel, programPreferences.isUseBoxesForPivotPoints());
+		final boolean highlighted = modelView.getHighlightedNode() == object;
+		final boolean locked = !highlighted && !modelView.getEditableIdObjects().contains(object);
+		final Color lightColor = highlighted ? programPreferences.getHighlighVertexColor()
+				: locked ? programPreferences.getVisibleUneditableColor() : programPreferences.getLightsColor();
+		final Color pivotColor = highlighted ? programPreferences.getHighlighVertexColor()
+				: locked ? programPreferences.getVisibleUneditableColor()
+						: programPreferences.getAnimatedBoneUnselectedColor();
+		idObjectRenderer.reset(coordinateSystem, graphics, lightColor, pivotColor,
+				highlighted ? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED, renderModel,
+				programPreferences.isUseBoxesForPivotPoints());
 	}
 
 	@Override

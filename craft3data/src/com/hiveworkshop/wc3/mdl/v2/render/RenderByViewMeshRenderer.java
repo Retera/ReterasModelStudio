@@ -33,7 +33,8 @@ public final class RenderByViewMeshRenderer implements MeshVisitor {
 	}
 
 	private boolean isVisibleNode(final IdObject object) {
-		return modelView.getEditableIdObjects().contains(object) || (object == modelView.getHighlightedNode());
+		return modelView.getEditableIdObjects().contains(object) || modelView.getVisibleIdObjects().contains(object)
+				|| (object == modelView.getHighlightedNode());
 	}
 
 }

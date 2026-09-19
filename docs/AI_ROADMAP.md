@@ -187,7 +187,7 @@ Single from File/Unit/Model/Object.
   current paint loop and stop repainting idle 2D views (repaint on model or camera change, not on a timer),
   which relieves the starvation before the GL viewport exists; the finished W10 removes the fight entirely
   because every view shares one GL context strategy.
-- [ ] **W11. Outliner: visible-but-not-editable and a right-click menu.** `ModelViewManager` already has a
+- [x] **W11. Outliner: visible-but-not-editable and a right-click menu.** (eye + check glyphs per row; locked nodes and cameras now have their own visible sets and draw in the "visible uneditable" color) `ModelViewManager` already has a
   separate `visibleGeosets` set, `RenderByViewModelRenderer` and `PerspectiveViewport` already draw geosets that
   are visible or editable, and every call to `makeGeosetVisible` is commented out, so the third state exists in
   the data model and is unreachable in the UI. Add the same for nodes and cameras (today the checkbox says

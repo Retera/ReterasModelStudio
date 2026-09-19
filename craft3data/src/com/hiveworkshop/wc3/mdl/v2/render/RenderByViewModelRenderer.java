@@ -116,13 +116,14 @@ public final class RenderByViewModelRenderer implements ModelRenderer {
 
 	@Override
 	public void camera(final Camera camera) {
-		if (modelView.getEditableCameras().contains(camera)) {
+		if (modelView.getEditableCameras().contains(camera) || modelView.getVisibleCameras().contains(camera)) {
 			fullModelRenderer.camera(camera);
 		}
 	}
 
 	private boolean isVisibleNode(final IdObject object) {
-		return modelView.getEditableIdObjects().contains(object) || (object == modelView.getHighlightedNode());
+		return modelView.getEditableIdObjects().contains(object) || modelView.getVisibleIdObjects().contains(object)
+				|| (object == modelView.getHighlightedNode());
 	}
 
 }

@@ -96,12 +96,15 @@ public class ViewportModelRenderer implements ModelRenderer {
 	}
 
 	private void resetIdObjectRendererWithNode(final IdObject object) {
-		idObjectRenderer.reset(coordinateSystem, graphics,
-				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor()
-						: programPreferences.getLightsColor(),
-				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor()
-						: programPreferences.getPivotPointsColor(),
-				modelView.getHighlightedNode() == object ? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED,
+		final boolean highlighted = modelView.getHighlightedNode() == object;
+		// a visible-but-locked node is drawn in the same muted color as a locked geoset
+		final boolean locked = !highlighted && !modelView.getEditableIdObjects().contains(object);
+		final Color lightColor = highlighted ? programPreferences.getHighlighVertexColor()
+				: locked ? programPreferences.getVisibleUneditableColor() : programPreferences.getLightsColor();
+		final Color pivotColor = highlighted ? programPreferences.getHighlighVertexColor()
+				: locked ? programPreferences.getVisibleUneditableColor() : programPreferences.getPivotPointsColor();
+		idObjectRenderer.reset(coordinateSystem, graphics, lightColor, pivotColor,
+				highlighted ? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED,
 				programPreferences.isUseBoxesForPivotPoints());
 	}
 

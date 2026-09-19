@@ -20,6 +20,8 @@ public final class ModelViewManager implements ModelView {
 	private final Set<Geoset> visibleGeosets;
 	private final Set<IdObject> editableIdObjects;
 	private final Set<Camera> editableCameras;
+	private final Set<IdObject> visibleIdObjects;
+	private final Set<Camera> visibleCameras;
 	private Geoset highlightedGeoset;
 	private IdObject highlightedNode;
 	private final RenderByViewModelRenderer renderByViewModelRenderer;
@@ -37,6 +39,8 @@ public final class ModelViewManager implements ModelView {
 		this.visibleGeosets = new HashSet<>();
 		this.editableIdObjects = new HashSet<>();
 		this.editableCameras = new HashSet<>();
+		this.visibleIdObjects = new HashSet<>();
+		this.visibleCameras = new HashSet<>();
 		this.renderByViewModelRenderer = new RenderByViewModelRenderer(this);
 		this.renderByViewMeshRenderer = new RenderByViewMeshRenderer(this);
 	}
@@ -69,6 +73,85 @@ public final class ModelViewManager implements ModelView {
 	@Override
 	public SetView<Camera> getEditableCameras() {
 		return editableCameras;
+	}
+
+	@Override
+	public SetView<IdObject> getVisibleIdObjects() {
+		return visibleIdObjects;
+	}
+
+	@Override
+	public SetView<Camera> getVisibleCameras() {
+		return visibleCameras;
+	}
+
+	@Override
+	public ComponentVisibility getGeosetVisibility(final Geoset geoset) {
+		if (editableGeosets.contains(geoset)) {
+			return ComponentVisibility.EDITABLE;
+		}
+		return visibleGeosets.contains(geoset) ? ComponentVisibility.VISIBLE : ComponentVisibility.HIDDEN;
+	}
+
+	@Override
+	public ComponentVisibility getIdObjectVisibility(final IdObject node) {
+		if (editableIdObjects.contains(node)) {
+			return ComponentVisibility.EDITABLE;
+		}
+		return visibleIdObjects.contains(node) ? ComponentVisibility.VISIBLE : ComponentVisibility.HIDDEN;
+	}
+
+	@Override
+	public ComponentVisibility getCameraVisibility(final Camera camera) {
+		if (editableCameras.contains(camera)) {
+			return ComponentVisibility.EDITABLE;
+		}
+		return visibleCameras.contains(camera) ? ComponentVisibility.VISIBLE : ComponentVisibility.HIDDEN;
+	}
+
+	/**
+	 * Sets the tri-state visibility. EDITABLE also marks the geoset visible so
+	 * that dropping to VISIBLE later keeps it on screen.
+	 */
+	public void setGeosetVisibility(final Geoset geoset, final ComponentVisibility state) {
+		if (state.isEditable()) {
+			makeGeosetVisible(geoset);
+			makeGeosetEditable(geoset);
+		} else if (state.isVisible()) {
+			makeGeosetNotEditable(geoset);
+			makeGeosetVisible(geoset);
+		} else {
+			makeGeosetNotEditable(geoset);
+			makeGeosetNotVisible(geoset);
+		}
+	}
+
+	public void setIdObjectVisibility(final IdObject node, final ComponentVisibility state) {
+		if (state.isEditable()) {
+			visibleIdObjects.add(node);
+			makeIdObjectVisible(node);
+		} else if (state.isVisible()) {
+			makeIdObjectNotVisible(node);
+			visibleIdObjects.add(node);
+			modelViewStateNotifier.idObjectVisible(node);
+		} else {
+			visibleIdObjects.remove(node);
+			makeIdObjectNotVisible(node);
+		}
+	}
+
+	public void setCameraVisibility(final Camera camera, final ComponentVisibility state) {
+		if (state.isEditable()) {
+			visibleCameras.add(camera);
+			makeCameraVisible(camera);
+		} else if (state.isVisible()) {
+			makeCameraNotVisible(camera);
+			visibleCameras.add(camera);
+			modelViewStateNotifier.cameraVisible(camera);
+		} else {
+			visibleCameras.remove(camera);
+			makeCameraNotVisible(camera);
+		}
 	}
 
 	@Override
@@ -163,6 +246,20 @@ public final class ModelViewManager implements ModelView {
 		final Set<Integer> visibleGeosetIds = new HashSet<>();
 		final Set<Integer> editableObjectIds = new HashSet<>();
 		final Set<Integer> editableCameraIds = new HashSet<>();
+		final Set<Integer> visibleObjectIds = new HashSet<>();
+		final Set<Integer> visibleCameraIds = new HashSet<>();
+		for (final IdObject visibleObject : visibleIdObjects) {
+			final int indexOf = this.model.getIdObjects().indexOf(visibleObject);
+			if (indexOf != -1) {
+				visibleObjectIds.add(indexOf);
+			}
+		}
+		for (final Camera visibleCamera : visibleCameras) {
+			final int indexOf = this.model.getCameras().indexOf(visibleCamera);
+			if (indexOf != -1) {
+				visibleCameraIds.add(indexOf);
+			}
+		}
 		for (final Geoset editableGeoset : editableGeosets) {
 			final int indexOf = this.model.getGeosets().indexOf(editableGeoset);
 			if (indexOf != -1) {
@@ -222,6 +319,18 @@ public final class ModelViewManager implements ModelView {
 		for (final int objectId : editableCameraIds) {
 			if (objectId < model.getCameras().size()) {
 				editableCameras.add(model.getCameras().get(objectId));
+			}
+		}
+		visibleIdObjects.clear();
+		for (final int objectId : visibleObjectIds) {
+			if (objectId < model.getIdObjectsSize()) {
+				visibleIdObjects.add(model.getIdObject(objectId));
+			}
+		}
+		visibleCameras.clear();
+		for (final int objectId : visibleCameraIds) {
+			if (objectId < model.getCameras().size()) {
+				visibleCameras.add(model.getCameras().get(objectId));
 			}
 		}
 	}

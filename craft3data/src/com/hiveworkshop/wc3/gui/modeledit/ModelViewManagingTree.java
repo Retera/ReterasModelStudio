@@ -1,86 +1,268 @@
 package com.hiveworkshop.wc3.gui.modeledit;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JTree;
 import javax.swing.SwingUtilities;
-import javax.swing.tree.DefaultTreeModel;
+import javax.swing.UIManager;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 
-import com.etheller.collections.ArrayList;
-import com.etheller.collections.Collection;
-import com.etheller.collections.HashMap;
-import com.etheller.collections.List;
-import com.etheller.collections.Map;
+import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
+import com.hiveworkshop.wc3.gui.modeledit.componenttree.ModelComponentNavigationListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetComponentVisibilityAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetComponentVisibilityAction.VisibilityTarget;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponentVisitor;
-import com.hiveworkshop.wc3.gui.modeledit.util.JCheckBoxTree;
-import com.hiveworkshop.wc3.gui.modeledit.util.JCheckBoxTreeNode;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.IdObject;
+import com.hiveworkshop.wc3.mdl.v2.ComponentVisibility;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 
-public final class ModelViewManagingTree extends JCheckBoxTree {
+/**
+ * The Outliner: every geoset, node and camera with two toggles per row, an
+ * eye (drawn in the viewports) and a check (selectable and editable). Editable
+ * implies visible, so turning the eye off also locks the row out of editing,
+ * and turning the check on also shows it. Group rows apply to everything
+ * beneath them. Every change is one undo action; changes that give or take
+ * editability go through the model editor so the selection stays consistent.
+ */
+public final class ModelViewManagingTree extends JTree {
+	private static final int GLYPH_SIZE = 16;
+	private static final int GLYPH_COUNT = 2;
+
 	private final ModelViewManager modelViewManager;
+	private final UndoActionListener undoActionListener;
+	private final ModelEditorManager modelEditorManager;
+	private ModelComponentNavigationListener navigationListener = ModelComponentNavigationListener.NONE;
 
 	public ModelViewManagingTree(final ModelViewManager modelViewManager, final UndoActionListener undoActionListener,
 			final ModelEditorManager modelEditorManager) {
 		super(buildTreeModel(modelViewManager));
 		this.modelViewManager = modelViewManager;
-		addCheckChangeEventListener(new CheckChangeEventListener() {
+		this.undoActionListener = undoActionListener;
+		this.modelEditorManager = modelEditorManager;
+		setToggleClickCount(0);
+		setCellRenderer(new OutlinerCellRenderer());
+		final HighlightOnMouseoverListenerImpl hoverListener = new HighlightOnMouseoverListenerImpl();
+		addMouseMotionListener(hoverListener);
+		addMouseListener(hoverListener);
+		addMouseListener(new MouseAdapter() {
 			@Override
-			public void checkStateChanged(final CheckChangeEvent event) {
-				final JCheckBoxTreeNode sourceNode = (JCheckBoxTreeNode) event.getSource();
-				final List<CheckableDisplayElement<?>> components = new ArrayList<>();
-				handleNodeRecursively(sourceNode, components);
-				final CheckableDisplayElementToggleHandler toggleHandler = new CheckableDisplayElementToggleHandler(
-						components);
-				UndoAction showHideComponentAction;
-				if (isSelected(sourceNode)) {
-					showHideComponentAction = modelEditorManager.getModelEditor().showComponent(toggleHandler);
-				} else {
-					final Runnable refreshGUIRunnable = new Runnable() {
-						@Override
-						public void run() {
-							reloadFromModelView();
-						}
-					};
-					showHideComponentAction = modelEditorManager.getModelEditor().hideComponent(components,
-							toggleHandler, refreshGUIRunnable);
-				}
-				undoActionListener.pushAction(showHideComponentAction);
-			}
-
-			private void handleNodeRecursively(final JCheckBoxTreeNode parent,
-					final List<CheckableDisplayElement<?>> components) {
-				notifyModelViewManagerStateChanged(parent, components);
-				if (!parent.isHasPersonalState()) {
-					for (int i = 0; i < parent.getChildCount(); i++) {
-						final JCheckBoxTreeNode childAt = (JCheckBoxTreeNode) parent.getChildAt(i);
-						handleNodeRecursively(childAt, components);
-					}
+			public void mousePressed(final MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showPopup(e);
 				}
 			}
 
-			private void notifyModelViewManagerStateChanged(final JCheckBoxTreeNode sourceNode,
-					final List<CheckableDisplayElement<?>> components) {
-				final Object userObject = sourceNode.getUserObject();
-				final CheckableDisplayElement<?> element = (CheckableDisplayElement<?>) userObject;
-				element.setChecked(isSelected(sourceNode));
-				components.add(element);
+			@Override
+			public void mouseReleased(final MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showPopup(e);
+				} else if (SwingUtilities.isLeftMouseButton(e)) {
+					handleClick(e);
+				}
 			}
 		});
-		final HighlightOnMouseoverListenerImpl mouseListener = new HighlightOnMouseoverListenerImpl();
-		addMouseMotionListener(mouseListener);
-		addMouseListener(mouseListener);
 	}
+
+	public void setNavigationListener(final ModelComponentNavigationListener navigationListener) {
+		this.navigationListener = navigationListener == null ? ModelComponentNavigationListener.NONE
+				: navigationListener;
+	}
+
+	// ---- clicks ----
+
+	private void handleClick(final MouseEvent e) {
+		final TreePath path = getPathForLocation(e.getX(), e.getY());
+		if (path == null) {
+			return;
+		}
+		final Rectangle bounds = getPathBounds(path);
+		final OutlinerNode node = (OutlinerNode) path.getLastPathComponent();
+		final int glyph = bounds == null ? -1 : (e.getX() - bounds.x) / GLYPH_SIZE;
+		final List<OutlinerElement<?>> targets = node.componentElements();
+		if (targets.isEmpty()) {
+			return;
+		}
+		if (glyph == 0) {
+			// eye: hide if anything is visible, else show (locked)
+			boolean anyVisible = false;
+			for (final OutlinerElement<?> element : targets) {
+				anyVisible |= element.getVisibility().isVisible();
+			}
+			applyVisibility(targets, anyVisible ? ComponentVisibility.HIDDEN : ComponentVisibility.VISIBLE);
+		} else {
+			// check (or the label, as the old checkbox behaved): lock if everything is
+			// editable, else make editable
+			boolean allEditable = true;
+			for (final OutlinerElement<?> element : targets) {
+				allEditable &= element.getVisibility().isEditable();
+			}
+			applyVisibility(targets, allEditable ? ComponentVisibility.VISIBLE : ComponentVisibility.EDITABLE);
+		}
+	}
+
+	/**
+	 * Moves every element to the given state as one undoable step.
+	 */
+	private void applyVisibility(final List<OutlinerElement<?>> elements, final ComponentVisibility to) {
+		final List<OutlinerElement<?>> gainingEditability = new ArrayList<>();
+		final List<OutlinerElement<?>> losingEditability = new ArrayList<>();
+		final List<OutlinerElement<?>> others = new ArrayList<>();
+		for (final OutlinerElement<?> element : elements) {
+			final ComponentVisibility from = element.getVisibility();
+			if (from == to) {
+				continue;
+			}
+			if (to.isEditable()) {
+				gainingEditability.add(element);
+			} else if (from.isEditable()) {
+				losingEditability.add(element);
+			} else {
+				others.add(element);
+			}
+		}
+		final Runnable refresh = this::repaint;
+		final List<UndoAction> actions = new ArrayList<>();
+		if (!gainingEditability.isEmpty()) {
+			actions.add(modelEditorManager.getModelEditor()
+					.showComponent(new TransitionHandler(gainingEditability, to)));
+		}
+		if (!losingEditability.isEmpty()) {
+			actions.add(modelEditorManager.getModelEditor().hideComponent(
+					ListView.Util.of(losingEditability.toArray(new SelectableComponent[0])),
+					new TransitionHandler(losingEditability, to), refresh));
+		}
+		if (!others.isEmpty()) {
+			final SetComponentVisibilityAction action = new SetComponentVisibilityAction(others, to, refresh);
+			action.redo();
+			actions.add(action);
+		}
+		if (actions.size() == 1) {
+			undoActionListener.pushAction(actions.get(0));
+		} else if (actions.size() > 1) {
+			undoActionListener.pushAction(new CompoundAction(actions.get(0).actionName(),
+					ListView.Util.of(actions.toArray(new UndoAction[0]))));
+		}
+		repaint();
+	}
+
+	/**
+	 * Adapts a tri-state transition to the two-state contract of the model
+	 * editor's show/hide pipeline. When the target state is editable,
+	 * makeEditable applies it and makeNotEditable restores each element's old
+	 * state; when editability is being taken away it is the other way round.
+	 */
+	private static final class TransitionHandler implements EditabilityToggleHandler {
+		private final List<OutlinerElement<?>> elements;
+		private final Map<OutlinerElement<?>, ComponentVisibility> before = new HashMap<>();
+		private final ComponentVisibility to;
+
+		TransitionHandler(final List<OutlinerElement<?>> elements, final ComponentVisibility to) {
+			this.elements = elements;
+			this.to = to;
+			for (final OutlinerElement<?> element : elements) {
+				before.put(element, element.getVisibility());
+			}
+		}
+
+		@Override
+		public void makeEditable() {
+			for (final OutlinerElement<?> element : elements) {
+				element.setVisibility(to.isEditable() ? to : before.get(element));
+			}
+		}
+
+		@Override
+		public void makeNotEditable() {
+			for (final OutlinerElement<?> element : elements) {
+				element.setVisibility(to.isEditable() ? before.get(element) : to);
+			}
+		}
+	}
+
+	// ---- popup ----
+
+	private void showPopup(final MouseEvent e) {
+		final TreePath path = getPathForLocation(e.getX(), e.getY());
+		if (path == null) {
+			return;
+		}
+		setSelectionPath(path);
+		final OutlinerNode node = (OutlinerNode) path.getLastPathComponent();
+		final List<OutlinerElement<?>> targets = node.componentElements();
+		if (targets.isEmpty()) {
+			return;
+		}
+		final JPopupMenu menu = new JPopupMenu();
+		final boolean group = !node.isComponent();
+		final String suffix = group ? " (all beneath)" : "";
+		menu.add(item("Editable" + suffix, () -> applyVisibility(targets, ComponentVisibility.EDITABLE)));
+		menu.add(item("Visible, locked" + suffix, () -> applyVisibility(targets, ComponentVisibility.VISIBLE)));
+		menu.add(item("Hidden" + suffix, () -> applyVisibility(targets, ComponentVisibility.HIDDEN)));
+		menu.addSeparator();
+		final List<OutlinerElement<?>> category = node.categoryElements();
+		if (node.isComponent()) {
+			menu.add(item("Show Only This", () -> {
+				final List<OutlinerElement<?>> rest = new ArrayList<>(category);
+				rest.removeAll(targets);
+				applyVisibility(rest, ComponentVisibility.HIDDEN);
+				applyVisibility(targets, ComponentVisibility.EDITABLE);
+			}));
+		}
+		menu.add(item("Show All", () -> applyVisibility(allComponentElements(), ComponentVisibility.EDITABLE)));
+		if (node.isComponent()) {
+			final Object item = node.element().item;
+			menu.addSeparator();
+			menu.add(item("Select in Model Tab", () -> navigationListener.openInModelTab(item)));
+			menu.add(item("Open in Tracks", () -> navigationListener.openInTracks(item)));
+		}
+		menu.show(this, e.getX(), e.getY());
+	}
+
+	private static JMenuItem item(final String label, final Runnable action) {
+		return new JMenuItem(new AbstractAction(label) {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				action.run();
+			}
+		});
+	}
+
+	private List<OutlinerElement<?>> allComponentElements() {
+		return ((OutlinerNode) getModel().getRoot()).componentElements();
+	}
+
+	// ---- model ----
 
 	public void reloadFromModelView() {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -91,18 +273,16 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 				setModel(buildTreeModel(modelViewManager));
 				final TreePath newRootPath = new TreePath(getModel().getRoot());
 				final List<TreePath> pathsToExpand = new ArrayList<>();
-				while (expandedDescendants != null && expandedDescendants.hasMoreElements()) {
+				while ((expandedDescendants != null) && expandedDescendants.hasMoreElements()) {
 					final TreePath nextPathToExpand = expandedDescendants.nextElement();
 					TreePath newPathWithNewObjects = newRootPath;
-					JCheckBoxTreeNode currentNode = (JCheckBoxTreeNode) getModel().getRoot();
+					OutlinerNode currentNode = (OutlinerNode) getModel().getRoot();
 					for (int i = 1; i < nextPathToExpand.getPathCount(); i++) {
-						final JCheckBoxTreeNode pathComponent = (JCheckBoxTreeNode) nextPathToExpand
-								.getPathComponent(i);
+						final OutlinerNode pathComponent = (OutlinerNode) nextPathToExpand.getPathComponent(i);
 						boolean foundMatchingChild = false;
-						for (int j = 0; j < currentNode.getChildCount() && !foundMatchingChild; j++) {
-							final JCheckBoxTreeNode childAt = (JCheckBoxTreeNode) currentNode.getChildAt(j);
-							if (asElement(childAt.getUserObject())
-									.hasSameItem(asElement(pathComponent.getUserObject()))) {
+						for (int j = 0; (j < currentNode.getChildCount()) && !foundMatchingChild; j++) {
+							final OutlinerNode childAt = (OutlinerNode) currentNode.getChildAt(j);
+							if (childAt.element().hasSameItem(pathComponent.element())) {
 								currentNode = childAt;
 								newPathWithNewObjects = newPathWithNewObjects.pathByAddingChild(childAt);
 								foundMatchingChild = true;
@@ -118,36 +298,33 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 					expandPath(path);
 				}
 			}
-
 		});
 	}
 
 	/**
-	 * Expands to and scrolls to the row showing the given geoset, node or camera.
-	 * The outliner does not support row selection, so this is the closest thing
-	 * to "select it" that it offers.
+	 * Expands to, scrolls to and selects the row showing the given geoset, node
+	 * or camera.
 	 */
 	public void scrollToObject(final Object object) {
 		final Object root = getModel().getRoot();
-		if (root instanceof DefaultMutableTreeNode) {
-			final TreePath path = findPathByItem((DefaultMutableTreeNode) root, object);
+		if (root instanceof OutlinerNode) {
+			final TreePath path = findPathByItem((OutlinerNode) root, object);
 			if (path != null) {
 				if (path.getParentPath() != null) {
 					expandPath(path.getParentPath());
 				}
 				scrollPathToVisible(path);
+				setSelectionPath(path);
 			}
 		}
 	}
 
-	private TreePath findPathByItem(final DefaultMutableTreeNode node, final Object object) {
-		final Object userObject = node.getUserObject();
-		if ((userObject instanceof CheckableDisplayElement<?>)
-				&& (((CheckableDisplayElement<?>) userObject).item == object)) {
+	private TreePath findPathByItem(final OutlinerNode node, final Object object) {
+		if (node.element().item == object) {
 			return new TreePath(node.getPath());
 		}
 		for (int i = 0; i < node.getChildCount(); i++) {
-			final TreePath path = findPathByItem((DefaultMutableTreeNode) node.getChildAt(i), object);
+			final TreePath path = findPathByItem((OutlinerNode) node.getChildAt(i), object);
 			if (path != null) {
 				return path;
 			}
@@ -155,86 +332,231 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		return null;
 	}
 
-	private CheckableDisplayElement<?> asElement(final Object userObject) {
-		return (CheckableDisplayElement<?>) userObject;
-	}
-
 	private static DefaultTreeModel buildTreeModel(final ModelViewManager modelViewManager) {
-		final JCheckBoxTreeNode root = new JCheckBoxTreeNode(new CheckableModelElement(modelViewManager));
-
-		final JCheckBoxTreeNode mesh = new JCheckBoxTreeNode(new CheckableDummyElement(modelViewManager, "Mesh"));
-
+		final OutlinerNode root = new OutlinerNode(new ModelElement(modelViewManager));
+		final OutlinerNode mesh = new OutlinerNode(new GroupElement(modelViewManager, "Mesh"));
 		for (final Geoset geoset : modelViewManager.getModel().getGeosets()) {
-			final boolean contains = modelViewManager.getEditableGeosets().contains(geoset);
-			mesh.add(new JCheckBoxTreeNode(new CheckableGeosetElement(modelViewManager, geoset), contains));
+			mesh.add(new OutlinerNode(new GeosetElement(modelViewManager, geoset)));
 		}
-
 		if (mesh.getChildCount() > 0) {
 			root.add(mesh);
 		}
-
-		final Map<IdObject, JCheckBoxTreeNode> nodeToTreeElement = new HashMap<>();
-		final Map<IdObject, List<JCheckBoxTreeNode>> nodeToChildrenAwaitingLink = new HashMap<>();
-		final JCheckBoxTreeNode nodes = new JCheckBoxTreeNode(new CheckableDummyElement(modelViewManager, "Nodes"));
+		final Map<IdObject, OutlinerNode> nodeToTreeElement = new HashMap<>();
+		final Map<IdObject, List<OutlinerNode>> nodeToChildrenAwaitingLink = new HashMap<>();
+		final OutlinerNode nodes = new OutlinerNode(new GroupElement(modelViewManager, "Nodes"));
 		nodeToTreeElement.put(null, nodes);
 		for (final IdObject object : modelViewManager.getModel().getIdObjects()) {
-			final JCheckBoxTreeNode treeNode = new JCheckBoxTreeNode(new CheckableNodeElement(modelViewManager, object),
-					modelViewManager.getEditableIdObjects().contains(object));
+			final OutlinerNode treeNode = new OutlinerNode(new NodeElement(modelViewManager, object));
 			nodeToTreeElement.put(object, treeNode);
 			IdObject parent = object.getParent();
 			if (parent == object) {
 				parent = null;
 			}
-			final JCheckBoxTreeNode parentTreeNode = nodeToTreeElement.get(parent);
+			final OutlinerNode parentTreeNode = nodeToTreeElement.get(parent);
 			if (parentTreeNode == null) {
-				List<JCheckBoxTreeNode> awaitingChildrenList = nodeToChildrenAwaitingLink.get(parent);
-				if (awaitingChildrenList == null) {
-					awaitingChildrenList = new ArrayList<>();
-					nodeToChildrenAwaitingLink.put(parent, awaitingChildrenList);
+				List<OutlinerNode> awaiting = nodeToChildrenAwaitingLink.get(parent);
+				if (awaiting == null) {
+					awaiting = new ArrayList<>();
+					nodeToChildrenAwaitingLink.put(parent, awaiting);
 				}
-				awaitingChildrenList.add(treeNode);
+				awaiting.add(treeNode);
 			} else {
 				parentTreeNode.add(treeNode);
 			}
-			final List<JCheckBoxTreeNode> childrenNeedingLinkToCurrentNode = nodeToChildrenAwaitingLink.get(object);
-			if (childrenNeedingLinkToCurrentNode != null
-					&& !Collection.Util.isEmpty(childrenNeedingLinkToCurrentNode)) {
-				for (final JCheckBoxTreeNode child : childrenNeedingLinkToCurrentNode) {
+			final List<OutlinerNode> childrenNeedingLink = nodeToChildrenAwaitingLink.get(object);
+			if (childrenNeedingLink != null) {
+				for (final OutlinerNode child : childrenNeedingLink) {
 					treeNode.add(child);
 				}
 			}
-
 		}
 		if (nodes.getChildCount() > 0) {
 			root.add(nodes);
 		}
-
-		final JCheckBoxTreeNode cameras = new JCheckBoxTreeNode(new CheckableDummyElement(modelViewManager, "Cameras"));
+		final OutlinerNode cameras = new OutlinerNode(new GroupElement(modelViewManager, "Cameras"));
 		for (final Camera camera : modelViewManager.getModel().getCameras()) {
-			cameras.add(new JCheckBoxTreeNode(new CheckableCameraElement(modelViewManager, camera),
-					modelViewManager.getEditableCameras().contains(camera)));
+			cameras.add(new OutlinerNode(new CameraElement(modelViewManager, camera)));
 		}
 		if (cameras.getChildCount() > 0) {
 			root.add(cameras);
 		}
-
-		final DefaultTreeModel defaultTreeModel = new DefaultTreeModel(root);
-		return defaultTreeModel;
+		return new DefaultTreeModel(root);
 	}
 
-	private final class HighlightOnMouseoverListenerImpl implements MouseMotionListener, MouseListener {
-		private CheckableDisplayElement<?> lastMouseOverNode = null;
+	// ---- tree nodes ----
+
+	private static final class OutlinerNode extends DefaultMutableTreeNode {
+		OutlinerNode(final OutlinerElement<?> element) {
+			super(element);
+		}
+
+		OutlinerElement<?> element() {
+			return (OutlinerElement<?>) getUserObject();
+		}
+
+		boolean isComponent() {
+			return element().isComponent();
+		}
+
+		/** This row's component plus every component beneath it, in tree order. */
+		List<OutlinerElement<?>> componentElements() {
+			final List<OutlinerElement<?>> result = new ArrayList<>();
+			collect(this, result);
+			return result;
+		}
+
+		private static void collect(final OutlinerNode node, final List<OutlinerElement<?>> into) {
+			if (node.isComponent()) {
+				into.add(node.element());
+			}
+			for (int i = 0; i < node.getChildCount(); i++) {
+				collect((OutlinerNode) node.getChildAt(i), into);
+			}
+		}
+
+		/** Every component in the same top-level group (Mesh, Nodes or Cameras). */
+		List<OutlinerElement<?>> categoryElements() {
+			OutlinerNode top = this;
+			while ((top.getParent() != null) && (top.getParent().getParent() != null)) {
+				top = (OutlinerNode) top.getParent();
+			}
+			return top.componentElements();
+		}
+	}
+
+	// ---- rendering ----
+
+	private enum GlyphState {
+		OFF, ON, PARTIAL
+	}
+
+	private static GlyphState aggregate(final List<OutlinerElement<?>> elements, final boolean editability) {
+		int on = 0;
+		for (final OutlinerElement<?> element : elements) {
+			final ComponentVisibility state = element.getVisibility();
+			if (editability ? state.isEditable() : state.isVisible()) {
+				on++;
+			}
+		}
+		if (on == 0) {
+			return GlyphState.OFF;
+		}
+		return on == elements.size() ? GlyphState.ON : GlyphState.PARTIAL;
+	}
+
+	private final class OutlinerCellRenderer extends JPanel implements TreeCellRenderer {
+		private final GlyphComponent glyphs = new GlyphComponent();
+		private final JLabel label = new JLabel();
+
+		OutlinerCellRenderer() {
+			super(new BorderLayout(2, 0));
+			setOpaque(false);
+			add(glyphs, BorderLayout.WEST);
+			add(label, BorderLayout.CENTER);
+			label.setOpaque(true);
+		}
+
+		@Override
+		public Component getTreeCellRendererComponent(final JTree tree, final Object value, final boolean selected,
+				final boolean expanded, final boolean leaf, final int row, final boolean hasFocus) {
+			final OutlinerNode node = (OutlinerNode) value;
+			final List<OutlinerElement<?>> elements = node.componentElements();
+			if (elements.isEmpty()) {
+				glyphs.eye = GlyphState.OFF;
+				glyphs.check = GlyphState.OFF;
+				glyphs.enabled = false;
+			} else {
+				glyphs.eye = aggregate(elements, false);
+				glyphs.check = aggregate(elements, true);
+				glyphs.enabled = true;
+			}
+			label.setText(node.element().toString());
+			label.setFont(tree.getFont());
+			if (selected) {
+				label.setBackground(UIManager.getColor("Tree.selectionBackground"));
+				label.setForeground(UIManager.getColor("Tree.selectionForeground"));
+			} else {
+				label.setBackground(tree.getBackground());
+				label.setForeground(tree.getForeground());
+			}
+			return this;
+		}
+	}
+
+	private static final class GlyphComponent extends JComponent {
+		GlyphState eye = GlyphState.OFF;
+		GlyphState check = GlyphState.OFF;
+		boolean enabled = true;
+
+		GlyphComponent() {
+			setPreferredSize(new Dimension(GLYPH_SIZE * GLYPH_COUNT, GLYPH_SIZE));
+			setOpaque(false);
+		}
+
+		@Override
+		protected void paintComponent(final Graphics g) {
+			if (!enabled) {
+				return;
+			}
+			final Graphics2D g2 = (Graphics2D) g.create();
+			try {
+				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				paintEye(g2, 0, eye);
+				paintCheck(g2, GLYPH_SIZE, check);
+			} finally {
+				g2.dispose();
+			}
+		}
+
+		private static Color colorFor(final GlyphState state) {
+			switch (state) {
+			case ON:
+				return new Color(30, 30, 30);
+			case PARTIAL:
+				return new Color(30, 30, 30, 110);
+			default:
+				return new Color(150, 150, 150, 120);
+			}
+		}
+
+		private static void paintEye(final Graphics2D g, final int x, final GlyphState state) {
+			g.setColor(colorFor(state));
+			final int cx = x + (GLYPH_SIZE / 2);
+			final int cy = GLYPH_SIZE / 2;
+			// almond outline
+			g.drawArc(x + 2, cy - 4, GLYPH_SIZE - 4, 8, 0, 180);
+			g.drawArc(x + 2, cy - 4, GLYPH_SIZE - 4, 8, 180, 180);
+			if (state != GlyphState.OFF) {
+				g.fillOval(cx - 2, cy - 2, 5, 5);
+			} else {
+				// closed eye: a strike through
+				g.drawLine(x + 3, cy + 5, x + GLYPH_SIZE - 3, cy - 5);
+			}
+		}
+
+		private static void paintCheck(final Graphics2D g, final int x, final GlyphState state) {
+			g.setColor(colorFor(state == GlyphState.OFF ? GlyphState.OFF : GlyphState.ON));
+			g.drawRect(x + 2, 2, GLYPH_SIZE - 5, GLYPH_SIZE - 5);
+			if (state == GlyphState.ON) {
+				g.drawLine(x + 5, 8, x + 7, 11);
+				g.drawLine(x + 7, 11, x + 12, 4);
+			} else if (state == GlyphState.PARTIAL) {
+				g.setColor(colorFor(GlyphState.PARTIAL));
+				g.fillRect(x + 5, 5, GLYPH_SIZE - 10, GLYPH_SIZE - 10);
+			}
+		}
+	}
+
+	// ---- hover highlight ----
+
+	private final class HighlightOnMouseoverListenerImpl extends MouseAdapter {
+		private OutlinerElement<?> lastMouseOverNode = null;
 
 		@Override
 		public void mouseMoved(final MouseEvent mouseEvent) {
 			final TreePath pathForLocation = getPathForLocation(mouseEvent.getX(), mouseEvent.getY());
-			final CheckableDisplayElement<?> element;
-			if (pathForLocation == null) {
-				element = null;
-			} else {
-				final JCheckBoxTreeNode lastPathComponent = (JCheckBoxTreeNode) pathForLocation.getLastPathComponent();
-				element = (CheckableDisplayElement<?>) lastPathComponent.getUserObject();
-			}
+			final OutlinerElement<?> element = pathForLocation == null ? null
+					: ((OutlinerNode) pathForLocation.getLastPathComponent()).element();
 			if (element != lastMouseOverNode) {
 				if (lastMouseOverNode != null) {
 					lastMouseOverNode.mouseExited();
@@ -247,77 +569,59 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		}
 
 		@Override
-		public void mouseDragged(final MouseEvent e) {
-
-		}
-
-		@Override
-		public void mouseReleased(final MouseEvent e) {
-		}
-
-		@Override
-		public void mousePressed(final MouseEvent e) {
-		}
-
-		@Override
 		public void mouseExited(final MouseEvent e) {
 			if (lastMouseOverNode != null) {
 				lastMouseOverNode.mouseExited();
+				lastMouseOverNode = null;
 			}
-		}
-
-		@Override
-		public void mouseEntered(final MouseEvent e) {
-		}
-
-		@Override
-		public void mouseClicked(final MouseEvent e) {
 		}
 	}
 
-	private static abstract class CheckableDisplayElement<T> implements SelectableComponent {
+	// ---- elements ----
+
+	private static abstract class OutlinerElement<T> implements SelectableComponent, VisibilityTarget {
 		protected final ModelViewManager modelViewManager;
 		protected final T item;
 
-		public CheckableDisplayElement(final ModelViewManager modelViewManager, final T item) {
+		OutlinerElement(final ModelViewManager modelViewManager, final T item) {
 			this.modelViewManager = modelViewManager;
 			this.item = item;
 		}
 
-		public void setChecked(final boolean checked) {
-			setChecked(item, modelViewManager, checked);
+		boolean isComponent() {
+			return true;
 		}
 
-		public abstract void mouseEntered();
+		abstract void mouseEntered();
 
-		public abstract void mouseExited();
+		abstract void mouseExited();
 
-		protected abstract void setChecked(T item, ModelViewManager modelViewManager, boolean checked);
+		protected abstract String getName(T item, ModelViewManager modelViewManager);
 
 		@Override
 		public String toString() {
 			return getName(item, modelViewManager);
 		}
 
-		protected abstract String getName(T item, ModelViewManager modelViewManager);
-
-		public boolean hasSameItem(final CheckableDisplayElement<?> other) {
-			return other.item == item || item != null && item.equals(other.item);
+		boolean hasSameItem(final OutlinerElement<?> other) {
+			return (getClass() == other.getClass())
+					&& ((other.item == item) || ((item != null) && item.equals(other.item)));
 		}
 	}
 
-	private static final class CheckableGeosetElement extends CheckableDisplayElement<Geoset> {
-		public CheckableGeosetElement(final ModelViewManager modelViewManager, final Geoset item) {
+	private static final class GeosetElement extends OutlinerElement<Geoset> {
+		GeosetElement(final ModelViewManager modelViewManager, final Geoset item) {
 			super(modelViewManager, item);
 		}
 
 		@Override
-		protected void setChecked(final Geoset item, final ModelViewManager modelViewManager, final boolean checked) {
-			if (checked) {
-				modelViewManager.makeGeosetEditable(item);
-			} else {
-				modelViewManager.makeGeosetNotEditable(item);
-			}
+		public ComponentVisibility getVisibility() {
+			return modelViewManager.getGeosetVisibility(item);
+		}
+
+		@Override
+		public void setVisibility(final ComponentVisibility state) {
+			modelViewManager.setGeosetVisibility(item, state);
 		}
 
 		@Override
@@ -331,29 +635,29 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		}
 
 		@Override
-		public void mouseEntered() {
+		void mouseEntered() {
 			modelViewManager.highlightGeoset(item);
 		}
 
 		@Override
-		public void mouseExited() {
+		void mouseExited() {
 			modelViewManager.unhighlightGeoset(item);
 		}
-
 	}
 
-	private static final class CheckableNodeElement extends CheckableDisplayElement<IdObject> {
-		public CheckableNodeElement(final ModelViewManager modelViewManager, final IdObject item) {
+	private static final class NodeElement extends OutlinerElement<IdObject> {
+		NodeElement(final ModelViewManager modelViewManager, final IdObject item) {
 			super(modelViewManager, item);
 		}
 
 		@Override
-		protected void setChecked(final IdObject item, final ModelViewManager modelViewManager, final boolean checked) {
-			if (checked) {
-				modelViewManager.makeIdObjectVisible(item);
-			} else {
-				modelViewManager.makeIdObjectNotVisible(item);
-			}
+		public ComponentVisibility getVisibility() {
+			return modelViewManager.getIdObjectVisibility(item);
+		}
+
+		@Override
+		public void setVisibility(final ComponentVisibility state) {
+			modelViewManager.setIdObjectVisibility(item, state);
 		}
 
 		@Override
@@ -367,28 +671,29 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		}
 
 		@Override
-		public void mouseEntered() {
+		void mouseEntered() {
 			modelViewManager.highlightNode(item);
 		}
 
 		@Override
-		public void mouseExited() {
+		void mouseExited() {
 			modelViewManager.unhighlightNode(item);
 		}
 	}
 
-	private static final class CheckableCameraElement extends CheckableDisplayElement<Camera> {
-		public CheckableCameraElement(final ModelViewManager modelViewManager, final Camera item) {
+	private static final class CameraElement extends OutlinerElement<Camera> {
+		CameraElement(final ModelViewManager modelViewManager, final Camera item) {
 			super(modelViewManager, item);
 		}
 
 		@Override
-		protected void setChecked(final Camera item, final ModelViewManager modelViewManager, final boolean checked) {
-			if (checked) {
-				modelViewManager.makeCameraVisible(item);
-			} else {
-				modelViewManager.makeCameraNotVisible(item);
-			}
+		public ComponentVisibility getVisibility() {
+			return modelViewManager.getCameraVisibility(item);
+		}
+
+		@Override
+		public void setVisibility(final ComponentVisibility state) {
+			modelViewManager.setCameraVisibility(item, state);
 		}
 
 		@Override
@@ -402,54 +707,32 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		}
 
 		@Override
-		public void mouseEntered() {
-
+		void mouseEntered() {
 		}
 
 		@Override
-		public void mouseExited() {
-
+		void mouseExited() {
 		}
 	}
 
-	private static final class CheckableModelElement extends CheckableDisplayElement<Void> {
-		public CheckableModelElement(final ModelViewManager modelViewManager) {
-			super(modelViewManager, null);
-		}
-
-		@Override
-		protected void setChecked(final Void item, final ModelViewManager modelViewManager, final boolean checked) {
-
-		}
-
-		@Override
-		protected String getName(final Void item, final ModelViewManager modelViewManager) {
-			return modelViewManager.getModel().getHeaderName();
-		}
-
-		@Override
-		public void visit(final SelectableComponentVisitor visitor) {
-		}
-
-		@Override
-		public void mouseEntered() {
-
-		}
-
-		@Override
-		public void mouseExited() {
-
-		}
-	}
-
-	private static final class CheckableDummyElement extends CheckableDisplayElement<String> {
-		public CheckableDummyElement(final ModelViewManager modelViewManager, final String name) {
+	/** A heading row; its state is the aggregate of the rows beneath it. */
+	private static class GroupElement extends OutlinerElement<String> {
+		GroupElement(final ModelViewManager modelViewManager, final String name) {
 			super(modelViewManager, name);
 		}
 
 		@Override
-		protected void setChecked(final String item, final ModelViewManager modelViewManager, final boolean checked) {
+		boolean isComponent() {
+			return false;
+		}
 
+		@Override
+		public ComponentVisibility getVisibility() {
+			return ComponentVisibility.HIDDEN;
+		}
+
+		@Override
+		public void setVisibility(final ComponentVisibility state) {
 		}
 
 		@Override
@@ -462,36 +745,27 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		}
 
 		@Override
-		public void mouseEntered() {
-
+		void mouseEntered() {
 		}
 
 		@Override
-		public void mouseExited() {
-
+		void mouseExited() {
 		}
 	}
 
-	private static final class CheckableDisplayElementToggleHandler implements EditabilityToggleHandler {
-		private final Collection<CheckableDisplayElement<?>> elements;
-
-		public CheckableDisplayElementToggleHandler(final Collection<CheckableDisplayElement<?>> elements) {
-			this.elements = elements;
+	private static final class ModelElement extends GroupElement {
+		ModelElement(final ModelViewManager modelViewManager) {
+			super(modelViewManager, "");
 		}
 
 		@Override
-		public void makeEditable() {
-			for (final CheckableDisplayElement<?> element : elements) {
-				element.setChecked(true);
-			}
+		protected String getName(final String item, final ModelViewManager modelViewManager) {
+			return modelViewManager.getModel().getHeaderName();
 		}
 
 		@Override
-		public void makeNotEditable() {
-			for (final CheckableDisplayElement<?> element : elements) {
-				element.setChecked(false);
-			}
+		boolean hasSameItem(final OutlinerElement<?> other) {
+			return other instanceof ModelElement;
 		}
-
 	}
 }

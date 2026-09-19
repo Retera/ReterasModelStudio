@@ -9,6 +9,8 @@ public interface ModelComponentNavigationListener {
 
 	void openInTracks(Object component);
 
+	void openInModelTab(Object component);
+
 	ModelComponentNavigationListener NONE = new ModelComponentNavigationListener() {
 		@Override
 		public void openInEditor(final Object component) {
@@ -16,6 +18,10 @@ public interface ModelComponentNavigationListener {
 
 		@Override
 		public void openInTracks(final Object component) {
+		}
+
+		@Override
+		public void openInModelTab(final Object component) {
 		}
 	};
 }
