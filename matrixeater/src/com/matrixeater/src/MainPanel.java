@@ -1674,27 +1674,13 @@ public class MainPanel extends JPanel
 
 			@Override
 			public void dragOver(DropTargetDragEvent dtde) {
-				try {
-					Transferable transferable = dtde.getTransferable();
-					if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-						List<File> droppedFiles = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
-
-						if (!droppedFiles.isEmpty()) {
-							File file = droppedFiles.get(0);
-							String fileName = file.getName().toLowerCase();
-
-							// Limit the allowed file formats
-							if (fileName.endsWith(".blp") || fileName.endsWith(".png") || fileName.endsWith(".mdx")
-									|| fileName.endsWith(".mdl") || fileName.endsWith(".obj")) {
-								dtde.acceptDrag(DnDConstants.ACTION_COPY);
-							} else {
-								dtde.rejectDrag();
-							}
-						}
-					}
-				} catch (Exception e) {
-					ExceptionPopup.display(e);
-					e.printStackTrace();
+				// Only the flavor is checked here: on X11 the file list is not reliably
+				// available until the drop, and asking for it mid-drag raises
+				// "Owner failed to convert data". The drop handler validates the file.
+				if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+					dtde.acceptDrag(DnDConstants.ACTION_COPY);
+				} else {
+					dtde.rejectDrag();
 				}
 			}
 
@@ -1724,7 +1710,14 @@ public class MainPanel extends JPanel
 						// Handle the dropped file(s)
 						if (!droppedFiles.isEmpty()) {
 							File droppedFile = droppedFiles.get(0); // Assuming a single file drop
-							openFile(droppedFile);  // Use your existing openFile method to open the dropped file
+							final String fileName = droppedFile.getName().toLowerCase();
+							if (fileName.endsWith(".blp") || fileName.endsWith(".png") || fileName.endsWith(".mdx")
+									|| fileName.endsWith(".mdl") || fileName.endsWith(".obj")) {
+								openFile(droppedFile);
+							} else {
+								dtde.dropComplete(false);
+								return;
+							}
 						}
 					}
 				} catch (Exception e) {

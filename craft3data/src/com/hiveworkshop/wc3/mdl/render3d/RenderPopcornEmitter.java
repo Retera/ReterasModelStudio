@@ -165,7 +165,8 @@ public class RenderPopcornEmitter {
 
 	/**
 	 * Node world transform, scale stripped, rotated +90 degrees about the local Z
-	 * axis (the game's MDX to PopcornFX spawn frame), translation in corn units.
+	 * axis (the game's MDX to PopcornFX spawn frame), the node's world position
+	 * (pivot through the world matrix) in corn units.
 	 */
 	private void fillEmitterTransform(final ExecContext.Mat4x3 out) {
 		final RenderNode node = instance.getRenderNode(emitter);
@@ -188,9 +189,12 @@ public class RenderPopcornEmitter {
 			out.m[r][1] = -c0[r] * modelScale;
 			out.m[r][2] = c2[r] * modelScale;
 		}
-		out.m[0][3] = m.m30 * GAME_TO_CORN;
-		out.m[1][3] = m.m31 * GAME_TO_CORN;
-		out.m[2][3] = m.m32 * GAME_TO_CORN;
+		// RenderNode matrices map model-space points, so the node's position is the
+		// matrix applied to its pivot (as the classic emitters do), not the last column.
+		final Vector3f pivot = node.getPivot();
+		out.m[0][3] = pivot.x * GAME_TO_CORN;
+		out.m[1][3] = pivot.y * GAME_TO_CORN;
+		out.m[2][3] = pivot.z * GAME_TO_CORN;
 		lastHostScale = hostScale;
 	}
 

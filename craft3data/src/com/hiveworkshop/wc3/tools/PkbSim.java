@@ -25,8 +25,9 @@ import com.hiveworkshop.wc3.pkb.vm.Instruction;
  * layer programs, ticks the effect and reports what the render packets hold.
  *
  * <pre>
- * PkbSim effect.pkb [--ticks N] [--disasm] [--dt seconds] [--quiet]
+ * PkbSim effect.pkb [--ticks N] [--disasm] [--dt seconds] [--quiet] [--translate x y z] [--rotz degrees]
  * </pre>
+ * The translation is in game units (1 corn unit = 100 game units); the rotation is about the world Z axis.
  */
 public final class PkbSim {
 	private PkbSim() {
@@ -41,8 +42,18 @@ public final class PkbSim {
 		boolean disasm = false;
 		boolean quiet = false;
 		float dt = 1.0f / 60.0f;
+		final float[] translate = new float[3];
+		float rotZ = 0;
 		for (int i = 1; i < args.length; i++) {
 			switch (args[i]) {
+			case "--translate":
+				translate[0] = Float.parseFloat(args[++i]);
+				translate[1] = Float.parseFloat(args[++i]);
+				translate[2] = Float.parseFloat(args[++i]);
+				break;
+			case "--rotz":
+				rotZ = Float.parseFloat(args[++i]);
+				break;
 			case "--ticks":
 				ticks = Integer.parseInt(args[++i]);
 				break;
@@ -120,6 +131,19 @@ public final class PkbSim {
 		runtime.setAttribute("__a_Game.Scale", 1, 0, 0, 0);
 		final EffectRuntime.FrameInputs inputs = new EffectRuntime.FrameInputs();
 		inputs.dt = dt;
+		{
+			final float c = (float) Math.cos(Math.toRadians(rotZ));
+			final float sn = (float) Math.sin(Math.toRadians(rotZ));
+			inputs.emitterL2W.m[0][0] = c;
+			inputs.emitterL2W.m[0][1] = -sn;
+			inputs.emitterL2W.m[1][0] = sn;
+			inputs.emitterL2W.m[1][1] = c;
+			inputs.emitterL2W.m[0][3] = translate[0] * 0.01f;
+			inputs.emitterL2W.m[1][3] = translate[1] * 0.01f;
+			inputs.emitterL2W.m[2][3] = translate[2] * 0.01f;
+		}
+		System.out.println("emitter translation (corn) = " + inputs.emitterL2W.m[0][3] + " " + inputs.emitterL2W.m[1][3]
+				+ " " + inputs.emitterL2W.m[2][3]);
 		inputs.camera.position[0] = 0;
 		inputs.camera.position[1] = -10;
 		inputs.camera.position[2] = 5;
