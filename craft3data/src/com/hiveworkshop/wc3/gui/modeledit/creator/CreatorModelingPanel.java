@@ -16,6 +16,12 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import com.hiveworkshop.wc3.gui.modeledit.creator.activity.DrawPrimitiveActivityDescriptor;
+import com.hiveworkshop.wc3.util.PrimitiveMeshes.PrimitiveOptions;
+import com.hiveworkshop.wc3.util.PrimitiveMeshes.PrimitiveShape;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.animedit.TimeEnvironmentImpl;
@@ -101,6 +107,15 @@ public class CreatorModelingPanel extends JPanel
 	private final CardLayout northCardLayout;
 	private final JPanel northCardPanel;
 	private TSpline tSpline;
+	private final PrimitiveOptions primitiveOptions = new PrimitiveOptions();
+	private final SpinnerNumberModel segmentsModel = new SpinnerNumberModel(16, 3, 256, 1);
+	private final SpinnerNumberModel ringsModel = new SpinnerNumberModel(8, 1, 128, 1);
+	private final SpinnerNumberModel innerRatioModel = new SpinnerNumberModel(0.5, 0.0, 0.95, 0.05);
+	{
+		segmentsModel.addChangeListener(e -> primitiveOptions.segments = segmentsModel.getNumber().intValue());
+		ringsModel.addChangeListener(e -> primitiveOptions.rings = ringsModel.getNumber().intValue());
+		innerRatioModel.addChangeListener(e -> primitiveOptions.innerRatio = innerRatioModel.getNumber().doubleValue());
+	}
 
 	public CreatorModelingPanel(final ModelEditorChangeActivityListener listener,
 			final ProgramPreferences programPreferences,
@@ -161,17 +176,35 @@ public class CreatorModelingPanel extends JPanel
 				boxButton));
 		modeButtons.add(boxButton);
 		drawPrimitivesPanel.add(boxButton);
-		final JPanel spOptionsPanel = new JPanel(new GridLayout(16, 1));
-		spOptionsPanel.setBorder(BorderFactory.createTitledBorder("Options"));
+		for (final PrimitiveShape shape : PrimitiveShape.values()) {
+			if (!shape.isExtended()) {
+				drawPrimitivesPanel.add(makePrimitiveButton(shape, listener, programPreferences, activeViewportWatcher));
+			}
+		}
 		standardPrimitivesPanel.add(drawPrimitivesPanel, BorderLayout.NORTH);
-		standardPrimitivesPanel.add(spOptionsPanel, BorderLayout.CENTER);
+		standardPrimitivesPanel.add(makePrimitiveOptionsPanel(), BorderLayout.CENTER);
 
 		cardPanel.add(standardPrimitivesPanel, modeChooserBoxModel.getElementAt(1));
+
+		final JPanel extendedPrimitivesPanel = new JPanel(new BorderLayout());
+		final JPanel drawExtendedPanel = new JPanel(new GridLayout(16, 1));
+		drawExtendedPanel.setBorder(BorderFactory.createTitledBorder("Draw"));
+		for (final PrimitiveShape shape : PrimitiveShape.values()) {
+			if (shape.isExtended()) {
+				drawExtendedPanel.add(makePrimitiveButton(shape, listener, programPreferences, activeViewportWatcher));
+			}
+		}
+		extendedPrimitivesPanel.add(drawExtendedPanel, BorderLayout.NORTH);
+		extendedPrimitivesPanel.add(makePrimitiveOptionsPanel(), BorderLayout.CENTER);
+		cardPanel.add(extendedPrimitivesPanel, modeChooserBoxModel.getElementAt(2));
 
 		modeChooserBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				cardLayout.show(cardPanel, modeChooserBox.getSelectedItem().toString());
+				final String selected = modeChooserBox.getSelectedItem().toString();
+				// the animation card was registered under its own key
+				cardLayout.show(cardPanel,
+						selected.equals(modeChooserBoxModel.getElementAt(3)) ? ANIMATIONBASICS : selected);
 			}
 		});
 
@@ -179,6 +212,45 @@ public class CreatorModelingPanel extends JPanel
 				modeChooserBoxModel, cardPanel);
 
 		cardLayout.show(cardPanel, modeChooserBoxModel.getElementAt(0));
+	}
+
+	private ModeButton makePrimitiveButton(final PrimitiveShape shape,
+			final ModelEditorChangeActivityListener listener, final ProgramPreferences programPreferences,
+			final ActiveViewportWatcher activeViewportWatcher) {
+		final ModeButton button = new ModeButton(shape.getDisplayName());
+		button.setToolTipText(shape.hasHeightPhase()
+				? "Drag the footprint, release, move the mouse for the height, then click"
+				: "Drag the footprint and release");
+		button.addActionListener(new ActionListenerImplementation(new DrawPrimitiveActivityDescriptor(
+				programPreferences, activeViewportWatcher, shape, primitiveOptions), programPreferences, listener,
+				button));
+		modeButtons.add(button);
+		return button;
+	}
+
+	/**
+	 * Spinners bound to the shared primitive options. Both primitive cards get
+	 * their own panel over the same spinner models, so they stay in step, and a
+	 * change during a drag rebuilds the preview at once.
+	 */
+	private JPanel makePrimitiveOptionsPanel() {
+		final JPanel panel = new JPanel(new GridLayout(0, 2, 4, 2));
+		panel.setBorder(BorderFactory.createTitledBorder("Options"));
+		final JSpinner segments = new JSpinner(segmentsModel);
+		final JSpinner rings = new JSpinner(ringsModel);
+		final JSpinner inner = new JSpinner(innerRatioModel);
+		segments.setToolTipText("Divisions around the axis");
+		rings.setToolTipText("Divisions along the axis, latitude rings, or torus tube divisions");
+		inner.setToolTipText("Hole radius as a fraction of the outer radius (torus and tube)");
+		panel.add(new JLabel("Segments"));
+		panel.add(segments);
+		panel.add(new JLabel("Rings / Height Segs"));
+		panel.add(rings);
+		panel.add(new JLabel("Inner Ratio"));
+		panel.add(inner);
+		final JPanel holder = new JPanel(new BorderLayout());
+		holder.add(panel, BorderLayout.NORTH);
+		return holder;
 	}
 
 	public void makeMeshBasicsPanel(final ModelEditorChangeActivityListener listener,

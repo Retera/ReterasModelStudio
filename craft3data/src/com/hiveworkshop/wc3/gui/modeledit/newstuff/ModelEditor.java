@@ -58,6 +58,10 @@ public interface ModelEditor extends ComponentVisibilityListener {
 	GenericMoveAction addBox(double x, double y, double x2, double y2, byte dim1, byte dim2, Vertex facingVector,
 			int numberOfLengthSegments, int numberOfWidthSegments, int numberOfHeightSegments);
 
+	GenericMoveAction addPrimitive(com.hiveworkshop.wc3.util.PrimitiveMeshes.PrimitiveShape shape,
+			com.hiveworkshop.wc3.util.PrimitiveMeshes.PrimitiveOptions options, double x, double y, double x2,
+			double y2, byte dim1, byte dim2, Vertex facingVector);
+
 	UndoAction setMatrix(Collection<Bone> bones);
 
 	UndoAction setParent(IdObject node);

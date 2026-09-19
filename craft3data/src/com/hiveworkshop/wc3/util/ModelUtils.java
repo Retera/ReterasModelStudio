@@ -266,7 +266,7 @@ public final class ModelUtils {
 			}
 		}
 		for (final GeosetVertex vertex : box.getVertices()) {
-			vertex.addTVertex(new TVertex(0, 0));
+			// createPlane already gave each vertex its texture coordinate layer
 			vertex.setGeoset(dataGeoset);
 		}
 		for (final Triangle triangle : box.getTriangles()) {

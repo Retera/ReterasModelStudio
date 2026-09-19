@@ -874,6 +874,44 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 	}
 
 	@Override
+	public GenericMoveAction addPrimitive(final com.hiveworkshop.wc3.util.PrimitiveMeshes.PrimitiveShape shape,
+			final com.hiveworkshop.wc3.util.PrimitiveMeshes.PrimitiveOptions options, final double x, final double y,
+			final double x2, final double y2, final byte dim1, final byte dim2, final Vertex facingVector) {
+		Geoset solidWhiteGeoset = null;
+		for (final Geoset geoset : model.getModel().getGeosets()) {
+			if (geoset.getMaterial() == null) {
+				continue;
+			}
+			final Layer firstLayer = geoset.getMaterial().firstLayer();
+			if ((firstLayer != null) && (firstLayer.getFilterMode() == FilterMode.NONE)
+					&& (firstLayer.getShaderTextures().get(ShaderTextureTypeHD.Diffuse) != null)
+					&& "Textures\\white.blp".equalsIgnoreCase(
+							firstLayer.getShaderTextures().get(ShaderTextureTypeHD.Diffuse).getPath())) {
+				solidWhiteGeoset = geoset;
+			}
+		}
+		boolean needsGeosetAction = false;
+		if (solidWhiteGeoset == null) {
+			solidWhiteGeoset = new Geoset();
+			solidWhiteGeoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
+			needsGeosetAction = true;
+		}
+		final com.hiveworkshop.wc3.gui.modeledit.creator.actions.DrawPrimitiveAction drawAction = new com.hiveworkshop.wc3.gui.modeledit.creator.actions.DrawPrimitiveAction(
+				shape, options, x, y, x2, y2, dim1, dim2, solidWhiteGeoset);
+		GenericMoveAction action;
+		if (needsGeosetAction) {
+			final NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, model.getModel(),
+					structureChangeListener);
+			action = new CompoundMoveAction(drawAction.actionName(),
+					ListView.Util.of(new DoNothingMoveActionAdapter(newGeosetAction), drawAction));
+		} else {
+			action = drawAction;
+		}
+		action.redo();
+		return action;
+	}
+
+	@Override
 	public RigAction rig() {
 		return new RigAction(selectionManager.getSelectedVertices(), Collections.<Bone>emptyList());
 	}

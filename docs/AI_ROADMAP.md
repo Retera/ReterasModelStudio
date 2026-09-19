@@ -154,7 +154,7 @@ Single from File/Unit/Model/Object.
 
 ### Edit window
 
-- [ ] **W9. Primitives that actually draw.** `CreatorModelingPanel` offers Mesh Basics, Standard Primitives,
+- [x] **W9. Primitives that actually draw.** (Sphere, Geosphere, Cylinder, Cone, Torus under Standard; Capsule, Tube under Extended; live segments/rings/inner-ratio options; Animation Nodes card reachable from the combo) `CreatorModelingPanel` offers Mesh Basics, Standard Primitives,
   Extended Primitives, Animation Nodes, but only Plane and Box exist, the options panel is an empty 16-row grid,
   Extended Primitives has no card, and Animation Nodes is unreachable from the combo because of a name mismatch.
   Implement Sphere, Cylinder, Cone, Torus, and Geosphere under Standard Primitives; Capsule and Tube under

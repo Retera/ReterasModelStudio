@@ -886,6 +886,14 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
+	public GenericMoveAction addPrimitive(final com.hiveworkshop.wc3.util.PrimitiveMeshes.PrimitiveShape shape,
+			final com.hiveworkshop.wc3.util.PrimitiveMeshes.PrimitiveOptions options, final double x, final double y,
+			final double x2, final double y2, final byte dim1, final byte dim2, final Vertex facingVector) {
+		throw new WrongModeException("Unable to create " + shape.getDisplayName().toLowerCase()
+				+ " in animation editor");
+	}
+
+	@Override
 	public UndoAction splitGeoset() {
 		throw new WrongModeException("Unable to split geoset in animation editor");
 	}

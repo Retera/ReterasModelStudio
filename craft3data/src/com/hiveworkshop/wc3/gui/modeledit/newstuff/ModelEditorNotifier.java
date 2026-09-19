@@ -545,6 +545,17 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
+	public GenericMoveAction addPrimitive(final com.hiveworkshop.wc3.util.PrimitiveMeshes.PrimitiveShape shape,
+			final com.hiveworkshop.wc3.util.PrimitiveMeshes.PrimitiveOptions options, final double x, final double y,
+			final double x2, final double y2, final byte dim1, final byte dim2, final Vertex facingVector) {
+		final List<GenericMoveAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			actions.add(handler.addPrimitive(shape, options, x, y, x2, y2, dim1, dim2, facingVector));
+		}
+		return mergeMoveActions(actions);
+	}
+
+	@Override
 	public RigAction rig() {
 		final List<RigAction> rigActions = new ArrayList<>();
 		for (final ModelEditor handler : set) {

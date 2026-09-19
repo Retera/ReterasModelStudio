@@ -49,7 +49,6 @@ public class DrawPlaneAction implements GenericMoveAction {
 		plane = ModelUtils.createPlane(dim1, dim2, facingVector, 0, planeMinX, planeMinY, planeMaxX, planeMaxY,
 				numberOfWidthSegments, numberOfHeightSegments);
 		for (final GeosetVertex vertex : plane.getVertices()) {
-			vertex.addTVertex(new TVertex(0, 0));
 			vertex.setGeoset(planeGeoset);
 		}
 		for (final Triangle triangle : plane.getTriangles()) {
