@@ -7,6 +7,7 @@ import javax.swing.SpinnerNumberModel;
 import com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.material.SetMaterialPriorityPlaneAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
+import com.hiveworkshop.wc3.gui.modeledit.componenttree.ModelComponentNavigationListener;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.wc3.gui.modeledit.components.material.ComponentMaterialLayersPanel;
 import com.hiveworkshop.wc3.mdl.EditableModel;
@@ -46,6 +47,10 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel {
 		add(new JLabel("Priority Plane:"));
 		add(priorityPlaneSpinner, "wrap, growx, span 2");
 		add(multipleLayersPanel, "growx, growy, span 3");
+	}
+
+	public void setNavigationListener(final ModelComponentNavigationListener navigationListener) {
+		multipleLayersPanel.setNavigationListener(navigationListener);
 	}
 
 	public void setMaterial(final Material material, final ModelViewManager modelViewManager,

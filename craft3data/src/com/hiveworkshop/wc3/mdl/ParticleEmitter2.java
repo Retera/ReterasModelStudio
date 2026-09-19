@@ -841,6 +841,18 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		vertexData[VertexData.TailDecayUVAnim.ordinal()] = tailDecayUVAnim;
 	}
 
+	/**
+	 * Sets or clears one of the named flags (filter mode, head/tail, node
+	 * inheritance, ...). Unknown names are ignored.
+	 */
+	public void setKnownFlag(final String flag, final boolean value) {
+		for (int i = 0; i < knownFlagNames.length; i++) {
+			if (knownFlagNames[i].equals(flag)) {
+				knownFlags[i] = value;
+			}
+		}
+	}
+
 	@Override
 	public void add(final String flag) {
 		boolean isKnownFlag = false;

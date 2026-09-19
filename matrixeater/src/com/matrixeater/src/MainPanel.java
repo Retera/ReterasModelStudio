@@ -5804,7 +5804,9 @@ public class MainPanel extends JPanel
 				return;
 			}
 			showDockedView(tracksView);
-			modelPanel.getTracksEditorPanel().selectObject(component);
+			// the tracks tree may have a rebuild queued (new track); select after it
+			SwingUtilities.invokeLater(
+					() -> SwingUtilities.invokeLater(() -> modelPanel.getTracksEditorPanel().selectObject(component)));
 		}
 
 		@Override
@@ -5814,7 +5816,8 @@ public class MainPanel extends JPanel
 				return;
 			}
 			showDockedView(modelDataView);
-			modelPanel.getModelComponentBrowserTree().selectObject(component);
+			SwingUtilities.invokeLater(
+					() -> SwingUtilities.invokeLater(() -> modelPanel.getModelComponentBrowserTree().selectObject(component)));
 		}
 	};
 
@@ -5946,7 +5949,7 @@ public class MainPanel extends JPanel
 
 		@Override
 		public void timelineAdded(final TimelineContainer node, final AnimFlag timeline) {
-
+			timelinesChanged();
 		}
 
 		@Override
@@ -5957,7 +5960,17 @@ public class MainPanel extends JPanel
 
 		@Override
 		public void timelineRemoved(final TimelineContainer node, final AnimFlag timeline) {
+			timelinesChanged();
+		}
 
+		private void timelinesChanged() {
+			final ModelPanel display = displayFor(modelReference.getModel());
+			if (display != null) {
+				reloadComponentBrowser(display);
+				display.getComponentsPanel().reloadCurrentCard();
+			}
+			timeSliderPanel.revalidateKeyframeDisplay();
+			repaintTracks(modelReference.getModel());
 		}
 
 		@Override
@@ -6024,6 +6037,17 @@ public class MainPanel extends JPanel
 			final ModelPanel display = displayFor(modelReference.getModel());
 			if (display != null) {
 				reloadComponentBrowser(display);
+			}
+		}
+
+		@Override
+		public void componentChanged(final Object component) {
+			final ModelPanel display = displayFor(modelReference.getModel());
+			if (display != null) {
+				reloadGeosetManagers(display);
+				display.getComponentsPanel().reloadCurrentCard();
+				display.getCameraController().reload();
+				repaintSelfAndChildren(display);
 			}
 		}
 
@@ -6501,6 +6525,7 @@ public class MainPanel extends JPanel
 		modelPanels.add(temp);
 		temp.getModelComponentBrowserTree().setNavigationListener(componentNavigationListener);
 		temp.getModelViewManagingTree().setNavigationListener(componentNavigationListener);
+		temp.getComponentsPanel().setNavigationListener(componentNavigationListener);
 		temp.getTracksEditorPanel().setTimeEnvironment(animatedRenderEnvironment,
 				time -> timeSliderPanel.setCurrentTime(time));
 

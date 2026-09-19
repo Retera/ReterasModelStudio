@@ -51,35 +51,51 @@ public interface ModelComponentListener {
 	void selected(Layer layer, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
 			ModelStructureChangeListener modelStructureChangeListener);
 
-	void selected(TextureAnim textureAnim);
+	void selected(TextureAnim textureAnim, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+			ModelStructureChangeListener modelStructureChangeListener);
 
-	void selected(Geoset geoset);
+	void selected(Geoset geoset, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+			ModelStructureChangeListener modelStructureChangeListener);
 
-	void selected(GeosetAnim geosetAnim);
+	void selected(GeosetAnim geosetAnim, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+			ModelStructureChangeListener modelStructureChangeListener);
 
-	void selected(Bone object);
+	void selected(Bone object, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+			ModelStructureChangeListener modelStructureChangeListener);
 
-	void selected(Light light);
+	void selected(Light light, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+			ModelStructureChangeListener modelStructureChangeListener);
 
-	void selected(Helper object);
+	void selected(Helper object, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+			ModelStructureChangeListener modelStructureChangeListener);
 
-	void selected(Attachment attachment);
+	void selected(Attachment attachment, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+			ModelStructureChangeListener modelStructureChangeListener);
 
-	void selected(ParticleEmitter particleEmitter);
+	void selected(ParticleEmitter particleEmitter, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+			ModelStructureChangeListener modelStructureChangeListener);
 
-	void selected(ParticleEmitter2 particleEmitter);
+	void selected(ParticleEmitter2 particleEmitter, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+			ModelStructureChangeListener modelStructureChangeListener);
 
-	void selected(ParticleEmitterPopcorn popcornFxEmitter);
+	void selected(ParticleEmitterPopcorn popcornFxEmitter, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+			ModelStructureChangeListener modelStructureChangeListener);
 
-	void selected(RibbonEmitter particleEmitter);
+	void selected(RibbonEmitter particleEmitter, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+			ModelStructureChangeListener modelStructureChangeListener);
 
-	void selected(EventObject eventObject);
+	void selected(EventObject eventObject, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+			ModelStructureChangeListener modelStructureChangeListener);
 
-	void selected(CollisionShape collisionShape);
+	void selected(CollisionShape collisionShape, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+			ModelStructureChangeListener modelStructureChangeListener);
 
-	void selected(Camera camera);
+	void selected(Camera camera, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+			ModelStructureChangeListener modelStructureChangeListener);
 
-	void selected(FaceEffect faceEffectsChunk);
+	void selected(FaceEffect faceEffectsChunk, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+			ModelStructureChangeListener modelStructureChangeListener);
 
-	void selected(BindPoseChunk bindPoseChunk);
+	void selected(BindPoseChunk bindPoseChunk, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+			ModelStructureChangeListener modelStructureChangeListener);
 }

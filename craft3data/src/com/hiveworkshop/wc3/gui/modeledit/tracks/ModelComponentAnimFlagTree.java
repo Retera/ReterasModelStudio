@@ -816,7 +816,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		protected void select(final TextureAnim item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
-			listener.selected(item);
+			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
 		}
 
 		@Override
@@ -847,7 +847,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		protected void select(final Geoset item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
-			listener.selected(item);
+			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
 		}
 
 		@Override
@@ -884,7 +884,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		protected void select(final GeosetAnim item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
-			listener.selected(item);
+			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
 		}
 
 		@Override
@@ -917,7 +917,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		protected void select(final Bone item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
-			listener.selected(item);
+			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
 		}
 
 		@Override
@@ -948,7 +948,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		protected void select(final Helper item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
-			listener.selected(item);
+			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
 		}
 
 		@Override
@@ -978,7 +978,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		protected void select(final Light item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
-			listener.selected(item);
+			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
 		}
 
 		@Override
@@ -1009,7 +1009,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		protected void select(final Attachment item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
-			listener.selected(item);
+			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
 		}
 
 		@Override
@@ -1040,7 +1040,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		protected void select(final ParticleEmitter item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
-			listener.selected(item);
+			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
 		}
 
 		@Override
@@ -1071,7 +1071,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		protected void select(final ParticleEmitter2 item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
-			listener.selected(item);
+			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
 		}
 
 		@Override
@@ -1103,7 +1103,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		protected void select(final ParticleEmitterPopcorn item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
-			listener.selected(item);
+			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
 		}
 
 		@Override
@@ -1134,7 +1134,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		protected void select(final RibbonEmitter item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
-			listener.selected(item);
+			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
 		}
 
 		@Override
@@ -1165,7 +1165,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		protected void select(final EventObject item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
-			listener.selected(item);
+			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
 		}
 
 		@Override
@@ -1195,7 +1195,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		protected void select(final CollisionShape item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
-			listener.selected(item);
+			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
 		}
 
 		@Override
@@ -1225,7 +1225,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		protected void select(final Camera item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
-			listener.selected(item);
+			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
 		}
 
 		@Override
@@ -1255,7 +1255,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		protected void select(final FaceEffect item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
-			listener.selected(item);
+			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
 		}
 
 		@Override
@@ -1286,7 +1286,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		protected void select(final BindPoseChunk item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
-			listener.selected(item);
+			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
 		}
 
 		@Override

@@ -42,6 +42,13 @@ public interface ModelStructureChangeListener {
 
 	void globalSequenceLengthChanged(int index, Integer newLength);
 
+	/**
+	 * A property of an existing component (node, geoset, camera, layer, ...)
+	 * changed without the component set itself changing. Implementations should
+	 * refresh labels, viewports and editor cards from the model.
+	 */
+	void componentChanged(Object component);
+
 	ModelStructureChangeListener DO_NOTHING = new ModelStructureChangeListener() {
 
 		@Override
@@ -106,6 +113,10 @@ public interface ModelStructureChangeListener {
 
 		@Override
 		public void animationParamsChanged(final Animation animation) {
+		}
+
+		@Override
+		public void componentChanged(final Object component) {
 		}
 	};
 }

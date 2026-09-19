@@ -30,6 +30,7 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.material.SetLaye
 import com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.material.SetLayerTextureAnimAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
+import com.hiveworkshop.wc3.gui.modeledit.componenttree.ModelComponentNavigationListener;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ColorValuePanel;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorTextField;
@@ -199,6 +200,14 @@ public class ComponentLayerPanel extends JPanel {
 
 	}
 
+	public void setNavigationListener(final ModelComponentNavigationListener navigationListener) {
+		alphaPanel.setNavigationListener(navigationListener);
+		emissiveGainPanel.setNavigationListener(navigationListener);
+		fresnelColorPanel.setNavigationListener(navigationListener);
+		fresnelOpacityPanel.setNavigationListener(navigationListener);
+		fresnelTeamColor.setNavigationListener(navigationListener);
+	}
+
 	public void setLayer(final DataSource workingDirectory, final Layer layer, final int formatVersion,
 			final UndoActionListener undoActionListener,
 			final ModelStructureChangeListener modelStructureChangeListener, final ModelViewManager modelViewManager) {
@@ -208,7 +217,7 @@ public class ComponentLayerPanel extends JPanel {
 		this.layer = layer;
 		this.undoActionListener = undoActionListener;
 		this.modelStructureChangeListener = modelStructureChangeListener;
-		layerFlagsPanel.setLayer(layer);
+		layerFlagsPanel.setLayer(layer, undoActionListener, modelStructureChangeListener);
 		filterModeDropdown.setSelectedItem(layer.getFilterMode());
 		for (final ShaderTextureTypeHD shaderTextureTypeHD : ShaderTextureTypeHD.VALUES) {
 			final JButton textureButton = textureTypeToButton.get(shaderTextureTypeHD);
@@ -236,13 +245,13 @@ public class ComponentLayerPanel extends JPanel {
 		coordIdSpinner.reloadNewValue(layer.getCoordId());
 		tVertexAnimButton.setText(layer.getTextureAnim() == null ? "None"
 				: "TextureAnim " + modelViewManager.getModel().getTextureAnimId(layer.getTextureAnim()));
-		alphaPanel.reloadNewValue((float) layer.getStaticAlpha(), new Callback<Float>() {
+		alphaPanel.reloadNewValue(layer.getStaticAlpha() < 0 ? 1f : (float) layer.getStaticAlpha(), new Callback<Float>() {
 			@Override
 			public void run(final Float value) {
 				layer.setStaticAlpha(value);
 				modelStructureChangeListener.texturesChanged();
 			}
-		}, layer.getFlag("Alpha"), undoActionListener, modelStructureChangeListener);
+		}, layer.getFlag("Alpha"), layer, "Alpha", undoActionListener, modelStructureChangeListener);
 		emissiveGainPanel.setVisible(ModelUtils.isEmissiveLayerSupported(formatVersion) && hdShader);
 		emissiveGainPanel.reloadNewValue((float) layer.getEmissive(), new Callback<Float>() {
 			@Override
@@ -250,7 +259,7 @@ public class ComponentLayerPanel extends JPanel {
 				layer.setEmissive(value);
 				modelStructureChangeListener.texturesChanged();
 			}
-		}, layer.getFlag("EmissiveGain"), undoActionListener, modelStructureChangeListener);
+		}, layer.getFlag("EmissiveGain"), layer, "EmissiveGain", undoActionListener, modelStructureChangeListener);
 		final boolean fresnelColorLayerSupported = ModelUtils.isFresnelColorLayerSupported(formatVersion) && hdShader;
 		fresnelColorPanel.setVisible(fresnelColorLayerSupported);
 		fresnelColorPanel.reloadNewValue(layer.getFresnelColor(), new Callback<Vertex>() {
@@ -259,7 +268,7 @@ public class ComponentLayerPanel extends JPanel {
 				layer.setFresnelColor(value);
 				modelStructureChangeListener.texturesChanged();
 			}
-		}, layer.getFlag("FresnelColor"), undoActionListener, modelStructureChangeListener);
+		}, layer.getFlag("FresnelColor"), layer, "FresnelColor", undoActionListener, modelStructureChangeListener);
 		fresnelOpacityPanel.setVisible(fresnelColorLayerSupported);
 		fresnelOpacityPanel.reloadNewValue((float) layer.getFresnelOpacity(), new Callback<Float>() {
 			@Override
@@ -267,7 +276,7 @@ public class ComponentLayerPanel extends JPanel {
 				layer.setFresnelOpacity(value);
 				modelStructureChangeListener.texturesChanged();
 			}
-		}, layer.getFlag("FresnelOpacity"), undoActionListener, modelStructureChangeListener);
+		}, layer.getFlag("FresnelOpacity"), layer, "FresnelOpacity", undoActionListener, modelStructureChangeListener);
 		fresnelTeamColor.setVisible(fresnelColorLayerSupported);
 		fresnelTeamColor.reloadNewValue((float) layer.getFresnelTeamColor(), new Callback<Float>() {
 			@Override
@@ -275,7 +284,7 @@ public class ComponentLayerPanel extends JPanel {
 				layer.setFresnelTeamColor(value);
 				modelStructureChangeListener.texturesChanged();
 			}
-		}, layer.getFlag("FresnelTeamColor"), undoActionListener, modelStructureChangeListener);
+		}, layer.getFlag("FresnelTeamColor"), layer, "FresnelTeamColor", undoActionListener, modelStructureChangeListener);
 		shaderOptionComboBox.setSelectedIndex(layer.getLayerShader().ordinal());
 		listenersEnabled = true;
 	}
