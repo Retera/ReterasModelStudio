@@ -517,8 +517,11 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			NGGLDP.pipeline.glLoadIdentity();
 
 			NGGLDP.pipeline.glCamera(viewerCamera, false);
-			if ((programPreferences != null) && programPreferences.isUseModelLights()
-					&& (editorRenderModel.gatherLights(sceneLights) > 0)) {
+			final boolean classicModelLights = (programPreferences != null) && programPreferences.isUseModelLights();
+			final boolean hdModelLights = (programPreferences != null) && programPreferences.isUseModelLightsHD();
+			if ((classicModelLights || hdModelLights) && (editorRenderModel.gatherLights(sceneLights, false) > 0)) {
+				sceneLights.applyToClassic = classicModelLights;
+				sceneLights.applyToHD = hdModelLights;
 				HDEnvironmentProbe.setSelectedProbe(programPreferences.getHdEnvironmentProbe());
 				NGGLDP.pipeline.glSceneLights(sceneLights);
 			} else {

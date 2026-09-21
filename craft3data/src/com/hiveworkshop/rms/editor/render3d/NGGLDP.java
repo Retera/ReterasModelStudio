@@ -712,6 +712,10 @@ public class NGGLDP {
 			} else {
 				sceneLights.copyFrom(lights);
 			}
+			if (!sceneLights.applyToClassic) {
+				sceneLights.mode = SceneLights.MODE_LEGACY;
+				sceneLights.count = 0;
+			}
 		}
 
 		private final Vector3f tempVec3 = new Vector3f();
@@ -1701,6 +1705,10 @@ public class NGGLDP {
 				sceneLights.count = 0;
 			} else {
 				sceneLights.copyFrom(lights);
+			}
+			if (!sceneLights.applyToHD) {
+				sceneLights.mode = SceneLights.MODE_LEGACY;
+				sceneLights.count = 0;
 			}
 		}
 

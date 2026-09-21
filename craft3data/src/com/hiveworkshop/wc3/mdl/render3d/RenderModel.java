@@ -496,12 +496,26 @@ public final class RenderModel {
 	 * pipelines. Colours follow the renderer's convention for model colours
 	 * (Vertex z is red, x is blue). Returns the number of lights written.
 	 */
-	public int gatherLights(final SceneLights out) {
+	public int gatherLights(final SceneLights out, final boolean usingModelCamera) {
 		out.clear();
 		out.mode = SceneLights.MODE_MODEL;
-		// Warsmash's model-viewer sun: a white directional light with a 0.3 ambient
-		// term; its direction is left unnormalised on purpose, as in the reference.
-		out.add(SceneLights.TYPE_DIRECTIONAL, 0, 0, 0, 0.3f, -0.3f, 0.25f, 1, 1, 1, 1, 1, 1, 1, 0.3f, 1, 2);
+		// The default sun is the editor's long-standing fixed light expressed as a
+		// directional light, so a model without Light nodes looks exactly as it did
+		// before model lights existed: the DNC-style direction with 1.3 x Lambert plus
+		// 0.5 ambient in the free view, the UI\MiscData.txt direction with plain
+		// Lambert plus 0.3 ambient when a model camera is active (the Warsmash math
+		// clamps the same way the old shader did, so the two agree everywhere).
+		if (usingModelCamera) {
+			defaultSunHeap.set(0.3f, -0.3f, 0.25f);
+			defaultSunHeap.normalise();
+			out.add(SceneLights.TYPE_DIRECTIONAL, 0, 0, 0, defaultSunHeap.x, defaultSunHeap.y, defaultSunHeap.z, 1, 1,
+					1, 1f, 1, 1, 1, 0.3f, 1, 2);
+		} else {
+			defaultSunHeap.set(-24.1937f, 30.4879f, 444.411f);
+			defaultSunHeap.normalise();
+			out.add(SceneLights.TYPE_DIRECTIONAL, 0, 0, 0, defaultSunHeap.x, defaultSunHeap.y, defaultSunHeap.z, 1, 1,
+					1, 1.3f, 1, 1, 1, 0.5f, 1, 2);
+		}
 		final AnimatedRenderEnvironment environment = animatedRenderEnvironment;
 		for (final Light light : model.sortedIdObjects(Light.class)) {
 			if (out.isFull()) {
@@ -554,6 +568,7 @@ public final class RenderModel {
 	}
 
 	private static final Vector3f lightDirectionHeap = new Vector3f();
+	private static final Vector3f defaultSunHeap = new Vector3f();
 
 	public List<RenderRibbonEmitter> getRibbonEmitters() {
 		return ribbonEmitters;

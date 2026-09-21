@@ -684,8 +684,11 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			// GL11.glShadeModel(GL11.GL_SMOOTH);
 
 			NGGLDP.pipeline.glCamera(viewerCamera, cameraManager.modelCamera != null);
-			if ((programPreferences != null) && programPreferences.isUseModelLights()
-					&& (renderModel.gatherLights(sceneLights) > 0)) {
+			final boolean classicModelLights = (programPreferences != null) && programPreferences.isUseModelLights();
+			final boolean hdModelLights = (programPreferences != null) && programPreferences.isUseModelLightsHD();
+			if ((classicModelLights || hdModelLights) && (renderModel.gatherLights(sceneLights, cameraManager.modelCamera != null) > 0)) {
+				sceneLights.applyToClassic = classicModelLights;
+				sceneLights.applyToHD = hdModelLights;
 				HDEnvironmentProbe.setSelectedProbe(programPreferences.getHdEnvironmentProbe());
 				NGGLDP.pipeline.glSceneLights(sceneLights);
 			} else {

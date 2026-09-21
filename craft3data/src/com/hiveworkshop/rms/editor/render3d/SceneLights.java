@@ -19,6 +19,10 @@ public final class SceneLights {
 
 	public int mode = MODE_LEGACY;
 	public int count;
+	/** Whether the classic (SD) shader pipeline should use these lights; false keeps its fixed light. */
+	public boolean applyToClassic = true;
+	/** Whether the HD shader pipeline should use these lights; false keeps its fixed light. */
+	public boolean applyToHD = true;
 	public final int[] type = new int[MAX_LIGHTS];
 	public final float[] position = new float[MAX_LIGHTS * 3];
 	public final float[] direction = new float[MAX_LIGHTS * 3];
@@ -91,6 +95,8 @@ public final class SceneLights {
 	public void copyFrom(final SceneLights other) {
 		mode = other.mode;
 		count = other.count;
+		applyToClassic = other.applyToClassic;
+		applyToHD = other.applyToHD;
 		System.arraycopy(other.type, 0, type, 0, MAX_LIGHTS);
 		System.arraycopy(other.position, 0, position, 0, position.length);
 		System.arraycopy(other.direction, 0, direction, 0, direction.length);

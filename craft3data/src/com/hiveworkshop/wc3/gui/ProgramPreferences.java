@@ -61,6 +61,7 @@ public class ProgramPreferences implements Serializable {
 	private Integer outlinerGlyphSize = DEFAULT_OUTLINER_GLYPH_SIZE;
 	/** Light models with their own Light nodes (true) or with the fixed viewer lights (false). */
 	private Boolean useModelLights = Boolean.TRUE;
+	private Boolean useModelLightsHD = Boolean.TRUE;
 	private Integer hdEnvironmentProbe = 0;
 	private MouseButtonPreference threeDCameraSpinButton = MouseButtonPreference.LEFT;
 	private MouseButtonPreference threeDCameraPanButton = MouseButtonPreference.MIDDLE;
@@ -140,6 +141,9 @@ public class ProgramPreferences implements Serializable {
 		if (useModelLights == null) {
 			useModelLights = Boolean.TRUE;
 		}
+		if (useModelLightsHD == null) {
+			useModelLightsHD = Boolean.TRUE;
+		}
 		if (hdEnvironmentProbe == null) {
 			hdEnvironmentProbe = 0;
 		}
@@ -184,6 +188,7 @@ public class ProgramPreferences implements Serializable {
 		quickBrowse = other.quickBrowse;
 		outlinerGlyphSize = other.outlinerGlyphSize;
 		useModelLights = other.useModelLights;
+		useModelLightsHD = other.useModelLightsHD;
 		hdEnvironmentProbe = other.hdEnvironmentProbe;
 		this.allowLoadingNonBlpTextures = other.allowLoadingNonBlpTextures;
 		this.renderParticles = other.renderParticles;
@@ -695,12 +700,24 @@ public class ProgramPreferences implements Serializable {
 		return theme;
 	}
 
+	/** Light nodes drive the classic (SD) shader pipeline with Warsmash's light system; off keeps its fixed lighting. */
 	public boolean isUseModelLights() {
 		return (useModelLights == null) || useModelLights;
 	}
 
 	public void setUseModelLights(final boolean useModelLights) {
 		this.useModelLights = useModelLights;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	/** Light nodes drive the HD (Reforged/DE) shader pipeline; off keeps its fixed lighting. */
+	public boolean isUseModelLightsHD() {
+		return (useModelLightsHD == null) || useModelLightsHD;
+	}
+
+	public void setUseModelLightsHD(final boolean useModelLightsHD) {
+		this.useModelLightsHD = useModelLightsHD;
 		SaveProfile.save();
 		firePrefsChanged();
 	}

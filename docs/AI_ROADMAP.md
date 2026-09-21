@@ -257,9 +257,12 @@ Single from File/Unit/Model/Object.
   branch, never a dialog. Preferences > General picks the probe (portrait default, Lordaeron day/night, dungeon,
   Northrend sunset). The baked-occlusion term is gated like the game: AmbientOcclusion layer flag, a second UV
   set and an ORM texture (DE ORM textures leave that channel empty, which used to render them black). As in the
-  game, only omni lights reach the HD pass; the main light is the baseline sun. "Use Model Lights" in
-  Preferences > General switches back to the previous fixed lighting (both shaders keep that path intact under
-  `u_lightMode == 0`).
+  game, only omni lights reach the HD pass; the main light is the baseline sun. For SD the default sun is the
+  editor's old fixed light expressed as a directional light (1.3 x Lambert + 0.5 ambient free view, Lambert + 0.3
+  with a model camera), so a model without Light nodes looks the same with the feature on or off. Preferences >
+  General has two switches, "Model Lights, classic models" (Warsmash lighting) and "Model Lights, HD/DE models"
+  (Reforged shader + probe), each restoring that pipeline's previous fixed lighting when off (both shaders keep
+  that path intact under `u_lightMode == 0`).
 
 - [x] **W15. MDL text in the Warcraft III dialect.** (done 2026-09-19) The MDL writer now produces the dialect the
   game's own reader accepts, following FernandoS27's WhiteoutLib MDL/MDX specifications (`THIRD_PARTY.md`): from

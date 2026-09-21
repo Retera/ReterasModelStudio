@@ -121,11 +121,19 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		generalPrefsPanel.add(outlinerGlyphSize, "cell 1 11");
 		final JCheckBox useModelLights = new JCheckBox();
 		useModelLights.setSelected(programPreferences.isUseModelLights());
-		useModelLights.setToolTipText(
-				"Light models with their own Light nodes, as the game does. Uncheck to return to the fixed viewer lighting.");
+		useModelLights.setToolTipText("Classic (SD) models: light the preview with the model's own Light nodes using "
+				+ "Warsmash's light system. Off keeps the fixed lighting; a model without lights looks the same either way.");
 		useModelLights.addActionListener(e -> programPreferences.setUseModelLights(useModelLights.isSelected()));
-		generalPrefsPanel.add(new JLabel("Use Model Lights (Light nodes):"), "cell 0 12");
+		generalPrefsPanel.add(new JLabel("Model Lights, classic models (Warsmash lighting):"), "cell 0 12");
 		generalPrefsPanel.add(useModelLights, "cell 1 12");
+		final JCheckBox useModelLightsHD = new JCheckBox();
+		useModelLightsHD.setSelected(programPreferences.isUseModelLightsHD());
+		useModelLightsHD.setToolTipText("HD and DE models: shade with the Reforged 3.0 shader, the game's environment "
+				+ "probe and the model's omni Light nodes. Off keeps the previous fixed HD lighting.");
+		useModelLightsHD
+				.addActionListener(e -> programPreferences.setUseModelLightsHD(useModelLightsHD.isSelected()));
+		generalPrefsPanel.add(new JLabel("Model Lights, HD/DE models (Reforged shader):"), "cell 0 13");
+		generalPrefsPanel.add(useModelLightsHD, "cell 1 13");
 		final JComboBox<String> hdEnvironmentProbe = new JComboBox<>(HDEnvironmentProbe.PROBE_NAMES);
 		hdEnvironmentProbe.setSelectedIndex(Math.max(0,
 				Math.min(HDEnvironmentProbe.PROBE_NAMES.length - 1, programPreferences.getHdEnvironmentProbe())));
@@ -133,8 +141,8 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 				+ "when model lights are on (Environment/EnvironmentMap in the game data).");
 		hdEnvironmentProbe.addActionListener(
 				e -> programPreferences.setHdEnvironmentProbe(hdEnvironmentProbe.getSelectedIndex()));
-		generalPrefsPanel.add(new JLabel("HD Environment Probe:"), "cell 0 13");
-		generalPrefsPanel.add(hdEnvironmentProbe, "cell 1 13");
+		generalPrefsPanel.add(new JLabel("HD Environment Probe:"), "cell 0 14");
+		generalPrefsPanel.add(hdEnvironmentProbe, "cell 1 14");
 		// final BoxLayout boxLayout = new BoxLayout(generalPrefsPanel,
 		// BoxLayout.PAGE_AXIS);
 
