@@ -700,6 +700,8 @@ public final class EffectBinder {
 				e.width = 4;
 			}
 			e.nameId = EventPayloadDecl.payloadNameId(pl.getString("PayloadName", ""));
+			e.flags = pl.getInt("PayloadFlags", 0);
+			e.kind = pl.getInt("PayloadKind", 0);
 		}
 		return arr;
 	}

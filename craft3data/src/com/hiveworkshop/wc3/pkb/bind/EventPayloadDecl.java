@@ -5,6 +5,10 @@ public final class EventPayloadDecl {
 	public static final class Element {
 		public int nameId;
 		public int width;
+		/** CLayerCompileCacheEventPayload PayloadFlags, kept for diagnostics. */
+		public int flags;
+		/** CLayerCompileCacheEventPayload PayloadKind (1 position, 2 orientation, 3 count). */
+		public int kind;
 	}
 
 	/** A kicked event: channel name and payload layout. */

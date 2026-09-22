@@ -42,6 +42,7 @@ public final class LayerTickHarness {
 	private final int[] spawnBoolPayload = new int[4];
 	private int spawnBoolPayloadId;
 	private int spawnPositionPayloadId;
+	private boolean spawnFrameLocal;
 	private int spawnOrientationPayloadId;
 	private final SpawnEvent.PayloadFloatSlot[] spawnFloatSlots = SpawnEvent.newFloatSlots();
 	private SpawnEvent.Queue spawnQueue;
@@ -357,6 +358,10 @@ public final class LayerTickHarness {
 		spawnPositionPayloadId = id;
 	}
 
+	public void setSpawnFrameLocal(final boolean local) {
+		spawnFrameLocal = local;
+	}
+
 	public void setSpawnOrientationPayloadId(final int id) {
 		spawnOrientationPayloadId = id;
 	}
@@ -422,6 +427,8 @@ public final class LayerTickHarness {
 	// ---- execution
 
 	private void bindContext(final ProgramDescriptor scope, final LayerProgram layer, final ExecContext ctx) {
+		ctx.layerWorldSpace = layer.simulatesInWorldSpace();
+		ctx.layerId = layer.id;
 		ctx.resetPerScopeRun();
 		for (int s = 0; s < Bank.SCOPE_BUCKETS; s++) {
 			ctx.scopeRegisters[s] = scopeRegisters[s];
@@ -463,6 +470,7 @@ public final class LayerTickHarness {
 		System.arraycopy(spawnBoolPayload, 0, ctx.spawnBoolPayload, 0, 4);
 		ctx.spawnBoolPayloadId = spawnBoolPayloadId;
 		ctx.spawnPositionPayloadId = spawnPositionPayloadId;
+		ctx.spawnFrameLocal = spawnFrameLocal;
 		ctx.spawnOrientationPayloadId = spawnOrientationPayloadId;
 		SpawnEvent.copyFloatSlots(spawnFloatSlots, ctx.spawnFloatSlots);
 	}

@@ -49,6 +49,8 @@ public final class SpawnEvent {
 	public boolean hasSpawnPosition;
 	public final float[] spawnPosition = new float[3];
 	public int spawnPositionPayloadId;
+	/** The kicking layer simulates in the emitter's local frame, so the payload frame is emitter-relative. */
+	public boolean spawnFrameLocal;
 	public boolean hasSpawnOrientation;
 	public final float[] spawnOrientation = { 0, 0, 0, 1 };
 	public int spawnOrientationPayloadId;
@@ -73,6 +75,7 @@ public final class SpawnEvent {
 		e.hasSpawnPosition = hasSpawnPosition;
 		System.arraycopy(spawnPosition, 0, e.spawnPosition, 0, 3);
 		e.spawnPositionPayloadId = spawnPositionPayloadId;
+		e.spawnFrameLocal = spawnFrameLocal;
 		e.hasSpawnOrientation = hasSpawnOrientation;
 		System.arraycopy(spawnOrientation, 0, e.spawnOrientation, 0, 4);
 		e.spawnOrientationPayloadId = spawnOrientationPayloadId;

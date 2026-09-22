@@ -270,6 +270,15 @@ Single from File/Unit/Model/Object.
   pipelines cache uniform locations, record the vertex layout in the VAO once and skip the per-float capacity
   check; `-Drms.logFps=true` prints the preview's frame rate for support reports.
 
+- [x] **W16. Weapon-glow PKB trails stuck at the model origin.** (done 2026-09-21) The Reforged weapon glows
+  (`Weapon_Glow_Shaft/Bow/Twinblade/...`) are trail flares spawned by a local-space spawner layer through a
+  Position/Orientation payload; the child stores the parent position at spawn and re-transforms it every tick
+  through the payload frame. The reference applies the parent frame both times, which folds the flares onto the
+  origin (verified against a standalone build of cornflakes: same result). The port now keys the evolve-scope
+  payload rule on the parent's space (`LayerProgram.simulatesInWorldSpace`, `SpawnEvent.spawnFrameLocal`) and
+  applies the emitter transform there for local-space parents. A sweep of all 2165 PKBs with a displaced emitter
+  improved 48 effects and regressed none; details in `docs/PKB_PORT_NOTES.md`.
+
 - [x] **W15. MDL text in the Warcraft III dialect.** (done 2026-09-19) The MDL writer now produces the dialect the
   game's own reader accepts, following FernandoS27's WhiteoutLib MDL/MDX specifications (`THIRD_PARTY.md`): from
   version 1100 a per-layer `Shader "Shader_HD_DefaultUnit",` line (none for SD layers; `Shader_HD_Crystal` and

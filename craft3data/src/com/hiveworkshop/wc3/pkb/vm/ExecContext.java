@@ -167,6 +167,12 @@ public final class ExecContext {
 	public final int[] spawnBoolPayload = new int[4];
 	public int spawnBoolPayloadId;
 	public int spawnPositionPayloadId;
+	/** The running layer converts to world space itself (see LayerProgram.simulatesInWorldSpace). */
+	public boolean layerWorldSpace;
+	/** Id of the running layer (diagnostics). */
+	public int layerId;
+	/** The spawn payload frame came from a local-space parent, so it is relative to the emitter. */
+	public boolean spawnFrameLocal;
 	public int spawnOrientationPayloadId;
 	public final SpawnEvent.PayloadFloatSlot[] spawnFloatSlots = SpawnEvent.newFloatSlots();
 	public SpawnEvent.Queue spawnQueue;

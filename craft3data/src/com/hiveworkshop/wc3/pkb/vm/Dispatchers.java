@@ -794,6 +794,7 @@ public final class Dispatchers {
 				ev.sequenceIndex = i;
 				ev.parentSelfId = parentSelfId;
 				ev.parentRngState = parentRng;
+				ev.spawnFrameLocal = !ctx.layerWorldSpace;
 				if (pending != null) {
 					if (i < pending.positionCount) {
 						ev.hasSpawnPosition = true;
@@ -1726,6 +1727,12 @@ public final class Dispatchers {
 	private static final int XF_SPACE_ENTER_SHIFT = 3;
 	private static final int XF_SPACE_LEAVE_SHIFT = 5;
 
+	private static final boolean TRACE_XFORM = Boolean.getBoolean("pkb.traceXform");
+	/** -Dpkb.legacyPayloadFrame=true keeps the reference's payload-frame rule in evolve scopes (diagnostics). */
+	private static final boolean LEGACY_PAYLOAD_FRAME = Boolean.getBoolean("pkb.legacyPayloadFrame");
+	/** Diagnostics: how often each xform mask value was seen (index = mask & 63). */
+	public static final int[] XFORM_MASK_HISTOGRAM = new int[64];
+
 	private boolean xformL2W(final Instruction ins, final ExecContext ctx, final boolean isPoint) {
 		if (ins.argc() < 1) {
 			throw new VmException("IR: xform_l2w_*_masked requires arg");
@@ -1739,6 +1746,7 @@ public final class Dispatchers {
 				mask = mv;
 			}
 		}
+		XFORM_MASK_HISTOGRAM[mask & 63]++;
 		final int filter = mask & XF_FILTER;
 		final int spaceEnter = (mask >>> XF_SPACE_ENTER_SHIFT) & XF_SPACE_MASK;
 		final int spaceLeave = (mask >>> XF_SPACE_LEAVE_SHIFT) & XF_SPACE_MASK;
@@ -1760,7 +1768,31 @@ public final class Dispatchers {
 			final boolean usePayloadPath = tryPayload && (hasPositionPayload || hasOrientationPayload);
 			final boolean wantQ = (filter & XF_FILTER_Q) != 0;
 			final boolean wantT = isPoint && ((filter & XF_FILTER_T) != 0);
-			if (usePayloadPath) {
+			if (usePayloadPath && !ctx.inInitScope && ctx.spawnFrameLocal && !LEGACY_PAYLOAD_FRAME) {
+				// Evolve scopes of a child spawned by a local-space parent: the parent's
+				// payload frame was expressed in the emitter's frame (the parent never
+				// converted to world space), and the value re-transformed here is the spawn
+				// position stored at init through that same frame. Leaving to world space
+				// therefore means applying the emitter transform, not the parent frame
+				// again; the reference applies the parent frame twice and the flares of
+				// the game's weapon-glow trails collapse at the origin. Children of
+				// world-space parents keep the reference rule below.
+				final float[][] m = ctx.sceneL2W.m;
+				if (wantQ) {
+					final float rx = (m[0][0] * ix) + (m[0][1] * iy) + (m[0][2] * iz);
+					final float ry = (m[1][0] * ix) + (m[1][1] * iy) + (m[1][2] * iz);
+					final float rz = (m[2][0] * ix) + (m[2][1] * iy) + (m[2][2] * iz);
+					ox = rx;
+					oy = ry;
+					oz = rz;
+				}
+				if (wantT) {
+					ox += m[0][3];
+					oy += m[1][3];
+					oz += m[2][3];
+				}
+			} else if (usePayloadPath) {
+				// Spawn scope: the payload frame is the parent particle's transform.
 				if (wantQ && hasOrientationPayload) {
 					final float qx = ctx.spawnQuat[0];
 					final float qy = ctx.spawnQuat[1];
@@ -1794,6 +1826,9 @@ public final class Dispatchers {
 					oz += m[2][3];
 				}
 			}
+		}
+		if (TRACE_XFORM) {
+			System.err.println("xform_l2w L" + ctx.layerId + (ctx.inInitScope ? " init" : " evolve") + " local=" + ctx.spawnFrameLocal + " mask=0x" + Integer.toHexString(mask) + " filter=" + filter + " enter=" + spaceEnter + " leave=" + spaceLeave + " noop=" + noop + " posPayload=" + ctx.spawnPositionPayloadId + " oriPayload=" + ctx.spawnOrientationPayloadId + " in=" + ix + "," + iy + "," + iz + " out=" + ox + "," + oy + "," + oz + " L2Wt=" + ctx.sceneL2W.m[0][3] + "," + ctx.sceneL2W.m[1][3] + "," + ctx.sceneL2W.m[2][3] + " spawnT=" + ctx.spawnTranslate[0] + "," + ctx.spawnTranslate[1] + "," + ctx.spawnTranslate[2]);
 		}
 		out.setFloat3(ox, oy, oz);
 		return true;

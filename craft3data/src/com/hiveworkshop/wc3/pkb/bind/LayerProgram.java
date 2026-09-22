@@ -56,6 +56,32 @@ public final class LayerProgram {
 		return findBindingAcrossScopes(name);
 	}
 
+	private int worldSpaceCache = -1;
+
+	/**
+	 * Whether this layer's programs ever convert between local and world space
+	 * (xform_l2w / xform_w2l). A layer that never does simulates in the emitter's
+	 * local frame: its positions, and the spawn payloads it hands to child layers,
+	 * are relative to the emitter. The compiler emits the conversion for
+	 * world-space layers and leaves it out for local-space ones, so the presence
+	 * of the calls is the layer's space.
+	 */
+	public boolean simulatesInWorldSpace() {
+		if (worldSpaceCache < 0) {
+			boolean world = false;
+			for (final ProgramDescriptor scope : scopePrograms()) {
+				for (final FunctionBinding f : scope.functions) {
+					if (f.canonicalName.contains("xform_l2w") || f.canonicalName.contains("xform_w2l")
+							|| f.symbolName.contains("xform_l2w") || f.symbolName.contains("xform_w2l")) {
+						world = true;
+					}
+				}
+			}
+			worldSpaceCache = world ? 1 : 0;
+		}
+		return worldSpaceCache == 1;
+	}
+
 	public boolean isSpawner() {
 		return renderers.length == 0;
 	}

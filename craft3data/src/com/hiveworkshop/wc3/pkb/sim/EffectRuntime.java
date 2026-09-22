@@ -326,6 +326,7 @@ public final class EffectRuntime {
 				particle.clearSpawnBoolPayload();
 			}
 			particle.setSpawnPositionPayloadId(ev.hasSpawnPosition ? ev.spawnPositionPayloadId : 0);
+			particle.setSpawnFrameLocal(ev.spawnFrameLocal);
 			particle.setSpawnOrientationPayloadId(ev.hasSpawnOrientation ? ev.spawnOrientationPayloadId : 0);
 			particle.setSpawnFloatSlots(ev.floatSlots);
 			applyFrameState(particle, i, inputs);

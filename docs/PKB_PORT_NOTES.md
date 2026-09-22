@@ -42,6 +42,22 @@ and not a kick target; pool 1, Init once. Layer seed = base + layerIdx*0x9E3779B
 Externals are canonicalised per layer by name (1-based) across scopes; storage size = max slot + 1.
 Units: 1 corn unit = 100 game units. Emitter L2W = node world matrix (scaled by model scale), translation *0.01.
 
+## Where the port deliberately differs from the reference
+Payload-space transforms in evolve scopes (`xform_l2w_*_masked` with the payload enter bit, mask 0x13 on
+every tick). The reference applies the parent particle's spawn frame (position payload + orientation payload)
+in every scope. That is right for children of world-space parents, which feed an offset through the frame each
+tick, but a child of a *local-space* parent (a spawner layer that never calls `xform_l2w`, so its positions are
+emitter-relative) first stores `xform(0)` = the parent position at spawn and then re-transforms that stored value
+every tick; applying the parent frame twice folds the value back onto itself and the game's weapon-glow trails
+(`SharedFX/Hero_Glow/Weapon_Glow_*.pkb`, ~16 effects) collapse at the model origin. The reference does the
+same (verified with a standalone build of cornflakes: `weapon_glow_shaft` renders at the origin, `_circle`
+follows the emitter). The port keys the evolve-scope rule on the parent's space: `SpawnEvent.spawnFrameLocal`
+(set by `kick` from `LayerProgram.simulatesInWorldSpace()`) makes the evolve-scope payload path apply the
+emitter transform instead of the parent frame. A corpus sweep of all 2165 PKBs in 3.0 with the emitter
+displaced (the `FollowScan` idea: count particles nearer the origin than the emitter) improved 48 effects and
+regressed none; `-Dpkb.legacyPayloadFrame=true` restores the reference rule and `-Dpkb.traceXform=true` logs
+every masked transform for diagnosis.
+
 ## Renderer input map
 RenderSlot: Position, Size, Enabled, Orientation, Axis0, Axis1, Rotation, Color, TextureID, ...
 From `CLayerCompileCacheRendererParticleInput` (Semantic 0 Position, 1 Size, 2 Enabled, 4/8 Axis0, 5 Axis1,
