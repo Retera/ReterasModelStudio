@@ -26,7 +26,26 @@ import com.hiveworkshop.wc3.util.MathUtils;
  */
 public class NGGLDP {
 
-	static void uploadMatrix(final int shaderProgram, final String name, final Matrix4f matrix,
+	/** Uniform locations of one program, looked up once: glGetUniformLocation is a string search in the driver. */
+	static final class UniformCache {
+		private final int program;
+		private final java.util.HashMap<String, Integer> locations = new java.util.HashMap<>();
+
+		UniformCache(final int program) {
+			this.program = program;
+		}
+
+		int get(final String name) {
+			Integer location = locations.get(name);
+			if (location == null) {
+				location = GL20.glGetUniformLocation(program, name);
+				locations.put(name, location);
+			}
+			return location;
+		}
+	}
+
+	static void uploadMatrix(final UniformCache uniforms, final String name, final Matrix4f matrix,
 			final FloatBuffer buffer) {
 		buffer.clear();
 		buffer.put(matrix.m00).put(matrix.m01).put(matrix.m02).put(matrix.m03);
@@ -34,15 +53,15 @@ public class NGGLDP {
 		buffer.put(matrix.m20).put(matrix.m21).put(matrix.m22).put(matrix.m23);
 		buffer.put(matrix.m30).put(matrix.m31).put(matrix.m32).put(matrix.m33);
 		buffer.flip();
-		GL20.glUniformMatrix4(GL20.glGetUniformLocation(shaderProgram, name), false, buffer);
+		GL20.glUniformMatrix4(uniforms.get(name), false, buffer);
 	}
 
 	/** Uploads the scene lights as the u_light* uniform arrays shared by the shader pipelines. */
-	static void uploadSceneLights(final int shaderProgram, final SceneLights lights, final FloatBuffer buffer) {
+	static void uploadSceneLights(final UniformCache uniforms, final SceneLights lights, final FloatBuffer buffer) {
 		final int mode = lights == null ? SceneLights.MODE_LEGACY : lights.mode;
 		final int count = lights == null ? 0 : lights.count;
-		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_lightMode"), mode);
-		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_lightCount"), count);
+		GL20.glUniform1i(uniforms.get("u_lightMode"), mode);
+		GL20.glUniform1i(uniforms.get("u_lightCount"), count);
 		if ((mode == SceneLights.MODE_LEGACY) || (count == 0)) {
 			return;
 		}
@@ -55,7 +74,7 @@ public class NGGLDP {
 					.put(live ? lights.type[i] : 0);
 		}
 		buffer.flip();
-		GL20.glUniform4(GL20.glGetUniformLocation(shaderProgram, "u_lightPosType"), buffer);
+		GL20.glUniform4(uniforms.get("u_lightPosType"), buffer);
 		buffer.clear();
 		for (int i = 0; i < SceneLights.MAX_LIGHTS; i++) {
 			final boolean live = i < count;
@@ -63,7 +82,7 @@ public class NGGLDP {
 					.put(live ? lights.color[(i * 3) + 2] : 0).put(live ? lights.intensity[i] : 0);
 		}
 		buffer.flip();
-		GL20.glUniform4(GL20.glGetUniformLocation(shaderProgram, "u_lightColorInt"), buffer);
+		GL20.glUniform4(uniforms.get("u_lightColorInt"), buffer);
 		buffer.clear();
 		for (int i = 0; i < SceneLights.MAX_LIGHTS; i++) {
 			final boolean live = i < count;
@@ -71,14 +90,14 @@ public class NGGLDP {
 					.put(live ? lights.ambientColor[(i * 3) + 2] : 0).put(live ? lights.ambientIntensity[i] : 0);
 		}
 		buffer.flip();
-		GL20.glUniform4(GL20.glGetUniformLocation(shaderProgram, "u_lightAmbColorInt"), buffer);
+		GL20.glUniform4(uniforms.get("u_lightAmbColorInt"), buffer);
 		buffer.clear();
 		for (int i = 0; i < SceneLights.MAX_LIGHTS; i++) {
 			final boolean live = i < count;
 			buffer.put(live ? lights.attenuationStart[i] : 0).put(live ? lights.attenuationEnd[i] : 0).put(0).put(0);
 		}
 		buffer.flip();
-		GL20.glUniform4(GL20.glGetUniformLocation(shaderProgram, "u_lightAtt"), buffer);
+		GL20.glUniform4(uniforms.get("u_lightAtt"), buffer);
 		buffer.clear();
 		for (int i = 0; i < SceneLights.MAX_LIGHTS; i++) {
 			final boolean live = i < count;
@@ -86,7 +105,7 @@ public class NGGLDP {
 					.put(live ? lights.damping[i] : 0).put(live ? lights.shadowIntensity[i] : 0);
 		}
 		buffer.flip();
-		GL20.glUniform4(GL20.glGetUniformLocation(shaderProgram, "u_lightFalloff"), buffer);
+		GL20.glUniform4(uniforms.get("u_lightFalloff"), buffer);
 	}
 
 	private static final FixedFunctionPipeline fixedFunctionPipeline = new FixedFunctionPipeline();
@@ -404,18 +423,21 @@ public class NGGLDP {
 				"		v_uv = a_uv;\r\n" + //
 				"		v_color = a_color;\r\n" + //
 				"		if(u_lightingEnabled != 0) {\r\n" + //
-				"		    if(u_lightMode != 0) {\r\n" + //
-				"			    v_color.rgb = v_color.rgb * modelLightFactor(a_position.xyz, normalize(a_normal.xyz));\r\n" + //
-				"		    } else {\r\n" + //
+				// The fixed light is always the base term, in the exact form the editor has
+				// always used, so a model without Light nodes renders identically whether or
+				// not model lights are enabled; the model's lights only add to it.
 				"			vec3 lightFactorContribution = vec3(clamp(dot(a_normal.xyz, u_lightDirection), 0.0, 1.0));\r\n"
 				+ //
+				"			vec3 lightFactor;\r\n" + //
 				"		    if(u_usingModelCamera != 0) {\r\n" + //
-				"			    v_color.rgb = v_color.rgb * clamp(lightFactorContribution + 0.3f, 0.0, 1.0);\r\n" + //
+				"			    lightFactor = lightFactorContribution + 0.3f;\r\n" + //
 				"		    } else {\r\n" + //
-				"			    v_color.rgb = v_color.rgb * clamp(lightFactorContribution * 1.3 + vec3(0.5f, 0.5f, 0.5f), 0.0, 1.0);\r\n"
-				+ //
+				"			    lightFactor = lightFactorContribution * 1.3 + vec3(0.5f, 0.5f, 0.5f);\r\n" + //
 				"		    }\r\n" + //
+				"		    if(u_lightMode != 0) {\r\n" + //
+				"			    lightFactor += modelLightFactor(a_position.xyz, normalize(a_normal.xyz));\r\n" + //
 				"		    }\r\n" + //
+				"			v_color.rgb = v_color.rgb * clamp(lightFactor, 0.0, 1.0);\r\n" + //
 				"		}\r\n" + //
 				"}\r\n\0";
 		private static final String fragmentShader = "#version 330 core\r\n" + //
@@ -451,6 +473,7 @@ public class NGGLDP {
 		private int colorCount = 0;
 		private int glBeginType;
 		private int shaderProgram;
+		private UniformCache uniforms;
 		private int vertexBufferObjectId, vertexArrayObjectId; // has nothing to do with "object id" of war3 models
 		private boolean loaded = false;
 		private final Matrix4f currentMatrix = new Matrix4f();
@@ -513,19 +536,29 @@ public class NGGLDP {
 			}
 			GL20.glDeleteShader(vertexShaderId);
 			GL20.glDeleteShader(fragmentShaderId);
+			uniforms = new UniformCache(shaderProgram);
 
 			vertexArrayObjectId = GL30.glGenVertexArrays();
 			vertexBufferObjectId = GL15.glGenBuffers();
 			GL30.glBindVertexArray(vertexArrayObjectId);
 
 			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBufferObjectId);
+			// the vertex layout is fixed, so the array object records it once
+			GL20.glEnableVertexAttribArray(0);
+			GL20.glVertexAttribPointer(0, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 0);
+			GL20.glEnableVertexAttribArray(1);
+			GL20.glVertexAttribPointer(1, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 4 * Float.BYTES);
+			GL20.glEnableVertexAttribArray(2);
+			GL20.glVertexAttribPointer(2, 2, GL11.GL_FLOAT, false, STRIDE_BYTES, 8 * Float.BYTES);
+			GL20.glEnableVertexAttribArray(3);
+			GL20.glVertexAttribPointer(3, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 10 * Float.BYTES);
 			loaded = true;
 
 			// GL20.glGetAttribLocation(shaderProgram, "a_position") ?
 		}
 
 		private void pushFloat(final int absoluteOffset, final float x) {
-			ensureCapacity(absoluteOffset);
+			// every caller reserves the whole vertex first, so no capacity check per float
 			pipelineVertexBuffer.put(absoluteOffset, x);
 		}
 
@@ -567,40 +600,31 @@ public class NGGLDP {
 			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBufferObjectId);
 			GL15.glBufferData(GL15.GL_ARRAY_BUFFER, pipelineVertexBuffer, GL15.GL_DYNAMIC_DRAW);
 
-			GL20.glEnableVertexAttribArray(0);
-			GL20.glVertexAttribPointer(0, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 0);
-			GL20.glEnableVertexAttribArray(1);
-			GL20.glVertexAttribPointer(1, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 4 * Float.BYTES);
-			GL20.glEnableVertexAttribArray(2);
-			GL20.glVertexAttribPointer(2, 2, GL11.GL_FLOAT, false, STRIDE_BYTES, 8 * Float.BYTES);
-			GL20.glEnableVertexAttribArray(3);
-			GL20.glVertexAttribPointer(3, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 10 * Float.BYTES);
-
 			GL20.glUseProgram(shaderProgram);
 
-			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_texture"), 0);
-			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureUsed"), textureUsed);
+			GL20.glUniform1i(uniforms.get("u_texture"), 0);
+			GL20.glUniform1i(uniforms.get("u_textureUsed"), textureUsed);
 			textureUsed = 0;
-			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_alphaTest"), alphaTest);
-			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_lightingEnabled"), lightingEnabled);
+			GL20.glUniform1i(uniforms.get("u_alphaTest"), alphaTest);
+			GL20.glUniform1i(uniforms.get("u_lightingEnabled"), lightingEnabled);
 			if (usingModelCamera) {
 				// this one emulates UI\MiscData.txt light
 				// (used in WC3 portraits, so it'll be wrong on "main menu" background models)
 				tempVec4.set(0.3f, -0.3f, 0.25f, 0.0f);
-				GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_usingModelCamera"), 1);
+				GL20.glUniform1i(uniforms.get("u_usingModelCamera"), 1);
 			}
 			else {
 				// this one emulates DNC model light
 				// (used in WC3 game world view)
 				tempVec4.set(-24.1937f, 30.4879f, 444.411f, 0.0f);
-				GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_usingModelCamera"), 0);
+				GL20.glUniform1i(uniforms.get("u_usingModelCamera"), 0);
 			}
 //			Matrix4f.transform(currentMatrix, tempVec4, tempVec4);
 			tempVec4.normalise();
-			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), tempVec4.x, tempVec4.y,
+			GL20.glUniform3f(uniforms.get("u_lightDirection"), tempVec4.x, tempVec4.y,
 					tempVec4.z);
-			uploadMatrix(shaderProgram, "u_projection", currentMatrix, pipelineMatrixBuffer);
-			uploadSceneLights(shaderProgram, sceneLights, lightUploadBuffer);
+			uploadMatrix(uniforms, "u_projection", currentMatrix, pipelineMatrixBuffer);
+			uploadSceneLights(uniforms, sceneLights, lightUploadBuffer);
 			GL11.glDrawArrays(glBeginType, 0, vertexCount);
 			vertexCount = 0;
 			uvCount = 0;
@@ -1331,6 +1355,7 @@ public class NGGLDP {
 		private int ambientOcclusionMap = 0;
 		private int glBeginType;
 		private int shaderProgram;
+		private UniformCache uniforms;
 		private int vertexBufferObjectId, vertexArrayObjectId; // has nothing to do with "object id" of war3 models
 		private boolean loaded = false;
 		private final Matrix4f currentMatrix = new Matrix4f();
@@ -1406,19 +1431,33 @@ public class NGGLDP {
 			}
 			GL20.glDeleteShader(vertexShaderId);
 			GL20.glDeleteShader(fragmentShaderId);
+			uniforms = new UniformCache(shaderProgram);
 
 			vertexArrayObjectId = GL30.glGenVertexArrays();
 			vertexBufferObjectId = GL15.glGenBuffers();
 			GL30.glBindVertexArray(vertexArrayObjectId);
 
 			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBufferObjectId);
+			// the vertex layout is fixed, so the array object records it once
+			GL20.glEnableVertexAttribArray(0);
+			GL20.glVertexAttribPointer(0, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 0);
+			GL20.glEnableVertexAttribArray(1);
+			GL20.glVertexAttribPointer(1, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 4 * Float.BYTES);
+			GL20.glEnableVertexAttribArray(2);
+			GL20.glVertexAttribPointer(2, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 8 * Float.BYTES);
+			GL20.glEnableVertexAttribArray(3);
+			GL20.glVertexAttribPointer(3, 2, GL11.GL_FLOAT, false, STRIDE_BYTES, 12 * Float.BYTES);
+			GL20.glEnableVertexAttribArray(4);
+			GL20.glVertexAttribPointer(4, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 14 * Float.BYTES);
+			GL20.glEnableVertexAttribArray(5);
+			GL20.glVertexAttribPointer(5, 2, GL11.GL_FLOAT, false, STRIDE_BYTES, 18 * Float.BYTES);
 			loaded = true;
 
 			// GL20.glGetAttribLocation(shaderProgram, "a_position") ?
 		}
 
 		private void pushFloat(final int absoluteOffset, final float x) {
-			ensureCapacity(absoluteOffset);
+			// every caller reserves the whole vertex first, so no capacity check per float
 			pipelineVertexBuffer.put(absoluteOffset, x);
 		}
 
@@ -1461,53 +1500,40 @@ public class NGGLDP {
 			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBufferObjectId);
 			GL15.glBufferData(GL15.GL_ARRAY_BUFFER, pipelineVertexBuffer, GL15.GL_DYNAMIC_DRAW);
 
-			GL20.glEnableVertexAttribArray(0);
-			GL20.glVertexAttribPointer(0, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 0);
-			GL20.glEnableVertexAttribArray(1);
-			GL20.glVertexAttribPointer(1, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 4 * Float.BYTES);
-			GL20.glEnableVertexAttribArray(2);
-			GL20.glVertexAttribPointer(2, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 8 * Float.BYTES);
-			GL20.glEnableVertexAttribArray(3);
-			GL20.glVertexAttribPointer(3, 2, GL11.GL_FLOAT, false, STRIDE_BYTES, 12 * Float.BYTES);
-			GL20.glEnableVertexAttribArray(4);
-			GL20.glVertexAttribPointer(4, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 14 * Float.BYTES);
-			GL20.glEnableVertexAttribArray(5);
-			GL20.glVertexAttribPointer(5, 2, GL11.GL_FLOAT, false, STRIDE_BYTES, 18 * Float.BYTES);
-
 			GL20.glUseProgram(shaderProgram);
 
-			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureDiffuse"), 0);
-			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureNormal"), 1);
-			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureORM"), 2);
-			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureEmissive"), 3);
-			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureTeamColor"), 4);
-			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureReflections"), 5);
-			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureUsed"), textureUsed);
+			GL20.glUniform1i(uniforms.get("u_textureDiffuse"), 0);
+			GL20.glUniform1i(uniforms.get("u_textureNormal"), 1);
+			GL20.glUniform1i(uniforms.get("u_textureORM"), 2);
+			GL20.glUniform1i(uniforms.get("u_textureEmissive"), 3);
+			GL20.glUniform1i(uniforms.get("u_textureTeamColor"), 4);
+			GL20.glUniform1i(uniforms.get("u_textureReflections"), 5);
+			GL20.glUniform1i(uniforms.get("u_textureUsed"), textureUsed);
 			textureUsed = 0;
-			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_alphaTest"), alphaTest);
-			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_lightingEnabled"), lightingEnabled);
+			GL20.glUniform1i(uniforms.get("u_alphaTest"), alphaTest);
+			GL20.glUniform1i(uniforms.get("u_lightingEnabled"), lightingEnabled);
 
 			if (usingModelCamera) {
 				// this one emulates UI\MiscData.txt light
 				// (used in WC3 portraits, so it'll be wrong on "main menu" background models)
-				GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), 0.3f, -0.3f, 0.25f);
+				GL20.glUniform3f(uniforms.get("u_lightDirection"), 0.3f, -0.3f, 0.25f);
 			}
 			else {
 				// this one emulates DNC model light
 				// (used in WC3 game world view)
-				GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), -24.1937f, 30.4879f,
+				GL20.glUniform3f(uniforms.get("u_lightDirection"), -24.1937f, 30.4879f,
 						444.411f);
 			}
 
-//			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), 0.0f, 0.0f, -10000f);
+//			GL20.glUniform3f(uniforms.get("u_lightDirection"), 0.0f, 0.0f, -10000f);
 
-			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewPos"), cameraLocation.x, cameraLocation.y,
+			GL20.glUniform3f(uniforms.get("u_viewPos"), cameraLocation.x, cameraLocation.y,
 					cameraLocation.z);
-			GL20.glUniform2f(GL20.glGetUniformLocation(shaderProgram, "u_viewportSize"), viewportWidth, viewportHeight);
-			GL20.glUniform1f(GL20.glGetUniformLocation(shaderProgram, "u_fresnelTeamColor"), fresnelTeamColor);
-			GL20.glUniform4f(GL20.glGetUniformLocation(shaderProgram, "u_fresnelColor"), fresnelColor.x, fresnelColor.y,
+			GL20.glUniform2f(uniforms.get("u_viewportSize"), viewportWidth, viewportHeight);
+			GL20.glUniform1f(uniforms.get("u_fresnelTeamColor"), fresnelTeamColor);
+			GL20.glUniform4f(uniforms.get("u_fresnelColor"), fresnelColor.x, fresnelColor.y,
 					fresnelColor.z, fresnelOpacity);
-			GL20.glUniform1f(GL20.glGetUniformLocation(shaderProgram, "u_emissiveGain"), renderEmissiveGain);
+			GL20.glUniform1f(uniforms.get("u_emissiveGain"), renderEmissiveGain);
 			if (sceneLights != null && sceneLights.mode != SceneLights.MODE_LEGACY) {
 				environmentProbe.ensureLoaded();
 				GL13.glActiveTexture(GL13.GL_TEXTURE0 + PROBE_IRRADIANCE_UNIT);
@@ -1517,22 +1543,22 @@ public class NGGLDP {
 				GL13.glActiveTexture(GL13.GL_TEXTURE0 + PROBE_LUT_UNIT);
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, environmentProbe.lutTexture);
 				GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureUnit);
-				GL20.glUniform1f(GL20.glGetUniformLocation(shaderProgram, "u_envMipEnd"), environmentProbe.envMipEnd);
+				GL20.glUniform1f(uniforms.get("u_envMipEnd"), environmentProbe.envMipEnd);
 			}
-			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_iblIrradiance"), PROBE_IRRADIANCE_UNIT);
-			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_iblRadiance"), PROBE_RADIANCE_UNIT);
-			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_brdfLut"), PROBE_LUT_UNIT);
-			uploadSceneLights(shaderProgram, sceneLights, lightUploadBuffer);
+			GL20.glUniform1i(uniforms.get("u_iblIrradiance"), PROBE_IRRADIANCE_UNIT);
+			GL20.glUniform1i(uniforms.get("u_iblRadiance"), PROBE_RADIANCE_UNIT);
+			GL20.glUniform1i(uniforms.get("u_brdfLut"), PROBE_LUT_UNIT);
+			uploadSceneLights(uniforms, sceneLights, lightUploadBuffer);
 			// The main light of the Reforged path is the viewer's baseline sun (the
 			// game's own is the day/night rig); model directional and ambient lights
 			// do not reach the HD pass in 3.0, only the omni lights do.
-			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_mainLightEnabled"), 1);
-			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_mainLightDir"), BASELINE_SUN_DIR.x,
+			GL20.glUniform1i(uniforms.get("u_mainLightEnabled"), 1);
+			GL20.glUniform3f(uniforms.get("u_mainLightDir"), BASELINE_SUN_DIR.x,
 					BASELINE_SUN_DIR.y, BASELINE_SUN_DIR.z);
-			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_mainLightColor"), 0.9f, 0.9f, 0.9f);
-			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_mainAmbient"), 0.3f, 0.3f, 0.3f);
-			GL20.glUniform1f(GL20.glGetUniformLocation(shaderProgram, "u_iblScale"), 0.15f);
-			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_aoMap"), ambientOcclusionMap);
+			GL20.glUniform3f(uniforms.get("u_mainLightColor"), 0.9f, 0.9f, 0.9f);
+			GL20.glUniform3f(uniforms.get("u_mainAmbient"), 0.3f, 0.3f, 0.3f);
+			GL20.glUniform1f(uniforms.get("u_iblScale"), 0.15f);
+			GL20.glUniform1i(uniforms.get("u_aoMap"), ambientOcclusionMap);
 			pipelineMatrixBuffer.clear();
 			pipelineMatrixBuffer.put(currentMatrix.m00);
 			pipelineMatrixBuffer.put(currentMatrix.m01);
@@ -1567,7 +1593,7 @@ public class NGGLDP {
 //			pipelineMatrixBuffer.put(currentMatrix.m13);
 //			pipelineMatrixBuffer.put(currentMatrix.m23);
 //			pipelineMatrixBuffer.put(currentMatrix.m33);
-			GL20.glUniformMatrix4(GL20.glGetUniformLocation(shaderProgram, "u_projection"), false,
+			GL20.glUniformMatrix4(uniforms.get("u_projection"), false,
 					pipelineMatrixBuffer);
 			GL11.glDrawArrays(glBeginType, 0, vertexCount);
 			vertexCount = 0;
@@ -1983,6 +2009,11 @@ public class NGGLDP {
 
 		@Override
 		public void onGlobalPipelineSet() {
+			// leave whatever a shader pipeline drew last: immediate mode needs no program,
+			// no vertex array object and texture unit 0
+			GL20.glUseProgram(0);
+			GL30.glBindVertexArray(0);
+			GL13.glActiveTexture(GL13.GL_TEXTURE0);
 		}
 
 		@Override
@@ -2019,9 +2050,22 @@ public class NGGLDP {
 		public void glFresnelOpacity1f(final float v) {
 		}
 
+		private final FloatBuffer matrixBuffer = ByteBuffer.allocateDirect(16 * 4).order(ByteOrder.nativeOrder())
+				.asFloatBuffer();
+
 		@Override
 		public void glCamera(final ViewerCamera viewerCamera, final boolean usingModelCamera) {
-			throw new UnsupportedOperationException();
+			// the same camera the shader pipelines use, through the classic matrix stack
+			matrixBuffer.clear();
+			viewerCamera.getProjectionMatrix().store(matrixBuffer);
+			matrixBuffer.flip();
+			GL11.glMatrixMode(GL11.GL_PROJECTION);
+			GL11.glLoadMatrix(matrixBuffer);
+			matrixBuffer.clear();
+			viewerCamera.viewMatrix.store(matrixBuffer);
+			matrixBuffer.flip();
+			GL11.glMatrixMode(GL11.GL_MODELVIEW);
+			GL11.glLoadMatrix(matrixBuffer);
 		}
 
 		@Override

@@ -433,10 +433,20 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		this.looping = looping;
 	}
 
+	private boolean pipelineFixedFunction;
+
+	/** The pipelines for this context; rebuilt when the classic-renderer preference changes (GL must be current). */
 	private Pipeline getOrCreatePipeline() {
+		final boolean fixedFunction = (programPreferences != null) && programPreferences.isClassicFixedFunction();
+		if ((pipeline != null) && (pipelineFixedFunction != fixedFunction)) {
+			pipeline.discard();
+			pipeline = null;
+		}
 		if (pipeline == null) {
-			pipeline = new NGGLDP.ShaderSwitchingPipeline(
-					Arrays.asList(new NGGLDP.SimpleDiffuseShaderPipeline(), new NGGLDP.HDDiffuseShaderPipeline()));
+			pipelineFixedFunction = fixedFunction;
+			final NGGLDP.Pipeline classic = fixedFunction ? new NGGLDP.FixedFunctionPipeline()
+					: new NGGLDP.SimpleDiffuseShaderPipeline();
+			pipeline = new NGGLDP.ShaderSwitchingPipeline(Arrays.asList(classic, new NGGLDP.HDDiffuseShaderPipeline()));
 			pipeline.setCurrentPipeline(0);
 		}
 		return pipeline;
@@ -585,10 +595,27 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		paintGL(true);
 	}
 
+	/** -Drms.logFps=true prints the preview's frames per second to stderr every five seconds. */
+	private static final boolean LOG_FPS = Boolean.getBoolean("rms.logFps");
+	private int fpsFrames;
+	private long fpsWindowStart;
+
 	public void paintGL(final boolean autoRepainting) {
+		if (LOG_FPS) {
+			final long now = System.currentTimeMillis();
+			if (fpsWindowStart == 0) {
+				fpsWindowStart = now;
+			}
+			fpsFrames++;
+			if ((now - fpsWindowStart) >= 5000) {
+				System.err.println(String.format("preview fps: %.1f", (fpsFrames * 1000f) / (now - fpsWindowStart)));
+				fpsFrames = 0;
+				fpsWindowStart = now;
+			}
+		}
 		viewerCamera.update();
 		cameraManager.updateCamera();
-		NGGLDP.setPipeline(pipeline);
+		NGGLDP.setPipeline(getOrCreatePipeline());
 		setSize(getParent().getSize());
 		if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 5000) {
 			System.err.println("AnimatedPerspectiveViewport omitting frames due to avoid Exception log spam");
@@ -686,7 +713,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			NGGLDP.pipeline.glCamera(viewerCamera, cameraManager.modelCamera != null);
 			final boolean classicModelLights = (programPreferences != null) && programPreferences.isUseModelLights();
 			final boolean hdModelLights = (programPreferences != null) && programPreferences.isUseModelLightsHD();
-			if ((classicModelLights || hdModelLights) && (renderModel.gatherLights(sceneLights, cameraManager.modelCamera != null) > 0)) {
+			if (classicModelLights || hdModelLights) {
+				renderModel.gatherLights(sceneLights);
 				sceneLights.applyToClassic = classicModelLights;
 				sceneLights.applyToHD = hdModelLights;
 				HDEnvironmentProbe.setSelectedProbe(programPreferences.getHdEnvironmentProbe());

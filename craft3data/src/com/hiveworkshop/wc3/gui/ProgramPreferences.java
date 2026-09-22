@@ -62,6 +62,7 @@ public class ProgramPreferences implements Serializable {
 	/** Light models with their own Light nodes (true) or with the fixed viewer lights (false). */
 	private Boolean useModelLights = Boolean.TRUE;
 	private Boolean useModelLightsHD = Boolean.TRUE;
+	private Boolean classicFixedFunction = Boolean.FALSE;
 	private Integer hdEnvironmentProbe = 0;
 	private MouseButtonPreference threeDCameraSpinButton = MouseButtonPreference.LEFT;
 	private MouseButtonPreference threeDCameraPanButton = MouseButtonPreference.MIDDLE;
@@ -144,6 +145,9 @@ public class ProgramPreferences implements Serializable {
 		if (useModelLightsHD == null) {
 			useModelLightsHD = Boolean.TRUE;
 		}
+		if (classicFixedFunction == null) {
+			classicFixedFunction = Boolean.FALSE;
+		}
 		if (hdEnvironmentProbe == null) {
 			hdEnvironmentProbe = 0;
 		}
@@ -189,6 +193,7 @@ public class ProgramPreferences implements Serializable {
 		outlinerGlyphSize = other.outlinerGlyphSize;
 		useModelLights = other.useModelLights;
 		useModelLightsHD = other.useModelLightsHD;
+		classicFixedFunction = other.classicFixedFunction;
 		hdEnvironmentProbe = other.hdEnvironmentProbe;
 		this.allowLoadingNonBlpTextures = other.allowLoadingNonBlpTextures;
 		this.renderParticles = other.renderParticles;
@@ -718,6 +723,20 @@ public class ProgramPreferences implements Serializable {
 
 	public void setUseModelLightsHD(final boolean useModelLightsHD) {
 		this.useModelLightsHD = useModelLightsHD;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	/**
+	 * Draw classic (SD) layers through immediate-mode OpenGL with the fixed-function lighting the editor used
+	 * before its shader pipelines existed: the fastest path on weak or troubled GPUs, with the old look.
+	 */
+	public boolean isClassicFixedFunction() {
+		return (classicFixedFunction != null) && classicFixedFunction;
+	}
+
+	public void setClassicFixedFunction(final boolean classicFixedFunction) {
+		this.classicFixedFunction = classicFixedFunction;
 		SaveProfile.save();
 		firePrefsChanged();
 	}

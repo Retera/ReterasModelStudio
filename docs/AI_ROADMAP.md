@@ -262,7 +262,13 @@ Single from File/Unit/Model/Object.
   with a model camera), so a model without Light nodes looks the same with the feature on or off. Preferences >
   General has two switches, "Model Lights, classic models" (Warsmash lighting) and "Model Lights, HD/DE models"
   (Reforged shader + probe), each restoring that pipeline's previous fixed lighting when off (both shaders keep
-  that path intact under `u_lightMode == 0`).
+  that path intact under `u_lightMode == 0`). In the SD shader the fixed light is always the base term in its
+  original form and the model's lights only add to it, so a light-free classic model is pixel-identical either
+  way. A third switch, "Classic models: legacy fixed-function OpenGL", swaps the SD shader pipeline for
+  `NGGLDP.FixedFunctionPipeline` (real immediate-mode `glVertex3f` with the GL_LIGHT0/1 point lights the editor
+  had before NGGLDP) for users on weak or troubled drivers; HD layers still go through the HD shader. The shader
+  pipelines cache uniform locations, record the vertex layout in the VAO once and skip the per-float capacity
+  check; `-Drms.logFps=true` prints the preview's frame rate for support reports.
 
 - [x] **W15. MDL text in the Warcraft III dialect.** (done 2026-09-19) The MDL writer now produces the dialect the
   game's own reader accepts, following FernandoS27's WhiteoutLib MDL/MDX specifications (`THIRD_PARTY.md`): from

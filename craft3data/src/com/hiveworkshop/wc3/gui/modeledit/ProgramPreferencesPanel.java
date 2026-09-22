@@ -143,6 +143,15 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 				e -> programPreferences.setHdEnvironmentProbe(hdEnvironmentProbe.getSelectedIndex()));
 		generalPrefsPanel.add(new JLabel("HD Environment Probe:"), "cell 0 14");
 		generalPrefsPanel.add(hdEnvironmentProbe, "cell 1 14");
+		final JCheckBox classicFixedFunction = new JCheckBox();
+		classicFixedFunction.setSelected(programPreferences.isClassicFixedFunction());
+		classicFixedFunction.setToolTipText("Draw classic (SD) models with immediate-mode OpenGL and the old fixed-function "
+				+ "lighting, as versions of this program before the shader pipelines did. Fastest on weak or troubled "
+				+ "graphics drivers; model lights and the newer shading do not apply to classic layers in this mode.");
+		classicFixedFunction
+				.addActionListener(e -> programPreferences.setClassicFixedFunction(classicFixedFunction.isSelected()));
+		generalPrefsPanel.add(new JLabel("Classic models: legacy fixed-function OpenGL (fastest):"), "cell 0 15");
+		generalPrefsPanel.add(classicFixedFunction, "cell 1 15");
 		// final BoxLayout boxLayout = new BoxLayout(generalPrefsPanel,
 		// BoxLayout.PAGE_AXIS);
 

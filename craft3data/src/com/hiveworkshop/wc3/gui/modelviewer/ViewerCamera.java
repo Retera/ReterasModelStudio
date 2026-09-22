@@ -145,6 +145,11 @@ public class ViewerCamera {
 		this.dirty = true;
 	}
 
+	/** View -> Clip. */
+	public Matrix4f getProjectionMatrix() {
+		return projectionMatrix;
+	}
+
 	public void viewport(final Rectangle2D.Float viewport) {
 		viewport(viewport.x, viewport.y, viewport.width, viewport.height);
 	}

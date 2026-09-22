@@ -338,10 +338,20 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		}
 	}
 
+	private boolean pipelineFixedFunction;
+
+	/** The pipelines for this context; rebuilt when the classic-renderer preference changes (GL must be current). */
 	private Pipeline getOrCreatePipeline() {
+		final boolean fixedFunction = (programPreferences != null) && programPreferences.isClassicFixedFunction();
+		if ((pipeline != null) && (pipelineFixedFunction != fixedFunction)) {
+			pipeline.discard();
+			pipeline = null;
+		}
 		if (pipeline == null) {
-			pipeline = new NGGLDP.ShaderSwitchingPipeline(
-					Arrays.asList(new NGGLDP.SimpleDiffuseShaderPipeline(), new NGGLDP.HDDiffuseShaderPipeline()));
+			pipelineFixedFunction = fixedFunction;
+			final NGGLDP.Pipeline classic = fixedFunction ? new NGGLDP.FixedFunctionPipeline()
+					: new NGGLDP.SimpleDiffuseShaderPipeline();
+			pipeline = new NGGLDP.ShaderSwitchingPipeline(Arrays.asList(classic, new NGGLDP.HDDiffuseShaderPipeline()));
 			pipeline.setCurrentPipeline(0);
 		}
 		return pipeline;
@@ -449,7 +459,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 	public void paintGL() {
 		viewerCamera.update();
 		cameraManager.updateCamera();
-		NGGLDP.setPipeline(pipeline);
+		NGGLDP.setPipeline(getOrCreatePipeline());
 		if (wantReloadAll) {
 			wantReloadAll = false;
 			wantReload = false;// If we just reloaded all, no need to reload
@@ -519,7 +529,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			NGGLDP.pipeline.glCamera(viewerCamera, false);
 			final boolean classicModelLights = (programPreferences != null) && programPreferences.isUseModelLights();
 			final boolean hdModelLights = (programPreferences != null) && programPreferences.isUseModelLightsHD();
-			if ((classicModelLights || hdModelLights) && (editorRenderModel.gatherLights(sceneLights, false) > 0)) {
+			if (classicModelLights || hdModelLights) {
+				editorRenderModel.gatherLights(sceneLights);
 				sceneLights.applyToClassic = classicModelLights;
 				sceneLights.applyToHD = hdModelLights;
 				HDEnvironmentProbe.setSelectedProbe(programPreferences.getHdEnvironmentProbe());
