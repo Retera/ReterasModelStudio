@@ -23,6 +23,7 @@ import javax.swing.WindowConstants;
 import javax.swing.plaf.ColorUIResource;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
+import com.hiveworkshop.wc3.gui.ModelParserPreference;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceChooserPanel;
@@ -55,7 +56,9 @@ public class MainFrame extends JFrame {
 		return panel;
 	}
 
-	public static void main(final String[] args) {
+	public static void main(final String[] rawArgs) {
+		// --parser=classic|warsmash|fallback selects the model file parser for this run (see ModelParserPreference)
+		final String[] args = ModelParserPreference.stripCommandLineFlag(rawArgs);
 		final boolean hasArgs = args.length >= 1;
 		final List<String> startupModelPaths = new ArrayList<>();
 		if (hasArgs) {

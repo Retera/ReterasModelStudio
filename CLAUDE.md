@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this is
 
 Retera Model Studio: a Java 17 Swing + LWJGL 2 editor for Warcraft III models (classic MDX 800, Reforged 900-1100,
-and 3.0.0 "Forsaken Kingdom" 1600-1800). It reads game assets straight out of a local Warcraft III install
+and 3.0.0 "Forsaken Kingdom" 1300-1800; 1300 is the MDL text version Blizzard's Maya exporter writes). It reads game assets straight out of a local Warcraft III install
 (CASC for modern patches, MPQ for legacy ones) and can browse units/doodads to find models.
 
 ## Build and run
@@ -30,7 +30,13 @@ Headless conversion, useful for testing the format layer without a GUI:
 java -jar matrixeater/build/libs/matrixeater-*-all.jar -convert in.mdx [out.mdl]   # mdx <-> mdl by extension
 java -jar matrixeater/build/libs/matrixeater-*-all.jar -convert in.obj [out.mdx]   # obj import (may pop dialogs)
 java -jar matrixeater/build/libs/matrixeater-*-all.jar -convert in.blp out.png     # image conversion
+java -jar matrixeater/build/libs/matrixeater-*-all.jar -convert --parser=warsmash in.mdl  # alternative parser
 ```
+
+`--parser=classic|warsmash|fallback` (or `-Drms.modelParser=...`) overrides the "Model file parser" preference:
+`classic` is the `wc3/mdl` + `wc3/mdx` code below, `warsmash` is the mdx-m3-viewer port copied from tw1lac's fork
+under `com/hiveworkshop/rms/parsers/mdlx` (bridged through binary MDX by `WarsmashParserBridge`, never opens
+dialogs), `fallback` tries classic first. Both parsers understand the game's MDL dialect and versions up to 1800.
 
 There is no unit test suite (`test` is a no-op; files named `*Test*` are ad-hoc `main()` scratch programs). The
 regression check for the format layer is the headless round-trip tool. Run it before and after touching `wc3/mdl`
@@ -68,6 +74,10 @@ out of that file, so bump it there only.
   `Animation`, `Geoset`, `Material`/`Layer`, `IdObject` subclasses (`Bone`, `Helper`, `Attachment`,
   `ParticleEmitter2`, ...), `Camera`. References are object pointers, not ids. `AnimFlag` is the single
   universal keyframe track type for every animated property.
+- `EditableModel.read(File)` / `read(InputStream)` dispatch on `ModelParserPreference`; the classic code paths are
+  `readClassic(...)`. The alternative parser (`com.hiveworkshop.rms.parsers.mdlx`, a plain `MdlxModel` with
+  `MdxLoadSave`/`MdlLoadSave`, version gates in `MdlxVersion`) is a maintained copy of the TRMS fork's package: keep
+  it free of Swing (`MdlxParseLog` replaces the fork's `ExceptionPopup`) and re-copy rather than fork further.
 - Conversion is by constructor: `new EditableModel(MdxModel)` then `doPostRead()` on load;
   `doSavePreps()` then `new MdxModel(EditableModel, alwaysUseMinimalMatricesHD)` on save. MDL text goes through
   `MDLReader` + static `read(BufferedReader)` methods and `printTo(...)` on each class.

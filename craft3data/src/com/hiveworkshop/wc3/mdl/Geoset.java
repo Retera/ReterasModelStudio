@@ -407,148 +407,108 @@ public class Geoset implements Named, VisibilitySource {
 		return temp;
 	}
 
+	/**
+	 * Reads one {@code Geoset { ... }} block. The sub-blocks may come in any order: this program's writer puts
+	 * VertexGroup before Faces and Tangents/SkinWeights after the extents, the game's Maya exporter (version 1300
+	 * text) writes Vertices, Normals, Tangents, TVertices, SkinWeights, Faces, Groups and omits VertexGroup
+	 * altogether, and older tools put Tangents and SkinWeights right after VertexGroup.
+	 */
 	public static Geoset read(final BufferedReader mdl) {
 		String line = MDLReader.nextLine(mdl);
-		if (line.contains("Geoset")) {
-			line = MDLReader.nextLine(mdl);
-			final Geoset geo = new Geoset();
-			if (!line.contains("Vertices")) {
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error: Vertices not found at beginning of Geoset!");
+		if (!line.contains("Geoset")) {
+			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+					"Unable to parse Geoset: Missing or unrecognized open statement '" + line + "'.");
+			return null;
+		}
+		final Geoset geo = new Geoset();
+		MDLReader.mark(mdl);
+		line = MDLReader.nextLine(mdl);
+		while (!line.startsWith("}") && !line.equals("COMPLETED PARSING")) {
+			final String trimmed = line.trim();
+			if (trimmed.startsWith("Vertices")) {
+				while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
+					geo.addVertex(GeosetVertex.parseText(line));
+				}
 			}
-			while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
-				geo.addVertex(GeosetVertex.parseText(line));
-			}
-			MDLReader.mark(mdl);
-			line = MDLReader.nextLine(mdl);
-			if (line.contains("Normals")) {
-				// If we have normals:
+			else if (trimmed.startsWith("Normals")) {
 				while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
 					geo.addNormal(Normal.parseText(line));
 				}
-			} else {
-				MDLReader.reset(mdl);
 			}
-			while ((line = MDLReader.nextLine(mdl)).contains("TVertices")) {
+			else if (trimmed.startsWith("TVertices")) {
 				geo.addUVLayer(UVLayer.read(mdl));
 			}
-			if (line.contains("Tangents")) {
-				// If we have v900 tangents:
+			else if (trimmed.startsWith("VertexGroup")) {
+				int i = 0;
+				while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
+					if (i < geo.numVerteces()) {
+						geo.getVertex(i).setVertexGroup(MDLReader.readInt(line));
+					}
+					i++;
+				}
+			}
+			else if (trimmed.startsWith("Tangents")) {
 				geo.tangents = new ArrayList<>();
 				while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
 					geo.tangents.add(parse4FloatTangent(line));
 				}
-				MDLReader.mark(mdl);
-				line = MDLReader.nextLine(mdl);
 			}
-			if (line.contains("Skin")) {
-				// If we have v900 skin:
+			else if (trimmed.startsWith("SkinWeights") || trimmed.startsWith("Skin ")) {
 				geo.skin = new ArrayList<>();
 				while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
 					geo.skin.add(parse8ByteSkin(line));
 				}
-				MDLReader.mark(mdl);
+			}
+			else if (trimmed.startsWith("Faces")) {
 				line = MDLReader.nextLine(mdl);
-			}
-			if (!line.contains("VertexGroup")) {
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error: VertexGroups missing or invalid!");
-			}
-			int i = 0;
-			while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
-				geo.getVertex(i).setVertexGroup(MDLReader.readInt(line));
-				i++;
-			}
-			line = MDLReader.nextLine(mdl);
-
-			if (line.contains("Tangents")) {
-				// If we have v900 tangents:
-				geo.tangents = new ArrayList<>();
-				while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
-					geo.tangents.add(parse4FloatTangent(line));
+				if (!line.contains("Triangles")) {
+					System.out.println("No triangles: " + line);
+					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+							"Error: Triangles missing or invalid!");
 				}
-				MDLReader.mark(mdl);
-				line = MDLReader.nextLine(mdl);
+				geo.setTriangles(Triangle.read(mdl, geo));
+				line = MDLReader.nextLine(mdl);// the "\t}" closer of Faces
 			}
-			if (line.contains("Skin")) {
-				// If we have v900 skin:
-				geo.skin = new ArrayList<>();
+			else if (trimmed.startsWith("Groups")) {
 				while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
-					geo.skin.add(parse8ByteSkin(line));
+					geo.addMatrix(Matrix.parseText(line));
 				}
-				MDLReader.mark(mdl);
-				line = MDLReader.nextLine(mdl);
 			}
-
-			if (!line.contains("Faces")) {
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "Error: Faces missing or invalid!");
+			else if (trimmed.startsWith("MinimumExtent") || trimmed.startsWith("MaximumExtent")
+					|| trimmed.startsWith("BoundsRadius")) {
+				MDLReader.reset(mdl);
+				geo.setExtLog(ExtLog.read(mdl));
 			}
-			line = MDLReader.nextLine(mdl);
-			if (!line.contains("Triangles")) {
-				System.out.println("No triangles: " + line);
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "Error: Triangles missing or invalid!");
+			else if (trimmed.startsWith("Anim")) {
+				MDLReader.reset(mdl);
+				geo.add(Animation.read(mdl));
 			}
-			geo.setTriangles(Triangle.read(mdl, geo));
-			line = MDLReader.nextLine(mdl);// Throw away the \t} closer for
-											// faces
-			line = MDLReader.nextLine(mdl);
-			if (!line.contains("Groups")) {
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error: Groups (Matrices) missing or invalid!");
+			else if (trimmed.startsWith("MaterialID")) {
+				geo.materialID = MDLReader.readInt(line);
 			}
-			while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
-				geo.addMatrix(Matrix.parseText(line));
+			else if (trimmed.startsWith("SelectionGroup")) {
+				geo.selectionGroup = MDLReader.readInt(line);
+			}
+			else if (trimmed.startsWith("LevelOfDetailName") || trimmed.startsWith("Name")) {
+				geo.levelOfDetailName = MDLReader.readName(line);
+			}
+			else if (trimmed.startsWith("LevelOfDetail")) {
+				geo.levelOfDetail = MDLReader.readInt(line);
+			}
+			else if (!trimmed.isEmpty()) {
+				geo.addFlag(MDLReader.readFlag(line));
 			}
 			MDLReader.mark(mdl);
 			line = MDLReader.nextLine(mdl);
-			while (!line.contains("}") || line.contains("},")) {
-				if (line.contains("Tangents")) {
-					// the game's writer puts Tangents and SkinWeights after the extents
-					geo.tangents = new ArrayList<>();
-					while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
-						geo.tangents.add(parse4FloatTangent(line));
-					}
-					MDLReader.mark(mdl);
-				} else if (line.contains("SkinWeights")) {
-					geo.skin = new ArrayList<>();
-					while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
-						geo.skin.add(parse8ByteSkin(line));
-					}
-					MDLReader.mark(mdl);
-				} else if (line.contains("Extent") || line.contains("BoundsRadius")) {
-					MDLReader.reset(mdl);
-					geo.setExtLog(ExtLog.read(mdl));
-				} else if (line.contains("Anim")) {
-					MDLReader.reset(mdl);
-					geo.add(Animation.read(mdl));
-					MDLReader.mark(mdl);
-				} else if (line.contains("MaterialID")) {
-					geo.materialID = MDLReader.readInt(line);
-					MDLReader.mark(mdl);
-				} else if (line.contains("SelectionGroup")) {
-					geo.selectionGroup = MDLReader.readInt(line);
-					MDLReader.mark(mdl);
-				} else if (line.contains("LevelOfDetailName") || line.contains("Name")) {
-					geo.levelOfDetailName = MDLReader.readName(line);
-					MDLReader.mark(mdl);
-				} else if (line.contains("LevelOfDetail")) {
-					geo.levelOfDetail = MDLReader.readInt(line);
-					MDLReader.mark(mdl);
-				} else {
-					geo.addFlag(MDLReader.readFlag(line));
-					MDLReader.mark(mdl);
-				}
-				line = MDLReader.nextLine(mdl);
-			}
-			// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Geoset
-			// reading completed!");
-
-			return geo;
-		} else {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse Geoset: Missing or unrecognized open statement '" + line + "'.");
 		}
-		return null;
+		if ((geo.skin != null) && (geo.tangents == null) && (geo.numVerteces() > 0)) {
+			// SkinWeights without Tangents: keep the HD skinning, tangents default to +X (0 tangent breaks nothing)
+			geo.tangents = new ArrayList<>();
+			for (int i = 0; i < geo.numVerteces(); i++) {
+				geo.tangents.add(new float[] { 1, 0, 0, 1 });
+			}
+		}
+		return geo;
 	}
 
 	public void updateToObjects(final EditableModel mdlr) {

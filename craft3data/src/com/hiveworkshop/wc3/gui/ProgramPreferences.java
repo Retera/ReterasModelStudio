@@ -64,6 +64,7 @@ public class ProgramPreferences implements Serializable {
 	private Boolean useModelLightsHD = Boolean.TRUE;
 	private Boolean classicFixedFunction = Boolean.FALSE;
 	private Integer hdEnvironmentProbe = 0;
+	private Integer modelParser = 0;
 	private MouseButtonPreference threeDCameraSpinButton = MouseButtonPreference.LEFT;
 	private MouseButtonPreference threeDCameraPanButton = MouseButtonPreference.MIDDLE;
 
@@ -147,6 +148,9 @@ public class ProgramPreferences implements Serializable {
 		}
 		if (classicFixedFunction == null) {
 			classicFixedFunction = Boolean.FALSE;
+		}
+		if (modelParser == null) {
+			modelParser = 0;
 		}
 		if (hdEnvironmentProbe == null) {
 			hdEnvironmentProbe = 0;
@@ -733,6 +737,16 @@ public class ProgramPreferences implements Serializable {
 	 */
 	public boolean isClassicFixedFunction() {
 		return (classicFixedFunction != null) && classicFixedFunction;
+	}
+
+	public ModelParserPreference getModelParser() {
+		return ModelParserPreference.fromOrdinal(modelParser);
+	}
+
+	public void setModelParser(final ModelParserPreference modelParser) {
+		this.modelParser = modelParser == null ? 0 : modelParser.ordinal();
+		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public void setClassicFixedFunction(final boolean classicFixedFunction) {

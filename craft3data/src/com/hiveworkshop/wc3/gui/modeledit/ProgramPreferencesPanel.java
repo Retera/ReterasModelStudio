@@ -19,6 +19,7 @@ import javax.swing.JTabbedPane;
 
 import com.hiveworkshop.rms.editor.render3d.HDEnvironmentProbe;
 import com.hiveworkshop.wc3.gui.GUITheme;
+import com.hiveworkshop.wc3.gui.ModelParserPreference;
 import com.hiveworkshop.wc3.gui.MouseButtonPreference;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceChooserPanel;
@@ -152,6 +153,17 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 				.addActionListener(e -> programPreferences.setClassicFixedFunction(classicFixedFunction.isSelected()));
 		generalPrefsPanel.add(new JLabel("Classic models: legacy fixed-function OpenGL (fastest):"), "cell 0 15");
 		generalPrefsPanel.add(classicFixedFunction, "cell 1 15");
+		final JComboBox<ModelParserPreference> modelParser = new JComboBox<>(ModelParserPreference.values());
+		modelParser.setSelectedItem(programPreferences.getModelParser());
+		modelParser.setToolTipText("Which code reads .mdx and .mdl files. Classic is this program's own parser. "
+				+ "Warsmash-derived is the mdx-m3-viewer port from tw1lac's fork (TRMS), bridged in through binary "
+				+ "MDX; it reads the game's MDL dialect strictly and never opens dialogs. The fallback option tries "
+				+ "the classic parser first. Applies to files opened from now on; -Drms.modelParser=warsmash or "
+				+ "--parser=warsmash on the command line override this.");
+		modelParser.addActionListener(
+				e -> programPreferences.setModelParser((ModelParserPreference) modelParser.getSelectedItem()));
+		generalPrefsPanel.add(new JLabel("Model file parser:"), "cell 0 16");
+		generalPrefsPanel.add(modelParser, "cell 1 16");
 		// final BoxLayout boxLayout = new BoxLayout(generalPrefsPanel,
 		// BoxLayout.PAGE_AXIS);
 

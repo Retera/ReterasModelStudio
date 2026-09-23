@@ -1,0 +1,189 @@
+package com.hiveworkshop.rms.parsers.mdlx;
+
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
+import com.hiveworkshop.rms.parsers.mdlx.util.MdxFlags;
+import com.hiveworkshop.rms.util.BinaryReader;
+import com.hiveworkshop.rms.util.BinaryWriter;
+
+import java.util.Iterator;
+
+/**
+ * A generic object.
+ * <p>
+ * The parent class for all objects that exist in the world, and may contain
+ * spatial animations. This includes bones, particle emitters, and many other
+ * things.
+ * <p>
+ * Based on the works of Chananya Freiman.
+ */
+public abstract class MdlxGenericObject extends MdlxAnimatedObject {
+	public String name = "";
+	public int objectId = -1;
+	public int parentId = -1;
+	public int flags = 0;
+
+	public MdlxGenericObject(final int flags) {
+		this.flags = flags;
+	}
+
+	@Override
+	public void readMdx(final BinaryReader reader, final int version) {
+		final long size = reader.readUInt32();
+
+		name = reader.read(80);
+		objectId = reader.readInt32();
+		parentId = reader.readInt32();
+		flags = reader.readInt32();
+
+		readTimelines(reader, size - 96);
+	}
+
+	@Override
+	public void writeMdx(final BinaryWriter writer, final int version) {
+		writer.writeUInt32(getGenericByteLength(version));
+		writer.writeWithNulls(name, 80);
+		writer.writeInt32(objectId);
+		writer.writeInt32(parentId);
+		writer.writeInt32(flags);
+
+		for (final MdlxTimeline<?> timeline : timelines) {
+			if (isGeneric(timeline)) {
+				timeline.writeMdx(writer);
+			}
+		}
+	}
+
+	public void writeNonGenericAnimationChunks(final BinaryWriter writer) {
+		for (final MdlxTimeline<?> timeline : timelines) {
+			if (!isGeneric(timeline)) {
+				timeline.writeMdx(writer);
+			}
+		}
+	}
+
+	protected final Iterable<String> readMdlGeneric(final MdlTokenInputStream stream) {
+		name = stream.read();
+		return () -> new WrappedMdlTokenIterator(readAnimatedBlock(stream), MdlxGenericObject.this, stream);
+	}
+
+	public void writeGenericHeader(final MdlTokenOutputStream stream) {
+		stream.writeAttrib(MdlUtils.TOKEN_OBJECTID, objectId);
+
+		if (parentId != -1) stream.writeAttrib(MdlUtils.TOKEN_PARENT, parentId);
+
+		if ((flags & MdxFlags.BILLBOARDED_LOCK_Z) != 0) stream.writeFlag(MdlUtils.TOKEN_BILLBOARDED_LOCK_Z);
+		if ((flags & MdxFlags.BILLBOARDED_LOCK_Y) != 0) stream.writeFlag(MdlUtils.TOKEN_BILLBOARDED_LOCK_Y);
+		if ((flags & MdxFlags.BILLBOARDED_LOCK_X) != 0) stream.writeFlag(MdlUtils.TOKEN_BILLBOARDED_LOCK_X);
+		if ((flags & MdxFlags.BILLBOARDED) != 0) stream.writeFlag(MdlUtils.TOKEN_BILLBOARDED);
+		if ((flags & MdxFlags.CAMERA_ANCHORED) != 0) stream.writeFlag(MdlUtils.TOKEN_CAMERA_ANCHORED);
+		if ((flags & MdxFlags.DONT_INHERIT_SCALING) != 0) stream.writeFlag(MdlUtils.TOKEN_DONT_INHERIT + " { " + MdlUtils.TOKEN_ROTATION + " }");
+		if ((flags & MdxFlags.DONT_INHERIT_TRANSLATION) != 0) stream.writeFlag(MdlUtils.TOKEN_DONT_INHERIT + " { " + MdlUtils.TOKEN_TRANSLATION + " }");
+		if ((flags & MdxFlags.DONT_INHERIT_ROTATION) != 0) stream.writeFlag(MdlUtils.TOKEN_DONT_INHERIT + " { " + MdlUtils.TOKEN_SCALING + " }");
+	}
+
+	public void writeGenericTimelines(final MdlTokenOutputStream stream) {
+		writeTimeline(stream, AnimationMap.KGTR);
+		writeTimeline(stream, AnimationMap.KGRT);
+		writeTimeline(stream, AnimationMap.KGSC);
+	}
+
+	public long getGenericByteLength(final int version) {
+		long size = 96;
+
+		for (final MdlxTimeline<?> timeline : timelines) {
+			if (isGeneric(timeline)) {
+				size += timeline.getByteLength();
+			}
+		}
+
+		return size;
+	}
+
+	public boolean isGeneric(final MdlxTimeline<?> timeline) {
+		AnimationMap type = AnimationMap.ID_TO_TAG.get(timeline.name);
+
+		return (type == AnimationMap.KGTR) || (type == AnimationMap.KGRT) || (type == AnimationMap.KGSC);
+	}
+
+	@Override
+	public long getByteLength(final int version) {
+		return 96 + super.getByteLength(version);
+	}
+
+	private static final class WrappedMdlTokenIterator implements Iterator<String> {
+		private final Iterator<String> delegate;
+		private final MdlxGenericObject updatingObject;
+		private final MdlTokenInputStream stream;
+		private String next;
+		private boolean hasLoaded = false;
+
+		public WrappedMdlTokenIterator(final Iterator<String> delegate, final MdlxGenericObject updatingObject,
+									   final MdlTokenInputStream stream) {
+			this.delegate = delegate;
+			this.updatingObject = updatingObject;
+			this.stream = stream;
+		}
+
+		@Override
+		public boolean hasNext() {
+			if (delegate.hasNext()) {
+				next = read();
+				hasLoaded = true;
+				return next != null;
+			}
+			return false;
+		}
+
+		@Override
+		public String next() {
+			if (!hasLoaded) {
+				next = read();
+			}
+			hasLoaded = false;
+			return next;
+		}
+
+		private String read() {
+			String token;
+			String subTypeToken = null;
+
+			InteriorParsing:
+			do {
+				token = delegate.next();
+				if (token == null) {
+					break;
+				}
+				switch (token) {
+					case MdlUtils.TOKEN_OBJECTID -> updatingObject.objectId = Integer.parseInt(delegate.next());
+					case MdlUtils.TOKEN_PARENT -> updatingObject.parentId = Integer.parseInt(delegate.next());
+					case MdlUtils.TOKEN_BILLBOARDED_LOCK_Z -> updatingObject.flags |= 0x40;
+					case MdlUtils.TOKEN_BILLBOARDED_LOCK_Y -> updatingObject.flags |= 0x20;
+					case MdlUtils.TOKEN_BILLBOARDED_LOCK_X -> updatingObject.flags |= 0x10;
+					case MdlUtils.TOKEN_BILLBOARDED -> updatingObject.flags |= 0x8;
+					case MdlUtils.TOKEN_CAMERA_ANCHORED -> updatingObject.flags |= 0x80;
+					case MdlUtils.TOKEN_DONT_INHERIT -> {
+						for (final String subToken : stream.readBlock()) {
+							switch (subToken) {
+								case MdlUtils.TOKEN_ROTATION -> updatingObject.flags |= 0x2;
+								case MdlUtils.TOKEN_TRANSLATION -> updatingObject.flags |= 0x1;
+								case MdlUtils.TOKEN_SCALING -> updatingObject.flags |= 0x4;
+							}
+						}
+					}
+					case MdlUtils.TOKEN_TRANSLATION -> updatingObject.readTimeline(stream, AnimationMap.KGTR);
+					case MdlUtils.TOKEN_ROTATION -> updatingObject.readTimeline(stream, AnimationMap.KGRT);
+					case MdlUtils.TOKEN_SCALING -> updatingObject.readTimeline(stream, AnimationMap.KGSC);
+					default -> {
+						subTypeToken = token;
+						break InteriorParsing;
+					}
+				}
+			} while (delegate.hasNext());
+			return subTypeToken;
+		}
+
+	}
+}
