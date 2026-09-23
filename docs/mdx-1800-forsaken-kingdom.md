@@ -8,7 +8,15 @@ table inside `Warcraft III.exe` plus the World Editor string table. Everything b
 ## Version
 
 * Every stock model is `FormatVersion 1800`. Two day/night-cycle environment models (`cinematics/*/environment/`)
-  are 1600 and 1700 and already use the new layouts, so versions >= 1600 are treated as the new format.
+  are 1600 and 1700 and already use the new layouts. Blizzard's own Maya exporter ("Maya Tools Version 0.30",
+  September 2025) writes MDL text as `FormatVersion 1300`, which the game's pipeline compiles to 1800 MDX; a 1300
+  file uses the same text features as 1800 (per-layer `Shader`, `static TextureID id <= slot`, `Tangents` and
+  `SkinWeights` blocks, `BindPose`, no `VertexGroup`). Versions >= 1300 are therefore treated as the new format
+  (`ModelUtils.FORMAT_VERSION_FORSAKEN_KINGDOM_MIN`). The binary layouts of 1300-1500 MDX have never been seen;
+  the light fields are gated separately (ShadowCasting at 1300, the falloff triple at 1600) as a best guess.
+* The exporter's MDL block order inside `Geoset` is `Vertices, Normals, Tangents, TVertices, SkinWeights, Faces,
+  Groups, MaterialID, SelectionGroup, LevelOfDetail, Name`, one triangle per line under `Triangles`, and
+  `Matrices{ 0 },` without a space. The classic reader accepts any block order since the 3.0 update.
 
 ## Geosets
 
@@ -64,3 +72,12 @@ The exe's MDL keyword table also lists `Sounds` / `SoundEmitter` / `SoundFile` /
   `_teen` sub-mods; `_hd.w3mod` (Reforged) is still present. The 2.0 `_addons\hd2.w3addon` layers are gone.
 * TVFS, BLTE, encoding and archive-index formats are unchanged.
 * The data source chooser now detects 3.0 installs and offers a "Definitive Edition Graphics Mode" preset.
+
+## Alternative parser
+
+The `com.hiveworkshop.rms.parsers.mdlx` package is the Warsmash-derived (mdx-m3-viewer port) parser copied from
+tw1lac's fork with the 3.0 changes above applied (`MdlxVersion`). "Model file parser" in the preferences, the
+`rms.modelParser` system property (`classic`, `warsmash`, `fallback`) or `--parser=warsmash` on the `-convert`
+command line selects it; `WarsmashParserBridge` turns its `MdlxModel` into an `EditableModel` by serialising to
+binary MDX in memory and reading that with the classic chunk reader. It never opens dialogs; its messages go to
+stderr via `MdlxParseLog`.

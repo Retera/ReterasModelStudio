@@ -30,6 +30,7 @@ import javax.swing.JOptionPane;
 
 import com.etheller.collections.Collection;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
+import com.hiveworkshop.wc3.gui.ModelParserPreference;
 import com.hiveworkshop.wc3.gui.datachooser.CompoundDataSource;
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.gui.datachooser.FolderDataSource;
@@ -975,7 +976,31 @@ public class EditableModel implements Named {
 		return anims.size();
 	}
 
+	/**
+	 * Reads a .mdx or .mdl file with the parser chosen in the preferences (or by the {@code rms.modelParser}
+	 * system property): the classic parser below, the Warsmash-derived one, or classic with a fallback.
+	 */
 	public static EditableModel read(final File f) {
+		final ModelParserPreference parser = ModelParserPreference.current();
+		if (parser == ModelParserPreference.WARSMASH) {
+			return WarsmashParserBridge.read(f);
+		}
+		if (parser == ModelParserPreference.CLASSIC_THEN_WARSMASH) {
+			try {
+				final EditableModel model = readClassic(f);
+				if (model != null) {
+					return model;
+				}
+			}
+			catch (final Throwable t) {
+				System.err.println("Classic parser failed on " + f + " (" + t + "), trying the Warsmash-derived parser");
+			}
+			return WarsmashParserBridge.read(f);
+		}
+		return readClassic(f);
+	}
+
+	public static EditableModel readClassic(final File f) {
 		if (f.getPath().toLowerCase().endsWith(".mdx")) {
 			// f = MDXHandler.convert(f);
 			try (BlizzardDataInputStream in = new BlizzardDataInputStream(new FileInputStream(f))) {
@@ -997,7 +1022,7 @@ public class EditableModel implements Named {
 			}
 		}
 		try (final FileInputStream fos = new FileInputStream(f)) {
-			final EditableModel mdlObject = read(fos);
+			final EditableModel mdlObject = readClassic(fos);
 			mdlObject.setFileRef(f);
 			return mdlObject;
 		}
@@ -1010,7 +1035,34 @@ public class EditableModel implements Named {
 		return null;
 	}
 
+	/** Reads MDL text with the parser chosen in the preferences; see {@link #read(File)}. */
 	public static EditableModel read(final InputStream f) {
+		final ModelParserPreference parser = ModelParserPreference.current();
+		if (parser == ModelParserPreference.CLASSIC) {
+			return readClassic(f);
+		}
+		final byte[] text;
+		try {
+			text = f.readAllBytes();
+		}
+		catch (final IOException e) {
+			throw new RuntimeException(e);
+		}
+		if (parser == ModelParserPreference.CLASSIC_THEN_WARSMASH) {
+			try {
+				final EditableModel model = readClassic(new ByteArrayInputStream(text));
+				if (model != null) {
+					return model;
+				}
+			}
+			catch (final Throwable t) {
+				System.err.println("Classic MDL parser failed (" + t + "), trying the Warsmash-derived parser");
+			}
+		}
+		return WarsmashParserBridge.read(text, false);
+	}
+
+	public static EditableModel readClassic(final InputStream f) {
 		try {
 			MDLReader.clearLineId();
 			BufferedReader mdl;
@@ -1678,7 +1730,10 @@ public class EditableModel implements Named {
 					else {
 						writer.println("\tMatrix {");
 					}
-					final float[] matrix = bindPoseChunk.bindPose[i];
+					float[] matrix = bindPoseChunk.bindPose[i];
+					if (matrix == null) {
+						matrix = new float[12]; // same as the MDX writer: cameras without a bind pose entry
+					}
 					for (int j = 0; j < 3; j++) {
 						matrixStringBuilder.setLength(0);
 						matrixStringBuilder.append("{ ");
@@ -1707,7 +1762,10 @@ public class EditableModel implements Named {
 					else if (i < (idObjects.size() + cameras.size())) {
 						matrixPredictedParent = cameras.get(i - idObjects.size());
 					}
-					final float[] matrix = bindPoseChunk.bindPose[i];
+					float[] matrix = bindPoseChunk.bindPose[i];
+					if (matrix == null) {
+						matrix = new float[12]; // same as the MDX writer: cameras without a bind pose entry
+					}
 					matrixStringBuilder.setLength(0);
 					matrixStringBuilder.append("{ ");
 					for (int k = 0; k < matrix.length; k++) {

@@ -44,6 +44,19 @@ Sahmkow, BSD-3-Clause with the same AI-derived-works notice), which were verifie
 specifications are documentation; where this program's MDL reader and writer were adjusted to match them the
 changes were made in this program's own code.
 
+## tw1lac's Retera Model Studio fork and mdx-m3-viewer (MIT)
+
+The optional Warsmash-derived model parser under `craft3data/src/com/hiveworkshop/rms/parsers/mdlx` (with the
+`BinaryReader`, `BinaryWriter`, `War3ID` and `CharInt` helpers under `craft3data/src/com/hiveworkshop/rms/util`)
+is a copy of the `parsers/mdlx` package of tw1lac's fork of this program
+(https://github.com/tw1lac/ReterasModelStudio, "TRMS"), which is a Java port by Retera (for Warsmash) and tw1lac
+of the MDX/MDL handlers of Chananya Freiman's mdx-m3-viewer (https://github.com/flowtsohg/mdx-m3-viewer, MIT).
+The fork has no licence file of its own; being a fork of this repository its contributions are taken to be under
+this repository's MIT licence. Both notices are in `licenses/tw1lac-ReterasModelStudio-LICENSE.txt` and
+`licenses/mdx-m3-viewer-LICENSE.txt`. Changes made to the copy here: the fork's Swing `ExceptionPopup` is replaced
+by the headless `MdlxParseLog`, and the Warcraft III 3.0 ("Forsaken Kingdom") format versions 1300-1800 are
+supported (`MdlxVersion`); the same 3.0 changes were contributed back to the fork.
+
 ## Licence texts
 
 ### BSD 3-Clause License (WhiteoutFlakes, Wc3Shaders, WhiteoutLib)

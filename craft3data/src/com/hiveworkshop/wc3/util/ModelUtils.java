@@ -316,9 +316,11 @@ public final class ModelUtils {
 	/**
 	 * Lowest format version that uses the Forsaken Kingdom layouts. Two stock day/night-cycle environment models
 	 * (cinematics/.../environment/*_dnc.mdx and dark.mdx) are versions 1600 and 1700 and already carry the new
-	 * 72-byte light block, so everything from 1600 upwards is treated like 1800.
+	 * 72-byte light block, and Blizzard's own Maya exporter writes MDL text as version 1300 (the game compiles
+	 * those into 1800 MDX on release), so everything from 1300 upwards is treated like 1800. The binary layouts
+	 * of 1300-1500 MDX have never been observed; only the MDL text form of 1300 has.
 	 */
-	public static final int FORMAT_VERSION_FORSAKEN_KINGDOM_MIN = 1600;
+	public static final int FORMAT_VERSION_FORSAKEN_KINGDOM_MIN = 1300;
 
 	public static boolean isForsakenKingdomFormat(final int formatVersion) {
 		return formatVersion >= FORMAT_VERSION_FORSAKEN_KINGDOM_MIN;

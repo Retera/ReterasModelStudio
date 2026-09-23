@@ -238,61 +238,39 @@ public class Triangle {
 	}
 
 	public static ArrayList<Triangle> read(final BufferedReader mdl) {
-		// Usually triangles come in a single entry with all of them, so we
-		// parse the input into an ArrayList
+		// Triangles come either as one line holding every index ("{ 0, 1, 2, 3, 4, 5 },", this program's default)
+		// or one line per triangle ("{ 0, 1, 2 },", the game's exporter). Collect every integer until the closer.
 		final ArrayList<Triangle> output = new ArrayList<>();
+		final ArrayList<Integer> indices = new ArrayList<>();
 		String line = "";
-		while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
-			// System.out.println("Interpreting "+line+" for Triangles");
-			final String[] s = line.split(",");
-			s[0] = s[0].substring(4, s[0].length());
-			final int s_size = MDLReader.occurrencesIn(",", line);
-			// System.out.println("We broke it into "+s_size+" parts.");
-			s[s_size - 1] = s[s_size - 1].substring(0, s[s_size - 1].length() - 2);
-			for (int t = 0; t < s_size - 1; t += 3)// s[t+3].equals("")||
-			{
-				for (int i = 0; i < 3; i++) {
-					s[t + i] = s[t + i].substring(1);
-				}
-				try {
-					output.add(new Triangle(Integer.parseInt(s[t]), Integer.parseInt(s[t + 1]),
-							Integer.parseInt(s[t + 2])));
-				} catch (final NumberFormatException e) {
-					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-							"Error: Unable to interpret information in Triangles: " + s[t] + ", " + s[t + 1] + ", or "
-									+ s[t + 2]);
-				}
-			}
+		while (!(line = MDLReader.nextLine(mdl)).contains("\t}") && !line.equals("COMPLETED PARSING")) {
+			collectInts(line, indices);
+		}
+		for (int t = 0; t + 2 < indices.size(); t += 3) {
+			output.add(new Triangle(indices.get(t), indices.get(t + 1), indices.get(t + 2)));
+		}
+		if ((indices.size() % 3) != 0) {
+			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+					"Error: The number of Triangles vertex indices (" + indices.size() + ") is not a multiple of 3");
 		}
 		return output;
 	}
 
 	public static ArrayList<Triangle> read(final BufferedReader mdl, final Geoset geoRef) {
-		// Usually triangles come in a single entry with all of them, so we
-		// parse the input into an ArrayList
+		// Triangles come either as one line holding every index ("{ 0, 1, 2, 3, 4, 5 },", this program's default)
+		// or one line per triangle ("{ 0, 1, 2 },", the game's exporter). Collect every integer until the closer.
 		final ArrayList<Triangle> output = new ArrayList<>();
+		final ArrayList<Integer> indices = new ArrayList<>();
 		String line = "";
-		while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
-			// System.out.println("Interpreting "+line+" for Triangles");
-			final String[] s = line.split(",");
-			s[0] = s[0].substring(4, s[0].length());
-			final int s_size = MDLReader.occurrencesIn(",", line);
-			// System.out.println("We broke it into "+s_size+" parts.");
-			s[s_size - 1] = s[s_size - 1].substring(0, s[s_size - 1].length() - 2);
-			for (int t = 0; t < s_size - 1; t += 3)// s[t+3].equals("")||
-			{
-				for (int i = 0; i < 3; i++) {
-					s[t + i] = s[t + i].substring(1);
-				}
-				try {
-					output.add(new Triangle(Integer.parseInt(s[t]), Integer.parseInt(s[t + 1]),
-							Integer.parseInt(s[t + 2]), geoRef));
-				} catch (final NumberFormatException e) {
-					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-							"Error: Unable to interpret information in Triangles: " + s[t] + ", " + s[t + 1] + ", or "
-									+ s[t + 2]);
-				}
-			}
+		while (!(line = MDLReader.nextLine(mdl)).contains("\t}") && !line.equals("COMPLETED PARSING")) {
+			collectInts(line, indices);
+		}
+		for (int t = 0; t + 2 < indices.size(); t += 3) {
+			output.add(new Triangle(indices.get(t), indices.get(t + 1), indices.get(t + 2), geoRef));
+		}
+		if ((indices.size() % 3) != 0) {
+			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+					"Error: The number of Triangles vertex indices (" + indices.size() + ") is not a multiple of 3");
 		}
 		return output;
 	}
@@ -354,5 +332,31 @@ public class Triangle {
 		final Vertex firstEdge = verts[0].delta(verts[1]);
 		final Vertex secondEdge = verts[1].delta(verts[2]);
 		return firstEdge.crossProduct(secondEdge);
+	}
+
+	/** Appends every (optionally negative) decimal integer found in the line. */
+	static void collectInts(final String line, final ArrayList<Integer> out) {
+		int i = 0;
+		final int n = line.length();
+		while (i < n) {
+			final char c = line.charAt(i);
+			if ((c >= '0' && c <= '9') || (c == '-' && i + 1 < n && Character.isDigit(line.charAt(i + 1)))) {
+				int j = i + 1;
+				while (j < n && Character.isDigit(line.charAt(j))) {
+					j++;
+				}
+				try {
+					out.add(Integer.parseInt(line.substring(i, j)));
+				}
+				catch (final NumberFormatException e) {
+					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+							"Error: Unable to interpret information in Triangles: " + line.substring(i, j));
+				}
+				i = j;
+			}
+			else {
+				i++;
+			}
+		}
 	}
 }
